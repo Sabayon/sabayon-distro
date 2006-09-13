@@ -1,0 +1,12 @@
+--- firegl_public.c.bak	2004-12-10 11:35:14.091477807 +0100
++++ firegl_public.c	2004-12-10 11:07:12.000000000 +0100
+@@ -32,6 +32,9 @@
+ // ============================================================
+ #include <linux/version.h>
+ #include <linux/autoconf.h>
++#ifdef CONFIG_SMP
++#define __SMP__
++#endif
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,71)
+ #define EXPORT_SYMTAB	1

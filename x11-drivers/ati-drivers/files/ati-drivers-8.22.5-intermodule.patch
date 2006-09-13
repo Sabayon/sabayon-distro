@@ -1,0 +1,19 @@
+--- firegl_public.c-orig	2006-02-23 14:54:16.386740016 -0600
++++ firegl_public.c	2006-02-23 14:56:38.054203288 -0600
+@@ -361,13 +361,15 @@
+ } firegl_drm_stub_info_t;
+ static firegl_drm_stub_info_t firegl_stub_info;
+ 
+-#if LINUX_VERSION_CODE < 0x020400
++#if LINUX_VERSION_CODE > 0x02060F
+ struct firegl_drm_stub_info_t *firegl_stub_pointer = NULL;
+ #define inter_module_put(x)
+ #define inter_module_unregister(x)
+ #define inter_module_get_request(x,y)   firegl_stub_pointer
+ #define inter_module_register(x,y,z)    do { firegl_stub_pointer = z; } while (0)
++#endif
+ /* This is a kludge for backward compatibility that is only useful in DRM(stub_open) */
++#if LINUX_VERSION_CODE < 0x020400
+ #define fops_put(fops)      MOD_DEC_USE_COUNT
+ #define fops_get(fops)      (fops); MOD_INC_USE_COUNT
+ #endif // LINUX_VERSION_CODE < 0x020400

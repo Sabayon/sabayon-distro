@@ -1,0 +1,12 @@
+diff -u --recursive slab-20060723/control-center/src/control-center.c slab-20060723-gentoo/control-center/src/control-center.c
+--- slab-20060723/control-center/src/control-center.c	2006-06-26 15:11:50.000000000 +0100
++++ slab-20060723-gentoo/control-center/src/control-center.c	2006-07-26 21:21:11.000000000 +0100
+@@ -140,7 +140,7 @@
+ 	}
+ 
+ 	AppShellData *app_data =
+-		appshelldata_new ("preferences.menu", NULL,
++		appshelldata_new ("settings.menu", NULL,
+ 				  CONTROL_CENTER_PREFIX,
+ 				  GTK_ICON_SIZE_DIALOG);
+ 	generate_categories (app_data);

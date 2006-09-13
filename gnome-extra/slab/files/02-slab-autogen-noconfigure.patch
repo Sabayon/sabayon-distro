@@ -1,0 +1,9 @@
+diff -ru slab-orig/autogen.sh slab/autogen.sh
+--- slab-orig/autogen.sh	2006-07-31 23:01:39.910532952 -0600
++++ slab/autogen.sh	2006-07-31 23:04:12.209380008 -0600
+@@ -23,4 +23,4 @@
+   exit 1
+ fi
+ 
+-REQUIRED_AUTOMAKE_VERSION=1.9 . gnome-autogen.sh
++REQUIRED_AUTOMAKE_VERSION=1.9 NOCONFIGURE=1 . gnome-autogen.sh

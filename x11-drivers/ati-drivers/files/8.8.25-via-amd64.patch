@@ -1,0 +1,37 @@
+--- agpgart_be.c 2005-01-18 15:02:14.639429632 +0100
++++ agpgart_be.c        2005-01-18 14:54:34.000000000 +0100
+@@ -6167,6 +6167,22 @@
+         "Via",
+         "Apollo P4M266",
+         via_generic_setup },
++
++ { PCI_DEVICE_ID_VIA_8380_0,
++                PCI_VENDOR_ID_VIA,
++                AMD_8151,
++                "AMD",
++                "On-CPU GART",
++                amd_8151_setup },
++
++        { PCI_DEVICE_ID_VIA_8385_0,
++                PCI_VENDOR_ID_VIA,
++                AMD_8151,
++                "AMD",
++                "On-CPU GART",
++                amd_8151_setup },
++
++
+     { 0,
+         PCI_VENDOR_ID_VIA,
+         VIA_GENERIC,
+--- agp.h       2005-01-18 15:02:14.644428872 +0100
++++ agp.h       2005-01-18 14:55:33.000000000 +0100
+@@ -202,6 +202,9 @@
+     #define SIS_GENERIC             _X(SIS_GENERIC)
+     #define AMD_GENERIC             _X(AMD_GENERIC)
+     #define AMD_IRONGATE            _X(AMD_IRONGATE)
++    #define PCI_DEVICE_ID_VIA_8380_0        0x0204
++    #define PCI_DEVICE_ID_VIA_8385_0        0x3188
++
+ //    #define AMD_IGD4                _X(AMD_IGD4)
+ //    #define AMD_IGD4_2P             _X(AMD_IGD4_2P)
+     #define AMD_761                 _X(AMD_761) 

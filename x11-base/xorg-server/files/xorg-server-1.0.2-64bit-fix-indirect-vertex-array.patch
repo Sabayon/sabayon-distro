@@ -1,0 +1,17 @@
+===================================================================
+RCS file: /cvs/mesa/Mesa/src/glx/x11/indirect_vertex_array.c,v
+rcsdiff: /cvs/mesa/Mesa/src/glx/x11/indirect_vertex_array.c,v: warning: Unknown phrases like `commitid ...;' are present.
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -r1.6 -r1.7
+--- ../Mesa-6.4.2/src/glx/x11/indirect_vertex_array.c	2005/08/19 18:53:26	1.6
++++ ../Mesa-6.4.2/src/glx/x11/indirect_vertex_array.c	2006/02/14 15:04:45	1.7
+@@ -530,7 +530,7 @@
+ emit_DrawArrays_header_old( __GLXcontext * gc,
+ 			    struct array_state_vector * arrays,
+ 			    size_t * elements_per_request,
+-			    size_t * total_requests,
++			    unsigned int * total_requests,
+ 			    GLenum mode, GLsizei count )
+ {
+     size_t command_size;

@@ -1,0 +1,17 @@
+--- industrial.xml	2003-06-17 22:25:56.000000000 +0100
++++ industrial.xml	2003-06-17 22:28:13.000000000 +0100
+@@ -180,12 +180,12 @@
+     <normal color="#000000" alpha="0.5"/>
+     <pos x="0" y="-52" height="52" width="100%" anchor="nw"/>
+   </item>
+-
++<!--
+   <item type="pixmap">
+     <normal file="xd2logo.png"/>
+     <pos x="100%" y="100%" anchor="se"/>
+   </item>
+-
++-->
+   <item type="rect">
+     <pos anchor="sw" x="20" y="-6" height="36" width="400"/>
+     <box orientation="horizontal" ypadding="0" spacing="4">

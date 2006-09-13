@@ -1,0 +1,23 @@
+--- build_mod.orig/firegl_public.c	2005-06-19 21:37:23.000000000 +0200
++++ build_mod/firegl_public.c	2005-06-19 21:22:49.000000000 +0200
+@@ -343,17 +343,17 @@
+ struct firegl_drm_stub_info_t *firegl_stub_pointer = NULL;
+ #define inter_module_put(x)
+ #define inter_module_unregister(x)
+-#define inter_module_get(x)             firegl_stub_pointer
++#define inter_module_get_request(x,y)             firegl_stub_pointer
+ #define inter_module_register(x,y,z)    do { firegl_stub_pointer = z; } while (0)
+ /* This is a kludge for backward compatibility that is only useful in DRM(stub_open) */
+ #define fops_put(fops)      MOD_DEC_USE_COUNT
+ #define fops_get(fops)      (fops); MOD_INC_USE_COUNT
+ #endif // LINUX_VERSION_CODE < 0x020400
+ 
+-#define DRM_MODULE_GET          (firegl_drm_stub_info_t *)inter_module_get("drm")
++#define DRM_MODULE_GET          (firegl_drm_stub_info_t *)inter_module_get_request("drm", "drm")
+ #define DRM_MODULE_PUT          inter_module_put("drm")
+ 
+-#define DRM_AGP_MODULE_GET      (drm_agp_t *)inter_module_get("drm_agp")
++#define DRM_AGP_MODULE_GET      (drm_agp_t *)inter_module_get_request("drm_agp","drm_agp")
+ #define DRM_AGP_MODULE_PUT      inter_module_put("drm_agp")
+ 
+ unsigned long ATI_API_CALL __ke_cpu_to_le32(unsigned long _u)

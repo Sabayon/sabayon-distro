@@ -1,0 +1,241 @@
+Index: configure.ac
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/configure.ac,v
+retrieving revision 1.157
+diff -u -r1.157 configure.ac
+--- configure.ac	30 Dec 2005 12:05:47 -0000	1.157
++++ configure.ac	6 Jan 2006 16:05:21 -0000
+@@ -1632,6 +1632,7 @@
+ Xprint/Makefile
+ Xprint/doc/Makefile
+ Xprint/pcl/Makefile
++Xprint/pcl-mono/Makefile
+ Xprint/raster/Makefile
+ Xprint/ps/Makefile
+ Xprint/etc/Makefile
+Index: Xprint/Makefile.am
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/Xprint/Makefile.am,v
+retrieving revision 1.6
+diff -u -r1.6 Makefile.am
+--- Xprint/Makefile.am	2 Dec 2005 06:02:38 -0000	1.6
++++ Xprint/Makefile.am	6 Jan 2006 16:05:22 -0000
+@@ -1,13 +1,17 @@
+-SUBDIRS = doc pcl raster ps etc
++SUBDIRS = doc pcl pcl-mono raster ps etc
+ 
+ bin_PROGRAMS = Xprt
+ 
+ Xprt_CFLAGS = @SERVER_DEFINES@ @DIX_CFLAGS@ @XPRINT_CFLAGS@ \
+-	-DPRINT_ONLY_SERVER -D_XP_PRINT_SERVER_  \
+-	-DXPRINTDIR=\"$(prefix)/X11/xserver\"  
++	-DXPRINT -DPRINT_ONLY_SERVER -D_XP_PRINT_SERVER_  \
++	-DXPRINTDIR=\"$(prefix)/lib/X11/xserver\"    \
++	-DXPRASTERDDX -DXPPCLDDX -DXPMONOPCLDDX -DXPPSDDX
+ 
+ Xprt_LDFLAGS = -L$(top_srcdir)
+-Xprt_LDADD = @XPRINT_LIBS@ pcl/libpcl.la raster/libraster.la
++Xprt_LDADD = @XPRINT_LIBS@ ps/libps.la raster/libraster.la  \
++	pcl/libpcl.la pcl-mono/libpcl.la  \
++	../mfb/libmfb.la ../mi/libmi.la  \
++	../cfb32/libcfb32.la ../cfb/libcfb.la ../Xext/libXext.la
+ 
+ miinitext-wrapper.c:
+ 	echo "#include \"$(top_srcdir)/mi/miinitext.c\"" >> $@
+Index: Xprint/ddxInit.c
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/Xprint/ddxInit.c,v
+retrieving revision 1.7
+diff -u -r1.7 ddxInit.c
+--- Xprint/ddxInit.c	3 Jul 2005 07:01:09 -0000	1.7
++++ Xprint/ddxInit.c	6 Jan 2006 16:05:22 -0000
+@@ -85,6 +85,11 @@
+ 
+     pScreenInfo->numPixmapFormats = 0; /* get them in PrinterInitOutput */
+     screenInfo.numVideoScreens = 0;
++    
++#ifdef PRINT_ONLY_SERVER
++    PrinterInitOutput(pScreenInfo, argc, argv);
++#endif
++
+ }
+ 
+ static void
+Index: Xprint/pcl/Makefile.am
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/Xprint/pcl/Makefile.am,v
+retrieving revision 1.3
+diff -u -r1.3 Makefile.am
+--- Xprint/pcl/Makefile.am	2 Dec 2005 06:02:38 -0000	1.3
++++ Xprint/pcl/Makefile.am	6 Jan 2006 16:05:22 -0000
+@@ -1,31 +1,6 @@
+ noinst_LTLIBRARIES = libpcl.la
+ 
+-INCLUDES = -I$(top_srcdir)/Xprint -I$(top_srcdir)/cfb -I$(top_srcdir)/mfb
++PCL_DRIVER = -DXP_PCL_COLOR
+ 
+-AM_CFLAGS = @SERVER_DEFINES@ @DIX_CFLAGS@ @XPRINT_CFLAGS@ \
+-	-D_XP_PRINT_SERVER_ -DPSZ=8
++include ../pcl/Makefile.am.inc
+ 
+-libpcl_la_SOURCES =		\
+-	PclArc.c		\
+-	PclArea.c		\
+-	PclAttr.c		\
+-	PclAttVal.c		\
+-	PclColor.c		\
+-	PclCursor.c		\
+-	PclDef.h		\
+-	PclFonts.c		\
+-	PclGC.c			\
+-	Pcl.h			\
+-	PclInit.c		\
+-	PclLine.c		\
+-	Pclmap.h		\
+-	PclMisc.c		\
+-	PclPixel.c		\
+-	PclPixmap.c		\
+-	PclPolygon.c		\
+-	PclPrint.c		\
+-	PclSFonts.c		\
+-	PclSFonts.h		\
+-	PclSpans.c		\
+-	PclText.c		\
+-	PclWindow.c
+Index: cfb/Makefile.am
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/cfb/Makefile.am,v
+retrieving revision 1.7
+diff -u -r1.7 Makefile.am
+--- cfb/Makefile.am	2 Dec 2005 06:02:39 -0000	1.7
++++ cfb/Makefile.am	6 Jan 2006 16:05:22 -0000
+@@ -9,7 +9,7 @@
+ 
+ libcfb_la_LIBADD = ../mfb/libmfb.la
+ 
+-AM_CFLAGS = -DPSZ=8 $(DIX_CFLAGS) @SERVER_DEFINES@ @MODULE_DEFINES@ @LOADER_DEFINES@
++AM_CFLAGS = -DPSZ=8 $(DIX_CFLAGS) $(PLATFORMDEFS) @SERVER_DEFINES@ @MODULE_DEFINES@ @LOADER_DEFINES@
+ 
+ INCLUDES = $(CFB_INCLUDES) -I$(top_srcdir)/hw/xfree86/os-support
+ 
+Index: cfb/Makefile.am.inc
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/cfb/Makefile.am.inc,v
+retrieving revision 1.2
+diff -u -r1.2 Makefile.am.inc
+--- cfb/Makefile.am.inc	21 Sep 2005 00:24:10 -0000	1.2
++++ cfb/Makefile.am.inc	6 Jan 2006 16:05:22 -0000
+@@ -138,3 +138,16 @@
+ cfbglrop8.c:
+ 	echo "#define GLYPHROP" > $@
+ 	echo "#include \"$(top_srcdir)/cfb/cfbglblt8.c\"" >> $@
++
++
++if XPRINT
++
++PLATFORMDEFS = -DXFREE86
++
++cfb8bit.c:   compiler.h
++
++compiler.h:
++	echo "#include \"$(top_srcdir)/hw/xfree86/common/compiler.h\"" >> $@
++
++endif
++
+Index: cfb16/Makefile.am
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/cfb16/Makefile.am,v
+retrieving revision 1.4
+diff -u -r1.4 Makefile.am
+--- cfb16/Makefile.am	2 Dec 2005 06:02:39 -0000	1.4
++++ cfb16/Makefile.am	6 Jan 2006 16:05:22 -0000
+@@ -6,4 +6,4 @@
+ 
+ INCLUDES = $(CFB_INCLUDES) -I$(top_srcdir)/hw/xfree86/os-support
+ 
+-AM_CFLAGS = -DPSZ=16 $(DIX_CFLAGS) @SERVER_DEFINES@ @MODULE_DEFINES@ @LOADER_DEFINES@
++AM_CFLAGS = -DPSZ=16 $(DIX_CFLAGS) $(PLATFORMDEFS) @SERVER_DEFINES@ @MODULE_DEFINES@ @LOADER_DEFINES@
+Index: cfb24/Makefile.am
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/cfb24/Makefile.am,v
+retrieving revision 1.4
+diff -u -r1.4 Makefile.am
+--- cfb24/Makefile.am	2 Dec 2005 06:02:39 -0000	1.4
++++ cfb24/Makefile.am	6 Jan 2006 16:05:22 -0000
+@@ -6,6 +6,6 @@
+ 
+ EXTRA_DIST = cfbrrop24.h
+ 
+-AM_CFLAGS = -DPSZ=24 $(DIX_CFLAGS) @SERVER_DEFINES@ @MODULE_DEFINES@ @LOADER_DEFINES@
++AM_CFLAGS = -DPSZ=24 $(DIX_CFLAGS) $(PLATFORMDEFS) @SERVER_DEFINES@ @MODULE_DEFINES@ @LOADER_DEFINES@
+ 
+ INCLUDES = $(CFB_INCLUDES) -I$(top_srcdir)/hw/xfree86/os-support
+Index: cfb32/Makefile.am
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/cfb32/Makefile.am,v
+retrieving revision 1.4
+diff -u -r1.4 Makefile.am
+--- cfb32/Makefile.am	2 Dec 2005 06:02:39 -0000	1.4
++++ cfb32/Makefile.am	6 Jan 2006 16:05:22 -0000
+@@ -6,4 +6,4 @@
+ 
+ INCLUDES = $(CFB_INCLUDES) $(DIX_CFLAGS) -I$(top_srcdir)/hw/xfree86/os-support
+ 
+-AM_CFLAGS = -DPSZ=32 @SERVER_DEFINES@ @MODULE_DEFINES@ @LOADER_DEFINES@
++AM_CFLAGS = -DPSZ=32  $(PLATFORMDEFS) @SERVER_DEFINES@ @MODULE_DEFINES@ @LOADER_DEFINES@
+Index: mi/miinitext.c
+===================================================================
+RCS file: /cvs/xorg/xserver/xorg/mi/miinitext.c,v
+retrieving revision 1.28
+diff -u -r1.28 miinitext.c
+--- mi/miinitext.c	29 Dec 2005 00:19:33 -0000	1.28
++++ mi/miinitext.c	6 Jan 2006 16:05:27 -0000
+@@ -250,7 +250,7 @@
+ #include <X11/extensions/lbxstr.h>
+ #endif
+ #ifdef XPRINT
+-#include "Print.h"
++#include <X11/extensions/Print.h>
+ #endif
+ #ifdef XAPPGROUP
+ #define _XAG_SERVER_
+--- Xprint/pcl-mono/Makefile.am	2006/04/13 22:11:44	1.1
++++ Xprint/pcl-mono/Makefile.am	2006/04/13 22:11:49
+@@ -0,0 +1,5 @@
++noinst_LTLIBRARIES = libpcl.la
++
++PCL_DRIVER = -DXP_PCL_MONO
++
++include ../pcl/Makefile.am.inc
+--- Xprint/pcl/Makefile.am.inc	2006/04/13 22:11:44     1.1
++++ Xprint/pcl/Makefile.am.inc	2006/04/13 22:11:49
+@@ -0,0 +1,29 @@
++INCLUDES = -I$(top_srcdir)/Xprint -I$(top_srcdir)/cfb -I$(top_srcdir)/mfb
++ 
++AM_CFLAGS = @SERVER_DEFINES@ @DIX_CFLAGS@ @XPRINT_CFLAGS@ \
++	-D_XP_PRINT_SERVER_ -DPSZ=8 $(PCL_DRIVER)
++ 
++libpcl_la_SOURCES =		\
++	$(srcdir)/../pcl/PclArc.c	\
++	$(srcdir)/../pcl/PclArea.c	\
++	$(srcdir)/../pcl/PclAttr.c	\
++	$(srcdir)/../pcl/PclAttVal.c	\
++	$(srcdir)/../pcl/PclColor.c	\
++	$(srcdir)/../pcl/PclCursor.c	\
++	$(srcdir)/../pcl/PclDef.h	\
++	$(srcdir)/../pcl/PclFonts.c	\
++	$(srcdir)/../pcl/PclGC.c	\
++	$(srcdir)/../pcl/Pcl.h		\
++	$(srcdir)/../pcl/PclInit.c	\
++	$(srcdir)/../pcl/PclLine.c	\
++	$(srcdir)/../pcl/Pclmap.h	\
++	$(srcdir)/../pcl/PclMisc.c	\
++	$(srcdir)/../pcl/PclPixel.c	\
++	$(srcdir)/../pcl/PclPixmap.c	\
++	$(srcdir)/../pcl/PclPolygon.c	\
++	$(srcdir)/../pcl/PclPrint.c	\
++	$(srcdir)/../pcl/PclSFonts.c	\
++	$(srcdir)/../pcl/PclSFonts.h	\
++	$(srcdir)/../pcl/PclSpans.c	\
++	$(srcdir)/../pcl/PclText.c	\
++	$(srcdir)/../pcl/PclWindow.c

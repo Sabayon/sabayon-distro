@@ -1,0 +1,12 @@
+--- fglrx.orig/build_mod/firegl_public.c	2005-12-05 15:47:41.000000000 +0000
++++ fglrx/build_mod/firegl_public.c	2005-12-05 17:18:12.000000000 +0000
+@@ -2586,7 +2586,7 @@ static __inline__ vm_nopage_ret_t do_vm_
+ 
+     pMmPage = virt_to_page(kaddr);
+ 
+-#if 0
++#if LINUX_VERSION_CODE >= 0x02060f
+     // WARNING WARNINIG WARNNING WARNNING WARNNING WARNNING WARNNING WARNNING
+     // Don't increment page usage count, cause ctx pages are allocated
+     // with drm_alloc_pages, which marks all pages as reserved. Reserved
+-

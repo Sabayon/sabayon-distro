@@ -1,0 +1,53 @@
+AUX CVE-2006-1526-xrender-mitri.patch 819 RMD160 ab993ffd54ec143755f00a2cfc526253fdb7230b SHA1 fe760840ec4d6023f713f9b79b745c7822a37828 SHA256 1558fcaf5f1f6050c6a38023bc4effd8802320c2c6b3c146f19ceb8beb2d367b
+MD5 c51e1f359e9008bd496173a013866343 files/CVE-2006-1526-xrender-mitri.patch 819
+RMD160 ab993ffd54ec143755f00a2cfc526253fdb7230b files/CVE-2006-1526-xrender-mitri.patch 819
+SHA256 1558fcaf5f1f6050c6a38023bc4effd8802320c2c6b3c146f19ceb8beb2d367b files/CVE-2006-1526-xrender-mitri.patch 819
+AUX x11r7.0-setuid.diff 3513 RMD160 a6b7b95e54b748ad2d1892395927a9c681e940ea SHA1 1f46fd5e5938682885c44025a0883a5181859cdc SHA256 8305e689358d5a92c1fae74f520a044677d468d6a617afddc5013af7b37c5db6
+MD5 0411ec21c16bdabd945159476b1c796a files/x11r7.0-setuid.diff 3513
+RMD160 a6b7b95e54b748ad2d1892395927a9c681e940ea files/x11r7.0-setuid.diff 3513
+SHA256 8305e689358d5a92c1fae74f520a044677d468d6a617afddc5013af7b37c5db6 files/x11r7.0-setuid.diff 3513
+AUX xorg-server-1.0.2-64bit-fix-for-glx.patch 414 RMD160 17732b6ebe06e1533ce8f9b97e6ca8d7e4347a88 SHA1 3464a0f714810d36da11424103550e604f93b22f SHA256 1b2337fa0438c72fc8a17d710133f79ed17d49650efd9bc530bbb97b116427c4
+MD5 900d8194df467de2c86276d446522062 files/xorg-server-1.0.2-64bit-fix-for-glx.patch 414
+RMD160 17732b6ebe06e1533ce8f9b97e6ca8d7e4347a88 files/xorg-server-1.0.2-64bit-fix-for-glx.patch 414
+SHA256 1b2337fa0438c72fc8a17d710133f79ed17d49650efd9bc530bbb97b116427c4 files/xorg-server-1.0.2-64bit-fix-for-glx.patch 414
+AUX xorg-server-1.0.2-64bit-fix-have-dix-config.patch 663 RMD160 ce0868d46d92431db41d474a77fea184f6a61682 SHA1 08db11a8a841415496f5ff8ef8a21b1425d392cd SHA256 3535e137595623f7f5f23b0a8ee8b52d4d5acf7b6dfb534dff5f537e68603c6b
+MD5 1b8b160cdbeaf3a2994f50e83d9fa8d7 files/xorg-server-1.0.2-64bit-fix-have-dix-config.patch 663
+RMD160 ce0868d46d92431db41d474a77fea184f6a61682 files/xorg-server-1.0.2-64bit-fix-have-dix-config.patch 663
+SHA256 3535e137595623f7f5f23b0a8ee8b52d4d5acf7b6dfb534dff5f537e68603c6b files/xorg-server-1.0.2-64bit-fix-have-dix-config.patch 663
+AUX xorg-server-1.0.2-64bit-fix-indirect-vertex-array.patch 766 RMD160 595ccef38810f2ec5056999ba1f5ce8f22b29bd0 SHA1 49def422c5b5189dde7581ac295aac1f510bc14d SHA256 1bceddffeacbf67202b2aff6dba27234746b37004a186415560a4cd8896458f1
+MD5 8fa71f7fa2e17a2ccd41532909b153a8 files/xorg-server-1.0.2-64bit-fix-indirect-vertex-array.patch 766
+RMD160 595ccef38810f2ec5056999ba1f5ce8f22b29bd0 files/xorg-server-1.0.2-64bit-fix-indirect-vertex-array.patch 766
+SHA256 1bceddffeacbf67202b2aff6dba27234746b37004a186415560a4cd8896458f1 files/xorg-server-1.0.2-64bit-fix-indirect-vertex-array.patch 766
+AUX xorg-server-1.0.2-Sbus.patch 2388 RMD160 f9757cbfed84e0e873f706e7a33ac04216b7dd72 SHA1 b2f5ca6d167d885282a44cdf700ac51043a92043 SHA256 5e3255a38216599ddd7e3b108eb96c53a9c1d595ceee80ac3c698e1d0af7811e
+MD5 912a66d58d73ad9c95c1c7d40c71f679 files/xorg-server-1.0.2-Sbus.patch 2388
+RMD160 f9757cbfed84e0e873f706e7a33ac04216b7dd72 files/xorg-server-1.0.2-Sbus.patch 2388
+SHA256 5e3255a38216599ddd7e3b108eb96c53a9c1d595ceee80ac3c698e1d0af7811e files/xorg-server-1.0.2-Sbus.patch 2388
+AUX xorg-server-1.0.2-Xprt-build.patch 7747 RMD160 ab0e209f517f7e501f473cf8043c8224f0307366 SHA1 2da85693520d1f787d4ee9e3bd52f14261adee9b SHA256 06f275c528e1decac56245c3ad50638fec5fdfe765040c02d3218c1c99210c73
+MD5 fb7fc524e87b10dd3cb506c3398741cf files/xorg-server-1.0.2-Xprt-build.patch 7747
+RMD160 ab0e209f517f7e501f473cf8043c8224f0307366 files/xorg-server-1.0.2-Xprt-build.patch 7747
+SHA256 06f275c528e1decac56245c3ad50638fec5fdfe765040c02d3218c1c99210c73 files/xorg-server-1.0.2-Xprt-build.patch 7747
+AUX xorg-server-1.0.2-sparc64-cfbrrop-fix.patch 1062 RMD160 ba444145faf16e3bf4e31e07053df064bc07be7f SHA1 957e201d1095ef4cc4ec1c87736897d37c0103d7 SHA256 220bafc2023ef45413713d9463c4f593c5bc390a3bba009b0a20989fd8d3b05b
+MD5 39d2b9cdc89d0882a414d621cb496982 files/xorg-server-1.0.2-sparc64-cfbrrop-fix.patch 1062
+RMD160 ba444145faf16e3bf4e31e07053df064bc07be7f files/xorg-server-1.0.2-sparc64-cfbrrop-fix.patch 1062
+SHA256 220bafc2023ef45413713d9463c4f593c5bc390a3bba009b0a20989fd8d3b05b files/xorg-server-1.0.2-sparc64-cfbrrop-fix.patch 1062
+AUX xorg-server-1.0.2-xprint-init.patch 417 RMD160 e29f58581c421724adf09f1df3e991092f89a017 SHA1 7d2a4eb212cc770cc22a496df2696a0bca1f7774 SHA256 89c8e2253b374b2152908dd4514a19ff302b753d6a7c8be272999ad192edc905
+MD5 5106c724275e86950e5f4c88913198a1 files/xorg-server-1.0.2-xprint-init.patch 417
+RMD160 e29f58581c421724adf09f1df3e991092f89a017 files/xorg-server-1.0.2-xprint-init.patch 417
+SHA256 89c8e2253b374b2152908dd4514a19ff302b753d6a7c8be272999ad192edc905 files/xorg-server-1.0.2-xprint-init.patch 417
+AUX xorg-server-1.1.0-setuid.diff 3373 RMD160 5d9c1e6696ed5eaa9de9425633c0bfee493e6973 SHA1 256aa1ef94425f461c97a6e42b282aaf401fcd14 SHA256 af678fea5e624eb20a232b3db1a0f168085b780d8e627739fd8d088f033c2fd9
+MD5 d806558d64462780cbd1512ab6dc4dd7 files/xorg-server-1.1.0-setuid.diff 3373
+RMD160 5d9c1e6696ed5eaa9de9425633c0bfee493e6973 files/xorg-server-1.1.0-setuid.diff 3373
+SHA256 af678fea5e624eb20a232b3db1a0f168085b780d8e627739fd8d088f033c2fd9 files/xorg-server-1.1.0-setuid.diff 3373
+AUX xprint.init 598 RMD160 85de6a023912d8ac40cba4f32b5559655e0e281e SHA1 1590a29e11f813bb1353b4cc815708e97bfbb96b SHA256 9474c19d125d9534b93c038cba7c4bdc7c45bf3ed51279ff2e130fe031a15c13
+MD5 9bf4e36931c99f405aa6766ff5614e51 files/xprint.init 598
+RMD160 85de6a023912d8ac40cba4f32b5559655e0e281e files/xprint.init 598
+SHA256 9474c19d125d9534b93c038cba7c4bdc7c45bf3ed51279ff2e130fe031a15c13 files/xprint.init 598
+DIST MesaLib-6.5.tar.bz2 3062363 RMD160 6006bfdfed8a2425059c31ee699b5aca4d5f57cd SHA1 a77368901b0731b662d0858aef2c405a7ddf6014 SHA256 dcacf4c18af89b57e66dc7ba39e24c3b74ff6f83b8745bcc1390170a4190eebd
+DIST xorg-server-1.1.1.tar.bz2 6252103 RMD160 17675c45b1e6ec8ed025f73efcf481c60ff42941 SHA1 eb29dd4fea9f184321cbb5512f68b674ada4daf7 SHA256 9d2df9eaced491dfe14f3ebccb15035ff8f2bc2b12f1124974adea90642dfd6c
+EBUILD xorg-server-1.1.1-r3.ebuild 23972 RMD160 d177d35f822f6b698bdc56803389d3d74b018e7f SHA1 3526a56cc56bed81001a43d099fc1bbbf3d5d353 SHA256 3fe0a9cd49c68f43e585723e8a3c1b140eadc010d6c459a67c5a21dfca58f35c
+MD5 1b533d5d79d4b1a96ce6d6f67274f32f xorg-server-1.1.1-r3.ebuild 23972
+RMD160 d177d35f822f6b698bdc56803389d3d74b018e7f xorg-server-1.1.1-r3.ebuild 23972
+SHA256 3fe0a9cd49c68f43e585723e8a3c1b140eadc010d6c459a67c5a21dfca58f35c xorg-server-1.1.1-r3.ebuild 23972
+MD5 5bbe7de7ebbf30c9991b3fd800b1f219 files/digest-xorg-server-1.1.1-r3 500
+RMD160 0a5b1d758ab4077ac728b7ec6cc7f06fb49ce273 files/digest-xorg-server-1.1.1-r3 500
+SHA256 1bea059c9ffe1dee3634293efe79b0a429d52ca18eda558e2e7b9e0605b0504a files/digest-xorg-server-1.1.1-r3 500

@@ -1,0 +1,450 @@
+diff -Naur qt-x11-free-3.3.5.orig/include/qglobal.h qt-x11-free-3.3.5/include/qglobal.h
+--- qt-x11-free-3.3.5.orig/include/qglobal.h	2005-09-02 08:42:53.000000000 -0400
++++ qt-x11-free-3.3.5/include/qglobal.h	2005-10-09 00:33:23.000000000 -0400
+@@ -79,6 +79,10 @@
+      UNIX	- Any UNIX BSD/SYSV system
+ */
+ 
++#ifndef __DARWIN_X11__
++#define __DARWIN_X11__
++#endif
++
+ #if defined(__DARWIN_X11__)
+ #  define Q_OS_DARWIN
+ #elif defined(__APPLE__) && (defined(__GNUC__) || defined(__xlC__))
+@@ -545,6 +549,8 @@
+ 
+ #if defined(Q_OS_MAC9)
+ #  define Q_WS_MAC9
++#elif defined(__DARWIN_X11__)
++#  define Q_WS_X11
+ #elif defined(Q_OS_MSDOS)
+ #  define Q_WS_WIN16
+ #  error "Qt requires Win32 and does not work with Windows 3.x"
+diff -Naur qt-x11-free-3.3.5.orig/mkspecs/darwin-g++/qmake.conf qt-x11-free-3.3.5/mkspecs/darwin-g++/qmake.conf
+--- qt-x11-free-3.3.5.orig/mkspecs/darwin-g++/qmake.conf	2005-10-09 00:19:04.000000000 -0400
++++ qt-x11-free-3.3.5/mkspecs/darwin-g++/qmake.conf	2005-10-09 00:33:23.000000000 -0400
+@@ -9,7 +9,7 @@
+ MAKEFILE_GENERATOR	= UNIX
+ TEMPLATE		= app
+ CONFIG			+= qt warn_on release native_precompiled_headers
+-CONFIG			+= qt warn_on release link_prl
++CONFIG			+= qt warn_on release link_prl lib_version_first
+ DEFINES                 += __DARWIN_X11__
+ 
+ QMAKE_CC		= cc
+@@ -17,7 +17,7 @@
+ QMAKE_LEXFLAGS		= 
+ QMAKE_YACC		= yacc
+ QMAKE_YACCFLAGS		= -d
+-QMAKE_CFLAGS		= -pipe
++QMAKE_CFLAGS		= -pipe -fno-common -fPIC
+ QMAKE_CFLAGS_DEPS	= -M
+ QMAKE_CFLAGS_WARN_ON	= -Wall -W
+ QMAKE_CFLAGS_WARN_OFF	= -w
+@@ -40,8 +40,8 @@
+ QMAKE_CXXFLAGS_YACC	= $$QMAKE_CFLAGS_YACC
+ QMAKE_CXXFLAGS_THREAD	=
+ 
+-QMAKE_INCDIR		= /usr/local/include
+-QMAKE_LIBDIR		=
++QMAKE_INCDIR		= /usr/include
++QMAKE_LIBDIR		= /usr/qt/3/lib
+ QMAKE_INCDIR_X11	= /usr/X11R6/include
+ QMAKE_LIBDIR_X11	= /usr/X11R6/lib
+ QMAKE_INCDIR_QT		= $(QTDIR)/include
+@@ -55,7 +55,7 @@
+ QMAKE_LFLAGS_RELEASE=
+ QMAKE_LFLAGS_DEBUG	=
+ QMAKE_LFLAGS_APP        = -prebind
+-QMAKE_LFLAGS_SHLIB	= -prebind -dynamiclib -single_module -headerpad_max_install_names
++QMAKE_LFLAGS_SHLIB	= -prebind -dynamiclib -single_module -headerpad_max_install_names -install_name $$QMAKE_LIBDIR/$(TARGET1)
+ QMAKE_LFLAGS_PLUGIN	= -bundle
+ QMAKE_LFLAGS_THREAD	= 
+ 
+@@ -64,7 +64,7 @@
+ 
+ QMAKE_RPATH =
+ 
+-QMAKE_LIBS_DYNLOAD	=
++QMAKE_LIBS_DYNLOAD	= -ldl
+ QMAKE_LIBS_X11		= -lXext -lX11 -lm
+ QMAKE_LIBS_X11SM	= -lSM -lICE
+ QMAKE_LIBS_QT		= -lqt
+@@ -76,7 +76,7 @@
+ QMAKE_MOC		= $(QTDIR)/bin/moc
+ QMAKE_UIC		= $(QTDIR)/bin/uic
+ 
+-QMAKE_AR		= ar cq
++QMAKE_AR		= ar -cq
+ QMAKE_RANLIB		= ranlib -s
+ 
+ QMAKE_TAR		= tar -cf
+diff -Naur qt-x11-free-3.3.5.orig/qmake/Makefile.unix qt-x11-free-3.3.5/qmake/Makefile.unix
+--- qt-x11-free-3.3.5.orig/qmake/Makefile.unix	2004-09-13 14:24:42.000000000 -0400
++++ qt-x11-free-3.3.5/qmake/Makefile.unix	2005-10-09 00:33:23.000000000 -0400
+@@ -36,8 +36,8 @@
+ 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
+ 	-I@BUILD_PATH@/include/qmake -I@BUILD_PATH@/include -I@SOURCE_PATH@/include \
+ 	-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_STL \
+-	-DQT_NO_COMPRESS -I@QMAKESPEC@ -DHAVE_QCONFIG_CPP
+-LFLAGS=@QMAKE_LFLAGS@
++	-DQT_NO_COMPRESS -I@QMAKESPEC@ -DHAVE_QCONFIG_CPP -mdynamic-no-pic
++LFLAGS=@QMAKE_LFLAGS@ -mdynamic-no-pic
+ 
+ qmake: $(OBJS) $(QOBJS)
+ 	$(CXX) -o $@ $(OBJS) $(QOBJS) $(LFLAGS)
+diff -Naur qt-x11-free-3.3.5.orig/qmake/main.cpp qt-x11-free-3.3.5/qmake/main.cpp
+--- qt-x11-free-3.3.5.orig/qmake/main.cpp	2005-09-02 08:43:19.000000000 -0400
++++ qt-x11-free-3.3.5/qmake/main.cpp	2005-10-09 00:33:23.000000000 -0400
+@@ -49,7 +49,7 @@
+ 
+ // for Borland, main is defined to qMain which breaks qmake
+ #undef main
+-#ifdef Q_OS_MAC
++#if defined(Q_OS_MAC) || defined(Q_OS_DARWIN)
+ // for qurl
+ bool qt_resolve_symlinks = FALSE;
+ #endif
+diff -Naur qt-x11-free-3.3.5.orig/src/kernel/qprocess_unix.cpp qt-x11-free-3.3.5/src/kernel/qprocess_unix.cpp
+--- qt-x11-free-3.3.5.orig/src/kernel/qprocess_unix.cpp	2005-09-02 08:43:01.000000000 -0400
++++ qt-x11-free-3.3.5/src/kernel/qprocess_unix.cpp	2005-10-09 00:33:23.000000000 -0400
+@@ -761,7 +761,7 @@
+ #endif
+ 	i++;
+     }
+-#ifdef Q_OS_MACX
++#if defined(Q_OS_MACX) || defined(Q_OS_DARWIN)
+     if(i) {
+ 	QCString arg_bundle = arglistQ[0];
+ 	QFileInfo fi(arg_bundle);
+@@ -826,7 +826,7 @@
+ 	} else { // start process with environment settins as specified in env
+ 	    // construct the environment for exec
+ 	    int numEntries = env->count();
+-#if defined(Q_OS_MACX)
++#if defined(Q_OS_MACX) || defined(Q_OS_DARWIN)
+ 	    QString ld_library_path("DYLD_LIBRARY_PATH");
+ #else
+ 	    QString ld_library_path("LD_LIBRARY_PATH");
+@@ -858,7 +858,7 @@
+ 		    QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
+ 		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
+ 			QString dir = *it;
+-#if defined(Q_OS_MACX) //look in a bundle
++#if defined(Q_OS_MACX) || defined(Q_OS_DARWIN) //look in a bundle
+ 			if(!QFile::exists(dir + "/" + command) && QFile::exists(dir + "/" + command + ".app"))
+ 			    dir += "/" + command + ".app/Contents/MacOS";
+ #endif
+@@ -868,7 +868,7 @@
+ 			QFileInfo fileInfo( dir + "/" + command );
+ #endif
+ 			if ( fileInfo.isExecutable() ) {
+-#if defined(Q_OS_MACX)
++#if defined(Q_OS_MACX) || defined(Q_OS_DARWIN)
+ 			    arglistQ[0] = fileInfo.absFilePath().local8Bit();
+ #else
+ 			    arglistQ[0] = fileInfo.filePath().local8Bit();
+diff -Naur qt-x11-free-3.3.5.orig/src/moc/moc.pro qt-x11-free-3.3.5/src/moc/moc.pro
+--- qt-x11-free-3.3.5.orig/src/moc/moc.pro	2003-10-31 09:36:28.000000000 -0500
++++ qt-x11-free-3.3.5/src/moc/moc.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -48,6 +48,8 @@
+ unix:SOURCES	+= ../tools/qfile_unix.cpp ../tools/qdir_unix.cpp ../tools/qfileinfo_unix.cpp
+ win32:SOURCES	+= ../tools/qfile_win.cpp ../tools/qdir_win.cpp ../tools/qfileinfo_win.cpp
+ macx:LIBS	+= -framework Carbon
++CFLAGS += -mdynamic-no-pic
++CXXFLAGS += -mdynamic-no-pic
+ 
+ target.path=$$bins.path
+ INSTALLS += target
+diff -Naur qt-x11-free-3.3.5.orig/src/network/qsocketdevice_unix.cpp qt-x11-free-3.3.5/src/network/qsocketdevice_unix.cpp
+--- qt-x11-free-3.3.5.orig/src/network/qsocketdevice_unix.cpp	2005-09-02 08:42:59.000000000 -0400
++++ qt-x11-free-3.3.5/src/network/qsocketdevice_unix.cpp	2005-10-09 00:33:23.000000000 -0400
+@@ -44,7 +44,7 @@
+ 
+ // Tru64 redefines accept -> _accept with _XOPEN_SOURCE_EXTENDED
+ static inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
+-{ return ::accept(s, addr, addrlen); }
++{ return ::accept(s, addr, (socklen_t *)addrlen); }
+ #if defined(accept)
+ # undef accept
+ #endif
+@@ -140,7 +140,7 @@
+ 	    }
+ 	}
+ #else
+-	if ( !::getsockname(fd, &sa, &sz) ) {
++	if ( !::getsockname(fd, &sa, (socklen_t *)&sz) ) {
+ 	    switch ( sa.sa_family ) {
+ 		case AF_INET:
+ 		    return IPv4;
+@@ -324,7 +324,7 @@
+     if ( n != -1 ) {
+ 	QT_SOCKOPTLEN_T len;
+ 	len = sizeof(v);
+-	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, &len );
++	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, (socklen_t *)&len );
+ 	if ( r >= 0 )
+ 	    return v;
+ 	if ( !e ) {
+@@ -787,7 +787,7 @@
+ 	    QT_SOCKLEN_T sz;
+ 	    sz = sizeof( aa );
+ 	    r = ::recvfrom( fd, data, maxlen, 0,
+-			    (struct sockaddr *)&aa, &sz );
++			    (struct sockaddr *)&aa, (socklen_t *)&sz );
+ 
+ 	    qt_socket_getportaddr( (struct sockaddr *)&aa, &pp, &pa);
+ 
+@@ -1057,11 +1057,11 @@
+     memset( &sa, 0, sizeof(sa) );
+     QT_SOCKLEN_T sz;
+     sz = sizeof( sa );
+-    if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) )
++    if ( !::getsockname( fd, (struct sockaddr *)(&sa), (socklen_t *)&sz ) )
+ 	qt_socket_getportaddr( (struct sockaddr *)&sa, &p, &a );
+ 
+     sz = sizeof( sa );
+-    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) )
++    if ( !::getpeername( fd, (struct sockaddr *)(&sa), (socklen_t *)&sz ) )
+ 	qt_socket_getportaddr( (struct sockaddr *)&sa, &pp, &pa );
+ }
+ 
+diff -Naur qt-x11-free-3.3.5.orig/src/qt.pro qt-x11-free-3.3.5/src/qt.pro
+--- qt-x11-free-3.3.5.orig/src/qt.pro	2005-03-18 10:38:19.000000000 -0500
++++ qt-x11-free-3.3.5/src/qt.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -191,3 +191,4 @@
+ 		   $$CODECS_CPP/qtextcodecplugin.cpp \
+ 		   $$WIDGETS_CPP/qwidgetplugin.cpp 
+ }
++QMAKE_LFLAGS_SHLIB += -single_module
+diff -Naur qt-x11-free-3.3.5.orig/src/qtmain.pro qt-x11-free-3.3.5/src/qtmain.pro
+--- qt-x11-free-3.3.5.orig/src/qtmain.pro	2003-10-31 09:36:28.000000000 -0500
++++ qt-x11-free-3.3.5/src/qtmain.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -2,6 +2,7 @@
+ TEMPLATE = lib
+ TARGET	 = qtmain
+ VERSION	 = 3.1.0
++COMPATIBILITY_VERSION = 3.0.0 
+ DESTDIR	 = $$QMAKE_LIBDIR_QT
+ 
+ CONFIG	+= qt staticlib warn_on release
+diff -Naur qt-x11-free-3.3.5.orig/src/tools/qdir_unix.cpp qt-x11-free-3.3.5/src/tools/qdir_unix.cpp
+--- qt-x11-free-3.3.5.orig/src/tools/qdir_unix.cpp	2005-09-02 08:42:54.000000000 -0400
++++ qt-x11-free-3.3.5/src/tools/qdir_unix.cpp	2005-10-09 00:33:23.000000000 -0400
+@@ -88,7 +88,7 @@
+ 
+ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
+ {
+-#if defined(Q_OS_MACX)  // Mac X doesn't support trailing /'s
++#if defined(Q_OS_MACX) || defined(Q_OS_DARWIN) // Mac X doesn't support trailing /'s
+     QString name = dirName;
+     if (dirName[dirName.length() - 1] == "/")
+ 	name = dirName.left( dirName.length() - 1 );
+diff -Naur qt-x11-free-3.3.5.orig/src/tools/qglobal.h qt-x11-free-3.3.5/src/tools/qglobal.h
+--- qt-x11-free-3.3.5.orig/src/tools/qglobal.h	2005-09-02 08:42:53.000000000 -0400
++++ qt-x11-free-3.3.5/src/tools/qglobal.h	2005-10-09 00:33:23.000000000 -0400
+@@ -79,6 +79,10 @@
+      UNIX	- Any UNIX BSD/SYSV system
+ */
+ 
++#ifndef __DARWIN_X11__
++#define __DARWIN_X11__
++#endif
++
+ #if defined(__DARWIN_X11__)
+ #  define Q_OS_DARWIN
+ #elif defined(__APPLE__) && (defined(__GNUC__) || defined(__xlC__))
+@@ -545,6 +549,8 @@
+ 
+ #if defined(Q_OS_MAC9)
+ #  define Q_WS_MAC9
++#elif defined(__DARWIN_X11__)
++#  define Q_WS_X11
+ #elif defined(Q_OS_MSDOS)
+ #  define Q_WS_WIN16
+ #  error "Qt requires Win32 and does not work with Windows 3.x"
+diff -Naur qt-x11-free-3.3.5.orig/src/tools/qgpluginmanager.cpp qt-x11-free-3.3.5/src/tools/qgpluginmanager.cpp
+--- qt-x11-free-3.3.5.orig/src/tools/qgpluginmanager.cpp	2005-09-02 08:42:53.000000000 -0400
++++ qt-x11-free-3.3.5/src/tools/qgpluginmanager.cpp	2005-10-09 00:33:23.000000000 -0400
+@@ -316,7 +316,7 @@
+ 
+ #if defined(Q_OS_WIN32)
+     QString filter = "*.dll";
+-#elif defined(Q_OS_MACX)
++#elif defined(Q_OS_MACX) || defined(Q_OS_DARWIN)
+     QString filter = "*.dylib; *.so; *.bundle";
+ #elif defined(Q_OS_HPUX)
+     QString filter = "*.sl";
+diff -Naur qt-x11-free-3.3.5.orig/src/tools/qlibrary.cpp qt-x11-free-3.3.5/src/tools/qlibrary.cpp
+--- qt-x11-free-3.3.5.orig/src/tools/qlibrary.cpp	2005-09-02 08:42:53.000000000 -0400
++++ qt-x11-free-3.3.5/src/tools/qlibrary.cpp	2005-10-09 00:33:23.000000000 -0400
+@@ -400,7 +400,7 @@
+ 	filename += ".dll";
+ #else
+     QStringList filters = "";
+-#ifdef Q_OS_MACX
++#if defined(Q_OS_MACX) || defined(Q_OS_DARWIN)
+     filters << ".so";
+     filters << ".bundle";
+     filters << ".dylib"; //the last one is also the default one..
+diff -Naur qt-x11-free-3.3.5.orig/src/tools/qmutex_unix.cpp qt-x11-free-3.3.5/src/tools/qmutex_unix.cpp
+--- qt-x11-free-3.3.5.orig/src/tools/qmutex_unix.cpp	2005-09-02 08:42:53.000000000 -0400
++++ qt-x11-free-3.3.5/src/tools/qmutex_unix.cpp	2005-10-09 00:33:23.000000000 -0400
+@@ -44,7 +44,7 @@
+ // POSIX threads mutex types
+ #if ((defined(PTHREAD_MUTEX_RECURSIVE) && defined(PTHREAD_MUTEX_DEFAULT)) || \
+      defined(Q_OS_FREEBSD)) && !defined(Q_OS_UNIXWARE) && !defined(Q_OS_SOLARIS) && \
+-    !defined(Q_OS_MAC)
++    !defined(Q_OS_MAC) && !defined(Q_OS_DARWIN)
+ // POSIX 1003.1c-1995 - We love this OS
+ #  define Q_MUTEX_SET_TYPE(a, b) pthread_mutexattr_settype((a), (b))
+ #  if defined(QT_CHECK_RANGE)
+diff -Naur qt-x11-free-3.3.5.orig/src/tools/qstring.cpp qt-x11-free-3.3.5/src/tools/qstring.cpp
+--- qt-x11-free-3.3.5.orig/src/tools/qstring.cpp	2005-09-02 08:42:54.000000000 -0400
++++ qt-x11-free-3.3.5/src/tools/qstring.cpp	2005-10-09 00:33:23.000000000 -0400
+@@ -1362,7 +1362,7 @@
+ QStringData* QString::makeSharedNull()
+ {
+     QString::shared_null = new QStringData;
+-#if defined( Q_OS_MAC ) || defined(Q_OS_SOLARIS) || defined(Q_OS_HPUX) || defined(Q_OS_AIX)
++#if defined(Q_OS_MAC) || defined(Q_OS_DARWIN) || defined(Q_OS_SOLARIS) || defined(Q_OS_HPUX) || defined(Q_OS_AIX)
+     QString *that = const_cast<QString *>(&QString::null);
+     that->d = QString::shared_null;
+ #endif
+@@ -2923,7 +2923,7 @@
+     if (!l)
+ 	return -1;
+ 
+-#if defined(Q_OS_MACX) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION >= 0x1020
++#if defined(Q_OS_MACX) && ((defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION >= 0x1020) || defined(Q_OS_DARWIN))
+     if ( sl == 1 )
+ 	return find( *str.unicode(), index, cs );
+ #endif
+@@ -3022,7 +3022,7 @@
+ 
+ int QString::findRev( QChar c, int index, bool cs ) const
+ {
+-#if defined(Q_OS_MACX) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
++#if defined(Q_OS_MACX) && ((defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020) || defined(Q_OS_DARWIN))
+     return findRev( QString( c ), index, cs );
+ #else
+     const uint l = length();
+@@ -3078,7 +3078,7 @@
+     if ( index > delta )
+ 	index = delta;
+ 
+-#if defined(Q_OS_MACX) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION >= 0x1020
++#if defined(Q_OS_MACX) && ((defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION >= 0x1020) || defined(Q_OS_DARWIN))
+     if ( sl == 1 )
+ 	return findRev( *str.unicode(), index, cs );
+ #endif
+diff -Naur qt-x11-free-3.3.5.orig/tools/assistant/assistant.pro qt-x11-free-3.3.5/tools/assistant/assistant.pro
+--- qt-x11-free-3.3.5.orig/tools/assistant/assistant.pro	2003-11-17 07:40:25.000000000 -0500
++++ qt-x11-free-3.3.5/tools/assistant/assistant.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -32,6 +32,8 @@
+ 
+ win32:RC_FILE = assistant.rc
+ mac:RC_FILE = assistant.icns
++CFLAGS += -mdynamic-no-pic
++CXXFLAGS += -mdynamic-no-pic
+ 
+ target.path = $$bins.path
+ INSTALLS += target
+diff -Naur qt-x11-free-3.3.5.orig/tools/designer/app/app.pro qt-x11-free-3.3.5/tools/designer/app/app.pro
+--- qt-x11-free-3.3.5.orig/tools/designer/app/app.pro	2004-01-16 19:51:08.000000000 -0500
++++ qt-x11-free-3.3.5/tools/designer/app/app.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -20,6 +20,8 @@
+    QMAKE_INFO_PLIST = Info_mac.plist
+    staticlib:CONFIG -= global_init_link_order #yuck
+ }
++CFLAGS += -mdynamic-no-pic
++CXXFLAGS += -mdynamic-no-pic
+ 
+ 
+ target.path=$$bins.path
+diff -Naur qt-x11-free-3.3.5.orig/tools/designer/designer/designer.pro qt-x11-free-3.3.5/tools/designer/designer/designer.pro
+--- qt-x11-free-3.3.5.orig/tools/designer/designer/designer.pro	2004-07-29 09:09:50.000000000 -0400
++++ qt-x11-free-3.3.5/tools/designer/designer/designer.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -1,6 +1,6 @@
+ TEMPLATE	= lib
+ 
+-CONFIG		+= qt warn_on staticlib qmake_cache
++CONFIG		+= qt warn_on qmake_cache
+ CONFIG 		-= dll
+ !force_static:!win32:contains(QT_PRODUCT,qt-internal) {
+    CONFIG          -= staticlib
+diff -Naur qt-x11-free-3.3.5.orig/tools/designer/editor/editor.pro qt-x11-free-3.3.5/tools/designer/editor/editor.pro
+--- qt-x11-free-3.3.5.orig/tools/designer/editor/editor.pro	2003-10-31 09:36:28.000000000 -0500
++++ qt-x11-free-3.3.5/tools/designer/editor/editor.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -1,5 +1,5 @@
+ TEMPLATE	= lib
+-CONFIG		+= qt warn_on staticlib
++CONFIG		+= qt warn_on
+ CONFIG		-= dll
+ HEADERS		= editor.h  \
+ 		  parenmatcher.h  \
+diff -Naur qt-x11-free-3.3.5.orig/tools/linguist/linguist/linguist.pro qt-x11-free-3.3.5/tools/linguist/linguist/linguist.pro
+--- qt-x11-free-3.3.5.orig/tools/linguist/linguist/linguist.pro	2003-10-31 09:36:28.000000000 -0500
++++ qt-x11-free-3.3.5/tools/linguist/linguist/linguist.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -43,6 +43,8 @@
+     staticlib:CONFIG -= global_init_link_order #yuck
+     RC_FILE = linguist.icns
+ }
++CFLAGS += -mdynamic-no-pic
++CXXFLAGS += -mdynamic-no-pic
+ 
+ PROJECTNAME	= Qt Linguist
+ 
+diff -Naur qt-x11-free-3.3.5.orig/tools/linguist/linguist.pro qt-x11-free-3.3.5/tools/linguist/linguist.pro
+--- qt-x11-free-3.3.5.orig/tools/linguist/linguist.pro	2004-06-08 04:06:56.000000000 -0400
++++ qt-x11-free-3.3.5/tools/linguist/linguist.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -1,8 +1,5 @@
+ TEMPLATE	= subdirs
+ SUBDIRS		= linguist \
+-		  tutorial/tt1 \
+-		  tutorial/tt2 \
+-		  tutorial/tt3 \
+ 		  lrelease \
+ 		  lupdate \
+ 		  qm2ts
+diff -Naur qt-x11-free-3.3.5.orig/tools/linguist/lrelease/lrelease.pro qt-x11-free-3.3.5/tools/linguist/lrelease/lrelease.pro
+--- qt-x11-free-3.3.5.orig/tools/linguist/lrelease/lrelease.pro	2003-10-31 09:36:28.000000000 -0500
++++ qt-x11-free-3.3.5/tools/linguist/lrelease/lrelease.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -15,3 +15,6 @@
+ 
+ target.path=$$bins.path
+ INSTALLS	+= target
++
++QMAKE_CFLAGS += -mdynamic-no-pic
++QMAKE_CXXFLAGS += -mdynamic-no-pic
+diff -Naur qt-x11-free-3.3.5.orig/tools/linguist/lupdate/lupdate.pro qt-x11-free-3.3.5/tools/linguist/lupdate/lupdate.pro
+--- qt-x11-free-3.3.5.orig/tools/linguist/lupdate/lupdate.pro	2003-10-31 09:36:28.000000000 -0500
++++ qt-x11-free-3.3.5/tools/linguist/lupdate/lupdate.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -19,3 +19,6 @@
+ 
+ target.path=$$bins.path
+ INSTALLS	+= target
++
++macx: CFLAGS += -mdynamic-no-pic
++macx: CXXFLAGS += -mdynamic-no-pic
+diff -Naur qt-x11-free-3.3.5.orig/tools/linguist/qm2ts/qm2ts.pro qt-x11-free-3.3.5/tools/linguist/qm2ts/qm2ts.pro
+--- qt-x11-free-3.3.5.orig/tools/linguist/qm2ts/qm2ts.pro	2003-10-31 09:36:28.000000000 -0500
++++ qt-x11-free-3.3.5/tools/linguist/qm2ts/qm2ts.pro	2005-10-09 00:33:23.000000000 -0400
+@@ -13,3 +13,6 @@
+ 
+ target.path=$$bins.path
+ INSTALLS	+= target
++
++CFLAGS += -mdynamic-no-pic
++CXXFLAGS += -mdynamic-no-pic
+diff -Naur qt-x11-free-3.3.5.orig/tools/qtconfig/qtconfig.pro qt-x11-free-3.3.5/tools/qtconfig/qtconfig.pro
+--- qt-x11-free-3.3.5.orig/tools/qtconfig/qtconfig.pro	2005-07-19 20:59:24.000000000 -0400
++++ qt-x11-free-3.3.5/tools/qtconfig/qtconfig.pro	2005-10-09 00:41:11.000000000 -0400
+@@ -16,3 +16,6 @@
+ INCLUDEPATH	+= .
+ DBFILE		 = qtconfig.db
+ REQUIRES=full-config nocrosscompiler !win32*
++
++CFLAGS += -mdynamic-no-pic
++CXXFLAGS += -mdynamic-no-pic

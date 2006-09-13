@@ -1,0 +1,367 @@
+# ChangeLog for media-sound/alsa-headers
+# Copyright 1999-2006 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-sound/alsa-headers/ChangeLog,v 1.83 2006/08/31 09:09:30 flameeyes Exp $
+
+*alsa-headers-1.0.12 (31 Aug 2006)
+
+  31 Aug 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-headers-1.0.12_rc1.ebuild, +alsa-headers-1.0.12.ebuild:
+  Version bump to latest version, and remove release candidate.
+
+  02 Aug 2006; Joshua Kinard <kumba@gentoo.org> alsa-headers-1.0.11.ebuild:
+  Marked stable on mips.
+
+*alsa-headers-1.0.12_rc1 (23 Jun 2006)
+
+  23 Jun 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.12_rc1.ebuild:
+  Version bump to 1.0.12_rc1 version.
+
+  29 May 2006; Guy Martin <gmsoft@gentoo.org> alsa-headers-1.0.11.ebuild:
+  Stable on hppa.
+
+  14 May 2006; Luis Medinas <metalgod@gentoo.org>
+  alsa-headers-1.0.11.ebuild:
+  Stable on amd64. Bug #130535.
+
+  01 May 2006; Joseph Jezak <josejx@gentoo.org> alsa-headers-1.0.11.ebuild:
+  Marked ppc stable for bug #130535.
+
+  27 Apr 2006; Marien Zwart <marienz@gentoo.org> Manifest:
+  Fixing SHA256 digest, pass four
+
+  24 Apr 2006; Jason Wever <weeve@gentoo.org> alsa-headers-1.0.11.ebuild:
+  Stable on SPARC wrt bug #130535.
+
+  24 Apr 2006; Aron Griffis <agriffis@gentoo.org>
+  alsa-headers-1.0.11.ebuild:
+  Mark 1.0.11 stable on ia64
+
+  24 Apr 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-headers-1.0.8.ebuild, alsa-headers-1.0.10.ebuild,
+  alsa-headers-1.0.11.ebuild:
+  Drop old version and don't take alsa-driver's FILESDIR path.
+
+  22 Apr 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  alsa-headers-1.0.11.ebuild:
+  Stable on x86 wrt bug #130535.
+
+  22 Apr 2006; Markus Rothe <corsair@gentoo.org> alsa-headers-1.0.11.ebuild:
+  Stable on ppc64; bug #130535
+
+  19 Apr 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-headers-1.0.11_rc3.ebuild, -alsa-headers-1.0.11_rc4.ebuild,
+  -alsa-headers-1.0.11_rc5.ebuild:
+  Drop release candidate versions.
+
+*alsa-headers-1.0.11 (19 Apr 2006)
+
+  19 Apr 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.11.ebuild:
+  Version bump. This version will replace all the old release candidates.
+
+*alsa-headers-1.0.11_rc5 (11 Apr 2006)
+
+  11 Apr 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.11_rc5.ebuild:
+  Version bump.
+
+  24 Mar 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.11_rc4.ebuild:
+  Version bump, thanks to David Watzke in bug #127412.
+
+*alsa-headers-1.0.11_rc4 (24 Mar 2006)
+
+  24 Mar 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.11_rc4.ebuild:
+  Version bump, thanks to David Watzke in bug #127412.
+
+  10 Mar 2006; Aron Griffis <agriffis@gentoo.org>
+  alsa-headers-1.0.11_rc3.ebuild:
+  Mark 1.0.11_rc3 stable on ia64
+
+  09 Feb 2006; Rene Nussbaumer <killerfox@gentoo.org>
+  alsa-headers-1.0.11_rc3.ebuild:
+  Added to ~hppa. Revert after talking with flameeyes.
+
+  07 Feb 2006; Aron Griffis <agriffis@gentoo.org>
+  alsa-headers-1.0.11_rc3.ebuild:
+  Mark 1.0.11_rc3 stable on alpha
+
+*alsa-headers-1.0.11_rc3 (02 Feb 2006)
+
+  02 Feb 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-headers-1.0.11_rc2.ebuild, +alsa-headers-1.0.11_rc3.ebuild:
+  Bump to new release candidate.
+
+  02 Feb 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-headers-1.0.9b.ebuild, -alsa-headers-1.0.10_rc3.ebuild:
+  Cleanup old verisons.
+
+  11 Jan 2006; Jeroen Roovers <jer@gentoo.org>
+  alsa-headers-1.0.11_rc2.ebuild:
+  Marked stable for hppa (bug #111968).
+
+  11 Jan 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-headers-1.0.10_rc2.ebuild:
+  Drop old version.
+
+  11 Jan 2006; Michael Hanselmann <hansmi@gentoo.org>
+  alsa-headers-1.0.10.ebuild:
+  Stable on hppa, ppc.
+
+  10 Jan 2006; Gustavo Zacarias <gustavoz@gentoo.org>
+  alsa-headers-1.0.10.ebuild:
+  Stable on sparc wrt #111968
+
+  10 Jan 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-headers-1.0.11_rc1.ebuild:
+  Drop ALSA 1.0.11_rc1 packages.
+
+  03 Jan 2006; Mark Loeser <halcy0n@gentoo.org> alsa-headers-1.0.10.ebuild:
+  Stable on x86; bug #117518
+
+*alsa-headers-1.0.11_rc2 (02 Jan 2006)
+
+  02 Jan 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.11_rc2.ebuild:
+  Bump to latest version.
+
+  27 Dec 2005; Bryan Østergaard <kloeri@gentoo.org
+  alsa-headers-1.0.10.ebuild:
+  Stable on alpha.
+
+*alsa-headers-1.0.11_rc1 (21 Dec 2005)
+
+  21 Dec 2005; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.11_rc1.ebuild:
+  Bump to latest upstream version (masked).
+
+  23 Nov 2005; Luis Medinas <metalgod@gentoo.org>
+  alsa-headers-1.0.10.ebuild:
+  Stable on amd64. See bug #111968.
+
+  19 Nov 2005; Markus Rothe <corsair@gentoo.org> alsa-headers-1.0.10.ebuild:
+  Stable on ppc64; bug #111968
+
+  19 Nov 2005; Guy Martin <gmsoft@gentoo.org>
+  alsa-headers-1.0.10_rc3.ebuild:
+  Stable on hppa.
+
+*alsa-headers-1.0.10 (16 Nov 2005)
+
+  16 Nov 2005; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.10.ebuild:
+  Bump to latest upstream version.
+
+  15 Nov 2005; Chris Gianelloni <wolf31o2@gentoo.org>
+  alsa-headers-1.0.10_rc3.ebuild:
+  Stable on x86 wrt bug #112442.
+
+  14 Nov 2005; Luca Barbato <lu_zero@gentoo.org>
+  alsa-headers-1.0.10_rc3.ebuild:
+  Marked ppc to match linux 2.6.14
+
+  13 Nov 2005; Petteri Räty <betelgeuse@gentoo.org>
+  alsa-headers-1.0.10_rc2.ebuild:
+  Marked stable on x86 for bug #111968.
+
+*alsa-headers-1.0.10_rc3 (08 Nov 2005)
+
+  08 Nov 2005; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.10_rc3.ebuild:
+  Bump to latest version.
+
+*alsa-headers-1.0.10_rc2 (11 Oct 2005)
+
+  11 Oct 2005; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-headers-1.0.10_rc1.ebuild, +alsa-headers-1.0.10_rc2.ebuild:
+  Bumped to newer rc.
+
+*alsa-headers-1.0.10_rc1 (25 Aug 2005)
+
+  25 Aug 2005; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-headers-1.0.10_rc1.ebuild:
+  Added ebuild for alsa 1.0.10_rc1.
+
+  24 Aug 2005; Aron Griffis <agriffis@gentoo.org>
+  alsa-headers-1.0.9b.ebuild:
+  stable on ia64
+
+  29 Jul 2005; Guy Martin <gmsoft@gentoo.org> alsa-headers-1.0.9b.ebuild:
+  Stable on hppa.
+
+  21 Jul 2005; Joseph Jezak <josejx@gentoo.org> alsa-headers-1.0.9b.ebuild:
+  Marked ppc stable.
+
+  20 Jul 2005; Markus Rothe <corsair@gentoo.org> alsa-headers-1.0.9b.ebuild:
+  Stable on ppc64
+
+  19 Jul 2005; Bryan Østergaard <kloeri@gentoo.org>
+  alsa-headers-1.0.9b.ebuild:
+  Stable on alpha.
+
+  19 Jul 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.9b.ebuild:
+  Added to ~sparc.
+
+  17 Jul 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.9b.ebuild:
+  Stable amd64, x86.
+
+  12 Jul 2005; Stephen P. Becker <geoman@gentoo.org>
+  alsa-headers-1.0.8.ebuild:
+  stable on mips
+
+  07 Jul 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-headers-1.0.5a.ebuild:
+  Removing old verison.
+
+*alsa-headers-1.0.9b (07 Jul 2005)
+
+  07 Jul 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-headers-1.0.9_rc3.ebuild, -alsa-headers-1.0.9.ebuild,
+  +alsa-headers-1.0.9b.ebuild:
+  Version bump.
+
+  12 Jun 2005; Bryan Østergaard <kloeri@gentoo.org>
+  alsa-headers-1.0.8.ebuild:
+  Stable on alpha.
+
+*alsa-headers-1.0.9 (27 May 2005)
+
+  27 May 2005; Jan Brinkmann <luckyduck@gentoo.org>
+  +alsa-headers-1.0.9.ebuild:
+  New upstream version released, see #94196.
+
+  05 May 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-headers-1.0.7.ebuild:
+  Removing old version.
+
+*alsa-headers-1.0.9_rc3 (05 May 2005)
+
+  05 May 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-headers-1.0.9_rc2.ebuild, +alsa-headers-1.0.9_rc3.ebuild:
+  Version bump.
+
+  05 May 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-headers-1.0.6a.ebuild, -alsa-headers-1.0.8_rc1.ebuild:
+  Cleaning out old versions.
+
+*alsa-headers-1.0.9_rc2 (31 Mar 2005)
+
+  31 Mar 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  +alsa-headers-1.0.9_rc2.ebuild:
+  Version bump.
+
+  29 Mar 2005; Markus Rothe <corsair@gentoo.org> alsa-headers-1.0.8.ebuild:
+  Stable on ppc64
+
+  27 Mar 2005; Guy Martin <gmsoft@gentoo.org> alsa-headers-1.0.8.ebuild:
+  Stable on hppa.
+
+  20 Mar 2005; Lars Weiler <pylon@gentoo.org> alsa-headers-1.0.8.ebuild:
+  Readded ppc to a 1.x version.
+
+  09 Mar 2005; Mike Gardiner <obz@gentoo.org> alsa-headers-1.0.7.ebuild:
+  Keyworded ppc
+
+  08 Mar 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.8.ebuild:
+  Stable amd64, sparc, x86.
+
+  25 Jan 2005; Markus Rothe <corsair@gentoo.org> alsa-headers-1.0.7.ebuild:
+  Stable on ppc64
+
+*alsa-headers-1.0.8 (14 Jan 2005)
+
+  14 Jan 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  +alsa-headers-1.0.8.ebuild, -alsa-headers-1.0.8_rc2.ebuild:
+  Version bump.
+
+  12 Jan 2005; Guy Martin <gmsoft@gentoo.org> alsa-headers-1.0.8_rc1.ebuild:
+  Stable on hppa.
+
+  11 Jan 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.8_rc1.ebuild:
+  Stable x86 as it's needed for 2.6.10 kernels (which is in stable x86).
+
+*alsa-headers-1.0.8_rc2 (11 Jan 2005)
+
+  11 Jan 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  +alsa-headers-1.0.8_rc2.ebuild:
+  Version bump.
+
+*alsa-headers-1.0.8_rc1 (01 Jan 2005)
+
+  01 Jan 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  +alsa-headers-1.0.8_rc1.ebuild:
+  Version bump.
+
+  18 Dec 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.7.ebuild:
+  Stable amd64, x86.
+
+  16 Dec 2004; Markus Rothe <corsair@gentoo.org> alsa-headers-1.0.6a.ebuild:
+  Stable on ppc64
+
+  30 Nov 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.7.ebuild:
+  Stable sparc.
+
+*alsa-headers-1.0.7 (12 Nov 2004)
+
+  12 Nov 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.5a.ebuild, alsa-headers-1.0.6a.ebuild,
+  +alsa-headers-1.0.7.ebuild:
+  Version bump.
+
+  03 Nov 2004; Stephen P. Becker <geoman@gentoo.org>
+  alsa-headers-1.0.6a.ebuild:
+  added ~mips keyword
+
+  08 Oct 2004; Guy Martin <gmsoft@gentoo.org> alsa-headers-1.0.6a.ebuild:
+  Marked stable on hppa.
+
+  22 Sep 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.5a.ebuild, alsa-headers-1.0.6a.ebuild:
+  Removed unneccessary inherits.
+
+  22 Sep 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.6a.ebuild:
+  Added to ~sparc.
+
+  22 Sep 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.6a.ebuild:
+  Stable amd64, x86.
+
+  25 Aug 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  +files/alsa-headers-1.0.6a-user.patch:
+  Added patch for undefined __user.
+
+*alsa-headers-1.0.6a (23 Aug 2004)
+
+  23 Aug 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  +alsa-headers-1.0.6a.ebuild:
+  Version bump.
+
+  17 Aug 2004; Guy Martin <gmsoft@gentoo.org> alsa-headers-1.0.5a.ebuild:
+  Stable on hppa.
+
+  27 Jul 2004; Aron Griffis <agriffis@gentoo.org> alsa-headers-1.0.5a.ebuild:
+  stable on alpha and ia64
+
+  24 Jul 2004; Lars Weiler <pylon@gentoo.org> alsa-headers-1.0.5a.ebuild:
+  Stable on ppc.
+
+  19 Jul 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-headers-1.0.5a.ebuild:
+  Fixing keywords to match alsa-driver.
+
+*alsa-headers-1.0.5a (19 Jul 2004)
+
+  19 Jul 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  +alsa-headers-1.0.5a.ebuild:
+  Initial commit to deal with alsa-headers not being installed with 2.6 kernels.
+  See bug #55994.
+

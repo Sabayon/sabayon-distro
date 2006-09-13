@@ -1,0 +1,11 @@
+--- firegl_public.c.orig	2006-03-21 15:32:05.000000000 +0100
++++ firegl_public.c	2006-03-21 15:38:06.000000000 +0100
+@@ -2353,7 +2353,7 @@
+ 
+ int ATI_API_CALL __ke_no_iommu(void)
+ {
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,1)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,1) && LINUX_VERSION_CODE < KERNEL_VERSION(2,6,16)
+ #ifdef CONFIG_GART_IOMMU
+     return no_iommu;
+ #else /* !CONFIG_GART_IOMMU */

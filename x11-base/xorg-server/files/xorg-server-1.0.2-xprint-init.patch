@@ -1,0 +1,15 @@
+--- Xprint/etc/init.d/Makefile.am	2006/04/14 04:47:28	1.1
++++ Xprint/etc/init.d/Makefile.am	2006/04/14 05:26:42
+@@ -1 +1,12 @@
++include $(top_srcdir)/cpprules.in
++
++noinst_PRE = xprint
++BUILT_SOURCES = $(noinst_PRE)
++CLEANFILES = $(noinst_PRE) xprint.pre
++
++CPP_FILES_FLAGS = -DProjectRoot='"$(PROJECTROOT)"' -DOS_LINUX
++
++xprint.pre: xprint.cpp
++	$(SED) -e 's/^\(\s\+\)#/\1XCOMM/' $< > $@
++
+ EXTRA_DIST = xprint.cpp

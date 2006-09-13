@@ -1,0 +1,16 @@
+--- Module/rtmp_main.c.orig	2006-07-27 17:03:39.000000000 +0000
++++ Module/rtmp_main.c	2006-07-27 17:42:01.000000000 +0000
+@@ -52,11 +52,11 @@
+ //	Global static variable, Debug level flag
+ // Don't hide this behind debug define. There should be as little difference between debug and no-debug as possible.
+ int	debug = 0;	/* Default is off. */
+-MODULE_PARM(debug, "i");
++module_param(debug, uint, 0);
+ MODULE_PARM_DESC(debug, "Enable level: accepted values: 1 to switch debug on, 0 to switch debug off.");
+ 
+ static char *ifname = NULL;
+-MODULE_PARM(ifname, "s");
++module_param(ifname, uint, 0);
+ MODULE_PARM_DESC(ifname, "Network device name (default ra%d)");
+ 
+ // The driver version information

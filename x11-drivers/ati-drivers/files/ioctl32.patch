@@ -1,0 +1,14 @@
+--- firegl_public.c.orig	2005-06-18 17:42:41.000000000 -0300
++++ firegl_public.c	2005-06-18 17:43:46.000000000 -0300
+@@ -116,7 +116,11 @@
+ #endif
+ 
+ #ifdef __x86_64__
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12)
++#include "asm/ioctl.h"
++#else
+ #include "asm/ioctl32.h"
++#endif
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,2)
+ #include "linux/syscalls.h"
+ #endif

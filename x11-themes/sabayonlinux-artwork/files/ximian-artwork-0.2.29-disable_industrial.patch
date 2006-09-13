@@ -1,0 +1,64 @@
+diff -ur ximian-artwork-0.2.29/Makefile.am ximian-artwork-0.2.29.new/Makefile.am
+--- ximian-artwork-0.2.29/Makefile.am	2003-02-21 19:53:29.000000000 +0000
++++ ximian-artwork-0.2.29.new/Makefile.am	2004-03-29 15:42:55.605995624 +0100
+@@ -1,4 +1,4 @@
+-SUBDIRS = po gdm gnome-session gtk icons galeon metacity nautilus wallpapers xmms
++SUBDIRS = po gdm gnome-session icons galeon metacity nautilus xmms
+ 
+ THEME_IN_FILES=index.theme.in
+ 
+Only in ximian-artwork-0.2.29.new: Makefile.am~
+diff -ur ximian-artwork-0.2.29/configure.ac ximian-artwork-0.2.29.new/configure.ac
+--- ximian-artwork-0.2.29/configure.ac	2003-07-09 20:44:25.000000000 +0100
++++ ximian-artwork-0.2.29.new/configure.ac	2004-03-29 15:43:55.508889000 +0100
+@@ -19,30 +19,24 @@
+ 
+ AC_PROG_INTLTOOL([0.23])
+ 
+-AM_PATH_GTK(1.2.9, , 
+-        AC_MSG_ERROR([*** GTK+-1.2.9 not installed - please install first ***]))
+-AC_CHECK_LIB(gtk, gtk_style_set_prop_experimental, :,
+-             AC_MSG_ERROR([*** gtk_style_set_prop_experimental() not found; perhaps you have an old CVS version of GTK+ ***]),
+-             $GTK_LIBS)
+-
+-PKG_CHECK_MODULES(XIMART, gtk+-2.0)
+-AC_SUBST(XIMART_CFLAGS)
+-AC_SUBST(XIMART_LIBS)
++dnl AM_PATH_GTK(1.2.9, , 
++dnl        AC_MSG_ERROR([*** GTK+-1.2.9 not installed - please install first ***]))
++dnl AC_CHECK_LIB(gtk, gtk_style_set_prop_experimental, :,
++dnl              AC_MSG_ERROR([*** gtk_style_set_prop_experimental() not found; perhaps you have an old CVS version of GTK+ ***]),
++dnl             $GTK_LIBS)
++
++dnl PKG_CHECK_MODULES(XIMART, gtk+-2.0)
++dnl AC_SUBST(XIMART_CFLAGS)
++dnl AC_SUBST(XIMART_LIBS)
+ 
+-GTK2_VERSION=`$PKG_CONFIG --variable=gtk_binary_version gtk+-2.0`
+-AC_SUBST(GTK2_VERSION)
++dnl GTK2_VERSION=`$PKG_CONFIG --variable=gtk_binary_version gtk+-2.0`
++dnl AC_SUBST(GTK2_VERSION)
+ 
+ AC_CONFIG_FILES([
+ Makefile
+ galeon/Makefile
+ gdm/Makefile
+ gnome-session/Makefile
+-gtk/Makefile
+-gtk/gtk1-engine/Makefile
+-gtk/gtk1-engine/gtk/Makefile
+-gtk/gtk2-engine/Makefile
+-gtk/gtk2-engine/gtk-2.0/Makefile
+-gtk/gtk2-engine/gtk-2.0/gtkrc
+ icons/Makefile
+ icons/Industrial/Makefile
+ icons/Industrial/24x24/Makefile
+@@ -70,7 +64,6 @@
+ nautilus/Makefile
+ nautilus/patterns/Makefile
+ nautilus/throbber/Makefile
+-wallpapers/Makefile
+ xmms/Makefile
+ po/Makefile.in
+ ])
+Only in ximian-artwork-0.2.29.new: configure.ac~

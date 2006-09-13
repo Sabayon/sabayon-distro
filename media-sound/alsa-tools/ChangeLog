@@ -1,0 +1,496 @@
+# ChangeLog for media-sound/alsa-tools
+# Copyright 2002-2006 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-sound/alsa-tools/ChangeLog,v 1.110 2006/08/31 19:03:40 flameeyes Exp $
+
+  31 Aug 2006; Diego Pettenò <flameeyes@gentoo.org>
+  alsa-tools-1.0.12.ebuild:
+  Depend on GTK+ 2, as the new release requires explicit request for GTK 1.2.
+
+*alsa-tools-1.0.12 (31 Aug 2006)
+
+  31 Aug 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-tools-1.0.12_rc1.ebuild, +alsa-tools-1.0.12.ebuild:
+  Version bump to latest version, and remove release candidate.
+
+  14 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  alsa-tools-1.0.10.ebuild, alsa-tools-1.0.11.ebuild,
+  alsa-tools-1.0.12_rc1.ebuild:
+  Fix DEPEND/RDEPEND, thanks to Yoshi Watanabe in bug #140308.
+
+*alsa-tools-1.0.12_rc1 (23 Jun 2006)
+
+  23 Jun 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.12_rc1.ebuild:
+  Version bump to 1.0.12_rc1 version.
+
+  16 Jun 2006; Diego Pettenò <flameeyes@gentoo.org>
+  alsa-tools-1.0.10.ebuild, alsa-tools-1.0.11.ebuild:
+  Remove gnuconfig update.
+
+  14 May 2006; Luis Medinas <metalgod@gentoo.org> alsa-tools-1.0.11.ebuild:
+  Stable on amd64. Bug #130535.
+
+  01 May 2006; Joseph Jezak <josejx@gentoo.org> alsa-tools-1.0.11.ebuild:
+  Marked ppc stable for bug #130535.
+
+  24 Apr 2006; Jason Wever <weeve@gentoo.org> alsa-tools-1.0.11.ebuild:
+  Stable on SPARC wrt bug #130535.
+
+  24 Apr 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/alsa-tools-1.0.11-asneeded.patch, alsa-tools-1.0.11.ebuild:
+  Add patch from Matthias Schwarzott (zzam) to build with --as-needed.
+
+  22 Apr 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  alsa-tools-1.0.11.ebuild:
+  Stable on x86 wrt bug #130535.
+
+  22 Apr 2006; Markus Rothe <corsair@gentoo.org> alsa-tools-1.0.11.ebuild:
+  Stable on ppc64; bug #130535
+
+  19 Apr 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-tools-1.0.11_rc3.ebuild, -alsa-tools-1.0.11_rc4.ebuild,
+  -alsa-tools-1.0.11_rc5.ebuild:
+  Drop release candidate versions.
+
+*alsa-tools-1.0.11 (19 Apr 2006)
+
+  19 Apr 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.11.ebuild:
+  Version bump. This version will replace all the old release candidates.
+
+  11 Apr 2006; Diego Pettenò <flameeyes@gentoo.org> ChangeLog:
+  Version bump.
+
+*alsa-tools-1.0.11_rc5 (11 Apr 2006)
+
+  11 Apr 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.11_rc5.ebuild:
+  Version bump.
+
+*alsa-tools-1.0.11_rc4 (24 Mar 2006)
+
+  24 Mar 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.11_rc4.ebuild:
+  Version bump, thanks to David Watzke in bug #127412.
+
+*alsa-tools-1.0.11_rc3 (02 Feb 2006)
+
+  02 Feb 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-tools-1.0.11_rc2.ebuild, +alsa-tools-1.0.11_rc3.ebuild:
+  Bump to new release candidate.
+
+  02 Feb 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -files/alsa-tools-1.0.6-gcc34.patch, -alsa-tools-1.0.8-r1.ebuild:
+  Cleanup old verisons.
+
+  15 Jan 2006; Michael Hanselmann <hansmi@gentoo.org>
+  alsa-tools-1.0.10.ebuild:
+  Stable on ppc.
+
+  10 Jan 2006; Gustavo Zacarias <gustavoz@gentoo.org>
+  alsa-tools-1.0.10.ebuild:
+  Stable on sparc too
+
+  10 Jan 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -alsa-tools-1.0.11_rc1.ebuild:
+  Drop ALSA 1.0.11_rc1 packages.
+
+  03 Jan 2006; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-tools-1.0.7.ebuild, -alsa-tools-1.0.9.ebuild,
+  -alsa-tools-1.0.9-r1.ebuild, -alsa-tools-1.0.9-r2.ebuild,
+  -alsa-tools-1.0.10_rc2.ebuild:
+  Removed old versions.
+
+  03 Jan 2006; Mark Loeser <halcy0n@gentoo.org> alsa-tools-1.0.10.ebuild:
+  Stable on x86; bug #117518
+
+*alsa-tools-1.0.11_rc2 (02 Jan 2006)
+
+  02 Jan 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.11_rc2.ebuild:
+  Bump to latest version.
+
+*alsa-tools-1.0.11_rc1 (21 Dec 2005)
+
+  21 Dec 2005; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.11_rc1.ebuild:
+  Bump to latest upstream version (masked).
+
+  23 Nov 2005; Luis Medinas <metalgod@gentoo.org> alsa-tools-1.0.10.ebuild:
+  Stable on amd64. See bug #111968.
+
+  19 Nov 2005; Markus Rothe <corsair@gentoo.org> alsa-tools-1.0.10.ebuild:
+  Stable on ppc64; bug #111968
+
+*alsa-tools-1.0.10 (16 Nov 2005)
+
+  16 Nov 2005; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.10.ebuild:
+  Bump to latest upstream version.
+
+*alsa-tools-1.0.10_rc2 (08 Nov 2005)
+
+  08 Nov 2005; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.10_rc2.ebuild:
+  Bump to latest version.
+
+  07 Nov 2005; Diego Pettenò <flameeyes@gentoo.org>
+  alsa-tools-1.0.9-r2.ebuild:
+  Added missing flag-o-matic inherit.
+
+*alsa-tools-1.0.9-r2 (31 Oct 2005)
+
+  31 Oct 2005; Diego Pettenò <flameeyes@gentoo.org>
+  alsa-tools-1.0.9-r1.ebuild, +alsa-tools-1.0.9-r2.ebuild:
+  Split X useflag into fltk and gtk flags as per bug #111028. Patch from
+  Henrik Brix Andersen <brix@gentoo.org>. Don't rewrite LDFLAGS.
+
+*alsa-tools-1.0.9-r1 (30 Oct 2005)
+
+  30 Oct 2005; Diego Pettenò <flameeyes@gentoo.org>
+  +alsa-tools-1.0.9-r1.ebuild:
+  Added echomixer utility as per bug #103746.
+
+  21 Jul 2005; Markus Rothe <corsair@gentoo.org> alsa-tools-1.0.9.ebuild:
+  Stable on ppc64
+
+*alsa-tools-1.0.9 (27 May 2005)
+
+  27 May 2005; Jan Brinkmann <luckyduck@gentoo.org>
+  +alsa-tools-1.0.9.ebuild:
+  New upstream version released, see #94196.
+
+  12 Apr 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  -files/alsa-tools-1.0.3-kernel-2.6.patch, -alsa-tools-0.9.8.ebuild,
+  -alsa-tools-1.0.8.ebuild, alsa-tools-1.0.8-r1.ebuild:
+  Removing old versions.
+
+  01 Apr 2005; Joseph Jezak <josejx@gentoo.org> alsa-tools-1.0.8-r1.ebuild:
+  Marked ppc stable for bug #86064.
+
+  29 Mar 2005; Markus Rothe <corsair@gentoo.org> alsa-tools-1.0.8-r1.ebuild:
+  Stable on ppc64
+
+  20 Mar 2005; Lars Weiler <pylon@gentoo.org> alsa-tools-1.0.8.ebuild:
+  Readded ppc to a 1.x version.
+
+  16 Mar 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-tools-1.0.6.ebuild:
+  Removing old versions.
+
+  08 Mar 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.8.ebuild:
+  Stable amd64, sparc, x86.
+
+  12 Feb 2005; Robin H. Johnson <robbat2@gentoo.org>
+  alsa-tools-1.0.7.ebuild:
+  Add ~mips for my XXS1500 hardware.
+
+  26 Jan 2005; Chris White <chriswhite@gentoo.org>
+  alsa-tools-1.0.8-r1.ebuild:
+  The same tool that happily breaks on ppc64 also breaks on ppc. Added some
+  logic for this as well.
+
+*alsa-tools-1.0.8-r1 (25 Jan 2005)
+
+  25 Jan 2005; Markus Rothe <corsair@gentoo.org> +alsa-tools-1.0.8-r1.ebuild:
+  sb16_csp won't build on ppc64
+
+*alsa-tools-1.0.8 (23 Jan 2005)
+
+  23 Jan 2005; Jeremy Huddleston <eradicator@gentoo.org>
+  +alsa-tools-1.0.8.ebuild:
+  Version bump.
+
+  18 Dec 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.7.ebuild:
+  Stable amd64, sparc, x86.
+
+  16 Dec 2004; Markus Rothe <corsair@gentoo.org> alsa-tools-1.0.6.ebuild:
+  Added ~ppc64 to KEYWORDS
+
+  22 Nov 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.7.ebuild:
+  Added to ~sparc.
+
+*alsa-tools-1.0.7 (12 Nov 2004)
+
+  12 Nov 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.6.ebuild, +alsa-tools-1.0.7.ebuild:
+  Version bump.
+
+  12 Nov 2004; <SeJo@gentoo.org> alsa-tools-1.0.6.ebuild:
+  stable on ppc asked by eradicator
+
+  12 Nov 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-tools-1.0.4.ebuild, -alsa-tools-1.0.5-r1.ebuild:
+  Removing old versions.
+
+  06 Oct 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.6.ebuild:
+  get_libdir fixes.
+
+  02 Oct 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-tools-0.9.0_rc1-r1.ebuild:
+  Removing ancient version.
+
+  23 Sep 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.6.ebuild:
+  Stable amd64, x86.
+
+  02 Sep 2004; Travis Tilley <lv@gentoo.org> alsa-tools-1.0.5-r1.ebuild:
+  add gcc 3.4 fix to 1.0.5
+
+*alsa-tools-1.0.6 (23 Aug 2004)
+
+  23 Aug 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  +files/alsa-tools-1.0.6-gcc34.patch, +alsa-tools-1.0.6.ebuild:
+  Version bump.
+
+  04 Aug 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  -alsa-tools-1.0.2.ebuild, -alsa-tools-1.0.3.ebuild,
+  -alsa-tools-1.0.5.ebuild:
+  Removing old versions.
+
+  04 Aug 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.5-r1.ebuild:
+  Stable x86 amd64.
+
+  24 Jul 2004; Lars Weiler <pylon@gentoo.org> :
+  Stable on ppc.
+
+*alsa-tools-1.0.5-r1 (26 Jun 2004)
+
+  26 Jun 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  +alsa-tools-1.0.5-r1.ebuild:
+  Added USE=X support so we can avoid putting in unneccessary DEPs.
+
+  24 Jun 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.5.ebuild:
+  Stable amd64 x86.
+
+*alsa-tools-1.0.5 (30 May 2004)
+
+  30 May 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.5.ebuild:
+  Version Bump.
+
+  10 May 2004; Daniel Ahlberg <aliz@gentoo.org> alsa-tools-1.0.4.ebuild:
+  Added amd64 keyword, closing #50606.
+
+  20 Apr 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-0.9.0_rc1-r1.ebuild:
+  Added IUSE.
+
+  16 Apr 2004; Travis Tilley <lv@gentoo.org> alsa-tools-1.0.4.ebuild:
+  added ~amd64 keyword and a gnuconfig_update needed to get alsa-tools to
+  recognise x86_64-unknown-linux-gnu as a valid arch
+
+*alsa-tools-1.0.4 (04 Apr 2004)
+
+  04 Apr 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.3.ebuild, alsa-tools-1.0.4.ebuild:
+  1.0.3 stable on x86.  Version bump.
+
+  27 Mar 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-0.9.1.ebuild, alsa-tools-1.0.0_rc2-r1.ebuild,
+  alsa-tools-1.0.1.ebuild:
+  Removing old ebuilds.
+
+  14 Mar 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-1.0.3.ebuild, files/alsa-tools-1.0.3-kernel-2.6.patch:
+  Patch closes bug #42087.
+
+  09 Mar 2004; Tom Gall <tgall@gentoo.org> 
+  alsa-tools-1.0.0_rc2-r1.ebuild, alsa-tools-1.0.1.ebuild, 
+  alsa-tools-1.0.2.ebuild, alsa-tools-1.0.3.ebuild:
+  removed ppc64 - we're not ready yet
+
+*alsa-tools-1.0.3 (01 Mar 2004)
+
+  01 Mar 2004; Martin Holzer <mholzer@gentoo.org> alsa-tools-1.0.3.ebuild:
+  Version bumped.
+
+  19 Feb 2004; Jeremy Huddleston <eradicator@gentoo.org>
+  alsa-tools-0.9.0_rc1-r1.ebuild, alsa-tools-0.9.1.ebuild,
+  alsa-tools-0.9.8.ebuild, alsa-tools-1.0.0_rc2-r1.ebuild,
+  alsa-tools-1.0.1.ebuild, alsa-tools-1.0.2.ebuild:
+  The user can now override which tools get built by default by setting the
+  ALSA_TOOLS environment variable. Closes bug #37784.
+
+*alsa-tools-1.0.2 (27 Jan 2004)
+
+  27 Jan 2004; Martin Holzer <mholzer@gentoo.org> alsa-tools-1.0.2.ebuild:
+  Version bumped.
+
+  17 Jan 2004; Bartosch Pixa <darkspecter@gentoo.org> alsa-tools-0.9.8.ebuild:
+  manifest fix
+
+  16 Jan 2004; Bartosch Pixa <darkspecter@gentoo.org> alsa-tools-0.9.8.ebuild:
+  set ppc in keywords
+
+*alsa-tools-1.0.1 (10 Jan 2004)
+
+  10 Jan 2004; Martin Holzer <mholzer@gentoo.org> alsa-tools-1.0.1.ebuild:
+  Version bumped.
+
+*alsa-tools-1.0.0_rc2-r1 (03 Jan 2004)
+
+  03 Jan 2004; Martin Holzer <mholzer@gentoo.org>
+  alsa-tools-1.0.0_rc2-r1.ebuild:
+  adding more tools. Closes 36503
+
+*alsa-tools-1.0.0_rc2 (07 Dec 2003)
+
+  07 Dec 2003; Martin Holzer <mholzer@gentoo.org> alsa-tools-1.0.0_rc2.ebuild:
+  Version bumped.
+
+*alsa-tools-1.0.0_rc1 (02 Dec 2003)
+
+  02 Dec 2003; Martin Holzer <mholzer@gentoo.org> alsa-tools-1.0.0_rc1.ebuild:
+  Version bumped.
+
+  26 Nov 2003; Martin Holzer <mholzer@gentoo.org> alsa-tools-0.9.8.ebuild:
+  marked x86 stable.
+
+*alsa-tools-0.9.8 (25 Oct 2003)
+
+  25 Oct 2003; Martin Holzer <mholzer@gentoo.org> alsa-tools-0.9.8.ebuild:
+  Version bumped.
+
+  07 Oct 2003; Bartosch Pixa <darkspecter@gentoo.org> alsa-tools-0.9.7.ebuild:
+  minor econf tweak
+
+*alsa-tools-0.9.7 (02 Oct 2003)
+
+  02 Oct 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Version update.
+  Two tools have been removed (hdsploader and sscape_ctl), because they no
+  longer compile with linux headers from 2.4 series kernels.  I sent bug
+  reports to the alsa-devel people, so, hopefully, they'll be fixed in
+  subsequent releases.
+
+*alsa-tools-0.9.6-r1 (18 Aug 2003)
+
+  18 Aug 2003; Nick Hadaway <raker@gentoo.org> alsa-tools-0.9.6-r1.ebuild:
+  See bug #25775.  Brought the ALSA_TOOLS list up to date and added
+  a small fix0r for a non compiling hdspmixer.
+
+  04 Jul 2003; jje <jje@gentoo.org> alsa-tools-0.9.4.ebuild:
+  Added alsa-driver to DEPEND. See #23613. Most people follow the instructions
+  and this isn't needed. It does appear to be the case that it depends on
+  alsa-driver.
+
+  17 Jun 2003; <spider@gentoo.org> alsa-tools-0.9.0_rc1-r1.ebuild,
+  alsa-tools-0.9.1.ebuild, alsa-tools-0.9.3.ebuild, alsa-tools-0.9.4.ebuild:
+  Updated all gtk+ dependencies to be =x11-libs/gtk+-1.2* since 1.0 isn't in our
+  tree, and 2.x doesnt work here.
+
+  05 Jun 2003; Daniel Ahlberg <aliz@gentoo.org> alsa-tools-0.9.4.ebuild :
+  Switched to mirror://alsaproject in SRC_URI.
+
+*alsa-utils-0.9.6 (29 Jul 2003)
+
+  29 Jul 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Version update.
+
+*alsa-tools-0.9.5-r1 (15 Jul 2003)
+
+  15 Jul 2003; Arcady Geknin <agenkin@gentoo.org> :
+  Enabled patch by Jason Rhinelander <jason-gentoo@gossamer-threads.com>
+  (bug #22324) to fix compilation with gcc 3.3.
+
+*alsa-tools-0.9.5 (11 Jul 2003)
+
+  11 Jul 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Version update.
+  Require virtual/alsa instead of media-sound/alsa-driver.
+
+*alsa-tools-0.9.4 (03 June 2003)
+
+  06 June 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Added patch by Jason Rhinelander <jason-gentoo@gossamer-threads.com>
+  (bug #22324) to fix compilation with gcc 3.3.
+
+  03 June 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Version update.
+
+*alsa-tools-0.9.3 (04 May 2003)
+
+  04 May 2003; Daniel Ahlberg <aliz@gentoo.org> alsa-tools-0.9.3.ebuild :
+  Version bump.
+
+*alsa-tools-0.9.1 (12 Mar 2003)
+
+  15 Apr 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Marking stable on x86.
+
+  12 Mar 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Update to version 0.9.1.
+
+*alsa-tools-0.9.0_rc8 (03 Mar 2003)
+
+  09 Mar 2003; Mark Guertin <gerk@gentoo.org> alsa-tools-0.9.0_rc8.ebuild:
+  set ~ppc in keywords
+
+  03 Mar 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Quick update to rc8.
+
+*alsa-tools-0.9.0_rc7 (04 Feb 2003)
+
+  04 Feb 2003; Arcady Genkin <agenkin@gentoo.org> :
+  Quick update to rc7.
+	
+*alsa-tools-0.9.0_rc6 (19 Nov 2002)
+
+  19 Nov 2002; Arcady Genkin <agenkin@gentoo.org> alsa-tools-0.9.0_rc6.ebuild :
+  Quick update to rc6.  Legwork done by Roman Weber <gentoo@gonzo.ch>.
+
+*alsa-tools-0.9.0_rc5 (24 Oct 2002)
+
+  24 Oct 2002; Arcady Genkin <agenkin@gentoo.org> alsa-tools-0.9.0_rc5.ebuild :
+
+  Quick update to rc5.
+
+*alsa-tools-0.9.0_rc4 (23 Oct 2002)
+
+  23 Oct 2002; Arcady Genkin <agenkin@gentoo.org> alsa-tools-0.9.0_rc4.ebuild :
+
+  Quick update to rc4.
+
+*alsa-tools-0.9.0_rc1-r1 (27 Jun 2002)
+
+  20 Oct 2002; Calum Selkirk <cselkirk@gentoo.org>
+  alsa-tools-0.9.0_rc1-r1.ebuild :
+
+  Added ppc to KEYWORDS.
+
+  27 Jun 2002; Spider <spider@gentoo.org> alsa-tools-0.9.0_rc1-r1.ebuild :
+  Just changed the dep to >= on alsa-lib to get the new portage to not install the old rc, it works with rc2 ..
+ 
+*alsa-tools-0.9.0_rc1 (27 Apr 2002)
+
+  23 May 2002; Arcady Genkin <agenkin@thpoon.com>
+	alsa-tools-0.9.0_rc1.ebuild :
+
+  Now installs man pages under /usr/share/man.
+
+  17 Feb 2002; Arcady Genkin <agenkin@thpoon.com>
+	alsa-tools-0.9.0_rc1.ebuild :
+
+  Quick update to version 0.9.0rc1.
+
+*alsa-tools-0.9.0_beta10-r1 (17 Feb 2002)
+
+  17 Feb 2002; Arcady Genkin <agenkin@thpoon.com>
+	alsa-tools-0.9.0_beta10.ebuild-r1 :
+
+  Installs the documentation properly.
+  Fixes a typo in the dependencies.
+	
+*alsa-tools-0.9.0_beta10 (17 Feb 2002)
+
+  17 Feb 2002; Arcady Genkin <agenkin@thpoon.com>
+	alsa-tools-0.9.0_beta10.ebuild :
+
+  The first version of this package.
