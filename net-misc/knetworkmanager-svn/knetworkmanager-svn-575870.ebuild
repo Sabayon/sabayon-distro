@@ -9,11 +9,7 @@ DESCRIPTION="A NetworkManager front-end for KDE"
 HOMEPAGE="http://en.opensuse.org/Projects/KNetworkManager"
 LICENSE="GPL-2"
 GENTOO_MIRRORS=""
-SRC_URI="http://aur.archlinux.org/packages/knetworkmanager-svn/knetworkmanager-svn/01-build-fix.patch
-	 http://aur.archlinux.org/packages/knetworkmanager-svn/knetworkmanager-svn/02-kwallet-sync-fix.patch
-	 http://aur.archlinux.org/packages/knetworkmanager-svn/knetworkmanager-svn/03-desktop-fix.patch
-	 http://aur.archlinux.org/packages/knetworkmanager-svn/knetworkmanager-svn/04-policy-fix.patch
-	 http://aur.archlinux.org/packages/knetworkmanager-svn/knetworkmanager-svn/05-visual-fix.patch"
+SRC_URI=""
 KEYWORDS="~amd64 ~x86"
 DEPEND="net-misc/networkmanager
         >=kde-base/kdelibs-3.2
