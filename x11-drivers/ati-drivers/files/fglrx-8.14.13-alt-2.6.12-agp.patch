@@ -1,0 +1,98 @@
+--- build_mod/firegl_public.c.alt-2.6.12-agp	2005-06-26 19:35:34 +0400
++++ build_mod/firegl_public.c	2005-06-26 19:41:28 +0400
+@@ -1002,8 +1002,16 @@ void* ATI_API_CALL __ke_high_memory(void
+     return high_memory;
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12)
++/* Saved pci_dev pointer for the new agpgart API */
++static struct pci_dev *fglrx_pci_dev;
++#endif
++
+ int ATI_API_CALL __ke_pci_enable_device(__ke_pci_dev_t* dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12)
++    fglrx_pci_dev = (struct pci_dev *)dev;
++#endif
+     return (pci_enable_device( (struct pci_dev*)(void *)dev ));
+ }
+ 
+@@ -2865,6 +2873,68 @@ typedef struct {
+ 	int			(*copy_info)(struct agp_kern_info *);
+ } drm_agp_t;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12)
++/*
++ * Kernel 2.6.12 has new agpgart API with support for multiple AGP bridges, but
++ * the fglrx core does not know about this yet.  For now, just emulate the old
++ * API.
++ */
++
++static struct agp_bridge_data *fglrx_agp_bridge;
++
++static int fglrx_compat_agp_backend_acquire(void)
++{
++	fglrx_agp_bridge = agp_backend_acquire(fglrx_pci_dev);
++	if (!fglrx_agp_bridge)
++		return -ENODEV;
++	return 0;
++}
++
++static void fglrx_compat_agp_backend_release(void)
++{
++	agp_backend_release(fglrx_agp_bridge);
++}
++
++static struct agp_memory *fglrx_compat_agp_allocate_memory(size_t page_count,
++							   u32 type)
++{
++	return agp_allocate_memory(fglrx_agp_bridge, page_count, type);
++}
++
++static void fglrx_compat_agp_enable(u32 mode)
++{
++	agp_enable(fglrx_agp_bridge, mode);
++}
++
++static int fglrx_compat_agp_copy_info(struct agp_kern_info *info)
++{
++	if (!fglrx_agp_bridge) {
++		fglrx_agp_bridge = agp_find_bridge(fglrx_pci_dev);
++		if (!fglrx_agp_bridge) {
++			memset(info, 0, sizeof(struct agp_kern_info));
++			info->chipset = NOT_SUPPORTED;
++			return -ENODEV;
++		}
++	}
++	return agp_copy_info(fglrx_agp_bridge, info);
++}
++
++static const drm_agp_t drm_agp = {
++	&agp_free_memory,
++	&fglrx_compat_agp_allocate_memory,
++	&agp_bind_memory,
++	&agp_unbind_memory,
++	&fglrx_compat_agp_enable,
++	&fglrx_compat_agp_backend_acquire,
++	&fglrx_compat_agp_backend_release,
++	&fglrx_compat_agp_copy_info
++};
++
++#else /* LINUX_VERSION_CODE < KERNEL_VERSION(2,6,12) */
++/*
++ * For 2.6.11 we can just use the agpgart functions directly.
++ */
++
+ static const drm_agp_t drm_agp = {
+ 	&agp_free_memory,
+ 	&agp_allocate_memory,
+@@ -2875,6 +2945,9 @@ static const drm_agp_t drm_agp = {
+ 	&agp_backend_release,
+ 	&agp_copy_info
+ };
++
++#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(2,6,12) */
++
+ #undef DRM_AGP_MODULE_GET
+ #undef DRM_AGP_MODULE_PUT
+ 

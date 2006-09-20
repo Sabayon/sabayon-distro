@@ -1,0 +1,54 @@
+diff -urN firegl_agpgart/firegl_wrap.c.orig firegl_agpgart/firegl_wrap.c
+--- firegl_agpgart/firegl_wrap.c.orig	2006-04-30 17:05:16.822673160 -0500
++++ firegl_agpgart/firegl_wrap.c	2006-04-30 17:09:21.780433920 -0500
+@@ -168,7 +168,7 @@
+ 
+ #if !defined(__ia64__)
+ // the macros do use errno variable
+-static int errno;
++//static int errno;
+ #endif // __ia64__
+ 
+ // int mlock(const void *addr, size_t len);
+@@ -217,7 +217,7 @@
+ /* global module vars and constants - defined trough macros */
+ MODULE_AUTHOR("Fire GL - ATI Research GmbH, Germany");
+ MODULE_DESCRIPTION("ATI Fire GL");
+-MODULE_PARM(firegl, "s");
++module_param(firegl, short, 0);
+ #ifdef MODULE_LICENSE
+ MODULE_LICENSE("Proprietary. (C) 2005 - ATI Technologies, Starnberg, GERMANY");
+ #endif
+@@ -1120,7 +1120,7 @@
+ 
+ int ATI_API_CALL __ke_verify_area(int type, const void * addr, unsigned long size)
+ {
+-    return verify_area(type, addr, size);
++    return access_ok(type, addr, size);
+ }
+ 
+ int ATI_API_CALL __ke_get_pci_device_info(__ke_pci_dev_t* dev, __ke_pci_device_info_t *pinfo)
+diff -urN firegl_public.c.orig firegl_public.c.
+--- firegl_public.c.orig	2006-04-30 17:05:16.687693680 -0500
++++ firegl_public.c	2006-04-30 17:07:31.553191008 -0500
+@@ -225,7 +225,7 @@
+ /* global module vars and constants - defined trough macros */
+ MODULE_AUTHOR("Fire GL - ATI Research GmbH, Germany");
+ MODULE_DESCRIPTION("ATI Fire GL");
+-MODULE_PARM(firegl, "s");
++module_param(firegl, short, 0);
+ #ifdef MODULE_LICENSE
+ MODULE_LICENSE("Proprietary. (C) 2002 - ATI Technologies, Starnberg, GERMANY");
+ #endif
+diff -urN firegl_public.h.orig firegl_public.h
+--- firegl_public.h.orig	2006-04-30 17:05:16.765681824 -0500
++++ firegl_public.h	2006-04-30 17:44:20.040449912 -0500
+@@ -152,7 +152,7 @@
+     } \
+ } while(0)
+ 
+-#ifdef pfn_to_page
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,14)
+ #define PMD_PAGE(pmd) pmd_page(pmd)
+ #else /* for old 2.4 kernels */
+ #define pfn_to_page(pfn) (mem_map + (pfn))
