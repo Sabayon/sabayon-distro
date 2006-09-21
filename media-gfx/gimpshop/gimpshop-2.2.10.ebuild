@@ -18,7 +18,7 @@ SRC_URI="http://www.plasticbugs.com/blogimg/gimpshop-source-${PV}.tar.bz2
 SLOT="2"
 KEYWORDS="~x86 ~ppc ~hppa ~sparc ~amd64 ~mips ppc64 ~alpha"
 #IUSE="X aalib altivec debug doc gimpprint jpeg mmx mng png python sse svg tiff wmf"
-IUSE="aalib altivec debug doc gtkhtml gimpprint jpeg mmx mng png python sse svg tiff wmf"
+IUSE="aalib altivec debug doc gtkhtml gimpprint jpeg mmx mng png python sse svg tiff wmf mp"
 
 # FIXME : some more things can be (local) USE flagged
 # a few options are detection only, fix them to switch
@@ -118,6 +118,7 @@ src_compile() {
 		`use_with tiff libtiff` \
 		`use_with mng libmng` \
 		`use_with aalib aa` \
+		`use_enable mp` \
 		`use_enable debug` || die
 
 	# X isn't optional (#58003) atm
