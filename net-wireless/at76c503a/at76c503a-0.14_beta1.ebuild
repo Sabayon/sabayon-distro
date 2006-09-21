@@ -27,7 +27,7 @@ NET_RADIO_ERROR="${P} requires support for Wireless LAN drivers (non-hamradio) &
 pkg_setup() {
 	
 	linux-mod_pkg_setup
-	BUILD_PARAMS="KSRC=${KV_DIR} KERNEL_DIR=${KV_DIR}"
+	BUILD_PARAMS="KSRC=${KV_DIR} KERNEL_PATH=${KV_DIR}"
 }
 
 src_install() {
