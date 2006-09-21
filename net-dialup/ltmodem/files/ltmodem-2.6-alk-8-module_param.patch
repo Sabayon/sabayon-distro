@@ -1,0 +1,21 @@
+diff -Nru ltmodem-2.6-alk-8.orig/lt_modem.c ltmodem-2.6-alk-8/lt_modem.c
+--- ltmodem-2.6-alk-8.orig/lt_modem.c	2005-12-12 03:18:55.000000000 +0200
++++ ltmodem-2.6-alk-8/lt_modem.c	2006-04-19 21:43:32.142640500 +0300
+@@ -120,14 +120,14 @@
+ static int vendor_id = 0;
+ static int device_id = 0;
+ 
+-MODULE_PARM(vendor_id, "i");
++module_param(vendor_id, int, 0);
+ MODULE_PARM_DESC(vendor_id, "Vendor ID of the Lucent Modem e.g. vendor_id=0x11c1");
+-MODULE_PARM(device_id, "i");
++module_param(device_id, int, 0);
+ MODULE_PARM_DESC(device_id, "Device ID of the Lucent Modem e.g. device_id=0x0440");
+ 
+ static int Forced[4] = {-1,-1,-1,0};
+ 
+-MODULE_PARM(Forced, "4i");
++module_param_array(Forced, int, NULL, 0);
+ MODULE_PARM_DESC(Forced, "Forced Irq,BaseAddress,ComAddress[,NoDetect] of the Lucent Modem e.g. Forced=3,0x130,0x2f8");
+ 
+ static

@@ -1,0 +1,5 @@
+
+# /dev/ttySLT0 and /dev/modem symbolic links to /dev/tts/LT0 
+REGISTER        ^tts/LT0$       CFUNCTION GLOBAL symlink $devname modem
+UNREGISTER      ^tts/LT0$       CFUNCTION GLOBAL unlink modem
+
