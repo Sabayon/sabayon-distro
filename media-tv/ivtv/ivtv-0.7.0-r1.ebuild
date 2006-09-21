@@ -38,7 +38,7 @@ pkg_setup() {
 		CONFIG_CHECK="${CONFIG_CHECK} VIDEO_WM8775 VIDEO_MSP3400 VIDEO_CX25840 VIDEO_TUNER"
 		CONFIG_CHECK="${CONFIG_CHECK} VIDEO_SAA711X VIDEO_SAA7127 VIDEO_TVEEPROM"
 	else
-		die "This only works on 2.6.17 kernels"
+		die "This only works on 2.6.17/18 kernels"
 	fi
 
 	linux_chkconfig_present FB && \
