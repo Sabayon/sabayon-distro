@@ -19,7 +19,7 @@ SRC_URI="x86? ( ftp://download.nvidia.com/XFree86/Linux-x86/${NV_V}/${X86_NV_PAC
 
 LICENSE="NVIDIA"
 SLOT="0"
-KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
+KEYWORDS="-*"
 IUSE="dlloader"
 RESTRICT="nostrip multilib-pkg-force"
 
