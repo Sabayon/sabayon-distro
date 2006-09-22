@@ -17,7 +17,7 @@ KEYWORDS="~x86 ~amd64"
 
 IUSE="arts composite hiddenvisibility shadow java"
 DEPENT="
-	>=kdebase/kde-3.5.3
+	>=kdebase/kde-3.5.4
 	"
 DEPEND="${RDEPEND}"
 
@@ -27,7 +27,11 @@ src_compile() {
 		then HIDDEN="--enable-gcc-hidden-visibility";
 	fi	
 
-	econf	`use_with arts`	`use_with java` `use_with composite` $HIDDEN || die "Configure failed"
+	econf --prefix='kde-config --prefix' \
+		`use_with arts`	\
+		`use_with java` \
+		`use_with composite` \
+		$HIDDEN || die "Configure failed"
 }
 
 src_install() {
