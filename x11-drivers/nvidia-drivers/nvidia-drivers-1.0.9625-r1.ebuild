@@ -115,7 +115,7 @@ src_unpack() {
        # Use some more sensible gl headers and make way for new glext.h
        epatch ${FILESDIR}/NVIDIA_glx-glheader.patch
        #remove smbus
-       epatch ${FILESDIR}/NVIDIA_kernel-1.0-9625-NOSMBUS.diff
+       epatch ${FILESDIR}/NVIDIA_kernel-1.0-9625-NOSMBUS.patch
 
        if ! use x86-fbsd; then
              # Zander kernel patches
