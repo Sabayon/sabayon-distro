@@ -12,7 +12,7 @@ SRC_URI="x86? ( mirror://gentoo/ati-driver-installer-${PV}-x86.run )
 	 amd64? ( mirror://gentoo/ati-driver-installer-${PV}-x86_64.run )"
 
 LICENSE="ATI"
-KEYWORDS="-* ~amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 
 RDEPEND="|| ( x11-base/xorg-server virtual/x11 )
 	 !>=x11-base/xorg-server-1.0.99
