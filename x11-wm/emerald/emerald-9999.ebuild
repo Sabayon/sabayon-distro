@@ -54,7 +54,7 @@ src_compile() {
 	cd ${S}
 
 	./autogen.sh
-	econf --enable-system-mesa=yes || die "econf failed"
+	econf --disable-mime-update || die "econf failed"
 	make
 	# This dont work... fuck... disabled for now
 	#emake || die "make failed"
