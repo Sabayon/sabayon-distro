@@ -1,0 +1,19 @@
+#!/bin/sh
+cmd=0
+if [ -z "$1" ]; then
+  cmd=1
+else
+  if [ "$1" = "e16" ]; then
+    cmd=0
+  elif [ "$1" = "fluxbox" ]; then
+    cmd=0
+  elif [ "$1" = "gnome" ]; then
+    cmd=0
+  else
+    cmd=1
+  fi
+fi
+
+if [ "$cmd" = "1" ]; then
+  emerald --replace & beryl --indirect-rendering --replace dbus settings
+fi
