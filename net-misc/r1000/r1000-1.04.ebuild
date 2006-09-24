@@ -41,6 +41,11 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 
+	# Fix for weird uname -r stuff in the Makefile
+	cd ${S}/src
+	echo ${KV_FULL}
+	sed -i 's/$(shell uname -r)/'${KV_FULL}'/' Makefile
+
 	convert_to_m ${S}/src/Makefile
 	# FIX compilation bug when using 2.6.17 or newer kernel(sources)
 	#the MODULE_PARM function(2.4 kernels) is no longer supported
@@ -54,6 +59,7 @@ src_unpack() {
 			${_tmp}.orig > ${_tmp}
 		rm ${_tmp}.orig
 	fi
+	
 }
 
 src_install() {
