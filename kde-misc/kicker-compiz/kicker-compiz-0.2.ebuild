@@ -15,23 +15,21 @@ SRC_URI="http://sabayonlinux.org/distfiles/kde-misc/${PN}-${PV}.tar.gz "
 SLOT="2"
 KEYWORDS="~x86 ~amd64"
 
-IUSE="arts composite hiddenvisibility shadow java"
+IUSE="composite kdehiddenvisibility shadow"
 DEPENT="
 	>=kdebase/kde-3.5.4
 	"
 DEPEND="${RDEPEND}"
 
 src_compile() {
-	if 
-		use hiddenvisibility; 
-		then HIDDEN="--enable-gcc-hidden-visibility";
-	fi	
+        # It re-runs configure because of messed-up timestamps
+        rm -f "${S}/configure"
 
-	econf --prefix='kde-config --prefix' \
-		`use_with arts`	\
-		`use_with java` \
-		`use_with composite` \
-		$HIDDEN || die "Configure failed"
+        myconf="${myconf}
+                $(use_with composite)
+                $(use_with shadow)"
+
+        kde_src_compile
 }
 
 src_install() {
