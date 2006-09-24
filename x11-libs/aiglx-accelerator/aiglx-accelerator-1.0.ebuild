@@ -17,24 +17,28 @@ DEPEND=">=x11-base/xorg-x11-7.1"
 
 RDEPEND=""
 
-S="${WORKDIR}/${PN}"
+src_unpack () {
+
+        cd ${WORKDIR}
+        cp ${FILESDIR}/sched.c .
+        cp ${FILESDIR}/09aiglx .
+
+}
 
 src_compile () {
 
-	cd ${S}
-	cp ${FILESDIR}/sched.c .
-	cp ${FILESDIR}/09aiglx .
+        cd ${WORKDIR}
 	gcc -rdynamic -shared -fPIC -o sched.so sched.c
 
 }
 
 src_install () {
 
-	cd ${S}
+	cd ${WORKDIR}
 	insinto /usr/lib/
 	doins *.so
 
-	cd ${S}
+	cd ${WORKDIR}
 	insinto /etc/env.d/
 	doins 09aiglx
 
