@@ -15,7 +15,7 @@ SRC_URI="http://sabayonlinux.org/distfiles/kde-misc/${PN}-${PV}.tar.gz "
 SLOT="2"
 KEYWORDS="~x86 ~amd64"
 
-IUSE="composite kdehiddenvisibility shadow"
+IUSE="composite shadow"
 DEPENT="
 	>=kdebase/kde-3.5.4
 	"
