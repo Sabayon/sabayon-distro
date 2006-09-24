@@ -1,0 +1,2 @@
+#!/bin/sh
+LD_PRELOAD=/usr/lib/sched.so exec X "$@"

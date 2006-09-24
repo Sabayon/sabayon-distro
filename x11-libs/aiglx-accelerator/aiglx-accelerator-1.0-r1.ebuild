@@ -21,7 +21,7 @@ src_unpack () {
 
         cd ${WORKDIR}
         cp ${FILESDIR}/sched.c .
-        cp ${FILESDIR}/09aiglx .
+        cp ${FILESDIR}/AIGLX . -p
 
 }
 
@@ -39,7 +39,7 @@ src_install () {
 	doins *.so
 
 	cd ${WORKDIR}
-	insinto /etc/env.d/
-	doins 09aiglx
+	exeinto /usr/bin/
+	doexe AIGLX
 
 }
