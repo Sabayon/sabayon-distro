@@ -11,7 +11,7 @@ FW_VER_DEC="pvr_1.18.21.22254_inf.zip"
 FW_VER_ENC="pvr_2.0.43.24103_whql.zip"
 #Switched to recommended firmware by driver
 
-SRC_URI="http://dl.ivtvdriver.org/ivtv/archive/0.7.x/${P}.tar.gz
+SRC_URI="http://dl.ivtvdriver.org/ivtv/archive/0.8.x/${P}.tar.gz
 	ftp://ftp.shspvr.com/download/wintv-pvr_150-500/inf/${FW_VER_ENC}
 	ftp://ftp.shspvr.com/download/wintv-pvr_250-350/inf/${FW_VER_DEC}"
 
@@ -33,12 +33,12 @@ pkg_setup() {
 	MODULE_NAMES="ivtv(extra:${S}/driver) \
 			saa717x(extra:${S}/i2c-drivers)"
 
-	if kernel_is 2 6 17 || kernel_is 2 6 18; then
+	if kernel_is 2 6 18; then
 		CONFIG_CHECK="EXPERIMENTAL VIDEO_DEV I2C VIDEO_V4L1 VIDEO_V4L2 FW_LOADER"
 		CONFIG_CHECK="${CONFIG_CHECK} VIDEO_WM8775 VIDEO_MSP3400 VIDEO_CX25840 VIDEO_TUNER"
 		CONFIG_CHECK="${CONFIG_CHECK} VIDEO_SAA711X VIDEO_SAA7127 VIDEO_TVEEPROM"
 	else
-		die "This only works on 2.6.17/18 kernels"
+		die "This only works on 2.6.18 kernels"
 	fi
 
 	linux_chkconfig_present FB && \
