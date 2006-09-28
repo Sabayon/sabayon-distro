@@ -30,8 +30,8 @@ src_compile() {
 }
 
 src_install() {
-
-        emake || die "Make failed"
+	# emake doesn't seem to want to work with kde_src_comple	
+        make || die "Make failed"
         emake DESTDIR=${D} install || die "Make Install failed"
         dodoc README NEWS TODO AUTHORS
 
