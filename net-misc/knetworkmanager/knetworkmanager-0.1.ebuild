@@ -25,7 +25,7 @@ DEPEND="${RDEPEND}"
 
 src_unpack() {
 	unpack ${A}	
-
+	S=${WORKDIR}/
 	cd ${S}
 
 	EPATCH_SOURCE="${DISTDIR}" EPATCH_SUFFIX="patch" \
