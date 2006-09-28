@@ -22,7 +22,9 @@ DEPEND="${RDEPEND}"
 src_compile() {
 
         myconf="${myconf}
-                $(use_without arts)"
+                $(use_without arts)
+		--prefix=`kde-config --prefix`
+		"
 
         kde_src_compile
 }
