@@ -35,7 +35,7 @@ src_compile() {
 
 src_install() {
 		
-        emake || die "Make failed"
+        make || die "Make failed"
         emake DESTDIR=${D} install || die "Make Install failed"
         dodoc README NEWS TODO AUTHORS
 
