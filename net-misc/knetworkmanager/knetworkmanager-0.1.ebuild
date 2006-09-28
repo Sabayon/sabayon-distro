@@ -24,14 +24,13 @@ DEPENT="
 DEPEND="${RDEPEND}"
 
 src_unpack() {
-S=${WORKDIR}/${P}
+	unpack ${A}	
+
 	cd ${S}
 
 	EPATCH_SOURCE="${DISTDIR}" EPATCH_SUFFIX="patch" \
         EPATCH_FORCE="yes" epatch
 
-	S=${WORKDIR}/${P}
-	cd ${S}
 }
 
 src_compile() {
