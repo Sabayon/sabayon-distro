@@ -9,7 +9,9 @@ HOMEPAGE="http://en.opensuse.org/Projects/KNetworkManager"
 LICENSE="GPL-2"
 
 SRC_URI="http://nouse.net/projects/KNetworkManager/0.1/${PN}-${PV}.tar.bz2
-	http://sabayonlinux.org/distfiles/net-misc/patches/absolut-unsermake.patch
+	http://sabayonlinux.org/distfiles/net-misc/patches/policy-fix.patch
+	http://sabayonlinux.org/distfiles/net-misc/patches/01-build-fix.patch
+	http://sabayonlinux.org/distfiles/net-misc/patches/desktop-fix.patch
 	"
 
 SLOT="2"
@@ -20,6 +22,17 @@ DEPENT="
         >=net-misc/networkmanager-0.6.2
         "
 DEPEND="${RDEPEND}"
+
+src_unpack() {
+S=${WORKDIR}/${P}/knetworkmanager
+	cd ${S}
+
+	EPATCH_SOURCE="${DISTDIR}" EPATCH_SUFFIX="patch" \
+        EPATCH_FORCE="yes" epatch
+
+	S=${WORKDIR}/${P}
+	cd ${S}
+}
 
 src_compile() {
 	
