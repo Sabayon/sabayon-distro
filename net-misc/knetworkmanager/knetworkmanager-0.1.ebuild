@@ -24,7 +24,7 @@ DEPENT="
 DEPEND="${RDEPEND}"
 
 src_unpack() {
-S=${WORKDIR}/${P}/knetworkmanager
+S=${WORKDIR}/${P}
 	cd ${S}
 
 	EPATCH_SOURCE="${DISTDIR}" EPATCH_SUFFIX="patch" \
