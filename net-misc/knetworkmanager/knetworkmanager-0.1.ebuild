@@ -10,7 +10,6 @@ LICENSE="GPL-2"
 
 SRC_URI="http://nouse.net/projects/KNetworkManager/0.1/${PN}-${PV}.tar.bz2
 	http://sabayonlinux.org/distfiles/net-misc/patches/policy-fix.patch
-	http://sabayonlinux.org/distfiles/net-misc/patches/desktop-fix.patch
 	"
 
 SLOT="2"
