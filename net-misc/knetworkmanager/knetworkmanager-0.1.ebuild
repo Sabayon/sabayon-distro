@@ -9,7 +9,6 @@ HOMEPAGE="http://en.opensuse.org/Projects/KNetworkManager"
 LICENSE="GPL-2"
 
 SRC_URI="http://nouse.net/projects/KNetworkManager/0.1/${PN}-${PV}.tar.bz2
-	http://sabayonlinux.org/distfiles/net-misc/patches/policy-fix.patch
 	"
 
 SLOT="2"
@@ -20,16 +19,6 @@ DEPENT="
         >=net-misc/networkmanager-0.6.2
         "
 DEPEND="${RDEPEND}"
-
-src_unpack() {
-	unpack ${A}	
-	S=${WORKDIR}/
-	cd ${S}
-
-	EPATCH_SOURCE="${DISTDIR}" EPATCH_SUFFIX="patch" \
-        EPATCH_FORCE="yes" epatch
-
-}
 
 src_compile() {
 	
