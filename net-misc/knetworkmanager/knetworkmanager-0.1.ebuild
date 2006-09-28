@@ -23,8 +23,7 @@ DEPEND="${RDEPEND}"
 
 src_compile() {
 	
-	autoconf
-	automake
+	eautoreconf
 	
         myconf="${myconf}
                 $(use_with arts)
