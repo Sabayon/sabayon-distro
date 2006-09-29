@@ -5,8 +5,7 @@
 inherit eutils subversion flag-o-matic multilib gnome2 autotools
 
 ESVN_PROJECT=${PN}
-ESVN_REPO_URI="svn://metascape.afraid.org/svnroot/beryl/${ESVN_PROJECT}/trunk"
-ESVN_MODULE=${ESVN_PROJECT}
+ESVN_REPO_URI="svn://metascape.afraid.org/svnroot/beryl/trunk/${ESVN_PROJECT}"
 ESVN_LOCALNAME=${ESVN_PROJECT}
 
 
