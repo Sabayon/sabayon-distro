@@ -37,8 +37,7 @@ DEPEND=">=media-libs/mesa-6.5.1_alpha20060515
 		gnome-base/gnome-desktop
 		gnome-base/control-center
 	)
-	>=gnome-base/librsvg-2
-	!x11-wm/compiz"
+	>=gnome-base/librsvg-2"
 
 RDEPEND="${DEPEND}
 	x11-apps/xvinfo
