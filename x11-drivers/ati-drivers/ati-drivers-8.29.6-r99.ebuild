@@ -1,23 +1,26 @@
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/www/viewcvs.gentoo.org/raw_cvs/gentoo-x86/x11-drivers/ati-drivers/Attic/ati-drivers-8.25.18.ebuild,v 1.5 2006/06/27 23:56:44 lu_zero Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.29.6.ebuild,v 1.1 2006/09/25 13:57:59 lu_zero Exp $
 
-IUSE="opengl"
+IUSE="acpi doc opengl distribution"
 
 inherit eutils rpm multilib linux-mod linux-info toolchain-funcs
 
 DESCRIPTION="Ati precompiled drivers for r350, r300, r250 and r200 chipsets"
 HOMEPAGE="http://www.ati.com"
-SRC_URI="x86? ( mirror://gentoo/ati-driver-installer-${PV}-x86.run )
-	 amd64? ( mirror://gentoo/ati-driver-installer-${PV}-x86_64.run )"
+ATI_URL="https://a248.e.akamai.net/f/674/9206/0/www2.ati.com/drivers/linux/"
+SRC_URI="${ATI_URL}/ati-driver-installer-${PV}.run"
 
 LICENSE="ATI"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="-* ~amd64 ~x86"
 
 RDEPEND="|| ( x11-base/xorg-server virtual/x11 )
-	 !>=x11-base/xorg-server-1.0.99
 	 app-admin/eselect-opengl
-	 || ( sys-libs/libstdc++-v3 =sys-devel/gcc-3.3* )"
+	 || ( sys-libs/libstdc++-v3 =sys-devel/gcc-3.3* )
+	 acpi? (
+	 	|| ( x11-apps/xauth virtual/x11 )
+	 	sys-power/acpid
+	 )"
 
 DEPEND=">=virtual/linux-sources-2.4
 	${RDEPEND}"
@@ -32,7 +35,7 @@ MODULE_NAMES="fglrx(video:${WORKDIR}/common/lib/modules/fglrx/build_mod)"
 QA_EXECSTACK_x86="usr/lib/xorg/modules/dri/fglrx_dri.so"
 QA_EXECSTACK_amd64="usr/lib64/xorg/modules/dri/fglrx_dri.so usr/lib32/xorg/modules/dri/fglrx_dri.so"
 QA_TEXTREL_x86="usr/lib/xorg/modules/dri/fglrx_dri.so usr/lib/opengl/ati/lib/libGL.so.1.2"
-QA_TEXTREL_amd64="usr/lib64/xorg/modules/dri/fglrx_dri.so usr/lib32/opengl/ati/lib/libGL.so.1.2"
+QA_TEXTREL_amd64="usr/lib64/xorg/modules/dri/fglrx_dri.so usr/lib32/opengl/ati/lib/libGL.so.1.2 usr/lib32/xorg/modules/dri/fglrx_dri.so usr/lib32/xorg/modules/dri/atiogl_a_dri.so"
 
 choose_driver_paths() {
 	ARCH_DIR="${WORKDIR}/arch"
@@ -40,8 +43,16 @@ choose_driver_paths() {
 
 	#new modular X paths, 0 is a workaround.
 	if has_version "x11-base/xorg-server"; then
-		BASE_DIR="${WORKDIR}/x690"
-		xlibdir="xorg"
+		if [ "$(get_version_component_range 1 ${X11_IMPLEM_V})" = 1 ] &&
+		   [ "$(get_version_component_range 2 ${X11_IMPLEM_V})" = 0 ] &&
+		   [ "$(get_version_component_range 3 ${X11_IMPLEM_V})" = 99 ] ||
+		   [ "$(get_version_component_range 2 ${X11_IMPLEM_V})" != 0 ]
+		then
+			BASE_DIR="${WORKDIR}/x710"
+		else
+			BASE_DIR="${WORKDIR}/x690"
+		fi
+			xlibdir="xorg"
 	else
 		BASE_DIR="${WORKDIR}/x$(get_version_component_range 1 ${X11_IMPLEM_V})"
 		xlibdir=""
@@ -104,6 +115,8 @@ pkg_setup(){
 	# Set up X11 implementation
 	if has_version "x11-base/xorg-server"; then
 		X11_IMPLEM=xorg-x11
+		X11_IMPLEM_V="$(best_version x11-base/xorg-server)"
+		X11_IMPLEM_V="${X11_IMPLEM_V/x11-base\/xorg-server-/}"
 	elif has_version "<x11-base/xorg-x11-6.8.99"; then
 		X11_IMPLEM=xorg-x11
 		X11_IMPLEM_V="$(best_version x11-base/xorg-x11)"
@@ -129,15 +142,19 @@ src_unpack() {
 
 	rm -rf ${ARCH_DIR}/usr/X11R6/bin/{fgl_glxgears,fireglcontrolpanel}
 
-	cd ${WORKDIR}/common/lib/modules/fglrx/build_mod
+	if use acpi
+	then
+		sed -i \
+		-e "s/\/var\/lib\/xdm\/authdir/\/etc\/X11\/xdm\/authdir/" \
+		-e "s/\/var\/lib\/gdm/\/var\/gdm/" \
+		-e "s/#ffff#/#ffff##:.*MIT-MAGIC-COOKIE/" \
+		"${WORKDIR}/common/etc/ati/authatieventsd.sh" \
+			|| die "sed failed."
 
-	#if kernel_is ge 2 6 16; then
-	#	epatch ${FILESDIR}/${PN}-8.22.5-intermodule.patch
-	#	epatch ${FILESDIR}/${PN}-8.23.7-noiommu.patch
-	#	epatch ${FILESDIR}/${PN}-8.23.7-gcc41.patch
-	#fi
+		cd ${WORKDIR}
+		epatch ${FILESDIR}/ati-powermode.sh.patch
+	fi
 }
-
 
 src_compile() {
 	einfo "Building the DRM module..."
@@ -211,16 +228,42 @@ src_install() {
 		src_install-libs
 	fi &> /dev/null
 
-	#apps
+	#apps, man pages, and conf files
 	exeinto /opt/ati/bin
 	doexe ${ARCH_DIR}/usr/X11R6/bin/*
-
+	if use acpi
+	then
+		exeinto /opt/ati/sbin
+		doexe ${ARCH_DIR}/usr/sbin/*
+		insinto /opt/ati/man/man8
+		doins common/usr/share/man/man8/*
+		newinitd ${FILESDIR}/atieventsd.rc6 atieventsd
+		dodir /etc/conf.d
+		echo 'ATIEVENTSDOPTS=""' > ${D}/etc/conf.d/atieventsd
+	fi
 	#ati custom stuff
 	insinto /usr
 	doins -r ${WORKDIR}/common/usr/include
 
+	#documentation
+	if use doc; then
+		dodir /usr/share/doc/fglrx
+		cp -pPR common/usr/share/doc/fglrx/* \
+			${D}/usr/share/doc/fglrx
+	fi
+
 	#env.d entry
 	cp ${FILESDIR}/09ati ${T}/
+
+	if use acpi
+	then
+		local ATIETC="${WORKDIR}/common/usr/share/doc/fglrx/examples/etc/acpi"
+		exeinto /etc/acpi
+		doexe ${ATIETC}/ati-powermode.sh
+		insinto /etc/acpi/events
+		doins ${ATIETC}/events/a-ac-aticonfig
+		doins ${ATIETC}/events/a-lid-aticonfig
+	fi
 
 	#Work around hardcoded path in 32bit libGL.so on amd64, bug 101539
 	if has_multilib_profile && [ $(get_abi_LIBDIR x86) = "lib32" ] ; then
@@ -232,6 +275,20 @@ LIBGL_DRIVERS_PATH="\$LIBGL_DRIVERS_PATH:$ATI_LIBGL_PATH"
 EOF
 
 	doenvd ${T}/09ati
+
+        if use distribution && ! use x86-fbsd; then
+                insinto /lib/fglrx
+                doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/fglrx.o"
+                insinto /lib/fglrx
+                doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/fglrx.mod.o"
+                # then, remove fglrx.ko from the Live system.
+                # to link the fglrx.mod.o to fglrx.o do something like (for i386):
+                # ld -m elf_i386 -m elf_i386 -r -o fglrx.ko fglrx.o fglrx.mod.o
+                # or (for x86_64):
+                # ld -m elf_x86_64 -m elf_x86_64 -r -o fglrx.ko fglrx.o fglrx.mod.o
+        fi
+
+
 }
 
 src_install-libs() {
@@ -309,8 +366,16 @@ src_install-libs() {
 	insinto ${X11_DIR}/include/X11/extensions
 	doins ${COMMON_DIR}/usr/X11R6/include/X11/extensions/fglrx_gamma.h
 
+	# misc ati configuration files for /etc
 	dodir /etc
-	cp -pPR ${COMMON_DIR}/etc/* ${D}/etc/
+	cp -pP ${COMMON_DIR}/etc/fglrxprofiles.csv ${D}/etc/
+	cp -pP ${COMMON_DIR}/etc/fglrxrc ${D}/etc/
+	dodir /etc/ati
+	cp -pP ${COMMON_DIR}/etc/ati/logo* ${D}/etc/ati/
+	if use acpi
+	then
+		cp -pP ${COMMON_DIR}/etc/ati/authatieventsd.sh ${D}/etc/ati/
+	fi
 }
 
 
