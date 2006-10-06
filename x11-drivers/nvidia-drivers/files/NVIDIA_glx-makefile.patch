@@ -1,0 +1,15 @@
+--- Makefile.old	2004-11-10 12:13:57.751853304 +1100
++++ Makefile	2004-11-10 12:14:22.439100272 +1100
+@@ -1,11 +1,5 @@
+ default:
+-	@ echo
+-	@ echo "It is NOT recommended that you use this Makefile to install"
+-	@ echo "the NVIDIA driver.  Instead, please use the nvidia-installer"
+-	@ echo "utility.  However, should nvidia-installer not operate for you,"
+-	@ echo "you may use this Makefile as a last resort.  To install using"
+-	@ echo "this Makefile, please run 'make install'."
+-	@ echo
++	@ echo "Gentoo Linux does not use nvidia-installer."
+ 
+ kernel_module_install:
+ 	cd usr/src/nv; make install
