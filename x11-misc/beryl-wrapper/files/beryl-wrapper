@@ -19,7 +19,7 @@ processes=$(ps auxf)
 if [ "$cmd" = "1" ]; then
   xgl_running=$(echo $processes | grep Xgl)
   if [ -n "$xgl_running" ]; then
-    emerald --replace & beryl --replace --xgl-binding dbus settings
+    emerald --replace & beryl-xgl --replace dbus settings
   else
     emerald --replace & beryl --strict-binding --indirect-rendering --replace dbus settings
   fi
