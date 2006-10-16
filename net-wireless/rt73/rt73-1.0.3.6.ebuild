@@ -13,26 +13,26 @@ MY_P=RT73_Linux_STA_Drv${PV}
 # May work on other little endien arches, e.g amd64
 # Known broken on big endian arches
 LICENSE="GPL-2"
-KEYWORDS="~x86"
+KEYWORDS="~x86 ~amd64"
 IUSE="debug"
 
 RDEPEND="net-wireless/wireless-tools"
 MODULE_NAMES="rt73(net:${S}/Module)"
 
-S=${WORKDIR}/${MY_P}
+#S=${WORKDIR}/${MY_P}
 
 CONFIG_CHECK="NET_RADIO"
 ERROR_NET_RADIO="${P} requires support for Wireless LAN drivers (non-hamradio) & Wireless Extensions (CONFIG_NET_RADIO)."
 MODULESD_RT73_ALIASES=('usbra? rt73')
 
 pkg_setup() {
+	BUILD_PARAMS="KERNDIR=${KV_DIR} KERNOUT=${KV_OUT_DIR} objdir=${S}"
 	linux-mod_pkg_setup
-	BUILD_PARAMS="KERNDIR=${KV_DIR} KERNOUT=${KV_OUT_DIR}"
-
 }
 
 src_unpack (){
 	unpack ${A}
+	mv ${WORKDIR}/${MY_P} ${WORKDIR}/${P}
 	cd "${S}/Module"
 
 	# Portage expects to do make module, not make all
@@ -62,6 +62,7 @@ src_unpack (){
 
 src_compile() {
 	use debug && export debug="y"
+	cd "${S}/Module"
 	linux-mod_src_compile
 }
 
