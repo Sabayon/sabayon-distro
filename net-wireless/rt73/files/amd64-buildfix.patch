@@ -1,0 +1,11 @@
+--- rt_config.h	2006-10-16 20:50:49.000000000 +0000
++++ rt_config.h.new	2006-10-16 20:51:19.000000000 +0000
+@@ -96,7 +96,7 @@
+ #include <asm/io.h>      
+ #include <asm/irq.h>       
+ #include <asm/uaccess.h>     
+-#include <asm-i386/atomic.h>     
++#include <asm/atomic.h>     
+ 
+ // load firmware
+ #define __KERNEL_SYSCALLS__

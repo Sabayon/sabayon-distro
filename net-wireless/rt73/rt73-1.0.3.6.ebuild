@@ -57,6 +57,12 @@ src_unpack (){
 
 	# You can edit patch to also add your RT73 device if you are careful.
 	epatch "${FILESDIR}/deviceID.patch"
+
+	# x86_64 support
+	if use amd64; then
+		epatch "${FILESDIR}/amd64-buildfix.patch"
+	fi
+
 }
 
 
