@@ -8,14 +8,14 @@ DESCRIPTION="KNetworkManager is the KDE front end for NetworkManager."
 HOMEPAGE="http://en.opensuse.org/Projects/KNetworkManager"
 LICENSE="GPL-2"
 
-SRC_URI="http://nouse.net/projects/KNetworkManager/0.1/${PN}-${PV}.tar.bz2
-	"
+SRC_URI="http://nouse.net/projects/KNetworkManager/0.1/${PN}-${PV}.tar.bz2"
 
 SLOT="2"
 KEYWORDS="~x86 ~amd64"
 
 IUSE="arts"
 DEPENT="
+	kde-base/unsermake
         >=net-misc/networkmanager-0.6.2
         "
 DEPEND="${RDEPEND}"
@@ -28,7 +28,7 @@ src_compile() {
                 $(use_with arts)
 		--prefix=`kde-config --prefix`
 		"
-	
+	export UNSERMAKE="yes"
         kde_src_compile
 }
 
