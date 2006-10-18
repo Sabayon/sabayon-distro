@@ -22,19 +22,18 @@ DEPEND="${RDEPEND}"
 
 src_compile() {
 	
-	eautoreconf
+	#eautoreconf
 	
-        myconf="${myconf}
-                $(use_with arts)
-		--prefix=`kde-config --prefix`
-		"
-	export UNSERMAKE="yes"
-        kde_src_compile
+        #myconf="${myconf}
+        #        $(use_with arts)
+	#	--prefix=`kde-config --prefix`
+	#	"
+        UNSERMAKE="yes" kde_src_compile
+
 }
 
 src_install() {
 		
-        make || die "Make failed"
         emake DESTDIR=${D} install || die "Make Install failed"
         dodoc README NEWS TODO AUTHORS
 
