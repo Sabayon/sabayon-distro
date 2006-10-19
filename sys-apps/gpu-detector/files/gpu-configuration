@@ -70,7 +70,7 @@ if [ -n "$is_there_xdriver" ]; then
   case $word in
     xdriver=*)
      xdriver=$(echo $word | cut -d= -f 2)
-     sed -i 's/"vesa"/"'$xdriver'"/' $XORGFILE
+     sed -i 's/do not remove vesa/ s/".*"/"'$xdriver'"/' $XORGFILE
      if [ -z "$NVIDIA" ]; then
        if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$SIS" ] || [ -n "$MATROX" ]; then
          remove_proprietary_opengl
@@ -89,7 +89,7 @@ if [ -n "$NVIDIA" ]; then
 
   if [ -n "$NOPROP" ] || [ -n "$LEGACY" ] || [ -n "$NVIDIATNT" ]; then
 
-     sed -i 's/"vesa"/"nv"/' $XORGFILE
+     sed -i 's/do not remove vesa/ s/".*"/"nv"/' $XORGFILE
      echo -e "\t Display Driver: NVIDIA (OpenSource)"
 
   else
@@ -97,11 +97,11 @@ if [ -n "$NVIDIA" ]; then
      modprobe nvidia &> /dev/null
      lsmod_nvidia=$(lsmod | grep nvidia)
      if [ -n "$lsmod_nvidia" ];then
-       sed -i 's/"vesa"/"nvidia"/' $XORGFILE
+       sed -i 's/do not remove vesa/ s/".*"/"nvidia"/' $XORGFILE
        echo -e "\t Display Driver: NVIDIA (Proprietary)"
     else
 
-     sed -i 's/"vesa"/"nv"/' $XORGFILE
+     sed -i 's/do not remove vesa/ s/".*"/"nv"/' $XORGFILE
      echo -e "\t Display Driver: NVIDIA (OpenSource) - Proprietary drivers can't be loaded"
 
 
@@ -111,14 +111,14 @@ if [ -n "$NVIDIA" ]; then
 
 elif [ -n "$RAGE128" ]; then
 
-    sed -i 's/"vesa"/"r128"/' $XORGFILE
+    sed -i '/do not remove vesa/ s/".*"/"r128"/' $XORGFILE
     sed -i '/"dri"/ s/#//' $XORGFILE
 
     echo -e "\t Display Driver: ATI Rage 128"
 
 elif [ -n "$V3DFX" ]; then
 
-    sed -i 's/"vesa"/"tdfx"/' $XORGFILE
+    sed -i 's/do not remove vesa/ s/".*"/"tdfx"/' $XORGFILE
     sed -i '/"dri"/ s/#//' $XORGFILE
     sed -i '/DefaultDepth/ s/24/16/' $XORGFILE
 
@@ -126,7 +126,7 @@ elif [ -n "$V3DFX" ]; then
 
 elif [ -n "$I855" ] || [ -n "$I915" ] || [ -n "$I945" ] || [ -n "$I845" ] || [ -n "$IGRANTSDALE" ]; then
 
-    sed -i 's/"vesa"/"i810"/' $XORGFILE
+    sed -i 's/do not remove vesa/ s/".*"/"i810"/' $XORGFILE
     sed -i '/"dri"/ s/#//' $XORGFILE
     # Fix for DRI accel
     remove_proprietary_opengl
@@ -137,7 +137,7 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
   if [ -n "$NOPROP" ] || [ -n "$LEGACY" ]; then
 
-    sed -i 's/"vesa"/"radeon"/' $XORGFILE
+    sed -i 's/do not remove vesa/ s/".*"/"radeon"/' $XORGFILE
     sed -i '/"dri"/ s/#//' $XORGFILE
     echo -e "\t Display Driver: ATI (OpenSource)"
 
@@ -148,7 +148,7 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 	modprobe fglrx &> /dev/null
         lsmod_ati=$(lsmod | grep fglrx)
 	if [ -n "$lsmod_ati" ];then
-    	  sed -i 's/"vesa"/"fglrx"/' $XORGFILE
+    	  sed -i 's/do not remove vesa/ s/".*"/"fglrx"/' $XORGFILE
           sed -i '/"dri"/ s/#//' $XORGFILE
 
     	  echo -e "\t Display Driver: ATI (Proprietary)"
@@ -157,7 +157,7 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
 	  remove_proprietary_opengl
 
-	  sed -i 's/"vesa"/"radeon"/' $XORGFILE
+	  sed -i 's/do not remove vesa/ s/".*"/"radeon"/' $XORGFILE
           sed -i '/"dri"/ s/#//' $XORGFILE
 
           echo -e "\t Display Driver: ATI (OpenSource) - Proprietary drivers can't be loaded"
@@ -167,7 +167,7 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
     else
 
         remove_proprietary_opengl
-  	sed -i 's/"vesa"/"radeon"/' $XORGFILE
+  	sed -i 's/do not remove vesa/ s/".*"/"radeon"/' $XORGFILE
         sed -i '/"dri"/ s/#//' $XORGFILE
     	echo -e "\t Display Driver: ATI (OpenSource)"
 
@@ -177,7 +177,7 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
 elif [ -n "$SIS" ]; then
 
- sed -i 's/"vesa"/"sis"/' $XORGFILE
+ sed -i 's/do not remove vesa/ s/".*"/"sis"/' $XORGFILE
  sed -i '/"dri"/ s/#//' $XORGFILE
  remove_proprietary_opengl
  echo -e "\t Display Driver: SiS"
@@ -185,7 +185,7 @@ elif [ -n "$SIS" ]; then
 
 elif [ -n "$VMWARE" ]; then
 
- sed -i 's/"vesa"/"vmware"/' $XORGFILE
+ sed -i 's/do not remove vesa/ s/".*"/"vmware"/' $XORGFILE
  sed -i '/"dri"/ s/#//' $XORGFILE
 
  # Uncomment "Modes"
@@ -196,41 +196,41 @@ elif [ -n "$VMWARE" ]; then
 elif [ -n "$SAVAGE" ]; then
 
  echo -e "\t Display Driver: Savage"
- sed -i 's/"vesa"/"savage"/' $XORGFILE
+ sed -i 's/do not remove vesa/ s/".*"/"savage"/' $XORGFILE
  sed -i '/"dri"/ s/#//' $XORGFILE
  remove_proprietary_opengl
 
 elif [ -n "$VIRGE" ]; then
 
  echo -e "\t Display Driver: S3 Virge"
- sed -i 's/"vesa"/"s3virge"/' $XORGFILE
+ sed -i 's/do not remove vesa/ s/".*"/"s3virge"/' $XORGFILE
  sed -i '/"dri"/ s/#//' $XORGFILE
  remove_proprietary_opengl
 
 elif [ -n "$MATROX" ]; then
 
- sed -i 's/"vesa"/"mga"/' $XORGFILE
+ sed -i 's/do not remove vesa/ s/".*"/"mga"/' $XORGFILE
  sed -i '/"dri"/ s/#//' $XORGFILE
  remove_proprietary_opengl
  echo -e "\t Display Driver: MATROX"
 
 elif [ -n "$VIA" ]; then
 
- sed -i 's/"vesa"/"via"/' $XORGFILE
+ sed -i 's/do not remove vesa/ s/".*"/"via"/' $XORGFILE
  sed -i '/"dri"/ s/#//' $XORGFILE
  remove_proprietary_opengl
  echo -e "\t Display Driver: VIA Technologies"
 
 elif [ -n "$CIRRUS" ]; then
 
- sed -i 's/"vesa"/"cirrus"/' $XORGFILE
+ sed -i 's/do not remove vesa/ s/".*"/"cirrus"/' $XORGFILE
  sed -i '/"dri"/ s/#//' $XORGFILE
 
  echo -e "\t Display Driver: Cirrus Logic"
 
 elif [ -n "$TRIDENT" ]; then
 
- sed -i 's/"vesa"/"trident"/' $XORGFILE
+ sed -i 's/do not remove vesa/ s/".*"/"trident"/' $XORGFILE
  sed -i '/"dri"/ s/#//' $XORGFILE
 
  echo -e "\t Display Driver: Cirrus Logic"
@@ -239,7 +239,7 @@ elif [ -n "$TRIDENT" ]; then
 else
 
  # PUT YOUR HERE
- # sed -e 's/"vesa"/"mga"/' $XORGFILE > $XORGNEWFILE
+ # sed -e 's/do not remove vesa/ s/".*"/"mga"/' $XORGFILE > $XORGNEWFILE
  # cp $XORGFILE "$XORGFILE".old 
  # mv $XORGNEWFILE $XORGFILE -f
  echo -e "\t Display Driver: VESA (no supported card detected)"
