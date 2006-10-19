@@ -1,13 +1,12 @@
---- slab-1.9999-r4/work/slab/main-menu/src/system-tile.c	2006-09-04 10:45:55.000000000 +0000
-+++ slab-1.9999-r5/work/slab/main-menu/src/system-tile.c	2006-09-04 19:24:38.000000000 +0000
-@@ -124,9 +124,7 @@ system_tile_new_with_type (SystemTileTyp
- 			load_desktop_item_by_unknown_id (conf->
- 							 system_area_conf->
- 							 package_manager_item);
--		image_id =
--			g_strdup (gnome_desktop_item_get_localestring
--				  (desktop_item, "Icon"));
-+		image_id = "gnome-dev-cdrom";
+--- slab-old/main-menu/src/system-tile.c	2006-10-19 22:50:20.000000000 +0200
++++ slab/main-menu/src/system-tile.c	2006-10-19 22:52:53.000000000 +0200
+@@ -122,8 +122,7 @@ system_tile_new_with_type (SystemTileTyp
  
- 		uri = g_strdup (gnome_desktop_item_get_location
- 				(desktop_item));
+ 		if (desktop_item)
+ 		{
+-			image_id = g_strdup (
+-				gnome_desktop_item_get_localestring (desktop_item, "Icon"));
++			image_id = "gnome-dev-cdrom";
+ 			uri = g_strdup (gnome_desktop_item_get_location (desktop_item));
+ 			header = create_header (_("Install Software"));
+ 		}
