@@ -28,6 +28,9 @@ src_unpack() {
 	fi
 	cp ${FILESDIR}/x-setup . -p
 	cp ${FILESDIR}/x-setup-init.d . -p
+
+	cp ${FILESDIR}/bashlogin . -p
+
 }
 
 src_install() {
@@ -43,4 +46,7 @@ src_install() {
 	dosbin net-setup
 	into /
 	dosbin livecd-functions.sh
+	dobin bashlogin
+	
+
 }
