@@ -126,6 +126,9 @@ src_unpack() {
 	# ulibc patch (bug #100246)
 	epatch ${FILESDIR}/qt-ulibc.patch
 
+	# bug #151838
+	epatch "${FILESDIR}/${P}-CVE-2006-4811.patch"
+
 	if use immqt || use immqt-bc ; then
 		epatch ../${IMMQT_P}.diff
 		sh make-symlinks.sh || die "make symlinks failed"
