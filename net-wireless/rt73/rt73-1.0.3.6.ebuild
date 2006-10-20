@@ -63,6 +63,9 @@ src_unpack (){
 		epatch "${FILESDIR}/amd64-buildfix.patch"
 	fi
 
+	# Better Gentoo support (mostly inside catalyst)
+        sed -i 's/$(shell uname -r)/'${KV_FULL}'/' Makefile
+
 }
 
 
