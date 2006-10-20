@@ -31,14 +31,14 @@ RDEPEND=">=net-misc/networkmanager-0.6.3
 	>=dev-lang/mono-1.1.10
 	>=sys-apps/dbus-0.30
 	>=gnome-base/libgtop-2.14.1
-	>=sys-apps/hal-0.5.7-r3"
+	>=sys-apps/hal-0.5.7-r3
+	gnome-base/gnome-common"
 DEPEND="${RDEPEND}
 	doc? (
 		app-doc/doxygen
 		dev-util/gtk-doc
 		mono? ( >=dev-util/monodoc-1.1.8 )
-	)
-	gnome-base/gnome-common"
+	)"
 
 src_unpack() {
 	cvs_src_unpack
