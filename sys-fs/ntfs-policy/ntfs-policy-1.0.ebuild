@@ -18,20 +18,23 @@ src_unpack () {
 
         cd ${WORKDIR}
         cp ${FILESDIR}/99-ntfs-policy.fdi . -p
+	cp /usr/share/hal/scripts/hal-system-storage-mount . -p
 
 }
 
 src_install () {
 
 	cd ${WORKDIR}
-	instinto /usr/share/hal/fdi/policy/10osvendor/
+	insinto /usr/share/hal/fdi/policy/10osvendor/
 	doins 99-ntfs-policy.fdi
 
 	# Patching hal-system-storage-mount
-	if [ -z "`cat /usr/share/hal/scripts/hal-system-storage-mount | grep '$MOUNTOPTIONS,$HAL_PROP_VOLUME_MOUNT_OPTION'`" ]; then
+	if [ -z "`cat hal-system-storage-mount | grep '$MOUNTOPTIONS,$HAL_PROP_VOLUME_MOUNT_OPTION'`" ]; then
 	   einfo "Patching hal-system-storage-mount"
-	   sed -i '/# echo "options =/ s/#/MOUNTOPTIONS="$MOUNTOPTIONS,$HAL_PROP_VOLUME_MOUNT_OPTION"\n\n#/' /usr/share/hal/scripts/hal-system-storage-mount
+	   sed -i '/# echo "options =/ s/#/MOUNTOPTIONS="$MOUNTOPTIONS,$HAL_PROP_VOLUME_MOUNT_OPTION"\n\n#/' hal-system-storage-mount
 	fi
 
+	insinto /usr/share/hal/scripts/
+	doins hal-system-storage-mount
 
 }
