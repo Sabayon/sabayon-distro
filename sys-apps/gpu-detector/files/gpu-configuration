@@ -8,7 +8,8 @@ remove_proprietary_opengl() {
    mount -t tmpfs none /usr/lib/opengl/nvidia &> /dev/null
    # FIX For fscking ATI env.d file
    rm -f /etc/env.d/*ati &> /dev/null
-   env-update && source /etc/profile &> /dev/null
+   sed -i '/LIBGL_DRIVERS_PATH s/.*//' /etc/profile.env
+   source /etc/profile &> /dev/null
    eselect opengl set --dst-prefix=/etc/opengl xorg-x11
 }
 
