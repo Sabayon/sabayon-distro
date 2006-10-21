@@ -16,11 +16,18 @@ fi
 
 processes=$(ps auxf)
 
-if [ "$cmd" = "1" ]; then
-  xgl_running=$(echo $processes | grep Xgl)
-  if [ -n "$xgl_running" ]; then
-    emerald --replace & beryl-xgl --replace dbus settings
-  else
-    emerald --replace & beryl --strict-binding --indirect-rendering --replace dbus settings
+acceleration_enabled=$(glxinfo | grep "direct rendering" | grep -i "yes")
+if [ -n "$acceleration_enabled" ]; then
+  if [ "$cmd" = "1" ]; then
+    xgl_running=$(echo $processes | grep Xgl)
+    if [ -n "$xgl_running" ]; then
+      emerald --replace & beryl-xgl --replace dbus settings
+    else
+      emerald --replace & beryl --strict-binding --indirect-rendering --replace dbus settings
+    fi
   fi
+else
+   # Notify the funny thing
+   exec_cmd="dcop knotify default notify DRI_status Direct Rendering 'OpenGL acceleration is disabled. 3D Desktop cannot be loaded.' '' '' 2 0"
+   echo $exec_cmd | /bin/bash
 fi
