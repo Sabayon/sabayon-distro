@@ -1,0 +1,106 @@
+#!/bin/bash
+# Copyright 2006 - SabayonLinux (Fabio Erculiani)
+# Application: xgl-setup - helper - enable/disable XGL
+
+# Constants
+if [ -e "/usr/kde/3.4" ];then
+    kdmdir="/usr/kde/3.4/share/config/kdm/"
+elif [ -e "/usr/kde/3.5" ];then
+    kdmdir="/usr/kde/3.5/share/config/kdm/"
+fi
+beryl_wrapper_tmpdir="/tmp/"
+beryl_wrapper="beryl-wrapper.desktop"
+beryl_wrapper_desktop_file=$beryl_wrapper_tmpdir$beryl_wrapper
+
+if [ -z "$1" ] || [ "$1" == "--help" ]; then
+   echo "xgl-setup - SabayonLinux - Copyright 2006"
+   echo
+   echo -e "  This helper enable/disable XGL system wide."
+   echo -e "  You need to pass only one argument:"
+   echo -e "    disable - disable XGL"
+   echo -e "    enable - enable XGL"
+   echo
+   exit 0
+fi
+
+if [ "$UID" != "0" ]; then
+   echo "Error: you need to run this as root. Please type \"xgl-setup --help\" for more help."
+fi
+
+if [ "$1" != "enable" ] && [ "$1" != "disable" ]; then
+   echo "Error: parameter not recognized. Please type \"xgl-setup --help\" for more help."
+   exit 1
+else
+   if [ "$1" == "enable" ]; then
+      echo -en "Enabling XGL system wide..."
+
+      # Check if it is already enabled
+      xgl_already_enabled=$(cat $kdmdir/kdmrc | grep "ServerCmd=.*Xgl" )
+      if [ -n "$xgl_already_enabled" ]; then
+	 echo
+         echo "Error: XGL already enabled. Please type \"xgl-setup --help\" for more help."
+         exit 2
+      fi
+
+      xgl_video=$(eselect opengl show)
+      # Changing KDM configuration
+	if [ "$xgl_video" = "nvidia" ]; then
+	   execute_cmd="sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:fbo /' $kdmdir/kdmrc"
+        elif [ "$xgl_video" = "ati" ]; then
+	   execute_cmd="sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:pbuffer /' $kdmdir/kdmrc"
+	else
+	   execute_cmd="sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv /' $kdmdir/kdmrc"
+	fi
+	echo $execute_cmd | /bin/bash
+
+	# now it's handled on /usr/kde/3.5/share/config/kdm/Xsession - after DBUS - before case $session in
+        if [ -z "`cat /usr/kde/3.5/share/config/kdm/Xsession | grep beryl-wrapper`" ]; then
+	   sed -i '/case $session in/ s/case $session in/\/usr\/bin\/beryl-wrapper $DESKTOP_SESSION \&\n\ncase $session in/' $kdmdir/Xsession
+	fi
+
+	echo "[Desktop Entry]" > $beryl_wrapper_desktop_file
+	echo "Name=No name" >> $beryl_wrapper_desktop_file
+	echo "Encoding=UTF-8" >> $beryl_wrapper_desktop_file
+	echo "Version=1.0" >> $beryl_wrapper_desktop_file
+	echo "Exec=/usr/bin/beryl-wrapper" >> $beryl_wrapper_desktop_file
+	echo "X-GNOME-Autostart-enabled=true" >> $beryl_wrapper_desktop_file
+
+	# Add compiz to GNOME startup - because GNOME is always special...
+        for huser in `ls /home`
+           do
+	      if [ ! -e "/home/$huser/.config/autostart" ]; then
+	         mkdir -p /home/$huser/.config/autostart &> /dev/null
+		 chown $huser:users /home/$huser/.config -R &> /dev/null
+	      fi
+              cp $beryl_wrapper_desktop_file /home/$huser/.config/autostart/ &> /dev/null
+              chown $huser:users /home/$huser/.config/autostart/beryl-wrapper.desktop &> /dev/null
+	      if [ -e "/usr/share/applications/beryl-settings.desktop" ] && [ -e "/home/sabayonuser/Desktop" ]; then
+	         cp /usr/share/applications/beryl-settings.desktop /home/sabayonuser/Desktop/ &> /dev/null
+	         chown sabayonuser:users /home/sabayonuser/Desktop/beryl-settings.desktop &> /dev/null
+	      fi
+          done
+         rm $beryl_wrapper_desktop_file
+      echo -e "Done"
+   else
+      echo -en "Disabling XGL system wide (reverting to X.Org)..."
+
+      # Check if it is already disabled
+      xgl_already_disabled=$(cat $kdmdir/kdmrc | grep "ServerCmd=.*Xgl" )
+      if [ -z "$xgl_already_disabled" ]; then
+	 echo
+         echo "Error: XGL already disabled or using AIGLX. Please type \"xgl-setup --help\" for more help."
+         exit 2
+      fi
+
+      # Changing KDM configuration
+      sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
+      if [ -n "`cat $kdmdir/Xsession | grep beryl-wrapper`" ]; then
+	sed -i '/beryl-wrapper/ s/.*//' $kdmdir/Xsession
+      fi
+      for file in `find /home -maxdepth 4 -name beryl-wrapper.desktop`
+         do
+            rm -rf $file
+         done
+      echo -e "Done"
+   fi
+fi
