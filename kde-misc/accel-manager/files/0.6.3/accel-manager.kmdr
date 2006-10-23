@@ -68,21 +68,25 @@
 
 @exec(echo "xorg-x11" &gt; /tmp/current-accel)
 
-# Detect XGL
-@if(@exec(ps auxf | grep Xgl | wc -l)&gt;1)
-{
-   # Switch Radio to XGL
-   @RadioButtonXGL.setChecked(1)
-   @exec(echo "xgl" &gt; /tmp/current-accel)
-}
-@endif
-
 # Detect AIGLX
 @if(@exec(cat /etc/X11/xorg.conf | grep AIGLX | grep -v "#" | wc -l)==1)
 {
    # Switch Radio to AIGLX
    @RadioButtonAIGLX.setChecked(1)
    @exec(echo "aiglx" &gt; /tmp/current-accel)
+}
+@endif
+
+# Detect XGL
+@if(@exec(ps auxf | grep Xgl | wc -l)&gt;1)
+{
+   # Switch Radio to XGL
+   @RadioButtonAIGLX.setEnabled(1)
+   @RadioButtonXGL.setEnabled(1)
+   @RadioButtonXGL.setChecked(1)
+   @LabelOpenGL.setText(OpenGL Status: Working/XGL)
+   @ExecButton1.setText("Activate Desktop Acceleration")
+   @exec(echo "xgl" &gt; /tmp/current-accel)
 }
 @endif
 
