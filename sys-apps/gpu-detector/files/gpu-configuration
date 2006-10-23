@@ -40,6 +40,8 @@ R7500=$(lspci | grep ' VGA ' | grep -i "Radeon RV200")
 R2XX=$(lspci | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || lspci | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R2.*")
 RX700=$(lspci | grep ' VGA ' | grep -i "Radeon Mobility X700")
 R9600=$(lspci | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
+# Fix For R9200 BusType "PCI"
+R9200=$(echo $lspci_vga | grep "Radeon 9200")
 RAGE128=$(lspci | grep ' VGA ' | grep -i "Rage 128")
 SIS=$(lspci | grep ' VGA ' | grep -i "SiS")
 VMWARE=$(lspci | grep ' VGA ' | grep VMWare || lspci | grep ' VGA ' | grep VMware )
@@ -55,6 +57,12 @@ if [ -z "$ATI" ]; then
     rm -f /etc/env.d/*ati &> /dev/null
     env-update && source /etc/profile &> /dev/null
 fi
+
+# Video cards specific fixes
+if [ -n "$R9200" ]; then
+  sed -i '/BusType/ s/#//' /etc/X11/xorg.conf
+fi
+
 
 AIGLX=$(cat /proc/cmdline | grep aiglx)
 if [ -n "$AIGLX" ]; then
