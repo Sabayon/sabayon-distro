@@ -19,21 +19,22 @@ RDEPEND="dev-util/dialog
 
 src_unpack() {
 	cd ${WORKDIR}
-	cp ${FILESDIR}/livecd-functions.sh . -p
-	cp ${FILESDIR}/net-setup . -p
+	cp ${FILESDIR}/${PV}/livecd-functions.sh . -p
+	cp ${FILESDIR}/${PV}/net-setup . -p
 	if use amd64; then
-		cp ${FILESDIR}/openglify-64 openglify -p
+		cp ${FILESDIR}/${PV}/openglify-64 openglify -p
 	else
-		cp ${FILESDIR}/openglify-32 openglify -p
+		cp ${FILESDIR}/${PV}/openglify-32 openglify -p
 	fi
-	cp ${FILESDIR}/x-setup . -p
-	cp ${FILESDIR}/x-setup-init.d . -p
+	cp ${FILESDIR}/${PV}/x-setup . -p
+	cp ${FILESDIR}/${PV}/x-setup-init.d . -p
 
-	cp ${FILESDIR}/bashlogin . -p
+	cp ${FILESDIR}/${PV}/bashlogin . -p
 
 }
 
 src_install() {
+
 	cd ${WORKDIR}
 	if use x86 || use amd64 || use ppc
 	then
@@ -47,6 +48,5 @@ src_install() {
 	into /
 	dosbin livecd-functions.sh
 	dobin bashlogin
-	
 
 }
