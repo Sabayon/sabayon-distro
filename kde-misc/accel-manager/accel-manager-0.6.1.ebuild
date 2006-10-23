@@ -31,8 +31,12 @@ src_install () {
 	fi
 	exeinto /usr/sbin/
 	doexe accel-manager
+	exeinto /usr/share/accel-manager
+	doexe desktop-accel-selector
 	insinto /usr/share/accel-manager
 	doins *.png
 	doins *.kmdr
+	doins *.conf
+	doins *.jpg
 
 }

@@ -91,7 +91,7 @@
 {
    # Switch Radio to AIGLX
    @RadioButtonAIGLX.setEnabled(0)
-   @RadioButtonNO.setChecked(1)
+   @RadioButtonNo.setChecked(1)
 }
 @endif</string>
             <string></string>
