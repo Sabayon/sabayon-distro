@@ -15,11 +15,11 @@ else
 fi
 
 processes=$(ps auxf)
-
+xgl_running=$(echo $processes | grep Xgl)
 acceleration_enabled=$(glxinfo | grep "direct rendering" | grep -i "yes")
-if [ -n "$acceleration_enabled" ]; then
+
+if [ -n "$acceleration_enabled" ] || [ -n "$xgl_running" ]; then
   if [ "$cmd" = "1" ]; then
-    xgl_running=$(echo $processes | grep Xgl)
     if [ -n "$xgl_running" ]; then
       emerald --replace & beryl-xgl --replace dbus settings
     else
@@ -28,6 +28,6 @@ if [ -n "$acceleration_enabled" ]; then
   fi
 else
    # Notify the funny thing
-   exec_cmd="dcop knotify default notify DRI_status Direct Rendering 'OpenGL acceleration is disabled. 3D Desktop cannot be loaded.' '' '' 2 0"
+   exec_cmd="dcop knotify default notify DRI_status 'Direct Rendering' 'OpenGL acceleration is disabled. 3D Desktop cannot be loaded.' '' '' 2 0"
    echo $exec_cmd | /bin/bash
 fi
