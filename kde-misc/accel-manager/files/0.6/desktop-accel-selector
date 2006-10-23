@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# This executable must be run after X detection inside /etc/init.d/sabayonlive and ONLY in Live mode.
+xdriver=$(cat /etc/X11/xorg.conf | grep "do not remove" | cut -d'"' -f 2)
+cp /usr/share/accel-manager/xorg.conf /tmp/
+sed -i '/do not remove/ s/"vesa"/"'$xdriver'"/' /tmp/xorg.conf
+
+lspci_vga=$(lspci | grep ' VGA ' | tail --lines 1)
+# Workaround for various video cards
+r9200=$(echo $lspci_vga | grep "Radeon 9200 PRO")
+if [ -n "$r9200" ]; then
+  sed -i '/BusType/ s/#//' /tmp/xorg.conf
+fi
+
+/usr/bin/X :0 -nolisten tcp -dpi 96 -config /tmp/xorg.conf -quiet &
+if [ -e "/usr/share/backgrounds/sabayonlinux.jpg" ]; then
+  DISPLAY=:0 fbsetbg -f /usr/share/backgrounds/sabayonlinux.jpg
+fi
+DISPLAY=:0 /usr/sbin/accel-manager
+chvt 1
+killall -9 X
+rm -f /tmp/xorg.conf
