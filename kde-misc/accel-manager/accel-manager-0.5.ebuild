@@ -13,7 +13,8 @@ IUSE=""
 
 DEPEND=">=x11-base/xorg-x11-7.1
         || ( >=kde-base/kommander-3.5.0 >=kde-base/kdewebdev-3.5.0 )
-        || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 )"
+        || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 )
+	x11-misc/desktop-acceleration-helpers"
 
 src_unpack () {
 
