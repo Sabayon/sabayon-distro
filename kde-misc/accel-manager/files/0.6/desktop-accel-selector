@@ -1,5 +1,7 @@
 #!/bin/sh
 
+killall -9 X Xgl &> /dev/null
+
 # This executable must be run after X detection inside /etc/init.d/sabayonlive and ONLY in Live mode.
 xdriver=$(cat /etc/X11/xorg.conf | grep "do not remove" | cut -d'"' -f 2)
 cp /usr/share/accel-manager/xorg.conf /tmp/
@@ -12,11 +14,11 @@ if [ -n "$r9200" ]; then
   sed -i '/BusType/ s/#//' /tmp/xorg.conf
 fi
 
-/usr/bin/X :0 -nolisten tcp -dpi 96 -config /tmp/xorg.conf -quiet &
+/usr/bin/X :3 -nolisten tcp -dpi 96 -config /tmp/xorg.conf -quiet &
 if [ -e "/usr/share/backgrounds/sabayonlinux.jpg" ]; then
-  DISPLAY=:0 fbsetbg -f /usr/share/backgrounds/sabayonlinux.jpg
+  DISPLAY=:3 fbsetbg -f /usr/share/backgrounds/sabayonlinux.jpg
 fi
-DISPLAY=:0 /usr/sbin/accel-manager
+DISPLAY=:3 /usr/sbin/accel-manager
 chvt 1
 killall -9 X
 rm -f /tmp/xorg.conf
