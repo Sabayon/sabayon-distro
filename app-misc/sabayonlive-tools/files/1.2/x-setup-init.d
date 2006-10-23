@@ -183,6 +183,9 @@ start() {
 	chown root:portage /var/cache/edb -R
       fi
 
+      # Cleaning files
+      rm -f /etc/accel-manager-running
+
       # Variables
       cmdline_onlyvesa_exist=$(cat /proc/cmdline | grep onlyvesa)
       cmdline_noproprietary_exist=$(cat /proc/cmdline | grep noproprietary)
