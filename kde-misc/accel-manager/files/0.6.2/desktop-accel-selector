@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ ! -e "/etc/accel-manager-running" ]; then
+   touch /etc/accel-manager-running
+fi
+
 killall -9 X Xgl &> /dev/null
 
 # This executable must be run after X detection inside /etc/init.d/sabayonlive and ONLY in Live mode.
@@ -22,3 +26,4 @@ DISPLAY=:3 /usr/sbin/accel-manager
 chvt 1
 killall -9 X
 rm -f /tmp/xorg.conf
+rm -f /etc/accel-manager-running
