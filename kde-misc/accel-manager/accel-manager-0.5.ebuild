@@ -12,8 +12,8 @@ KEYWORDS="~x86 ~amd64 ~ppc"
 IUSE=""
 
 DEPEND=">=x11-base/xorg-x11-7.1
-	>=kde-base/kommander-3.5.0 || >=kde-base/kdewebdev-3.5.0
-	>=kde-base/kdesu-3.5.0 || >=kde-base/kdebase-3.5.0"
+        || ( >=kde-base/kommander-3.5.0 >=kde-base/kdewebdev-3.5.0 )
+        || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 )"
 
 src_unpack () {
 
