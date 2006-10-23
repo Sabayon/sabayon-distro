@@ -5,6 +5,7 @@
 
 depend() {
 	before acpid
+	after internetkiosk
 }
 
 configure_opengl() {
