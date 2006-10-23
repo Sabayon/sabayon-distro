@@ -92,7 +92,6 @@ start_acceleration_manager() {
    # Start-up accel-manager - this must be always after gpu-configuration
    if [ -z "$cmdline_noaccelmanager_exist" ] && [ -z "$cmdline_xgl_exist" ] && [ -z "$cmdline_aiglx_exist" ]; then
       # ok, no xgl,aiglx and noaccelmanager parameters at boot. start the app
-      touch /etc/accel-manager-running
       /usr/share/accel-manager/desktop-accel-selector &> /dev/null &
    fi
 
