@@ -15,7 +15,8 @@ RDEPEND="dev-util/dialog
 	sys-apps/pciutils
 	sys-apps/gawk
 	app-admin/eselect-opengl
-	!app-misc/livecd-tools"
+	!app-misc/livecd-tools
+	x11-misc/desktop-acceleration-helpers"
 
 src_unpack() {
 	cd ${WORKDIR}
