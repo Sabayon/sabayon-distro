@@ -165,6 +165,8 @@ configure_video_settings() {
          /sbin/gpu-configuration &> /dev/null
       fi
 
+   fi
+
 }
 
 start() {
