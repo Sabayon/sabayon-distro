@@ -28,7 +28,7 @@ start() {
 
       
       # Start-up x-setup-configuration
-      /sbin/x-setup-configuration &> /dev/null &
+      /usr/sbin/x-setup-configuration &> /dev/null &
 
       # create seed
       rm -f /etc/x-setup-configuration-running
