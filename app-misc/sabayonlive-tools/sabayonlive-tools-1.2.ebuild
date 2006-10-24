@@ -29,6 +29,7 @@ src_unpack() {
 	fi
 	cp ${FILESDIR}/${PV}/x-setup . -p
 	cp ${FILESDIR}/${PV}/x-setup-init.d . -p
+	cp ${FILESDIR}/${PV}/x-setup-configuration . -p
 
 	cp ${FILESDIR}/${PV}/bashlogin . -p
 
