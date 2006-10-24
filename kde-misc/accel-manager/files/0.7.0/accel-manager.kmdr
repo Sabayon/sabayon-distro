@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>420</width>
-            <height>460</height>
+            <width>640</width>
+            <height>480</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -22,14 +22,14 @@
     </property>
     <property name="minimumSize">
         <size>
-            <width>420</width>
-            <height>460</height>
+            <width>640</width>
+            <height>480</height>
         </size>
     </property>
     <property name="maximumSize">
         <size>
-            <width>420</width>
-            <height>460</height>
+            <width>640</width>
+            <height>480</height>
         </size>
     </property>
     <property name="paletteBackgroundColor">
@@ -48,7 +48,7 @@
             <string># Setup Video Card
 @LabelVideo.setText(GPU:@exec(/usr/sbin/lspci | grep VGA | cut -d: -f 3 | tail --lines 1 | cut -d"(" -f 1))
 
-@if(@exec(glxinfo | grep "direct rendering" | grep -i "yes" | cut -d: -f 2 | sed 's/ //g' | wc -l)==1)
+@if(@exec(glxinfo | grep "direct rendering" | grep -i "yes" | wc -l)==1)
 {
     @LabelOpenGL.setText(OpenGL Status: Working)
     @RadioButtonAIGLX.setEnabled(1)
@@ -57,10 +57,10 @@
 }
 @endif
 
-@if(@exec(glxinfo | grep "direct rendering" | grep -i "no" | cut -d: -f 2 | sed 's/ //g' | wc -l)==1)
+@if(@exec(glxinfo | grep "direct rendering" | grep -i "no" | wc -l)==1)
 {
     @LabelOpenGL.setText(OpenGL Status: Not Working)
-    @ExecButton1.setText("Accept No Desktop Acceleration")
+    @ExecButton1.setText("Continue Without Desktop Acceleration")
     @RadioButtonAIGLX.setEnabled(0)
     @RadioButtonXGL.setEnabled(0)
 }
@@ -73,6 +73,7 @@
 {
    # Switch Radio to AIGLX
    @RadioButtonAIGLX.setChecked(1)
+   @ExecButton1.setText("Activate Desktop Acceleration")
    @exec(echo "aiglx" &gt; /tmp/current-accel)
 }
 @endif
@@ -101,14 +102,62 @@
             <string></string>
         </stringlist>
     </property>
+    <widget class="ExecButton">
+        <property name="name">
+            <cstring>ExecButton1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>230</x>
+                <y>420</y>
+                <width>400</width>
+                <height>50</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>A&amp;ctivate Desktop Acceleration</string>
+        </property>
+        <property name="associations" stdset="0">
+            <stringlist>
+                <string>@if(@exec(cat /tmp/current-accel | grep "xgl" | wc -l )==1)
+{
+   # Disable XGL
+   @exec(/sbin/xgl-setup disable)
+
+}@endif
+
+@if(@exec(cat /tmp/current-accel | grep "aiglx" | wc -l )==1)
+{
+   # Disable AIGLX
+   @exec(/sbin/aiglx-setup disable)
+
+}@endif
+
+@if(@RadioButtonAIGLX.checked==1)
+{
+   @exec(/sbin/aiglx-setup enable)
+}
+@endif
+
+@if(@RadioButtonXGL.checked==1)
+{
+   @exec(/sbin/xgl-setup enable)
+   
+}
+@endif
+
+@exec(rm -f /tmp/current-accel)</string>
+            </stringlist>
+        </property>
+    </widget>
     <widget class="ButtonGroup">
         <property name="name">
             <cstring>ButtonGroup1</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>10</x>
-                <y>240</y>
+                <x>230</x>
+                <y>260</y>
                 <width>400</width>
                 <height>150</height>
             </rect>
@@ -453,16 +502,37 @@
             </property>
         </widget>
     </widget>
+    <widget class="PixmapLabel">
+        <property name="name">
+            <cstring>PixmapLabel2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>230</x>
+                <y>20</y>
+                <width>400</width>
+                <height>128</height>
+            </rect>
+        </property>
+        <property name="pixmap">
+            <pixmap>image1</pixmap>
+        </property>
+        <property name="associations" stdset="0">
+            <stringlist>
+                <string></string>
+            </stringlist>
+        </property>
+    </widget>
     <widget class="GroupBox">
         <property name="name">
             <cstring>GroupBox1</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>10</x>
+                <x>230</x>
                 <y>160</y>
                 <width>400</width>
-                <height>70</height>
+                <height>90</height>
             </rect>
         </property>
         <property name="title">
@@ -475,12 +545,33 @@
         </property>
         <widget class="Label">
             <property name="name">
+                <cstring>LabelVideo</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>60</y>
+                    <width>380</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>GPU:</string>
+            </property>
+            <property name="associations" stdset="0">
+                <stringlist>
+                    <string></string>
+                </stringlist>
+            </property>
+        </widget>
+        <widget class="Label">
+            <property name="name">
                 <cstring>LabelOpenGL</cstring>
             </property>
             <property name="geometry">
                 <rect>
                     <x>10</x>
-                    <y>20</y>
+                    <y>30</y>
                     <width>380</width>
                     <height>20</height>
                 </rect>
@@ -497,20 +588,71 @@
                 </stringlist>
             </property>
         </widget>
-        <widget class="Label">
+    </widget>
+    <widget class="GroupBox">
+        <property name="name">
+            <cstring>GroupBox2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>211</width>
+                <height>460</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string></string>
+        </property>
+        <widget class="GroupBox">
             <property name="name">
-                <cstring>LabelVideo</cstring>
+                <cstring>GroupBox2_2</cstring>
             </property>
             <property name="geometry">
                 <rect>
                     <x>10</x>
-                    <y>40</y>
-                    <width>380</width>
-                    <height>20</height>
+                    <y>200</y>
+                    <width>190</width>
+                    <height>5</height>
+                </rect>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+        </widget>
+        <widget class="GroupBox">
+            <property name="name">
+                <cstring>GroupBox2_2_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>320</y>
+                    <width>190</width>
+                    <height>5</height>
+                </rect>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+        </widget>
+        <widget class="Label">
+            <property name="name">
+                <cstring>Label3</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>10</y>
+                    <width>191</width>
+                    <height>180</height>
                 </rect>
             </property>
             <property name="text">
-                <string>GPU:</string>
+                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;Desktop Acceleration&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;is the ability to use your Graphics Card to render the windows on the screen. This &lt;u&gt;extend&lt;/u&gt; and &lt;u&gt;improve&lt;/u&gt; your &lt;b&gt;computing experience&lt;/b&gt;.&lt;br&gt;If your Graphics Card is capable of OpenGL Hardware Acceleration under GNU/Linux, you will be able to choose XGL or AIGLX Systems.</string>
+            </property>
+            <property name="textFormat">
+                <enum>RichText</enum>
             </property>
             <property name="associations" stdset="0">
                 <stringlist>
@@ -518,75 +660,54 @@
                 </stringlist>
             </property>
         </widget>
-    </widget>
-    <widget class="PixmapLabel">
-        <property name="name">
-            <cstring>PixmapLabel2</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>20</y>
-                <width>400</width>
-                <height>128</height>
-            </rect>
-        </property>
-        <property name="pixmap">
-            <pixmap>image1</pixmap>
-        </property>
-        <property name="associations" stdset="0">
-            <stringlist>
-                <string></string>
-            </stringlist>
-        </property>
-    </widget>
-    <widget class="ExecButton">
-        <property name="name">
-            <cstring>ExecButton1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>400</y>
-                <width>400</width>
-                <height>50</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>A&amp;ctivate Desktop Acceleration</string>
-        </property>
-        <property name="associations" stdset="0">
-            <stringlist>
-                <string>@if(@exec(cat /tmp/current-accel | grep "xgl" | wc -l )==1)
-{
-   # Disable XGL
-   @exec(/sbin/xgl-setup disable)
-
-}@endif
-
-@if(@exec(cat /tmp/current-accel | grep "aiglx" | wc -l )==1)
-{
-   # Disable AIGLX
-   @exec(/sbin/aiglx-setup disable)
-
-}@endif
-
-@if(@RadioButtonAIGLX.checked==1)
-{
-   @exec(/sbin/aiglx-setup enable)
-}
-@endif
-
-@if(@RadioButtonXGL.checked==1)
-{
-   @exec(/sbin/xgl-setup enable)
-   
-}
-@endif
-
-@exec(rm -f /tmp/current-accel)</string>
-            </stringlist>
-        </property>
+        <widget class="Label">
+            <property name="name">
+                <cstring>Label3_2_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>330</y>
+                    <width>191</width>
+                    <height>120</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;XGL&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;it is more compatible with ATI Graphics Cards than AIGLX but it is slower, does not support Dual Monitor and OpenGL games on top of itself.</string>
+            </property>
+            <property name="textFormat">
+                <enum>RichText</enum>
+            </property>
+            <property name="associations" stdset="0">
+                <stringlist>
+                    <string></string>
+                </stringlist>
+            </property>
+        </widget>
+        <widget class="Label">
+            <property name="name">
+                <cstring>Label3_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>210</y>
+                    <width>191</width>
+                    <height>100</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;AIGLX&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;where supported, it has better performances than XGL and uses less memory. So, it is the best choice for performance and stability.</string>
+            </property>
+            <property name="textFormat">
+                <enum>RichText</enum>
+            </property>
+            <property name="associations" stdset="0">
+                <stringlist>
+                    <string></string>
+                </stringlist>
+            </property>
+        </widget>
     </widget>
 </widget>
 <images>

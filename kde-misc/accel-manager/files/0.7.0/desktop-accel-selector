@@ -1,0 +1,86 @@
+#!/bin/sh
+
+if [ ! -e "/etc/accel-manager-running" ]; then
+   touch /etc/accel-manager-running
+fi
+
+killall -9 X Xgl &> /dev/null
+
+# This executable must be run after X detection inside /etc/init.d/sabayonlive and ONLY in Live mode.
+xdriver=$(cat /etc/X11/xorg.conf | grep "do not remove" | cut -d'"' -f 2)
+cp /usr/share/accel-manager/xorg.conf /tmp/
+sed -i '/do not remove/ s/"vesa"/"'$xdriver'"/' /tmp/xorg.conf
+
+lspci_vga=$(lspci | grep ' VGA ' | tail --lines 1)
+# Workaround for various video cards
+r9200=$(echo $lspci_vga | grep "Radeon 9200 PRO")
+if [ -n "$r9200" ]; then
+  sed -i '/BusType/ s/#//' /tmp/xorg.conf
+fi
+
+      cmdline_resolution_forced=$(cat /proc/cmdline | grep "res=")
+      cmdline_refresh_exist=$(cat /proc/cmdline | grep refresh=)
+      cmdline_hsync_exist=$(cat /proc/cmdline | grep hsync=)
+
+      if [ -n "$cmdline_resolution_forced" ];then
+         # change resolution in X.Org
+         for word in `cat /proc/cmdline` ; do
+            case $word in
+               res=*)
+                  resolution_toset=$(echo $word | cut -d "=" -f 2)
+		  if [ "$resolution_toset" == "800x600" ]; then
+                     execute_cmd="sed -i '/Modes/ s/\"1024x768\"/\"$resolution_toset\"/' /tmp/xorg.conf"
+		  elif [ "$resolution_toset" == "640x480" ]; then
+                     execute_cmd="sed -i '/Modes/ s/\"1024x768\"/\"$resolution_toset\"/' /tmp/xorg.conf"
+		  else
+                     execute_cmd="sed -i '/Modes/ s/\"1024x768\"/\"$resolution_toset\" \"1024x768\"/' /tmp/xorg.conf"
+		  fi
+                  echo $execute_cmd | /bin/bash
+                  #echo -e "\E[33;36m * \E[0m\E[01;32m Setting X.Org to $resolution_toset if it's available \E[0m"
+		  sed -i '/Modes/ s/#//g' /tmp/xorg.conf
+               ;;
+            esac
+         done
+      fi
+
+      # Check if refresh= is forced by cmdline
+      if [ -n "$cmdline_refresh_exist" ];then
+	 # change VertRefresh in X.Org
+         for word in `cat /proc/cmdline` ; do
+            case $word in
+               refresh=*)
+		  sed -i '/VertRefresh/ s/#//g' /tmp/xorg.conf
+                  refresh_toset=$(echo $word | cut -d "=" -f 2)
+                  execute_cmd="sed -i '/VertRefresh/ s/.*/    VertRefresh $refresh_toset/' /tmp/xorg.conf"
+	          echo $execute_cmd | /bin/bash
+		  #echo -e "\E[33;36m * \E[0m\E[01;32m Setting VertRefresh to $refresh_toset Hz \E[0m"
+               ;;
+            esac
+         done
+      fi
+
+      # Check if refresh= is forced by cmdline
+      if [ -n "$cmdline_hsync_exist" ];then
+         # change HorizSync in X.Org
+         for word in `cat /proc/cmdline` ; do
+            case $word in
+               hsync=*)
+                  sed -i '/HorizSync/ s/#//g' /tmp/xorg.conf
+                  hsync_toset=$(echo $word | cut -d "=" -f 2)
+                  execute_cmd="sed -i '/HorizSync/ s/.*/    HorizSync $hsync_toset/' /tmp/xorg.conf"
+                  echo $execute_cmd | /bin/bash
+                  #echo -e "\E[33;36m * \E[0m\E[01;32m Setting HorizSync to $hsync_toset Hz \E[0m"
+               ;;
+            esac
+         done
+      fi
+
+/usr/bin/X :3 -nolisten tcp -dpi 96 -config /tmp/xorg.conf -quiet &
+if [ -e "/usr/share/accel-manager/accel-manager-background.jpg" ]; then
+  DISPLAY=:3 fbsetbg -f /usr/share/accel-manager/accel-manager-background.jpg
+fi
+DISPLAY=:3 /usr/sbin/accel-manager
+chvt 1
+killall -9 X
+rm -f /tmp/xorg.conf
+rm -f /etc/accel-manager-running
