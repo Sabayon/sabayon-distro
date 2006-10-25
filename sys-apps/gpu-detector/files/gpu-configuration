@@ -204,6 +204,8 @@ elif [ -n "$VMWARE" ]; then
 
  # Uncomment "Modes"
  sed -i '/Modes/ s/#//g' /etc/X11/xorg.conf
+ sed -i '/HorizSync/ s/#//g' /etc/X11/xorg.conf
+ sed -i '/VertRefresh/ s/#//g' /etc/X11/xorg.conf
 
  echo -e "\t Display Driver: VMWARE"
 
