@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Acceleration Manager
+Comment=Configure XGL/AIGLX on SabayonLinux
+Icon=/usr/share/pixmaps/accel-manager.png
+Exec=/usr/sbin/accel-manager
+Terminal=false
+Type=Application
+Categories=Settings;
