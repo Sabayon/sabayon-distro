@@ -29,14 +29,24 @@ src_install () {
 	if [ ! -e "/usr/share/accel-manager" ]; then
 	   dodir /usr/share/accel-manager
 	fi
+
 	exeinto /usr/sbin/
 	doexe accel-manager
+
 	exeinto /usr/share/accel-manager
 	doexe desktop-accel-selector
+
 	insinto /usr/share/accel-manager
-	doins *.png
+	doins icon.png
+	doins accelicon.png
 	doins *.kmdr
 	doins *.conf
 	doins *.jpg
+
+	insinto /usr/share/pixmaps
+	doins accel-manager.png
+
+	insinto /usr/share/applications
+	doins *.desktop
 
 }
