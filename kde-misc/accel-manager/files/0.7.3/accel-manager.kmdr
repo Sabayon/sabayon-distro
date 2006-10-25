@@ -604,30 +604,6 @@
         <property name="title">
             <string></string>
         </property>
-        <widget class="Label">
-            <property name="name">
-                <cstring>Label3</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>10</x>
-                    <y>10</y>
-                    <width>191</width>
-                    <height>120</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;Desktop Acceleration&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;is the ability to use your Graphics Card to render the windows on the screen. This &lt;u&gt;extend&lt;/u&gt; and &lt;u&gt;improve&lt;/u&gt; your &lt;b&gt;computing experience&lt;/b&gt;.</string>
-            </property>
-            <property name="textFormat">
-                <enum>RichText</enum>
-            </property>
-            <property name="associations" stdset="0">
-                <stringlist>
-                    <string></string>
-                </stringlist>
-            </property>
-        </widget>
         <widget class="GroupBox">
             <property name="name">
                 <cstring>GroupBox2_2_2</cstring>
@@ -673,7 +649,31 @@
                 </rect>
             </property>
             <property name="text">
-                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;AIGLX&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;where supported, it has better performances than XGL and uses less memory. So, it is the best choice for performance and stability.</string>
+                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;AIGLX&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;where supported, has better performances than XGL and uses less memory. It is the best choice for performance and stability.</string>
+            </property>
+            <property name="textFormat">
+                <enum>RichText</enum>
+            </property>
+            <property name="associations" stdset="0">
+                <stringlist>
+                    <string></string>
+                </stringlist>
+            </property>
+        </widget>
+        <widget class="Label">
+            <property name="name">
+                <cstring>Label3</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>10</y>
+                    <width>191</width>
+                    <height>120</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;Desktop Acceleration&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;is the ability to use your Graphics Card to render the windows on the screen. This &lt;u&gt;extends&lt;/u&gt; and &lt;u&gt;improves&lt;/u&gt; your &lt;b&gt;computing experience&lt;/b&gt;.</string>
             </property>
             <property name="textFormat">
                 <enum>RichText</enum>
@@ -697,7 +697,7 @@
                 </rect>
             </property>
             <property name="text">
-                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;XGL&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;it is more compatible with ATI Graphics Cards than AIGLX but it is slower, does not support Dual Monitor and OpenGL games on top of itself.</string>
+                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;XGL&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;is more compatible with ATI Graphics Cards than AIGLX, but it is slower, does not support Dual Monitor nor OpenGL games on top of itself.</string>
             </property>
             <property name="textFormat">
                 <enum>RichText</enum>
