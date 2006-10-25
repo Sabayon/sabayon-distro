@@ -78,12 +78,16 @@ fi
 # Preload KDE Session
 nice -18 /usr/kde/3.5/bin/kbuildsycoca &> /dev/null
 
-nice -10 /usr/bin/X :3 -nolisten tcp -dpi 96 -config /tmp/xorg.conf -quiet &
+nice -19 /usr/bin/X :3 -nolisten tcp -dpi 96 -config /tmp/xorg.conf -quiet &
 if [ -e "/usr/share/accel-manager/accel-manager-background.jpg" ]; then
   DISPLAY=:3 display -geometry 1024x768+0+0 -window root /usr/share/accel-manager/accel-manager-background.jpg
 fi
-DISPLAY=:3 nice -16 /usr/sbin/accel-manager
-chvt 2
+DISPLAY=:3 nice -20 /usr/sbin/accel-manager
+chvt 1
+splash_manager -c set -t default -m v &> /dev/null
+reset
+chvt 1
+reset
 killall -9 X
 rm -f /tmp/xorg.conf
 rm -f /etc/accel-manager-running
