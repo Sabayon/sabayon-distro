@@ -22,16 +22,8 @@ start() {
 	chown root:portage /var/cache/edb -R
       fi
 
-      # create seed
-      rm -f /etc/x-setup-configuration-running
-      touch /etc/x-setup-configuration-running
-
-      
       # Start-up x-setup-configuration
       /usr/sbin/x-setup-configuration &> /dev/null &
-
-      # create seed
-      rm -f /etc/x-setup-configuration-running
 
       eend 0
 }

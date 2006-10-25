@@ -137,6 +137,10 @@ configure_video_settings() {
 
 }
 
+      # create seed
+      rm -f /etc/x-setup-configuration-running
+      touch /etc/x-setup-configuration-running
+
       # get livecd functions
       source /sbin/livecd-functions.sh
 
@@ -168,3 +172,6 @@ configure_video_settings() {
 
       # Configure read/write paths
       configure_read_write_paths
+
+      # delete seed
+      rm -f /etc/x-setup-configuration-running
