@@ -606,12 +606,12 @@
         </property>
         <widget class="GroupBox">
             <property name="name">
-                <cstring>GroupBox2_2</cstring>
+                <cstring>GroupBox2_2_2</cstring>
             </property>
             <property name="geometry">
                 <rect>
                     <x>10</x>
-                    <y>200</y>
+                    <y>310</y>
                     <width>190</width>
                     <height>5</height>
                 </rect>
@@ -620,14 +620,38 @@
                 <string></string>
             </property>
         </widget>
-        <widget class="GroupBox">
+        <widget class="Label">
             <property name="name">
-                <cstring>GroupBox2_2_2</cstring>
+                <cstring>Label3_2</cstring>
             </property>
             <property name="geometry">
                 <rect>
                     <x>10</x>
-                    <y>320</y>
+                    <y>200</y>
+                    <width>191</width>
+                    <height>100</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;AIGLX&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;where supported, it has better performances than XGL and uses less memory. So, it is the best choice for performance and stability.</string>
+            </property>
+            <property name="textFormat">
+                <enum>RichText</enum>
+            </property>
+            <property name="associations" stdset="0">
+                <stringlist>
+                    <string></string>
+                </stringlist>
+            </property>
+        </widget>
+        <widget class="GroupBox">
+            <property name="name">
+                <cstring>GroupBox2_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>190</y>
                     <width>190</width>
                     <height>5</height>
                 </rect>
@@ -643,13 +667,13 @@
             <property name="geometry">
                 <rect>
                     <x>10</x>
-                    <y>10</y>
+                    <y>20</y>
                     <width>191</width>
-                    <height>180</height>
+                    <height>160</height>
                 </rect>
             </property>
             <property name="text">
-                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;Desktop Acceleration&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;is the ability to use your Graphics Card to render the windows on the screen. This &lt;u&gt;extend&lt;/u&gt; and &lt;u&gt;improve&lt;/u&gt; your &lt;b&gt;computing experience&lt;/b&gt;.&lt;br&gt;If your Graphics Card is capable of OpenGL Hardware Acceleration under GNU/Linux, you will be able to choose XGL or AIGLX Systems.</string>
+                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;Desktop Acceleration&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;is the ability to use your Graphics Card to render the windows on the screen. This &lt;u&gt;extend&lt;/u&gt; and &lt;u&gt;improve&lt;/u&gt; your &lt;b&gt;computing experience&lt;/b&gt;.&lt;br&gt;If your Graphics Card is capable of OpenGL Hardware Acceleration, you would choose XGL or AIGLX.</string>
             </property>
             <property name="textFormat">
                 <enum>RichText</enum>
@@ -667,37 +691,13 @@
             <property name="geometry">
                 <rect>
                     <x>10</x>
-                    <y>330</y>
+                    <y>320</y>
                     <width>191</width>
                     <height>120</height>
                 </rect>
             </property>
             <property name="text">
                 <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;XGL&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;it is more compatible with ATI Graphics Cards than AIGLX but it is slower, does not support Dual Monitor and OpenGL games on top of itself.</string>
-            </property>
-            <property name="textFormat">
-                <enum>RichText</enum>
-            </property>
-            <property name="associations" stdset="0">
-                <stringlist>
-                    <string></string>
-                </stringlist>
-            </property>
-        </widget>
-        <widget class="Label">
-            <property name="name">
-                <cstring>Label3_2</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>10</x>
-                    <y>210</y>
-                    <width>191</width>
-                    <height>100</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>&lt;b&gt;&lt;u&gt;&lt;big&gt;AIGLX&lt;/big&gt;&lt;/b&gt;&lt;/u&gt;&lt;br&gt;where supported, it has better performances than XGL and uses less memory. So, it is the best choice for performance and stability.</string>
             </property>
             <property name="textFormat">
                 <enum>RichText</enum>
