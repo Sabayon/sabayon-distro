@@ -57,7 +57,7 @@
 }
 @endif
 
-@if(@exec(glxinfo | grep "direct rendering" | grep -i "no" | wc -l)&gt;0)
+@if(@exec(glxinfo | grep "direct rendering" | grep -i "yes" | wc -l)==0)
 {
     @LabelOpenGL.setText(OpenGL Status: Not Working)
     @ExecButton1.setText("Continue Without Desktop Acceleration")
