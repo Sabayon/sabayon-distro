@@ -41,7 +41,7 @@ R2XX=$(lspci | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || lspci | gre
 RX700=$(lspci | grep ' VGA ' | grep -i "Radeon Mobility X700")
 R9600=$(lspci | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
 # Fix For R9200 BusType "PCI"
-R9200=$(echo $lspci_vga | grep "Radeon 9200")
+R9200=$(lspci | grep ' VGA ' | grep "Radeon 9200")
 RAGE128=$(lspci | grep ' VGA ' | grep -i "Rage 128")
 SIS=$(lspci | grep ' VGA ' | grep -i "SiS")
 VMWARE=$(lspci | grep ' VGA ' | grep VMWare || lspci | grep ' VGA ' | grep VMware )
@@ -148,6 +148,9 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
     sed -i '/do not remove vesa/ s/".*"/"radeon"/' $XORGFILE
     sed -i '/"dri"/ s/#//' $XORGFILE
+    sed -i '/ColorTiling/ s/#//' /etc/X11/xorg.conf
+    sed -i '/EnablePageFlip/ s/#//' /etc/X11/xorg.conf
+
     echo -e "\t Display Driver: ATI (OpenSource)"
 
   else
@@ -168,6 +171,8 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
 	  sed -i '/do not remove vesa/ s/".*"/"radeon"/' $XORGFILE
           sed -i '/"dri"/ s/#//' $XORGFILE
+          sed -i '/ColorTiling/ s/#//' /etc/X11/xorg.conf
+          sed -i '/EnablePageFlip/ s/#//' /etc/X11/xorg.conf
 
           echo -e "\t Display Driver: ATI (OpenSource) - Proprietary drivers can't be loaded"
 
