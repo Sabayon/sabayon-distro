@@ -77,7 +77,7 @@ fi
 
 /usr/bin/X :3 -nolisten tcp -dpi 96 -config /tmp/xorg.conf -quiet &
 if [ -e "/usr/share/accel-manager/accel-manager-background.jpg" ]; then
-  DISPLAY=:3 fbsetbg -f /usr/share/accel-manager/accel-manager-background.jpg
+  DISPLAY=:3 display -geometry 1024x768+0+0 -window root /usr/share/accel-manager/accel-manager-background.jpg
 fi
 DISPLAY=:3 /usr/sbin/accel-manager
 chvt 1
