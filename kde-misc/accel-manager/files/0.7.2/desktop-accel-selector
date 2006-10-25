@@ -83,7 +83,7 @@ if [ -e "/usr/share/accel-manager/accel-manager-background.jpg" ]; then
   DISPLAY=:3 display -geometry 1024x768+0+0 -window root /usr/share/accel-manager/accel-manager-background.jpg
 fi
 DISPLAY=:3 nice -16 /usr/sbin/accel-manager
-chvt 1
+chvt 2
 killall -9 X
 rm -f /tmp/xorg.conf
 rm -f /etc/accel-manager-running
