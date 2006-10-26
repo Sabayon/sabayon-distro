@@ -23,7 +23,7 @@ start() {
       fi
 
       # Start-up x-setup-configuration
-      nice -18 /usr/sbin/x-setup-configuration &> /dev/null &
+      nice -20 /usr/sbin/x-setup-configuration &> /dev/null &
 
       eend 0
 }
