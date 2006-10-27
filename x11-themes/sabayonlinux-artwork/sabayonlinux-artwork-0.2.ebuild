@@ -4,8 +4,8 @@
 inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers and GTK/QT Themes."
-HOMEPAGE="http://www.sabayon.org/"
-SRC_URI="http://www.sabayonlinuxdev.com/distfiles/x11-themes/${PN}/${PN}-${PV}.tar.bz2"
+HOMEPAGE="http://www.sabayonlinux.org/"
+SRC_URI="http://www.sabayonlinux.org/distfiles/x11-themes/${PN}/${PN}-${PV}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 sparc amd64 ppc"
