@@ -35,6 +35,6 @@ done
 
 get_video_cards || exit 1
 
-	/usr/bin/eselect opengl set --dst-prefix=/etc/opengl $GLTYPE
+	nice -20 /usr/bin/eselect opengl set --dst-prefix=/etc/opengl $GLTYPE
 
 #exec /usr/bin/xinit
