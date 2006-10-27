@@ -99,8 +99,6 @@ else
 	sed -i '/.*beryl-wrapper.*$DESKTOP_SESSION/d' $kdmdir/Xsession
       fi
 
-| sed '/.*exec xmessage.*/d'
-
       # Enable AIGLX Stuff
       sed -i '/"AIGLX"/ s/Option/#Option/' $xorg_conf
       opengl_nvidia=$(eselect opengl show | grep nvidia)
