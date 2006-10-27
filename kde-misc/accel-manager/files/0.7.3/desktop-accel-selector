@@ -80,7 +80,7 @@ nice -18 /usr/kde/3.5/bin/kbuildsycoca &> /dev/null
 
 nice -19 /usr/bin/X :3 -nolisten tcp -dpi 96 -config /tmp/xorg.conf -quiet &> /dev/null &
 if [ -e "/usr/share/accel-manager/accel-manager-background.jpg" ]; then
-  DISPLAY=:3 display -geometry 1024x768+0+0 -window root /usr/share/accel-manager/accel-manager-background.jpg &> /dev/null
+  DISPLAY=:3 fbsetbg /usr/share/accel-manager/accel-manager-background.jpg &> /dev/null &
 fi
 DISPLAY=:3 nice -20 /usr/sbin/accel-manager &> /dev/null
 chvt 1
