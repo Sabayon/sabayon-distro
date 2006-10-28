@@ -6,8 +6,6 @@ setup_system() {
 cp /usr/kde/3.5/share/config/kdm/kdmrc /tmp/ -p
 cp /home/sabayonuser/.dmrc /tmp/ -p
 
-cp /usr/share/accel-manager/accel-server.desktop /usr/share/xsessions/
-
 # change default session
 echo "[Desktop]" > /home/sabayonuser/.dmrc
 echo "Session=accel-server" >> /home/sabayonuser/.dmrc
