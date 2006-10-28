@@ -1,0 +1,26 @@
+#!/bin/sh
+
+setup_system() {
+
+# Prepare KDM Configuration
+cp /usr/kde/3.5/share/config/kdm/kdmrc /tmp/ -p
+cp /home/sabayonuser/.dmrc /tmp/ -p
+
+cp /usr/share/accel-manager/accel-server.desktop /usr/share/xsessions/
+
+# change default session
+echo "[Desktop]" > /home/sabayonuser/.dmrc
+echo "Session=accel-server" >> /home/sabayonuser/.dmrc
+#AutoLoginEnable=true
+sed -i 's/AutoLoginEnable=.*/AutoLoginEnable=true/' /usr/kde/3.5/share/config/kdm/kdmrc
+#AutoLoginUser=sabayonuser
+sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' /usr/kde/3.5/share/config/kdm/kdmrc
+
+# to restore:
+# /tmp/.dmrc --> /home/sabayonuser/.dmrc
+# /tmp/kdmrc --> /usr/kde/3.5/share/config/kdm/kdmrc
+
+}
+
+# Configure the Session
+setup_system

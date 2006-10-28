@@ -47,6 +47,9 @@ src_install () {
 	doins accel-manager.png
 
 	insinto /usr/share/applications
-	doins *.desktop
+	doins accel-manager.desktop
+
+	insinto /usr/share/xsessions
+	doins accel-server.desktop
 
 }
