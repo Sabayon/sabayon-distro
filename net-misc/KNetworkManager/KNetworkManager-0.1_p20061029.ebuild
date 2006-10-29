@@ -24,3 +24,11 @@ pkg_setup() {
 		die "sys-apps/dbus not built with qt3 bindings"
 	fi
 }
+
+src_unpack() {
+
+	unpack ${A}
+	cd ${S}/knetworkmanager
+	epatch ${FILESDIR}/KNetworkManager-0.1-dbus.patch
+
+}
