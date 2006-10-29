@@ -39,6 +39,9 @@ src_install () {
 	exeinto /usr/share/accel-manager
 	doexe accel-server-handler
 
+	exeinto /usr/share/accel-manager
+	doexe accel-server-session
+
 	insinto /usr/share/accel-manager
 	doins icon.png
 	doins accelicon.png
