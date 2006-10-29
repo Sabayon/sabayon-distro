@@ -50,7 +50,7 @@
 
 @if(@exec(glxinfo | grep "direct rendering" | grep -i "yes" | wc -l)&gt;0)
 {
-    @LabelOpenGL.setText(OpenGL Status: Working)
+    @LabelOpenGL.setText("OpenGL Status: &lt;b&gt;Working&lt;/b&gt;")
     @RadioButtonAIGLX.setEnabled(1)
     @RadioButtonXGL.setEnabled(1)
 
@@ -59,7 +59,7 @@
 
 @if(@exec(glxinfo | grep "direct rendering" | grep -i "yes" | wc -l)==0)
 {
-    @LabelOpenGL.setText(OpenGL Status: Not Working)
+    @LabelOpenGL.setText("OpenGL Status: &lt;b&gt;Not Working&lt;/b&gt;")
     @ExecButton1.setText("Continue Without Desktop Acceleration")
     @RadioButtonAIGLX.setEnabled(0)
     @RadioButtonXGL.setEnabled(0)
@@ -85,7 +85,7 @@
    @RadioButtonAIGLX.setEnabled(1)
    @RadioButtonXGL.setEnabled(1)
    @RadioButtonXGL.setChecked(1)
-   @LabelOpenGL.setText(OpenGL Status: Working/XGL)
+   @LabelOpenGL.setText("OpenGL Status: &lt;b&gt;Working/XGL&lt;/b&gt;")
    @ExecButton1.setText("Activate Desktop Acceleration")
    @exec(echo "xgl" &gt; /tmp/current-accel)
 }

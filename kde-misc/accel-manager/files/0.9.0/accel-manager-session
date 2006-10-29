@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Restore Previous Configuration
+mv /tmp/.dmrc /root/.dmrc
+mv /tmp/kdmrc /usr/kde/3.5/share/config/kdm/
+
+# Set wallpaper using fluxbox tool
+fbsetbg -l
+
+# Start accel-manager
+nice -20 /usr/sbin/accel-manager
+
+# Exit session
+killall -9 ogg123 &> /dev/null
+touch /etc/accel-manager-exited
+
