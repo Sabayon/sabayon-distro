@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=KeePass
+Exec=keepass
+Icon=keepass.png
+Type=Application
+DocPath=keepass/index.html
+GenericName=Password Manager
+Categories=Qt;KDE;
