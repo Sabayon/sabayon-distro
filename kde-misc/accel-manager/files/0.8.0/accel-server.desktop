@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name=Acceleration Manager
 Comment=This session is a simple plain X session
-Exec=fbsetbg -l & sudo /usr/sbin/accel-manager ; mv /tmp/.dmrc /home/sabayonuser/.dmrc; mv /tmp/kdmrc /usr/kde/3.5/share/config/kdm/; sudo chown sabayonuser:users /home/sabayonuser -R; sudo killall -9 ogg123 &> /dev/null; kdmctl suicide
+Exec=fbsetbg -l & /usr/sbin/accel-manager ; mv /tmp/.dmrc /root/.dmrc; mv /tmp/kdmrc /usr/kde/3.5/share/config/kdm/; killall -9 ogg123 &> /dev/null; touch /etc/accel-manager-exited
 # no icon yet, only the top three are currently used
 Icon=
 Type=Application
