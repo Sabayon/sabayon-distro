@@ -29,6 +29,10 @@ src_unpack() {
   done
 }
 
+src_compile() {
+  einfo "Nothing to compile!"
+}
+
 src_install() {
   dodir /home/.kde3.5/share/apps/ksplash/Themes/
   keepdir /home/.kde3.5/share/apps/ksplash/Themes/
