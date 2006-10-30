@@ -1,0 +1,78 @@
+# ChangeLog for media-tv/democracy
+# Copyright 1999-2006 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  26 Oct 2006; Markus Ullmann <jokey@gentoo.org>
+  -files/digest-democracy-0.9.0.2-r1:
+  delete stray digest
+
+  22 Oct 2006; Jorge Vargas (elpargo) <jorge.vargas@gmail.com>
+  democracy-0.9.0.2.ebuild, -democracy-0.9.0.2-r1.ebuild:
+  omp is right the change doesn't requires a bump, besides genstef is going to
+  delete it ones he notice I put in 0.9.1
+
+  22 Oct 2006; Jorge Vargas (elpargo) <jorge.vargas@gmail.com>
+  +democracy-0.9.0.2-r1.ebuild, +democracy-0.9.1.ebuild:
+  Added new release, took out check for ffmpeg thanks to Hinrik Örn Sigurðsson
+
+  20 Oct 2006; Christian Faulhammer (opfer) <gentoo@faulhammer.org>
+  democracy-0.9.0.2.ebuild:
+  added trailing slash to HOMEPAGE URL
+
+  05 Oct 2006; Stefan Schweizer <genstef@gentoo.org>
+  -democracy-0.9.0-r1.ebuild, +democracy-0.9.0.2.ebuild:
+  version bump
+
+  13 Sep 2006; Stefan Schweizer <genstef@gentoo.org>
+  -democracy-0.8.4.ebuild, -democracy-0.8.4.1.ebuild,
+  -files/democracy-0.8.4.1-firefox.patch, -democracy-0.8.5.ebuild,
+  -democracy-0.8.5.3.ebuild, -files/democracy-0.8.5.3-firefox.patch,
+  -files/democracy-0.8.5-firefox.patch, -democracy-0.9.0.ebuild:
+  remove old
+
+  11 Sep 2006; Jorge Vargas (elpargo) <jorge.vargas@gmail.com>
+  +democracy-0.9.0-r1.ebuild:
+  Changing SRC_URL to ftp where they do releases
+
+  11 Sep 2006; Stefan Schweizer <genstef@gentoo.org>
+  -democracy-0.9.0_rc2.ebuild, +democracy-0.9.0.ebuild:
+  version bump, thanks djay-il
+
+  08 Sep 2006; Stefan Schweizer <genstef@gentoo.org>
+  -democracy-0.9.0_rc1.ebuild, +democracy-0.9.0_rc2.ebuild:
+  version bump
+
+  07 Sep 2006; Jorge Vargas (elpargo) <jorge.vargas@gmail.com>
+  democracy-0.8.4.ebuild, democracy-0.8.4.1.ebuild:
+  fixing Trailing whitespaces to get repoman happy
+
+  07 Sep 2006; Jorge Vargas (elpargo) <jorge.vargas@gmail.com>
+  -files/democracy-0.8.5.3-r1-firefox.patch,
+  -files/democracy-0.8.5.9999-firefox.patch:
+  Sorry those two files are not used.
+
+  07 Sep 2006; Jorge Vargas (elpargo) <jorge.vargas@gmail.com>
+  +democracy-0.8.4.ebuild, democracy-0.8.4.1.ebuild,
+  +democracy-0.8.5.ebuild, +democracy-0.8.5.3.ebuild,
+  +files/democracy-0.8.5.3-firefox.patch,
+  +files/democracy-0.8.5.3-r1-firefox.patch,
+  +files/democracy-0.8.5.9999-firefox.patch,
+  +files/democracy-0.8.5-firefox.patch, +democracy-0.9.0_rc1.ebuild,
+  files/democracy-as-needed-libX11.patch:
+  new rc is out, this compiles without ANY patches on gentoo. Thanks to Ben
+  Dean-Kawamura, Chris Lahey and Greg Opperman from democracy team for getting
+  our work into the trunk./testRead.sh testRead.sh Also I added the last
+  stable 0.8.5 from the bug, from now on I'll keel releasing in sunrise.
+
+  05 Jul 2006; Stefan Schweizer <genstef@gentoo.org> ChangeLog:
+  Add check for the distutils patch
+
+  02 Jul 2006; Stefan Schweizer <genstef@gentoo.org> ChangeLog:
+  add firefox support thanks to Rick Harris, add ~ppc and python-berkdb check
+  thanks to Steffen Strobel and Jorge Vargas in bug 131527
+
+  24 Jun 2006; Stefan Schweizer <genstef@gentoo.org> ChangeLog:
+  New democracy ebuild thanks to Jorge Vargas for the initial ebuild, Martin
+  Meyer and Anton for helping with improving it and Louis C. for bumping it in
+  bug 131527
+
