@@ -30,7 +30,7 @@ src_install () {
 
 	cd ${S}/background
 	insinto /usr/share/backgrounds
-	doins *.jpg
+	doins *.jpg *.png
 
 	cd ${S}/gtk
 	insinto /usr/share/themes
