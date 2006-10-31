@@ -1,0 +1,11 @@
+AUX 1.0/language-setup 6163 RMD160 1ea2661f8af4f30d6bc9bb9229db57569dfe1645 SHA1 6d4652c1a4b8e6ac3b358ee7fab3c2cd79bb873c SHA256 26dd6043cad48e0421d90df972f0c42bc9c1864a33f97e678c57155d67b940a8
+MD5 6b0b15a2242375d0700c1dc62a0d8c36 files/1.0/language-setup 6163
+RMD160 1ea2661f8af4f30d6bc9bb9229db57569dfe1645 files/1.0/language-setup 6163
+SHA256 26dd6043cad48e0421d90df972f0c42bc9c1864a33f97e678c57155d67b940a8 files/1.0/language-setup 6163
+EBUILD language-configuration-helpers-1.0.ebuild 662 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 SHA1 628265a3dea1237a499bd3798479464426bf2190 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19
+MD5 36c752f5d8bd8004c721dfff505a5092 language-configuration-helpers-1.0.ebuild 662
+RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 language-configuration-helpers-1.0.ebuild 662
+SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19 language-configuration-helpers-1.0.ebuild 662
+MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-language-configuration-helpers-1.0 1
+RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-language-configuration-helpers-1.0 1
+SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-language-configuration-helpers-1.0 1
