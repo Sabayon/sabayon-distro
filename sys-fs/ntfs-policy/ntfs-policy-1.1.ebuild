@@ -37,4 +37,5 @@ src_install () {
 	exeinto /usr/share/hal/scripts/
 	doexe hal-system-storage-mount
 
+
 }
