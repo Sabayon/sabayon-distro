@@ -2,10 +2,10 @@ AUX 99-ntfs-policy.fdi 646 RMD160 62f5bb6805e18c389f0c02338fd46edad9e675dc SHA1 
 MD5 4d1659482b7def63eea5c15a844b0b8f files/99-ntfs-policy.fdi 646
 RMD160 62f5bb6805e18c389f0c02338fd46edad9e675dc files/99-ntfs-policy.fdi 646
 SHA256 69bb1d8f300529ae51185df875775e96365964fc8da67bd798553c533ebf7d1d files/99-ntfs-policy.fdi 646
-EBUILD ntfs-policy-1.0.ebuild 958 RMD160 dd13dfcad38fefdb4d2b36cec6954bb2b61c66a2 SHA1 4577d5a6947c8fa236b876588db8bc96cfc0c4a0 SHA256 bd9d181a1d49a6b924fecb1edd21024714ea3b059c770c12e1f7e3645e1dc852
-MD5 5b7d33807973daaa24d93b90cde1ea5b ntfs-policy-1.0.ebuild 958
-RMD160 dd13dfcad38fefdb4d2b36cec6954bb2b61c66a2 ntfs-policy-1.0.ebuild 958
-SHA256 bd9d181a1d49a6b924fecb1edd21024714ea3b059c770c12e1f7e3645e1dc852 ntfs-policy-1.0.ebuild 958
-MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-ntfs-policy-1.0 1
-RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-ntfs-policy-1.0 1
-SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-ntfs-policy-1.0 1
+EBUILD ntfs-policy-1.1.ebuild 958 RMD160 ff71d6e5a0d8353add3907d7ff29e9f7b6af7e19 SHA1 58a93f2cf0bf4b9ad31bbf01dfa897442fe3f0ff SHA256 12c95d2e4eeeae1460c4c1deb08333c4e0a0539cf1dc712eeb67e948512dae79
+MD5 8f04fafe3c2f3282046a6a224bc6438f ntfs-policy-1.1.ebuild 958
+RMD160 ff71d6e5a0d8353add3907d7ff29e9f7b6af7e19 ntfs-policy-1.1.ebuild 958
+SHA256 12c95d2e4eeeae1460c4c1deb08333c4e0a0539cf1dc712eeb67e948512dae79 ntfs-policy-1.1.ebuild 958
+MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-ntfs-policy-1.1 1
+RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-ntfs-policy-1.1 1
+SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-ntfs-policy-1.1 1

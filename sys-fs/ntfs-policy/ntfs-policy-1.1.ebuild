@@ -34,7 +34,7 @@ src_install () {
 	   sed -i '/# echo "options =/ s/#/MOUNTOPTIONS="$MOUNTOPTIONS,$HAL_PROP_VOLUME_MOUNT_OPTION"\n\n#/' hal-system-storage-mount
 	fi
 
-	insinto /usr/share/hal/scripts/
-	doins hal-system-storage-mount
+	exeinto /usr/share/hal/scripts/
+	doexe hal-system-storage-mount
 
 }
