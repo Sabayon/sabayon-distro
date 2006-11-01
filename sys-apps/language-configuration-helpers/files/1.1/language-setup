@@ -200,7 +200,7 @@ configure_openoffice_locale() {
 
 # code
 
-if [ -z "$2" ]; then
+if [ -z "$desktop_env" ]; then
 
     # Configure system locale (/etc/env.d/02locale)
     echo -en "Setting up GNOME and system locale..."
@@ -224,35 +224,33 @@ if [ -z "$2" ]; then
 
 else
 
-    if [ -n "$desktop_env" ]; then
-        case $desktop_env in
-            system)
-                # Configure system locale (/etc/env.d/02locale)
-                echo -en "Setting up GNOME and system locale..."
-                configure_system_locale
-                echo -e "\t OK"
-            ;;
-            kde)
-                # Configure KDE
-                echo -en "Setting up KDE locale..."
-                configure_kde_locale
-                echo -e "\t\t OK"
-            ;;
-            mozilla)
-                # Configure Firefox
-                echo -en "Setting up Mozilla products locale..."
-                configure_mozilla_locale
-                echo -e "\t OK"
-            ;;
-            openoffice)
-                # Configure OpenOffice
-                echo -en "Setting up OpenOffice locale..."
-                configure_openoffice_locale
-                echo -e "\t\t OK"
-            ;;
+    case $desktop_env in
+        system)
+            # Configure system locale (/etc/env.d/02locale)
+            echo -en "Setting up GNOME and system locale..."
+            configure_system_locale
+            echo -e "\t OK"
+        ;;
+        kde)
+            # Configure KDE
+            echo -en "Setting up KDE locale..."
+            configure_kde_locale
+            echo -e "\t\t OK"
+        ;;
+        mozilla)
+            # Configure Firefox
+            echo -en "Setting up Mozilla products locale..."
+            configure_mozilla_locale
+            echo -e "\t OK"
+        ;;
+       openoffice)
+            # Configure OpenOffice
+            echo -en "Setting up OpenOffice locale..."
+            configure_openoffice_locale
+            echo -e "\t\t OK"
+        ;;
         
-        esac
-    fi
+    esac
 
 fi
 
