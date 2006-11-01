@@ -53,12 +53,21 @@ fi
 
 configure_system_locale() {
 
-    sed -i '/LANG=/ s/LANG=.*/LANG="'$syslocale'"/' $ROOT/etc/env.d/02locale
-    sed -i '/LANGUAGE=/ s/LANGUAGE=.*/LANGUAGE="'$syslocale'"/' $ROOT/etc/env.d/02locale
-    sed -i '/LC_ALL=/ s/LC_ALL=.*/LC_ALL="'$syslocale'"/' $ROOT/etc/env.d/02locale
-    sed -i "s/LANG=.*/LANG='$syslocale'/" $ROOT/etc/profile.env
-    sed -i "s/LANGUAGE=.*/LANGUAGE='$syslocale'/" $ROOT/etc/profile.env
-    sed -i "s/LC_ALL=.*/LC_ALL='$syslocale'/" $ROOT/etc/profile.env
+    if [ -e "$ROOT/etc/env.d/02locale" ]; then
+        sed -i '/LANG=/ s/LANG=.*/LANG="'$syslocale'"/' $ROOT/etc/env.d/02locale
+        sed -i '/LANGUAGE=/ s/LANGUAGE=.*/LANGUAGE="'$syslocale'"/' $ROOT/etc/env.d/02locale
+        sed -i '/LC_ALL=/ s/LC_ALL=.*/LC_ALL="'$syslocale'"/' $ROOT/etc/env.d/02locale
+        sed -i "s/LANG=.*/LANG='$syslocale'/" $ROOT/etc/profile.env
+        sed -i "s/LANGUAGE=.*/LANGUAGE='$syslocale'/" $ROOT/etc/profile.env
+        sed -i "s/LC_ALL=.*/LC_ALL='$syslocale'/" $ROOT/etc/profile.env
+    else
+        echo 'LANG="'$syslocale'"' >> $ROOT/etc/env.d/02locale
+        echo 'LANGUAGE="'$syslocale'"' >> $ROOT/etc/env.d/02locale
+        echo 'LC_ALL="'$syslocale'"' >> $ROOT/etc/env.d/02locale
+        echo "LANG='$syslocale'" >> $ROOT/etc/profile.env
+        echo "LANGUAGE='$syslocale'" >> $ROOT/etc/profile.env
+        echo "LC_ALL='$syslocale'" >> $ROOT/etc/profile.env
+    fi
 
 }
 
