@@ -24,7 +24,7 @@ if [ "$#" -gt "2" ]; then
     echo "ERROR: too many parameters"
     echo "language-setup <valid locale> <system,kde,mozilla,openoffice>"
     exit 4
-elif [ "$2" != "system" ] && [ "$2" != "kde" ] && [ "$2" != "mozilla" ] && [ "$2" != "openoffice" ]; then
+elif [ -n "$2" ] && [ "$2" != "system" ] && [ "$2" != "kde" ] && [ "$2" != "mozilla" ] && [ "$2" != "openoffice" ]; then
     echo "ERROR: wrong parameters"
     echo "language-setup <valid locale> <system,kde,mozilla,openoffice>"
     exit 5
