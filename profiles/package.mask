@@ -1,0 +1,12 @@
+# Subversion ebuild, might break.
+=media-sound/picard-9999
+
+# Subversion ebuild, might break.
+=media-libs/tunepimp-9999
+
+# Subversion ebuild, might break.
+=dev-python/python-musicbrainz2-9999
+
+# This overlay requires tunepimp to be useful at all - reverse the mask.
+-media-libs/tunepimp
+
