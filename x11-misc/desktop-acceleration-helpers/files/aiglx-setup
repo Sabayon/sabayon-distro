@@ -11,7 +11,7 @@ fi
 beryl_wrapper_tmpdir="/tmp/"
 beryl_wrapper="beryl-wrapper.desktop"
 beryl_wrapper_desktop_file=$beryl_wrapper_tmpdir$beryl_wrapper
-xorg_conf="/etc/X11//xorg.conf"
+xorg_conf="/etc/X11/xorg.conf"
 
 if [ -z "$1" ] || [ "$1" == "--help" ]; then
    echo "aiglx-setup - SabayonLinux - Copyright 2006"
@@ -36,15 +36,21 @@ else
       echo -en "Enabling AIGLX system wide..."
 
        # Check if it is already enabled
-       aiglx_already_enabled=$(cat $kdmdir/kdmrc | grep "ServerCmd=.*AIGLX" )
+       aiglx_already_enabled=$(cat $xorg_conf | grep "AIGLX" | grep -v "#" )
        if [ -n "$aiglx_already_enabled" ]; then
-	  echo
+          echo
           echo "Error: AIGLX already enabled. Please type \"aiglx-setup --help\" for more help."
           exit 2
        fi
 
        # Changing KDM configuration
-       sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/AIGLX /' $kdmdir/kdmrc
+       if [ -e "/usr/bin/AIGLX" ]; then
+          # old way - not needed anymore
+          sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/AIGLX /' $kdmdir/kdmrc
+       else
+          sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X /' $kdmdir/kdmrc
+       fi
+
 
 	# now it's handled on /usr/kde/3.5/share/config/kdm/Xsession - after DBUS - before case $session in
         if [ -z "`cat /usr/kde/3.5/share/config/kdm/Xsession | grep beryl-wrapper`" ]; then
