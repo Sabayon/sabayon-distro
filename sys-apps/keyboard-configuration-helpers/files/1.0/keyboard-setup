@@ -1,0 +1,196 @@
+#!/bin/sh
+# 2006 - SabayonLinux - Fabio Erculiani
+# Gentoo System Keymap configurator
+
+# ERROR CODES:
+# 1 - invalid parameters
+# 2 - root access required
+# 3 - keymap does not exist
+# 4 - $2 must be valid
+
+# We edit /etc/conf.d/keymaps
+
+
+# parameters test
+if [ "$#" -lt "1" ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    if [ "$#" -lt "1" ]; then
+        echo "ERROR: not enough parameters"
+    fi
+    echo "keyboard-setup <valid keymap> (optional: <system,xorg,kde>)"
+    exit 1
+fi
+
+# root test
+if [ "$UID" != "0" ]; then
+    echo "ERROR: you need to run this as root"
+    exit 2
+fi
+
+# Variables and constants
+keylocale=$1
+xorg_conf="/etc/X11/xorg.conf"
+
+# keymap test
+shell_keymap_exist=$(find $ROOT/usr/share/keymaps/ -name $keylocale.map.gz)
+xorg_keymap_exist=$(find $ROOT/usr/share/X11/xkb/symbols/ -name $keylocale)
+if [ -z "$shell_keymap_exist" ]; then
+    echo "WARNING: shell keymap not available"
+fi
+if [ -z "$xorg_keymap_exist" ]; then
+    echo "WARNING: X.Org keymap not available"
+fi
+if [ -z "$xorg_keymap_exist" ] && [ -z "$shell_keymap_exist" ]; then
+    echo "ERROR: keymap does not exist"
+    exit 3
+fi
+
+if [ -n "$DESKTOP_SESSION" ]; then
+    DO_NOT_RESTART="1"
+fi
+
+if [ -n "$2" ]; then
+    case $2 in
+        system)
+            set_keymap_for="system"
+        ;;
+        xorg)
+            set_keymap_for="xorg"
+        ;;
+        kde)
+            set_keymap_for="kde"
+        ;;
+        *)
+            echo "ERROR: parameters not valid"
+            exit 4
+        ;;
+    esac
+
+fi
+
+# functions
+
+configure_system_keymap() {
+
+    echo -n "Setting up VT terminals keyboard mapping..."
+    # change keymap in Shell
+    if [ -e "$ROOT/etc/conf.d/keymaps" ]; then
+        sed -i '/KEYMAP=/ s/KEYMAP=".*"/KEYMAP="'$keylocale'"/' $ROOT/etc/conf.d/keymaps
+        if [ -e "$ROOT/etc/init.d/keymaps" ]; then
+            if [ -z "$ROOT" ]; then
+                if [ -z "$DO_NOT_RESTART" ]; then
+                    /etc/init.d/keymaps restart &> /dev/null
+                fi
+            else
+                if [ -z "$DO_NOT_RESTART" ]; then
+                    echo /etc/init.d/keymaps restart | chroot $ROOT &> /dev/null
+                fi
+            fi
+        else
+            echo "WARNING: $ROOT/etc/init.d/keymaps does not exist"
+        fi
+    else
+        echo 'KEYMAP="'$keylocale'"' > $ROOT/etc/conf.d/keymaps
+        if [ -e "$ROOT/etc/init.d/keymaps" ]; then
+            if [ -z "$ROOT" ]; then
+                if [ -z "$DO_NOT_RESTART" ]; then
+                    /etc/init.d/keymaps restart &> /dev/null
+                fi
+            else
+                if [ -z "$DO_NOT_RESTART" ]; then
+                    echo /etc/init.d/keymaps restart | chroot $ROOT &> /dev/null
+                fi
+            fi
+        else
+            echo "WARNING: $ROOT/etc/init.d/keymaps does not exist"
+        fi
+    fi
+    echo -e "\t OK"
+
+}
+
+configure_xorg_gnome_keymap() {
+
+    echo -n "Setting up X.Org/GNOME keyboard mapping..."
+    if [ -e "$ROOT$xorg_conf" ]; then
+        # FIXME: better the regexp
+        if [ -n "`cat $ROOT$xorg_conf | grep XkbLayout`" ]; then
+            sed -i '/XkbLayout/ s/"XkbLayout".*".*"/"XkbLayout"     "'$keylocale'"/' $ROOT$xorg_conf
+        else
+            echo "WARNING: in $ROOT$xorg_conf Option XkbLayout does not exist"
+        fi
+    else
+        echo "WARNING: $ROOT$xorg_conf does not exist"
+    fi
+    echo -e "\t OK"
+
+}
+
+kde_keymap_handler() {
+
+    kxkbrc_files=$(find $ROOT$1 -name kxkbrc)
+    if [ -n "$kxkbrc_files" ]; then
+        for file in $kxkbrc_files
+        do
+            sed -i '/Layout=/ s/Layout=.*/Layout='$keylocale'/' $file
+        done
+    fi
+
+}
+
+configure_kde_keymap() {
+
+    # FIXME: kxkbrc must be in place
+    # FIXME: KDE4 will be supported
+
+    echo -n "Setting up KDE keyboard mapping..."
+    # Search for all kxkbrc in /home
+    kde_keymap_handler /home/*/.kde*
+
+    # Search for all kxkbrc in /root
+    if [ -e "$ROOT/root/.kde" ] || [ -e "$ROOT/root/.kde3.5" ] || [ -e "$ROOT/root/.kde3.4" ]; then
+        kde_keymap_handler /root/.kde*
+    fi
+
+    if [ -e "$ROOT/etc/skel/.kde" ] || [ -e "$ROOT/etc/skel/.kde3.5" ] || [ -e "$ROOT/etc/skel/.kde3.4" ]; then
+        # Search for all kxkbrc in /etc/skel
+        kde_keymap_handler /etc/skel/.kde*
+    fi
+    echo -e "\t\t OK"
+
+}
+
+# code
+
+if [ -z "$set_keymap_for" ]; then
+
+    # System keymap
+    if [ -n "$shell_keymap_exist" ]; then
+        configure_system_keymap
+    fi
+
+    # X.Org/GNOME keymap
+    if [ -n "$xorg_keymap_exist" ]; then
+        configure_xorg_gnome_keymap
+    fi
+
+    # KDE keymap
+    if [ -n "$xorg_keymap_exist" ]; then
+        configure_kde_keymap
+    fi
+
+else
+
+    case $set_keymap_for in
+        system)
+            configure_system_keymap
+        ;;
+
+        xorg)
+            configure_xorg_gnome_keymap
+        ;;
+        kde)
+            configure_kde_keymap
+        ;;
+    esac
+
+fi

@@ -1,0 +1,11 @@
+AUX 1.0/keyboard-setup 4855 RMD160 e60323fe8aa888c990c115e8bb8091c5f45dfe21 SHA1 db53252016dd9d891de342bf27e6c1af789a9d99 SHA256 34d0e18cae0474f0fda026b9ab1937ff17aac70c3063bbf5c33e01ff9b8ec0e0
+MD5 fb4e5855fda94d028d9dddb7ad5556d6 files/1.0/keyboard-setup 4855
+RMD160 e60323fe8aa888c990c115e8bb8091c5f45dfe21 files/1.0/keyboard-setup 4855
+SHA256 34d0e18cae0474f0fda026b9ab1937ff17aac70c3063bbf5c33e01ff9b8ec0e0 files/1.0/keyboard-setup 4855
+EBUILD keyboard-configuration-helpers-1.0.ebuild 519 RMD160 171dee371bd6d26bec9454977192c79d8d885b2c SHA1 08fdc33b2d9bfd2c1ff76426f27b67acf1e6329e SHA256 cd092c825489e4ebbe57917df96e6d70d1189117c4a21a196ac073c5f206f76d
+MD5 21fb6c5f38f2c3f9efbea24b9df5f164 keyboard-configuration-helpers-1.0.ebuild 519
+RMD160 171dee371bd6d26bec9454977192c79d8d885b2c keyboard-configuration-helpers-1.0.ebuild 519
+SHA256 cd092c825489e4ebbe57917df96e6d70d1189117c4a21a196ac073c5f206f76d keyboard-configuration-helpers-1.0.ebuild 519
+MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-keyboard-configuration-helpers-1.0 1
+RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-keyboard-configuration-helpers-1.0 1
+SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-keyboard-configuration-helpers-1.0 1
