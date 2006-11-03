@@ -15,8 +15,7 @@ IUSE=""
 
 # empty for now
 RDEPEND=""
-DEPEND=">=sys-apps/dbus-0.62
-	! >=sys-apps/dbus-0.9"
+DEPEND=">=sys-apps/dbus-0.62"
 
 src_compile() {
 
