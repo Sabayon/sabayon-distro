@@ -42,6 +42,6 @@ src_compile() {
 }
 
 src_install () {
-	insinto /usr/bin
-	doins ManDVD-${PV}/mandvd
+	exeinto /usr/bin
+	doexe ManDVD-${PV}/mandvd
 }
