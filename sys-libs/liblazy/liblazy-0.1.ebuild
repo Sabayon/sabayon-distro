@@ -17,11 +17,6 @@ IUSE=""
 RDEPEND=""
 DEPEND=">=sys-apps/dbus-0.62"
 
-src_compile() {
-
-	emake || die
-}
-
 src_install() {
 	emake DESTDIR="${D}" install || die
 }
