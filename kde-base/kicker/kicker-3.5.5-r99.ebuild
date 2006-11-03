@@ -25,7 +25,9 @@ $(deprange $PV $MAXKDEVER kde-base/kdebase-data)
 	xcomposite? ( || ( x11-libs/libXcomposite <x11-base/xorg-x11-7 ) )"
 
 DEPEND="${RDEPEND}
-	xcomposite? ( || ( x11-proto/compositeproto <x11-base/xorg-x11-7 ) )"
+	xcomposite? ( || ( x11-proto/compositeproto <x11-base/xorg-x11-7 ) )
+	sys-libs/liblazy
+	app-misc/beagle"
 
 KMCOPYLIB="libkonq libkonq"
 KMEXTRACTONLY="libkonq
