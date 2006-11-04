@@ -44,11 +44,6 @@ ati_gl() {
 	if [ -e /usr/lib/xorg/modules/drivers/fglrx_drv.so ] \
 	|| [ -e /usr/lib/modules/drivers/fglrx_drv.so ]
 	then
-#		sed -i \
-#			-e 's/ati/fglrx/' \
-#			-e 's/radeon/fglrx/' \
-#			-e 's/r300/fglrx/' \
-#			/etc/X11/xorg.conf
 		GLTYPE=ati
 	else
 		GLTYPE=xorg-x11
@@ -117,18 +112,19 @@ get_video_cards() {
 			ATI_CARD=$(echo ${ATI} | awk 'BEGIN {RS=" "} /(R|RV|RS)[0-9]+/ {print $1}')
 			if [ $(echo ${ATI_CARD} | grep S) ]
 			then
-				ATI_CARD_S=$(echo ${ATI_CARD} | cut -dS -f2)
+				ATI_CARD_OUT=$(echo ${ATI_CARD} | cut -dS -f2)
 			elif [ $(echo ${ATI_CARD} | grep V) ]
 			then
-				ATI_CARD_V=$(echo ${ATI_CARD} | cut -dV -f2)
+				ATI_CARD_OUT=$(echo ${ATI_CARD} | cut -dV -f2)
 			else
-				ATI_CARD=$(echo ${ATI_CARD} | cut -dR -f2)
+				ATI_CARD_OUT=$(echo ${ATI_CARD} | cut -dR -f2)
 			fi
-			if [ -n "${ATI_CARD_S}" ] && [ ${ATI_CARD_S} -ge 300 ]
+
+			if [ -n "${ATI_CARD_OUT}" ] && [ ${ATI_CARD_OUT} -ge 300 ]
 			then
 				ati_gl
 			# 8.29.6 does not support R200 anymore
-			elif [ -n "${ATI_CARD}" ] && [ ${ATI_CARD} -ge 200 ]
+			elif [ -n "${ATI_CARD_OUT}" ] && [ ${ATI_CARD_OUT} -ge 200 ]
 			then
 				no_gl
 			else

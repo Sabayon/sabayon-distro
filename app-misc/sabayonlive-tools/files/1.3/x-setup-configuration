@@ -32,32 +32,40 @@ fi
 
 runtime_linking_proprietary_drivers() {
 
-   mount -t tmpfs none /lib/modules/$(uname -r)/video
-   current_arch=$(uname -m)
-   if [ "$current_arch" == "x86_64" ]; then
-      ld_arch="elf_x86_64"
-   elif [ "$current_arch" == "i686" ]; then
-      ld_arch="elf_i386"
+   # Do this only if on the system is available a NVIDIA or ATI card
+   if [ -n "`lspci | grep ' VGA ' | grep -i nvidia`" ] || [ -n "`lspci | grep ' VGA ' | grep -i ati`" ]; then
+
+      mount -t tmpfs none /lib/modules/$(uname -r)/video
+      current_arch=$(uname -m)
+      if [ "$current_arch" == "x86_64" ]; then
+         ld_arch="elf_x86_64"
+      elif [ "$current_arch" == "i686" ]; then
+         ld_arch="elf_i386"
+      fi
+      ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
+      ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/fglrx.ko /lib/fglrx/fglrx.o /lib/fglrx/fglrx.mod.o
+
    fi
-   ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
-   ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/fglrx.ko /lib/fglrx/fglrx.o /lib/fglrx/fglrx.mod.o
 
 }
 
 configure_read_write_paths() {
 
    # if it's not already mounted, mount KDM config r/w
-   kdm_is_mounted=$(cat /etc/mtab | grep kdm )
-   if [ -z "$kdm_is_mounted" ]; then
-      # mount it !
-      mkdir /tmp/kdm
-      cp /usr/kde/3.5/share/config/kdm/* /tmp/kdm/ -Rp
-      mount -t tmpfs none /usr/kde/3.5/share/config/kdm/
-      cp /tmp/kdm/* /usr/kde/3.5/share/config/kdm/ -Rp
-      rm -rf /tmp/kdm
+   # but only when unionfs is not available
+   if [ -z "`cat /proc/cmdline | grep -i unionfs`" ]; then
+      kdm_is_mounted=$(cat /etc/mtab | grep kdm )
+      if [ -z "$kdm_is_mounted" ]; then
+         # mount it !
+         mkdir /tmp/kdm
+         cp /usr/kde/3.5/share/config/kdm/* /tmp/kdm/ -Rp
+         mount -t tmpfs none /usr/kde/3.5/share/config/kdm/
+         cp /tmp/kdm/* /usr/kde/3.5/share/config/kdm/ -Rp
+         rm -rf /tmp/kdm
+      fi
    fi
 
-   # Fix .ICE-unix permissions
+   # Fix .ICE-unix permissions - still needed ??
    mkdir -m 1777 /tmp/.ICE-unix -p
    chown root /tmp/.ICE-unix
    chown root /tmp/.ICE-unix -R
