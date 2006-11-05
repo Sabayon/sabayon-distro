@@ -1,6 +1,6 @@
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.29.6.ebuild,v 1.1 2006/09/25 13:57:59 lu_zero Exp $
+# $Header:
 
 IUSE="acpi doc opengl distribution"
 
@@ -367,10 +367,9 @@ src_install-libs() {
 	doins ${COMMON_DIR}/usr/X11R6/include/X11/extensions/fglrx_gamma.h
 
 	# misc ati configuration files for /etc
-	dodir /etc
-	cp -pP ${COMMON_DIR}/etc/fglrxprofiles.csv ${D}/etc/
-	cp -pP ${COMMON_DIR}/etc/fglrxrc ${D}/etc/
 	dodir /etc/ati
+	cp -pP ${COMMON_DIR}/etc/ati/fglrxprofiles.csv ${D}/etc/ati/
+	cp -pP ${COMMON_DIR}/etc/ati/fglrxrc ${D}/etc/ati/
 	cp -pP ${COMMON_DIR}/etc/ati/logo* ${D}/etc/ati/
 	if use acpi
 	then
