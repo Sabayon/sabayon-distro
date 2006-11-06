@@ -3,15 +3,17 @@
 
 inherit eutils versionator
 
-DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers and GTK/QT Themes."
+DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers, ksplash, and GTK/QT Themes."
 HOMEPAGE="http://www.sabayonlinux.org/"
 SRC_URI="http://www.sabayonlinux.org/distfiles/x11-themes/${PN}/${PN}-${PV}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 sparc amd64 ppc"
-IUSE=""
-
-DEPEND=">=x11-libs/gtk+-2.8"
+KEYWORDS="x86 amd64 ppc ppc64"
+IUSE="symlink"
+RESTRICT="nomirror"
+DEPEND=">=x11-libs/gtk+-2.8
+	>=kde-misc/ksplash-engine-moodin-0.4.2
+	"
 
 
 RDEPEND=""
@@ -26,6 +28,10 @@ src_install () {
 
 	if [ ! -e /usr/share/themes ]; then
           dodir /usr/share/themes
+        fi
+
+	if [ ! -e /etc/splash ]; then
+          dodir /etc/splash
         fi
 
 	cd ${S}/background
@@ -48,6 +54,19 @@ src_install () {
 	  cd ${S}/ksplash
 	  insinto $kdedir/share/apps/ksplash/Themes
 	  doins -r ./
+	  # KDM theme
+	  cd ${S}/kdm
+	  insinto $kdedir/share/apps/kdm/themes/
+	  doins -r ./
 	fi
 
+	# Gensplash theme
+	cd ${S}/gensplash
+	insinto /etc/splash
+	doins -r sabayon
+	if use symlink; then
+	  dosym /etc/splash/sabayon /etc/splash/default
+	fi
+
+	
 }
