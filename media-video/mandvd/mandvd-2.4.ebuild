@@ -23,7 +23,7 @@ KEYWORDS="~x86 ~amd64"
 DEPEND=">=qt-3.3.3
 	>=xine-lib-0.99.4
 	>=dvd-slideshow-0.7.5
-	>=media-sound/lame-3.97
+	>media-sound/lame-3.96
 	>=dvdauthor-0.6.11
 	>=mjpegtools-1.8.0
 	>=netpbm-10.29
