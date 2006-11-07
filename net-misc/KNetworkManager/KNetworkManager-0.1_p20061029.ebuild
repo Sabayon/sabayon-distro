@@ -7,7 +7,7 @@ inherit kde
 DESCRIPTION="A NetworkManager front-end for KDE"
 HOMEPAGE="http://en.opensuse.org/Projects/KNetworkManager"
 LICENSE="GPL-2"
-SRC_URI="http://nouse.net/projects/KNetworkManager/0.1/${PN}-${PV##*_p}.tar.bz2"
+SRC_URI="http://distfiles.evolution-mission.org/kde/${PN}-${PV##*_p}.tar.bz2"
 KEYWORDS="~amd64 ~x86"
 
 DEPEND="|| ( >=net-misc/networkmanager-0.6.4 >net-misc/NetworkManager-0.6.3 )
