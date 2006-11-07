@@ -133,12 +133,20 @@ def configureXorgKeymap(keyLocale):
 	    print_warning("XkbLayout entry not found")
 	    # create it
 	    trigger = False
+	    triggerKbd = False
 	    for line in xorgConfContent:
 		if (trigger):
+		    if line.find("Driver") != -1 and line.find("kbd") != -1:
+			triggerKbd = True
 		    if line.find("EndSection") != -1:
-			# end of line, add the option here:
-			line = "    Option      \"XkbLayout\"     \""+keyLocale+"\"\n\n"+line
-			trigger = False
+			if (triggerKbd):
+			    # end of line, add the option here:
+			    line = "    Option      \"XkbLayout\"     \""+keyLocale+"\"\n\n"+line
+			    trigger = False
+			    triggerKbd = False
+			else:
+			    # false alarm
+			    trigger = False
 		if line.find("Section") != -1 and line.find("InputDevice") != -1:
 		    trigger = True
 		newXorgConf.append(line)
