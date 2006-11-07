@@ -36,7 +36,7 @@ RDEPEND="$DEPEND"
 
 src_compile() {
         addwrite "${QTDIR}/etc/settings"
-	cd ${S}/ManDVD-${PV}
+	cd ${S}/ManDVD-${PV}src
 	/usr/qt/3/bin/qmake mandvd.pro
 	emake 
 }
