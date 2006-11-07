@@ -1,0 +1,293 @@
+#!/usr/bin/python
+# 2006 - SabayonLinux - Fabio Erculiani
+# Gentoo System Keymap configurator
+
+# ERROR CODES:
+# 1 - invalid parameters
+# 2 - root access required
+# 3 - keymap does not exist
+# 4 - sys.argv[1] must be valid
+
+# We edit /etc/conf.d/keymaps
+
+import os
+import sys
+import re
+import string
+from getpass import getuser
+
+# System functions
+
+def print_error(msg):
+    print "* erro *  : "+msg
+
+def print_info(msg):
+    print "* info *  : "+msg
+
+def print_help():
+    print "* IIIII * : Sabayon Linux keymap configurator - written by Fabio Erculiani (C - 2006)"
+    print "* usage * : keyboard-setup <valid keymap> (optional: <system,xorg,gnome,kde>)"
+
+def print_warning(msg):
+    print "* warn *  : "+msg
+
+options = sys.argv[1:]
+# parameters test
+if len(options) < 1 or string.join(options).find("--help") != -1 or string.join(options).find("-h") != -1:
+    print_help()
+    if len(options) < 1:
+	print_error("not enough parameters")
+    sys.exit(1)
+
+if len(options) > 2:
+    print_help()
+    print_error("too many parameters")
+    sys.exit(1)
+
+# am I root ?
+if getuser() != "root":
+    print_error("you need to run this as root")
+    sys.exit(2)
+
+# is $ROOT set?
+if os.getenv("ROOT") is not None:
+    ROOT = os.getenv("ROOT")
+else:
+    ROOT = ""
+if os.getenv("DO_NOT_RESTART") is not None:
+    DO_NOT_RESTART = True
+else:
+    DO_NOT_RESTART = False
+
+# Variables and constants
+keyLocale = sys.argv[1]
+xorgConf = ROOT+"/etc/X11/xorg.conf"
+confdKeymaps = ROOT+"/etc/conf.d/keymaps"
+validComponents = [ "system" , "xorg" , "gnome" , "kde" ]
+
+shellKeymap = False
+# shell keymap test
+for root, dirs, files in os.walk(ROOT+"/usr/share/keymaps"):
+    for file in files:
+       if file == keyLocale+".map.gz":
+	   shellKeymap = True
+
+xorgKeymap = False
+# X.Org keymap test
+for root, dirs, files in os.walk(ROOT+"/usr/share/X11/xkb/symbols"):
+    for file in files:
+       if file == keyLocale:
+	   xorgKeymap = True
+
+if (not shellKeymap):
+    print_warning("shell keymap not available")
+if (not xorgKeymap):
+    print_warning("X.Org keymap not available")
+if (not shellKeymap) and (not xorgKeymap):
+    print_error("keymap does not exist")
+    sys.exit(3)
+    
+
+if os.getenv("DESKTOP_SESSION") is not None:
+    DO_NOT_RESTART = True
+
+if len(options) == 2:
+    component = sys.argv[2]
+    validComponent = False
+    for cmp in validComponents:
+	if component == cmp:
+	    validComponent = True
+
+    if (not validComponent):
+	print_error("supplied parameters are invalid")
+	sys.exit(4)
+
+
+# Engine functions
+
+# VT Shell keymap config
+def configureSystemKeymap(keyLocale):
+    print_info("Setting up VT terminals keyboard mapping...")
+    f = open(confdKeymaps,"w")
+    f.write("KEYMAP=\""+keyLocale+"\"")
+    f.flush()
+    f.close()
+    if ROOT == "" and DO_NOT_RESTART == False:
+        os.system("/etc/init.d/keymaps restart &> /dev/null")
+    elif ROOT != "" and DO_NOT_RESTART == False:
+        os.system("echo /etc/init.d/keymaps restart | chroot "+ROOT+" &> /dev/null")
+
+# xorg.conf keymap config
+def configureXorgKeymap(keyLocale):
+    print_info("Setting up X.Org keyboard mapping...")
+    if os.path.isfile(xorgConf):
+	f = open(xorgConf,"r")
+	xorgConfContent = f.readlines()
+	f.close()
+	newXorgConf = []
+	xkbLayoutExists = False
+	for line in xorgConfContent:
+	    if line.find("XkbLayout") != -1:
+		xkbLayoutExists = True
+	if (not xkbLayoutExists):
+	    print_warning("XkbLayout entry not found")
+	    # create it
+	    trigger = False
+	    for line in xorgConfContent:
+		if (trigger):
+		    if line.find("EndSection") != -1:
+			# end of line, add the option here:
+			line = "    Option      \"XkbLayout\"     \""+keyLocale+"\"\n\n"+line
+			trigger = False
+		if line.find("Section") != -1 and line.find("InputDevice") != -1:
+		    trigger = True
+		newXorgConf.append(line)
+	else:
+	    for line in xorgConfContent:
+		if line.find("Option") != -1 and line.find("XkbLayout") != -1:
+		    newLine = ""
+		    quoteCnt = 0
+		    for char in line:
+			if char == '"':
+			    quoteCnt += 1
+			    if quoteCnt == 3:
+				char = '"'+keyLocale+'"'
+				newLine += char+"\n"
+				break
+		        newLine += char
+		    line = newLine
+		
+		# write line
+		newXorgConf.append(line)
+		
+	# write newXorgConf to file
+	f = open(xorgConf,"w")
+	f.writelines(newXorgConf)
+	f.flush()
+	f.close()
+
+# KDE keymap config
+def configureKDEKeymap(keyLocale):
+	
+    def KDEKeymapHandler(dir,keyLocale):
+	put, get = os.popen4("find "+ROOT+dir+" -name kxkbrc")
+	kxkbrcFiles = get.readlines()
+	findError = False
+	if kxkbrcFiles[0].find("find:") != -1:
+	    findError = True
+	if kxkbrcFiles != [] and (not findError):
+	    for file in kxkbrcFiles:
+		file = file.strip()
+		print_info("configuring KDE file "+file)
+		# Open file and edit
+		f = open(file,"r")
+		kxkbFile = f.readlines()
+		f.close()
+		newKxkbFile = []
+		# look for [Locale]
+		layoutEntryExists = False
+		for line in kxkbFile:
+		    if line.find("Layout") != -1:
+			layoutEntryExists = True
+		if (not layoutEntryExists):
+		    # append the line
+		    for line in kxkbFile:
+			newKxkbFile.append(line)
+		    newKxkbFile.append("Layout="+keyLocale+"\n")
+		else:
+		    # change the line
+		    for line in kxkbFile:
+			if line.find("Layout") != -1:
+			    line = "Layout="+keyLocale+"\n"
+			newKxkbFile.append(line)
+
+		f = open(file,"w")
+		f.writelines(newKxkbFile)
+	else:
+	    print_warning("no kxkbrc file(s) in "+dir)
+	
+    print_info("Setting up KDE keyboard mapping...")
+
+    # Change keymap for /home
+    KDEKeymapHandler("/home/*/.kde*",keyLocale)
+
+    # Change keymap for /root
+    KDEKeymapHandler("/root/",keyLocale)
+
+    # Change keymap for /home
+    if os.path.isdir(ROOT+"/etc/skel"):
+        KDEKeymapHandler("/etc/skel/.kde*",keyLocale)
+
+# GNOME keymap config
+def configureGNOMEKeymap(keyLocale):
+
+    def GNOMEKeymapHandler(dir,keyLocale):
+	put, get = os.popen4("find "+ROOT+dir+"/.gconf/desktop/gnome/peripherals/keyboard/kbd/ -name %gconf.xml")
+	gconfXmls = get.readlines()
+	findError = False
+	if gconfXmls[0].find("find:") != -1:
+	    findError = True
+	if gconfXmls != [] and (not findError):
+	    for file in gconfXmls:
+		file = file.strip()
+		print_info("configuring GNOME file "+file)
+		f = open(file,"r")
+		XmlFile = f.readlines()
+		f.close()
+		newXmlFile = []
+		trigger = False
+		for line in XmlFile:
+		    if (trigger):
+			if line.find("<stringvalue>") != -1:
+			    newLine = ""
+			    for char in line:
+				if char == ">":
+				    char = ">"+keyLocale+"</stringvalue>"
+				    newLine += char+"\n"
+				    break
+				newLine += char
+			    trigger = False
+			    line = newLine
+		    if line.find("entry name=\"layouts\"") != -1:
+			# found !
+			trigger = True
+		    newXmlFile.append(line)
+		
+		# write newXmlFile
+		f = open(file,"w")
+		f.writelines(newXmlFile)
+		f.flush()
+		f.close()
+	else:
+	    print_warning("no GNOME keyboard configuration file(s) in "+dir)
+
+    print_info("Setting up GNOME keyboard mapping...")
+    # Change keymap for /home
+    GNOMEKeymapHandler("/home/*",keyLocale)
+
+    # Change keymap for /root
+    GNOMEKeymapHandler("/root",keyLocale)
+
+    # Change keymap for /home
+    if os.path.isdir(ROOT+"/etc/skel"):
+        GNOMEKeymapHandler("/etc/skel",keyLocale)
+
+
+if len(options) == 2:
+    component = sys.argv[2]
+    if component == "system":
+	configureSystemKeymap(keyLocale)
+    if component == "xorg":
+	configureXorgKeymap(keyLocale)
+    if component == "gnome":
+	configureGNOMEKeymap(keyLocale)
+    if component == "kde":
+	configureKDEKeymap(keyLocale)
+elif len(options) == 1:
+    # Configure everything
+    configureSystemKeymap(keyLocale)
+    configureXorgKeymap(keyLocale)
+    configureKDEKeymap(keyLocale)
+    configureGNOMEKeymap(keyLocale)
+
+#end
