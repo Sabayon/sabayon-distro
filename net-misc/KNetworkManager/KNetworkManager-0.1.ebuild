@@ -2,33 +2,40 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit kde
+inherit flag-o-matic eutils kde
 
-DESCRIPTION="A NetworkManager front-end for KDE"
+DESCRIPTION="KNetworkManager is the KDE front end for NetworkManager."
 HOMEPAGE="http://en.opensuse.org/Projects/KNetworkManager"
 LICENSE="GPL-2"
+
 SRC_URI="http://nouse.net/projects/KNetworkManager/0.1/knetworkmanager-0.1.tar.bz2"
-KEYWORDS="~amd64 ~x86"
 
-DEPEND="|| ( >=net-misc/networkmanager-0.6.4 >net-misc/NetworkManager-0.6.3 )
-	>=kde-base/kdelibs-3.2
-	sys-apps/dbus
-	sys-apps/hal"
+SLOT="2"
+KEYWORDS="~x86 ~amd64"
 
-S="${WORKDIR}/${PN}-${PV##*_p}"
+IUSE="arts"
+DEPENT="
+       kde-base/unsermake
+        >=net-misc/networkmanager-0.6.2
+        "
+DEPEND="${RDEPEND}"
 
-pkg_setup() {
-	if ! built_with_use sys-apps/dbus qt3 ; then
-		echo
-		eerror "You must rebuild sys-apps/dbus with USE=\"qt3\""
-		die "sys-apps/dbus not built with qt3 bindings"
-	fi
+src_compile() {
+       
+       eautoreconf
+       
+        myconf="${myconf}
+                $(use_with arts)
+             --prefix=`kde-config --prefix`
+             "
+       export UNSERMAKE="yes"
+        kde_src_compile
 }
 
-src_unpack() {
-
-	unpack ${A}
-	cd ${S}/knetworkmanager
-	epatch ${FILESDIR}/KNetworkManager-0.1-dbus.patch
+src_install() {
+             
+        make || die "Make failed"
+        emake DESTDIR=${D} install || die "Make Install failed"
+        dodoc README NEWS TODO AUTHORS
 
 }
