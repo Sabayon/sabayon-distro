@@ -12,7 +12,7 @@ SLOT="0"
 RESTRICT="nomirror"
 
 KEYWORDS="~x86 ~amd64"
-IUSE="lame vorbis flac ffmpeg musepack kdeenablefinal arts"
+IUSE="lame vorbis flac ffmpeg musepack kdeenablefinal arts aac"
 
 DEPEND=">=media-libs/taglib-1.4
 	>=x11-libs/qt-3.3.4"
