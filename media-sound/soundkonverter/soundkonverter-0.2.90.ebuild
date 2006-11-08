@@ -22,7 +22,9 @@ RDEPEND="
 	vorbis?   ( >=media-sound/vorbis-tools-1.0 )
 	flac?     ( >=media-libs/flac-1.1.1 )
 	ffmpeg?   ( >=media-video/ffmpeg-0.4.8 )
-	musepack? ( >=media-sound/musepack-tools-1.15u )"
+	musepack? ( >=media-sound/musepack-tools-1.15u )
+	aac?      ( media-libs/libmp4v2 )
+	"
 
 need-kde 3.5
 
