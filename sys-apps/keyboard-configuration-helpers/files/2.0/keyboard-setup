@@ -181,38 +181,39 @@ def configureKDEKeymap(keyLocale):
 	put, get = os.popen4("find "+ROOT+dir+" -name kxkbrc")
 	kxkbrcFiles = get.readlines()
 	findError = False
-	if kxkbrcFiles[0].find("find:") != -1:
-	    findError = True
-	if kxkbrcFiles != [] and (not findError):
-	    for file in kxkbrcFiles:
-		file = file.strip()
-		print_info("configuring KDE file "+file)
-		# Open file and edit
-		f = open(file,"r")
-		kxkbFile = f.readlines()
-		f.close()
-		newKxkbFile = []
-		# look for [Locale]
-		layoutEntryExists = False
-		for line in kxkbFile:
-		    if line.find("Layout") != -1:
-			layoutEntryExists = True
-		if (not layoutEntryExists):
-		    # append the line
+	if kxkbrcFiles != []:
+	    if kxkbrcFiles[0].find("find:") != -1:
+	        findError = True
+	    if (not findError):
+	        for file in kxkbrcFiles:
+		    file = file.strip()
+		    print_info("configuring KDE file "+file)
+		    # Open file and edit
+		    f = open(file,"r")
+		    kxkbFile = f.readlines()
+		    f.close()
+		    newKxkbFile = []
+		    # look for [Layout]
+		    layoutEntryExists = False
 		    for line in kxkbFile:
-			newKxkbFile.append(line)
-		    newKxkbFile.append("Layout="+keyLocale+"\n")
-		else:
-		    # change the line
-		    for line in kxkbFile:
-			if line.find("Layout") != -1:
-			    line = "Layout="+keyLocale+"\n"
-			newKxkbFile.append(line)
+		        if line.find("Layout") != -1:
+			    layoutEntryExists = True
+		    if (not layoutEntryExists):
+		        # append the line
+		        for line in kxkbFile:
+			    newKxkbFile.append(line)
+		        newKxkbFile.append("Layout="+keyLocale+"\n")
+		    else:
+		        # change the line
+		        for line in kxkbFile:
+			    if line.find("Layout") != -1:
+			        line = "Layout="+keyLocale+"\n"
+			    newKxkbFile.append(line)
 
-		f = open(file,"w")
-		f.writelines(newKxkbFile)
-	else:
-	    print_warning("no kxkbrc file(s) in "+dir)
+		    f = open(file,"w")
+		    f.writelines(newKxkbFile)
+	    else:
+	        print_warning("no kxkbrc file(s) in "+dir)
 	
     print_info("Setting up KDE keyboard mapping...")
 
