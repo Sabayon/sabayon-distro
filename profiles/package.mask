@@ -10,3 +10,8 @@
 # This overlay requires tunepimp to be useful at all - reverse the mask.
 -media-libs/tunepimp
 
+# These ebuilds do not ebuild with kdeenablefinal, will remove once bug is fixed
+=media-sound/soundkonverter-0.2.90
+
+# These ebuilds do not ebuild with kdeenablefinal, will remove once bug is fixed
+=media-sound/soundkonverter-0.2.90-r1
