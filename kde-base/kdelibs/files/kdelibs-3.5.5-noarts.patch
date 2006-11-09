@@ -1,0 +1,227 @@
+Index: arts/knotify/knotify.cpp
+===================================================================
+--- arts/knotify/knotify.cpp	(revision 596923)
++++ arts/knotify/knotify.cpp	(revision 596924)
+@@ -26,24 +26,29 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ 
++#include <config.h>
++#ifndef WITHOUT_ARTS
+ // aRts headers
+ #include <connect.h>
+ #include <dispatcher.h>
+ #include <flowsystem.h>
++#include <qiomanager.h>
+ #include <soundserver.h>
++#endif
+ 
+ // QT headers
+ #include <qfile.h>
+ #include <qfileinfo.h>
+-#include <qiomanager.h>
+ #include <qstringlist.h>
+ #include <qtextstream.h>
+ 
+ // KDE headers
+ #include <dcopclient.h>
+ #include <kaboutdata.h>
++#ifndef WITHOUT_ARTS
+ #include <kartsdispatcher.h>
+ #include <kartsserver.h>
++#endif
+ #include <kcmdlineargs.h>
+ #include <kconfig.h>
+ #include <kdebug.h>
+@@ -53,8 +58,10 @@
+ #include <kpassivepopup.h>
+ #include <kiconloader.h>
+ #include <kmacroexpander.h>
++#ifndef WITHOUT_ARTS
+ #include <kplayobjectfactory.h>
+ #include <kaudiomanagerplay.h>
++#endif
+ #include <kprocess.h>
+ #include <kstandarddirs.h>
+ #include <kuniqueapplication.h>
+@@ -73,22 +80,26 @@
+     QString externalPlayer;
+     KProcess *externalPlayerProc;
+ 
++#ifndef WITHOUT_ARTS
+     QPtrList<KDE::PlayObject> playObjects;
+     QMap<KDE::PlayObject*,int> playObjectEventMap;
++    KAudioManagerPlay *audioManager;
++#endif
+     int externalPlayerEventId;
+ 
+     bool useExternal;
+     bool useArts;
+     int volume;
+     QTimer *playTimer;
+-    KAudioManagerPlay *audioManager;
+     bool inStartup;
+     QString startupEvents;
+ };
+ 
+ // Yes, it's ugly to put this here, but this facilitates the cautious startup
+ // procedure.
++#ifndef WITHOUT_ARTS
+ KArtsServer *soundServer = 0;
++#endif
+ 
+ extern "C"{
+ 
+@@ -124,6 +135,7 @@
+     // We try to prevent this by tracking our startup and offer options to
+     // abort this.
+ 
++#ifndef WITHOUT_ARTS
+     KConfigGroup config( KGlobal::config(), "StartProgress" );
+     KConfig artsKCMConfig( "kcmartsrc" );
+     artsKCMConfig.setGroup( "Arts" );
+@@ -208,14 +220,23 @@
+     config.writeEntry( "KNotify Init", true );
+     config.sync();
+ 
++#else
++
++    // start notify service, without aRts
++    KNotify *notify = new KNotify( false );
++
++#endif
++
+     app.dcopClient()->setDefaultObject( "Notify" );
+     app.dcopClient()->setDaemonMode( true );
+     // kdDebug() << "knotify starting" << endl;
+ 
+     int ret = app.exec();
+     delete notify;
++#ifndef WITHOUT_ARTS
+     delete soundServer;
+     delete dispatcher;
++#endif
+     return ret;
+ }
+ }// end extern "C"
+@@ -228,14 +249,16 @@
+     d->globalConfig = new KConfig("knotify.eventsrc", true, false);
+     d->externalPlayerProc = 0;
+     d->useArts = useArts;
++    d->inStartup = true;
++#ifndef WITHOUT_ARTS
+     d->playObjects.setAutoDelete(true);
+     d->audioManager = 0;
+-    d->inStartup = true;
+     if( useArts )
+     {
+         connect( soundServer, SIGNAL( restartedServer() ), this, SLOT( restartedArtsd() ) );
+         restartedArtsd(); //started allready need to initialize d->audioManager
+     }
++#endif
+ 
+     d->volume = 100;
+ 
+@@ -248,12 +271,14 @@
+ {
+     reconfigure();
+ 
++#ifndef WITHOUT_ARTS
+     d->playObjects.clear();
+ 
+     delete d->globalEvents;
+     delete d->globalConfig;
+     delete d->externalPlayerProc;
+     delete d->audioManager;
++#endif
+     delete d;
+ }
+ 
+@@ -449,6 +474,7 @@
+             return false;
+         }
+ 
++#ifndef WITHOUT_ARTS
+         // play sound finally
+         while( d->playObjects.count()>5 )
+             abortFirstPlayObject();
+@@ -506,7 +532,7 @@
+         }
+         if ( !d->playTimer->isActive() )
+             d->playTimer->start( 1000 );
+-
++#endif
+         return true;
+ 
+     } else if(!d->externalPlayer.isEmpty()) {
+@@ -661,6 +687,7 @@
+ 
+ void KNotify::playTimeout()
+ {
++#ifndef WITHOUT_ARTS
+     for ( QPtrListIterator< KDE::PlayObject > it(d->playObjects); *it;)
+     {
+         QPtrListIterator< KDE::PlayObject > current = it;
+@@ -678,16 +705,18 @@
+     }
+     if ( !d->playObjects.count() )
+         d->playTimer->stop();
++#endif
+ }
+ 
+ bool KNotify::isPlaying( const QString& soundFile ) const
+ {
++#ifndef WITHOUT_ARTS
+     for ( QPtrListIterator< KDE::PlayObject > it(d->playObjects); *it; ++it)
+     {
+         if ( (*it)->mediaName() == soundFile )
+             return true;
+     }
+-
++#endif
+     return false;
+ }
+ 
+@@ -699,6 +728,7 @@
+ 
+ void KNotify::abortFirstPlayObject()
+ {
++#ifndef WITHOUT_ARTS
+     QMap<KDE::PlayObject*,int>::Iterator it = d->playObjectEventMap.find( d->playObjects.getFirst() );
+     if ( it != d->playObjectEventMap.end() )
+     {
+@@ -706,6 +736,7 @@
+         d->playObjectEventMap.remove( it );
+     }
+     d->playObjects.removeFirst();
++#endif
+ }
+ 
+ void KNotify::soundFinished( int eventId, PlayingFinishedStatus reason )
+@@ -750,10 +781,12 @@
+ 
+ void KNotify::restartedArtsd()
+ {
++#ifndef WITHOUT_ARTS
+     delete d->audioManager;
+     d->audioManager = new KAudioManagerPlay( soundServer );
+     d->audioManager->setTitle( i18n( "KDE System Notifications" ) );
+     d->audioManager->setAutoRestoreID( "KNotify Aman Play" );
++#endif
+ }
+ 
+ void KNotify::sessionReady()
+Index: arts/knotify/knotify.h
+===================================================================
+--- arts/knotify/knotify.h	(revision 596923)
++++ arts/knotify/knotify.h	(revision 596924)
+@@ -23,7 +23,9 @@
+ #include <qobject.h>
+ #include <knotifyclient.h>
+ #include <dcopobject.h>
++#ifndef WITHOUT_ARTS
+ #include <soundserver.h>
++#endif
+ 
+ class KNotifyPrivate;
+ class KProcess;

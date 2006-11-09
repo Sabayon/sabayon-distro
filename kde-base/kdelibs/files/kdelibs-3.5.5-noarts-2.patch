@@ -1,0 +1,53 @@
+Index: kdelibs-3.5.5/arts/configure.in.in
+===================================================================
+--- kdelibs-3.5.5.orig/arts/configure.in.in
++++ kdelibs-3.5.5/arts/configure.in.in
+@@ -22,7 +22,6 @@ AC_MSG_CHECKING(for aRts-$ARTS_WANT_VERS
+ ARTS_OK=no
+ 
+ if test "$build_arts" != "yes"; then
+-  DO_NOT_COMPILE="$DO_NOT_COMPILE arts"
+   AC_MSG_RESULT(disabled)
+ else
+ 
+Index: kdelibs-3.5.5/arts/knotify/Makefile.am
+===================================================================
+--- kdelibs-3.5.5.orig/arts/knotify/Makefile.am
++++ kdelibs-3.5.5/arts/knotify/Makefile.am
+@@ -6,7 +6,9 @@ INCLUDES= -I$(top_srcdir)/arts/kde -I$(i
+ kde_module_LTLIBRARIES = knotify.la
+ 
+ knotify_la_SOURCES	= knotify.cpp knotify.skel
++if include_ARTS
+ knotify_la_LIBADD	= -lsoundserver_idl -lqtmcop $(LIB_KDEUI) $(top_builddir)/arts/kde/libartskde.la
++endif
+ knotify_la_LDFLAGS = $(all_libraries) -module -avoid-version
+ knotify_la_METASOURCES = AUTO
+ 
+Index: kdelibs-3.5.5/arts/Makefile.am
+===================================================================
+--- kdelibs-3.5.5.orig/arts/Makefile.am
++++ kdelibs-3.5.5/arts/Makefile.am
+@@ -1,4 +1,8 @@
++if include_ARTS
+ SUBDIRS = kde knotify message
++else
++SUBDIRS = knotify
++endif
+ 
+ DOXYGEN_REFERENCES = kio kdecore kdeui
+ include ../admin/Doxyfile.am
+Index: kdelibs-3.5.5/arts/knotify/knotify.h
+===================================================================
+--- kdelibs-3.5.5.orig/arts/knotify/knotify.h
++++ kdelibs-3.5.5/arts/knotify/knotify.h
+@@ -23,9 +23,6 @@
+ #include <qobject.h>
+ #include <knotifyclient.h>
+ #include <dcopobject.h>
+-#ifndef WITHOUT_ARTS
+-#include <soundserver.h>
+-#endif
+ 
+ class KNotifyPrivate;
+ class KProcess;

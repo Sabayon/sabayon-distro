@@ -1,0 +1,45 @@
+diff -U 4 -H -b -w -B -E -d -i -r kdelibs-3.5.5-orig/kate/part/kateautoindent.cpp kdelibs-3.5.5/kate/part/kateautoindent.cpp
+--- kdelibs-3.5.5-orig/kate/part/kateautoindent.cpp	2006-10-11 11:44:37.000000000 +0200
++++ kdelibs-3.5.5/kate/part/kateautoindent.cpp	2006-10-11 11:47:38.000000000 +0200
+@@ -713,8 +713,9 @@
+   int anchorPos = 0;
+   int parenCount = 0;  // Possibly in a multiline for stmt.  Used to skip ';' ...
+   bool found = false;
+   bool isSpecial = false;
++  bool potentialAnchorSeen = false;
+ 
+   //kdDebug(13030) << "calcIndent begin line:" << begin.line() << " col:" << begin.col() << endl;
+ 
+   // Find Indent Anchor Point
+@@ -732,18 +733,18 @@
+       if (textLine->attribute(pos) == symbolAttrib)
+       {
+         QChar tc = textLine->getChar (pos);
+         if ((tc == ';' || tc == ':' || tc == ',') && otherAnchor == -1 && parenCount <= 0)
+-          otherAnchor = pos;
++          otherAnchor = pos, potentialAnchorSeen = true;
+         else if (tc == ')')
+           parenCount++;
+         else if (tc == '(')
+           parenCount--;
+         else if (tc == '}')
+           openCount--;
+         else if (tc == '{')
+         {
+-          openCount++;
++          openCount++, potentialAnchorSeen = true;
+           if (openCount == 1)
+             break;
+         }
+       }
+@@ -825,9 +826,9 @@
+     }
+   }
+ 
+   // treat beginning of document as anchor position
+-  if (cur.line() == 0 && cur.col() == 0)
++  if (cur.line() == 0 && cur.col() == 0 && potentialAnchorSeen)
+     found = true;
+ 
+   if (!found)
+     return 0;
