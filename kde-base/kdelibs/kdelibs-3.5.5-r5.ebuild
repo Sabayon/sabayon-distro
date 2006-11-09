@@ -12,7 +12,7 @@ SRC_URI="mirror://kde/stable/${PV}/src/${P}.tar.bz2
 
 LICENSE="GPL-2 LGPL-2"
 SLOT="3.5"
-KEYWORDS="~alpha ~ppc ~x86"
+KEYWORDS="~alpha ~ppc ~x86 ~amd64"
 IUSE="acl alsa arts cups doc jpeg2k kerberos legacyssl utempter openexr pertty spell ssl tiff
 zeroconf kernel_linux fam lua linguas_he"
 
