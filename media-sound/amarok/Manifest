@@ -11,6 +11,6 @@ EBUILD amarok-1.4.4-r3.ebuild 2115 RMD160 342d48002505d7af6d112944ce907082776f6b
 MD5 8bbb14b09283f8b8838c444214204093 amarok-1.4.4-r3.ebuild 2115
 RMD160 342d48002505d7af6d112944ce907082776f6b85 amarok-1.4.4-r3.ebuild 2115
 SHA256 a2b6dc4f7cd8e6ddf16515fe06fbe4c279ff457749226fb6fd0c631649cf1961 amarok-1.4.4-r3.ebuild 2115
-MD5 bad0bbbac4ec95cb88fe5b3ea5c9dda9 files/digest-amarok-1.4.4-r3 235
-RMD160 5fca814f501711b5670a4ea68b311658959e6e72 files/digest-amarok-1.4.4-r3 235
-SHA256 8b8bef1d3189afb7abd6fdd301820dcf36480bbb13f637e518474d7d702df1e9 files/digest-amarok-1.4.4-r3 235
+MD5 48cfc56e9f81abfe7605dbbc73bcec11 files/digest-amarok-1.4.4-r3 172
+RMD160 ae9fd80bc87147187878f48e2127500a6f1dd4de files/digest-amarok-1.4.4-r3 172
+SHA256 e4432cccb6a0e5e65b3a1552436c0889adb5ab4cfd73d00233c0c8a8bd796889 files/digest-amarok-1.4.4-r3 172
