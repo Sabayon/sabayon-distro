@@ -8,9 +8,11 @@ if [ -e "/usr/kde/3.4" ];then
 elif [ -e "/usr/kde/3.5" ];then
     kdmdir="/usr/kde/3.5/share/config/kdm/"
 fi
-beryl_wrapper_tmpdir="/tmp/"
+beryl_tmpdir="/tmp/"
 beryl_wrapper="beryl-wrapper.desktop"
-beryl_wrapper_desktop_file=$beryl_wrapper_tmpdir$beryl_wrapper
+beryl_manager="beryl-manager.desktop"
+beryl_wrapper_desktop_file=$beryl_tmpdir$beryl_wrapper
+beryl_manager_desktop_file=$beryl_tmpdir$beryl_manager
 xorg_conf="/etc/X11/xorg.conf"
 
 if [ -z "$1" ] || [ "$1" == "--help" ]; then
@@ -65,6 +67,7 @@ else
         fi
 	sed -i '/"Composite"/ s/#//' $xorg_conf
 
+	# Beryl Wrapper
 	echo "[Desktop Entry]" > $beryl_wrapper_desktop_file
 	echo "Name=No name" >> $beryl_wrapper_desktop_file
 	echo "Encoding=UTF-8" >> $beryl_wrapper_desktop_file
@@ -72,21 +75,34 @@ else
 	echo "Exec=/usr/bin/beryl-wrapper" >> $beryl_wrapper_desktop_file
 	echo "X-GNOME-Autostart-enabled=true" >> $beryl_wrapper_desktop_file
 
+	# Beryl Manager
+	echo "[Desktop Entry]" > $beryl_manager_desktop_file
+	echo "Name=No name" >> $beryl_manager_desktop_file
+	echo "Encoding=UTF-8" >> $beryl_manager_desktop_file
+	echo "Version=1.0" >> $beryl_manager_desktop_file
+	echo "Exec=/usr/bin/beryl-manager" >> $beryl_manager_desktop_file
+	echo "X-GNOME-Autostart-enabled=true" >> $beryl_manager_desktop_file
+
 	# Add compiz to GNOME startup - because GNOME is always special...
         for huser in `ls /home`
            do
-	      if [ ! -e "/home/$huser/.config/autostart" ]; then
-	         mkdir -p /home/$huser/.config/autostart &> /dev/null
-		 chown $huser:users /home/$huser/.config -R &> /dev/null
-	      fi
-              cp $beryl_wrapper_desktop_file /home/$huser/.config/autostart/ &> /dev/null
-              chown $huser:users /home/$huser/.config/autostart/beryl-wrapper.desktop &> /dev/null
-	      if [ -e "/usr/share/applications/beryl-settings.desktop" ] && [ -e "/home/sabayonuser/Desktop" ]; then
-	         cp /usr/share/applications/beryl-settings.desktop /home/sabayonuser/Desktop/ &> /dev/null
-	         chown sabayonuser:users /home/sabayonuser/Desktop/beryl-settings.desktop &> /dev/null
+	      if [ -d "/home/$huser" ]; then
+	         if [ ! -e "/home/$huser/.config/autostart" ]; then
+	            mkdir -p /home/$huser/.config/autostart &> /dev/null
+		    chown $huser:users /home/$huser/.config -R &> /dev/null
+	         fi
+                 cp $beryl_wrapper_desktop_file /home/$huser/.config/autostart/ &> /dev/null
+                 chown $huser:users /home/$huser/.config/autostart/$beryl_wrapper &> /dev/null
+                 cp $beryl_manager_desktop_file /home/$huser/.config/autostart/ &> /dev/null
+                 chown $huser:users /home/$huser/.config/autostart/$beryl_manager &> /dev/null
+	         if [ -e "/usr/share/applications/beryl-settings.desktop" ] && [ -e "/home/$huser/Desktop" ]; then
+	            cp /usr/share/applications/beryl-settings.desktop /home/$huser/Desktop/ &> /dev/null
+	            chown $huser:users /home/$huser/Desktop/beryl-settings.desktop &> /dev/null
+	         fi
 	      fi
           done
          rm $beryl_wrapper_desktop_file
+         rm $beryl_manager_desktop_file
       echo -e "Done"
    else
       echo -en "Disabling AIGLX system wide (reverting to X.Org)..."
@@ -107,15 +123,19 @@ else
 
       # Enable AIGLX Stuff
       sed -i '/"AIGLX"/ s/Option/#Option/' $xorg_conf
-      opengl_nvidia=$(eselect opengl show | grep nvidia)
+      opengl_nvidia=$(lspci | grep ' VGA '| grep -i nvidia)
       if [ -n "$opengl_nvidia" ]; then
          sed -i '/"AddARGBGLXVisuals"/ s/Option/#Option/' $xorg_conf
       fi
       sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
 
-      for file in `find /home -maxdepth 4 -name beryl-wrapper.desktop`
+      for file in `find /home -maxdepth 4 -name $beryl_wrapper`
          do
-            rm -rf $file
+            rm -f $file
+         done
+      for file in `find /home -maxdepth 4 -name $beryl_manager`
+         do
+            rm -f $file
          done
       echo -e "Done"
    fi

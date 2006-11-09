@@ -8,9 +8,12 @@ if [ -e "/usr/kde/3.4" ];then
 elif [ -e "/usr/kde/3.5" ];then
     kdmdir="/usr/kde/3.5/share/config/kdm/"
 fi
-beryl_wrapper_tmpdir="/tmp/"
+beryl_tmpdir="/tmp/"
 beryl_wrapper="beryl-wrapper.desktop"
-beryl_wrapper_desktop_file=$beryl_wrapper_tmpdir$beryl_wrapper
+beryl_manager="beryl-manager.desktop"
+beryl_wrapper_desktop_file=$beryl_tmpdir$beryl_wrapper
+beryl_manager_desktop_file=$beryl_tmpdir$beryl_manager
+xorg_conf="/etc/X11/xorg.conf"
 
 if [ -z "$1" ] || [ "$1" == "--help" ]; then
    echo "xgl-setup - SabayonLinux - Copyright 2006"
@@ -42,22 +45,23 @@ else
          exit 2
       fi
 
-      xgl_video=$(eselect opengl show)
+      xgl_nvidia=$(lspci | grep ' VGA ' | grep -i nvidia)
+      xgl_ati=$(lspci | grep ' VGA ' | grep ATI)
       # Changing KDM configuration
-	if [ "$xgl_video" = "nvidia" ]; then
-	   execute_cmd="sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:fbo /' $kdmdir/kdmrc"
-        elif [ "$xgl_video" = "ati" ]; then
-	   execute_cmd="sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:pbuffer /' $kdmdir/kdmrc"
+	if [ -n "$xgl_nvidia" ]; then
+	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:fbo /' $kdmdir/kdmrc
+        elif [ -n "$xgl_ati" ]; then
+	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:pbuffer /' $kdmdir/kdmrc
 	else
-	   execute_cmd="sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv /' $kdmdir/kdmrc"
+	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv /' $kdmdir/kdmrc
 	fi
-	echo $execute_cmd | /bin/bash
 
 	# now it's handled on /usr/kde/3.5/share/config/kdm/Xsession - after DBUS - before case $session in
         if [ -z "`cat /usr/kde/3.5/share/config/kdm/Xsession | grep beryl-wrapper`" ]; then
 	   sed -i '/case $session in/ s/case $session in/\/usr\/bin\/beryl-wrapper $DESKTOP_SESSION \&\n\ncase $session in/' $kdmdir/Xsession
 	fi
 
+	# Beryl Wrapper
 	echo "[Desktop Entry]" > $beryl_wrapper_desktop_file
 	echo "Name=No name" >> $beryl_wrapper_desktop_file
 	echo "Encoding=UTF-8" >> $beryl_wrapper_desktop_file
@@ -65,21 +69,34 @@ else
 	echo "Exec=/usr/bin/beryl-wrapper" >> $beryl_wrapper_desktop_file
 	echo "X-GNOME-Autostart-enabled=true" >> $beryl_wrapper_desktop_file
 
+	# Beryl Manager
+	echo "[Desktop Entry]" > $beryl_manager_desktop_file
+	echo "Name=No name" >> $beryl_manager_desktop_file
+	echo "Encoding=UTF-8" >> $beryl_manager_desktop_file
+	echo "Version=1.0" >> $beryl_manager_desktop_file
+	echo "Exec=/usr/bin/beryl-manager" >> $beryl_manager_desktop_file
+	echo "X-GNOME-Autostart-enabled=true" >> $beryl_manager_desktop_file
+
 	# Add compiz to GNOME startup - because GNOME is always special...
         for huser in `ls /home`
            do
-	      if [ ! -e "/home/$huser/.config/autostart" ]; then
-	         mkdir -p /home/$huser/.config/autostart &> /dev/null
-		 chown $huser:users /home/$huser/.config -R &> /dev/null
-	      fi
-              cp $beryl_wrapper_desktop_file /home/$huser/.config/autostart/ &> /dev/null
-              chown $huser:users /home/$huser/.config/autostart/beryl-wrapper.desktop &> /dev/null
-	      if [ -e "/usr/share/applications/beryl-settings.desktop" ] && [ -e "/home/sabayonuser/Desktop" ]; then
-	         cp /usr/share/applications/beryl-settings.desktop /home/sabayonuser/Desktop/ &> /dev/null
-	         chown sabayonuser:users /home/sabayonuser/Desktop/beryl-settings.desktop &> /dev/null
+	      if [ -d "/home/$huser" ]; then
+	         if [ ! -e "/home/$huser/.config/autostart" ]; then
+	            mkdir -p /home/$huser/.config/autostart &> /dev/null
+		    chown $huser:users /home/$huser/.config -R &> /dev/null
+	         fi
+                 cp $beryl_wrapper_desktop_file /home/$huser/.config/autostart/ &> /dev/null
+                 chown $huser:users /home/$huser/.config/autostart/$beryl_wrapper &> /dev/null
+                 cp $beryl_manager_desktop_file /home/$huser/.config/autostart/ &> /dev/null
+                 chown $huser:users /home/$huser/.config/autostart/$beryl_manager &> /dev/null
+	         if [ -e "/usr/share/applications/beryl-settings.desktop" ] && [ -e "/home/$huser/Desktop" ]; then
+	            cp /usr/share/applications/beryl-settings.desktop /home/$huser/Desktop/ &> /dev/null
+	            chown $huser:users /home/$huser/Desktop/beryl-settings.desktop &> /dev/null
+	         fi
 	      fi
           done
          rm $beryl_wrapper_desktop_file
+         rm $beryl_manager_desktop_file
       echo -e "Done"
    else
       echo -en "Disabling XGL system wide (reverting to X.Org)..."
@@ -97,9 +114,13 @@ else
       if [ -n "`cat $kdmdir/Xsession | grep beryl-wrapper`" ]; then
         sed -i '/.*beryl-wrapper.*$DESKTOP_SESSION/d' $kdmdir/Xsession
       fi
-      for file in `find /home -maxdepth 4 -name beryl-wrapper.desktop`
+      for file in `find /home -maxdepth 4 -name $beryl_wrapper`
          do
-            rm -rf $file
+            rm -f $file
+         done
+      for file in `find /home -maxdepth 4 -name $beryl_manager`
+         do
+            rm -f $file
          done
       echo -e "Done"
    fi
