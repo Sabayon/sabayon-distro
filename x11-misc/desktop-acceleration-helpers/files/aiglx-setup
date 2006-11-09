@@ -92,8 +92,8 @@ else
       echo -en "Disabling AIGLX system wide (reverting to X.Org)..."
 
       # Check if it is already disabled
-      aiglx_already_disabled=$(cat $kdmdir/kdmrc | grep "ServerCmd=.*AIGLX" )
-      if [ -z "$aiglx_already_disabled" ]; then
+      aiglx_already_disabled=$(cat $xorg_conf | grep "AIGLX" | grep "#" )
+      if [ -n "$aiglx_already_disabled" ]; then
 	 echo
          echo "Error: AIGLX already disabled. Please type \"aiglx-setup --help\" for more help."
          exit 2
