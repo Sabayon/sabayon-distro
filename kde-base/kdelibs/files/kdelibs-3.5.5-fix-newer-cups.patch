@@ -183,3 +183,13 @@
  {
  	char buf[ 256 ] = {0}, *c;
  	char *_user = shell_quote( cupsUser() ), *_passwd = NULL;
+--- kdeprint/kdeprintrc.old     2006-11-09 16:58:33.000000000 +0100
++++ kdeprint/kdeprintrc 2006-11-09 16:58:48.000000000 +0100
+@@ -4,3 +4,6 @@
+ ViewToolBar=false
+ ViewMenuBar=true
+ ViewPrinterInfos=true
++
++[CUPS]
++Host=localhost
+
