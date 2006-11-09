@@ -62,11 +62,8 @@ src_install () {
 
 	# Gensplash theme
 	cd ${S}/gensplash
-	insinto /etc/splash
-	doins -r sabayon
-	if use symlink; then
-	  dosym /etc/splash/sabayon /etc/splash/default
-	fi
+        dodir /etc/splash/sabayon
+        cp -r ${S}/gensplash/sabayon/* ${D}/etc/splash/sabayon
 
 	
 }
