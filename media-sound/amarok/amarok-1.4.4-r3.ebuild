@@ -25,7 +25,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
 IUSE="aac kde mysql noamazon opengl postgres
-xmms visualization ipod ifp real njb mtp"
+xmms visualization ipod ifp real njb mtp musicbrainz"
 # kde: enables compilation of the konqueror sidebar plugin
 
 DEPEND="kde? ( || ( kde-base/konqueror kde-base/kdebase ) )
