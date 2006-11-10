@@ -35,6 +35,11 @@ done
 
 get_video_cards || exit 1
 
-	nice -20 /usr/bin/eselect opengl set --dst-prefix=/etc/opengl $GLTYPE
+	cmdline_noproprietary_exist=$(cat /proc/cmdline | grep noproprietary)
+	if [ -n "$cmdline_noproprietary_exist" ]; then
+		nice -20 /usr/bin/eselect opengl set --dst-prefix=/etc/opengl xorg-x11
+	else
+		nice -20 /usr/bin/eselect opengl set --dst-prefix=/etc/opengl $GLTYPE
+	fi
 
 #exec /usr/bin/xinit
