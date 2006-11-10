@@ -122,7 +122,7 @@ elif [ -n "$RAGE128" ]; then
 
     sed -i '/do not remove vesa/ s/".*"/"r128"/' $XORGFILE
     sed -i '/"dri"/ s/#//' $XORGFILE
-
+    remove_proprietary_opengl
     echo -e "\t Display Driver: ATI Rage 128"
 
 elif [ -n "$V3DFX" ]; then
@@ -130,7 +130,7 @@ elif [ -n "$V3DFX" ]; then
     sed -i '/do not remove vesa/ s/".*"/"tdfx"/' $XORGFILE
     sed -i '/"dri"/ s/#//' $XORGFILE
     sed -i '/DefaultDepth/ s/24/16/' $XORGFILE
-
+    remove_proprietary_opengl
     echo -e "\t Display Driver: 3Dfx Video Card"
 
 elif [ -n "$I855" ] || [ -n "$I915" ] || [ -n "$I945" ] || [ -n "$I845" ] || [ -n "$IGRANTSDALE" ]; then
@@ -150,7 +150,7 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
     sed -i '/"dri"/ s/#//' $XORGFILE
     sed -i '/ColorTiling/ s/#//' /etc/X11/xorg.conf
     sed -i '/EnablePageFlip/ s/#//' /etc/X11/xorg.conf
-
+    remove_proprietary_opengl
     echo -e "\t Display Driver: ATI (OpenSource)"
 
   else
