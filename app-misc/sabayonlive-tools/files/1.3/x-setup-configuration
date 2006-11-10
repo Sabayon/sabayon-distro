@@ -82,6 +82,39 @@ configure_video_settings() {
       #echo -e "\E[33;36m * \E[0m \E[01;32m Starting up X.Org in (- Legacy -) mode ::\E[0m"
       #echo -e "\t Display Configuration: 800x600 at 60Hz"
    else
+
+      # Probe for Hsync, Vsync, Modes and in case the user has specified
+      # something else on the command line, it will be overwritten
+
+      if [ -e "/sbin/ddcxinfo-knoppix" ] && [ -z "$cmdline_noddc_exist" ]; then
+
+          # hsync
+          hsync=$(/sbin/ddcxinfo-knoppix -hsync)
+          if [ "$hsync" != "0-0" ]; then
+              # ok, we got it
+              sed -i '/HorizSync/ s/#//' /etc/X11/xorg.conf
+              sed -i '/HorizSync/ s/.*/    HorizSync '$hsync'/' /etc/X11/xorg.conf
+          fi
+
+          # vsync
+          vsync=$(/sbin/ddcxinfo-knoppix -vsync)
+          if [ "$vsync" != "0-0" ]; then
+              # ok, we got it
+              sed -i '/VertRefresh/ s/#//' /etc/X11/xorg.conf
+              sed -i '/VertRefresh/ s/.*/    VertRefresh '$vsync'/' /etc/X11/xorg.conf
+          fi
+
+          # Modes?
+          if [ "$vsync" != "0-0" ] && [ "$hsync" != "0-0" ]; then
+              modes=$(/sbin/ddcxinfo-knoppix -modes)
+              if [ -n "`echo $modes | grep Modes`" ]; then
+                  sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
+                  sed -i '/Modes/ s/.*/        '$modes'/' /etc/X11/xorg.conf
+              fi
+          fi
+
+      fi
+
       if [ -n "$cmdline_resolution_forced" ];then
          # change resolution in X.Org
          for word in `cat /proc/cmdline` ; do
@@ -89,15 +122,14 @@ configure_video_settings() {
                res=*)
                   resolution_toset=$(echo $word | cut -d "=" -f 2)
 		  if [ "$resolution_toset" == "800x600" ]; then
-                     execute_cmd="sed -i '/Modes/ s/\"1024x768\"/\"$resolution_toset\"/' /etc/X11/xorg.conf"
+                     sed -i '/Modes/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
 		  elif [ "$resolution_toset" == "640x480" ]; then
-                     execute_cmd="sed -i '/Modes/ s/\"1024x768\"/\"$resolution_toset\"/' /etc/X11/xorg.conf"
+                     sed -i '/Modes/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
 		  else
-                     execute_cmd="sed -i '/Modes/ s/\"1024x768\"/\"$resolution_toset\" \"1024x768\"/' /etc/X11/xorg.conf"
+                     sed -i '/Modes/ s/"1024x768"/"'$resolution_toset'" "1024x768"/' /etc/X11/xorg.conf
 		  fi
-                  echo $execute_cmd | /bin/bash
                   #echo -e "\E[33;36m * \E[0m\E[01;32m Setting X.Org to $resolution_toset if it's available \E[0m"
-		  sed -i '/Modes/ s/#//g' /etc/X11/xorg.conf
+		  sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
                ;;
             esac
          done
@@ -109,10 +141,9 @@ configure_video_settings() {
          for word in `cat /proc/cmdline` ; do
             case $word in
                refresh=*)
-		  sed -i '/VertRefresh/ s/#//g' /etc/X11/xorg.conf
+		  sed -i '/VertRefresh/ s/#//' /etc/X11/xorg.conf
                   refresh_toset=$(echo $word | cut -d "=" -f 2)
-                  execute_cmd="sed -i '/VertRefresh/ s/.*/    VertRefresh $refresh_toset/' /etc/X11/xorg.conf"
-	          echo $execute_cmd | /bin/bash
+                  sed -i '/VertRefresh/ s/.*/    VertRefresh '$refresh_toset'/' /etc/X11/xorg.conf
 		  #echo -e "\E[33;36m * \E[0m\E[01;32m Setting VertRefresh to $refresh_toset Hz \E[0m"
                ;;
             esac
@@ -125,10 +156,9 @@ configure_video_settings() {
          for word in `cat /proc/cmdline` ; do
             case $word in
                hsync=*)
-                  sed -i '/HorizSync/ s/#//g' /etc/X11/xorg.conf
+                  sed -i '/HorizSync/ s/#//' /etc/X11/xorg.conf
                   hsync_toset=$(echo $word | cut -d "=" -f 2)
-                  execute_cmd="sed -i '/HorizSync/ s/.*/    HorizSync $hsync_toset/' /etc/X11/xorg.conf"
-                  echo $execute_cmd | /bin/bash
+                  sed -i '/HorizSync/ s/.*/    HorizSync '$hsync_toset'/' /etc/X11/xorg.conf
                   #echo -e "\E[33;36m * \E[0m\E[01;32m Setting HorizSync to $hsync_toset Hz \E[0m"
                ;;
             esac
@@ -163,6 +193,7 @@ configure_video_settings() {
       cmdline_resolution_forced=$(cat /proc/cmdline | grep "res=")
       cmdline_refresh_exist=$(cat /proc/cmdline | grep refresh=)
       cmdline_hsync_exist=$(cat /proc/cmdline | grep hsync=)
+      cmdline_noddc_exist=$(cat /proc/cmdline | grep "noddc")
       cmdline_xgl_exist=$(cat /proc/cmdline | grep " xgl")
       cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
       cmdline_noaccelmanager_exist=$(cat /proc/cmdline | grep "noaccelmanager")
