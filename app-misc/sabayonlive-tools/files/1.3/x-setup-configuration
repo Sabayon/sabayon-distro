@@ -167,16 +167,16 @@ configure_video_settings() {
       cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
       cmdline_noaccelmanager_exist=$(cat /proc/cmdline | grep "noaccelmanager")
 
-      # Prepare OpenGL
-      if [ -z "$cmdline_onlyvesa_exist" ] && [ -z "$cmdline_noproprietary_exist" ]; then
-         configure_opengl
-      fi
-      
       # Prepare Video Cards Proprietary Drivers
       runtime_linking_proprietary_drivers
 
       # Configure Video Card Driver
       configure_video_settings
+
+      # Prepare OpenGL
+      if [ -z "$cmdline_onlyvesa_exist" ]; then
+         configure_opengl
+      fi
 
       # Configure read/write paths
       configure_read_write_paths
