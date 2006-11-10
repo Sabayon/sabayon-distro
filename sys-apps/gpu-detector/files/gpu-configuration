@@ -10,7 +10,7 @@ remove_proprietary_opengl() {
    rm -f /etc/env.d/*ati &> /dev/null
    sed -i '/LIBGL_DRIVERS_PATH s/.*//' /etc/profile.env
    nice -20 source /etc/profile &> /dev/null
-   nice -20 eselect opengl set --dst-prefix=/etc/opengl xorg-x11
+   #nice -20 eselect opengl set --dst-prefix=/etc/opengl xorg-x11
 }
 
 NEOMAGIC=$(lspci | grep ' VGA ' | grep -i 'neomagic')
