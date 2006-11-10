@@ -1,15 +1,11 @@
-AUX kdelibs-3.5.5-fix-newer-cups.patch 6457 RMD160 df0ec3bda475b33e60a1f2e650f4017bbe5bbc16 SHA1 c7e7b702ae6bdb59f278794d298cacf7d00e428f SHA256 27bff8d2804ba71f131ff969bab7860034c6e347a1152c581c1f3a6836bb09ed
-MD5 2f38e2f76751105b73d3af802e1b5f92 files/kdelibs-3.5.5-fix-newer-cups.patch 6457
-RMD160 df0ec3bda475b33e60a1f2e650f4017bbe5bbc16 files/kdelibs-3.5.5-fix-newer-cups.patch 6457
-SHA256 27bff8d2804ba71f131ff969bab7860034c6e347a1152c581c1f3a6836bb09ed files/kdelibs-3.5.5-fix-newer-cups.patch 6457
 AUX kdelibs-3.5.5-kate-cstyle-indenter-fix.diff 1544 RMD160 cb5fea95022dd92b448a8bf2b8e7ea49e9f3225d SHA1 5689ec3ca0c562663bc64b4458dcd1eafade8a38 SHA256 b4364d77149ef699b7724c1102a08a0240df5e19c2b0b1202459b8f97cf8268b
 MD5 1f60e79966e99e68401ce1b0cf3609d9 files/kdelibs-3.5.5-kate-cstyle-indenter-fix.diff 1544
 RMD160 cb5fea95022dd92b448a8bf2b8e7ea49e9f3225d files/kdelibs-3.5.5-kate-cstyle-indenter-fix.diff 1544
 SHA256 b4364d77149ef699b7724c1102a08a0240df5e19c2b0b1202459b8f97cf8268b files/kdelibs-3.5.5-kate-cstyle-indenter-fix.diff 1544
-AUX kdelibs-3.5.5-kdeprint.patch 8665 RMD160 8753bbcc16d99ca8f822f047bf5461923dcfc46b SHA1 b6e4a8b6d6fb493314d95e7e28b186fec1da580b SHA256 39d7e639da52abd020503becc126dd820245806ec704c4172dd93e676dec17d0
-MD5 3df29464263a83f73c252e643e137f18 files/kdelibs-3.5.5-kdeprint.patch 8665
-RMD160 8753bbcc16d99ca8f822f047bf5461923dcfc46b files/kdelibs-3.5.5-kdeprint.patch 8665
-SHA256 39d7e639da52abd020503becc126dd820245806ec704c4172dd93e676dec17d0 files/kdelibs-3.5.5-kdeprint.patch 8665
+AUX kdelibs-3.5.5-kdeprint.patch 6457 RMD160 df0ec3bda475b33e60a1f2e650f4017bbe5bbc16 SHA1 c7e7b702ae6bdb59f278794d298cacf7d00e428f SHA256 27bff8d2804ba71f131ff969bab7860034c6e347a1152c581c1f3a6836bb09ed
+MD5 2f38e2f76751105b73d3af802e1b5f92 files/kdelibs-3.5.5-kdeprint.patch 6457
+RMD160 df0ec3bda475b33e60a1f2e650f4017bbe5bbc16 files/kdelibs-3.5.5-kdeprint.patch 6457
+SHA256 27bff8d2804ba71f131ff969bab7860034c6e347a1152c581c1f3a6836bb09ed files/kdelibs-3.5.5-kdeprint.patch 6457
 AUX kdelibs-3.5.5-khtml.patch 727 RMD160 a0561d99c25b734c5d1d807598640c3805c4cb7b SHA1 388efae927604bb6ae239280117ec0d9d3574f4e SHA256 47f05ea61ccf773c6beb3e902330bfed05fd11f63aae6d38c1145ee6b5057d59
 MD5 1cb9f9a47fc317e35ff88154a72de925 files/kdelibs-3.5.5-khtml.patch 727
 RMD160 a0561d99c25b734c5d1d807598640c3805c4cb7b files/kdelibs-3.5.5-khtml.patch 727

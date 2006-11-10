@@ -183,87 +183,13 @@
  {
  	char buf[ 256 ] = {0}, *c;
  	char *_user = shell_quote( cupsUser() ), *_passwd = NULL;
---- kdelibs-3.5.5.orig/kdeprint/cups/cupsdconf2/cups-util.c
-+++ kdelibs-3.5.5/kdeprint/cups/cupsdconf2/cups-util.c
-@@ -14,7 +14,7 @@
- static int cups_local_auth(http_t *http);
- 
- const char *				/* O - Filename for PPD file */
--cupsGetConf(void)
-+cupsGetConf()
- {
-   int		fd;			/* PPD file */
-   int		bytes;			/* Number of bytes read */
-@@ -142,11 +142,7 @@
- 	*/
- 
- 	snprintf(plain, sizeof(plain), "%s:%s", cupsUser(), pwdstring);
--#if CUPS_VERSION_MAJOR == 1 && CUPS_VERSION_MINOR >= 2
--       httpEncode64_2(encode, sizeof(encode), plain, sizeof(plain));
--#else
--       httpEncode64(encode, plain);
--#endif
-+	httpEncode64(encode, plain);
- 	snprintf(authstring, sizeof(authstring), "Basic %s", encode);
-       }
-       else
-@@ -368,11 +364,7 @@
- 	*/
- 
- 	snprintf(plain, sizeof(plain), "%s:%s", cupsUser(), pwdstring);
--#if CUPS_VERSION_MAJOR == 1 && CUPS_VERSION_MINOR >= 2
--       httpEncode64_2(encode, sizeof(encode), plain, sizeof(plain));
--#else
--       httpEncode64(encode, plain);
--#endif
-+	httpEncode64(encode, plain);
- 	snprintf(authstring, sizeof(authstring), "Basic %s", encode);
-       }
-       else
-@@ -451,7 +443,8 @@
- 	the struct has changed in newer versions - PiggZ (adam@piggz.co.uk)
-   */
- #if CUPS_VERSION_MAJOR == 1 && CUPS_VERSION_MINOR >= 2
--        if (!httpAddrLocalhost(http))
-+	if (ntohl(*(int*)&http->_hostaddr.sin_addr) != 0x7f000001 &&
-+      strcasecmp(http->hostname, "localhost") != 0)
- #else
- 	if (ntohl(*(int*)&http->hostaddr.sin_addr) != 0x7f000001 &&
-       strcasecmp(http->hostname, "localhost") != 0)
---- kdelibs-3.5.5.orig/kdeprint/cups/cupsdconf2/cups-util.h
-+++ kdelibs-3.5.5/kdeprint/cups/cupsdconf2/cups-util.h
-@@ -20,7 +20,7 @@
- #ifndef CUPS_UTIL_H
- #define CUPS_UTIL_H
- 
--const char* cupsGetConf(void);
-+const char* cupsGetConf();
- int cupsPutConf(const char *filename);
- 
- #endif
---- kdelibs-3.5.5.orig/kdeprint/cups/cupsinfos.h
-+++ kdelibs-3.5.5/kdeprint/cups/cupsinfos.h
-@@ -32,7 +32,6 @@
- 	~CupsInfos();
- 
- 	const QString& host() const;
--        QString  hostaddr() const;
- 	int port() const;
- 	const QString& login() const;
- 	const QString& password() const;
---- kdelibs-3.5.5.orig/kdeprint/cups/cupsinfos.cpp
-+++ kdelibs-3.5.5/kdeprint/cups/cupsinfos.cpp
-@@ -69,13 +69,6 @@
- {
- }
- 
--QString CupsInfos::hostaddr() const
--{
--    if (host_[0] != '/')
--        return host_ + ":" + QString::number(port_);
--    return host_;
--}
--
- void CupsInfos::setHost(const QString& s)
- {
- 	host_ = s;
+--- kdeprint/kdeprintrc.old     2006-11-09 16:58:33.000000000 +0100
++++ kdeprint/kdeprintrc 2006-11-09 16:58:48.000000000 +0100
+@@ -4,3 +4,6 @@
+ ViewToolBar=false
+ ViewMenuBar=true
+ ViewPrinterInfos=true
++
++[CUPS]
++Host=localhost
+
