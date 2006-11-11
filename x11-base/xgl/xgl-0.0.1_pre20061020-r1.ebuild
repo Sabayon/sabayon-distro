@@ -25,7 +25,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64 ~ppc"
 IUSE="ipv6 xinerama"
 DEPEND=">=media-libs/glitz-0.5.6
-	>=media-libs/mesa-6.5.1_p20061020
+	>=media-libs/mesa-6.5.1-r1
 	x11-proto/xf86driproto
 	x11-proto/randrproto
 	x11-proto/renderproto
