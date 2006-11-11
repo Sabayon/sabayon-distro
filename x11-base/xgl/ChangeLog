@@ -1,0 +1,11 @@
+# ChangeLog for x11-base/xgl
+# Copyright 1999-2006 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  04 Nov 2006; Alex Heck <nesl247@gmail.com>
+  -xgl-0.0.1_pre20061020-r1.ebuild, +xgl-0.0.1_pre20061020-r2.ebuild:
+  Bumped xgl to dep on masked mesa
+
+  27 Oct 2006; Alex Heck <nesl247@gmail.com> +xgl-0.1.0-20061020-r1.ebuild,
+  +files/xgl-java-wmhack.patch:
+  Initial ChangeLog. Added java wm patch
