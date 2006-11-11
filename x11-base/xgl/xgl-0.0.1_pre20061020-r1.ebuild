@@ -7,12 +7,11 @@ SNAPSHOT="yes"
 inherit flag-o-matic x-modular multilib
 
 SNAPSHOT_DATE=${PV##*_pre}
-MESA_PN="Mesa-6.5.2_pre20061102"
-MESA_SRC_P="${MESA_PN/Mesa/MesaLib}"
+MESA_PN="Mesa"
+MESA_SRC_P="${MESA_PN}-20061027"
 XGL_SRC_P="${PN}-${SNAPSHOT_DATE}"
 
-#SRC_URI="http://distfiles.gentoo-xeffects.org/snapshots/${MESA_PN}/${MESA_SRC_P}.tar.bz2
-SRC_URI="http://dev.gentoo.org/~joshuabaergen/distfiles/${MESA_SRC_P}.tar.bz2
+SRC_URI="http://distfiles.gentoo-xeffects.org/snapshots/${MESA_PN}/${MESA_SRC_P}.tar.bz2
 	http://distfiles.gentoo-xeffects.org/snapshots/${PN}/${XGL_SRC_P}.tar.bz2"
 
 PATCHES="${FILESDIR}/${PN}-java-wmhack.patch"
@@ -26,7 +25,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64 ~ppc"
 IUSE="ipv6 xinerama"
 DEPEND=">=media-libs/glitz-0.5.6
-	>=media-libs/mesa-6.5.2_pre20061102
+	>=media-libs/mesa-6.5.1_p20061020
 	x11-proto/xf86driproto
 	x11-proto/randrproto
 	x11-proto/renderproto
