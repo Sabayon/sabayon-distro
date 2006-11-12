@@ -17,6 +17,8 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
+RESTRICT="nomirror"
+
 RDEPEND="dev-libs/boost
 	dev-libs/glib
 	dev-libs/openssl
