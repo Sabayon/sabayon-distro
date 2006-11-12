@@ -86,10 +86,10 @@ configure_video_settings() {
       # Probe for Hsync, Vsync, Modes and in case the user has specified
       # something else on the command line, it will be overwritten
 
-      if [ -e "/sbin/ddcxinfo-knoppix" ] && [ -z "$cmdline_noddc_exist" ]; then
+      if [ -e "/usr/sbin/ddcxinfo-knoppix" ] && [ -z "$cmdline_noddc_exist" ]; then
 
           # hsync
-          hsync=$(/sbin/ddcxinfo-knoppix -hsync)
+          hsync=$(/usr/sbin/ddcxinfo-knoppix -hsync)
           if [ "$hsync" != "0-0" ]; then
               # ok, we got it
               sed -i '/HorizSync/ s/#//' /etc/X11/xorg.conf
@@ -97,7 +97,7 @@ configure_video_settings() {
           fi
 
           # vsync
-          vsync=$(/sbin/ddcxinfo-knoppix -vsync)
+          vsync=$(/usr/sbin/ddcxinfo-knoppix -vsync)
           if [ "$vsync" != "0-0" ]; then
               # ok, we got it
               sed -i '/VertRefresh/ s/#//' /etc/X11/xorg.conf
@@ -106,7 +106,7 @@ configure_video_settings() {
 
           # Modes?
           if [ "$vsync" != "0-0" ] && [ "$hsync" != "0-0" ]; then
-              modes=$(/sbin/ddcxinfo-knoppix -modes)
+              modes=$(/usr/sbin/ddcxinfo-knoppix -modes)
               if [ -n "`echo $modes | grep Modes`" ]; then
                   sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
                   sed -i '/Modes/ s/.*/        '$modes'/' /etc/X11/xorg.conf

@@ -22,10 +22,10 @@ AUX 1.3/x-setup 1090 RMD160 37f4ddbeab57bafb99cfc60b4898c140a9347266 SHA1 e6dd35
 MD5 81141077e0b448aca8393425600acf39 files/1.3/x-setup 1090
 RMD160 37f4ddbeab57bafb99cfc60b4898c140a9347266 files/1.3/x-setup 1090
 SHA256 d245109675623e73158c301a3bff89ce1ea457f6b88a95c82bcbd513ed3b6e76 files/1.3/x-setup 1090
-AUX 1.3/x-setup-configuration 7774 RMD160 e39e2961926bd165b3b5495537b2192228ad83ba SHA1 655f5288c1297f9d6657a747edccc1e7085e8ecb SHA256 e9dea207fb71cd20568f47f97e2adc3d2defcc8befd46982dfd424f451207eb9
-MD5 1b9460d20bde7535343bcb98ffd072e0 files/1.3/x-setup-configuration 7774
-RMD160 e39e2961926bd165b3b5495537b2192228ad83ba files/1.3/x-setup-configuration 7774
-SHA256 e9dea207fb71cd20568f47f97e2adc3d2defcc8befd46982dfd424f451207eb9 files/1.3/x-setup-configuration 7774
+AUX 1.3/x-setup-configuration 7790 RMD160 b2806d62ce29cea26680a704e745140ffd6fedcd SHA1 28c8b4c67f5a52d1765732047ba5c6cac0b3f32d SHA256 fd44a3c8dded1f5af417ebc50902cff8c08d5a6cebb92e2f4e71e139672b846f
+MD5 0a7d920c2e805d83dd770f3688ceef92 files/1.3/x-setup-configuration 7790
+RMD160 b2806d62ce29cea26680a704e745140ffd6fedcd files/1.3/x-setup-configuration 7790
+SHA256 fd44a3c8dded1f5af417ebc50902cff8c08d5a6cebb92e2f4e71e139672b846f files/1.3/x-setup-configuration 7790
 AUX 1.3/x-setup-init.d 630 RMD160 b74e7d0c961b3346897c21e59063fc7d2b7c6f08 SHA1 95e0f2b6e7c5855dd550d5a7afbd473a37e5df13 SHA256 02c1645e7b23fea833a035cb94a9ead212bc05f152ecf3e8066de163d7e0d4ca
 MD5 bee14e78c040e68ca398d718344c499c files/1.3/x-setup-init.d 630
 RMD160 b74e7d0c961b3346897c21e59063fc7d2b7c6f08 files/1.3/x-setup-init.d 630
