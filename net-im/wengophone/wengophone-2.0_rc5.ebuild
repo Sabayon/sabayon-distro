@@ -25,15 +25,16 @@ RDEPEND="dev-libs/boost
 	media-libs/alsa-lib
 	net-libs/gnutls
 	media-video/ffmpeg
+	media-libs/portaudio
 	|| ( x11-libs/libX11 virtual/x11 )
 	>=x11-libs/qt-4.1"
 
 DEPEND="${RDEPEND}
 	media-libs/speex
-	dev-util/scons"
+	dev-util/cmake"
 S=${WORKDIR}/${MY_P/_/-}
 
-SCONS_CALL="scons nobuildid=1 prefix=/usr mode=release-symbols destdir=${D} libdir=${D}/usr/lib/wengophone"
+CMAKE_CALL="cmake nobuildid=1 prefix=/usr mode=release-symbols destdir=${D} libdir=${D}/usr/lib/wengophone"
 # does not stay exported from pkg_setup
 export QTDIR=/usr QTLIBDIR=/usr/lib/qt4 QTINCLUDEDIR=/usr/include/qt4 QTPLUGINDIR=/usr/lib/qt4/plugins
 
@@ -55,14 +56,27 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	epatch ${MY_P}-1.diff
+
+	cd ${S}
+	for dpatch in debian/patches/generic/*.patch; do
+		epatch ${dpatch}
+	done
+	for dpatch in debian/patches/head/*.patch; do
+		epatch ${dpatch}
+	done
+	epatch debian/patches/debian/disable-ilbc.patch
+
+
 }
 
 src_compile() {
-	${SCONS_CALL} qtwengophone qtwengophone-translations || die "scons failed"
+	cd ${WORKDIR}
+	${CMAKE_CALL} ${MY_P/_/-} || die "cmake configure failed"
+	emake || die "make failed"
 }
 
 src_install() {
-	${SCONS_CALL} qtwengophone-install || die "scons install failed"
+	${CMAKE_CALL} install || die "cmake install failed"
 	domenu debian/wengophone.desktop
 	doicon debian/wengophone.xpm
 	doman debian/qtwengophone.1
