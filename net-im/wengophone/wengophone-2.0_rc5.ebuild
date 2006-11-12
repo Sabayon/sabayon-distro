@@ -14,7 +14,7 @@ SRC_URI="http://www.prato.linux.it/~mnencia/debian/wengophone-ng/source/${MY_P}.
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 RDEPEND="dev-libs/boost
