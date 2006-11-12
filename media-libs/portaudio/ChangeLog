@@ -1,0 +1,8 @@
+# ChangeLog for media-libs/portaudio
+# Copyright 1999-2006 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/skel.ChangeLog,v 1.2 2006/02/22 02:08:04 hd_brummy Exp $
+
+  14 Sep 2006; Stefan Schweizer <genstef@gentoo.org>
+  +portaudio-19_pre20060914.ebuild:
+  new ebuild for portaudio v19
+
