@@ -92,7 +92,7 @@
 @endif
 
 # Detect texture_from_pixmap extension for AIGLX
-@if(@exec(glxinfo | grep GLX_EXT_texture_from_pixmap | wc -l)&lt;1)
+@if(@exec(glxinfo | grep GLX_EXT_texture_from_pixmap | wc -l)&lt;2)
 {
    # Switch Radio to AIGLX
    @RadioButtonAIGLX.setEnabled(0)
