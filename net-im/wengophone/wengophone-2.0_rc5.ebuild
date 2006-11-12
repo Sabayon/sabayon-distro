@@ -55,10 +55,6 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	epatch ${MY_P}-1.diff
-	cd ${S}
-	for dpatch in debian/patches/*.patch; do
-		epatch ${dpatch}
-	done
 }
 
 src_compile() {
