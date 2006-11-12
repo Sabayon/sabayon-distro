@@ -1,0 +1,24 @@
+# ChangeLog for net-im/wengophone
+# Copyright 1999-2006 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/skel.ChangeLog,v 1.2 2006/02/22 02:08:04 hd_brummy Exp $
+
+  07 Nov 2006; Stefan Schweizer <genstef@gentoo.org>
+  wengophone-2.0_rc5-r1.ebuild:
+  fix, thanks fordfrog
+
+  07 Nov 2006; Stefan Schweizer <genstef@gentoo.org>
+  -wengophone-2.0_rc5.ebuild, +wengophone-2.0_rc5-r1.ebuild:
+  new subversion revision
+
+  07 Nov 2006; Stefan Schweizer <genstef@gentoo.org>
+  wengophone-2.0_rc5.ebuild:
+  needs new cmake
+
+  01 Nov 2006; Stefan Schweizer <genstef@gentoo.org>
+  -wengophone-2.0_rc4.ebuild, +wengophone-2.0_rc5.ebuild:
+  version bump
+
+  10 Oct 2006; Stefan Schweizer <genstef@gentoo.org>
+  +wengophone-2.0_rc4.ebuild:
+  version bump
+
