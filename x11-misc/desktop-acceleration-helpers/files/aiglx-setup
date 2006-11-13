@@ -37,14 +37,6 @@ else
    if [ "$1" == "enable" ]; then
       echo -en "Enabling AIGLX system wide..."
 
-       # Check if it is already enabled
-       aiglx_already_enabled=$(cat $xorg_conf | grep "AIGLX" | grep -v "#" )
-       if [ -n "$aiglx_already_enabled" ]; then
-          echo
-          echo "Error: AIGLX already enabled. Please type \"aiglx-setup --help\" for more help."
-          exit 2
-       fi
-
        # Changing KDM configuration
        if [ -e "/usr/bin/AIGLX" ]; then
           # old way - not needed anymore
@@ -106,14 +98,6 @@ else
       echo -e "Done"
    else
       echo -en "Disabling AIGLX system wide (reverting to X.Org)..."
-
-      # Check if it is already disabled
-      aiglx_already_disabled=$(cat $xorg_conf | grep "AIGLX" | grep "#" )
-      if [ -n "$aiglx_already_disabled" ]; then
-	 echo
-         echo "Error: AIGLX already disabled. Please type \"aiglx-setup --help\" for more help."
-         exit 2
-      fi
 
       # Changing KDM configuration
       sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc

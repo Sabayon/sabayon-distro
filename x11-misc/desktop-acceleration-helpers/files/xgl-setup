@@ -37,14 +37,6 @@ else
    if [ "$1" == "enable" ]; then
       echo -en "Enabling XGL system wide..."
 
-      # Check if it is already enabled
-      xgl_already_enabled=$(cat $kdmdir/kdmrc | grep "ServerCmd=.*Xgl" )
-      if [ -n "$xgl_already_enabled" ]; then
-	 echo
-         echo "Error: XGL already enabled. Please type \"xgl-setup --help\" for more help."
-         exit 2
-      fi
-
       xgl_nvidia=$(lspci | grep ' VGA ' | grep -i nvidia)
       xgl_ati=$(lspci | grep ' VGA ' | grep ATI)
       # Changing KDM configuration
@@ -100,14 +92,6 @@ else
       echo -e "Done"
    else
       echo -en "Disabling XGL system wide (reverting to X.Org)..."
-
-      # Check if it is already disabled
-      xgl_already_disabled=$(cat $kdmdir/kdmrc | grep "ServerCmd=.*Xgl" )
-      if [ -z "$xgl_already_disabled" ]; then
-	 echo
-         echo "Error: XGL already disabled or using AIGLX. Please type \"xgl-setup --help\" for more help."
-         exit 2
-      fi
 
       # Changing KDM configuration
       sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
