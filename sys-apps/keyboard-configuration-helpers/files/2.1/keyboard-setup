@@ -196,7 +196,7 @@ def configureKDEKeymap(keyLocale):
 		    # look for [Layout]
 		    layoutEntryExists = False
 		    for line in kxkbFile:
-		        if line.find("Layout") != -1:
+		        if line.find("Layout=") != -1:
 			    layoutEntryExists = True
 		    if (not layoutEntryExists):
 		        # append the line
@@ -206,7 +206,7 @@ def configureKDEKeymap(keyLocale):
 		    else:
 		        # change the line
 		        for line in kxkbFile:
-			    if line.find("Layout") != -1:
+			    if line.find("Layout=") != -1:
 			        line = "Layout="+keyLocale+"\n"
 			    newKxkbFile.append(line)
 
