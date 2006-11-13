@@ -108,8 +108,16 @@ if len(options) == 2:
 # VT Shell keymap config
 def configureSystemKeymap(keyLocale):
     print_info("Setting up VT terminals keyboard mapping...")
+    f = open(confdKeymaps,"r")
+    confdKeymapsFile = f.readlines()
+    f.close()
+    output = []
+    for line in confdKeymapsFile:
+	if line.startswith("KEYMAP="):
+	    line = 'KEYMAP="'+keyLocale+'"\n'
+	output.append(line)
     f = open(confdKeymaps,"w")
-    f.write("KEYMAP=\""+keyLocale+"\"")
+    f.writelines(output)
     f.flush()
     f.close()
     if ROOT == "" and DO_NOT_RESTART == False:
