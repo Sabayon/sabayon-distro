@@ -17,7 +17,7 @@ SRC_URI="
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86 -amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 RDEPEND="dev-libs/boost
@@ -69,7 +69,7 @@ src_unpack() {
 	#done
 
 	#epatch debian/patches/generic/cmake-fix-qtutil.patch
-	#epatch debian/patches/generic/cmake-fix-static-sfp-plugin.patch
+	epatch debian/patches/generic/cmake-fix-static-sfp-plugin.patch
 	#epatch debian/patches/generic/cmake-fix-gaim4.patch
 
 }
@@ -83,14 +83,14 @@ src_compile() {
 		-DCMAKE_INSTALL_PREFIX="/usr" \
 		-DWITH_BUILDID=ON -DWITH_SHARED_PHAPI=OFF \
 		-DWITH_SHARED_OWCURL=OFF -DWITH_SHARED_SFP-PLUGIN=OFF \
-		wengophone-* || die "ecmake failed"
+		${P} || die "ecmake failed"
 	emake || die "emake failed"
 }
 
 src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
-	cd wengophone-*
+	cd ${P}
 	domenu debian/wengophone.desktop
 	doicon debian/wengophone.xpm
 	doman debian/qtwengophone.1
