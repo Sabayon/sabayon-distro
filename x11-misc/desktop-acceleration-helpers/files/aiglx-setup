@@ -52,12 +52,12 @@ else
 	fi
 
 	# Enable AIGLX Stuff
-	sed -i '/"AIGLX"/ s/#//' $xorg_conf
+	sed -i '/"AIGLX"/ s/#//g' $xorg_conf
         opengl_nvidia=$(eselect opengl show | grep nvidia)
         if [ -n "$opengl_nvidia" ]; then
-	   sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
+	   sed -i '/"AddARGBGLXVisuals"/ s/#//g' $xorg_conf
         fi
-	sed -i '/"Composite"/ s/#//' $xorg_conf
+	sed -i '/"Composite"/ s/#//g' $xorg_conf
 
 	# Beryl Wrapper
 	echo "[Desktop Entry]" > $beryl_wrapper_desktop_file
@@ -105,12 +105,15 @@ else
 	sed -i '/.*beryl-wrapper.*$DESKTOP_SESSION/d' $kdmdir/Xsession
       fi
 
-      # Enable AIGLX Stuff
+      # Disable AIGLX Option
+      sed -i '/"AIGLX"/ s/#//g' $xorg_conf
       sed -i '/"AIGLX"/ s/Option/#Option/' $xorg_conf
       opengl_nvidia=$(lspci | grep ' VGA '| grep -i nvidia)
       if [ -n "$opengl_nvidia" ]; then
+         sed -i '/"AddARGBGLXVisuals"/ s/#//g' $xorg_conf
          sed -i '/"AddARGBGLXVisuals"/ s/Option/#Option/' $xorg_conf
       fi
+      sed -i '/"Composite"/ s/#//g' $xorg_conf
       sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
 
       for file in `find /home -maxdepth 4 -name $beryl_wrapper`
