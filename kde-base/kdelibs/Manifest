@@ -6,6 +6,10 @@ AUX kdelibs-3.5.5-kdeprint.patch 6481 RMD160 a9f9c304f4075ea71872a22db72c77ccb8b
 MD5 2fd7ed210837c454b9021c1aebaa1f34 files/kdelibs-3.5.5-kdeprint.patch 6481
 RMD160 a9f9c304f4075ea71872a22db72c77ccb8b67486 files/kdelibs-3.5.5-kdeprint.patch 6481
 SHA256 f5741e22e4701eb0e4e22c95d38706e1d82a06c26bbea3f70afec44f47540424 files/kdelibs-3.5.5-kdeprint.patch 6481
+AUX kdelibs-3.5.5-khtml-image-selection-blend.patch 934 RMD160 91cecbc477e03af25403860152f0a3fa91404b33 SHA1 42aceaf4116cc8496e5c5e1b33a88cac0875cb7d SHA256 cb503a4363d90fe5dbb9b74bfee9c0be0aed0c4433727bcae27157ddc98d4d43
+MD5 92b461fc76cf26689a447d8c78984664 files/kdelibs-3.5.5-khtml-image-selection-blend.patch 934
+RMD160 91cecbc477e03af25403860152f0a3fa91404b33 files/kdelibs-3.5.5-khtml-image-selection-blend.patch 934
+SHA256 cb503a4363d90fe5dbb9b74bfee9c0be0aed0c4433727bcae27157ddc98d4d43 files/kdelibs-3.5.5-khtml-image-selection-blend.patch 934
 AUX kdelibs-3.5.5-khtml.patch 727 RMD160 a0561d99c25b734c5d1d807598640c3805c4cb7b SHA1 388efae927604bb6ae239280117ec0d9d3574f4e SHA256 47f05ea61ccf773c6beb3e902330bfed05fd11f63aae6d38c1145ee6b5057d59
 MD5 1cb9f9a47fc317e35ff88154a72de925 files/kdelibs-3.5.5-khtml.patch 727
 RMD160 a0561d99c25b734c5d1d807598640c3805c4cb7b files/kdelibs-3.5.5-khtml.patch 727
@@ -26,6 +30,10 @@ AUX kdelibs-3.5.5-rubberband.patch 2522 RMD160 42160db85a4c64ca3630efe659c07c4ab
 MD5 1e330a83cfaf239e77611711597fa839 files/kdelibs-3.5.5-rubberband.patch 2522
 RMD160 42160db85a4c64ca3630efe659c07c4ab3389ee3 files/kdelibs-3.5.5-rubberband.patch 2522
 SHA256 2314da931a56835133e782755867dcf7c77989415ee0c1fd8509c57405048e29 files/kdelibs-3.5.5-rubberband.patch 2522
+AUX khtml-smoothscroll-3.5.5-final.patch 5992 RMD160 760047dfac107fb7149efe6d12f9c8868d2edeb4 SHA1 52d580992dd4b30e4056f02b06adb009db2b170a SHA256 9beaee2c0c17b7c2a0dea88984856f0a43bb4d7b6d2c8eb862ce1b2f051ef84c
+MD5 c1559dd160fc996ce7a6c829eb798eb0 files/khtml-smoothscroll-3.5.5-final.patch 5992
+RMD160 760047dfac107fb7149efe6d12f9c8868d2edeb4 files/khtml-smoothscroll-3.5.5-final.patch 5992
+SHA256 9beaee2c0c17b7c2a0dea88984856f0a43bb4d7b6d2c8eb862ce1b2f051ef84c files/khtml-smoothscroll-3.5.5-final.patch 5992
 AUX ksystemtray-xgl.patch 1835 RMD160 f3b3eb513f67770bb8e3924d55f5c59f2339304b SHA1 64a7640ffb1f1e062ec2c4fdeff82abd7d8f4c3f SHA256 954c89dfeab77d4c37396bc0f3bed341095cd2869e7ab5111b5726cfd5b2ca7f
 MD5 f801c9efec2fe53cdb89fd8ed6557a82 files/ksystemtray-xgl.patch 1835
 RMD160 f3b3eb513f67770bb8e3924d55f5c59f2339304b files/ksystemtray-xgl.patch 1835
@@ -36,6 +44,13 @@ EBUILD kdelibs-3.5.5-r6.ebuild 5697 RMD160 fed169c96f3e74658ca9aeac4f22f25534e65
 MD5 dca83555b7493750963c4848d4502c52 kdelibs-3.5.5-r6.ebuild 5697
 RMD160 fed169c96f3e74658ca9aeac4f22f25534e65b33 kdelibs-3.5.5-r6.ebuild 5697
 SHA256 95fcee139d56a480ea2918711988c5806dd9b17bb3f67a2d72dee805a9ade6d7 kdelibs-3.5.5-r6.ebuild 5697
+EBUILD kdelibs-3.5.5-r7.ebuild 5799 RMD160 cf4698393dde874c17ad2aacc01736c03df5eaed SHA1 d1babe7e703e5b9de9ff740aee30d7a5af574a58 SHA256 18dda45a454de636456787d2676e1fb28252d06cec0565905cd7399efcf2b0b7
+MD5 3754bdd39c3beb3b0842db2b05dee301 kdelibs-3.5.5-r7.ebuild 5799
+RMD160 cf4698393dde874c17ad2aacc01736c03df5eaed kdelibs-3.5.5-r7.ebuild 5799
+SHA256 18dda45a454de636456787d2676e1fb28252d06cec0565905cd7399efcf2b0b7 kdelibs-3.5.5-r7.ebuild 5799
 MD5 4e084c981a53be48eb4df82f46649e60 files/digest-kdelibs-3.5.5-r6 521
 RMD160 b35a8ed3374893328cf91746946b98d833051692 files/digest-kdelibs-3.5.5-r6 521
 SHA256 8c59629509a40001ff71b42db7096bb8c7a4f78bb8e43b60baf2e205cd843c81 files/digest-kdelibs-3.5.5-r6 521
+MD5 4e084c981a53be48eb4df82f46649e60 files/digest-kdelibs-3.5.5-r7 521
+RMD160 b35a8ed3374893328cf91746946b98d833051692 files/digest-kdelibs-3.5.5-r7 521
+SHA256 8c59629509a40001ff71b42db7096bb8c7a4f78bb8e43b60baf2e205cd843c81 files/digest-kdelibs-3.5.5-r7 521

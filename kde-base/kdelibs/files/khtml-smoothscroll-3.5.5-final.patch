@@ -1,0 +1,150 @@
+Index: khtml/khtmlview.cpp
+===================================================================
+RCS file: /home/kde/kdelibs/khtml/khtmlview.cpp,v
+retrieving revision 1.695
+diff -u -r1.695 khtmlview.cpp
+--- khtml/khtmlview.cpp	11 Mar 2005 16:01:13 -0000	1.695
++++ khtml/khtmlview.cpp	26 Mar 2005 22:20:05 -0000
+@@ -225,12 +225,15 @@
+         prevMouseY = -1;
+ 	clickCount = 0;
+ 	isDoubleClick = false;
++	scrollDistance = 0;
++	wheelOffset = 0;
+ 	scrollingSelf = false;
+         delete postponed_autorepeat;
+         postponed_autorepeat = NULL;
+ 	layoutTimerId = 0;
+         repaintTimerId = 0;
+         scrollTimerId = 0;
++	scrollUseDistance = false;
+         scrollSuspended = false;
+         scrollSuspendPreActivate = false;
+         complete = false;
+@@ -258,6 +261,11 @@
+     {
+         //kdDebug(6000) << "newScrollTimer timer " << tid << endl;
+         view->killTimer(scrollTimerId);
++	   if (!tid)
++	   {
++	       scrollDistance = 0;
++	       wheelOffset = 0;
++	   }
+         scrollTimerId = tid;
+         scrollSuspended = false;
+     }
+@@ -265,26 +273,33 @@
+ 
+     void adjustScroller(QWidget *view, ScrollDirection direction, ScrollDirection oppositedir)
+     {
++	   adjustScroller(view, direction, oppositedir, scrollUseDistance, 2);
++    }
++
++    void adjustScroller(QWidget *view, ScrollDirection direction, ScrollDirection oppositedir, bool usedistance, int timing)
++    {
+         static const struct { int msec, pixels; } timings [] = {
+             {320,1}, {224,1}, {160,1}, {112,1}, {80,1}, {56,1}, {40,1},
+             {28,1}, {20,1}, {20,2}, {20,3}, {20,4}, {20,6}, {20,8}, {0,0}
+         };
++	   scrollUseDistance = usedistance;
+         if (!scrollTimerId ||
+             (static_cast<int>(scrollDirection) != direction &&
+              (static_cast<int>(scrollDirection) != oppositedir || scrollSuspended))) {
+-            scrollTiming = 6;
+-            scrollBy = timings[scrollTiming].pixels;
++            scrollTiming = timing;
++            scrollBy = scrollTiming > 6 ? (scrollTiming * 2) - 6 : timings[scrollTiming].pixels;
+             scrollDirection = direction;
+-            newScrollTimer(view, view->startTimer(timings[scrollTiming].msec));
++            newScrollTimer(view, view->startTimer(scrollTiming > 6 ? 20 : timings[scrollTiming].msec));
+         } else if (scrollDirection == direction &&
+-                   timings[scrollTiming+1].msec && !scrollSuspended) {
+-            scrollBy = timings[++scrollTiming].pixels;
+-            newScrollTimer(view, view->startTimer(timings[scrollTiming].msec));
++                   timings[scrollTiming+1].msec && !scrollSuspended || (scrollTiming > 5)) {
++            scrollBy = scrollTiming > 5 ? (++scrollTiming * 2) - 6 : timings[++scrollTiming].pixels;
++            newScrollTimer(view, view->startTimer(scrollTiming > 6 ? 20 : timings[scrollTiming].msec));
+         } else if (scrollDirection == oppositedir) {
+             if (scrollTiming) {
+-                scrollBy = timings[--scrollTiming].pixels;
+-                newScrollTimer(view, view->startTimer(timings[scrollTiming].msec));
+-            }
++                scrollBy = scrollTiming > 6 ? (--scrollTiming * 2) - 6 : timings[--scrollTiming].pixels;
++                newScrollTimer(view, view->startTimer(scrollTiming > 6 ? 20 : timings[scrollTiming].msec));
++            } else
++                newScrollTimer(view, 0);
+         }
+         scrollSuspended = false;
+     }
+@@ -346,7 +361,12 @@
+     int scrollTimerId;
+     int scrollTiming;
+     int scrollBy;
++
++    double wheelOffset;
++
+     ScrollDirection scrollDirection		:2;
++    int scrollDistance;
++    bool scrollUseDistance			:1;
+     bool scrollSuspended			:1;
+     bool scrollSuspendPreActivate		:1;
+     bool complete				:1;
+@@ -2797,7 +2817,29 @@
+     else
+     {
+         d->scrollBarMoved = true;
+-        QScrollView::viewportWheelEvent( e );
++
++	   if ( e->orientation() == Vertical && verticalScrollBar()->isVisible() )
++	   {
++	        KHTMLViewPrivate::ScrollDirection direction;
++		   int step = QMIN( QApplication::wheelScrollLines()*verticalScrollBar()->lineStep(),
++		          verticalScrollBar()->pageStep() );
++		   if ( ( e->state() & ControlButton ) || ( e->state() & ShiftButton ) )
++			  step = verticalScrollBar()->pageStep();
++		   if (e->delta() > 0) direction = KHTMLViewPrivate::ScrollUp;
++		   else direction = KHTMLViewPrivate::ScrollDown;
++		   if (d->scrollDirection != direction)
++		   {
++		       d->scrollDirection = direction;
++			  d->wheelOffset = 0;
++	            d->newScrollTimer(this, 0);
++		   }
++		   d->wheelOffset += -e->delta() * step/120;
++		   d->scrollDistance = int(QABS(d->wheelOffset));
++		   //qDebug("wheelOffset = %f, scrollDistance = %d, e->delta() = %d\n", d->wheelOffset, d->scrollDistance, e->delta());
++		   //scrollBy( 0, offset );
++		   d->adjustScroller(this, direction,
++			      (direction == KHTMLViewPrivate::ScrollDown) ? KHTMLViewPrivate::ScrollUp : KHTMLViewPrivate::ScrollDown, true, 12);
++	   } else QScrollView::viewportWheelEvent( e );
+ 
+         QMouseEvent *tempEvent = new QMouseEvent( QEvent::MouseMove, QPoint(-1,-1), QPoint(-1,-1), Qt::NoButton, e->state() );
+         emit viewportMouseMoveEvent ( tempEvent );
+@@ -2805,6 +2847,7 @@
+     }
+ 
+ }
++
+ #endif
+ 
+ void KHTMLView::dragEnterEvent( QDragEnterEvent* ev )
+@@ -2955,6 +2998,19 @@
+                     scrollBy( -d->scrollBy, 0 );
+                 break;
+         }
++	   if (d->scrollUseDistance)
++	   {
++	       d->scrollDistance -= d->scrollBy;
++	       if (d->scrollDistance <= 0)
++		  {
++		      d->scrollUseDistance = false;
++	           d->newScrollTimer(this, 0);
++		  }
++	       else if (d->scrollDistance < 20 && (d->scrollDistance % 4 == 0) && d->scrollTiming > 1)
++	           d->adjustScroller(this,
++			 	(d->scrollDirection == KHTMLViewPrivate::ScrollDown) ? KHTMLViewPrivate::ScrollUp : KHTMLViewPrivate::ScrollDown,
++				d->scrollDirection, true, 10);
++	   }
+         return;
+     }
+     else if ( e->timerId() == d->layoutTimerId ) {
