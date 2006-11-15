@@ -1,0 +1,45 @@
+--- src/NetworkManager.conf.orig	2006-10-28 04:43:50.426682976 +0100
++++ src/NetworkManager.conf	2006-10-28 04:44:36.883620448 +0100
+@@ -8,14 +8,14 @@
+                 <allow send_destination="org.freedesktop.NetworkManager"/>
+                 <allow send_interface="org.freedesktop.NetworkManager"/>
+         </policy>
+-        <policy at_console="true">
++        <policy group="plugdev">
+                 <allow send_destination="org.freedesktop.NetworkManager"/>
+                 <allow send_interface="org.freedesktop.NetworkManager"/>
+         </policy>
+         <policy context="default">
+-                <deny own="org.freedesktop.NetworkManager"/>
+-                <deny send_destination="org.freedesktop.NetworkManager"/>
+-                <deny send_interface="org.freedesktop.NetworkManager"/>
++                <allow own="org.freedesktop.NetworkManager"/>
++                <allow send_destination="org.freedesktop.NetworkManager"/>
++                <allow send_interface="org.freedesktop.NetworkManager"/>
+         </policy>
+ </busconfig>
+ 
+--- gnome/applet/nm-applet.conf.orig	2006-10-28 04:45:30.707437984 +0100
++++ gnome/applet/nm-applet.conf	2006-10-28 04:46:34.810692808 +0100
+@@ -8,17 +8,17 @@
+ 		<allow send_destination="org.freedesktop.NetworkManagerInfo"/>
+                 <allow send_interface="org.freedesktop.NetworkManagerInfo"/>
+ 	</policy>
+-	<policy at_console="true">
++	<policy group="plugdev">
+ 		<allow own="org.freedesktop.NetworkManagerInfo"/>
+ 
+ 		<allow send_destination="org.freedesktop.NetworkManagerInfo"/>
+                 <allow send_interface="org.freedesktop.NetworkManagerInfo"/>
+ 	</policy>
+ 	<policy context="default">
+-		<deny own="org.freedesktop.NetworkManagerInfo"/>
++		<allow own="org.freedesktop.NetworkManagerInfo"/>
+ 
+-		<deny send_destination="org.freedesktop.NetworkManagerInfo"/>
+-		<deny send_interface="org.freedesktop.NetworkManagerInfo"/>
++		<allow send_destination="org.freedesktop.NetworkManagerInfo"/>
++		<allow send_interface="org.freedesktop.NetworkManagerInfo"/>
+ 	</policy>
+ </busconfig>
+ 
