@@ -26,6 +26,10 @@ AUX kdelibs-3.5.5-rounded-selection-box.patch 7464 RMD160 e26ab0defc3a3986e31b0b
 MD5 cc897a2acb347f7f8dc2d3a6702e348e files/kdelibs-3.5.5-rounded-selection-box.patch 7464
 RMD160 e26ab0defc3a3986e31b0be486305df6141e859c files/kdelibs-3.5.5-rounded-selection-box.patch 7464
 SHA256 767bd77b2ec403f996d8d8e8f67b1730de05ac3abb75106fbf66f20badf64c70 files/kdelibs-3.5.5-rounded-selection-box.patch 7464
+AUX kdelibs-3.5.5-rounded-selection.patch 1234 RMD160 795607a7e76a5450eb1b3805d6713614248fbccb SHA1 5cb9b0f1fd2e1f819ede81a73f173584782d0c46 SHA256 8059c750256886a604cb2527004a8c3b7ee3fa2c7f44b98bd4c9e307ae2193dc
+MD5 5e6a5bc6b2f6c1ad2303ba18ec615d39 files/kdelibs-3.5.5-rounded-selection.patch 1234
+RMD160 795607a7e76a5450eb1b3805d6713614248fbccb files/kdelibs-3.5.5-rounded-selection.patch 1234
+SHA256 8059c750256886a604cb2527004a8c3b7ee3fa2c7f44b98bd4c9e307ae2193dc files/kdelibs-3.5.5-rounded-selection.patch 1234
 AUX kdelibs-3.5.5-rubberband.patch 2522 RMD160 42160db85a4c64ca3630efe659c07c4ab3389ee3 SHA1 6ef04d0eec32297596c0cd5215d0226606b3326a SHA256 2314da931a56835133e782755867dcf7c77989415ee0c1fd8509c57405048e29
 MD5 1e330a83cfaf239e77611711597fa839 files/kdelibs-3.5.5-rubberband.patch 2522
 RMD160 42160db85a4c64ca3630efe659c07c4ab3389ee3 files/kdelibs-3.5.5-rubberband.patch 2522
