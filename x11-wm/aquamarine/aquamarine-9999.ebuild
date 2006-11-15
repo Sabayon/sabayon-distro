@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
-DEPEND="=x11-wm/beryl-core-9999"
+DEPEND="x11-wm/beryl-core"
 
 need-kde 3.5
 
