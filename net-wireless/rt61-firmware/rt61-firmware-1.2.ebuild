@@ -14,7 +14,7 @@ IUSE=""
 DEPEND=">=sys-apps/hotplug-20040923"
 
 src_install() {
-	cd ${WORKDIR}/
+	cd ${WORKDIR}/RT61_Firmware_V${PV}
 	insinto /lib/firmware
 	doins *.bin
 }
