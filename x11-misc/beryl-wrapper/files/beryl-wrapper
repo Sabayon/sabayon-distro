@@ -18,20 +18,23 @@ processes=$(ps auxf)
 xgl_running=$(echo $processes | grep Xgl)
 acceleration_enabled=$(glxinfo | grep "direct rendering" | grep -i "yes")
 
+aquamarine_enabled=$(cat /proc/cmdline | grep aquamarine)
+if [ -n "$aquamarine_enabled" ] && [ -e /usr/bin/aquamarine ];then
+  window_decor="aquamarine --replace"
+else
+  window_decor="emerald --replace"
+fi
+
+
 if [ -n "$acceleration_enabled" ] || [ -n "$xgl_running" ]; then
   if [ "$cmd" = "1" ]; then
     if [ -n "$xgl_running" ]; then
-      emerald --replace & beryl-xgl --replace dbus settings
+      $window_decor & beryl-xgl --replace dbus settings
     else
-      emerald --replace & beryl --strict-binding --indirect-rendering --replace dbus settings
+      $window_decor & beryl --strict-binding --indirect-rendering --replace dbus settings
     fi
-    
-    # Start beryl-manager
-    sleep 10 && beryl-manager
-
   fi
 else
    # Notify the funny thing
-   exec_cmd="dcop knotify default notify DRI_status 'Direct Rendering' 'OpenGL acceleration is disabled. 3D Desktop cannot be loaded.' '' '' 2 0"
-   echo $exec_cmd | /bin/bash
+   dcop knotify default notify DRI_status 'Direct Rendering' 'OpenGL acceleration is disabled. 3D Desktop cannot be loaded.' '' '' 2 0
 fi
