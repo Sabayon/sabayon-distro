@@ -2,12 +2,12 @@ AUX kdesktop-3.5.5-rounded-selection.patch 1046 RMD160 2a43e987c0afcbd2e37525bad
 MD5 ac894d15b0bb3be2decc1908df2f98fc files/kdesktop-3.5.5-rounded-selection.patch 1046
 RMD160 2a43e987c0afcbd2e37525bad8ec9c2c64f11ba3 files/kdesktop-3.5.5-rounded-selection.patch 1046
 SHA256 319e01a222060b52136ced08b31c5a13d1da2a22555f43260a7c257e9a1f20eb files/kdesktop-3.5.5-rounded-selection.patch 1046
-DIST kdebase-3.5-patchset-03.tar.bz2 21409 RMD160 f2671cbe867d8f533e31be585c6f6f6088b7f929 SHA1 58787987aecc768706bdefc1d1f82c3c3b45d186 SHA256 475f619d784597157f3c3359724a910a697d56c72078cfeba32314453e650cd6
+DIST kdebase-3.5-patchset-03.tar.bz2 21409 RMD160 941b919097d03347b10bccb51db2fa5e89d7ba16 SHA1 9ac59cdfc4cd8d43b6d0e6dbebc5b28d7a33e35f SHA256 59c691754627f78daf7693e82496d808cf1cc31e2d6f32af829ec4ccfd776574
 DIST kdebase-3.5.5.tar.bz2 23851886 RMD160 6cf804de0487347a3e1d4ea6e5ba5114d23d9806 SHA1 f9f1907ce71fd2f934cf7404f1db1d350c2b9544 SHA256 f77632e44214648e2d0adfe1a79dd61a6a738c21fe5abb0baff16b72432baaa0
 EBUILD kdesktop-3.5.5-r1.ebuild 1741 RMD160 0386fd3f65c487bc85fbe21436ce826f3128db53 SHA1 bb72f6f3b02a55cd363b19837c814c1925010374 SHA256 055cb5b823475e0c2f9664488c7bf48cd8dbd0f7114de5ae1b35ca24a7f7449d
 MD5 d88abc540feb84b2708cd1df2e881c91 kdesktop-3.5.5-r1.ebuild 1741
 RMD160 0386fd3f65c487bc85fbe21436ce826f3128db53 kdesktop-3.5.5-r1.ebuild 1741
 SHA256 055cb5b823475e0c2f9664488c7bf48cd8dbd0f7114de5ae1b35ca24a7f7449d kdesktop-3.5.5-r1.ebuild 1741
-MD5 4106ce89bde42226e79d81bc2b7c5b79 files/digest-kdesktop-3.5.5-r1 446
-RMD160 02349813aec3cb47d9db1a2638c0e555ba9ab017 files/digest-kdesktop-3.5.5-r1 446
-SHA256 b8a4f167a15f723300edaa055d19f8e3a6ad7201a5f80ca54bd32db7faabfe25 files/digest-kdesktop-3.5.5-r1 446
+MD5 4413bb62e0a3313d499ee48fb91adfaf files/digest-kdesktop-3.5.5-r1 521
+RMD160 4631b6a312d8f0a17d62d4a7f98bb92ab09fa8d1 files/digest-kdesktop-3.5.5-r1 521
+SHA256 f8d736f629130da8e0d90a8ebd0a550634334af2739900a17d0e04c688b248e2 files/digest-kdesktop-3.5.5-r1 521
