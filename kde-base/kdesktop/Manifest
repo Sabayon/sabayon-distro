@@ -8,6 +8,6 @@ EBUILD kdesktop-3.5.5-r1.ebuild 1741 RMD160 0386fd3f65c487bc85fbe21436ce826f3128
 MD5 d88abc540feb84b2708cd1df2e881c91 kdesktop-3.5.5-r1.ebuild 1741
 RMD160 0386fd3f65c487bc85fbe21436ce826f3128db53 kdesktop-3.5.5-r1.ebuild 1741
 SHA256 055cb5b823475e0c2f9664488c7bf48cd8dbd0f7114de5ae1b35ca24a7f7449d kdesktop-3.5.5-r1.ebuild 1741
-MD5 2c915cce8765696659c10d74f7101bdb files/digest-kdesktop-3.5.5-r1 521
-RMD160 5cc2ee49ae4d254f48ce1aa09b84d7369529dc35 files/digest-kdesktop-3.5.5-r1 521
-SHA256 b904c4ebd700c9d4514d33a4d1d6f7a495d7a4e8c3a80d3964ebb37cab171789 files/digest-kdesktop-3.5.5-r1 521
+MD5 4106ce89bde42226e79d81bc2b7c5b79 files/digest-kdesktop-3.5.5-r1 446
+RMD160 02349813aec3cb47d9db1a2638c0e555ba9ab017 files/digest-kdesktop-3.5.5-r1 446
+SHA256 b8a4f167a15f723300edaa055d19f8e3a6ad7201a5f80ca54bd32db7faabfe25 files/digest-kdesktop-3.5.5-r1 446
