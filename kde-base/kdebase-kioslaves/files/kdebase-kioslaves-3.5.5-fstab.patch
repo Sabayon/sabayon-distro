@@ -1,0 +1,73 @@
+From: Stephan Kulow <coolo@kde.org>
+To: kde-commits@kde.org
+Subject: branches/KDE/3.5/kdebase/kioslave/media/mediamanager
+Date: Mon, 09 Oct 2006 09:32:17 +0000
+Message-Id: <1160386337.725673.25740.nullmailer@svn.kde.org>
+Cc: kde-packager@kde.org
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Length: 6245
+
+SVN commit 593835 by coolo:
+
+devices that are in fstab should show up no matter what HAL thinks
+CCMAIL: kde-packager@kde.org
+
+
+ M  +16 -7     halbackend.cpp  
+
+
+--- branches/KDE/3.5/kdebase/kioslave/media/mediamanager/halbackend.cpp #593834:593835
+@@ -215,11 +215,6 @@
+              !libhal_device_get_property_bool(m_halContext, udi, "volume.disc.is_blank", NULL) )
+             return;
+ 
+-        if ( ( libhal_device_get_property_QString(m_halContext, udi, "volume.fsusage") == "filesystem" &&
+-               !libhal_device_get_property_bool(m_halContext, udi, "volume.is_mounted", NULL ) ) &&
+-             ( libhal_device_get_property_bool(m_halContext, udi, "volume.ignore", NULL ) ) )
+-            return;
+-
+         /* Query drive udi */
+         QString driveUdi = libhal_device_get_property_QString(m_halContext, udi, "block.storage_device");
+         /* We don't list floppy volumes because we list floppy drives */
+@@ -240,7 +235,19 @@
+ 
+         /* Create medium */
+         Medium* medium = new Medium(udi, "");
++        setVolumeProperties(medium);
+ 
++        if ( isInFstab( medium ).isNull() )
++        {
++            // if it's not mountable by user and not by HAL, don't show it at all
++            if ( ( libhal_device_get_property_QString(m_halContext, udi, "volume.fsusage") == "filesystem" &&
++                   !libhal_device_get_property_bool(m_halContext, udi, "volume.is_mounted", NULL ) ) &&
++                 ( libhal_device_get_property_bool(m_halContext, udi, "volume.ignore", NULL ) ) )
++            {
++                delete medium;
++                return;
++            }
++        }
+         QMap<QString,QString> options = MediaManagerUtils::splitOptions(mountoptions(udi));
+         kdDebug() << "automount " << options["automount"] << endl;
+         if (options["automount"] == "true" && allowNotification ) {
+@@ -248,7 +255,6 @@
+             if (!error.isEmpty())
+                 kdDebug() << "error " << error << endl;
+         }
+-        setVolumeProperties(medium);
+         m_mediaList.addMedium(medium, allowNotification);
+ 
+         return;
+@@ -992,7 +998,10 @@
+ 
+     for (; it!=end; ++it)
+     {
+-        kdDebug() << "isInFstab -" << medium->deviceNode() << "- -" << (*it)->realDeviceName() << "- -" << (*it)->mountedFrom() << endl;
++        QString reald = (*it)->realDeviceName();
++        if ( reald.endsWith( "/" ) )
++            reald = reald.left( reald.length() - 1 );
++        kdDebug() << "isInFstab -" << medium->deviceNode() << "- -" << reald << "- -" << (*it)->mountedFrom() << "-" << endl;
+         if ((*it)->mountedFrom() == medium->deviceNode() || ( !medium->deviceNode().isEmpty() && (*it)->realDeviceName() == medium->deviceNode() ) )
+ 	{
+             QStringList opts = (*it)->mountOptions();
