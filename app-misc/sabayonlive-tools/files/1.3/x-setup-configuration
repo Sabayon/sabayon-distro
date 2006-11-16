@@ -107,7 +107,7 @@ configure_video_settings() {
           # Modes?
           if [ "$vsync" != "0-0" ] && [ "$hsync" != "0-0" ]; then
               modes=$(/usr/sbin/ddcxinfo-knoppix -modes)
-              if [ -n "`echo $modes | grep Modes`" ]; then
+              if [ -n "$modes" ]; then
                   sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
                   sed -i '/Modes/ s/.*/        '$modes'/' /etc/X11/xorg.conf
               fi
