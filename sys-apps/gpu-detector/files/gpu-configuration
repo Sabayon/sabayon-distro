@@ -13,6 +13,14 @@ remove_proprietary_opengl() {
    nice -20 eselect opengl set --dst-prefix=/etc/opengl xorg-x11
 }
 
+change_xorg_driver() {
+    sed -i '/do not remove vesa/ s/".*"/"'$1'"/' $XORGFILE
+}
+
+enable_dri() {
+    sed -i '/"dri"/ s/#//' $XORGFILE
+}
+
 NEOMAGIC=$(lspci | grep ' VGA ' | grep -i 'neomagic')
 MACH64=$(lspci | grep ' VGA ' | grep -i 'mach64' )
 SAVAGE=$(lspci | grep ' VGA ' | grep -i 'savage' )
@@ -63,13 +71,11 @@ if [ -n "$R9200" ]; then
   sed -i '/BusType/ s/#//' /etc/X11/xorg.conf
 fi
 
-
-AIGLX=$(cat /proc/cmdline | grep aiglx)
-if [ -n "$AIGLX" ]; then
-  if [ -n "$INTEL" ]; then
-    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $XORGFILE
-    sed -i '/"AddARGBGLXVisuals"/ s/.*//' $XORGFILE
-  fi
+current_arch=$(uname -m)
+if [ "$current_arch" == "x86_64" ]; then
+  ld_arch="elf_x86_64"
+elif [ "$current_arch" == "i686" ]; then
+  ld_arch="elf_i386"
 fi
 
 # Check for xdriver=
@@ -79,12 +85,12 @@ if [ -n "$is_there_xdriver" ]; then
   case $word in
     xdriver=*)
      xdriver=$(echo $word | cut -d= -f 2)
-     sed -i '/do not remove vesa/ s/".*"/"'$xdriver'"/' $XORGFILE
+     change_xorg_driver $xdriver
      if [ -z "$NVIDIA" ]; then
        if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$SIS" ] || [ -n "$MATROX" ]; then
          remove_proprietary_opengl
        fi
-       sed -i '/"dri"/ s/#//' $XORGFILE
+       enable_dri
      fi
     ;;
   esac
@@ -96,48 +102,82 @@ fi
 
 if [ -n "$NVIDIA" ]; then
 
-  if [ -n "$NOPROP" ] || [ -n "$LEGACY" ] || [ -n "$NVIDIATNT" ]; then
+  if [ -n "$NOPROP" ] || [ -n "$LEGACY" ]; then
 
-     sed -i '/do not remove vesa/ s/".*"/"nv"/' $XORGFILE
+     change_xorg_driver nv
      echo -e "\t Display Driver: NVIDIA (OpenSource)"
 
   else
 
      modprobe nvidia &> /dev/null
-     lsmod_nvidia=$(lsmod | grep nvidia)
-     if [ -n "$lsmod_nvidia" ];then
-       sed -i '/do not remove vesa/ s/".*"/"nvidia"/' $XORGFILE
+     if [ "$?" != "0" ]; then
+       nv_mod_failed="yes"
+     else
+       nv_mod_failed="no"
+     fi
+     # Check for errors
+     if [ "$nv_mod_failed" == "yes" ]; then
+       # ok, maybe unsupported
+       # check if we are running in the live mode
+       is_live=$(cat /proc/cmdline | grep cdroot)
+       if [ -n "$is_live" ]; then
+         # yes, so, check for the legacy drivers
+         if [ -e "/lib/modules/nvidia/legacy" ]; then
+           # prepare legacy drivers
+           if [ -e "/usr/bin/qlist" ]; then
+             qlist -e nvidia-drivers | xargs rm -rf
+             rm -rf /var/db/pkg/x11-drivers/nvidia-drivers-*
+             sed -i '/.*nvidia-drivers.*/d' /var/lib/portage/world
+           else
+             emerge -C nvidia-drivers &> /dev/null
+           fi
+           # remove old nvidia.ko
+           rm /lib/modules/$(uname -r)/video/nvidia.ko -f
+           # copy over
+           cp /lib/nvidia/legacy/* / -Rp &> /dev/null
+           # create nvidia.ko
+           ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/legacy/nvidia.o /lib/nvidia/legacy/nvidia.mod.o
+           # set nvidia
+           nice -20 source /etc/profile
+           nice -20 eselect opengl set --dst-prefix=/etc/opengl nvidia &> /dev/null
+           # hope that will work
+         else
+           # revert to nv
+           change_xorg_driver nv
+           echo -e "\t Display Driver: NVIDIA (OpenSource) - Legacy drivers cannot be deployed"
+         fi
+       else
+         # revert to nv
+         change_xorg_driver nv
+         echo -e "\t Display Driver: NVIDIA (OpenSource) - Proprietary drivers can't be loaded - unsupported video card?"
+       fi
+     else
+       # ok, configure the standard nvidia driver
+       change_xorg_driver nvidia
        echo -e "\t Display Driver: NVIDIA (Proprietary)"
-    else
-
-     sed -i '/do not remove vesa/ s/".*"/"nv"/' $XORGFILE
-     echo -e "\t Display Driver: NVIDIA (OpenSource) - Proprietary drivers can't be loaded"
-
-
-    fi
+     fi
 
   fi
 
 elif [ -n "$RAGE128" ]; then
 
-    sed -i '/do not remove vesa/ s/".*"/"r128"/' $XORGFILE
-    sed -i '/"dri"/ s/#//' $XORGFILE
+    change_xorg_driver r128
+    enable_dri
     remove_proprietary_opengl
     echo -e "\t Display Driver: ATI Rage 128"
 
 elif [ -n "$V3DFX" ]; then
 
-    sed -i '/do not remove vesa/ s/".*"/"tdfx"/' $XORGFILE
-    sed -i '/"dri"/ s/#//' $XORGFILE
-    sed -i '/DefaultDepth/ s/24/16/' $XORGFILE
+    change_xorg_driver tdfx
+    enable_dri
     remove_proprietary_opengl
+    sed -i '/DefaultDepth/ s/24/16/' $XORGFILE
     echo -e "\t Display Driver: 3Dfx Video Card"
 
 elif [ -n "$I855" ] || [ -n "$I915" ] || [ -n "$I945" ] || [ -n "$I845" ] || [ -n "$IGRANTSDALE" ]; then
 
-    sed -i '/do not remove vesa/ s/".*"/"i810"/' $XORGFILE
-    sed -i '/"dri"/ s/#//' $XORGFILE
-    # Fix for DRI accel
+    change_xorg_driver i810
+    enable_dri
     remove_proprietary_opengl
 
     echo -e "\t Display Driver: Intel Video Card"
@@ -146,11 +186,11 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
   if [ -n "$NOPROP" ] || [ -n "$LEGACY" ]; then
 
-    sed -i '/do not remove vesa/ s/".*"/"radeon"/' $XORGFILE
-    sed -i '/"dri"/ s/#//' $XORGFILE
-    sed -i '/ColorTiling/ s/#//' /etc/X11/xorg.conf
-    sed -i '/EnablePageFlip/ s/#//' /etc/X11/xorg.conf
+    change_xorg_driver radeon
+    enable_dri
     remove_proprietary_opengl
+    sed -i '/ColorTiling/ s/#//' $XORGFILE
+    sed -i '/EnablePageFlip/ s/#//' $XORGFILE
     echo -e "\t Display Driver: ATI (OpenSource)"
 
   else
@@ -160,29 +200,27 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 	modprobe fglrx &> /dev/null
         lsmod_ati=$(lsmod | grep fglrx)
 	if [ -n "$lsmod_ati" ];then
-    	  sed -i '/do not remove vesa/ s/".*"/"fglrx"/' $XORGFILE
-          sed -i '/"dri"/ s/#//' $XORGFILE
 
+    	  change_xorg_driver fglrx
+          enable_dri
     	  echo -e "\t Display Driver: ATI (Proprietary)"
 
 	else
 
+	  change_xorg_driver radeon
+          enable_dri
 	  remove_proprietary_opengl
-
-	  sed -i '/do not remove vesa/ s/".*"/"radeon"/' $XORGFILE
-          sed -i '/"dri"/ s/#//' $XORGFILE
           sed -i '/ColorTiling/ s/#//' /etc/X11/xorg.conf
           sed -i '/EnablePageFlip/ s/#//' /etc/X11/xorg.conf
-
           echo -e "\t Display Driver: ATI (OpenSource) - Proprietary drivers can't be loaded"
 
 	fi
 
     else
 
+	change_xorg_driver radeon
+        enable_dri
         remove_proprietary_opengl
-  	sed -i '/do not remove vesa/ s/".*"/"radeon"/' $XORGFILE
-        sed -i '/"dri"/ s/#//' $XORGFILE
     	echo -e "\t Display Driver: ATI (OpenSource)"
 
     fi
@@ -191,16 +229,16 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
 elif [ -n "$SIS" ]; then
 
- sed -i '/do not remove vesa/ s/".*"/"sis"/' $XORGFILE
- sed -i '/"dri"/ s/#//' $XORGFILE
+ change_xorg_driver sis
+ enable_dri
  remove_proprietary_opengl
  echo -e "\t Display Driver: SiS"
 
 
 elif [ -n "$VMWARE" ]; then
 
- sed -i '/do not remove vesa/ s/".*"/"vmware"/' $XORGFILE
- sed -i '/"dri"/ s/#//' $XORGFILE
+ change_xorg_driver vmware
+ enable_dri
 
  # Uncomment "Modes"
  sed -i '/Modes/ s/#//g' /etc/X11/xorg.conf
@@ -211,53 +249,49 @@ elif [ -n "$VMWARE" ]; then
 
 elif [ -n "$SAVAGE" ]; then
 
- echo -e "\t Display Driver: Savage"
- sed -i '/do not remove vesa/ s/".*"/"savage"/' $XORGFILE
- sed -i '/"dri"/ s/#//' $XORGFILE
+ change_xorg_driver savage
+ enable_dri
  remove_proprietary_opengl
+ echo -e "\t Display Driver: Savage"
 
 elif [ -n "$VIRGE" ]; then
 
- echo -e "\t Display Driver: S3 Virge"
- sed -i '/do not remove vesa/ s/".*"/"s3virge"/' $XORGFILE
- sed -i '/"dri"/ s/#//' $XORGFILE
+ change_xorg_driver s3virge
+ enable_dri
  remove_proprietary_opengl
+ echo -e "\t Display Driver: S3 Virge"
 
 elif [ -n "$MATROX" ]; then
 
- sed -i '/do not remove vesa/ s/".*"/"mga"/' $XORGFILE
- sed -i '/"dri"/ s/#//' $XORGFILE
+ change_xorg_driver mga
+ enable_dri
  remove_proprietary_opengl
  echo -e "\t Display Driver: MATROX"
 
 elif [ -n "$VIA" ]; then
 
- sed -i '/do not remove vesa/ s/".*"/"via"/' $XORGFILE
- sed -i '/"dri"/ s/#//' $XORGFILE
+ change_xorg_driver via
+ enable_dri
  remove_proprietary_opengl
  echo -e "\t Display Driver: VIA Technologies"
 
 elif [ -n "$CIRRUS" ]; then
 
- sed -i '/do not remove vesa/ s/".*"/"cirrus"/' $XORGFILE
- sed -i '/"dri"/ s/#//' $XORGFILE
+ change_xorg_driver cirrus
+ #enable_dri
 
  echo -e "\t Display Driver: Cirrus Logic"
 
 elif [ -n "$TRIDENT" ]; then
 
- sed -i '/do not remove vesa/ s/".*"/"trident"/' $XORGFILE
- sed -i '/"dri"/ s/#//' $XORGFILE
+ change_xorg_driver trident
+ #enable_dri
 
  echo -e "\t Display Driver: Cirrus Logic"
 
 
 else
 
- # PUT YOUR HERE
- # sed -e '/do not remove vesa/ s/".*"/"mga"/' $XORGFILE > $XORGNEWFILE
- # cp $XORGFILE "$XORGFILE".old 
- # mv $XORGNEWFILE $XORGFILE -f
  echo -e "\t Display Driver: VESA (no supported card detected)"
 
 fi
