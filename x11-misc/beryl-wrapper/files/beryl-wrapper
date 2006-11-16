@@ -31,7 +31,7 @@ if [ -n "$acceleration_enabled" ] || [ -n "$xgl_running" ]; then
     if [ -n "$xgl_running" ]; then
       $window_decor & beryl-xgl --replace dbus settings
       # workaround for SHIFT+BACKSPACE bug in XGL
-      xmodmap -e "keycode 113 = Mode_switch"
+      xmodmap -e "keycode 22 = BackSpace BackSpace Terminate_Server"
     else
       $window_decor & beryl --strict-binding --indirect-rendering --replace dbus settings
     fi
