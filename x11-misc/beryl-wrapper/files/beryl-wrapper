@@ -18,14 +18,18 @@ processes=$(ps auxf)
 xgl_running=$(echo $processes | grep Xgl)
 acceleration_enabled=$(glxinfo | grep "direct rendering" | grep -i "yes")
 
-aquamarine_enabled=$(cat /proc/cmdline | grep aquamarine)
-if [ -n "$aquamarine_enabled" ] && [ -e /usr/bin/aquamarine ];then
-  window_decor="aquamarine --replace"
+# Choose the WM
+if [ -e /usr/bin/aquamarine ];then
+  if [ "$1" != "gnome" ] && [ "$1" != "xfce" ]; then
+    window_decor="aquamarine --replace"
+  else
+    window_decor="emerald --replace"
+  fi
 else
   window_decor="emerald --replace"
 fi
 
-
+# Start Beryl
 if [ -n "$acceleration_enabled" ] || [ -n "$xgl_running" ]; then
   if [ "$cmd" = "1" ]; then
     if [ -n "$xgl_running" ]; then
