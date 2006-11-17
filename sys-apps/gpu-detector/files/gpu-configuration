@@ -141,6 +141,7 @@ if [ -n "$NVIDIA" ]; then
            nice -20 source /etc/profile
            nice -20 eselect opengl set --dst-prefix=/etc/opengl nvidia &> /dev/null
            # hope that will work
+           touch /lib/nvidia/legacy/running
          else
            # revert to nv
            change_xorg_driver nv
