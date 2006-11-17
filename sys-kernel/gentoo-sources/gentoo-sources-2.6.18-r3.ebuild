@@ -30,6 +30,7 @@ src_unpack() {
 	cd ${S}
 	epatch ${FILESDIR}/2.6.18-am2-nvidia-ati.patch
 	epatch ${FILESDIR}/2.6.18-am2-nvidia-fix.patch
+	epatch ${FILESDIR}/09-non-libata-driver-for-jmicron-devices.patch
 
 } 
 
