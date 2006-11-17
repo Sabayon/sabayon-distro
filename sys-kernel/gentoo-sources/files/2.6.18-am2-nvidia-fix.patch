@@ -1,0 +1,67 @@
+From: Andi Kleen <ak@suse.de>
+Date: Sat, 21 Oct 2006 16:37:03 +0000 (+0200)
+Subject: [PATCH] x86-64: Revert timer routing behaviour back to 2.6.16 state
+X-Git-Tag: v2.6.19-rc3
+X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=e70ea8c09db0e25ab58f84ba7f393e5c9125a8ee
+
+[PATCH] x86-64: Revert timer routing behaviour back to 2.6.16 state
+
+By default route the 8254 over the 8259 and only disable
+it on ATI boards where this causes double timer interrupts.
+
+This should unbreak some Nvidia boards where the timer doesn't
+seem to tick of it isn't enabled in the 8259. At least one
+VIA board also seemed to have a little trouble with the disabled
+8259.
+
+For 2.6.20 we'll try both dynamically without black listing, but I think
+for .19 this is the safer approach because it has been already well tested
+in earlier kernels. This also makes the x86-64 behaviour the same
+as i386.
+
+Command line options can change all this of course.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+---
+
+--- a/arch/x86_64/kernel/early-quirks.c
++++ b/arch/x86_64/kernel/early-quirks.c
+@@ -61,10 +61,11 @@ static void nvidia_bugs(void)
+ 
+ static void ati_bugs(void)
+ {
+-#if 1 /* for testing */
+-	printk("ATI board detected\n");
+-#endif
+-	/* No bugs right now */
++	if (timer_over_8254 == 1) {
++		timer_over_8254 = 0;
++		printk(KERN_INFO
++	 	"ATI board detected. Disabling timer routing over 8254.\n");
++	}
+ }
+ 
+ struct chipset {
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -57,7 +57,7 @@ static int no_timer_check;
+ 
+ static int disable_timer_pin_1 __initdata;
+ 
+-int timer_over_8254 __initdata = 0;
++int timer_over_8254 __initdata = 1;
+ 
+ /* Where if anywhere is the i8259 connect in external int mode */
+ static struct { int pin, apic; } ioapic_i8259 = { -1, -1 };
+--- a/include/asm-x86_64/proto.h
++++ b/include/asm-x86_64/proto.h
+@@ -131,6 +131,9 @@ extern int fix_aperture;
+
+ extern int reboot_force;
+ extern int notsc_setup(char *);
++
++extern int timer_over_8254;
++
+ extern int setup_additional_cpus(char *);
+
+ extern void smp_local_timer_interrupt(struct pt_regs * regs);

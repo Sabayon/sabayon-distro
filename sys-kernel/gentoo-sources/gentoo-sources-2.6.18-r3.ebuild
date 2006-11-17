@@ -21,7 +21,19 @@ pkg_setup() {
 		# hme lockup hack on ultra1
 		use ultra1 || UNIPATCH_EXCLUDE="${UNIPATCH_EXCLUDE} 1705_sparc-U1-hme-lockup.patch"
 	fi
+
 }
+
+src_unpack() {
+
+	kernel-2_src_unpack
+	if use amd64; then
+		cd ${S}
+		epatch ${FILESDIR}/2.6.18-am2-nvidia-ati.patch
+		epatch ${FILESDIR}/2.6.18-am2-nvidia-fix.patch
+	fi
+
+} 
 
 pkg_postinst() {
 	postinst_sources
