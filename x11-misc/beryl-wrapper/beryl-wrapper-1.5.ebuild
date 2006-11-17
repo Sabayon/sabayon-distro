@@ -14,7 +14,7 @@ IUSE=""
 
 DEPEND=">=x11-base/xorg-x11-7.1
 	x11-misc/beryl-manager
-	<=x11-wm/beryl-0.1.1"
+	>=x11-wm/beryl-0.1.2"
 
 
 RDEPEND=""
