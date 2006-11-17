@@ -27,11 +27,9 @@ pkg_setup() {
 src_unpack() {
 
 	kernel-2_src_unpack
-	if use amd64; then
-		cd ${S}
-		epatch ${FILESDIR}/2.6.18-am2-nvidia-ati.patch
-		epatch ${FILESDIR}/2.6.18-am2-nvidia-fix.patch
-	fi
+	cd ${S}
+	epatch ${FILESDIR}/2.6.18-am2-nvidia-ati.patch
+	epatch ${FILESDIR}/2.6.18-am2-nvidia-fix.patch
 
 } 
 
