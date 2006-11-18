@@ -20,10 +20,12 @@ acceleration_enabled=$(glxinfo | grep "direct rendering" | grep -i "yes")
 
 # Choose the WM
 if [ -e /usr/bin/aquamarine ];then
-  if [ "$1" != "gnome" ] && [ "$1" != "xfce" ]; then
-    window_decor="aquamarine --replace"
-  else
+  if [ "$1" = "gnome" ]; then
     window_decor="emerald --replace"
+  elif [ "$1" = "xfce" ]; then
+    window_decor="emerald --replace"
+  else
+    window_decor="aquamarine --replace"
   fi
 else
   window_decor="emerald --replace"
