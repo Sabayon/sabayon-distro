@@ -36,7 +36,7 @@ fi
 if [ -n "$acceleration_enabled" ] || [ -n "$xgl_running" ]; then
   if [ "$cmd" = "1" ]; then
     if [ -n "$xgl_running" ]; then
-      $window_decor & beryl-xgl --replace
+      $window_decor & beryl-xgl --xgl-rendering --replace 
       # workaround for SHIFT+BACKSPACE bug in XGL
       xmodmap -e "keycode 22 = BackSpace BackSpace Terminate_Server"
       xmodmap -e "keycode 113 = Mode_switch"
