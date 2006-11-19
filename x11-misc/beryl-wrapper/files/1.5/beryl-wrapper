@@ -17,9 +17,10 @@ fi
 processes=$(ps auxf)
 xgl_running=$(echo $processes | grep Xgl)
 acceleration_enabled=$(glxinfo | grep "direct rendering" | grep -i "yes")
+aquamarine_exists=$(cat /proc/cmdline | grep aquamarine)
 
 # Choose the WM
-if [ -e /usr/bin/aquamarine ];then
+if [ -e /usr/bin/aquamarine ] && [ -n "$aquamarine_exists" ];then
   if [ "$1" = "gnome" ]; then
     window_decor="emerald --replace"
   elif [ "$1" = "xfce" ]; then
