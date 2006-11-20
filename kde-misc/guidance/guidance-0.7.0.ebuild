@@ -32,6 +32,9 @@ src_install() {
 	# Get variables
 	distutils_python_version
 
+        addwrite "${QTDIR}/etc/settings"
+        addpredict "${QTDIR}/etc/settings"
+
 	cd ${S}
 	KDEDIR="`kde-config --prefix`" python setup.py update_messages
 
