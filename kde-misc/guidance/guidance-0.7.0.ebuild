@@ -63,8 +63,7 @@ src_install() {
 
 		dodir "${ROOT}/`kde-config --prefix`"/share/applications/kde
 		insinto "${ROOT}/`kde-config --prefix`"/share/applications/kde
-		# disabled for now - since it needs integration
-		#doins ${S}/serviceconfig/*.desktop
+		doins ${S}/serviceconfig/*.desktop
 		doins ${S}/userconfig/*.desktop
 		doins ${S}/mountconfig/*.desktop
 		doins ${S}/displayconfig/*.desktop
