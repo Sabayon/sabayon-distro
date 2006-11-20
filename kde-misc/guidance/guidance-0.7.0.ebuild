@@ -11,7 +11,7 @@ RESTRICT="nomirror"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
-IUSE="debug"
+IUSE=""
 
 RDEPEND="
 	>=kde-misc/pykdeextensions-0.4.0"
