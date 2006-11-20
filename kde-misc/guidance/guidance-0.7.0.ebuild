@@ -10,7 +10,7 @@ SRC_URI="http://www.simonzone.com/software/guidance/${P}.tar.bz2"
 RESTRICT="nomirror"
 
 LICENSE="GPL-2"
-KEYWORDS="-*"
+KEYWORDS="~amd64 ~x86"
 IUSE="debug"
 
 RDEPEND="
