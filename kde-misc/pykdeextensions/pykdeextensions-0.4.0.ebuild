@@ -19,6 +19,8 @@ RDEPEND="
 src_unpack() {
 	unpack ${A}
 	# for now... looking for patches?
+	cd ${S}
+	epatch ${FILESDIR}/${PN}-gentoo.patch
 }
 
 #src_compile() {

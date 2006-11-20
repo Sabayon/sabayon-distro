@@ -1,0 +1,43 @@
+--- src/kdedistutils.py.old
++++ src/kdedistutils.py
+@@ -549,7 +549,11 @@ class BuildKControlModule(Command):
+     
+             # KDE lib dir
+             if self.kde_lib_dir is None:
+-                self.kde_lib_dir = os.path.join(install.prefix,"lib")
++		kdedir = os.getenv("KDEDIR")
++		if kdedir!=None:
++                    self.kde_lib_dir = os.path.join(kdedir,"lib")
++		else:
++                    self.kde_lib_dir = os.path.join(install.prefix,"lib")
+             self.announce("Using %s for KDE library files" % self.kde_lib_dir)
+     
+             # KDE KCM lib dir
+@@ -809,7 +813,12 @@ class BuildKControlModule(Command):
+ #            # PyKDE libs
+ #            linklist.append("-L"+self.pykde_dir); linklist.append("-lkdecorecmodule"); linklist.append("-lkdeuicmodule")
+             
+-            linklist.append("-L"+self.kde_lib_dir); linklist.append("-lkdecore"); linklist.append("-lpythonize")
++	    if os.path.isdir("/usr/lib/python2.5"):
++		linklist.append("/usr/lib/python2.5/site-packages/kdecore.so")
++	    else:
++		linklist.append("/usr/lib/python2.4/site-packages/kdecore.so")
++            linklist.append("-L"+self.kde_lib_dir)
++	    linklist.append("-lpythonize")
+             linklist.append("-L"+self.qt_lib_dir); linklist.append("-lqt-mt")
+             linklist.append("-lm")
+             linklist.append("-lstdc++")
+@@ -1702,7 +1711,12 @@ class BuildKioslave(Command):
+ #            # PyKDE libs
+ #            linklist.append("-L"+self.pykde_dir); linklist.append("-lkdecorecmodule"); linklist.append("-lkdeuicmodule")
+             
+-            linklist.append("-L"+self.kde_lib_dir); linklist.append("-lkdecore"); linklist.append("-lpythonize")
++            if os.path.isdir("/usr/lib/python2.5"):
++		linklist.append("/usr/lib/python2.5/site-packages/kdecore.so")
++	    else:
++		linklist.append("/usr/lib/python2.4/site-packages/kdecore.so")
++	    linklist.append("-L"+self.kde_lib_dir)
++	    linklist.append("-lpythonize")
+             linklist.append("-L"+self.qt_lib_dir); linklist.append("-lqt-mt")
+             linklist.append("-lm")
+             linklist.append("-lstdc++")
