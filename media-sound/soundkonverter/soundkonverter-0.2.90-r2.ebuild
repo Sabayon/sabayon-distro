@@ -28,7 +28,7 @@ RDEPEND="
 
 need-kde 3.5
 
-PATCHES="${FILESDIR}/${P}-${V}-makefile.patch"
+PATCHES="${FILESDIR}/${P}-${V}makefile.patch"
 
 src_unpack() {
 	kde_src_unpack
