@@ -1,4 +1,4 @@
-# Copyright 1999-2006 Gentoo Technologies, Inc.
+# Copyright 2004-2006 SabayonLinux
 # Distributed under the terms of the GNU General Public License, v2 or later
 # Maintainer: Pascal Fleury <fleury@users.sourceforge.net>
 # $Header:$
@@ -13,13 +13,6 @@ RESTRICT="nomirror"
 IUSE=""
 KEYWORDS="~x86 ~amd64"
 
-# Build-time dependencies, such as
-#	 ssl? ( >=openssl-0.9.6b )
-#	 >=perl-5.6.1-r1
-# It is advisable to use the >= syntax show above, to reflect what you
-# had installed on your system when you tested the package.	 Then
-# other users hopefully won't be caught without the right version of
-# a dependency.
 DEPEND=">=qt-3.3.3
 	>=xine-lib-0.99.4
 	>=dvd-slideshow-0.7.5
