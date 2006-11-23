@@ -16,7 +16,7 @@ else
    get_current_gl=$(eselect opengl show)
 
    # Fix for "nVidia Corporation Unknown device"
-   if [ -n "`lspci | grep VGA | grep 'nVidia Corporation Unknown device'`" ]; then
+   if [ -n "`lspci | grep VGA | grep -i nvidia | grep -i 'Unknown device'`" ]; then
       nice -20 /usr/bin/eselect opengl set --dst-prefix=/etc/opengl nvidia
    elif [ -n "`lspci | grep VGA | grep nVidia | grep 'PCI Express'`" ]; then
       # Fix for "nVidia Corporation PCI Express Device"
