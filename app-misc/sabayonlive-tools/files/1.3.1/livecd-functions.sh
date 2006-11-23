@@ -84,29 +84,32 @@ get_video_cards() {
 		ATI=$(echo ${VIDEO_CARDS} | grep -i "ATI Technologies")
 		if [ -n "${NVIDIA}" ]
 		then
-			NVIDIA_CARD=$(echo ${NVIDIA} | awk 'BEGIN {RS=" "} /(NV|nv|G|C)[0-9]+/ {print $1}' | cut -d. -f1 | sed 's/ //' | sed 's:[^0-9]::g')
+			# Always set NVIDIA OpenGL, since it's stupid doing the contrary because:
+			# there's no X.Org free driver that supports OpenGL through MESA
+			nv_gl
+			#NVIDIA_CARD=$(echo ${NVIDIA} | awk 'BEGIN {RS=" "} /(NV|nv|G|C)[0-9]+/ {print $1}' | cut -d. -f1 | sed 's/ //' | sed 's:[^0-9]::g')
 			# NVIDIA Model reference:
 			# http://en.wikipedia.org/wiki/Comparison_of_NVIDIA_Graphics_Processing_Units
-			if [ -n "${NVIDIA_CARD}" ]
-			then
-				if [ $(echo ${NVIDIA_CARD} | cut -dV -f2) -ge 17 ]
-				then
-					nv_gl
-				elif [ $(echo ${NVIDIA_CARD} | cut -dG -f2) -ge 70 ]
-				then
-					nv_gl
-				elif [ $(echo ${NVIDIA_CARD} | cut -dV -f2) -eq 11 ]
-				then
-					nv_gl
-				elif [ $(echo ${NVIDIA_CARD} | cut -dC -f2) -ge 50 ]
-				then
-					nv_gl
-				else
-					nv_no_gl
-				fi
-			else
-				no_gl
-			fi
+			#if [ -n "${NVIDIA_CARD}" ]
+			#then
+			#	if [ $(echo ${NVIDIA_CARD} | cut -dV -f2) -ge 17 ]
+			#	then
+			#		nv_gl
+			#	elif [ $(echo ${NVIDIA_CARD} | cut -dG -f2) -ge 70 ]
+			#	then
+			#		nv_gl
+			#	elif [ $(echo ${NVIDIA_CARD} | cut -dV -f2) -eq 11 ]
+			#	then
+			#		nv_gl
+			#	elif [ $(echo ${NVIDIA_CARD} | cut -dC -f2) -ge 50 ]
+			#	then
+			#		nv_gl
+			#	else
+			#		no_gl
+			#	fi
+			#else
+			#	no_gl
+			#fi
 		elif [ -n "${ATI}" ]
 		then
 			ATI_CARD=$(echo ${ATI} | awk 'BEGIN {RS=" "} /(R|RV|RS)[0-9]+/ {print $1}')
