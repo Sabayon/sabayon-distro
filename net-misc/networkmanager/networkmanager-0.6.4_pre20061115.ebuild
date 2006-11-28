@@ -39,14 +39,6 @@ S=${WORKDIR}/NetworkManager
 DOCS="AUTHORS COPYING ChangeLog INSTALL NEWS README"
 USE_DESTDIR="1"
 
-G2CONF="${G2CONF} \
-	`use_with crypt gcrypt` \
-	--disable-more-warnings \
-	--localstatedir=/var \
-	--with-distro=gentoo \
-	--with-dbus-sys=/etc/dbus-1/system.d \
-	--enable-notification-icon"
-
 src_unpack () {
 	unpack ${A}
 	cd ${S}
@@ -57,6 +49,25 @@ src_unpack () {
 	epatch ${FILESDIR}/networkmanager-0.6.4-gentooinitscript.patch
 	epatch ${FILESDIR}/networkmanager-0.6.4-confchanges.patch
 	epatch ${FILESDIR}/networkmanager-0.6.4-gentoobackend.patch
+}
+
+src_compile() {
+
+	G2CONF="${G2CONF} \
+		`use_with crypt gcrypt` \
+		--disable-more-warnings \
+		--localstatedir=/var \
+		--with-distro=gentoo \
+		--with-dbus-sys=/etc/dbus-1/system.d"
+
+	if use gnome; then
+		G2CONF="${G2CONF} --enable-notification-icon"
+	else
+		G2CONF="${G2CONF} --without-gnome"
+	fi
+
+	gnome2_src_compile
+
 }
 
 src_install() {
