@@ -10,6 +10,10 @@ AUX 2.6.18-am2-nvidia-fix.patch 2115 RMD160 6bd22550268193488f5e8ec18ff79f4328b5
 MD5 d71c10253a8a87884abafb5f5b00fddc files/2.6.18-am2-nvidia-fix.patch 2115
 RMD160 6bd22550268193488f5e8ec18ff79f4328b5d622 files/2.6.18-am2-nvidia-fix.patch 2115
 SHA256 a371691b2ee5ec5f76372b3c8b25bf76e0f9da0e9866edbe5b7fd8f386bae6e6 files/2.6.18-am2-nvidia-fix.patch 2115
+AUX ipw3945-1.1.3_pre2-2.6.18.patch 637194 RMD160 92519c696c16770b86a96ff7584493e74de1057c SHA1 90e58988f9ffb5d7bdb158b83e62fef3184a4dbb SHA256 7c30d169b990884d34cd50c68189acbea01af083782d464dffa4a00a9867dcda
+MD5 d21ab1caffe13287d2a6f216e670cf0e files/ipw3945-1.1.3_pre2-2.6.18.patch 637194
+RMD160 92519c696c16770b86a96ff7584493e74de1057c files/ipw3945-1.1.3_pre2-2.6.18.patch 637194
+SHA256 7c30d169b990884d34cd50c68189acbea01af083782d464dffa4a00a9867dcda files/ipw3945-1.1.3_pre2-2.6.18.patch 637194
 AUX patch-2.6.18.2-3 25690 RMD160 3877326cbf7a7bb671120225d812eb86ac88f2e7 SHA1 471a6f276469441a239eacd440884b957619c155 SHA256 4f2ab075e706b7307ca31976feb31a9f5403a7d23ce29fe43162fe6914de734f
 MD5 fca747839ccc8c6717b5a9fc7d3ece89 files/patch-2.6.18.2-3 25690
 RMD160 3877326cbf7a7bb671120225d812eb86ac88f2e7 files/patch-2.6.18.2-3 25690
@@ -25,9 +29,16 @@ EBUILD gentoo-sources-2.6.18-r4.ebuild 1494 RMD160 87bc9d5fef7288ccbb681b4b0f27b
 MD5 86dbfe79909bab540250adf0dbee6cc3 gentoo-sources-2.6.18-r4.ebuild 1494
 RMD160 87bc9d5fef7288ccbb681b4b0f27b8a99e0912c6 gentoo-sources-2.6.18-r4.ebuild 1494
 SHA256 20aabbf9e3a33df8dedbda2d57a11f3d71ebe4eb6425c32dba6cdaf6412ea1d6 gentoo-sources-2.6.18-r4.ebuild 1494
+EBUILD gentoo-sources-2.6.18-r5.ebuild 1566 RMD160 1e1836f7ab47adeb9c98ccc3a970e525d62f7844 SHA1 a7316934202a2c10442f40b4a7bcd91c179ab152 SHA256 442a3e98809c306a8164831c2ad85074a7a05970a4cb1bc7c6b1b76523e2432b
+MD5 6732ccf8718fefe2cb809381a429d6ac gentoo-sources-2.6.18-r5.ebuild 1566
+RMD160 1e1836f7ab47adeb9c98ccc3a970e525d62f7844 gentoo-sources-2.6.18-r5.ebuild 1566
+SHA256 442a3e98809c306a8164831c2ad85074a7a05970a4cb1bc7c6b1b76523e2432b gentoo-sources-2.6.18-r5.ebuild 1566
 MD5 7917755b2686d4bce76f58ce875b1fcb files/digest-gentoo-sources-2.6.18-r3 804
 RMD160 4105172ae01f4b2affcebd0d48fc49c25fb4ab9a files/digest-gentoo-sources-2.6.18-r3 804
 SHA256 4500b0faa417da83f03ee9d6fc5caf005c1499db631f9d87b87b340be21c646b files/digest-gentoo-sources-2.6.18-r3 804
 MD5 7917755b2686d4bce76f58ce875b1fcb files/digest-gentoo-sources-2.6.18-r4 804
 RMD160 4105172ae01f4b2affcebd0d48fc49c25fb4ab9a files/digest-gentoo-sources-2.6.18-r4 804
 SHA256 4500b0faa417da83f03ee9d6fc5caf005c1499db631f9d87b87b340be21c646b files/digest-gentoo-sources-2.6.18-r4 804
+MD5 7917755b2686d4bce76f58ce875b1fcb files/digest-gentoo-sources-2.6.18-r5 804
+RMD160 4105172ae01f4b2affcebd0d48fc49c25fb4ab9a files/digest-gentoo-sources-2.6.18-r5 804
+SHA256 4500b0faa417da83f03ee9d6fc5caf005c1499db631f9d87b87b340be21c646b files/digest-gentoo-sources-2.6.18-r5 804
