@@ -24,7 +24,7 @@ LICENSE="GPL-2"
 
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
-IUSE="aac kde mysql noamazon opengl postgres xmms visualization ipod ifp real njb mtp musicbrainz ruby"
+IUSE="aac kde mysql noamazon opengl postgres xmms visualization ipod ifp real njb mtp musicbrainz"
 
 DEPEND="kde? ( || ( kde-base/konqueror kde-base/kdebase ) )
 	>=media-libs/xine-lib-1.1.2_pre20060328-r8
@@ -45,7 +45,7 @@ DEPEND="kde? ( || ( kde-base/konqueror kde-base/kdebase ) )
 	"
 
 RDEPEND="${DEPEND}
-	ruby? (	dev-lang/ruby )"
+	dev-lang/ruby"
 
 DEPEND="${DEPEND}
 	>=dev-util/pkgconfig-0.9.0"
