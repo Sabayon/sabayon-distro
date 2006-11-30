@@ -43,12 +43,12 @@ src_unpack () {
 	unpack ${A}
 	cd ${S}
 
-	epatch ${FILESDIR}/networkmanager-0.6.4-Gentoo-checklo.patch
-	epatch ${FILESDIR}/networkmanager-use-kernel-headers.patch
-	epatch ${FILESDIR}/networkmanager-resolvconf-perms.patch
-	epatch ${FILESDIR}/networkmanager-0.6.4-gentooinitscript.patch
-	epatch ${FILESDIR}/networkmanager-0.6.4-confchanges.patch
-	epatch ${FILESDIR}/networkmanager-0.6.4-gentoobackend.patch
+        epatch ${FILESDIR}/networkmanager-updatedbackend.patch
+        epatch ${FILESDIR}/networkmanager-use-kernel-headers.patch
+        epatch ${FILESDIR}/networkmanager-resolvconf-perms.patch
+        epatch ${FILESDIR}/networkmanager-0.6.4-gentooinitscript.patch
+        epatch ${FILESDIR}/networkmanager-0.6.4-confchanges.patch
+
 }
 
 src_compile() {
