@@ -14,13 +14,13 @@ IUSE="x86 x86_64 x86-mini x86_64-mini"
 src_unpack () {
 
         cd ${WORKDIR}
-	if use x86; then
+	if use x86-mini; then
 		cp ${FILESDIR}/sabayon-release-x86-${PV} sabayon-release -p
-	elif use x86_64; then
-		cp ${FILESDIR}/sabayon-release-x86_64-${PV} sabayon-release -p
-	elif use x86-mini; then
-		cp ${FILESDIR}/sabayon-release-x86mini-${PV} sabayon-release -p
 	elif use x86_64-mini; then
+		cp ${FILESDIR}/sabayon-release-x86_64-${PV} sabayon-release -p
+	elif use x86; then
+		cp ${FILESDIR}/sabayon-release-x86mini-${PV} sabayon-release -p
+	elif use x86_64; then
 		cp ${FILESDIR}/sabayon-release-x86_64mini-${PV} sabayon-release -p
 	fi
 
