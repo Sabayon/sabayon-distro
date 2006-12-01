@@ -112,13 +112,17 @@ get_video_cards() {
 			#fi
 		elif [ -n "${ATI}" ]
 		then
-			ATI_CARD=$(echo ${ATI} | awk 'BEGIN {RS=" "} /(R|RV|RS)[0-9]+/ {print $1}')
+			ATI_CARD=$(echo ${ATI} | awk 'BEGIN {RS=" "} /(R|RV|RS|M)[0-9]+/ {print $1}')
 			if [ $(echo ${ATI_CARD} | grep S) ]
 			then
 				ATI_CARD_OUT=$(echo ${ATI_CARD} | cut -dS -f2)
 			elif [ $(echo ${ATI_CARD} | grep V) ]
 			then
 				ATI_CARD_OUT=$(echo ${ATI_CARD} | cut -dV -f2)
+			elif [ $(echo ${ATI_CARD} | grep M)  ]
+			then
+				# ATI Technologies Inc. M52 [ ATI Mobility Radeon X1300 ]
+				ATI_CARD_OUT=$(echo ${ATI_CARD} | cut -dM -f2)
 			else
 				ATI_CARD_OUT=$(echo ${ATI_CARD} | cut -dR -f2)
 			fi
@@ -126,12 +130,17 @@ get_video_cards() {
 			if [ -n "${ATI_CARD_OUT}" ] && [ ${ATI_CARD_OUT} -ge 300 ]
 			then
 				ati_gl
-			# 8.29.6 does not support R200 anymore
+			elif [ -n "${ATI_CARD_OUT}" ] && [ -n "`echo ${ATI_CARD} | grep M`" ]
+			then
+				# this is an ATI Mxx card
+				ati_gl
+			# >8.29.6 does not support R200 anymore
 			elif [ -n "${ATI_CARD_OUT}" ] && [ ${ATI_CARD_OUT} -ge 200 ]
 			then
 				no_gl
 			else
-				no_gl
+				# set ATI OpenGL anyway
+				ati_gl
 			fi
 		else
 			no_gl
