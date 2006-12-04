@@ -15,26 +15,25 @@ KEYWORDS="~x86 ~amd64"
 
 IUSE="arts"
 DEPENT="
-       kde-base/unsermake
+	!net-misc/KNetworkManager	
         >=net-misc/networkmanager-0.6.2
         "
 DEPEND="${RDEPEND}"
 
 src_compile() {
        
-       eautoreconf
-       
+	eautoreconf
+
         myconf="${myconf}
                 $(use_with arts)
              --prefix=`kde-config --prefix`
              "
-       export UNSERMAKE="yes"
+	export UNSERMAKE="yes"
         kde_src_compile
 }
 
 src_install() {
              
-        make || die "Make failed"
         emake DESTDIR=${D} install || die "Make Install failed"
         dodoc README NEWS TODO AUTHORS
 
