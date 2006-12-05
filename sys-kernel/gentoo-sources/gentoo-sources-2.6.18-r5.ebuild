@@ -34,6 +34,8 @@ src_unpack() {
 	
 	# 2.6.18.3
 	epatch ${FILESDIR}/patch-2.6.18.2-3
+	# 2.6.18.4
+	epatch ${FILESDIR}/patch-2.6.18.3-4
 
 	# ipw3945 support
 	epatch ${FILESDIR}/ipw3945-1.1.3_pre2-2.6.18.patch
