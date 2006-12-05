@@ -10,7 +10,7 @@ remove_proprietary_opengl() {
    rm -f /etc/env.d/*ati &> /dev/null
    sed -i '/LIBGL_DRIVERS_PATH s/.*//' /etc/profile.env
    nice -20 source /etc/profile &> /dev/null
-   nice -20 eselect opengl set --dst-prefix=/etc/opengl xorg-x11
+   nice -20 eselect opengl set xorg-x11
 }
 
 change_xorg_driver() {
@@ -19,6 +19,25 @@ change_xorg_driver() {
 
 enable_dri() {
     sed -i '/"dri"/ s/#//' $XORGFILE
+}
+
+fix_possible_opengl_misconfiguration() {
+
+    current_opengl_subsystem=$(eselect opengl show)
+    if [ "$1" = "ati" ]; then
+        if [ "$current_opengl_subsystem" != "ati" ]; then
+            # fix it!
+            nice -20 eselect opengl set ati
+        fi
+    fi
+
+    if [ "$1" = "nvidia" ]; then
+        if [ "$current_opengl_subsystem" != "nvidia" ]; then
+            # fix it!
+            nice -20 eselect opengl set nvidia
+        fi
+    fi
+
 }
 
 NEOMAGIC=$(lspci | grep ' VGA ' | grep -i 'neomagic')
@@ -46,6 +65,7 @@ R7000=$(lspci | grep ' VGA ' | grep R100 || lspci | grep ' VGA ' | grep RV100 )
 R7200=$(lspci | grep ' VGA ' | grep -i "Radeon R100")
 R7500=$(lspci | grep ' VGA ' | grep -i "Radeon RV200")
 R2XX=$(lspci | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || lspci | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R2.*")
+R1XX=$(lspci | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV1.*" || lspci | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R1.*")
 RX700=$(lspci | grep ' VGA ' | grep -i "Radeon Mobility X700")
 R9600=$(lspci | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
 RAGE128=$(lspci | grep ' VGA ' | grep -i "Rage 128")
@@ -80,10 +100,16 @@ if [ -n "$is_there_xdriver" ]; then
      xdriver=$(echo $word | cut -d= -f 2)
      change_xorg_driver $xdriver
      if [ -z "$NVIDIA" ]; then
-       if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$SIS" ] || [ -n "$MATROX" ]; then
+       if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$R1XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$SIS" ] || [ -n "$MATROX" ]; then
          remove_proprietary_opengl
        fi
        enable_dri
+     fi
+     if [ "$xdriver" = "nvidia" ]; then
+       fix_possible_opengl_misconfiguration nvidia
+     fi
+     if [ "$xdriver" = "fglrx" ]; then
+       fix_possible_opengl_misconfiguration ati
      fi
     ;;
   esac
@@ -132,7 +158,7 @@ if [ -n "$NVIDIA" ]; then
            ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/legacy/nvidia.o /lib/nvidia/legacy/nvidia.mod.o
            # set nvidia
            nice -20 source /etc/profile
-           nice -20 eselect opengl set --dst-prefix=/etc/opengl nvidia &> /dev/null
+           nice -20 eselect opengl set nvidia &> /dev/null
            # hope that will work
            touch /lib/nvidia/legacy/running
          else
@@ -148,6 +174,7 @@ if [ -n "$NVIDIA" ]; then
      else
        # ok, configure the standard nvidia driver
        change_xorg_driver nvidia
+       fix_possible_opengl_misconfiguration nvidia
        echo -e "\t Display Driver: NVIDIA (Proprietary)"
      fi
 
@@ -189,13 +216,14 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
   else
 
-    if [ -z "$R7000" ] && [ -z "$R7200" ] && [ -z "$R7500" ] && [ -z "$R2XX" ]; then
+    if [ -z "$R7000" ] && [ -z "$R7200" ] && [ -z "$R7500" ] && [ -z "$R2XX" ] && [ -z "$R1XX" ]; then
 
 	modprobe fglrx &> /dev/null
         lsmod_ati=$(lsmod | grep fglrx)
 	if [ -n "$lsmod_ati" ];then
 
     	  change_xorg_driver fglrx
+          fix_possible_opengl_misconfiguration ati
           enable_dri
     	  echo -e "\t Display Driver: ATI (Proprietary)"
 
