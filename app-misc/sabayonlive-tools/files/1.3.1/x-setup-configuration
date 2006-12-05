@@ -7,7 +7,7 @@ if [ -n "$cmdline_opengl_exists" ]; then
       case $word in
          opengl=*)
             opengl_toset=$(echo $word | cut -d "=" -f 2)
-            nice -20 /usr/bin/eselect opengl set --dst-prefix=/etc/opengl $opengl_toset
+            nice -20 /usr/bin/eselect opengl set $opengl_toset
             ;;
       esac
    done
@@ -17,10 +17,10 @@ else
 
    # Fix for "nVidia Corporation Unknown device"
    if [ -n "`lspci | grep VGA | grep -i nvidia | grep -i 'Unknown device'`" ]; then
-      nice -20 /usr/bin/eselect opengl set --dst-prefix=/etc/opengl nvidia
+      nice -20 /usr/bin/eselect opengl set nvidia
    elif [ -n "`lspci | grep VGA | grep nVidia | grep 'PCI Express'`" ]; then
       # Fix for "nVidia Corporation PCI Express Device"
-      nice -20 /usr/bin/eselect opengl set --dst-prefix=/etc/opengl nvidia
+      nice -20 /usr/bin/eselect opengl set nvidia
    else
       if [ "$get_current_gl" != "$GLTYPE" ]; then
          /usr/sbin/x-setup
