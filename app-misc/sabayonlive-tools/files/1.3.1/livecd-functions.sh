@@ -77,7 +77,7 @@ nv_no_gl() {
 get_video_cards() {
 	[ -x /sbin/lspci ] && VIDEO_CARDS="$(/sbin/lspci | grep ' VGA ')"
 	[ -x /usr/sbin/lspci ] && VIDEO_CARDS="$(/usr/sbin/lspci | grep ' VGA ')"
-	NUM_CARDS="$(echo ${VIDEO_CARDS} | wc -l)"
+	#NUM_CARDS="$(echo ${VIDEO_CARDS} | wc -l)"
 	#if [ ${NUM_CARDS} -eq 1 ] # Disabled to support NVIDIA SLI devices
 	#then
 		NVIDIA=$(echo ${VIDEO_CARDS} | grep -i "nVidia Corporation")
