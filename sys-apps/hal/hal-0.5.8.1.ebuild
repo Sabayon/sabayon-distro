@@ -26,8 +26,8 @@ RDEPEND=">=dev-libs/glib-2.6
 	virtual/eject
 	dmi? ( >=sys-apps/dmidecode-2.7 )
 	crypt? ( >=sys-fs/cryptsetup-luks-1.0.1 )
-	selinux? ( sys-libs/libselinux )
-	sys-auth/policykit"
+	selinux? ( sys-libs/libselinux )"
+	#sys-apps/PolicyKit"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -115,10 +115,6 @@ src_unpack() {
 	# align !
 	epatch ${FILESDIR}/hal-alignment.patch
 
-
-
-
-
 }
 
 src_compile() {
@@ -127,6 +123,7 @@ src_compile() {
 		--with-os-type=gentoo \
 		--with-pid-file=/var/run/hald.pid \
 		--enable-hotplug-map \
+		--disable-policy-kit \
 		$(use_enable debug verbose-mode) \
 		$(use_enable pcmcia pcmcia-support) \
 		$(use_enable acpi acpi-proc) \
@@ -145,21 +142,16 @@ src_install() {
 	# remove dep on gnome-python
 	mv "${D}"/usr/bin/hal-device-manager "${D}"/usr/share/hal/device-manager/
 
-	# hal umount for unclean unmounts
-	exeinto /lib/udev/
-	newexe "${FILESDIR}"/hal-unmount.dev hal_unmount
-
 	# initscript
 	newinitd "${FILESDIR}"/0.5-hald.rc hald
-
-	# Script to unmount devices if they are yanked out (from upstream)
-	exeinto /etc/dev.d/default
-	doexe "${FILESDIR}"/hal-unmount.dev
 
 	# We now create and keep /media here as both gnome-mount and pmount
 	# use these directories, to avoid collision.
 	dodir /media
 	keepdir /media
+
+	# We need to add permissions to /var/lib/run/hald
+	add_wr /var/lib/run/hald
 }
 
 pkg_postinst() {
