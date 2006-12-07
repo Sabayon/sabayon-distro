@@ -29,6 +29,7 @@ RDEPEND=">=dev-libs/glib-2.6
 	selinux? ( sys-libs/libselinux )"
 
 DEPEND="${RDEPEND}
+	!sys-fs/ntfs-policy
 	dev-util/pkgconfig
 	>=dev-util/intltool-0.29
 	doc? ( app-doc/doxygen app-text/docbook-sgml-utils )"
@@ -162,6 +163,13 @@ src_install() {
 	# use these directories, to avoid collision.
 	dodir /media
 	keepdir /media
+
+	# Add NTFS fuse support
+	cd ${WORKDIR}
+        cp ${FILESDIR}/99-ntfs-fuse.fdi .
+        insinto /usr/share/hal/fdi/policy/10osvendor/
+        doins 99-ntfs-fuse.fdi
+
 
 }
 
