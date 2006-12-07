@@ -36,6 +36,14 @@ DEPEND="${RDEPEND}
 ## HAL Daemon drops privledges so we need group access to read disks
 HALDAEMON_GROUPS="haldaemon,plugdev,disk,cdrom,cdrw,floppy,usb"
 
+# We need to add permissions to /var/lib/run/hald
+addwrite /var/lib/run/
+addpredict /var/lib/run/
+addwrite /var/lib/run/hald
+addpredict /var/lib/run/hald
+
+
+
 function notify_uevent() {
 	eerror
 	eerror "You must enable Kernel Userspace Events in your kernel."
@@ -88,6 +96,7 @@ pkg_setup() {
 		eerror "This is due to configuration protection of /etc/"
 		die "remove /etc/hal/device.d/"
 	fi
+
 }
 
 src_unpack() {
@@ -154,9 +163,6 @@ src_install() {
 	dodir /media
 	keepdir /media
 
-	# We need to add permissions to /var/lib/run/hald
-	addwrite /var/lib/run/
-	addpredict /var/lib/run/
 }
 
 pkg_postinst() {
