@@ -16,6 +16,5 @@
 # These ebuilds do not ebuild with kdeenablefinal, will remove once bug is fixed
 =media-sound/soundkonverter-0.2.90-r1
 
-# This package is old and will screw up your system, it was a proof of 
-concept
+# This package is old and will screw up your system, it was a proof of concept
 x11-misc/xglswitch
