@@ -151,7 +151,7 @@ src_install() {
 	keepdir /media
 
 	# We need to add permissions to /var/lib/run/hald
-	add_wr /var/lib/run/hald
+	addwrite /var/lib/run/
 }
 
 pkg_postinst() {
