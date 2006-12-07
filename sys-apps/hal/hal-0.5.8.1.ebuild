@@ -27,7 +27,6 @@ RDEPEND=">=dev-libs/glib-2.6
 	dmi? ( >=sys-apps/dmidecode-2.7 )
 	crypt? ( >=sys-fs/cryptsetup-luks-1.0.1 )
 	selinux? ( sys-libs/libselinux )"
-	#sys-apps/PolicyKit"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -115,6 +114,11 @@ src_unpack() {
 	# align !
 	epatch ${FILESDIR}/hal-alignment.patch
 
+	### From ARCH Linux
+	
+	# check for error in case of floppy or cdrom drives
+	epatch ${FILESDIR}/hal-0.5.8.1-check-for-error.patch
+
 }
 
 src_compile() {
@@ -123,7 +127,7 @@ src_compile() {
 		--with-os-type=gentoo \
 		--with-pid-file=/var/run/hald.pid \
 		--enable-hotplug-map \
-		--disable-policy-kit \
+		--enable-policy-kit=no \
 		$(use_enable debug verbose-mode) \
 		$(use_enable pcmcia pcmcia-support) \
 		$(use_enable acpi acpi-proc) \
@@ -152,6 +156,7 @@ src_install() {
 
 	# We need to add permissions to /var/lib/run/hald
 	addwrite /var/lib/run/
+	addpredict /var/lib/run/
 }
 
 pkg_postinst() {
