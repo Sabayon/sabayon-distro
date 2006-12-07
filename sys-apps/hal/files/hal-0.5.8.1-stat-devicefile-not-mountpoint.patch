@@ -1,0 +1,94 @@
+From: David Zeuthen <davidz@redhat.com>
+Date: Mon, 25 Sep 2006 03:21:28 +0000 (-0400)
+Subject: stat special device file, not the mount point
+X-Git-Url: http://gitweb.freedesktop.org/?p=hal.git;a=commitdiff;h=2ea340399bf8cf3d2bb6bd1b5c4ecbc2042e93d4
+
+stat special device file, not the mount point
+
+This is required to make FUSE mounts work for e.g. the ntfs-fuse
+driver.  Also remove the list used for autofs, no longer needed as we
+don't use the .created-by-hal file anymore.
+---
+
+--- a/hald/linux/blockdev.c
++++ b/hald/linux/blockdev.c
+@@ -168,7 +168,6 @@ blockdev_refresh_mount_state (HalDevice 
+ 	dev_t devt = makedev(0, 0);
+ 	GSList *volumes = NULL;
+ 	GSList *volume;
+-        GSList *autofs_mounts = NULL;
+ 
+ 	/* open /proc/mounts */
+ 	g_snprintf (buf, sizeof (buf), "%s/mounts", get_hal_proc_path ());
+@@ -189,6 +188,8 @@ blockdev_refresh_mount_state (HalDevice 
+ 	while ((mnte = getmntent_r (f, &mnt, buf, sizeof(buf))) != NULL) {
+ 		struct stat statbuf;
+ 
++		/*HAL_INFO ((" * /proc/mounts contain dev %s - type %s", mnt.mnt_fsname, mnt.mnt_type));*/
++
+ 		/* If this is a nfs mount (fstype == 'nfs') ignore the mount. Reason:
+ 		 *  1. we don't list nfs devices in HAL
+ 		 *  2. more problematic: stat on mountpoints with 'stale nfs handle' never come
+@@ -197,35 +198,14 @@ blockdev_refresh_mount_state (HalDevice 
+ 		if (strcmp(mnt.mnt_type, "nfs") == 0)
+ 			continue;
+ 
+-		/* If this is an autofs mount (fstype == 'autofs') 
+-		 * store the mount in a list for later use. 
+-		 * On mounts managed by autofs accessing files below the mount
+-		 * point cause the mount point to be remounted after an 
+-		 * unmount.  We keep the list so we do not check for
+-		 * the .created-by-hal file on mounts under autofs mount points
+-		 */
+-		if (strcmp(mnt.mnt_type, "autofs") == 0) {
+-			char *mnt_dir;
+-
+-			if (mnt.mnt_dir[strlen (mnt.mnt_dir) - 1] != '/')
+-				mnt_dir = g_strdup_printf ("%s/", mnt.mnt_dir);
+-			else
+-				mnt_dir = g_strdup (mnt.mnt_dir);
+-
+-			autofs_mounts = g_slist_append (autofs_mounts,
+-							mnt_dir);
+-
+-
++		/* get major:minor of special device file */
++		if (stat (mnt.mnt_fsname, &statbuf) != 0)
+ 			continue;
+-		}
+ 
+-		/* check the underlying device of the mount point */
+-		if (stat (mnt.mnt_dir, &statbuf) != 0)
+-			continue;
+-		if (major(statbuf.st_dev) == 0)
++		if (major (statbuf.st_rdev) == 0)
+ 			continue;
+ 
+-		/*HAL_INFO (("* found mounts dev %s (%i:%i)", mnt.mnt_fsname, major(statbuf.st_dev), minor(statbuf.st_dev)));*/
++		/*HAL_INFO (("* found mounts dev %s (%i:%i)", mnt.mnt_fsname, major (statbuf.st_rdev), minor (statbuf.st_rdev)));*/
+ 		/* match against all hal volumes */
+ 		for (volume = volumes; volume != NULL; volume = g_slist_next (volume)) {
+ 			HalDevice *dev;
+@@ -235,10 +215,10 @@ blockdev_refresh_mount_state (HalDevice 
+ 			if (major == 0)
+ 				continue;
+ 			minor = hal_device_property_get_int (dev, "block.minor");
+-			devt = makedev(major, minor);
++			devt = makedev (major, minor);
+ 			/*HAL_INFO (("  match %s (%i:%i)", hal_device_get_udi (dev), major, minor));*/
+ 
+-			if (statbuf.st_dev == devt) {
++			if (statbuf.st_rdev == devt) {
+ 				/* found entry for this device in /proc/mounts */
+ 				device_property_atomic_update_begin ();
+ 				hal_device_property_set_bool (dev, "volume.is_mounted", TRUE);
+@@ -255,9 +235,6 @@ blockdev_refresh_mount_state (HalDevice 
+ 		}
+ 	}
+ 
+-	g_slist_foreach (autofs_mounts, (GFunc) g_free, NULL);
+-	g_slist_free (autofs_mounts);
+-
+ 	/* all remaining volumes are not mounted */
+ 	for (volume = volumes; volume != NULL; volume = g_slist_next (volume)) {
+ 		HalDevice *dev;

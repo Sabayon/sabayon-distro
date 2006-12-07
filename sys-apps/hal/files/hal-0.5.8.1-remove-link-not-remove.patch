@@ -1,0 +1,25 @@
+From: John (J5) Palmieri <johnp@redhat.com>
+Date: Mon, 6 Nov 2006 16:48:55 +0000 (-0500)
+Subject: use g_slist_remove_link instead of g_slist_remove
+X-Git-Tag: HAL_0_2
+X-Git-Url: http://gitweb.freedesktop.org/?p=hal.git;a=commitdiff;h=e40fe849334ba6c59eb928528d965215baa3e0c6
+
+use g_slist_remove_link instead of g_slist_remove
+
+Data would be freed and then g_slist_remove would be called on the
+link which would leave the link in the list, any subsequent iteration
+over the list would cause us to access freed memory.
+(cherry picked from a56a15b90177734c70a8b03d961a7bcabdea2af8 commit)
+---
+
+--- a/hald/hald_dbus.c
++++ b/hald/hald_dbus.c
+@@ -3977,7 +3977,7 @@ local_server_message_handler (DBusConnec
+ 				g_free (hih->introspection_xml);
+ 				g_free (hih->udi);
+ 				g_free (hih);
+-				helper_interface_handlers = g_slist_remove (helper_interface_handlers, i);
++				helper_interface_handlers = g_slist_remove_link (helper_interface_handlers, i);
+ 			}
+ 		}
+ 

@@ -1,0 +1,12 @@
+--- tools/hal-system-power-suspend	2006-06-05 23:49:08.000000000 -0500
++++ tools/hal-system-power-suspend	2006-06-05 23:50:49.000000000 -0500
+@@ -61,6 +61,9 @@
+ 	    # Use the raw kernel sysfs interface
+ 	    echo "mem" > /sys/power/state
+ 	    RET=$?
++	elif [ -x "/usr/sbin/hibernate-ram" ] ; then
++	   /usr/sbin/hibernate-ram
++	   RET=$?
+ 	else
+ 	    # TODO: add other scripts support
+ 	    unsupported

@@ -1,0 +1,22 @@
+--- hal-0.5.8.1/hald-runner/main.c.orig	2006-10-09 16:28:45.000000000 -0400
++++ hal-0.5.8.1/hald-runner/main.c	2006-10-09 16:28:39.000000000 -0400
+@@ -111,7 +111,7 @@
+ 	DBusMessage *reply;
+ 	DBusMessageIter iter;
+ 	run_request *r;
+-	GPid pid;
++	GPid pid __attribute__ ((aligned));
+ 
+ 	r = new_run_request();
+ 	g_assert(dbus_message_iter_init(msg, &iter));
+--- hal-0.5.8.1/partutil/partutil.c.orig	2006-10-09 17:04:31.000000000 -0400
++++ hal-0.5.8.1/partutil/partutil.c	2006-10-09 17:05:01.000000000 -0400
+@@ -491,7 +491,7 @@
+ part_table_parse_msdos (int fd, guint64 offset, guint64 size, gboolean *found_gpt)
+ {
+ 	int n;
+-	const guint8 mbr[512];
++	const guint8 mbr[512] __attribute__ ((aligned));
+ 	PartitionTable *p;
+ 
+ 	//HAL_INFO (("Entering MS-DOS parser"));

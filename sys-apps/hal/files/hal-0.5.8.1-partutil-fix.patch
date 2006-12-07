@@ -1,0 +1,15 @@
+diff --git a/partutil/partutil.c b/partutil/partutil.c
+index 5da36d5..3a2c87b 100644
+--- a/partutil/partutil.c
++++ b/partutil/partutil.c
+@@ -585,7 +585,9 @@ part_table_parse_msdos (int fd, guint64 
+ 
+ 		//HAL_INFO (("pe = %p", pe));
+ 
+-		p->entries = g_slist_append (p->entries, pe);
++		if (pe != NULL) {
++			p->entries = g_slist_append (p->entries, pe);
++		}
+ 	}
+ 
+ out:
