@@ -50,9 +50,11 @@ src_unpack () {
         epatch ${FILESDIR}/${PN}-0.6.4-confchanges.patch
 
 	# From the Mailing list, while we're waiting for a version bump
-	#epatch ${FILESDIR}/${PN}-0.6.4-fix-various-memleaks.patch
+	epatch ${FILESDIR}/${PN}-0.6.4-fix-various-memleaks.patch
 	epatch ${FILESDIR}/${PN}-0.6.4-fix-nm-applet-memleaks.patch
 
+	# Dbus 1.0 support
+	epatch ${FILESDIR}/${PN}-0.6.4-dbus-1.0.patch
 }
 
 src_compile() {

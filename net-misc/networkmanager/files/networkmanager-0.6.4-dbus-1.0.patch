@@ -1,11 +1,16 @@
---- src/nm-dbus-manager.old	2006-11-28 09:47:24.188437922 +0100
-+++ src/nm-dbus-manager.c	2006-11-28 09:48:29.501474009 +0100
-@@ -872,7 +872,7 @@
+--- src/NetworkManagerDbus.c	2006-11-12 22:00:43.000000000 +0100
++++ src/NetworkManagerDbus.c	2006-11-12 21:59:36.000000000 +0100
+@@ -833,10 +833,10 @@
  	}
  
  	dbus_error_init (&error);
 -#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 60)
-+#if (DBUS_VERSION_MAJOR > 0) || ((DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 60))
- 	flags = DBUS_NAME_FLAG_DO_NOT_QUEUE;
- #else
+-	flags = DBUS_NAME_FLAG_DO_NOT_QUEUE;	/* Prohibit replacement is now the default */
+-#else
++#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR < 60)
  	flags = DBUS_NAME_FLAG_PROHIBIT_REPLACEMENT;
++#else
++	flags = DBUS_NAME_FLAG_DO_NOT_QUEUE;	/* Prohibit replacement is now the default */
+ #endif
+ 	ret = dbus_bus_request_name (connection, NM_DBUS_SERVICE, flags, &error);
+ 	if (dbus_error_is_set (&error))
