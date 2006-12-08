@@ -167,13 +167,6 @@ src_install() {
 	dodir /media
 	keepdir /media
 
-	# Add NTFS fuse support
-	cd ${WORKDIR}
-        cp ${FILESDIR}/99-ntfs-fuse.fdi .
-        insinto /usr/share/hal/fdi/policy/10osvendor/
-        doins 99-ntfs-fuse.fdi
-
-
 }
 
 pkg_postinst() {
