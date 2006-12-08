@@ -1,0 +1,11 @@
+--- src/nm-dbus-manager.old	2006-11-28 09:47:24.188437922 +0100
++++ src/nm-dbus-manager.c	2006-11-28 09:48:29.501474009 +0100
+@@ -872,7 +872,7 @@
+ 	}
+ 
+ 	dbus_error_init (&error);
+-#if (DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 60)
++#if (DBUS_VERSION_MAJOR > 0) || ((DBUS_VERSION_MAJOR == 0) && (DBUS_VERSION_MINOR >= 60))
+ 	flags = DBUS_NAME_FLAG_DO_NOT_QUEUE;
+ #else
+ 	flags = DBUS_NAME_FLAG_PROHIBIT_REPLACEMENT;

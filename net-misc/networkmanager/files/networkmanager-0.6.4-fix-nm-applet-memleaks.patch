@@ -1,0 +1,113 @@
+diff -u -r1.17.2.1 nm-device.c
+--- gnome/applet/nm-device.c	25 May 2006 20:12:25 -0000	1.17.2.1
++++ gnome/applet/nm-device.c	7 Nov 2006 17:01:06 -0000
+@@ -164,6 +164,8 @@
+ 		g_free (dev->broadcast);
+ 		g_free (dev->netmask);
+ 		g_free (dev->ip4addr);
++		g_free (dev->primary_dns);
++		g_free (dev->secondary_dns);
+ 		memset (dev, 0, sizeof (NetworkDevice));
+ 		g_free (dev);
+ 	}
+diff -u -r1.26.2.2 passphrase-dialog.c
+--- gnome/applet/passphrase-dialog.c	24 May 2006 15:52:45 -0000	1.26.2.2
++++ gnome/applet/passphrase-dialog.c	7 Nov 2006 17:01:06 -0000
+@@ -86,6 +86,7 @@
+ 	GtkWidget *	wso_widget;
+ 	GladeXML *	xml;
+ 	GtkWidget *	vbox;
++	GList *		children;
+ 	GList *		elt;
+ 
+ 	g_return_if_fail (dialog != NULL);
+@@ -98,13 +99,16 @@
+ 	vbox = GTK_WIDGET (glade_xml_get_widget (xml, "wireless_security_vbox"));
+ 
+ 	/* Remove any previous wireless security widgets */
+-	for (elt = gtk_container_get_children (GTK_CONTAINER (vbox)); elt; elt = g_list_next (elt))
++	children = gtk_container_get_children (GTK_CONTAINER (vbox));
++	for (elt = children; elt; elt = g_list_next (elt))
+ 	{
+ 		GtkWidget * child = GTK_WIDGET (elt->data);
+ 
+ 		if (wso_is_wso_widget (child))
+ 			gtk_container_remove (GTK_CONTAINER (vbox), child);
+ 	}
++
++	g_list_free (children);
+ 
+ 	/* Determine and add the correct wireless security widget to the dialog */
+ 	wso_widget = wsm_get_widget_for_active (wsm, GTK_COMBO_BOX (security_combo), GTK_SIGNAL_FUNC (update_button_cb), dialog);
+diff -u -r1.8.2.1 vpn-password-dialog.c
+--- gnome/applet/vpn-password-dialog.c	24 May 2006 15:52:45 -0000	1.8.2.1
++++ gnome/applet/vpn-password-dialog.c	7 Nov 2006 17:01:06 -0000
+@@ -53,7 +53,7 @@
+ static gboolean 
+ child_stdout_data_cb (GIOChannel *source, GIOCondition condition, gpointer userdata)
+ {
+-	char *str;
++	char *str = NULL;
+ 	IOUserData *io_user_data = (IOUserData *) userdata;
+ 	GSList **passwords = (GSList **) io_user_data->passwords;
+ 
+@@ -77,10 +77,13 @@
+ 			/* remove terminating newline */
+ 			str[len - 1] = '\0';
+ 			*passwords = g_slist_append (*passwords, str);
++			str = NULL;
+ 		}
+ 	}
+ 
+ out:
++	g_free (str);
++
+ 	return TRUE;
+ }
+ 
+diff -u -r1.15.2.1 wireless-security-manager.c
+--- gnome/applet/wireless-security-manager.c	21 Oct 2006 03:41:18 -0000	1.15.2.1
++++ gnome/applet/wireless-security-manager.c	7 Nov 2006 17:01:06 -0000
+@@ -162,14 +162,13 @@
+ 	WirelessSecurityOption * opt = NULL;
+ 	GtkTreeIter			iter;
+ 	GtkTreeModel *			model;
+-	char *				str;
+ 
+ 	g_return_val_if_fail (combo != NULL, NULL);
+ 
+ 	model = gtk_combo_box_get_model (combo);
+ 	g_assert (model);
+ 	if (gtk_combo_box_get_active_iter (combo, &iter))
+-		gtk_tree_model_get (model, &iter, NAME_COLUMN, &str, OPT_COLUMN, &opt, -1);
++		gtk_tree_model_get (model, &iter, OPT_COLUMN, &opt, -1);
+ 
+ 	return opt;
+ }
+@@ -215,6 +214,7 @@
+ {
+ 	g_return_if_fail (wsm != NULL);
+ 
++	g_free (wsm->glade_file);
+ 	g_slist_foreach (wsm->options, (GFunc) wso_free, NULL);
+ 	g_slist_free (wsm->options);
+ 	memset (wsm, 0, sizeof (WirelessSecurityManager));
+diff -u -r1.10.2.2 wireless-security-option.c
+--- gnome/applet/wireless-security-option.c	22 Mar 2006 21:26:57 -0000	1.10.2.2
++++ gnome/applet/wireless-security-option.c	7 Nov 2006 17:01:06 -0000
+@@ -170,14 +170,13 @@
+ 	GtkTreeIter	iter;
+ 	GtkTreeModel *	model;
+ 	int			auth_alg;
+-	char *		str;
+ 
+ 	g_return_val_if_fail (opt != NULL, -1);
+ 	g_return_val_if_fail (combo != NULL, -1);
+ 
+ 	model = gtk_combo_box_get_model (combo);
+ 	gtk_combo_box_get_active_iter (GTK_COMBO_BOX (combo), &iter);
+-	gtk_tree_model_get (model, &iter, NAME_COLUMN, &str, AUTH_ALG_COLUMN, &auth_alg, -1);
++	gtk_tree_model_get (model, &iter, AUTH_ALG_COLUMN, &auth_alg, -1);
+ 	return auth_alg;
+ }
+
