@@ -32,7 +32,7 @@ RDEPEND="X? ( opengl? ( virtual/opengl )
 		media-libs/tiff
 		x11-libs/libXinerama
 		x11-libs/libXxf86vm
-		gnome? ( >=gnome-base/libgnomeprintui-2.14 ) )
+		gnome? ( >=gnome-base/libgnomeprintui-2.8 ) )
 	odbc? ( dev-db/unixODBC )
 	x86? ( sdl? ( >=media-libs/libsdl-1.2 ) )
 	amd64? ( sdl? ( >=media-libs/libsdl-1.2 ) )
