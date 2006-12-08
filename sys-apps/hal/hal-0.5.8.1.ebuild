@@ -105,29 +105,32 @@ src_unpack() {
 	cd "${S}"
 
 	# allow plugdev group people to mount
-	epatch "${FILESDIR}"/${PN}-0.5.8.1-plugdev-allow-send.patch
+	epatch ${FILESDIR}/${PN}-0.5.8.1-plugdev-allow-send.patch
+
+	# use ntfs-fuse by default
+	epatch ${FILESDIR}/${PN}-0.5.8.1-sabayonlinux-ntfs-fuse.default.patch
 
 	#### From FC7 src.rpm
 
 	# do not crash on cdrom drives - aka r/o storage
-	epatch ${FILESDIR}/hal-0.5.8.1-dont-crash-on-cdrom-drives.patch
+	epatch ${FILESDIR}/${PN}-0.5.8.1-dont-crash-on-cdrom-drives.patch
 
 	# fix partutil
-	epatch ${FILESDIR}/hal-0.5.8.1-partutil-fix.patch
+	epatch ${FILESDIR}/${PN}-0.5.8.1-partutil-fix.patch
 
 	# remove link only
-	epatch ${FILESDIR}/hal-0.5.8.1-remove-link-not-remove.patch
+	epatch ${FILESDIR}/${PN}-0.5.8.1-remove-link-not-remove.patch
 
 	# wrong stat
-	epatch ${FILESDIR}/hal-0.5.8.1-stat-devicefile-not-mountpoint.patch
+	epatch ${FILESDIR}/${PN}-0.5.8.1-stat-devicefile-not-mountpoint.patch
 
 	# align !
-	epatch ${FILESDIR}/hal-alignment.patch
+	epatch ${FILESDIR}/${PN}-alignment.patch
 
 	### From ARCH Linux
 	
 	# check for error in case of floppy or cdrom drives
-	epatch ${FILESDIR}/hal-0.5.8.1-check-for-error.patch
+	epatch ${FILESDIR}/${PN}-0.5.8.1-check-for-error.patch
 
 }
 

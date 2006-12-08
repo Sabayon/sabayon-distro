@@ -30,6 +30,10 @@ AUX hal-0.5.8.1-remove-link-not-remove.patch 959 RMD160 996a5013e2407fea6eae6cc2
 MD5 c4fe80a5c56f6c4357e6e25e83ca3401 files/hal-0.5.8.1-remove-link-not-remove.patch 959
 RMD160 996a5013e2407fea6eae6cc21a8c8699f5adbdc5 files/hal-0.5.8.1-remove-link-not-remove.patch 959
 SHA256 65aea0e658c4ddc2e29b49c7c2aa6a8987bfbbbbf0e5e7c8ce32624f98078e3b files/hal-0.5.8.1-remove-link-not-remove.patch 959
+AUX hal-0.5.8.1-sabayonlinux-ntfs-fuse.default.patch 756 RMD160 23789380eaed25217885cf3db4ada54ea7ad6031 SHA1 2ed571b37fafbe338653f82e4b7a5d1b196392b7 SHA256 8dd6fcdb40ad087e34e4fad8ea52ddc1f4722d0a9ebe6b8586174de93d2952ac
+MD5 3a253640561284f0a5b9ff80def3f2eb files/hal-0.5.8.1-sabayonlinux-ntfs-fuse.default.patch 756
+RMD160 23789380eaed25217885cf3db4ada54ea7ad6031 files/hal-0.5.8.1-sabayonlinux-ntfs-fuse.default.patch 756
+SHA256 8dd6fcdb40ad087e34e4fad8ea52ddc1f4722d0a9ebe6b8586174de93d2952ac files/hal-0.5.8.1-sabayonlinux-ntfs-fuse.default.patch 756
 AUX hal-0.5.8.1-stat-devicefile-not-mountpoint.patch 3572 RMD160 f39272346cf0dda8137dfd6fcccde79aec891ec0 SHA1 d56d4047350d67cba5ac0835adbe14ddcb24ab8b SHA256 0d0c5240da4bc0fc36e3f855b392214e2366ada7b38c98c25e2aafdfbd04505b
 MD5 1392153a0967c0d9e88f48857a7243a8 files/hal-0.5.8.1-stat-devicefile-not-mountpoint.patch 3572
 RMD160 f39272346cf0dda8137dfd6fcccde79aec891ec0 files/hal-0.5.8.1-stat-devicefile-not-mountpoint.patch 3572
@@ -39,10 +43,10 @@ MD5 3f3f7efd7c9336f3e97688711f981a50 files/hal-alignment.patch 763
 RMD160 768b316422b996e72625bd3796d10c805af195ad files/hal-alignment.patch 763
 SHA256 b8e4100e33d4b6fcf973be683c9710a514c7d6461a8ac34b8aad8c1ecccc3398 files/hal-alignment.patch 763
 DIST hal-0.5.8.1.tar.gz 1752840 RMD160 b7d70167a2b3852b47b4bbfc7b011d33ead494aa SHA1 35675b6701b9e953edfabf0d91b68ccee5a5a491 SHA256 0c51b41f5c8729e3568df26266485b4d32ec6ba04567f7a08d8e68cd76e59714
-EBUILD hal-0.5.8.1.ebuild 5787 RMD160 11d1bd19fb7bb10211f7c95fa5e7791cc14d1d7a SHA1 ad01be9e118197bf0aff692adc673f74fda9ba87 SHA256 c1d49dac86442bb6c2d280841bac00931986c012887bb6f89068823005cf9313
-MD5 7daa98d2f1b16c73138d06e8a14e08c4 hal-0.5.8.1.ebuild 5787
-RMD160 11d1bd19fb7bb10211f7c95fa5e7791cc14d1d7a hal-0.5.8.1.ebuild 5787
-SHA256 c1d49dac86442bb6c2d280841bac00931986c012887bb6f89068823005cf9313 hal-0.5.8.1.ebuild 5787
+EBUILD hal-0.5.8.1.ebuild 5897 RMD160 20ea09a23f3156e86824a83b41c2d80c8faf2b17 SHA1 2f337f507c85e1a3cf1d1e31683bb5c51d7a7747 SHA256 13e6504981d4364adfe19c0b5a80c17e707fb0e8a4cdc0bc78a817348b729024
+MD5 a79d7304b30e3f106fade69a6abd6098 hal-0.5.8.1.ebuild 5897
+RMD160 20ea09a23f3156e86824a83b41c2d80c8faf2b17 hal-0.5.8.1.ebuild 5897
+SHA256 13e6504981d4364adfe19c0b5a80c17e707fb0e8a4cdc0bc78a817348b729024 hal-0.5.8.1.ebuild 5897
 MD5 3a401a3e15b340319f1610ded272c665 files/digest-hal-0.5.8.1 238
 RMD160 c69ded0574401a01ddda0c7801a5707a938c30c5 files/digest-hal-0.5.8.1 238
 SHA256 05a875e4488cb376bf8f036b64b82792f469052e1084f34fd77ec661e3fff52b files/digest-hal-0.5.8.1 238
