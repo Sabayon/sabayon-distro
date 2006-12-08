@@ -1,16 +1,16 @@
---- tools/hal-storage-mount.c.old       2006-12-08 03:13:00.000000000 +0100
-+++ tools/hal-storage-mount.c   2006-12-08 03:16:00.000000000 +0100
-@@ -813,6 +813,12 @@ handle_mount (LibHalContext *hal_ctx,
-        } else if (libhal_volume_get_fstype (volume) != NULL && strlen (libhal_volume_get_fstype (volume)) > 0) {
-                mount_do_fstype = (char *) map_fstype (libhal_volume_get_fstype (volume));
-        }
+--- tools/hal-storage-mount.c.orig	2006-12-08 11:42:22.000000000 +0100
++++ tools/hal-storage-mount.c	2006-12-08 11:40:59.000000000 +0100
+@@ -813,6 +813,13 @@ handle_mount (LibHalContext *hal_ctx, 
+ 	} else if (libhal_volume_get_fstype (volume) != NULL && strlen (libhal_volume_get_fstype (volume)) > 0) {
+ 		mount_do_fstype = (char *) map_fstype (libhal_volume_get_fstype (volume));
+ 	}
 +
-+       /* Dirty hack while we're waiting for a better KDE support for filesystems' selection */
-+       /* we are going to force NTFS-FUSE instead of NTFS */
-+       if (strcmp (mount_do_fstype, "ntfs") == 0)
-+               mount_do_fstype = "ntfs-fuse";
++        /* Dirty hack while we're waiting for a better KDE support for filesystems' selection */
++        /* we are going to force NTFS-FUSE instead of NTFS */
++        if (strcmp (mount_do_fstype, "ntfs") == 0)
++                mount_do_fstype = "ntfs-fuse";
 +
-        args[na++] = MOUNT_TYPE_OPT;
-        args[na++] = mount_do_fstype;
-
-
++
+ 	args[na++] = MOUNT_TYPE_OPT;
+ 	args[na++] = mount_do_fstype;
+ 
