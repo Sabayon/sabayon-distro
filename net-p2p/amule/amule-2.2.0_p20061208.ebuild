@@ -66,6 +66,12 @@ pkg_preinst() {
 	fi
 }
 
+src_unpack() {
+	unpack ${A}
+	cd ${S}
+	epatch ${FILESDIR}/amule-remove-stupid-stuff.patch
+}
+
 src_compile() {
 		local myconf=""
 
