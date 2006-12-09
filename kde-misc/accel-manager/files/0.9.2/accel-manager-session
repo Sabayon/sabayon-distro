@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Fix possible problems
+xhost +
+rm /root/.Xauthority
+
 # Restore Previous Configuration
 mv /tmp/.dmrc /root/.dmrc
 mv /tmp/kdmrc /usr/kde/3.5/share/config/kdm/
