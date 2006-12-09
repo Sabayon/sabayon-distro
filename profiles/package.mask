@@ -19,4 +19,8 @@
 # This package is old and will screw up your system, it was a proof of concept
 x11-misc/xglswitch
 
+# Breaks API
+=x11-libs/wxGTK-2.8.0_rc3
 
+# Need wxGTK 2.8 with GTK 2.10
+>=net-p2p/amule-2.1.9
