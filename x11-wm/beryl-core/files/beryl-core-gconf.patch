@@ -1,0 +1,48 @@
+Index: configure.ac
+===================================================================
+--- configure.ac        (revision 1653)
++++ configure.ac        (working copy)
+@@ -94,8 +94,20 @@
+ PKG_CHECK_MODULES(BERYL, $BERYL_REQUIRES)
+ AC_SUBST(BERYL_REQUIRES)
+ PKG_CHECK_MODULES(GLIB, "glib-2.0")
+-PKG_CHECK_MODULES(GCONF, "gconf-2.0")
+ 
++AC_ARG_ENABLE(gconf, [--enable-gconf   Enable GConf backend for libberylsettings],
++                         [beryl_gconf=$enableval],[beryl_gconf=no])
++
++if test "x$beryl_gconf" = "xyes"
++then
++       PKG_CHECK_MODULES(GCONF, "gconf-2.0")
++fi
++
++AM_CONDITIONAL(GCONF_BACKEND, test "x$beryl_gconf" = "xyes")
++if test "$beryl_gconf" = yes; then
++       AC_DEFINE(USE_GCONF, 1, [Build gconf backend])
++fi
++
+ AC_ARG_WITH( berylmesadir,
+       [  --with-berylmesadir    Set beryl internal mesa path (needed for static linked beryl-xgl) [default=../beryl-mesa] ],
+       [ beryl_mesa_dir=${withval}],[ beryl_mesa_dir="../beryl-mesa" ])
+
+Index: settings-backends/Makefile.am
+===================================================================
+--- settings-backends/Makefile.am	(revision 1653)
++++ settings-backends/Makefile.am	(working copy)
+@@ -7,12 +7,14 @@
+ libini_la_LIBADD = @GLIB_LIBS@ @BERYL_LIBS@ ../libberylsettings/libberylsettings.la
+ libini_la_SOURCES = ini.c
+ 
++if GCONF_BACKEND
+ libgconf_la_LDFLAGS = -module -avoid-version -no-undefined
+ libgconf_la_LIBADD = @GCONF_LIBS@ @GLIB_LIBS@ @BERYL_LIBS@ ../libberylsettings/libberylsettings.la
+ libgconf_la_SOURCES = gconf.c
+-
++libgconf_module=libgconf.la
++endif
+ backenddir = $(plugindir)/backends
+ 
+ backend_LTLIBRARIES = \
+ 					 libini.la \
+-					 libgconf.la
++					 $(libgconf_module)
