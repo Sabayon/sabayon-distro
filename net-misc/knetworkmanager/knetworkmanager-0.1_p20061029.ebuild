@@ -10,7 +10,7 @@ LICENSE="GPL-2"
 SRC_URI="http://distfiles.evolution-mission.org/kde/${PN}-${PV##*_p}.tar.bz2"
 KEYWORDS="~amd64 ~x86"
 
-DEPEND="|| ( >=net-misc/networkmanager-0.6.4 >net-misc/NetworkManager-0.6.3 )
+DEPEND=">=net-misc/networkmanager-0.6.3
 	>=kde-base/kdelibs-3.2
 	sys-apps/dbus
 	sys-apps/hal"
