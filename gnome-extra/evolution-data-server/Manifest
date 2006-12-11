@@ -1,0 +1,8 @@
+DIST evolution-data-server-1.8.2.tar.bz2 6963774 RMD160 b3ae6d2dafa0abbbaf5ffe2fbdc39b6b20fe762d SHA1 7b6ba62d96b6c54e762be4ddf1c476ebf8201dc1 SHA256 63a765c237504ed34344f7ef505c495d9a40c6022b7d69ca6ded32016508fecd
+EBUILD evolution-data-server-1.8.2.ebuild 4457 RMD160 4b278dd5437cbb1e170eaa6b5f9109c458215700 SHA1 bd7bbb7a190f445d775dd8328494bccf960ea1a9 SHA256 f7271db6dec6dd017e46bd1dbd3e286dd44a7da09e0e63730c88db9adcf5d79c
+MD5 cef3f2b3e0121c27ed11ce46c7f08076 evolution-data-server-1.8.2.ebuild 4457
+RMD160 4b278dd5437cbb1e170eaa6b5f9109c458215700 evolution-data-server-1.8.2.ebuild 4457
+SHA256 f7271db6dec6dd017e46bd1dbd3e286dd44a7da09e0e63730c88db9adcf5d79c evolution-data-server-1.8.2.ebuild 4457
+MD5 74393fb4db3fbf45310fa2141a7dc047 files/digest-evolution-data-server-1.8.2 289
+RMD160 bb30bba0b9040f1814f971dcb2f92d509a82759c files/digest-evolution-data-server-1.8.2 289
+SHA256 0385bd5f744f65836836983a6ffa381ce6e536914986f9ab3c5dbf4ee1b058bd files/digest-evolution-data-server-1.8.2 289
