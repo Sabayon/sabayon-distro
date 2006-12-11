@@ -1,0 +1,12 @@
+diff --exclude-from=/home/dang/.diffrc -u -ruN evolution-data-server-1.4.2.1.orig/calendar/libecal/e-cal-recur.c evolution-data-server-1.4.2.1/calendar/libecal/e-cal-recur.c
+--- evolution-data-server-1.4.2.1.orig/calendar/libecal/e-cal-recur.c	2005-09-02 10:37:43.000000000 -0400
++++ evolution-data-server-1.4.2.1/calendar/libecal/e-cal-recur.c	2006-01-08 16:31:12.000000000 -0500
+@@ -683,7 +683,7 @@
+ 					gpointer	            tz_cb_data,
+ 					icaltimezone	 *default_timezone)
+ {
+-	ECalComponentDateTime dtstart, dtend;
++	ECalComponentDateTime dtstart = {0}, dtend = {0};
+ 	time_t dtstart_time, dtend_time;
+ 	GSList *rrules = NULL, *rdates = NULL, elem;
+ 	GSList *exrules = NULL, *exdates = NULL;

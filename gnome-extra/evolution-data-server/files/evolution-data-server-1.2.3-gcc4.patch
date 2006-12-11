@@ -1,0 +1,13 @@
+diff -ur evolution-data-server-1.2.3-orig/calendar/libecal/e-cal.c evolution-data-server-1.2.3/calendar/libecal/e-cal.c
+--- evolution-data-server-1.2.3-orig/calendar/libecal/e-cal.c	2005-06-09 20:00:28.000000000 -0400
++++ evolution-data-server-1.2.3/calendar/libecal/e-cal.c	2005-06-09 20:02:10.000000000 -0400
+@@ -40,7 +40,8 @@
+ #include "e-cal-view-listener.h"
+ #include "e-cal.h"
+ 
+-
++static gboolean
++open_calendar (ECal *ecal, gboolean only_if_exists, GError **error, ECalendarStatus *status, gboolean needs_auth);
+ 
+ typedef struct {
+ 	GMutex *mutex;

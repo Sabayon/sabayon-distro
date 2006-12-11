@@ -1,0 +1,13 @@
+diff --exclude-from=/home/dang/.diffrc -u -ruN evolution-data-server-1.7.3.orig/configure.in evolution-data-server-1.7.3/configure.in
+--- evolution-data-server-1.7.3.orig/configure.in	2006-06-12 10:27:29.000000000 -0400
++++ evolution-data-server-1.7.3/configure.in	2006-07-06 23:43:43.000000000 -0400
+@@ -1389,9 +1393,6 @@
+ export privincludedir
+ export privdatadir
+ AC_CONFIG_SUBDIRS(calendar/libical)
+-if test $dynamic_libdb = no; then
+-        AC_CONFIG_SUBDIRS(libdb/dist)
+-fi
+ AC_OUTPUT([
+ Makefile
+ evolution-data-server-zip
