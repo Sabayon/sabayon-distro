@@ -41,8 +41,8 @@ enable_dri() {
 }
 
 fix_possible_opengl_misconfiguration() {
+    current_opengl_subsystem=$(eselect opengl show)
     if [ -z "$dry_run_detected" ]; then
-        current_opengl_subsystem=$(eselect opengl show)
         if [ "$1" = "ati" ]; then
             if [ "$current_opengl_subsystem" != "ati" ]; then
                 # fix it!
