@@ -1,0 +1,32 @@
+#!/sbin/runscript
+# Copyright 1999-2006 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/915resolution/files/initd,v 1.1 2006/07/22 17:29:44 chutzpah Exp $
+
+depend() {
+	before xdm
+}
+
+checkconfig() {
+	if [[ -z "${replace[*]}" ]]; then
+		eerror "You need to have at least one resolution to replace"
+		eerror "/etc/conf.d/915resolution"
+		return 1
+	fi
+
+	[[ "${log}" && -f "${log}" ]] && echo > "${log}"
+
+	return 0
+}
+
+start() {
+	checkconfig || return 1
+
+	ebegin "Patching video BIOS with new video modes."
+
+	for mode in "${replace[@]}"; do
+		915resolution ${mode} >> ${log:-/dev/null} || retval=$?
+	done
+
+	eend ${retval}
+}
