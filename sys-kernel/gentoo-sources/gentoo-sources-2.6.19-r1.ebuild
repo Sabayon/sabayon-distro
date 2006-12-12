@@ -9,21 +9,21 @@ inherit kernel-2
 detect_version
 detect_arch
 
+SL_PATCHES_URI="http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/ipw3945-1.1.3-2.6.19.patch"
+
+SUSPEND2_VERSION="2.2.9"
+SUSPEND2_TARGET="2.6.19-rc6"
+SUSPEND2_SRC="suspend2-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
+SUSPEND2_URI="http://www.suspend2.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
+
+UNIPATCH_LIST=" ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2 ${DISTDIR}/ipw3945-1.1.3-2.6.19.patch"
+UNIPATCH_STRICTORDER="yes"
+
 KEYWORDS="~amd64 ~ppc ~ppc64 ~sparc ~x86"
-HOMEPAGE="http://www.sabayonlinux.org"
+HOMEPAGE="http://dev.gentoo.org/~dsd/genpatches http://www.sabayonlinux.org"
 
 DESCRIPTION="Full sources including the Gentoo patchset and SabayonLinux ones for the ${KV_MAJOR}.${KV_MINOR} kernel tree"
-SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
-
-src_unpack() {
-
-        kernel-2_src_unpack
-
-        # ipw3945 support
-        epatch ${FILESDIR}/ipw3945-1.1.3-2.6.19.patch
-
-}
-
+SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${SUSPEND2_URI} ${SL_PATCHES_URI}"
 
 pkg_postinst() {
 	kernel-2_pkg_postinst
