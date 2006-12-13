@@ -96,7 +96,8 @@ R1XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV1.*" || $ls
 RX700=$($lspci_output | grep ' VGA ' | grep -i "Radeon Mobility X700")
 R9600=$($lspci_output | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
 RAGE128=$($lspci_output | grep ' VGA ' | grep -i "Rage 128")
-SIS=$($lspci_output | grep ' VGA ' | grep -i "SiS")
+SIS=$($lspci_output | grep ' VGA ' | grep -i "SiS" || $lspci_output | grep ' VGA ' | grep "Silicon Integrated Systems")
+XGISIS=$($lspci_output | grep ' VGA ' | grep -i XGI | grep Volari) # SiS driver only supports Z7/V3/V5/V8 - the future new xf86-video-xgi driver will support the rest of the family
 VMWARE=$($lspci_output | grep ' VGA ' | grep VMWare || $lspci_output | grep ' VGA ' | grep VMware )
 VIRGE=$($lspci_output | grep ' VGA ' | grep -i "S3.*virge")
 VIA=$($lspci_output | grep ' VGA ' | grep -i "VIA Tech.*")
@@ -131,7 +132,7 @@ if [ -n "$is_there_xdriver" ]; then
      xdriver=$(echo $word | cut -d= -f 2)
      change_xorg_driver $xdriver
      if [ -z "$NVIDIA" ]; then
-       if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$R1XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$SIS" ] || [ -n "$MATROX" ]; then
+       if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$R1XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$SIS" ] || [ -n "$XGISIS"  ] || [ -n "$MATROX" ]; then
          remove_proprietary_opengl
        fi
        enable_dri
@@ -300,12 +301,12 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
 
   fi
 
-elif [ -n "$SIS" ]; then
+elif [ -n "$SIS" ] || [ -n "$XGISIS" ]; then
 
  change_xorg_driver sis
  enable_dri
  remove_proprietary_opengl
- echo -e "\t Display Driver: SiS"
+ echo -e "\t Display Driver: SiS/XGI"
 
 
 elif [ -n "$VMWARE" ]; then
