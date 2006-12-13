@@ -5,6 +5,7 @@ dry_run_detected=$(echo $@ | grep "dry-run")
 lspci_output=$(echo $@ | grep "with-lspci=")
 if [ -n "$lspci_output" ]; then
     lspci_output="echo $@"
+    lsusb_output="echo $@"
 else
     if [ -e /sbin/lspci ]; then
         lspci_output="/sbin/lspci"
@@ -98,6 +99,7 @@ R9600=$($lspci_output | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
 RAGE128=$($lspci_output | grep ' VGA ' | grep -i "Rage 128")
 SIS=$($lspci_output | grep ' VGA ' | grep -i "SiS" || $lspci_output | grep ' VGA ' | grep "Silicon Integrated Systems")
 XGISIS=$($lspci_output | grep ' VGA ' | grep -i XGI | grep Volari) # SiS driver only supports Z7/V3/V5/V8 - the future new xf86-video-xgi driver will support the rest of the family
+SISUSB=$(if [ -e /sys/module/sisusbvga ]; then echo sisusb; fi) # udev will take care of the kernel module
 VMWARE=$($lspci_output | grep ' VGA ' | grep VMWare || $lspci_output | grep ' VGA ' | grep VMware )
 VIRGE=$($lspci_output | grep ' VGA ' | grep -i "S3.*virge")
 VIA=$($lspci_output | grep ' VGA ' | grep -i "VIA Tech.*")
@@ -105,6 +107,7 @@ MATROX=$($lspci_output | grep ' VGA ' | grep -i Matrox)
 CIRRUS=$($lspci_output | grep ' VGA ' | grep -i Cirrus)
 NOPROP=$(cat /proc/cmdline | grep "noproprietary")
 LEGACY=$(cat /proc/cmdline | grep "legacy")
+
 
 if [ -z "$ATI" ]; then
     if [ -z "$dry_run_detected" ]; then
@@ -149,7 +152,14 @@ if [ -n "$is_there_xdriver" ]; then
   exit 0
 fi
 
-
+if [ -n "$SISUSB" ]; then
+  # SiS USB Video dongle will take the priority
+  change_xorg_driver sisusb
+  enable_dri
+  remove_proprietary_opengl
+  echo -e "\t Display Driver: SiS USB"
+  exit 0
+fi
 
 if [ -n "$NVIDIA" ]; then
 
