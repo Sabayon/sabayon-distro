@@ -91,7 +91,7 @@ add_beryl_manager_to_the_startup() {
     if [ -e "/usr/share/autostart" ]; then
         cp $beryl_manager_desktop_file /usr/share/autostart/ -p
         # link that to the GNOME startup dir
-        ln -s /usr/share/autostart/$beryl_manager /usr/share/gnome/autostart/
+        ln -sf /usr/share/autostart/$beryl_manager /usr/share/gnome/autostart/
     fi
 }
 
