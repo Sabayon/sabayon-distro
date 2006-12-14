@@ -120,13 +120,13 @@ disable_aiglx_in_xorg_conf() {
     sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
 }
 
-if [ -z "$1" ] || [ -z "$2" ] || [ "$1" == "--help" ] || [ "$1" != "aiglx" ] || [ "$1" != "xgl" ] || [ "$2" != "enable" ] || [ "$2" != "disable" ]; then
+if [ -z "$1" ] && [ -z "$2" ] && [ "$1" == "--help" ] && [ "$1" != "aiglx" ] && [ "$1" != "xgl" ] && [ "$2" != "enable" ] && [ "$2" != "disable" ]; then
    echo
-   echo "/sbin/desktop-acceleration-setup - SabayonLinux - Copyright 2006"
+   echo "desktop-acceleration-setup - SabayonLinux - Copyright 2006"
    echo
-   echo "  This helper enable/disable AIGLX/XGL system wide."
-   echo "    Usage:"
-   echo "     # desktop-acceleration-setup aiglx/xgl enable/disable"
+   echo "This helper enable/disable AIGLX/XGL system wide."
+   echo "   Usage:"
+   echo "   # desktop-acceleration-setup aiglx/xgl enable/disable"
    echo
    exit 0
 fi
