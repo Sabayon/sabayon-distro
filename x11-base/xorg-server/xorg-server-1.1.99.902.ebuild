@@ -120,7 +120,7 @@ RDEPEND=">=x11-libs/libXfont-1.2.5
 	x11-libs/libXrender
 	x11-libs/libXi
 	media-libs/freetype
-	<media-libs/mesa-6.5.2
+	=media-libs/mesa-6.5.1-r1
 	media-fonts/font-adobe-75dpi
 	media-fonts/font-misc-misc
 	media-fonts/font-cursor-misc
@@ -168,7 +168,7 @@ DEPEND="${RDEPEND}
 	>=x11-proto/xineramaproto-1.1-r1
 	x11-proto/fontsproto
 	>=x11-proto/kbproto-1.0.3
-	<x11-proto/inputproto-1.4
+	=x11-proto/inputproto-1.3.2
 	x11-proto/bigreqsproto
 	x11-proto/xcmiscproto
 	>=x11-proto/glproto-1.4.8
