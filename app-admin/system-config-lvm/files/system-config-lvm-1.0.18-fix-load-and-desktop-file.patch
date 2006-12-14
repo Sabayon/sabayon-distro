@@ -10,18 +10,4 @@ diff -Nurp system-config-lvm-1.0.18.orig/src/Multipath.py system-config-lvm-1.0.
          
          # process dmsetup table
          for line in dmtable_lines:
-diff -Nurp system-config-lvm-1.0.18.orig/system-config-lvm.desktop.in system-config-lvm-1.0.18/system-config-lvm.desktop.in
---- system-config-lvm-1.0.18.orig/system-config-lvm.desktop.in	2005-09-13 16:13:41.000000000 +0200
-+++ system-config-lvm-1.0.18/system-config-lvm.desktop.in	2006-12-14 09:41:43.000000000 +0100
-@@ -4,9 +4,9 @@ _GenericName=LVM
- _Comment=Configure LVM in a graphical setting
- StartupNotify=true
- Icon=/usr/share/system-config-lvm/pixmaps/lv_icon.png
--Exec=/usr/bin/system-config-lvm
-+Exec=/usr/sbin/system-config-lvm
- Type=Application
- Terminal=false
- Encoding=UTF-8
--Categories=Application;SystemSetup;X-Red-Hat-Base;
-+Categories=Settings;
- X-Desktop-File-Install-Version=0.2
+
