@@ -1,0 +1,17 @@
+? 1.0.18-use-portable-pam.patch
+Index: system-config-lvm.pam
+===================================================================
+RCS file: /usr/local/CVS/system-config-lvm/system-config-lvm.pam,v
+retrieving revision 1.2
+diff -u -b -B -r1.2 system-config-lvm.pam
+--- system-config-lvm.pam	26 May 2005 17:38:08 -0000	1.2
++++ system-config-lvm.pam	4 Sep 2006 22:29:19 -0000
+@@ -1,7 +1,7 @@
+ #%PAM-1.0
+ auth       sufficient	pam_rootok.so
+ auth       sufficient   pam_timestamp.so
+-auth       required	pam_stack.so service=system-auth
++auth       include      system-auth
+ session	   required	pam_permit.so
+ session    optional	pam_xauth.so
+ session    optional     pam_timestamp.so
