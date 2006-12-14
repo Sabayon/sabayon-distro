@@ -21,9 +21,6 @@ fi
 
 if [[ ${CATEGORY} == "kde-base" ]]; then
 	IUSE="${IUSE} kdeenablefinal"
-	if [[ ${PV} == "3.5"* ]] && [[ ${PN} != "kdemultimedia" && ${KMNAME} != "kdemultimedia" ]]; then
-		IUSE="${IUSE} kdehiddenvisibility"
-	fi
 fi
 
 # Set USE_KEG_PACKAGING=1 before inheriting if the package use extragear-like
