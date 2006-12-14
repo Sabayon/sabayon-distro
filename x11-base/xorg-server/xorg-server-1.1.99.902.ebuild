@@ -118,7 +118,7 @@ RDEPEND=">=x11-libs/libXfont-1.2.5
 	x11-libs/libXdmcp
 	x11-libs/libXmu
 	x11-libs/libXrender
-	x11-libs/libXi
+	=x11-libs/libXi-1.0.1-r1
 	media-libs/freetype
 	=media-libs/mesa-6.5.1-r1
 	media-fonts/font-adobe-75dpi
