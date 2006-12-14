@@ -5,7 +5,7 @@
  	args[1] = &err;
  	args[2] = GINT_TO_POINTER (cancelable);
 -	nm_wait_for_completion (400, G_USEC_PER_SEC / 200, NULL, nm_completion_device_is_up_test, args);
-+	nm_wait_for_completion (200, G_USEC_PER_SEC / 50, NULL, nm_completion_device_is_up_test, args);
++	nm_wait_for_completion (200, G_USEC_PER_SEC / 8, NULL, nm_completion_device_is_up_test, args);
  	if (err)
  		nm_info ("failed to bring up device %s", self->priv->iface);
  	return err;
