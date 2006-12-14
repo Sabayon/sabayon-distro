@@ -24,3 +24,6 @@ x11-misc/xglswitch
 
 # Need wxGTK 2.8 with GTK 2.10
 >=net-p2p/amule-2.1.9
+
+# Needs a new Murrina GTK Theme
+>=x11-themes/murrine-0.31
