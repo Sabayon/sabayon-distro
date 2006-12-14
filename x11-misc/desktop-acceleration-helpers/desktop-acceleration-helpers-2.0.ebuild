@@ -28,7 +28,6 @@ src_install () {
 
 	cd ${WORKDIR}
 	exeinto /sbin/
-	doexe xgl-setup
-	doexe aiglx-setup
+	doexe *-setup
 
 }
