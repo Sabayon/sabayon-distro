@@ -56,6 +56,8 @@ src_compile() {
 	# WORKAROUNDS) WITH SUSE_KICKOFF BRANCH
 	# WE WILL ONLY ACCEPT REAL SOLUTIONS
 
+	export UNSERMAKE="no"
+
 	myconf="$myconf $(use_with xcomposite composite)"
 	kde-meta-suse_src_compile
 
