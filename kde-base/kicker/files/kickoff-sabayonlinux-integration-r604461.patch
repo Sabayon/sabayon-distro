@@ -51,7 +51,7 @@ diff -Nurp kdebase-3.5.5/kicker/kicker/ui/itemview.cpp kicker-kickoff/kicker/ui/
      // if someone configured a larger generalFont than 10pt, he might have a _real_ problem with 7pt
      // the 7pt could be read out of konquerorrc I guess
 -    float min_font_size = 7. * QMAX(1., KGlobalSettings::generalFont().pointSizeFloat() / 10.);
-+    float min_font_size = 10. * QMAX(1., KGlobalSettings::generalFont().pointSizeFloat() / 10.);
++    float min_font_size = 9. * QMAX(1., KGlobalSettings::generalFont().pointSizeFloat() / 10.);
  
      const int expected_height = 38;
      description_font_size = QMAX( pointSize( expected_height * .3, listView() ), min_font_size );
@@ -60,7 +60,7 @@ diff -Nurp kdebase-3.5.5/kicker/kicker/ui/itemview.cpp kicker-kickoff/kicker/ui/
      QFont f = QFont();
      QFontMetrics fm(f);
 -    f.setPointSize( 8 );
-+    f.setPointSize( 10 );
++    f.setPointSize( 9 );
      if ( itemAbove() && !text( 0 ).isEmpty() )
          setHeight( (int)QMAX( 34., fm.height() * 1.4) );
      else
@@ -69,7 +69,7 @@ diff -Nurp kdebase-3.5.5/kicker/kicker/ui/itemview.cpp kicker-kickoff/kicker/ui/
        QFont f = listView()->font();
        f.setWeight( QFont::Normal );
 -      f.setPointSize( 8 );
-+      f.setPointSize( 10 );
++      f.setPointSize( 9 );
        p->setFont( f );
        QColor myColor = cg.color( QColorGroup::Text ).light( 200 );
        if ( qGray( myColor.rgb() ) == 0 )
@@ -90,7 +90,7 @@ diff -Nurp kdebase-3.5.5/kicker/kicker/ui/k_new_mnu.cpp kicker-kickoff/kicker/ui
  
      QFont f = font();
 -    f.setPointSize( QMAX( 7, qRound( f.pointSize() * 0.80 ) ) );
-+    f.setPointSize( QMAX( 10, qRound( f.pointSize() * 0.80 ) ) );
++    f.setPointSize( QMAX( 9, qRound( f.pointSize() * 0.80 ) ) );
      m_exit_text->setFont( f );
      m_btnFavorites_text->setFont( f );
      m_btnRecently_text->setFont( f );
@@ -99,7 +99,7 @@ diff -Nurp kdebase-3.5.5/kicker/kicker/ui/k_new_mnu.cpp kicker-kickoff/kicker/ui
      m_exit_text->setFont( f );
  
 -    f.setPointSize( QMAX( 7, qRound( f.pointSize() * 1.50 ) ) );
-+    f.setPointSize( QMAX( 10, qRound( f.pointSize() * 1.50 ) ) );
++    f.setPointSize( QMAX( 9, qRound( f.pointSize() * 1.50 ) ) );
      m_searchLabel->setFont( f );
  
      int minwidth = 32;
