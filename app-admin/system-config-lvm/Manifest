@@ -7,10 +7,10 @@ MD5 949c92bc77661bc3835933127d6346d5 files/system-config-lvm-1.0.18-fix-load-and
 RMD160 ad281cf9eb101bebe874b6bfc673543d449b77fc files/system-config-lvm-1.0.18-fix-load-and-desktop-file.patch 1379
 SHA256 c73b281717ebc555ff0fca9f9ae8a29633d637475d227f53e012a74866f0c288 files/system-config-lvm-1.0.18-fix-load-and-desktop-file.patch 1379
 DIST system-config-lvm-1.0.18-1.2.FC6.src.rpm 1022939 RMD160 85d1539f7a0d0949aed6c5d54e98eaa598bd1193 SHA1 f4e6556ef0f2395f8718a45eacff326e96189dc6 SHA256 90b6b5ad181cdb53f48660ad6351e537ccdcac5f981a1b4be1a42ba13a5f4eb9
-EBUILD system-config-lvm-1.0.18.ebuild 1264 RMD160 49c3690ce484ec22689dfb3710129e9d4f47e430 SHA1 a0fccb95a8d43221e671f8067d7f4067486a6428 SHA256 4e635e6580ac31953855f6664ad958bb489033ae664fa4df28b5f28d33d20642
-MD5 cedb8320b8461d2b5ee12e152c37c0d3 system-config-lvm-1.0.18.ebuild 1264
-RMD160 49c3690ce484ec22689dfb3710129e9d4f47e430 system-config-lvm-1.0.18.ebuild 1264
-SHA256 4e635e6580ac31953855f6664ad958bb489033ae664fa4df28b5f28d33d20642 system-config-lvm-1.0.18.ebuild 1264
+EBUILD system-config-lvm-1.0.18.ebuild 1441 RMD160 dbb353735288ab2bc0d4db2adafe9f98e0d804dc SHA1 1c1181ea45e3e06776cd847fa35e25f35c3cd9d1 SHA256 ee82f5854d79fa77bc8bc59e6a125cd2f9fc922773cd49860f7349d1ee97e04f
+MD5 58768ea9968eb160c93d01643ba39ab1 system-config-lvm-1.0.18.ebuild 1441
+RMD160 dbb353735288ab2bc0d4db2adafe9f98e0d804dc system-config-lvm-1.0.18.ebuild 1441
+SHA256 ee82f5854d79fa77bc8bc59e6a125cd2f9fc922773cd49860f7349d1ee97e04f system-config-lvm-1.0.18.ebuild 1441
 MD5 64ef4333d06898e0749930a01397f5bb files/digest-system-config-lvm-1.0.18 304
 RMD160 d2ac7842f184407004eb816e5bc6a44361d588ca files/digest-system-config-lvm-1.0.18 304
 SHA256 eb238b8c475303f7e29f87a5d36fc72a36e12930f8b9b2451437abf9718ed938 files/digest-system-config-lvm-1.0.18 304

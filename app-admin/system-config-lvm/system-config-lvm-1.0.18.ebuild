@@ -16,7 +16,7 @@ SRC_URI="mirror://fedora/development/source/SRPMS/${P}-${RPMREV}.FC${FCVER}.src.
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~ppc ~x86 ~amd64"
-IUSE=""
+IUSE="kde"
 RDEPEND="=dev-python/gnome-python-2*
 	=dev-python/pygtk-2*
 	dev-python/rhpl
@@ -25,7 +25,8 @@ RDEPEND="=dev-python/gnome-python-2*
 DEPEND="${RDEPEND}
 	sys-devel/gettext
 	dev-util/intltool
-	dev-perl/XML-Parser"
+	dev-perl/XML-Parser
+	kde? ( || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 ) )"
 
 src_unpack() {
 	rpm_src_unpack
@@ -36,6 +37,10 @@ src_unpack() {
 
 src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
+
+	if use kde; then
+		sed -i 's/Exec=/Exec=kdesu /' ${D}/usr/share/applications/system-config-lvm.desktop
+	fi
 
 	make_desktop_entry /usr/bin/${PN}
 
