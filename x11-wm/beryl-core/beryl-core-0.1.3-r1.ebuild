@@ -13,6 +13,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
+RESTRICT="nomirror"
 
 DEPEND=">=x11-base/xorg-server-1.1.1-r1
 	>=x11-libs/gtk+-2.8.0
@@ -30,7 +31,7 @@ src_compile() {
 	epatch "${FILESDIR}"/${PN}-gconf.patch
 	eautoreconf
 
-	econf --with-berylmesadir="${S}/beryl-mesa" || die "econf failed"
+	econf --with-berylmesadir="${WORKDIR}/beryl-mesa" || die "econf failed"
 	emake -j1 || die "make failed"
 }
 
