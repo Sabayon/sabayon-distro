@@ -31,6 +31,7 @@ src_unpack() {
 	rpm_src_unpack
 	cd "${S}"
 	epatch "${FILESDIR}"/${PV}-use-portable-pam.patch
+	epatch "${FILESDIR}"/${P}-fix-load-and-desktop-file.patch
 }
 
 src_install() {

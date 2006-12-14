@@ -1,0 +1,27 @@
+diff -Nurp system-config-lvm-1.0.18.orig/src/Multipath.py system-config-lvm-1.0.18/src/Multipath.py
+--- system-config-lvm-1.0.18.orig/src/Multipath.py	2006-02-14 19:21:18.000000000 +0100
++++ system-config-lvm-1.0.18/src/Multipath.py	2006-12-14 09:40:55.000000000 +0100
+@@ -50,7 +50,7 @@ class Multipath:
+                 continue
+             if words[0][0] == 'b':
+                 # [name, major, minor]
+-                block_devices.append(['/dev/' + words[9], words[4].rstrip(','), words[5]])
++                block_devices.append(['/dev/' + words[len(words)-1], words[4].rstrip(','), words[5]])
+         
+         # process dmsetup table
+         for line in dmtable_lines:
+diff -Nurp system-config-lvm-1.0.18.orig/system-config-lvm.desktop.in system-config-lvm-1.0.18/system-config-lvm.desktop.in
+--- system-config-lvm-1.0.18.orig/system-config-lvm.desktop.in	2005-09-13 16:13:41.000000000 +0200
++++ system-config-lvm-1.0.18/system-config-lvm.desktop.in	2006-12-14 09:41:43.000000000 +0100
+@@ -4,9 +4,9 @@ _GenericName=LVM
+ _Comment=Configure LVM in a graphical setting
+ StartupNotify=true
+ Icon=/usr/share/system-config-lvm/pixmaps/lv_icon.png
+-Exec=/usr/bin/system-config-lvm
++Exec=/usr/sbin/system-config-lvm
+ Type=Application
+ Terminal=false
+ Encoding=UTF-8
+-Categories=Application;SystemSetup;X-Red-Hat-Base;
++Categories=Settings;
+ X-Desktop-File-Install-Version=0.2
