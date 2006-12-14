@@ -16,11 +16,11 @@ RDEPEND="!<=x11-base/xorg-x11-6.9"
 
 # Server
 RDEPEND="${RDEPEND}
-	>=x11-base/xorg-server-1.1.90"
+	=x11-base/xorg-server-1.1.99.902"
 
 # Common Applications
 RDEPEND="${RDEPEND}
-	>=x11-apps/mesa-progs-6.5.2
+	>=x11-apps/mesa-progs-6.5
 	>=x11-apps/setxkbmap-1.0.2
 	>=x11-apps/xauth-1.0.1
 	>=x11-apps/xhost-1.0.1
