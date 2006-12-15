@@ -1,7 +1,3 @@
-AUX kdelibs-3.5.5-kate-cstyle-indenter-fix.diff 1544 RMD160 cb5fea95022dd92b448a8bf2b8e7ea49e9f3225d SHA1 5689ec3ca0c562663bc64b4458dcd1eafade8a38 SHA256 b4364d77149ef699b7724c1102a08a0240df5e19c2b0b1202459b8f97cf8268b
-MD5 1f60e79966e99e68401ce1b0cf3609d9 files/kdelibs-3.5.5-kate-cstyle-indenter-fix.diff 1544
-RMD160 cb5fea95022dd92b448a8bf2b8e7ea49e9f3225d files/kdelibs-3.5.5-kate-cstyle-indenter-fix.diff 1544
-SHA256 b4364d77149ef699b7724c1102a08a0240df5e19c2b0b1202459b8f97cf8268b files/kdelibs-3.5.5-kate-cstyle-indenter-fix.diff 1544
 AUX kdelibs-3.5.5-kdeprint.patch 6481 RMD160 a9f9c304f4075ea71872a22db72c77ccb8b67486 SHA1 d2aea93ee6f44d94ddb2ffdd86e77420e78a91b0 SHA256 f5741e22e4701eb0e4e22c95d38706e1d82a06c26bbea3f70afec44f47540424
 MD5 2fd7ed210837c454b9021c1aebaa1f34 files/kdelibs-3.5.5-kdeprint.patch 6481
 RMD160 a9f9c304f4075ea71872a22db72c77ccb8b67486 files/kdelibs-3.5.5-kdeprint.patch 6481
@@ -14,14 +10,6 @@ AUX kdelibs-3.5.5-khtml.patch 727 RMD160 a0561d99c25b734c5d1d807598640c3805c4cb7
 MD5 1cb9f9a47fc317e35ff88154a72de925 files/kdelibs-3.5.5-khtml.patch 727
 RMD160 a0561d99c25b734c5d1d807598640c3805c4cb7b files/kdelibs-3.5.5-khtml.patch 727
 SHA256 47f05ea61ccf773c6beb3e902330bfed05fd11f63aae6d38c1145ee6b5057d59 files/kdelibs-3.5.5-khtml.patch 727
-AUX kdelibs-3.5.5-noarts-2.patch 1686 RMD160 d4585c288a4f0e13f1dd1ace2bb06299fc4866d0 SHA1 eb0ed2976487de6c7397c335368dfc618c547d12 SHA256 5acb44b260619eeedc8ceb07b9cb2bd607b04a9db74c07d7e48cc8ad7fd6483b
-MD5 3fca0ccb769512d145e7e1f05e6b3629 files/kdelibs-3.5.5-noarts-2.patch 1686
-RMD160 d4585c288a4f0e13f1dd1ace2bb06299fc4866d0 files/kdelibs-3.5.5-noarts-2.patch 1686
-SHA256 5acb44b260619eeedc8ceb07b9cb2bd607b04a9db74c07d7e48cc8ad7fd6483b files/kdelibs-3.5.5-noarts-2.patch 1686
-AUX kdelibs-3.5.5-noarts.patch 5474 RMD160 cab567315dbe7b18ccbf9718c98ab2d93786f1d7 SHA1 49a68721a27dfbf66a205e0608458bf4b5ddd788 SHA256 baf1ea16eed48f8a64e0ee25408161b130981e93f0fee718bb7cf71513a64420
-MD5 30d5ee2beb41b46cb3f46c3211d36c96 files/kdelibs-3.5.5-noarts.patch 5474
-RMD160 cab567315dbe7b18ccbf9718c98ab2d93786f1d7 files/kdelibs-3.5.5-noarts.patch 5474
-SHA256 baf1ea16eed48f8a64e0ee25408161b130981e93f0fee718bb7cf71513a64420 files/kdelibs-3.5.5-noarts.patch 5474
 AUX kdelibs-3.5.5-rounded-selection-box.patch 7464 RMD160 e26ab0defc3a3986e31b0be486305df6141e859c SHA1 a0eda69805547ce387f40dd1950f9e4168075cab SHA256 767bd77b2ec403f996d8d8e8f67b1730de05ac3abb75106fbf66f20badf64c70
 MD5 cc897a2acb347f7f8dc2d3a6702e348e files/kdelibs-3.5.5-rounded-selection-box.patch 7464
 RMD160 e26ab0defc3a3986e31b0be486305df6141e859c files/kdelibs-3.5.5-rounded-selection-box.patch 7464
@@ -34,10 +22,18 @@ AUX kdelibs-3.5.5-rubberband.patch 2522 RMD160 42160db85a4c64ca3630efe659c07c4ab
 MD5 1e330a83cfaf239e77611711597fa839 files/kdelibs-3.5.5-rubberband.patch 2522
 RMD160 42160db85a4c64ca3630efe659c07c4ab3389ee3 files/kdelibs-3.5.5-rubberband.patch 2522
 SHA256 2314da931a56835133e782755867dcf7c77989415ee0c1fd8509c57405048e29 files/kdelibs-3.5.5-rubberband.patch 2522
+AUX kdelibs-3.5.5-svn.patch 528384 RMD160 fb93cff201a69bafdd7d2f38c7d633d48a4f3e5a SHA1 a1c876d9c97b98079b72097a5146997f6330bdf2 SHA256 050ae924795597aa4a309b554b37fc6c763e47a1f15aeb103ec78a0083691594
+MD5 745ba4d8cadf44067f9ad262a375dd62 files/kdelibs-3.5.5-svn.patch 528384
+RMD160 fb93cff201a69bafdd7d2f38c7d633d48a4f3e5a files/kdelibs-3.5.5-svn.patch 528384
+SHA256 050ae924795597aa4a309b554b37fc6c763e47a1f15aeb103ec78a0083691594 files/kdelibs-3.5.5-svn.patch 528384
 AUX khtml-smoothscroll-3.5.5-final.patch 5992 RMD160 760047dfac107fb7149efe6d12f9c8868d2edeb4 SHA1 52d580992dd4b30e4056f02b06adb009db2b170a SHA256 9beaee2c0c17b7c2a0dea88984856f0a43bb4d7b6d2c8eb862ce1b2f051ef84c
 MD5 c1559dd160fc996ce7a6c829eb798eb0 files/khtml-smoothscroll-3.5.5-final.patch 5992
 RMD160 760047dfac107fb7149efe6d12f9c8868d2edeb4 files/khtml-smoothscroll-3.5.5-final.patch 5992
 SHA256 9beaee2c0c17b7c2a0dea88984856f0a43bb4d7b6d2c8eb862ce1b2f051ef84c files/khtml-smoothscroll-3.5.5-final.patch 5992
+AUX kickoff-drop-shadow.diff 5141 RMD160 fcf4f6572cf3ff9d5462de896075de8f314e4d4c SHA1 b077703ea5a77e9f952330f9c8f3f5899ad4d429 SHA256 087593fec4ec9598c486f7d6c62557adf9e0fe2263a38942ca925b8838f5f0ee
+MD5 496ef7b329b4be51e4a61f0c39b32675 files/kickoff-drop-shadow.diff 5141
+RMD160 fcf4f6572cf3ff9d5462de896075de8f314e4d4c files/kickoff-drop-shadow.diff 5141
+SHA256 087593fec4ec9598c486f7d6c62557adf9e0fe2263a38942ca925b8838f5f0ee files/kickoff-drop-shadow.diff 5141
 AUX ksystemtray-xgl.patch 1835 RMD160 f3b3eb513f67770bb8e3924d55f5c59f2339304b SHA1 64a7640ffb1f1e062ec2c4fdeff82abd7d8f4c3f SHA256 954c89dfeab77d4c37396bc0f3bed341095cd2869e7ab5111b5726cfd5b2ca7f
 MD5 f801c9efec2fe53cdb89fd8ed6557a82 files/ksystemtray-xgl.patch 1835
 RMD160 f3b3eb513f67770bb8e3924d55f5c59f2339304b files/ksystemtray-xgl.patch 1835
@@ -57,6 +53,10 @@ EBUILD kdelibs-3.5.5-r8.ebuild 6332 RMD160 9ed8289d9c56d2e793578d0fe7776952ade26
 MD5 68d8b6710e818f155ae283e6e71b10cd kdelibs-3.5.5-r8.ebuild 6332
 RMD160 9ed8289d9c56d2e793578d0fe7776952ade265bc kdelibs-3.5.5-r8.ebuild 6332
 SHA256 183bba3dcb3159a1d8639856f11fc58f6ca7c5cc26d02fb165e8a239e2f3c0b5 kdelibs-3.5.5-r8.ebuild 6332
+EBUILD kdelibs-3.5.5-r9.ebuild 5500 RMD160 d62d5d285675e28e1a3c2203f2450abe535675c6 SHA1 9a9f5eaad03a5bbc38c91c842af0bb33fc848bdf SHA256 a5cd0fd1f0af7b21e6c72455f98e7a5e3dcc2ffab20e5ac417046ec456907197
+MD5 5424db9366f065b2baef85e5177403b3 kdelibs-3.5.5-r9.ebuild 5500
+RMD160 d62d5d285675e28e1a3c2203f2450abe535675c6 kdelibs-3.5.5-r9.ebuild 5500
+SHA256 a5cd0fd1f0af7b21e6c72455f98e7a5e3dcc2ffab20e5ac417046ec456907197 kdelibs-3.5.5-r9.ebuild 5500
 MD5 4e084c981a53be48eb4df82f46649e60 files/digest-kdelibs-3.5.5-r6 521
 RMD160 b35a8ed3374893328cf91746946b98d833051692 files/digest-kdelibs-3.5.5-r6 521
 SHA256 8c59629509a40001ff71b42db7096bb8c7a4f78bb8e43b60baf2e205cd843c81 files/digest-kdelibs-3.5.5-r6 521
@@ -66,3 +66,6 @@ SHA256 8c59629509a40001ff71b42db7096bb8c7a4f78bb8e43b60baf2e205cd843c81 files/di
 MD5 b3407b1b16a060400ebc8b3bcd89eef4 files/digest-kdelibs-3.5.5-r8 807
 RMD160 65dd009a5c3e9f9b44e7d277d761a586184f1c20 files/digest-kdelibs-3.5.5-r8 807
 SHA256 9180e5499945c7011b584d592a892bc3ecc4a2cfcc703ede9619ab6238639387 files/digest-kdelibs-3.5.5-r8 807
+MD5 b3407b1b16a060400ebc8b3bcd89eef4 files/digest-kdelibs-3.5.5-r9 807
+RMD160 65dd009a5c3e9f9b44e7d277d761a586184f1c20 files/digest-kdelibs-3.5.5-r9 807
+SHA256 9180e5499945c7011b584d592a892bc3ecc4a2cfcc703ede9619ab6238639387 files/digest-kdelibs-3.5.5-r9 807
