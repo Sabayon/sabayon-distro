@@ -97,6 +97,10 @@ src_unpack() {
 }
 
 src_compile() {
+
+	# disable Unsermake
+	export UNSERMAKE="no"
+
 	rm -f "${S}/configure"
 
 	myconf="--with-distribution=Gentoo --disable-fast-malloc
