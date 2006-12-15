@@ -15,7 +15,7 @@ LICENSE="GPL-2 LGPL-2"
 SLOT="3.5"
 KEYWORDS="~alpha ~ppc ~x86 ~amd64"
 IUSE="acl alsa arts cups doc jpeg2k kerberos legacyssl openexr pertty spell ssl tiff
-zeroconf kernel_linux fam lua linguas_he kdehiddenvisibility"
+zeroconf kernel_linux fam lua linguas_he kdehiddenvisibility avahi"
 
 # kde.eclass has kdelibs in DEPEND, and we can't have that in here.
 # so we recreate the entire DEPEND from scratch.
@@ -98,8 +98,8 @@ src_unpack() {
 
 src_compile() {
 
-	# disable Unsermake
-	export UNSERMAKE="no"
+	# filter -s for MAKEOPTS
+	MAKEOPTS=$(echo ${MAKEOPTS} | sed 's/-s//')
 
 	rm -f "${S}/configure"
 
