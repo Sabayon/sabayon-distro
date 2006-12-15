@@ -98,8 +98,7 @@ src_unpack() {
 
 src_compile() {
 
-	# filter -s for MAKEOPTS
-	MAKEOPTS=$(echo ${MAKEOPTS} | sed 's/-s//')
+	export UNSERMAKE="no"
 
 	rm -f "${S}/configure"
 
