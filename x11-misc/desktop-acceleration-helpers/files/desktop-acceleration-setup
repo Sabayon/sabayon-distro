@@ -81,7 +81,7 @@ scan_and_remove_old_files() {
          do
             rm -f $file
          done
-      for file in `find /home -maxdepth 2 -name .beryl-managerrc`
+      for file in `find /home -maxdepth 2 -name .beryl*`
          do
             rm -f $file
          done
