@@ -1,0 +1,47 @@
+diff --git a/udevtrigger.c b/udevtrigger.c
+index 09ef60a..9479caa 100644
+--- a/udevtrigger.c
++++ b/udevtrigger.c
+@@ -358,6 +358,9 @@ int main(int argc, char *argv[], char *e
+ {
+ 	int i;
+ 	int failed = 0;
++	int block = 1;
++	int bus = 1;
++	int class = 1;
+ 
+ 	logging_init("udevtrigger");
+ 	udev_config_init();
+@@ -373,8 +376,15 @@ int main(int argc, char *argv[], char *e
+ 			dry_run = 1;
+ 		} else if (strcmp(arg, "--retry-failed") == 0 || strcmp(arg, "-F") == 0) {
+ 			failed = 1;
++		} else if (strcmp(arg, "--no-scan-block") == 0) {
++			block = 0;
++		} else if (strcmp(arg, "--no-scan-bus") == 0) {
++			bus = 0;
++		} else if (strcmp(arg, "--no-scan-class") == 0) {
++			class = 0;
+ 		} else if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0) {
+-			printf("Usage: udevtrigger [--help] [--verbose] [--dry-run] [--retry-failed]\n");
++			printf("Usage: udevtrigger [--no-scan-block] [--no-scan-bus] [--no-scan-class]\n");
++			printf("                   [--help] [--verbose] [--dry-run] [--retry-failed]\n");
+ 			goto exit;
+ 		} else {
+ 			fprintf(stderr, "unrecognized option '%s'\n", arg);
+@@ -386,9 +396,12 @@ int main(int argc, char *argv[], char *e
+ 		scan_failed();
+ 	else {
+ 		/* default action */
+-		scan_bus();
+-		scan_class();
+-		scan_block();
++		if (bus)
++			scan_bus();
++		if (class)
++			scan_class();
++		if (block)
++			scan_block();
+ 	}
+ 	exec_lists();
+ 
