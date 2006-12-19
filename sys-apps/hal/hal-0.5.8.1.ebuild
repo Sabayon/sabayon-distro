@@ -15,7 +15,7 @@ IUSE="acpi crypt debug doc dmi pcmcia selinux"
 
 RDEPEND=">=dev-libs/glib-2.6
 	|| ( >=dev-libs/dbus-glib-0.71 <sys-apps/dbus-0.90 )
-	>=sys-fs/udev-078
+	>=sys-fs/udev-100
 	>=sys-apps/util-linux-2.12r
 	|| ( >=sys-kernel/linux-headers-2.6 >=sys-kernel/mips-headers-2.6 )
 	dev-libs/expat
