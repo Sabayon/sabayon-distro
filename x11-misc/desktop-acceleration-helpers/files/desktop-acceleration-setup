@@ -75,15 +75,15 @@ create_beryl_manager_desktop_file() {
 scan_and_remove_old_files() {
       for file in `find /home -maxdepth 4 -name $beryl_wrapper`
          do
-            rm -f $file
+            rm -rf $file
          done
       for file in `find /home -maxdepth 4 -name $beryl_manager`
          do
-            rm -f $file
+            rm -rf $file
          done
       for file in `find /home -maxdepth 2 -name .beryl*`
          do
-            rm -f $file
+            rm -rf $file
          done
 }
 
@@ -91,7 +91,9 @@ add_beryl_manager_to_the_startup() {
     if [ -e "/usr/share/autostart" ]; then
         cp $beryl_manager_desktop_file /usr/share/autostart/ -p
         # link that to the GNOME startup dir
-        ln -sf /usr/share/autostart/$beryl_manager /usr/share/gnome/autostart/
+        if [ -e /usr/share/gnome/autostart ]; then
+          ln -sf /usr/share/autostart/$beryl_manager /usr/share/gnome/autostart/
+        fi
     fi
 }
 
