@@ -6,7 +6,7 @@ inherit eutils linux-mod
 
 DESCRIPTION="Stackable unification file system, which can appear to merge the contents of several directories"
 HOMEPAGE="http://www.fsl.cs.sunysb.edu/project-unionfs.html"
-SRC_URI="http://svn.sabayonlinux.org/distfiles/sys-fs/unionfs-20060916-2203.tar.gz"
+SRC_URI="http://sabayonlinux.org/distfiles/sys-fs/unionfs-20060916-2203.tar.gz"
 LICENSE="GPL-2"
 KEYWORDS="~x86 ~amd64 ~ppc"
 IUSE="acl debug nfs"
