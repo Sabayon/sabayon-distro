@@ -1,0 +1,8 @@
+DIST NetworkManager-openvpn-0.3.2.tar.gz 404575 RMD160 bbf852bc778f7c65facfc2d687042f535bd4ed4b SHA1 34ba48570c1f0698874f135c4ee50f43caf07394 SHA256 072164284a34c4de4a7dae35666a3d14d0162ab972eee74c369c16d0fd960ca4
+EBUILD networkmanager-openvpn-0.3.2.ebuild 1291 RMD160 61526e55dbfd19c479cc61ab00d1bf5ae2c6b99e SHA1 e6a479ce5ceb5c1de8cc4bd874e76c522981f0ee SHA256 7e52c406bc5b78fd5697dcd065998be30b0ae26fdd8b93a8ef2e6acb92a61f14
+MD5 758bd6804feff15dd80427abf7e8310a networkmanager-openvpn-0.3.2.ebuild 1291
+RMD160 61526e55dbfd19c479cc61ab00d1bf5ae2c6b99e networkmanager-openvpn-0.3.2.ebuild 1291
+SHA256 7e52c406bc5b78fd5697dcd065998be30b0ae26fdd8b93a8ef2e6acb92a61f14 networkmanager-openvpn-0.3.2.ebuild 1291
+MD5 ae36bdc7dda427756d24fc059a8ca3b4 files/digest-networkmanager-openvpn-0.3.2 286
+RMD160 410b88f9eb86373a94b213dd43242aa78a4504b9 files/digest-networkmanager-openvpn-0.3.2 286
+SHA256 ee9df0f73d23b13ba0c1d25aad05018b458aa47e318225e075ab8fedaf732c24 files/digest-networkmanager-openvpn-0.3.2 286
