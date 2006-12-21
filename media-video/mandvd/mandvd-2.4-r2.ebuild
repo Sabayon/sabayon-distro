@@ -13,7 +13,7 @@ RESTRICT="nomirror"
 IUSE=""
 KEYWORDS="~x86 ~amd64"
 
-DEPEND=">=qt-3.*
+DEPEND="=x11-libs/qt-3*
 	>=xine-lib-0.99.4
 	>=dvd-slideshow-0.7.5
 	>media-sound/lame-3.96
