@@ -81,20 +81,23 @@ src_install () {
 
 	# Make sure you change the mouse cursor theme name here each release its changed
 	dodir /usr/share/cursors/${X11_IMPLEM}/
-	rm /usr/share/cursors/${X11_IMPLEM}/*
+	rm -rf /usr/share/cursors/${X11_IMPLEM}/*
 
+	cd ${S}/mouse/Grounation/cursors/
 	dodir /usr/share/cursors/${X11_IMPLEM}/Grounation/cursors/
-	cp -d  ${S}/mouse/Grounation/cursors/* \
-		${D}/usr/share/cursors/${X11_IMPLEM}/Grounation/cursors/
-
+	insinto /usr/share/cursors/${X11_IMPLEM}/Grounation/cursors/
+	doins -r ./
+	
+	cd ${S}/mouse/Grounation/
 	dodir /usr/share/cursors/${X11_IMPLEM}/default
-	cp -d ${S}/mouse/Grounation/index.theme \
-		/usr/share/cursors/${X11_IMPLEM}/default/index.theme		
+	insinto /usr/share/cursors/${X11_IMPLEM}/default
+	doins ./index.theme		
 
 	# Kicker theme | only pics for now
 	# /usr/kde/3.5/share/apps/kicker/pics/
+	cd ${S}/kicker/pics/
 	dodir ${ROOT}/$kdedir/share/apps/kicker/pics/
-	cp -d ${S}/kicker/pics/* \
-		${ROOT}/$kdedir/share/apps/kicker/pics/
+	insinto ${ROOT}/$kdedir/share/apps/kicker/pics/
+	doins -r ./	
 
 }
