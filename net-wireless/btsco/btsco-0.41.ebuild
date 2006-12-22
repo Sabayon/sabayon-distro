@@ -10,7 +10,7 @@ HOMEPAGE="http://bluetooth-alsa.sourceforge.net/"
 SRC_URI="mirror://sourceforge/bluetooth-alsa/${SPKG}-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-* ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="alsa ao skype"
 
 RDEPEND=">=net-wireless/bluez-utils-2.19
