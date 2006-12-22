@@ -34,11 +34,12 @@ src_compile() {
 	make || die "make failed"
 }
 
-src_install() {
-	addwrite /usr/lib/
-	addwrite /usr/share/doc
-	addwrite /usr/share/locale
-	cd ${S}
-	kde_src_install dodoc
-	make install || die "make install"
-}
+#src_install() {
+#	addwrite /usr/lib/
+#	addwrite /usr/share/doc
+#	addwrite /usr/share/locale
+#	addwrite /usr/share/apps/
+#	cd ${S}
+#	kde_src_install dodoc
+#	make install || die "make install"
+#}
