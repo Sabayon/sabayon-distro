@@ -23,6 +23,7 @@ DEPEND="${RDEPEND}
 # when SL will use dbus-1.0
 # use: dev-libs/dbus-qt3-old-0.70
 
+UNSERMAKE="/usr/kde/unsermake/unsermake"
 set-kdedir
 
 src_compile() {
