@@ -36,6 +36,7 @@ src_compile() {
 
 src_install() {
 	addwrite /usr/lib/
+	addwrite /usr/share/doc
 	cd ${S}
 	kde_src_install dodoc
 	make install || die "make install"
