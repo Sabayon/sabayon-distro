@@ -150,7 +150,7 @@ src_unpack() {
 		&& cd "${WORKDIR}/${NV_PACKAGE}${PKG_V}/doc" \
 		|| cd "${WORKDIR}/${NV_PACKAGE}${PKG_V}"
 	# Use the correct defines to make gtkglext build work
-	epatch ${FILESDIR}/NVIDIA_glx-defines.patch
+	# epatch ${FILESDIR}/NVIDIA_glx-defines.patch
 	# Use some more sensible gl headers and make way for new glext.h
 	epatch ${FILESDIR}/NVIDIA_glx-glheader.patch
 
