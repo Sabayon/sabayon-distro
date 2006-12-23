@@ -9,19 +9,19 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
-IUSE="x86 x86_64 x86-mini x86_64-mini"
+IUSE="x86 amd64 x86-mini amd64-mini"
 
 src_unpack () {
 
         cd ${WORKDIR}
 	if use x86-mini; then
-		cp ${FILESDIR}/${PV}/sabayon-release-x86-${PV} sabayon-release -p
+		cp ${FILESDIR}/${PV}/sabayon-release-x86 sabayon-release -p
 	elif use x86_64-mini; then
-		cp ${FILESDIR}/${PV}/sabayon-release-x86_64-${PV} sabayon-release -p
+		cp ${FILESDIR}/${PV}/sabayon-release-x86_64 sabayon-release -p
 	elif use x86; then
-		cp ${FILESDIR}/${PV}/sabayon-release-x86mini-${PV} sabayon-release -p
-	elif use x86_64; then
-		cp ${FILESDIR}/${PV}/sabayon-release-x86_64mini-${PV} sabayon-release -p
+		cp ${FILESDIR}/${PV}/sabayon-release-x86mini sabayon-release -p
+	elif use amd64; then
+		cp ${FILESDIR}/${PV}/sabayon-release-x86_64mini sabayon-release -p
 	fi
 
 }
