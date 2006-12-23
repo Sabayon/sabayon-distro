@@ -23,7 +23,7 @@ x11-misc/xglswitch
 >=x11-themes/murrine-0.31
 
 # Does not build against xorg 7.2_rc2; need to fix ebuild to do so
-=nvidia-drivers-1.0.9746-r90.ebuild
+=nvidia-drivers-1.0.9746-r90
 
 # Development release
 >=sys-power/kpowersave-0.7.1
