@@ -36,7 +36,10 @@ src_unpack() {
 	unpack ${PN}-pkg-${VERSION_PKG}.tar.bz2
 
 	# Add UnionFS support
-	epatch ${FILESDIR}/genkernel-3.4.5-unionfs.patch
+	epatch ${FILESDIR}/${P}-unionfs.patch
+
+	# Add Sabayon Linux text
+	epatch ${FILESDIR}/${P}-sabayon-linux.patch
 }
 
 src_install() {
