@@ -26,6 +26,10 @@ AUX networkmanager-0.6.4-high-delay.patch 542 RMD160 8e5e2836e60381eb87d22f23b78
 MD5 76fcc08c6dc4813bf53a1be6443521ba files/networkmanager-0.6.4-high-delay.patch 542
 RMD160 8e5e2836e60381eb87d22f23b7834a16acc4d094 files/networkmanager-0.6.4-high-delay.patch 542
 SHA256 edc89f7195a0f8ed7f500afaa58092fd38eb981e5ce1504534eac56efa313c38 files/networkmanager-0.6.4-high-delay.patch 542
+AUX networkmanager-0.6.4-wireless-drivers-workarounds.patch 7149 RMD160 5677b5557010e2a9d86c0397a3a43a519a2075a3 SHA1 b13b0f4e0b25b082d1aff01d3ebae783531a5f19 SHA256 8532d031331212725bfd46869b54207784882f91a0dd2e852e7c2a20b0b5683f
+MD5 5305580e701ee0465215a53493b514af files/networkmanager-0.6.4-wireless-drivers-workarounds.patch 7149
+RMD160 5677b5557010e2a9d86c0397a3a43a519a2075a3 files/networkmanager-0.6.4-wireless-drivers-workarounds.patch 7149
+SHA256 8532d031331212725bfd46869b54207784882f91a0dd2e852e7c2a20b0b5683f files/networkmanager-0.6.4-wireless-drivers-workarounds.patch 7149
 AUX networkmanager-resolvconf-perms.patch 532 RMD160 453ce19560e1872d1da1fa48e0c9a365025e6b1b SHA1 a81be4e9c9bac854e092b82529c4ae2c12cdf91c SHA256 e1786f34a75d2e0a27ceccb960cf975176260886f70cc3e9b172180f8a1d2e6e
 MD5 785dfadfffc8dc7119ea16c1ba3aa6d9 files/networkmanager-resolvconf-perms.patch 532
 RMD160 453ce19560e1872d1da1fa48e0c9a365025e6b1b files/networkmanager-resolvconf-perms.patch 532
@@ -55,6 +59,10 @@ EBUILD networkmanager-0.6.4_pre20061214.ebuild 3187 RMD160 b8ec05542717a37c809c4
 MD5 7fa9f536d0d8a651a6f4fbb99123cdc5 networkmanager-0.6.4_pre20061214.ebuild 3187
 RMD160 b8ec05542717a37c809c4ad8be0fd389760bfb68 networkmanager-0.6.4_pre20061214.ebuild 3187
 SHA256 74fb393434075ab6f40815ad40abed28804da80e4988c392767d2f896c5badfd networkmanager-0.6.4_pre20061214.ebuild 3187
+EBUILD networkmanager-0.6.4_pre20061223.ebuild 3308 RMD160 4f7da958d99d601c393415b00997fcab96ff23c8 SHA1 6a181f49a81ddbfd5bd787d016c30fe575c1ef6b SHA256 b9d379308a04633db535af2ad5e4be1a011be468c1e24ae940082f84be339ac0
+MD5 428fb4e7f6e3a6d2d68673fda1fdbdf0 networkmanager-0.6.4_pre20061223.ebuild 3308
+RMD160 4f7da958d99d601c393415b00997fcab96ff23c8 networkmanager-0.6.4_pre20061223.ebuild 3308
+SHA256 b9d379308a04633db535af2ad5e4be1a011be468c1e24ae940082f84be339ac0 networkmanager-0.6.4_pre20061223.ebuild 3308
 MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20061115-r1 304
 RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20061115-r1 304
 SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20061115-r1 304
@@ -67,3 +75,6 @@ SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/di
 MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20061214 304
 RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20061214 304
 SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20061214 304
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20061223 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20061223 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20061223 304
