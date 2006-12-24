@@ -1,0 +1,10 @@
+--- xorg-server-1.1.99.903/GL/mesa/main/Makefile.am.orig	2006-12-03 16:24:27.786630074 +0100
++++ xorg-server-1.1.99.903/GL/mesa/main/Makefile.am	2006-12-03 16:24:37.985074238 +0100
+@@ -60,6 +60,7 @@
+                     light.c \
+                     lines.c \
+                     matrix.c \
++                    mipmap.c \
+                     mm.c \
+                     occlude.c \
+                     pixel.c \

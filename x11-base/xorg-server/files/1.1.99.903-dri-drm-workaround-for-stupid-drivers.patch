@@ -1,0 +1,32 @@
+--- hw/xfree86/common/xf86Helper.c.orig	2006-12-13 16:21:35.000000000 +0100
++++ hw/xfree86/common/xf86Helper.c	2006-12-13 18:23:53.000000000 +0100
+@@ -2386,22 +2386,29 @@
+ 
+ _X_EXPORT pointer
+ xf86LoadSubModule(ScrnInfoPtr pScrn, const char *name)
+ {
+     pointer ret;
+     int errmaj = 0, errmin = 0;
+ 
+     ret = LoadSubModule(pScrn->module, name, NULL, NULL, NULL, NULL,
+ 			&errmaj, &errmin);
+     if (!ret)
+ 	LoaderErrorMsg(pScrn->name, name, errmaj, errmin);
++
++    /* "drm" module has been merged into "dri" module, but some drivers
++        are still trying to load it explictely and fail if it doesn't exist :-( */
++    if (!ret && !strcmp(name,"drm")) {
++        ret = (pointer) -1;
++    }
++
+     return ret;
+ }
+ 
+ /*
+  * xf86LoadOneModule loads a single module.
+  */             
+ _X_EXPORT pointer
+ xf86LoadOneModule(char *name, pointer opt)
+ {
+     int errmaj, errmin;
+     char *Name;
