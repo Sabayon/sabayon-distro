@@ -30,6 +30,15 @@ pkg_setup() {
 	BUILD_PARAMS="KSRC=${KV_DIR} KERNEL_PATH=${KV_DIR}"
 }
 
+src_unpack() {
+	unpack ${A}
+
+	# 2.6.19 fix
+	cd ${S}
+	epatch ${FILESDIR}/${PN}-2.6.19.patch
+
+}
+
 src_install() {
 	linux-mod_src_install
 
