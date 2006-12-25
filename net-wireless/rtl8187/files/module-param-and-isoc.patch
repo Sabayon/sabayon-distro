@@ -1,0 +1,45 @@
+--- rtl8187_linuxdrv_V1.1/beta-8187/r8187_core.c.orig	2006-08-08 10:24:24.000000000 +0200
++++ rtl8187_linuxdrv_V1.1/beta-8187/r8187_core.c	2006-08-08 10:25:35.000000000 +0200
+@@ -105,16 +105,16 @@
+ MODULE_AUTHOR("Andrea Merello <andreamrl@tiscali.it>");
+ MODULE_DESCRIPTION("Linux driver for Realtek RTL8187 WiFi cards");
+ 
+-MODULE_PARM(ifname,"s");
++module_param(ifname, charp, 0);
+ MODULE_PARM_DESC(devname," Net interface name, wlan%d=default");
+ #if 0
+-MODULE_PARM(hwseqnum,"i");
++module_param(hwseqnum, int, 0);
+ MODULE_PARM_DESC(hwseqnum," Try to use hardware 802.11 header sequence numbers. Zero=default");
+ 
+-MODULE_PARM(hwwep,"i");
++module_param(hwwep, int, 0);
+ MODULE_PARM_DESC(hwwep," Try to use hardware WEP support. Still broken and not available on all cards");
+ #endif
+-MODULE_PARM(channels,"i");
++module_param(channels, int, 0);
+ MODULE_PARM_DESC(channels," Channel bitmask for specific locales. NYI");
+ 
+ MODULE_VERSION("V 0.q");
+@@ -125,7 +125,6 @@
+ static void __devexit rtl8187_usb_disconnect(struct usb_interface *intf);
+ 
+ static struct usb_driver rtl8187_usb_driver = {
+-	.owner		= THIS_MODULE,
+ 	.name		= RTL8187_MODULE_NAME,	          /* Driver name   */
+ 	.id_table	= rtl8187_usb_id_tbl,	          /* PCI_ID table  */
+ 	.probe		= rtl8187_usb_probe,	          /* probe fn      */
+@@ -2327,11 +2326,11 @@
+ int rtl8180_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ {
+ 	struct r8180_priv *priv = (struct r8180_priv *)ieee80211_priv(dev);
++	struct iwreq *wrq = (struct iwreq *) rq;
++	int ret=-1;
+ 	
+ 	down(&priv->wx_sem);
+ 	
+-	struct iwreq *wrq = (struct iwreq *) rq;
+-	int ret=-1;
+ 	switch (cmd) {
+ 	    case RTL_IOCTL_WPA_SUPPLICANT:
+ 		ret = ieee80211_wpa_supplicant_ioctl(priv->ieee80211, &wrq->u.data);
