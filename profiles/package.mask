@@ -27,3 +27,6 @@ x11-misc/xglswitch
 
 # Development release
 >=sys-power/kpowersave-0.7.1
+
+# Causes kdeinit errors
+=x11-libs/qt-4.2.2
