@@ -66,6 +66,9 @@ src_unpack (){
 	# Better Gentoo support (mostly inside catalyst)
         sed -i 's/$(shell uname -r)/'${KV_FULL}'/' Makefile
 
+	# 2.6.19 support
+	epatch ${FILESDIR}/${PN}-2.6.19.patch
+
 }
 
 
