@@ -1,0 +1,28 @@
+diff -ur -x '*.po' rhpl-0.188.orig/src/gzread.py rhpl-0.188/src/gzread.py
+--- rhpl-0.188.orig/src/gzread.py	2002-05-22 15:07:45.000000000 -0700
++++ rhpl-0.188/src/gzread.py	2006-09-01 16:20:01.000000000 -0700
+@@ -57,7 +57,7 @@
+ 
+     def _read_gzip_header(self):
+ 	magic = self.fileobj.read(2)
+-	if magic != '\037\213':
++	if magic != r'\037\213':
+ 	    self._unread(magic)
+ 	    self.compressed = 0
+ 	    return
+Only in rhpl-0.188/src/iconvmodule: build
+Only in rhpl-0.188/src/iconvmodule: iconv.so
+Only in rhpl-0.188/src: _translate.o
+diff -ur -x '*.po' rhpl-0.188.orig/src/translate.py rhpl-0.188/src/translate.py
+--- rhpl-0.188.orig/src/translate.py	2005-07-06 11:40:10.000000000 -0700
++++ rhpl-0.188/src/translate.py	2006-09-01 16:20:24.000000000 -0700
+@@ -125,7 +125,7 @@
+                     buf = f.read(2)
+                     f.close()
+ 
+-                    if buf == "\037\213":
++                    if buf == r"\037\213":
+                         mofile = gzip.open(file_path)
+                     else:
+                         mofile = open(file_path)
+Only in rhpl-0.188/src: _translate.so
