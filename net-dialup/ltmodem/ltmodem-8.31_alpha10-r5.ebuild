@@ -52,6 +52,11 @@ src_unpack() {
 	convert_to_m "${S}/Makefile"
 	cd ${WORKDIR}/ltmodem-2.6-alk-8/
 	epatch "${FILESDIR}/2.6.18-devfs.patch"
+
+        # 2.6.19 support
+        cd ${WORKDIR}
+        epatch ${FILESDIR}/2.6.19-config.h.patch
+
 }
 
 src_compile() {
