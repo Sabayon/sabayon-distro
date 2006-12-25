@@ -6,7 +6,7 @@ inherit eutils
 
 HOMEPAGE="http://schrodinger.sourceforge.net/"
 DESCRIPTION=""
-SRC_URI="http://umn.dl.sourceforge.net/sourceforge/schrodinger/libtsmux-0.1.1.tar.bz2"
+SRC_URI="mirror://sourceforge/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
