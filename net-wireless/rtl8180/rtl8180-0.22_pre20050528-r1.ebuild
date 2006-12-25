@@ -32,7 +32,7 @@ src_unpack() {
 	sed -i -e 's:MODVERDIR=$(PWD) ::' {,ieee80211/}Makefile
 	
 	# 2.6.19 patch
-	#epatch ${FILESDIR}/${PN}-2.6.19.patch
+	epatch ${FILESDIR}/${PN}-2.6.19.patch
 }
 
 src_install() {
