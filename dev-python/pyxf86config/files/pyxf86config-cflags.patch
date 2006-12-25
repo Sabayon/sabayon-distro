@@ -1,0 +1,18 @@
+--- pyxf86config-0.3.31.orig/Makefile.in	2006-09-21 23:35:13.000000000 +0200
++++ pyxf86config-0.3.31/Makefile.in	2006-12-25 12:24:56.000000000 +0100
+@@ -63,12 +63,12 @@ DEFAULT_INCLUDES = -I. -I$(srcdir) -I.
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
++	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -fPIC
+ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
+ 	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+-	$(AM_CFLAGS) $(CFLAGS)
++	$(AM_CFLAGS) $(CFLAGS) -fPIC
+ CCLD = $(CC)
+-LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
++LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) -fPIC \
+ 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+ SOURCES = $(ixf86configmodule_so_SOURCES)
+ DIST_SOURCES = $(ixf86configmodule_so_SOURCES)
