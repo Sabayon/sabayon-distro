@@ -18,7 +18,7 @@ SRC_URI="http://dev.gentoo.org/~wolf31o2/sources/genkernel/${P}.tar.bz2
 	http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-${VERSION_DMRAID}.tar.bz2
 	ftp://sources.redhat.com/pub/lvm2/old/LVM2.${VERSION_LVM2}.tgz
 	ftp://sources.redhat.com/pub/dm/old/device-mapper.${VERSION_DMAP}.tgz
-	http://www.sabayonlinux.org/distfiles/sys-fs/unionfs-${VERSION_UNIONFS}.tar.bz2
+	http://www.sabayonlinux.org/distfiles/sys-fs/unionfs-${VERSION_UNIONFS}.tar.gz
 	mirror://sourceforge/e2fsprogs/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz"
 
 LICENSE="GPL-2"
@@ -40,8 +40,6 @@ src_unpack() {
 	# Add Sabayon Linux text
 	epatch ${FILESDIR}/${P}-sabayon-linux.patch
 
-	# Change unionfs package format
-	epatch ${FILESDIR}/${P}-unionfs-pkgformat.patch
 }
 
 src_install() {
@@ -72,7 +70,7 @@ src_install() {
 	cp "${DISTDIR}"/dmraid-${VERSION_DMRAID}.tar.bz2 \
 	"${DISTDIR}"/LVM2.${VERSION_LVM2}.tgz \
 	"${DISTDIR}"/device-mapper.${VERSION_DMAP}.tgz \
-	"${DISTDIR}"/unionfs-${VERSION_UNIONFS}.tar.bz2 \
+	"${DISTDIR}"/unionfs-${VERSION_UNIONFS}.tar.gz \
 	"${DISTDIR}"/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz \
 	${D}/usr/share/genkernel/pkg
 
