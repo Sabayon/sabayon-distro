@@ -4,7 +4,7 @@ diff -rpuN genkernel/gen_compile.sh genkernel-unionfscb/gen_compile.sh
 @@ -1,5 +1,7 @@
  #!/bin/bash
  
-+. gen_unionfs_helpers.sh
++source /usr/share/genkernel/gen_unionfs_helpers.sh
 +
  compile_kernel_args()
  {
