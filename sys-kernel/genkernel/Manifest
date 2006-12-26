@@ -6,10 +6,10 @@ AUX genkernel-3.4.5-unionfs-pkgformat.patch 579 RMD160 88ab770082cb09c2a91118f86
 MD5 a8c6cb644bbf83cd6746e3f0b0247ec7 files/genkernel-3.4.5-unionfs-pkgformat.patch 579
 RMD160 88ab770082cb09c2a91118f8600fa51c6247886e files/genkernel-3.4.5-unionfs-pkgformat.patch 579
 SHA256 6f79ec1a4b0cdb0d38845bf028085660b51e96ae629eac677b08d6b05b4f9322 files/genkernel-3.4.5-unionfs-pkgformat.patch 579
-AUX genkernel-3.4.5-unionfs.patch 14431 RMD160 49219516e80b0860043786fe9d0919adb5c136a8 SHA1 ad5f74bb1a2b543cbaf22192e954333fe85140fb SHA256 302babfdd9cab9214f43dd232bfed27e0865a5b6cfb6cf843c813c666229db9c
-MD5 e7ebe06cb85556eeca43657e3c20270c files/genkernel-3.4.5-unionfs.patch 14431
-RMD160 49219516e80b0860043786fe9d0919adb5c136a8 files/genkernel-3.4.5-unionfs.patch 14431
-SHA256 302babfdd9cab9214f43dd232bfed27e0865a5b6cfb6cf843c813c666229db9c files/genkernel-3.4.5-unionfs.patch 14431
+AUX genkernel-3.4.5-unionfs.patch 2672 RMD160 3e58cfa8b88e280403b99bc023cf375f1b3508ba SHA1 ebd42148005b3fddd1d42f7ec30e2de61e7b9b12 SHA256 6f84df89d6f4f6cf5a19a4fdef9a8fb013b2efdb2fe5185cd2ea02809fca353c
+MD5 68650cf70dc300f61b42c40632f40fa6 files/genkernel-3.4.5-unionfs.patch 2672
+RMD160 3e58cfa8b88e280403b99bc023cf375f1b3508ba files/genkernel-3.4.5-unionfs.patch 2672
+SHA256 6f84df89d6f4f6cf5a19a4fdef9a8fb013b2efdb2fe5185cd2ea02809fca353c files/genkernel-3.4.5-unionfs.patch 2672
 AUX genkernel.bash 2438 RMD160 b3d8e4436d8768c07d18c5aaff9c14fc16641729 SHA1 e15a9c6ef506aa6872a6a97d26751246dedded04 SHA256 e7de9771ba79ef878e2c9a21a1c1720f092c6047d3cc7d4a49ff6b90e7e2c248
 MD5 a86c191115d517b3cd4dc09a857ccaa2 files/genkernel.bash 2438
 RMD160 b3d8e4436d8768c07d18c5aaff9c14fc16641729 files/genkernel.bash 2438
