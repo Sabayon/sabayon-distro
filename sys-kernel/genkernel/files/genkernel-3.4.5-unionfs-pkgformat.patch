@@ -1,0 +1,11 @@
+--- genkernel-3.4.5.orig/genkernel.conf	2006-11-14 15:55:34.000000000 +0100
++++ genkernel-3.4.5/genkernel.conf	2006-12-26 02:01:47.000000000 +0100
+@@ -134,7 +134,7 @@ DMRAID_BINCACHE="%%CACHE%%/dmraid-${DMRA
+ 
+ UNIONFS_VER="VERSION_UNIONFS"
+ UNIONFS_DIR="unionfs-${UNIONFS_VER}"
+-UNIONFS_SRCTAR="${GK_SHARE}/pkg/unionfs-${UNIONFS_VER}.tar.gz"
++UNIONFS_SRCTAR="${GK_SHARE}/pkg/unionfs-${UNIONFS_VER}.tar.bz2"
+ UNIONFS_BINCACHE="%%CACHE%%/unionfs-${UNIONFS_VER}-tools-%%ARCH%%.tar.bz2"
+ UNIONFS_MODULES_BINCACHE="%%CACHE%%/unionfs-${UNIONFS_VER}-modules-%%KV%%-%%ARCH%%.tar.bz2"
+ 
