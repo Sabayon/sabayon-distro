@@ -6,12 +6,12 @@ inherit eutils linux-mod
 
 DESCRIPTION="Stackable unification file system, which can appear to merge the contents of several directories"
 HOMEPAGE="http://www.fsl.cs.sunysb.edu/project-unionfs.html"
-SRC_URI="http://sabayonlinux.org/distfiles/sys-fs/unionfs-20060916-2203.tar.gz"
+SRC_URI="http://sabayonlinux.org/distfiles/sys-fs/${P}.tar.bz2"
 LICENSE="GPL-2"
 KEYWORDS="~x86 ~amd64 ~ppc"
 IUSE="acl debug nfs"
 
-S=${WORKDIR}/unionfs-20060916-2203/
+S=${WORKDIR}/${P}/
 
 local_version_info() {
 	ewarn
@@ -23,11 +23,12 @@ local_version_info() {
 	einfo "kernel: 2.6.16          Version: 1.2"
 	einfo "kernel: 2.6.17          Version: 1.3"
 	einfo "kernel: 2.6.18          Version: 1.3.20060916"
+	einfo "kernel: 2.6.19          Version: +1.5_pre"
 }
 
 pkg_setup() {
 	# kernel version check
-	if ! kernel_is eq 2 6 18; then
+	if ! kernel_is eq 2 6 19; then
 		local_version_info
 		die
 	fi
