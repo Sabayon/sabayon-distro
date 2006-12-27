@@ -11,12 +11,16 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE=""
+IUSE="kde gnome"
 
 RDEPEND="~x11-plugins/beryl-plugins-${PV}
 	~x11-wm/emerald-${PV}
+	if use kde; then
 	~x11-wm/aquamarine-${PV}
+	fi
+	if use gnome; then
 	~x11-wm/heliodor-${PV}
+	fi
 	~x11-misc/beryl-settings-${PV}
 	~x11-misc/beryl-manager-${PV}"
 
