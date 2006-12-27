@@ -13,6 +13,8 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
+LANGS="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL 
+pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
 
 DEPEND=">=x11-base/xorg-server-1.1.1-r1
 	>=x11-libs/gtk+-2.8.0
@@ -25,13 +27,6 @@ RDEPEND="${DEPEND}
 	x11-apps/xdpyinfo"
 
 PDEPEND="~x11-plugins/beryl-plugins-${PV}"
-
-src_unpack(){
-	unpack ${A}
-	cd ${S}/po
-	ln -s ca_ES.po ca.po
-	ln -s de_DE.po de.po
-}
 
 src_compile() {
 	eautoreconf

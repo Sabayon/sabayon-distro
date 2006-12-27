@@ -12,6 +12,8 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
+LANGS="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL 
+pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
 
 PDEPEND="~x11-themes/emerald-themes-${PV}"
 
