@@ -69,9 +69,9 @@
  		/bin/tar -cjf "${UNIONFS_BINCACHE}" . ||
  			gen_die 'Could not create unionfs tools binary cache'
  		
-diff -Nurp genkernel.orig/generic/linuxrc genkernel/generic/linuxrc
---- genkernel.orig/generic/linuxrc	2006-12-26 10:33:07.000000000 +0100
-+++ genkernel/generic/linuxrc	2006-12-27 02:57:15.000000000 +0100
+diff -Nurp generic/linuxrc generic/linuxrc.new
+--- generic/linuxrc
++++ generic/linuxrc.new
 @@ -557,6 +557,9 @@ then
  	then
  		union_insert_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
