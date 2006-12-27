@@ -22,6 +22,7 @@ DEPEND=">=x11-libs/gtk+-2.8.0
 src_unpack () {
 	unpack ${A}
 	cd ${S}/po
+	einfo "symlinking en_GB to en and en_US for SL users"
 	ln -s en_GB.po en_US.po
 	ln -s en_GB.po en.po
 }
