@@ -19,6 +19,14 @@ DEPEND=">=x11-libs/gtk+-2.8.0
 	>=x11-libs/libwnck-2.14.2
 	~x11-wm/beryl-core-${PV}"
 
+src_unpack () {
+	unpack ${A}
+	cd ${S}/po
+	ln -s en_GB.po en_US.po
+	ln -s en_GB.po en.po
+}
+
 src_compile() {
+	cd ${S}
 	gnome2_src_compile --disable-mime-update
 }
