@@ -20,5 +20,5 @@ DEPEND=">=x11-libs/gtk+-2.8.0
 	~x11-wm/beryl-core-${PV}"
 
 src_compile() {
-	gnome2_src_compile --disable-mime-update
+	gnome2_src_compile
 }
