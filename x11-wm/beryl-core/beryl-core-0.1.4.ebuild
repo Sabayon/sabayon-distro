@@ -26,6 +26,12 @@ RDEPEND="${DEPEND}
 
 PDEPEND="~x11-plugins/beryl-plugins-${PV}"
 
+src_unpack(){
+	unpack ${A}
+	cd ${S}/po
+	ln -s ca_ES.po ca.po
+}
+
 src_compile() {
 	eautoreconf
 
