@@ -30,3 +30,7 @@ x11-misc/xglswitch
 
 # Causes kdeinit errors
 =x11-libs/qt-4.2.2
+
+# SabayonLinux relies on networkmanager and knetworkamanger which do not 
+work with new dbus, will be unmasked when it does
+>sys-apps/dbus-1.0.2
