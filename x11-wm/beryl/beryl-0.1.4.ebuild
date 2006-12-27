@@ -15,12 +15,12 @@ IUSE="kde gnome"
 
 RDEPEND="~x11-plugins/beryl-plugins-${PV}
 	~x11-wm/emerald-${PV}
-	if use kde; then
+	kde? (
 	~x11-wm/aquamarine-${PV}
-	fi
-	if use gnome; then
+	)
+	gnome? (
 	~x11-wm/heliodor-${PV}
-	fi
+	)
 	~x11-misc/beryl-settings-${PV}
 	~x11-misc/beryl-manager-${PV}"
 
