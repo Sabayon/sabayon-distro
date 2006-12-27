@@ -4,6 +4,8 @@
 
 LANGS="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
 
+USE_KEG_PACKAGING=1
+
 inherit gnome2 flag-o-matic eutils 
 
 DESCRIPTION="Beryl Window Decorator"
@@ -14,8 +16,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
-# LANGS="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
-# LANGS_DOC="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
 
 PDEPEND="~x11-themes/emerald-themes-${PV}"
 
@@ -26,7 +26,9 @@ DEPEND=">=x11-libs/gtk+-2.8.0
 src_compile() {
 	append-flags -fno-inline
 
-	local myconf="--disable-mime-update"
+	local myconf="
+		--disable-mime-update
+		"
 
 	gnome2_src_compile
 }
