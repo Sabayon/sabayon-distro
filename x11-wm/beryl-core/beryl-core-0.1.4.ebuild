@@ -30,6 +30,7 @@ src_unpack(){
 	unpack ${A}
 	cd ${S}/po
 	ln -s ca_ES.po ca.po
+	ln -s de_DE.po de.po
 }
 
 src_compile() {
