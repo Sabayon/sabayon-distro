@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/x11-wm/emerald/emerald-0.1.2.ebuild,v 1.1 2006/11/15 04:05:42 tsunam Exp $
 
-inherit gnome2 
+inherit gnome2 flag-o-matic eutils 
 
 DESCRIPTION="Beryl Window Decorator"
 HOMEPAGE="http://beryl-project.org"
