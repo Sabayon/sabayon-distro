@@ -27,7 +27,6 @@ RDEPEND="${DEPEND}
 PDEPEND="~x11-plugins/beryl-plugins-${PV}"
 
 src_compile() {
-	epatch "${FILESDIR}"/${PN}-gconf.patch
 	eautoreconf
 
 	econf --with-berylmesadir="${WORKDIR}/beryl-mesa" || die "econf failed"
