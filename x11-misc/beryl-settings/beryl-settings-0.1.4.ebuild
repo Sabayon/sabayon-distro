@@ -22,3 +22,11 @@ src_compile() {
 src_install() {
 	make DESTDIR="${D}" install || die "make install failed"
 }
+
+pkg_postinst() {
+	einfo
+	einfo "If you cannot see the beryl splash sreen or snow"
+	einfo "Please re-enabled png and svg support in beryl-settings"
+	einfo "Then reload beryl and it will show up"
+	einfo
+}

@@ -4,10 +4,10 @@ EBUILD beryl-settings-0.1.3-r1.ebuild 685 RMD160 ef5b37702f4559794b8b06bceb1ed80
 MD5 968f620284efc9ce642fea82f57dfb91 beryl-settings-0.1.3-r1.ebuild 685
 RMD160 ef5b37702f4559794b8b06bceb1ed808f0d0c23b beryl-settings-0.1.3-r1.ebuild 685
 SHA256 b8cff6489b5c6f23f8511615b411a6e1473a0065b9764a44bf0fadacbd872f17 beryl-settings-0.1.3-r1.ebuild 685
-EBUILD beryl-settings-0.1.4.ebuild 647 RMD160 5b2bbc8c5f87bc448b46de981d41382a48bc9927 SHA1 ee00beced421097a6d3a25bd9fc6e0dfad0d6dfc SHA256 709cd3718009708dee453129064283baea0902d9ac945475594d349ab6bd646f
-MD5 b49bf44c683ea5c442eaae447bcc2694 beryl-settings-0.1.4.ebuild 647
-RMD160 5b2bbc8c5f87bc448b46de981d41382a48bc9927 beryl-settings-0.1.4.ebuild 647
-SHA256 709cd3718009708dee453129064283baea0902d9ac945475594d349ab6bd646f beryl-settings-0.1.4.ebuild 647
+EBUILD beryl-settings-0.1.4.ebuild 851 RMD160 ea0cf19e020d33f5358f61b97dbe5e9a4db1d94f SHA1 9409922cb911fbde34e634a961d579ac3743e522 SHA256 37b07930e178d842dfdade54c5f805806c2359664bc39a6a2099be81df393dc2
+MD5 2086f5db6dba3adb5d0c9fdeb4312fe8 beryl-settings-0.1.4.ebuild 851
+RMD160 ea0cf19e020d33f5358f61b97dbe5e9a4db1d94f beryl-settings-0.1.4.ebuild 851
+SHA256 37b07930e178d842dfdade54c5f805806c2359664bc39a6a2099be81df393dc2 beryl-settings-0.1.4.ebuild 851
 MD5 a7c4e3ce9012e379c73b58887ebfecc7 files/digest-beryl-settings-0.1.3-r1 265
 RMD160 ee653aafe2dcd5537f21b148d6c6f128be68b22f files/digest-beryl-settings-0.1.3-r1 265
 SHA256 57397e66ebded9f8f44ba9fc868d5b68e22c63f58ad3294bf47e722ca5a0c531 files/digest-beryl-settings-0.1.3-r1 265

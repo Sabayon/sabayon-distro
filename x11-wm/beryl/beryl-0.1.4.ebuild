@@ -15,6 +15,8 @@ IUSE=""
 
 RDEPEND="~x11-plugins/beryl-plugins-${PV}
 	~x11-wm/emerald-${PV}
+	~x11-wm/aquamarine-${PV}
+	~x11-wm/heliodor-${PV}
 	~x11-misc/beryl-settings-${PV}
 	~x11-misc/beryl-manager-${PV}"
 
