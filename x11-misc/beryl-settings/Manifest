@@ -1,8 +1,16 @@
 DIST beryl-settings-0.1.3.tar.bz2 231207 RMD160 bff486b267c44dc32a36430d66bce5493e509f4f SHA1 2ba5e62907e6745dc638c94fa79853e72ef5244c SHA256 8fbc5ae8ac22812319fed1db5ed66db669a5f1cf320661b0611359dc80fbb8a8
+DIST beryl-settings-0.1.4.tar.bz2 232895 RMD160 bd82996e68ca9acdf385106549eb11636051a48b SHA1 abc3d9e0edee491f5a34fec9e5c01b6dc0972b01 SHA256 dd40761ed9fe2b6d1e2d66aeed457cf5de5bee6d574ec369ec8a6766cc90e593
 EBUILD beryl-settings-0.1.3-r1.ebuild 685 RMD160 ef5b37702f4559794b8b06bceb1ed808f0d0c23b SHA1 3ddac71541dee75ab5771755e4506fe3034fe22c SHA256 b8cff6489b5c6f23f8511615b411a6e1473a0065b9764a44bf0fadacbd872f17
 MD5 968f620284efc9ce642fea82f57dfb91 beryl-settings-0.1.3-r1.ebuild 685
 RMD160 ef5b37702f4559794b8b06bceb1ed808f0d0c23b beryl-settings-0.1.3-r1.ebuild 685
 SHA256 b8cff6489b5c6f23f8511615b411a6e1473a0065b9764a44bf0fadacbd872f17 beryl-settings-0.1.3-r1.ebuild 685
+EBUILD beryl-settings-0.1.4.ebuild 647 RMD160 5b2bbc8c5f87bc448b46de981d41382a48bc9927 SHA1 ee00beced421097a6d3a25bd9fc6e0dfad0d6dfc SHA256 709cd3718009708dee453129064283baea0902d9ac945475594d349ab6bd646f
+MD5 b49bf44c683ea5c442eaae447bcc2694 beryl-settings-0.1.4.ebuild 647
+RMD160 5b2bbc8c5f87bc448b46de981d41382a48bc9927 beryl-settings-0.1.4.ebuild 647
+SHA256 709cd3718009708dee453129064283baea0902d9ac945475594d349ab6bd646f beryl-settings-0.1.4.ebuild 647
 MD5 a7c4e3ce9012e379c73b58887ebfecc7 files/digest-beryl-settings-0.1.3-r1 265
 RMD160 ee653aafe2dcd5537f21b148d6c6f128be68b22f files/digest-beryl-settings-0.1.3-r1 265
 SHA256 57397e66ebded9f8f44ba9fc868d5b68e22c63f58ad3294bf47e722ca5a0c531 files/digest-beryl-settings-0.1.3-r1 265
+MD5 07a419ecb0e33d3df3af20fbdec9f050 files/digest-beryl-settings-0.1.4 265
+RMD160 6dfb19f35d7aa5095cd44fc05f6d91d43fbbecbe files/digest-beryl-settings-0.1.4 265
+SHA256 d59affb7d50d6b796d7ebf6873a257f6215d938347457bc7f3ba95490e0e5870 files/digest-beryl-settings-0.1.4 265

@@ -34,3 +34,6 @@ x11-misc/xglswitch
 # SabayonLinux relies on networkmanager and knetworkamanger which do not 
 # work with new dbus, will be unmasked when it does
 >sys-apps/dbus-1.0.2
+
+# Testing 0.1.4
+=x11-wm/beryl-0.1.4
