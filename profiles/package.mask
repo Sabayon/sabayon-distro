@@ -37,3 +37,6 @@ x11-misc/xglswitch
 
 # SVN build of aquamarine
 =x11-wm/aquamarine-9999
+
+# Masked coz it needs some language work
+=x11-wm/beryl-0.1.4
