@@ -1,0 +1,78 @@
+From: Tejun Heo <htejun@gmail.com>
+Date: Fri, 17 Nov 2006 03:06:21 +0000 (+0900)
+Subject: [PATCH] libata: move BMDMA host status recording from EH to interrupt handler
+X-Git-Tag: v2.6.20-rc1
+X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=ea54763f8a7c51b9f8fcb14431812ae63fcbaf96
+
+[PATCH] libata: move BMDMA host status recording from EH to interrupt handler
+
+For certain errors, interrupt handler alter BMDMA host status before
+entering EH (clears active and intr).  Thus altered BMDMA host status
+value is recorded by BMDMA EH and reported to user.  Move BMDMA host
+status recording from EH to interrupt handler.
+
+Signed-off-by: Tejun Heo <htejun@gmail.com>
+---
+
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4937,6 +4937,7 @@ unsigned int ata_qc_issue_prot(struct at
+ inline unsigned int ata_host_intr (struct ata_port *ap,
+ 				   struct ata_queued_cmd *qc)
+ {
++	struct ata_eh_info *ehi = &ap->eh_info;
+ 	u8 status, host_stat = 0;
+ 
+ 	VPRINTK("ata%u: protocol %d task_state %d\n",
+@@ -4997,6 +4998,11 @@ inline unsigned int ata_host_intr (struc
+ 	ap->ops->irq_clear(ap);
+ 
+ 	ata_hsm_move(ap, qc, status, 0);
++
++	if (unlikely(qc->err_mask) && (qc->tf.protocol == ATA_PROT_DMA ||
++				       qc->tf.protocol == ATA_PROT_ATAPI_DMA))
++		ata_ehi_push_desc(ehi, "BMDMA stat 0x%x", host_stat);
++
+ 	return 1;	/* irq handled */
+ 
+ idle_irq:
+--- a/drivers/ata/libata-sff.c
++++ b/drivers/ata/libata-sff.c
+@@ -743,7 +743,6 @@ void ata_bmdma_drive_eh(struct ata_port 
+ 			ata_reset_fn_t softreset, ata_reset_fn_t hardreset,
+ 			ata_postreset_fn_t postreset)
+ {
+-	struct ata_eh_context *ehc = &ap->eh_context;
+ 	struct ata_queued_cmd *qc;
+ 	unsigned long flags;
+ 	int thaw = 0;
+@@ -763,8 +762,6 @@ void ata_bmdma_drive_eh(struct ata_port 
+ 
+ 		host_stat = ap->ops->bmdma_status(ap);
+ 
+-		ata_ehi_push_desc(&ehc->i, "BMDMA stat 0x%x", host_stat);
+-
+ 		/* BMDMA controllers indicate host bus error by
+ 		 * setting DMA_ERR bit and timing out.  As it wasn't
+ 		 * really a timeout event, adjust error mask and
+--- a/drivers/ata/sata_sil.c
++++ b/drivers/ata/sata_sil.c
+@@ -356,6 +356,7 @@ static void sil_scr_write (struct ata_po
+ 
+ static void sil_host_intr(struct ata_port *ap, u32 bmdma2)
+ {
++	struct ata_eh_info *ehi = &ap->eh_info;
+ 	struct ata_queued_cmd *qc = ata_qc_from_tag(ap, ap->active_tag);
+ 	u8 status;
+ 
+@@ -428,6 +429,10 @@ static void sil_host_intr(struct ata_por
+ 	/* kick HSM in the ass */
+ 	ata_hsm_move(ap, qc, status, 0);
+ 
++	if (unlikely(qc->err_mask) && (qc->tf.protocol == ATA_PROT_DMA ||
++				       qc->tf.protocol == ATA_PROT_ATAPI_DMA))
++		ata_ehi_push_desc(ehi, "BMDMA2 stat 0x%x", bmdma2);
++
+ 	return;
+ 
+  err_hsm:

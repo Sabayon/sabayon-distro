@@ -19,7 +19,7 @@ SUSPEND2_URI="http://www.suspend2.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2 ${DISTDIR}/ipw3945-1.1.3-2.6.19.patch
 		${FILESDIR}/ata-early-irq.patch ${FILESDIR}/fuse-2.6.1.patch ${FILESDIR}/toshiba-bluetooth.patch
-		${FILESDIR}/2.6.19-mactel.patch
+		${FILESDIR}/2.6.19-mactel.patch ${FILESDIR}/2.6.19-bmdma-fixes.patch
 		"
 UNIPATCH_STRICTORDER="yes"
 
