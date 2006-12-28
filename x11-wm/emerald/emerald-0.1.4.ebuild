@@ -23,8 +23,22 @@ DEPEND=">=x11-libs/gtk+-2.8.0
 	>=x11-libs/libwnck-2.14.2
 	~x11-wm/beryl-core-${PV}"
 
+pkg_setup() {
+	strip-linguas ${LANGS}
+
+	if [ -z "${LINGUAS}" ]; then
+		export LINGUAS-EMERALD="en_GB"
+		ewarn
+		ewarn " To get a localized build, set the according LINGUAS variable(s). "
+		ewarn
+	else
+		export LINGUAS-EMERALD=`echo ${LINGUAS}`
+	fi
+}
+
 src_compile() {
 	append-flags -fno-inline
 
-	gnome2_src_compile --disable-mime-update
+	gnome2_src_compile --disable-mime-update 
+--with-lang="${LINGUAS-EMERALD}"
 }
