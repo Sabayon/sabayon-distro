@@ -38,7 +38,7 @@ pkg_setup() {
 }
 
 src_compile() {
-#	append-flags -fno-inline
+	append-flags -fno-inline
  
 	kde_src_compile --with-lang="${LINGUAS_BERYL}"
 }
