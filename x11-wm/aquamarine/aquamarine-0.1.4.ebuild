@@ -23,7 +23,6 @@ DEPEND="x11-wm/beryl-core"
 
 need-kde 3.5
 
-
 pkg_setup() {
 	strip-linguas ${LANGS}
 
@@ -38,14 +37,7 @@ pkg_setup() {
 }
 
 src_compile() {
-        eautoreconf
-
-        econf --with-lang="${LINGUAS_BERYL}" || die "econf failed"
-        emake || die "make failed"
-}
-
-src_install() {
-        make DESTDIR="${D}" install || die "make install failed"
+        kde_src_compile --with-lang="${LINGUAS_BERYL}"
 }
 
 pkg_postinst() {
