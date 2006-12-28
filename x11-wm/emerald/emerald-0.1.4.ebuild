@@ -1,6 +1,6 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 2004-2006 Sabayonlinux
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-wm/emerald/emerald-0.1.2.ebuild,v 1.1 2006/11/15 04:05:42 tsunam Exp $
+# $Header: Exp $
 
 LANGS="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
 for X in ${LANGS} ; do
@@ -39,6 +39,5 @@ pkg_setup() {
 src_compile() {
 	append-flags -fno-inline
 
-	gnome2_src_compile --disable-mime-update 
---with-lang="${LINGUAS-EMERALD}"
+	gnome2_src_compile --disable-mime-update --with-lang="${LINGUAS-EMERALD}"
 }
