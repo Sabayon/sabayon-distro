@@ -2,11 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 
+inherit gnome2 flag-o-matic eutils 
+
+IUSE=""
 LANGS="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
+
 for X in ${LANGS} ; do
 	IUSE="${IUSE} linguas_${X}"
 done
-inherit gnome2 flag-o-matic eutils 
 
 DESCRIPTION="Beryl Window Decorator"
 HOMEPAGE="http://beryl-project.org"
@@ -15,7 +18,7 @@ SRC_URI="http://releases.beryl-project.org/${PV}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE=""
+
 
 PDEPEND="~x11-themes/emerald-themes-${PV}"
 
