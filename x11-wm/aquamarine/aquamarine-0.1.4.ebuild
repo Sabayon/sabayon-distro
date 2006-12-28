@@ -36,13 +36,13 @@ pkg_setup() {
 			sed -e 's/\ben\b/en_US/g' -e 's/_/-/g'`
 	fi
 
-	echo "--with-lang="${LINGUAS_BERYL}"" >> ${CONFFILE}
+	# echo "--with-lang="${LINGUAS_BERYL}"" >> ${CONFFILE}
 }
 
 src_compile() {
 	append-flags -fno-inline
  
-	kde_src_compile ${MYCONF}
+	kde_src_compile ${LINGUAS_BERYL}
 }
 
 pkg_postinst() {
