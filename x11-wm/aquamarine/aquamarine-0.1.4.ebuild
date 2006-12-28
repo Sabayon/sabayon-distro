@@ -26,15 +26,14 @@ need-kde 3.5
 pkg_setup() {
 	strip-linguas ${LANGS}
 
-	if [ -z "${LINGUAS}" ]; then
-		export LINGUAS_BERYL="en_GB"
-		ewarn
-		ewarn " To get a localized build, set the according LINGUAS variable(s). "
-		ewarn
-	else
-		export LINGUAS_BERYL=`echo ${LINGUAS} | \
-			sed -e 's/\ben\b/en_US/g'`
-	fi
+	#if [ -z "${LINGUAS}" ]; then
+	#	export LINGUAS_BERYL="en_GB"
+	#	ewarn
+	#	ewarn " To get a localized build, set the according LINGUAS variable(s). "
+	#	ewarn
+	#else
+		export LINGUAS_BERYL=`echo ${LINGUAS}`
+	#fi
 }
 
 src_compile() {
@@ -43,7 +42,7 @@ src_compile() {
 			$(use_enable kdeenablefinal final)
 			$(use_enable kdehiddenvisibility gcc-hidden-visibility)
 			"
-	echo `--with-lang="${LINGUAS_BERYL}"` >> ${myconf}
+	#echo `--with-lang="${LINGUAS_BERYL}"` >> ${myconf}
 	kde_src_compile 
 		
 }
