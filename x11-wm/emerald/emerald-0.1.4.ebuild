@@ -30,12 +30,13 @@ pkg_setup() {
 	strip-linguas ${LANGS}
 
 	if [ -z "${LINGUAS}" ]; then
-		export LINGUAS-EMERALD="en_GB"
+		export LINGUAS-EMERALD="en-US"
 		ewarn
 		ewarn " To get a localized build, set the according LINGUAS variable(s). "
 		ewarn
 	else
-		export LINGUAS-EMERALD=`echo ${LINGUAS}`
+		export LINGUAS-EMERALD=`echo ${LINGUAS} | \
+			sed -e 's/\ben\b/en_US/g' -e 's/_/-/g'`
 	fi
 }
 
