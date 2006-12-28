@@ -3,9 +3,9 @@
 # $Header: /var/cvsroot/gentoo-x86/x11-wm/emerald/emerald-0.1.2.ebuild,v 1.1 2006/11/15 04:05:42 tsunam Exp $
 
 LANGS="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
-
-USE_KEG_PACKAGING=1
-
+for X in ${LANGS} ; do
+	IUSE="${IUSE} linguas_${X}"
+done
 inherit gnome2 flag-o-matic eutils 
 
 DESCRIPTION="Beryl Window Decorator"
@@ -26,9 +26,5 @@ DEPEND=">=x11-libs/gtk+-2.8.0
 src_compile() {
 	append-flags -fno-inline
 
-	local myconf="
-		--disable-mime-update
-		"
-
-	gnome2_src_compile
+	gnome2_src_compile --disable-mime-update
 }
