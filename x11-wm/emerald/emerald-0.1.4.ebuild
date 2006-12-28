@@ -29,18 +29,18 @@ DEPEND=">=x11-libs/gtk+-2.8.0
 pkg_setup() {
 	strip-linguas ${LANGS}
 
-	if [ -z "${LINGUAS}" ]; then
-		export LINGUAS_EMERALD="en_GB"
-		ewarn
-		ewarn " To get a localized build, set the according LINGUAS variable(s). "
-		ewarn
-	else
+	#if [ -z "${LINGUAS}" ]; then
+	#	export LINGUAS_EMERALD="en_GB"
+	#	ewarn
+	#	ewarn " To get a localized build, set the according LINGUAS variable(s). "
+	#	ewarn
+	#else
 		export LINGUAS_EMERALD=`echo ${LINGUAS}`
-	fi
+	#fi
 }
 
 src_compile() {
 	append-flags -fno-inline
 
-	gnome2_src_compile --disable-mime-update --with-lang="${LINGUAS_EMERALD}"
+	gnome2_src_compile --disable-mime-update # --with-lang="${LINGUAS_EMERALD}"
 }

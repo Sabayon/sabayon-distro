@@ -35,20 +35,20 @@ PDEPEND="~x11-plugins/beryl-plugins-${PV}"
 pkg_setup() {
 	strip-linguas ${LANGS}
 
-	if [ -z "${LINGUAS}" ]; then
-		export LINGUAS_BERYL="en_GB"
-		ewarn
-		ewarn " To get a localized build, set the according LINGUAS variable(s). "
-		ewarn
-	else
+	#if [ -z "${LINGUAS}" ]; then
+	#	export LINGUAS_BERYL="en_GB"
+	#	ewarn
+	#	ewarn " To get a localized build, set the according LINGUAS variable(s). "
+	#	ewarn
+	#else
 		export LINGUAS_BERYL=`echo ${LINGUAS}`
-	fi
+	#fi
 }
 
 src_compile() {
 	eautoreconf
-
-	econf --with-berylmesadir="${WORKDIR}/beryl-mesa" --with-lang="${LINGUAS_BERYL}" || die "econf failed"
+		#--with-lang="${LINGUAS_BERYL}"
+	econf	--with-berylmesadir="${WORKDIR}/beryl-mesa" || die "econf failed"
 	emake -j1 || die "make failed"
 }
 

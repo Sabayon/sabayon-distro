@@ -26,14 +26,14 @@ need-kde 3.5
 pkg_setup() {
 	strip-linguas ${LANGS}
 
-	#if [ -z "${LINGUAS}" ]; then
-	#	export LINGUAS_BERYL="en_GB"
-	#	ewarn
-	#	ewarn " To get a localized build, set the according LINGUAS variable(s). "
-	#	ewarn
-	#else
+	if [ -z "${LINGUAS}" ]; then
+		export LINGUAS_BERYL="en_GB"
+		ewarn
+		ewarn " To get a localized build, set the according LINGUAS variable(s). "
+		ewarn
+	else
 		export LINGUAS_BERYL=`echo ${LINGUAS}`
-	#fi
+	fi
 }
 
 src_compile() {

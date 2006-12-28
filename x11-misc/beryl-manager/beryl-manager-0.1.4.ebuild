@@ -39,7 +39,8 @@ pkg_setup() {
 }
 
 src_compile() {
-	econf --with-lang="${LINGUAS_BERYL}" || die "econf failed"
+	# --with-lang="${LINGUAS_BERYL}"
+	econf  || die "econf failed"
 	emake || die "make failed"
 }
 
