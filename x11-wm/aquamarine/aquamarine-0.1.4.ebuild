@@ -32,8 +32,7 @@ pkg_setup() {
 		ewarn " To get a localized build, set the according LINGUAS variable(s). "
 		ewarn
 	else
-		export LINGUAS_BERYL=`echo ${LINGUAS}  | \
-			sed -e 's/\ben\b/en_US/g' -e 's/_/-/g'`
+		export LINGUAS_BERYL=`--enable-lang="echo ${LINGUAS}"`
 	fi
 
 	# echo "--with-lang="${LINGUAS_BERYL}"" >> ${CONFFILE}
@@ -42,7 +41,7 @@ pkg_setup() {
 src_compile() {
 	append-flags -fno-inline
  
-	kde_src_compile ${LINGUAS_BERYL}
+	kde_src_compile "${LINGUAS_BERYL}"
 }
 
 pkg_postinst() {
