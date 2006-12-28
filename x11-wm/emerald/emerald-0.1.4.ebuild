@@ -5,7 +5,7 @@
 inherit gnome2 flag-o-matic eutils 
 
 IUSE=""
-LANGS="ca_ES de_DE es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
+LANGS="ca_ES de_DE en_GB es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
 
 for X in ${LANGS} ; do
 	IUSE="${IUSE} linguas_${X}"
