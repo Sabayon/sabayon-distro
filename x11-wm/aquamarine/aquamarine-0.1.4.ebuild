@@ -37,6 +37,7 @@ pkg_setup() {
 }
 
 src_compile() {
+	append-flags -fno-inline
 	local myconf="
 			--with-lang="${LINGUAS_BERYL}"
 			"
