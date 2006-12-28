@@ -40,3 +40,6 @@ x11-misc/xglswitch
 
 # Masked coz it needs some language work
 =x11-wm/beryl-0.1.4
+
+# Very beta and very breaking prone but good
+>=sys-apps/einit-0.14.0.500
