@@ -49,7 +49,8 @@ pkg_postinst() {
 	einfo "/etc/einit/default.xml, the file you should" 
 	einfo "modify is /etc/einit/rc.xml."
 	einfo "To use, you must ln -sf einit /sbin/init"
-	einfo "and you must modify grub or lilo."
+	einfo "and you must modify grub or lilo and this"
+	einfo "takes the place of fstab too."
 	einfo "Please read the documentation provided!!!"
 	einfo
 
