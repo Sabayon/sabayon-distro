@@ -38,10 +38,16 @@ pkg_setup() {
 }
 
 src_compile() {
-	append-flags -fno-inline
+        eautoreconf
 
-	kde_src_compile --with-lang="${LINGUAS_BERYL}"
+        econf --with-lang="${LINGUAS_BERYL}" || die "econf failed"
+        emake || die "make failed"
 }
+
+src_install() {
+        make DESTDIR="${D}" install || die "make install failed"
+}
+
 
 pkg_postinst() {
 	kde_pkg_postinst
