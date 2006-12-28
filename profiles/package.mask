@@ -40,6 +40,3 @@ x11-misc/xglswitch
 
 # Very beta and very breaking prone but good
 >=sys-apps/einit-0.14.0.500
-
-# Linguas are not fun with these packages
-=x11-wm/beryl-0.1.4

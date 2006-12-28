@@ -40,8 +40,8 @@ pkg_setup() {
 src_compile() {
 	# filter ldflags to follow upstream
 	filter-ldflags -znow -z,now -Wl,-znow -Wl,-z,now
-
-	econf --with-lang="${LINGUAS_BERYL}" || die "econf failed"
+	#--with-lang="${LINGUAS_BERYL}"
+	econf || die "econf failed"
 	emake -j1 || die "make failed"
 }
 
