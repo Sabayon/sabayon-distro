@@ -39,10 +39,11 @@ pkg_setup() {
 
 src_compile() {
 	append-flags -fno-inline
- 	myconf="${myconf} `--with-lang="${LINGUAS_BERYL}"`
+ 	myconf="${myconf} 
 			$(use_enable kdeenablefinal final)
 			$(use_enable kdehiddenvisibility gcc-hidden-visibility)
 			"
+	echo `--with-lang="${LINGUAS_BERYL}"` >> ${myconf}
 	kde_src_compile 
 		
 }
