@@ -32,7 +32,8 @@ pkg_setup() {
 		ewarn " To get a localized build, set the according LINGUAS variable(s). "
 		ewarn
 	else
-		export LINGUAS_BERYL=`echo ${LINGUAS}`
+		export LINGUAS_BERYL=`echo ${LINGUAS}  | \
+			sed -e 's/\ben\b/en_US/g' -e 's/_/-/g'`
 	fi
 }
 
