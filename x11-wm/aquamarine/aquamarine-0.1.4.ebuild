@@ -4,7 +4,7 @@
 
 inherit kde autotools flag-o-matic eutils
 
-IUSE=""
+IUSE="kdeenablefinal kdehiddenvisibility"
 LANGS="ca_ES es_ES hu_HU it_IT ko_KR ru_RU pt_PT uk_UA zh_CN zh_HK zh_TW"
 
 for X in ${LANGS} ; do
@@ -38,8 +38,11 @@ pkg_setup() {
 }
 
 src_compile() {
-	#append-flags -fno-inline
- 	local myconf="--with-lang="${LINGUAS_BERYL}""
+	append-flags -fno-inline
+ 	myconf="${myconf} --with-lang="${LINGUAS_BERYL}"
+			$(use_enable kdeenablefinal final)
+			$(use_enable kdehiddenvisibility gcc-hidden-visibility)
+			"
 	kde_src_compile 
 		
 }
