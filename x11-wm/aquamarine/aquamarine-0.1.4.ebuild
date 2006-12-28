@@ -35,12 +35,14 @@ pkg_setup() {
 		export LINGUAS_BERYL=`echo ${LINGUAS}  | \
 			sed -e 's/\ben\b/en_US/g' -e 's/_/-/g'`
 	fi
+
+	echo "--with-lang="${LINGUAS_BERYL}"" >> ${CONFFILE}
 }
 
 src_compile() {
 	append-flags -fno-inline
  
-	kde_src_compile --with-lang="${LINGUAS_BERYL}"
+	kde_src_compile ${MYCONF}
 }
 
 pkg_postinst() {
