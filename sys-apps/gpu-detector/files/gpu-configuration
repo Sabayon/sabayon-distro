@@ -146,6 +146,9 @@ if [ -n "$is_there_xdriver" ]; then
      if [ "$xdriver" = "fglrx" ]; then
        fix_possible_opengl_misconfiguration ati
      fi
+     if [ "$xdriver" = "vesa" ]; then
+       sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
+     fi
     ;;
   esac
   done
@@ -377,5 +380,6 @@ elif [ -n "$TRIDENT" ]; then
 else
 
  echo -e "\t Display Driver: VESA (no supported card detected)"
+ sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
 
 fi
