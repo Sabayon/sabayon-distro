@@ -21,7 +21,7 @@ PDEPEND=""
 S=${WORKDIR}/einit-${PV}
 
 src_compile() {
-	./configure --enable-linux --use-posix-regex --prefix=/ --ebuild || 
+	econf --enable-linux --use-posix-regex --prefix=/ --ebuild || 
 die
 	emake || die
 	if use doc ; then
