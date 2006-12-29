@@ -22,8 +22,9 @@ RDEPEND="~x11-plugins/beryl-plugins-${PV}
 	~x11-wm/heliodor-${PV}
 	)
 	~x11-misc/beryl-settings-${PV}
-	~x11-misc/beryl-manager-${PV}"
-
+	~x11-misc/beryl-manager-${PV}
+	>=x11-misc/beryl-wrapper-1.5"
+	
 pkg_setup() {
 	if has_version ">=x11-libs/cairo-1.2.2" && ! built_with_use x11-libs/cairo X pdf; then
 		einfo "Please re-emerge >=x11-libs/cairo-1.2.2 with the X and pdf USE flag set"

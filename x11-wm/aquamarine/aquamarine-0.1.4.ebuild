@@ -46,7 +46,7 @@ src_compile() {
 	myconf="${myconf} 
 			$(use_enable kdehiddenvisibility gcc-hidden-visibility)
 			"
-	#echo `--with-lang="${LINGUAS_BERYL}"` >> ${myconf}
+	#--with-lang="${LINGUAS_BERYL}"
 	kde_src_compile 
 		
 }
