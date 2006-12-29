@@ -21,12 +21,7 @@ PDEPEND=""
 S=${WORKDIR}/einit
 
 src_compile() {
-	econf \
-		--enable-linux \
-		--use-posix-regex \
-		--prefix=/ \
-		 || die
-#	./configure --enable-linux || die
+	econf --enable-linux --use-posix-regex --prefix=/ || die
 	emake || die
 	if use doc ; then
 		make documentation ||die
@@ -48,7 +43,7 @@ pkg_postinst() {
 	einfo "The main (default) configuration file is"
 	einfo "/etc/einit/default.xml, the file you should" 
 	einfo "modify is /etc/einit/rc.xml."
-	einfo "To use, you must ln -sf einit /sbin/init"
+	einfo "To use and finalize, you must ln -sf einit /sbin/init"
 	einfo "and you must modify grub or lilo and this"
 	einfo "takes the place of fstab too."
 	einfo "Please read the documentation provided!!!"
