@@ -222,6 +222,7 @@ configure_input_devices() {
       cmdline_resolution_forced=$(cat /proc/cmdline | grep "res=")
       cmdline_refresh_exist=$(cat /proc/cmdline | grep refresh=)
       cmdline_hsync_exist=$(cat /proc/cmdline | grep hsync=)
+      cmdline_noddc_exist=$(cat /proc/cmdline | grep "noddc")
       cmdline_xgl_exist=$(cat /proc/cmdline | grep " xgl")
       cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
       cmdline_noaccelmanager_exist=$(cat /proc/cmdline | grep "noaccelmanager")
