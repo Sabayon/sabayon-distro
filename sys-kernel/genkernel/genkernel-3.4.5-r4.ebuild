@@ -39,6 +39,9 @@ src_unpack() {
 
 	# Add Sabayon Linux text
 	epatch ${FILESDIR}/${P}-sabayon-linux.patch
+
+	# add init-ng/einit support
+	epatch ${FILESDIR}/${P}-accel_init-support.patch
 }
 
 src_install() {
