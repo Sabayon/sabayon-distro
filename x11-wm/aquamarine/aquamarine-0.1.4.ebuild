@@ -46,13 +46,11 @@ src_unpack() {
 
 	chmod +x detect-autoconf.pl debianrules
 
-	cd ${S}
-
-	./autogen.sh
-
 }
 
 src_compile() {
+	eautoreconf
+
 	append-flags -fno-inline
  	# will be re-enabled once fixed
 	# $(use_enable kdeenablefinal final)
