@@ -1,0 +1,41 @@
+From: Alan Hourihane <alanh@fairlite.demon.co.uk>
+Date: Wed, 13 Dec 2006 12:13:11 +0000 (+0000)
+Subject: Set Int10Current->Tag for the linux native int10 module
+X-Git-Tag: xf-3_9_16d / xf-3_9_16e / xf-3_9_16f / xf-3_9_16Z
+X-Git-Url: http://gitweb.freedesktop.org/?p=xorg/xserver.git;a=commitdiff;h=731952c561a3972d09d1315f4fd31466e459ccb9
+
+Set Int10Current->Tag for the linux native int10 module
+Fixes bug #9296
+---
+
+--- a/hw/xfree86/int10/generic.c
++++ b/hw/xfree86/int10/generic.c
+@@ -98,7 +98,7 @@ xf86ExtendedInitInt10(int entityIndex, i
+     base = INTPriv(pInt)->base = xnfalloc(SYS_BIOS);
+ 
+     pvp = xf86GetPciInfoForEntity(entityIndex);
+-    if (pvp) pInt->Tag = ((pciConfigPtr)(pvp->thisCard))->tag;
++    if (pvp) pInt->Tag = pciTag(pvp->bus, pvp->device, pvp->func);
+ 
+     /*
+      * we need to map video RAM MMIO as some chipsets map mmio
+--- a/hw/xfree86/os-support/linux/int10/linux.c
++++ b/hw/xfree86/os-support/linux/int10/linux.c
+@@ -90,6 +90,7 @@ xf86ExtendedInitInt10(int entityIndex, i
+     legacyVGARec vga;
+     xf86int10BiosLocation bios;
+     Bool videoBiosMapped = FALSE;
++    pciVideoPtr pvp;
+     
+     if (int10Generation != serverGeneration) {
+ 	counter = 0;
+@@ -151,6 +152,8 @@ xf86ExtendedInitInt10(int entityIndex, i
+     pInt = (xf86Int10InfoPtr)xnfcalloc(1, sizeof(xf86Int10InfoRec));
+     pInt->scrnIndex = screen;
+     pInt->entityIndex = entityIndex;
++    pvp = xf86GetPciInfoForEntity(entityIndex);
++    if (pvp) pInt->Tag = pciTag(pvp->bus, pvp->device, pvp->func);
+     if (!xf86Int10ExecSetup(pInt))
+ 	goto error0;
+     pInt->mem = &linuxMem;
+
