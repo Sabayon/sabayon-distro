@@ -37,6 +37,21 @@ pkg_setup() {
 	fi
 }
 
+src_unpack() {
+        kde_src_unpack
+
+	epatch "${FILESDIR}/${P}-fix-tarball.patch"
+
+	cd ${S}/admin
+
+	chmod +x detect-autoconf.pl debianrules
+
+	cd ${S}
+
+	./autogen.sh
+
+}
+
 src_compile() {
 	append-flags -fno-inline
  	# will be re-enabled once fixed
