@@ -4,8 +4,7 @@
 
 inherit kde autotools flag-o-matic eutils
 
-#IUSE="kdeenablefinal kdehiddenvisibility"
-IUSE="kdehiddenvisibility"
+IUSE="kdeenablefinal kdehiddenvisibility"
 LANGS="ca_ES es_ES hu_HU it_IT ko_KR ru_RU pt_PT uk_UA zh_CN zh_HK zh_TW"
 
 for X in ${LANGS} ; do
