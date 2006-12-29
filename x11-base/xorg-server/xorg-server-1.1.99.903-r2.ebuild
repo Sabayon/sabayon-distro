@@ -283,13 +283,13 @@ pkg_setup() {
 		einfo "AIGLX patches will be applied."
 		PATCHES="${FILESDIR}/xorg-server-1.1.99.901-GetDrawableAttributes.patch
 			${FILESDIR}/xorg-server-1.1.99.901-glXDRIbindTexImage-target.patch
-			${FILESDIR}/1.1.99.903-dri-drm-workaround-for-stupid-drivers.patch
 			${PATCHES}"
 	fi
 
 	# Fixes for Intel video cards
 	PATCHES="${PATCHES}
-		${FILESDIR}/xorg-server-1.0.99.903-i810-bugfixes.patch
+		${FILESDIR}/1.1.99.903-dri-drm-workaround-for-stupid-drivers.patch
+		${FILESDIR}/xorg-server-1.1.99.903-i810-bugfixes.patch
 		"
 
 	# SDL only available in kdrive build
@@ -362,6 +362,10 @@ src_unpack() {
 		fi
 	fi
 	x-modular_reconf_source
+
+	cd ${WORKDIR}/${MESA_P}
+	epatch ${FILESDIR}/${P}-i915tex-bugfixes.patch
+	cd ${S}
 }
 
 src_install() {
