@@ -4,8 +4,8 @@
 
 inherit kde autotools flag-o-matic eutils
 
-IUSE="kdeenablefinal kdehiddenvisibility"
-#IUSE="kdehiddenvisibility"
+#IUSE="kdeenablefinal kdehiddenvisibility"
+IUSE="kdehiddenvisibility"
 LANGS="ca_ES es_ES hu_HU it_IT ko_KR ru_RU pt_PT uk_UA zh_CN zh_HK zh_TW"
 
 for X in ${LANGS} ; do
@@ -37,17 +37,6 @@ pkg_setup() {
 	fi
 }
 
-src_unpack() {
-        kde_src_unpack
-
-	epatch "${FILESDIR}/${P}-fix-tarball.patch"
-
-	cd ${S}/admin
-
-	chmod +x detect-autoconf.pl debianrules
-
-}
-
 src_compile() {
 	eautoreconf
 
@@ -55,7 +44,6 @@ src_compile() {
  	# will be re-enabled once fixed
 	# $(use_enable kdeenablefinal final)
 	myconf="${myconf} 
-			$(use_enable kdeenablefinal final)
 			$(use_enable kdehiddenvisibility gcc-hidden-visibility)
 			"
 	#echo `--with-lang="${LINGUAS_BERYL}"` >> ${myconf}
