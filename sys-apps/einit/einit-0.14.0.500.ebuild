@@ -18,10 +18,9 @@ RDEPEND="dev-libs/expat
 DEPEND="${RDEPEND}"
 PDEPEND=""
 
-S=${WORKDIR}/einit
+S=${WORKDIR}/einit-${PV}
 
 src_compile() {
-	cd ${S}
 	./configure --enable-linux --use-posix-regex --prefix=/ --ebuild || 
 die
 	emake || die
