@@ -1,0 +1,62 @@
+--- src/i830_accel.c
++++ src/i830_accel.c
+@@ -395,6 +395,7 @@ I830AccelInit(ScreenPtr pScreen)
+    return XAAInit(pScreen, infoPtr);
+ }
+ 
++#ifdef XF86DRI
+ static unsigned int
+ CheckTiling(ScrnInfoPtr pScrn)
+ {
+@@ -416,6 +417,9 @@ CheckTiling(ScrnInfoPtr pScrn)
+ 
+    return tiled;
+ }
++#else
++#define CheckTiling(pScrn) 0
++#endif
+ 
+ void
+ I830SetupForSolidFill(ScrnInfoPtr pScrn, int color, int rop,
+--- src/i810_driver.c
++++ src/i810_driver.c
+@@ -333,6 +333,8 @@ const char *I810driSymbols[] = {
+    NULL
+ };
+ 
++#endif /* I830_ONLY */
++
+ const char *I810shadowSymbols[] = {
+     "shadowInit",
+     "shadowSetup",
+@@ -340,8 +342,6 @@ const char *I810shadowSymbols[] = {
+     NULL
+ };
+ 
+-#endif /* I830_ONLY */
+-
+ #ifndef I810_DEBUG
+ int I810_DEBUG = (0
+ /*                | DEBUG_ALWAYS_SYNC  */
+@@ -408,9 +408,9 @@ i810Setup(pointer module, pointer opts, 
+ #ifdef XF86DRI
+ 			I810drmSymbols,
+ 			I810driSymbols,
++#endif
+ 			I810shadowSymbols,
+ 			I810shadowFBSymbols,
+-#endif
+ 			I810vbeSymbols, vbeOptionalSymbols,
+ 			I810ddcSymbols, I810int10Symbols, NULL);
+ 
+--- src/brw_structs.h
++++ src/brw_structs.h
+@@ -28,6 +28,8 @@
+ #ifndef BRW_STRUCTS_H
+ #define BRW_STRUCTS_H
+
++#include <GL/gl.h>
++
+ /* Command packets:
+  */
+ struct header 

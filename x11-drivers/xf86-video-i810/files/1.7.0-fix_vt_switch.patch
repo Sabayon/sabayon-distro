@@ -1,0 +1,44 @@
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -2620,37 +2620,15 @@ static Bool
+ I830Set640x480(ScrnInfoPtr pScrn)
+ {
+    I830Ptr pI830 = I830PTR(pScrn);
+-   int m = 0x30; /* 640x480 8bpp */
++   int m;
+ 
+-   switch (pScrn->depth) {
+-   case 15:
+-	 m = 0x40;
+-	 break;
+-   case 16:
+-	 m = 0x41;
+-	 break;
+-   case 24:
+-	 m = 0x50;
+-	 break;
+-   }
+-
+-   m |= (1 << 15) | (1 << 14);
++   /* 640x480 8bpp */
++   m = 0x30 | (1 << 15) | (1 << 14);
+    if (VBESetVBEMode(pI830->pVbe, m, NULL))
+ 	   return TRUE;
+ 
+-
+    /* if the first failed, let's try the next - usually 800x600 */
+-   m = 0x32;
+-   switch (pScrn->depth) {
+-   case 15:
+-   case 16:
+-	 m = 0x42;
+-	 break;
+-   case 24:
+-	 m = 0x52;
+-	 break;
+-   }
+-   m |= (1 << 15) | (1 << 14);
++   m = 0x32 | (1 << 15) | (1 << 14);
+ 
+    if (VBESetVBEMode(pI830->pVbe, m, NULL))
+ 	   return TRUE;
