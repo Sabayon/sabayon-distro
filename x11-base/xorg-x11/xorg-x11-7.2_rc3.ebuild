@@ -1,6 +1,6 @@
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-x11/xorg-x11-7.1.ebuild,v 1.9 2006/11/02 05:15:05 dberkholz Exp $
+# $Header: Exp $
 
 inherit eutils
 
@@ -16,7 +16,7 @@ RDEPEND="!<=x11-base/xorg-x11-6.9"
 
 # Server
 RDEPEND="${RDEPEND}
-	=x11-base/xorg-server-1.1.99.903-r1"
+	=x11-base/xorg-server-1.1.99.903-r2"
 
 # Common Applications
 RDEPEND="${RDEPEND}
