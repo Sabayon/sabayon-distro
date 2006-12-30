@@ -18,10 +18,10 @@ AUX 2.6.19-bmdma-fixes.patch 2701 RMD160 6df48e6f235f45a1cf5eb618345f0c252962638
 MD5 03b717963b62a65ae18c46b1109d85a9 files/2.6.19-bmdma-fixes.patch 2701
 RMD160 6df48e6f235f45a1cf5eb618345f0c2529626388 files/2.6.19-bmdma-fixes.patch 2701
 SHA256 3b33990b3ce90b4f187a9f1bb807e5c3845d0b1dee2d95fa4187c29c4cef1c8b files/2.6.19-bmdma-fixes.patch 2701
-AUX 2.6.19-kvm-experimental-support.patch 510062 RMD160 d281c36b87ddf5064d6ae8c51cb88340d17436cc SHA1 635da584e9a7c160a5bb44f44bca2b81a845472b SHA256 34d68ee8bb63528ce302831fa4682fea6254d276b6f9f6765ae1045fca654933
-MD5 5e37945f1436f4fca0e5bdbd111a0c43 files/2.6.19-kvm-experimental-support.patch 510062
-RMD160 d281c36b87ddf5064d6ae8c51cb88340d17436cc files/2.6.19-kvm-experimental-support.patch 510062
-SHA256 34d68ee8bb63528ce302831fa4682fea6254d276b6f9f6765ae1045fca654933 files/2.6.19-kvm-experimental-support.patch 510062
+AUX 2.6.19-kvm-experimental-support.patch 309516 RMD160 9e0c131dc4ab7e8cf13f19fc917641a7b880dcb7 SHA1 fceee2e9e6da0bb320ae00084ef4033a8c48fb5a SHA256 391f88e2c39fc6e7a22204a1b9005e6981fab86fd745a57cdd017caed83b957e
+MD5 3817941a68a1d8e9d8c725abf969dfb2 files/2.6.19-kvm-experimental-support.patch 309516
+RMD160 9e0c131dc4ab7e8cf13f19fc917641a7b880dcb7 files/2.6.19-kvm-experimental-support.patch 309516
+SHA256 391f88e2c39fc6e7a22204a1b9005e6981fab86fd745a57cdd017caed83b957e files/2.6.19-kvm-experimental-support.patch 309516
 AUX 2.6.19-libata-pata_ali-updates.patch 6240 RMD160 6759954b2128614da51ae6d924770ad3cb1e1b5e SHA1 874b490c69147c4755ff65ff563a801913449d8b SHA256 304e77167c26392cb4e5f01420aee5a099b201c93ff9ae6f6bb48c62dc937b2f
 MD5 046310958552f6ad71ff18a85bbbfd29 files/2.6.19-libata-pata_ali-updates.patch 6240
 RMD160 6759954b2128614da51ae6d924770ad3cb1e1b5e files/2.6.19-libata-pata_ali-updates.patch 6240
