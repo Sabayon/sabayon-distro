@@ -28,5 +28,8 @@ src_install() {
 	cd ${S}
 	exeinto /usr/bin
 	doexe usr/bin/kvm
+	if [ ! -e /usr/bin/qemu-img ]; then
+		doexe usr/bin/qemu-img
+	fi
 	doman usr/share/man/man*/*.1*
 }
