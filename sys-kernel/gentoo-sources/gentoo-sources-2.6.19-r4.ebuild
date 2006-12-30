@@ -21,7 +21,6 @@ UNIPATCH_LIST="
 		${FILESDIR}/ata-early-irq.patch ${FILESDIR}/fuse-2.6.1.patch ${FILESDIR}/toshiba-bluetooth.patch
 		${FILESDIR}/2.6.19-mactel.patch ${FILESDIR}/2.6.19-libata-pata_ali-updates.patch
 		${FILESDIR}/2.6.19-bmdma-fixes.patch ${FILESDIR}/2.6.19-bcm43xx-forcedeth-atiixp-support.patch
-		${FILESDIR}/2.6.19-kvm-experimental-support.patch
 		"
 UNIPATCH_STRICTORDER="yes"
 
@@ -35,4 +34,11 @@ pkg_postinst() {
 	kernel-2_pkg_postinst
 	einfo "This is a modified version of the Gentoo's gentoo-sources. Please report problems to us first."
 	einfo "http://bugs.sabayonlinux.org"
+}
+
+src_unpack() {
+	kernel-2_src_unpack
+	einfo "Adding KVM patchset..."
+	cd ${S}
+	patch -p1 < ${FILESDIR}/2.6.19-kvm-experimental-support.patch  > /dev/null
 }
