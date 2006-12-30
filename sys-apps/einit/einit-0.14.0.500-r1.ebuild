@@ -14,7 +14,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE="doc efl"
 
 RDEPEND="dev-libs/expat
-	doc? ( app-text/docbook-sgml app-doc/doxygen )"
+	doc? ( app-text/docbook-sgml app-doc/doxygen )
+	efl? ( media-libs/edje x11-libs/evas x11-libs/ecore )"
 DEPEND="${RDEPEND}"
 PDEPEND=""
 
@@ -49,12 +50,14 @@ pkg_postinst() {
 	ebeep
 	einfo
 	einfo "The main (default) configuration file is"
-	einfo "/etc/einit/default.xml, the file you should" 
-	einfo "modify is /etc/einit/rc.xml."
+	einfo "/etc/einit/einit.xml, the file you should" 
+	einfo "modify is /etc/einit/local.xml."
 	einfo "To use and finalize, you must ln -sf einit /sbin/init"
 	einfo "and you must modify grub or lilo and this"
 	einfo "takes the place of fstab too."
-	einfo "Please read the documentation provided!!!"
+		if use doc ; then
+			einfo "Please read the documentation provided at /usr/share/doc/einit-${PV}/html/"
+		fi
 	einfo
 
 }
