@@ -10,10 +10,18 @@ AUX 2.6.18-am2-nvidia-fix.patch 2115 RMD160 6bd22550268193488f5e8ec18ff79f4328b5
 MD5 d71c10253a8a87884abafb5f5b00fddc files/2.6.18-am2-nvidia-fix.patch 2115
 RMD160 6bd22550268193488f5e8ec18ff79f4328b5d622 files/2.6.18-am2-nvidia-fix.patch 2115
 SHA256 a371691b2ee5ec5f76372b3c8b25bf76e0f9da0e9866edbe5b7fd8f386bae6e6 files/2.6.18-am2-nvidia-fix.patch 2115
+AUX 2.6.19-bcm43xx-forcedeth-atiixp-support.patch 14720 RMD160 61f585e80001821ac421562bfe3ec39351705b91 SHA1 b1485788f5e4902166464ed98e24db26a09cdbad SHA256 ad052b8128d09cc42375480f9251e29a104710190ee0baaa552d75acae2b6a62
+MD5 e8f5ed68c745755b2aeecfab365063dc files/2.6.19-bcm43xx-forcedeth-atiixp-support.patch 14720
+RMD160 61f585e80001821ac421562bfe3ec39351705b91 files/2.6.19-bcm43xx-forcedeth-atiixp-support.patch 14720
+SHA256 ad052b8128d09cc42375480f9251e29a104710190ee0baaa552d75acae2b6a62 files/2.6.19-bcm43xx-forcedeth-atiixp-support.patch 14720
 AUX 2.6.19-bmdma-fixes.patch 2701 RMD160 6df48e6f235f45a1cf5eb618345f0c2529626388 SHA1 6183cb0a3561a0a60bbe31d44b219f7803047257 SHA256 3b33990b3ce90b4f187a9f1bb807e5c3845d0b1dee2d95fa4187c29c4cef1c8b
 MD5 03b717963b62a65ae18c46b1109d85a9 files/2.6.19-bmdma-fixes.patch 2701
 RMD160 6df48e6f235f45a1cf5eb618345f0c2529626388 files/2.6.19-bmdma-fixes.patch 2701
 SHA256 3b33990b3ce90b4f187a9f1bb807e5c3845d0b1dee2d95fa4187c29c4cef1c8b files/2.6.19-bmdma-fixes.patch 2701
+AUX 2.6.19-kvm-experimental-support.patch 510062 RMD160 d281c36b87ddf5064d6ae8c51cb88340d17436cc SHA1 635da584e9a7c160a5bb44f44bca2b81a845472b SHA256 34d68ee8bb63528ce302831fa4682fea6254d276b6f9f6765ae1045fca654933
+MD5 5e37945f1436f4fca0e5bdbd111a0c43 files/2.6.19-kvm-experimental-support.patch 510062
+RMD160 d281c36b87ddf5064d6ae8c51cb88340d17436cc files/2.6.19-kvm-experimental-support.patch 510062
+SHA256 34d68ee8bb63528ce302831fa4682fea6254d276b6f9f6765ae1045fca654933 files/2.6.19-kvm-experimental-support.patch 510062
 AUX 2.6.19-libata-pata_ali-updates.patch 6240 RMD160 6759954b2128614da51ae6d924770ad3cb1e1b5e SHA1 874b490c69147c4755ff65ff563a801913449d8b SHA256 304e77167c26392cb4e5f01420aee5a099b201c93ff9ae6f6bb48c62dc937b2f
 MD5 046310958552f6ad71ff18a85bbbfd29 files/2.6.19-libata-pata_ali-updates.patch 6240
 RMD160 6759954b2128614da51ae6d924770ad3cb1e1b5e files/2.6.19-libata-pata_ali-updates.patch 6240
@@ -80,10 +88,10 @@ EBUILD gentoo-sources-2.6.19-r3.ebuild 1396 RMD160 206c3fc793d6ed02fcab6972d2ed7
 MD5 e56f4b604071ecc1c155d5fc180de52a gentoo-sources-2.6.19-r3.ebuild 1396
 RMD160 206c3fc793d6ed02fcab6972d2ed733364dc061d gentoo-sources-2.6.19-r3.ebuild 1396
 SHA256 f1984fe2144b5d3578f36dc596e948feab8f7582efd2791e0a6f4eac24510576 gentoo-sources-2.6.19-r3.ebuild 1396
-EBUILD gentoo-sources-2.6.19-r4.ebuild 1518 RMD160 e36365c4742e264227ebd9fa5564fbd11d5ff0a9 SHA1 6ad2105a4b2e8573edb8b3a19636f49b874cf49d SHA256 f2b8f4a179d876b2140440ee9e07e97a56e6f657c805b3ff2c473a2aff1cf0c9
-MD5 83fd3e55b320a189f1e3b6793747a783 gentoo-sources-2.6.19-r4.ebuild 1518
-RMD160 e36365c4742e264227ebd9fa5564fbd11d5ff0a9 gentoo-sources-2.6.19-r4.ebuild 1518
-SHA256 f2b8f4a179d876b2140440ee9e07e97a56e6f657c805b3ff2c473a2aff1cf0c9 gentoo-sources-2.6.19-r4.ebuild 1518
+EBUILD gentoo-sources-2.6.19-r4.ebuild 1628 RMD160 8f5ec55087c6f6416efb01684ab3d01eef5040c0 SHA1 790b587eebbce44a776cfa6c99095bf337ac9535 SHA256 d91dfb45888b1d0f5b459d6843754ad89a5921d2af33606a15b4f6c9a1251287
+MD5 e8b5b3d77b1ee3b50c916694dc1a5ecd gentoo-sources-2.6.19-r4.ebuild 1628
+RMD160 8f5ec55087c6f6416efb01684ab3d01eef5040c0 gentoo-sources-2.6.19-r4.ebuild 1628
+SHA256 d91dfb45888b1d0f5b459d6843754ad89a5921d2af33606a15b4f6c9a1251287 gentoo-sources-2.6.19-r4.ebuild 1628
 MD5 7917755b2686d4bce76f58ce875b1fcb files/digest-gentoo-sources-2.6.18-r3 804
 RMD160 4105172ae01f4b2affcebd0d48fc49c25fb4ab9a files/digest-gentoo-sources-2.6.18-r3 804
 SHA256 4500b0faa417da83f03ee9d6fc5caf005c1499db631f9d87b87b340be21c646b files/digest-gentoo-sources-2.6.18-r3 804
