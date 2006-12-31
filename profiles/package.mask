@@ -22,9 +22,6 @@ x11-misc/xglswitch
 # Needs a new Murrina GTK Theme
 >=x11-themes/murrine-0.31
 
-# Does not build against xorg 7.2_rc2; need to fix ebuild to do so
-=x11-drivers/nvidia-drivers-1.0.9746-r90
-
 # Development release
 >=sys-power/kpowersave-0.7.1
 
