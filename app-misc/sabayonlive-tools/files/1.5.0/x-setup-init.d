@@ -5,22 +5,14 @@
 
 depend() {
 	before hostname
+	before xdm
 	after internetkiosk
 }
 
 
 start() {
 
-      ebegin "Configuring GPUs and Hardware Acceleration"
-
-      # Fixing things (here for now)
-      if [ ! -e /var/cache/edb ]; then
-	mkdir /var/cache/edb
-	mkdir /var/cache/edb/dep
-	chmod 775 /var/cache/edb -R
-	chmod 775 /var/cache/edb/dep -R
-	chown root:portage /var/cache/edb -R
-      fi
+      ebegin "Configuring GPU Hardware Acceleration and Input devices"
 
       # Start-up x-setup-configuration
       start-stop-daemon --start --background --exec /usr/sbin/x-setup-configuration --

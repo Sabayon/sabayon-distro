@@ -35,11 +35,7 @@ done
 
 get_video_cards || exit 1
 
-	cmdline_noproprietary_exist=$(cat /proc/cmdline | grep noproprietary)
-	if [ -n "$cmdline_noproprietary_exist" ]; then
-		nice -20 /usr/bin/eselect opengl set xorg-x11
-	else
-		nice -20 /usr/bin/eselect opengl set $GLTYPE
-	fi
+nice -20 eselect opengl set $GLTYPE
+
 
 #exec /usr/bin/xinit

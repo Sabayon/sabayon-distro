@@ -15,14 +15,8 @@ else
    get_video_cards &> /dev/null
    get_current_gl=$(eselect opengl show)
 
-   # Fix for "nVidia Corporation Unknown device"
-   if [ -n "`lspci | grep VGA | grep -i nvidia | grep -i 'Unknown device'`" ]; then
-      nice -20 /usr/bin/eselect opengl set nvidia
-   elif [ -n "`lspci | grep VGA | grep nVidia | grep 'PCI Express'`" ]; then
-      # Fix for "nVidia Corporation PCI Express Device"
-      nice -20 /usr/bin/eselect opengl set nvidia
-   else
-      if [ "$get_current_gl" != "$GLTYPE" ]; then
+   if [ "$get_current_gl" != "$GLTYPE" ]; then
+      if [ -n "$cmdline_noproprietary_exist" ]; then
          /usr/sbin/x-setup
       fi
    fi
@@ -32,44 +26,15 @@ fi
 
 runtime_linking_proprietary_drivers() {
 
-   # Do this only if on the system is available a NVIDIA or ATI card
-   if [ -n "`lspci | grep ' VGA ' | grep -i nvidia`" ] || [ -n "`lspci | grep ' VGA ' | grep -i ati`" ]; then
-
-      mount -t tmpfs none /lib/modules/$(uname -r)/video
-      current_arch=$(uname -m)
-      if [ "$current_arch" == "x86_64" ]; then
-         ld_arch="elf_x86_64"
-      elif [ "$current_arch" == "i686" ]; then
-         ld_arch="elf_i386"
-      fi
-      ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
-      ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/fglrx.ko /lib/fglrx/fglrx.o /lib/fglrx/fglrx.mod.o
-
+   mount -t tmpfs none /lib/modules/$(uname -r)/video
+   current_arch=$(uname -m)
+   if [ "$current_arch" == "x86_64" ]; then
+      ld_arch="elf_x86_64"
+   elif [ "$current_arch" == "i686" ]; then
+      ld_arch="elf_i386"
    fi
-
-}
-
-configure_read_write_paths() {
-
-   # if it's not already mounted, mount KDM config r/w
-   # but only when unionfs is not available
-   if [ -z "`cat /proc/cmdline | grep -i unionfs`" ]; then
-      kdm_is_mounted=$(cat /etc/mtab | grep kdm )
-      if [ -z "$kdm_is_mounted" ]; then
-         # mount it !
-         mkdir /tmp/kdm
-         cp /usr/kde/3.5/share/config/kdm/* /tmp/kdm/ -Rp
-         mount -t tmpfs none /usr/kde/3.5/share/config/kdm/
-         cp /tmp/kdm/* /usr/kde/3.5/share/config/kdm/ -Rp
-         rm -rf /tmp/kdm
-      fi
-   fi
-
-   # Fix .ICE-unix permissions - still needed ??
-   mkdir -m 1777 /tmp/.ICE-unix -p
-   chown root /tmp/.ICE-unix
-   chown root /tmp/.ICE-unix -R
-   chmod 1777 /tmp/.ICE-unix
+   ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
+   ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/fglrx.ko /lib/fglrx/fglrx.o /lib/fglrx/fglrx.mod.o
 
 }
 
@@ -86,7 +51,7 @@ configure_video_settings() {
       # Probe for Hsync, Vsync, Modes and in case the user has specified
       # something else on the command line, it will be overwritten
 
-      if [ -e "/usr/sbin/ddcxinfo-knoppix" ] && [ -z "$cmdline_noddc_exist" ]; then
+      if [ -e "/usr/sbin/ddcxinfo-knoppix" ] && [ -z "$cmdline_noddc_exist" ] && [ -n "$cmdline_cdroot_exist" ]; then
 
           # hsync
           hsync=$(/usr/sbin/ddcxinfo-knoppix -hsync)
@@ -115,7 +80,7 @@ configure_video_settings() {
 
       fi
 
-      if [ -n "$cmdline_resolution_forced" ];then
+      if [ -n "$cmdline_resolution_forced" ];then # FIXME!!: what to do here? - change sed command to something more generic
          # change resolution in X.Org
          for word in `cat /proc/cmdline` ; do
             case $word in
@@ -175,6 +140,35 @@ configure_video_settings() {
 
 }
 
+configure_input_devices() {
+
+   # Detect ALPS Touchpad
+
+   #Option		"MaxSpeed"		"0.7"
+   #Option		"MinSpeed"		"0.18"
+   #Option		"AccelFactor"		"0.08"
+   #Option		"TopEdge"		"120"
+   #Option		"LeftEdge"		"120"
+   #Option		"BottomEdge"		"830"
+   #Option		"RightEdge"		"650"
+   if [ -n "cat /proc/bus/input/devices | grep -i alps" ]; then
+      alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
+      if [ "$alps_touchpad_exist" ]; then
+         sed -i '/MaxSpeed/ s/#//' /etc/X11/xorg.conf
+         sed -i '/MinSpeed/ s/#//' /etc/X11/xorg.conf
+         sed -i '/AccelFactor/ s/#//' /etc/X11/xorg.conf
+         sed -i '/TopEdge/ s/#//' /etc/X11/xorg.conf
+         sed -i '/LeftEdge/ s/#//' /etc/X11/xorg.conf
+         sed -i '/BottomEdge/ s/#//' /etc/X11/xorg.conf
+         sed -i '/RightEdge/ s/#//' /etc/X11/xorg.conf
+      fi
+   else
+      echo "warning: /proc/bus/input/devices does not exist, cannot detect ALPS TouchPads"
+   fi
+
+
+}
+
       # create seed
       rm -f /etc/x-setup-configuration-running
       touch /etc/x-setup-configuration-running
@@ -184,33 +178,31 @@ configure_video_settings() {
 
       # Variables
       cmdline_onlyvesa_exist=$(cat /proc/cmdline | grep onlyvesa)
-      cmdline_noproprietary_exist=$(cat /proc/cmdline | grep noproprietary)
       cmdline_opengl_exists=$(cat /proc/cmdline | grep "opengl=")
-      cmdline_noxorg_exist=$(cat /proc/cmdline | grep nox)
-      cmdline_fastboot_exist=$(cat /proc/cmdline | grep fastboot)
-      cmdline_kiosk_exist=$(cat /proc/cmdline | grep internetkiosk)
       cmdline_legacy_exist=$(cat /proc/cmdline | grep legacy)
       cmdline_resolution_forced=$(cat /proc/cmdline | grep "res=")
       cmdline_refresh_exist=$(cat /proc/cmdline | grep refresh=)
       cmdline_hsync_exist=$(cat /proc/cmdline | grep hsync=)
       cmdline_noddc_exist=$(cat /proc/cmdline | grep "noddc")
-      cmdline_xgl_exist=$(cat /proc/cmdline | grep " xgl")
-      cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
-      cmdline_noaccelmanager_exist=$(cat /proc/cmdline | grep "noaccelmanager")
+      cmdline_cdroot_exist=$(cat /proc/cmdline | grep " cdroot")
 
       # Prepare Video Cards Proprietary Drivers
-      runtime_linking_proprietary_drivers
+      if [ -n "$cmdline_cdroot_exist" ]; then
+          runtime_linking_proprietary_drivers
+      fi
 
       # Prepare OpenGL
       if [ -z "$cmdline_onlyvesa_exist" ]; then
          configure_opengl
       fi
 
-      # Configure Video Card Driver
-      configure_video_settings
+      if [ -n "$cmdline_cdroot_exist" ]; then
+         # Configure Video Card Driver
+         configure_video_settings
+      fi
 
-      # Configure read/write paths
-      configure_read_write_paths
+      # Now we can configure X Input drivers
+      configure_input_devices
 
       # delete seed
       rm -f /etc/x-setup-configuration-running
