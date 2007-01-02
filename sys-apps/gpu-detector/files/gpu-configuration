@@ -70,6 +70,31 @@ remove_proprietary_opengl() {
     fi
 }
 
+check_if_proprietary_driver_system_is_healthy() {
+    # we should really accept only "nvidia" and "fglrx"
+    kernel_module=$1
+    modprobe $kernel_module &> /dev/null
+    lsmod_output=$(lsmod | grep $kernel_module)
+    if [ -n "$lsmod_output" ]; then
+        # now check the opengl subsystem
+        if [ "$kernel_module" == "nvidia" ]; then
+            if [ -e "/usr/lib/opengl/nvidia/lib" ]; then
+                opengl_status=0
+            else
+                opengl_status=1
+            fi
+        elif [ "$kernel_module" == "fglrx" ]; then
+            if [ -e "/usr/lib/opengl/ati/lib" ]; then
+                opengl_status=0
+            else
+                opengl_status=1
+            fi
+        fi
+    else
+        return 1
+    fi
+}
+
 change_xorg_driver() {
     if [ -z "$dry_run_detected" ]; then
         sed -i '/do not remove vesa/ s/".*"/"'$1'"/' $XORGFILE
@@ -150,10 +175,20 @@ if [ -n "$is_there_xdriver" ]; then
        enable_dri
      fi
      if [ "$xdriver" = "nvidia" ]; then
-       fix_possible_opengl_misconfiguration nvidia
+       check_if_proprietary_driver_system_is_healthy nvidia
+       if [ "$opengl_status" == "0" ]; then
+           fix_possible_opengl_misconfiguration nvidia
+       else
+           change_xorg_driver nv
+       fi
      fi
      if [ "$xdriver" = "fglrx" ]; then
-       fix_possible_opengl_misconfiguration ati
+       check_if_proprietary_driver_system_is_healthy fglrx
+       if [ "$opengl_status" == "0" ]; then
+           fix_possible_opengl_misconfiguration ati
+       else
+           change_xorg_driver radeon
+       fi
      fi
      if [ "$xdriver" = "vesa" ]; then
        sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
@@ -218,8 +253,13 @@ if [ -n "$NVIDIA" ]; then
                      # hope that will work
                      touch /lib/nvidia/legacy/running
 
-                     change_xorg_driver nvidia
-                     fix_possible_opengl_misconfiguration nvidia
+                     check_if_proprietary_driver_system_is_healthy nvidia
+                     if [ "$opengl_status" == "0" ]; then
+                         change_xorg_driver nvidia
+                         fix_possible_opengl_misconfiguration nvidia
+                     else
+                         change_xorg_driver nv
+                     fi
 
                  else
 
@@ -238,8 +278,13 @@ if [ -n "$NVIDIA" ]; then
          fi
      else
        # ok, configure the standard nvidia driver
-       change_xorg_driver nvidia
-       fix_possible_opengl_misconfiguration nvidia
+       check_if_proprietary_driver_system_is_healthy nvidia
+       if [ "$opengl_status" == "0" ]; then
+           change_xorg_driver nvidia
+           fix_possible_opengl_misconfiguration nvidia
+       else
+           change_xorg_driver nv
+       fi
        echo -e "\t Display Driver: NVIDIA (Proprietary)"
      fi
 
@@ -295,9 +340,17 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
         lsmod_ati=$(lsmod | grep fglrx)
 	if [ -n "$lsmod_ati" ];then
 
-    	  change_xorg_driver fglrx
-          fix_possible_opengl_misconfiguration ati
-          enable_dri
+            check_if_proprietary_driver_system_is_healthy fglrx
+            if [ "$opengl_status" == "0" ]; then
+                change_xorg_driver fglrx
+                fix_possible_opengl_misconfiguration ati
+                enable_dri
+            else
+                change_xorg_driver radeon
+                enable_dri
+                remove_proprietary_opengl
+            fi
+
     	  echo -e "\t Display Driver: ATI (Proprietary)"
 
 	else
