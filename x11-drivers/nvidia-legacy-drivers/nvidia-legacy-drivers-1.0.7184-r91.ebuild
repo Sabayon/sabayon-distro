@@ -1,10 +1,10 @@
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-legacy-drivers/nvidia-legacy-drivers-1.0.7184.ebuild,v 1.5 2006/10/09 13:36:18 wolf31o2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-legacy-drivers/nvidia-legacy-drivers-1.0.7184.ebuild,v 1.8 2006/10/20 18:48:58 wolf31o2 Exp $
 
 inherit eutils multilib versionator linux-mod
 
-X86_PKG_V="pkg1"
+X86_PKG_V="pkg0"
 AMD64_PKG_V="pkg2"
 NV_V="${PV/1.0./1.0-}"
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${NV_V}"
@@ -139,6 +139,9 @@ src_unpack() {
 
 	# If greater than 2.6.5 use M= instead of SUBDIR=
 	cd ${S}; convert_to_m Makefile.kbuild
+
+	# Patch for kernel 2.6.19 from Daniel Drake <dsd@gentoo.org>
+	epatch ${FILESDIR}/NVIDIA_kernel-2.6.19.patch
 }
 
 src_compile() {
@@ -186,13 +189,12 @@ src_install() {
 	exeinto /usr/bin
 	doexe usr/bin/nvidia-bug-report.sh
 
-        if use distribution && ! use x86-fbsd; then
-                insinto /lib/nvidia/legacy
-                doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.o"
-                insinto /lib/nvidia/legacy
-                doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.mod.o"
-        fi
-
+	if use distribution && ! use x86-fbsd; then
+		insinto /lib/nvidia
+		doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.o"
+		insinto /lib/nvidia
+		doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.mod.o"
+	fi
 
 }
 
@@ -369,5 +371,8 @@ want_tls() {
 }
 
 pkg_postrm() {
+	if ! use x86-fbsd; then
+		linux-mod_pkg_postrm
+	fi
 	eselect opengl set --use-old xorg-x11
 }

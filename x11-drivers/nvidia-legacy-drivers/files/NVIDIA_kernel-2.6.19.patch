@@ -1,0 +1,47 @@
+Index: NVIDIA-Linux-x86_64-1.0-9625-pkg2/usr/src/nv/nv-linux.h
+===================================================================
+--- NVIDIA-Linux-x86_64-1.0-9625-pkg2.orig/usr/src/nv/nv-linux.h
++++ NVIDIA-Linux-x86_64-1.0-9625-pkg2/usr/src/nv/nv-linux.h
+@@ -14,10 +14,11 @@
+ 
+ #include "nv.h"
+ 
+-#include <linux/config.h>
+ #include <linux/version.h>
+ #include <linux/utsname.h>
+-
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 15)
++#include <linux/config.h>
++#endif
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 4, 7)
+ #  error This driver does not support 2.4 kernels older than 2.4.7!
+Index: NVIDIA-Linux-x86_64-1.0-9625-pkg2/usr/src/nv/nv.c
+===================================================================
+--- NVIDIA-Linux-x86_64-1.0-9625-pkg2.orig/usr/src/nv/nv.c
++++ NVIDIA-Linux-x86_64-1.0-9625-pkg2/usr/src/nv/nv.c
+@@ -288,7 +288,11 @@ int           nv_kern_ioctl(struct inode
+ long          nv_kern_unlocked_ioctl(struct file *, unsigned int, unsigned long);
+ long          nv_kern_compat_ioctl(struct file *, unsigned int, unsigned long);
+ void          nv_kern_isr_bh(unsigned long);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
+ irqreturn_t   nv_kern_isr(int, void *, struct pt_regs *);
++#else
++irqreturn_t   nv_kern_isr(int, void *);
++#endif
+ void          nv_kern_rc_timer(unsigned long);
+ #if defined(NV_PM_SUPPORT_OLD_STYLE_APM)
+ static int    nv_kern_apm_event(struct pm_dev *, pm_request_t, void *);
+@@ -2595,8 +2599,10 @@ long nv_kern_compat_ioctl(
+  */
+ irqreturn_t nv_kern_isr(
+     int   irq,
+-    void *arg,
+-    struct pt_regs *regs
++    void *arg
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
++	, struct pt_regs *regs
++#endif
+ )
+ {
+     nv_linux_state_t *nvl = (void *) arg;
