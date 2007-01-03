@@ -244,11 +244,12 @@ if [ -n "$NVIDIA" ]; then
                      # remove old nvidia.ko
                      rm /lib/modules/$(uname -r)/video/nvidia.ko -f
                      # copy over
-                     cp /lib/nvidia/legacy/* / -Rp &> /dev/null
+                     cp /lib/nvidia/legacy/usr/* /usr/ -Rp &> /dev/null
                      # create nvidia.ko
-                     ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/legacy/nvidia.o /lib/nvidia/legacy/nvidia.mod.o
-                     # set nvidia
+                     ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/legacy/lib/nvidia/nvidia.o /lib/nvidia/legacy/lib/nvidia/nvidia.mod.o
+                     # mandatory because we need to re-run the opengl configuration
                      source /etc/profile
+                     nice -20 eselect opengl set xorg-x11 &> /dev/null
                      nice -20 eselect opengl set nvidia &> /dev/null
                      # hope that will work
                      touch /lib/nvidia/legacy/running
