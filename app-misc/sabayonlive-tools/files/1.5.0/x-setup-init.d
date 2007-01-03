@@ -28,7 +28,7 @@ start() {
 
           lspci_vga=$(lspci | grep ' VGA ')
           if [ "$lspci_vga" != "`cat /etc/gpu-detector.conf`" ]; then
-              start-stop-daemon --start --background --exec /usr/sbin/x-setup-configuration --
+              /usr/sbin/x-setup-configuration &> /dev/null
           fi
           eend 0
       fi

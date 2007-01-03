@@ -199,6 +199,8 @@ configure_input_devices() {
       if [ -n "$cmdline_cdroot_exist" ]; then
          # Configure Video Card Driver
          configure_video_settings
+      else
+         /sbin/gpu-configuration &> /dev/null
       fi
 
       # Now we can configure X Input drivers
