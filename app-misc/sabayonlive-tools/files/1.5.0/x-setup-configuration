@@ -16,8 +16,16 @@ else
    get_current_gl=$(eselect opengl show)
 
    if [ "$get_current_gl" != "$GLTYPE" ]; then
-      if [ -n "$cmdline_noproprietary_exist" ]; then
-         /usr/sbin/x-setup
+      if [ -z "$cmdline_noproprietary_exist" ]; then
+         source /etc/profile
+         nice -20 eselect opengl set $GLTYPE
+         source /etc/profile
+      else
+         if [ -z "$cmdline_cdroot_exist" ]; then
+            source /etc/profile
+            nice -20 eselect opengl set xorg-x11
+            source /etc/profile
+        fi
       fi
    fi
 fi

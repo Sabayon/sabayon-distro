@@ -29,6 +29,7 @@ start() {
           lspci_vga=$(lspci | grep ' VGA ')
           if [ "$lspci_vga" != "`cat /etc/gpu-detector.conf`" ]; then
               /usr/sbin/x-setup-configuration &> /dev/null
+              lspci | grep ' VGA ' > /etc/gpu-detector.conf
           fi
           eend 0
       fi
