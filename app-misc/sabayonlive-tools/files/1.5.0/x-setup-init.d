@@ -23,7 +23,7 @@ start() {
               # store config file
               lspci | grep ' VGA ' > /etc/gpu-detector.conf
               eend 0
-              return 0
+              exit 0
           fi
 
           lspci_vga=$(lspci | grep ' VGA ')
