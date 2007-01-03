@@ -30,6 +30,10 @@ AUX 2.6.19-mactel.patch 67160 RMD160 d6a3fbb2ac3b66ab87678c72ec24b64d1396244c SH
 MD5 0f1804e6158e23e6b776f02ba946d14c files/2.6.19-mactel.patch 67160
 RMD160 d6a3fbb2ac3b66ab87678c72ec24b64d1396244c files/2.6.19-mactel.patch 67160
 SHA256 6c22b8c9e993e35c6363e64ea1b0670d32c02430a29fa418262d0a47f022a4cc files/2.6.19-mactel.patch 67160
+AUX 2.6.19-sis-ide-sata-updates.patch 3032 RMD160 ed30853cd0f9cd8b21157f4e01c065f0b6d9f36d SHA1 b6b7e4e8c0c29a35cee871ad2e7fb5a75504bdbd SHA256 91a45eae36364a44ba18782682a2253d42147ef321701a5e56a6c3cd6fa0edd3
+MD5 daf1bbf4d6c0a27ccf431e7787d19ac9 files/2.6.19-sis-ide-sata-updates.patch 3032
+RMD160 ed30853cd0f9cd8b21157f4e01c065f0b6d9f36d files/2.6.19-sis-ide-sata-updates.patch 3032
+SHA256 91a45eae36364a44ba18782682a2253d42147ef321701a5e56a6c3cd6fa0edd3 files/2.6.19-sis-ide-sata-updates.patch 3032
 AUX ata-early-irq.patch 1364 RMD160 45e0c76b9de90be3e06d6fa31e6fc98ec43c40d6 SHA1 5d86ea4f520a5d01036ac6ecd77281577c5df79c SHA256 44033d38e8555a9f3b7f064a44d931336695fcdba8413765c90452496382297c
 MD5 6f08a5094e84ce47b3afc93ebbad96e0 files/ata-early-irq.patch 1364
 RMD160 45e0c76b9de90be3e06d6fa31e6fc98ec43c40d6 files/ata-early-irq.patch 1364
@@ -88,10 +92,10 @@ EBUILD gentoo-sources-2.6.19-r3.ebuild 1396 RMD160 206c3fc793d6ed02fcab6972d2ed7
 MD5 e56f4b604071ecc1c155d5fc180de52a gentoo-sources-2.6.19-r3.ebuild 1396
 RMD160 206c3fc793d6ed02fcab6972d2ed733364dc061d gentoo-sources-2.6.19-r3.ebuild 1396
 SHA256 f1984fe2144b5d3578f36dc596e948feab8f7582efd2791e0a6f4eac24510576 gentoo-sources-2.6.19-r3.ebuild 1396
-EBUILD gentoo-sources-2.6.19-r4.ebuild 1732 RMD160 53253202878f1e605dc18bb2dbed2e4ff2ead300 SHA1 7571f2ec0a7231bdfde569d14eb2120cecad4446 SHA256 0313a7d5caf47809d44c377d8918e1c17d87d1ddbf0582b24d31de341bcb718c
-MD5 31c6ae8403e84259f98c657d47905570 gentoo-sources-2.6.19-r4.ebuild 1732
-RMD160 53253202878f1e605dc18bb2dbed2e4ff2ead300 gentoo-sources-2.6.19-r4.ebuild 1732
-SHA256 0313a7d5caf47809d44c377d8918e1c17d87d1ddbf0582b24d31de341bcb718c gentoo-sources-2.6.19-r4.ebuild 1732
+EBUILD gentoo-sources-2.6.19-r4.ebuild 1780 RMD160 edd1968b9273c6555b4bd092aed5adb648471c97 SHA1 7a3fd50d315e7e8db3c0ef4ae42223ac5fcee762 SHA256 ce48fbe556cf87a07e66b313ca50908a6b056ea1dde900b9b38acca25d565b13
+MD5 7ca81fc8df6806fc325892d453533ea1 gentoo-sources-2.6.19-r4.ebuild 1780
+RMD160 edd1968b9273c6555b4bd092aed5adb648471c97 gentoo-sources-2.6.19-r4.ebuild 1780
+SHA256 ce48fbe556cf87a07e66b313ca50908a6b056ea1dde900b9b38acca25d565b13 gentoo-sources-2.6.19-r4.ebuild 1780
 MD5 7917755b2686d4bce76f58ce875b1fcb files/digest-gentoo-sources-2.6.18-r3 804
 RMD160 4105172ae01f4b2affcebd0d48fc49c25fb4ab9a files/digest-gentoo-sources-2.6.18-r3 804
 SHA256 4500b0faa417da83f03ee9d6fc5caf005c1499db631f9d87b87b340be21c646b files/digest-gentoo-sources-2.6.18-r3 804

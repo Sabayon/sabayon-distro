@@ -21,6 +21,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/ata-early-irq.patch ${FILESDIR}/fuse-2.6.1.patch ${FILESDIR}/toshiba-bluetooth.patch
 		${FILESDIR}/2.6.19-mactel.patch ${FILESDIR}/2.6.19-libata-pata_ali-updates.patch
 		${FILESDIR}/2.6.19-bmdma-fixes.patch ${FILESDIR}/2.6.19-bcm43xx-forcedeth-atiixp-support.patch
+		${FILESDIR}/2.6.19-sis-ide-sata-updates.patch
 		"
 UNIPATCH_STRICTORDER="yes"
 
