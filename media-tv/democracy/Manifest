@@ -1,0 +1,12 @@
+AUX democracy-as-needed-libX11.patch 640 RMD160 34b1528f276722f70a9d13cbb145dc8bbfed88b1 SHA1 50bd164b5ad24231252afb1a28a1c5b6f8bd9f05 SHA256 65bc455fadd9445e34e4dd2fd8eecb5a923939aefe233aabb82b8ead5570e990
+MD5 d6ca50568d4e6093fd942f0a9b14b85f files/democracy-as-needed-libX11.patch 640
+RMD160 34b1528f276722f70a9d13cbb145dc8bbfed88b1 files/democracy-as-needed-libX11.patch 640
+SHA256 65bc455fadd9445e34e4dd2fd8eecb5a923939aefe233aabb82b8ead5570e990 files/democracy-as-needed-libX11.patch 640
+DIST Democracy-0.9.2.1.tar.gz 5847927 RMD160 aa5a6ac70c015ce9f1a8751d5e73fa51856f14b9 SHA1 d58db11defdb0298cc425b900c1ae595422b8c16 SHA256 e69a0cbe039b34946b5aa1459b85721c216dc54c24f4d9b96123451e15639ab9
+EBUILD democracy-0.9.2.1-r1.ebuild 1911 RMD160 0c9c1db9a9af628c4e6faf26fb2c43a6c8f63780 SHA1 f5eb9bb01f6d2bc0d0771aedd431a59f6b9e89b7 SHA256 f16ab4b23a7d7ff28e32cb76f7f8cc0b32d2952c82195f0e4859676233cfba87
+MD5 ee7dcc3e8249ea079dd6f3cf3723ca1f democracy-0.9.2.1-r1.ebuild 1911
+RMD160 0c9c1db9a9af628c4e6faf26fb2c43a6c8f63780 democracy-0.9.2.1-r1.ebuild 1911
+SHA256 f16ab4b23a7d7ff28e32cb76f7f8cc0b32d2952c82195f0e4859676233cfba87 democracy-0.9.2.1-r1.ebuild 1911
+MD5 efcf7a0523c205acd52cb0a557d41032 files/digest-democracy-0.9.2.1-r1 256
+RMD160 51e4599f45c42d64971849b80d25d73862bcad65 files/digest-democracy-0.9.2.1-r1 256
+SHA256 83707f1eaea9468d601347b0adecbc050f8635a3423d283814e2eeae4b441f3f files/digest-democracy-0.9.2.1-r1 256
