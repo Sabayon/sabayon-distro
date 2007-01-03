@@ -22,7 +22,6 @@ src_unpack() {
 	cd ${WORKDIR}
 	cp ${FILESDIR}/${PV}/livecd-functions.sh . -p
 	cp ${FILESDIR}/${PV}/net-setup . -p
-	cp ${FILESDIR}/${PV}/x-setup . -p
 	cp ${FILESDIR}/${PV}/x-setup-init.d . -p
 	cp ${FILESDIR}/${PV}/x-setup-configuration . -p
 	cp ${FILESDIR}/${PV}/xorg.conf . -p
@@ -35,7 +34,7 @@ src_install() {
 	cd ${WORKDIR}
 
 	if use opengl; then
-		dosbin x-setup x-setup-configuration
+		dosbin x-setup-configuration
 		newinitd x-setup-init.d x-setup
 	fi
 

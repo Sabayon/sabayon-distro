@@ -86,10 +86,10 @@ EBUILD sabayonlive-tools-1.4.1.ebuild 999 RMD160 d6d37c72b3d16e50ae5e9c7c0a30cd1
 MD5 05044d3c049b31a01d4b6dc81c9522e8 sabayonlive-tools-1.4.1.ebuild 999
 RMD160 d6d37c72b3d16e50ae5e9c7c0a30cd16d069e8d5 sabayonlive-tools-1.4.1.ebuild 999
 SHA256 26865ba518f2cc28dc905fe3d29b8020aad32c033a0bf1aa545312de51ce5881 sabayonlive-tools-1.4.1.ebuild 999
-EBUILD sabayonlive-tools-1.5.0.ebuild 999 RMD160 d6d37c72b3d16e50ae5e9c7c0a30cd16d069e8d5 SHA1 8aaab2c1c9c6286688bbd1f35d5d4f09bd5817bb SHA256 26865ba518f2cc28dc905fe3d29b8020aad32c033a0bf1aa545312de51ce5881
-MD5 05044d3c049b31a01d4b6dc81c9522e8 sabayonlive-tools-1.5.0.ebuild 999
-RMD160 d6d37c72b3d16e50ae5e9c7c0a30cd16d069e8d5 sabayonlive-tools-1.5.0.ebuild 999
-SHA256 26865ba518f2cc28dc905fe3d29b8020aad32c033a0bf1aa545312de51ce5881 sabayonlive-tools-1.5.0.ebuild 999
+EBUILD sabayonlive-tools-1.5.0.ebuild 956 RMD160 1032e9c5f36b0922f35a0503998b5a6d431cf36e SHA1 d96a721e10cc9f0225c6455d013ac9e2823d07b1 SHA256 fef9ff04893723e80809852a905e6eee9285aeb433484e00397694dc22747e0f
+MD5 8a439c5d0478b10cd58ad5acffafd224 sabayonlive-tools-1.5.0.ebuild 956
+RMD160 1032e9c5f36b0922f35a0503998b5a6d431cf36e sabayonlive-tools-1.5.0.ebuild 956
+SHA256 fef9ff04893723e80809852a905e6eee9285aeb433484e00397694dc22747e0f sabayonlive-tools-1.5.0.ebuild 956
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayonlive-tools-1.4.0 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayonlive-tools-1.4.0 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayonlive-tools-1.4.0 0
