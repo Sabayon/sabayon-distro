@@ -38,6 +38,9 @@ ATI=$($lspci_output | grep ' VGA ' | grep ATI)
 R7000=$($lspci_output | grep ' VGA ' | grep R100 || $lspci_output | grep ' VGA ' | grep RV100 )
 R7200=$($lspci_output | grep ' VGA ' | grep -i "Radeon R100")
 R7500=$($lspci_output | grep ' VGA ' | grep -i "Radeon RV200")
+if [ -z "$R7500" ]; then
+  R7500=$($lspci_output | grep ' VGA ' | grep -i "Radeon.*7500")
+fi
 R2XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R2.*")
 R1XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV1.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R1.*")
 RX700=$($lspci_output | grep ' VGA ' | grep -i "Radeon Mobility X700")
@@ -64,6 +67,7 @@ remove_proprietary_opengl() {
         mv /etc/env.d/09ati /tmp/ &> /dev/null
         sed -i '/LIBGL_DRIVERS_PATH/ s/.*//' /etc/profile.env
         source /etc/profile &> /dev/null
+        fix_possible_opengl_misconfiguration xorg-x11
     else
         echo "I was about to remove proprietary OpenGL libraries"
     fi
@@ -142,6 +146,15 @@ fix_possible_opengl_misconfiguration() {
                 nice -20 eselect opengl set nvidia
             fi
         fi
+
+        if [ "$1" = "xorg-x11" ]; then
+	    # this MUST be run after remove_proprietary_opengl or inside it
+            if [ "$current_opengl_subsystem" != "xorg-x11" ]; then
+                # fix it!
+                nice -20 eselect opengl set xorg-x11
+            fi
+        fi
+
     else
         echo "I was about to fix OpenGL subsystem to: "$1", while tue current implementation is "$current_opengl_subsystem
     fi
