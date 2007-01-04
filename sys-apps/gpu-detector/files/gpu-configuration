@@ -36,10 +36,16 @@ NVIDIA=$($lspci_output | grep ' VGA ' | grep -i "nVidia")
 NVIDIATNT=$($lspci_output | grep ' VGA ' | grep -i "RIVA TNT")
 ATI=$($lspci_output | grep ' VGA ' | grep ATI)
 R7000=$($lspci_output | grep ' VGA ' | grep R100 || $lspci_output | grep ' VGA ' | grep RV100 )
+if [ -z "$R7000" ]; then
+  R7000=$($lspci_output | grep ' VGA ' | grep "Radeon.*7000")
+fi
 R7200=$($lspci_output | grep ' VGA ' | grep -i "Radeon R100")
+if [ -z "$R7200" ]; then
+  R7200=$($lspci_output | grep ' VGA ' | grep "Radeon.*7200")
+fi
 R7500=$($lspci_output | grep ' VGA ' | grep -i "Radeon RV200")
 if [ -z "$R7500" ]; then
-  R7500=$($lspci_output | grep ' VGA ' | grep -i "Radeon.*7500")
+  R7500=$($lspci_output | grep ' VGA ' | grep "Radeon.*7500")
 fi
 R2XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R2.*")
 R1XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV1.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R1.*")
