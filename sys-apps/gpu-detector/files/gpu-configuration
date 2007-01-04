@@ -61,7 +61,7 @@ remove_proprietary_opengl() {
         mount -t tmpfs none /usr/lib/opengl/ati &> /dev/null
         mount -t tmpfs none /usr/lib/opengl/nvidia &> /dev/null
         # FIX For fscking ATI env.d file
-        rm -f /etc/env.d/*ati &> /dev/null
+        mv /etc/env.d/09ati /tmp/ &> /dev/null
         sed -i '/LIBGL_DRIVERS_PATH/ s/.*//' /etc/profile.env
         source /etc/profile &> /dev/null
     else
@@ -124,13 +124,21 @@ fix_possible_opengl_misconfiguration() {
         if [ "$1" = "ati" ]; then
             if [ "$current_opengl_subsystem" != "ati" ]; then
                 # fix it!
+                # it's better to do that anyway
+                umount /usr/lib/opengl/ati &> /dev/null
+                umount /usr/lib/opengl/ati &> /dev/null
+		mv /tmp/09ati /etc/env.d/ &> /dev/null
                 nice -20 eselect opengl set ati
+                source /etc/profile
             fi
         fi
 
         if [ "$1" = "nvidia" ]; then
             if [ "$current_opengl_subsystem" != "nvidia" ]; then
                 # fix it!
+                # it's better to do that anyway
+                umount /usr/lib/opengl/nvidia &> /dev/null
+                umount /usr/lib/opengl/nvidia &> /dev/null
                 nice -20 eselect opengl set nvidia
             fi
         fi
@@ -141,16 +149,6 @@ fix_possible_opengl_misconfiguration() {
 }
 
 # Code
-
-if [ -z "$ATI" ] && [ -z "$NVIDIA" ]; then
-    if [ -z "$dry_run_detected" ]; then
-        # FIX For fscking ATI env.d file
-        rm -f /etc/env.d/*ati &> /dev/null
-        nice -20 env-update && source /etc/profile &> /dev/null
-    else
-        echo "ATI and NVIDIA cards not detected, removing ATI env.d file"
-    fi
-fi
 
 current_arch=$(uname -m)
 if [ "$current_arch" == "x86_64" ]; then
