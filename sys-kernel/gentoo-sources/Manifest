@@ -58,6 +58,10 @@ AUX patch-2.6.18.3-4 615 RMD160 b77de84deb52853e9cc25112deaaea9e4f6e4c3a SHA1 6e
 MD5 0c86607fea135d2934d906e46e3cfe7f files/patch-2.6.18.3-4 615
 RMD160 b77de84deb52853e9cc25112deaaea9e4f6e4c3a files/patch-2.6.18.3-4 615
 SHA256 ba7683f9cf5520a2e717cc3849348e66a22b3c01cf583ccfc1e9ba2adae2c1e6 files/patch-2.6.18.3-4 615
+AUX sata_promise-2037x-pata-2.6.19-support.patch 4005 RMD160 e897ca0a052d8e6a334cdca666d8db43f3f2c996 SHA1 bf62e5cced0f0681d208c6f8fcb777b66ab610be SHA256 d3c50598389af81c7cd4e278ee74ef63fb007241019af6207660882b993e888e
+MD5 1ab85c829d2a3f047cb20c0f14315ed6 files/sata_promise-2037x-pata-2.6.19-support.patch 4005
+RMD160 e897ca0a052d8e6a334cdca666d8db43f3f2c996 files/sata_promise-2037x-pata-2.6.19-support.patch 4005
+SHA256 d3c50598389af81c7cd4e278ee74ef63fb007241019af6207660882b993e888e files/sata_promise-2037x-pata-2.6.19-support.patch 4005
 AUX toshiba-bluetooth.patch 6915 RMD160 fe48cef00d8983fbbf684175bc219328973477d7 SHA1 6616101325a2c0300ae4cbc54557b818e14089a4 SHA256 fa964d64836d558b2c3865697004b7047d9525e23181e1ab11cfb6abf6b5f77a
 MD5 af783746cf2540717422281d2c89f4b6 files/toshiba-bluetooth.patch 6915
 RMD160 fe48cef00d8983fbbf684175bc219328973477d7 files/toshiba-bluetooth.patch 6915
@@ -96,10 +100,10 @@ EBUILD gentoo-sources-2.6.19-r3.ebuild 1396 RMD160 206c3fc793d6ed02fcab6972d2ed7
 MD5 e56f4b604071ecc1c155d5fc180de52a gentoo-sources-2.6.19-r3.ebuild 1396
 RMD160 206c3fc793d6ed02fcab6972d2ed733364dc061d gentoo-sources-2.6.19-r3.ebuild 1396
 SHA256 f1984fe2144b5d3578f36dc596e948feab8f7582efd2791e0a6f4eac24510576 gentoo-sources-2.6.19-r3.ebuild 1396
-EBUILD gentoo-sources-2.6.19-r4.ebuild 1822 RMD160 47c3a6b3c1f50d8597ee96a168d6a2e267cf980b SHA1 afb3df43e7e0118ae4802faff6b83b416693d34d SHA256 e2cec67399439a200e7ff2eda2080546baa55fdf596500b691552c5e3cb50e37
-MD5 e721fa973d07c58beff6487ad8525e14 gentoo-sources-2.6.19-r4.ebuild 1822
-RMD160 47c3a6b3c1f50d8597ee96a168d6a2e267cf980b gentoo-sources-2.6.19-r4.ebuild 1822
-SHA256 e2cec67399439a200e7ff2eda2080546baa55fdf596500b691552c5e3cb50e37 gentoo-sources-2.6.19-r4.ebuild 1822
+EBUILD gentoo-sources-2.6.19-r4.ebuild 1971 RMD160 3c3205d9b4a639e9b72ad94322c4740ee226ff33 SHA1 f6abf4b5b7b7422e74faf7da5a9e1e00e6c93d40 SHA256 cc3722b345cb565172b5bf71e4b5041d63a7013ac56987eb8fd85b6b7874e9fd
+MD5 fb424b63cfed34a895eb0c8d6e78b9f6 gentoo-sources-2.6.19-r4.ebuild 1971
+RMD160 3c3205d9b4a639e9b72ad94322c4740ee226ff33 gentoo-sources-2.6.19-r4.ebuild 1971
+SHA256 cc3722b345cb565172b5bf71e4b5041d63a7013ac56987eb8fd85b6b7874e9fd gentoo-sources-2.6.19-r4.ebuild 1971
 MD5 7917755b2686d4bce76f58ce875b1fcb files/digest-gentoo-sources-2.6.18-r3 804
 RMD160 4105172ae01f4b2affcebd0d48fc49c25fb4ab9a files/digest-gentoo-sources-2.6.18-r3 804
 SHA256 4500b0faa417da83f03ee9d6fc5caf005c1499db631f9d87b87b340be21c646b files/digest-gentoo-sources-2.6.18-r3 804

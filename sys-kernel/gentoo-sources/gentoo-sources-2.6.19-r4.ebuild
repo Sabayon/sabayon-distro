@@ -22,7 +22,9 @@ UNIPATCH_LIST="
 		${FILESDIR}/2.6.19-mactel.patch ${FILESDIR}/2.6.19-libata-pata_ali-updates.patch
 		${FILESDIR}/2.6.19-bmdma-fixes.patch ${FILESDIR}/2.6.19-bcm43xx-forcedeth-atiixp-support.patch
 		${FILESDIR}/2.6.19-sis-ide-sata-updates.patch ${FILESDIR}/2.6.19-ata-piix-updates.patch
+		${FILESDIR}/sata_promise-2037x-pata-2.6.19-support.patch
 		"
+		# sata_promise-2037x-pata-2.6.19-support.patch --> check if it will be merged in 2.6.20
 UNIPATCH_STRICTORDER="yes"
 
 KEYWORDS="~amd64 ~ppc ~ppc64 ~sparc ~x86"
