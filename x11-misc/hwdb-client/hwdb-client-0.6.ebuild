@@ -13,7 +13,7 @@ KEYWORDS="~amd64 ~ppc ~x86"
 IUSE="gtk qt4"
 
 DEPEND="=dev-lang/python-2.4*
-	(qt4?) dev-python/PyQt4
+	qt4? (dev-python/PyQt4)
 	net-analyzer/fping"
 
 RDEPEND="${DEPEND}"
