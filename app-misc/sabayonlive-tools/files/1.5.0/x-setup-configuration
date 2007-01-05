@@ -159,6 +159,8 @@ configure_input_devices() {
    #Option		"LeftEdge"		"120"
    #Option		"BottomEdge"		"830"
    #Option		"RightEdge"		"650"
+   #Option		"FingerLow"		"25"
+   #Option		"FingerHigh"		"30"
    if [ -n "cat /proc/bus/input/devices | grep -i alps" ]; then
       alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
       if [ "$alps_touchpad_exist" ]; then
@@ -169,6 +171,8 @@ configure_input_devices() {
          sed -i '/LeftEdge/ s/#//' /etc/X11/xorg.conf
          sed -i '/BottomEdge/ s/#//' /etc/X11/xorg.conf
          sed -i '/RightEdge/ s/#//' /etc/X11/xorg.conf
+         sed -i '/FingerLow/ s/#//' /etc/X11/xorg.conf
+         sed -i '/FingerHigh/ s/#//' /etc/X11/xorg.conf
       fi
    else
       echo "warning: /proc/bus/input/devices does not exist, cannot detect ALPS TouchPads"

@@ -66,18 +66,18 @@ AUX 1.5.0/net-setup 1487 RMD160 30a8a6363bc3136aff7d4a7d2cd806eb08eec4fd SHA1 97
 MD5 8911277ac0b22dc956e4d6e0c6bc0a10 files/1.5.0/net-setup 1487
 RMD160 30a8a6363bc3136aff7d4a7d2cd806eb08eec4fd files/1.5.0/net-setup 1487
 SHA256 7a34552512039db376967bea3942b0aac5478b512170b92d24fa0d151750c1d6 files/1.5.0/net-setup 1487
-AUX 1.5.0/x-setup-configuration 7504 RMD160 218f1da778ce68903caaf9a02480c2653f1f6966 SHA1 9a3a40c69a290b5681a212b2a04d5e4ab0467820 SHA256 3a062702f7d54976edbb294ddf310164a883b2c49042e0a53d1d6e9cc45b325e
-MD5 ef1b462267936c5a885ac778f8bb6d4a files/1.5.0/x-setup-configuration 7504
-RMD160 218f1da778ce68903caaf9a02480c2653f1f6966 files/1.5.0/x-setup-configuration 7504
-SHA256 3a062702f7d54976edbb294ddf310164a883b2c49042e0a53d1d6e9cc45b325e files/1.5.0/x-setup-configuration 7504
+AUX 1.5.0/x-setup-configuration 7676 RMD160 f6e40e26062bb45cdf90d2b10436ed9d77929ee7 SHA1 6fc2b8dcf538e77e0b4d5400822fc3d8ffad7f5f SHA256 ae9699ebbb0df1dc73d3ed4e1a56957a3c3ddee25c1344a1b3d560ffe086745f
+MD5 7d113da0d8bfc7c7720590a028c6db3c files/1.5.0/x-setup-configuration 7676
+RMD160 f6e40e26062bb45cdf90d2b10436ed9d77929ee7 files/1.5.0/x-setup-configuration 7676
+SHA256 ae9699ebbb0df1dc73d3ed4e1a56957a3c3ddee25c1344a1b3d560ffe086745f files/1.5.0/x-setup-configuration 7676
 AUX 1.5.0/x-setup-init.d 1086 RMD160 1d04400bc94dfd390adc17d670b8f7834f002917 SHA1 8ce33cdc5b5b7fcd31f9c18335f284dffbe43e63 SHA256 280598e32828254c7888c73f2d3a2952304d56ea1ef9f142778ee37da09c5024
 MD5 c7c940615d63ac3f065bc6daee4277fb files/1.5.0/x-setup-init.d 1086
 RMD160 1d04400bc94dfd390adc17d670b8f7834f002917 files/1.5.0/x-setup-init.d 1086
 SHA256 280598e32828254c7888c73f2d3a2952304d56ea1ef9f142778ee37da09c5024 files/1.5.0/x-setup-init.d 1086
-AUX 1.5.0/xorg.conf 6363 RMD160 353d2182ec127920523ba645510d1fbd3ba20ac2 SHA1 1d87512b8642cf0a07de3e1c423073e73fc8c565 SHA256 4dd53a302c4337de5cb8fa6a1df236f65680b33a11bd3aca78e798637ac650aa
-MD5 aa59918cd28c08ca53f5150aeb5e182d files/1.5.0/xorg.conf 6363
-RMD160 353d2182ec127920523ba645510d1fbd3ba20ac2 files/1.5.0/xorg.conf 6363
-SHA256 4dd53a302c4337de5cb8fa6a1df236f65680b33a11bd3aca78e798637ac650aa files/1.5.0/xorg.conf 6363
+AUX 1.5.0/xorg.conf 6426 RMD160 a1e5f6c554c40f06cda5edbcc2394866633f9378 SHA1 3ab1a36813b46eac6f89796e9fec56cd8f86bd19 SHA256 116007f1adc049505300ad4384d9300828e54f4fa2d856b378a9374663bc272b
+MD5 feebcad8a97740a06da99bc4d30e46ce files/1.5.0/xorg.conf 6426
+RMD160 a1e5f6c554c40f06cda5edbcc2394866633f9378 files/1.5.0/xorg.conf 6426
+SHA256 116007f1adc049505300ad4384d9300828e54f4fa2d856b378a9374663bc272b files/1.5.0/xorg.conf 6426
 EBUILD sabayonlive-tools-1.4.0.ebuild 999 RMD160 d6d37c72b3d16e50ae5e9c7c0a30cd16d069e8d5 SHA1 8aaab2c1c9c6286688bbd1f35d5d4f09bd5817bb SHA256 26865ba518f2cc28dc905fe3d29b8020aad32c033a0bf1aa545312de51ce5881
 MD5 05044d3c049b31a01d4b6dc81c9522e8 sabayonlive-tools-1.4.0.ebuild 999
 RMD160 d6d37c72b3d16e50ae5e9c7c0a30cd16d069e8d5 sabayonlive-tools-1.4.0.ebuild 999
@@ -90,12 +90,12 @@ EBUILD sabayonlive-tools-1.5.0.ebuild 956 RMD160 1032e9c5f36b0922f35a0503998b5a6
 MD5 8a439c5d0478b10cd58ad5acffafd224 sabayonlive-tools-1.5.0.ebuild 956
 RMD160 1032e9c5f36b0922f35a0503998b5a6d431cf36e sabayonlive-tools-1.5.0.ebuild 956
 SHA256 fef9ff04893723e80809852a905e6eee9285aeb433484e00397694dc22747e0f sabayonlive-tools-1.5.0.ebuild 956
-MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayonlive-tools-1.4.0 0
-RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayonlive-tools-1.4.0 0
-SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayonlive-tools-1.4.0 0
-MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayonlive-tools-1.4.1 0
-RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayonlive-tools-1.4.1 0
-SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayonlive-tools-1.4.1 0
-MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayonlive-tools-1.5.0 0
-RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayonlive-tools-1.5.0 0
-SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayonlive-tools-1.5.0 0
+MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-sabayonlive-tools-1.4.0 1
+RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-sabayonlive-tools-1.4.0 1
+SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-sabayonlive-tools-1.4.0 1
+MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-sabayonlive-tools-1.4.1 1
+RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-sabayonlive-tools-1.4.1 1
+SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-sabayonlive-tools-1.4.1 1
+MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-sabayonlive-tools-1.5.0 1
+RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-sabayonlive-tools-1.5.0 1
+SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-sabayonlive-tools-1.5.0 1
