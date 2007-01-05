@@ -1,0 +1,51 @@
+diff -Nurp genkernel-3.4.5.orig/generic/initrd.scripts genkernel-3.4.5/generic/initrd.scripts
+--- genkernel-3.4.5.orig/generic/initrd.scripts	2006-11-14 15:55:40.000000000 +0100
++++ genkernel-3.4.5/generic/initrd.scripts	2007-01-05 18:26:30.000000000 +0100
+@@ -323,11 +323,27 @@ start_dev_mgr() {
+ 	then
+ 		cd /sys
+ 		[ "${DO_slowusb}" ] && sleep 10
++
++	        # Smarter control
++        	[ "${DO_slowusb}" ] || \
++        	for dir in /sys/bus/usb/drivers/usb-storage/*; do
++                	if [ -d "${dir}" ]
++                	then
++                        	FORCE_slowusb="1"
++                	fi
++        	done
++        	[ "${FORCE_slowusb}" ] && sleep 10
++
+ 		kill_devfsd
+ 		good_msg 'Activating mdev'
+ #		runUdev
+ 		runmdev
+ 		[ "${DO_slowusb}" ] && sleep 20
++
++                # Smarter control
++                [ "${DO_slowusb}" ] || \
++                [ "${FORCE_slowusb}" ] && sleep 20
++
+ 		cd /
+ 	else
+ 		good_msg 'Activating devfs'
+diff -Nurp genkernel-3.4.5.orig/generic/linuxrc genkernel-3.4.5/generic/linuxrc
+--- genkernel-3.4.5.orig/generic/linuxrc	2007-01-05 18:15:00.000000000 +0100
++++ genkernel-3.4.5/generic/linuxrc	2007-01-05 18:24:57.000000000 +0100
+@@ -647,6 +647,16 @@ then
+ 	export CDBOOT
+ 	CDBOOT=1
+ 	[ "${DO_slowusb}" ] && sleep 10
++
++	# Smarter control
++	[ "${DO_slowusb}" ] || \
++	for dir in /sys/bus/usb/drivers/usb-storage/*; do
++		if [ -d "${dir}" ]
++		then
++			FORCE_slowusb="1"
++		fi
++	done
++	[ "${FORCE_slowusb}" ] && sleep 10
+ else
+ 	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
+ 	then
