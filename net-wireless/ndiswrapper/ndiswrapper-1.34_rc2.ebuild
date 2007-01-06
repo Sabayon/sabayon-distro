@@ -7,6 +7,7 @@ inherit eutils linux-mod
 DESCRIPTION="Wrapper for using Windows drivers for some wireless cards"
 HOMEPAGE="http://ndiswrapper.sourceforge.net/"
 SRC_URI="mirror://sourceforge/${PN}/${P/_/}.tar.gz"
+S=${WORKDIR}/${P/_/}
 
 LICENSE="GPL-2"
 KEYWORDS="~x86 ~amd64"
