@@ -1,0 +1,12 @@
+diff -urp ndiswrapper-1.2/driver/ntoskernel.h ndiswrapper-1.2-suspend2/driver/ntoskernel.h
+--- ndiswrapper-1.2/driver/ntoskernel.h	2005-06-10 21:24:31.000000000 +0200
++++ ndiswrapper-1.2-suspend2/driver/ntoskernel.h	2005-07-02 19:35:34.000000000 +0200
+@@ -170,7 +170,7 @@ typedef task_queue workqueue;
+ 
+ #endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+ 
+-#if defined(CONFIG_SOFTWARE_SUSPEND2) || defined(CONFIG_SUSPEND2)
++#ifdef PF_SYNCTHREAD
+ #define KTHREAD_RUN(a,b,c) kthread_run(a,b,0,c)
+ #else
+ #define KTHREAD_RUN(a,b,c) kthread_run(a,b,c)
