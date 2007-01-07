@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.6.4_pre20061028.ebuild,v 1.2 2006/11/05 01:36:44 steev Exp $
 
-inherit gnome2 debug eutils
+inherit gnome2 eutils
 
 DESCRIPTION="Network configuration and management in an easy way. Desktop env independent"
 HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
@@ -11,7 +11,7 @@ SRC_URI="http://dev.gentoo.org/~metalgod/files/NetworkManager-0.6.4_pre20061028.
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="crypt debug doc gnome"
+IUSE="crypt doc gnome"
 
 RDEPEND=">=sys-apps/dbus-0.60
 	>=sys-apps/hal-0.5
