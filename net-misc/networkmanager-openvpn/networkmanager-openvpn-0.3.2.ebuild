@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit gnome2 debug eutils
+inherit gnome2 eutils
 
 DESCRIPTION="NetworkManager vpnc daemon/client configuration and management in an easy way."
 HOMEPAGE="http://people.redhat.com/dcbw/NetworkManager/"
@@ -11,7 +11,7 @@ SRC_URI="http://dev.gentoo.org/~steev/distfiles/NetworkManager-openvpn-${PV}.tar
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="crypt debug doc gnome"
+IUSE="crypt doc gnome"
 
 RDEPEND=">=sys-apps/dbus-0.35.2
 	>=sys-apps/hal-0.5
