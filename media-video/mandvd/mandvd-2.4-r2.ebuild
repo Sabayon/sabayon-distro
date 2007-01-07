@@ -14,14 +14,14 @@ IUSE=""
 KEYWORDS="~x86 ~amd64"
 
 DEPEND="=x11-libs/qt-3*
-	>=xine-lib-1.1.2-r2
-	>=dvd-slideshow-0.7.5
+	>=media-libs/xine-lib-1.1.2-r2
+	>=media-video/dvd-slideshow-0.7.5
 	>media-sound/lame-3.96
-	>=dvdauthor-0.6.11
-	>=mjpegtools-1.8.0-r1
-	>=netpbm-10.34
+	>=media-video/dvdauthor-0.6.11
+	>=media-video/mjpegtools-1.8.0-r1
+	>=media-libs/netpbm-10.34
 	>=media-video/transcode-1.0.2-r2
-	>=dvd+rw-tools-5.21.4.10.8"
+	>=app-cdr/dvd+rw-tools-5.21.4.10.8"
 
 RDEPEND="$DEPEND"
 
