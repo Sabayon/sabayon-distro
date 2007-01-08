@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit eutils toolchain-funcs
+inherit eutils
 
 DESCRIPTION="GUI to edit XServer-file xorg.conf easily"
 HOMEPAGE="http://www.cyskat.de/dee/progxorg.htm"
@@ -25,6 +25,7 @@ src_compile() {
 }
 
 src_install() {
+	cd ${S}
 	dobin xorg-edit
 	dodoc CHANGELOG README
 	dodoc options/devices/*
