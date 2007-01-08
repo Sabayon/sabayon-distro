@@ -1,0 +1,32 @@
+diff -ru xorg-edit~/sources/Makefile xorg-edit/sources/Makefile
+--- xorg-edit~/sources/Makefile	2006-08-12 20:46:06.000000000 +0200
++++ xorg-edit/sources/Makefile	2006-08-12 20:49:18.000000000 +0200
+@@ -5,7 +5,9 @@
+ 
+ # variables
+ 
+-CXX = `wx-config --cxx`
++CXX ?= `wx-config --cxx`
++LDFLAGS+=`wx-config --libs`
++CXXFLAGS+=`wx-config --cxxflags`
+ 
+ PROGRAM = xorg-edit
+ 
+@@ -17,14 +19,12 @@
+ 
+ all:    $(PROGRAM)
+ 
+-	rm -f *.o  
+ 
+ $(PROGRAM): $(OBJECTS) 
+-	$(CXX) -o $(PROGRAM) $(OBJECTS) `wx-config --libs`
+-
+-$(OBJECTS): $(SOURCES)
+-	$(CXX) -c $(SOURCES) `wx-config --cxxflags` 
++	$(CXX) -o $(PROGRAM) $(OBJECTS) $(LDFLAGS)
+ 
++%.o: %.c
++	$(CXX) -o $@ -c $< $(CXXFLAGS)
+ 
+ clean: 
+ 	rm -f *.o $(PROGRAM)
