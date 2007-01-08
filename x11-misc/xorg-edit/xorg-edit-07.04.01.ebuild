@@ -21,7 +21,7 @@ S="${WORKDIR}/${PN}"
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-	epatch "${FILESDIR}/${P}-makefile.patch"
+	# epatch "${FILESDIR}/${P}-makefile.patch"
 }
 
 src_compile() {
