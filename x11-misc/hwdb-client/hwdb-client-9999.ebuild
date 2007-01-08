@@ -23,14 +23,14 @@ DEPEND="=dev-lang/python-2.4*
 
 RDEPEND="${DEPEND}"
 
-S="${WORKDIR}/${PN}"
+S="${WORKDIR}/trunk"
 
 src_compile() {
 	ewarn "This is SVN release!"
         einfo "No compilation needed as made with PyQt4"
 	cd ${S}
 	# run our installer wrapper
-	python setup.py
+	python sabayon-install.py
 }
 
 src_install() {
