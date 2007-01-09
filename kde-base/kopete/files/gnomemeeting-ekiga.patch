@@ -1,0 +1,36 @@
+diff -ur kopete-0.12.1/kopete/plugins/netmeeting.orig/netmeetinginvitation.cpp netmeeting/netmeetinginvitation.cpp
+--- kopete-0.12.1/kopete/plugins/netmeeting.orig/netmeetinginvitation.cpp	2006-07-18 16:30:54.000000000 +0200
++++ kopete-0.12.1/kopete/plugins/netmeeting/netmeetinginvitation.cpp	2006-07-18 16:04:51.000000000 +0200
+@@ -162,7 +162,7 @@
+ 	
+ 	KConfig *config=KGlobal::config();
+ 	config->setGroup("Netmeeting Plugin");
+-	QString app=config->readEntry("NetmeetingApplication","gnomemeeting -c callto://%1").arg(ip_address);
++	QString app=config->readEntry("NetmeetingApplication","ekiga -c callto://%1").arg(ip_address);
+ 	
+ 	kdDebug() << k_funcinfo << app <<  endl ;
+ 	
+diff -ur kopete-0.12.1/kopete/plugins/netmeeting.orig/netmeetingpreferences.cpp netmeeting/netmeetingpreferences.cpp
+--- kopete-0.12.1/kopete/plugins/netmeeting.orig/netmeetingpreferences.cpp	2006-07-18 16:30:54.000000000 +0200
++++ kopete-0.12.1/kopete/plugins/netmeeting/netmeetingpreferences.cpp	2006-07-18 16:04:51.000000000 +0200
+@@ -58,7 +58,7 @@
+ {
+ 	KConfig *config=KGlobal::config();
+ 	config->setGroup("Netmeeting Plugin");
+-	preferencesDialog->m_app->setCurrentText(config->readEntry("NetmeetingApplication","gnomemeeting -c callto://%1"));
++	preferencesDialog->m_app->setCurrentText(config->readEntry("NetmeetingApplication","ekiga -c callto://%1"));
+ 	emit KCModule::changed(false);
+ }
+ 
+diff -ur kopete-0.12.1/kopete/plugins/netmeeting.orig/netmeetingprefs_ui.ui netmeeting/netmeetingprefs_ui.ui
+--- kopete-0.12.1/kopete/plugins/netmeeting.orig/netmeetingprefs_ui.ui	2006-07-18 16:30:54.000000000 +0200
++++ kopete-0.12.1/kopete/plugins/netmeeting/netmeetingprefs_ui.ui	2006-07-18 16:04:51.000000000 +0200
+@@ -63,7 +63,7 @@
+                 <widget class="KComboBox">
+                     <item>
+                         <property name="text">
+-                            <string>gnomemeeting -c callto://%1</string>
++                            <string>ekiga -c callto://%1</string>
+                         </property>
+                     </item>
+                     <item>

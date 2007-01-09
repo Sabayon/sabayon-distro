@@ -1,0 +1,19 @@
+--- kopete-3.5.5/kopete/libkopete/kopeteonlinestatusmanager.h.orig	2006-12-15 23:33:46.000000000 -0800
++++ kopete-3.5.5/kopete/libkopete/kopeteonlinestatusmanager.h	2006-12-15 23:34:33.000000000 -0800
+@@ -21,6 +21,7 @@
+ #include <qobject.h>
+ #include "kopeteonlinestatus.h"
+ #include "kaction.h"
++#include "kopete_export.h"
+ 
+ class QString;
+ class QPixmap;
+@@ -38,7 +39,7 @@
+  *
+  * @author Olivier Goffart 
+  */
+-class OnlineStatusManager : public QObject
++class KOPETE_EXPORT OnlineStatusManager : public QObject
+ {
+ 	Q_OBJECT
+ public:
