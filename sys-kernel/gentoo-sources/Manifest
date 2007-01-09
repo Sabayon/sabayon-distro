@@ -22,6 +22,10 @@ AUX 2.6.19-bmdma-fixes.patch 2701 RMD160 6df48e6f235f45a1cf5eb618345f0c252962638
 MD5 03b717963b62a65ae18c46b1109d85a9 files/2.6.19-bmdma-fixes.patch 2701
 RMD160 6df48e6f235f45a1cf5eb618345f0c2529626388 files/2.6.19-bmdma-fixes.patch 2701
 SHA256 3b33990b3ce90b4f187a9f1bb807e5c3845d0b1dee2d95fa4187c29c4cef1c8b files/2.6.19-bmdma-fixes.patch 2701
+AUX 2.6.19-kvm-2.6.20_rc4-updates.patch 99376 RMD160 38f2ff74aff506b2f46d274a10252b26ae649579 SHA1 9ae0b65407aa49e88f8c9e20e7d128aa2f90c4b4 SHA256 501d7e6ddd465f221d091425f810113e4ca1a79528cae8124e8ef4e3e418a8b3
+MD5 55131a28d5d04d455c95d1635fbefc72 files/2.6.19-kvm-2.6.20_rc4-updates.patch 99376
+RMD160 38f2ff74aff506b2f46d274a10252b26ae649579 files/2.6.19-kvm-2.6.20_rc4-updates.patch 99376
+SHA256 501d7e6ddd465f221d091425f810113e4ca1a79528cae8124e8ef4e3e418a8b3 files/2.6.19-kvm-2.6.20_rc4-updates.patch 99376
 AUX 2.6.19-kvm-experimental-support.patch 309516 RMD160 9e0c131dc4ab7e8cf13f19fc917641a7b880dcb7 SHA1 fceee2e9e6da0bb320ae00084ef4033a8c48fb5a SHA256 391f88e2c39fc6e7a22204a1b9005e6981fab86fd745a57cdd017caed83b957e
 MD5 3817941a68a1d8e9d8c725abf969dfb2 files/2.6.19-kvm-experimental-support.patch 309516
 RMD160 9e0c131dc4ab7e8cf13f19fc917641a7b880dcb7 files/2.6.19-kvm-experimental-support.patch 309516
@@ -104,6 +108,10 @@ EBUILD gentoo-sources-2.6.19-r4.ebuild 1971 RMD160 3c3205d9b4a639e9b72ad94322c47
 MD5 fb424b63cfed34a895eb0c8d6e78b9f6 gentoo-sources-2.6.19-r4.ebuild 1971
 RMD160 3c3205d9b4a639e9b72ad94322c4740ee226ff33 gentoo-sources-2.6.19-r4.ebuild 1971
 SHA256 cc3722b345cb565172b5bf71e4b5041d63a7013ac56987eb8fd85b6b7874e9fd gentoo-sources-2.6.19-r4.ebuild 1971
+EBUILD gentoo-sources-2.6.19-r5.ebuild 2087 RMD160 acfda78a351e43489db4ce3c4193caf345b9332d SHA1 e329bb15162b14cdcd7a4b72be3ea00336fccd49 SHA256 1c95f0e4c3c97c645153a50692c06a865582e7b28fb2e1003d80c16a5f54a659
+MD5 1ce750cb2ce69061cb7f3cca7d361545 gentoo-sources-2.6.19-r5.ebuild 2087
+RMD160 acfda78a351e43489db4ce3c4193caf345b9332d gentoo-sources-2.6.19-r5.ebuild 2087
+SHA256 1c95f0e4c3c97c645153a50692c06a865582e7b28fb2e1003d80c16a5f54a659 gentoo-sources-2.6.19-r5.ebuild 2087
 MD5 7917755b2686d4bce76f58ce875b1fcb files/digest-gentoo-sources-2.6.18-r3 804
 RMD160 4105172ae01f4b2affcebd0d48fc49c25fb4ab9a files/digest-gentoo-sources-2.6.18-r3 804
 SHA256 4500b0faa417da83f03ee9d6fc5caf005c1499db631f9d87b87b340be21c646b files/digest-gentoo-sources-2.6.18-r3 804
@@ -125,3 +133,6 @@ SHA256 6b79639420738eb960d38bee6ee1b536592d7c0b12ed5b0a65dfa45e8d044e84 files/di
 MD5 e81189f064edb492324a76de15e9c27f files/digest-gentoo-sources-2.6.19-r4 1361
 RMD160 cf41868e5f6fcd316cc355c6d198992d81177ca5 files/digest-gentoo-sources-2.6.19-r4 1361
 SHA256 6b79639420738eb960d38bee6ee1b536592d7c0b12ed5b0a65dfa45e8d044e84 files/digest-gentoo-sources-2.6.19-r4 1361
+MD5 e81189f064edb492324a76de15e9c27f files/digest-gentoo-sources-2.6.19-r5 1361
+RMD160 cf41868e5f6fcd316cc355c6d198992d81177ca5 files/digest-gentoo-sources-2.6.19-r5 1361
+SHA256 6b79639420738eb960d38bee6ee1b536592d7c0b12ed5b0a65dfa45e8d044e84 files/digest-gentoo-sources-2.6.19-r5 1361
