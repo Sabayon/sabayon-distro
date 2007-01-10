@@ -25,6 +25,7 @@ DEPEND=">=x11-base/xorg-x11-7.1
 
 src_compile () {
 	ewarn "This is SVN release!"
+	cp ${FILESDIR}/${PV}/* ${S} -p
 	cd ${S}
 	addwrite "${QTDIR}/etc/settings"
 	qmake -project ./
@@ -37,6 +38,20 @@ src_install () {
 	cd ${S}
 	exeinto /usr/bin
 	doexe ${S}/accel-manager
+
+	if [ ! -e "/usr/share/accel-manager" ]; then
+           dodir /usr/share/accel-manager
+        fi
+
+	insinto /usr/share/accel-manager
+        doins icon.png
+        doins accelicon.png
+
+        insinto /usr/share/pixmaps
+        doins accel-manager.png
+
+        insinto /usr/share/applications
+        doins accel-manager.desktop
 }
 
 pkg_postinst() {
