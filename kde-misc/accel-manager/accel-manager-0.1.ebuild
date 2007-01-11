@@ -1,22 +1,15 @@
 # Copyright 2006 SabayonLinux
 # Distributed under the terms of the GNU General Public License v2
 
-WANT_AUTOMAKE="latest"
-WANT_AUTOCONF="latest"
-
-inherit eutils subversion
-
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/${PN}/trunk"
+inherit eutils
 
 DESCRIPTION="Acceleration Manager for AIGLX/XGL on SabayonLinux"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI=""
+SRC_URI="http://sabayonlinux.org/distfiles/kde-misc/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-*"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
-
-S="${WORKDIR}/trunk"
 
 DEPEND=">=x11-base/xorg-x11-7.1
         >=x11-libs/qt-4.1.4-r2
@@ -24,12 +17,9 @@ DEPEND=">=x11-base/xorg-x11-7.1
 	x11-misc/desktop-acceleration-helpers"
 
 src_compile () {
-	ewarn "This is SVN release!"
 	cd ${S}
 	addwrite "${QTDIR}/etc/settings"
-	qmake -project ./
-	mv trunk.pro accel-manager.pro
-	qmake accel-manager.pro
+	qmake ${PN}.pro
 	emake
 }
 
