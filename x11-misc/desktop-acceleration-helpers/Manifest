@@ -2,10 +2,10 @@ AUX aiglx-setup 224 RMD160 20b753fe1c03c57efa9ea295b8feeceabe69424b SHA1 0d77906
 MD5 9ff1e9f2001b2b0eb15919b798f57c7a files/aiglx-setup 224
 RMD160 20b753fe1c03c57efa9ea295b8feeceabe69424b files/aiglx-setup 224
 SHA256 3fd0e0b16149d3c6085811b2803bf0f98d2db7f874e0a169b5bdacd5f2c2f3b9 files/aiglx-setup 224
-AUX desktop-acceleration-setup 7471 RMD160 a7c7d21ff6717a59e5ac5633bab56c7868e73779 SHA1 8a48bf5fb47652ba1e84798b92023ea9b1b5323e SHA256 923a8309703caac1499e6ac0ad06a79c16f36d48398f1bec61da4aed3ea172f1
-MD5 da45afd95d3744383c1aecbd79a3cbd7 files/desktop-acceleration-setup 7471
-RMD160 a7c7d21ff6717a59e5ac5633bab56c7868e73779 files/desktop-acceleration-setup 7471
-SHA256 923a8309703caac1499e6ac0ad06a79c16f36d48398f1bec61da4aed3ea172f1 files/desktop-acceleration-setup 7471
+AUX desktop-acceleration-setup 9488 RMD160 6f7a7fafd527e5d2cc659bd128dc38f08bfee7e4 SHA1 7b6b3aa1774c99f6be792c05d5963a1164f1443c SHA256 6c1a4bad71e2f0a68d86664db166a29f17e1c3f1ba246e709a938e193807e31e
+MD5 9eafa4d1c28b5a4b06f14022ba79cb83 files/desktop-acceleration-setup 9488
+RMD160 6f7a7fafd527e5d2cc659bd128dc38f08bfee7e4 files/desktop-acceleration-setup 9488
+SHA256 6c1a4bad71e2f0a68d86664db166a29f17e1c3f1ba246e709a938e193807e31e files/desktop-acceleration-setup 9488
 AUX xgl-setup 219 RMD160 22a0bec9ac620859ed8bc9b3c369bf9d2bb40668 SHA1 2ca26456eed84ad8eba1e1dd361e6e0ea86c07ec SHA256 c844fbc99a687ac2f7c92b752c20f7d501ed9858c8156992cef6644212267e1a
 MD5 05957d4561700fe22448e04a3fda9170 files/xgl-setup 219
 RMD160 22a0bec9ac620859ed8bc9b3c369bf9d2bb40668 files/xgl-setup 219
@@ -14,6 +14,13 @@ EBUILD desktop-acceleration-helpers-2.0-r1.ebuild 611 RMD160 fc8b76c773a5eac5c11
 MD5 7f2e41066964500f3c895476a64e8a2b desktop-acceleration-helpers-2.0-r1.ebuild 611
 RMD160 fc8b76c773a5eac5c11d3d7e9f4cbd746c6317ce desktop-acceleration-helpers-2.0-r1.ebuild 611
 SHA256 c5239418830ae799ee4cd413f1ce3ac1850bf646c08955e64ad7f0694306a1ac desktop-acceleration-helpers-2.0-r1.ebuild 611
-MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-desktop-acceleration-helpers-2.0-r1 1
-RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-desktop-acceleration-helpers-2.0-r1 1
-SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-desktop-acceleration-helpers-2.0-r1 1
+EBUILD desktop-acceleration-helpers-2.1.ebuild 489 RMD160 05cffb775b78e99e7e2755019c5602dff7989879 SHA1 c03914f1a29267f1e9e27f63ac160994c61698ef SHA256 1a59e5bf8cb03d12b1ffe2590682cfe9af3f7519bd961060ddb062cd9bd0c344
+MD5 74cf771abfad13dc8c35c6d41dbe25df desktop-acceleration-helpers-2.1.ebuild 489
+RMD160 05cffb775b78e99e7e2755019c5602dff7989879 desktop-acceleration-helpers-2.1.ebuild 489
+SHA256 1a59e5bf8cb03d12b1ffe2590682cfe9af3f7519bd961060ddb062cd9bd0c344 desktop-acceleration-helpers-2.1.ebuild 489
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-desktop-acceleration-helpers-2.0-r1 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-desktop-acceleration-helpers-2.0-r1 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-desktop-acceleration-helpers-2.0-r1 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-desktop-acceleration-helpers-2.1 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-desktop-acceleration-helpers-2.1 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-desktop-acceleration-helpers-2.1 0

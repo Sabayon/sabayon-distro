@@ -37,6 +37,7 @@ src_install () {
 	cd ${S}
 	exeinto /usr/bin
 	doexe ${S}/accel-manager
+	doexe ${S}/gltest.py
 
 	if [ ! -e "/usr/share/accel-manager" ]; then
            dodir /usr/share/accel-manager

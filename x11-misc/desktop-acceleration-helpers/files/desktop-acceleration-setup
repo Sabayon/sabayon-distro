@@ -2,6 +2,8 @@
 # Copyright 2006 - SabayonLinux (Fabio Erculiani)
 # Desktop Acceleration Helpers
 
+echo "Working..."
+
 # Constants
 if [ -e "/usr/kde/3.4" ];then
     kdmdir="/usr/kde/3.4/share/config/kdm/"
@@ -48,6 +50,9 @@ configure_kdm() {
         sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
     elif [ "$1" == "aiglx" ]; then
         # Changing KDM configuration
+        sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
+    elif [ "$1" == "nvidia" ]; then
+        # Changing KDM configuration- is actually no different from none or aiglx, but adds consistency
         sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
     fi
 }
@@ -122,13 +127,30 @@ disable_aiglx_in_xorg_conf() {
     sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
 }
 
-if [ -z "$1" ] && [ -z "$2" ] && [ "$1" == "--help" ] && [ "$1" != "aiglx" ] && [ "$1" != "xgl" ] && [ "$2" != "enable" ] && [ "$2" != "disable" ]; then
+enable_nvidia_in_xorg_conf() {
+    # Enable nvidia stuff, no AIGLX option
+    opengl_nvidia=$(eselect opengl show | grep nvidia)
+    if [ -n "$opengl_nvidia" ]; then
+        sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
+    fi
+    sed -i '/"Composite"/ s/#//g' $xorg_conf
+}
+
+disable_nvidia_in_xorg_conf() {
+    # Disable nvidia
+    sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
+    sed -i '/"AddARGBGLXVisuals"/ s/Option/#Option/' $xorg_conf
+    sed -i '/"Composite"/ s/#//' $xorg_conf
+    sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
+}
+
+if [ -z "$1" ] && [ -z "$2" ] && [ "$1" == "--help" ] && [ "$1" != "aiglx" ] && [ "$1" != "xgl" ] && [ "$1" != "nvidia" ] && [ "$2" !="enable" ] && [ "$2" != "disable" ]; then
    echo
    echo "desktop-acceleration-setup - SabayonLinux - Copyright 2006"
    echo
    echo "This helper enable/disable AIGLX/XGL system wide."
    echo "   Usage:"
-   echo "   # desktop-acceleration-setup aiglx/xgl enable/disable"
+   echo "   # desktop-acceleration-setup aiglx/xgl/nvidia enable/disable"
    echo
    exit 0
 fi
@@ -233,6 +255,59 @@ elif [ "$1" == "aiglx" ]; then
 
 	# Disable AIGLX
 	disable_aiglx_in_xorg_conf
+
+        # remove beryl-manager
+        remove_beryl_manager_from_the_startup
+
+	# set No Acceleration in the config file
+	write_acceleration_method none
+
+        echo -e "Done"
+   fi
+
+elif [ "$1" == "nvidia" ]; then
+
+   if [ "$2" == "enable" ]; then
+        echo "Enabling NVidia system wide..."
+
+        # Changing KDM configuration
+        configure_kdm nvidia
+
+	# remove any possible wrapper script in Xsession
+	remove_beryl_wrapper_script
+        # remove old stuff
+        scan_and_remove_old_files
+
+	# Enable NVidia
+	enable_nvidia_in_xorg_conf
+
+	# Beryl Manager startup file - create file $beryl_manager_desktop_file
+	create_beryl_manager_desktop_file
+
+	# Add Beryl to the startup
+	add_beryl_manager_to_the_startup
+
+	# remove junk
+	rm -f $beryl_wrapper_desktop_file
+	rm -f $beryl_manager_desktop_file
+
+	# set NVidia in the config file
+	write_acceleration_method nvidia
+
+        echo -e "Done"
+   else
+        echo "Disabling NVidia system wide..."
+
+        # Changing KDM configuration
+        configure_kdm none
+
+	# remove any possible wrapper script in Xsession
+	remove_beryl_wrapper_script
+        # remove old stuff
+        scan_and_remove_old_files
+
+	# Disable NVidia
+	disable_nvidia_in_xorg_conf
 
         # remove beryl-manager
         remove_beryl_manager_from_the_startup

@@ -14,11 +14,13 @@ IUSE=""
 DEPEND=">=x11-base/xorg-x11-7.1
         >=x11-libs/qt-4.1.4-r2
         || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 )
-	x11-misc/desktop-acceleration-helpers"
+	>=x11-misc/desktop-acceleration-helpers-2.1"
 
 src_compile () {
 	cd ${S}
 	addwrite "${QTDIR}/etc/settings"
+	qmake -project ./
+	mv *.pro ${PN}.pro
 	qmake ${PN}.pro
 	emake
 }
