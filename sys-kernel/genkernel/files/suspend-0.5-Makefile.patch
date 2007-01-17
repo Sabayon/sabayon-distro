@@ -1,0 +1,56 @@
+
+From: Daniel Drake <ddrake@brontes3d.com>
+
+Index: suspend-0.5/Makefile
+===================================================================
+--- suspend-0.5.orig/Makefile
++++ suspend-0.5/Makefile
+@@ -1,14 +1,14 @@
+ #CONFIG_COMPRESS=yes
+ #CONFIG_ENCRYPT=yes
+ #CONFIG_SPLASHY=yes
+-#CONFIG_UDEV=yes
++CONFIG_UDEV=yes
+ 
+ ARCH:=$(shell uname -m)
+ 
+-CC_FLAGS=-I/usr/local/include
+-LD_FLAGS=-L/usr/local/lib
++CC_FLAGS?=-I/usr/local/include
++LD_FLAGS?=-L/usr/local/lib
+ 
+-CFLAGS := -O2 -Wall
++CFLAGS ?= -O2 -Wall
+ 
+ ifdef CONFIG_COMPRESS
+ CC_FLAGS	+= -DCONFIG_COMPRESS
+@@ -22,7 +22,7 @@ CC_FLAGS	+= $(GCRYPT_CC_FLAGS)
+ LD_FLAGS	+= $(GCRYPT_LD_FLAGS)
+ endif
+ 
+-SUSPEND_DIR=/usr/local/sbin
++SUSPEND_DIR?=/usr/local/sbin
+ CONFIG_DIR=/etc
+ RESUME_DEVICE=<path_to_resume_device_file>
+ BOOT_DIR=/boot
+@@ -31,7 +31,7 @@ S2BOTH=s2both
+ S2DISK=s2disk
+ CONFIGFILE=suspend.conf
+ 
+-ifndef CONFIG_UDEV
++ifneq ($(CONFIG_UDEV), yes)
+ SNAPSHOT=$(DESTDIR)/dev/snapshot
+ endif
+ 
+@@ -145,9 +145,9 @@ install-s2disk: $(S2DISK) swap-offset co
+ 	if [ -f $(DESTDIR)$(CONFIG_DIR)/$(CONFIGFILE) ]; then install --mode=644 conf/$(CONFIGFILE) $(DESTDIR)$(CONFIG_DIR)/$(CONFIGFILE).new; else install --mode=644 conf/$(CONFIGFILE) $(DESTDIR)$(CONFIG_DIR); fi
+ 
+ install: $(S2DISK) $(S2BOTH) swap-offset conf/$(CONFIGFILE) $(SNAPSHOT)
+-	install --mode=755 $(S2DISK) $(DESTDIR)$(SUSPEND_DIR)
++	install -D --mode=755 $(S2DISK) $(DESTDIR)$(SUSPEND_DIR)/$(S2DISK)
+ 	install --mode=755 $(S2BOTH) $(DESTDIR)$(SUSPEND_DIR)
+-	if [ -f $(DESTDIR)$(CONFIG_DIR)/$(CONFIGFILE) ]; then install --mode=644 conf/$(CONFIGFILE) $(DESTDIR)$(CONFIG_DIR)/$(CONFIGFILE).new; else install --mode=644 conf/$(CONFIGFILE) $(DESTDIR)$(CONFIG_DIR); fi
++	if [ -f $(DESTDIR)$(CONFIG_DIR)/$(CONFIGFILE) ]; then install --mode=644 conf/$(CONFIGFILE) $(DESTDIR)$(CONFIG_DIR)/$(CONFIGFILE).new; else install -D --mode=644 conf/$(CONFIGFILE) $(DESTDIR)$(CONFIG_DIR)/$(CONFIGFILE); fi
+ 	install --mode=755 s2ram $(DESTDIR)$(SUSPEND_DIR)
+ 	install --mode=755 resume $(DESTDIR)$(SUSPEND_DIR)
+ 	install --mode=755 swap-offset $(DESTDIR)$(SUSPEND_DIR)
