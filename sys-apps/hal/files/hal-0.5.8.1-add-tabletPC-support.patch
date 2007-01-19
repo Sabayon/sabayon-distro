@@ -1,0 +1,268 @@
+:000000 100644 0000000000000000000000000000000000000000 0000000000000000000000000000000000000000 A	fdi/information/10freedesktop/10-tabletPCs.fdi
+:100644 100644 031e1e519be7943f54b5a7dc17f0d5307e7cd847 0000000000000000000000000000000000000000 M	fdi/information/10freedesktop/Makefile.am
+:100644 100644 c2ae795be74f856e4e8ebe977ac4e4bef1d19ad0 0000000000000000000000000000000000000000 M	hald/linux/physdev.c
+:100644 100644 7d84238242efe161516fb1ff0bd0a013a494e4fd 0000000000000000000000000000000000000000 M	tools/Makefile.am
+:000000 100644 0000000000000000000000000000000000000000 6cac923e451bf68a89f38664101deedee8ec7b7e A	tools/hal-system-setserial.c
+
+ fdi/information/10freedesktop/10-tabletPCs.fdi |   21 +++++
+ fdi/information/10freedesktop/Makefile.am      |    3 -
+ hald/linux/ids.c                               |    5 +
+ hald/linux/physdev.c                           |   38 +++++++++
+ tools/Makefile.am                              |    7 +-
+ tools/hal-system-setserial.c                   |  107 ++++++++++++++++++++++++
+ 6 files changed, 178 insertions(+), 3 deletions(-)
+
+diff --git a/fdi/information/10freedesktop/10-tabletPCs.fdi b/fdi/information/10freedesktop/10-tabletPCs.fdi
+new file mode 100644
+index 0000000..d653721
+--- /dev/null
++++ b/fdi/information/10freedesktop/10-tabletPCs.fdi
+@@ -0,0 +1,24 @@
++<?xml version="1.0" encoding="UTF-8"?> 
++
++<deviceinfo version="0.2">
++
++  <device>
++    <match key="info.capabilities" contains="input.tablet.tabletPC">
++      <merge key="input.device.set" type="string">/dev/ttyS0</merge>
++        <!-- There is a report that we should use ttyS2 instead of ttyS0 -->
++	<match key="@info.parent:smbios.system.product" contains="HP Compaq tc4200">
++	  <merge key="input.device.set" type="string">/dev/ttyS2</merge>
++	</match>
++	<append key="info.callouts.add" type="strlist">hal-system-setserial</append>	
++	<!-- for this device exist atm no driver, no need to set serial port atm -->
++	<match key="pnp.id" contains="FPI2004">
++	  <remove key="input.device.set"></remove>
++	  <remove key="info.callouts.add" type="strlist">hal-system-setserial</remove>
++	  <match key="info.callouts.add" empty="true">
++	     <remove key="info.callouts.add"></remove>
++	  </match>
++	</match>
++    </match>
++  </device>
++
++</deviceinfo>
+diff --git a/fdi/information/10freedesktop/Makefile.am b/fdi/information/10freedesktop/Makefile.am
+index 031e1e5..5aa4c55 100644
+--- a/fdi/information/10freedesktop/Makefile.am
++++ b/fdi/information/10freedesktop/Makefile.am
+@@ -7,7 +7,8 @@ dist_fdi_DATA = 10-usb-card-readers.fdi 
+ 		10-wireless-mice.fdi	   \
+ 		10-camera-ptp.fdi	   \
+ 		10-usb-pda.fdi		   \
+-		10-cd-dvd-burner.fdi
++		10-cd-dvd-burner.fdi       \
++		10-tabletPCs.fdi
+ 
+ check:
+ 	for f in $(dist_fdi_DATA); do \
+diff --git a/hald/linux/physdev.c b/hald/linux/physdev.c
+index c2ae795..fa5975b 100644
+--- a/hald/linux/physdev.c
++++ b/hald/linux/physdev.c
+@@ -416,11 +416,31 @@ ide_compute_udi (HalDevice *d)
+ }
+ 
+ /*--------------------------------------------------------------------------------------------------------------*/
++static void
++pnp_set_serial_info (const gchar *sysfs_path, HalDevice *d) {
++
++	hal_util_set_int_elem_from_file (d, "pnp.serial.irq", sysfs_path, "resources", "irq", 0, 10, TRUE);	
++	
++	if (hal_util_set_string_elem_from_file (d, "pnp.serial.port", sysfs_path, "resources", "io", 0, TRUE)) {
++		const char* port;
++		const char* _port;
++		_port = hal_device_property_get_string (d, "pnp.serial.port");
++		if(_port == NULL)
++			return;
++	
++		port = strtok((char*) _port, "-");
++		if(port == NULL)
++			return;
++		
++		hal_device_property_set_string (d, "pnp.serial.port", port);
++	}
++}
+ 
+ static HalDevice *
+ pnp_add (const gchar *sysfs_path, HalDevice *parent)
+ {
+ 	HalDevice *d;
++	HalDevice *computer;
+ 
+ 	d = hal_device_new ();
+ 	hal_device_property_set_string (d, "linux.sysfs_path", sysfs_path);
+@@ -437,11 +457,29 @@ pnp_add (const gchar *sysfs_path, HalDev
+ 	hal_util_set_string_from_file (d, "pnp.id", sysfs_path, "id");
+ 	if (hal_device_has_property (d, "pnp.id")) {
+ 		gchar *pnp_description;
++		const char *pnp_id;
+ 		ids_find_pnp (hal_device_property_get_string (d, "pnp.id"), &pnp_description);
+ 		if (pnp_description != NULL) {
+ 			hal_device_property_set_string (d, "pnp.description", pnp_description);
+ 			hal_device_property_set_string (d, "info.product", pnp_description);
+ 		}
++		pnp_id = hal_device_property_get_string (d, "pnp.id");
++		if( !strncmp(pnp_id, "WACf00", 6) || !strcmp(pnp_id, "FUJ02e5") ||  
++		    !strcmp(pnp_id, "FUJ02e6") || !strcmp(pnp_id, "FPI2004")) {
++			/* a internal serial tablet --> this should be a tablet pc */
++			hal_device_add_capability (d, "input");
++			hal_device_add_capability (d, "input.tablet");
++			hal_device_add_capability (d, "input.tablet.tabletPC");
++
++  			if ((computer = hal_device_store_find (hald_get_gdl (), "/org/freedesktop/Hal/devices/computer")) != NULL || 
++			    (computer = hal_device_store_find (hald_get_tdl (), "/org/freedesktop/Hal/devices/computer")) != NULL) {
++
++				hal_device_property_set_string (computer, "system.formfactor", "laptop");
++				hal_device_property_set_string (computer, "system.formfactor.subtype", "tabletpc");
++				/* collect info about serial port and irq etc. */ 
++				pnp_set_serial_info (sysfs_path, d);
++			}
++		}
+ 	}
+ 
+ 	if (!hal_device_has_property (d, "info.product")) {
+diff --git a/tools/Makefile.am b/tools/Makefile.am
+index 7d84238..887afe9 100644
+--- a/tools/Makefile.am
++++ b/tools/Makefile.am
+@@ -1,6 +1,5 @@
+ ## Process this file with automake to produce Makefile.in
+ 
+-
+ SUBDIRS = device-manager
+ 
+ if HALD_COMPILE_LINUX
+@@ -55,7 +54,8 @@ libexec_PROGRAMS =                      
+ 	hal-storage-eject	            \
+ 	hal-storage-cleanup-mountpoint      \
+ 	hal-storage-cleanup-all-mountpoints \
+-	hal-system-power-pmu
++	hal-system-power-pmu		    \
++	hal-system-setserial
+ 
+ hal_storage_mount_SOURCES = hal-storage-mount.c hal-storage-shared.c hal-storage-shared.h
+ hal_storage_mount_LDADD = @GLIB_LIBS@ @POLKIT_LIBS@ @DBUS_LIBS@ $(top_builddir)/libhal/libhal.la $(top_builddir)/libhal-storage/libhal-storage.la
+@@ -75,6 +75,9 @@ hal_storage_cleanup_all_mountpoints_LDAD
+ hal_system_power_pmu_SOURCES = hal-system-power-pmu.c
+ hal_system_power_pmu_LDADD = @DBUS_LIBS@ $(top_builddir)/libhal/libhal.la
+ 
++hal_system_setserial_SOURCES = hal-system-setserial.c
++hal_system_setserial_LDADD = -lpopt @GLIB_LIBS@ @DBUS_LIBS@ $(top_builddir)/libhal/libhal.la
++
+ scriptdir = $(libdir)/hal/scripts
+ 
+ script_SCRIPTS =				\
+diff --git a/tools/hal-system-setserial.c b/tools/hal-system-setserial.c
+new file mode 100644
+index 0000000..6cac923
+--- /dev/null
++++ b/tools/hal-system-setserial.c
+@@ -0,0 +1,107 @@
++/*
++ * Licensed under the GNU General Public License Version 2
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#define _GNU_SOURCE
++
++#ifdef HAVE_CONFIG_H
++#  include <config.h>
++#endif
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdarg.h>
++#include <unistd.h>
++#include <getopt.h>
++#include <syslog.h>
++
++#include <popt.h>
++#include <glib.h>
++
++#include <libhal/libhal.h>
++
++#define MAX_CMD_LENGTH 256
++
++static int debug = FALSE;
++
++
++int main (int argc, const char *argv[])
++{
++	int i;
++	int ret_val = EXIT_FAILURE;
++	poptContext popt_context;
++    	char *udi = NULL;
++	char *irq = NULL;
++	char *port = NULL;
++	char *input_dev = NULL;
++	char cmd[MAX_CMD_LENGTH+1];
++	const char **left_over_args = NULL;
++
++	struct poptOption options[] = {
++	        {"udi",          's', POPT_ARG_STRING, &udi,       0, "udi of the related serial device", "UDI"},
++	        {"irq",          'i', POPT_ARG_STRING, &irq,       0, "irq of the serial device", "PORT"},
++	        {"port",         'p', POPT_ARG_STRING, &port,      0, "port of the serial device", "IRQ"},
++	        {"input-device", 'd', POPT_ARG_STRING, &input_dev, 0, "the input device to which should bind the device", "INPUT_DEVICE"},
++
++        	POPT_AUTOHELP
++        	{NULL, '\0', 0, NULL, 0, NULL, NULL}
++    	};
++
++	popt_context = poptGetContext ("hal-system-setserial", argc, argv, options, 0);
++
++	while ((i = poptGetNextOpt (popt_context)) != -1) {
++		if (i < -1) {
++			poptPrintHelp (popt_context, stderr, 0);
++			ret_val = EXIT_FAILURE;
++			goto early_out;
++		}
++	}
++
++	left_over_args = poptGetArgs (popt_context);
++
++	if (getenv ("HALD_VERBOSE") != NULL )
++        	debug = TRUE;
++	if (debug)
++        	syslog (LOG_INFO, "hal-system-setserial started in debug mode." );
++
++	if(udi == NULL)
++		udi = getenv("UDI");
++	if(irq == NULL)
++		irq = getenv("HAL_PROP_PNP_SERIAL_IRQ");
++	if(port == NULL)
++		port = getenv("HAL_PROP_PNP_SERIAL_PORT");
++	if(input_dev == NULL)
++		input_dev = getenv("HAL_PROP_INPUT_DEVICE_SET");
++
++	if (!udi || !irq || !port || !input_dev) {
++		syslog (LOG_INFO, "Missing env variable, exit NOW." );
++		goto early_out;
++	}
++
++	
++	snprintf( cmd, MAX_CMD_LENGTH, "/bin/setserial %s port %s irq %s autoconfig", input_dev, port, irq);
++	syslog (LOG_INFO, "Collected setserial options and Called(%d) %s ", system(cmd), cmd);
++
++	ret_val = EXIT_SUCCESS;
++
++early_out:
++	poptFreeContext (popt_context);
++	return ret_val;
++}
++
