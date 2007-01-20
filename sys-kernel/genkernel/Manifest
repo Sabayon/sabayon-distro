@@ -18,10 +18,10 @@ AUX genkernel-3.4.6-accel_init-support.patch 1091 RMD160 813ba34ab4311cca1f229d7
 MD5 268715f05936f5f9a95bf0723948fee8 files/genkernel-3.4.6-accel_init-support.patch 1091
 RMD160 813ba34ab4311cca1f229d78fd376f99619cad35 files/genkernel-3.4.6-accel_init-support.patch 1091
 SHA256 3748b9aba3dd290f442c692a69315ff505a8c1f8c8c2e7c2e6c00fc07e1eca62 files/genkernel-3.4.6-accel_init-support.patch 1091
-AUX genkernel-3.4.6-sabayon-linux.patch 614 RMD160 5279a83535b5b74dd8537622b502b6e591eb2535 SHA1 84acea1c19632b6204b7bd598f2f57d1d47bd3fa SHA256 247c3078f8509938017b1962d1297a6b70b90244f3d7318a906be92384975b1b
-MD5 dfdb72ba78e260f41336947700f8bef7 files/genkernel-3.4.6-sabayon-linux.patch 614
-RMD160 5279a83535b5b74dd8537622b502b6e591eb2535 files/genkernel-3.4.6-sabayon-linux.patch 614
-SHA256 247c3078f8509938017b1962d1297a6b70b90244f3d7318a906be92384975b1b files/genkernel-3.4.6-sabayon-linux.patch 614
+AUX genkernel-3.4.6-sabayon-linux.patch 1181 RMD160 5a3e7d2403531873405d925bb085e5dc669b8c62 SHA1 bdb8e6d84543b31e7bc9d73dabab174a70b99cb6 SHA256 94255520f771b3903c9bc8d76b43db9d0a2c50e8d3c03d639ffba724fc35ca4d
+MD5 be94512bda087a5169a227c3b3ed878d files/genkernel-3.4.6-sabayon-linux.patch 1181
+RMD160 5a3e7d2403531873405d925bb085e5dc669b8c62 files/genkernel-3.4.6-sabayon-linux.patch 1181
+SHA256 94255520f771b3903c9bc8d76b43db9d0a2c50e8d3c03d639ffba724fc35ca4d files/genkernel-3.4.6-sabayon-linux.patch 1181
 AUX genkernel-3.4.6-smarter-doslowusb.patch 1517 RMD160 a6f137101d119984cc769fc84260d4b8ba4bb5fa SHA1 56fd44fdfdfc037cd9d5acfe3b549b9592c7d3e4 SHA256 84fc60115637d6e84d67f92282cb48772ccd98fe0fd038d68899fc62a0100130
 MD5 d909bc53d6429a32df007ceedeb5bfd2 files/genkernel-3.4.6-smarter-doslowusb.patch 1517
 RMD160 a6f137101d119984cc769fc84260d4b8ba4bb5fa files/genkernel-3.4.6-smarter-doslowusb.patch 1517
@@ -72,6 +72,10 @@ EBUILD genkernel-3.4.6-r1.ebuild 3689 RMD160 e48ed5968dcdd68eff058ae7bebed25fc97
 MD5 9929b7cc29f03b92f298b99db668845d genkernel-3.4.6-r1.ebuild 3689
 RMD160 e48ed5968dcdd68eff058ae7bebed25fc9736f60 genkernel-3.4.6-r1.ebuild 3689
 SHA256 fe7b221568503238d34b9f2e62f7377b37dd6e9ac02a609a2c24c4304d5b2d2d genkernel-3.4.6-r1.ebuild 3689
+EBUILD genkernel-3.4.6-r2.ebuild 3689 RMD160 e48ed5968dcdd68eff058ae7bebed25fc9736f60 SHA1 b89e4348deb491c7f6b6657d952f1a74abb12a77 SHA256 fe7b221568503238d34b9f2e62f7377b37dd6e9ac02a609a2c24c4304d5b2d2d
+MD5 9929b7cc29f03b92f298b99db668845d genkernel-3.4.6-r2.ebuild 3689
+RMD160 e48ed5968dcdd68eff058ae7bebed25fc9736f60 genkernel-3.4.6-r2.ebuild 3689
+SHA256 fe7b221568503238d34b9f2e62f7377b37dd6e9ac02a609a2c24c4304d5b2d2d genkernel-3.4.6-r2.ebuild 3689
 MD5 ccb9fec2a148ec67a44b66643d5f3d7a files/digest-genkernel-3.4.5-r1 1732
 RMD160 6ce8bfdc09977cb81d3a50277c9a8821da29da9b files/digest-genkernel-3.4.5-r1 1732
 SHA256 98a891eb2b6737e431e5ffed1c8e901034b189bad423777c0bbfe1a855cd1498 files/digest-genkernel-3.4.5-r1 1732
@@ -90,3 +94,6 @@ SHA256 f4ce549d74bd4d4e7ba08c84a8bfb23d935cb6aa2d75638bf7c89c318fbca815 files/di
 MD5 85c39e5c715e5b69844884a1494fd4ee files/digest-genkernel-3.4.6-r1 2003
 RMD160 9ed63f57f9e4997536a2be4bc3faa737daa5d17d files/digest-genkernel-3.4.6-r1 2003
 SHA256 42900ca0dc90ed0c5e3fadc1441e85efcaed84ecd864fef255f4832fc5540518 files/digest-genkernel-3.4.6-r1 2003
+MD5 85c39e5c715e5b69844884a1494fd4ee files/digest-genkernel-3.4.6-r2 2003
+RMD160 9ed63f57f9e4997536a2be4bc3faa737daa5d17d files/digest-genkernel-3.4.6-r2 2003
+SHA256 42900ca0dc90ed0c5e3fadc1441e85efcaed84ecd864fef255f4832fc5540518 files/digest-genkernel-3.4.6-r2 2003

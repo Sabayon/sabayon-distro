@@ -10,3 +10,15 @@ diff -Nurp genkernel-3.4.5.orig/gen_bootloader.sh genkernel-3.4.5/gen_bootloader
  			echo -e "\troot ($GRUB_BOOT_DISK,$GRUB_BOOT_PARTITION)" >> $GRUB_CONF
  			if [ "${BUILD_INITRD}" -eq '0' ]
  			then
+diff -Nurp genkernel-3.4.6.orig/gen_bootloader_grub.awk genkernel-3.4.6/gen_bootloader_grub.awk
+--- genkernel-3.4.6.orig/gen_bootloader_grub.awk	2006-12-27 20:07:29.000000000 +0100
++++ genkernel-3.4.6/gen_bootloader_grub.awk	2007-01-20 07:23:33.000000000 +0100
+@@ -67,7 +67,7 @@ if(state == "1")
+ 	if(have_k == "1" && ((match($0, /^title=/) || match($0, /^title */)) || NR == LIMIT))
+ 	{
+ 		state = "2";
+-		print extraA "title=Gentoo Linux (" KV ")\n";
++		print extraA "title=Sabayon Linux (" KV ")\n";
+ 		print extraB my_kernel;
+ 		if(extraC)
+ 			print "\n" extraC;
