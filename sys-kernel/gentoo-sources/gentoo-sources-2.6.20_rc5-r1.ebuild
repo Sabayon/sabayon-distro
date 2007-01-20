@@ -14,7 +14,7 @@ SL_PATCHES_URI="
 		http://dev.gentoo.org/~spock/projects/gensplash/archive/fbsplash-0.9.2-r5-2.6.19-rc2.patch
 		"
 
-SUSPEND2_VERSION="2.2.9.2"
+SUSPEND2_VERSION="2.2.9.3"
 SUSPEND2_TARGET="2.6.20-rc4"
 SUSPEND2_SRC="suspend2-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.suspend2.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
