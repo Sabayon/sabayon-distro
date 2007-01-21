@@ -42,5 +42,5 @@ fi
 src_compile() {
 	append-flags -fno-inline
 
-	gnome2_src_compile --disable-mime-update # --with-lang="${LINGUAS_EMERALD}"
+	gnome2_src_compile --disable-mime-update --with-lang="${LINGUAS_EMERALD}"
 }
