@@ -1,0 +1,8 @@
+DIST beryl-settings-bindings-0.1.99.2.tar.bz2 238788 RMD160 a9463498220d8f8d73d9fdc80c7b2bca1deb3076 SHA1 97d76ea9d149c02328f0a30e38113fc9e8ac66fe SHA256 fe58bd7c60b2f6a450816a0d7878356ae5f155d56a48e26fcbcaf8693e1c87ef
+EBUILD beryl-settings-bindings-0.1.99.2.ebuild 542 RMD160 3d4e3a999cace1c5f67ee88cff2a3b0c215e4272 SHA1 810c310e508b8ab55a13224ef5614db64632fb56 SHA256 238f150b8ef68e797ac5fa1151b48b692228888d16b2f962899e07f8af13d873
+MD5 74b807872d1c9b3b9bd6ec7e2e9692e9 beryl-settings-bindings-0.1.99.2.ebuild 542
+RMD160 3d4e3a999cace1c5f67ee88cff2a3b0c215e4272 beryl-settings-bindings-0.1.99.2.ebuild 542
+SHA256 238f150b8ef68e797ac5fa1151b48b692228888d16b2f962899e07f8af13d873 beryl-settings-bindings-0.1.99.2.ebuild 542
+MD5 3154277b24b8f0aab069fb3d10961214 files/digest-beryl-settings-bindings-0.1.99.2 301
+RMD160 736218a5438bb7904b12fc6546b6d2e137f65d1e files/digest-beryl-settings-bindings-0.1.99.2 301
+SHA256 1cffd56cd0878202d9f3cf1267cce9807b7c11a161464317db4daecdd9ab53f5 files/digest-beryl-settings-bindings-0.1.99.2 301
