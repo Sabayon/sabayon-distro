@@ -6,7 +6,7 @@ inherit kde
 
 DESCRIPTION="Beryl KDE Window Decorator"
 HOMEPAGE="http://beryl-project.org"
-SRC_URI="http://releases.beryl-project.org/${PV}/${P}.tar.bz2"
+SRC_URI="http://svn.sabayonlinux.org/distfiles/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
