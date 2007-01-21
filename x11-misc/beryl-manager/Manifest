@@ -1,5 +1,6 @@
 DIST beryl-manager-0.1.3.tar.bz2 151869 RMD160 511379076cc36ba8f2de2d72a4b6f5af77dae82f SHA1 fdcec79f8c11dd1a9edd6eaf33213e76d02efcf9 SHA256 acdf5e063c1a32a57927fa6551c7cc81bfb1816447784a9af31d9814b5f70e02
 DIST beryl-manager-0.1.4.tar.bz2 176578 RMD160 bd3d88fb7c409131102096c9c26abfc331327366 SHA1 5d8608915d6924241b8050f5f80a160dc9651642 SHA256 433bfd54ec8cf8b3e5bf9cf6be7771cd1bcd9bb7c46579381155e646c1b65aaf
+DIST beryl-manager-0.1.99.2.tar.bz2 175427 RMD160 d79d479dd06ad32b63a39818c5168ffc894e5537 SHA1 a18c1e1b6f115c7d8d860e70939c8ca873a33181 SHA256 2d7c7e578c261c7a9cd1da2de592fbdd99eed82fcbab01d4646e2c8509545efc
 EBUILD beryl-manager-0.1.3-r1.ebuild 715 RMD160 a8678c031fd038821e35d833ad0d74cf4624700e SHA1 327c74c8e75fa7807d9eeb2cf8e65ecc816ff4ae SHA256 7e09f51038f96c03aa20524e7ab87d6a10c4f62de89eb7c68903748878b69fa6
 MD5 5b945b3900b66dcfdf3789fc1e92e9c4 beryl-manager-0.1.3-r1.ebuild 715
 RMD160 a8678c031fd038821e35d833ad0d74cf4624700e beryl-manager-0.1.3-r1.ebuild 715
@@ -8,13 +9,20 @@ EBUILD beryl-manager-0.1.4.ebuild 1129 RMD160 d8ced3c5566c3d9ba68fca0be4d5f60893
 MD5 56616c9c1eff3c6139c36a6b3160787f beryl-manager-0.1.4.ebuild 1129
 RMD160 d8ced3c5566c3d9ba68fca0be4d5f60893fd233c beryl-manager-0.1.4.ebuild 1129
 SHA256 02bb5ee0b2b658e27dbcf758308f9961c955e25cffef4980cc2e8ace807babf9 beryl-manager-0.1.4.ebuild 1129
-MISC beryl-manager-0.1.4.ebuild~ 1125 RMD160 132ae90e8b822dd39ccb12e0889d1b07cc5bb336 SHA1 e3b0eea58d0421f0b656befafa736add94a49db3 SHA256 cd705b7bcfa546fb5a2df4e7475a561a36d183ab473b0255adac257f3c9e8a2a
-MD5 96cc75528eb907890c253a9c5af1c1d5 beryl-manager-0.1.4.ebuild~ 1125
-RMD160 132ae90e8b822dd39ccb12e0889d1b07cc5bb336 beryl-manager-0.1.4.ebuild~ 1125
-SHA256 cd705b7bcfa546fb5a2df4e7475a561a36d183ab473b0255adac257f3c9e8a2a beryl-manager-0.1.4.ebuild~ 1125
+EBUILD beryl-manager-0.1.99.2.ebuild 1145 RMD160 ce0d1e692e72a5e8ab4d3e0541aa30cd1397fc6d SHA1 ef40d92effca405631a0a0914182f1f21ace37cb SHA256 9aefd699fad3bb7ee7bd6a3bcf112a7f10fe9bd9243759ab5ae0ecf43af6efd1
+MD5 e36bdf7dde105c7f5d8cb3e186cf7762 beryl-manager-0.1.99.2.ebuild 1145
+RMD160 ce0d1e692e72a5e8ab4d3e0541aa30cd1397fc6d beryl-manager-0.1.99.2.ebuild 1145
+SHA256 9aefd699fad3bb7ee7bd6a3bcf112a7f10fe9bd9243759ab5ae0ecf43af6efd1 beryl-manager-0.1.99.2.ebuild 1145
+MISC beryl-manager-0.1.99.2.ebuild~ 1129 RMD160 d8ced3c5566c3d9ba68fca0be4d5f60893fd233c SHA1 e5768903ad307fe2238d1a0348f01b829e0833ec SHA256 02bb5ee0b2b658e27dbcf758308f9961c955e25cffef4980cc2e8ace807babf9
+MD5 56616c9c1eff3c6139c36a6b3160787f beryl-manager-0.1.99.2.ebuild~ 1129
+RMD160 d8ced3c5566c3d9ba68fca0be4d5f60893fd233c beryl-manager-0.1.99.2.ebuild~ 1129
+SHA256 02bb5ee0b2b658e27dbcf758308f9961c955e25cffef4980cc2e8ace807babf9 beryl-manager-0.1.99.2.ebuild~ 1129
 MD5 f8c2f0d55d63d0fc95af95efb3679c11 files/digest-beryl-manager-0.1.3-r1 262
 RMD160 0d57273e9bee482634e4400cf33b6d8631f6838b files/digest-beryl-manager-0.1.3-r1 262
 SHA256 754c670bd9c9b8af09fe128d47018a6de9b65966f79d2865a5d555125896a251 files/digest-beryl-manager-0.1.3-r1 262
 MD5 72c1d7ac6a28173866be96a25c840b4e files/digest-beryl-manager-0.1.4 262
 RMD160 ac3ae83e79bf884d72679784a38dfcc490744eb2 files/digest-beryl-manager-0.1.4 262
 SHA256 87e68f5fb2c66aeb4e139e8d63c173d404bd6995187c01852c6d5c96baff9b9a files/digest-beryl-manager-0.1.4 262
+MD5 0c9e9bcea7ea754f0f4330271b89c2b6 files/digest-beryl-manager-0.1.99.2 271
+RMD160 8141e883f411fa05782b92bcc72e7b67d5e4b740 files/digest-beryl-manager-0.1.99.2 271
+SHA256 6bcb0771c913eb6e7d7cff5fe1c7012d6982359f0942fcd6598d4af46cc73bb6 files/digest-beryl-manager-0.1.99.2 271

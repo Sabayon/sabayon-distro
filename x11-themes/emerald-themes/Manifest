@@ -1,5 +1,6 @@
 DIST emerald-themes-0.1.3.tar.bz2 1367716 RMD160 55fe2ce911d0df46ac9f7f1ed3cc332b8b2ac2e1 SHA1 348b54b6e61abaea0070e8765ac75ffa6291be1a SHA256 8b0c222c62d23cc128bfb67860aa15377c80982389ed41a0e08ae3842f9140d8
 DIST emerald-themes-0.1.4.tar.bz2 1367547 RMD160 72f96249f53d72c50851b048a8d271ec9ee056d3 SHA1 79204fa861b2d9ead73b2f36c34515bb295cf651 SHA256 0cbd1cd78c746e6c87d2a59d8404a5f6025b5f7f95c4eb7dd0b78a92305ef719
+DIST emerald-themes-0.1.99.2.tar.bz2 1367548 RMD160 f528b40e509dead86e3fedb7bda0735b349d9dff SHA1 d3283fb072b0cc5f5dd384af92d0e301e5008a6c SHA256 1c8607b289f079857e1fb69339aef0bc277424b4b8149ec6d0676b5df3584278
 EBUILD emerald-themes-0.1.3.ebuild 656 RMD160 440f73119b35b4f78ecde132c41a72d29b1c7610 SHA1 ea0f32c23eefceb6f518a94977061cbb9bc3af07 SHA256 e75e0324aaf91eb16947d6097963961eb548076b122f5e0d969b3bd3fbdde2c0
 MD5 41bae6693cb281821502709b7dd4c9c9 emerald-themes-0.1.3.ebuild 656
 RMD160 440f73119b35b4f78ecde132c41a72d29b1c7610 emerald-themes-0.1.3.ebuild 656
@@ -8,9 +9,20 @@ EBUILD emerald-themes-0.1.4.ebuild 638 RMD160 b5e6df30f6f26fd1c6cd2a49b91cf0818b
 MD5 d493c024bcaa7ee017833b79db599aea emerald-themes-0.1.4.ebuild 638
 RMD160 b5e6df30f6f26fd1c6cd2a49b91cf0818b151fde emerald-themes-0.1.4.ebuild 638
 SHA256 5718572684edd9823595b40d8e70a30aa52879b3c34084da2c58c85c939ebd45 emerald-themes-0.1.4.ebuild 638
+EBUILD emerald-themes-0.1.99.2.ebuild 520 RMD160 7777aca9e019a9e2b909b7779ae7f548ca29f197 SHA1 038efbb98d43af2d0f502acd2e1d85da10411dda SHA256 2fb0e9dfc9b946da3469053b3ec1c553273ed52f4157b1759f449e96412fb448
+MD5 9eed7c40ca9f2aec6f8756d887f593d3 emerald-themes-0.1.99.2.ebuild 520
+RMD160 7777aca9e019a9e2b909b7779ae7f548ca29f197 emerald-themes-0.1.99.2.ebuild 520
+SHA256 2fb0e9dfc9b946da3469053b3ec1c553273ed52f4157b1759f449e96412fb448 emerald-themes-0.1.99.2.ebuild 520
+MISC emerald-themes-0.1.99.2.ebuild~ 632 RMD160 485bc75553def21dc70459e7f2fde164a1e5871f SHA1 bc39eb4ce2275d022736df05e45ff05f6bb7f33c SHA256 e729eeb19a63459460aa793942d0e39609de69ca79078529895da1e3ddd7d921
+MD5 61366aa735226d171cb342a6bdec3844 emerald-themes-0.1.99.2.ebuild~ 632
+RMD160 485bc75553def21dc70459e7f2fde164a1e5871f emerald-themes-0.1.99.2.ebuild~ 632
+SHA256 e729eeb19a63459460aa793942d0e39609de69ca79078529895da1e3ddd7d921 emerald-themes-0.1.99.2.ebuild~ 632
 MD5 7c0eba4ec555ac4f3a56a4f9ecb9953d files/digest-emerald-themes-0.1.3 268
 RMD160 c520dce13ca895c0dec6f7378ca892ff8ec88751 files/digest-emerald-themes-0.1.3 268
 SHA256 849cb0e52e8d8753a9778ea3feb55b988fd62dd45d33c43a1d46f0cedb60391b files/digest-emerald-themes-0.1.3 268
 MD5 fdcb9468568b6da5dc7eb57a3fa25674 files/digest-emerald-themes-0.1.4 268
 RMD160 1e12aa93a7f69d8625b55b655a15f6ddacd193da files/digest-emerald-themes-0.1.4 268
 SHA256 2b8b07601ada294df636a2cf69e3a80e1d9deb7f442859df718ae946154cc819 files/digest-emerald-themes-0.1.4 268
+MD5 3812023ffc9ed11ef258e307de37abbf files/digest-emerald-themes-0.1.99.2 277
+RMD160 a0748ad724bde5eb19bbd64c66d7bfbdce0b4e41 files/digest-emerald-themes-0.1.99.2 277
+SHA256 d401a1b90e7205ba203d3291198ff8bf8131ff520278b5dc0d9116b9ec5d70a4 files/digest-emerald-themes-0.1.99.2 277
