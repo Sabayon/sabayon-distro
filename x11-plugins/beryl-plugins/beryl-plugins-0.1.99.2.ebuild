@@ -5,11 +5,11 @@
 inherit flag-o-matic autotools eutils
 
 IUSE=""
-#LANGS="ca_ES de_DE en_GB es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
+LANGS="ca_ES de_DE en_GB es_AR es_ES fr_FR hu_HU it_IT ja_JP ko_KR ru_RU pl_PL pt_BR pt_PT sv_FI sv_SE uk_UA zh_CN zh_HK zh_TW"
 
-#for X in ${LANGS} ; do
-#	IUSE="${IUSE} linguas_${X}"
-#done
+for X in ${LANGS} ; do
+	IUSE="${IUSE} linguas_${X}"
+done
 
 DESCRIPTION="Beryl Window Decorator Plugins"
 HOMEPAGE="http://beryl-project.org"
@@ -22,18 +22,18 @@ KEYWORDS="~x86 ~amd64"
 DEPEND="~x11-wm/beryl-core-${PV}
 	>=gnome-base/librsvg-2.14.0"
 
-#pkg_setup() {
-#	strip-linguas ${LANGS}
-#
-#	if [ -z "${LINGUAS}" ]; then
-#		export LINGUAS_BERYL="en_GB"
-#		ewarn
-#		ewarn " To get a localized build, set the according LINGUAS variable(s). "
-#		ewarn
-#	else
-#		export LINGUAS_BERYL=`echo ${LINGUAS}`
-#	fi
-#}
+pkg_setup() {
+	strip-linguas ${LANGS}
+
+	if [ -z "${LINGUAS}" ]; then
+		export LINGUAS_BERYL="en_GB"
+		ewarn
+		ewarn " To get a localized build, set the according LINGUAS variable(s). "
+		ewarn
+	else
+		export LINGUAS_BERYL=`echo ${LINGUAS}`
+	fi
+}
 
 src_compile() {
 	# filter ldflags to follow upstream
