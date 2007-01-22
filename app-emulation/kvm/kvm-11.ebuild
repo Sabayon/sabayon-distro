@@ -1,7 +1,6 @@
 # Copyright 1999-2006 Sabayon Linux - Fabio Erculiani
 # Distributed under the terms of the GNU General Public License v2
 
-QEMU_VER="0.8.2"
 DESCRIPTION="qemu emulator and abi wrapper meta ebuild"
 HOMEPAGE="http://kvm.sourceforge.net/"
 SRC_URI="
@@ -24,7 +23,6 @@ DEPEND=">=media-libs/alsa-lib-1.0.11
 	x11-libs/libXdmcp
 	media-libs/libcaca
 	>=sys-libs/ncurses-5.5
-	!app-emulation/qemu
 	>=sys-fs/udev-100	
 	"
 
