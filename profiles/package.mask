@@ -41,5 +41,3 @@ x11-misc/xglswitch
 # Masked as this is not proven to work with dbus 1.x
 =net-misc/knetworkmanager-0.1_p20061029-r1
 
-# Masked as this is not proven to work with dbus 1.x
-=net-misc/networkmanager-0.6.4_pre20061223-r1
