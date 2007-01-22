@@ -28,16 +28,8 @@ x11-misc/xglswitch
 # Causes kdeinit errors
 =x11-libs/qt-4.2.2
 
-# SabayonLinux relies on networkmanager and knetworkamanger which do not 
-# work with new dbus, will be unmasked when it does
->sys-apps/dbus-1.0.2
-
 # SVN build of aquamarine
 =x11-wm/aquamarine-9999
 
 # Very beta and very breaking prone but good
 >=sys-apps/einit-0.14.0.500
-
-# Masked as this is not proven to work with dbus 1.x
-=net-misc/knetworkmanager-0.1_p20061029-r1
-
