@@ -38,5 +38,5 @@ x11-misc/xglswitch
 # Very beta and very breaking prone but good
 >=sys-apps/einit-0.14.0.500
 
-# This is a beta2 testing of beryl 0.2.0
-=x11-wm/beryl-0.9.99.2
+# Masked as this is not proven to work with dbus 1.x
+=net-mis/knetworkmanager-0.1_p20061029-r1
