@@ -126,8 +126,6 @@ src_unpack() {
 
 	rm -rf ${ARCH_DIR}/usr/X11R6/bin/{fgl_glxgears,fireglcontrolpanel}
 
-	epatch ${FILESDIR}/${PN}-2.6.19.patch
-
 	if use acpi
 	then
 		sed -i \
