@@ -1,0 +1,17 @@
+--- nm-dhcp-manager.c	2006-03-29 14:03:02.000000000 -0500
++++ fixed-nm-dhcp-manager.c	2007-01-18 17:41:13.000000000 -0500
+@@ -604,7 +604,13 @@
+ 		case DHCDBD_REBIND:
+ 			return "rebind";
+ 		case DHCDBD_TIMEOUT:
+-			return "timeout";
++                        nm_info ("Static IP override"); 
++                        state = DHCDBD_BOUND; 
++                        if (nm_act_request_get_stage (req) == NM_ACT_STAGE_IP_CONFIG_START) { 
++				nm_device_activate_schedule_stage4_ip_config_get (req); 
++				remove_timeout (manager, req); 
++			}
++			break;
+ 		case DHCDBD_FAIL:
+ 			return "fail";
+ 		case DHCDBD_START:
