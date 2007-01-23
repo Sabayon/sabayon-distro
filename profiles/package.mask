@@ -33,3 +33,6 @@ x11-misc/xglswitch
 
 # Very beta and very breaking prone but good
 >=sys-apps/einit-0.14.0.500
+
+# Masked for testing of staticIP and profiles
+=net-misc/networkmanager-0.6.4_pre20070122
