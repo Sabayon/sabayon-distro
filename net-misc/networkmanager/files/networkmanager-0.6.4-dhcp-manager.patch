@@ -1,5 +1,5 @@
---- nm-dhcp-manager.c	2006-03-29 14:03:02.000000000 -0500
-+++ fixed-nm-dhcp-manager.c	2007-01-18 17:41:13.000000000 -0500
+--- src/dhcp-manager/nm-dhcp-manager.c.old
++++ src/dhcp-manager/nm-dhcp-manager.c
 @@ -604,7 +604,13 @@
  		case DHCDBD_REBIND:
  			return "rebind";
