@@ -50,7 +50,8 @@ src_unpack () {
         epatch ${FILESDIR}/${PN}-0.6.4-confchanges.patch
 
 	# Adds support for knm to utilize static IP and "profiles"
-	epatch ${FILESDIR}/${PN}-0.6.4-dhcp-manager.patch
+	# THIS PATCH BREAKS COMPILATION !!!!!!!!!!!!!!!!
+	# epatch ${FILESDIR}/${PN}-0.6.4-dhcp-manager.patch
 	
 	# From the Mailing list, while we're waiting for a version bump
 	epatch ${FILESDIR}/${PN}-0.6.4-fix-various-memleaks.patch
