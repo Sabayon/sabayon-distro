@@ -31,7 +31,8 @@ DEPEND="${RDEPEND}
 	media-libs/speex
 	dev-util/scons
 	>=dev-util/cmake-2.4.3"
-S=${WORKDIR}
+
+S=${WORKDIR}/${MY_P/_/-}
 
 pkg_setup() {
 	if ! built_with_use dev-libs/boost threads; then
@@ -51,9 +52,31 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	epatch ${MY_P}-3.diff
+
+        mv ${MY_P/_/-} ${P}/ -f
+
+	echo $PWD
+
+        cd ${P}
+
+	echo $PWD
+
+        for dpatch in debian/patches/debian/*.patch; do
+                epatch ${dpatch}
+        done
+
+        #for dpatch in debian/patches/head/*.patch; do
+        #       epatch ${dpatch}
+        #done
+
+        #epatch debian/patches/generic/cmake-fix-qtutil.patch
+        epatch debian/patches/generic/cmake-fix-static-sfp-plugin.patch
+        #epatch debian/patches/generic/cmake-fix-gaim4.patch
+
 }
 
 src_compile() {
+	cd ${WORKDIR}
 	cmake \
 		-D CMAKE_CXX_COMPILER:FILEPATH="$(tc-getCXX)" \
 		-DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
