@@ -6,10 +6,10 @@ AUX networkmanager-0.6.4-dbus-1.0.patch 656 RMD160 a52f8f9ffe8cac1abf229be88c707
 MD5 53b20fdc81f1107328b5c4faf3e23d2a files/networkmanager-0.6.4-dbus-1.0.patch 656
 RMD160 a52f8f9ffe8cac1abf229be88c707389e3f7892a files/networkmanager-0.6.4-dbus-1.0.patch 656
 SHA256 e9439ab30194cc25e4af163f3e8730ccf09823d0261882afa0a481c7a01dc219 files/networkmanager-0.6.4-dbus-1.0.patch 656
-AUX networkmanager-0.6.4-dhcp-manager.patch 1284 RMD160 b9b7bae215a86ba524afdea4c728775ae2e277f1 SHA1 47e7b720bf6fc9c565de3b565c0195dd25d7a27e SHA256 a7ce5aabb73b4aea180cfad9442d9295be12fde1e8c9a26ef3d8921018c7ce12
-MD5 3173009c0f3c347e7bc2da2efa3237e3 files/networkmanager-0.6.4-dhcp-manager.patch 1284
-RMD160 b9b7bae215a86ba524afdea4c728775ae2e277f1 files/networkmanager-0.6.4-dhcp-manager.patch 1284
-SHA256 a7ce5aabb73b4aea180cfad9442d9295be12fde1e8c9a26ef3d8921018c7ce12 files/networkmanager-0.6.4-dhcp-manager.patch 1284
+AUX networkmanager-0.6.4-dhcp-manager.patch 573 RMD160 413fce103e8591f736f9c9f29a6d55dbc92b3b7d SHA1 c9e047868aa51cbf2d947f62b3362291665b2fc0 SHA256 5601f019d8c9ae1201859b8f18bd6db7258acf8da888056c5eeb1e13657ca421
+MD5 2e9259c6502949a4677b12ff5ed4a5bd files/networkmanager-0.6.4-dhcp-manager.patch 573
+RMD160 413fce103e8591f736f9c9f29a6d55dbc92b3b7d files/networkmanager-0.6.4-dhcp-manager.patch 573
+SHA256 5601f019d8c9ae1201859b8f18bd6db7258acf8da888056c5eeb1e13657ca421 files/networkmanager-0.6.4-dhcp-manager.patch 573
 AUX networkmanager-0.6.4-fix-nm-applet-memleaks.patch 3658 RMD160 244a7a54f132d569a29ce45ff95cf0caa0812afc SHA1 51c74c040d6332736f84dad2f2b36f8eac0162a7 SHA256 f2a72545ec62fb99824c513618a6e4cd040de6939ce154d2c8e9e08c6bfc5e6e
 MD5 eed2b7f651d1821f66ddbcc256ca6ff8 files/networkmanager-0.6.4-fix-nm-applet-memleaks.patch 3658
 RMD160 244a7a54f132d569a29ce45ff95cf0caa0812afc files/networkmanager-0.6.4-fix-nm-applet-memleaks.patch 3658
