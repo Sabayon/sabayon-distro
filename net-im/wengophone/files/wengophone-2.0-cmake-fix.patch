@@ -1,0 +1,10 @@
+--- cmake/Modules/FindAlsa.cmake.old
++++ cmake/Modules/FindAlsa.cmake
+@@ -7,6 +7,7 @@
+ # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+
+ include(CheckIncludeFiles)
++include(CheckLibraryExists)
+ include(CheckIncludeFileCXX)
+
+ # Already done by toplevel

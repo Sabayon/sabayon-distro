@@ -55,11 +55,10 @@ src_unpack() {
 
         mv ${MY_P/_/-} ${P}/ -f
 
-	echo $PWD
-
         cd ${P}
 
-	echo $PWD
+	# fix missing include
+	epatch ${FILESDIR}/${P}-cmake-fix.patch
 
         for dpatch in debian/patches/debian/*.patch; do
                 epatch ${dpatch}
