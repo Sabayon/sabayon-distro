@@ -3,17 +3,14 @@
 
 inherit eutils toolchain-funcs
 
-MY_PV="2.0.0~rc5-svn8281"
+MY_PV="2.0.0~rc5-svn8108"
 MY_P="${PN}_${MY_PV}"
 DESCRIPTION="Wengophone NG is a VoIP client featuring the SIP protcol"
 HOMEPAGE="http://dev.openwengo.com"
 SRC_URI="
-	http://www.sabayonlinux.org/distfiles/net-im/${PN}/${P}.tar.bz2
-	http://www.sabayonlinux.org/distfiles/net-im/${PN}/debian-${MY_PV}.tar.bz2
-	http://www.prato.linux.it/~mnencia/debian/wengophone-ng/source/${MY_P}-1.diff.gz"
-# Taken from SVN 8362
-#ESVN_REPO_URI="http://dev.openwengo.com/svn/openwengo/wengophone-ng/trunk"
-#ESVN_OPTIONS="--username guest --password guest"
+	http://ftp.debian.org/debian/pool/main/w/wengophone/${MY_P}.orig.tar.gz
+	http://ftp.debian.org/debian/pool/main/w/wengophone/${MY_P}-3.diff.gz
+	"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -53,25 +50,7 @@ pkg_setup() {
 
 src_unpack() {
 	unpack ${A}
-	epatch ${MY_P}-1.diff
-
-	mv ${MY_P/_/-}/debian ${P}/ -f
-	rm -rf ${MY_P/_/-}	
-
-	cd ${P}
-
-	for dpatch in debian/patches/debian/*.patch; do
-		epatch ${dpatch}
-	done
-
-	#for dpatch in debian/patches/head/*.patch; do
-	#	epatch ${dpatch}
-	#done
-
-	#epatch debian/patches/generic/cmake-fix-qtutil.patch
-	epatch debian/patches/generic/cmake-fix-static-sfp-plugin.patch
-	#epatch debian/patches/generic/cmake-fix-gaim4.patch
-
+	epatch ${MY_P}-3.diff
 }
 
 src_compile() {
