@@ -35,4 +35,4 @@ x11-misc/xglswitch
 >=sys-apps/einit-0.14.0.500
 
 # Masked for testing of staticIP and profiles
-=net-misc/networkmanager-0.6.4_pre20070122
+=net-misc/networkmanager-0.6.4_pre20070122-r2
