@@ -57,20 +57,14 @@ src_unpack() {
 
         cd ${P}
 
-	# fix missing include
-	epatch ${FILESDIR}/${P}-cmake-fix.patch
-
         for dpatch in debian/patches/debian/*.patch; do
                 epatch ${dpatch}
         done
 
-        #for dpatch in debian/patches/head/*.patch; do
-        #       epatch ${dpatch}
-        #done
-
-        #epatch debian/patches/generic/cmake-fix-qtutil.patch
         epatch debian/patches/generic/cmake-fix-static-sfp-plugin.patch
-        #epatch debian/patches/generic/cmake-fix-gaim4.patch
+        epatch debian/patches/generic/cmake-external-speex.patch
+        epatch debian/patches/generic/cmake-fix-find-alsa-FTBFS.patch
+        epatch debian/patches/generic/fix-varargs-alpha.patch
 
 }
 
