@@ -83,12 +83,15 @@ src_compile() {
 }
 
 src_install() {
+
+	cd ${WORKDIR}
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	cd ${P}
 	domenu debian/wengophone.desktop
 	doicon debian/wengophone.xpm
 	doman debian/qtwengophone.1
+
 }
 
 pkg_postinst() {
