@@ -1,3 +1,7 @@
+AUX amarok-1.4.4+libgpod-0.4.0.patch 2738 RMD160 2e6a44eabe8691c209a3beba5764fa9ca59aa43c SHA1 bc6e39a93490be265e3f37e3af73a31c0d27bc59 SHA256 8def3879b8adb5e2e32d4b4f724d4dd2d896791f6cbe99d5fffcb3f128b26b26
+MD5 2b0195629a6a2b52f22db726bc59cd2f files/amarok-1.4.4+libgpod-0.4.0.patch 2738
+RMD160 2e6a44eabe8691c209a3beba5764fa9ca59aa43c files/amarok-1.4.4+libgpod-0.4.0.patch 2738
+SHA256 8def3879b8adb5e2e32d4b4f724d4dd2d896791f6cbe99d5fffcb3f128b26b26 files/amarok-1.4.4+libgpod-0.4.0.patch 2738
 AUX amarok-1.4.4-podcast-fix.patch 1149 RMD160 f2c7a47f36bd06788ffefa697a0b5264933a0b49 SHA1 72ab2f91b307e1bf7274b17e8ebdb35eb7a84114 SHA256 b595d0009d7c60e1631004348b3ceadcb8539e69ef83573d02b2547b9ad4bfe4
 MD5 78734806316aa6acc2b742334cfdadfd files/amarok-1.4.4-podcast-fix.patch 1149
 RMD160 f2c7a47f36bd06788ffefa697a0b5264933a0b49 files/amarok-1.4.4-podcast-fix.patch 1149
@@ -11,6 +15,13 @@ EBUILD amarok-1.4.4-r3.ebuild 2069 RMD160 8b5c2240257c87f7087dcdff382bc53cf6e83d
 MD5 c095fff7472bbbf945e687ae3a109228 amarok-1.4.4-r3.ebuild 2069
 RMD160 8b5c2240257c87f7087dcdff382bc53cf6e83d4f amarok-1.4.4-r3.ebuild 2069
 SHA256 4938914fb1649ae616888f2f7c48105101a7ddc9b33845073644d398dbbe36bd amarok-1.4.4-r3.ebuild 2069
+EBUILD amarok-1.4.4-r4.ebuild 2111 RMD160 63f923b0546f4152759e3b8dd67f344912ac4e02 SHA1 e7b601c194f1575469dada3abaf5f57ff93f4588 SHA256 3a0a9c3e35e2522c73a51f69d6d754af1a99100a361152e2e377ed6f3e6555c0
+MD5 7bd6d9cc4c878fcfded194f769d23506 amarok-1.4.4-r4.ebuild 2111
+RMD160 63f923b0546f4152759e3b8dd67f344912ac4e02 amarok-1.4.4-r4.ebuild 2111
+SHA256 3a0a9c3e35e2522c73a51f69d6d754af1a99100a361152e2e377ed6f3e6555c0 amarok-1.4.4-r4.ebuild 2111
 MD5 9f156ab461bfba79010fb33bc4ad4fe5 files/digest-amarok-1.4.4-r3 247
 RMD160 29ee4c16ee0ddf9601876f19a0d5da8363bc2bab files/digest-amarok-1.4.4-r3 247
 SHA256 f64c0ac76dac35f78b85d46ff97aa000a0ccdeedac69dfc7f0259c28fb81acac files/digest-amarok-1.4.4-r3 247
+MD5 9f156ab461bfba79010fb33bc4ad4fe5 files/digest-amarok-1.4.4-r4 247
+RMD160 29ee4c16ee0ddf9601876f19a0d5da8363bc2bab files/digest-amarok-1.4.4-r4 247
+SHA256 f64c0ac76dac35f78b85d46ff97aa000a0ccdeedac69dfc7f0259c28fb81acac files/digest-amarok-1.4.4-r4 247
