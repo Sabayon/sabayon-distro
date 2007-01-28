@@ -1,0 +1,56 @@
+diff -Nur kdebase-3.5.5-orgin/kioslave/media/mediamanager/halbackend.cpp kdebase-3.5.5-new/kioslave/media/mediamanager/halbackend.cpp
+--- kdebase-3.5.5-orgin/kioslave/media/mediamanager/halbackend.cpp	2006-11-16 11:26:25.000000000 +0800
++++ kdebase-3.5.5-new/kioslave/media/mediamanager/halbackend.cpp	2006-11-16 11:33:07.000000000 +0800
+@@ -705,7 +705,7 @@
+     {
+         // HAL hates floppies - so we have to do it twice ;(
+         medium->mountableState(libhal_drive_get_device_file(halDrive), QString::null, QString::null, false);
+-        setFstabProperties( medium );
++        setFloppyMountState( medium );
+     }
+ 
+     if (libhal_device_get_property_QString(m_halContext, udi, "storage.drive_type") == "floppy")
+@@ -740,6 +740,30 @@
+     libhal_volume_free(halVolume);
+ }
+ 
++void HALBackend::setFloppyMountState( Medium *medium )
++{
++    if ( !medium->id().startsWith( "/org/kde" ) )
++    {
++        KMountPoint::List mtab = KMountPoint::currentMountPoints();
++        KMountPoint::List::iterator it = mtab.begin();
++        KMountPoint::List::iterator end = mtab.end();
++
++        QString fstype;
++        QString mountpoint;
++        for (; it!=end; ++it)
++        {
++            if ((*it)->mountedFrom() == medium->deviceNode() )
++            {
++                fstype = (*it)->mountType().isNull() ? (*it)->mountType() : "auto";
++                mountpoint = (*it)->mountPoint();
++                medium->mountableState( medium->deviceNode(), mountpoint, fstype, true );
++                return;
++            }
++        }
++    }
++}
++
++
+ void HALBackend::setCameraProperties(Medium* medium)
+ {
+     kdDebug(1219) << "HALBackend::setCameraProperties for " << medium->id() << endl;
+diff -Nur kdebase-3.5.5-orgin/kioslave/media/mediamanager/halbackend.h kdebase-3.5.5-new/kioslave/media/mediamanager/halbackend.h
+--- kdebase-3.5.5-orgin/kioslave/media/mediamanager/halbackend.h	2006-11-16 11:26:17.000000000 +0800
++++ kdebase-3.5.5-new/kioslave/media/mediamanager/halbackend.h	2006-11-16 11:33:40.000000000 +0800
+@@ -168,6 +168,8 @@
+ 	void setCameraProperties(Medium* medium);
+ 	QString generateName(const QString &devNode);
+ 	static QString isInFstab(const Medium *medium);
++	
++	void setFloppyMountState(Medium* medium);
+ 
+ private slots:
+ 	void slotResult(KIO::Job *job);
+

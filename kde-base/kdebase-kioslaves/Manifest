@@ -1,0 +1,17 @@
+AUX kdebase-kioslaves-3.5.5-floppy.patch 2286 RMD160 748c32477457cb8f69a4b360fee8989b256379a4 SHA1 12539feb5445f05d62c1168a3f6442a357ab2109 SHA256 6c2f54f125c8ee62b20c60b701b1582319b504a6fc9d7a3359ac6497979403b7
+MD5 fb0dabd8101969c83d3f49469196956e files/kdebase-kioslaves-3.5.5-floppy.patch 2286
+RMD160 748c32477457cb8f69a4b360fee8989b256379a4 files/kdebase-kioslaves-3.5.5-floppy.patch 2286
+SHA256 6c2f54f125c8ee62b20c60b701b1582319b504a6fc9d7a3359ac6497979403b7 files/kdebase-kioslaves-3.5.5-floppy.patch 2286
+AUX kdebase-kioslaves-3.5.5-fstab.patch 3103 RMD160 53a4f0ded4d368f93eb29650d12d266735d7bf9e SHA1 1ffe0d67e77970774a5a2420f79b0579716dc8a7 SHA256 6a17470a3245a59c6e84a0142e64633e74b2bb12649e9c46c0903dd8fa4edb29
+MD5 76bc9dcbf83bccc0cbb0aaaf8560772e files/kdebase-kioslaves-3.5.5-fstab.patch 3103
+RMD160 53a4f0ded4d368f93eb29650d12d266735d7bf9e files/kdebase-kioslaves-3.5.5-fstab.patch 3103
+SHA256 6a17470a3245a59c6e84a0142e64633e74b2bb12649e9c46c0903dd8fa4edb29 files/kdebase-kioslaves-3.5.5-fstab.patch 3103
+DIST kdebase-3.5-patchset-03.tar.bz2 21409 RMD160 941b919097d03347b10bccb51db2fa5e89d7ba16 SHA1 9ac59cdfc4cd8d43b6d0e6dbebc5b28d7a33e35f SHA256 59c691754627f78daf7693e82496d808cf1cc31e2d6f32af829ec4ccfd776574
+DIST kdebase-3.5.5.tar.bz2 23851886 RMD160 6cf804de0487347a3e1d4ea6e5ba5114d23d9806 SHA1 f9f1907ce71fd2f934cf7404f1db1d350c2b9544 SHA256 f77632e44214648e2d0adfe1a79dd61a6a738c21fe5abb0baff16b72432baaa0
+EBUILD kdebase-kioslaves-3.5.5-r1.ebuild 1811 RMD160 b8f74bce56fd9cc8ff71e3d63ad8148cfcec8333 SHA1 136baf36f4fd801a3b0d1d223224df1fa061a8a7 SHA256 03e0698e861ce31828d548317111525da09445eb9bdceb4fa28bbc79c1418798
+MD5 67a70857ff7eac38df188003575ba1eb kdebase-kioslaves-3.5.5-r1.ebuild 1811
+RMD160 b8f74bce56fd9cc8ff71e3d63ad8148cfcec8333 kdebase-kioslaves-3.5.5-r1.ebuild 1811
+SHA256 03e0698e861ce31828d548317111525da09445eb9bdceb4fa28bbc79c1418798 kdebase-kioslaves-3.5.5-r1.ebuild 1811
+MD5 4413bb62e0a3313d499ee48fb91adfaf files/digest-kdebase-kioslaves-3.5.5-r1 521
+RMD160 4631b6a312d8f0a17d62d4a7f98bb92ab09fa8d1 files/digest-kdebase-kioslaves-3.5.5-r1 521
+SHA256 f8d736f629130da8e0d90a8ebd0a550634334af2739900a17d0e04c688b248e2 files/digest-kdebase-kioslaves-3.5.5-r1 521
