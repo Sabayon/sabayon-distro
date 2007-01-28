@@ -1,8 +1,0 @@
-DIST kicker-compiz-0.2.tar.gz 621225 RMD160 601e7298cfe48ceee90c35591ee2c9de7787e0c7 SHA1 48e7f2f209444279df7748681bfbc7918dd39796 SHA256 3a8692ff9974c1fbf6ffa463773ea6ef0add5965f0f840167eeee627b70a1605
-EBUILD kicker-compiz-0.2.ebuild 878 RMD160 159f0d39f49ba5a748fc422de63c88eee221a15f SHA1 fab253418b5f6c3d8efb9d5437afb8e1c0f74764 SHA256 eb442cc911be303e94de05a8931716b40f909afa79d27d50aecea08bc65a55e1
-MD5 cce4c2255e7e6b8dc2ca4afc68acfe35 kicker-compiz-0.2.ebuild 878
-RMD160 159f0d39f49ba5a748fc422de63c88eee221a15f kicker-compiz-0.2.ebuild 878
-SHA256 eb442cc911be303e94de05a8931716b40f909afa79d27d50aecea08bc65a55e1 kicker-compiz-0.2.ebuild 878
-MD5 839012c9eb35c28dc3dc7e6365d4275b files/digest-kicker-compiz-0.2 253
-RMD160 1162428670ee19767e57296ba08b341ecf113e0a files/digest-kicker-compiz-0.2 253
-SHA256 c0efea4954477d6685984f3a6d0d0312eee23d504a75581bf3ad4f550f924010 files/digest-kicker-compiz-0.2 253

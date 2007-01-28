@@ -36,3 +36,6 @@ x11-misc/xglswitch
 
 # Masked for testing of staticIP and profiles
 =net-misc/networkmanager-0.6.4_pre20070122-r2
+
+# Horribly broken
+kde-misc/guidance
