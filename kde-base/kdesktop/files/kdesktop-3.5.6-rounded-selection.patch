@@ -1,0 +1,26 @@
+--- kdesktop/kfileividesktop.cpp.orig	2006-10-16 17:11:40.126858000 -0400
++++ kdesktop/kfileividesktop.cpp	2006-10-17 04:43:55.573510819 -0400
+@@ -187,7 +187,22 @@
+     QRect rect = textRect( false );
+     rect.setRight( rect.right() - spread );
+     rect.setBottom( rect.bottom() - spread + 1 );
+-    p->fillRect( rect, cg.highlight() );
++    int hRound = rect.height();
++    int wRound = rect.width();
++    QPixmap buffer(wRound * 2, hRound * 2);
++    buffer.fill( ( qGray( cg.highlight().rgb() ) > 127 ) ? black : white );
++    QPainter pBuffer(&buffer);
++    pBuffer.setBrush( cg.highlight() );
++    pBuffer.setPen( cg.highlight() );
++    pBuffer.drawRoundRect(0, 0, wRound * 2, hRound * 2,
++      1000/wRound, 1000/hRound);
++    pBuffer.end();
++    buffer.setMask( buffer.createHeuristicMask(TRUE) );
++    QImage imageToScale = buffer.convertToImage();
++    // draw the selection box
++    p->drawImage(rect.x(), rect.y(),
++      imageToScale.smoothScale(wRound, hRound),
++      0, 0, -1, -1, DITHER_FLAGS);
+   }
+   else {
+     // use shadow
