@@ -17,7 +17,7 @@ IUSE="ssl arts ieee1394 logitech-mouse opengl kdehiddenvisibility"
 DEPEND=">=media-libs/freetype-2
 	media-libs/fontconfig
 	ssl? ( dev-libs/openssl )
-	arts? ( $(deprange $PV $MAXKDEVER kde-base/arts) )
+	arts? ( $(deprange 3.5.5 $MAXKDEVER kde-base/arts) )
 	opengl? ( virtual/opengl )
 	ieee1394? ( sys-libs/libraw1394 )
 	logitech-mouse? ( >=dev-libs/libusb-0.1.10a )"
