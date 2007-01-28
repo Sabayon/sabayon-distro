@@ -1,0 +1,18 @@
+--- kdelibs-3.5.5/khtml/rendering/render_image.cpp.orig	2006-07-22 04:16:47.000000000 -0400
++++ kdelibs-3.5.5/khtml/rendering/render_image.cpp	2006-10-17 07:34:51.687344522 -0400
+@@ -369,9 +369,12 @@
+     	    // setting the brush origin is important for compatibility,
+ 	    // don't touch it unless you know what you're doing
+     	    paintInfo.p->setBrushOrigin(_tx, _ty - paintInfo.r.y());
+-            paintInfo.p->fillRect(_tx, _ty, width(), height(),
+-		    QBrush(style()->palette().active().highlight(),
+-		    Qt::Dense4Pattern));
++           QImage blendImage(width(), height(), 32);
++           const QRgb colour = style()->palette().active().highlight().rgb();
++           blendImage.fill(colour & 0x00ffffff | 0x80000000);
++           blendImage.setAlphaBuffer(true);
++           paintInfo.p->drawImage(_tx, _ty, blendImage, 0, 0, -1, -1,
++		    Qt::DiffuseAlphaDither | Qt::ColorOnly | Qt::AvoidDither);
+ 	}
+     }
+ }
