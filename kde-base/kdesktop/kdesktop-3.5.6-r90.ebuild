@@ -22,7 +22,7 @@ DEPEND="$(deprange $PV $MAXKDEVER kde-base/libkonq)
 	# there's a dep here
 RDEPEND="${DEPEND}
 	$(deprange 3.5.0 $MAXKDEVER kde-base/kcheckpass)
-	$(deprange $PV $MAXKDEVER kde-base/kdialog)
+	$(deprange 3.5.5 $MAXKDEVER kde-base/kdialog)
 	$(deprange $PV $MAXKDEVER kde-base/konqueror)
 	xscreensaver? ( || ( x11-libs/libXScrnSaver <virtual/x11-7 ) )"
 
