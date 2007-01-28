@@ -1,6 +1,15 @@
 diff -Nurp suse_kickoff_qstyle-nosvn/kicker/kicker/buttons/knewbutton.cpp suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/buttons/knewbutton.cpp
---- suse_kickoff_qstyle-nosvn/kicker/kicker/buttons/knewbutton.cpp	2007-01-27 18:46:32.000000000 +0100
-+++ suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/buttons/knewbutton.cpp	2007-01-28 12:26:19.000000000 +0100
+--- suse_kickoff_qstyle-nosvn/kicker/kicker/buttons/knewbutton.cpp	2007-01-28 13:43:47.000000000 +0100
++++ suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/buttons/knewbutton.cpp	2007-01-28 13:44:11.000000000 +0100
+@@ -65,7 +65,7 @@ KNewButton::KNewButton( QWidget* parent 
+ 
+     setIconAlignment((Qt::AlignmentFlags)(AlignTop|AlignRight));
+     setAcceptDrops(true);
+-    setIcon("kmenu-suse");
++    setIcon("about_kde");
+     setDrawArrow(false);
+ 
+     m_movie = new QMovie(locate("appdata", "pics/kmenu_basic.mng"));
 @@ -245,12 +245,12 @@ void KNewButton::drawEye()
              m_iconSize = pixmap.size();
              sf = buttonScaleFactor(size());
@@ -16,6 +25,18 @@ diff -Nurp suse_kickoff_qstyle-nosvn/kicker/kicker/buttons/knewbutton.cpp suse_k
          }
  
          QWMatrix matrix;
+diff -Nurp suse_kickoff_qstyle-nosvn/kicker/kicker/ui/appletop_mnu.cpp suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/ui/appletop_mnu.cpp
+--- suse_kickoff_qstyle-nosvn/kicker/kicker/ui/appletop_mnu.cpp	2007-01-28 13:43:07.000000000 +0100
++++ suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/ui/appletop_mnu.cpp	2007-01-28 13:43:38.000000000 +0100
+@@ -169,7 +169,7 @@ PanelAppletOpMenu::PanelAppletOpMenu(int
+         }
+ 
+         if (KickerSettings::legacyKMenu()) 
+-          insertItem(SmallIcon("suse"), i18n("Switch to SUSE Menu Style"), this, SLOT(toggleLegacy()));
++          insertItem(SmallIcon("about_kde"), i18n("Switch to Sabayon Linux Menu Style"), this, SLOT(toggleLegacy()));
+         else
+           insertItem(SmallIcon("about_kde"), i18n("Switch to KDE Menu Style"), this, SLOT(toggleLegacy()));
+     }
 diff -Nurp suse_kickoff_qstyle-nosvn/kicker/kicker/ui/itemview.cpp suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/ui/itemview.cpp
 --- suse_kickoff_qstyle-nosvn/kicker/kicker/ui/itemview.cpp	2007-01-27 18:46:31.000000000 +0100
 +++ suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/ui/itemview.cpp	2007-01-28 12:29:33.000000000 +0100
@@ -57,7 +78,7 @@ diff -Nurp suse_kickoff_qstyle-nosvn/kicker/kicker/ui/itemview.cpp suse_kickoff_
      QFont f1 = p->font();
 diff -Nurp suse_kickoff_qstyle-nosvn/kicker/kicker/ui/k_new_mnu.cpp suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/ui/k_new_mnu.cpp
 --- suse_kickoff_qstyle-nosvn/kicker/kicker/ui/k_new_mnu.cpp	2007-01-27 18:46:31.000000000 +0100
-+++ suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/ui/k_new_mnu.cpp	2007-01-28 12:40:14.000000000 +0100
++++ suse_kickoff_qstyle-nosvn-slintegration/kicker/kicker/ui/k_new_mnu.cpp	2007-01-28 13:38:34.000000000 +0100
 @@ -393,9 +393,9 @@ KMenu::KMenu()
      m_searchPixmap->setPixmap( BarIcon( "find", 32 ) );
  
@@ -70,16 +91,18 @@ diff -Nurp suse_kickoff_qstyle-nosvn/kicker/kicker/ui/k_new_mnu.cpp suse_kickoff
      m_searchLabel->setFont( f );
  
      static_cast<KLineEdit*>(m_kcommand->lineEdit())->setClickMessage(i18n( "Applications, Contacts and Documents" ) );
-@@ -1197,7 +1197,7 @@ void KMenu::initialize()
+@@ -1197,7 +1197,9 @@ void KMenu::initialize()
       */
      KConfig ksmserver("ksmserverrc", false, false);
      ksmserver.setGroup("General");
 -    connect( m_lock, SIGNAL(clicked()), SLOT(slotOpenSUSE()));
-+    connect( m_lock, SIGNAL(clicked()), SLOT(slotLock()));
++    //connect( m_lock, SIGNAL(clicked()), SLOT(slotLock()));
++    m_lock->hide();
++
      m_tabBar->setTabEnabled(LeaveTab, kapp->authorize("logout"));
  
      // load search field history
-@@ -1331,8 +1331,8 @@ void KMenu::insertStaticItems()
+@@ -1331,8 +1333,8 @@ void KMenu::insertStaticItems()
  
      m_systemView->insertSeparator( nId++, i18n("Applications"), index++);
  
@@ -90,3 +113,11 @@ diff -Nurp suse_kickoff_qstyle-nosvn/kicker/kicker/ui/k_new_mnu.cpp suse_kickoff
  
      m_systemView->insertItem( "info", i18n( "System Information" ),
                                "sysinfo:/",  "sysinfo:/", nId++, index++ );
+@@ -1685,6 +1687,7 @@ void KMenu::setOrientation(MenuOrientati
+     {
+         QWidget *footer = m_footer->mainWidget();
+         QPixmap pix( 64, footer->height() );
++
+         QPainter p( &pix );
+         p.fillRect( 0, 0, 64, footer->height(), m_lock->colorGroup().brush( QColorGroup::Base ) );
+         p.fillRect( 0, m_orientation == BottomUp ? footer->height() - 2 : 0,
