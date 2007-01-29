@@ -1,5 +1,5 @@
---- vm.cpp.orig	2007-01-29 07:17:10.000000000 +0100
-+++ vm.cpp	2007-01-29 07:17:29.000000000 +0100
+--- qemu-gui.orig/vm.cpp
++++ qemu-gui/vm.cpp
 @@ -91,7 +91,7 @@ long QemuVM::PowerOn(){
  		return pid;
  	}
