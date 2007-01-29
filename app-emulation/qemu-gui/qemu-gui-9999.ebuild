@@ -10,7 +10,7 @@ SRC_URI="${HOMEPAGE}/downloads/${PN}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
-IUSE=""
+IUSE="kvm"
 RESTRICT="nomirror"
 
 S="${WORKDIR}/${PN}"
@@ -20,6 +20,19 @@ DEPEND="
 	net-libs/libvncserver
 	|| ( app-emulation/qemu app-emulation/kvm )
 	"
+
+src_unpack() {
+	# change qemu executable to kvm
+	if use kvm; then
+		epatch ${FILESDIR}/${PN}-kvm-support.patch
+	fi
+}
+
+src_install() {
+	cd "${S}"
+	exeinto /usr/share/qemu-ui
+	doexe qemu-ui
+}
 
 pkg_postinst() {
 	ewarn "This is a development package."

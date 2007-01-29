@@ -1,0 +1,11 @@
+--- vm.cpp.orig	2007-01-29 07:17:10.000000000 +0100
++++ vm.cpp	2007-01-29 07:17:29.000000000 +0100
+@@ -91,7 +91,7 @@ long QemuVM::PowerOn(){
+ 		return pid;
+ 	}
+ 
+-	wxString cmd = wxT("qemu");
++	wxString cmd = wxT("kvm");
+ 	cmd << GetCmdline();
+ 	pid = process->Launch(cmd,1000);
+ 
