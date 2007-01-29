@@ -39,3 +39,6 @@ x11-misc/xglswitch
 
 # Horribly broken
 kde-misc/guidance
+
+# Broken
+app-emulation/qemu-gui
