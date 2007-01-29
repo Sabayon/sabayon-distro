@@ -37,7 +37,12 @@ src_install() {
 	insinto /usr/share/qemu-gui
 	doins welcome.html
 	doins -r icons
-	dosym /usr/share/qemu-gui/qemu-ui /usr/bin/qemu-gui	
+
+	cd ${S}
+	echo "#!/bin/sh" >> qemu-gui
+	echo "cd /usr/share/qemu-gui && ./qemu-ui" >> qemu-gui
+	exeinto /usr/bin
+	doexe qemu-gui
 }
 
 pkg_postinst() {
