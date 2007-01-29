@@ -22,6 +22,7 @@ DEPEND="
 	"
 
 src_unpack() {
+	cd "${S}"
 	# change qemu executable to kvm
 	if use kvm; then
 		epatch ${FILESDIR}/${PN}-kvm-support.patch
