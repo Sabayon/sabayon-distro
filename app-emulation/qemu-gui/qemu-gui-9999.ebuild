@@ -32,8 +32,12 @@ src_unpack() {
 
 src_install() {
 	cd "${S}"
-	exeinto /usr/share/qemu-ui
+	exeinto /usr/share/qemu-gui
 	doexe qemu-ui
+	insinto /usr/share/qemu-gui
+	doins welcome.html
+	doins -r icons
+	dosym /usr/share/qemu-gui/qemu-ui /usr/bin/qemu-gui	
 }
 
 pkg_postinst() {
