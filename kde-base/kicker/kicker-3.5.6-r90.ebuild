@@ -12,7 +12,7 @@ SRC_URI="${SRC_URI}
 
 DESCRIPTION="Kicker is the KDE application starter panel and is also capable of some useful applets and extensions."
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="xcomposite"
+IUSE="xcomposite beagle"
 
 RDEPEND="
 $(deprange $PV $MAXKDEVER kde-base/libkonq)
@@ -28,7 +28,7 @@ $(deprange $PV $MAXKDEVER kde-base/kdebase-data)
 DEPEND="${RDEPEND}
 	xcomposite? ( || ( x11-proto/compositeproto <x11-base/xorg-x11-7 ) )
 	sys-libs/liblazy
-	>=app-misc/beagle-0.2.11"
+	beagle? ( >=app-misc/beagle-0.2.11 )"
 
 KMCOPYLIB="libkonq libkonq"
 KMEXTRACTONLY="libkonq
