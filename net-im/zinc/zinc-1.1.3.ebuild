@@ -12,8 +12,8 @@ IUSE=""
 SLOT="0"
 LICENSE="|| ( GPL-2 AFL-2.0 )"
 KEYWORDS="~x86 ~amd64"
-
-DEPEND=">=dev-lang/python-2.1"
+DEPEND="dev-perl/Curses
+        >=dev-lang/python-2.3.5-r2"
 
 src_install() {
 	# we are going to ignore the install.sh as it causes too much trouble and do it manually ourselves
