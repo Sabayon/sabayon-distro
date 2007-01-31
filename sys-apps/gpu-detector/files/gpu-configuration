@@ -50,6 +50,7 @@ fi
 R2XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R2.*")
 R1XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV1.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R1.*")
 RX700=$($lspci_output | grep ' VGA ' | grep -i "Radeon Mobility X700")
+RX200=$($lspci_output | grep ' VGA ' | grep -i "ATI.*Radeon.*X.*200M")
 R9600=$($lspci_output | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
 RAGE128=$($lspci_output | grep ' VGA ' | grep -i "Rage 128")
 SIS=$($lspci_output | grep ' VGA ' | grep -i "SiS" || $lspci_output | grep ' VGA ' | grep "Silicon Integrated Systems")
@@ -338,7 +339,7 @@ elif [ -n "$INTEL" ]; then
     remove_proprietary_opengl
     echo -e "\t Display Driver: Intel Video Card - not detected with precision, trying i810 driver"
 
-elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ]; then
+elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$R9600" ] || [ -n "$RX200" ]; then
 
   if [ -n "$NOPROP" ] || [ -n "$LEGACY" ]; then
 
