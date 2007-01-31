@@ -6,7 +6,6 @@ ARTS_REQUIRED="never"
 
 inherit kde
 
-S="${WORKDIR}/${PN}"
 
 DESCRIPTION="KDE frontend for various audio transcoding tools"
 HOMEPAGE="http://kde-apps.org/content/show.php?content=37669"
