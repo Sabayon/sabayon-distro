@@ -2,6 +2,10 @@ AUX 1.0/language-setup 6163 RMD160 1ea2661f8af4f30d6bc9bb9229db57569dfe1645 SHA1
 MD5 6b0b15a2242375d0700c1dc62a0d8c36 files/1.0/language-setup 6163
 RMD160 1ea2661f8af4f30d6bc9bb9229db57569dfe1645 files/1.0/language-setup 6163
 SHA256 26dd6043cad48e0421d90df972f0c42bc9c1864a33f97e678c57155d67b940a8 files/1.0/language-setup 6163
+AUX 1.1.1/language-setup 8572 RMD160 a651e9667188d76de9cc8a8d9093b088f48d5c0b SHA1 acfba50ca20081c95005161679531476717a41d3 SHA256 bee71c65eeeaf33a9799fed0d8d8f42b8358f136065c1d52800c386064cba504
+MD5 3be37bc2a71203a16759c7e32fdf71ec files/1.1.1/language-setup 8572
+RMD160 a651e9667188d76de9cc8a8d9093b088f48d5c0b files/1.1.1/language-setup 8572
+SHA256 bee71c65eeeaf33a9799fed0d8d8f42b8358f136065c1d52800c386064cba504 files/1.1.1/language-setup 8572
 AUX 1.1/language-setup 8229 RMD160 317eaec0ccd1bf9cc3582584b6d27bf63b17483d SHA1 a234272e2a436c2731ce09a02749c65373c331d4 SHA256 9a8d1fc71c2676dc2168548afa74165b7aa816ba43d46fdbf85a3e2aae04619f
 MD5 aa3d55ef5e4bdcf416b00f8497fc84f9 files/1.1/language-setup 8229
 RMD160 317eaec0ccd1bf9cc3582584b6d27bf63b17483d files/1.1/language-setup 8229
@@ -10,13 +14,20 @@ EBUILD language-configuration-helpers-1.0.ebuild 662 RMD160 8d90b280d3337ec97b12
 MD5 36c752f5d8bd8004c721dfff505a5092 language-configuration-helpers-1.0.ebuild 662
 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 language-configuration-helpers-1.0.ebuild 662
 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19 language-configuration-helpers-1.0.ebuild 662
+EBUILD language-configuration-helpers-1.1.1.ebuild 662 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 SHA1 628265a3dea1237a499bd3798479464426bf2190 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19
+MD5 36c752f5d8bd8004c721dfff505a5092 language-configuration-helpers-1.1.1.ebuild 662
+RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 language-configuration-helpers-1.1.1.ebuild 662
+SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19 language-configuration-helpers-1.1.1.ebuild 662
 EBUILD language-configuration-helpers-1.1.ebuild 662 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 SHA1 628265a3dea1237a499bd3798479464426bf2190 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19
 MD5 36c752f5d8bd8004c721dfff505a5092 language-configuration-helpers-1.1.ebuild 662
 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 language-configuration-helpers-1.1.ebuild 662
 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19 language-configuration-helpers-1.1.ebuild 662
-MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-language-configuration-helpers-1.0 1
-RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-language-configuration-helpers-1.0 1
-SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-language-configuration-helpers-1.0 1
-MD5 68b329da9893e34099c7d8ad5cb9c940 files/digest-language-configuration-helpers-1.1 1
-RMD160 c0da025038ed83c687ddc430da9846ecb97f3998 files/digest-language-configuration-helpers-1.1 1
-SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b files/digest-language-configuration-helpers-1.1 1
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-language-configuration-helpers-1.0 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-language-configuration-helpers-1.0 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-language-configuration-helpers-1.0 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-language-configuration-helpers-1.1 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-language-configuration-helpers-1.1 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-language-configuration-helpers-1.1 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-language-configuration-helpers-1.1.1 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-language-configuration-helpers-1.1.1 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-language-configuration-helpers-1.1.1 0
