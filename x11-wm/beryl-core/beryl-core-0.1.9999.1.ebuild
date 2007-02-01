@@ -47,7 +47,7 @@ pkg_setup() {
 src_compile() {
 	eautoreconf
 		#--with-lang="${LINGUAS_BERYL}"
-	econf	--enable-xgl  || die "econf failed"
+	econf	--with-berylmesadir="${WORKDIR}/beryl-mesa" --enable-xgl  || die "econf failed"
 	emake -j1 || die "make failed"
 }
 
