@@ -13,7 +13,8 @@ done
 
 DESCRIPTION="Beryl window manager for AIGLX and XGL"
 HOMEPAGE="http://beryl-project.org"
-SRC_URI="http://sabayonlinux.org/distfiles/${P}.tar.bz2"
+SRC_URI="http://sabayonlinux.org/distfiles/${P}.tar.bz2
+	http://sabayonlinux.org/distfiles/beryl-mesa-0.1.99.2.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
