@@ -27,6 +27,8 @@ src_compile() {
 	eautoreconf
 
 	gnome_src_compile
+
+	emake -j1 || die "emake fail"
 }
 
 src_install() {
