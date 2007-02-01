@@ -22,8 +22,6 @@ src_unpack() {
 }
 
 src_compile() {
-	./autogen.sh --prefix=/usr
-
 	eautoreconf
 
 	gnome_src_compile
