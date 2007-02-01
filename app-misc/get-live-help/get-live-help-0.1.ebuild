@@ -14,7 +14,7 @@ IUSE="kde"
 
 DEPEND="
 	net-irc/irssi
-	kde? net-irc/konversation
+	kde? ( net-irc/konversation )
 	"
 
 src_unpack() {
