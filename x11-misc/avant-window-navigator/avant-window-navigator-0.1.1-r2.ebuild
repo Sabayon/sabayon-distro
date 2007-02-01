@@ -24,11 +24,11 @@ src_unpack() {
 src_compile() {
 	eautoreconf
 
-	gnome_src_compile
+	gnome2_src_compile
 
 	emake -j1 || die "emake fail"
 }
 
 src_install() {
-	gnome_src_install
+	gnome2_src_install
 }
