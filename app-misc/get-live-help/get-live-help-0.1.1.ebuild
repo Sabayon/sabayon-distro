@@ -31,13 +31,12 @@ src_install() {
 
 	# Install desktop file
 	if use kde; then
-		dodir /usr/share/get-live-help
-		insinto /usr/share/get-live-help
-		doins desktop/Get\ Live\ Help.desktop
 		for dir in /home/*/Desktop; do
 			insinto $dir
 			doins desktop/Get\ Live\ Help.desktop
 		done
+		insinto /usr/share/applications
+		doins desktop/Get\ Live\ Help.desktop
 	fi
 
 }
