@@ -32,3 +32,11 @@ src_compile() {
 src_install() {
 	gnome2_src_install
 }
+
+pkg_postinst() {
+	# This is necessary due to a bug upstream
+	# http://code.google.com/p/avant-window-navigator/issues/detail?id=5&can=2&q=
+	# Suggest to remove when fixed
+	gnome2_pkg_postinst
+	gconftool-2 --install-schema-file=/etc/gconf/schemas/avant-window-navigator.schemas
+}
