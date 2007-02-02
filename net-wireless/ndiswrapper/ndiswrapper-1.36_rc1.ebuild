@@ -37,8 +37,6 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-	epatch "${FILESDIR}/${PN}-1.2-suspend2.patch"
-
 	convert_to_m "${S}/driver/Makefile"
 }
 
