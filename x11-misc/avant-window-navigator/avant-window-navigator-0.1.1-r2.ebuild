@@ -39,4 +39,5 @@ pkg_postinst() {
 	# Suggest to remove when fixed
 	gnome2_pkg_postinst
 	gconftool-2 --install-schema-file=/etc/gconf/schemas/avant-window-navigator.schemas
+	einfo "If it still segfaults, gconfd-2 needs to be restarted."
 }
