@@ -11,7 +11,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 
-DEPEND="~x11-wm/beryl-plugins-${PV}"
+DEPEND="~x11-plugins/beryl-plugins-${PV}"
 
 #pkg_setup() {
 #	strip-linguas ${LANGS}
