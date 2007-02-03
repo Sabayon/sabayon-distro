@@ -3,7 +3,6 @@
 # $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.7.1-r2.ebuild,v 1.1 2006/11/15 21:02:48 cardoe Exp $
 
 inherit eutils linux-info
-inherit eutils linux-info flag-o-matic
 
 DESCRIPTION="Hardware Abstraction Layer"
 HOMEPAGE="http://www.freedesktop.org/Software/hal"
@@ -142,9 +141,6 @@ src_unpack() {
 
 src_compile() {
 	econf \
-		#
-                --with-hwdata=${hwdata} \#
-                --with-hwdata=/usr/share/misc/pci.ids.gz \ 
 		--with-doc-dir=/usr/share/doc/${PF} \
 		--with-os-type=gentoo \
 		--with-pid-file=/var/run/hald.pid \
@@ -159,8 +155,6 @@ src_compile() {
 		|| die "configure failed"
 
 	emake || die "make failed"
-        append-ldflags -lz
-        emake LDFLAGS="${LDFLAGS}" || die "make failed"
 }
 
 src_install() {

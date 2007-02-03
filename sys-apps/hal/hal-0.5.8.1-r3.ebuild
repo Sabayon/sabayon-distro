@@ -15,7 +15,8 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86"
 IUSE="acpi crypt debug doc dmi pcmcia selinux"
 
 RDEPEND=">=dev-libs/glib-2.6
-	|| ( >=dev-libs/dbus-glib-0.71 <sys-apps/dbus-0.90 )
+	|| ( >=dev-libs/dbus-glib-0.71
+		( =sys-apps/dbus-0.60 ) )
 	>=sys-fs/udev-100
 	>=sys-apps/util-linux-2.12r
 	|| ( >=sys-kernel/linux-headers-2.6 >=sys-kernel/mips-headers-2.6 )
@@ -141,15 +142,24 @@ src_unpack() {
 }
 
 src_compile() {
+
+if [ -r "${ROOT}/usr/share/misc/pci.ids.gz" ] ; then
+		hwdata="${ROOT}/usr/share/misc/pci.ids.gz"
+	elif [ -r "${ROOT}/usr/share/misc/pci.ids" ] ; then
+		hwdata="${ROOT}/usr/share/misc/pci.ids"
+	else
+		die "pci.ids file not found. please file a bug @ bugs.sabayonlinux.org"
+	fi
+
 	econf \
-		#
-                --with-hwdata=${hwdata} \#
-                --with-hwdata=/usr/share/misc/pci.ids.gz \ 
+                --with-hwdata=${hwdata} \
+                --with-hwdata=/usr/share/misc/pci.ids.gz \
 		--with-doc-dir=/usr/share/doc/${PF} \
 		--with-os-type=gentoo \
 		--with-pid-file=/var/run/hald.pid \
+		--with-hwdata=${hwdata} \
 		--enable-hotplug-map \
-		--enable-policy-kit=no \
+		--disable-policy-kit \
 		$(use_enable debug verbose-mode) \
 		$(use_enable pcmcia pcmcia-support) \
 		$(use_enable acpi acpi-proc) \
@@ -158,7 +168,7 @@ src_compile() {
 		$(use_enable selinux) \
 		|| die "configure failed"
 
-	emake || die "make failed"
+	
         append-ldflags -lz
         emake LDFLAGS="${LDFLAGS}" || die "make failed"
 }
