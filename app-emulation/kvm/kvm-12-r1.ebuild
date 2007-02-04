@@ -1,6 +1,8 @@
 # Copyright 1999-2006 Sabayon Linux - Fabio Erculiani
 # Distributed under the terms of the GNU General Public License v2
 
+inherit eutils
+
 DESCRIPTION="qemu emulator and abi wrapper meta ebuild"
 HOMEPAGE="http://kvm.sourceforge.net/"
 SRC_URI="
