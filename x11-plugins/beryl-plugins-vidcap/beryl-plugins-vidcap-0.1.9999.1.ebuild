@@ -13,4 +13,4 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 
 DEPEND="~x11-plugins/beryl-plugins-${PV}
-	=media-misc/seom-9999"
+	=media-video/seom-9999"
