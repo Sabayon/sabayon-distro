@@ -30,6 +30,9 @@ DEPEND=">=media-libs/alsa-lib-1.0.11
 	>=sys-fs/udev-100	
 	"
 
+pkg_preinst() {
+	enewgroup kvm
+}
 
 src_install() {
 
@@ -58,6 +61,4 @@ src_install() {
 		dodoc usr/share/doc/kvm/*
 	fi
 
-	# Create kvm group
-	enewgroup kvm
 }
