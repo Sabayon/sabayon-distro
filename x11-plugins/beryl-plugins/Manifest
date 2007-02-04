@@ -14,6 +14,10 @@ EBUILD beryl-plugins-0.1.99.2.ebuild 1244 RMD160 712aee24ee0e35cb75a3c5291d1ea3e
 MD5 cac930993b959e5f9d7b7b81d41f2d21 beryl-plugins-0.1.99.2.ebuild 1244
 RMD160 712aee24ee0e35cb75a3c5291d1ea3e8c17cfb70 beryl-plugins-0.1.99.2.ebuild 1244
 SHA256 0b72fd68b7986a4284dfcc877d2a855fd38d60062dfd344f84a35ade3bd5132a beryl-plugins-0.1.99.2.ebuild 1244
+EBUILD beryl-plugins-0.1.9999.1-r1.ebuild 1262 RMD160 0930f901add702c5f263de91a9ad4f1e816de605 SHA1 e0673486249cc4de1a1a853cf5e171e5f86d5258 SHA256 42a55b64559c61fdf486b06d5c09f4981539b4a20b36ce01bd655c0a79cac8f2
+MD5 05ab50addd44fd3567b38d968de7b7ab beryl-plugins-0.1.9999.1-r1.ebuild 1262
+RMD160 0930f901add702c5f263de91a9ad4f1e816de605 beryl-plugins-0.1.9999.1-r1.ebuild 1262
+SHA256 42a55b64559c61fdf486b06d5c09f4981539b4a20b36ce01bd655c0a79cac8f2 beryl-plugins-0.1.9999.1-r1.ebuild 1262
 EBUILD beryl-plugins-0.1.9999.1.ebuild 1244 RMD160 712aee24ee0e35cb75a3c5291d1ea3e8c17cfb70 SHA1 b13d3050da4eeeabe5255caedd5eb20c35b53977 SHA256 0b72fd68b7986a4284dfcc877d2a855fd38d60062dfd344f84a35ade3bd5132a
 MD5 cac930993b959e5f9d7b7b81d41f2d21 beryl-plugins-0.1.9999.1.ebuild 1244
 RMD160 712aee24ee0e35cb75a3c5291d1ea3e8c17cfb70 beryl-plugins-0.1.9999.1.ebuild 1244
@@ -30,3 +34,6 @@ SHA256 43607f53808ce95fad092d5cb3a48d699aa87aca43cd2d3dcb847cb6174f5829 files/di
 MD5 24dd76152f6b451d8d8845cbe7e34128 files/digest-beryl-plugins-0.1.9999.1 280
 RMD160 d7ae1a7b97652898687e14d1e7f615d1b303ec9c files/digest-beryl-plugins-0.1.9999.1 280
 SHA256 da74b1fbbca6dc869fa1ea01ae1f5a63924dc595e07225f0aea4071cdfbba611 files/digest-beryl-plugins-0.1.9999.1 280
+MD5 24dd76152f6b451d8d8845cbe7e34128 files/digest-beryl-plugins-0.1.9999.1-r1 280
+RMD160 d7ae1a7b97652898687e14d1e7f615d1b303ec9c files/digest-beryl-plugins-0.1.9999.1-r1 280
+SHA256 da74b1fbbca6dc869fa1ea01ae1f5a63924dc595e07225f0aea4071cdfbba611 files/digest-beryl-plugins-0.1.9999.1-r1 280
