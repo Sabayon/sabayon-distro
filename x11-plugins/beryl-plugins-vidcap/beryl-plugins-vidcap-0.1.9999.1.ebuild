@@ -14,12 +14,3 @@ KEYWORDS="~x86 ~amd64"
 
 DEPEND="~x11-plugins/beryl-plugins-${PV}
 	=media-misc/seom-9999"
-
-src_compile() {
-	emake || die "make failed"
-}
-
-src_install() {
-	dodir ${ROOT}/usr/local/share/beryl
-	make DESTDIR="${D}" install || die "make install failed"
-}

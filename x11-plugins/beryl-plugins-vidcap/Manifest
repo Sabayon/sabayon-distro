@@ -1,8 +1,8 @@
 DIST beryl-plugins-vidcap-0.1.9999.1.tar.bz2 16940 RMD160 feb662f17d27d8bd9fa8fd9cded6d89f698da83c SHA1 5a8d6535eb8bc0b70efc6b95bbb0c688604fc727 SHA256 8b704ecfc808dde06d97a072854346c88b133c96f956eaa2187b234aa81b4d90
-EBUILD beryl-plugins-vidcap-0.1.9999.1.ebuild 555 RMD160 4fb229cdd0d73d564c91bd4f79a0b3f42541b836 SHA1 594b3d9521eb48317fe4a79a0b6ffd9c361fad9e SHA256 9fc091a48d5d6b1fe39c6a4b19f68b5b1e14e737a99b3cfc0ef295701dd58945
-MD5 4957d2ee5acc593b6d1d4082f8e7e686 beryl-plugins-vidcap-0.1.9999.1.ebuild 555
-RMD160 4fb229cdd0d73d564c91bd4f79a0b3f42541b836 beryl-plugins-vidcap-0.1.9999.1.ebuild 555
-SHA256 9fc091a48d5d6b1fe39c6a4b19f68b5b1e14e737a99b3cfc0ef295701dd58945 beryl-plugins-vidcap-0.1.9999.1.ebuild 555
+EBUILD beryl-plugins-vidcap-0.1.9999.1.ebuild 394 RMD160 b42d856691caa243b171e6d70dd476ae00c8c2c3 SHA1 8b57aa0f37faf054ef3790eb740052358eac84b1 SHA256 8ece6f2054b6a92ff7cfd4d8902103b4b9429b99dd6f8287004456219b5a76f0
+MD5 22e1938bf86d951c812075dbf3e4bb85 beryl-plugins-vidcap-0.1.9999.1.ebuild 394
+RMD160 b42d856691caa243b171e6d70dd476ae00c8c2c3 beryl-plugins-vidcap-0.1.9999.1.ebuild 394
+SHA256 8ece6f2054b6a92ff7cfd4d8902103b4b9429b99dd6f8287004456219b5a76f0 beryl-plugins-vidcap-0.1.9999.1.ebuild 394
 MD5 3021f7bbdb53de6b0a5024be6d517e89 files/digest-beryl-plugins-vidcap-0.1.9999.1 295
 RMD160 382468ddd452a83c0742db81cc60860559d5a10e files/digest-beryl-plugins-vidcap-0.1.9999.1 295
 SHA256 de7585fa23d0c3c50a5cfa189a2e53ea8493a386f129bd19610b10d983148664 files/digest-beryl-plugins-vidcap-0.1.9999.1 295
