@@ -14,8 +14,7 @@ RESTRICT="nomirror"
 DEPEND=">=net-misc/networkmanager-0.6.3
 	>=kde-base/kdelibs-3.2
 	|| ( >=dev-libs/dbus-qt3-old-0.70
-		( =sys-apps/dbus-0.60 ) )
-	sys-apps/dbus
+		( <sys-apps/dbus-0.70 ) )
 	sys-apps/hal"
 
 S="${WORKDIR}/${PN}-${PV}"
