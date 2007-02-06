@@ -26,7 +26,7 @@ src_unpack() {
 	epatch ${FILESDIR}/${PN}-0.1-dbus.patch
 
 	cd ${S}
-	for patch in ${FILESDIR}/patches/*.patch; do
+	for patch in ${FILESDIR}/ubuntu-patches/*.patch; do
 		epatch $patch
 	done
 
