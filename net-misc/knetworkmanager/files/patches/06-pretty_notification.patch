@@ -1,0 +1,818 @@
+Index: knetworkmanager/src/knetworkmanager-vpn.cpp
+===================================================================
+--- knetworkmanager/src/knetworkmanager-vpn.cpp	(Revision 606432)
++++ knetworkmanager/src/knetworkmanager-vpn.cpp	(Revision 606738)
+@@ -123,6 +123,12 @@
+ 	emit activationStateChanged ();
+ }
+ 
++void
++VPNConnection::setVPNConnectionFailure(QString& member, QString& err_msg)
++{
++	emit connectionFailure(member, err_msg);
++}
++
+ QString
+ VPNConnection::getAuthHelper () const
+ {
+Index: knetworkmanager/src/knetworkmanager-notify.h
+===================================================================
+--- knetworkmanager/src/knetworkmanager-notify.h	(Revision 606432)
++++ knetworkmanager/src/knetworkmanager-notify.h	(Revision 606738)
+@@ -4,7 +4,8 @@
+  *
+  * Copyright (C) 2005, 2006 Novell, Inc.
+  *
+- * Author: Timo Hoenig <thoenig@suse.de>, <thoenig@nouse.net>
++ * Authors: Timo Hoenig <thoenig@suse.de>, <thoenig@nouse.net>
++ *          Helmut Schaa <hschaa@suse.de>, <helmut.schaa@gmx.de>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -30,15 +31,20 @@
+ #include "knetworkmanager.h"
+ 
+ class ActivationWidget;
++class ErrorMessageWidget;
+ 
+-class ActivationStageNotify : public KDialogBase
++class ActivationStageNotify : public QWidget
+ {
+ 	Q_OBJECT
+ 		
+ 	public:
+-	  ActivationStageNotify  (QWidget * parent = 0, const char *name = 0, bool modal = FALSE, WFlags fl = 0, KNetworkManager* ctx = NULL);
++	  ActivationStageNotify  (QWidget * parent = 0, const char *name = 0, WFlags fl = 0, KNetworkManager* ctx = NULL);
+ 	  ~ActivationStageNotify ();
++	  void setAnchor(const QPoint&);
+ 
++	private:
++	  void updateMask();
++
+ 	private slots:
+ 	  void destroyActivationStage ();
+ 
+@@ -46,6 +52,14 @@
+ 
+ 	  KNetworkManager*  _ctx;
+ 	  ActivationWidget* _activationWidget;
++	  QPoint _anchor;
++	  ErrorMessageWidget* _errorWidget;
++	  bool _bottom;
++	  bool _right;
++	
++	  void getArrowPoints(QPointArray&);
++	  void paintEvent(QPaintEvent*);
++	  void mousePressEvent(QMouseEvent*);
+ };
+ 
+ class ActivationStageNotifyVPN : public ActivationStageNotify
+@@ -58,6 +72,8 @@
+ 
+ 	public slots:
+ 	  void updateActivationStage ();
++	  void connectionFailure (QString&, QString& );
++	  void done();
+ 
+ 	private:
+ 	
+Index: knetworkmanager/src/knetworkmanager-tray.h
+===================================================================
+--- knetworkmanager/src/knetworkmanager-tray.h	(Revision 606432)
++++ knetworkmanager/src/knetworkmanager-tray.h	(Revision 606738)
+@@ -62,7 +62,6 @@
+ #define NUM_CONNECTING_STAGES 3
+ #define NUM_CONNECTING_FRAMES 11
+ 
+-
+ class WirelessNetworkItem : public QCustomMenuItem
+ {
+ 	public:
+@@ -129,10 +128,13 @@
+ 	  void mouseMoveEvent     (QMouseEvent* e);
+ 	  void mousePressEvent    (QMouseEvent* e);
+ 
++	  QPoint getAnchor (void) const;
++
+ 	  void loadIcons();
+ 	  void drawContents (QPainter *p);
+ 	  QPixmap updateForState( NMState state );
+ 	  QPixmap pixmapForStage();
++
+ 	
+ 	signals:
+ 	  void userInteraction         (void);
+@@ -209,6 +211,8 @@
+ 	  QPixmap m_wireless75;
+ 	  QPixmap m_wireless100;
+ 	  QPixmap m_background;
++
++	  QPoint _anchor;
+ };
+ 
+ #endif /* KNETWORKMANAGER_TRAY_H */
+Index: knetworkmanager/src/activation.ui
+===================================================================
+--- knetworkmanager/src/activation.ui	(Revision 606432)
++++ knetworkmanager/src/activation.ui	(Revision 606738)
+@@ -8,62 +8,67 @@
+         <rect>
+             <x>0</x>
+             <y>0</y>
+-            <width>392</width>
+-            <height>95</height>
++            <width>312</width>
++            <height>104</height>
+         </rect>
+     </property>
+     <property name="caption">
+         <string>activationwidget</string>
+     </property>
+-    <grid>
++    <vbox>
+         <property name="name">
+             <cstring>unnamed</cstring>
+         </property>
+         <property name="margin">
+             <number>0</number>
+         </property>
+-        <widget class="QGroupBox" row="0" column="0">
++        <widget class="QLabel">
+             <property name="name">
+-                <cstring>groupActivation</cstring>
++                <cstring>lblActivationCaption</cstring>
+             </property>
+-            <property name="margin">
+-                <number>0</number>
++            <property name="font">
++                <font>
++                    <bold>1</bold>
++                </font>
+             </property>
+-            <property name="midLineWidth">
+-                <number>0</number>
++            <property name="text">
++                <string>lblActivationCaption</string>
+             </property>
+-            <property name="title">
+-                <string>groupActivation</string>
++        </widget>
++        <widget class="QLabel">
++            <property name="name">
++                <cstring>lblActivation</cstring>
+             </property>
+-            <grid>
+-                <property name="name">
+-                    <cstring>unnamed</cstring>
+-                </property>
+-                <widget class="KProgress" row="2" column="0">
+-                    <property name="name">
+-                        <cstring>pbarActivationStage</cstring>
+-                    </property>
+-                </widget>
+-                <widget class="QLabel" row="0" column="0">
+-                    <property name="name">
+-                        <cstring>lblActivation</cstring>
+-                    </property>
+-                    <property name="text">
+-                        <string>lblActivation</string>
+-                    </property>
+-                </widget>
+-                <widget class="QLabel" row="3" column="0">
+-                    <property name="name">
+-                        <cstring>lblActivationStage</cstring>
+-                    </property>
+-                    <property name="text">
+-                        <string>lblActivationStage</string>
+-                    </property>
+-                </widget>
+-            </grid>
++            <property name="text">
++                <string>lblActivation</string>
++            </property>
+         </widget>
+-    </grid>
++        <widget class="KProgress">
++            <property name="name">
++                <cstring>pbarActivationStage</cstring>
++            </property>
++            <property name="maximumSize">
++                <size>
++                    <width>32767</width>
++                    <height>20</height>
++                </size>
++            </property>
++            <property name="percentageVisible">
++                <bool>true</bool>
++            </property>
++        </widget>
++        <widget class="QLabel">
++            <property name="name">
++                <cstring>lblActivationStage</cstring>
++            </property>
++            <property name="text">
++                <string>lblActivationStage</string>
++            </property>
++        </widget>
++    </vbox>
+ </widget>
++<customwidgets>
++</customwidgets>
+ <layoutdefaults spacing="6" margin="11"/>
+ <includehints>
+     <includehint>kprogress.h</includehint>
+Index: knetworkmanager/src/knetworkmanager-notify.cpp
+===================================================================
+--- knetworkmanager/src/knetworkmanager-notify.cpp	(Revision 606432)
++++ knetworkmanager/src/knetworkmanager-notify.cpp	(Revision 606738)
+@@ -1,10 +1,11 @@
+ /***************************************************************************
+  *
+- * knetworkmanager-notify.cpp - A NetworkManager frontend for KDE 
++ * knetworkmanager-notify.cpp - A NetworkManager frontend for KDE
+  *
+  * Copyright (C) 2005, 2006 Novell, Inc.
+  *
+  * Author: Timo Hoenig <thoenig@suse.de>, <thoenig@nouse.net>
++ *         Helmut Schaa <hschaa@suse.de>, <helmut.schaa@gmx.de>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -15,7 +16,7 @@
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+- * 
++ *
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+@@ -25,14 +26,23 @@
+ #include <qvariant.h>
+ #include <qpushbutton.h>
+ #include <qlabel.h>
+-#include <qgroupbox.h> 
++#include <qgroupbox.h>
+ #include <kprogress.h>
+ #include <qtooltip.h>
+ #include <qwhatsthis.h>
+ #include <klocale.h>
++#include <qmessagebox.h>
++#include <kactivelabel.h>
++#include <kpushbutton.h>
++#include <kglobalsettings.h>
++#include <qpointarray.h>
++#include <qlayout.h>
++#include <qpainter.h>
++#include <qbitmap.h>
+ 
+ #include "knetworkmanager-notify.h"
+ #include "activation.h"
++#include "errormsg.h"
+ 
+ class DeviceStore;
+ 
+@@ -44,11 +54,14 @@
+ 	State*  state = _ctx->getState ();
+ 	int     progress;
+ 	QString stage;
+-
+ 	/* close dialog if NetworkManager is not running*/
+ 	if (state->isNetworkManagerRunning () == false)
+ 		goto done;
+ 
++	/* if we have an unclosed error let it unchanged */
++	if (_errorWidget != NULL)
++		goto stage_pending;
++
+ 	switch (progress = _vpnConnection->getActivationStage ()) {
+ 		case NM_VPN_ACT_STAGE_PREPARE:
+ 		{
+@@ -70,21 +83,41 @@
+ 			stage = i18n("Successfully connected.");
+ 			break;
+ 		}
++		case NM_VPN_ACT_STAGE_DISCONNECTED:
++		case NM_VPN_ACT_STAGE_FAILED:
++			stage = i18n("Failed.");
++			break;
++	
++		case NM_VPN_ACT_STAGE_CANCELED:
+ 		default:
+ 		{
+ 			goto done;
+ 		}
+ 	}
+ 
++	if (progress == NM_VPN_ACT_STAGE_FAILED | progress == NM_VPN_ACT_STAGE_DISCONNECTED)
++	{
++		QString temp("");
++		connectionFailure(temp, temp);
++		goto stage_pending;
++	}
++
+ 	_activationWidget->pbarActivationStage->setProgress (progress);
+ 	_activationWidget->lblActivationStage->setText (i18n("Activation stage: %1.").arg(stage));
+ 
+-	if (progress == NM_VPN_ACT_STAGE_FAILED || progress == NM_VPN_ACT_STAGE_CANCELED)
+-		goto done;
++	this->resize(minimumSizeHint());
+ 
+ 	if (progress < NM_VPN_ACT_STAGE_ACTIVATED)
+ 		goto stage_pending;
+-	
++
++	if (progress == NM_VPN_ACT_STAGE_ACTIVATED) {
++		// close us in 1 sec
++		QTimer* timer = new QTimer(this);
++		connect(timer, SIGNAL(timeout()), this, SLOT(done()));
++		timer->start(1000, true);
++		goto stage_pending;
++	}
++
+ done:
+ 	delete (this);
+ 
+@@ -93,8 +126,69 @@
+ 	return;
+ }
+ 
++void
++ActivationStageNotifyVPN::done()
++{
++	delete (this);
++}
++
++void
++ActivationStageNotifyVPN::connectionFailure(QString& member, QString& err_msg)
++{
++	QString title;
++	QString desc;
++	QString details = err_msg;
++	
++	if (member == NM_DBUS_VPN_SIGNAL_LOGIN_FAILED) {
++		title = i18n("VPN Login Failure");
++		desc = i18n("Could not start the VPN connection '%1' due to a login failure.").arg(_vpnConnection->getName());
++	}
++	else if (member == NM_DBUS_VPN_SIGNAL_LAUNCH_FAILED) {
++		title = i18n("VPN Start Failure");
++		desc = i18n("Could not start the VPN connection '%1' due to a failure launching the VPN program.").arg(_vpnConnection->getName());
++	}
++	else if (member == NM_DBUS_VPN_SIGNAL_CONNECT_FAILED) {
++		title = i18n("VPN Connect Failure");
++		desc = i18n("Could not start the VPN connection '%1' due to a connection error.").arg(_vpnConnection->getName());
++	}
++	else if (member == NM_DBUS_VPN_SIGNAL_VPN_CONFIG_BAD) {
++		title = i18n("VPN Configuration Error");
++		desc = i18n("The VPN connection '%1' was not correctly configured.").arg(_vpnConnection->getName());
++	}
++	else if (member == NM_DBUS_VPN_SIGNAL_IP_CONFIG_BAD) {
++		title = i18n("VPN Connect Failure");
++		desc = i18n("Could not start the VPN connection '%1' because the VPN server did not return an adequate network configuration.").arg(_vpnConnection->getName());
++	}
++	else {
++		title = i18n("VPN Failure");
++		desc = i18n("Could not start the VPN connection %1.").arg(_vpnConnection->getName());
++	}
++
++	_activationWidget->hide();
++	
++	// we need an errorwidget to show the error message
++	if (_errorWidget == NULL)
++		_errorWidget = new ErrorMessageWidget(this);
++	
++	_errorWidget->setCaption(title);
++	_errorWidget->labelTitle->setText(title);
++	_errorWidget->labelMessage->setText(desc + "\n" + err_msg);
++	_errorWidget->labelPixmap->setPixmap(KGlobal::instance()->iconLoader()->loadIcon("messagebox_critical", KIcon::Small, 32));
++	_errorWidget->pushOK->setIconSet(SmallIcon("button_ok", QIconSet::Automatic));
++
++	// close us when ok is pressed
++	connect(_errorWidget->pushOK, SIGNAL(clicked()), this, SLOT(done()));
++	_errorWidget->show();
++
++	// resize so the message fits in our widget
++	this->resize(minimumSizeHint());
++
++	// show if we are hidden
++	this->show();
++}
++
+ ActivationStageNotifyVPN::ActivationStageNotifyVPN (QWidget* parent, const char* name, bool modal, WFlags fl, KNetworkManager* ctx, VPNConnection* vpnConnection)
+-		: ActivationStageNotify (parent, name, modal, fl, ctx)
++		: ActivationStageNotify (parent, name, fl, ctx)
+ {
+ 	QString info;
+ 
+@@ -103,9 +197,9 @@
+ 
+ 	_vpnConnection = vpnConnection;
+ 
+-	QWidget* mainWid = mainWidget ();
++	QWidget* mainWid = this;
+ 	_activationWidget = new ActivationWidget (mainWid, "activationwidget");
+-	_activationWidget->groupActivation->setTitle (i18n ("Activating VPN Connection"));
++	_activationWidget->lblActivationCaption->setText (i18n ("Activating VPN Connection"));
+ 	_activationWidget->lblActivation->setText (_vpnConnection->getName ());
+ 	_activationWidget->pbarActivationStage->setTotalSteps (5);
+ 	_activationWidget->lblActivationStage->setText (QString::null);
+@@ -115,7 +209,9 @@
+ 
+ 	connect (vpnConnection, SIGNAL (activationStateChanged ()),
+                  this,          SLOT   (updateActivationStage ()));
+-	this->show ();
++
++	connect (vpnConnection, SIGNAL (connectionFailure(QString&, QString&)), this, SLOT(connectionFailure(QString&, QString&)));
++	this->resize(minimumSizeHint());
+ }
+ 
+ ActivationStageNotifyVPN::~ActivationStageNotifyVPN ()
+@@ -199,6 +295,15 @@
+ 	if (progress < NM_ACT_STAGE_ACTIVATED)
+ 		goto stage_pending;
+ 	
++	if (progress == NM_ACT_STAGE_ACTIVATED)
++	{
++		// close us in 1 second
++		QTimer* timer = new QTimer(this);
++		connect(timer, SIGNAL(timeout()), this, SLOT(close()));
++		timer->start(1000, true);
++		goto stage_pending;
++	}
++
+ 	if (progress == (int) NM_ACT_STAGE_ACTIVATED) {
+ //		 TODO should we do something? 
+ //		printf ("notify::NM_ACT_STAGE_ACTIVATED\n");
+@@ -220,22 +325,22 @@
+ 
+ 
+ ActivationStageNotifyNetwork::ActivationStageNotifyNetwork  (const QString & essid, QWidget* parent, const char* name, bool modal, WFlags fl, KNetworkManager* ctx, Device* dev )
+-		: ActivationStageNotify (parent, name, modal, fl, ctx), _essid( essid )
++		: ActivationStageNotify (parent, name, fl, ctx), _essid( essid )
+ {
+ 	QString info;
+ 
+ 	_dev = dev;
+ 
+-	QWidget* mainWid = mainWidget ();
++	QWidget* mainWid = this;
+ 	_activationWidget = new ActivationWidget (mainWid, "activationwidget");
+ 	if (_dev )
+ 	{
+ 		if ( _essid.isEmpty() ) {
+-			_activationWidget->groupActivation->setTitle (i18n ("Activating Network Connection"));
++			_activationWidget->lblActivationCaption->setText (i18n ("Activating Network Connection"));
+ 			if ((info = _dev->getVendor () + " " + _dev->getProduct ()) == " ")
+ 				info = _dev->getInterface ();
+ 		} else {
+-			_activationWidget->groupActivation->setTitle (i18n ("Activating Wireless Network Connection"));
++			_activationWidget->lblActivationCaption->setText (i18n ("Activating Wireless Network Connection"));
+ 			info = _essid;
+ 			info += " (" +  _dev->getInterface () + ")";
+ 		}
+@@ -249,9 +354,9 @@
+ 		 this,   SLOT   (destroyActivationStage ()));
+ 
+ 	connect (_ctx->getDeviceStore (), SIGNAL (deviceStoreChanged (DeviceStore*)),
+-                 this,                    SLOT   (updateActivationStage ()));
++		 this,                    SLOT   (updateActivationStage ()));
+ 
+-	this->show ();
++	resize(minimumSizeHint());
+ }
+ 
+ ActivationStageNotifyNetwork::~ActivationStageNotifyNetwork ()
+@@ -267,17 +372,23 @@
+ 	close ();
+ }
+ 
+-ActivationStageNotify::ActivationStageNotify (QWidget* parent, const char* name, bool modal, WFlags /* fl */, KNetworkManager* ctx)
+-                               : KDialogBase (parent, name, modal, "Activation", 0 /* KDialogBase::Help|KDialogBase::Ok|KDialogBase::Cancel */, KDialogBase::NoDefault, false)
++ActivationStageNotify::ActivationStageNotify (QWidget* parent, const char* name/*, bool modal,*/, WFlags fl , KNetworkManager* ctx)
++	: QWidget (NULL, name, WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM)
+ {
+ 	_ctx = ctx;
++	_errorWidget = NULL;
+ 	if (!name)
+ 		setName ("ActivationStageNotify");
+ 
+ 	setCaption (i18n("Activation"));
+-	makeVBoxMainWidget ();
+-	resize (QSize (370, 0));
++
++	QHBoxLayout* layout = new QHBoxLayout( this, 20 );
++	layout->setAutoAdd(true);
+ 	clearWState (WState_Polished);
++	setPalette(QToolTip::palette());
++	setAutoMask(true);
++
++	resize(minimumSizeHint());
+ }
+ 
+ ActivationStageNotify::~ActivationStageNotify ()
+@@ -285,4 +396,72 @@
+ 
+ }
+ 
++void ActivationStageNotify::mousePressEvent(QMouseEvent* /*me*/)
++{
++	if (_errorWidget != NULL)
++		/* if we display an error and the user clicked us he wants
++		   the error to go away -> delete */
++		delete this;
++	else
++		/* if we have only normal state reporting and the user
++		   clicked us he doesnt want to see the state changes but
++		   maybe he wants o be notified when an error occurs */
++		this->hide();
++}
++
++void ActivationStageNotify::getArrowPoints(QPointArray& arrow)
++{
++	arrow.resize(3);
++	arrow.setPoint(0, QPoint(_right ? width() - 10 : 10,
++		       _bottom ? height() - 20 : 20));
++	arrow.setPoint(1, QPoint(_right ? width() : 0, _bottom ? height() : 0));
++	arrow.setPoint(2, QPoint(_right ? width() - 20 : 20,
++		       _bottom ? height() - 10 : 10));
++}
++
++void ActivationStageNotify::paintEvent(QPaintEvent* pe)
++{
++	QPainter paint(this);
++	paint.drawRoundRect(10,10,width()-20, height()-20, 1600/width(), 1600/height());
++
++	QPointArray arrow;
++	getArrowPoints(arrow);
++
++	paint.setPen(this->backgroundColor());
++	paint.setBrush(this->backgroundColor());
++	paint.drawPolygon(arrow);
++
++	paint.setPen(Qt::black);
++	paint.drawPolyline(arrow);
++}
++
++void ActivationStageNotify::setAnchor(const QPoint &anchor)
++{
++	_anchor = anchor;
++	updateMask();
++}
++
++// Based on work of Kopete (http://kopete.kde.org)
++void ActivationStageNotify::updateMask()
++{
++	QRect deskRect = KGlobalSettings::desktopGeometry(_anchor);
++	_bottom = (_anchor.y() + height()) > ((deskRect.y() + deskRect.height()-48));
++	_right = (_anchor.x() + width()) > ((deskRect.x() + deskRect.width()-48));
++
++	QPointArray arrow;
++	getArrowPoints(arrow);
++
++	QBitmap mask(width(), height());
++	QPainter maskPainter(&mask);
++	mask.fill(Qt::black);
++	maskPainter.setBrush(Qt::white);
++	maskPainter.setPen(Qt::white);
++	maskPainter.drawRoundRect(10, 10, mask.rect().width()- 20, mask.rect().height()-20, 1600 / mask.rect().width(), 1600 / mask.rect().height());
++	maskPainter.drawPolygon(arrow);
++	setMask(mask);
++
++	move( _right ? _anchor.x() - width() - 10 : ( _anchor.x() + 10 < 0 ? 0 : _anchor.x() + 10 ),
++	      _bottom ? _anchor.y() - height() - 10 : ( _anchor.y() + 10 < 0 ? 0 : _anchor.y() + 10 )  );
++}
++
+ #include "knetworkmanager-notify.moc"
+Index: knetworkmanager/src/knetworkmanager-dialogfab.cpp
+===================================================================
+--- knetworkmanager/src/knetworkmanager-dialogfab.cpp	(Revision 606432)
++++ knetworkmanager/src/knetworkmanager-dialogfab.cpp	(Revision 606738)
+@@ -57,6 +57,8 @@
+ 	emit sendPassphrase (_net);
+ 
+ 	notify = new ActivationStageNotifyNetwork (_net->getEssid(), _ctx->getTray (), "ActivationStageNotify", false, 0, _ctx, _dev );
++	notify->setAnchor(_ctx->getTray()->getAnchor());
++	notify->show();
+ 	KDialogBase::slotOk();
+ }
+ 
+@@ -238,7 +240,9 @@
+ 	emit activateNetwork (_net, _dev);
+ 
+ 	ActivationStageNotifyNetwork* notify = NULL;
+-	notify = new ActivationStageNotifyNetwork ( _net->getEssid(), this, "ActivationStageNotify", true, 0, _ctx, _dev );
++	notify = new ActivationStageNotifyNetwork ( _net->getEssid(), _ctx->getTray(), "ActivationStageNotify", true, 0, _ctx, _dev );
++	notify->setAnchor(_ctx->getTray()->getAnchor());
++	notify->show();
+ 	KDialogBase::slotOk();
+ }
+ 
+Index: knetworkmanager/src/knetworkmanager-vpn.h
+===================================================================
+--- knetworkmanager/src/knetworkmanager-vpn.h	(Revision 606432)
++++ knetworkmanager/src/knetworkmanager-vpn.h	(Revision 606738)
+@@ -53,6 +53,7 @@
+ 	  void addPasswords       (const QStringList &);
+ 	  void setActivationStage (NMVPNActStage);
+ 	  void setAuthHelper      (const QString &);
++	  void setVPNConnectionFailure (QString&, QString&);
+ 
+ 	  QString       getName            (void) const;
+ 	  QString       getServiceName     (void) const;
+@@ -67,6 +68,7 @@
+ 	
+ 	signals:
+ 	  void activationStateChanged (void);
++	  void connectionFailure(QString&, QString&);
+ 
+ 	private:
+ 	  QString       _name;
+@@ -82,7 +84,7 @@
+ class VPNConnectionHandler : public QObject
+ {
+ 	Q_OBJECT
+-		
++
+ 	public:
+ 	  VPNConnectionHandler  ( QObject * parent = 0, const char * name = 0, VPNConnection* = 0);
+ 	  ~VPNConnectionHandler ();
+@@ -116,7 +118,7 @@
+ 	  VPNList*       getVPNList       (void);
+ 	  bool           isActive         (void);
+ 	  bool           isAvailable      (void);
+-	  
++
+ 	  void push (KNetworkManager*);
+ 
+ 	private:
+Index: knetworkmanager/src/knetworkmanager-tray.cpp
+===================================================================
+--- knetworkmanager/src/knetworkmanager-tray.cpp	(Revision 606432)
++++ knetworkmanager/src/knetworkmanager-tray.cpp	(Revision 606738)
+@@ -447,6 +447,8 @@
+ 	/* destroy an activation stage notify dialogs and create a new one */
+ 	emit destroyActivationStage ();
+ 	notify = new ActivationStageNotifyNetwork ( net ? net->getEssid() : QString::null, this, "ActivationStageNotify", false, 0, _ctx, dev );
++	notify->setAnchor(_anchor);
++	notify->show();
+ }
+ 
+ void
+@@ -463,6 +465,8 @@
+ 	/* destroy an activation stage notify dialogs and create a new one */
+ 	emit destroyActivationStage ();
+ 	notify = new ActivationStageNotifyVPN (this, "ActivationStageNotify", false, 0, _ctx, vpnConnection);
++	notify->setAnchor(_anchor);
++	notify->show();
+ }
+ 
+ void
+@@ -801,9 +805,10 @@
+ 	}
+ }
+ 
+-void Tray::mouseMoveEvent (QMouseEvent * /* e */)
++void Tray::mouseMoveEvent (QMouseEvent * e)
+ {
+ 	userInteraction ();
++	_anchor = e->globalPos();
+ }
+ 
+ void Tray::mousePressEvent( QMouseEvent *e )
+@@ -1014,6 +1019,12 @@
+ 	KNotifyClient::event( winId(), "knm-nm-network-gone", i18n("Wireless network %1 disappeared").arg( net->getEssid() ) );
+ }
+ 
++QPoint
++Tray::getAnchor() const
++{
++	return _anchor;
++}
++
+ void
+ Tray::push (KNetworkManager* ctx)
+ {
+Index: knetworkmanager/src/Makefile.am
+===================================================================
+--- knetworkmanager/src/Makefile.am	(Revision 606432)
++++ knetworkmanager/src/Makefile.am	(Revision 606738)
+@@ -35,7 +35,7 @@
+ 	knetworkmanager-state.cpp knetworkmanager-state_dbus.cpp knetworkmanager-storage.cpp \
+ 	knetworkmanager-synchronizer.cpp knetworkmanager-dialup.cpp settings.kcfgc knetworkmanager-encryption.cpp \
+ 	knetworkmanager-tray.cpp activation.ui cryptowidget.ui networkchoicewidget.ui networklabelwidget.ui \
+-	knetworkmanager-ui-networklistview.cpp \
++	knetworkmanager-ui-networklistview.cpp errormsg.ui \
+ 	knetworkmanager-vpn.cpp knetworkmanager-vpn_dbus.cpp
+ 
+ 
+Index: knetworkmanager/src/errormsg.ui
+===================================================================
+--- knetworkmanager/src/errormsg.ui	(Revision 0)
++++ knetworkmanager/src/errormsg.ui	(Revision 606752)
+@@ -0,0 +1,106 @@
++<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
++<class>ErrorMessageWidget</class>
++<widget class="QWidget">
++    <property name="name">
++        <cstring>ErrorMessageWidget</cstring>
++    </property>
++    <property name="geometry">
++        <rect>
++            <x>0</x>
++            <y>0</y>
++            <width>215</width>
++            <height>104</height>
++        </rect>
++    </property>
++    <grid>
++        <property name="name">
++            <cstring>unnamed</cstring>
++        </property>
++        <widget class="KPushButton" row="2" column="2">
++            <property name="name">
++                <cstring>pushOK</cstring>
++            </property>
++            <property name="text">
++                <string>OK</string>
++            </property>
++        </widget>
++        <widget class="QLabel" row="1" column="1" rowspan="1" colspan="2">
++            <property name="name">
++                <cstring>labelMessage</cstring>
++            </property>
++            <property name="sizePolicy">
++                <sizepolicy>
++                    <hsizetype>7</hsizetype>
++                    <vsizetype>7</vsizetype>
++                    <horstretch>0</horstretch>
++                    <verstretch>0</verstretch>
++                </sizepolicy>
++            </property>
++            <property name="text">
++                <string>Error Message</string>
++            </property>
++            <property name="alignment">
++                <set>AlignVCenter</set>
++            </property>
++        </widget>
++        <widget class="QLabel" row="0" column="1" rowspan="1" colspan="2">
++            <property name="name">
++                <cstring>labelTitle</cstring>
++            </property>
++            <property name="font">
++                <font>
++                    <bold>1</bold>
++                </font>
++            </property>
++            <property name="text">
++                <string>Error Title</string>
++            </property>
++        </widget>
++        <spacer row="2" column="1">
++            <property name="name">
++                <cstring>spacer1</cstring>
++            </property>
++            <property name="orientation">
++                <enum>Horizontal</enum>
++            </property>
++            <property name="sizeType">
++                <enum>Expanding</enum>
++            </property>
++            <property name="sizeHint">
++                <size>
++                    <width>80</width>
++                    <height>20</height>
++                </size>
++            </property>
++        </spacer>
++        <widget class="QLabel" row="0" column="0" rowspan="3" colspan="1">
++            <property name="name">
++                <cstring>labelPixmap</cstring>
++            </property>
++            <property name="text">
++                <string></string>
++            </property>
++            <property name="scaledContents">
++                <bool>false</bool>
++            </property>
++        </widget>
++    </grid>
++</widget>
++<customwidgets>
++</customwidgets>
++<connections>
++    <connection>
++        <sender>pushOK</sender>
++        <signal>clicked()</signal>
++        <receiver>ErrorMessageWidget</receiver>
++        <slot>close()</slot>
++    </connection>
++</connections>
++<tabstops>
++    <tabstop>pushOK</tabstop>
++</tabstops>
++<layoutdefaults spacing="6" margin="11"/>
++<includehints>
++    <includehint>kpushbutton.h</includehint>
++</includehints>
++</UI>

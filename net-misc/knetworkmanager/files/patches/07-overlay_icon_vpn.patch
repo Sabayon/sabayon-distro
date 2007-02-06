@@ -1,0 +1,154 @@
+Index: knetworkmanager/src/knetworkmanager-vpn.cpp
+===================================================================
+--- knetworkmanager/src/knetworkmanager-vpn.cpp	(Revision 606738)
++++ knetworkmanager/src/knetworkmanager-vpn.cpp	(Revision 606747)
+@@ -216,7 +216,20 @@
+  *  class VPN
+  *
+  */
++void
++VPN::vpnActivationStateChanged()
++{
++	// look if at least one VPN Connection is active
++	for (VPNList::ConstIterator it = _vpnList->begin(); it != _vpnList->end(); ++it) {
++		if ((*it)->getActivationStage() == NM_VPN_ACT_STAGE_ACTIVATED) {
++			emit vpnConnectionStateChanged(true);
++			return;
++		}
++	}
+ 
++	emit vpnConnectionStateChanged(false);
++}
++
+ void
+ VPN::activateVPNConnection (VPNConnection* vpnConnection)
+ {
+@@ -349,8 +362,10 @@
+ 		}
+ 	}
+ 
+-	if (vpnConnection->isValid ())
++	if (vpnConnection->isValid ()) {
+ 		_vpnList->append (vpnConnection);
++		connect(vpnConnection, SIGNAL(activationStateChanged()), this, SLOT(vpnActivationStateChanged()));
++	}
+ }
+ 
+ void
+Index: knetworkmanager/src/knetworkmanager-tray.h
+===================================================================
+--- knetworkmanager/src/knetworkmanager-tray.h	(Revision 606738)
++++ knetworkmanager/src/knetworkmanager-tray.h	(Revision 606747)
+@@ -6,6 +6,7 @@
+  *
+  * Author: Timo Hoenig     <thoenig@suse.de>, <thoenig@nouse.net>
+  *         Will Stephenson <wstephenson@suse.de>, <wstephenson@kde.org>
++ *         Helmut Schaa    <hschaa@suse.de>, <helmut.schaa@gmx.de>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -180,6 +181,7 @@
+ 
+ 	  void slotNetworkFound( Network * );
+ 	  void slotNetworkDisappeared( Network * );
++	  void vpnConnectionStateChanged(bool);
+ 
+ 	private:
+ 	  void enterEvent (QEvent*);
+@@ -211,7 +213,7 @@
+ 	  QPixmap m_wireless75;
+ 	  QPixmap m_wireless100;
+ 	  QPixmap m_background;
+-
++	  QPixmap m_overlay;
+ 	  QPoint _anchor;
+ };
+ 
+Index: knetworkmanager/src/knetworkmanager.cpp
+===================================================================
+--- knetworkmanager/src/knetworkmanager.cpp	(Revision 606738)
++++ knetworkmanager/src/knetworkmanager.cpp	(Revision 606747)
+@@ -124,6 +124,9 @@
+ 	connect (_tray, SIGNAL  (configureVPNConnections  (void)),
+ 		 _vpn,  SLOT    (configureVPNConnections  (void)));
+ 
++	connect (_vpn, SIGNAL   (vpnConnectionStateChanged (bool)),
++		 _tray, SLOT    (vpnConnectionStateChanged (bool)));
++
+ 	connect (_tray, SIGNAL  (disconnectVPNConnection (void)),
+ 		 _vpn,  SLOT    (disconnectVPNConnection (void)));
+ 
+Index: knetworkmanager/src/knetworkmanager-vpn.h
+===================================================================
+--- knetworkmanager/src/knetworkmanager-vpn.h	(Revision 606738)
++++ knetworkmanager/src/knetworkmanager-vpn.h	(Revision 606747)
+@@ -104,12 +104,13 @@
+ 	Q_OBJECT
+ 
+ 	public slots:
+-	  void receiveKeyringData      (KProcess*, char*, int);
+-	  void activateVPNConnection   (VPNConnection*);
+-	  void disconnectVPNConnection (void);
+-	  void configureVPNConnections (void);
+-	  void configureVPNExited      (KProcess*);
+-	
++	  void receiveKeyringData        (KProcess*, char*, int);
++	  void activateVPNConnection     (VPNConnection*);
++	  void disconnectVPNConnection   (void);
++	  void configureVPNConnections   (void);
++	  void configureVPNExited        (KProcess*);
++	  void vpnActivationStateChanged ();
++
+ 	public:
+ 	  VPN( QObject * parent = 0, const char * name = 0);
+ 	  ~VPN ();
+@@ -121,6 +122,9 @@
+ 
+ 	  void push (KNetworkManager*);
+ 
++	signals:
++	  void vpnConnectionStateChanged(bool);
++
+ 	private:
+ 	  void initKeyring      (void);
+ 	  bool checkForServices (void);
+Index: knetworkmanager/src/knetworkmanager-tray.cpp
+===================================================================
+--- knetworkmanager/src/knetworkmanager-tray.cpp	(Revision 606738)
++++ knetworkmanager/src/knetworkmanager-tray.cpp	(Revision 606747)
+@@ -7,6 +7,7 @@
+  * Author: Timo Hoenig        <thoenig@suse.de>, <thoenig@nouse.net>
+  *         Will Stephenson    <wstephenson@suse.de>, <wstephenson@kde.org>
+  *         Valentine Sinitsyn <e_val@inbox.ru>
++ *         Helmut Schaa       <hschaa@suse.de>, <helmut.schaa@gmx.de>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -238,6 +239,9 @@
+ 		}
+ 
+ 		KSystemTray::drawContents(p);
++		// draw overlay image
++		if (!m_overlay.isNull())
++			p->drawPixmap(2,r.height()/2-2,m_overlay);
+ 	}
+ }
+ 
+@@ -819,6 +823,17 @@
+ 	}
+ }
+ 
++void Tray::vpnConnectionStateChanged(bool connected)
++{
++	if (connected) {
++		QRect r = contentsRect();
++		m_overlay = SmallIcon("encrypted", r.width()*1/2);
++	}
++	else
++		m_overlay = QPixmap();
++	repaint();
++}
++
+ void Tray::slotStateChanged()
+ {
+ 	QPixmap pm = updateForState( _ctx->getState( )->getConnectionState( ) );

@@ -1,0 +1,12 @@
+Index: knetworkmanager/src/main.cpp
+===================================================================
+--- knetworkmanager/src/main.cpp	(Revision 619477)
++++ knetworkmanager/src/main.cpp	(Revision 621628)
+@@ -53,6 +53,7 @@
+ 
+ 	if (KNetworkManager::start ()) {
+ 		KNetworkManager app;
++		app.disableSessionManagement ();
+ 		return app.exec ();
+ 	}
+ 	return 0;

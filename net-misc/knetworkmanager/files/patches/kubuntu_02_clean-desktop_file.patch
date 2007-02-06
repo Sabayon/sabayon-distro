@@ -1,0 +1,28 @@
+diff -Nur knetworkmanager-0.1/knetworkmanager/src/knetworkmanager.desktop knetworkmanager-0.1.new/knetworkmanager/src/knetworkmanager.desktop
+--- knetworkmanager-0.1/knetworkmanager/src/knetworkmanager.desktop	2006-09-28 12:51:25.000000000 +0200
++++ knetworkmanager-0.1.new/knetworkmanager/src/knetworkmanager.desktop	2006-09-28 12:57:16.000000000 +0200
+@@ -1,13 +1,14 @@
+ [Desktop Entry]
+ Encoding=UTF-8
+-Name=knetworkmanager
++Name=KNetworkManager
+ Name[da]=Netværkshåndtering
+ Name[sv]=Nätverkshantering
+-GenericName=Networking Tool
++GenericName=Network Manager
+ GenericName[br]=Ostilh rouedad
+ GenericName[cs]=Síťový nástroj
+ GenericName[da]=Netværksværktøj
+ GenericName[es]=Herramienta de trabajo en red
++GenericName[fr]=Gestionnaire Réseau
+ GenericName[ga]=Uirlis Líonraithe
+ GenericName[gl]=Conexóns a Redes
+ GenericName[it]=Strumento di rete
+@@ -25,6 +26,7 @@
+ Comment[cs]=KDE rozhraní pro NetworkManager
+ Comment[da]=En KDE-grænseflade for Networkmanager
+ Comment[es]=Una interfaz de KDE para NetworkManager
++Comment[fr]=Interface KDE pour NetworkManager
+ Comment[gl]=Unha interface para NetworkManager de KDE
+ Comment[it]=Un front-end di NetworkManager per KDE
+ Comment[ja]=NetworkManager の KDE フロントエンド

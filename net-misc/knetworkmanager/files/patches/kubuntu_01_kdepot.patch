@@ -1,0 +1,20 @@
+diff -Nur knetworkmanager/admin/cvs.sh knetworkmanager.new/admin/cvs.sh
+--- knetworkmanager/admin/cvs.sh	2006-03-11 22:46:22.000000000 +0100
++++ knetworkmanager.new/admin/cvs.sh	2006-03-19 03:00:31.000000000 +0100
+@@ -537,6 +537,8 @@
+ if test -z "$PREPARETIPS"; then PREPARETIPS=preparetips ; fi
+ export EXTRACTRC PREPARETIPS
+ 
++kdepotpath=/usr/include/kde/kde.pot
++
+ for subdir in $dirs; do
+   test -z "$VERBOSE" || echo "Making messages in $subdir"
+   (cd $subdir
+@@ -554,7 +556,6 @@
+    fi
+    perl -e '$mes=0; while (<STDIN>) { next if (/^(if\s|else\s|endif)/); if (/^messages:/) { $mes=1; print $_; next; } if ($mes) { if (/$\\(XGETTEXT\)/ && / -o/) { s/ -o \$\(podir\)/ _translatorinfo.cpp -o \$\(podir\)/ } print $_; } else { print $_; } }' < Makefile.am | egrep -v '^include ' > _transMakefile
+ 
+-   kdepotpath=${includedir:-`kde-config --expandvars --install include`}/kde.pot
+    if ! test -f $kdepotpath; then
+ 	kdepotpath=`kde-config --expandvars --prefix`/include/kde.pot
+    fi

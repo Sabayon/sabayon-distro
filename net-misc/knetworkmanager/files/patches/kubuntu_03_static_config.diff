@@ -1,0 +1,56 @@
+--- orig/knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.cpp	2006-09-27 09:02:59.000000000 +0100
++++ knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.cpp	2007-01-18 14:49:59.000000000 +0000
+@@ -250,6 +250,15 @@
+ }
+ 
+ void
++Tray::staticConfiguration ()
++{
++  kdDebug() << "Tray::staticConfiguration()" << endl;
++  KProcess *proc = new KProcess;
++  *proc << "kdesu" << "kcmshell kcm_knetworkconfmodule";
++  proc->start();
++}
++
++void
+ Tray::configureVPN ()
+ {
+ 	emit configureVPNConnections ();
+@@ -694,6 +703,8 @@
+ 			KAction* hiddenAction = actionCollection ()->action ("connect_hidden");
+ 			menu->insertSeparator ();
+ 			hiddenAction->plug (menu);
++			KAction* staticAction = actionCollection ()->action ("static_configuration");
++		        staticAction->plug (menu);
+ 			menu->insertSeparator ();
+ 			separated = true;
+ 		}
+@@ -1045,6 +1056,10 @@
+ 					     SmallIcon ("wireless",  QIconSet::Automatic), 0,
+ 					     this, SLOT (connectHiddenNetwork ()), actionCollection (), "connect_hidden");
+ 	
++	staticConfigurationAction   = new KAction (i18n ("Static Connection..."),
++					     SmallIcon ("knetworkconf",  QIconSet::Automatic), 0,
++					     this, SLOT (staticConfiguration ()), actionCollection (), "static_configuration");
++	
+ 	configureVPNAction = new KAction (i18n ("Configure VPN..."),
+ 					  SmallIcon ("configure",  QIconSet::Automatic), 0,
+ 					  this, SLOT (configureVPN ()), actionCollection (), "configure_vpn");
+--- orig/knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.h	2006-09-27 09:02:59.000000000 +0100
++++ knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.h	2007-01-18 14:55:34.000000000 +0000
+@@ -110,6 +110,7 @@
+ 	  ~Tray ();
+ 
+ 	  KAction* connectHiddenAction;
++	  KAction* staticConfigurationAction;
+ 	  KAction* configureVPNAction;
+ 	  KAction* disconnectVPNAction;
+ 	  KAction* configureDialUpAction;
+@@ -148,6 +149,7 @@
+ 	public slots:
+ 	  void updateTooltip          (void);
+ 	  void connectHiddenNetwork   (void);
++	  void staticConfiguration    (void);
+ 	  void configureVPN           (void);
+ 	  void disconnectVPN          (void);
+ 	  void configureDialUp        (void);

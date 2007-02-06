@@ -1,0 +1,10 @@
+diff -Nur knetworkmanager-0.1/knetworkmanager/src/knetworkmanager.desktop knetworkmanager-0.1.new/knetworkmanager/src/knetworkmanager.desktop
+--- knetworkmanager-0.1/knetworkmanager/src/knetworkmanager.desktop	2007-02-01 10:52:26.000000000 +0100
++++ knetworkmanager-0.1.new/knetworkmanager/src/knetworkmanager.desktop	2007-02-01 10:53:28.000000000 +0100
+@@ -39,5 +39,6 @@
+ X-KDE-autostart-after=panel
+ X-KDE-StartupNotify=false
+ X-KDE-UniqueApplet=true
++X-DCOP-ServiceType=Unique
+ X-KDE-autostart-condition=knetworkmanagerrc:General:Autostart:true
+ Categories=Qt;KDE;Network;Applet;
