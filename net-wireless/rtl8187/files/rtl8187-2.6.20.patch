@@ -19,7 +19,7 @@ diff -Nurp rtl8187_linuxdrv_V1.1.orig/ieee80211/ieee80211_softmac.c rtl8187_linu
 +	INIT_WORK(&ieee->start_ibss_wq,ieee);
 +	INIT_WORK(&ieee->associate_retry_wq,ieee);
 +	INIT_WORK(&ieee->associate_complete_wq,ieee);
-+	INIT_WORK(&ieee->associate_procedure_wq,procedure_wq,ieee);
++	INIT_WORK(&ieee->associate_procedure_wq,ieee);
 +	INIT_WORK(&ieee->softmac_scan_wq,ieee);
 +	INIT_WORK(&ieee->wx_sync_scan_wq,ieee);
 +#endif	
