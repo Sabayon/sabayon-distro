@@ -1,6 +1,6 @@
 diff -Nurp genkernel-3.4.6.orig/gen_compile.sh genkernel-3.4.6/gen_compile.sh
 --- genkernel-3.4.6.orig/gen_compile.sh	2006-12-27 20:07:30.000000000 +0100
-+++ genkernel-3.4.6/gen_compile.sh	2007-02-08 03:17:24.000000000 +0100
++++ genkernel-3.4.6/gen_compile.sh	2007-02-08 03:41:25.000000000 +0100
 @@ -320,65 +320,6 @@ compile_kernel() {
  	fi
  }
@@ -67,12 +67,11 @@ diff -Nurp genkernel-3.4.6.orig/gen_compile.sh genkernel-3.4.6/gen_compile.sh
  compile_unionfs_utils() {
  	if [ ! -f "${UNIONFS_BINCACHE}" ]
  	then
-@@ -386,30 +327,27 @@ compile_unionfs_utils() {
- 			gen_die "Could not find unionfs source tarball: ${UNIONFS_SRCTAR}!"
- 		cd "${TEMP}"
+@@ -388,15 +329,16 @@ compile_unionfs_utils() {
  		rm -rf ${UNIONFS_DIR} > /dev/null
--		rm -rf unionfs > /dev/null
--		mkdir -p unionfs/sbin
+ 		rm -rf unionfs > /dev/null
+ 		mkdir -p unionfs/sbin
++		rm -rf ${UNIONFS_DIR} > /dev/null
  		/bin/tar -zxpf ${UNIONFS_SRCTAR} ||
  			gen_die 'Could not extract unionfs source tarball!'
  		[ -d "${UNIONFS_DIR}" ] ||
@@ -88,23 +87,17 @@ diff -Nurp genkernel-3.4.6.orig/gen_compile.sh genkernel-3.4.6/gen_compile.sh
  		print_info 1 'unionfs: >> Copying to cache...'
  		strip uniondbg unionctl
  		cp uniondbg ${TEMP}/unionfs/sbin/ || 
- 			gen_die 'Could not copy the uniondbg binary to the tmp directory'
- 		cp unionctl ${TEMP}/unionfs/sbin/ ||
- 			gen_die 'Could not copy the unionctl binary to the tmp directory'
--		cd ${TEMP}/unionfs	
-+		cd ${TEMP}/${UNIONFS_DIR}	
- 		/bin/tar -cjf "${UNIONFS_BINCACHE}" . ||
+@@ -408,7 +350,6 @@ compile_unionfs_utils() {
  			gen_die 'Could not create unionfs tools binary cache'
  		
  		cd "${TEMP}"
- 		rm -rf "${UNIONFS_DIR}" > /dev/null
--		rm -rf unionfs > /dev/null
+-		rm -rf "${UNIONFS_DIR}" > /dev/null
+ 		rm -rf unionfs > /dev/null
  	fi
  }
- 
 diff -Nurp genkernel-3.4.6.orig/generic/linuxrc genkernel-3.4.6/generic/linuxrc
---- genkernel-3.4.6.orig/generic/linuxrc	2007-02-08 02:58:20.000000000 +0100
-+++ genkernel-3.4.6/generic/linuxrc	2007-02-08 03:07:28.000000000 +0100
+--- genkernel-3.4.6.orig/generic/linuxrc	2007-02-08 03:38:55.000000000 +0100
++++ genkernel-3.4.6/generic/linuxrc	2007-02-08 03:39:35.000000000 +0100
 @@ -561,6 +561,10 @@ then
  	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
  	then
@@ -118,7 +111,7 @@ diff -Nurp genkernel-3.4.6.orig/generic/linuxrc genkernel-3.4.6/generic/linuxrc
  		sed -e 's|\(.*\s/\s*tmpfs\s*\)defaults\(.*\)|\1defaults,ro\2|' /${UNION}/etc/fstab > /${UNION}/etc/fstab.new
 diff -Nurp genkernel-3.4.6.orig/gen_initramfs.sh genkernel-3.4.6/gen_initramfs.sh
 --- genkernel-3.4.6.orig/gen_initramfs.sh	2006-12-27 20:07:30.000000000 +0100
-+++ genkernel-3.4.6/gen_initramfs.sh	2007-02-08 03:18:52.000000000 +0100
++++ genkernel-3.4.6/gen_initramfs.sh	2007-02-08 03:39:35.000000000 +0100
 @@ -137,21 +137,6 @@ append_devfs(){
  	rm -rf "${TEMP}/initramfs-devfs-temp" > /dev/null
  }
@@ -143,7 +136,7 @@ diff -Nurp genkernel-3.4.6.orig/gen_initramfs.sh genkernel-3.4.6/gen_initramfs.s
  	then
 diff -Nurp genkernel-3.4.6.orig/gen_initrd.sh genkernel-3.4.6/gen_initrd.sh
 --- genkernel-3.4.6.orig/gen_initrd.sh	2006-12-27 20:07:29.000000000 +0100
-+++ genkernel-3.4.6/gen_initrd.sh	2007-02-08 03:19:33.000000000 +0100
++++ genkernel-3.4.6/gen_initrd.sh	2007-02-08 03:39:35.000000000 +0100
 @@ -126,15 +126,6 @@ create_base_initrd_sys() {
  #		fi
  #	fi
@@ -162,7 +155,7 @@ diff -Nurp genkernel-3.4.6.orig/gen_initrd.sh genkernel-3.4.6/gen_initrd.sh
  	then
 diff -Nurp genkernel-3.4.6.orig/genkernel.conf genkernel-3.4.6/genkernel.conf
 --- genkernel-3.4.6.orig/genkernel.conf	2006-12-27 20:07:28.000000000 +0100
-+++ genkernel-3.4.6/genkernel.conf	2007-02-08 03:05:13.000000000 +0100
++++ genkernel-3.4.6/genkernel.conf	2007-02-08 03:39:35.000000000 +0100
 @@ -122,18 +122,10 @@ DMRAID_DIR="dmraid/${DMRAID_VER}"
  DMRAID_SRCTAR="${GK_SHARE}/pkg/dmraid-${DMRAID_VER}.tar.bz2"
  DMRAID_BINCACHE="%%CACHE%%/dmraid-${DMRAID_VER}-%%ARCH%%.tar.bz2"
