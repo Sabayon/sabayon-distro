@@ -41,7 +41,7 @@ src_unpack() {
 	use selinux && sed -i 's/###//g' gen_compile.sh
 
 	# Add UnionFS support
-	#epatch ${FILESDIR}/${P}-unionfs-inkernel-support.patch
+	epatch ${FILESDIR}/${P}-unionfs-inkernel-support.patch
 
 	# Add Sabayon Linux text
 	epatch ${FILESDIR}/${P}-sabayon-linux.patch
