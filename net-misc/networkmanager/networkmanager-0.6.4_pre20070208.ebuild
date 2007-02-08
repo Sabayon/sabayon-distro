@@ -1,6 +1,6 @@
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.6.4_pre20061028.ebuild,v 1.2 2006/11/05 01:36:44 steev Exp $
+# $Header:
 
 inherit gnome2 eutils
 
@@ -48,10 +48,7 @@ src_unpack () {
         epatch ${FILESDIR}/${PN}-resolvconf-perms.patch
         epatch ${FILESDIR}/${PN}-0.6.4-gentooinitscript.patch
         epatch ${FILESDIR}/${PN}-0.6.4-confchanges.patch
-
-	# Adds support for knm to utilize static IP and "profiles"
-	# This first trial fails to compile or fix it correctly
-	# epatch ${FILESDIR}/${PN}-0.6.4-dhcp-manager.patch
+	epatch ${FILESDIR}/${PN}-0.6.4-dhcp-manager.c.patch
 	
 	# From the Mailing list, while we're waiting for a version bump
 	epatch ${FILESDIR}/${PN}-0.6.4-fix-various-memleaks.patch
