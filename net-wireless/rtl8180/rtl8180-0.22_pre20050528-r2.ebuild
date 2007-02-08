@@ -33,6 +33,9 @@ src_unpack() {
 	
 	# 2.6.19 patch
 	epatch ${FILESDIR}/${PN}-2.6.19.patch
+
+	# 2.6.20 patch
+	epatch ${FILESDIR}/${PN}-2.6.20.patch
 }
 
 src_install() {
