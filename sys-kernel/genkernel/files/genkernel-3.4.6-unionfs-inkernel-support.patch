@@ -178,3 +178,14 @@ diff -Nurp genkernel-3.4.6.orig/genkernel.conf genkernel-3.4.6/genkernel.conf
  
  E2FSPROGS_VER="VERSION_E2FSPROGS"
  E2FSPROGS_DIR="e2fsprogs-${E2FSPROGS_VER}"
+diff -Nurp genkernel-3.4.6.orig/gen_initramfs.sh genkernel-3.4.6/gen_initramfs.sh
+--- genkernel-3.4.6.orig/gen_initramfs.sh	2007-02-08 03:42:56.000000000 +0100
++++ genkernel-3.4.6/gen_initramfs.sh	2007-02-08 03:48:12.000000000 +0100
+@@ -469,7 +469,6 @@ create_initramfs() {
+ 	append_data 'busybox' "${BUSYBOX}"
+ 	append_data 'devfs' "${DEVFS}"
+ #	append_data 'udev' "${UDEV}"
+-	append_data 'unionfs_modules' "${UNIONFS}"
+ 	append_data 'unionfs_tools' "${UNIONFS}"
+ 	append_data 'suspend' "${SUSPEND}"
+ 	append_data 'lvm2' "${LVM2}"
