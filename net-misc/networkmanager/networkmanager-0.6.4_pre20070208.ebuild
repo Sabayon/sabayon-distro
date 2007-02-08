@@ -10,7 +10,7 @@ SRC_URI="http://dev.gentoo.org/~metalgod/files/NetworkManager-0.6.4_pre20061028.
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="-* "
 IUSE="crypt doc gnome"
 
 RDEPEND=">=sys-apps/dbus-0.60
