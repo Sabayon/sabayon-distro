@@ -6,8 +6,9 @@ inherit linux-mod
 
 DESCRIPTION="Driver for the ACX100 and ACX111 wireless chipset (CardBus, PCI, USB)"
 
+ACX_DATE="20070101"
 HOMEPAGE="http://acx100.sourceforge.net/"
-SRC_URI="http://www.cmartin.tk/acx/acx-20070101.tar.bz2"
+SRC_URI="http://www.cmartin.tk/acx/acx-${ACX_DATE}.tar.bz2"
 
 LICENSE="GPL-2 as-is"
 SLOT="0"
@@ -18,7 +19,7 @@ IUSE="debug"
 RDEPEND="net-wireless/wireless-tools
 	net-wireless/acx-firmware"
 
-S=${WORKDIR}
+S="${WORKDIR}/acx-${ACX_DATE}"
 
 MODULE_NAMES="acx(net:${S})"
 CONFIG_CHECK="NET_RADIO FW_LOADER"
@@ -33,21 +34,16 @@ src_unpack() {
 	unpack ${A}
 	chmod ug+w . -R
 
+	cd ${S}
+
 	# The default acx_config.h has some rather over-zealous debug output.
 	if ! use debug; then
 		sed -i '/^#define ACX_DEBUG/s/2/0/' acx_config.h || die "Failed to disable debug support"
 	fi
-
-
-	# fix 2.6.18 compilation
-	epatch ${FILESDIR}/${P}-2.6.18.patch
-
-	# fix 2.6.19 compilation
-	epatch ${FILESDIR}/${P}-2.6.19.patch
 }
 
 src_install() {
+	cd ${S}
 	linux-mod_src_install
-
 	dodoc README
 }
