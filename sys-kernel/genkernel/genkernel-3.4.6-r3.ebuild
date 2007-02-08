@@ -82,7 +82,7 @@ src_install() {
 	cp "${DISTDIR}"/dmraid-${VERSION_DMRAID}.tar.bz2 \
 	"${DISTDIR}"/LVM2.${VERSION_LVM2}.tgz \
 	"${DISTDIR}"/device-mapper.${VERSION_DMAP}.tgz \
-	"${DISTDIR}"/unionfs-${VERSION_UNIONFS}.tar.gz \
+	"${DISTDIR}"/unionfs-utils-${VERSION_UNIONFS}.tar.gz \
 	"${DISTDIR}"/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz \
 	"${DISTDIR}"/suspend-${VERSION_SUSPEND}.tar.gz \
 	${D}/usr/share/genkernel/pkg
