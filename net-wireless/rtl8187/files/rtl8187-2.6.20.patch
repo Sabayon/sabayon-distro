@@ -1,0 +1,28 @@
+diff -Nurp rtl8187_linuxdrv_V1.1.orig/ieee80211/ieee80211_softmac.c rtl8187_linuxdrv_V1.1/ieee80211/ieee80211_softmac.c
+--- rtl8187_linuxdrv_V1.1.orig/ieee80211/ieee80211_softmac.c	2005-11-21 20:28:26.000000000 +0000
++++ rtl8187_linuxdrv_V1.1/ieee80211/ieee80211_softmac.c	2007-02-08 10:31:26.000000000 +0000
+@@ -2165,14 +2165,22 @@ void ieee80211_softmac_init(struct ieee8
+ #else	
+ 	ieee->wq = create_workqueue(DRV_NAME);
+ #endif
+-	
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,20)	
+ 	INIT_WORK(&ieee->start_ibss_wq,(void(*)(void*)) ieee80211_start_ibss_wq,ieee);
+ 	INIT_WORK(&ieee->associate_retry_wq,(void(*)(void*)) ieee80211_associate_retry_wq,ieee);
+ 	INIT_WORK(&ieee->associate_complete_wq,(void(*)(void*)) ieee80211_associate_complete_wq,ieee);
+ 	INIT_WORK(&ieee->associate_procedure_wq,(void(*)(void*)) ieee80211_associate_procedure_wq,ieee);
+ 	INIT_WORK(&ieee->softmac_scan_wq,(void(*)(void*)) ieee80211_softmac_scan_wq,ieee);
+ 	INIT_WORK(&ieee->wx_sync_scan_wq,(void(*)(void*)) ieee80211_wx_sync_scan_wq,ieee);
+-	
++#else
++	INIT_WORK(&ieee->start_ibss_wq,ieee);
++	INIT_WORK(&ieee->associate_retry_wq,ieee);
++	INIT_WORK(&ieee->associate_complete_wq,ieee);
++	INIT_WORK(&ieee->associate_procedure_wq,procedure_wq,ieee);
++	INIT_WORK(&ieee->softmac_scan_wq,ieee);
++	INIT_WORK(&ieee->wx_sync_scan_wq,ieee);
++#endif	
+ 	sema_init(&ieee->wx_sem, 1);
+ 	sema_init(&ieee->scan_sem, 1);
+ 	
