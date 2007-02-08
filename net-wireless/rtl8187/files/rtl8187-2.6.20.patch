@@ -158,3 +158,18 @@ diff -Nurp rtl8187_linuxdrv_V1.1.orig/ieee80211/Makefile rtl8187_linuxdrv_V1.1/i
  
  ieee80211_crypt-rtl-objs := ieee80211_crypt.o
  ieee80211_crypt_tkip-rtl-objs := ieee80211_crypt_tkip.o
+diff -Nurp rtl8187_linuxdrv_V1.1.orig/beta-8187/r8187_core.c rtl8187_linuxdrv_V1.1/beta-8187/r8187_core.c
+--- rtl8187_linuxdrv_V1.1.orig/beta-8187/r8187_core.c	2007-02-08 23:23:09.000000000 +0000
++++ rtl8187_linuxdrv_V1.1/beta-8187/r8187_core.c	2007-02-08 23:26:05.000000000 +0000
+@@ -1659,7 +1659,11 @@ short rtl8180_init(struct net_device *de
+ 	priv->ieee80211->mode = IEEE_G;
+ 	priv->promisc = (dev->flags & IFF_PROMISC) ? 1:0;
+ 	spin_lock_init(&priv->tx_lock);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,20)
+ 	INIT_WORK(&priv->reset_wq,(void(*)(void*)) rtl8180_restart,dev);
++#else
++	INIT_WORK(&priv->reset_wq,dev);
++#endif
+ 	sema_init(&priv->wx_sem,1);
+ 	
+ 	//priv->ieee80211->func = 
