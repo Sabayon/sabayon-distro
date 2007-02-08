@@ -23,7 +23,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2 ${DISTDIR}/ipw3945-1.2.0-${PV/_*}.patch
 		${DISTDIR}/fbsplash-0.9.2-r5-2.6.19-rc2.patch ${DISTDIR}/squashfs-3.2-2.6.20.patch
 		${FILESDIR}/2.6.20-mactel.patch ${FILESDIR}/${P}-wireless-dev.patch
-		${FILESDIR}/${P}-cx88-tvaudio-fixes.patch
+		${FILESDIR}/${P}-cx88-tvaudio-fixes.patch ${FILESDIR}/${P}-unionfs-2.0.diff
 		"
 UNIPATCH_STRICTORDER="yes"
 
