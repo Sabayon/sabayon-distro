@@ -1,0 +1,124 @@
+Index: driver/ivtv-i2c.c
+===================================================================
+--- driver/ivtv-i2c.c	(Revision 3796)
++++ driver/ivtv-i2c.c	(Revision 3797)
+@@ -733,6 +733,9 @@
+ 	memcpy(&itv->i2c_client, &ivtv_i2c_client_template,
+ 	       sizeof(struct i2c_client));
+ 	itv->i2c_client.adapter = &itv->i2c_adap;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
++        itv->i2c_adap.dev.parent = &itv->dev->dev;
++#endif
+   
+ 	IVTV_DEBUG_I2C("setting scl and sda to 1\n");
+ 	ivtv_setscl(itv, 1);
+@@ -748,9 +751,13 @@
+ {
+ 	IVTV_DEBUG_I2C("i2c exit\n");
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
++        i2c_del_adapter(&itv->i2c_adap);
++#else
+         if (itv->options.newi2c > 0) {
+                 i2c_del_adapter(&itv->i2c_adap);
+         } else {
+                 i2c_bit_del_bus(&itv->i2c_adap);
+         }
++#endif
+ }
+Index: driver/ivtv-vbi.c
+===================================================================
+--- driver/ivtv-vbi.c	(Revision 3796)
++++ driver/ivtv-vbi.c	(Revision 3797)
+@@ -454,9 +454,16 @@
+ 	itv->vbi.cc_pos = 0;
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
++void vbi_work_handler(struct work_struct *work)
++{
++	struct vbi_info *info = container_of(work, struct vbi_info, work_queue);
++	struct ivtv *itv = container_of(info, struct ivtv, vbi);
++#else
+ void vbi_work_handler(void *arg)
+ {
+ 	struct ivtv *itv = arg;
++#endif
+ 	struct v4l2_sliced_vbi_data data;
+ 	DEFINE_WAIT(wait);
+ 
+Index: driver/ivtv-yuv.c
+===================================================================
+--- driver/ivtv-yuv.c	(Revision 3796)
++++ driver/ivtv-yuv.c	(Revision 3797)
+@@ -804,9 +804,16 @@
+ }
+ 
+ /* Update the scaling register to the requested value */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
++void ivtv_yuv_work_handler (struct work_struct *work)
++{
++	struct yuv_playback_info *info = container_of(work, struct yuv_playback_info, work_queue);
++	struct ivtv *itv = container_of(info, struct ivtv, yuv_info);
++#else
+ void ivtv_yuv_work_handler (void *arg)
+ {
+ 	struct ivtv *itv = arg;
++#endif
+ 	DEFINE_WAIT(wait);
+ 
+ 	struct yuv_frame_info window;
+Index: driver/ivtv-vbi.h
+===================================================================
+--- driver/ivtv-vbi.h	(Revision 3796)
++++ driver/ivtv-vbi.h	(Revision 3797)
+@@ -23,5 +23,9 @@
+ int ivtv_used_line(struct ivtv *itv, int line, int field);
+ void ivtv_disable_vbi(struct ivtv *itv);
+ void ivtv_set_vbi(unsigned long arg);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
++void vbi_work_handler(struct work_struct *work);
++#else
+ void vbi_work_handler(void *arg);
++#endif
+ void vbi_schedule_work(struct ivtv *itv);
+Index: driver/ivtv-yuv.h
+===================================================================
+--- driver/ivtv-yuv.h	(Revision 3796)
++++ driver/ivtv-yuv.h	(Revision 3797)
+@@ -19,4 +19,8 @@
+ int ivtv_yuv_filter_check(struct ivtv *itv);
+ int ivtv_yuv_prep_frame(struct ivtv *itv, struct ivtvyuv_ioctl_dma_host_to_ivtv_args *args);
+ void ivtv_yuv_close(struct ivtv *itv);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
++void ivtv_yuv_work_handler (struct work_struct *work);
++#else
+ void ivtv_yuv_work_handler (void *arg);
++#endif
+Index: driver/ivtv-driver.c
+===================================================================
+--- driver/ivtv-driver.c	(Revision 3796)
++++ driver/ivtv-driver.c	(Revision 3797)
+@@ -634,8 +634,13 @@
+ 		return -1;
+ 	}
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
++	INIT_WORK(&itv->vbi.work_queue, vbi_work_handler);
++	INIT_WORK(&itv->yuv_info.work_queue, ivtv_yuv_work_handler);
++#else
+ 	INIT_WORK(&itv->vbi.work_queue, vbi_work_handler, itv);
+ 	INIT_WORK(&itv->yuv_info.work_queue, ivtv_yuv_work_handler, itv);
++#endif
+ 
+ 	/* start counting open_id at 1 */
+ 	itv->open_id = 1;
+@@ -1270,8 +1275,6 @@
+ 
+ 	/* Stop all Work Queues */
+ 	IVTV_DEBUG_INFO(" Stop Work Queues.\n");
+-	cancel_delayed_work(&itv->vbi.work_queue);
+-	cancel_delayed_work(&itv->yuv_info.work_queue);
+ 	flush_workqueue(itv->vbi.work_queues);
+ 	flush_workqueue(itv->yuv_info.work_queues);
+ 	destroy_workqueue(itv->vbi.work_queues);
