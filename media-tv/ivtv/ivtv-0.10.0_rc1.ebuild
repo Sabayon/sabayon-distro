@@ -16,6 +16,8 @@ RDEPEND="|| ( >=sys-fs/udev-103 sys-apps/hotplug )"
 DEPEND="app-arch/unzip"
 PDEPEND="media-tv/pvr-firmware"
 
+S="${WORKDIR}/${P/_/}"
+
 pkg_setup() {
 
 	MODULE_NAMES="ivtv(extra:${S}/driver)
@@ -56,14 +58,10 @@ pkg_setup() {
 	BUILD_PARAMS="KDIR=${KV_DIR}"
 }
 
-src_unpack() {
-	linux-mod_src_unpack
+src_compile() {
 
 	cd ${S}
-	epatch ${FILESDIR}/${PN}-2.6.20.patch	
-}
-
-src_compile() {
+	epatch ${FILESDIR}/${PN}-2.6.20.patch
 
 	cd "${S}/driver"
 	linux-mod_src_compile || die "failed to build driver"
