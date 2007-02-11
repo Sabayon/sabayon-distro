@@ -82,7 +82,7 @@ diff -Nurp genkernel-3.4.6.orig/gen_compile.sh genkernel-3.4.6/gen_compile.sh
 -		compile_generic utils utils
 -		
 +		./bootstrap &> /dev/null
-+		./configure >> ${DEBUGFILE} 2>&1 || gen_die 'Configuring unionfs-utils failed!'
++		LDFLAGS="-all-static" ./configure >> ${DEBUGFILE} 2>&1 || gen_die 'Configuring unionfs-utils failed!'
 +		compile_generic '' utils
  		print_info 1 'unionfs: >> Copying to cache...'
  		strip uniondbg unionctl

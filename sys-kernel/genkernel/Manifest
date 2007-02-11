@@ -26,10 +26,10 @@ AUX genkernel-3.4.6-smarter-doslowusb.patch 1517 RMD160 a6f137101d119984cc769fc8
 MD5 d909bc53d6429a32df007ceedeb5bfd2 files/genkernel-3.4.6-smarter-doslowusb.patch 1517
 RMD160 a6f137101d119984cc769fc84260d4b8ba4bb5fa files/genkernel-3.4.6-smarter-doslowusb.patch 1517
 SHA256 84fc60115637d6e84d67f92282cb48772ccd98fe0fd038d68899fc62a0100130 files/genkernel-3.4.6-smarter-doslowusb.patch 1517
-AUX genkernel-3.4.6-unionfs-inkernel-support.patch 7344 RMD160 e539cf9463f9695e914ed06ac2d703aec00b16fc SHA1 8b269d233031fa0ad7b7a78c1519569848dccf57 SHA256 3b67913f9563bada44fa4d163b9ffe820f304a30b1836bd259c87639ff89fbde
-MD5 f47f05db89d338b28acf1cd933a2a452 files/genkernel-3.4.6-unionfs-inkernel-support.patch 7344
-RMD160 e539cf9463f9695e914ed06ac2d703aec00b16fc files/genkernel-3.4.6-unionfs-inkernel-support.patch 7344
-SHA256 3b67913f9563bada44fa4d163b9ffe820f304a30b1836bd259c87639ff89fbde files/genkernel-3.4.6-unionfs-inkernel-support.patch 7344
+AUX genkernel-3.4.6-unionfs-inkernel-support.patch 7366 RMD160 8c6f1aa3446ed5f19ec21b01a1f74241507e1651 SHA1 e02aea0bff2bcfeea1eb9dd269e02a82ef8428c6 SHA256 f36945e00b93d8ef64e293ab61f4301d5284ed3fb579bbda1b78ce07653299b4
+MD5 38beda6040cb855006e445c8666505dc files/genkernel-3.4.6-unionfs-inkernel-support.patch 7366
+RMD160 8c6f1aa3446ed5f19ec21b01a1f74241507e1651 files/genkernel-3.4.6-unionfs-inkernel-support.patch 7366
+SHA256 f36945e00b93d8ef64e293ab61f4301d5284ed3fb579bbda1b78ce07653299b4 files/genkernel-3.4.6-unionfs-inkernel-support.patch 7366
 AUX genkernel-3.4.6-unionfs.patch 3217 RMD160 bb023df81dc885633118713b23a3e2b8b611135a SHA1 7e385db81ca18327e41cf2ea83605957653ab2e3 SHA256 2eb5fb59595b835660c31f0732280467e129eecbd0a88c8b144cdec5de00561d
 MD5 aae20efd1bbee8956ead2cf62766c2fb files/genkernel-3.4.6-unionfs.patch 3217
 RMD160 bb023df81dc885633118713b23a3e2b8b611135a files/genkernel-3.4.6-unionfs.patch 3217
