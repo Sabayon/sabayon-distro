@@ -46,9 +46,6 @@ src_unpack() {
 	sed -i -e 's:MODVERDIR=$(PWD) ::' {beta-8187,ieee80211}/Makefile
 	epatch ${FILESDIR}/module-param-and-isoc.patch
 
-	# 2.6.19 support
-	epatch ${FILESDIR}/${PN}-2.6.19.patch
-
 	# 2.6.20 support
 	epatch ${FILESDIR}/${PN}-2.6.20.patch
 
