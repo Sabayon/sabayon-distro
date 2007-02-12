@@ -14,7 +14,7 @@ SRC_URI="http://dev.gentoo.org/~genstef/files/${P}.zip"
 
 RESTRICT="mirror"
 LICENSE="GPL-2"
-KEYWORDS="x86"
+KEYWORDS="x86 ~amd64"
 IUSE=""
 DEPEND="app-arch/unzip"
 S=${WORKDIR}/${PN}_linuxdrv_V${PV/0}
