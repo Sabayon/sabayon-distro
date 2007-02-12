@@ -24,7 +24,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/fbsplash-0.9.2-r5-2.6.19-rc2.patch ${DISTDIR}/squashfs-3.2-2.6.20.patch
 		${FILESDIR}/2.6.20-mactel.patch ${FILESDIR}/${P}-wireless-dev.patch
 		${FILESDIR}/${P}-cx88-tvaudio-fixes.patch ${FILESDIR}/${P}-unionfs-1.5.diff
-		${FILESDIR}/${P}-rtl818x.patch
+		${FILESDIR}/${P}-rtl818x.patch ${FILESDIR}/${P}-dvb-af9005.patch
 		"
 UNIPATCH_STRICTORDER="yes"
 
