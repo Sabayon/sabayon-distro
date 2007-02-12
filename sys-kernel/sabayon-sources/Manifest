@@ -6,6 +6,10 @@ AUX sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583 RMD160 881564ce848f7a925
 MD5 9550fd40d82c321c0d39a2cad4a49b9c files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
 RMD160 881564ce848f7a9252b30b3794e0e54ed898a461 files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
 SHA256 ea43a827ada57d0c45c1799376aec5359bfdceb27d7f2f60f40530d3a9748382 files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
+AUX sabayon-sources-2.6.20-unionfs-1.5.diff 1270767 RMD160 199508d306d61ae2a30f5f0427c60f3610953dcb SHA1 786d68071f8c523901e23bb80fd0d4a21b5a9b54 SHA256 97bd77278c704132a6bb9a917fe9195aee557c643faaa7c35091678ffbc75cd4
+MD5 19bb5f9d3b8efc79baa209aa345c6462 files/sabayon-sources-2.6.20-unionfs-1.5.diff 1270767
+RMD160 199508d306d61ae2a30f5f0427c60f3610953dcb files/sabayon-sources-2.6.20-unionfs-1.5.diff 1270767
+SHA256 97bd77278c704132a6bb9a917fe9195aee557c643faaa7c35091678ffbc75cd4 files/sabayon-sources-2.6.20-unionfs-1.5.diff 1270767
 AUX sabayon-sources-2.6.20-unionfs-2.0.diff 206206 RMD160 7881cd3612f1cd6b1b339538cab6a3febc435e54 SHA1 82aced84be3b4f5fb4279efa29c03d9cc6361797 SHA256 021b9104e4bac0f5d154362c79f6e4fb8f5634734d2614c9301e0f07c3cbcec6
 MD5 cb34b75e9a3dc6b09230526171ff77d3 files/sabayon-sources-2.6.20-unionfs-2.0.diff 206206
 RMD160 7881cd3612f1cd6b1b339538cab6a3febc435e54 files/sabayon-sources-2.6.20-unionfs-2.0.diff 206206
@@ -26,6 +30,10 @@ EBUILD sabayon-sources-2.6.20-r1.ebuild 1582 RMD160 9d7b7d1d172e2be19fb099337bfc
 MD5 3b5b38a40dd27d5a5ff99b1f53694409 sabayon-sources-2.6.20-r1.ebuild 1582
 RMD160 9d7b7d1d172e2be19fb099337bfcaddcb4781a88 sabayon-sources-2.6.20-r1.ebuild 1582
 SHA256 a593322774157904ec6f825684239a0408e2b5a0004165574ff3d2c5418e68a9 sabayon-sources-2.6.20-r1.ebuild 1582
+EBUILD sabayon-sources-2.6.20-r2.ebuild 1582 RMD160 c5bb97cfec7880f7bd08af3c5ad8801079dfd574 SHA1 6a0c0521592ffa4c85df4ef1ccf06c87af93e5b1 SHA256 ce85ad345a899dedf7f0d0eccd4a784ac35a8eacd9d49575af6c5f7dc6ed849f
+MD5 581f0264690de139df2b3166b33cc43a sabayon-sources-2.6.20-r2.ebuild 1582
+RMD160 c5bb97cfec7880f7bd08af3c5ad8801079dfd574 sabayon-sources-2.6.20-r2.ebuild 1582
+SHA256 ce85ad345a899dedf7f0d0eccd4a784ac35a8eacd9d49575af6c5f7dc6ed849f sabayon-sources-2.6.20-r2.ebuild 1582
 EBUILD sabayon-sources-2.6.20.ebuild 1468 RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 SHA1 09e05696852c13f11ae9887c20f4789879d76831 SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186
 MD5 c065b0ed96b72f2fbe53eaa82c387480 sabayon-sources-2.6.20.ebuild 1468
 RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 sabayon-sources-2.6.20.ebuild 1468
@@ -44,6 +52,9 @@ SHA256 273f25b39c9b4522c0a4a2ae7f330607d3eae3ad354b898629ca3357fbf57a28 files/di
 MD5 8141b16d777d8667c2a75ec6948a36e4 files/digest-sabayon-sources-2.6.20-r1 1346
 RMD160 0f16f06691e6ec5fe5384b1835690dbe9a3b6484 files/digest-sabayon-sources-2.6.20-r1 1346
 SHA256 273f25b39c9b4522c0a4a2ae7f330607d3eae3ad354b898629ca3357fbf57a28 files/digest-sabayon-sources-2.6.20-r1 1346
+MD5 8141b16d777d8667c2a75ec6948a36e4 files/digest-sabayon-sources-2.6.20-r2 1346
+RMD160 0f16f06691e6ec5fe5384b1835690dbe9a3b6484 files/digest-sabayon-sources-2.6.20-r2 1346
+SHA256 273f25b39c9b4522c0a4a2ae7f330607d3eae3ad354b898629ca3357fbf57a28 files/digest-sabayon-sources-2.6.20-r2 1346
 MD5 f9f876e6426518836f06bce50c5f0764 files/digest-sabayon-sources-2.6.20_rc6 1590
 RMD160 67c0e3257eb9fb08f0cf73ee0a15ef6e26658638 files/digest-sabayon-sources-2.6.20_rc6 1590
 SHA256 29de2d4da5afe67a4e930dfb7dd367f9071cd3106dba5b347c0e647b0f08b174 files/digest-sabayon-sources-2.6.20_rc6 1590
