@@ -20,8 +20,7 @@ RDEPEND=">=sys-apps/hal-0.5.8.1
 	x11-libs/libXtst"
 DEPEND="${RDEPEND}
 	kde-base/unsermake
-        || ( >=dev-libs/dbus-qt3-old-0.70
-                ( <sys-apps/dbus-0.70 ) )
+        || ( >=dev-libs/dbus-qt3-old-0.70 <sys-apps/dbus-0.70 )
 	"
 
 S=${WORKDIR}/${PN}
