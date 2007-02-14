@@ -1,3 +1,7 @@
+AUX networkmanager-0.6.4-Gentoo-checklo.patch 586 RMD160 69e8cd3a7e4a9ce355a62ffc367a952208ebcc5e SHA1 c366a2c6bbb7e42624cd7312112defa35fd80e64 SHA256 2ca85439e66f8f283d677e48bf52926ccae55a7d8ac3d783881501ca66cb0d96
+MD5 0922450ee12f81ad78dd18dcb6f84709 files/networkmanager-0.6.4-Gentoo-checklo.patch 586
+RMD160 69e8cd3a7e4a9ce355a62ffc367a952208ebcc5e files/networkmanager-0.6.4-Gentoo-checklo.patch 586
+SHA256 2ca85439e66f8f283d677e48bf52926ccae55a7d8ac3d783881501ca66cb0d96 files/networkmanager-0.6.4-Gentoo-checklo.patch 586
 AUX networkmanager-0.6.4-confchanges.patch 2057 RMD160 546d22e915113ea956f7a9d2cef9cca3b495d25d SHA1 01dae1aee7f1154e781bc678d900cc95d3143378 SHA256 daf919f2f17f020b4419e51f8deb1f6c131c1328c03283599320dae4987710dc
 MD5 cb31b2b2d7df59f5efe9b28544dddea0 files/networkmanager-0.6.4-confchanges.patch 2057
 RMD160 546d22e915113ea956f7a9d2cef9cca3b495d25d files/networkmanager-0.6.4-confchanges.patch 2057
@@ -10,10 +14,10 @@ AUX networkmanager-0.6.4-dhcp-manager.c.patch 1284 RMD160 b9b7bae215a86ba524afde
 MD5 3173009c0f3c347e7bc2da2efa3237e3 files/networkmanager-0.6.4-dhcp-manager.c.patch 1284
 RMD160 b9b7bae215a86ba524afdea4c728775ae2e277f1 files/networkmanager-0.6.4-dhcp-manager.c.patch 1284
 SHA256 a7ce5aabb73b4aea180cfad9442d9295be12fde1e8c9a26ef3d8921018c7ce12 files/networkmanager-0.6.4-dhcp-manager.c.patch 1284
-AUX networkmanager-0.6.4-dhcp-manager.patch 573 RMD160 413fce103e8591f736f9c9f29a6d55dbc92b3b7d SHA1 c9e047868aa51cbf2d947f62b3362291665b2fc0 SHA256 5601f019d8c9ae1201859b8f18bd6db7258acf8da888056c5eeb1e13657ca421
-MD5 2e9259c6502949a4677b12ff5ed4a5bd files/networkmanager-0.6.4-dhcp-manager.patch 573
-RMD160 413fce103e8591f736f9c9f29a6d55dbc92b3b7d files/networkmanager-0.6.4-dhcp-manager.patch 573
-SHA256 5601f019d8c9ae1201859b8f18bd6db7258acf8da888056c5eeb1e13657ca421 files/networkmanager-0.6.4-dhcp-manager.patch 573
+AUX networkmanager-0.6.4-dhcp-manager.patch 1284 RMD160 b9b7bae215a86ba524afdea4c728775ae2e277f1 SHA1 47e7b720bf6fc9c565de3b565c0195dd25d7a27e SHA256 a7ce5aabb73b4aea180cfad9442d9295be12fde1e8c9a26ef3d8921018c7ce12
+MD5 3173009c0f3c347e7bc2da2efa3237e3 files/networkmanager-0.6.4-dhcp-manager.patch 1284
+RMD160 b9b7bae215a86ba524afdea4c728775ae2e277f1 files/networkmanager-0.6.4-dhcp-manager.patch 1284
+SHA256 a7ce5aabb73b4aea180cfad9442d9295be12fde1e8c9a26ef3d8921018c7ce12 files/networkmanager-0.6.4-dhcp-manager.patch 1284
 AUX networkmanager-0.6.4-fix-nm-applet-memleaks.patch 3658 RMD160 244a7a54f132d569a29ce45ff95cf0caa0812afc SHA1 51c74c040d6332736f84dad2f2b36f8eac0162a7 SHA256 f2a72545ec62fb99824c513618a6e4cd040de6939ce154d2c8e9e08c6bfc5e6e
 MD5 eed2b7f651d1821f66ddbcc256ca6ff8 files/networkmanager-0.6.4-fix-nm-applet-memleaks.patch 3658
 RMD160 244a7a54f132d569a29ce45ff95cf0caa0812afc files/networkmanager-0.6.4-fix-nm-applet-memleaks.patch 3658
@@ -67,6 +71,10 @@ EBUILD networkmanager-0.6.4_pre20070208.ebuild 3216 RMD160 f1d1bf4bb6f5436121ae2
 MD5 5321cb45211bf9cee485b4b5f7f67c16 networkmanager-0.6.4_pre20070208.ebuild 3216
 RMD160 f1d1bf4bb6f5436121ae21ca5bbed971873b3cec networkmanager-0.6.4_pre20070208.ebuild 3216
 SHA256 7992bd6b925147243577533061acc1217eb2cd7a79500642ca60c812149b2102 networkmanager-0.6.4_pre20070208.ebuild 3216
+EBUILD networkmanager-0.6.4_pre20070213.ebuild 3266 RMD160 91e652cef50ff46e9b060ec43fe0f21cccaee3b3 SHA1 7f41e4161ea56fbada7d83b4c799812db32b5d5c SHA256 c30d9abcd8328c67311c3d80ad14ba032f4f126c8b8c23344f65b0b6e8d79751
+MD5 0a3e9617fcb5bcda8656861dfdc89021 networkmanager-0.6.4_pre20070213.ebuild 3266
+RMD160 91e652cef50ff46e9b060ec43fe0f21cccaee3b3 networkmanager-0.6.4_pre20070213.ebuild 3266
+SHA256 c30d9abcd8328c67311c3d80ad14ba032f4f126c8b8c23344f65b0b6e8d79751 networkmanager-0.6.4_pre20070213.ebuild 3266
 MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20061223 304
 RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20061223 304
 SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20061223 304
@@ -79,3 +87,6 @@ SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/di
 MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20070208 304
 RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20070208 304
 SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20070208 304
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20070213 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20070213 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20070213 304
