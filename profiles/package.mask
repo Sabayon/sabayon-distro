@@ -22,9 +22,6 @@ x11-misc/xglswitch
 # Needs a new Murrina GTK Theme
 >=x11-themes/murrine-0.31
 
-# Development release
->=sys-power/kpowersave-0.7.1
-
 # Causes kdeinit errors
 =x11-libs/qt-4.2.2
 
