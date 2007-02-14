@@ -15,9 +15,8 @@ KEYWORDS="~x86 ~amd64 ~ppc ~ppc64"
 
 DEPEND="~x11-wm/beryl-core-${PV}
         >=gnome-base/librsvg-2.14.0
-        dbus? (
-                || ( dev-libs/dbus-glib ( <sys-apps/dbus-0.90 >=sys-apps/dbus-0.36 ) )
-        )"
+        dbus? ( dev-libs/dbus-glib )
+	"
 
 PDEPEND="vidcap? ( ~x11-plugins/beryl-plugins-vidcap-${PV} )"
 
