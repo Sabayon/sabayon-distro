@@ -1,0 +1,8 @@
+DIST beryl-settings-simple-0.1.9999.2.tar.bz2 152026 RMD160 2c4b82c9c8c53a28e48ac2731631cad605862a24 SHA1 d66631aa12a2d8a2a116c6732936ee10bfac1c41 SHA256 f8b1197b86315aca4da700b98599ed647dfe5d02d32da11d4f4ab541fceb0288
+EBUILD beryl-settings-simple-0.1.9999.2.ebuild 662 RMD160 2b98cc303e64488b5aad5ff4c70c493430941517 SHA1 a39b0e3c745b5391ecf037449d51eff7a8fde43c SHA256 54bf7d315ade637a4df1d382cefd103734ae56ce87f884856ec7cfb0603a390a
+MD5 a05c7f0304a6180bfca06f4a267fa04e beryl-settings-simple-0.1.9999.2.ebuild 662
+RMD160 2b98cc303e64488b5aad5ff4c70c493430941517 beryl-settings-simple-0.1.9999.2.ebuild 662
+SHA256 54bf7d315ade637a4df1d382cefd103734ae56ce87f884856ec7cfb0603a390a beryl-settings-simple-0.1.9999.2.ebuild 662
+MD5 4890d3fba766dc7ebf72aa78a0ce9ab2 files/digest-beryl-settings-simple-0.1.9999.2 301
+RMD160 70024106587db00969b359ef9c0326a0879e2486 files/digest-beryl-settings-simple-0.1.9999.2 301
+SHA256 35a97bc89f3e565a615da5f242ee68be46fa92a10cee3c9ba19b4841b24c029c files/digest-beryl-settings-simple-0.1.9999.2 301

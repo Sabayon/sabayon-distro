@@ -1,5 +1,6 @@
 DIST beryl-settings-bindings-0.1.99.2.tar.bz2 238788 RMD160 a9463498220d8f8d73d9fdc80c7b2bca1deb3076 SHA1 97d76ea9d149c02328f0a30e38113fc9e8ac66fe SHA256 fe58bd7c60b2f6a450816a0d7878356ae5f155d56a48e26fcbcaf8693e1c87ef
 DIST beryl-settings-bindings-0.1.9999.1.tar.bz2 240172 RMD160 0ca73d5481d6e6d068faf6aa222a431ec2dbe043 SHA1 f845dd988ec3a8f495b5a893e00c6ac5808205e0 SHA256 5852ce8804bd3cb530c33f0c9ee223b30df748e5fa4aaa3b83f59747c31f7dcd
+DIST beryl-settings-bindings-0.1.9999.2.tar.bz2 240314 RMD160 d2ec5c3d41850eb6aa433a67c9dab8c83713795a SHA1 77d1d31881b06fa72a22496b8eaec69d23068559 SHA256 83bd08a3d94b684006f7aba362d00a6ce06ac2117bceaaeec8c5e1a713d4a06f
 EBUILD beryl-settings-bindings-0.1.99.2.ebuild 542 RMD160 3d4e3a999cace1c5f67ee88cff2a3b0c215e4272 SHA1 810c310e508b8ab55a13224ef5614db64632fb56 SHA256 238f150b8ef68e797ac5fa1151b48b692228888d16b2f962899e07f8af13d873
 MD5 74b807872d1c9b3b9bd6ec7e2e9692e9 beryl-settings-bindings-0.1.99.2.ebuild 542
 RMD160 3d4e3a999cace1c5f67ee88cff2a3b0c215e4272 beryl-settings-bindings-0.1.99.2.ebuild 542
@@ -8,9 +9,16 @@ EBUILD beryl-settings-bindings-0.1.9999.1.ebuild 542 RMD160 3d4e3a999cace1c5f67e
 MD5 74b807872d1c9b3b9bd6ec7e2e9692e9 beryl-settings-bindings-0.1.9999.1.ebuild 542
 RMD160 3d4e3a999cace1c5f67ee88cff2a3b0c215e4272 beryl-settings-bindings-0.1.9999.1.ebuild 542
 SHA256 238f150b8ef68e797ac5fa1151b48b692228888d16b2f962899e07f8af13d873 beryl-settings-bindings-0.1.9999.1.ebuild 542
+EBUILD beryl-settings-bindings-0.1.9999.2.ebuild 560 RMD160 a90c53288ebe28850601f4e40654ca63cc644435 SHA1 ffe5bb9d2514211c773ec665e233a68b6af71e09 SHA256 38b0028dcc1423101b3c619eef125ff66481bf21ba4784ad8a41fbd42ef7c2f2
+MD5 a10f3587e6dc7d4a8701a9f33f5cdade beryl-settings-bindings-0.1.9999.2.ebuild 560
+RMD160 a90c53288ebe28850601f4e40654ca63cc644435 beryl-settings-bindings-0.1.9999.2.ebuild 560
+SHA256 38b0028dcc1423101b3c619eef125ff66481bf21ba4784ad8a41fbd42ef7c2f2 beryl-settings-bindings-0.1.9999.2.ebuild 560
 MD5 3154277b24b8f0aab069fb3d10961214 files/digest-beryl-settings-bindings-0.1.99.2 301
 RMD160 736218a5438bb7904b12fc6546b6d2e137f65d1e files/digest-beryl-settings-bindings-0.1.99.2 301
 SHA256 1cffd56cd0878202d9f3cf1267cce9807b7c11a161464317db4daecdd9ab53f5 files/digest-beryl-settings-bindings-0.1.99.2 301
 MD5 75834221c11ff9e60bc1923596a46044 files/digest-beryl-settings-bindings-0.1.9999.1 307
 RMD160 8863dc91e9d1771a635ca03c67570cfd7f48c05b files/digest-beryl-settings-bindings-0.1.9999.1 307
 SHA256 b1d3afd1829a4014d7c908b7ecda679337b8a5a4fe9922b34f7ab1cfc37c9024 files/digest-beryl-settings-bindings-0.1.9999.1 307
+MD5 cddd0fad8d224d96344610bf24fc1344 files/digest-beryl-settings-bindings-0.1.9999.2 307
+RMD160 ef5ba94a013477b8af60aed7495d4fa27789efc5 files/digest-beryl-settings-bindings-0.1.9999.2 307
+SHA256 467cbaa97cc73af8ccc60f93186c452b0792734047f14509db92cc0057479f43 files/digest-beryl-settings-bindings-0.1.9999.2 307

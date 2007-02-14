@@ -1,8 +1,16 @@
 DIST beryl-plugins-vidcap-0.1.9999.1.tar.bz2 16940 RMD160 feb662f17d27d8bd9fa8fd9cded6d89f698da83c SHA1 5a8d6535eb8bc0b70efc6b95bbb0c688604fc727 SHA256 8b704ecfc808dde06d97a072854346c88b133c96f956eaa2187b234aa81b4d90
+DIST beryl-plugins-vidcap-0.1.9999.2.tar.bz2 21581 RMD160 d63c973e492a87b1fb32458063722b6c645600f4 SHA1 9971934a3c2da38e647d2f2c29b3ab4e3edcb958 SHA256 1ed476f85a7519e8f95d96e2546c81129fdc768ca7e9007c86eae6d5dc1651f3
 EBUILD beryl-plugins-vidcap-0.1.9999.1.ebuild 395 RMD160 9e77e6b557c36d3bb4d6882d61782679ac67ef70 SHA1 c53da17f46ea70f3f0df7b4129f6a302914c587f SHA256 235b1d36fb668e6cb08698ab10a265bd37aceaf34a7b34dff8b365f6c9d5a7c1
 MD5 098e05b562f3395d025daf1af125a306 beryl-plugins-vidcap-0.1.9999.1.ebuild 395
 RMD160 9e77e6b557c36d3bb4d6882d61782679ac67ef70 beryl-plugins-vidcap-0.1.9999.1.ebuild 395
 SHA256 235b1d36fb668e6cb08698ab10a265bd37aceaf34a7b34dff8b365f6c9d5a7c1 beryl-plugins-vidcap-0.1.9999.1.ebuild 395
+EBUILD beryl-plugins-vidcap-0.1.9999.2.ebuild 1036 RMD160 4c9ddb94df4cd6186dbe1911e267fe5711e6ed6d SHA1 6281a259714501b25c86dcf8e1061fcd286b58d9 SHA256 41634f926db0308527990d46051e3febc4f89e6a5d034cf8e5423060016aa5cb
+MD5 a76f5f7d5ea8b84fb37082dae7120f11 beryl-plugins-vidcap-0.1.9999.2.ebuild 1036
+RMD160 4c9ddb94df4cd6186dbe1911e267fe5711e6ed6d beryl-plugins-vidcap-0.1.9999.2.ebuild 1036
+SHA256 41634f926db0308527990d46051e3febc4f89e6a5d034cf8e5423060016aa5cb beryl-plugins-vidcap-0.1.9999.2.ebuild 1036
 MD5 3021f7bbdb53de6b0a5024be6d517e89 files/digest-beryl-plugins-vidcap-0.1.9999.1 295
 RMD160 382468ddd452a83c0742db81cc60860559d5a10e files/digest-beryl-plugins-vidcap-0.1.9999.1 295
 SHA256 de7585fa23d0c3c50a5cfa189a2e53ea8493a386f129bd19610b10d983148664 files/digest-beryl-plugins-vidcap-0.1.9999.1 295
+MD5 a539f718ee1af4db98a011f495e70228 files/digest-beryl-plugins-vidcap-0.1.9999.2 295
+RMD160 fcf4f13ba7777926dbe0f67c18a1caab22d59ed8 files/digest-beryl-plugins-vidcap-0.1.9999.2 295
+SHA256 fddce289bbf46e39a148a19ecbb75c02524138f512a028c0168d4527d54d7f91 files/digest-beryl-plugins-vidcap-0.1.9999.2 295
