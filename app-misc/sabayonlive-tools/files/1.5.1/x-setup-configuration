@@ -179,6 +179,17 @@ configure_input_devices() {
    fi
 
 
+   # Detect Wacom Devices
+
+   if [ -n "`cat /proc/bus/input/devices | grep Wacom`" ]; then
+      
+      # #InputDevice "wacom1" "SendCoreEvents"
+      sed -i '/InputDevice.*wacom1/ s/#//' /etc/X11/xorg.conf
+      sed -i '/InputDevice.*wacom2/ s/#//' /etc/X11/xorg.conf
+      sed -i '/InputDevice.*wacom3/ s/#//' /etc/X11/xorg.conf
+      
+   fi
+
 }
 
       # create seed
