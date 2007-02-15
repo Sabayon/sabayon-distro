@@ -110,10 +110,8 @@ remove_beryl_manager_from_the_startup() {
 enable_aiglx_in_xorg_conf() {
     # Enable AIGLX Stuff
     sed -i '/"AIGLX"/ s/#//' $xorg_conf
-    opengl_nvidia=$(eselect opengl show | grep nvidia)
-    if [ -n "$opengl_nvidia" ]; then
-        sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
-    fi
+    sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
     sed -i '/"Composite"/ s/#//g' $xorg_conf
 }
 
@@ -128,6 +126,8 @@ disable_aiglx_in_xorg_conf() {
     # for security sake
     sed -i '/"RenderAccel"/ s/#//' $xorg_conf
     sed -i '/"RenderAccel"/ s/Option/#Option/' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/Option/#Option/' $xorg_conf
 }
 
 enable_nvidia_in_xorg_conf() {
@@ -148,6 +148,8 @@ disable_nvidia_in_xorg_conf() {
     sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
     sed -i '/"RenderAccel"/ s/#//' $xorg_conf
     sed -i '/"RenderAccel"/ s/Option/#Option/' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/Option/#Option/' $xorg_conf
 }
 
 if [ -z "$1" ] && [ -z "$2" ] && [ "$1" == "--help" ] && [ "$1" != "aiglx" ] && [ "$1" != "xgl" ] && [ "$1" != "nvidia" ] && [ "$2" !="enable" ] && [ "$2" != "disable" ]; then
