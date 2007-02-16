@@ -83,25 +83,14 @@ src_install () {
 	insinto ${ROOT}/usr/share/emerald/themes
 	doins -r ./
 
-	# Mouse cursor theme
-	#X11_IMPLEM_P="$(best_version virtual/x11)"
-	#X11_IMPLEM="${X11_IMPLEM_P%-[0-9]*}"
-	#X11_IMPLEM="${X11_IMPLEM##*\/}"
-	X11_IMPLEM="xorg-x11"
-	einfo "X11 implementation is ${X11_IMPLEM}."
-
-	# Make sure you change the mouse cursor theme name here each release its changed
-	dodir /usr/share/cursors/${X11_IMPLEM}/
-	rm -rf /usr/share/cursors/${X11_IMPLEM}/*
-
-	cd ${S}/mouse/Grounation/cursors/
-	dodir /usr/share/cursors/${X11_IMPLEM}/Grounation/cursors/
-	insinto /usr/share/cursors/${X11_IMPLEM}/Grounation/cursors/
+	cd ${S}/mouse/PolarCursor/cursors/
+	dodir /usr/share/cursors/xorg-x11/PolarCursorTheme/cursors
+	insinto /usr/share/cursors/xorg-x11/PolarCursorTheme/cursors/
 	doins -r ./
 	
-	cd ${S}/mouse/PolarCursor/
-	dodir /usr/share/cursors/${X11_IMPLEM}/default
-	insinto /usr/share/cursors/${X11_IMPLEM}/default
+	cd ${S}/mouse/PolarCursor
+	dodir /usr/share/cursors/xorg-x11/default
+	insinto /usr/share/cursors/xorg-x11/default
 	doins ./index.theme		
 
 }
