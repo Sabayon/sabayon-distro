@@ -14,6 +14,7 @@ IUSE="symlink"
 #RESTRICT="nomirror"
 DEPEND=">=x11-libs/gtk+-2.8
 	>=kde-misc/ksplash-engine-moodin-0.4.2
+	x11-themes/darklight
 	"
 
 
