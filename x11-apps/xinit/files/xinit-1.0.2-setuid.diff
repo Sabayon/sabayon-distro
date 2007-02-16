@@ -1,0 +1,19 @@
+Index: xinit.c
+===================================================================
+RCS file: /cvs/xorg/app/xinit/xinit.c,v
+retrieving revision 1.4
+diff -u -r1.4 xinit.c
+--- xinit.c	4 Oct 2005 01:27:34 -0000	1.4
++++ xinit.c	19 Jun 2006 21:31:58 -0000
+@@ -692,7 +692,10 @@
+ startClient(char *client[])
+ {
+ 	if ((clientpid = vfork()) == 0) {
+-		setuid(getuid());
++		if (setuid(getuid()) == -1) {
++			Error("cannot change uid: %s\n", strerror(errno));
++			_exit(ERR_EXIT);
++		}
+ 		setpgrp(0, getpid());
+ 		environ = newenviron;
+ #ifdef __UNIXOS2__
