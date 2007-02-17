@@ -85,6 +85,7 @@ src_install () {
 	cd ${S}/mouse/PolarCursor
 	dodir /usr/share/cursors/xorg-x11/default
 	exeinto /usr/share/cursors/xorg-x11/default
+	echo "Inherits=PolarCursorTheme" > index.theme
 	doexe ./index.theme		
 
 }
