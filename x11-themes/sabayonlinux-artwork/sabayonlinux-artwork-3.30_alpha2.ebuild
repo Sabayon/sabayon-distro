@@ -55,15 +55,9 @@ src_install () {
 	if [ "$kdedir" != "nokde" ] && [ -e "$kdedir/share/apps/ksplash/Themes" ]; then
 
 	  cd ${S}/ksplash
-	  insinto ${ROOT}/$kdedir/share/apps/ksplash/Themes/
+	  dodir /usr/share/apps/ksplash/Themes
+	  insinto /usr/share/apps/ksplash/Themes/
 	  doins -r ./
-	  for dir in /home/*/.kde/share/apps/ksplash/Themes/; do
-		insinto $dir
-		doins doins -r ./
-	  done
-
-	  insinto /etc/skel/.kde/share/apps/ksplash/Themes/
-	  doins doins -r ./
 
 	  # KDM theme
 	  cd ${S}/kdm
