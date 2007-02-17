@@ -84,7 +84,7 @@ src_install () {
 	
 	cd ${S}/mouse/PolarCursor
 	dodir /usr/share/cursors/xorg-x11/default
-	insinto /usr/share/cursors/xorg-x11/default
-	doins ./index.theme		
+	exeinto /usr/share/cursors/xorg-x11/default
+	doexe ./index.theme		
 
 }
