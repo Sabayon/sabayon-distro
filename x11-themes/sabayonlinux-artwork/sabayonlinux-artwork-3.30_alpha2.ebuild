@@ -54,9 +54,9 @@ src_install () {
 
 	if [ "$kdedir" != "nokde" ] && [ -e "$kdedir/share/apps/ksplash/Themes" ]; then
 
-	  cd ${S}/ksplash
-	  dodir /usr/share/apps/ksplash/Themes
-	  insinto /usr/share/apps/ksplash/Themes/
+	  cd ${S}/ksplash/SabayonLinux
+	  dodir /usr/share/apps/ksplash/Themes/Lines
+	  insinto /usr/share/apps/ksplash/Themes/Lines/
 	  doins -r ./
 
 	  # KDM theme
