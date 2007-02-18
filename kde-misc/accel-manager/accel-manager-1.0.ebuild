@@ -57,4 +57,8 @@ src_install () {
 
         insinto /usr/share/applications
         doins utils/accel-manager.desktop
+
+        insinto /usr/share/xsessions
+        doins utils/accel-server.desktop
+
 }
