@@ -36,7 +36,7 @@ src_install () {
 
         exeinto /usr/sbin
         doexe accel-manager-bin
-	doexe accel-manager
+	doexe utils/accel-manager
 
         exeinto /usr/share/accel-manager
         doexe utils/desktop-accel-selector
