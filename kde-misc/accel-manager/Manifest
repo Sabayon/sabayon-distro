@@ -52,10 +52,10 @@ EBUILD accel-manager-0.9.2.ebuild 1205 RMD160 a9f7ddbdcfb68fa4d40ffb1f696cfc50f3
 MD5 ff28b68fb157e1fab485177c87d92cc1 accel-manager-0.9.2.ebuild 1205
 RMD160 a9f7ddbdcfb68fa4d40ffb1f696cfc50f3fb9b2a accel-manager-0.9.2.ebuild 1205
 SHA256 4c0c7a2aa1de9f0b8c05d8fb76fea3a097e72fdcca70e8bf31755bc618dc38c0 accel-manager-0.9.2.ebuild 1205
-EBUILD accel-manager-1.0.ebuild 1545 RMD160 2aedf75b4dcf4b9005f6e6dee7c6ea3fc1e01f77 SHA1 d683067b4b38df81e373607b816c67e4f74c0560 SHA256 efe9203e977f68d508fc433b72aaed638954623a63ddca95fcfb7d6dbb751395
-MD5 d711ce1b0407d606f4160ba527902311 accel-manager-1.0.ebuild 1545
-RMD160 2aedf75b4dcf4b9005f6e6dee7c6ea3fc1e01f77 accel-manager-1.0.ebuild 1545
-SHA256 efe9203e977f68d508fc433b72aaed638954623a63ddca95fcfb7d6dbb751395 accel-manager-1.0.ebuild 1545
+EBUILD accel-manager-1.0.1.ebuild 1545 RMD160 2aedf75b4dcf4b9005f6e6dee7c6ea3fc1e01f77 SHA1 d683067b4b38df81e373607b816c67e4f74c0560 SHA256 efe9203e977f68d508fc433b72aaed638954623a63ddca95fcfb7d6dbb751395
+MD5 d711ce1b0407d606f4160ba527902311 accel-manager-1.0.1.ebuild 1545
+RMD160 2aedf75b4dcf4b9005f6e6dee7c6ea3fc1e01f77 accel-manager-1.0.1.ebuild 1545
+SHA256 efe9203e977f68d508fc433b72aaed638954623a63ddca95fcfb7d6dbb751395 accel-manager-1.0.1.ebuild 1545
 EBUILD accel-manager-9999.ebuild 1322 RMD160 355c17b6f85ecb1f33d7237cb49f11c40d51e146 SHA1 fd238e1dfee0b25a38bb299ff0271f00f2355750 SHA256 c170ef648593b46381b00db67308f318d45a6f96432aa043b296f12bf00fa967
 MD5 664adde1c3e238b5e6d452e6dbde8a04 accel-manager-9999.ebuild 1322
 RMD160 355c17b6f85ecb1f33d7237cb49f11c40d51e146 accel-manager-9999.ebuild 1322
@@ -69,9 +69,9 @@ SHA256 3848cc2a68d4c00e7bacaf4d6c05307d19f7d69edbda34016fcd1b3d7f57a365 files/di
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-accel-manager-0.9.2 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-accel-manager-0.9.2 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-accel-manager-0.9.2 0
-MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-accel-manager-1.0 0
-RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-accel-manager-1.0 0
-SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-accel-manager-1.0 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-accel-manager-1.0.1 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-accel-manager-1.0.1 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-accel-manager-1.0.1 0
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-accel-manager-9999 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-accel-manager-9999 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-accel-manager-9999 0
