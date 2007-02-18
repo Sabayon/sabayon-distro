@@ -24,7 +24,7 @@ src_compile () {
         cd ${S}
         addwrite "${QTDIR}/etc/settings"
         qmake -project ./
-        mv accel-manager-1.0.pro accel-manager-bin.pro
+        mv ${P}.pro accel-manager-bin.pro
         qmake accel-manager-bin.pro
         emake || die "make failed"
 }
