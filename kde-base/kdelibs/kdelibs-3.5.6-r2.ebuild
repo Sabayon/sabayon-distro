@@ -14,7 +14,7 @@ SRC_URI="mirror://kde/stable/${PV}/src/${P}.tar.bz2
 LICENSE="GPL-2 LGPL-2"
 SLOT="3.5"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="acl alsa arts cups doc jpeg2k kerberos legacyssl utempter openexr pertty spell ssl tiff
+IUSE="acl alsa arts cups doc jpeg2k kerberos legacyssl utempter openexr spell ssl tiff
 zeroconf avahi kernel_linux fam lua linguas_he kdehiddenvisibility"
 
 # kde.eclass has kdelibs in DEPEND, and we can't have that in here.
@@ -62,8 +62,9 @@ RESTRICT="test"
 
 
 #	${FILESDIR}/ksystemtray-xgl.patch
+# 	${FILESDIR}/$P-rubberband.patch
+
 PATCHES="
-	${FILESDIR}/$P-rubberband.patch
 	${FILESDIR}/$P-rounded-selection.patch
 	${FILESDIR}/$P-khtml-image-selection-blend.patch"
 
