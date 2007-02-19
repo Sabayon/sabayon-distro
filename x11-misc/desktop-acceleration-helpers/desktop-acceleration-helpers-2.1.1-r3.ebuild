@@ -30,4 +30,9 @@ src_install () {
 	exeinto /sbin/
 	doexe *-setup
 
+	if [ ! -e "/etc/desktop-acceleration-helpers.conf" ]; then
+		insinto /etc/
+		doins ${FILESDIR}/desktop-acceleration-helpers.conf
+	fi
+
 }
