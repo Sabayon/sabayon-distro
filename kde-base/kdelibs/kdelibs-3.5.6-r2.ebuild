@@ -61,10 +61,10 @@ PDEPEND="zeroconf? ( avahi? ( kde-misc/kdnssd-avahi ) )"
 RESTRICT="test"
 
 
-#	${FILESDIR}/ksystemtray-xgl.patch
 # 	${FILESDIR}/$P-rubberband.patch
 
 PATCHES="
+	${FILESDIR}/ksystemtray-xgl.patch
 	${FILESDIR}/$P-rounded-selection.patch
 	${FILESDIR}/$P-khtml-image-selection-blend.patch"
 
