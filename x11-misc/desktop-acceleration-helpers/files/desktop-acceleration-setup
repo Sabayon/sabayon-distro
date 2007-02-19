@@ -109,7 +109,6 @@ remove_beryl_manager_from_the_startup() {
 
 enable_aiglx_in_xorg_conf() {
     # Enable AIGLX Stuff
-    sed -i '/"AIGLX"/ s/#//' $xorg_conf
     sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
     sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
     sed -i '/"Composite"/ s/#//g' $xorg_conf
@@ -117,8 +116,6 @@ enable_aiglx_in_xorg_conf() {
 
 disable_aiglx_in_xorg_conf() {
     # Disable AIGLX Option
-    sed -i '/"AIGLX"/ s/#//' $xorg_conf
-    sed -i '/"AIGLX"/ s/Option/#Option/' $xorg_conf
     sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
     sed -i '/"AddARGBGLXVisuals"/ s/Option/#Option/' $xorg_conf
     sed -i '/"Composite"/ s/#//' $xorg_conf
