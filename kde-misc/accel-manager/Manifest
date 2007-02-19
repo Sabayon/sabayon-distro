@@ -68,6 +68,10 @@ EBUILD accel-manager-1.0.4.ebuild 1538 RMD160 d27fab8c5e10ef6e207a183cf9f0533741
 MD5 98b2dc2fbeafd771afa06cf1f254d4d0 accel-manager-1.0.4.ebuild 1538
 RMD160 d27fab8c5e10ef6e207a183cf9f053374118ce51 accel-manager-1.0.4.ebuild 1538
 SHA256 40f1b50cc385bca9a49ef2282e5dd6a915f8373569e5ba3e7571d98027ca53a4 accel-manager-1.0.4.ebuild 1538
+EBUILD accel-manager-1.1.0.ebuild 1554 RMD160 c4eee1fb812ca7307f297c7aea02eb6238096226 SHA1 53aaadface1b39247ebb05917db4640c52f570ba SHA256 24de4c612cff4d6a0a881de0029e44ee6c1cc3525cd5ec72c6ec012f138ee308
+MD5 b83c3a21b49d9cbfdaf414cd9dc5f2b3 accel-manager-1.1.0.ebuild 1554
+RMD160 c4eee1fb812ca7307f297c7aea02eb6238096226 accel-manager-1.1.0.ebuild 1554
+SHA256 24de4c612cff4d6a0a881de0029e44ee6c1cc3525cd5ec72c6ec012f138ee308 accel-manager-1.1.0.ebuild 1554
 EBUILD accel-manager-9999.ebuild 1322 RMD160 355c17b6f85ecb1f33d7237cb49f11c40d51e146 SHA1 fd238e1dfee0b25a38bb299ff0271f00f2355750 SHA256 c170ef648593b46381b00db67308f318d45a6f96432aa043b296f12bf00fa967
 MD5 664adde1c3e238b5e6d452e6dbde8a04 accel-manager-9999.ebuild 1322
 RMD160 355c17b6f85ecb1f33d7237cb49f11c40d51e146 accel-manager-9999.ebuild 1322
@@ -93,6 +97,9 @@ SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/di
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-accel-manager-1.0.4 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-accel-manager-1.0.4 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-accel-manager-1.0.4 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-accel-manager-1.1.0 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-accel-manager-1.1.0 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-accel-manager-1.1.0 0
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-accel-manager-9999 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-accel-manager-9999 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-accel-manager-9999 0
