@@ -172,8 +172,16 @@ configure_input_devices() {
    #Option		"RightEdge"		"650"
    #Option		"FingerLow"		"25"
    #Option		"FingerHigh"		"30"
-   if [ -n "cat /proc/bus/input/devices | grep -i alps" ]; then
-      alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
+   if [ -e "/proc/bus/input/devices" ]; then
+
+      alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i synaptics)
+      synaptics_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
+      # Enable Synaptic/ALPS touchpad
+      if [ -n "$alps_touchpad_exist" ] || [ -n "$synaptics_touchpad_exist" ]; then
+         sed -i '/InputDevice.*Synaptics1/ s/#//' /etc/X11/xorg.conf
+      fi
+
+
       if [ "$alps_touchpad_exist" ]; then
          sed -i '/MaxSpeed/ s/#//' /etc/X11/xorg.conf
          sed -i '/MinSpeed/ s/#//' /etc/X11/xorg.conf
