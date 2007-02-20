@@ -235,7 +235,8 @@ if [ -n "$NVIDIA" ]; then
   else
 
      modprobe nvidia &> /dev/null
-     if [ "$?" != "0" ]; then
+     if [ "$?" != "0" ] || [ -n "`cat /proc/cmdline | grep nvidia=forcefail`" ]; then
+         # nvidia=forcefail is only used for debugging...
          nv_mod_failed="yes"
      else
          nv_mod_failed="no"
