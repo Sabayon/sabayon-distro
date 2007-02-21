@@ -1,0 +1,103 @@
+diff -Nurp hal-0.5.8.1.orig/hald/linux/classdev.c hal-0.5.8.1/hald/linux/classdev.c
+--- hal-0.5.8.1.orig/hald/linux/classdev.c	2006-09-19 22:23:25.000000000 +0200
++++ hal-0.5.8.1/hald/linux/classdev.c	2007-02-21 16:49:56.000000000 +0100
+@@ -195,18 +195,95 @@ net_add (const gchar *sysfs_path, const 
+ 		char wireless_path[HAL_PATH_MAX];
+ 		gboolean is_wireless;
+ 		struct stat s;
++		FILE *f;
++		
++		is_wireless = FALSE;
++
++		unsigned int i;
++		unsigned int ifname_len;
++
++		f = fopen ("/proc/net/wireless", "ro");
++		if (f != NULL) {
++			char buf[128];
++
++			do {
++				if (fgets (buf, sizeof (buf), f) == NULL)
++					break;
++				
++				for (i=0; i < sizeof (buf); i++) {
++					if (isspace (buf[i]))
++						continue;
++					else
++						break;
++				}
++
++				if (strncmp (ifname, buf + i, ifname_len) == 0) {
++					is_wireless = TRUE;
++					break;
++				}
++
++			} while (TRUE);
++			fclose (f);
++		}
++
++		if (!is_wireless) {
++			char filename[128];
++			snprintf (filename, 128, "/sys/class/net/%s/wiphy/modes", ifname);
++			f = fopen (filename, "ro");
++			if (f != NULL) {
++				char buf2[7];
++
++				do {
++					if (fgets (buf2, sizeof (buf2), f) == NULL)
++						break;
++
++					if (strncmp ("802.11", buf2, 6) == 0) {
++						is_wireless = TRUE;
++						break;
++					}
+ 
+-		snprintf (wireless_path, HAL_PATH_MAX, "%s/wireless", sysfs_path);
+-                if (stat (wireless_path, &s) == 0 && (s.st_mode & S_IFDIR)) { 
++				} while (TRUE);
++				fclose (f);
++			}
++		}
++		
++		if (!is_wireless) {
++			char filename2[128];
++			snprintf (filename2, 128, "/sys/class/net/%s/wiphy/mode", ifname);
++			f = fopen (filename2, "ro");
++			if (f != NULL) {
++				char buf3[12];
++				
++				do {
++					if (fgets (buf3, sizeof (buf3), f) == NULL)
++						break;
++
++					if (strncmp ("IEEE 802.11", buf3, 11) == 0) {
++						is_wireless = TRUE;
++						break;
++					}
++
++				} while (TRUE);
++				fclose (f);
++			}
++		}
++		
++
++		if (!is_wireless) {
++			snprintf (wireless_path, HAL_PATH_MAX, "%s/wireless", sysfs_path);
++			if (stat (wireless_path, &s) == 0 && (s.st_mode & S_IFDIR)) {
++				is_wireless = TRUE;
++			}
++		}
++		
++		if (is_wireless) {
+ 			hal_device_property_set_string (d, "info.product", "WLAN Interface");
+ 			hal_device_property_set_string (d, "info.category", "net.80211");
+ 			hal_device_add_capability (d, "net.80211");
+-			is_wireless = TRUE;
+ 		} else {
+ 			hal_device_property_set_string (d, "info.product", "Networking Interface");
+ 			hal_device_property_set_string (d, "info.category", "net.80203");
+ 			hal_device_add_capability (d, "net.80203");
+-			is_wireless = FALSE;
+ 		}
+ 
+ 		addr = hal_device_property_get_string (d, "net.address");
