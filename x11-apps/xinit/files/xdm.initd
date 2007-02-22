@@ -158,10 +158,7 @@ stop() {
 	
 	ebegin "Stopping ${myservice}"
 
-	start-stop-daemon --quiet --test --stop --exec "${myexe}" >/dev/null
-	retval=$?
-
-	[[ ${retval} -ne 0 ]] && start-stop-daemon --quiet --stop --exec "${myexe}" --retry TERM/5/TERM/5
+	start-stop-daemon --quiet --stop --exec "${myexe}" --retry TERM/5/TERM/5
 	retval=$?
 
 	#switch back to original vt
