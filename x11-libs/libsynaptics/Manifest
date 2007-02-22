@@ -1,0 +1,8 @@
+DIST libsynaptics-0.14.6c.tar.bz2 221401 RMD160 4fd949c0c4d6633d5a89cde34f52b7eaa71b6c6c SHA1 71d6ed2dcbf46cafa1450bc512424679fd91ae2f SHA256 5732c30fd2284da2f5e9ccd8511061846de78896f79c40c46227218ff85df900
+EBUILD libsynaptics-0.14.6c.ebuild 653 RMD160 6f2df41d7f50cfd27e3def9ac38dc21feeb6a71c SHA1 f0447f25178090bca7dd4d71ab178d3c62e822e4 SHA256 3df16c46bbd775a7ecee38fe193daf1b55222d2f27d2a289152e5bb363a79763
+MD5 26296044b9c5677e4e9c4d7f794d42b9 libsynaptics-0.14.6c.ebuild 653
+RMD160 6f2df41d7f50cfd27e3def9ac38dc21feeb6a71c libsynaptics-0.14.6c.ebuild 653
+SHA256 3df16c46bbd775a7ecee38fe193daf1b55222d2f27d2a289152e5bb363a79763 libsynaptics-0.14.6c.ebuild 653
+MD5 ddfcdeb9eebf1dbe7a1491a9e8568b5a files/digest-libsynaptics-0.14.6c 265
+RMD160 26f156b81e5a2e6ee84570f04a23dd231bdf3d9e files/digest-libsynaptics-0.14.6c 265
+SHA256 52ae0c6d5f8ea2f1c41e5debe8ea5e252c7effc4a91b4236c53bd2878b081854 files/digest-libsynaptics-0.14.6c 265
