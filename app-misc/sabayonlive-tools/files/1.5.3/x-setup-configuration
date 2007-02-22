@@ -174,8 +174,8 @@ configure_input_devices() {
    #Option		"FingerHigh"		"30"
    if [ -e "/proc/bus/input/devices" ]; then
 
-      alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i synaptics)
-      synaptics_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
+      alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
+      synaptics_touchpad_exist=$(cat /proc/bus/input/devices | grep -i synaptics)
       # Enable Synaptic/ALPS touchpad
       if [ -n "$alps_touchpad_exist" ] || [ -n "$synaptics_touchpad_exist" ]; then
          sed -i '/InputDevice.*Synaptics1/ s/#//' /etc/X11/xorg.conf
