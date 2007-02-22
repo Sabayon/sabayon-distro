@@ -121,9 +121,9 @@ def configureSystemKeymap(keyLocale):
     f.flush()
     f.close()
     if ROOT == "" and DO_NOT_RESTART == False:
-        os.system("/etc/init.d/keymaps restart &> /dev/null")
+        os.system("/etc/init.d/keymaps restart --nodeps &> /dev/null")
     elif ROOT != "" and DO_NOT_RESTART == False:
-        os.system("echo /etc/init.d/keymaps restart | chroot "+ROOT+" &> /dev/null")
+        os.system("echo /etc/init.d/keymaps restart --nodeps | chroot "+ROOT+" &> /dev/null")
 
 # xorg.conf keymap config
 def configureXorgKeymap(keyLocale):
