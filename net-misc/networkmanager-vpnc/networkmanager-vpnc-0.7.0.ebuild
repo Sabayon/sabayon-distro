@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit gnome2 debug eutils
+inherit gnome2 eutils
 
 DESCRIPTION="NetworkManager vpnc daemon/client configuration and management in an easy way."
 HOMEPAGE="http://people.redhat.com/dcbw/NetworkManager/"
