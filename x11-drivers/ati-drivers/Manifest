@@ -10,6 +10,10 @@ AUX ati-drivers-2.6.20.patch 2390 RMD160 920d9762812ab8ebbbc65b59b33c0fd7f7f9f16
 MD5 74a66ebd7923ccf7296181a9920b174b files/ati-drivers-2.6.20.patch 2390
 RMD160 920d9762812ab8ebbbc65b59b33c0fd7f7f9f161 files/ati-drivers-2.6.20.patch 2390
 SHA256 fb60a0bbda344596989f57c0f02cb419646bc4754bd6bd45811648623d827e9f files/ati-drivers-2.6.20.patch 2390
+AUX ati-powermode-opt-path.patch 826 RMD160 450b5c9ecd7f4c123ce12f855b287e6b97e6ad23 SHA1 80725f60def6bd968157f09474c00722865b1f27 SHA256 e1d6dbe2e73c8ed575b2f9188e707fcb90f808d0fbdb686067c16f853662c208
+MD5 5d8df2d4fd1038207d93f85a419fe7d0 files/ati-powermode-opt-path.patch 826
+RMD160 450b5c9ecd7f4c123ce12f855b287e6b97e6ad23 files/ati-powermode-opt-path.patch 826
+SHA256 e1d6dbe2e73c8ed575b2f9188e707fcb90f808d0fbdb686067c16f853662c208 files/ati-powermode-opt-path.patch 826
 AUX ati-powermode.sh.patch 1142 RMD160 b81cdd4d2a49c2f7b04f7e00e4391b4e0ad67a40 SHA1 eef7f658474ca8e9e66ee1955a851782eba4dd0e SHA256 050602d5e0656961c0b16a75b470a7327a9e8b16f7d0ae3228341b3a8dcc9289
 MD5 c3d42d3e0ad9acb6b682d7d7c27e6489 files/ati-powermode.sh.patch 1142
 RMD160 b81cdd4d2a49c2f7b04f7e00e4391b4e0ad67a40 files/ati-powermode.sh.patch 1142
