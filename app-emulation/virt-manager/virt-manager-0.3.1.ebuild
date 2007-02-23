@@ -20,6 +20,7 @@ DEPEND="
 	dev-libs/libxml2
 	dev-lang/python
 	>=app-emulation/virtinst-0.100
+	dev-python/urlgrabber
 	"
 
 src_install() {
