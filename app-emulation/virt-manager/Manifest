@@ -1,0 +1,8 @@
+DIST virt-manager-0.3.1.tar.gz 942802 RMD160 8bb5bca7c8cc2ed5b91d347be553da5dd5c02995 SHA1 4558e7c08fc5b264e14852a807cc4d41a562fab0 SHA256 d4c5f82228e37a2d234646351b46186a212b3c51754103a1027063cda83c4180
+EBUILD virt-manager-0.3.1.ebuild 602 RMD160 54d1245589d78b55c43e8d115b2a10ff3ae8c7eb SHA1 b7dbcfc5ade145c99487ac1cd5b05b71bb36fdbe SHA256 5683fc3fb03414872828de99567e2ebbae72b2a930c1addec7a0eab3a808a131
+MD5 55ec8a320559a379fa76f052d6b7e24f virt-manager-0.3.1.ebuild 602
+RMD160 54d1245589d78b55c43e8d115b2a10ff3ae8c7eb virt-manager-0.3.1.ebuild 602
+SHA256 5683fc3fb03414872828de99567e2ebbae72b2a930c1addec7a0eab3a808a131 virt-manager-0.3.1.ebuild 602
+MD5 ed960f5b7f91c75e5efca2ddbaae4128 files/digest-virt-manager-0.3.1 256
+RMD160 ee9b0323aadafc076d704d6ad626e08df095f764 files/digest-virt-manager-0.3.1 256
+SHA256 ecd9d00b59677c3fc1edc7d1f247cbde8152e908ba18b948309e469cdb278ed7 files/digest-virt-manager-0.3.1 256
