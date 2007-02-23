@@ -19,6 +19,7 @@ DEPEND="
 	>=dev-python/pygtk-2.0
 	dev-libs/libxml2
 	dev-lang/python
+	>=app-emulation/virtinst-0.100
 	"
 
 src_install() {

@@ -43,5 +43,3 @@ app-emulation/qemu-gui
 # Builds normally, but in ebuild, fails
 =media-video/seom-9999
 
-# Broken!!!
-app-emulation/virtinst

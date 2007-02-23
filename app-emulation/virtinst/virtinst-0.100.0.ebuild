@@ -1,6 +1,8 @@
 # Copyright 2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
+inherit distutils
+
 DESCRIPTION="Virt-Manager application helper"
 HOMEPAGE="http://virt-manager.et.redhat.com"
 SRC_URI="http://virt-manager.et.redhat.com/download/sources/${PN}/${P}.tar.gz"
@@ -13,6 +15,7 @@ IUSE=""
 DEPEND=">=app-emulation/libvirt-0.2.0
 	dev-lang/python"
 
+
 src_install() {
-	make DESTDIR=${D} install || die
+        distutils_src_install
 }
