@@ -12,7 +12,7 @@ IUSE=""
 ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/${PN}/tags/${PV}"
 
 DEPEND=">=x11-base/xorg-x11-7.1
-	>=x11-libs/qt-4.1.4-r2
+	>=x11-libs/qt-4.2
         || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 )
         x11-misc/desktop-acceleration-helpers
 	x11-base/xgl

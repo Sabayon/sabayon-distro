@@ -50,10 +50,10 @@ EBUILD accel-manager-1.2.0.ebuild 1554 RMD160 c4eee1fb812ca7307f297c7aea02eb6238
 MD5 b83c3a21b49d9cbfdaf414cd9dc5f2b3 accel-manager-1.2.0.ebuild 1554
 RMD160 c4eee1fb812ca7307f297c7aea02eb6238096226 accel-manager-1.2.0.ebuild 1554
 SHA256 24de4c612cff4d6a0a881de0029e44ee6c1cc3525cd5ec72c6ec012f138ee308 accel-manager-1.2.0.ebuild 1554
-EBUILD accel-manager-1.2.1.ebuild 1554 RMD160 c4eee1fb812ca7307f297c7aea02eb6238096226 SHA1 53aaadface1b39247ebb05917db4640c52f570ba SHA256 24de4c612cff4d6a0a881de0029e44ee6c1cc3525cd5ec72c6ec012f138ee308
-MD5 b83c3a21b49d9cbfdaf414cd9dc5f2b3 accel-manager-1.2.1.ebuild 1554
-RMD160 c4eee1fb812ca7307f297c7aea02eb6238096226 accel-manager-1.2.1.ebuild 1554
-SHA256 24de4c612cff4d6a0a881de0029e44ee6c1cc3525cd5ec72c6ec012f138ee308 accel-manager-1.2.1.ebuild 1554
+EBUILD accel-manager-1.2.1.ebuild 1549 RMD160 9b5f6eb8ed68ed5da6aee27b00b057d9c2408ece SHA1 2ab04d0ab4d1b6e3b27dc81b8caedbe37af52ec5 SHA256 8d2a0fe3bee2b609ccde30169e93a5dbafddf73c1ff4ebab4bac6bb334502f4d
+MD5 a5e2314dd1b45eacd4923fe86832cd47 accel-manager-1.2.1.ebuild 1549
+RMD160 9b5f6eb8ed68ed5da6aee27b00b057d9c2408ece accel-manager-1.2.1.ebuild 1549
+SHA256 8d2a0fe3bee2b609ccde30169e93a5dbafddf73c1ff4ebab4bac6bb334502f4d accel-manager-1.2.1.ebuild 1549
 EBUILD accel-manager-9999.ebuild 1322 RMD160 355c17b6f85ecb1f33d7237cb49f11c40d51e146 SHA1 fd238e1dfee0b25a38bb299ff0271f00f2355750 SHA256 c170ef648593b46381b00db67308f318d45a6f96432aa043b296f12bf00fa967
 MD5 664adde1c3e238b5e6d452e6dbde8a04 accel-manager-9999.ebuild 1322
 RMD160 355c17b6f85ecb1f33d7237cb49f11c40d51e146 accel-manager-9999.ebuild 1322
