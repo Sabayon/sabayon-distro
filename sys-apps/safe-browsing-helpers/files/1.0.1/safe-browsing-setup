@@ -1,0 +1,530 @@
+#!/usr/bin/python
+# 2007 - SabayonLinux - Fabio Erculiani
+# Sabayon Linux Tor/Privoxy configuration helper for Safe Browsing
+
+# ERROR CODES:
+# 1 - invalid parameters
+# 2 - root access required
+# 3 - value does not exist
+# 4 - sys.argv[1] must be valid
+
+import os
+import sys
+import re
+import string
+from getpass import getuser
+
+# System functions
+
+def print_error(msg):
+    print "* erro *  : "+msg
+
+def print_info(msg):
+    print "* info *  : "+msg
+
+def print_help():
+    print "* IIIII * : Sabayon Linux Safe Browsing configuration helper for Tor/Privoxy (C - 2007)"
+    print "* usage * : safe-browsing-setup <enable/disable>"
+
+def print_warning(msg):
+    print "* warn *  : "+msg
+
+options = sys.argv[1:]
+# parameters test
+if len(options) < 1 or string.join(options).find("--help") != -1 or string.join(options).find("-h") != -1:
+    print_help()
+    if len(options) < 1:
+	print_error("not enough parameters")
+    sys.exit(1)
+
+if (not sys.argv[1] == "enable") and (not sys.argv[1] == "disable"):
+    print_help()
+    sys.exit(1)
+
+if len(options) > 2:
+    print_help()
+    print_error("too many parameters")
+    sys.exit(1)
+
+# am I root ?
+if getuser() != "root":
+    print_error("you need to run this as root")
+    sys.exit(2)
+
+# is tor installed ?
+if not os.access("/usr/bin/tor",os.X_OK) or not os.path.isfile("/etc/init.d/tor"):
+    print_warning("you SHOULD have Tor installed")
+
+# is privoxy installed ?
+if not os.access("/usr/sbin/privoxy",os.X_OK) or not os.path.isfile("/etc/init.d/privoxy"):
+    print_error("you MUST have Privoxy installed")
+    sys.exit(2)
+
+if os.getenv("DO_NOT_RESTART") is not None:
+    DO_NOT_RESTART = True
+else:
+    DO_NOT_RESTART = False
+
+# FUNCTIONS
+def isnumber(i):
+    try:
+	int(i)
+	return True
+    except:
+	return False
+
+def writePrivoxyConfiguration(direction, privoxyConfFile):
+    f = open(privoxyConfFile,"r")
+    privoxyConf = f.readlines()
+    f.close()
+    newConf = []
+    # clean config file
+    for line in privoxyConf:
+        if not ((( line.find("forward-socks4a") >= 0 ) and (not line.startswith("#"))) or line.startswith("listen-address")): # forward-socks4a / localhost:9050 .
+	    newConf.append(line)
+    # now we can add our tor port
+    if (direction == "enable"):
+        newConf.append("forward-socks4a / "+torServer+":"+torPort+" .\n")
+	newConf.append("listen-address  127.0.0.1:8118\n")
+    print_info("Writing new privoxy configuration...")
+    f = open(privoxyConfFile,"w")
+    privoxyConf = f.writelines(newConf)
+    f.flush()
+    f.close()
+
+def setupKDE(direction):
+
+    def KDEListFiles():
+        list = []
+	listlen = 0
+	# /home
+	for (dir,sub,file) in os.walk("/home"):
+	    if os.path.isfile(dir+"/kioslaverc"):
+	        list.append(dir+"/kioslaverc")
+		listlen += 1
+	
+	if (listlen == 0):
+	    print_warning("KDE configuration: no valid kioslaverc files found in /home")
+
+	for (dir,sub,file) in os.walk("/etc/skel"):
+	    if os.path.isfile(dir+"/kioslaverc"):
+	        list.append(dir+"/kioslaverc")
+
+	for (dir,sub,file) in os.walk("/root"):
+	    if os.path.isfile(dir+"/kioslaverc"):
+	        list.append(dir+"/kioslaverc")
+
+        return list
+
+    print_info("KDE: configuring proxy settings")
+
+    filelist = KDEListFiles()
+    for file in filelist:
+	try:
+	    # load file
+	    f = open(file,"r")
+	    kioslaverc = f.readlines()
+	    f.close()
+	    # clean file
+	    newkioslaverc = []
+	    mode = os.stat(file)[0]
+	    user = os.stat(file)[4]
+	    group = os.stat(file)[5]
+	    print_info("KDE: configuring file: "+file)
+
+	    foundSetting = False
+	    for line in kioslaverc:
+		if (foundSetting) and line.startswith("["):
+		    # reset foundSetting
+		    foundSetting = False
+		if line.startswith("[Proxy Settings]"):
+		    foundSetting = True
+		if (not foundSetting):
+		    newkioslaverc.append(line)
+	    # refill newkioslaverc
+	    if (direction == "enable"):
+		# refill !
+		print_info("KDE: enabling Proxy settings in: "+file)
+		newkioslaverc.append("\n")
+		newkioslaverc.append("[Proxy Settings]\n")
+		newkioslaverc.append("AuthMode=0\n")
+		newkioslaverc.append("NoProxyFor=\n")
+		newkioslaverc.append("Proxy Config Script=\n")
+		newkioslaverc.append("ProxyType=1\n")
+		newkioslaverc.append("ReversedException=false\n")
+		newkioslaverc.append("ftpProxy=http://127.0.0.1:8118\n")
+		newkioslaverc.append("httpProxy=http://127.0.0.1:8118\n")
+		newkioslaverc.append("httpsProxy=http://127.0.0.1:8118\n")
+	    else:
+		print_info("KDE: disabling Proxy settings in: "+file)
+	    # write !
+	    f = open(file,"w")
+	    f.writelines(newkioslaverc)
+	    f.flush()
+	    f.close()
+	    # set back permissions
+	    os.chown(file,user,group)
+	    os.chmod(file,mode)
+	except:
+	    pass
+
+
+
+def setupGNOME(direction):
+
+    def GNOMEListFiles():
+        list = []
+	listlen = 0
+	# /home
+	for user in os.listdir("/home"):
+	    if os.path.isdir("/home/"+user+"/.gconf"):
+	        list.append("/home/"+user+"/.gconf")
+		listlen += 1
+	
+	if (listlen == 0):
+	    print_warning("GNOME configuration: no valid GConf directories found in /home")
+
+	if os.path.isdir("/etc/skel/.gconf"):
+	    list.append("/etc/skel/.gconf")
+	if os.path.isdir("/etc/gconf/gconf.xml.defaults"):
+	    list.append("/etc/gconf/gconf.xml.defaults")
+	if os.path.isdir("/etc/gconf/gconf.xml.mandatory"):
+	    list.append("/etc/gconf/gconf.xml.mandatory")
+
+        return list
+
+    def GNOMESetProxy(dir,host,port):
+	print_info("GNOME: writing settings for dir: "+dir)
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type int --set /system/http_proxy/port "'+port+'" &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type string --set /system/http_proxy/host "'+host+'" &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type int --set /system/proxy/ftp_port "'+port+'" &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type string --set /system/proxy/ftp_host "'+host+'" &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type int --set /system/proxy/secure_port "'+port+'" &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type string --set /system/proxy/secure_host "'+host+'" &>/dev/null')
+	#os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type bool --set /system/http_proxy/use_http_proxy true')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type string --set /system/proxy/mode "'+"manual"+'" &>/dev/null')
+
+    def GNOMEUnsetProxy(dir):
+	print_info("GNOME: removing settings for dir: "+dir)
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --unset /system/http_proxy/port &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --unset /system/http_proxy/host &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --unset /system/proxy/ftp_port &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --unset /system/proxy/ftp_host &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --unset /system/proxy/secure_port &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --unset /system/proxy/secure_host &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --unset /system/http_proxy/use_http_proxy &>/dev/null')
+	os.system('gconftool-2 --direct --config-source xml:readwrite:'+dir+' --type string --set /system/proxy/mode "'+"none"+'" &>/dev/null')
+
+    print_info("GNOME: configuring proxy settings")
+    filelist = GNOMEListFiles()
+    # shutdown GConf
+    print_info("GNOME: shutting down GConf...")
+    os.system("gconftool-2 --shutdown")
+    os.system("killall gconfd-2 &> /dev/null")
+    for dir in filelist:
+	# set system wide
+	if dir.startswith("/etc/gconf"):
+	    if (direction == "enable"):
+		GNOMESetProxy(dir,"localhost","8118")
+	    else:
+		# disable port
+		GNOMEUnsetProxy(dir)
+        # /home ?
+	elif dir.startswith("/home"):
+	    # get file permissions
+	    user = os.stat(dir)[4]
+	    group = os.stat(dir)[5]
+	    if (direction == "enable"):
+		GNOMESetProxy(dir,"localhost","8118")
+	    else:
+		# disable port
+		GNOMEUnsetProxy(dir)
+	    # setting back permissions
+	    os.system("chown -R "+str(user)+":"+str(group)+" "+dir)
+	# /etc/skel?
+	else:
+	    if (direction == "enable"):
+		GNOMESetProxy(dir,"localhost","8118")
+	    else:
+		# disable port
+		GNOMEUnsetProxy(dir)
+
+
+def setupEnvironment(direction):
+
+    print_info("Environment: configuring proxy settings")
+    if (direction == "enable"):
+	print_info("Environment: enabling proxy settings")
+        # create file
+	envCont = []
+	envCont.append("HTTP_PROXY=localhost:8118\n")
+	envCont.append("http_proxy=localhost:8118\n")
+	envCont.append("FTP_PROXY=localhost:8118\n")
+	envCont.append("ftp_proxy=localhost:8118\n")
+	f = open("/etc/env.d/99sabayonproxy","w")
+	f.writelines(envCont)
+	f.flush()
+	f.close()
+	# without running env-update, set these values inside /etc/profile.env
+	if os.path.isfile("/etc/profile.env"):
+	    f = open("/etc/profile.env","r")
+	    envCont = f.readlines()
+	    f.close()
+	    envCont.append("export HTTP_PROXY='localhost:8118'\n")
+	    envCont.append("export http_proxy='localhost:8118'\n")
+	    envCont.append("export FTP_PROXY='localhost:8118'\n")
+	    envCont.append("export ftp_proxy='localhost:8118'\n")
+	    f = open("/etc/profile.env","w")
+	    f.writelines(envCont)
+	    f.flush()
+	    f.close()
+	print_info("Environment: Remember to run 'source /etc/profile' in every open terminal")
+    else:
+	print_info("Environment: disabling proxy settings")	
+	os.system("rm -f /etc/env.d/99sabayonproxy &> /dev/null")
+	if os.path.isfile("/etc/profile.env"):
+	    f = open("/etc/profile.env","r")
+	    envCont = f.readlines()
+	    f.close()
+	    newEnvCont = []
+	    for line in envCont:
+		if (not line.lower().startswith("export http_proxy")) and (not line.lower().startswith("export ftp_proxy")):
+		    newEnvCont.append(line)
+	    f = open("/etc/profile.env","w")
+	    f.writelines(newEnvCont)
+	    f.flush()
+	    f.close()
+	print_info("Environment: Remember to run 'source /etc/profile' in every open terminal")
+
+def setupOpera(direction):
+
+    def OperaListFiles():
+        list = []
+	listlen = 0
+	# /home
+	for (dir,sub,file) in os.walk("/home"):
+	    if os.path.isfile(dir+"/opera6.ini"):
+	        list.append(dir+"/opera6.ini")
+		listlen += 1
+	
+	if (listlen == 0):
+	    print_warning("Opera Browser configuration: no valid opera6.ini files found in /home, please consider to run Opera at least once and rerun this application.")
+
+	for (dir,sub,file) in os.walk("/etc/skel"):
+	    if os.path.isfile(dir+"/opera6.ini"):
+	        list.append(dir+"/opera6.ini")
+
+	for (dir,sub,file) in os.walk("/root"):
+	    if os.path.isfile(dir+"/opera6.ini"):
+	        list.append(dir+"/opera6.ini")
+
+        return list
+
+    print_info("Opera Browser: configuring proxy settings")
+
+    filelist = OperaListFiles()
+    for file in filelist:
+	try:
+	    # load file
+	    f = open(file,"r")
+	    operarc = f.readlines()
+	    f.close()
+	    # clean file
+	    newoperarc = []
+	    mode = os.stat(file)[0]
+	    user = os.stat(file)[4]
+	    group = os.stat(file)[5]
+	    print_info("Opera Browser: configuring file: "+file)
+
+	    foundSetting = False
+	    for line in operarc:
+		if (foundSetting) and line.startswith("["):
+		    # reset foundSetting
+		    foundSetting = False
+		if line.startswith("[Proxy]"):
+		    foundSetting = True
+		if (not foundSetting):
+		    newoperarc.append(line)
+	    # refill ?
+	    if (direction == "enable"):
+		# refill !
+		print_info("Opera Browser: enabling Proxy settings in: "+file)
+		newoperarc.append("\n")
+		newoperarc.append("[Proxy]\n")
+		newoperarc.append("Use HTTP=1\n")
+		newoperarc.append("Use HTTPS=1\n")
+		newoperarc.append("Use FTP=1\n")
+		newoperarc.append("Use GOPHER=1\n")
+		newoperarc.append("Use WAIS=1\n")
+		newoperarc.append("Use Automatic Proxy Configuration=0\n")
+		newoperarc.append("HTTP server=127.0.0.1:8118\n")
+		newoperarc.append("HTTPS server=127.0.0.1:8118\n")
+		newoperarc.append("FTP server=127.0.0.1:8118\n")
+		newoperarc.append("Gopher server=127.0.0.1:8118\n")
+		newoperarc.append("WAIS server=127.0.0.1:8118\n")
+		newoperarc.append("Automatic Proxy Configuration URL=\n")
+		newoperarc.append("Enable HTTP 1.1 for proxy=0\n")
+		newoperarc.append("No Proxy Servers\n")
+		newoperarc.append("No Proxy Servers Check=0\n")
+	    else:
+		print_info("Opera Browser: disabling Proxy settings in: "+file)
+	    # write !
+	    f = open(file,"w")
+	    f.writelines(newoperarc)
+	    f.flush()
+	    f.close()
+	    # set back permissions
+	    os.chown(file,user,group)
+	    os.chmod(file,mode)
+	except:
+	    pass
+
+def setupMozilla(direction):
+
+    def MozillaListFiles():
+        list = []
+	listlen = 0
+	# /home
+	for (dir,sub,file) in os.walk("/home"):
+	    if os.path.isfile(dir+"/prefs.js"):
+	        list.append(dir+"/prefs.js")
+		listlen += 1
+	
+	if (listlen == 0):
+	    print_warning("Mozilla Browsers configuration: no valid prefs.js files found in /home, please consider to run any Mozilla based programs at least once and rerun this application.")
+
+	for (dir,sub,file) in os.walk("/etc/skel"):
+	    if os.path.isfile(dir+"/prefs.js"):
+	        list.append(dir+"/prefs.js")
+
+	for (dir,sub,file) in os.walk("/root"):
+	    if os.path.isfile(dir+"/prefs.js"):
+	        list.append(dir+"/prefs.js")
+
+        return list
+
+    print_info("Mozilla Browsers: configuring proxy settings")
+
+    filelist = MozillaListFiles()
+    for file in filelist:
+	try:
+	    # load file
+	    f = open(file,"r")
+	    prefsrc = f.readlines()
+	    f.close()
+	    # clean file
+	    newprefsrc = []
+	    mode = os.stat(file)[0]
+	    user = os.stat(file)[4]
+	    group = os.stat(file)[5]
+	    print_info("Mozilla Browsers: configuring file: "+file)
+
+	    for line in prefsrc:
+		if (not line.startswith('user_pref("network.proxy.')):
+		    newprefsrc.append(line)
+	    # refill !
+	    if (direction == "enable"):
+		# refill !
+		print_info("Mozilla Browsers: enabling Proxy settings in: "+file)
+		newprefsrc.append('user_pref("network.proxy.ftp", "127.0.0.1");\n')
+		newprefsrc.append('user_pref("network.proxy.ftp_port", 8118);\n')
+		newprefsrc.append('user_pref("network.proxy.gopher", "127.0.0.1");\n')
+		newprefsrc.append('user_pref("network.proxy.gopher_port", 8118);\n')
+		newprefsrc.append('user_pref("network.proxy.http", "127.0.0.1");\n')
+		newprefsrc.append('user_pref("network.proxy.http_port", 8118);\n')
+		newprefsrc.append('user_pref("network.proxy.share_proxy_settings", true);\n')
+		newprefsrc.append('user_pref("network.proxy.socks", "127.0.0.1");\n')
+		newprefsrc.append('user_pref("network.proxy.socks_port", 8118);\n')
+		newprefsrc.append('user_pref("network.proxy.ssl", "127.0.0.1");\n')
+		newprefsrc.append('user_pref("network.proxy.ssl_port", 8118);\n')
+		newprefsrc.append('user_pref("network.proxy.type", 1);\n')
+	    else:
+		print_info("Mozilla Browsers: disabling Proxy settings in: "+file)
+	    # write !
+	    f = open(file,"w")
+	    f.writelines(newprefsrc)
+	    f.flush()
+	    f.close()
+	    # set back permissions
+	    os.chown(file,user,group)
+	    os.chmod(file,mode)
+	except:
+	    pass
+
+def setupServices(direction):
+    if (direction == "enable"):
+        # add them
+	print_info("Adding Tor/Privoxy services to the bootstrap list")
+	os.system("rc-update add privoxy default &> /dev/null")
+	os.system("rc-update add tor default &> /dev/null")
+	if (not DO_NOT_RESTART):
+	    # restart (start!)
+	    print_info("Starting Tor/Privoxy Services")
+	    # FIXME: add exit status detection
+	    os.system("/etc/init.d/tor start --nodeps")
+	    os.system("/etc/init.d/privoxy start --nodeps")
+    if (direction == "disable"):
+        # add them
+	print_info("Removing Tor/Privoxy services to the bootstrap list")
+	os.system("rc-update del privoxy default &> /dev/null")
+	os.system("rc-update del tor default &> /dev/null")
+	if (not DO_NOT_RESTART):
+	    # restart (start!)
+	    print_info("Stopping Tor/Privoxy Services")
+	    # FIXME: add exit status detection
+	    os.system("/etc/init.d/tor stop")
+	    os.system("/etc/init.d/privoxy stop")
+
+# Variables and constants
+direction = sys.argv[1] # can only be disable or enable
+privoxyConfFile = "/etc/privoxy/config"
+torSocksConfFile = "/etc/tor/tor-tsocks.conf"
+
+# detect Tor port and listen address
+# server = <ip>
+# server_port = <port>
+f = open(torSocksConfFile,"r")
+torConf = f.readlines()
+f.close()
+torServer = None
+torPort = None
+for line in torConf:
+    if line.startswith("server") and (line.find("=") != -1) and (len(line.split(".")) == 4) and (torServer is None):
+        # server parameter is valid
+	torServer = line.split("=")[len(line.split("="))-1].strip()
+    if line.startswith("server_port") and (line.find("=") != -1) and (isnumber(line.split("=")[len(line.split("="))-1].strip())) and (torPort is None):
+        # server_port parameter is valid
+	torPort = line.split("=")[1].strip()
+if torServer is None:
+    torServer = "127.0.0.1"
+    print_warning("Tor is configured on the address: "+torServer)
+else:
+    print_info("Tor is configured on: "+torServer)
+if torPort is None:
+    torPort = "9050"
+    print_warning("Tor Port: "+torPort)
+else:
+    print_info("Tor is configured on the port: "+torPort)
+
+if (direction == "enable"):
+    # ok enable Tor and Privoxy
+    print_info("Enabling Safe Browsing features...")
+else:
+    print_info("Disabling Safe Browsing features...")
+# not the same for Privoxy
+writePrivoxyConfiguration(direction,privoxyConfFile)
+# Enable services and add them to the default runlevel
+setupServices(direction)
+# now configure KDE
+setupKDE(direction)
+# now configure GNOME
+if os.path.isfile("/usr/bin/gconftool-2"):
+    setupGNOME(direction)
+# now configure Opera
+setupOpera(direction)
+# now configure Mozilla apps
+setupMozilla(direction)
+# now configure shell
+setupEnvironment(direction)
+# bashrc --> .bashrc
+print_info("Done")
