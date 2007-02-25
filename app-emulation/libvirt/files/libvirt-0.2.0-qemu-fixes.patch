@@ -1,0 +1,121 @@
+diff -rup libvirt-0.2.0.orig/qemud/conf.c libvirt-0.2.0.new/qemud/conf.c
+--- libvirt-0.2.0.orig/qemud/conf.c	2007-02-14 12:12:25.000000000 -0500
++++ libvirt-0.2.0.new/qemud/conf.c	2007-02-15 11:35:54.000000000 -0500
+@@ -1725,7 +1725,7 @@ char *qemudGenerateXML(struct qemud_serv
+         goto cleanup;
+     }
+ 
+-    if (vm->id >= 0) {
++    if (vm->id >= 0 && live) {
+         if (qemudBufferPrintf(&buf, "<domain type='%s' id='%d'>\n", type, vm->id) < 0)
+             goto no_memory;
+     } else {
+@@ -1772,16 +1772,6 @@ char *qemudGenerateXML(struct qemud_serv
+         if (qemudBufferPrintf(&buf, "    <cmdline>%s</cmdline>\n", def->os.cmdline) < 0)
+             goto no_memory;
+ 
+-    if (def->features & QEMUD_FEATURE_ACPI) {
+-        if (qemudBufferAdd(&buf, "  <features>\n") < 0)
+-            goto no_memory;
+-        if (qemudBufferAdd(&buf, "    <acpi>\n") < 0)
+-            goto no_memory;
+-        if (qemudBufferAdd(&buf, "  </features>\n") < 0)
+-            goto no_memory;
+-    }
+-
+-
+     for (n = 0 ; n < def->os.nBootDevs ; n++) {
+         const char *boottype = "hd";
+         switch (def->os.bootDevs[n]) {
+@@ -1805,6 +1795,16 @@ char *qemudGenerateXML(struct qemud_serv
+     if (qemudBufferAdd(&buf, "  </os>\n") < 0)
+         goto no_memory;
+ 
++    if (def->features & QEMUD_FEATURE_ACPI) {
++        if (qemudBufferAdd(&buf, "  <features>\n") < 0)
++            goto no_memory;
++        if (qemudBufferAdd(&buf, "    <acpi/>\n") < 0)
++            goto no_memory;
++        if (qemudBufferAdd(&buf, "  </features>\n") < 0)
++            goto no_memory;
++    }
++
++
+     if (qemudBufferAdd(&buf, "  <devices>\n") < 0)
+         goto no_memory;
+ 
+@@ -1888,7 +1888,7 @@ char *qemudGenerateXML(struct qemud_serv
+     if (def->graphicsType == QEMUD_GRAPHICS_VNC) {
+         if (def->vncPort) {
+             qemudBufferPrintf(&buf, "    <graphics type='vnc' port='%d'/>\n",
+-                              vm->id == -1 ? def->vncPort : def->vncActivePort);
++                              vm->id >= 0 && live ? def->vncActivePort : def->vncPort);
+         } else {
+             qemudBufferPrintf(&buf, "    <graphics type='vnc'/>\n");
+         }
+diff -rup libvirt-0.2.0.orig/qemud/qemud.c libvirt-0.2.0.new/qemud/qemud.c
+--- libvirt-0.2.0.orig/qemud/qemud.c	2007-02-14 12:51:06.000000000 -0500
++++ libvirt-0.2.0.new/qemud/qemud.c	2007-02-15 11:35:54.000000000 -0500
+@@ -239,6 +239,7 @@ static int qemudListen(struct qemud_serv
+ 
+ static struct qemud_server *qemudInitialize(int sys) {
+     struct qemud_server *server;
++    char libvirtConf[PATH_MAX];
+ 
+     if (!(server = calloc(1, sizeof(struct qemud_server))))
+         return NULL;
+@@ -249,6 +250,15 @@ static struct qemud_server *qemudInitial
+     server->nextvmid = 1;
+ 
+     if (sys) {
++        if (snprintf(libvirtConf, sizeof(libvirtConf), "%s/libvirt", SYSCONF_DIR) >= (int)sizeof(libvirtConf)) {
++            goto cleanup;
++        }
++        if (mkdir(libvirtConf, 0777) < 0) {
++            if (errno != EEXIST) {
++                goto cleanup;
++            }
++        }
++
+         if (snprintf(server->configDir, sizeof(server->configDir), "%s/libvirt/qemu", SYSCONF_DIR) >= (int)sizeof(server->configDir)) {
+             goto cleanup;
+         }
+@@ -258,6 +268,7 @@ static struct qemud_server *qemudInitial
+     } else {
+         struct passwd *pw;
+         int uid;
++
+         if ((uid = geteuid()) < 0) {
+             goto cleanup;
+         }
+@@ -265,6 +276,16 @@ static struct qemud_server *qemudInitial
+             goto cleanup;
+         }
+ 
++        if (snprintf(libvirtConf, sizeof(libvirtConf), "%s/.libvirt", pw->pw_dir) >= (int)sizeof(libvirtConf)) {
++            goto cleanup;
++        }
++        if (mkdir(libvirtConf, 0777) < 0) {
++            if (errno != EEXIST) {
++                goto cleanup;
++            }
++        }
++
++
+         if (snprintf(server->configDir, sizeof(server->configDir), "%s/.libvirt/qemu", pw->pw_dir) >= (int)sizeof(server->configDir)) {
+             goto cleanup;
+         }
+diff -rup libvirt-0.2.0.orig/src/qemu_internal.c libvirt-0.2.0.new/src/qemu_internal.c
+--- libvirt-0.2.0.orig/src/qemu_internal.c	2007-02-14 12:51:06.000000000 -0500
++++ libvirt-0.2.0.new/src/qemu_internal.c	2007-02-15 11:35:54.000000000 -0500
+@@ -99,8 +99,8 @@ static const char *
+ qemuFindServerPath(void)
+ {
+     static const char *serverPaths[] = {
+-        BINDIR "/libvirt_qemu",
+-        BINDIR "/libvirt_qemu_dbg",
++        BINDIR "/libvirt_qemud",
++        BINDIR "/libvirt_qemud_dbg",
+         NULL
+     };
+     int i;

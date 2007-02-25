@@ -1,0 +1,15 @@
+diff -rup libvirt-0.2.0/qemud/conf.c libvirt-0.2.0-new/qemud/conf.c
+--- libvirt-0.2.0/qemud/conf.c	2007-02-23 14:16:35.000000000 -0500
++++ libvirt-0.2.0-new/qemud/conf.c	2007-02-23 14:16:25.000000000 -0500
+@@ -1634,9 +1634,9 @@ int qemudScanConfigDir(struct qemud_serv
+ 
+ /* Scan for all guest and network config files */
+ int qemudScanConfigs(struct qemud_server *server) {
+-    if (qemudScanConfigDir(server, server->configDir, 0) < 0)
++    if (qemudScanConfigDir(server, server->configDir, 1) < 0)
+         return -1;
+-    return qemudScanConfigDir(server, server->networkConfigDir, 1);
++    return qemudScanConfigDir(server, server->networkConfigDir, 0);
+ }
+ 
+ /* Simple grow-on-demand string buffer */

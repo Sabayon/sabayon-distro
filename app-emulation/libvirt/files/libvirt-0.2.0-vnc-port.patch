@@ -1,0 +1,12 @@
+diff -rup libvirt-0.2.0-orig/qemud/conf.c libvirt-0.2.0-new/qemud/conf.c
+--- libvirt-0.2.0-orig/qemud/conf.c	2007-02-16 16:54:39.000000000 -0500
++++ libvirt-0.2.0-new/qemud/conf.c	2007-02-16 16:59:03.000000000 -0500
+@@ -1089,7 +1082,7 @@ int qemudBuildCommandLine(struct qemud_s
+ 
+     if (vm->def->graphicsType == QEMUD_GRAPHICS_VNC) {
+         char port[10];
+-        snprintf(port, 10, "%d", vm->def->vncActivePort - 5900);
++        snprintf(port, 10, ":%d", vm->def->vncActivePort - 5900);
+         if (!((*argv)[++n] = strdup("-vnc")))
+             goto no_memory;
+         if (!((*argv)[++n] = strdup(port)))
