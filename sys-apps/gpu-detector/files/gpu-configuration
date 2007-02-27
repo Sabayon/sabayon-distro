@@ -49,7 +49,7 @@ if [ -z "$R7500" ]; then
 fi
 R2XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R2.*")
 R1XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV1.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R1.*")
-RX700=$($lspci_output | grep ' VGA ' | grep -i "Radeon Mobility X700")
+RX700=$($lspci_output | grep ' VGA ' | grep -i "ATI.*Radeon.*X700")
 RX200=$($lspci_output | grep ' VGA ' | grep -i "ATI.*Radeon.*X.*200M")
 R9600=$($lspci_output | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
 RAGE128=$($lspci_output | grep ' VGA ' | grep -i "Rage 128")
@@ -235,7 +235,7 @@ if [ -n "$NVIDIA" ]; then
   else
 
      modprobe nvidia &> /dev/null
-     if [ "$?" != "0" ] || [ -n "`cat /proc/cmdline | grep nvidia=forcefail`" ]; then
+     if [ "$?" != "0" ] || [ -n "`cat /proc/cmdline | grep 'nvidia=forcefail'`" ]; then
          # nvidia=forcefail is only used for debugging...
          nv_mod_failed="yes"
      else
