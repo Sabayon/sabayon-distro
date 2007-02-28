@@ -239,7 +239,11 @@ if [ -n "$NVIDIA" ]; then
      modprobe nvidia &> /dev/null
      if [ "$?" != "0" ] || [ -n "`cat /proc/cmdline | grep 'nvidia=forcefail'`" ]; then
          # nvidia=forcefail is only used for debugging...
-         nv_mod_failed="yes"
+         if [ -z "`cat /proc/cmdline | grep 'nvidia=disablelegacy'`" ]; then
+             nv_mod_failed="yes"
+         else
+             nv_mod_failed="no"
+         fi
      else
          nv_mod_failed="no"
      fi
@@ -250,7 +254,8 @@ if [ -n "$NVIDIA" ]; then
              # check if we are running in the live mode
              if [ -n "$IS_LIVE" ]; then
                  # yes, so, check for the legacy drivers
-                 if [ -e "/lib/nvidia/legacy" ]; then
+                 nv_driver_package=$(ls /install-data/drivers/nvidia-drivers-*)
+                 if [ -n "$nv_driver_package" ] && [ -f "$nv_driver_package" ]; then
 
                      # prepare legacy drivers
                      if [ -e "/usr/bin/qlist" ]; then
@@ -261,18 +266,24 @@ if [ -n "$NVIDIA" ]; then
                          emerge -C nvidia-drivers &> /dev/null
                      fi
 
-                     # remove old nvidia.ko
+                     # remove old garbage
                      rm /lib/modules/$(uname -r)/video/nvidia.ko -f
+                     rm /lib/nvidia/* -rf
+
                      # copy over
-                     cp /lib/nvidia/legacy/usr/* /usr/ -Rp &> /dev/null
+                     # well... unpack roughly here
+                     tar xjf $nv_driver_package -C / &> /dev/null
+
                      # create nvidia.ko
-                     ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/legacy/lib/nvidia/nvidia.o /lib/nvidia/legacy/lib/nvidia/nvidia.mod.o
+                     ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
                      # mandatory because we need to re-run the opengl configuration
                      source /etc/profile
                      nice -20 eselect opengl set xorg-x11 &> /dev/null
                      nice -20 eselect opengl set nvidia &> /dev/null
                      # hope that will work
+                     mkdir -p /lib/nvidia/legacy
                      touch /lib/nvidia/legacy/running
+                     modprobe nvidia &> /dev/null
 
                      check_if_proprietary_driver_system_is_healthy nvidia
                      if [ "$opengl_status" == "0" ]; then
