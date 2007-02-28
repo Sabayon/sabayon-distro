@@ -10,10 +10,21 @@ AUX 1.1/language-setup 8229 RMD160 317eaec0ccd1bf9cc3582584b6d27bf63b17483d SHA1
 MD5 aa3d55ef5e4bdcf416b00f8497fc84f9 files/1.1/language-setup 8229
 RMD160 317eaec0ccd1bf9cc3582584b6d27bf63b17483d files/1.1/language-setup 8229
 SHA256 9a8d1fc71c2676dc2168548afa74165b7aa816ba43d46fdbf85a3e2aae04619f files/1.1/language-setup 8229
+AUX 1.2.0/language-setup 8566 RMD160 30ec93b97eefd910c1dc19a372c9b7d5a71f6052 SHA1 aa8825608363889a3ac7e973c266c65199a6b749 SHA256 cf6544b29475fbf307a89adeacc299ab3a53277569ddcba1b831097d26ea810c
+MD5 ddb11e9e8adbaded685665ed0fd8ae32 files/1.2.0/language-setup 8566
+RMD160 30ec93b97eefd910c1dc19a372c9b7d5a71f6052 files/1.2.0/language-setup 8566
+SHA256 cf6544b29475fbf307a89adeacc299ab3a53277569ddcba1b831097d26ea810c files/1.2.0/language-setup 8566
 EBUILD language-configuration-helpers-1.1.1.ebuild 662 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 SHA1 628265a3dea1237a499bd3798479464426bf2190 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19
 MD5 36c752f5d8bd8004c721dfff505a5092 language-configuration-helpers-1.1.1.ebuild 662
 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 language-configuration-helpers-1.1.1.ebuild 662
 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19 language-configuration-helpers-1.1.1.ebuild 662
+EBUILD language-configuration-helpers-1.2.0.ebuild 662 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 SHA1 628265a3dea1237a499bd3798479464426bf2190 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19
+MD5 36c752f5d8bd8004c721dfff505a5092 language-configuration-helpers-1.2.0.ebuild 662
+RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 language-configuration-helpers-1.2.0.ebuild 662
+SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19 language-configuration-helpers-1.2.0.ebuild 662
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-language-configuration-helpers-1.1.1 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-language-configuration-helpers-1.1.1 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-language-configuration-helpers-1.1.1 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-language-configuration-helpers-1.2.0 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-language-configuration-helpers-1.2.0 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-language-configuration-helpers-1.2.0 0
