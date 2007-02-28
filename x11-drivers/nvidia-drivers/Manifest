@@ -70,6 +70,10 @@ EBUILD nvidia-drivers-1.0.9631-r91.ebuild 13633 RMD160 595e80b03f3d55d296ab237fc
 MD5 850fce3721abf8702611e14f8d3eece4 nvidia-drivers-1.0.9631-r91.ebuild 13633
 RMD160 595e80b03f3d55d296ab237fc11566ad77fd25a5 nvidia-drivers-1.0.9631-r91.ebuild 13633
 SHA256 5306e4a06a6d358eaca1a2aefd7ee78ec073e286ff22cf8d71645c11cc809b16 nvidia-drivers-1.0.9631-r91.ebuild 13633
+EBUILD nvidia-drivers-1.0.9631-r92.ebuild 13667 RMD160 c27dd0bf4cf85017cce223d0cf10867646cf7078 SHA1 84d423e87add4c5e1e4cff87a32e4dfec00a559b SHA256 a8c496749ced1fbdc8145bb2c1041fae45115667d34958fa597b281d9acd0a14
+MD5 17308805df517e02b6ba6f42a1984b83 nvidia-drivers-1.0.9631-r92.ebuild 13667
+RMD160 c27dd0bf4cf85017cce223d0cf10867646cf7078 nvidia-drivers-1.0.9631-r92.ebuild 13667
+SHA256 a8c496749ced1fbdc8145bb2c1041fae45115667d34958fa597b281d9acd0a14 nvidia-drivers-1.0.9631-r92.ebuild 13667
 EBUILD nvidia-drivers-1.0.9742-r90.ebuild 11795 RMD160 b9be9b162c73c2369351b4fe1db7034d46c784c7 SHA1 d1d9b19450ad322bb0691c6381a47dbe518b24f6 SHA256 8668e378100f03a634bfd3dc18ecca3fc886cb0ffe4e1d1db24eede351463b0b
 MD5 debf77c3ff31accc1b37dd4d3fe40e21 nvidia-drivers-1.0.9742-r90.ebuild 11795
 RMD160 b9be9b162c73c2369351b4fe1db7034d46c784c7 nvidia-drivers-1.0.9742-r90.ebuild 11795
@@ -90,6 +94,9 @@ SHA256 823e064c3fea2fa8c61a5276af2dc7645136f7ac90e77fa571089e941d04f171 files/di
 MD5 e40c59778a2bc692817308df81ae2d1c files/digest-nvidia-drivers-1.0.9631-r91 870
 RMD160 3f03d5b9e447512ed9a1fd6eefbc6d013c7b9c14 files/digest-nvidia-drivers-1.0.9631-r91 870
 SHA256 7d920f7b6cae52a27fa4c0e9194e1e96565862955c2ceba136327bb92564c748 files/digest-nvidia-drivers-1.0.9631-r91 870
+MD5 e40c59778a2bc692817308df81ae2d1c files/digest-nvidia-drivers-1.0.9631-r92 870
+RMD160 3f03d5b9e447512ed9a1fd6eefbc6d013c7b9c14 files/digest-nvidia-drivers-1.0.9631-r92 870
+SHA256 7d920f7b6cae52a27fa4c0e9194e1e96565862955c2ceba136327bb92564c748 files/digest-nvidia-drivers-1.0.9631-r92 870
 MD5 ab0fa47beef755c3aa9af844c7d71135 files/digest-nvidia-drivers-1.0.9742-r90 876
 RMD160 27cdc2fd33303e11c15c7e19975305350155b22b files/digest-nvidia-drivers-1.0.9742-r90 876
 SHA256 950034bb03a5187ae4e71a8cbb95c375a7bf0487043a8134bf21d67a8f9aeacc files/digest-nvidia-drivers-1.0.9742-r90 876
