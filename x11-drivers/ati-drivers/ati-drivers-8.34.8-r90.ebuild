@@ -333,9 +333,9 @@ src_install() {
 
 	if use distribution && ! use x86-fbsd; then
 		insinto /lib/fglrx
-		doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/fglrx.o"
+		doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
 		insinto /lib/fglrx
-		doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/fglrx.mod.o"
+		doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
 	fi
 
 
