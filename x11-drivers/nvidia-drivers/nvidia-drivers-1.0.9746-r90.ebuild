@@ -18,7 +18,7 @@ SRC_URI="x86? ( http://us.download.nvidia.com/XFree86/Linux-x86/${NV_V}/${X86_NV
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
-IUSE="dlloader"
+IUSE="dlloader distribution"
 RESTRICT="strip multilib-pkg-force"
 
 DEPEND="kernel_linux? ( virtual/linux-sources )"
@@ -233,6 +233,15 @@ src_install() {
                 dodoc doc/{README,XF86Config.sample,Copyrights}
                 dohtml doc/html/*
         fi
+
+        if use distribution && ! use x86-fbsd; then
+                insinto /lib/nvidia
+                doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.o"
+                insinto /lib/nvidia
+                doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.mod.o"
+        fi
+
+
 }
 
 # Install nvidia library:
