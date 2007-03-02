@@ -1,0 +1,11 @@
+--- metisse-20061201/bin/metisse-start-fvwm.in.a11y	2006-12-01 15:01:08.000000000 +0100
++++ metisse-20061201/bin/metisse-start-fvwm.in	2006-12-01 15:01:24.000000000 +0100
+@@ -45,7 +45,7 @@
+ WPASS="no"
+ XMETISSE_DISPLAY="metisse://$WHOST$WDPY"
+ FVWM_DISPLAY="$WHOST$WDPY"
+-ENABLE_ACCESSIBILITY=no
++ENABLE_ACCESSIBILITY=yes
+ 
+ while [ "x$1" != "x" ]; do
+ 	case "$1" in

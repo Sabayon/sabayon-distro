@@ -1,0 +1,45 @@
+From 3f201796284112ed2c43d8d67a8d676bc7ca6d43 Mon Sep 17 00:00:00 2001
+From: Boiko <boiko@ageless.conectiva>
+Date: Thu, 8 Jun 2006 14:07:35 -0300
+Subject: [PATCH] Blue background on startup
+---
+ dix/window.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+), 0 deletions(-)
+
+diff --git a/dix/window.c b/dix/window.c
+index 9fba5f8..f93deb9 100644
+--- a/xserver/dix/window.c
++++ b/xserver/dix/window.c
+@@ -314,6 +314,7 @@ #endif
+ static void
+ MakeRootTile(WindowPtr pWin)
+ {
++#if 0
+     ScreenPtr pScreen = pWin->drawable.pScreen;
+     GCPtr pGC;
+     unsigned char back[128];
+@@ -355,6 +356,21 @@ MakeRootTile(WindowPtr pWin)
+ 
+    FreeScratchGC(pGC);
+ 
++#else
++   {
++     /* Mandrake Linux specific: set our background color */
++     unsigned short 	red = 0x00 << 8, green = 0x45 << 8, blue = 0x94 << 8;
++     Pixel		pixel;
++     
++     AllocColor((ColormapPtr)SecurityLookupIDByType(wClient(pWin), pWin->optional->colormap,
++					      RT_COLORMAP, SecurityWriteAccess),
++		&red, &green, &blue, &pixel, wClient(pWin)->index);
++     ChangeWindowAttributes(pWin, CWBackPixel, &pixel, wClient(pWin));
++     (*pWin->drawable.pScreen->ClearToBackground)(pWin, 0, 0, 0, 0, 0);
++     
++     /* ErrorF("xf86CreateRootWindow() put background color %d\n", pixel); */
++   }
++#endif
+ }
+ 
+ WindowPtr
+-- 
+1.4.0
+

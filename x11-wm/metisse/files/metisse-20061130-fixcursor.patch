@@ -1,0 +1,11 @@
+--- metisse-20061129/bin/metisse-start-fvwm.in.fixcursor	2006-11-30 14:44:50.000000000 +0100
++++ metisse-20061129/bin/metisse-start-fvwm.in	2006-11-30 14:45:02.000000000 +0100
+@@ -234,7 +234,7 @@
+     export GTK_MODULES="gail:atk-bridge"
+ fi
+ 
+-FVWMCOMPOSITOR_ARGS="-d $FVWMCOMPOSITOR_DISPLAY -w $XMETISSE_DISPLAY $compositorArgs"
++FVWMCOMPOSITOR_ARGS="-d $FVWMCOMPOSITOR_DISPLAY -w $XMETISSE_DISPLAY $compositorArgs -C"
+ export FVWMCOMPOSITOR_ARGS
+ export METISSE_FVWM_CONFIG_DIR
+ 
