@@ -3,20 +3,17 @@
 
 inherit autotools eutils
 
-METISSE_BUILD="20070108"
 IUSE="mmx dri freetype"
 DESCRIPTION="Beryl window manager for AIGLX and XGL"
 HOMEPAGE="http://beryl-project.org"
 SRC_URI="
-	http://www.sabayonlinux.org/distfiles/x11-wm/${PN}-${PV/_*/}/${PN}-${METISSE_BUILD}.tar.bz2
-	http://www.sabayonlinux.org/distfiles/x11-wm/${PN}-${PV/_*/}/fvwm-insitu-${METISSE_BUILD}.tar.bz2
+	http://www.sabayonlinux.org/distfiles/x11-wm/${P}/${P/_/-}.tar.bz2
 	"
 
 LICENSE="MIT"
 SLOT="0"
 RESTRICT="nomirror"
 KEYWORDS="~x86 ~amd64 ~ppc ~ppc64"
-S=${WORKDIR}/${PN}-${METISSE_BUILD}
 
 DEPEND="
 	>=x11-base/xorg-server-1.1.1-r1

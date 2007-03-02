@@ -1,0 +1,17 @@
+Index: fvwm/events.c
+===================================================================
+RCS file: /users/asspro/ihm/metisse-cvs/fvwm-insitu/fvwm/events.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -u -r1.15 -r1.16
+--- metisse/fvwm-insitu/fvwm/events.c	11 Jan 2007 22:18:23 -0000	1.15
++++ metisse/fvwm-insitu/fvwm/events.c	7 Feb 2007 14:04:57 -0000	1.16
+@@ -4720,7 +4720,7 @@
+ 	if (EWMH_IsKdeSysTrayWindow(te->xreparent.window))
+ 	{
+ 		/* FIXME */
+-		return;
++		/* return; */
+ 	}
+ 	if (te->xreparent.parent != FW_W_FRAME(fw))
+ 	{
