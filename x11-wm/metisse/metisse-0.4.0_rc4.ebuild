@@ -27,14 +27,20 @@ DEPEND="
 RDEPEND="${DEPEND}"
 PDEPEND=""
 
+S=${WORKDIR}/${P/_/-}
+
 src_unpack() {
 	unpack ${A}
 	cd ${S}
-	for patch in ${FILESDIR}/${PN}-*.patch; do
-		epatch ${patch}
-	done
 
-	unpack fvwm-insitu-${METISSE_BUILD}.tar.bz2
+	epatch ${FILESDIR}/${PN}-20061130-background.patch
+	epatch ${FILESDIR}/${PN}-20061201-a11y.patch
+	epatch ${FILESDIR}/${PN}-defaults.patch
+	epatch ${FILESDIR}/${PN}-20070112-64bit-fixes.patch
+	epatch ${FILESDIR}/${P/_/-}-fixglx.patch
+	epatch ${FILESDIR}/fvwm-insitu-20070117-fixkdetray.patch
+	epatch ${FILESDIR}/${P/_/-}-fixpagerborder.patch
+
 }
 
 src_compile() {
