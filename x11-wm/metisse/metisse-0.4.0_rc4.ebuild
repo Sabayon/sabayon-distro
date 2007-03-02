@@ -1,7 +1,7 @@
 # Copyright 2004-2006 SabayonLinux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit autotools eutils
+inherit autotools libtool eutils
 
 IUSE="mmx dri freetype"
 DESCRIPTION="Beryl window manager for AIGLX and XGL"
@@ -46,7 +46,6 @@ src_unpack() {
 
 src_compile() {
 	cd ${S}
-	WANT_AUTOMAKE="1.7" ./bootstrap
 
 	ECONF_OPTS=""
 	if use mmx || use amd64; then
@@ -61,6 +60,7 @@ src_compile() {
 		ECONF_OPTS="${ECONF_OPTS} --enable-freetype"
 	fi
 
+	eautoreconf || die "eautoreconf failed"
 	econf ${ECONF_OPTS} || die "econf failed"
 	emake || die "make failed"
 
