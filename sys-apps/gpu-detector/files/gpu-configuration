@@ -240,6 +240,7 @@ if [ -n "$NVIDIA" ]; then
      if [ "$?" != "0" ] || [ -n "`cat /proc/cmdline | grep 'nvidia=forcefail'`" ]; then
          # nvidia=forcefail is only used for debugging...
          if [ -z "`cat /proc/cmdline | grep 'nvidia=disablelegacy'`" ]; then
+             rmmod nvidia &> /dev/null
              nv_mod_failed="yes"
          else
              nv_mod_failed="no"
