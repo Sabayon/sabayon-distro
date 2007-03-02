@@ -1,0 +1,62 @@
+reverted:
+--- nucleo/nucleo/plugins/ffmpeg/Makefile.am	22 Jan 2007 13:42:23 -0000	1.16
++++ nucleo/nucleo/plugins/ffmpeg/Makefile.am	8 Feb 2007 16:22:31 -0000	1.17
+@@ -11,26 +11,26 @@
+ 
+ AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir} @FFMPEG_CPPFLAGS@
+ 
++#lib_LTLIBRARIES = libnPffmpeg.la
+-lib_LTLIBRARIES = libnPffmpeg.la
+ pkglib_LTLIBRARIES = nPffmpeg.la
+ 
+ # the module
+ nPffmpeg_la_SOURCES = ffmpegImageSource.cxx ffmpegImageSink.cxx
++nPffmpeg_la_LDFLAGS = -module -avoid-version @FFMPEG_LDFLAGS@
+-nPffmpeg_la_LDFLAGS = -module @FFMPEG_LDFLAGS@
+ nPffmpeg_la_LIBADD  = @FFMPEG_LIBS@
+ 
+ # the library
++#libnPffmpeg_la_SOURCES = ffmpegImageSource.cxx ffmpegImageSink.cxx
++#libnPffmpeg_la_LDFLAGS = -version 0:0:0 @FFMPEG_LDFLAGS@
++#libnPffmpeg_la_LIBADD  = @FFMPEG_LIBS@
+-libnPffmpeg_la_SOURCES = ffmpegImageSource.cxx ffmpegImageSink.cxx
+-libnPffmpeg_la_LDFLAGS = -version 0:0:0 @FFMPEG_LDFLAGS@
+-libnPffmpeg_la_LIBADD  = @FFMPEG_LIBS@
+ 
+ if DARWIN
+ nPffmpeg_la_LDFLAGS += -Wl,-read_only_relocs,suppress
++#libnPffmpeg_la_LDFLAGS += -Wl,-read_only_relocs,suppress
+-libnPffmpeg_la_LDFLAGS += -Wl,-read_only_relocs,suppress
+ endif
+ 
++#libnPffmpegincludedir = $(includedir)/nucleo/plugins/ffmpeg
++#libnPffmpeginclude_HEADERS = ffmpegImageSource.H ffmpegImageSink.H
+-libnPffmpegincludedir = $(includedir)/nucleo/plugins/ffmpeg
+-libnPffmpeginclude_HEADERS = ffmpegImageSource.H ffmpegImageSink.H
+ 
+ noinst_SCRIPTS = plugin-descr
+ 
+reverted:
+--- nucleo/nucleo/plugins/qt/Makefile.am	7 Feb 2007 11:37:59 -0000	1.4
++++ nucleo/nucleo/plugins/qt/Makefile.am	8 Feb 2007 16:22:31 -0000	1.5
+@@ -18,7 +18,7 @@
+ 
+ dist_nPqt_la_SOURCES = qtReactiveEngine.cxx qtFileKeeper.cxx qtTimeKeeper.cxx
+ nodist_nPqt_la_SOURCES = moc_qtReactiveEngine.cxx moc_qtTimeKeeper.cxx moc_qtFileKeeper.cxx
++nPqt_la_LDFLAGS = -module -avoid-version @QT_LDFLAGS@
+-nPqt_la_LDFLAGS = -module @QT_LDFLAGS@
+ nPqt_la_LIBADD = @QT_LIBS@
+ 
+ moc_%.cxx: %.H
+reverted:
+--- nucleo/nucleo/plugins/vnc/Makefile.am	13 Nov 2005 14:47:31 -0000	1.9
++++ nucleo/nucleo/plugins/vnc/Makefile.am	8 Feb 2007 16:22:31 -0000	1.10
+@@ -16,7 +16,7 @@
+ 
+ # the module
+ nPvnc_la_SOURCES = vncImageSource.cxx
++nPvnc_la_LDFLAGS = -module -avoid-version @VNC_LDFLAGS@
+-nPvnc_la_LDFLAGS = -module @VNC_LDFLAGS@
+ nPvnc_la_LIBADD = -lrfb
+ 
+ # the library

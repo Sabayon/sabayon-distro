@@ -1,0 +1,129 @@
+--- nucleo-0.6/apps/videoServer/Makefile.am.avahi	2005-11-13 15:47:31.000000000 +0100
++++ nucleo-0.6/apps/videoServer/Makefile.am	2007-02-26 12:41:15.000000000 +0100
+@@ -9,8 +9,8 @@
+ # this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ #
+ 
+-AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir}
+-AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo
++AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir} $(DNS_SD_CPPFLAGS)
++AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo $(DNS_SD_LIBS)
+ 
+ bin_PROGRAMS = videoServer
+ 
+--- nucleo-0.6/apps/Makefile.am.avahi	2006-02-27 11:10:20.000000000 +0100
++++ nucleo-0.6/apps/Makefile.am	2007-02-26 12:41:15.000000000 +0100
+@@ -11,8 +11,8 @@
+ 
+ SUBDIRS = videoServer
+ 
+-AM_CPPFLAGS = -I${top_srcdir}/ -I${top_builddir}
+-AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo
++AM_CPPFLAGS = -I${top_srcdir}/ -I${top_builddir} $(DNS_SD_CPPFLAGS)
++AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo $(DNS_SD_LIBS)
+ 
+ bin_PROGRAMS = videoClient
+ 
+--- nucleo-0.6/demos/misc/Makefile.am.avahi	2006-12-11 22:00:53.000000000 +0100
++++ nucleo-0.6/demos/misc/Makefile.am	2007-02-26 12:41:15.000000000 +0100
+@@ -9,8 +9,8 @@
+ # this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ #
+ 
+-AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir}
+-AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo
++AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir} $(DNS_SD_CPPFLAGS)
++AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo $(DNS_SD_LIBS)
+ 
+ noinst_PROGRAMS = documentOpener disBonjour
+ 
+--- nucleo-0.6/demos/video/Makefile.am.avahi	2007-01-15 22:07:30.000000000 +0100
++++ nucleo-0.6/demos/video/Makefile.am	2007-02-26 12:41:15.000000000 +0100
+@@ -9,8 +9,8 @@
+ # this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ #
+ 
+-AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir}
+-AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo
++AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir} $(DNS_SD_CPPFLAGS)
++AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo $(DNS_SD_LIBS)
+ 
+ noinst_PROGRAMS = blender collage timeoverlay src2files
+ 
+--- nucleo-0.6/nucleo/network/dnssd/Makefile.am.avahi	2007-01-15 16:33:27.000000000 +0100
++++ nucleo-0.6/nucleo/network/dnssd/Makefile.am	2007-02-26 13:00:37.000000000 +0100
+@@ -9,7 +9,8 @@
+ # this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ #
+ 
+-AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir}
++AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir} $(DNS_SD_CPPFLAGS)
++AM_LDFLAGS = $(DNS_SD_LIBS)
+ 
+ noinst_LTLIBRARIES = libdnssd.la
+ 
+--- nucleo-0.6/tests/Makefile.am.avahi	2007-01-16 14:17:04.000000000 +0100
++++ nucleo-0.6/tests/Makefile.am	2007-02-26 12:41:15.000000000 +0100
+@@ -9,8 +9,8 @@
+ # this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ #
+ 
+-AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir}
+-AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo
++AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir} $(DNS_SD_CPPFLAGS)
++AM_LDFLAGS = -L${top_builddir}/nucleo -lNucleo $(DNS_SD_LIBS)
+ 
+ noinst_PROGRAMS = \
+ 	test-reducePath \
+--- nucleo-0.6/configure.ac.avahi	2007-01-15 16:45:54.000000000 +0100
++++ nucleo-0.6/configure.ac	2007-02-26 12:41:15.000000000 +0100
+@@ -230,11 +230,21 @@
+ HAVE_DNS_SD=1
+   AC_CHECK_HEADERS([dns_sd.h], [],
+     [HAVE_DNS_SD=0; with_dns_sd="no"; problem_dns_sd=" (dns_sd.h not found)"])
+-if test x$TARGET != xDARWIN; then
+-  AC_CHECK_LIB(dns_sd, DNSServiceRegister, [],
+-    [HAVE_DNS_SD=0; with_dns_sd="no"; problem_dns_sd=" (dns_sd library not found)"])
++if test x$TARGET != xDARWIN ; then
++  MY_PKG_CONFIG_CHECK([avahi-compat-libdns_sd], HAVE_DNS_SD, DNS_SD)
++  if test $HAVE_DNS_SD = 0 -a "x$HAVE_DNS_SD_H" = "x1" ; then
++    AC_CHECK_LIB(dns_sd, DNSServiceRegister, [],
++      [HAVE_DNS_SD=0; with_dns_sd="no"; problem_dns_sd=" (dns_sd library not found)"])
++  fi
++  if test $HAVE_DNS_SD = 1 ; then
++    problem_dns_sd=""
++    with_dns_sd="yes"
++  fi
+ fi
+ AC_SUBST(HAVE_DNS_SD)
++AC_SUBST(DNS_SD_CPPFLAGS)
++AC_SUBST(DNS_SD_LDFLAGS)
++AC_SUBST(DNS_SD_LIBS)
+ AC_DEFINE_UNQUOTED(HAVE_DNS_SD,$HAVE_DNS_SD,[DNS_SD support])
+ AM_CONDITIONAL(HAVE_DNS_SD,[test "x$HAVE_DNS_SD" = "x1"])
+ 
+--- nucleo-0.6/nucleo.pc.in.avahi	2006-04-02 16:49:58.000000000 +0200
++++ nucleo-0.6/nucleo.pc.in	2007-02-26 12:41:15.000000000 +0100
+@@ -6,5 +6,5 @@
+ Name: nucleo
+ Description: a toolking for exploring new uses of video and new interaction techniques
+ Version: @VERSION@
+-Cflags: @CPPFLAGS@ -I${includedir}
+-Libs: @LDFLAGS@ -L${libdir} -lNucleo @LIBS@
++Cflags: @CPPFLAGS@ -I${includedir} @DNS_SD_CPPFLAGS@
++Libs: @LDFLAGS@ -L${libdir} -lNucleo @LIBS@ @DNS_SD_LIBS@
+--- nucleo-0.6/nucleo-config.in.avahi	2007-01-15 16:33:27.000000000 +0100
++++ nucleo-0.6/nucleo-config.in	2007-02-26 12:41:15.000000000 +0100
+@@ -13,10 +13,10 @@
+ libdir=@libdir@
+ includedir=@includedir@
+ 
+-CPPFLAGS="@CPPFLAGS@ -I$includedir"
++CPPFLAGS="@CPPFLAGS@ -I$includedir @DNS_SD_CPPFLAGS@"
+ CXXFLAGS="@CXXFLAGS@"
+ LDFLAGS="-L$libdir @LDFLAGS@"
+-LIBS="-lNucleo @LIBS@"
++LIBS="-lNucleo @LIBS@ @DNS_SD_LIBS@"
+ 
+ case $1 in
+   --cxx)
