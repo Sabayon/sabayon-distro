@@ -22,6 +22,7 @@ DEPEND="
 	x11-libs/libXdamage
 	x11-libs/libXrandr
 	x11-libs/startup-notification
+	x11-libs/nucleo
 	"
 
 RDEPEND="${DEPEND}"
