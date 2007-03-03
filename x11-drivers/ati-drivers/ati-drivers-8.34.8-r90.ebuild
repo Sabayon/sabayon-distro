@@ -170,20 +170,22 @@ src_compile() {
 	# The -DUSE_GLU is needed to compile using nvidia headers
 	# according to a comment in ati-drivers-extra-8.33.6.ebuild.
 	"$(tc-getCC)" -o fgl_fglxgears ${CFLAGS} ${LDFLAGS} -DUSE_GLU \
-		-lGL -lGLU -lX11 -lm fgl_glxgears.c || die "fgl_glxgears build failed"
+		-I"${S}"/common/usr/include fgl_glxgears.c \
+		-lGL -lGLU -lX11 -lm || die "fgl_glxgears build failed"
 
 	einfo "Building fglrx_gamma lib"
 	cd "${S}"/extra/lib/fglrx_gamma
 	"$(tc-getCC)" -shared -fpic -o libfglrx_gamma.so.1.0 ${CFLAGS} ${LDFLAGS} \
-		fglrx_gamma.c -DXF86MISC -Wl,-soname,libfglrx_gamma.so.1.0 \
-		|| die "fglrx_gamma lib build failed"
+		-DXF86MISC -Wl,-soname,libfglrx_gamma.so.1.0 fglrx_gamma.c \
+		-lXext || die "fglrx_gamma lib build failed"
 	ln -s libfglrx_gamma.so.1.0 libfglrx_gamma.so || die "ln failed"
 	ln -s libfglrx_gamma.so.1.0 libfglrx_gamma.so.1 || die "ln failed"
 
 	einfo "Building fglrx_gamma util"
 	cd "${S}"/extra/programs/fglrx_gamma
-	"$(tc-getCC)" -o fglrx_xgamma ${CFLAGS} ${LDFLAGS} fglrx_xgamma.c \
-		-lm -lfglrx_gamma -lX11 -lXext -L../../lib/fglrx_gamma \
+	"$(tc-getCC)" -o fglrx_xgamma ${CFLAGS} ${LDFLAGS} \
+		-I../../../common/usr/X11R6/include -L../../lib/fglrx_gamma \
+		fglrx_xgamma.c -lm -lfglrx_gamma -lX11 \
 		|| die "fglrx_gamma util build failed"
 
 	if use qt3; then
