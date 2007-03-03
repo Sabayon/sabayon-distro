@@ -1,3 +1,7 @@
+AUX 2.1.1/keyboard-setup 8435 RMD160 59b94ba6ce4c53daf91192526e7a5ed02b1ae2c2 SHA1 364a087bb7a567ed6a64f6200dbb39ee3e8764f9 SHA256 ece93ca1a4fbfc98e39fe71d1ad1f2e2386036ba6844839e6dd5d03b04101dfb
+MD5 e2004814ad3c4581fad73b34c13c3b96 files/2.1.1/keyboard-setup 8435
+RMD160 59b94ba6ce4c53daf91192526e7a5ed02b1ae2c2 files/2.1.1/keyboard-setup 8435
+SHA256 ece93ca1a4fbfc98e39fe71d1ad1f2e2386036ba6844839e6dd5d03b04101dfb files/2.1.1/keyboard-setup 8435
 AUX 2.1/keyboard-setup 8201 RMD160 76cf24f63fc943a9c93a5bffe4bc91511ff5be11 SHA1 0b18eb871939b6bfa349639b57e2ce4f0a684161 SHA256 053e869a8558b6b2049b51a1106db16c21f1a739a8d16f6d6674fd976b2ed655
 MD5 9fc3ccbd96241accb3225fd03a19a644 files/2.1/keyboard-setup 8201
 RMD160 76cf24f63fc943a9c93a5bffe4bc91511ff5be11 files/2.1/keyboard-setup 8201
@@ -6,6 +10,13 @@ EBUILD keyboard-configuration-helpers-2.1-r1.ebuild 544 RMD160 4f0d670bcebe83d13
 MD5 bfbafdbab60c9015d0114b7a132d6ffa keyboard-configuration-helpers-2.1-r1.ebuild 544
 RMD160 4f0d670bcebe83d13d289690c124e24921b7bb81 keyboard-configuration-helpers-2.1-r1.ebuild 544
 SHA256 36f0da32df8b4059320471099df689bbc3f8290af8b92e63d9501d45b767e1c6 keyboard-configuration-helpers-2.1-r1.ebuild 544
+EBUILD keyboard-configuration-helpers-2.1.1.ebuild 544 RMD160 4f0d670bcebe83d13d289690c124e24921b7bb81 SHA1 9106fea953a9259d3f7ff06f0d0ae80673c1d9b5 SHA256 36f0da32df8b4059320471099df689bbc3f8290af8b92e63d9501d45b767e1c6
+MD5 bfbafdbab60c9015d0114b7a132d6ffa keyboard-configuration-helpers-2.1.1.ebuild 544
+RMD160 4f0d670bcebe83d13d289690c124e24921b7bb81 keyboard-configuration-helpers-2.1.1.ebuild 544
+SHA256 36f0da32df8b4059320471099df689bbc3f8290af8b92e63d9501d45b767e1c6 keyboard-configuration-helpers-2.1.1.ebuild 544
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-keyboard-configuration-helpers-2.1-r1 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-keyboard-configuration-helpers-2.1-r1 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-keyboard-configuration-helpers-2.1-r1 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-keyboard-configuration-helpers-2.1.1 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-keyboard-configuration-helpers-2.1.1 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-keyboard-configuration-helpers-2.1.1 0
