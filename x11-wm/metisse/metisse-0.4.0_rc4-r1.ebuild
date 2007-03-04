@@ -68,4 +68,15 @@ src_compile() {
 
 src_install() {
 	make DESTDIR="${D}" install || die "make install failed"
+
+	# Install X Sessions
+	insinto /usr/share/xsessions
+        doins ${FILESDIR}/${PN}-session/*.desktop
+	
+	# Install handlers
+	exeinto /usr/share/metisse
+        doexe ${FILESDIR}/${PN}-session/metisse-session
+        doexe ${FILESDIR}/${PN}-session/metisse-session-kde
+        doexe ${FILESDIR}/${PN}-session/metisse-session-gnome
+
 }
