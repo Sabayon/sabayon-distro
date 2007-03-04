@@ -73,7 +73,7 @@
  DestroyFunc AFuncSetBackground
  AddToFunc   AFuncSetBackground
 -+ I AFuncCheckAndSetScaledBg $[METISSE_FVWM_CONFIG_DIR]/images/backgrounds/sky-metisse.jpg
-++ I AFuncCheckAndSetScaledBg /usr/share/mdk/backgrounds/default.png
+++ I AFuncCheckAndSetScaledBg /usr/share/backgrounds/sabayonlinux.jpg
  # opale background
  #+ I AFuncCheckAndSetScaledBg $[OPALE_CONFIG_DIR]/backgrounds/sky-default.jpg
 --- metisse-20061227/FvwmCompositor/config/metisserc.in.defaults	2007-01-02 18:40:57.000000000 +0100
