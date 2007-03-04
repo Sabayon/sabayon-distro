@@ -22,8 +22,6 @@ DEPEND="${RDEPEND}
         || ( >=dev-libs/dbus-qt3-old-0.70 <sys-apps/dbus-0.70 )
 	"
 
-S=${WORKDIR}/${PN}
-
 UNSERMAKE="/usr/kde/unsermake/unsermake"
 set-kdedir
 
