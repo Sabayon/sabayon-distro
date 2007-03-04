@@ -26,6 +26,7 @@ RDEPEND=">=dev-libs/glib-2.6
 	dev-libs/libusb
 	sys-apps/hotplug
 	virtual/eject
+	>=sys-fs/ntfs3g-1.0
 	dmi? ( >=sys-apps/dmidecode-2.7 )
 	crypt? ( >=sys-fs/cryptsetup-luks-1.0.1 )
 	selinux? ( sys-libs/libselinux )"
