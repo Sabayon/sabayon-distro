@@ -6,7 +6,7 @@ inherit kde
 
 DESCRIPTION="KDE front-end to powersave daemon"
 HOMEPAGE="http://powersave.sf.net/"
-SRC_URI="http://www.sabayonlinux.org/distfiles/sys-power/${P}.tar.bz2"
+SRC_URI="mirror://sourceforge/powersave/${P}.tar.bz2"
 RESTRICT="nomirror"
 
 LICENSE="GPL-2"
