@@ -38,10 +38,10 @@ AUX hal-0.5.8.1-remove-link-not-remove.patch 959 RMD160 996a5013e2407fea6eae6cc2
 MD5 c4fe80a5c56f6c4357e6e25e83ca3401 files/hal-0.5.8.1-remove-link-not-remove.patch 959
 RMD160 996a5013e2407fea6eae6cc21a8c8699f5adbdc5 files/hal-0.5.8.1-remove-link-not-remove.patch 959
 SHA256 65aea0e658c4ddc2e29b49c7c2aa6a8987bfbbbbf0e5e7c8ce32624f98078e3b files/hal-0.5.8.1-remove-link-not-remove.patch 959
-AUX hal-0.5.8.1-sabayonlinux-ntfs-3g.default.patch 825 RMD160 d5937fa8dee0ee0af5822180eec03ae3f65b15a3 SHA1 0b9309c6434e2135a1862c7dfda35b2dec37e67d SHA256 9d756437bca33719544096669b3cf6aedd2dd148d36cf64fab664b28dd762f56
-MD5 5f6ba9feeaf6772d8b83f0caf4275323 files/hal-0.5.8.1-sabayonlinux-ntfs-3g.default.patch 825
-RMD160 d5937fa8dee0ee0af5822180eec03ae3f65b15a3 files/hal-0.5.8.1-sabayonlinux-ntfs-3g.default.patch 825
-SHA256 9d756437bca33719544096669b3cf6aedd2dd148d36cf64fab664b28dd762f56 files/hal-0.5.8.1-sabayonlinux-ntfs-3g.default.patch 825
+AUX hal-0.5.8.1-sabayonlinux-ntfs-3g.default.patch 829 RMD160 9ffc2ce8b8b9cfbf2e74c83a1e867ed0b725fcea SHA1 7074e6eb57a8578a5a87a1e4dcb43c15224f76f1 SHA256 5815f4e661e12c4bc1e5fa70e89dedca3627fb01a97f3ae85e1eb2713c92607b
+MD5 9e4b40401d5eb065567e8b1fd8922b0d files/hal-0.5.8.1-sabayonlinux-ntfs-3g.default.patch 829
+RMD160 9ffc2ce8b8b9cfbf2e74c83a1e867ed0b725fcea files/hal-0.5.8.1-sabayonlinux-ntfs-3g.default.patch 829
+SHA256 5815f4e661e12c4bc1e5fa70e89dedca3627fb01a97f3ae85e1eb2713c92607b files/hal-0.5.8.1-sabayonlinux-ntfs-3g.default.patch 829
 AUX hal-0.5.8.1-sabayonlinux-ntfs-fuse.default.patch 719 RMD160 2058b8689c52aeaa8626d102307562fd402946f9 SHA1 44583af94b7d774de6a01641c5b70d0d3c499f75 SHA256 332ae7141059c6d0ee661bed39d07b813b05638f20bedeff762c9d402826d6d6
 MD5 82b7f321a046f2d673eee8c192b78432 files/hal-0.5.8.1-sabayonlinux-ntfs-fuse.default.patch 719
 RMD160 2058b8689c52aeaa8626d102307562fd402946f9 files/hal-0.5.8.1-sabayonlinux-ntfs-fuse.default.patch 719

@@ -9,8 +9,8 @@ diff -Nurp hal-0.5.8.1.orig/tools/hal-storage-mount.c hal-0.5.8.1/tools/hal-stor
 +	/* Dirty hack while we're waiting for a better KDE support for filesystems' selection */
 +	/* we are going to force NTFS-FUSE instead of NTFS */
 +	if (strcmp (mount_do_fstype, "ntfs") == 0) {
-+		int rc = system("ntfs-3g");
-+		if ( rc == 127 )
++		int rc = system("which ntfs-3g");
++		if ( rc == 1 )
 +			mount_do_fstype = "ntfs-fuse";
 +		else
 +			mount_do_fstype = "ntfs-3g";
