@@ -1,0 +1,12 @@
+diff -Nurp virt-manager-0.3.1.orig/src/vmm-open-connection.glade virt-manager-0.3.1/src/vmm-open-connection.glade
+--- virt-manager-0.3.1.orig/src/vmm-open-connection.glade
++++ virt-manager-0.3.1/src/vmm-open-connection.glade
+@@ -183,7 +183,7 @@
+ 		    <widget class="GtkComboBox" id="type-hypervisor">
+ 		      <property name="visible">True</property>
+ 		      <property name="items" translatable="yes">Xen
+-QEMU</property>
++KVM/QEMU</property>
+ 		      <property name="add_tearoffs">False</property>
+ 		      <property name="focus_on_click">True</property>
+ 		      <signal name="changed" handler="on_type_hypervisor_changed" last_modification_time="Mon, 19 Feb 2007 22:04:06 GMT"/>
