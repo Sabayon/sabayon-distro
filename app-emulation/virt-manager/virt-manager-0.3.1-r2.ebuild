@@ -1,6 +1,8 @@
 # Copyright 2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
+inherit eutils
+
 DESCRIPTION="Virtual Machine Manager GUI"
 HOMEPAGE="http://virt-manager.et.redhat.com/index.html"
 SRC_URI="http://virt-manager.et.redhat.com/download/sources/${PN}/${P}.tar.gz"
