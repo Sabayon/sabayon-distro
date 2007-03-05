@@ -12,7 +12,7 @@ IUSE=""
 
 DEPEND="
 	>=app-emulation/libvirt-0.2.0
-	>=dev-python/dbus-python-0.61
+	dev-python/dbus-python
 	>=gnome-base/gconf-2.8
 	>=x11-libs/vte-0.12
 	>=dev-python/gnome-python-2.15.4
