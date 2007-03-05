@@ -1,8 +1,20 @@
+AUX virt-manager-hvm-check.patch 1424 RMD160 a2723cab2c863b125b3f0ee95dd5c24956c52cd8 SHA1 e1679c77fc7c0703c6a400e944f55e5c929bd07a SHA256 820a3f6b04920bc2fc1d28658a12b67818bfa6db7743471d1d035d69a92cc816
+MD5 8c5b12f97b383af591faf2da3ff6e0db files/virt-manager-hvm-check.patch 1424
+RMD160 a2723cab2c863b125b3f0ee95dd5c24956c52cd8 files/virt-manager-hvm-check.patch 1424
+SHA256 820a3f6b04920bc2fc1d28658a12b67818bfa6db7743471d1d035d69a92cc816 files/virt-manager-hvm-check.patch 1424
+AUX virt-manager-keyungrab.patch 2683 RMD160 6569815cc496407cf3a512fdb5fb6a02a8cc274a SHA1 320816dd4a2fbfe602ee0bf61a43c00412c1aaed SHA256 0ca8dfb8fc7e3b2565f5da3416ebf9fb4288344747558aac596fceb98dd95606
+MD5 a60ad52a13554ecb3a1a6226b65a5fc0 files/virt-manager-keyungrab.patch 2683
+RMD160 6569815cc496407cf3a512fdb5fb6a02a8cc274a files/virt-manager-keyungrab.patch 2683
+SHA256 0ca8dfb8fc7e3b2565f5da3416ebf9fb4288344747558aac596fceb98dd95606 files/virt-manager-keyungrab.patch 2683
 DIST virt-manager-0.3.1.tar.gz 942802 RMD160 8bb5bca7c8cc2ed5b91d347be553da5dd5c02995 SHA1 4558e7c08fc5b264e14852a807cc4d41a562fab0 SHA256 d4c5f82228e37a2d234646351b46186a212b3c51754103a1027063cda83c4180
 EBUILD virt-manager-0.3.1-r1.ebuild 652 RMD160 53dedcbbd3c2a2874af215ccad8a4bfdf94d5b33 SHA1 c5799c6e0f21d483054d1cb13ec6f4430641ab30 SHA256 11091a87b5902f853d55b6ba52fca8f1e58e4e797000911c14d00a2200b3288f
 MD5 c3b257537ccefa10325f1d1bc6e5529a virt-manager-0.3.1-r1.ebuild 652
 RMD160 53dedcbbd3c2a2874af215ccad8a4bfdf94d5b33 virt-manager-0.3.1-r1.ebuild 652
 SHA256 11091a87b5902f853d55b6ba52fca8f1e58e4e797000911c14d00a2200b3288f virt-manager-0.3.1-r1.ebuild 652
+EBUILD virt-manager-0.3.1-r2.ebuild 778 RMD160 4f526a8eb2574f1b97149bdb118414beb34f7226 SHA1 e1ff8abe03d4f48b51a83a7e1948d60d35dfbf22 SHA256 391426787630f1cb1fe2003c6442a4552a2402308783846922df3931ef1042db
+MD5 a51408cfd522e4f057275b94d29022cd virt-manager-0.3.1-r2.ebuild 778
+RMD160 4f526a8eb2574f1b97149bdb118414beb34f7226 virt-manager-0.3.1-r2.ebuild 778
+SHA256 391426787630f1cb1fe2003c6442a4552a2402308783846922df3931ef1042db virt-manager-0.3.1-r2.ebuild 778
 EBUILD virt-manager-0.3.1.ebuild 657 RMD160 cf2b9c468c463782014c694d86c2bdfcc9398ba6 SHA1 4f70c1640510f2720aa4f41d9b8d152db0aaf851 SHA256 863f39c84f6d15aeae02063c5c0a3168a507afa13156c27e4915a182a5c8c98e
 MD5 bc3c0ada31ca2d2cef668af61624462c virt-manager-0.3.1.ebuild 657
 RMD160 cf2b9c468c463782014c694d86c2bdfcc9398ba6 virt-manager-0.3.1.ebuild 657
@@ -13,3 +25,6 @@ SHA256 ecd9d00b59677c3fc1edc7d1f247cbde8152e908ba18b948309e469cdb278ed7 files/di
 MD5 ed960f5b7f91c75e5efca2ddbaae4128 files/digest-virt-manager-0.3.1-r1 256
 RMD160 ee9b0323aadafc076d704d6ad626e08df095f764 files/digest-virt-manager-0.3.1-r1 256
 SHA256 ecd9d00b59677c3fc1edc7d1f247cbde8152e908ba18b948309e469cdb278ed7 files/digest-virt-manager-0.3.1-r1 256
+MD5 ed960f5b7f91c75e5efca2ddbaae4128 files/digest-virt-manager-0.3.1-r2 256
+RMD160 ee9b0323aadafc076d704d6ad626e08df095f764 files/digest-virt-manager-0.3.1-r2 256
+SHA256 ecd9d00b59677c3fc1edc7d1f247cbde8152e908ba18b948309e469cdb278ed7 files/digest-virt-manager-0.3.1-r2 256
