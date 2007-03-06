@@ -52,7 +52,7 @@ src_compile() {
 		ECONF_OPTS="${ECONF_OPTS} --enable-mmx"
 	fi
 
-	if use dri; then
+	if use dri && ! use amd64; then
 		ECONF_OPTS="${ECONF_OPTS} --enable-glx"
 	fi
 
