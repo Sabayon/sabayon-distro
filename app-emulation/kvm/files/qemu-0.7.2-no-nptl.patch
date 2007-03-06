@@ -1,0 +1,56 @@
+2005-10-25  Gwenole Beauchesne  <gb.public@free.fr>
+
+	* linux-user/main.c: forcibly disable use of NPTL for now since
+	it's not emulated yet.
+
+--- qemu/linux-user/main.c.no-nptl	2005-10-25 21:30:20.000000000 +0200
++++ qemu/linux-user/main.c	2005-10-25 21:37:45.000000000 +0200
+@@ -1004,7 +1004,7 @@ CPUState *cpu_single_env = NULL;
+ /* used to free thread contexts */
+ TaskState *first_task_state;
+ 
+-int main(int argc, char **argv)
++static int qemu_main(int argc, char **argv)
+ {
+     const char *filename;
+     struct target_pt_regs regs1, *regs = &regs1;
+@@ -1254,3 +1254,39 @@ int main(int argc, char **argv)
+     /* never exits */
+     return 0;
+ }
++
++int main(int argc, char *argv[])
++{
++#if !defined(__linux__)
++    return qemu_main(argc, argv);
++#else
++    /* Hack to not use NPTL libraries, i.e. export LD_ASSUME_KERNEL */
++#if defined(__powerpc64__)
++#define NON_NPTL_KERNEL "2.6.0"
++#endif
++#ifndef NON_NPTL_KERNEL
++#define NON_NPTL_KERNEL "2.4.1"
++#endif
++
++    int i;
++    char **new_argv;
++
++    if (argc > 1 && strcmp(argv[1], "-direct") == 0) {
++	argv[1] = argv[0];
++	return qemu_main(--argc, ++argv);
++    }
++
++    if ((new_argv = malloc((argc + 2) * sizeof(*new_argv))) == NULL)
++	return 1;
++
++    new_argv[0] = argv[0];
++    new_argv[1] = "-direct";
++    for (i = 1; i < argc; i++)
++	new_argv[i + 1] = argv[i];
++    new_argv[argc + 1] = NULL;
++
++    putenv("LD_ASSUME_KERNEL=" NON_NPTL_KERNEL);
++    execvp(new_argv[0], new_argv);
++    return 1;
++#endif
++}

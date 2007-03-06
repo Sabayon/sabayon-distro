@@ -1,0 +1,325 @@
+2006-02-12  Gwenole Beauchesne  <gb.public@free.fr>
+
+	* Port to MacOS X for Intel.
+
+TODO:
+	- try test-i386
+	- use 80-bit long double?
+
+--- qemu-0.8.3/target-i386/exec.h.osx-intel-port	2006-09-24 20:40:46.000000000 +0200
++++ qemu-0.8.3/target-i386/exec.h	2007-01-30 18:24:45.000000000 +0100
+@@ -464,8 +464,6 @@ static inline void helper_fstt(CPU86_LDo
+ 
+ #define FPUC_EM 0x3f
+ 
+-extern const CPU86_LDouble f15rk[7];
+-
+ void helper_fldt_ST0_A0(void);
+ void helper_fstt_ST0_A0(void);
+ void fpu_raise_exception(void);
+@@ -502,10 +500,6 @@ void helper_hlt(void);
+ void helper_monitor(void);
+ void helper_mwait(void);
+ 
+-extern const uint8_t parity_table[256];
+-extern const uint8_t rclw_table[32];
+-extern const uint8_t rclb_table[32];
+-
+ static inline uint32_t compute_eflags(void)
+ {
+     return env->eflags | cc_table[CC_OP].compute_all() | (DF & DF_MASK);
+--- qemu-0.8.3/target-i386/op.c.osx-intel-port	2006-09-24 20:40:46.000000000 +0200
++++ qemu-0.8.3/target-i386/op.c	2007-01-30 18:24:45.000000000 +0100
+@@ -21,6 +21,19 @@
+ #define ASM_SOFTMMU
+ #include "exec.h"
+ 
++#if defined(__APPLE__)
++/* XXX avoid indirect symbols, correct address patched at code generation time.  */
++static const uint8_t parity_table[256];
++static const uint8_t rclw_table[32];
++static const uint8_t rclb_table[32];
++static const CPU86_LDouble f15rk[7];
++#else
++extern const uint8_t parity_table[256];
++extern const uint8_t rclw_table[32];
++extern const uint8_t rclb_table[32];
++extern const CPU86_LDouble f15rk[7];
++#endif
++
+ /* n must be a constant to be efficient */
+ static inline target_long lshift(target_long x, int n)
+ {
+--- qemu-0.8.3/Makefile.target.osx-intel-port	2007-01-30 18:24:45.000000000 +0100
++++ qemu-0.8.3/Makefile.target	2007-01-30 18:29:14.000000000 +0100
+@@ -22,6 +22,9 @@ VPATH+=:$(SRC_PATH)/linux-user
+ CPPFLAGS+=-I$(SRC_PATH)/linux-user -I$(SRC_PATH)/linux-user/$(TARGET_ARCH)
+ endif
+ BASE_CFLAGS=
++ifeq ($(CONFIG_DARWIN),yes)
++BASE_CFLAGS+=-mdynamic-no-pic
++endif
+ BASE_LDFLAGS=
+ #CFLAGS+=-Werror
+ LIBS=
+--- qemu-0.8.3/dyngen.c.osx-intel-port	2007-01-30 18:24:45.000000000 +0100
++++ qemu-0.8.3/dyngen.c	2007-01-30 18:24:45.000000000 +0100
+@@ -185,6 +185,20 @@ typedef struct coff_rel {
+ #include <mach-o/reloc.h>
+ #include <mach-o/ppc/reloc.h>
+ 
++#ifdef HOST_PPC
++
++#define MACH_CPU_TYPE CPU_TYPE_POWERPC
++#define mach_check_cputype(x) ((x) == CPU_TYPE_POWERPC)
++
++#elif defined(HOST_I386)
++
++#define MACH_CPU_TYPE CPU_TYPE_I386
++#define mach_check_cputype(x) ((x) == CPU_TYPE_I386)
++
++#else
++#error unsupported CPU - please update the code
++#endif
++
+ # define check_mach_header(x) (x.magic == MH_MAGIC)
+ typedef int32_t host_long;
+ typedef uint32_t host_ulong;
+@@ -993,22 +1007,23 @@ static const char * find_reloc_name_in_s
+ {
+     unsigned int tocindex, symindex, size;
+     const char *name = 0;
++	int section_type;
+     
+     /* Sanity check */
+     if(!( address >= sec_hdr->addr && address < (sec_hdr->addr + sec_hdr->size) ) )
+         return (char*)0;
+-		
+-	if( sec_hdr->flags & S_SYMBOL_STUBS ){
++
++	section_type = sec_hdr->flags & SECTION_TYPE;
++	if( section_type == S_SYMBOL_STUBS ){
+ 		size = sec_hdr->reserved2;
+ 		if(size == 0)
+ 		    error("size = 0");
+-		
+ 	}
+-	else if( sec_hdr->flags & S_LAZY_SYMBOL_POINTERS ||
+-	            sec_hdr->flags & S_NON_LAZY_SYMBOL_POINTERS)
++	else if( section_type == S_LAZY_SYMBOL_POINTERS ||
++			 section_type == S_NON_LAZY_SYMBOL_POINTERS)
+ 		size = sizeof(unsigned long);
+ 	else
+-		return 0;
++		return NULL;
+ 		
+     /* Compute our index in toc */
+ 	tocindex = (address - sec_hdr->addr)/size;
+@@ -1042,8 +1057,27 @@ static const char * get_reloc_name(EXE_R
+ 	/* init the slide value */
+ 	*sslide = 0;
+ 	
+-	if(R_SCATTERED & rel->r_address)
+-		return (char *)find_reloc_name_given_its_address(sca_rel->r_value);
++	if (R_SCATTERED & rel->r_address) {
++        char *name = (char *)find_reloc_name_given_its_address(sca_rel->r_value);
++
++        /* search it in the full symbol list, if not found */
++        if (!name) {
++            int i;
++            for (i = 0; i < nb_syms; i++) {
++                EXE_SYM *sym = &symtab[i];
++                if (sym->st_value == sca_rel->r_value) {
++                    name = get_sym_name(sym);
++                    switch (sca_rel->r_type) {
++                    case GENERIC_RELOC_VANILLA:
++                        *sslide = *(uint32_t *)(text + sca_rel->r_address) - sca_rel->r_value;
++                        break;
++                    }
++                    break;
++                }
++            }
++        }
++        return name;
++    }
+ 
+ 	if(rel->r_extern)
+ 	{
+@@ -1075,14 +1109,21 @@ static const char * get_reloc_name(EXE_R
+ 			sectoffset = ( *(uint32_t *)(text + rel->r_address) & 0x03fffffc );
+ 			if (sectoffset & 0x02000000) sectoffset |= 0xfc000000;
+ 			break;
++        case GENERIC_RELOC_VANILLA:
++            sectoffset  = *(uint32_t *)(text + rel->r_address);
++            break;
+ 		default:
+-			error("switch(rel->type) not found");
++			error("switch(rel->type=%d) not found", rel->r_type);
+ 	}
+ 
+-	if(rel->r_pcrel)
++	if(rel->r_pcrel) {
+ 		sectoffset += rel->r_address;
+-			
+-	if (rel->r_type == PPC_RELOC_BR24)
++#ifdef HOST_I386
++        sectoffset += (1 << rel->r_length);
++#endif
++    }
++
++	if (rel->r_type == PPC_RELOC_BR24 || rel->r_pcrel)
+ 		name = (char *)find_reloc_name_in_sec_ptr((int)sectoffset, &section_hdr[sectnum-1]);
+ 
+ 	/* search it in the full symbol list, if not found */
+@@ -1134,7 +1175,7 @@ int load_object(const char *filename)
+         error("bad Mach header");
+     }
+     
+-    if (mach_hdr.cputype != CPU_TYPE_POWERPC)
++    if (!mach_check_cputype(mach_hdr.cputype))
+         error("Unsupported CPU");
+         
+     if (mach_hdr.filetype != MH_OBJECT)
+@@ -2529,6 +2570,82 @@ void gen_code(const char *name, host_ulo
+         /* patch relocations */
+ #if defined(HOST_I386)
+             {
++#ifdef CONFIG_FORMAT_MACH
++                struct scattered_relocation_info *scarel;
++                struct relocation_info * rel;
++				char final_sym_name[256];
++				const char *sym_name;
++				const char *p;
++				int slide, sslide;
++				int i;
++	
++				for (i = 0, rel = relocs; i < nb_relocs; i++, rel++) {
++					unsigned int offset, length, value = 0;
++					unsigned int type, pcrel, isym = 0;
++					unsigned int usesym = 0;
++				
++					if (R_SCATTERED & rel->r_address) {
++						scarel = (struct scattered_relocation_info*)rel;
++						offset = (unsigned int)scarel->r_address;
++						length = scarel->r_length;
++						pcrel = scarel->r_pcrel;
++						type = scarel->r_type;
++						value = scarel->r_value;
++					}
++                    else {
++						value = isym = rel->r_symbolnum;
++						usesym = (rel->r_extern);
++						offset = rel->r_address;
++						length = rel->r_length;
++						pcrel = rel->r_pcrel;
++						type = rel->r_type;
++					}
++				
++					slide = offset - start_offset;
++		
++					if (!(offset >= start_offset && offset < start_offset + size)) 
++						continue;  /* not in our range */
++
++					sym_name = get_reloc_name(rel, &sslide);
++					
++					if (usesym && symtab[isym].n_type & N_STAB)
++						continue; /* don't handle STAB (debug sym) */
++					
++					if (sym_name && strstart(sym_name, "__op_jmp", &p)) {
++						int n;
++						n = strtol(p, NULL, 10);
++						fprintf(outfile, "    jmp_offsets[%d] = %d + (gen_code_ptr - gen_code_buf);\n", n, slide);
++						continue; /* Nothing more to do */
++					}
++					
++					if (!sym_name) {
++						fprintf(outfile, "/* #warning relocation not handled in %s (value 0x%x, %s, offset 0x%x, length 0x%x, %s, type 0x%x) */\n",
++                                name, value, usesym ? "use sym" : "don't use sym", offset, length, pcrel ? "pcrel":"", type);
++						continue; /* dunno how to handle without final_sym_name */
++					}
++
++                    get_reloc_expr(final_sym_name, sizeof(final_sym_name),
++                                   sym_name);
++
++                    if (length != 2)
++                        error("unsupported %d-bit relocation", 8 * (1 << length));
++
++					switch (type) {
++					case GENERIC_RELOC_VANILLA:
++                        if (pcrel || strstart(sym_name,"__op_gen_label",&p)) {
++                            fprintf(outfile, "    *(uint32_t *)(gen_code_ptr + %d) = %s - (long)(gen_code_ptr + %d) - 4;\n",
++                                    slide, final_sym_name, slide);
++                        }
++                        else {
++                            fprintf(outfile, "    *(uint32_t *)(gen_code_ptr + %d) = (%s + %d);\n", 
++                                    slide, final_sym_name, sslide);
++                        }
++                        break;
++                    default:
++                        error("unsupported i386 relocation (%d)", type);
++                    }
++                }
++#else
+                 char name[256];
+                 int type;
+                 int addend;
+@@ -2600,6 +2717,7 @@ void gen_code(const char *name, host_ulo
+ #endif
+                 }
+                }
++#endif
+                 /* Replace the marker instructions with the actual opcodes.  */
+                 for (i = 0; exit_addrs[i] != -1; i++) {
+                     int op;
+--- qemu-0.8.3/dyngen-exec.h.osx-intel-port	2007-01-30 18:24:45.000000000 +0100
++++ qemu-0.8.3/dyngen-exec.h	2007-01-30 18:24:45.000000000 +0100
+@@ -248,9 +248,16 @@ extern int __op_jmp0, __op_jmp1, __op_jm
+ #define EXIT_TB() asm volatile ("hlt")
+ /* Dyngen will replace cli with 0x9e (jmp). 
+    We generate the offset manually.  */
++#if defined(__APPLE__)
++/* XXX Different relocations are generated for MacOS X for Intel
++   (please as from cctools).  */
++#define GOTO_LABEL_PARAM(n) \
++  asm volatile ("cli;.long " ASM_NAME(__op_gen_label) #n)
++#else
+ #define GOTO_LABEL_PARAM(n) \
+   asm volatile ("cli;.long " ASM_NAME(__op_gen_label) #n " - 1f;1:")
+ #endif
++#endif
+ #ifdef __x86_64__
+ /* The same as i386.  */
+ #define EXIT_TB() asm volatile ("hlt")
+--- qemu-0.8.3/exec-all.h.osx-intel-port	2007-01-30 18:24:45.000000000 +0100
++++ qemu-0.8.3/exec-all.h	2007-01-30 18:24:45.000000000 +0100
+@@ -331,15 +331,29 @@ do {\
+ 
+ /* we patch the jump instruction directly.  Use sti in place of the actual
+    jmp instruction so that dyngen can patch in the correct result.  */
++#if defined(__APPLE__)
++/* XXX Different relocations are generated for MacOS X for Intel
++   (please as from cctools).  */
+ #define GOTO_TB(opname, tbparam, n)\
+ do {\
+-    asm volatile (".section .data\n"\
++    asm volatile (ASM_DATA_SECTION\
++		  ASM_OP_LABEL_NAME(n, opname) ":\n"\
++		  ".long 1f\n"\
++		  ASM_PREVIOUS_SECTION \
++                  "sti;.long " ASM_NAME(__op_jmp) #n "\n"\
++		  "1:\n");\
++} while (0)
++#else
++#define GOTO_TB(opname, tbparam, n)\
++do {\
++    asm volatile (ASM_DATA_SECTION\
+ 		  ASM_OP_LABEL_NAME(n, opname) ":\n"\
+ 		  ".long 1f\n"\
+ 		  ASM_PREVIOUS_SECTION \
+                   "sti;.long " ASM_NAME(__op_jmp) #n " - 1f\n"\
+ 		  "1:\n");\
+ } while (0)
++#endif
+ 
+ #else
+ 
