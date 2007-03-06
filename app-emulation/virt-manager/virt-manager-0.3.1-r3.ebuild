@@ -31,6 +31,7 @@ src_unpack() {
 	epatch ${FILESDIR}/${PN}-hvm-check.patch 
 	epatch ${FILESDIR}/${PN}-keyungrab.patch 
 	epatch ${FILESDIR}/${PN}-kvm-name.patch
+	epatch ${FILESDIR}/files/${PN}-hal-dbus-dirty-workarounds.patch
 }
 
 src_install() {

@@ -1,3 +1,7 @@
+AUX virt-manager-hal-dbus-dirty-workarounds.patch 3314 RMD160 e441c8b5fc031a58571f435b203cc0b50dafde7f SHA1 2c431cd7370bbe986216879f0923ba7c61e2783c SHA256 4cf779d17600273807fa08ad205cb19dbe9a6d6dee8134cdb946620ae9968635
+MD5 692ae110afa56b7fbbaa3e936863ff78 files/virt-manager-hal-dbus-dirty-workarounds.patch 3314
+RMD160 e441c8b5fc031a58571f435b203cc0b50dafde7f files/virt-manager-hal-dbus-dirty-workarounds.patch 3314
+SHA256 4cf779d17600273807fa08ad205cb19dbe9a6d6dee8134cdb946620ae9968635 files/virt-manager-hal-dbus-dirty-workarounds.patch 3314
 AUX virt-manager-hvm-check.patch 1424 RMD160 a2723cab2c863b125b3f0ee95dd5c24956c52cd8 SHA1 e1679c77fc7c0703c6a400e944f55e5c929bd07a SHA256 820a3f6b04920bc2fc1d28658a12b67818bfa6db7743471d1d035d69a92cc816
 MD5 8c5b12f97b383af591faf2da3ff6e0db files/virt-manager-hvm-check.patch 1424
 RMD160 a2723cab2c863b125b3f0ee95dd5c24956c52cd8 files/virt-manager-hvm-check.patch 1424
@@ -19,10 +23,10 @@ EBUILD virt-manager-0.3.1-r2.ebuild 794 RMD160 edf5f4bc06f25b2361e413b5847c9ec47
 MD5 c4f9d752d59a591db2393826e2ac44ac virt-manager-0.3.1-r2.ebuild 794
 RMD160 edf5f4bc06f25b2361e413b5847c9ec47aba2d2f virt-manager-0.3.1-r2.ebuild 794
 SHA256 bc680dcaf7bc47f8b271fb75e60e24d71bb6181bbf514bdf91856b7965a22838 virt-manager-0.3.1-r2.ebuild 794
-EBUILD virt-manager-0.3.1-r3.ebuild 835 RMD160 c8581d4da434f7ee709c134b07ef291a87ff5254 SHA1 20ba6c8714000f9af39c7e150a372642fc22b908 SHA256 3a412b362c86489b76f879899e371ee6e2d7824ecbd0c05d57d5905cc65eb80c
-MD5 1ea765b0f78bb77e90e4bd891478e5d5 virt-manager-0.3.1-r3.ebuild 835
-RMD160 c8581d4da434f7ee709c134b07ef291a87ff5254 virt-manager-0.3.1-r3.ebuild 835
-SHA256 3a412b362c86489b76f879899e371ee6e2d7824ecbd0c05d57d5905cc65eb80c virt-manager-0.3.1-r3.ebuild 835
+EBUILD virt-manager-0.3.1-r3.ebuild 900 RMD160 64fa92e5773fb4d5020d1325b30ab94b5ef342ff SHA1 18c37b6d71a2c12e28edcb42665df0024d327e1f SHA256 7ae10967de3034424de617a0917db2eee55fb9e5a5a7e5a3c4d730c4f3c6dc45
+MD5 a7cc3f4993007f3845478ce9ef0465e1 virt-manager-0.3.1-r3.ebuild 900
+RMD160 64fa92e5773fb4d5020d1325b30ab94b5ef342ff virt-manager-0.3.1-r3.ebuild 900
+SHA256 7ae10967de3034424de617a0917db2eee55fb9e5a5a7e5a3c4d730c4f3c6dc45 virt-manager-0.3.1-r3.ebuild 900
 EBUILD virt-manager-0.3.1.ebuild 657 RMD160 cf2b9c468c463782014c694d86c2bdfcc9398ba6 SHA1 4f70c1640510f2720aa4f41d9b8d152db0aaf851 SHA256 863f39c84f6d15aeae02063c5c0a3168a507afa13156c27e4915a182a5c8c98e
 MD5 bc3c0ada31ca2d2cef668af61624462c virt-manager-0.3.1.ebuild 657
 RMD160 cf2b9c468c463782014c694d86c2bdfcc9398ba6 virt-manager-0.3.1.ebuild 657
