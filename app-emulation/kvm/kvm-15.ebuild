@@ -84,5 +84,9 @@ src_install() {
 	fi
 	cd ${S}/qemu
         make DESTDIR="${D}" install || die "make install failed"
-	dosym /usr/bin/qemu /usr/bin/kvm
+	if use amd64; then
+		dosym /usr/bin/qemu-system-x86_64 /usr/bin/kvm
+	elif use x86; then
+		dosym /usr/bin/qemu /usr/bin/kvm
+	fi
 }
