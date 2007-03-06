@@ -25,7 +25,7 @@ index 9fba5f8..f93deb9 100644
 +#else
 +   {
 +     /* Mandrake Linux specific: set our background color */
-+     unsigned short 	red = 0x00 << 8, green = 0x45 << 8, blue = 0x94 << 8;
++     unsigned short 	red = 0x00 << 8, green = 0x00 << 8, blue = 0x00 << 8;
 +     Pixel		pixel;
 +     
 +     AllocColor((ColormapPtr)SecurityLookupIDByType(wClient(pWin), pWin->optional->colormap,
