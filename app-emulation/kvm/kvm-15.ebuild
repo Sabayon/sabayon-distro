@@ -43,8 +43,8 @@ src_unpack() {
 	epatch ${FILESDIR}/qemu-0.7.0-gcc4-dot-syms.patch
 	epatch ${FILESDIR}/qemu-0.8.0-gcc4-hacks.patch
 	epatch ${FILESDIR}/qemu-0.8.3-gcc4.patch
-	epatch ${FILESDIR}/qemu-0.8.3-enforce-16byte-boundaries.patch
-	epatch ${FILESDIR}/qemu-0.8.3-osx-intel-port.patch
+	#epatch ${FILESDIR}/qemu-0.8.3-enforce-16byte-boundaries.patch
+	#epatch ${FILESDIR}/qemu-0.8.3-osx-intel-port.patch
 	#epatch ${FILESDIR}/qemu-0.9.0-kernel-option-vga.patch
 	#epatch ${FILESDIR}/qemu-0.7.2-no-nptl.patch
 	#epatch ${FILESDIR}/qemu-0.8.3-dont-strip.patch

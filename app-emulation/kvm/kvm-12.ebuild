@@ -26,6 +26,7 @@ DEPEND=">=media-libs/alsa-lib-1.0.11
 	media-libs/libcaca
 	>=sys-libs/ncurses-5.5
 	>=sys-fs/udev-100	
+	!app-emulation/qemu
 	"
 
 
@@ -55,4 +56,7 @@ src_install() {
 	if use doc; then
 		dodoc usr/share/doc/kvm/*
 	fi
+
+	dosym /usr/bin/kvm /usr/bin/qemu
+
 }

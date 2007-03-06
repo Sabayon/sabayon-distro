@@ -43,3 +43,5 @@ app-emulation/qemu-gui
 # Builds normally, but in ebuild, fails
 =media-video/seom-9999
 
+# Requires >2.6.20 kernel
+>app-emulation/kvm-12
