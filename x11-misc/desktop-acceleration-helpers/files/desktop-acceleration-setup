@@ -26,7 +26,11 @@ desktop_acceleration_helpers_config_file="/etc/desktop-acceleration-helpers.conf
 # Functions
 
 write_acceleration_method() {
-    sed -i 's/Acceleration=.*/Acceleration='$1'/' $desktop_acceleration_helpers_config_file
+    if [ ! -e "$desktop_acceleration_helpers_config_file" ]; then
+        echo "Acceleration=$1" > $desktop_acceleration_helpers_config_file
+    else
+        sed -i 's/Acceleration=.*/Acceleration='$1'/' $desktop_acceleration_helpers_config_file
+    fi
 }
 
 remove_beryl_wrapper_script() {
