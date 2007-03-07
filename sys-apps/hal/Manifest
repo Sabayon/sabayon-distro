@@ -22,10 +22,10 @@ AUX hal-0.5.8.1-hibernate.patch 405 RMD160 1d98e55ffc6ca9fd8ed32bf7e7a5b174da619
 MD5 d654d65c7d398523342deb94bec68925 files/hal-0.5.8.1-hibernate.patch 405
 RMD160 1d98e55ffc6ca9fd8ed32bf7e7a5b174da619088 files/hal-0.5.8.1-hibernate.patch 405
 SHA256 dfa5d976868fb755f441cea17fed94f5128d14e3049f7cbeac7fe7010786f7cc files/hal-0.5.8.1-hibernate.patch 405
-AUX hal-0.5.8.1-new-dscape-stack-support.patch 2637 RMD160 9602f624f94b8f95c83775b7eccbad1257da71ee SHA1 118b451b8cb7b1c1a64e293573895ffb135c06ad SHA256 0da914df630655e67f5d92dc3c10743184f770a33ef219fdb81801ac15ad9d12
-MD5 a1415c4a96e346d8c2eb8e6e3748c529 files/hal-0.5.8.1-new-dscape-stack-support.patch 2637
-RMD160 9602f624f94b8f95c83775b7eccbad1257da71ee files/hal-0.5.8.1-new-dscape-stack-support.patch 2637
-SHA256 0da914df630655e67f5d92dc3c10743184f770a33ef219fdb81801ac15ad9d12 files/hal-0.5.8.1-new-dscape-stack-support.patch 2637
+AUX hal-0.5.8.1-new-dscape-stack-support.patch 2631 RMD160 1a8ebcc5444fb05f2a68936286ef9293c62a7573 SHA1 b34606c0706e496af1841af59f184b0d0e5fa4a4 SHA256 5320bc0cd8ee9b1172449436c94e1e2b32690730627f1bb67d18b217376023a6
+MD5 285c186257f940d8e626d5d7f3c69085 files/hal-0.5.8.1-new-dscape-stack-support.patch 2631
+RMD160 1a8ebcc5444fb05f2a68936286ef9293c62a7573 files/hal-0.5.8.1-new-dscape-stack-support.patch 2631
+SHA256 5320bc0cd8ee9b1172449436c94e1e2b32690730627f1bb67d18b217376023a6 files/hal-0.5.8.1-new-dscape-stack-support.patch 2631
 AUX hal-0.5.8.1-partutil-fix.patch 372 RMD160 63ef6da941002c265483502d75a44921b1745d13 SHA1 55c15f5871c4f51f42712e8bf71faf26c4152d8b SHA256 a9e3be160ec07568d071053c367317c2f4e35cd9345ac3a4b598156cef320b4e
 MD5 9312746f70a73050b27364830d760d9f files/hal-0.5.8.1-partutil-fix.patch 372
 RMD160 63ef6da941002c265483502d75a44921b1745d13 files/hal-0.5.8.1-partutil-fix.patch 372

@@ -38,7 +38,7 @@ diff -Nurp hal-0.5.8.1.orig/hald/linux/classdev.c hal-0.5.8.1/hald/linux/classde
 +
 +		if (!is_wireless) {
 +			char filename[128];
-+			snprintf (filename, 128, "/sys/class/net/%s/wiphy/modes", ifname);
++			snprintf (filename, 128, "/sys/class/net/%s/hw/modes", ifname);
 +			f = fopen (filename, "ro");
 +			if (f != NULL) {
 +				char buf2[7];
@@ -61,7 +61,7 @@ diff -Nurp hal-0.5.8.1.orig/hald/linux/classdev.c hal-0.5.8.1/hald/linux/classde
 +		
 +		if (!is_wireless) {
 +			char filename2[128];
-+			snprintf (filename2, 128, "/sys/class/net/%s/wiphy/mode", ifname);
++			snprintf (filename2, 128, "/sys/class/net/%s/hw/mode", ifname);
 +			f = fopen (filename2, "ro");
 +			if (f != NULL) {
 +				char buf3[12];
