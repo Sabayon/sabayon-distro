@@ -5,9 +5,13 @@
 inherit eutils linux-info
 inherit eutils linux-info flag-o-matic
 
+GIT_DATE="20070304"
 DESCRIPTION="Hardware Abstraction Layer"
 HOMEPAGE="http://www.freedesktop.org/Software/hal"
-SRC_URI="http://www.sabayonlinux.org/distfiles/sys-apps/${P}.git20070304.tar.gz"
+SRC_URI="
+	http://www.sabayonlinux.org/distfiles/sys-apps/${P}.git${GIT_DATE}.tar.gz
+	http://www.sabayonlinux.org/distfiles/sys-apps/${PN}-info-${GIT_DATE}.tar.gz
+	"
 
 LICENSE="|| ( GPL-2 AFL-2.0 )"
 SLOT="0"
@@ -145,6 +149,11 @@ if [ -r "${ROOT}/usr/share/misc/pci.ids.gz" ] ; then
 	
         append-ldflags -lz
         emake LDFLAGS="${LDFLAGS}" || die "make failed"
+
+	cd ${WORKDIR}/hal-info-${GIT_DATE}
+	econf || die "hal-info configure failed"
+	emake || die "hal-info make failed"
+
 }
 
 src_install() {
@@ -161,6 +170,12 @@ src_install() {
 	# use these directories, to avoid collision.
 	dodir /media
 	keepdir /media
+
+	# Fix hald running issue, create missing dir
+	dodir /etc/hal/fdi/information
+
+	cd ${WORKDIR}/hal-info-${GIT_DATE}
+	make DESTDIR="${D}" install || die
 
 }
 
