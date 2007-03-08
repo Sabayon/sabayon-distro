@@ -1,6 +1,9 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-libs/alsa-lib/alsa-lib-1.0.12.ebuild,v 1.1 2006/08/31 09:15:34 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-libs/alsa-lib/alsa-lib-1.0.14_rc2.ebuild,v 1.2 2007/02/11 18:25:15 flameeyes Exp $
+
+WANT_AUTOCONF="latest"
+WANT_AUTOMAKE="1.9"
 
 inherit eutils autotools libtool
 
@@ -14,20 +17,16 @@ SRC_URI="mirror://alsaproject/lib/${MY_P}.tar.bz2"
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86"
-IUSE="doc"
+IUSE="doc debug"
 
-RDEPEND="virtual/alsa
-	>=media-sound/alsa-headers-${PV}"
+RDEPEND=">=media-sound/alsa-headers-${PV}"
 DEPEND="${RDEPEND}
 	doc? ( >=app-doc/doxygen-1.2.6 )"
 
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-	epatch "${FILESDIR}/${PN}-1.0.10_rc3-hardened.patch"
-	epatch "${FILESDIR}/${PN}-1.0.10-no-wordexp-header.patch"
 
-	eautomake
 	elibtoolize
 	epunt_cxx
 }
@@ -39,6 +38,7 @@ src_compile() {
 	econf \
 		--enable-static \
 		--enable-shared \
+		$(use_with debug) \
 		|| die "configure failed"
 
 	emake || die "make failed"
@@ -63,8 +63,8 @@ pkg_postinst() {
 	ewarn "using ALSA output crash."
 	ewarn "Note that dmix output is enabled by default on the 'default' device"
 	ewarn "since ALSA 1.0.9."
-	einfo ""
-	einfo "Please try media-sound/alsa-driver before filing bugs about unstable"
-	einfo "or missing output with in-kernel drivers. Misaligned versions of"
-	einfo "alsa-lib and drivers used can cause problems."
+	elog ""
+	elog "Please try media-sound/alsa-driver before filing bugs about unstable"
+	elog "or missing output with in-kernel drivers. Misaligned versions of"
+	elog "alsa-lib and drivers used can cause problems."
 }
