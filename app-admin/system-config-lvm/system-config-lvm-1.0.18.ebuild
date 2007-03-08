@@ -27,7 +27,7 @@ DEPEND="${RDEPEND}
 	dev-util/intltool
 	dev-perl/XML-Parser
 	kde? ( || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 ) )
-	!kde? x11-libs/libgksu"
+	!kde? ( x11-libs/libgksu )"
 
 src_unpack() {
 	rpm_src_unpack
