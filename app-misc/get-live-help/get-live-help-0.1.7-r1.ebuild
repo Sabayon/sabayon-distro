@@ -32,7 +32,7 @@ src_install() {
 	# Install desktop file
 	if use kde; then
 		for dir in /home/*; do
-			if [ -n "$dir/Desktop" ]; then
+			if [ -d "$dir/Desktop" ]; then
 				insinto $dir/Desktop
 				doins desktop/Get\ Live\ Help.desktop
 			fi
