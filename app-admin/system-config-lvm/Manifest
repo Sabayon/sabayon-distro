@@ -7,10 +7,10 @@ MD5 824dbc220261eb9e0b190718319673b9 files/system-config-lvm-1.0.18-fix-load-and
 RMD160 f21e18bbea9295d44f3f995187368397964e62b1 files/system-config-lvm-1.0.18-fix-load-and-desktop-file.patch 681
 SHA256 d909e2ee0412fb25134df8d71d0f5978303dec540485e587bf50ee964f40de0a files/system-config-lvm-1.0.18-fix-load-and-desktop-file.patch 681
 DIST system-config-lvm-1.0.18-1.2.FC6.src.rpm 1022939 RMD160 85d1539f7a0d0949aed6c5d54e98eaa598bd1193 SHA1 f4e6556ef0f2395f8718a45eacff326e96189dc6 SHA256 90b6b5ad181cdb53f48660ad6351e537ccdcac5f981a1b4be1a42ba13a5f4eb9
-EBUILD system-config-lvm-1.0.18.ebuild 1469 RMD160 5fbf11cb5a3108388fc5fed3ba0afa66ac18d8ac SHA1 a4a9e8bc6feb2534e373d7eaa995d466c48c06b8 SHA256 ebf38f0707f4c0acea7248fa3f22a72370c0ef6ca9ed58796a0574bc6f44e7d7
-MD5 9c4b7324377ed533755d3b79a8289bae system-config-lvm-1.0.18.ebuild 1469
-RMD160 5fbf11cb5a3108388fc5fed3ba0afa66ac18d8ac system-config-lvm-1.0.18.ebuild 1469
-SHA256 ebf38f0707f4c0acea7248fa3f22a72370c0ef6ca9ed58796a0574bc6f44e7d7 system-config-lvm-1.0.18.ebuild 1469
-MD5 64ef4333d06898e0749930a01397f5bb files/digest-system-config-lvm-1.0.18 304
-RMD160 d2ac7842f184407004eb816e5bc6a44361d588ca files/digest-system-config-lvm-1.0.18 304
-SHA256 eb238b8c475303f7e29f87a5d36fc72a36e12930f8b9b2451437abf9718ed938 files/digest-system-config-lvm-1.0.18 304
+EBUILD system-config-lvm-1.0.18-r1.ebuild 1469 RMD160 5fbf11cb5a3108388fc5fed3ba0afa66ac18d8ac SHA1 a4a9e8bc6feb2534e373d7eaa995d466c48c06b8 SHA256 ebf38f0707f4c0acea7248fa3f22a72370c0ef6ca9ed58796a0574bc6f44e7d7
+MD5 9c4b7324377ed533755d3b79a8289bae system-config-lvm-1.0.18-r1.ebuild 1469
+RMD160 5fbf11cb5a3108388fc5fed3ba0afa66ac18d8ac system-config-lvm-1.0.18-r1.ebuild 1469
+SHA256 ebf38f0707f4c0acea7248fa3f22a72370c0ef6ca9ed58796a0574bc6f44e7d7 system-config-lvm-1.0.18-r1.ebuild 1469
+MD5 64ef4333d06898e0749930a01397f5bb files/digest-system-config-lvm-1.0.18-r1 304
+RMD160 d2ac7842f184407004eb816e5bc6a44361d588ca files/digest-system-config-lvm-1.0.18-r1 304
+SHA256 eb238b8c475303f7e29f87a5d36fc72a36e12930f8b9b2451437abf9718ed938 files/digest-system-config-lvm-1.0.18-r1 304
