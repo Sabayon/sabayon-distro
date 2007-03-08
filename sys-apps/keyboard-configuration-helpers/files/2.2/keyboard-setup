@@ -25,7 +25,7 @@ def print_info(msg):
     print "* info *  : "+msg
 
 def print_help():
-    print "* IIIII * : Sabayon Linux keymap configurator - written by Fabio Erculiani (C - 2006)"
+    print "* IIIII * : Sabayon Linux keymap configurator - written by Fabio Erculiani (C - 2007)"
     print "* usage * : keyboard-setup <valid keymap> (optional: <system,xorg,gnome,kde>)"
 
 def print_warning(msg):
@@ -39,6 +39,24 @@ if len(options) < 1 or string.join(options).find("--help") != -1 or string.join(
 	print_error("not enough parameters")
     sys.exit(1)
 
+# Parse --with-root="/path/to/root"
+# Parse --do-not-restart
+ROOT = ""
+DO_NOT_RESTART = False
+_options = []
+for param in options:
+    if param.startswith("--do-not-restart"):
+	DO_NOT_RESTART = True
+    elif param.startswith("--with-root="):
+	ROOT = param.split("=")[1]
+	if param.startswith('"') and param.endswith('"'):
+	    ROOT = ROOT.split('"')[1]
+	if param.startswith("'") and param.endswith("'"):
+	    ROOT = ROOT.split("'")[1]
+    else:
+	_options.append(param)
+options = _options
+
 if len(options) > 2:
     print_help()
     print_error("too many parameters")
@@ -48,16 +66,6 @@ if len(options) > 2:
 if getuser() != "root":
     print_error("you need to run this as root")
     sys.exit(2)
-
-# is $ROOT set?
-if os.getenv("ROOT") is not None:
-    ROOT = os.getenv("ROOT")
-else:
-    ROOT = ""
-if os.getenv("DO_NOT_RESTART") is not None:
-    DO_NOT_RESTART = True
-else:
-    DO_NOT_RESTART = False
 
 # Variables and constants
 keyLocale = sys.argv[1]
@@ -124,10 +132,8 @@ def configureSystemKeymap(keyLocale):
     f.writelines(output)
     f.flush()
     f.close()
-    if ROOT == "" and DO_NOT_RESTART == False:
+    if (ROOT == "") and (DO_NOT_RESTART == False):
         os.system("/etc/init.d/keymaps restart --nodeps &> /dev/null")
-    elif ROOT != "" and DO_NOT_RESTART == False:
-        os.system("echo /etc/init.d/keymaps restart --nodeps | chroot "+ROOT+" &> /dev/null")
 
 # xorg.conf keymap config
 def configureXorgKeymap(xorgKeyLocale):
@@ -190,7 +196,7 @@ def configureXorgKeymap(xorgKeyLocale):
 def configureKDEKeymap(keyLocale):
 	
     def KDEKeymapHandler(dir,keyLocale):
-	put, get = os.popen4("find "+ROOT+dir+" -name kxkbrc")
+	put, get = os.popen4("find "+ROOT+"/"+dir+" -name kxkbrc")
 	kxkbrcFiles = get.readlines()
 	findError = False
 	if kxkbrcFiles != []:
