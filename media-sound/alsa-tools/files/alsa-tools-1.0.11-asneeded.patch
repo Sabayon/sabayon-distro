@@ -1,0 +1,36 @@
+diff -ru alsa-tools-1.0.11-orig/echomixer/Makefile.am alsa-tools-1.0.11/echomixer/Makefile.am
+--- alsa-tools-1.0.11-orig/echomixer/Makefile.am	2006-04-24 14:39:38.000000000 +0200
++++ alsa-tools-1.0.11/echomixer/Makefile.am	2006-04-24 14:38:00.000000000 +0200
+@@ -2,7 +2,7 @@
+ bin_PROGRAMS = echomixer
+ man_MANS = 
+ echomixer_SOURCES = echomixer.c 
+-echomixer_LDFLAGS = @ECHOMIXER_LIBS@
++echomixer_LDADD = @ECHOMIXER_LIBS@
+ EXTRA_DIST = configure.in-gtk1 configure.in-gtk2
+ AUTOMAKE_OPTIONS = foreign
+ 
+diff -ru alsa-tools-1.0.11-orig/envy24control/Makefile.am alsa-tools-1.0.11/envy24control/Makefile.am
+--- alsa-tools-1.0.11-orig/envy24control/Makefile.am	2006-04-24 14:39:14.000000000 +0200
++++ alsa-tools-1.0.11/envy24control/Makefile.am	2006-04-24 14:43:16.000000000 +0200
+@@ -4,7 +4,7 @@
+ envy24control_SOURCES = envy24control.c envy24control.h levelmeters.c midi.c \
+                         mixer.c patchbay.c hardware.c driverevents.c volume.c \
+ 			profiles.c profiles.h midi.h config.c config.h
+-envy24control_LDFLAGS = @ENVY24CONTROL_LIBS@
++envy24control_LDADD = @ENVY24CONTROL_LIBS@
+ EXTRA_DIST = envy24control.1 depcomp configure.in-gtk1 configure.in-gtk2 \
+ 	     strstr_icase_blank.c new_process.c README.profiles
+ AUTOMAKE_OPTIONS = foreign
+diff -ru alsa-tools-1.0.11-orig/rmedigicontrol/Makefile.am alsa-tools-1.0.11/rmedigicontrol/Makefile.am
+--- alsa-tools-1.0.11-orig/rmedigicontrol/Makefile.am	2006-04-24 14:39:14.000000000 +0200
++++ alsa-tools-1.0.11/rmedigicontrol/Makefile.am	2006-04-24 14:45:40.000000000 +0200
+@@ -2,7 +2,7 @@
+ bin_PROGRAMS = rmedigicontrol
+ rmedigicontrol_SOURCES = rmedigicontrol.c rmedigicontrol.h level.c loopback.c
+ 
+-rmedigicontrol_LDFLAGS = @RMEDIGICONTROL_LIBS@
++rmedigicontrol_LDADD = @RMEDIGICONTROL_LIBS@
+ 
+ EXTRA_DIST = depcomp configure.in-gtk1 configure.in-gtk2
+ AUTOMAKE_OPTIONS = foreign
