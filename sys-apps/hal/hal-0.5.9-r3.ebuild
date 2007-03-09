@@ -117,6 +117,9 @@ src_unpack() {
 	# use ntfs-3g, then ntfs-fuse by default
 	epatch ${FILESDIR}/${P}-sabayonlinux-ntfs-3g.default.patch
 
+	# Write proper suspend priorities
+	epatch ${FILESDIR}/${P}-suspend-priorities.patch
+
 }
 
 src_compile() {
