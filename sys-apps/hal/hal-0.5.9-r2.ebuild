@@ -172,6 +172,9 @@ src_install() {
 	keepdir /media
 
 	# Fix hald running issue, create missing dir
+	dodir /etc/hal/fdi
+	dodir /etc/hal/fdi/policy
+	dodir /etc/hal/fdi/preprobe
 	dodir /etc/hal/fdi/information
 
 	cd ${WORKDIR}/hal-info-${GIT_DATE}
