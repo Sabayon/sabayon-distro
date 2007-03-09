@@ -1,0 +1,27 @@
+--- Module/rtmp_init.c	2006/06/16 07:07:25	1.30
++++ Module/rtmp_init.c	2007/01/22 19:34:22	1.32
+@@ -916,8 +916,12 @@
+ 	DBGPRINT(RT_DEBUG_TRACE, "<-- NICInitAsicFromEEPROM\n");
+ }
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,20))
++extern VOID MlmeWork(struct work_struct *work);
++#else 
+ extern VOID MlmeWork(void *vpAd);
+-
++#endif
++    
+ void NICInitializeAdapter(IN    PRTMP_ADAPTER   pAdapter)
+ {
+     TXCSR2_STRUC    TxCSR2;
+@@ -974,7 +978,9 @@
+     // Initialze ASIC for TX & Rx operation
+     NICInitializeAsic(pAdapter);
+ 
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,20))
++    INIT_WORK(&pAdapter->mlme_work, MlmeWork);
++#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+     INIT_WORK(&pAdapter->mlme_work, MlmeWork, (void*)pAdapter);
+ #endif
+     DBGPRINT(RT_DEBUG_TRACE, "<-- NICInitializeAdapter\n");
