@@ -25,7 +25,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/2.6.20-mactel.patch ${FILESDIR}/${P}-wireless-dev.patch
 		${FILESDIR}/${P}-cx88-tvaudio-fixes.patch ${FILESDIR}/${P}-unionfs-1.3.diff
 		${FILESDIR}/${P}-rtl818x.patch ${FILESDIR}/${P}-dvb-af9005.patch
-		${FILESDIR}/${P}-prism2.patch
+		${FILESDIR}/${P}-prism2.patch ${FILESDIR}/${P}-2.6.20.2.patch
 		"
 UNIPATCH_STRICTORDER="yes"
 
