@@ -142,7 +142,6 @@ fix_possible_opengl_misconfiguration() {
                 umount /usr/lib/opengl/ati &> /dev/null
 		mv /tmp/09ati /etc/env.d/ &> /dev/null
                 nice -20 eselect opengl set ati
-                source /etc/profile
             fi
         fi
 
@@ -384,6 +383,8 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$RX800" ] || [ -n "$RX600" ] || [
                 remove_proprietary_opengl
             fi
 
+          nice -20 env-update &> /dev/null
+          source /etc/profile
     	  echo -e "\t Display Driver: ATI (Proprietary)"
 
 	else
