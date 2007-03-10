@@ -380,7 +380,7 @@ src_install-libs() {
 	if [[ -n ${ABI} ]]; then
 		envname="${envname}-${ABI}"
 	fi
-	echo 'LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}:/usr/$(get_libdir)/dri"' > "${envname}"
+	echo 'LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}:/usr/'$(get_libdir)'/dri"' > "${envname}"
 	doenvd "${envname}"
 }
 
