@@ -1,8 +1,1153 @@
-Files linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005.c and linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005.c differ
-diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005-fe.c
---- linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005-fe.c	2007-02-12 20:25:26.000000000 +0100
-@@ -0,0 +1,1631 @@
+--- linux-2.6.20-sabayon-r3.orig/drivers/media/dvb/dvb-usb/af9005.c
++++ linux-2.6.20-sabayon-r3/drivers/media/dvb/dvb-usb/af9005.c
+@@ -0,0 +1,1144 @@
++/* DVB USB compliant Linux driver for the Afatech 9005
++ * USB1.1 DVB-T receiver.
++ *
++ * Copyright (C) 2007 Luca Olivetti (luca@ventoso.org)
++ *
++ * Thanks to Afatech who kindly provided information.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * see Documentation/dvb/REDME.dvb-usb for more information
++ */
++#include "af9005.h"
++
++/* debug */
++int dvb_usb_af9005_debug;
++module_param_named(debug, dvb_usb_af9005_debug, int, 0644);
++MODULE_PARM_DESC(debug,
++		 "set debugging level (1=info,xfer=2,rc=4,reg=8,i2c=16,fw=32 (or-able))."
++		 DVB_USB_DEBUG_STATUS);
++/* enable obnoxious led */
++int dvb_usb_af9005_led = 1;
++module_param_named(led, dvb_usb_af9005_led, bool, 0644);
++MODULE_PARM_DESC(led, "enable led (default: 1).");
++
++/* eeprom dump */
++int dvb_usb_af9005_dump_eeprom = 0;
++module_param_named(dump_eeprom, dvb_usb_af9005_dump_eeprom, int, 0);
++MODULE_PARM_DESC(dump_eeprom, "dump contents of the eeprom.");
++
++/* remote control decoder */
++int (*rc_decode) (struct dvb_usb_device * d, u8 * data, int len, u32 * event,
++		  int *state);
++void *rc_keys;
++int *rc_keys_size;
++
++u8 regmask[8] = { 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
++
++struct af9005_device_state {
++	u8 sequence;
++	int led_state;
++};
++
++int af9005_usb_generic_rw(struct dvb_usb_device *d, u8 * wbuf, u16 wlen,
++			  u8 * rbuf, u16 rlen, int delay_ms)
++{
++	int actlen, ret = -ENOMEM;
++
++	if (wbuf == NULL || wlen == 0)
++		return -EINVAL;
++
++	if ((ret = mutex_lock_interruptible(&d->usb_mutex)))
++		return ret;
++
++	deb_xfer(">>> ");
++	debug_dump(wbuf, wlen, deb_xfer);
++
++	ret = usb_bulk_msg(d->udev, usb_sndbulkpipe(d->udev,
++						    2), wbuf, wlen,
++			   &actlen, 2000);
++
++	if (ret)
++		err("bulk message failed: %d (%d/%d)", ret, wlen, actlen);
++	else
++		ret = actlen != wlen ? -1 : 0;
++
++	/* an answer is expected, and no error before */
++	if (!ret && rbuf && rlen) {
++		if (delay_ms)
++			msleep(delay_ms);
++
++		ret = usb_bulk_msg(d->udev, usb_rcvbulkpipe(d->udev,
++							    0x01), rbuf,
++				   rlen, &actlen, 2000);
++
++		if (ret)
++			err("recv bulk message failed: %d", ret);
++		else {
++			deb_xfer("<<< ");
++			debug_dump(rbuf, actlen, deb_xfer);
++		}
++	}
++
++	mutex_unlock(&d->usb_mutex);
++	return ret;
++}
++
++int af9005_usb_generic_write(struct dvb_usb_device *d, u8 * buf, u16 len)
++{
++	return af9005_usb_generic_rw(d, buf, len, NULL, 0, 0);
++}
++
++int af9005_generic_read_write(struct dvb_usb_device *d, u16 reg,
++			      int readwrite, int type, u8 * values, int len)
++{
++	struct af9005_device_state *st = d->priv;
++	u8 obuf[16] = { 0 };
++	u8 ibuf[17] = { 0 };
++	u8 command;
++	int i;
++	int ret;
++
++	if (len < 1) {
++		err("generic read/write, less than 1 byte. Makes no sense.");
++		return -EINVAL;
++	}
++	if (len > 8) {
++		err("generic read/write, more than 8 bytes. Not supported.");
++		return -EINVAL;
++	}
++
++	obuf[0] = 14;		/* rest of buffer length low */
++	obuf[1] = 0;		/* rest of buffer length high */
++
++	obuf[2] = AF9005_REGISTER_RW;	/* register operation */
++	obuf[3] = 12;		/* rest of buffer length */
++
++	obuf[4] = st->sequence++;	/* sequence number */
++
++	obuf[5] = (u8) (reg >> 8);	/* register address */
++	obuf[6] = (u8) (reg & 0xff);
++
++	if (type == AF9005_OFDM_REG) {
++		command = AF9005_CMD_OFDM_REG;
++	} else {
++		command = AF9005_CMD_TUNER;
++	}
++
++	if (len > 1)
++		command |=
++		    AF9005_CMD_BURST | AF9005_CMD_AUTOINC | (len - 1) << 3;
++	command |= readwrite;
++	if (readwrite == AF9005_CMD_WRITE)
++		for (i = 0; i < len; i++)
++			obuf[8 + i] = values[i];
++	else if (type == AF9005_TUNER_REG)
++		/* read command for tuner, the first byte contains the i2c address */
++		obuf[8] = values[0];
++	obuf[7] = command;
++
++	ret = af9005_usb_generic_rw(d, obuf, 16, ibuf, 17, 0);
++	if (ret)
++		return ret;
++
++	/* sanity check */
++	if (ibuf[2] != AF9005_REGISTER_RW_ACK) {
++		err("generic read/write, wrong reply code.");
++		return -EIO;
++	}
++	if (ibuf[3] != 0x0d) {
++		err("generic read/write, wrong length in reply.");
++		return -EIO;
++	}
++	if (ibuf[4] != obuf[4]) {
++		err("generic read/write, wrong sequence in reply.");
++		return -EIO;
++	}
++	/*
++	   Windows driver doesn't check these fields, in fact sometimes
++	   the register in the reply is different that what has been sent
++
++	   if (ibuf[5] != obuf[5] || ibuf[6] != obuf[6]) {
++	   err("generic read/write, wrong register in reply.");
++	   return -EIO;
++	   } 
++	   if (ibuf[7] != command) {
++	   err("generic read/write wrong command in reply.");
++	   return -EIO;
++	   }
++	 */
++	if (ibuf[16] != 0x01) {
++		err("generic read/write wrong status code in reply.");
++		return -EIO;
++	}
++	if (readwrite == AF9005_CMD_READ)
++		for (i = 0; i < len; i++)
++			values[i] = ibuf[8 + i];
++
++	return 0;
++
++}
++
++int af9005_read_ofdm_register(struct dvb_usb_device *d, u16 reg, u8 * value)
++{
++	int ret;
++	deb_reg("read register %x ", reg);
++	ret = af9005_generic_read_write(d, reg,
++					AF9005_CMD_READ, AF9005_OFDM_REG,
++					value, 1);
++	if (ret)
++		deb_reg("failed\n");
++	else
++		deb_reg("value %x\n", *value);
++	return ret;
++}
++
++int af9005_read_ofdm_registers(struct dvb_usb_device *d, u16 reg,
++			       u8 * values, int len)
++{
++	int ret;
++	deb_reg("read %d registers %x ", len, reg);
++	ret = af9005_generic_read_write(d, reg,
++					AF9005_CMD_READ, AF9005_OFDM_REG,
++					values, len);
++	if (ret)
++		deb_reg("failed\n");
++	else
++		debug_dump(values, len, deb_reg);
++	return ret;
++}
++
++int af9005_write_ofdm_register(struct dvb_usb_device *d, u16 reg, u8 value)
++{
++	int ret;
++	u8 temp = value;
++	deb_reg("write register %x value %x ", reg, value);
++	ret = af9005_generic_read_write(d, reg,
++					AF9005_CMD_WRITE, AF9005_OFDM_REG,
++					&temp, 1);
++	if (ret)
++		deb_reg("failed\n");
++	else
++		deb_reg("ok\n");
++	return ret;
++}
++
++int af9005_write_ofdm_registers(struct dvb_usb_device *d, u16 reg,
++				u8 * values, int len)
++{
++	int ret;
++	deb_reg("write %d registers %x values ", len, reg);
++	debug_dump(values, len, deb_reg);
++
++	ret = af9005_generic_read_write(d, reg,
++					AF9005_CMD_WRITE, AF9005_OFDM_REG,
++					values, len);
++	if (ret)
++		deb_reg("failed\n");
++	else
++		deb_reg("ok\n");
++	return ret;
++}
++
++int af9005_read_register_bits(struct dvb_usb_device *d, u16 reg, u8 pos,
++			      u8 len, u8 * value)
++{
++	u8 temp;
++	int ret;
++	deb_reg("read bits %x %x %x", reg, pos, len);
++	ret = af9005_read_ofdm_register(d, reg, &temp);
++	if (ret) {
++		deb_reg(" failed\n");
++		return ret;
++	}
++	*value = (temp >> pos) & regmask[len - 1];
++	deb_reg(" value %x\n", *value);
++	return 0;
++
++}
++
++int af9005_write_register_bits(struct dvb_usb_device *d, u16 reg, u8 pos,
++			       u8 len, u8 value)
++{
++	u8 temp, mask;
++	int ret;
++	deb_reg("write bits %x %x %x value %x\n", reg, pos, len, value);
++	if (pos == 0 && len == 8)
++		return af9005_write_ofdm_register(d, reg, value);
++	ret = af9005_read_ofdm_register(d, reg, &temp);
++	if (ret)
++		return ret;
++	mask = regmask[len - 1] << pos;
++	temp = (temp & ~mask) | ((value << pos) & mask);
++	return af9005_write_ofdm_register(d, reg, temp);
++
++}
++
++static int af9005_usb_read_tuner_registers(struct dvb_usb_device *d,
++					   u16 reg, u8 * values, int len)
++{
++	return af9005_generic_read_write(d, reg,
++					 AF9005_CMD_READ, AF9005_TUNER_REG,
++					 values, len);
++}
++
++static int af9005_usb_write_tuner_registers(struct dvb_usb_device *d,
++					    u16 reg, u8 * values, int len)
++{
++	return af9005_generic_read_write(d, reg,
++					 AF9005_CMD_WRITE,
++					 AF9005_TUNER_REG, values, len);
++}
++
++int af9005_write_tuner_registers(struct dvb_usb_device *d, u16 reg,
++				 u8 * values, int len)
++{
++	/* don't let the name of this function mislead you: it's just used
++	   as an interface from the firmware to the i2c bus. The actual
++	   i2c addresses are contained in the data */
++	int ret, i, done = 0, fail = 0;
++	u8 temp;
++	ret = af9005_usb_write_tuner_registers(d, reg, values, len);
++	if (ret)
++		return ret;
++	if (reg != 0xffff) {
++		/* check if write done (0xa40d bit 1) or fail (0xa40d bit 2) */
++		for (i = 0; i < 200; i++) {
++			ret =
++			    af9005_read_ofdm_register(d,
++						      xd_I2C_i2c_m_status_wdat_done,
++						      &temp);
++			if (ret)
++				return ret;
++			done = temp & (regmask[i2c_m_status_wdat_done_len - 1]
++				       << i2c_m_status_wdat_done_pos);
++			if (done)
++				break;
++			fail = temp & (regmask[i2c_m_status_wdat_fail_len - 1]
++				       << i2c_m_status_wdat_fail_pos);
++			if (fail)
++				break;
++			msleep(50);
++		}
++		if (i == 200)
++			return -ETIMEDOUT;
++		if (fail) {
++			/* clear write fail bit */
++			af9005_write_register_bits(d,
++						   xd_I2C_i2c_m_status_wdat_fail,
++						   i2c_m_status_wdat_fail_pos,
++						   i2c_m_status_wdat_fail_len,
++						   1);
++			return -EIO;
++		}
++		/* clear write done bit */
++		ret =
++		    af9005_write_register_bits(d,
++					       xd_I2C_i2c_m_status_wdat_fail,
++					       i2c_m_status_wdat_done_pos,
++					       i2c_m_status_wdat_done_len, 1);
++		if (ret)
++			return ret;
++	}
++	return 0;
++}
++
++int af9005_read_tuner_registers(struct dvb_usb_device *d, u16 reg, u8 addr,
++				u8 * values, int len)
++{
++	/* don't let the name of this function mislead you: it's just used
++	   as an interface from the firmware to the i2c bus. The actual
++	   i2c addresses are contained in the data */
++	int ret, i;
++	u8 temp, buf[2];
++
++	buf[0] = addr;		/* tuner i2c address */
++	buf[1] = values[0];	/* tuner register */
++
++	values[0] = addr + 0x01;	/* i2c read address */
++
++	if (reg == APO_REG_I2C_RW_SILICON_TUNER) {
++		/* write tuner i2c address to tuner, 0c00c0 undocumented, found by sniffing */
++		ret = af9005_write_tuner_registers(d, 0x00c0, buf, 2);
++		if (ret)
++			return ret;
++	}
++
++	/* send read command to ofsm */
++	ret = af9005_usb_read_tuner_registers(d, reg, values, 1);
++	if (ret)
++		return ret;
++
++	/* check if read done */
++	for (i = 0; i < 200; i++) {
++		ret = af9005_read_ofdm_register(d, 0xa408, &temp);
++		if (ret)
++			return ret;
++		if (temp & 0x01)
++			break;
++		msleep(50);
++	}
++	if (i == 200)
++		return -ETIMEDOUT;
++
++	/* clear read done bit (by writing 1) */
++	ret = af9005_write_ofdm_register(d, xd_I2C_i2c_m_data8, 1);
++	if (ret)
++		return ret;
++
++	/* get read data (available from 0xa400) */
++	for (i = 0; i < len; i++) {
++		ret = af9005_read_ofdm_register(d, 0xa400 + i, &temp);
++		if (ret)
++			return ret;
++		values[i] = temp;
++	}
++	return 0;
++}
++
++static int af9005_i2c_write(struct dvb_usb_device *d, u8 i2caddr, u8 reg,
++			    u8 * data, int len)
++{
++	int ret, i;
++	u8 buf[3];
++	deb_i2c("i2c_write i2caddr %x, reg %x, len %d data ", i2caddr,
++		reg, len);
++	debug_dump(data, len, deb_i2c);
++
++	for (i = 0; i < len; i++) {
++		buf[0] = i2caddr;
++		buf[1] = reg + (u8) i;
++		buf[2] = data[i];
++		ret =
++		    af9005_write_tuner_registers(d,
++						 APO_REG_I2C_RW_SILICON_TUNER,
++						 buf, 3);
++		if (ret) {
++			deb_i2c("i2c_write failed\n");
++			return ret;
++		}
++	}
++	deb_i2c("i2c_write ok\n");
++	return 0;
++}
++
++static int af9005_i2c_read(struct dvb_usb_device *d, u8 i2caddr, u8 reg,
++			   u8 * data, int len)
++{
++	int ret, i;
++	u8 temp;
++	deb_i2c("i2c_read i2caddr %x, reg %x, len %d\n ", i2caddr, reg, len);
++	for (i = 0; i < len; i++) {
++		temp = reg + i;
++		ret =
++		    af9005_read_tuner_registers(d,
++						APO_REG_I2C_RW_SILICON_TUNER,
++						i2caddr, &temp, 1);
++		if (ret) {
++			deb_i2c("i2c_read failed\n");
++			return ret;
++		}
++		data[i] = temp;
++	}
++	deb_i2c("i2c data read: ");
++	debug_dump(data, len, deb_i2c);
++	return 0;
++}
++
++static int af9005_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[],
++			   int num)
++{
++	/* only implements what the mt2060 module does, don't know how
++	   to make it really generic */
++	struct dvb_usb_device *d = i2c_get_adapdata(adap);
++	int ret;
++	u8 reg, addr;
++	u8 *value;
++
++	if (mutex_lock_interruptible(&d->i2c_mutex) < 0)
++		return -EAGAIN;
++
++	if (num > 2)
++		warn("more than 2 i2c messages at a time is not handled yet. TODO.");
++
++	if (num == 2) {
++		/* reads a single register */
++		reg = *msg[0].buf;
++		addr = msg[0].addr;
++		value = msg[1].buf;
++		ret = af9005_i2c_read(d, addr, reg, value, 1);
++		if (ret == 0)
++			ret = 2;
++	} else {
++		/* write one or more registers */
++		reg = msg[0].buf[0];
++		addr = msg[0].addr;
++		value = &msg[0].buf[1];
++		ret = af9005_i2c_write(d, addr, reg, value, msg[0].len - 1);
++		if (ret == 0)
++			ret = 1;
++	}
++
++	mutex_unlock(&d->i2c_mutex);
++	return ret;
++}
++
++static u32 af9005_i2c_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_I2C;
++}
++
++static struct i2c_algorithm af9005_i2c_algo = {
++	.master_xfer = af9005_i2c_xfer,
++	.functionality = af9005_i2c_func,
++};
++
++int af9005_send_command(struct dvb_usb_device *d, u8 command, u8 * wbuf,
++			int wlen, u8 * rbuf, int rlen)
++{
++	struct af9005_device_state *st = d->priv;
++
++	int ret, i, packet_len;
++	u8 buf[64];
++	u8 ibuf[64];
++
++	if (wlen < 0) {
++		err("send command, wlen less than 0 bytes. Makes no sense.");
++		return -EINVAL;
++	}
++	if (wlen > 54) {
++		err("send command, wlen more than 54 bytes. Not supported.");
++		return -EINVAL;
++	}
++	if (rlen > 54) {
++		err("send command, rlen more than 54 bytes. Not supported.");
++		return -EINVAL;
++	}
++	packet_len = wlen + 5;
++	buf[0] = (u8) (packet_len & 0xff);
++	buf[1] = (u8) ((packet_len & 0xff00) >> 8);
++
++	buf[2] = 0x26;		/* packet type */
++	buf[3] = wlen + 3;
++	buf[4] = st->sequence++;
++	buf[5] = command;
++	buf[6] = wlen;
++	for (i = 0; i < wlen; i++)
++		buf[7 + i] = wbuf[i];
++	ret = af9005_usb_generic_rw(d, buf, wlen + 7, ibuf, rlen + 7, 0);
++	if (ret)
++		return ret;
++	if (ibuf[2] != 0x27) {
++		err("send command, wrong reply code.");
++		return -EIO;
++	}
++	if (ibuf[4] != buf[4]) {
++		err("send command, wrong sequence in reply.");
++		return -EIO;
++	}
++	if (ibuf[5] != 0x01) {
++		err("send command, wrong status code in reply.");
++		return -EIO;
++	}
++	if (ibuf[6] != rlen) {
++		err("send command, invalid data length in reply.");
++		return -EIO;
++	}
++	for (i = 0; i < rlen; i++)
++		rbuf[i] = ibuf[i + 7];
++	return 0;
++}
++
++int af9005_read_eeprom(struct dvb_usb_device *d, u8 address, u8 * values,
++		       int len)
++{
++	struct af9005_device_state *st = d->priv;
++	u8 obuf[16], ibuf[14];
++	int ret, i;
++
++	memset(obuf, 0, sizeof(obuf));
++	memset(ibuf, 0, sizeof(ibuf));
++
++	obuf[0] = 14;		/* length of rest of packet low */
++	obuf[1] = 0;		/* length of rest of packer high */
++
++	obuf[2] = 0x2a;		/* read/write eeprom */
++
++	obuf[3] = 12;		/* size */
++
++	obuf[4] = st->sequence++;
++
++	obuf[5] = 0;		/* read */
++
++	obuf[6] = len;
++	obuf[7] = address;
++	ret = af9005_usb_generic_rw(d, obuf, 16, ibuf, 14, 0);
++	if (ret)
++		return ret;
++	if (ibuf[2] != 0x2b) {
++		err("Read eeprom, invalid reply code");
++		return -EIO;
++	}
++	if (ibuf[3] != 10) {
++		err("Read eeprom, invalid reply length");
++		return -EIO;
++	}
++	if (ibuf[4] != obuf[4]) {
++		err("Read eeprom, wrong sequence in reply ");
++		return -EIO;
++	}
++	if (ibuf[5] != 1) {
++		err("Read eeprom, wrong status in reply ");
++		return -EIO;
++	}
++	for (i = 0; i < len; i++) {
++		values[i] = ibuf[6 + i];
++	}
++	return 0;
++}
++
++static int af9005_boot_packet(struct usb_device *udev, int type, u8 * reply)
++{
++	u8 buf[FW_BULKOUT_SIZE + 2];
++	u16 checksum;
++	int act_len, i, ret;
++	memset(buf, 0, sizeof(buf));
++	buf[0] = (u8) (FW_BULKOUT_SIZE & 0xff);
++	buf[1] = (u8) ((FW_BULKOUT_SIZE >> 8) & 0xff);
++	switch (type) {
++	case FW_CONFIG:
++		buf[2] = 0x11;
++		buf[3] = 0x04;
++		buf[4] = 0x00;	/* sequence number, original driver doesn't increment it here */
++		buf[5] = 0x03;
++		checksum = buf[4] + buf[5];
++		buf[6] = (u8) ((checksum >> 8) & 0xff);
++		buf[7] = (u8) (checksum & 0xff);
++		break;
++	case FW_CONFIRM:
++		buf[2] = 0x11;
++		buf[3] = 0x04;
++		buf[4] = 0x00;	/* sequence number, original driver doesn't increment it here */
++		buf[5] = 0x01;
++		checksum = buf[4] + buf[5];
++		buf[6] = (u8) ((checksum >> 8) & 0xff);
++		buf[7] = (u8) (checksum & 0xff);
++		break;
++	case FW_BOOT:
++		buf[2] = 0x10;
++		buf[3] = 0x08;
++		buf[4] = 0x00;	/* sequence number, original driver doesn't increment it here */
++		buf[5] = 0x97;
++		buf[6] = 0xaa;
++		buf[7] = 0x55;
++		buf[8] = 0xa5;
++		buf[9] = 0x5a;
++		checksum = 0;
++		for (i = 4; i <= 9; i++)
++			checksum += buf[i];
++		buf[10] = (u8) ((checksum >> 8) & 0xff);
++		buf[11] = (u8) (checksum & 0xff);
++		break;
++	default:
++		err("boot packet invalid boot packet type");
++		return -EINVAL;
++	}
++	deb_fw(">>> ");
++	debug_dump(buf, FW_BULKOUT_SIZE + 2, deb_fw);
++
++	ret = usb_bulk_msg(udev,
++			   usb_sndbulkpipe(udev, 0x02),
++			   buf, FW_BULKOUT_SIZE + 2, &act_len, 2000);
++	if (ret)
++		err("boot packet bulk message failed: %d (%d/%d)", ret,
++		    FW_BULKOUT_SIZE + 2, act_len);
++	else
++		ret = act_len != FW_BULKOUT_SIZE + 2 ? -1 : 0;
++	if (ret)
++		return ret;
++	memset(buf, 0, 9);
++	ret = usb_bulk_msg(udev,
++			   usb_rcvbulkpipe(udev, 0x01), buf, 9, &act_len, 2000);
++	if (ret) {
++		err("boot packet recv bulk message failed: %d", ret);
++		return ret;
++	}
++	deb_fw("<<< ");
++	debug_dump(buf, act_len, deb_fw);
++	checksum = 0;
++	switch (type) {
++	case FW_CONFIG:
++		if (buf[2] != 0x11) {
++			err("boot bad config header.");
++			return -EIO;
++		}
++		if (buf[3] != 0x05) {
++			err("boot bad config size.");
++			return -EIO;
++		}
++		if (buf[4] != 0x00) {
++			err("boot bad config sequence.");
++			return -EIO;
++		}
++		if (buf[5] != 0x04) {
++			err("boot bad config subtype.");
++			return -EIO;
++		}
++		for (i = 4; i <= 6; i++)
++			checksum += buf[i];
++		if (buf[7] * 256 + buf[8] != checksum) {
++			err("boot bad config checksum.");
++			return -EIO;
++		}
++		*reply = buf[6];
++		break;
++	case FW_CONFIRM:
++		if (buf[2] != 0x11) {
++			err("boot bad confirm header.");
++			return -EIO;
++		}
++		if (buf[3] != 0x05) {
++			err("boot bad confirm size.");
++			return -EIO;
++		}
++		if (buf[4] != 0x00) {
++			err("boot bad confirm sequence.");
++			return -EIO;
++		}
++		if (buf[5] != 0x02) {
++			err("boot bad confirm subtype.");
++			return -EIO;
++		}
++		for (i = 4; i <= 6; i++)
++			checksum += buf[i];
++		if (buf[7] * 256 + buf[8] != checksum) {
++			err("boot bad confirm checksum.");
++			return -EIO;
++		}
++		*reply = buf[6];
++		break;
++	case FW_BOOT:
++		if (buf[2] != 0x10) {
++			err("boot bad boot header.");
++			return -EIO;
++		}
++		if (buf[3] != 0x05) {
++			err("boot bad boot size.");
++			return -EIO;
++		}
++		if (buf[4] != 0x00) {
++			err("boot bad boot sequence.");
++			return -EIO;
++		}
++		if (buf[5] != 0x01) {
++			err("boot bad boot pattern 01.");
++			return -EIO;
++		}
++		if (buf[6] != 0x10) {
++			err("boot bad boot pattern 10.");
++			return -EIO;
++		}
++		for (i = 4; i <= 6; i++)
++			checksum += buf[i];
++		if (buf[7] * 256 + buf[8] != checksum) {
++			err("boot bad boot checksum.");
++			return -EIO;
++		}
++		break;
++
++	}
++
++	return 0;
++}
++
++int af9005_download_firmware(struct usb_device *udev, const struct firmware *fw)
++{
++	int i, packets, ret, act_len;
++
++	u8 buf[FW_BULKOUT_SIZE + 2];
++	u8 reply;
++
++	ret = af9005_boot_packet(udev, FW_CONFIG, &reply);
++	if (ret)
++		return ret;
++	if (reply != 0x01) {
++		err("before downloading firmware, FW_CONFIG expected 0x01, received 0x%x", reply);
++		return -EIO;
++	}
++	packets = fw->size / FW_BULKOUT_SIZE;
++	buf[0] = (u8) (FW_BULKOUT_SIZE & 0xff);
++	buf[1] = (u8) ((FW_BULKOUT_SIZE >> 8) & 0xff);
++	for (i = 0; i < packets; i++) {
++		memcpy(&buf[2], fw->data + i * FW_BULKOUT_SIZE,
++		       FW_BULKOUT_SIZE);
++		deb_fw(">>> ");
++		debug_dump(buf, FW_BULKOUT_SIZE + 2, deb_fw);
++		ret = usb_bulk_msg(udev,
++				   usb_sndbulkpipe(udev, 0x02),
++				   buf, FW_BULKOUT_SIZE + 2, &act_len, 1000);
++		if (ret) {
++			err("firmware download failed at packet %d with code %d", i, ret);
++			return ret;
++		}
++	}
++	ret = af9005_boot_packet(udev, FW_CONFIRM, &reply);
++	if (ret)
++		return ret;
++	if (reply != (u8) (packets & 0xff)) {
++		err("after downloading firmware, FW_CONFIRM expected 0x%x, received 0x%x", packets & 0xff, reply);
++		return -EIO;
++	}
++	ret = af9005_boot_packet(udev, FW_BOOT, &reply);
++	if (ret)
++		return ret;
++	ret = af9005_boot_packet(udev, FW_CONFIG, &reply);
++	if (ret)
++		return ret;
++	if (reply != 0x02) {
++		err("after downloading firmware, FW_CONFIG expected 0x02, received 0x%x", reply);
++		return -EIO;
++	}
++
++	return 0;
++
++}
++
++int af9005_led_control(struct dvb_usb_device *d, int onoff)
++{
++	struct af9005_device_state *st = d->priv;
++	int temp, ret;
++
++	if (onoff && dvb_usb_af9005_led)
++		temp = 1;
++	else
++		temp = 0;
++	if (st->led_state != temp) {
++		ret =
++		    af9005_write_register_bits(d, xd_p_reg_top_locken1,
++					       reg_top_locken1_pos,
++					       reg_top_locken1_len, temp);
++		if (ret)
++			return ret;
++		ret =
++		    af9005_write_register_bits(d, xd_p_reg_top_lock1,
++					       reg_top_lock1_pos,
++					       reg_top_lock1_len, temp);
++		if (ret)
++			return ret;
++		st->led_state = temp;
++	}
++	return 0;
++}
++
++static int af9005_frontend_attach(struct dvb_usb_adapter *adap)
++{
++	u8 buf[8];
++	int i;
++
++	/* without these calls the first commands after downloading
++	   the firmware fail. I put these calls here to simulate
++	   what it is done in dvb-usb-init.c. 
++	 */
++	struct usb_device *udev = adap->dev->udev;
++	usb_clear_halt(udev, usb_sndbulkpipe(udev, 2));
++	usb_clear_halt(udev, usb_rcvbulkpipe(udev, 1));
++	if (dvb_usb_af9005_dump_eeprom) {
++		printk("EEPROM DUMP\n");
++		for (i = 0; i < 255; i += 8) {
++			af9005_read_eeprom(adap->dev, i, buf, 8);
++			printk("ADDR %x ", i);
++			debug_dump(buf, 8, printk);
++		}
++	}
++	adap->fe = af9005_fe_attach(adap->dev);
++	return 0;
++}
++
++static int af9005_rc_query(struct dvb_usb_device *d, u32 * event, int *state)
++{
++	struct af9005_device_state *st = d->priv;
++	int ret, len;
++
++	u8 obuf[5];
++	u8 ibuf[256];
++
++	*state = REMOTE_NO_KEY_PRESSED;
++	if (rc_decode == NULL) {
++		/* it shouldn't never come here */
++		return 0;
++	}
++	/* deb_info("rc_query\n"); */
++	obuf[0] = 3;		/* rest of packet length low */
++	obuf[1] = 0;		/* rest of packet lentgh high */
++	obuf[2] = 0x40;		/* read remote */
++	obuf[3] = 1;		/* rest of packet length */
++	obuf[4] = st->sequence++;	/* sequence number */
++	ret = af9005_usb_generic_rw(d, obuf, 5, ibuf, 256, 0);
++	if (ret) {
++		err("rc query failed");
++		return ret;
++	}
++	if (ibuf[2] != 0x41) {
++		err("rc query bad header.");
++		return -EIO;
++	}
++	if (ibuf[4] != obuf[4]) {
++		err("rc query bad sequence.");
++		return -EIO;
++	}
++	len = ibuf[5];
++	if (len > 246) {
++		err("rc query invalid length");
++		return -EIO;
++	}
++	if (len > 0) {
++		deb_rc("rc data (%d) ", len);
++		debug_dump((ibuf + 6), len, deb_rc);
++		ret = rc_decode(d, &ibuf[6], len, event, state);
++		if (ret) {
++			err("rc_decode failed");
++			return ret;
++		} else {
++			deb_rc("rc_decode state %x event %x\n", *state, *event);
++			if (*state == REMOTE_KEY_REPEAT)
++				*event = d->last_event;
++		}
++	}
++	return 0;
++}
++
++static int af9005_power_ctrl(struct dvb_usb_device *d, int onoff)
++{
++
++	return 0;
++}
++
++static int af9005_pid_filter_control(struct dvb_usb_adapter *adap, int onoff)
++{
++	int ret;
++	deb_info("pid filter control  onoff %d\n", onoff);
++	if (onoff) {
++		ret =
++		    af9005_write_ofdm_register(adap->dev, XD_MP2IF_DMX_CTRL, 1);
++		if (ret)
++			return ret;
++		ret =
++		    af9005_write_register_bits(adap->dev,
++					       XD_MP2IF_DMX_CTRL, 1, 1, 1);
++		if (ret)
++			return ret;
++		ret =
++		    af9005_write_ofdm_register(adap->dev, XD_MP2IF_DMX_CTRL, 1);
++	} else
++		ret =
++		    af9005_write_ofdm_register(adap->dev, XD_MP2IF_DMX_CTRL, 0);
++	if (ret)
++		return ret;
++	deb_info("pid filter control ok\n");
++	return 0;
++}
++
++static int af9005_pid_filter(struct dvb_usb_adapter *adap, int index,
++			     u16 pid, int onoff)
++{
++	u8 cmd = index & 0x1f;
++	int ret;
++	deb_info("set pid filter, index %d, pid %x, onoff %d\n", index,
++		 pid, onoff);
++	if (onoff) {
++		/* cannot use it as pid_filter_ctrl since it has to be done
++		   before setting the first pid */
++		if (adap->feedcount == 1) {
++			deb_info("first pid set, enable pid table\n");
++			ret = af9005_pid_filter_control(adap, onoff);
++			if (ret)
++				return ret;
++		}
++		ret =
++		    af9005_write_ofdm_register(adap->dev,
++					       XD_MP2IF_PID_DATA_L,
++					       (u8) (pid & 0xff));
++		if (ret)
++			return ret;
++		ret =
++		    af9005_write_ofdm_register(adap->dev,
++					       XD_MP2IF_PID_DATA_H,
++					       (u8) (pid >> 8));
++		if (ret)
++			return ret;
++		cmd |= 0x20 | 0x40;
++	} else {
++		if (adap->feedcount == 0) {
++			deb_info("last pid unset, disable pid table\n");
++			ret = af9005_pid_filter_control(adap, onoff);
++			if (ret)
++				return ret;
++		}
++	}
++	ret = af9005_write_ofdm_register(adap->dev, XD_MP2IF_PID_IDX, cmd);
++	if (ret)
++		return ret;
++	deb_info("set pid ok\n");
++	return 0;
++}
++
++static int af9005_identify_state(struct usb_device *udev,
++				 struct dvb_usb_device_properties *props,
++				 struct dvb_usb_device_description **desc,
++				 int *cold)
++{
++	int ret;
++	u8 reply;
++	ret = af9005_boot_packet(udev, FW_CONFIG, &reply);
++	if (ret)
++		return ret;
++	deb_info("result of FW_CONFIG in identify state %d\n", reply);
++	if (reply == 0x01)
++		*cold = 1;
++	else if (reply == 0x02)
++		*cold = 0;
++	else
++		return -EIO;
++	deb_info("Identify state cold = %d\n", *cold);
++	return 0;
++}
++
++static struct dvb_usb_device_properties af9005_properties;
++
++static int af9005_usb_probe(struct usb_interface *intf,
++			    const struct usb_device_id *id)
++{
++	return dvb_usb_device_init(intf, &af9005_properties, THIS_MODULE, NULL);
++}
++
++static struct usb_device_id af9005_usb_table[] = {
++	{USB_DEVICE(USB_VID_AFATECH, USB_PID_AF9005)},
++	{USB_DEVICE(USB_VID_TERRATEC, USB_PID_TERRATEC_CINERGY_T_USB_XE)},
++	{0},
++};
++
++MODULE_DEVICE_TABLE(usb, af9005_usb_table);
++
++static struct dvb_usb_device_properties af9005_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.firmware = "af9005.fw",
++	.download_firmware = af9005_download_firmware,
++	.no_reconnect = 1,
++
++	.size_of_priv = sizeof(struct af9005_device_state),
++
++	.num_adapters = 1,
++	.adapter = {
++		    {
++		     .caps =
++		     DVB_USB_ADAP_HAS_PID_FILTER |
++		     DVB_USB_ADAP_PID_FILTER_CAN_BE_TURNED_OFF,
++		     .pid_filter_count = 32,
++		     .pid_filter = af9005_pid_filter,
++		     /* .pid_filter_ctrl = af9005_pid_filter_control, */
++		     .frontend_attach = af9005_frontend_attach,
++		     /* .tuner_attach     = af9005_tuner_attach, */
++		     /* parameter for the MPEG2-data transfer */
++		     .stream = {
++				.type = USB_BULK,
++				.count = 10,
++				.endpoint = 0x04,
++				.u = {
++				      .bulk = {
++					       .buffersize = 4096,	/* actual size seen is 3948 */
++					       }
++				      }
++				},
++		     }
++		    },
++	.power_ctrl = af9005_power_ctrl,
++	.identify_state = af9005_identify_state,
++
++	.i2c_algo = &af9005_i2c_algo,
++
++	.rc_interval = 200,
++	.rc_key_map = NULL,
++	.rc_key_map_size = 0,
++	.rc_query = af9005_rc_query,
++
++	.num_device_descs = 2,
++	.devices = {
++		    {.name = "Afatech DVB-T USB1.1 stick",
++		     .cold_ids = {&af9005_usb_table[0], NULL},
++		     .warm_ids = {NULL},
++		     },
++		    {.name = "TerraTec Cinergy T USB XE",
++		     .cold_ids = {&af9005_usb_table[1], NULL},
++		     .warm_ids = {NULL},
++		     },
++		    {NULL},
++		    }
++};
++
++/* usb specific object needed to register this driver with the usb subsystem */
++static struct usb_driver af9005_usb_driver = {
++#if LINUX_VERSION_CODE <=  KERNEL_VERSION(2,6,15)
++	.owner = THIS_MODULE,
++#endif
++	.name = "dvb_usb_af9005",
++	.probe = af9005_usb_probe,
++	.disconnect = dvb_usb_device_exit,
++	.id_table = af9005_usb_table,
++};
++
++/* module stuff */
++static int __init af9005_usb_module_init(void)
++{
++	int result;
++	if ((result = usb_register(&af9005_usb_driver))) {
++		err("usb_register failed. (%d)", result);
++		return result;
++	}
++	rc_decode = symbol_request(af9005_rc_decode);
++	rc_keys = symbol_request(af9005_rc_keys);
++	rc_keys_size = symbol_request(af9005_rc_keys_size);
++	if (rc_decode == NULL || rc_keys == NULL || rc_keys_size == NULL) {
++		err("af9005_rc_decode function not found, disabling remote");
++		af9005_properties.rc_query = NULL;
++	} else {
++		af9005_properties.rc_key_map = rc_keys;
++		af9005_properties.rc_key_map_size = *rc_keys_size;
++	}
++
++	return 0;
++}
++
++static void __exit af9005_usb_module_exit(void)
++{
++	/* release rc decode symbols */
++	if (rc_decode != NULL)
++		symbol_put(af9005_rc_decode);
++	if (rc_keys != NULL)
++		symbol_put(af9005_rc_keys);
++	if (rc_keys_size != NULL)
++		symbol_put(af9005_rc_keys_size);
++	/* deregister this driver from the USB subsystem */
++	usb_deregister(&af9005_usb_driver);
++}
++
++module_init(af9005_usb_module_init);
++module_exit(af9005_usb_module_exit);
++
++MODULE_AUTHOR("Luca Olivetti <luca@ventoso.org>");
++MODULE_DESCRIPTION("Driver for Afatech 9005 DVB-T USB1.1 stick");
++MODULE_VERSION("1.0");
++MODULE_LICENSE("GPL");
+--- linux-2.6.20-sabayon-r3.orig/drivers/media/dvb/dvb-usb/af9005-fe.c
++++ linux-2.6.20-sabayon-r3/drivers/media/dvb/dvb-usb/af9005-fe.c
+@@ -0,0 +1,1644 @@
 +/* Frontend part of the Linux driver for the Afatech 9005
 + * USB1.1 DVB-T receiver.
 + *
@@ -29,12 +1174,12 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +#include "af9005.h"
 +#include "af9005-script.h"
 +#include "mt2060.h"
++#include "qt1010.h"
 +#include <asm/div64.h>
 +
 +struct af9005_fe_state {
 +	struct dvb_usb_device *d;
 +	struct dvb_frontend *tuner;
-+	u16 if1;
 +
 +	fe_status_t stat;
 +
@@ -259,7 +1404,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		return ret;
 +	if (!temp) {
 +		deb_info("viterbi counter not ready\n");
-+		return 101;	//ERR_APO_VTB_COUNTER_NOT_READY;
++		return 101;	/* ERR_APO_VTB_COUNTER_NOT_READY; */
 +	}
 +	ret =
 +	    af9005_read_ofdm_register(state->d, xd_r_fec_vtb_err_bit_cnt_7_0,
@@ -450,13 +1595,17 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +{
 +	struct af9005_fe_state *state = fe->demodulator_priv;
 +	u8 temp;
-+	/* 
-+	   u8 buf[2];
-+	   struct i2c_msg  msg = {
-+	   .addr = 0xc0, .flags = 0, .buf = buf, .len = 2
-+	   };
-+	 */
++#if 0
++	/* adjust mt2060 for strong signal (test) */
++	u8 buf[2];
++	struct i2c_msg msg = {
++		.addr = 0xc0,.flags = 0,.buf = buf,.len = 2
++	};
++#endif
 +	int ret;
++
++	if (state->tuner == NULL)
++		return -ENODEV;
 +
 +	*stat = 0;
 +	ret = af9005_read_register_bits(state->d, xd_p_agc_lock,
@@ -493,17 +1642,19 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		return ret;
 +	if (temp != state->strong) {
 +		deb_info("adjust for strong signal %d\n", temp);
-+		/*              
-+		   buf[0] = 0x0b;
-+		   if (strong) {
-+		   buf[1] = 0x30;
-+		   } else {
-+		   buf[1] = 0x33;
-+		   }
-+		   if (i2c_transfer(&state->d->i2c_adap, &msg, 1) != 1) {
-+		   err("aiaiaia");
-+		   } else */
-+		state->strong = temp;
++#if 0
++		/* adjust mt2060 for strong signal (test) */
++		buf[0] = 0x0b;
++		if (strong) {
++			buf[1] = 0x30;
++		} else {
++			buf[1] = 0x33;
++		}
++		if (i2c_transfer(&state->d->i2c_adap, &msg, 1) != 1) {
++			err("aiaiaia");
++		} else
++#endif
++			state->strong = temp;
 +	}
 +	return 0;
 +}
@@ -511,7 +1662,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +static int af9005_fe_read_ber(struct dvb_frontend *fe, u32 * ber)
 +{
 +	struct af9005_fe_state *state = fe->demodulator_priv;
-+
++	if (state->tuner == NULL)
++		return -ENODEV;
 +	af9005_fe_refresh_state(fe);
 +	*ber = state->ber;
 +	return 0;
@@ -520,6 +1672,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +static int af9005_fe_read_unc_blocks(struct dvb_frontend *fe, u32 * unc)
 +{
 +	struct af9005_fe_state *state = fe->demodulator_priv;
++	if (state->tuner == NULL)
++		return -ENODEV;
 +	af9005_fe_refresh_state(fe);
 +	*unc = state->unc;
 +	return 0;
@@ -532,6 +1686,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	int ret;
 +	u8 if_gain, rf_gain;
 +
++	if (state->tuner == NULL)
++		return -ENODEV;
 +	ret =
 +	    af9005_read_ofdm_register(state->d, xd_r_reg_aagc_rf_gain,
 +				      &rf_gain);
@@ -542,17 +1698,17 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +				      &if_gain);
 +	if (ret)
 +		return ret;
-+	//this value has no real meaning, but i don't have the tables that relate
-+	//the rf and if gain with the dbm, so I just scale the value
++	/* this value has no real meaning, but i don't have the tables that relate
++	   the rf and if gain with the dbm, so I just scale the value */
 +	*strength = (512 - rf_gain - if_gain) << 7;
 +	return 0;
 +}
 +
 +static int af9005_fe_read_snr(struct dvb_frontend *fe, u16 * snr)
 +{
-+	//the snr can be derived from the ber and the constellation
-+	//but I don't think this kind of complex calculations belong
-+	//in the driver. I may be wrong....
++	/* the snr can be derived from the ber and the constellation
++	   but I don't think this kind of complex calculations belong
++	   in the driver. I may be wrong.... */
 +	return -ENOSYS;
 +}
 +
@@ -599,66 +1755,51 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		return -EINVAL;
 +	}
 +
-+	//
-+	// write NS_coeff1_2048Nu
-+	//
++	/*
++	 *  write NS_coeff1_2048Nu
++	 */
 +
-+	// get byte0    
 +	temp0 = (u8) (NS_coeff1_2048Nu & 0x000000FF);
-+
-+	// get byte1
 +	temp1 = (u8) ((NS_coeff1_2048Nu & 0x0000FF00) >> 8);
-+
-+	// get byte2
 +	temp2 = (u8) ((NS_coeff1_2048Nu & 0x00FF0000) >> 16);
-+
-+	// get byte3[1:0]
-+	// Bit[7:2] will be written soon and so don't have to care them
 +	temp3 = (u8) ((NS_coeff1_2048Nu & 0x03000000) >> 24);
 +
-+	// big endian to make 8051 happy
++	/*  big endian to make 8051 happy */
 +	buf[0] = temp3;
 +	buf[1] = temp2;
 +	buf[2] = temp1;
 +	buf[3] = temp0;
 +
-+	// cfoe_NS_2k_coeff1_25_24
++	/*  cfoe_NS_2k_coeff1_25_24 */
 +	ret = af9005_write_ofdm_register(d, 0xAE00, buf[0]);
 +	if (ret)
 +		return ret;
 +
-+	// cfoe_NS_2k_coeff1_23_16
++	/*  cfoe_NS_2k_coeff1_23_16 */
 +	ret = af9005_write_ofdm_register(d, 0xAE01, buf[1]);
 +	if (ret)
 +		return ret;
 +
-+	// cfoe_NS_2k_coeff1_15_8
++	/*  cfoe_NS_2k_coeff1_15_8 */
 +	ret = af9005_write_ofdm_register(d, 0xAE02, buf[2]);
 +	if (ret)
 +		return ret;
 +
-+	// cfoe_NS_2k_coeff1_7_0
++	/*  cfoe_NS_2k_coeff1_7_0 */
 +	ret = af9005_write_ofdm_register(d, 0xAE03, buf[3]);
 +	if (ret)
 +		return ret;
 +
-+	//
-+	// write NS_coeff2_2k
-+	//
++	/*
++	 *  write NS_coeff2_2k
++	 */
 +
-+	// get byte0
 +	temp0 = (u8) ((NS_coeff2_2k & 0x0000003F));
-+
-+	// get byte1
 +	temp1 = (u8) ((NS_coeff2_2k & 0x00003FC0) >> 6);
-+
-+	// get byte2
 +	temp2 = (u8) ((NS_coeff2_2k & 0x003FC000) >> 14);
-+
-+	// get byte3
 +	temp3 = (u8) ((NS_coeff2_2k & 0x01C00000) >> 22);
 +
-+	// big endian to make 8051 happy
++	/*  big endian to make 8051 happy */
 +	buf[0] = temp3;
 +	buf[1] = temp2;
 +	buf[2] = temp1;
@@ -680,23 +1821,16 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	if (ret)
 +		return ret;
 +
-+	//
-+	// write NS_coeff1_8191Nu
-+	//
++	/*
++	 *  write NS_coeff1_8191Nu
++	 */
 +
-+	// get byte0
 +	temp0 = (u8) ((NS_coeff1_8191Nu & 0x000000FF));
-+
-+	// get byte1
 +	temp1 = (u8) ((NS_coeff1_8191Nu & 0x0000FF00) >> 8);
-+
-+	// get byte2
 +	temp2 = (u8) ((NS_coeff1_8191Nu & 0x00FFC000) >> 16);
-+
-+	// get byte3
 +	temp3 = (u8) ((NS_coeff1_8191Nu & 0x03000000) >> 24);
 +
-+	// big endian to make 8051 happy
++	/*  big endian to make 8051 happy */
 +	buf[0] = temp3;
 +	buf[1] = temp2;
 +	buf[2] = temp1;
@@ -718,23 +1852,16 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	if (ret)
 +		return ret;
 +
-+	//
-+	// write NS_coeff1_8192Nu
-+	//
++	/*
++	 *  write NS_coeff1_8192Nu
++	 */
 +
-+	// get byte0
 +	temp0 = (u8) (NS_coeff1_8192Nu & 0x000000FF);
-+
-+	// get byte1
 +	temp1 = (u8) ((NS_coeff1_8192Nu & 0x0000FF00) >> 8);
-+
-+	// get byte2
 +	temp2 = (u8) ((NS_coeff1_8192Nu & 0x00FFC000) >> 16);
-+
-+	// get byte3
 +	temp3 = (u8) ((NS_coeff1_8192Nu & 0x03000000) >> 24);
 +
-+	// big endian to make 8051 happy
++	/*  big endian to make 8051 happy */
 +	buf[0] = temp3;
 +	buf[1] = temp2;
 +	buf[2] = temp1;
@@ -756,23 +1883,16 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	if (ret)
 +		return ret;
 +
-+	//
-+	// write NS_coeff1_8193Nu
-+	//
++	/*
++	 *  write NS_coeff1_8193Nu
++	 */
 +
-+	// get byte0
 +	temp0 = (u8) ((NS_coeff1_8193Nu & 0x000000FF));
-+
-+	// get byte1
 +	temp1 = (u8) ((NS_coeff1_8193Nu & 0x0000FF00) >> 8);
-+
-+	// get byte2
 +	temp2 = (u8) ((NS_coeff1_8193Nu & 0x00FFC000) >> 16);
-+
-+	// get byte3
 +	temp3 = (u8) ((NS_coeff1_8193Nu & 0x03000000) >> 24);
 +
-+	// big endian to make 8051 happy
++	/*  big endian to make 8051 happy */
 +	buf[0] = temp3;
 +	buf[1] = temp2;
 +	buf[2] = temp1;
@@ -794,23 +1914,16 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	if (ret)
 +		return ret;
 +
-+	//
-+	// write NS_coeff2_8k
-+	//
++	/*
++	 *  write NS_coeff2_8k
++	 */
 +
-+	// get byte0
 +	temp0 = (u8) ((NS_coeff2_8k & 0x0000003F));
-+
-+	// get byte1
 +	temp1 = (u8) ((NS_coeff2_8k & 0x00003FC0) >> 6);
-+
-+	// get byte2
 +	temp2 = (u8) ((NS_coeff2_8k & 0x003FC000) >> 14);
-+
-+	// get byte3
 +	temp3 = (u8) ((NS_coeff2_8k & 0x01C00000) >> 22);
 +
-+	// big endian to make 8051 happy
++	/*  big endian to make 8051 happy */
 +	buf[0] = temp3;
 +	buf[1] = temp2;
 +	buf[2] = temp1;
@@ -861,20 +1974,25 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	int ret;
 +	deb_info("power %s tuner\n", on ? "on" : "off");
 +	ret = af9005_send_command(state->d, 0x03, &temp, 1, NULL, 0);
-+	/*
-+	   if (ret) return ret;
-+	   if (state->tuner != NULL) {
-+	   if (on)
-+	   ret = state->tuner->ops.tuner_ops.init(state->tuner);
-+	   else
-+	   ret = state->tuner->ops.tuner_ops.sleep(state->tuner);
-+	   }
-+	 */
++#if 0
++	if (ret)
++		return ret;
++	if (state->tuner != NULL) {
++		if (on)
++			ret = state->tuner->ops.tuner_ops.init(state->tuner);
++		else
++			ret = state->tuner->ops.tuner_ops.sleep(state->tuner);
++	}
++#endif
 +	return ret;
 +}
 +
 +static struct mt2060_config af9005_mt2060_config = {
 +	0xC0
++};
++
++static struct qt1010_config af9005_qt1010_config = {
++	0xC4
 +};
 +
 +static int af9005_fe_init(struct dvb_frontend *fe)
@@ -883,6 +2001,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	struct dvb_usb_adapter *adap = fe->dvb->priv;
 +	int ret, i, scriptlen;
 +	u8 temp, temp0 = 0, temp1 = 0, temp2 = 0;
++	u8 buf[2];
++	u16 if1;
 +
 +	deb_info("in af9005_fe_init\n");
 +
@@ -1023,7 +2143,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +#if 0
 +	/*FIXME not found in the captured data */
 +	deb_info("select bandwith\n");
-+	if ((ret = af9005_fe_select_bw(state->d, BANDWITH_6_MHZ)))	//FIXME
++	if ((ret = af9005_fe_select_bw(state->d, BANDWITH_6_MHZ)))	/* FIXME */
 +		return ret;
 +#endif
 +	/* set read-update bit for constellation */
@@ -1053,7 +2173,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +					fec_vtb_rsd_mon_en_len, 1)))
 +		return ret;
 +
-+	//FIXME should be register bits, I don't know which ones
++	/* FIXME should be register bits, I don't know which ones */
 +	ret = af9005_write_ofdm_register(state->d, 0xa601, 0);
 +
 +#if 0
@@ -1114,7 +2234,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	/* save original TOPs */
 +	deb_info("save original TOPs\n");
 +
-+	// RF TOP
++	/*  RF TOP */
 +	ret =
 +	    af9005_read_word_agc(state->d,
 +				 xd_p_reg_aagc_rf_top_numerator_9_8,
@@ -1123,7 +2243,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	if (ret)
 +		return ret;
 +
-+	// IF TOP
++	/*  IF TOP */
 +	ret =
 +	    af9005_read_word_agc(state->d,
 +				 xd_p_reg_aagc_if_top_numerator_9_8,
@@ -1132,14 +2252,14 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	if (ret)
 +		return ret;
 +
-+	// ACI 0 IF TOP
++	/*  ACI 0 IF TOP */
 +	ret =
 +	    af9005_read_word_agc(state->d, 0xA60E, 0xA60A, 4, 2,
 +				 &state->original_aci0_if_top);
 +	if (ret)
 +		return ret;
 +
-+	// ACI 1 IF TOP
++	/*  ACI 1 IF TOP */
 +	ret =
 +	    af9005_read_word_agc(state->d, 0xA60E, 0xA60B, 6, 2,
 +				 &state->original_aci1_if_top);
@@ -1147,8 +2267,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		return ret;
 +
 +#if 0
-+	// (For strong signal) IF minimal value 
-+	// FIXME not in the captured data, wrong register?
++	/*  (For strong signal) IF minimal value  */
++	/*  FIXME not in the captured data, wrong register? */
 +	ret =
 +	    af9005_read_word_agc(state->d, xd_p_reg_aagc_min_if_agc_9_8,
 +				 xd_p_reg_aagc_min_if_agc_7_0, 0, 2,
@@ -1156,8 +2276,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	if (ret)
 +		return ret;
 +
-+	// (For strong signal) IF minimal value 
-+	// FIXME not in the captured data, wrong register?
++	/*  (For strong signal) IF minimal value  */
++	/*  FIXME not in the captured data, wrong register? */
 +	ret =
 +	    af9005_read_word_agc(state->d, 0xA60E, 0xA608, 0, 2,
 +				 &state->original_aci0_if_min);
@@ -1166,11 +2286,42 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +#endif
 +	/* attach tuner and init */
 +	if (state->tuner == NULL) {
-+		state->tuner =
-+		    mt2060_attach(fe, &adap->dev->i2c_adap,
-+				  &af9005_mt2060_config, state->if1);
-+		if (state->tuner == NULL) {
-+			deb_info("MT2060 attach failed\n");
++		/* read tuner and board id from eeprom */
++		ret = af9005_read_eeprom(adap->dev, 0xc6, buf, 2);
++		if (ret) {
++			err("Impossible to read EEPROM\n");
++			return ret;
++		}
++		deb_info("Tuner id %d, board id %d\n", buf[0], buf[1]);
++		switch (buf[0]) {
++		case 2:	/* MT2060 */
++			/* read if1 from eeprom */
++			ret = af9005_read_eeprom(adap->dev, 0xc8, buf, 2);
++			if (ret) {
++				err("Impossible to read EEPROM\n");
++				return ret;
++			}
++			if1 = (u16) (buf[0] << 8) + buf[1];
++			state->tuner =
++			    dvb_attach(mt2060_attach, fe, &adap->dev->i2c_adap,
++				       &af9005_mt2060_config, if1);
++			if (state->tuner == NULL) {
++				deb_info("MT2060 attach failed\n");
++				return -ENODEV;
++			}
++			break;
++		case 3:	/* QT1010 */
++		case 9:	/* QT1010B */
++			state->tuner =
++			    dvb_attach(qt1010_attach, fe, &adap->dev->i2c_adap,
++				       &af9005_qt1010_config);
++			if (state->tuner == NULL) {
++				deb_info("QT1010 attach failed\n");
++				return -ENODEV;
++			}
++			break;
++		default:
++			err("Unsupported tuner type %d", buf[0]);
 +			return -ENODEV;
 +		}
 +		ret = state->tuner->ops.tuner_ops.init(state->tuner);
@@ -1212,16 +2363,16 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	deb_info("af9005_fe_set_frontend freq %d bw %d\n", fep->frequency,
 +		 fep->u.ofdm.bandwidth);
 +	if (state->tuner == NULL) {
-+		err("MT2060 not attached");
++		err("Tuner not attached");
 +		return -ENODEV;
 +	}
 +
 +	deb_info("turn off led\n");
-+	//not in the log
++	/* not in the log */
 +	ret = af9005_led_control(state->d, 0);
 +	if (ret)
 +		return ret;
-+	//not sure about the bits
++	/* not sure about the bits */
 +	ret = af9005_write_register_bits(state->d, XD_MP2IF_MISC, 2, 1, 0);
 +	if (ret)
 +		return ret;
@@ -1290,9 +2441,13 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +				       state->original_if_unplug_th);
 +	if (ret)
 +		return ret;
-+	//ret = af9005_write_ofdm_register(state->d, xd_p_reg_unplug_rf_gain_th, state->original_rf_unplug_th);
-+	//if (ret) return ret;
-+
++#if 0
++	ret =
++	    af9005_write_ofdm_register(state->d, xd_p_reg_unplug_rf_gain_th,
++				       state->original_rf_unplug_th);
++	if (ret)
++		return ret;
++#endif
 +	/* set tuner */
 +	deb_info("set tuner\n");
 +	ret = state->tuner->ops.tuner_ops.set_params(state->tuner, fep);
@@ -1362,7 +2517,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	state->pre_vit_bit_count = 0;
 +	state->ber = 0;
 +	state->post_vit_error_count = 0;
-+	//state->unc = 0; //it should be ever increasing
++	/* state->unc = 0; commented out since it should be ever increasing */
 +	state->abort_count = 0;
 +
 +	state->next_status_check = jiffies;
@@ -1378,7 +2533,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	int ret;
 +	u8 temp;
 +
-+	//mode
++	/* mode */
 +	ret =
 +	    af9005_read_register_bits(state->d, xd_g_reg_tpsd_const,
 +				      reg_tpsd_const_pos, reg_tpsd_const_len,
@@ -1402,7 +2557,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		break;
 +	}
 +
-+	//tps hierarchy and alpha value
++	/* tps hierarchy and alpha value */
 +	ret =
 +	    af9005_read_register_bits(state->d, xd_g_reg_tpsd_hier,
 +				      reg_tpsd_hier_pos, reg_tpsd_hier_len,
@@ -1429,16 +2584,16 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		break;
 +	}
 +
-+	// high/low priority    
++	/*  high/low priority     */
 +	ret =
 +	    af9005_read_register_bits(state->d, xd_g_reg_dec_pri,
 +				      reg_dec_pri_pos, reg_dec_pri_len, &temp);
 +	if (ret)
 +		return ret;
++	/* if temp is set = high priority */
 +	deb_info("PRIORITY %s\n", temp ? "high" : "low");
-+	//if temp is set = high priority
 +
-+	//high coderate
++	/* high coderate */
 +	ret =
 +	    af9005_read_register_bits(state->d, xd_g_reg_tpsd_hpcr,
 +				      reg_tpsd_hpcr_pos, reg_tpsd_hpcr_len,
@@ -1469,7 +2624,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		break;
 +	}
 +
-+	//low coderate
++	/* low coderate */
 +	ret =
 +	    af9005_read_register_bits(state->d, xd_g_reg_tpsd_lpcr,
 +				      reg_tpsd_lpcr_pos, reg_tpsd_lpcr_len,
@@ -1500,7 +2655,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		break;
 +	}
 +
-+	//guard interval
++	/* guard interval */
 +	ret =
 +	    af9005_read_register_bits(state->d, xd_g_reg_tpsd_gi,
 +				      reg_tpsd_gi_pos, reg_tpsd_gi_len, &temp);
@@ -1526,7 +2681,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		break;
 +	}
 +
-+	//fft
++	/* fft */
 +	ret =
 +	    af9005_read_register_bits(state->d, xd_g_reg_tpsd_txmod,
 +				      reg_tpsd_txmod_pos, reg_tpsd_txmod_len,
@@ -1545,7 +2700,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +		break;
 +	}
 +
-+	//bandwidth     
++	/* bandwidth      */
 +	ret =
 +	    af9005_read_register_bits(state->d, xd_g_reg_bw, reg_bw_pos,
 +				      reg_bw_len, &temp);
@@ -1571,14 +2726,18 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +{
 +	struct af9005_fe_state *state =
 +	    (struct af9005_fe_state *)fe->demodulator_priv;
-+	if (state->tuner != NULL && state->tuner->ops.tuner_ops.release != NULL)
++	if (state->tuner != NULL && state->tuner->ops.tuner_ops.release != NULL) {
 +		state->tuner->ops.tuner_ops.release(state->tuner);
++#ifdef CONFIG_DVB_CORE_ATTACH
++		symbol_put_addr(state->tuner->ops.tuner_ops.release);
++#endif
++	}
 +	kfree(state);
 +}
 +
 +static struct dvb_frontend_ops af9005_fe_ops;
 +
-+struct dvb_frontend *af9005_fe_attach(struct dvb_usb_device *d, u16 if1)
++struct dvb_frontend *af9005_fe_attach(struct dvb_usb_device *d)
 +{
 +	struct af9005_fe_state *state = NULL;
 +
@@ -1592,7 +2751,6 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	state->d = d;
 +	state->tuner = NULL;
 +	state->opened = 0;
-+	state->if1 = if1;
 +
 +	memcpy(&state->frontend.ops, &af9005_fe_ops,
 +	       sizeof(struct dvb_frontend_ops));
@@ -1634,10 +2792,9 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-fe.c li
 +	.read_snr = af9005_fe_read_snr,
 +	.read_ucblocks = af9005_fe_read_unc_blocks,
 +};
-diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005.h linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005.h
---- linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005.h	2007-02-12 20:25:28.000000000 +0100
-@@ -0,0 +1,3499 @@
+--- linux-2.6.20-sabayon-r3.orig/drivers/media/dvb/dvb-usb/af9005.h
++++ linux-2.6.20-sabayon-r3/drivers/media/dvb/dvb-usb/af9005.h
+@@ -0,0 +1,3502 @@
 +/* Common header-file of the Linux driver for the Afatech 9005
 + * USB1.1 DVB-T receiver.
 + *
@@ -1710,12 +2867,12 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005.h linux
 +
 +#define APO_REG_I2C_RW_CAN_TUNER            0xF000
 +#define APO_REG_I2C_RW_SILICON_TUNER        0xF001
-+#define APO_REG_GPIO_RW_SILICON_TUNER       0xFFFE	// also for OFSM
-+#define APO_REG_TRIGGER_OFSM                0xFFFF	// also for OFSM
++#define APO_REG_GPIO_RW_SILICON_TUNER       0xFFFE	/*  also for OFSM */
++#define APO_REG_TRIGGER_OFSM                0xFFFF	/*  also for OFSM */
 +
-+//**********************************************************************
-+// Apollo Registers from VLSI
-+//**********************************************************************
++/***********************************************************************
++ *  Apollo Registers from VLSI					       *
++ ***********************************************************************/
 +#define xd_p_reg_aagc_inverted_agc	0xA000
 +#define	reg_aagc_inverted_agc_pos 0
 +#define	reg_aagc_inverted_agc_len 1
@@ -5107,7 +6264,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005.h linux
 +#define XD_MP2IF_PID_DATA_H                     (0x06 + XD_MP2IF_BASE)
 +#define XD_MP2IF_MISC                       (0x07 + XD_MP2IF_BASE)
 +
-+extern struct dvb_frontend *af9005_fe_attach(struct dvb_usb_device *d, u16 if1);
++extern struct dvb_frontend *af9005_fe_attach(struct dvb_usb_device *d);
 +extern int af9005_read_ofdm_register(struct dvb_usb_device *d, u16 reg,
 +				     u8 * value);
 +extern int af9005_read_ofdm_registers(struct dvb_usb_device *d, u16 reg,
@@ -5126,20 +6283,22 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005.h linux
 +				      u8 pos, u8 len, u8 value);
 +extern int af9005_send_command(struct dvb_usb_device *d, u8 command,
 +			       u8 * wbuf, int wlen, u8 * rbuf, int rlen);
++extern int af9005_read_eeprom(struct dvb_usb_device *d, u8 address,
++			      u8 * values, int len);
 +extern int af9005_tuner_attach(struct dvb_usb_adapter *adap);
 +extern int af9005_led_control(struct dvb_usb_device *d, int onoff);
 +
 +extern u8 regmask[8];
 +
 +/* remote control decoder */
-+extern int af9005_rc_decode(struct dvb_usb_device *d, u8 * data, int len, u32 * event, int *state);
++extern int af9005_rc_decode(struct dvb_usb_device *d, u8 * data, int len,
++			    u32 * event, int *state);
 +extern struct dvb_usb_rc_key af9005_rc_keys[];
 +extern int af9005_rc_keys_size;
 +
 +#endif
-diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-lirc.c linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005-lirc.c
---- linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-lirc.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005-lirc.c	2007-02-12 20:25:26.000000000 +0100
+--- linux-2.6.20-sabayon-r3.orig/drivers/media/dvb/dvb-usb/af9005-lirc.c
++++ linux-2.6.20-sabayon-r3/drivers/media/dvb/dvb-usb/af9005-lirc.c
 @@ -0,0 +1,153 @@
 +/*
 + * This module is a simple bridge between the ir receiver integrated
@@ -5221,7 +6380,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-lirc.c 
 +		for (i = 0; i + 1 < len; i += 2) {
 +			value = (data[i] << 8) + data[i + 1];
 +			pulse = value & 1;
-+			value = (value & 0xfffe) << 1;	//*4
++			value = (value & 0xfffe) << 1;	/* *4 */
 +			deb_lirc("write %d %x\n", pulse, value);
 +			rbwrite(pulse ? (value | PULSE_BIT) : value);
 +		}
@@ -5283,7 +6442,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-lirc.c 
 +	deb_lirc("cleaned up module\n");
 +}
 +
-+struct dvb_usb_rc_key af9005_rc_keys[] = { };	//dummy
++struct dvb_usb_rc_key af9005_rc_keys[] = { };	/* dummy */
 +int af9005_rc_keys_size = 0;
 +
 +EXPORT_SYMBOL(af9005_rc_keys);
@@ -5294,10 +6453,9 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-lirc.c 
 +MODULE_AUTHOR("Luca Olivetti");
 +MODULE_VERSION("1.0");
 +MODULE_LICENSE("GPL");
-diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-remote.c linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005-remote.c
---- linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-remote.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005-remote.c	2007-02-12 20:25:26.000000000 +0100
-@@ -0,0 +1,158 @@
+--- linux-2.6.20-sabayon-r3.orig/drivers/media/dvb/dvb-usb/af9005-remote.c
++++ linux-2.6.20-sabayon-r3/drivers/media/dvb/dvb-usb/af9005-remote.c
+@@ -0,0 +1,157 @@
 +/* DVB USB compliant Linux driver for the Afatech 9005
 + * USB1.1 DVB-T receiver.
 + *
@@ -5353,7 +6511,7 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-remote.
 +	{0x01, 0xcf, KEY_ZOOM},
 +	{0x01, 0x4f, KEY_0},
 +	{0x01, 0x8f, KEY_GOTO},	/* marked jump on the remote */
-+	
++
 +	{0x00, 0xbd, KEY_POWER},
 +	{0x00, 0x7d, KEY_VOLUMEUP},
 +	{0x00, 0xfd, KEY_CHANNELUP},
@@ -5399,7 +6557,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-remote.
 +				if (d->last_event == repeatable_keys[i]) {
 +					*state = REMOTE_KEY_REPEAT;
 +					*event = d->last_event;
-+					deb_decode("repeat key, event %x\n", *event);
++					deb_decode("repeat key, event %x\n",
++						   *event);
 +					return 0;
 +				}
 +			}
@@ -5418,30 +6577,28 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-remote.
 +			}
 +			deb_decode("key pressed, raw value %x\n", result);
 +			if ((result & 0xff000000) != 0xfe000000) {
-+				deb_decode("doesn't start with 0xfe, ignored\n");
++				deb_decode
++				    ("doesn't start with 0xfe, ignored\n");
 +				return 0;
 +			}
-+                        cust = (result >> 16) & 0xff;
-+                        dat = (result >> 8) & 0xff;
-+                        invdat = (~result) & 0xff;
-+                        if (dat != invdat) {
-+                                deb_decode("code != inverted code\n");
-+                                return 0;
-+                        }        
++			cust = (result >> 16) & 0xff;
++			dat = (result >> 8) & 0xff;
++			invdat = (~result) & 0xff;
++			if (dat != invdat) {
++				deb_decode("code != inverted code\n");
++				return 0;
++			}
 +			for (i = 0; i < af9005_rc_keys_size; i++) {
 +				if (af9005_rc_keys[i].custom == cust
 +				    && af9005_rc_keys[i].data == dat) {
-+					*event =
-+					    af9005_rc_keys[i].event;
++					*event = af9005_rc_keys[i].event;
 +					*state = REMOTE_KEY_PRESSED;
 +					deb_decode
-+					    ("key pressed, event %x\n",
-+						     *event);
++					    ("key pressed, event %x\n", *event);
 +					return 0;
 +				}
 +			}
-+			deb_decode
-+			    ("not found in table\n");
++			deb_decode("not found in table\n");
 +		}
 +	}
 +	return 0;
@@ -5456,9 +6613,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-remote.
 +    ("Standard remote control decoder for Afatech 9005 DVB-T USB1.1 stick");
 +MODULE_VERSION("1.0");
 +MODULE_LICENSE("GPL");
-diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-script.h linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005-script.h
---- linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-script.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/af9005-script.h	2007-02-12 20:25:28.000000000 +0100
+--- linux-2.6.20-sabayon-r3.orig/drivers/media/dvb/dvb-usb/af9005-script.h
++++ linux-2.6.20-sabayon-r3/drivers/media/dvb/dvb-usb/af9005-script.h
 @@ -0,0 +1,203 @@
 +/*
 +File automatically generated by createinit.py using data
@@ -5663,9 +6819,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/af9005-script.
 +	{0xa348, 0x4, 0x4, 0x7},
 +	{0xa349, 0x0, 0x6, 0x2},
 +};
-diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/Kconfig linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/Kconfig
---- linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/Kconfig	2007-02-04 19:44:54.000000000 +0100
-+++ linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/Kconfig	2007-02-12 20:28:14.000000000 +0100
+--- linux-2.6.20-sabayon-r3.orig/drivers/media/dvb/dvb-usb/Kconfig
++++ linux-2.6.20-sabayon-r3/drivers/media/dvb/dvb-usb/Kconfig
 @@ -180,3 +180,19 @@ config DVB_USB_DTT200U
  	  The receivers are also known as DTT200U (Yakumo) and UB300 (Yuan).
  
@@ -5686,9 +6841,8 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/Kconfig linux-
 +	  Say Y here to support the default remote control decoding for the
 +	  Afatech AF9005 based receiver.
 +
-diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/Makefile linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/Makefile
---- linux-2.6.20-sabayon-r2.orig/drivers/media/dvb/dvb-usb/Makefile	2007-02-04 19:44:54.000000000 +0100
-+++ linux-2.6.20-sabayon-r2/drivers/media/dvb/dvb-usb/Makefile	2007-02-12 20:28:36.000000000 +0100
+--- linux-2.6.20-sabayon-r3.orig/drivers/media/dvb/dvb-usb/Makefile
++++ linux-2.6.20-sabayon-r3/drivers/media/dvb/dvb-usb/Makefile
 @@ -42,4 +42,11 @@ obj-$(CONFIG_DVB_USB_TTUSB2) += dvb-usb-
  dvb-usb-dib0700-objs = dib0700_core.o dib0700_devices.o
  obj-$(CONFIG_DVB_USB_DIB0700) += dvb-usb-dib0700.o
