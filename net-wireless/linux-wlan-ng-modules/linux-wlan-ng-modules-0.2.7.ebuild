@@ -31,7 +31,7 @@ pkg_setup() {
 	MODULE_NAMES="${MODULE_NAMES} prism2_usb(net/wireless:${S}/src/prism2/driver)"
 	MODULE_NAMES="${MODULE_NAMES} prism2_pci(net/wireless:${S}/src/prism2/driver)"
 	MODULE_NAMES="${MODULE_NAMES} prism2_plx(net/wireless:${S}/src/prism2/driver)"
-	MODULE_NAMES="${MODULE_NAMES} prism2_cs(net/wireless:${S}/src/prism2/driver)"
+	#MODULE_NAMES="${MODULE_NAMES} prism2_cs(net/wireless:${S}/src/prism2/driver)"
 	
 
 	linux-mod_pkg_setup
@@ -64,7 +64,7 @@ src_unpack() {
 	echo "FIRMWARE_DIR=/lib/firmware/" >> ${config}
 	echo "PRISM2_PCI=y" >> ${config}
 	echo "PRISM2_PLX=y" >> ${config}
-	echo "PRISM2_PCMCIA=y" >> ${config}
+	echo "PRISM2_PCMCIA=n" >> ${config}
 	echo "PRISM2_USB=y" >> ${config}
 
 	config_by_usevar WLAN_DEBUG debug
