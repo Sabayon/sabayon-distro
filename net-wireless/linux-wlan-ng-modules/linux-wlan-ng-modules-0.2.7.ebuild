@@ -29,6 +29,10 @@ pkg_setup() {
 
 	MODULE_NAMES="p80211(net/wireless:${S}/src/p80211)"
 	MODULE_NAMES="${MODULE_NAMES} prism2_usb(net/wireless:${S}/src/prism2/driver)"
+	MODULE_NAMES="${MODULE_NAMES} prism2_pci(net/wireless:${S}/src/prism2/driver)"
+	MODULE_NAMES="${MODULE_NAMES} prism2_plx(net/wireless:${S}/src/prism2/driver)"
+	MODULE_NAMES="${MODULE_NAMES} prism2_cs(net/wireless:${S}/src/prism2/driver)"
+	
 
 	linux-mod_pkg_setup
 }
