@@ -1,0 +1,1987 @@
+--- xf86-video-unichrome-0.2.6.orig/configure.ac
++++ xf86-video-unichrome-0.2.6/configure.ac
+@@ -130,7 +130,7 @@
+ AC_SUBST([XORG_CFLAGS])
+ AC_SUBST([moduledir])
+ 
+-DRIVER_NAME=via
++DRIVER_NAME=unichrome
+ AC_SUBST([DRIVER_NAME])
+ 
+ XORG_MANPAGE_SECTIONS
+--- xf86-video-unichrome-0.2.6.orig/man/unichrome.man
++++ xf86-video-unichrome-0.2.6/man/unichrome.man
+@@ -0,0 +1,182 @@
++.\" shorthand for double quote that works everywhere.
++.ds q \N'34'
++.TH VIA __drivermansuffix__ __vendorversion__
++.SH NAME
++unichrome \- VIA Unichrome video driver
++.SH SYNOPSIS
++.nf
++.B "Section \*qDevice\*q"
++.BI "  Identifier \*q"  devname \*q
++.B  "  Driver \*qunichrome\*q"
++\ \ ...
++.B EndSection
++.fi
++.SH DESCRIPTION
++.B unichrome
++is an __xservername__ driver for VIA Unichrome integrated graphics.
++.PP
++The
++.B unichrome
++driver supports the following devices:
++.nf
++    VT3122:  CLE266 (CastleRock).
++    VT7205:  KM400, KM400A, KN400, P4M800 (Unichrome).
++    VT3108:  K8M800, K8N800, K8N800A (Unichrome Pro, aka Pro B).
++    VT3118:  CN400, PM800, PM880, PN800 (Unichrome Pro A).
++    VT3344:  VN800, P4M800Pro (Unichrome Pro).
++    VT3157:  CX700 (Unichrome Pro - not yet released).
++    VT3130:  K8M890 (Chrome9 IGP).
++    VT3343:  P4M890 (Unichrome Pro - not yet released).
++.PP
++VT3118 through VT3343 support is currently non-existent, as the developer
++has no direct access to this hardware yet.
++.PP
++This driver is being developed at http://unichrome.sourceforge.net/.
++It is not endorsed or supported by VIA Technologies. For support, refer
++to http://unichrome.sourceforge.net/ directly.
++
++.PP
++.SH CONFIGURATION DETAILS
++Please refer to __xconfigfile__(__filemansuffix__) for general configuration
++details.  This section only covers configuration details specific to this
++driver.
++.PP
++The following driver
++.B options
++are supported
++.TP
++.BI "Option \*qActiveDevice\*q \*q" string \*q
++Specify the active device combination. Any string containing \*qCRT\*q,
++\*qDFP\*q (for Digital Flat Panel), \*qTV\*q should be possible. The default
++is to use everything that is detected. The driver is currently unable to use
++DFP and TV simultaneously, and will favour the DFP.
++.TP
++.BI "Option \*qNoAccel\*q \*q" boolean \*q
++Disable or enable acceleration. Default: acceleration is enabled.
++.TP
++.BI "Option \*qHWCursor\*q \*q" boolean \*q
++Disable or enable use of hardware cursors. The default is enabled.
++.TP
++.BI "Option \*qSWCursor\*q \*q" boolean \*q
++Disable or enable the use of a software cursor. The default is disabled.
++.TP
++.BI "Option \*qShadowFB\*q \*q" boolean \*q
++Use a shadow frame buffer. This is required when rotating the display,
++but otherwise defaults to disabled.
++.TP
++.BI "Option \*qRotate\*q \*q" string \*q
++Rotate the display either clockwise (\*qCW\*q) or counter clockwise (\*qCCW\*q).
++Rotation is only supported unaccelerated.
++.TP
++.BI "Option \*qDisableVQ\*q \*q" boolean \*q
++Disable or enable the use of VQ. VQ is enabled by default.
++.TP
++.BI "Option \*qDRIXINERAMA\*q \*q" boolean \*q
++Set DRI Xinerama mode. Currently unsupported.
++.TP
++.BI "Option \*qDisableIRQ\*q \*q" boolean \*q
++Disables Vblank IRQ. A workaround for some mainboards that have
++problems with IRQs from the unichrome chip. With IRQ disabled,
++DRI clients have no way to sync drawing to Vblank.
++.TP
++.BI "Option \*qEnableAGPDMA\*q \*q" boolean \*q
++Enable the AGP DMA functionality in DRM. This requires that DRI is enabled
++and will force 2D, and 3D acceleration to use AGP DMA. 
++.TP
++.BI "Option \*qNoAGPFor2D\*q \*q" boolean \*q
++With this option on, 2D acceleration will not use AGP DMA even if it is enabled.
++.TP
++.BI "Option \*qUseDMACopy\*q \*q" boolean \*q
++Use the DRM DMA blit to copy the Xv buffer to framebuffer, enabled per
++default.
++
++.SH "CRT Specific Options"
++With CRT we mean every monitor that's connected to the analog-out meant for
++CRTs. This irrespective of whether this monitor is plat panel based or not.
++
++VT3122Cx (Rev 16 and up) and all other unichromes support CRT auto detection.
++This seems to be missing or broken on VT3122Ax. This integer value should be
++provided in kHz and should normally range somewhere between 20000 and 300000.
++
++.TP
++.BI "Option \*qCRTBandWidth\*q \*q" integer \*q
++This specifies the maximum bandwidth a CRT allows and limits the mode's
++dotclock. This integer value should be provided in kHz and should normally
++range somewhere between 20000 and 300000. This information is usually
++provided as part of DDC/EDID data and thus autodetected.
++
++.SH "Panel Specific Options"
++Unichromes have a built-in panel scaler and allow for either LVDS encoders or
++directly (aka TTL) connected panels (DFP).
++
++For VT3122 and VT7205 the support is extremely limited, as the hardware to fix
++this code is simply not available. You should be able to get native resolution
++working on your CLE266 or KM400 based laptop though, but don't expect it to be
++smooth.
++
++For VT3108, native resolution and centered modes are possible. Scaling will be
++made possible when the secondary CRTC is properly implemented.
++
++.TP
++.BI "Option \*qPanelSize\*q \*q" string \*q
++Specify the size (width x height) of the LCD panel attached to the
++system. Sizes 640x480, 800x600, 1024x768, 1280x1024, and 1400x1050
++are supported. This shouldn't be required as this usually is a BIOS
++initialised value.
++
++
++.SH "Supported TV Encoders"
++Unichromes tend to be paired with several different TV Encoders. The presence
++of these TV encoders is detected. They are automatically enabled when a TV is
++attached.
++
++.SH "Chrontel CH7011"
++Supports the following modes: \*q640x480\*q, \*q800x600\*q, \*q1024x768\*q.
++Use \*q640x480Over\*q, \*q800x600Over\*q and \*q1024x768Over\*q for vertical
++overscan. These modes are made available by the driver and modelines provided
++in __xconfigfile__ will be ignored when the TV encoder is used.
++
++.TP
++.BI "Option \*qTVOutput\*q \*q" string \*q
++Specify which TV output to use. The driver supports \*qS-Video\*q,
++\*qComposite\*q, \*qSC\*q, \*qRGB\*q and \*qYCbCr\*q outputs. The default is
++to use the cable type that is detected.
++.TP
++.BI "Option \*qTVStandard\*q \*q" string \*q
++Specify TV Standard. The CH7011 currently supports \*qNTSC\*q and
++\*qPAL\*q.
++
++.SH "VIA Technologies VT1622, VT1622A, VT1623"
++Supports the following modes: \*q640x480\*q, \*q800x600\*q, \*q1024x768\*q,
++\*q848x480\*q, \*q720x480\*q (NTSC only) and \*q720x576\*q (PAL only). Use
++\*q640x480Over\*q, \*q800x600Over\*q, \*q1024x768Over\*q, \*q848x480Over\*q,
++\*q720x480Over\*q (NTSC) and \*q720x576Over\*q (PAL) for vertical overscan.
++The modes \*q720x480Noscale\*q (NTSC VT1622 only) and \*q720x576Noscale\*q
++(PAL VT1622 and VT1622a only) provide cleaner TV output (unscaled with only minimal overscan).
++These modes are made available by the driver and modelines provided in
++__xconfigfile__ will be ignored when the TV encoder is used.
++
++.TP
++.BI "Option \*qTVDeflicker\*q \*q" integer \*q
++Specify deflicker setting for TV output. Valid values are 0,1,2
++0) No deflicker, 1) 1:1:1 deflicker, 2) 1:2:1 deflicker.
++.TP
++.BI "Option \*qTVDotCrawl\*q \*q" boolean \*q
++Disable or enable dotcrawl. This is available for NTSC modes only.
++.TP
++.BI "Option \*qTVOutput\*q \*q" string \*q
++Specify which TV output to use. The driver supports \*qS-Video\*q,
++\*qComposite\*q, \*qSC\*q, \*qRGB\*q and \*qYCbCr\*q outputs. The default is
++to use the cable type that is detected.
++.TP
++.BI "Option \*qTVStandard\*q \*q" string \*q
++Specify TV Standard. The driver currently supports \*qNTSC\*q and
++\*qPAL\*q.
++
++
++.SH "BUGS"
++Plenty. Feel free to file more at the http://unichrome.sf.net/ bug tracker.
++.SH "SEE ALSO"
++__xservername__(__appmansuffix__), __xconfigfile__(__filemansuffix__), xorgconfig(__appmansuffix__), Xserver(__appmansuffix__), X(__miscmansuffix__)
++.SH AUTHORS
++Authors include: Luc Verhaegen (libv@skynet.be)
+--- xf86-video-unichrome-0.2.6.orig/src/Makefile.am
++++ xf86-video-unichrome-0.2.6/src/Makefile.am
+@@ -24,9 +24,9 @@
+ # _ladir passes a dummy rpath to libtool so the thing will actually link
+ # TODO: -nostdlib/-Bstatic/-lgcc platform magic, not installing the .a, etc.
+ AM_CFLAGS = @XORG_CFLAGS@ @DRI_CFLAGS@
+-via_drv_la_LTLIBRARIES = via_drv.la
+-via_drv_la_LDFLAGS = -module -avoid-version
+-via_drv_ladir = @moduledir@/drivers
++@DRIVER_NAME@_drv_la_LTLIBRARIES = @DRIVER_NAME@_drv.la
++@DRIVER_NAME@_drv_la_LDFLAGS = -module -avoid-version
++@DRIVER_NAME@_drv_ladir = @moduledir@/drivers
+ 
+ # rule to generate git_version.h
+ $(top_srcdir)/git_version.h:
+@@ -36,7 +36,7 @@
+ # Add a dependency on git_version.h
+ via_driver.c: $(top_srcdir)/git_version.h
+ 
+-via_drv_la_SOURCES = \
++@DRIVER_NAME@_drv_la_SOURCES = \
+          via_accel.c \
+          via_bandwidth.c \
+          via_ch7xxx.c \
+@@ -65,14 +65,14 @@
+          via_vt162x.h
+ 
+ if XV
+-via_drv_la_SOURCES += \
++@DRIVER_NAME@_drv_la_SOURCES += \
+          via_video.c \
+          via_video.h \
+          via_videoregs.h
+ endif
+ 
+ if DRI
+-via_drv_la_SOURCES += \
++@DRIVER_NAME@_drv_la_SOURCES += \
+          via_dri.c \
+          via_dri.h \
+          via_drmclient.h
+--- xf86-video-unichrome-0.2.6.orig/configure
++++ xf86-video-unichrome-0.2.6/configure
+@@ -21321,7 +21321,7 @@
+ 
+ 
+ 
+-DRIVER_NAME=via
++DRIVER_NAME=unichrome
+ 
+ 
+ 
+--- xf86-video-unichrome-0.2.6.orig/debian/changelog
++++ xf86-video-unichrome-0.2.6/debian/changelog
+@@ -0,0 +1,10 @@
++xserver-xorg-video-unichrome (1:0.2.6-0ubuntu1) edgy; urgency=low
++
++  * Initial release of xserver-xorg-video-unichrome
++  * Renamed driver from 'via' to 'unichrome', so it doesn't clashes with the
++    already existing via driver
++  * renamed manpage for the same reason
++  * got around git_version.sh limitation to build outside the source directory
++
++ -- Rodrigo Parra Novo <rodarvus@ubuntu.com>  Mon, 11 Sep 2006 22:00:19 -0300
++
+--- xf86-video-unichrome-0.2.6.orig/debian/control
++++ xf86-video-unichrome-0.2.6/debian/control
+@@ -0,0 +1,29 @@
++Source: xserver-xorg-video-unichrome
++Section: x11
++Priority: optional
++Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
++Uploaders: David Nusinow <dnusinow@debian.org>, Branden Robinson <branden@debian.org>, Fabio M. Di Nitto <fabbione@fabbione.net>
++Build-Depends: debhelper (>= 4.0.0), pkg-config, xserver-xorg-dev (>= 1:1.1.1), x11proto-core-dev, x11proto-fonts-dev, x11proto-randr-dev, x11proto-render-dev, x11proto-xext-dev, x11proto-xf86dri-dev, x11proto-video-dev, x11proto-gl-dev, libdrm-dev (>> 2.0), libx11-dev, libgl1-mesa-dev | libgl1-dev
++Standards-Version: 3.6.1.0
++
++Package: xserver-xorg-video-unichrome
++Architecture: any
++Depends: ${shlibs:Depends}, ${misc:Depends}, xserver-xorg-core (>= 1:1.1.1)
++Provides: xserver-xorg-video
++Replaces: xserver-xorg (<< 6.8.2-35)
++Description: X.Org X server -- VIA display driver
++ This driver for the X.Org X server (see xserver-xorg for a further description)
++ provides support for various VIA UniChrome cards, among them: VT3122, VT7205,
++ VT3108, VT3118, VT3344, VT3157, VT3230 and VT3343.
++ .
++ This driver is originally shipped to be loaded as 'via' on xorg.conf, but this
++ package renames it to 'unichrome', so it doesn't conflicts with the other VIA
++ driver already available on Ubuntu.
++ .
++ More information about X.Org can be found at:
++ <URL:http://xorg.freedesktop.org>
++ <URL:http://lists.freedesktop.org/mailman/listinfo/xorg>
++ .
++ This module can be found as the module 'users/libv/xf86-video-unichrome' at
++ http://gitweb.freedesktop.org/, or alternatively, using git, via the url
++ git://people.freedesktop.org/~libv/xf86-video-unichrome
+--- xf86-video-unichrome-0.2.6.orig/debian/copyright
++++ xf86-video-unichrome-0.2.6/debian/copyright
+@@ -0,0 +1,30 @@
++Copyright (c) 1998-2003 VIA Technologies, Inc. All Rights Reserved.
++Copyright (c) 2000 Intel Corporation. All rights reserved.
++Copyright (c) 2001-2003 S3 Graphics, Inc. All Rights Reserved.
++Copyright (c) 2003 Red Hat, Inc. All Rights Reserved.
++Copyright (c) 2004-2006 The Unichrome Project. All rights reserved.
++Copyright (c) 2004-2006 Andreas Robinson. All Rights Reserved.
++Copyright (c) 2004-2006 Bernhard Rosenkraenzer. All Rights Reserved.
++Copyright (c) 2004-2006 Ivor Hewitt. All Rights Reserved.
++Copyright (c) 2004-2006 Luc Verhaegen. All Rights Reserved.
++Copyright (c) 2004-2006 Terry Barnaby. All Rights Reserved.
++Copyright (c) 2004-2006 Thomas Hellstrom. All Rights Reserved.
++
++Permission is hereby granted, free of charge, to any person obtaining a
++copy of this software and associated documentation files (the "Software"),
++to deal in the Software without restriction, including without limitation
++the rights to use, copy, modify, merge, publish, distribute, sub license,
++and/or sell copies of the Software, and to permit persons to whom the
++Software is furnished to do so, subject to the following conditions:
++
++The above copyright notice and this permission notice (including the
++next paragraph) shall be included in all copies or substantial portions
++of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
++THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++DEALINGS IN THE SOFTWARE.
+--- xf86-video-unichrome-0.2.6.orig/debian/rules
++++ xf86-video-unichrome-0.2.6/debian/rules
+@@ -0,0 +1,95 @@
++#!/usr/bin/make -f
++# debian/rules for the Debian xserver-xorg-driver-via package.
++# Copyright © 2004 Scott James Remnant <scott@netsplit.com>
++# Copyright © 2005 Daniel Stone <daniel@fooishbar.org>
++# Copyright © 2005 David Nusinow <dnusinow@debian.org>
++
++# Uncomment this to turn on verbose mode.
++#export DH_VERBOSE=1
++
++include debian/xsfbs/xsfbs.mk
++
++CFLAGS = -Wall -g
++ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
++	CFLAGS += -O0
++else
++	CFLAGS += -O2
++endif
++ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
++	INSTALL_PROGRAM += -s
++endif
++
++DEB_HOST_ARCH      ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
++DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
++DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
++ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
++	confflags += --build=$(DEB_HOST_GNU_TYPE)
++else
++	confflags += --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE)
++endif
++
++# kbd_drv.a isn't phenomenally useful; kbd_drv.so more so
++confflags += --disable-static
++
++build: build-stamp
++build-stamp:
++	dh_testdir
++
++	mkdir obj-$(DEB_BUILD_GNU_TYPE)
++	cd obj-$(DEB_BUILD_GNU_TYPE) && \
++	../configure --prefix=/usr --mandir=\$${prefix}/share/man \
++	             --infodir=\$${prefix}/share/info $(confflags) \
++	             CFLAGS="$(CFLAGS)" 
++	./git_version.sh > obj-$(DEB_BUILD_GNU_TYPE)/git_version.h
++	./git_version.sh > git_version.h
++	cd obj-$(DEB_BUILD_GNU_TYPE) && $(MAKE)
++
++	touch build-stamp
++
++clean:
++	dh_testdir
++	dh_testroot
++	rm -f build-stamp
++
++	rm -f git_version.h
++	rm -f config.cache config.log config.status
++	rm -f */config.cache */config.log */config.status
++	rm -f conftest* */conftest*
++	rm -rf autom4te.cache */autom4te.cache
++	rm -rf obj-*
++
++	dh_clean
++
++install: build
++	dh_testdir
++	dh_testroot
++	dh_clean -k
++	dh_installdirs
++
++	cd obj-$(DEB_BUILD_GNU_TYPE) && $(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
++
++# Build architecture-dependent files here.
++binary-arch: build install
++	dh_testdir
++	dh_testroot
++
++	dh_installdocs
++	dh_installchangelogs
++	dh_install --sourcedir=debian/tmp
++	dh_link
++	dh_strip
++	dh_compress
++	dh_fixperms
++	dh_makeshlibs
++	dh_shlibdeps
++	dh_installdeb
++	dh_gencontrol
++	dh_md5sums
++	dh_builddeb
++
++# Build architecture-independent files here.
++binary-indep: build install
++# Nothing to do
++
++binary: binary-indep binary-arch
++.PHONY: build clean binary-indep binary-arch binary install
+--- xf86-video-unichrome-0.2.6.orig/debian/compat
++++ xf86-video-unichrome-0.2.6/debian/compat
+@@ -0,0 +1 @@
++4
+--- xf86-video-unichrome-0.2.6.orig/debian/xsfbs/xsfbs.mk
++++ xf86-video-unichrome-0.2.6/debian/xsfbs/xsfbs.mk
+@@ -0,0 +1,359 @@
++#!/usr/bin/make -f
++# $Id: rules 593 2005-09-03 20:48:30Z dnusinow $
++
++# Debian rules file for xorg-x11 source package
++
++# Copyright 1996 Stephen Early
++# Copyright 1997 Mark Eichin
++# Copyright 1998-2005 Branden Robinson
++# Copyright 2005 David Nusinow
++#
++# Licensed under the GNU General Public License, version 2.  See the file
++# /usr/share/common-licenses/GPL or <http://www.gnu.org/copyleft/gpl.txt>.
++
++# Originally by Stephen Early <sde1000@debian.org>
++# Modified by Mark W. Eichin <eichin@kitten.gen.ma.us>
++# Modified by Adam Heath <doogie@debian.org>
++# Modified by Branden Robinson <branden@debian.org>
++# Modified by Fabio Massimo Di Nitto <fabbione@fabbione.net>
++# Modified by David Nusinow <dnusinow@debian.org>
++# Acknowledgements to Manoj Srivastava.
++
++# Pass $(DH_OPTIONS) into the environment for debhelper's benefit.
++export DH_OPTIONS
++
++# Set up parameters for the upstream build environment.
++
++# Determine (source) package name from Debian changelog.
++SOURCE_NAME:=$(shell dpkg-parsechangelog -ldebian/changelog \
++                        | grep '^Source:' | awk '{print $$2}')
++
++# Determine package version from Debian changelog.
++SOURCE_VERSION:=$(shell dpkg-parsechangelog -ldebian/changelog \
++                        | grep '^Version:' | awk '{print $$2}')
++
++# Determine upstream version number.
++UPSTREAM_VERSION:=$(shell echo $(SOURCE_VERSION) | sed 's/-.*//')
++
++# Determine the source version without the epoch for make-orig-tar-gz
++NO_EPOCH_VER:=$(shell echo $(UPSTREAM_VERSION) | sed 's/^.://')
++
++# Figure out who's building this package.
++BUILDER:=$(shell echo $${DEBEMAIL:-$${EMAIL:-$$(echo $$LOGNAME@$$(cat /etc/mailname 2>/dev/null))}})
++
++# Find out if this is an official build; an official build has nothing but
++# digits, dots, and/or the strings "woody" or "sarge" in the Debian part of the
++# version number.  Anything else indicates an unofficial build.
++OFFICIAL_BUILD:=$(shell VERSION=$(SOURCE_VERSION); if ! expr "$$(echo $${VERSION\#\#*-} | sed 's/\(woody\|sarge\)//g')" : ".*[^0-9.].*" >/dev/null 2>&1; then echo yes; fi)
++
++# Set up parameters for the Debian build environment.
++
++# Determine our architecture.
++BUILD_ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
++# Work around some old-time dpkg braindamage.
++BUILD_ARCH:=$(subst i486,i386,$(BUILD_ARCH))
++# The DEB_HOST_ARCH variable may be set per the Debian cross-compilation policy.
++ifdef DEB_HOST_ARCH
++ ARCH:=$(DEB_HOST_ARCH)
++else
++ # dpkg-cross sets the ARCH environment variable; if set, use it.
++ ifdef ARCH
++  ARCH:=$(ARCH)
++ else
++  ARCH:=$(BUILD_ARCH)
++ endif
++endif
++
++# $(STAMP_DIR) houses stamp files for complex targets.
++STAMP_DIR:=stampdir
++
++# $(SOURCE_DIR) houses one or more source trees.
++SOURCE_DIR:=build-tree
++
++# $(SOURCE_TREE) is the location of the source tree to be compiled.  If there
++# is more than one, others are found using this name plus a suffix to indicate
++# the purpose of the additional tree (e.g., $(SOURCE_TREE)-custom).  The
++# "setup" target is responsible for creating such trees.
++#SOURCE_TREE:=$(SOURCE_DIR)/xc
++#FIXME We need to define this in our debian/rules file
++
++# $(DEBTREEDIR) is where all install rules are told (via $(DESTDIR)) to place
++# their files.
++DEBTREEDIR:=$(CURDIR)/debian/tmp
++
++# All "important" targets have four lines:
++#   1) A target name that is invoked by a package-building tool or the user.
++#      This consists of a dependency on a "$(STAMP_DIR)/"-prefixed counterpart.
++#   2) A line delcaring 1) as a phony target (".PHONY:").
++#   3) A "$(STAMP_DIR)/"-prefixed target which does the actual work, and may
++#   depend on other targets.
++#   4) A line declaring 3) as a member of the $(stampdir_targets) variable; the
++#   "$(STAMP_DIR)/" prefix is omitted.
++#
++# This indirection is needed so that the "stamp" files that signify when a rule
++# is done can be located in a separate "stampdir".  Recall that make has no way
++# to know when a goal has been met for a phony target (like "build" or
++# "install").
++#
++# At the end of each "$(STAMP_DIR)/" target, be sure to run the command ">$@"
++# so that the target will not be run again.  Removing the file will make Make
++# run the target over.
++
++# All phony targets should be declared as dependencies of .PHONY, even if they
++# do not have "($STAMP_DIR)/"-prefixed counterparts.
++
++# Define a harmless default rule to keep things from going nuts by accident.
++.PHONY: default
++default:
++
++# Set up the $(STAMP_DIR) directory.
++.PHONY: stampdir
++stampdir_targets+=stampdir
++stampdir: $(STAMP_DIR)/stampdir
++$(STAMP_DIR)/stampdir:
++	mkdir $(STAMP_DIR)
++	>$@
++
++# Set up the package build directory as quilt expects to find it.
++.PHONY: prepare
++stampdir_targets+=prepare
++prepare: $(STAMP_DIR)/genscripts $(STAMP_DIR)/prepare $(STAMP_DIR)/patches $(STAMP_DIR)/log
++$(STAMP_DIR)/prepare: $(STAMP_DIR)/stampdir
++	if [ ! -e $(STAMP_DIR)/patches ]; then \
++		mkdir $(STAMP_DIR)/patches; \
++		ln -s $(STAMP_DIR)/patches .pc; \
++		echo 2 >$(STAMP_DIR)/patches/.version; \
++	fi; \
++	if [ ! -e $(STAMP_DIR)/log ]; then \
++		mkdir $(STAMP_DIR)/log; \
++	fi; \
++	if [ ! -e patches ]; then \
++		ln -s debian/patches patches; \
++	fi; \
++	>$@
++
++# Apply all patches to the upstream source.
++.PHONY: patch
++stampdir_targets+=patch
++patch: $(STAMP_DIR)/patch
++$(STAMP_DIR)/patch: $(STAMP_DIR)/prepare
++	if ! [ `which quilt` ]; then \
++		echo "Couldn't find quilt. Please install it or add it to the build-depends for this package."; \
++		exit 1; \
++	fi; \
++	if quilt next; then \
++	  echo -n "Applying patches..."; \
++	  if quilt push -a -v >$(STAMP_DIR)/log/patch 2>&1; then \
++	    echo "successful."; \
++	  else \
++	    echo "failed! (check $(STAMP_DIR)/log/patch for details)"; \
++	    exit 1; \
++	  fi; \
++	else \
++	  echo "No patches to apply"; \
++	fi; \
++	>$@
++
++# Revert all patches to the upstream source.
++.PHONY: unpatch
++unpatch:
++	rm -f $(STAMP_DIR)/patch
++	@echo -n "Unapplying patches..."; \
++	if [ -e $(STAMP_DIR)/patches/applied-patches ]; then \
++	  if quilt pop -a -v >$(STAMP_DIR)/log/unpatch 2>&1; then \
++	    echo "successful."; \
++	  else \
++	    echo "failed! (check $(STAMP_DIR)/log/unpatch for details)"; \
++	    exit 1; \
++	  fi; \
++	else \
++	  echo "nothing to do."; \
++	fi
++
++# Clean the generated maintainer scripts.
++.PHONY: cleanscripts
++cleanscripts:
++	rm -f $(STAMP_DIR)/genscripts
++	rm -f debian/*.config \
++	      debian/*.postinst \
++	      debian/*.postrm \
++	      debian/*.preinst \
++	      debian/*.prerm
++
++# Clean the package build tree.
++.PHONY: xsfclean
++xsfclean: cleanscripts unpatch
++	dh_testdir
++	rm -f .pc patches
++	rm -rf $(STAMP_DIR) $(SOURCE_DIR)
++	rm -rf imports
++	dh_clean debian/shlibs.local \
++	         debian/MANIFEST.$(ARCH) debian/MANIFEST.$(ARCH).new \
++	         debian/po/pothead
++
++# Generate the debconf templates POT file header.
++debian/po/pothead: debian/po/pothead.in
++	sed -e 's/SOURCE_VERSION/$(SOURCE_VERSION)/' \
++	  -e 's/DATE/$(shell date "+%F %X%z"/)' <$< >$@
++
++# Update POT and PO files.
++.PHONY: updatepo
++updatepo: debian/po/pothead
++	debian/scripts/debconf-updatepo --pot-header=pothead --verbose
++
++# Use the MANIFEST files to determine whether we're shipping everything we
++# expect to ship, and not shipping anything we don't expect to ship.
++.PHONY: check-manifest
++stampdir_targets+=check-manifest
++check-manifest: $(STAMP_DIR)/check-manifest
++$(STAMP_DIR)/check-manifest: $(STAMP_DIR)/install
++	# Compare manifests.
++	(cd debian/tmp && find -type f | LC_ALL=C sort | cut -c3-) \
++	  >debian/MANIFEST.$(ARCH).new
++	# Construct MANIFEST files from MANIFEST.$(ARCH).in and
++	# MANIFEST.$(ARCH).all or MANIFEST.all.
++	if expr "$(findstring -DBuildFonts=NO,$(IMAKE_DEFINES))" \
++	  : "-DBuildFonts=NO" >/dev/null 2>&1; then \
++	  LC_ALL=C sort -u debian/MANIFEST.$(ARCH).in >debian/MANIFEST.$(ARCH); \
++	else \
++	  if [ -e debian/MANIFEST.$(ARCH).all ]; then \
++	    LC_ALL=C sort -u debian/MANIFEST.$(ARCH).in debian/MANIFEST.$(ARCH).all >debian/MANIFEST.$(ARCH); \
++	  else \
++	    LC_ALL=C sort -u debian/MANIFEST.$(ARCH).in debian/MANIFEST.all >debian/MANIFEST.$(ARCH); \
++	  fi; \
++	fi
++	# Confirm that the installed file list has not changed.
++	if [ -e debian/MANIFEST.$(ARCH) ]; then \
++	  if ! cmp -s debian/MANIFEST.$(ARCH) debian/MANIFEST.$(ARCH).new; then \
++	    diff -U 0 debian/MANIFEST.$(ARCH) debian/MANIFEST.$(ARCH).new || DIFFSTATUS=$$?; \
++	    case $${DIFFSTATUS:-0} in \
++	      0) ;; \
++	      1) if [ -n "$$IGNORE_MANIFEST_CHANGES" ]; then \
++	           echo 'MANIFEST check failed; ignoring problem because \$$IGNORE_MANIFEST_CHANGES set' >&2; \
++	           echo 'Please ensure that the package maintainer has an up-to-date version of the' >&2; \
++	           echo 'MANIFEST.$(ARCH).in file.' >&2; \
++	         else \
++	           echo 'MANIFEST check failed; please see debian/README' >&2; \
++	           exit 1; \
++	         fi; \
++	         ;; \
++	      *) echo "diff reported unexpected exit status $$DIFFSTATUS when performing MANIFEST check" >&2; \
++	         exit 1; \
++	         ;; \
++	    esac; \
++	  fi; \
++	fi
++	>$@
++
++# Because we build (and install) different files depending on whether or not
++# any architecture-independent packages are being created, the list of files we
++# expect to see will differ; see the discussion of the "build" target above.
++.PHONY: check-manifest-arch check-manifest-indep
++check-manifest-arch: IMAKE_DEFINES+= -DBuildSpecsDocs=NO -DBuildFonts=NO -DInstallHardcopyDocs=NO
++check-manifest-arch: check-manifest
++check-manifest-indep: check-manifest
++
++# Remove files from the upstream source tree that we don't need, or which have
++# licensing problems.  It must be run before creating the .orig.tar.gz.
++#
++# Note: This rule is for Debian package maintainers' convenience, and is not
++# needed for conventional build scenarios.
++.PHONY: prune-upstream-tree
++prune-upstream-tree:
++	# Ensure we're in the correct directory.
++	dh_testdir
++	grep -rvh '^#' debian/prune/ | xargs --no-run-if-empty rm -rf
++
++# Change to what should be the correct directory, ensure it is, and if
++# so, create the .orig.tar.gz file.  Exclude the debian directory and its
++# contents, and any .svn directories and their contents (so that we can safely
++# build an .orig.tar.gz from SVN checkout, not just an export).
++#
++# Note: This rule is for Debian package maintainers' convenience, and is not
++# needed for conventional build scenarios.
++#
++# This rule *IS* the recommended method for creating a new .orig.tar.gz file,
++# for the rare situations when one is needed.
++.PHONY: make-orig-tar-gz
++make-orig-tar-gz: clean prune-upstream-tree
++	( cd .. \
++	  && if [ $(shell basename $(CURDIR)) != $(SOURCE_NAME)-$(NO_EPOCH_VER) ]; then \
++	    echo "Our current working directory has the wrong name. Renaming..." >&2; \
++		mv $(CURDIR) $(SOURCE_NAME)-$(NO_EPOCH_VER); \
++	  fi; \
++	    tar --exclude=debian --exclude=debian/* \
++	        --exclude=.svn --exclude=.svn/* \
++	        -cf - $(SOURCE_NAME)-$(NO_EPOCH_VER) \
++	    | gzip -9 >$(SOURCE_NAME)_$(NO_EPOCH_VER).orig.tar.gz; \
++	   )
++
++# Verify that there are no offsets or fuzz in the patches we apply.
++#
++# Note: This rule is for Debian package maintainers' convenience, and is not
++# needed for conventional build scenarios.
++.PHONY: patch-audit
++patch-audit: prepare unpatch
++	@echo -n "Auditing patches..."; \
++	>$(STAMP_DIR)/log/patch; \
++	FUZZY=; \
++	while [ -n "$$(quilt next)" ]; do \
++	  RESULT=$$(quilt push -v | tee -a $(STAMP_DIR)/log/patch | grep ^Hunk | sed 's/^Hunk.*\(succeeded\|FAILED\).*/\1/');\
++	  case "$$RESULT" in \
++	    succeeded) \
++	      echo "fuzzy patch: $$(quilt top)" \
++	        | tee -a $(STAMP_DIR)/log/$$(quilt top); \
++	      FUZZY=yes; \
++	      ;; \
++	    FAILED) \
++	      echo "broken patch: $$(quilt next)" \
++	        | tee -a $(STAMP_DIR)/log/$$(quilt next); \
++	      exit 1; \
++	      ;; \
++	  esac; \
++	done; \
++	if [ -n "$$FUZZY" ]; then \
++	  echo "there were fuzzy patches; please fix."; \
++	  exit 1; \
++	else \
++	  echo "done."; \
++	fi
++
++# Generate the maintainer scripts.
++.PHONY: genscripts
++stampdir_targets+=genscripts
++genscripts: $(STAMP_DIR)/genscripts
++$(STAMP_DIR)/genscripts: $(STAMP_DIR)/stampdir
++	for FILE in debian/*.config.in \
++	            debian/*.postinst.in \
++	            debian/*.postrm.in \
++	            debian/*.preinst.in \
++	            debian/*.prerm.in; do \
++	  if [ -e "$$FILE" ]; then \
++	    MAINTSCRIPT=$$(echo $$FILE | sed 's/.in$$//'); \
++	    sed -n '1,/^#INCLUDE_SHELL_LIB#$$/p' <$$FILE \
++	      | sed -e '/^#INCLUDE_SHELL_LIB#$$/d' >$$MAINTSCRIPT.tmp; \
++	    cat debian/xsfbs/xsfbs.sh >>$$MAINTSCRIPT.tmp; \
++	    sed -n '/^#INCLUDE_SHELL_LIB#$$/,$$p' <$$FILE \
++	      | sed -e '/^#INCLUDE_SHELL_LIB#$$/d' >>$$MAINTSCRIPT.tmp; \
++	    sed -e 's/@SOURCE_VERSION@/$(SOURCE_VERSION)/' \
++	        -e 's/@OFFICIAL_BUILD@/$(OFFICIAL_BUILD)/' \
++	        -e 's/@DEFAULT_DCRESOLUTIONS@/$(DEFAULT_DCRESOLUTIONS)/' \
++	      <$$MAINTSCRIPT.tmp >$$MAINTSCRIPT; \
++	    rm $$MAINTSCRIPT.tmp; \
++	  fi; \
++	done
++	# Validate syntax of generated shell scripts.
++	#sh debian/scripts/validate-posix-sh debian/*.config \
++	#                                    debian/*.postinst \
++	#                                    debian/*.postrm \
++	#                                    debian/*.preinst \
++	#                                    debian/*.prerm
++	>$@
++
++# Generate the shlibs.local file.
++debian/shlibs.local:
++	cat debian/*.shlibs >$@
++
++include debian/xsfbs/xsfbs-autoreconf.mk
++
++# vim:set noet ai sts=8 sw=8 tw=0:
+--- xf86-video-unichrome-0.2.6.orig/debian/xsfbs/xsfbs.sh
++++ xf86-video-unichrome-0.2.6/debian/xsfbs/xsfbs.sh
+@@ -0,0 +1,866 @@
++# $Id: shell-lib.sh 586 2005-09-03 18:37:47Z branden $
++
++SOURCE_VERSION=@SOURCE_VERSION@
++OFFICIAL_BUILD=@OFFICIAL_BUILD@
++
++# Use special abnormal exit codes so that problems with this library are more
++# easily tracked down.
++SHELL_LIB_INTERNAL_ERROR=86
++SHELL_LIB_THROWN_ERROR=74
++SHELL_LIB_USAGE_ERROR=99
++
++# old -> new variable names
++if [ -z "$DEBUG_XORG_PACKAGE" ] && [ -n "$DEBUG_XFREE86_PACKAGE" ]; then
++  DEBUG_XORG_PACKAGE="$DEBUG_XFREE86_PACKAGE"
++fi
++if [ -z "$DEBUG_XORG_DEBCONF" ] && [ -n "$DEBUG_XFREE86_DEBCONF" ]; then
++  DEBUG_XORG_DEBCONF="$DEBUG_XFREE86_DEBCONF"
++fi
++
++# initial sanity checks
++if [ -z "$THIS_PACKAGE" ]; then
++  cat >&2 <<EOF
++Error: package maintainer script attempted to use shell library without
++definining \$THIS_PACKAGE shell variable.  Please report the package name,
++version, and the text of this error message to the Debian Bug Tracking System.
++Visit <http://www.debian.org/Bugs/Reporting> on the World Wide Web for
++instructions, read the file /usr/share/doc/debian/bug-reporting.txt from the
++"doc-debian" package, or install the "reportbug" package and use the command of
++the same name to file a report against version $SOURCE_VERSION of this package.
++EOF
++  exit $SHELL_LIB_USAGE_ERROR
++fi
++
++if [ -z "$THIS_SCRIPT" ]; then
++  cat >&2 <<EOF
++Error: package maintainer script attempted to use shell library without
++definining \$THIS_SCRIPT shell variable.  Please report the package name,
++version, and the text of this error message to the Debian Bug Tracking System.
++Visit <http://www.debian.org/Bugs/Reporting> on the World Wide Web for
++instructions, read the file /usr/share/doc/debian/bug-reporting.txt from the
++"doc-debian" package, or install the "reportbug" package and use the command of
++the same name to file a report against version $SOURCE_VERSION of the
++"$THIS_PACKAGE" package.
++EOF
++  exit $SHELL_LIB_USAGE_ERROR
++fi
++
++trap "message;\
++      message \"Received signal.  Aborting $THIS_PACKAGE package $THIS_SCRIPT script.\";\
++      message;\
++      exit 1" HUP INT QUIT TERM
++
++reject_nondigits () {
++  # syntax: reject_nondigits [ operand ... ]
++  #
++  # scan operands (typically shell variables whose values cannot be trusted) for
++  # characters other than decimal digits and barf if any are found
++  while [ -n "$1" ]; do
++    # does the operand contain anything but digits?
++    if ! expr "$1" : "[[:digit:]]\+$" > /dev/null 2>&1; then
++      # can't use die(), because it wraps message() which wraps this function
++      echo "$THIS_PACKAGE $THIS_SCRIPT error: reject_nondigits() encountered" \
++           "possibly malicious garbage \"$1\"" >&2
++      exit $SHELL_LIB_THROWN_ERROR
++    fi
++    shift
++  done
++}
++
++reject_whitespace () {
++  # syntax: reject_whitespace [ operand ]
++  #
++  # scan operand (typically a shell variable whose value cannot be trusted) for
++  # whitespace characters and barf if any are found
++  if [ -n "$1" ]; then
++    # does the operand contain any whitespace?
++    if expr "$1" : "[[:space:]]" > /dev/null 2>&1; then
++      # can't use die(), because I want to avoid forward references
++      echo "$THIS_PACKAGE $THIS_SCRIPT error: reject_whitespace() encountered" \
++           "possibly malicious garbage \"$1\"" >&2
++      exit $SHELL_LIB_THROWN_ERROR
++    fi
++  fi
++}
++
++reject_unlikely_path_chars () {
++  # syntax: reject_unlikely_path_chars [ operand ... ]
++  #
++  # scan operands (typically shell variables whose values cannot be trusted) for
++  # characters unlikely to be seen in a path and which the shell might
++  # interpret and barf if any are found
++  while [ -n "$1" ]; do
++    # does the operand contain any funny characters?
++    if expr "$1" : '.*[!$&()*;<>?|].*' > /dev/null 2>&1; then
++      # can't use die(), because I want to avoid forward references
++      echo "$THIS_PACKAGE $THIS_SCRIPT error: reject_unlikely_path_chars()" \
++           "encountered possibly malicious garbage \"$1\"" >&2
++      exit $SHELL_LIB_THROWN_ERROR
++    fi
++    shift
++  done
++}
++
++# Query the terminal to establish a default number of columns to use for
++# displaying messages to the user.  This is used only as a fallback in the
++# event the COLUMNS variable is not set.  ($COLUMNS can react to SIGWINCH while
++# the script is running, and this cannot, only being calculated once.)
++DEFCOLUMNS=$(stty size 2> /dev/null | awk '{print $2}') || true
++if ! expr "$DEFCOLUMNS" : "[[:digit:]]\+$" > /dev/null 2>&1; then
++  DEFCOLUMNS=80
++fi
++
++message () {
++  # pretty-print messages of arbitrary length
++  reject_nondigits "$COLUMNS"
++  echo "$*" | fmt -t -w ${COLUMNS:-$DEFCOLUMNS} >&2
++}
++
++observe () {
++  # syntax: observe message ...
++  #
++  # issue observational message suitable for logging someday when support for
++  # it exists in dpkg
++  if [ -n "$DEBUG_XORG_PACKAGE" ]; then
++    message "$THIS_PACKAGE $THIS_SCRIPT note: $*"
++  fi
++}
++
++warn () {
++  # syntax: warn message ...
++  #
++  # issue warning message suitable for logging someday when support for
++  # it exists in dpkg; also send to standard error
++  message "$THIS_PACKAGE $THIS_SCRIPT warning: $*"
++}
++
++die () {
++  # syntax: die message ...
++  #
++  # exit script with error message
++  message "$THIS_PACKAGE $THIS_SCRIPT error: $*"
++  exit $SHELL_LIB_THROWN_ERROR
++}
++
++internal_error () {
++  # exit script with error; essentially a "THIS SHOULD NEVER HAPPEN" message
++  message "internal error: $*"
++  if [ -n "$OFFICIAL_BUILD" ]; then
++    message "Please report a bug in the $THIS_SCRIPT script of the" \
++            "$THIS_PACKAGE package, version $SOURCE_VERSION to the Debian Bug" \
++            "Tracking System.  Include all messages above that mention the" \
++            "$THIS_PACKAGE package.  Visit " \
++            "<http://www.debian.org/Bugs/Reporting> on the World Wide Web for" \
++            "instructions, read the file" \
++            "/usr/share/doc/debian/bug-reporting.txt from the doc-debian" \
++            "package, or install the reportbug package and use the command of" \
++            "the same name to file a report."
++  fi
++  exit $SHELL_LIB_INTERNAL_ERROR
++}
++
++usage_error () {
++  message "usage error: $*"
++  message "Please report a bug in the $THIS_SCRIPT script of the" \
++          "$THIS_PACKAGE package, version $SOURCE_VERSION to the Debian Bug" \
++          "Tracking System.  Include all messages above that mention the" \
++          "$THIS_PACKAGE package.  Visit " \
++          "<http://www.debian.org/Bugs/Reporting> on the World Wide Web for" \
++          "instructions, read the file" \
++          "/usr/share/doc/debian/bug-reporting.txt from the doc-debian" \
++          "package, or install the reportbug package and use the command of" \
++          "the same name to file a report."
++  exit $SHELL_LIB_USAGE_ERROR
++}
++
++
++maplink () {
++  # returns what symlink should point to; i.e., what the "sane" answer is
++  # Keep this in sync with the debian/*.links files.
++  # This is only needed for symlinks to directories.
++  case "$1" in
++    /etc/X11/xkb/compiled) echo /var/lib/xkb ;;
++    /etc/X11/xkb/xkbcomp) echo /usr/X11R6/bin/xkbcomp ;;
++    /usr/X11R6/lib/X11/app-defaults) echo /etc/X11/app-defaults ;;
++    /usr/X11R6/lib/X11/fs) echo /etc/X11/fs ;;
++    /usr/X11R6/lib/X11/lbxproxy) echo /etc/X11/lbxproxy ;;
++    /usr/X11R6/lib/X11/proxymngr) echo /etc/X11/proxymngr ;;
++    /usr/X11R6/lib/X11/rstart) echo /etc/X11/rstart ;;
++    /usr/X11R6/lib/X11/twm) echo /etc/X11/twm ;;
++    /usr/X11R6/lib/X11/xdm) echo /etc/X11/xdm ;;
++    /usr/X11R6/lib/X11/xinit) echo /etc/X11/xinit ;;
++    /usr/X11R6/lib/X11/xkb) echo /etc/X11/xkb ;;
++    /usr/X11R6/lib/X11/xserver) echo /etc/X11/xserver ;;
++    /usr/X11R6/lib/X11/xsm) echo /etc/X11/xsm ;;
++    /usr/bin/X11) echo ../X11R6/bin ;;
++    /usr/bin/rstartd) echo ../X11R6/bin/rstartd ;;
++    /usr/include/X11) echo ../X11R6/include/X11 ;;
++    /usr/lib/X11) echo ../X11R6/lib/X11 ;;
++    *) internal_error "maplink() called with unknown path \"$1\"" ;;
++  esac
++}
++
++analyze_path () {
++  # given a supplied set of pathnames, break each one up by directory and do an
++  # ls -dl on each component, cumulatively; i.e.
++  # analyze_path /usr/X11R6/bin -> ls -dl /usr /usr/X11R6 /usr/X11R6/bin
++  # Thanks to Randolph Chung for this clever hack.
++
++  #local f g
++
++  while [ -n "$1" ]; do
++    reject_whitespace "$1"
++    _g=
++    message "Analyzing $1:"
++    for _f in $(echo "$1" | tr / \  ); do
++      if [ -e /$_g$_f ]; then
++        ls -dl /$_g$_f /$_g$_f.dpkg-* 2> /dev/null || true
++        _g=$_g$_f/
++      else
++        message "/$_g$_f: nonexistent; directory contents of /$_g:"
++        ls -l /$_g
++        break
++      fi
++    done
++    shift
++  done
++}
++
++find_culprits () {
++  #local f p dpkg_info_dir possible_culprits smoking_guns bad_packages package \
++  #  msg
++
++  reject_whitespace "$1"
++  message "Searching for overlapping packages..."
++  _dpkg_info_dir=/var/lib/dpkg/info
++  if [ -d $_dpkg_info_dir ]; then
++    if [ "$(echo $_dpkg_info_dir/*.list)" != "$_dpkg_info_dir/*.list" ]; then
++      _possible_culprits=$(ls -1 $_dpkg_info_dir/*.list | egrep -v \
++        "(xbase-clients|x11-common|xfs|xlibs)")
++      if [ -n "$_possible_culprits" ]; then
++        _smoking_guns=$(grep -l "$1" $_possible_culprits)
++        if [ -n "$_smoking_guns" ]; then
++          _bad_packages=$(printf "\\n")
++          for f in $_smoking_guns; do
++            # too bad you can't nest parameter expansion voodoo
++            p=${f%*.list}      # strip off the trailing ".list"
++            _package=${p##*/}   # strip off the directories
++            _bad_packages=$(printf "%s\n%s" "$_bad_packages" "$_package")
++          done
++          _msg=$(cat <<EOF
++The following packages appear to have file overlaps with the X.Org packages;
++these packages are either very old, or in violation of Debian Policy.  Try
++upgrading each of these packages to the latest available version if possible:
++for example, with the command "apt-get install".  If no newer version of a
++package is available, you will have to remove it; for example, with the command
++"apt-get remove".  If even the latest available version of the package has
++this file overlap, please file a bug against that package with the Debian Bug
++Tracking System.  You may want to refer the package maintainer to section 12.8
++of the Debian Policy manual.
++EOF
++)
++          message "$_msg"
++          message "The overlapping packages are: $_bad_packages"
++        else
++          message "no overlaps found."
++        fi
++      fi
++    else
++      message "cannot search; no matches for $_dpkg_info_dir/*.list."
++    fi
++  else
++    message "cannot search; $_dpkg_info_dir does not exist."
++  fi
++}
++
++# we require a readlink command or shell function
++if ! which readlink > /dev/null 2>&1; then
++  message "The readlink command was not found.  Please install version" \
++          "1.13.1 or later of the debianutils package."
++  readlink () {
++    # returns what symlink in $1 actually points to
++    perl -e '$l = shift; exit 1 unless -l $l; $r = readlink $l; exit 1 unless $r; print "$r\n"' "$1"
++  }
++fi
++
++check_symlink () {
++  # syntax: check_symlink symlink
++  #
++  # See if specified symlink points where it is supposed to.  Return 0 if it
++  # does, and 1 if it does not.
++  #
++  # Primarily used by check_symlinks_and_warn() and check_symlinks_and_bomb().
++
++  #local symlink
++
++  # validate arguments
++  if [ $# -ne 1 ]; then
++    usage_error "check_symlink() called with wrong number of arguments;" \
++                "expected 1, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  _symlink="$1"
++
++  if [ "$(maplink "$_symlink")" = "$(readlink "$_symlink")" ]; then
++    return 0
++  else
++    return 1
++  fi
++}
++
++check_symlinks_and_warn () {
++  # syntax: check_symlinks_and_warn symlink ...
++  #
++  # For each argument, check for symlink sanity, and warn if it isn't sane.
++  #
++  # Call this function from a preinst script in the event $1 is "upgrade" or
++  # "install".
++
++  #local errmsg symlink
++
++  # validate arguments
++  if [ $# -lt 1 ]; then
++    usage_error "check_symlinks_and_warn() called with wrong number of" \
++                "arguments; expected at least 1, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  while [ -n "$1" ]; do
++    _symlink="$1"
++    if [ -L "$_symlink" ]; then
++      if ! check_symlink "$_symlink"; then
++        observe "$_symlink symbolic link points to wrong location" \
++                "$(readlink "$_symlink"); removing"
++        rm "$_symlink"
++      fi
++    elif [ -e "$_symlink" ]; then
++      _errmsg="$_symlink exists and is not a symbolic link; this package cannot"
++      _errmsg="$_errmsg be installed until this"
++      if [ -f "$_symlink" ]; then
++        _errmsg="$_errmsg file"
++      elif [ -d "$_symlink" ]; then
++        _errmsg="$_errmsg directory"
++      else
++        _errmsg="$_errmsg thing"
++      fi
++      _errmsg="$_errmsg is removed"
++      die "$_errmsg"
++    fi
++    shift
++  done
++}
++
++check_symlinks_and_bomb () {
++  # syntax: check_symlinks_and_bomb symlink ...
++  #
++  # For each argument, check for symlink sanity, and bomb if it isn't sane.
++  #
++  # Call this function from a postinst script.
++
++  #local problem symlink
++
++  # validate arguments
++  if [ $# -lt 1 ]; then
++    usage_error "check_symlinks_and_bomb() called with wrong number of"
++                "arguments; expected at least 1, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  while [ -n "$1" ]; do
++    _problem=
++    _symlink="$1"
++    if [ -L "$_symlink" ]; then
++      if ! check_symlink "$_symlink"; then
++        _problem=yes
++        warn "$_symlink symbolic link points to wrong location" \
++             "$(readlink "$_symlink")"
++      fi
++    elif [ -e "$_symlink" ]; then
++      _problem=yes
++      warn "$_symlink is not a symbolic link"
++    else
++      _problem=yes
++      warn "$_symlink symbolic link does not exist"
++    fi
++    if [ -n "$_problem" ]; then
++      analyze_path "$_symlink" "$(readlink "$_symlink")"
++      find_culprits "$_symlink"
++      die "bad symbolic links on system"
++    fi
++    shift
++  done
++}
++
++font_update () {
++  # run $UPDATECMDS in $FONTDIRS
++
++  #local dir cmd shortcmd x_font_dir_prefix
++
++  _x_font_dir_prefix="/usr/share/fonts/X11"
++
++  if [ -z "$UPDATECMDS" ]; then
++    usage_error "font_update() called but \$UPDATECMDS not set"
++  fi
++  if [ -z "$FONTDIRS" ]; then
++    usage_error "font_update() called but \$FONTDIRS not set"
++  fi
++
++  reject_unlikely_path_chars "$UPDATECMDS"
++  reject_unlikely_path_chars "$FONTDIRS"
++
++  for _dir in $FONTDIRS; do
++    if [ -d "$_x_font_dir_prefix/$_dir" ]; then
++      for _cmd in $UPDATECMDS; do
++        if which "$_cmd" > /dev/null 2>&1; then
++          _shortcmd=${_cmd##*/}
++          observe "running $_shortcmd in $_dir font directory"
++	  _cmd_opts=
++          if [ "$_shortcmd" = "update-fonts-alias" ]; then
++            _cmd_opts=--x11r7-layout
++          fi
++          if [ "$_shortcmd" = "update-fonts-dir" ]; then
++            _cmd_opts=--x11r7-layout
++          fi
++          if [ "$_shortcmd" = "update-fonts-scale" ]; then
++            _cmd_opts=--x11r7-layout
++          fi
++          $_cmd $_cmd_opts $_dir || warn "$_cmd $_cmd_opts $_dir" \
++                              "failed; font directory data may not" \
++                              "be up to date"
++        else
++          warn "$_cmd not found; not updating corresponding $_dir font" \
++               "directory data"
++        fi
++      done
++    else
++      warn "$_dir is not a directory; not updating font directory data"
++    fi
++  done
++}
++
++remove_conffile_prepare () {
++  # syntax: remove_conffile_prepare filename official_md5sum ...
++  #
++  # Check a conffile "filename" against a list of canonical MD5 checksums.
++  # If the file's current MD5 checksum matches one of the "official_md5sum"
++  # operands provided, then prepare the conffile for removal from the system.
++  # We defer actual deletion until the package is configured so that we can
++  # roll this operation back if package installation fails.
++  #
++  # Call this function from a preinst script in the event $1 is "upgrade" or
++  # "install" and verify $2 to ensure the package is being upgraded from a
++  # version (or installed over a version removed-but-not-purged) prior to the
++  # one in which the conffile was obsoleted.
++
++  #local conffile current_checksum
++
++  # validate arguments
++  if [ $# -lt 2 ]; then
++    usage_error "remove_conffile_prepare() called with wrong number of" \
++                "arguments; expected at least 2, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  _conffile="$1"
++  shift
++
++  # does the _conffile even exist?
++  if [ -e "$_conffile" ]; then
++    # calculate its checksum
++    _current_checksum=$(md5sum < "$_conffile" | sed 's/[[:space:]].*//')
++    # compare it to each supplied checksum
++    while [ -n "$1" ]; do
++      if [ "$_current_checksum" = "$1" ]; then
++        # we found a match; move the confffile and stop looking
++        observe "preparing obsolete conffile $_conffile for removal"
++        mv "$_conffile" "$_conffile.$THIS_PACKAGE-tmp"
++        break
++      fi
++      shift
++    done
++  fi
++}
++
++remove_conffile_commit () {
++  # syntax: remove_conffile_commit filename
++  #
++  # Complete the removal of a conffile "filename" that has become obsolete.
++  #
++  # Call this function from a postinst script after having used
++  # remove_conffile_prepare() in the preinst.
++
++  #local conffile
++
++  # validate arguments
++  if [ $# -ne 1 ]; then
++    usage_error "remove_conffile_commit() called with wrong number of" \
++                "arguments; expected 1, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  _conffile="$1"
++
++  # if the temporary file created by remove_conffile_prepare() exists, remove it
++  if [ -e "$_conffile.$THIS_PACKAGE-tmp" ]; then
++    observe "committing removal of obsolete conffile $_conffile"
++    rm "$_conffile.$THIS_PACKAGE-tmp"
++  fi
++}
++
++remove_conffile_rollback () {
++  # syntax: remove_conffile_rollback filename
++  #
++  # Roll back the removal of a conffile "filename".
++  #
++  # Call this function from a postrm script in the event $1 is "abort-upgrade"
++  # or "abort-install" is  after having used remove_conffile_prepare() in the
++  # preinst.
++
++  #local conffile
++
++  # validate arguments
++  if [ $# -ne 1 ]; then
++    usage_error "remove_conffile_rollback() called with wrong number of" \
++                "arguments; expected 1, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  _conffile="$1"
++
++  # if the temporary file created by remove_conffile_prepare() exists, move it
++  # back
++  if [ -e "$_conffile.$THIS_PACKAGE-tmp" ]; then
++    observe "rolling back removal of obsolete conffile $_conffile"
++    mv "$_conffile.$THIS_PACKAGE-tmp" "$_conffile"
++  fi
++}
++
++replace_conffile_with_symlink_prepare () {
++  # syntax: replace_conffile_with_symlink_prepare oldfilename newfilename \
++  # official_md5sum ...
++  #
++  # Check a conffile "oldfilename" against a list of canonical MD5 checksums.
++  # If the file's current MD5 checksum matches one of the "official_md5sum"
++  # operands provided, then prepare the conffile for removal from the system.
++  # We defer actual deletion until the package is configured so that we can
++  # roll this operation back if package installation fails. Otherwise copy it
++  # to newfilename and let dpkg handle it through conffiles mechanism.
++  #
++  # Call this function from a preinst script in the event $1 is "upgrade" or
++  # "install" and verify $2 to ensure the package is being upgraded from a
++  # version (or installed over a version removed-but-not-purged) prior to the
++  # one in which the conffile was obsoleted.
++
++  #local conffile current_checksum
++
++  # validate arguments
++  if [ $# -lt 3 ]; then
++    usage_error "replace_conffile_with_symlink_prepare() called with wrong" \
++                " number of arguments; expected at least 3, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  _oldconffile="$1"
++  shift
++  _newconffile="$1"
++  shift
++
++  remove_conffile_prepare "$_oldconffile" "$@"
++  # If $_oldconffile still exists, then md5sums didn't match.
++  # Copy it to new one.
++  if [ -f "$_oldconffile" ]; then
++    cp "$_oldconffile" "$_newconffile"
++  fi
++
++}
++
++replace_conffile_with_symlink_commit () {
++  # syntax: replace_conffile_with_symlink_commit oldfilename
++  #
++  # Complete the removal of a conffile "oldfilename" that has been
++  # replaced by a symlink.
++  #
++  # Call this function from a postinst script after having used
++  # replace_conffile_with_symlink_prepare() in the preinst.
++
++  #local conffile
++
++  # validate arguments
++  if [ $# -ne 1 ]; then
++    usage_error "replace_conffile_with_symlink_commit() called with wrong" \
++                "number of arguments; expected 1, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  _conffile="$1"
++
++  remove_conffile_commit "$_conffile"
++}
++
++replace_conffile_with_symlink_rollback () {
++  # syntax: replace_conffile_with_symlink_rollback oldfilename newfilename
++  #
++  # Roll back the replacing of a conffile "oldfilename" with symlink to
++  # "newfilename".
++  #
++  # Call this function from a postrm script in the event $1 is "abort-upgrade"
++  # or "abort-install" and verify $2 to ensure the package failed to upgrade
++  # from a version (or install over a version removed-but-not-purged) prior
++  # to the one in which the conffile was obsoleted.
++  # You should have  used replace_conffile_with_symlink_prepare() in the
++  # preinst.
++
++  #local conffile
++
++  # validate arguments
++  if [ $# -ne 2 ]; then
++    usage_error "replace_conffile_with_symlink_rollback() called with wrong" \
++                "number of arguments; expected 2, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  _oldconffile="$1"
++  _newconffile="$2"
++
++  remove_conffile_rollback "$_oldconffile"
++  if [ -f "$_newconffile" ]; then
++    rm "$_newconffile"
++  fi
++}
++
++run () {
++  # syntax: run command [ argument ... ]
++  #
++  # Run specified command with optional arguments and report its exit status.
++  # Useful for commands whose exit status may be nonzero, but still acceptable,
++  # or commands whose failure is not fatal to us.
++  #
++  # NOTE: Do *not* use this function with db_get or db_metaget commands; in
++  # those cases the return value of the debconf command *must* be checked
++  # before the string returned by debconf is used for anything.
++
++  #local retval
++
++  # validate arguments
++  if [ $# -lt 1 ]; then
++    usage_error "run() called with wrong number of arguments; expected at" \
++                "least 1, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  "$@" || _retval=$?
++
++  if [ ${_retval:-0} -ne 0 ]; then
++    observe "command \"$*\" exited with status $_retval"
++  fi
++}
++
++register_x_lib_dir_with_ld_so () {
++  # syntax: register_x_lib_dir_with_ld_so
++  #
++  # Configure the dynamic loader ld.so to search /usr/X11R6/lib for shared
++  # libraries.
++  #
++  # Call this function from the postinst script of a package that places a
++  # shared library in /usr/X11R6/lib, before invoking ldconfig.
++
++  #local dir ldsoconf
++
++  _dir="/usr/X11R6/lib"
++  _ldsoconf="/etc/ld.so.conf"
++
++  # is the line not already present?
++  if ! fgrep -qsx "$_dir" "$_ldsoconf"; then
++    observe "adding $_dir directory to $_ldsoconf"
++    echo "$_dir" >> "$_ldsoconf"
++  fi
++}
++
++deregister_x_lib_dir_with_ld_so () {
++  # syntax: deregister_x_lib_dir_with_ld_so
++  #
++  # Configure dynamic loader ld.so to not search /usr/X11R6/lib for shared
++  # libraries, if and only if no shared libaries remain there.
++  #
++  # Call this function from the postrm script of a package that places a shared
++  # library in /usr/X11R6/lib, in the event "$1" is "remove", and before
++  # invoking ldconfig.
++
++  #local dir ldsoconf fgrep_status cmp_status
++
++  _dir="/usr/X11R6/lib"
++  _ldsoconf="/etc/ld.so.conf"
++
++  # is the line present?
++  if fgrep -qsx "$_dir" "$_ldsoconf"; then
++    # are there any shared objects in the directory?
++    if [ "$(echo "$_dir"/lib*.so.*.*)" = "$_dir/lib*.so.*.*" ]; then
++      # glob expansion produced nothing, so no shared libraries are present
++      observe "removing $_dir directory from $_ldsoconf"
++      # rewrite the file (very carefully)
++      set +e
++      fgrep -svx "$_dir" "$_ldsoconf" > "$_ldsoconf.dpkg-tmp"
++      _fgrep_status=$?
++      set -e
++      case $_fgrep_status in
++        0|1) ;; # we don't actually care if any lines matched or not
++        *) die "error reading \"$_ldsoconf\"; fgrep exited with status" \
++          "$_fgrep_status" ;;
++      esac
++      set +e
++      cmp -s "$_ldsoconf.dpkg-tmp" "$_ldsoconf"
++      _cmp_status=$?
++      set -e
++      case $_cmp_status in
++        0) rm "$_ldsoconf.dpkg-tmp" ;; # files are identical
++        1) mv "$_ldsoconf.dpkg-tmp" "$_ldsoconf" ;; # files differ
++        *) die "error comparing \"$_ldsoconf.dpkg-tmp\" to \"$_ldsoconf\";" \
++          "cmp exited with status $_cmp_status" ;;
++      esac
++    fi
++  fi
++}
++
++make_symlink_sane () {
++  # syntax: make_symlink_sane symlink target
++  #
++  # Ensure that the symbolic link symlink exists, and points to target.
++  #
++  # If symlink does not exist, create it and point it at target.
++  #
++  # If symlink exists but is not a symbolic link, back it up.
++  #
++  # If symlink exists, is a symbolic link, but points to the wrong location, fix
++  # it.
++  #
++  # If symlink exists, is a symbolic link, and already points to target, do
++  # nothing.
++  #
++  # This function wouldn't be needed if ln had an -I, --idempotent option.
++
++  # Validate arguments.
++  if [ $# -ne 2 ]; then
++    usage_error "make_symlink_sane() called with wrong number of arguments;" \
++      "expected 2, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  # We could just use the positional parameters as-is, but that makes things
++  # harder to follow.
++  #local symlink target
++
++  _symlink="$1"
++  _target="$2"
++
++  if [ -L "$_symlink" ] && [ "$(readlink "$_symlink")" = "$_target" ]; then
++      observe "link from $_symlink to $_target already exists"
++  else
++    observe "creating symbolic link from $_symlink to $_target"
++    mkdir -p "${_target%/*}" "${_symlink%/*}"
++    ln -s -b -S ".dpkg-old" "$_target" "$_symlink"
++  fi
++}
++
++migrate_dir_to_symlink () {
++  # syntax: migrate_dir_to_symlink old_location new_location
++  #
++  # Per Debian Policy section 6.5.4, "A directory will never be replaced by a
++  # symbolic link to a directory or vice versa; instead, the existing state
++  # (symlink or not) will be left alone and dpkg will follow the symlink if
++  # there is one."
++  #
++  # We have to do it ourselves.
++  #
++  # This function moves the contents of old_location, a directory, into
++  # new_location, a directory, then makes old_location a symbolic link to
++  # new_location.
++  #
++  # old_location need not exist, but if it does, it must be a directory (or a
++  # symlink to a directory).  If it is not, it is backed up.  If new_location
++  # exists already and is not a directory, it is backed up.
++  #
++  # This function should be called from a package's preinst so that other
++  # packages unpacked after this one --- but before this package's postinst runs
++  # --- are unpacked into new_location even if their payloads contain
++  # old_location filespecs.
++
++  # Validate arguments.
++  if [ $# -ne 2 ]; then
++    usage_error "migrate_dir_to_symlink() called with wrong number of"
++                "arguments; expected 2, got $#"
++    exit $SHELL_LIB_USAGE_ERROR
++  fi
++
++  # We could just use the positional parameters as-is, but that makes things
++  # harder to follow.
++  local _new _old
++
++  _old="$1"
++  _new="$2"
++
++  # Is old location a symlink?
++  if [ -L "$_old" ]; then
++    # Does it already point to new location?
++    if [ "$(readlink "$_old")" = "$_new" ]; then
++      # Nothing to do; migration has already been done.
++      observe "migration of $_old to $_new already done"
++      return 0
++    else
++      # Back it up.
++      warn "backing up symbolic link $_old as $_old.dpkg-old"
++      mv -b "$_old" "$_old.dpkg-old"
++    fi
++  fi
++
++  # Does old location exist, but is not a directory?
++  if [ -e "$_old" ] && ! [ -d "$_old" ]; then
++      # Back it up.
++      warn "backing up non-directory $_old as $_old.dpkg-old"
++      mv -b "$_old" "$_old.dpkg-old"
++  fi
++
++  observe "migrating $_old to $_new"
++
++  # Is new location a symlink?
++  if [ -L "$_new" ]; then
++    # Does it point the wrong way, i.e., back to where we're migrating from?
++    if [ "$(readlink "$_new")" = "$_old" ]; then
++      # Get rid of it.
++      observe "removing symbolic link $_new which points to $_old"
++      rm "$_new"
++    else
++      # Back it up.
++      warn "backing up symbolic link $_new as $_new.dpkg-old"
++      mv -b "$_new" "$_new.dpkg-old"
++    fi
++  fi
++
++  # Does new location exist, but is not a directory?
++  if [ -e "$_new" ] && ! [ -d "$_new" ]; then
++    warn "backing up non-directory $_new as $_new.dpkg-old"
++    mv -b "$_new" "$_new.dpkg-old"
++  fi
++
++  # Create new directory if it does not yet exist.
++  if ! [ -e "$_new" ]; then
++    observe "creating $_new"
++    mkdir -p "$_new"
++  fi
++
++  # Copy files in old location to new location.  Back up any filenames that
++  # already exist in the new location with the extension ".dpkg-old".
++  observe "copying files from $_old to $_new"
++  if ! (cd "$_old" && cp -a -b -S ".dpkg-old" . "$_new"); then
++    die "error(s) encountered while copying files from $_old to $_new"
++  fi
++
++  # Remove files at old location.
++  observe "removing $_old"
++  rm -r "$_old"
++
++  # Create symlink from old location to new location.
++  make_symlink_sane "$_old" "$_new"
++}
++
++# vim:set ai et sts=2 sw=2 tw=80:
+--- xf86-video-unichrome-0.2.6.orig/debian/xsfbs/xsfbs-autoreconf.mk
++++ xf86-video-unichrome-0.2.6/debian/xsfbs/xsfbs-autoreconf.mk
+@@ -0,0 +1,150 @@
++#!/usr/bin/make -f
++# $Id$
++
++# Automagical conversion of autoreconf results into quilt patches.
++
++# Copyright 2006 Eugene Konev
++#
++# Licensed under the GNU General Public License, version 2.  See the file
++# /usr/share/common-licenses/GPL or <http://www.gnu.org/copyleft/gpl.txt>.
++
++# The idea behind this is storing changes produced by autoreconf as a 
++# separate patch on quilt stack (on top of stack actually).
++# The only usable target here is 'autoreconf`. Other targets are not
++# supposed to be called directly. DO NOT invoke them, unless you know what
++# you are doing.
++# The autoreconf target will check if files with names in $(RECONF_CHECKFILES)
++# were changed during patching (from upstream version or from previously
++# autoreconfed version) and call actual autoreconfing if they were.
++# The actual autoreconfing target (doautoreconf) WILL FAIL after 
++# calling autoreconf and pushing changes into quilt stack by design. It
++# should never be invoked by automatic build process.
++# The proposed use is adding autoreconf into clean's prerequisites before
++# xsfclean like:
++# - clean: xsfclean
++# + clean: autoreconf xsfclean
++# This will ensure it is called when you build package with dpkg-buildpackage.
++
++# This dir will be used for producing diff of autoreconfed tree
++RECONF_DIR := xsfautoreconf
++
++# This files will be checked for changes
++RECONF_CHECKFILES += configure.ac Makefile.am
++
++# This files will not be hardlinked but copied
++RECONF_NOLINKFILES += aclocal.m4
++
++# This files/dirs will be pruned after autoreconf run
++RECONF_PRUNEFILES += autom4te.cache config.h.in~ aclocal.m4~
++
++# Internal target. Never invoke directly.
++stampdir_target+=check.md5sum
++$(STAMP_DIR)/check.md5sum:
++	dh_testdir
++	$(MAKE) -f debian/rules prepare
++	for F in $(RECONF_CHECKFILES); do \
++	  find . -wholename ./$(STAMP_DIR) -prune -o -name $$F -print | \
++	    LC_ALL=C sort | xargs --no-run-if-empty md5sum >>$@; \
++	done
++
++# Internal target. Never invoke directly.
++$(STAMP_DIR)/clean.md5sum:
++	dh_testdir
++	$(MAKE) -f debian/rules unpatch
++	rm -f $(STAMP_DIR)/check.md5sum
++	$(MAKE) -f debian/rules $(STAMP_DIR)/check.md5sum
++	mv $(STAMP_DIR)/check.md5sum $@
++
++# Internal target. Never invoke directly.
++debian/patches/patched.md5sum:
++	dh_testdir
++	[ -f $(STAMP_DIR)/clean.md5sum ] || \
++	  $(MAKE) -f debian/rules $(STAMP_DIR)/clean.md5sum
++
++	$(MAKE) -f debian/rules patch
++	rm -f $(STAMP_DIR)/check.md5sum
++	$(MAKE) -f debian/rules $(STAMP_DIR)/check.md5sum
++	if ! diff $(STAMP_DIR)/clean.md5sum \
++	          $(STAMP_DIR)/check.md5sum > /dev/null; then \
++	  $(MAKE) -f debian/rules doautoreconf; \
++	else \
++	  mv $(STAMP_DIR)/check.md5sum $@; \
++	fi
++
++# Internal target. Never invoke directly.
++,PHONY: doautoreconf
++doautoreconf: patch
++	quilt push -a >>$(STAMP_DIR)/log/autoreconf 2>&1 || true
++	if quilt applied | grep ^autoreconf.diff$$ > /dev/null; then \
++	  quilt pop -a >>$(STAMP_DIR)/log/autoreconf 2>&1; \
++	  quilt rename -p autoreconf.diff autoreconf-old.diff \
++	       >>$(STAMP_DIR)/log/autoreconf 2>&1; \
++	  quilt delete autoreconf-old.diff >>$(STAMP_DIR)/log/autoreconf 2>&1; \
++	  quilt push -a >>$(STAMP_DIR)/log/autoreconf 2>&1; \
++	fi
++
++	if [ -e $(RECONF_DIR) ]; then \
++	  echo "ERROR: $(RECONF_DIR) already exists. Cleanup by hand"; \
++	  exit 1; \
++	fi
++
++	mkdir -p $(RECONF_DIR)/before
++	find . -maxdepth 1 -mindepth 1 ! -wholename ./$(RECONF_DIR) \
++	     -a ! -wholename ./debian -a ! -wholename ./patches \
++	     -a ! -wholename ./.pc -a ! -wholename ./$(STAMP_DIR) | \
++	  xargs -i{} cp -al {} $(RECONF_DIR)/before/
++
++	for F in $(RECONF_PRUNEFILES); do \
++	  find $(RECONF_DIR)/before -name $$F -print | \
++	    xargs --no-run-if-empty rm -r; \
++	done
++
++	cp -al $(RECONF_DIR)/before $(RECONF_DIR)/after
++
++	for F in $(RECONF_NOLINKFILES); do \
++	  find . -wholename ./$(RECONF_DIR) -prune -o -wholename ./debian \
++	       -prune -o -wholename ./$(STAMP_DIR) -prune -o -name $$F \
++	       -print | \
++	    xargs --no-run-if-empty -i{} cp --remove-destination {} \
++	      $(RECONF_DIR)/after/{}; \
++	done
++
++	cd $(RECONF_DIR)/after && autoreconf -v --install && \
++	  for F in $(RECONF_PRUNEFILES); do \
++	    find . -name $$F -print | \
++	      xargs --no-run-if-empty rm -r; \
++	  done
++
++	cd $(RECONF_DIR) && diff -Nru before after > autoreconf.diff || true
++
++	quilt import $(RECONF_DIR)/autoreconf.diff \
++	      >>$(STAMP_DIR)/log/autoreconf 2>&1
++
++	mv $(STAMP_DIR)/check.md5sum debian/patches/patched.md5sum
++
++	rm -r $(RECONF_DIR) && rm -f patches/autoreconf-old.diff
++
++	@echo 
++	@echo "****************************************************************"
++	@echo "  This target is made to fail INTENTIONALLY. It should NEVER    "
++	@echo "  be invoked during automatic builds.                           "
++	@echo 
++	@echo "  This target was invoked because you added/removed/changed     "
++	@echo "  patches which modify either configure.ac or Makefile.am and,  "
++	@echo "  thus, require autoreconf run. And all autoreconfing should    "
++	@echo "  happen before uploading.                                      "
++	@echo 
++	@echo "  (See also debian/xsfbs/xsfbs-autoreconf.mk)                   "
++	@echo 
++	@echo "  If you see this message, autoreconfing actually SUCCEEDED,    "
++	@echo "  and your build should finish successfully, when rerun.        "
++	@echo "****************************************************************"
++	@echo 
++	exit 1;
++
++.PHONY: autoreconf
++autoreconf: debian/patches/patched.md5sum patch $(STAMP_DIR)/check.md5sum
++	if ! diff $(STAMP_DIR)/check.md5sum \
++	          debian/patches/patched.md5sum > /dev/null; then \
++	  $(MAKE) -f debian/rules doautoreconf; \
++	fi
+--- xf86-video-unichrome-0.2.6.orig/debian/xserver-xorg-video-unichrome.install
++++ xf86-video-unichrome-0.2.6/debian/xserver-xorg-video-unichrome.install
+@@ -0,0 +1,2 @@
++usr/lib/xorg/modules/drivers/*.so
++usr/share/man/man4/*
+--- xf86-video-unichrome-0.2.6.orig/src/Makefile.in
++++ xf86-video-unichrome-0.2.6/src/Makefile.in
+@@ -77,11 +77,11 @@ am__vpath_adj = case $$p in \
+     *) f=$$p;; \
+   esac;
+ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+-am__installdirs = "$(DESTDIR)$(via_drv_ladir)"
+-via_drv_laLTLIBRARIES_INSTALL = $(INSTALL)
+-LTLIBRARIES = $(via_drv_la_LTLIBRARIES)
+-via_drv_la_LIBADD =
+-am__via_drv_la_SOURCES_DIST = via_accel.c via_bandwidth.c via_ch7xxx.c \
++am__installdirs = "$(DESTDIR)$(@DRIVER_NAME@_dri_ladir)"
++@DRIVER_NAME@_drv_laLTLIBRARIES_INSTALL = $(INSTALL)
++LTLIBRARIES = $(@DRIVER_NAME@_drv_la_LTLIBRARIES)
++@DRIVER_NAME@_drv_la_LIBADD =
++am__@DRIVER_NAME@_drv_la_SOURCES_DIST = via_accel.c via_bandwidth.c via_ch7xxx.c \
+ 	via_ch7xxx.h via_crt.c via_cursor.c via_dga.c via_driver.c \
+ 	via_driver.h via_edid.c via_i2c.c via_id.c via_id.h \
+ 	via_memory.c via_memory.h via_mode.c via_mode.h \
+@@ -91,15 +91,15 @@ am__via_drv_la_SOURCES_DIST = via_accel.
+ 	via_drmclient.h
+ @XV_TRUE@am__objects_1 = via_video.lo
+ @DRI_TRUE@am__objects_2 = via_dri.lo
+-am_via_drv_la_OBJECTS = via_accel.lo via_bandwidth.lo via_ch7xxx.lo \
++am_@DRIVER_NAME@_drv_la_OBJECTS = via_accel.lo via_bandwidth.lo via_ch7xxx.lo \
+ 	via_crt.lo via_cursor.lo via_dga.lo via_driver.lo via_edid.lo \
+ 	via_i2c.lo via_id.lo via_memory.lo via_mode.lo \
+ 	via_modeutils.lo via_panel.lo via_shadow.lo via_vgahw.lo \
+ 	via_vt162x.lo $(am__objects_1) $(am__objects_2)
+-via_drv_la_OBJECTS = $(am_via_drv_la_OBJECTS)
+-via_drv_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
++@DRIVER_NAME@_drv_la_OBJECTS = $(am_@DRIVER_NAME@_drv_la_OBJECTS)
++@DRIVER_NAME@_drv_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(via_drv_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(@DRIVER_NAME@_drv_la_LDFLAGS) $(LDFLAGS) -o $@
+ DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+@@ -112,8 +112,8 @@ CCLD = $(CC)
+ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+ 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+ 	$(LDFLAGS) -o $@
+-SOURCES = $(via_drv_la_SOURCES)
+-DIST_SOURCES = $(am__via_drv_la_SOURCES_DIST)
++SOURCES = $(@DRIVER_NAME@_drv_la_SOURCES)
++DIST_SOURCES = $(am__@DRIVER_NAME@_drv_la_SOURCES_DIST)
+ ETAGS = etags
+ CTAGS = ctags
+ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+@@ -249,10 +249,10 @@ top_srcdir = @top_srcdir@
+ # _ladir passes a dummy rpath to libtool so the thing will actually link
+ # TODO: -nostdlib/-Bstatic/-lgcc platform magic, not installing the .a, etc.
+ AM_CFLAGS = @XORG_CFLAGS@ @DRI_CFLAGS@
+-via_drv_la_LTLIBRARIES = via_drv.la
+-via_drv_la_LDFLAGS = -module -avoid-version
+-via_drv_ladir = @moduledir@/drivers
+-via_drv_la_SOURCES = via_accel.c via_bandwidth.c via_ch7xxx.c \
++@DRIVER_NAME@_drv_la_LTLIBRARIES = @DRIVER_NAME@_drv.la
++@DRIVER_NAME@_drv_la_LDFLAGS = -module -avoid-version
++@DRIVER_NAME@_drv_ladir = @moduledir@/drivers
++@DRIVER_NAME@_drv_la_SOURCES = via_accel.c via_bandwidth.c via_ch7xxx.c \
+ 	via_ch7xxx.h via_crt.c via_cursor.c via_dga.c via_driver.c \
+ 	via_driver.h via_edid.c via_i2c.c via_id.c via_id.h \
+ 	via_memory.c via_memory.h via_mode.c via_mode.h \
+@@ -292,35 +292,35 @@ $(top_srcdir)/configure: @MAINTAINER_MOD
+ 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
+ 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+-install-via_drv_laLTLIBRARIES: $(via_drv_la_LTLIBRARIES)
++install-@DRIVER_NAME@_drv_laLTLIBRARIES: $(@DRIVER_NAME@_drv_la_LTLIBRARIES)
+ 	@$(NORMAL_INSTALL)
+-	test -z "$(via_drv_ladir)" || $(MKDIR_P) "$(DESTDIR)$(via_drv_ladir)"
+-	@list='$(via_drv_la_LTLIBRARIES)'; for p in $$list; do \
++	test -z "$(@DRIVER_NAME@_drv_ladir)" || $(MKDIR_P) "$(DESTDIR)$(@DRIVER_NAME@_drv_ladir)"
++	@list='$(@DRIVER_NAME@_drv_la_LTLIBRARIES)'; for p in $$list; do \
+ 	  if test -f $$p; then \
+ 	    f=$(am__strip_dir) \
+-	    echo " $(LIBTOOL) --mode=install $(via_drv_laLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) '$$p' '$(DESTDIR)$(via_drv_ladir)/$$f'"; \
+-	    $(LIBTOOL) --mode=install $(via_drv_laLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) "$$p" "$(DESTDIR)$(via_drv_ladir)/$$f"; \
++	    echo " $(LIBTOOL) --mode=install $(@DRIVER_NAME@_drv_laLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) '$$p' '$(DESTDIR)$(@DRIVER_NAME@_drv_ladir)/$$f'"; \
++	    $(LIBTOOL) --mode=install $(@DRIVER_NAME@_drv_laLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) "$$p" "$(DESTDIR)$(@DRIVER_NAME@_drv_ladir)/$$f"; \
+ 	  else :; fi; \
+ 	done
+ 
+-uninstall-via_drv_laLTLIBRARIES:
++uninstall-@DRIVER_NAME@_drv_laLTLIBRARIES:
+ 	@$(NORMAL_UNINSTALL)
+-	@list='$(via_drv_la_LTLIBRARIES)'; for p in $$list; do \
++	@list='$(@DRIVER_NAME@_drv_la_LTLIBRARIES)'; for p in $$list; do \
+ 	  p=$(am__strip_dir) \
+-	  echo " $(LIBTOOL) --mode=uninstall rm -f '$(DESTDIR)$(via_drv_ladir)/$$p'"; \
+-	  $(LIBTOOL) --mode=uninstall rm -f "$(DESTDIR)$(via_drv_ladir)/$$p"; \
++	  echo " $(LIBTOOL) --mode=uninstall rm -f '$(DESTDIR)$(@DRIVER_NAME@_drv_ladir)/$$p'"; \
++	  $(LIBTOOL) --mode=uninstall rm -f "$(DESTDIR)$(@DRIVER_NAME@_drv_ladir)/$$p"; \
+ 	done
+ 
+-clean-via_drv_laLTLIBRARIES:
+-	-test -z "$(via_drv_la_LTLIBRARIES)" || rm -f $(via_drv_la_LTLIBRARIES)
+-	@list='$(via_drv_la_LTLIBRARIES)'; for p in $$list; do \
++clean-@DRIVER_NAME@_drv_laLTLIBRARIES:
++	-test -z "$(@DRIVER_NAME@_drv_la_LTLIBRARIES)" || rm -f $(@DRIVER_NAME@_drv_la_LTLIBRARIES)
++	@list='$(@DRIVER_NAME@_drv_la_LTLIBRARIES)'; for p in $$list; do \
+ 	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+ 	  test "$$dir" != "$$p" || dir=.; \
+ 	  echo "rm -f \"$${dir}/so_locations\""; \
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
+-via_drv.la: $(via_drv_la_OBJECTS) $(via_drv_la_DEPENDENCIES) 
+-	$(via_drv_la_LINK) -rpath $(via_drv_ladir) $(via_drv_la_OBJECTS) $(via_drv_la_LIBADD) $(LIBS)
++@DRIVER_NAME@_drv.la: $(@DRIVER_NAME@_drv_la_OBJECTS) $(@DRIVER_NAME@_drv_la_DEPENDENCIES) 
++	$(@DRIVER_NAME@_drv_la_LINK) -rpath $(@DRIVER_NAME@_drv_ladir) $(@DRIVER_NAME@_drv_la_OBJECTS) $(@DRIVER_NAME@_drv_la_LIBADD) $(LIBS)
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
+@@ -453,7 +453,7 @@ check-am: all-am
+ check: check-am
+ all-am: Makefile $(LTLIBRARIES)
+ installdirs:
+-	for dir in "$(DESTDIR)$(via_drv_ladir)"; do \
++	for dir in "$(DESTDIR)$(@DRIVER_NAME@_drv_ladir)"; do \
+ 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+ 	done
+ install: install-am
+@@ -482,7 +482,7 @@ maintainer-clean-generic:
+ 	@echo "it deletes files that may require special tools to rebuild."
+ clean: clean-am
+ 
+-clean-am: clean-generic clean-libtool clean-via_drv_laLTLIBRARIES \
++clean-am: clean-generic clean-libtool clean-@DRIVER_NAME@_drv_laLTLIBRARIES \
+ 	mostlyclean-am
+ 
+ distclean: distclean-am
+@@ -501,7 +501,7 @@ info: info-am
+ 
+ info-am:
+ 
+-install-data-am: install-via_drv_laLTLIBRARIES
++install-data-am: install-@DRIVER_NAME@_drv_laLTLIBRARIES
+ 
+ install-dvi: install-dvi-am
+ 
+@@ -537,23 +537,23 @@ ps: ps-am
+ 
+ ps-am:
+ 
+-uninstall-am: uninstall-via_drv_laLTLIBRARIES
++uninstall-am: uninstall-@DRIVER_NAME@_drv_laLTLIBRARIES
+ 
+ .MAKE: install-am install-strip
+ 
+ .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
+-	clean-libtool clean-via_drv_laLTLIBRARIES ctags distclean \
++	clean-libtool clean-@DRIVER_NAME@_drv_laLTLIBRARIES ctags distclean \
+ 	distclean-compile distclean-generic distclean-libtool \
+ 	distclean-tags distdir dvi dvi-am html html-am info info-am \
+ 	install install-am install-data install-data-am install-dvi \
+ 	install-dvi-am install-exec install-exec-am install-html \
+ 	install-html-am install-info install-info-am install-man \
+ 	install-pdf install-pdf-am install-ps install-ps-am \
+-	install-strip install-via_drv_laLTLIBRARIES installcheck \
++	install-strip install-@DRIVER_NAME@_drv_laLTLIBRARIES installcheck \
+ 	installcheck-am installdirs maintainer-clean \
+ 	maintainer-clean-generic mostlyclean mostlyclean-compile \
+ 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+-	tags uninstall uninstall-am uninstall-via_drv_laLTLIBRARIES
++	tags uninstall uninstall-am uninstall-@DRIVER_NAME@_drv_laLTLIBRARIES
+ 
+ 
+ # rule to generate git_version.h
