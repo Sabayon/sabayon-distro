@@ -82,6 +82,16 @@ remove_proprietary_opengl() {
     fi
 }
 
+check_if_driver_is_available() {
+    xdriver=$1
+    xdriver_exists=$(find /usr/lib/xorg/modules/drivers -name $xdriver\_drv.so)
+    if [ -n "$xdriver_exists" ]; then
+        xdriver="0"
+    else
+        xdriver="1"
+    fi
+}
+
 check_if_proprietary_driver_system_is_healthy() {
     # we should really accept only "nvidia" and "fglrx"
     kernel_module=$1
@@ -452,7 +462,13 @@ elif [ -n "$MATROX" ]; then
 
 elif [ -n "$VIA" ]; then
 
- change_xorg_driver via
+ # Check if the openchrome driver exists
+ check_if_driver_is_available openchrome
+ if [ "$xdriver" = "1" ]; then
+     change_xorg_driver via
+ else
+     change_xorg_driver openchrome
+ fi
  enable_dri
  remove_proprietary_opengl
  echo -e "\t Display Driver: VIA Technologies"
