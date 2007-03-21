@@ -60,9 +60,6 @@ pkg_setup() {
 
 src_compile() {
 
-	cd ${S}
-	epatch ${FILESDIR}/${PN}-2.6.20.patch
-
 	cd "${S}/driver"
 	linux-mod_src_compile || die "failed to build driver"
 
