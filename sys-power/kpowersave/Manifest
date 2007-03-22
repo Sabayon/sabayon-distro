@@ -8,9 +8,16 @@ EBUILD kpowersave-0.7.2-r1.ebuild 1088 RMD160 5b497073a6b07966ecca62591510faef85
 MD5 e4d1729ab8fc4e07f3baa97606eca118 kpowersave-0.7.2-r1.ebuild 1088
 RMD160 5b497073a6b07966ecca62591510faef85d4f800 kpowersave-0.7.2-r1.ebuild 1088
 SHA256 d9bda04ac704331b504480b39908bef4ec79824eb1b694c10d435b5beeb16043 kpowersave-0.7.2-r1.ebuild 1088
+EBUILD kpowersave-0.7.2-r2.ebuild 1097 RMD160 6348abe123b4c019eb6069622a5cdad00083d46d SHA1 9cd27b0bf5c64e8926f0301dbe91637f1d216162 SHA256 673d20a3624d654bb64dc542d45149cdc5cdd87564ff6dda8b563b1dcf219ee9
+MD5 cd249e8a6eb84cbea0e12f8330f9a11e kpowersave-0.7.2-r2.ebuild 1097
+RMD160 6348abe123b4c019eb6069622a5cdad00083d46d kpowersave-0.7.2-r2.ebuild 1097
+SHA256 673d20a3624d654bb64dc542d45149cdc5cdd87564ff6dda8b563b1dcf219ee9 kpowersave-0.7.2-r2.ebuild 1097
 MD5 ea7ae6f1c54e06068433f9c19ce056d6 files/digest-kpowersave-0.7.1 256
 RMD160 591935481d432e93729d6b0bdcac624936b4b7e6 files/digest-kpowersave-0.7.1 256
 SHA256 277dab6fef2b028c516c1bf5a207ea8edad72db3673cc6c7ee57a035efddff5e files/digest-kpowersave-0.7.1 256
 MD5 d91d3955ca04f0af6e97980796785d8c files/digest-kpowersave-0.7.2-r1 256
 RMD160 4129d5af337d5dc241d681b90499114e333873ba files/digest-kpowersave-0.7.2-r1 256
 SHA256 1a39ee8262860701d51dec18af2cd22878acce72f76c93d4fb58a47f673e9bac files/digest-kpowersave-0.7.2-r1 256
+MD5 d91d3955ca04f0af6e97980796785d8c files/digest-kpowersave-0.7.2-r2 256
+RMD160 4129d5af337d5dc241d681b90499114e333873ba files/digest-kpowersave-0.7.2-r2 256
+SHA256 1a39ee8262860701d51dec18af2cd22878acce72f76c93d4fb58a47f673e9bac files/digest-kpowersave-0.7.2-r2 256
