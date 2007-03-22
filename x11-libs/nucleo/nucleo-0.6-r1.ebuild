@@ -42,8 +42,8 @@ src_unpack() {
 src_compile() {
 	cd ${S}
 
-	eautoconf || die "autoconf failed"
-	elibtoolize || die "autoconf failed"	
+	elibtoolize || die "libtoolize failed"
+	eautoreconf || die "autoconf failed"
 	econf || die "econf failed"
 	emake || die "make failed"
 }
