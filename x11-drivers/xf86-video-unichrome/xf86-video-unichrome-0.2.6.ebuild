@@ -16,7 +16,6 @@ IUSE="dri"
 
 RDEPEND=">=x11-base/xorg-server-1.0.99"
 DEPEND="${RDEPEND}
-	!x11-drivers/xf86-video-via
 	x11-proto/fontsproto
 	x11-proto/randrproto
 	x11-proto/renderproto

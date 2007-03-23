@@ -3,10 +3,10 @@ MD5 fc5a142139db4592c96ebaf119eaf9ff files/xf86-video-unichrome-0.2.6-ubuntu.pat
 RMD160 c988d3c4acd110ec783f77e5e0fbd1156254d2a3 files/xf86-video-unichrome-0.2.6-ubuntu.patch 73811
 SHA256 fa552d9ef727195f3e1b7668059b63f4e5f9dc9cc7efbf9cdb0f41c6e36b7079 files/xf86-video-unichrome-0.2.6-ubuntu.patch 73811
 DIST xf86-video-unichrome-0.2.6.tar.gz 202162 RMD160 4335c92dc0cd02c8a0e2d023eb9fa2bab79d9b7a SHA1 fb81f086afd6c8e2046727c2fa4aec95786c24f9 SHA256 ed183b6b4250701e18a7379c27369057968dc01c11e254944c9c62787d40c685
-EBUILD xf86-video-unichrome-0.2.6.ebuild 961 RMD160 3ad6791ef00b337f352787037f456f146eb29788 SHA1 b152cfa7bd0576e82e958c3ebf62d7e90abe9889 SHA256 e287e307264ff1314f515f7acb8a22e0aa888e82a0579bbfcca0f506aaa40ed7
-MD5 d5805095d6752f7357790a4e0554304e xf86-video-unichrome-0.2.6.ebuild 961
-RMD160 3ad6791ef00b337f352787037f456f146eb29788 xf86-video-unichrome-0.2.6.ebuild 961
-SHA256 e287e307264ff1314f515f7acb8a22e0aa888e82a0579bbfcca0f506aaa40ed7 xf86-video-unichrome-0.2.6.ebuild 961
+EBUILD xf86-video-unichrome-0.2.6.ebuild 932 RMD160 90a8b82ce5f594557ea00c5dc4d50fd4d3abd7f6 SHA1 b6565482a718781fe28bd327da3eb00393cff7ca SHA256 e938035cae6666904d14cbd9128a78a600d68105f33fb53c4007691699f2c309
+MD5 12a899621d72f906d01e9c951c40735c xf86-video-unichrome-0.2.6.ebuild 932
+RMD160 90a8b82ce5f594557ea00c5dc4d50fd4d3abd7f6 xf86-video-unichrome-0.2.6.ebuild 932
+SHA256 e938035cae6666904d14cbd9128a78a600d68105f33fb53c4007691699f2c309 xf86-video-unichrome-0.2.6.ebuild 932
 MD5 60b80d9155b48724af02301ada7405ea files/digest-xf86-video-unichrome-0.2.6 280
 RMD160 193f9a032acffad808de1020b6b1b2ff7f01accd files/digest-xf86-video-unichrome-0.2.6 280
 SHA256 c6018e19c4214b8b479ca402c0ddd9bb461ae9e4d35565274ac96f848b680447 files/digest-xf86-video-unichrome-0.2.6 280
