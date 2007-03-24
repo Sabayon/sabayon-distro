@@ -1,18 +1,17 @@
-# Copyright 1999-2006 Gentoo Foundation
-# Copyright 2007 Sabayon Linux
+# Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/ndiswrapper/ndiswrapper-1.37.ebuild,v 1.1 2007/02/03 02:41:09 peper Exp $
 
-inherit eutils linux-mod
+inherit linux-mod
 
 DESCRIPTION="Wrapper for using Windows drivers for some wireless cards"
 HOMEPAGE="http://ndiswrapper.sourceforge.net/"
-SRC_URI="mirror://sourceforge/${PN}/${P/_/}.tar.gz"
-S=${WORKDIR}/${P/_/}
+SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-2"
-KEYWORDS="~x86 ~amd64"
-
+KEYWORDS="~amd64 ~x86"
 IUSE="debug usb"
+
 DEPEND="sys-apps/pciutils"
 RDEPEND="${DEPEND}
 	net-wireless/wireless-tools"
@@ -36,7 +35,6 @@ pkg_setup() {
 
 src_unpack() {
 	unpack ${A}
-	cd "${S}"
 	convert_to_m "${S}/driver/Makefile"
 }
 
@@ -94,6 +92,9 @@ pkg_postinst() {
 	einfo "Please have a look at http://ndiswrapper.sourceforge.net/wiki/"
 	einfo "for the FAQ, HowTos, Tips, Configuration, and installation"
 	einfo "information."
+	echo
+	einfo "ndiswrapper devs need support(_hardware_, cash)."
+	einfo "Don't hesistate if you can help, see http://ndiswrapper.sf.net for details."
 	echo
 
 	einfo "Attempting to automatically reinstall any Windows drivers"
