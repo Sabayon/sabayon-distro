@@ -1,0 +1,33 @@
+--- common/lib/modules/fglrx/build_mod/firegl_public.c	2007-03-29 23:48:46.000000000 +0200
++++ common/lib/modules/fglrx/build_mod/firegl_public.c	2007-03-30 00:15:21.000000000 +0200
+@@ -5055,7 +5057,6 @@
+  */
+ unsigned int ATI_API_CALL KAS_SlabCache_Destroy(void* hSlabCache)
+ {
+-    unsigned int ret = 0;
+     kasSlabCache_t* slabcache_obj = (kasSlabCache_t*)hSlabCache;
+ 
+     DBG_ENTER("0x%08X", hSlabCache);
+@@ -5069,18 +5070,11 @@
+ 
+     DBG_TRACE("destroying slab object '%s'", slabcache_obj->name);
+ 
+-    if (kmem_cache_destroy(slabcache_obj->cache) == 0)
+-    {
+-        ret = 1;
+-        slabcache_obj->cache = NULL;
+-    }
+-    else
+-    {
+-        DBG_ERROR("destroying failed");
+-    }
++    kmem_cache_destroy(slabcache_obj->cache);
++    slabcache_obj->cache = NULL;
+ 
+-    DBG_LEAVE("%d", ret);
+-    return ret;
++    DBG_LEAVE("1");
++    return 1;
+ }
+ 
+ /** \brief Allocate an entry in a Slab Cache
