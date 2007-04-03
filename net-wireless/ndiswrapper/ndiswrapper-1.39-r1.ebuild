@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/net-wireless/ndiswrapper/ndiswrapper-1.37.ebuild,v 1.1 2007/02/03 02:41:09 peper Exp $
 
-inherit linux-mod
+inherit linux-mod linux-info
 
 DESCRIPTION="Wrapper for using Windows drivers for some wireless cards"
 HOMEPAGE="http://ndiswrapper.sourceforge.net/"
@@ -16,8 +16,11 @@ DEPEND="sys-apps/pciutils"
 RDEPEND="${DEPEND}
 	net-wireless/wireless-tools"
 
-CONFIG_CHECK="NET_RADIO"
-
+if kernel_is le 2 6 20; then
+	CONFIG_CHECK="NET_RADIO"
+else
+	CONFIG_CHECK="CONFIG_NET"
+fi
 MODULE_NAMES="ndiswrapper(misc:${S}/driver)"
 BUILD_PARAMS="KSRC=${ROOT}${KV_DIR} KVERS=${KV_FULL}"
 BUILD_TARGETS="all"
