@@ -10,6 +10,10 @@ AUX sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583 RMD160 881564ce848f7a925
 MD5 9550fd40d82c321c0d39a2cad4a49b9c files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
 RMD160 881564ce848f7a9252b30b3794e0e54ed898a461 files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
 SHA256 ea43a827ada57d0c45c1799376aec5359bfdceb27d7f2f60f40530d3a9748382 files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
+AUX sabayon-sources-2.6.20-dvb-af9005.patch 213952 RMD160 c45f6ce083948a91f0bc506554d8e5ffa279a129 SHA1 4e1264d8220e7f081ec53281392b42123886b816 SHA256 9eaa146b4b078f0af02b31380ea5f5f16fca0950ebc1f79879bd5064acc5a086
+MD5 d755aaae2611717c800bccd6aa3f48bf files/sabayon-sources-2.6.20-dvb-af9005.patch 213952
+RMD160 c45f6ce083948a91f0bc506554d8e5ffa279a129 files/sabayon-sources-2.6.20-dvb-af9005.patch 213952
+SHA256 9eaa146b4b078f0af02b31380ea5f5f16fca0950ebc1f79879bd5064acc5a086 files/sabayon-sources-2.6.20-dvb-af9005.patch 213952
 AUX sabayon-sources-2.6.20-prism2.patch 743689 RMD160 350fd45abf491e05e4b3755fba4536c6b6cfc9c9 SHA1 674f9c29075afc87c15d0df0df60d1e1120c87c1 SHA256 a97c01c507b510e5b9110de679e8564338f7d0205decb82458e552fadcfc1724
 MD5 3f80eee54ca4548921d944bf262ba698 files/sabayon-sources-2.6.20-prism2.patch 743689
 RMD160 350fd45abf491e05e4b3755fba4536c6b6cfc9c9 files/sabayon-sources-2.6.20-prism2.patch 743689
@@ -30,6 +34,10 @@ AUX sabayon-sources-2.6.20-wireless-dev.patch 2627371 RMD160 3482cf3388b85f62a33
 MD5 e60992a6ec151394cbc777a20c9aaac7 files/sabayon-sources-2.6.20-wireless-dev.patch 2627371
 RMD160 3482cf3388b85f62a33ea2b53c62679f8413bdd1 files/sabayon-sources-2.6.20-wireless-dev.patch 2627371
 SHA256 26dfbdb19827acfe74b7c88386e7ad0290856e5fe05f154f4438a8cd8bf19b1a files/sabayon-sources-2.6.20-wireless-dev.patch 2627371
+AUX sabayon-sources-2.6.21-dvb-af9005.patch 213952 RMD160 c45f6ce083948a91f0bc506554d8e5ffa279a129 SHA1 4e1264d8220e7f081ec53281392b42123886b816 SHA256 9eaa146b4b078f0af02b31380ea5f5f16fca0950ebc1f79879bd5064acc5a086
+MD5 d755aaae2611717c800bccd6aa3f48bf files/sabayon-sources-2.6.21-dvb-af9005.patch 213952
+RMD160 c45f6ce083948a91f0bc506554d8e5ffa279a129 files/sabayon-sources-2.6.21-dvb-af9005.patch 213952
+SHA256 9eaa146b4b078f0af02b31380ea5f5f16fca0950ebc1f79879bd5064acc5a086 files/sabayon-sources-2.6.21-dvb-af9005.patch 213952
 AUX sabayon-sources-2.6.21-iwlwifi.patch 487796 RMD160 597a6ebee1ac0d4e35741e045cfee38275fa7dfe SHA1 3b4ed94dce23034c550310e9dc4120292a90e63b SHA256 73a49311b85af88dbaacf27298208b4652789080e233200f8415aed46a410820
 MD5 96a3ca0bef5411e445c6d30e1670dcc6 files/sabayon-sources-2.6.21-iwlwifi.patch 487796
 RMD160 597a6ebee1ac0d4e35741e045cfee38275fa7dfe files/sabayon-sources-2.6.21-iwlwifi.patch 487796
