@@ -5842,7 +5842,8 @@ diff -Nurp linux-2.6.21-rc5-sabayon.orig/drivers/net/wireless/adm8211/Kconfig li
 @@ -0,0 +1,29 @@
 +config ADM8211
 +	tristate "ADMtek ADM8211 support"
-+	depends on NET_RADIO && PCI && EXPERIMENTAL
++	depends on PCI && EXPERIMENTAL && WLAN_80211
++	select WIRELESS_EXT
 +	select IEEE80211
 +	select CRYPTO_ARC4
 +	---help---
@@ -16045,7 +16046,8 @@ diff -Nurp linux-2.6.21-rc5-sabayon.orig/drivers/net/wireless/tiacx/Kconfig linu
 @@ -0,0 +1,64 @@
 +config ACX_PCI
 +	tristate "TI acx100/acx111 802.11b/g PCI"
-+	depends on NET_RADIO && EXPERIMENTAL && PCI
++	depends on EXPERIMENTAL && PCI && WLAN_80211
++	select WIRELESS_EXT
 +	select FW_LOADER
 +	select IEEE80211
 +	select IEEE80211_SOFTMAC
@@ -16083,7 +16085,8 @@ diff -Nurp linux-2.6.21-rc5-sabayon.orig/drivers/net/wireless/tiacx/Kconfig linu
 +
 +config ACX_USB
 +	tristate "TI acx100/acx111 802.11b/g USB"
-+	depends on NET_RADIO && EXPERIMENTAL && USB
++	depends on EXPERIMENTAL && USB && WLAN_80211
++	select WIRELESS_EXT
 +	select FW_LOADER
 +	select IEEE80211
 +	select IEEE80211_SOFTMAC
