@@ -26,6 +26,7 @@ diff -Nurp linux-2.6.21-rc5-sabayon.orig/drivers/media/dvb/dvb-usb/af9005.c linu
 + * see Documentation/dvb/REDME.dvb-usb for more information
 + */
 +#include "af9005.h"
++#include <linux/version.h>
 +
 +/* debug */
 +int dvb_usb_af9005_debug;
