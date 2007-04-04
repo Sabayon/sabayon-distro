@@ -31,7 +31,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PN}-2.6.21-prism2.patch ${FILESDIR}/${SUSPEND2_SRC}.patch
 		${DISTDIR}/ipw3945-1.2.0-2.6.21.patch ${DISTDIR}/squashfs-3.2-2.6.21.patch
 		${DISTDIR}/linux-phc-0.3.0-pre1-2.6.21.patch ${FILESDIR}/${PN}-2.6.21-iwlwifi.patch
-		${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch
+		${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch ${FILESDIR}/${PN}-2.6.21-at76c503a.patch
 		"
 UNIPATCH_STRICTORDER="yes"
 
