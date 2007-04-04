@@ -106,20 +106,21 @@ src_compile() {
 src_install() {
 	kernel-2_src_install || die "kernel-2_src_install failed"
 	
-	# installing the kernel
-	cd ${WORKDIR}/boot
-	insinto /boot
-	doins -r ./*
+	if use build; then
+		# installing the kernel
+		cd ${WORKDIR}/boot
+		insinto /boot
+		doins -r ./*
 
-	# installing the modules
-	cd ${WORKDIR}/lib/lib
-	insinto /lib
-	doins -r ./*
+		# installing the modules
+		cd ${WORKDIR}/lib/lib
+		insinto /lib
+		doins -r ./*
 
-	# installing new grub.conf
-	if [ -e "${WORKDIR}/boot/grub.conf" ]; then
-		insinto /boot/grub/
-		doins ${WORKDIR}/boot/grub.conf
+		# installing new grub.conf
+		if [ -e "${WORKDIR}/boot/grub.conf" ]; then
+			insinto /boot/grub/
+			doins ${WORKDIR}/boot/grub.conf
+		fi
 	fi
-
 }
