@@ -2,16 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/x11-libs/wxGTK/wxGTK-2.6.3.3.ebuild,v 1.3 2006/11/23 16:48:09 yvasilev Exp $
 
-inherit debug eutils multilib toolchain-funcs gnuconfig versionator flag-o-matic
-
-HTML_PV="${PV/_}"
-
+inherit eutils multilib toolchain-funcs gnuconfig versionator flag-o-matic
 
 DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit and
 wxbase non-gui library"
 
-SRC_URI="http://ftp.wxwidgets.org/pub/2.8.0-rc3/wxGTK-${PV/_/-}.tar.bz2
-	doc? ( http://ftp.wxwidgets.org/pub/2.8.0-rc3/wxWidgets-${HTML_PV}-HTML.tar.gz )"
+SRC_URI="http://ftp.wxwidgets.org/pub/2.8.2-rc1/wxGTK-${PV/_/-}.tar.bz2
+	doc? ( http://ftp.wxwidgets.org/pub/2.8.2-rc1/wxWidgets-${PV/_/-}-HTML.tar.gz )"
 
 RESTRICT="nomirror"
 
@@ -47,7 +44,7 @@ DEPEND="${RDEPEND}
 	   )"
 
 S=${WORKDIR}/wxGTK-${PV/_/-}
-HTML_S=${WORKDIR}/wxWidgets-${HTML_PV}
+HTML_S=${WORKDIR}/wxWidgets-${PV/_/-}
 
 # Configure a build.
 # It takes three parameters;
