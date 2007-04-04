@@ -13,7 +13,8 @@ SRC_URI="http://ftp.wxwidgets.org/pub/2.8.2-rc1/wxGTK-${PV/_/-}.tar.bz2
 RESTRICT="nomirror"
 
 SLOT="2.6"
-KEYWORDS="~alpha ~amd64 arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="-*"
+#KEYWORDS="~alpha ~amd64 arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 IUSE="doc gnome joystick odbc opengl sdl unicode X"
 LICENSE="wxWinLL-3"
 HOMEPAGE="http://www.wxwidgets.org"
