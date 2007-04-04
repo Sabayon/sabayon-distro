@@ -31,8 +31,8 @@
  		umount /proc || echo '*: Failed to unmount the initrd /proc!'
  	echo -n '.'
  
--	exec switch_root -c "/dev/console" "${CHROOT}" /sbin/init ${REAL_INIT}
-+	exec switch_root -c "/dev/console" "${CHROOT}" ${REAL_INITD} ${REAL_INIT}
+-	exec switch_root -c "/dev/console" "${CHROOT}" ${REAL_INIT:-/sbin/init} ${INIT_OPTS}
++	exec switch_root -c "/dev/console" "${CHROOT}" ${REAL_INIT:-${REAL_INITD}} ${INIT_OPTS}
  fi
  
  splash 'verbose'
