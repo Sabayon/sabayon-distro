@@ -15,7 +15,6 @@ detect_arch
 
 SL_PATCHES_URI="
 		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/linux-phc-0.3.0-pre1-2.6.21.patch
-		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/iwlwifi-0.0.11.patch
 		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/ipw3945-1.2.0-2.6.21.patch
 		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/squashfs-3.2-2.6.21.patch
 		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/fbsplash-0.9.2-r5-2.6.21.patch
@@ -31,7 +30,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/fbsplash-0.9.2-r5-2.6.21.patch ${FILESDIR}/${PN}-2.6.21_rc5-unionfs-2.0.patch
 		${FILESDIR}/${PN}-2.6.21-prism2.patch ${FILESDIR}/${SUSPEND2_SRC}.patch
 		${DISTDIR}/ipw3945-1.2.0-2.6.21.patch ${DISTDIR}/squashfs-3.2-2.6.21.patch
-		${DISTDIR}/linux-phc-0.3.0-pre1-2.6.21.patch ${DISTDIR}/iwlwifi-0.0.11.patch
+		${DISTDIR}/linux-phc-0.3.0-pre1-2.6.21.patch ${FILESDIR}/${PN}-2.6.21-iwlwifi.patch
 		${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch
 		"
 UNIPATCH_STRICTORDER="yes"
