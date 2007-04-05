@@ -9,8 +9,8 @@ detect_version
 detect_arch
 
 
-#amd64? ( http://www.sabayonlinux.org/sabayon/kconfigs/SabayonLinux-x86-64-3.3.config )
-#x86? ( http://www.sabayonlinux.org/sabayon/kconfigs/SabayonLinux-x86-3.3.config )
+#amd64? ( http://www.sabayonlinux.org/sabayon/kconfigs/SabayonLinux-x86-64-3.3.1.config )
+#x86? ( http://www.sabayonlinux.org/sabayon/kconfigs/SabayonLinux-x86-3.3.1.config )
 
 
 SL_PATCHES_URI="

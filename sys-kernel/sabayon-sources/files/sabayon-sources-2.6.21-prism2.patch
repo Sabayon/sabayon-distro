@@ -9061,7 +9061,6 @@ diff -Nurp linux-2.6.20-sabayon-r2.orig/drivers/net/wireless/prism2/Kconfig linu
 @@ -0,0 +1,24 @@
 +config WLAN_NG
 +	tristate "Wireless LAN NG Support"
-+	depends on WLAN_80211
 +	select WLAN_80211
 +	default n
 +
