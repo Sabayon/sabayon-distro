@@ -6374,7 +6374,11 @@ diff -Nurp linux-2.6.21-rc5-sabayon.orig/drivers/net/wireless/at76/at76c503.c li
 +	dev->netdev = netdev;
 +
 +	init_MUTEX (&dev->sem);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,20)
 +	INIT_WORK (&dev->kevent, kevent, dev);
++#else
++	INIT_WORK (&dev->kevent, dev);
++#endif
 +
 +	dev->open_count = 0;
 +
