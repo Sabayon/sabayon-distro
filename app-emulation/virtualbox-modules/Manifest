@@ -1,0 +1,8 @@
+DIST vbox-kernel-module-src-1.3.8.tar.bz2 117765 RMD160 54b875840c9851f23823dbffb6d84334615932e8 SHA1 72ed7a9b1dabfb3ba6a68f76e8fd0178f44d43de SHA256 1f86a10099272221b996ee73b098f8176bd44a9d487175a023511fb23711a8f8
+EBUILD virtualbox-modules-1.3.8-r2.ebuild 1322 RMD160 967570e6095cf46bc591d3a97e0c6932ed7d3c99 SHA1 605ab67621f33e97a555fefa79e89cdd12cb2dae SHA256 1e3e0ed76fd67899b9059409b40bde709a904c6f1d673c5aa44f01b6fa615278
+MD5 1c3a67c6a98f588d7caee027ef59fcf8 virtualbox-modules-1.3.8-r2.ebuild 1322
+RMD160 967570e6095cf46bc591d3a97e0c6932ed7d3c99 virtualbox-modules-1.3.8-r2.ebuild 1322
+SHA256 1e3e0ed76fd67899b9059409b40bde709a904c6f1d673c5aa44f01b6fa615278 virtualbox-modules-1.3.8-r2.ebuild 1322
+MD5 73a26f2ce5e13ff80025064a3e241675 files/digest-virtualbox-modules-1.3.8-r2 289
+RMD160 5d677255dca6aee93bd9fb73022e1b0668a31e4a files/digest-virtualbox-modules-1.3.8-r2 289
+SHA256 f11de1c992fe5b8db0c1720f0eea640525f59a06fa12555b6050f58d8606cd97 files/digest-virtualbox-modules-1.3.8-r2 289
