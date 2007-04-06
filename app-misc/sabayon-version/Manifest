@@ -30,6 +30,22 @@ AUX 3.3/sabayon-release-x86mini 34 RMD160 4b89536aaba10837b948ab8f0db18c7f9e1ff2
 MD5 3411150d04a90c7fd894434bbc3716a0 files/3.3/sabayon-release-x86mini 34
 RMD160 4b89536aaba10837b948ab8f0db18c7f9e1ff200 files/3.3/sabayon-release-x86mini 34
 SHA256 b9a312f822862591503c923415b4a9000c8a5e29ad0fb2c7f2325eec34450650 files/3.3/sabayon-release-x86mini 34
+AUX 3.4/sabayon-release-x86 22 RMD160 a35f7862b6dbed89daad44c3aca406ef6c370a1b SHA1 ee698d9feeee376957ff6499f5fc5c0525e7d83c SHA256 d217c45429940469976cf224789f81c495ab48e36ec04455ab46e38115a62277
+MD5 24518889c905e2f0912b8e2932e8ba79 files/3.4/sabayon-release-x86 22
+RMD160 a35f7862b6dbed89daad44c3aca406ef6c370a1b files/3.4/sabayon-release-x86 22
+SHA256 d217c45429940469976cf224789f81c495ab48e36ec04455ab46e38115a62277 files/3.4/sabayon-release-x86 22
+AUX 3.4/sabayon-release-x86_64 25 RMD160 e1b9e6a5d94e8038393e4cdeaf10caf7752c60ff SHA1 0a7dad941655c990fe2fb584b93cd4d0d4c2157e SHA256 0eda428598fc8325f45e12b79dbec57ef92e10ea18754bc01957bf15c6720f7f
+MD5 69cf0bf4e1b0a223bdbfabbfedc28a7a files/3.4/sabayon-release-x86_64 25
+RMD160 e1b9e6a5d94e8038393e4cdeaf10caf7752c60ff files/3.4/sabayon-release-x86_64 25
+SHA256 0eda428598fc8325f45e12b79dbec57ef92e10ea18754bc01957bf15c6720f7f files/3.4/sabayon-release-x86_64 25
+AUX 3.4/sabayon-release-x86_64mini 37 RMD160 8a1ed3a866e8db6b6616c82d0e3d44884874f520 SHA1 607ec5c1c034cfdf885a0fcb3e701372e6dd2bcb SHA256 89f247263662adf50a7f37d2273cfef233155c27039ddfb1137a4c30017f422c
+MD5 f78462637e78825a452a64670db88ed8 files/3.4/sabayon-release-x86_64mini 37
+RMD160 8a1ed3a866e8db6b6616c82d0e3d44884874f520 files/3.4/sabayon-release-x86_64mini 37
+SHA256 89f247263662adf50a7f37d2273cfef233155c27039ddfb1137a4c30017f422c files/3.4/sabayon-release-x86_64mini 37
+AUX 3.4/sabayon-release-x86mini 34 RMD160 1cad3a4fc17203d68aa6d1ff8cea31bddb3b04bd SHA1 40fb672db00d1b4746ddf984bd18bccdb3bb2c0c SHA256 0bd051d378dbbf49d4bdb6fe18125456f4feb5cfa360e3e91940ca59fa93eb70
+MD5 a18e62981d373ff596bc22b0983adb35 files/3.4/sabayon-release-x86mini 34
+RMD160 1cad3a4fc17203d68aa6d1ff8cea31bddb3b04bd files/3.4/sabayon-release-x86mini 34
+SHA256 0bd051d378dbbf49d4bdb6fe18125456f4feb5cfa360e3e91940ca59fa93eb70 files/3.4/sabayon-release-x86mini 34
 EBUILD sabayon-version-3.2.ebuild 812 RMD160 6361cbfa867745908c500bbafdf257c7ecda02f3 SHA1 07bcb0805eb19e23e21877d8de7e92b2ee4de44d SHA256 196b62c4fdfa20ee64ce0b1cdcd054e244a427259d1fbc988651c68e75391552
 MD5 fd2a5dabbf8ea61f00c6e990b6f8b808 sabayon-version-3.2.ebuild 812
 RMD160 6361cbfa867745908c500bbafdf257c7ecda02f3 sabayon-version-3.2.ebuild 812
@@ -38,9 +54,16 @@ EBUILD sabayon-version-3.3.ebuild 784 RMD160 ed0c9553c99185cc925e977bcd18032b0fc
 MD5 8adfb6b26baacccb478225cdfd9619e2 sabayon-version-3.3.ebuild 784
 RMD160 ed0c9553c99185cc925e977bcd18032b0fc88cc7 sabayon-version-3.3.ebuild 784
 SHA256 fb4bc506663ea73348114e146e42e9356096acbb5833b8d22eea18975757aead sabayon-version-3.3.ebuild 784
+EBUILD sabayon-version-3.4.ebuild 784 RMD160 ed0c9553c99185cc925e977bcd18032b0fc88cc7 SHA1 8e5d0d5908ae2fce64884d9afed08354b44e8459 SHA256 fb4bc506663ea73348114e146e42e9356096acbb5833b8d22eea18975757aead
+MD5 8adfb6b26baacccb478225cdfd9619e2 sabayon-version-3.4.ebuild 784
+RMD160 ed0c9553c99185cc925e977bcd18032b0fc88cc7 sabayon-version-3.4.ebuild 784
+SHA256 fb4bc506663ea73348114e146e42e9356096acbb5833b8d22eea18975757aead sabayon-version-3.4.ebuild 784
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayon-version-3.2 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayon-version-3.2 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayon-version-3.2 0
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayon-version-3.3 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayon-version-3.3 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayon-version-3.3 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayon-version-3.4 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayon-version-3.4 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayon-version-3.4 0
