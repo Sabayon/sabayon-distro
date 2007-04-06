@@ -19,7 +19,7 @@ RDEPEND="${DEPEND}
 if kernel_is le 2 6 20; then
 	CONFIG_CHECK="NET_RADIO"
 else
-	CONFIG_CHECK="CONFIG_NET"
+	CONFIG_CHECK="NET"
 fi
 MODULE_NAMES="ndiswrapper(misc:${S}/driver)"
 BUILD_PARAMS="KSRC=${ROOT}${KV_DIR} KVERS=${KV_FULL}"
