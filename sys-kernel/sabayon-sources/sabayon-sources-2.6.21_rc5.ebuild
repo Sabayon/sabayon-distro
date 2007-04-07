@@ -32,7 +32,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/fbsplash-0.9.2-r5-2.6.21.patch ${DISTDIR}/squashfs-3.2-2.6.21.patch
 		${FILESDIR}/${PN}-2.6.21-prism2.patch ${FILESDIR}/${SUSPEND2_SRC}.patch
 		${DISTDIR}/ipw3945-1.2.0-2.6.21.patch ${FILESDIR}/${PN}-2.6.20-unionfs-1.3.diff
-		${DISTDIR}/${PN}-2.6.21-git-20070402-dvb.patch ${FILESDIR}/${PN}-2.6.21-iwlwifi.patch
+		${FILESDIR}/${PN}-2.6.21-git-20070402-dvb.patch ${FILESDIR}/${PN}-2.6.21-iwlwifi.patch
 		${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch ${FILESDIR}/${PN}-2.6.21-at76c503a.patch
 		"
 UNIPATCH_STRICTORDER="yes"
