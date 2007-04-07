@@ -6,6 +6,14 @@ AUX kicker-3.5.6.kickoff-r627689.diff 2193657 RMD160 d9e969f933f267bd15d991e29fc
 MD5 7b861b35887674db6becb4ef7084f52a files/kicker-3.5.6.kickoff-r627689.diff 2193657
 RMD160 d9e969f933f267bd15d991e29fcd5e6a159306de files/kicker-3.5.6.kickoff-r627689.diff 2193657
 SHA256 ffd2d9591bf254088306aac03550d3c9d656b472932c3f77c7d14838fe65fb03 files/kicker-3.5.6.kickoff-r627689.diff 2193657
+AUX kicker-3.5.6.kickoff-r649417.diff 2189431 RMD160 33ae11975ccc76fd27dac2adf505ebe835f71c40 SHA1 8fd3a7c89a4c0ec90115eaf4fa9ee798e35370ec SHA256 2f2156c457288b11d58e6b554eb802bd7281c1ade9fe35b1a77b13806a9a20a8
+MD5 e174014571e3e9540db57af32397243b files/kicker-3.5.6.kickoff-r649417.diff 2189431
+RMD160 33ae11975ccc76fd27dac2adf505ebe835f71c40 files/kicker-3.5.6.kickoff-r649417.diff 2189431
+SHA256 2f2156c457288b11d58e6b554eb802bd7281c1ade9fe35b1a77b13806a9a20a8 files/kicker-3.5.6.kickoff-r649417.diff 2189431
+AUX kickoff-icons-r649417.tar.bz2 394892 RMD160 e57d76ac6954f3cd8ca6b4162e134a03dda8839c SHA1 60c6eb572fdeac486779de1a891dc5d8cdd733cc SHA256 fdfb7a6b81f7bdb409b9204c4ac0f1d7e847cc64c65a3ea32d889956471f3a9f
+MD5 c9a9c4d46f07c32e8a05f22bdaf2ef2b files/kickoff-icons-r649417.tar.bz2 394892
+RMD160 e57d76ac6954f3cd8ca6b4162e134a03dda8839c files/kickoff-icons-r649417.tar.bz2 394892
+SHA256 fdfb7a6b81f7bdb409b9204c4ac0f1d7e847cc64c65a3ea32d889956471f3a9f files/kickoff-icons-r649417.tar.bz2 394892
 AUX kickoff-icons.tar.bz2 238016 RMD160 f902d63a29a93afd1305d875a8666d27665d87a3 SHA1 ff48f379503f12f8be18479556f295e2d9557f1a SHA256 d1a7af65b65506904211fae7d28797eb3f226daabb55b61007a5fac06e2d9680
 MD5 89b9c58e4d0065cdc38baa9b75121cd8 files/kickoff-icons.tar.bz2 238016
 RMD160 f902d63a29a93afd1305d875a8666d27665d87a3 files/kickoff-icons.tar.bz2 238016
@@ -18,6 +26,10 @@ AUX kickoff-sabayonlinux-integration-r627689.patch 6548 RMD160 0ea15e936c8ad58a0
 MD5 b21b5afb853f7db049c94a0320233f4e files/kickoff-sabayonlinux-integration-r627689.patch 6548
 RMD160 0ea15e936c8ad58a02cf0c1cc6c18363a163436e files/kickoff-sabayonlinux-integration-r627689.patch 6548
 SHA256 cd88ea9f44168370ae3321916a9aedff402745f0fbb0d589c40b979e2a6a1663 files/kickoff-sabayonlinux-integration-r627689.patch 6548
+AUX kickoff-sabayonlinux-integration-r649417.patch 6091 RMD160 d04db5f16a803a6013a1694078267739b6834e6b SHA1 47a628d37e7dec400330df282fcfc670e59de54c SHA256 cae2d5ff31ab6722587446e95ef08599e5e96cc7e5ddb984f415a76851f846a8
+MD5 371c5131bb430bdf2fee769b193d5d1a files/kickoff-sabayonlinux-integration-r649417.patch 6091
+RMD160 d04db5f16a803a6013a1694078267739b6834e6b files/kickoff-sabayonlinux-integration-r649417.patch 6091
+SHA256 cae2d5ff31ab6722587446e95ef08599e5e96cc7e5ddb984f415a76851f846a8 files/kickoff-sabayonlinux-integration-r649417.patch 6091
 AUX kickoff-sabayonlinux-integration.patch 6447 RMD160 a97865aa16ae6c6cb198364458c5680f37adaba4 SHA1 08591bf37c294e1d6aa1b322a0b65e40242fe23f SHA256 9e61dfe8e68d8f118f8a240fc3f3374889b5349b836cbd920ab603d1bfe66d43
 MD5 a3d882b994578ac559ce6d98c4ec4239 files/kickoff-sabayonlinux-integration.patch 6447
 RMD160 a97865aa16ae6c6cb198364458c5680f37adaba4 files/kickoff-sabayonlinux-integration.patch 6447
@@ -39,6 +51,10 @@ EBUILD kicker-3.5.6-r91.ebuild 2085 RMD160 144be623b22e91613cc0d4c925ca3a5bfa75a
 MD5 33ef874a8827055fac83eaf6aecf985d kicker-3.5.6-r91.ebuild 2085
 RMD160 144be623b22e91613cc0d4c925ca3a5bfa75ad27 kicker-3.5.6-r91.ebuild 2085
 SHA256 6f00e821f26d4775546850307c5b465f7873dff4e715964afa7d0129a8262f9b kicker-3.5.6-r91.ebuild 2085
+EBUILD kicker-3.5.6-r92.ebuild 2093 RMD160 66ba2d8d03b678093203a081481fb8ff4cc7f7fa SHA1 b26cecfe89ad4183c982f3a7c29f99c844afa540 SHA256 e1c27357ebd4e34c5f43343431a5dfecee86fb837b2fdf95e2652ef50e6af66d
+MD5 b6347904cb52af681be48a1778997a2e kicker-3.5.6-r92.ebuild 2093
+RMD160 66ba2d8d03b678093203a081481fb8ff4cc7f7fa kicker-3.5.6-r92.ebuild 2093
+SHA256 e1c27357ebd4e34c5f43343431a5dfecee86fb837b2fdf95e2652ef50e6af66d kicker-3.5.6-r92.ebuild 2093
 MD5 40f64408fbb46290c447fee43535eb5f files/digest-kicker-3.5.5-r90 524
 RMD160 6c59eff06382afd9e31420442b78041332f715c0 files/digest-kicker-3.5.5-r90 524
 SHA256 358e9de2e9643d5d904af6d9279249df5565855de2c58aaf062a47ebbc06e745 files/digest-kicker-3.5.5-r90 524
@@ -48,3 +64,6 @@ SHA256 aaa7584848b9595e4eb54926dba89e6b00965a4fc0043b8176ec6bba03bd08b8 files/di
 MD5 ee171b889b6d1bf06db7b9807b6ecd54 files/digest-kicker-3.5.6-r91 521
 RMD160 b1bca8eff5d846ea0f0d76494fc35c512f14ddba files/digest-kicker-3.5.6-r91 521
 SHA256 95625db1a4a2c6cd94814f008a4518537d78318c35aff50d1f295ad9944965be files/digest-kicker-3.5.6-r91 521
+MD5 ee171b889b6d1bf06db7b9807b6ecd54 files/digest-kicker-3.5.6-r92 521
+RMD160 b1bca8eff5d846ea0f0d76494fc35c512f14ddba files/digest-kicker-3.5.6-r92 521
+SHA256 95625db1a4a2c6cd94814f008a4518537d78318c35aff50d1f295ad9944965be files/digest-kicker-3.5.6-r92 521
