@@ -25,9 +25,12 @@ SUSPEND2_TARGET="2.6.21-rc4"
 SUSPEND2_SRC="suspend2-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.suspend2.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 
+#${FILESDIR}/${PN}-2.6.21_rc5-unionfs-2.0.patch
+
+
 UNIPATCH_LIST="
 		${FILESDIR}/${P}-wireless-dev.patch ${FILESDIR}/${P}-dvb-af9005.patch
-		${DISTDIR}/fbsplash-0.9.2-r5-2.6.21.patch ${FILESDIR}/${PN}-2.6.21_rc5-unionfs-2.0.patch
+		${DISTDIR}/fbsplash-0.9.2-r5-2.6.21.patch ${FILESDIR}/${PN}-2.6.20-unionfs-1.3.diff
 		${FILESDIR}/${PN}-2.6.21-prism2.patch ${FILESDIR}/${SUSPEND2_SRC}.patch
 		${DISTDIR}/ipw3945-1.2.0-2.6.21.patch ${DISTDIR}/squashfs-3.2-2.6.21.patch
 		${DISTDIR}/linux-phc-0.3.0-pre1-2.6.21.patch ${FILESDIR}/${PN}-2.6.21-iwlwifi.patch
