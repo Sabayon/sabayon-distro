@@ -110,10 +110,10 @@ EBUILD sabayon-sources-2.6.20_rc7.ebuild 1468 RMD160 b4c680256c9445a066a8d25342f
 MD5 c065b0ed96b72f2fbe53eaa82c387480 sabayon-sources-2.6.20_rc7.ebuild 1468
 RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 sabayon-sources-2.6.20_rc7.ebuild 1468
 SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186 sabayon-sources-2.6.20_rc7.ebuild 1468
-EBUILD sabayon-sources-2.6.21_rc5.ebuild 3663 RMD160 c8f12cef1c2cf5d792281cb1a68651bba6ef0ed3 SHA1 4eb7147c626c97b91cb41bc0010673e80cfb5bf1 SHA256 713db29e4be5aa1ad29dd85813009b595795b24fb51785f1152fc1a64ec06cd2
-MD5 3ed450bd20fc5e25f682169d25fd8518 sabayon-sources-2.6.21_rc5.ebuild 3663
-RMD160 c8f12cef1c2cf5d792281cb1a68651bba6ef0ed3 sabayon-sources-2.6.21_rc5.ebuild 3663
-SHA256 713db29e4be5aa1ad29dd85813009b595795b24fb51785f1152fc1a64ec06cd2 sabayon-sources-2.6.21_rc5.ebuild 3663
+EBUILD sabayon-sources-2.6.21_rc5.ebuild 3663 RMD160 44a7afdd091dd04ed7c65f38a350783f2803f558 SHA1 ce4e3dd21c9e6f1d321210f8d38545bffd7e08b2 SHA256 efc8054c846ce121e00c13643737068de8afbe6fafd0b4e573a3a49e369a4db6
+MD5 7f940a3ecaa92123cf9c88e32572577d sabayon-sources-2.6.21_rc5.ebuild 3663
+RMD160 44a7afdd091dd04ed7c65f38a350783f2803f558 sabayon-sources-2.6.21_rc5.ebuild 3663
+SHA256 efc8054c846ce121e00c13643737068de8afbe6fafd0b4e573a3a49e369a4db6 sabayon-sources-2.6.21_rc5.ebuild 3663
 MD5 8141b16d777d8667c2a75ec6948a36e4 files/digest-sabayon-sources-2.6.20 1346
 RMD160 0f16f06691e6ec5fe5384b1835690dbe9a3b6484 files/digest-sabayon-sources-2.6.20 1346
 SHA256 273f25b39c9b4522c0a4a2ae7f330607d3eae3ad354b898629ca3357fbf57a28 files/digest-sabayon-sources-2.6.20 1346
