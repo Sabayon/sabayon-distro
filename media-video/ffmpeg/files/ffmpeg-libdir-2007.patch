@@ -1,0 +1,11 @@
+--- ffmpeg/configure.orig	2007-01-29 15:24:05.000000000 +0100
++++ ffmpeg/configure	2007-01-29 15:37:23.000000000 +0100
+@@ -2166,7 +2166,7 @@
+ cat <<EOF >$name.pc
+ prefix=$PREFIX
+ exec_prefix=\${prefix}
+-libdir=\${exec_prefix}/lib
++libdir=\${exec_prefix}/GENTOOLIBDIR
+ includedir=\${prefix}/include
+ 
+ Name: $name

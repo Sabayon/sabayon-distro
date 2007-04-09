@@ -1,0 +1,12 @@
+Index: libavcodec/avcodec.h
+===================================================================
+--- libavcodec/avcodec.h	(revision 8304)
++++ libavcodec/avcodec.h	(working copy)
+@@ -33,6 +33,7 @@
+ 
+ #include "avutil.h"
+ #include <sys/types.h> /* size_t */
++#include <stdint.h> /* INT64_C */
+ 
+ #define AV_STRINGIFY(s)         AV_TOSTRING(s)
+ #define AV_TOSTRING(s) #s

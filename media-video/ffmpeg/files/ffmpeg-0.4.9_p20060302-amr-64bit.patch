@@ -1,0 +1,27 @@
+diff --exclude-from=/home/dang/.diffrc -u -ruN ffmpeg-0.4.9-p20060302.orig/libavcodec/amr_float/typedef.h ffmpeg-0.4.9-p20060302/libavcodec/amr_float/typedef.h
+--- ffmpeg-0.4.9-p20060302.orig/libavcodec/amr_float/typedef.h	2003-03-26 14:15:42.000000000 -0500
++++ ffmpeg-0.4.9-p20060302/libavcodec/amr_float/typedef.h	2006-04-19 18:39:20.000000000 -0400
+@@ -16,7 +16,7 @@
+ typedef char Word8;
+ typedef unsigned char UWord8;
+ typedef short Word16;
+-typedef long Word32;
++typedef int Word32;
+ typedef float Float32;
+ typedef double Float64;
+ 
+diff --exclude-from=/home/dang/.diffrc -u -ruN ffmpeg-0.4.9-p20060302.orig/libavcodec/amrwb_float/typedef.h ffmpeg-0.4.9-p20060302/libavcodec/amrwb_float/typedef.h
+--- ffmpeg-0.4.9-p20060302.orig/libavcodec/amrwb_float/typedef.h	2003-02-18 00:00:02.000000000 -0500
++++ ffmpeg-0.4.9-p20060302/libavcodec/amrwb_float/typedef.h	2006-04-19 18:37:30.000000000 -0400
+@@ -11,8 +11,8 @@
+ typedef unsigned char UWord8;
+ typedef short Word16;
+ typedef unsigned short UWord16;
+-typedef long Word32;
++typedef int Word32;
+ typedef double Float64;
+ typedef float Float32;
+ 
+-#endif
+\ No newline at end of file
++#endif
