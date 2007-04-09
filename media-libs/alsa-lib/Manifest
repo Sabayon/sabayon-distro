@@ -1,8 +1,0 @@
-DIST alsa-lib-1.0.14rc3.tar.bz2 715417 RMD160 35e1b048360b36c09dc9771b0610dc92ac36d132 SHA1 c2320d3ca0cd5ac8ec0e865dc82d323cca6f9af7 SHA256 17b7e2ece54b5d39fe9c426ead25c3a0539e699fe257c80b51c19dc19dad640e
-EBUILD alsa-lib-1.0.14_rc3.ebuild 1836 RMD160 e106bdcb6c995c8dc078cbe498221694559ce99f SHA1 bbd2cbb60dc81bfcc2c1fe6f6f2783e010a1d03c SHA256 0b4ac685109cb59385a6a7fecf6260f348fdee6784bc121dfdce73435f5f81ce
-MD5 45188bce89f1acffd0b3e67bbe5cbb4e alsa-lib-1.0.14_rc3.ebuild 1836
-RMD160 e106bdcb6c995c8dc078cbe498221694559ce99f alsa-lib-1.0.14_rc3.ebuild 1836
-SHA256 0b4ac685109cb59385a6a7fecf6260f348fdee6784bc121dfdce73435f5f81ce alsa-lib-1.0.14_rc3.ebuild 1836
-MD5 488bf9e63bef80144c4384555062aebf files/digest-alsa-lib-1.0.14_rc3 259
-RMD160 04a0ba5e1460bbf91600baf8c0ca70e51dde07af files/digest-alsa-lib-1.0.14_rc3 259
-SHA256 a3f43ce12dea72063e2fafeceadfdee8bc44daa35c459c4525d833b58ba5ca99 files/digest-alsa-lib-1.0.14_rc3 259

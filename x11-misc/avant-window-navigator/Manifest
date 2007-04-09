@@ -1,8 +1,0 @@
-DIST avant-window-navigator-0.1.1-2.tar.gz 505015 RMD160 ab95e9fb0f56d09e927c9ddbcc017fdf5b849cd8 SHA1 a17f46d00e7895bc95d2a817efa8ce8bd90aa3e4 SHA256 288f8374860740880796b7472fbeacde82e55f8f0041151e5678aa0336593b14
-EBUILD avant-window-navigator-0.1.1-r2.ebuild 1022 RMD160 4ad8e7e44504db63090cfd0d15d8b1932771e696 SHA1 e69d64d6dcf921121962233d9a52f46c260db9e5 SHA256 fd379de52d6852840fbb73217aa4fb71dd2183c022a3399c39cb17d83be4f2d5
-MD5 1f9e766e814a007e757c0cd837ab014e avant-window-navigator-0.1.1-r2.ebuild 1022
-RMD160 4ad8e7e44504db63090cfd0d15d8b1932771e696 avant-window-navigator-0.1.1-r2.ebuild 1022
-SHA256 fd379de52d6852840fbb73217aa4fb71dd2183c022a3399c39cb17d83be4f2d5 avant-window-navigator-0.1.1-r2.ebuild 1022
-MD5 f97c4972072c0e7ea1357c7be7bb8319 files/digest-avant-window-navigator-0.1.1-r2 292
-RMD160 5730903fc17e536e624f27286a0145e2ccaa371f files/digest-avant-window-navigator-0.1.1-r2 292
-SHA256 08815dc2bf41f4c6e8666333dcb33125df3a266e7ae0cab3521a24f3bbd48eca files/digest-avant-window-navigator-0.1.1-r2 292
