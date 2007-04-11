@@ -1,5 +1,5 @@
---- initscript/Gentoo/NetworkManager.in.orig	2006-10-28 22:12:57.915210160 +0100
-+++ initscript/Gentoo/NetworkManager.in	2006-10-28 22:14:34.879469352 +0100
+--- a/initscript/Gentoo/NetworkManager.in
++++ b/initscript/Gentoo/NetworkManager.in
 @@ -30,7 +30,7 @@
  pidfile=/var/run/NetworkManager.pid
  

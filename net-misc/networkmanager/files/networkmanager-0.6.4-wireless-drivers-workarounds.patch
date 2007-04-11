@@ -1,10 +1,5 @@
-Index: src/nm-device-802-11-wireless.c
-===================================================================
-RCS file: /cvs/gnome/NetworkManager/src/nm-device-802-11-wireless.c,v
-retrieving revision 1.60.2.8
-diff -u -r1.60.2.8 nm-device-802-11-wireless.c
---- src/nm-device-802-11-wireless.c	17 May 2006 14:57:05 -0000	1.60.2.8
-+++ src/nm-device-802-11-wireless.c	17 May 2006 15:28:19 -0000
+--- a/src/nm-device-802-11-wireless.c
++++ b/src/nm-device-802-11-wireless.c
 @@ -116,7 +116,8 @@
                                        guint8 **out_res_buf,
                                        guint32 *data_len);
@@ -65,8 +60,8 @@ diff -u -r1.60.2.8 nm-device-802-11-wireless.c
  									(const iwqual *)(&dev->priv->max_qual),
  									(const iwqual *)(&dev->priv->avg_qual)));
  				break;
---- src/nm-device-802-11-wireless.c.old	2006-11-10 12:28:06.000000000 +0200
-+++ src/nm-device-802-11-wireless.c	2006-11-10 12:28:40.000000000 +0200
+--- a/src/nm-device-802-11-wireless.c
++++ b/src/nm-device-802-11-wireless.c
 @@ -354,23 +354,15 @@
  
  	if ((data_len >= minlen) && range->we_version_compiled >= 18)
