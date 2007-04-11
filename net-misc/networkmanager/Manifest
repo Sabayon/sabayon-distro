@@ -50,6 +50,14 @@ AUX networkmanager-0.6.4-wireless-drivers-workarounds.patch 6765 RMD160 85ba5cd7
 MD5 1519fab7b2f661cd46e2ad40cd3ad6c4 files/networkmanager-0.6.4-wireless-drivers-workarounds.patch 6765
 RMD160 85ba5cd74348e536cd0fdd8ee731e3e8f10bb02f files/networkmanager-0.6.4-wireless-drivers-workarounds.patch 6765
 SHA256 0e7b1e5ab7ac2a0e38e6e347f3b800f325356c975a819e6058243187a0370913 files/networkmanager-0.6.4-wireless-drivers-workarounds.patch 6765
+AUX networkmanager-0.6.5-better-multiple-essid-support.patch 5961 RMD160 6eff502d9eba93b8c2706f8717357771c9febc83 SHA1 ffbe29b7d2c94d625cf1b3d40995e5279959fe3d SHA256 e0b4079b690af78e7d8d2aa5b83aecc73a224f945eb678e6a7bb8cd6c6aca557
+MD5 3aa0a12c3023205ecf2cba9e6cfca72d files/networkmanager-0.6.5-better-multiple-essid-support.patch 5961
+RMD160 6eff502d9eba93b8c2706f8717357771c9febc83 files/networkmanager-0.6.5-better-multiple-essid-support.patch 5961
+SHA256 e0b4079b690af78e7d8d2aa5b83aecc73a224f945eb678e6a7bb8cd6c6aca557 files/networkmanager-0.6.5-better-multiple-essid-support.patch 5961
+AUX networkmanager-0.6.5-better-suspend.patch 614 RMD160 e1da74cef051a7f6ac9c7d7abe4048e1f9e78ebb SHA1 077b4702b8e33e2172660e6405c299c46054701e SHA256 0132d764e94ae742d77640e7f4900669b63c38ad2edae2e5605ded1a44943147
+MD5 3b9caf1a2fe43bd0c0eca009e0d8a1be files/networkmanager-0.6.5-better-suspend.patch 614
+RMD160 e1da74cef051a7f6ac9c7d7abe4048e1f9e78ebb files/networkmanager-0.6.5-better-suspend.patch 614
+SHA256 0132d764e94ae742d77640e7f4900669b63c38ad2edae2e5605ded1a44943147 files/networkmanager-0.6.5-better-suspend.patch 614
 AUX networkmanager-0.6.5-confchanges.patch 980 RMD160 bc6e591626602d625db63534350c2ddc2cf4a311 SHA1 45d475e475a8fce82bf838fa3d7bd90dfcb742b7 SHA256 127b8e6285883ecf246b15885119ae3e19ece79d313a832820d056a662f01792
 MD5 9c19814abc1669e5238be5976d93536a files/networkmanager-0.6.5-confchanges.patch 980
 RMD160 bc6e591626602d625db63534350c2ddc2cf4a311 files/networkmanager-0.6.5-confchanges.patch 980
@@ -100,10 +108,10 @@ EBUILD networkmanager-0.6.4_pre20070308.ebuild 3494 RMD160 4dfd708827abfe73bbd0e
 MD5 076fb75fa70aa1ae292d0757e5939a58 networkmanager-0.6.4_pre20070308.ebuild 3494
 RMD160 4dfd708827abfe73bbd0ed1d167c30d214965df4 networkmanager-0.6.4_pre20070308.ebuild 3494
 SHA256 8be3c3ab13ce9d59ee2e00ec5d885999b48f78874cf9a0bc600fc980f286c2d5 networkmanager-0.6.4_pre20070308.ebuild 3494
-EBUILD networkmanager-0.6.5-r1.ebuild 3009 RMD160 25ff1c330a8d9b08a7f7c4c00d2ea706115fb957 SHA1 71bfb8a260ddde2c8eab256e34c9ab252a6b5cd0 SHA256 0ce760a75db71e78db4b9395a88273460f02fa7a821404b29a4d6af4bb723d34
-MD5 2455ffaf7d2a43cee48c4d8ecb098353 networkmanager-0.6.5-r1.ebuild 3009
-RMD160 25ff1c330a8d9b08a7f7c4c00d2ea706115fb957 networkmanager-0.6.5-r1.ebuild 3009
-SHA256 0ce760a75db71e78db4b9395a88273460f02fa7a821404b29a4d6af4bb723d34 networkmanager-0.6.5-r1.ebuild 3009
+EBUILD networkmanager-0.6.5-r1.ebuild 3134 RMD160 b1c9c15c176e40b717a0dced718454f0e5fd909a SHA1 c2256ae92842a929ec1027cff69090f5fdcbaedc SHA256 b92728dbc73a3809556887f4b4627f86db14f2ff2c450de317b0c9068ba4c9da
+MD5 eec9e998dce477d73b860f00180603de networkmanager-0.6.5-r1.ebuild 3134
+RMD160 b1c9c15c176e40b717a0dced718454f0e5fd909a networkmanager-0.6.5-r1.ebuild 3134
+SHA256 b92728dbc73a3809556887f4b4627f86db14f2ff2c450de317b0c9068ba4c9da networkmanager-0.6.5-r1.ebuild 3134
 MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20061223 304
 RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20061223 304
 SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20061223 304

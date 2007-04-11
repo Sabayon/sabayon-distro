@@ -11,7 +11,7 @@ SRC_URI="http://people.redhat.com/dcbw/NetworkManager/${PV}/NetworkManager-${PV}
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64 ~ppc"
-IUSE="crypt doc gnome kde"
+IUSE="crypt doc"
 
 RDEPEND=">=sys-apps/dbus-0.60
 	>=sys-apps/hal-0.5
@@ -21,9 +21,7 @@ RDEPEND=">=sys-apps/dbus-0.60
 	>=net-wireless/wireless-tools-28_pre9
 	>=net-wireless/wpa_supplicant-0.5.7
 	>=dev-libs/glib-2.8
-	gnome? ( ~net-misc/nm-applet-${PV} )
 	crypt? ( dev-libs/libgcrypt )
-	kde? ( net-misc/knetworkmanager )
 	"
 
 DEPEND="${RDEPEND}
@@ -62,6 +60,13 @@ src_unpack () {
 
 	# Remove buggy Gentoo set_hostname
 	epatch ${FILESDIR}/${PN}-0.6.4-remove-gentoo-set-hostname.patch
+
+	# Better suspend support, especially for ipw3945
+	epatch ${FILESDIR}/${PN}-0.6.5-better-suspend.patch
+
+	# Better multiple ESSID support	
+	epatch ${FILESDIR}/${PN}-0.6.5-better-multiple-essid-support.patch
+
 }
 
 src_compile() {
