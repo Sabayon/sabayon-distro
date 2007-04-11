@@ -43,3 +43,5 @@ app-emulation/qemu-gui
 # Builds normally, but in ebuild, fails
 =media-video/seom-9999
 
+# Testing
+~net-misc/networkmanager-0.6.5
