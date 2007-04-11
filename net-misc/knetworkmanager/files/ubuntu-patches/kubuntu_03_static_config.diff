@@ -1,12 +1,12 @@
---- orig/knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.cpp	2006-09-27 09:02:59.000000000 +0100
-+++ knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.cpp	2007-01-18 14:49:59.000000000 +0000
-@@ -250,6 +250,15 @@
+diff -Nur knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.cpp knetworkmanager-0.1.new/knetworkmanager/src/knetworkmanager-tray.cpp
+--- knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.cpp	2007-02-19 12:29:55.000000000 +0000
++++ knetworkmanager-0.1.new/knetworkmanager/src/knetworkmanager-tray.cpp	2007-02-19 12:32:56.000000000 +0000
+@@ -257,6 +257,14 @@
  }
  
  void
 +Tray::staticConfiguration ()
 +{
-+  kdDebug() << "Tray::staticConfiguration()" << endl;
 +  KProcess *proc = new KProcess;
 +  *proc << "kdesu" << "kcmshell kcm_knetworkconfmodule";
 +  proc->start();
@@ -16,16 +16,17 @@
  Tray::configureVPN ()
  {
  	emit configureVPNConnections ();
-@@ -694,6 +703,8 @@
- 			KAction* hiddenAction = actionCollection ()->action ("connect_hidden");
- 			menu->insertSeparator ();
- 			hiddenAction->plug (menu);
-+			KAction* staticAction = actionCollection ()->action ("static_configuration");
-+		        staticAction->plug (menu);
- 			menu->insertSeparator ();
- 			separated = true;
+@@ -782,6 +790,9 @@
  		}
-@@ -1045,6 +1056,10 @@
+ 	}
+ 
++	KAction* staticAction = actionCollection()->action("static_configuration");
++	staticAction->plug(menu);
++
+ 	/* build-up the ``Options'' sub menu if NM is running */
+ 	if (state->isNetworkManagerRunning ()) {
+ 		if (!separated)
+@@ -1095,6 +1106,10 @@
  					     SmallIcon ("wireless",  QIconSet::Automatic), 0,
  					     this, SLOT (connectHiddenNetwork ()), actionCollection (), "connect_hidden");
  	
@@ -36,8 +37,9 @@
  	configureVPNAction = new KAction (i18n ("Configure VPN..."),
  					  SmallIcon ("configure",  QIconSet::Automatic), 0,
  					  this, SLOT (configureVPN ()), actionCollection (), "configure_vpn");
---- orig/knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.h	2006-09-27 09:02:59.000000000 +0100
-+++ knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.h	2007-01-18 14:55:34.000000000 +0000
+diff -Nur knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.h knetworkmanager-0.1.new/knetworkmanager/src/knetworkmanager-tray.h
+--- knetworkmanager-0.1/knetworkmanager/src/knetworkmanager-tray.h	2007-02-19 12:29:55.000000000 +0000
++++ knetworkmanager-0.1.new/knetworkmanager/src/knetworkmanager-tray.h	2007-02-19 12:29:56.000000000 +0000
 @@ -110,6 +110,7 @@
  	  ~Tray ();
  
@@ -46,7 +48,7 @@
  	  KAction* configureVPNAction;
  	  KAction* disconnectVPNAction;
  	  KAction* configureDialUpAction;
-@@ -148,6 +149,7 @@
+@@ -152,6 +153,7 @@
  	public slots:
  	  void updateTooltip          (void);
  	  void connectHiddenNetwork   (void);
