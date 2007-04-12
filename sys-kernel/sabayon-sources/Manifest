@@ -54,10 +54,10 @@ AUX sabayon-sources-2.6.21-prism2.patch 743686 RMD160 31c7cb0e5b441e3c0712bc0504
 MD5 a192c27cbbc3005140a480811a4c622f files/sabayon-sources-2.6.21-prism2.patch 743686
 RMD160 31c7cb0e5b441e3c0712bc05042e40f8dea89b94 files/sabayon-sources-2.6.21-prism2.patch 743686
 SHA256 a6d1c2613344b5bed451d8c273d4e2ccdfa3cb5de4a0fb33cc3c9d3d2679e98c files/sabayon-sources-2.6.21-prism2.patch 743686
-AUX sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 693402 RMD160 840daa4b28d1cdb281e3fd104535cde5f8b42f0f SHA1 2dcf13cf6a8b91ea9711e0cfb453772f1098d86f SHA256 cde65ff58e8e3c7d7cfb5b051c5c4ef575c57d6e39dd6dce3aeb118a2a51fdf8
-MD5 9baef24467cc716a4e7344d2550a39ab files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 693402
-RMD160 840daa4b28d1cdb281e3fd104535cde5f8b42f0f files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 693402
-SHA256 cde65ff58e8e3c7d7cfb5b051c5c4ef575c57d6e39dd6dce3aeb118a2a51fdf8 files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 693402
+AUX sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 693839 RMD160 c1db73a7887ddb8bbd2e885bfde9650d83a5a367 SHA1 272f22879e2e603327f8a3099d111cc881af23cc SHA256 f8a06009cb48e9de847be272088143bad5bc7265646e01ca116c29703e0db72a
+MD5 3c10d60c56c9c5918e5d07a26b3584b1 files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 693839
+RMD160 c1db73a7887ddb8bbd2e885bfde9650d83a5a367 files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 693839
+SHA256 f8a06009cb48e9de847be272088143bad5bc7265646e01ca116c29703e0db72a files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 693839
 AUX sabayon-sources-2.6.21-unionfs-1.3.diff 515159 RMD160 7be790bc05f599c866fb0a7d57a0a09ef3c07096 SHA1 06bfca77abfafdd9d099f3474482f7fe806456eb SHA256 c444ab52d9ecff797767ec40489fde4ab16923d5097ac2b5738cb755baa1464f
 MD5 5d2f535fab3ff7074aae73f8fa85019e files/sabayon-sources-2.6.21-unionfs-1.3.diff 515159
 RMD160 7be790bc05f599c866fb0a7d57a0a09ef3c07096 files/sabayon-sources-2.6.21-unionfs-1.3.diff 515159
