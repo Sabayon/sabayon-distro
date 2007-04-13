@@ -40,7 +40,6 @@ src_unpack() {
 	cd ${S}
 
 	gnome2_omf_fix
-	epatch ${FILESDIR}/01-control-center-fix.patch
 	epatch ${FILESDIR}/02-${PN}-autogen-noconfigure.patch
 	if ! use doc; then
 	{
