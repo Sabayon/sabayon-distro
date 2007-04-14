@@ -19,8 +19,8 @@ SL_PATCHES_URI="
 		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/fbsplash-0.9.2-r5-2.6.21.patch
 		"
 
-SUSPEND2_VERSION="2.2.9.10"
-SUSPEND2_TARGET="2.6.21-rc4"
+SUSPEND2_VERSION="2.2.9.11"
+SUSPEND2_TARGET="2.6.21-rc6"
 SUSPEND2_SRC="suspend2-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.suspend2.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 
