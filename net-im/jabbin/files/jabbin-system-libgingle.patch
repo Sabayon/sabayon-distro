@@ -1,0 +1,14 @@
+--- src/src.pro	2006-11-25 21:41:54.000000000 +0100
++++ src/diff.pro	2006-11-25 21:42:10.000000000 +0100
+@@ -13,7 +13,10 @@
+ 
+ CONFIG += jingle debug
+ INCLUDEPATH += ../3party/libjingle
+-LIBS += -L../3party/libjingle -ljingle
++LIBS += -L/usr/lib -ljinglebase-0.3 -ljinglep2pbase-0.3 \
++    -ljinglep2pclient-0.3 -ljinglesessionphone-0.3 \
++    -ljinglesessiontunnel-0.3 -ljinglexmllite-0.3 \
++    -ljinglexmpp-0.3
+ 
+ HEADERS +=\
+     caps.h \
