@@ -31,6 +31,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/ipw3945-1.2.0-2.6.21.patch ${FILESDIR}/${PN}-2.6.21-unionfs-1.3.diff
 		${FILESDIR}/${PN}-2.6.21-git-20070402-dvb.patch ${FILESDIR}/${PN}-2.6.21-iwlwifi.patch
 		${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch ${FILESDIR}/${PN}-2.6.21-at76c503a.patch
+		${FILESDIR}/linux-phc-0.3.0-pre1-kernel-vanilla-2.6.19-rc1.patch
 		"
 UNIPATCH_STRICTORDER="yes"
 
