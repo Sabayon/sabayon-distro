@@ -16,12 +16,12 @@ IUSE=""
 src_compile() {
 	cd ${S}/src
 	emake || die "make failed"
-	mv cpupw.init cpupw
+	mv ${S}/src/cpupw.init ${S}/cpupw
 }
 
 src_install() {
 	cd ${S}/src
 	exeinto /usr/sbin
 	doexe cpupw
-	doinitd ${S}/src/cpupw
+	doinitd ${S}/cpupw
 }
