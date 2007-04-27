@@ -1,6 +1,6 @@
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/adm8211.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/adm8211.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211.h linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/adm8211.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/adm8211.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,575 @@
 +#ifndef ADM8211_H
 +#define ADM8211_H
@@ -577,9 +577,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm82
 +void adm8211_update_powersave(struct net_device *dev);
 +
 +#endif /* ADM8211_H */
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_hw.c linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/adm8211_hw.c
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_hw.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/adm8211_hw.c	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_hw.c linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/adm8211_hw.c
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_hw.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/adm8211_hw.c	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,2711 @@
 +
 +/*
@@ -3292,9 +3292,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm82
 +
 +module_init(adm8211_init);
 +module_exit(adm8211_exit);
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_ioctl.c linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/adm8211_ioctl.c
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_ioctl.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/adm8211_ioctl.c	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_ioctl.c linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/adm8211_ioctl.c
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_ioctl.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/adm8211_ioctl.c	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,1090 @@
 +/*
 + * Linux driver for ADMtek ADM8211 (IEEE 802.11b wireless LAN card)
@@ -4386,9 +4386,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm82
 +	.get_wireless_stats = adm8211_get_wireless_stats,
 +};
 +
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_ioctl.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/adm8211_ioctl.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_ioctl.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/adm8211_ioctl.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_ioctl.h linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/adm8211_ioctl.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/adm8211_ioctl.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/adm8211_ioctl.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,6 @@
 +#ifndef ADM8211_IOCTL_H
 +#define ADM8211_IOCTL_H
@@ -4396,9 +4396,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/adm82
 +extern const struct iw_handler_def adm8211_iw_handler_def;
 +
 +#endif /* ADM8211_IOCTL_H */
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/avs_caphdr.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/avs_caphdr.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/avs_caphdr.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/avs_caphdr.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/avs_caphdr.h linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/avs_caphdr.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/avs_caphdr.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/avs_caphdr.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,21 @@
 +#ifndef AVS_CAPHDR_H
 +#define AVS_CAPHDR_H
@@ -4421,9 +4421,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/avs_c
 +} __attribute__ ((packed));
 +
 +#endif /* AVS_CAPHDR_H */
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/ieee80211_sta.c linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/ieee80211_sta.c
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/ieee80211_sta.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/ieee80211_sta.c	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/ieee80211_sta.c linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/ieee80211_sta.c
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/ieee80211_sta.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/ieee80211_sta.c	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,1289 @@
 +/*
 + * IEEE 802.11 station / management functionality
@@ -5714,9 +5714,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/ieee8
 +
 +	return rate;
 +}
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/ieee80211_sta.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/ieee80211_sta.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/ieee80211_sta.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/ieee80211_sta.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/ieee80211_sta.h linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/ieee80211_sta.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/ieee80211_sta.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/ieee80211_sta.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,118 @@
 +#ifndef IEEE80211_STA_H
 +#define IEEE80211_STA_H
@@ -5836,14 +5836,14 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/ieee8
 +void ieee80211_linkcheck(struct ieee80211_data *data);
 +
 +#endif /* IEEE80211_STA_H */
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/Kconfig linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/Kconfig
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/Kconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/Kconfig	2007-04-13 00:58:13.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/Kconfig linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/Kconfig
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/Kconfig	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/Kconfig	2007-04-27 15:41:53.000000000 +0200
 @@ -0,0 +1,30 @@
 +config ADM8211
 +	tristate "ADMtek ADM8211 support"
-+        depends on PCI && EXPERIMENTAL && WLAN_80211
-+        select WIRELESS_EXT
++	depends on WLAN_80211 && PCI && EXPERIMENTAL
++	select WIRELESS_EXT
 +	select IEEE80211
 +	select CRYPTO_ARC4
 +	---help---
@@ -5870,15 +5870,15 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/Kconf
 +
 +	  The latest version of this driver can be found at:
 +	  <http://aluminum.sourmilk.net/adm8211/netdev/>
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/Makefile linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/Makefile
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/adm8211/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/adm8211/Makefile	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/Makefile linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/Makefile
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/adm8211/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/adm8211/Makefile	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,2 @@
 +adm8211-objs		:= adm8211_hw.o adm8211_ioctl.o ieee80211_sta.o
 +obj-$(CONFIG_ADM8211)	+= adm8211.o
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/Kconfig linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/Kconfig
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/Kconfig	2007-04-03 17:52:43.000000000 +0200
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/Kconfig	2007-04-13 00:57:42.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/Kconfig linux-2.6.21-wireless-dev/drivers/net/wireless/Kconfig
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/Kconfig	2007-04-03 17:52:43.000000000 +0200
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/Kconfig	2007-04-27 15:38:29.000000000 +0200
 @@ -527,6 +527,8 @@ config USB_ZD1201
  
  source "drivers/net/wireless/hostap/Kconfig"
@@ -5888,9 +5888,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/Kconfig linux
  source "drivers/net/wireless/zd1211rw/Kconfig"
  
  source "drivers/net/wireless/mac80211/Kconfig"
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/Makefile linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/Makefile
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/Makefile	2007-04-03 17:52:43.000000000 +0200
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/Makefile	2007-04-13 00:57:17.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/Makefile linux-2.6.21-wireless-dev/drivers/net/wireless/Makefile
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/Makefile	2007-04-03 17:52:43.000000000 +0200
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/Makefile	2007-04-27 15:39:31.000000000 +0200
 @@ -36,6 +36,9 @@ obj-$(CONFIG_PRISM54)		+= prism54/
  
  obj-$(CONFIG_HOSTAP)		+= hostap/
@@ -5901,9 +5901,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/Makefile linu
  obj-$(CONFIG_ZD1211RW)		+= zd1211rw/
  
  # 16-bit wireless PCMCIA client drivers
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_config.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/acx_config.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_config.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/acx_config.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/acx_config.h linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/acx_config.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/acx_config.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/acx_config.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,40 @@
 +#define ACX_RELEASE "v0.4.9"
 +
@@ -5945,9 +5945,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_con
 +/* 0 - normal mode */
 +/* 1 - development/debug: probe for IEs on modprobe */
 +#define CMD_DISCOVERY 0
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_func.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/acx_func.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_func.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/acx_func.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/acx_func.h linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/acx_func.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/acx_func.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/acx_func.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,602 @@
 +/***********************************************************************
 +** Copyright (C) 2003  ACX100 Open Source Project
@@ -6551,9 +6551,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_fun
 +void acx_e_ieee80211_set_security(struct net_device *dev, struct ieee80211_security *sec);
 +void acx_e_ieee80211_set_chan(struct net_device *ndev, u8 channel);
 +void acx_l_softmac_process_rxbuf(acx_device_t *adev, rxbuffer_t *rxbuf);
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/acx.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/acx.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/acx.h linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/acx.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/acx.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/acx.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,9 @@
 +#include <net/ieee80211.h>
 +#include <net/ieee80211softmac.h>
@@ -6564,9 +6564,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx.h l
 +#include "wlan_mgmt.h"
 +#include "acx_struct.h"
 +#include "acx_func.h"
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_struct.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/acx_struct.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_struct.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/acx_struct.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/acx_struct.h linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/acx_struct.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/acx_struct.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/acx_struct.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,2027 @@
 +/***********************************************************************
 +** Copyright (C) 2003  ACX100 Open Source Project
@@ -8595,9 +8595,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/acx_str
 +};
 +
 +extern const struct iw_handler_def acx_ioctl_handler_def;
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Changelog linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/Changelog
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Changelog	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/Changelog	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/Changelog linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/Changelog
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/Changelog	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/Changelog	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,122 @@
 +TODO:
 +e100.c: pci_dma_sync_single_for_cpu(nic->pdev, rx->dma_addr, sizeof(struct rfd), PCI_DMA_FROMDEVICE);
@@ -8721,9 +8721,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Changel
 +
 +[20060116] 0.4.0
 +* Happy birthday
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/common.c linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/common.c
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/common.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/common.c	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/common.c linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/common.c
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/common.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/common.c	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,5262 @@
 +/***********************************************************************
 +** Copyright (C) 2003  ACX100 Open Source Project
@@ -13987,9 +13987,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/common.
 +}
 +
 +EXPORT_SYMBOL_GPL(acx_e_ieee80211_set_chan);
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/ioctl.c linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/ioctl.c
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/ioctl.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/ioctl.c	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/ioctl.c linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/ioctl.c
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/ioctl.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/ioctl.c	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,2049 @@
 +/***********************************************************************
 +** Copyright (C) 2003  ACX100 Open Source Project
@@ -16040,14 +16040,14 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/ioctl.c
 +};
 +
 +EXPORT_SYMBOL_GPL(acx_ioctl_handler_def);
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Kconfig linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/Kconfig
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Kconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/Kconfig	2007-04-13 00:55:44.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/Kconfig linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/Kconfig
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/Kconfig	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/Kconfig	2007-04-27 15:41:27.000000000 +0200
 @@ -0,0 +1,66 @@
 +config ACX_PCI
 +	tristate "TI acx100/acx111 802.11b/g PCI"
-+        depends on PCI && EXPERIMENTAL && WLAN_80211
-+        select WIRELESS_EXT
++	depends on WLAN_80211 && EXPERIMENTAL && PCI
++	select WIRELESS_EXT
 +	select FW_LOADER
 +	select IEEE80211
 +	select IEEE80211_SOFTMAC
@@ -16085,8 +16085,8 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Kconfig
 +
 +config ACX_USB
 +	tristate "TI acx100/acx111 802.11b/g USB"
-+        depends on USB && WLAN_80211
-+        select WIRELESS_EXT
++	depends on WLAN_80211 && EXPERIMENTAL && USB
++	select WIRELESS_EXT
 +	select FW_LOADER
 +	select IEEE80211
 +	select IEEE80211_SOFTMAC
@@ -16110,9 +16110,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Kconfig
 +
 +	Texas Instruments did not take part in development of this driver
 +	in any way, shape or form.
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Makefile linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/Makefile
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/Makefile	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/Makefile linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/Makefile
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/Makefile	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,6 @@
 +acx-common-y := ioctl.o common.o
 +acx-usb-y := usb.o
@@ -16120,9 +16120,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/Makefil
 +
 +obj-$(CONFIG_ACX_PCI) += acx-common.o acx-pci.o
 +obj-$(CONFIG_ACX_USB) += acx-common.o acx-usb.o
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/pci.c linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/pci.c
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/pci.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/pci.c	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/pci.c linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/pci.c
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/pci.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/pci.c	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,4261 @@
 +/***********************************************************************
 +** Copyright (C) 2003  ACX100 Open Source Project
@@ -20385,9 +20385,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/pci.c l
 +
 +module_init(acxpci_e_init_module);
 +module_exit(acxpci_e_cleanup_module);
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/README linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/README
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/README	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/README	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/README linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/README
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/README	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/README	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,61 @@
 +*** Barely works. Lots of things are TODO. ***
 +
@@ -20450,9 +20450,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/README 
 +
 +You will have a complete Linux kernel in wireless-2.6.git/.
 +Replace drivers/net/wireless/tiacx/* by files from this tarball.
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/setrate.c linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/setrate.c
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/setrate.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/setrate.c	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/setrate.c linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/setrate.c
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/setrate.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/setrate.c	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,213 @@
 +/* TODO: stop #including, move into wireless.c
 + * until then, keep in sync copies in prism54/ and acx/ dirs
@@ -20667,9 +20667,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/setrate
 +		return -EINVAL;
 +	return 0;
 +}
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/usb.c linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/usb.c
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/usb.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/usb.c	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/usb.c linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/usb.c
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/usb.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/usb.c	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,1956 @@
 +/***********************************************************************
 +** Copyright (C) 2003  ACX100 Open Source Project
@@ -22627,9 +22627,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/usb.c l
 +#endif /* UNUSED */
 +
 +#endif /* ACX_DEBUG */
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_hdr.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/wlan_hdr.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_hdr.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/wlan_hdr.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_hdr.h linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/wlan_hdr.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_hdr.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/wlan_hdr.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,371 @@
 +/***********************************************************************
 +** Copyright (C) 2003  ACX100 Open Source Project
@@ -23002,9 +23002,9 @@ diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_hd
 +#define WLANSNIFFFRM_rate	0x8041
 +#define WLANSNIFFFRM_istx	0x9041
 +#define WLANSNIFFFRM_frmlen	0xA041
-diff -Nurp linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_mgmt.h linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/wlan_mgmt.h
---- linux-2.6.21-rc6-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_mgmt.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-rc6-wireless-dev/drivers/net/wireless/tiacx/wlan_mgmt.h	2007-04-04 09:22:31.000000000 +0200
+diff -Nurp linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_mgmt.h linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/wlan_mgmt.h
+--- linux-2.6.21-wireless-dev.orig/drivers/net/wireless/tiacx/wlan_mgmt.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.21-wireless-dev/drivers/net/wireless/tiacx/wlan_mgmt.h	2007-04-04 09:22:31.000000000 +0200
 @@ -0,0 +1,421 @@
 +/***********************************************************************
 +** Copyright (C) 2003  ACX100 Open Source Project
