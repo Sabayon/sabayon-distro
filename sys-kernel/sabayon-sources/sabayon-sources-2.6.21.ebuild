@@ -35,7 +35,9 @@ UNIPATCH_LIST="
 		${DISTDIR}/${PV}-rc7-ext4-1.bz2 ${FILESDIR}/${P}-staircase-0.46.patch
 		${FILESDIR}/${P}-mactel.patch ${FILESDIR}/${P}-thinkpad.patch
 		${FILESDIR}/${P}-sony-laptops.patch ${FILESDIR}/${P}-adaptive-readahead.patch
+		${FILESDIR}/${P}-${PV}.1.patch
 		"
+
 
 UNIPATCH_STRICTORDER="yes"
 
