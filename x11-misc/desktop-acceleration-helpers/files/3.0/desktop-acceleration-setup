@@ -1,0 +1,388 @@
+#!/bin/bash
+# Copyright 2007 - SabayonLinux (Fabio Erculiani)
+# Desktop Acceleration Helpers
+
+# TODO:
+# - put the proper settings icon on the Desktop
+
+# Constants
+if [ -e "/usr/kde/3.4" ];then
+    kdmdir="/usr/kde/3.4/share/config/kdm/"
+elif [ -e "/usr/kde/3.5" ];then
+    kdmdir="/usr/kde/3.5/share/config/kdm/"
+fi
+if [ -e "/sbin/lspci" ];then
+    lspci="/sbin/lspci"
+else
+    lspci="/usr/sbin/lspci"
+fi
+compiz_tmpdir="/tmp/"
+xprofile_file="/etc/xprofile"
+compiz_manager="compiz-manager.desktop"
+compiz_settings="compiz-settings.desktop"
+compiz_manager_desktop_file=$compiz_tmpdir$compiz_manager
+compiz_settings_desktop_file="/usr/share/applications/"$compiz_settings
+xorg_conf="/etc/X11/xorg.conf"
+desktop_acceleration_helpers_config_file="/etc/desktop-acceleration-helpers.conf"
+
+
+# Functions
+
+write_acceleration_method() {
+    if [ ! -e "$desktop_acceleration_helpers_config_file" ]; then
+        echo "Acceleration=$1" > $desktop_acceleration_helpers_config_file
+    else
+        sed -i 's/Acceleration=.*/Acceleration='$1'/' $desktop_acceleration_helpers_config_file
+    fi
+}
+
+configure_kdm() {
+    if [ "$1" == "xgl" ]; then
+        xgl_nvidia=$($lspci | grep ' VGA ' | grep -i nvidia)
+        xgl_ati=$($lspci | grep ' VGA ' | grep ATI)
+        # Changing KDM configuration
+	if [ -n "$xgl_nvidia" ]; then
+	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:fbo /' $kdmdir/kdmrc
+        elif [ -n "$xgl_ati" ]; then
+	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:pbuffer /' $kdmdir/kdmrc
+	else
+	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv /' $kdmdir/kdmrc
+	fi
+    elif [ "$1" == "none" ]; then
+        # Changing KDM configuration
+        sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
+    elif [ "$1" == "aiglx" ]; then
+        # Changing KDM configuration
+        sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
+    elif [ "$1" == "nvidia" ]; then
+        # Changing KDM configuration- is actually no different from none or aiglx, but adds consistency
+        sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
+    fi
+}
+
+create_compiz_manager_desktop_file() {
+
+    # FIXME: kept for future reference
+    # it works with both KDE and GNOME
+    #echo "[Desktop Entry]" > $compiz_manager_desktop_file
+    #echo "Name=Compiz Manager" >> $compiz_manager_desktop_file
+    #echo "Encoding=UTF-8" >> $compiz_manager_desktop_file
+    #echo "MimeType=" >> $compiz_manager_desktop_file
+    #echo "Icon=agent" >> $compiz_manager_desktop_file
+    #echo "Version=1.0" >> $compiz_manager_desktop_file
+    #echo "Exec=/usr/bin/compiz-start" >> $compiz_manager_desktop_file
+    #echo "Path=" >> $compiz_manager_desktop_file
+    #echo "StartupNotify=false" >> $compiz_manager_desktop_file
+    #echo "Terminal=false" >> $compiz_manager_desktop_file
+    #echo "TerminalOptions=" >> $compiz_manager_desktop_file
+    #echo "Type=Application" >> $compiz_manager_desktop_file
+    #echo "X-DCOP-ServiceType=" >> $compiz_manager_desktop_file
+    #echo "X-KDE-SubstituteUID=false" >> $compiz_manager_desktop_file
+    #echo "X-KDE-Username=" >> $compiz_manager_desktop_file
+    #echo "X-GNOME-Autostart-enabled=true" >> $compiz_manager_desktop_file
+    echo > /dev/null
+
+}
+
+scan_and_remove_old_files() {
+    for file in `find /home -maxdepth 4 -name $compiz_manager`
+       do
+          rm -rf $file
+       done
+
+    for file in `find /home -maxdepth 2 -name .compiz*`
+        do
+            rm -rf $file
+        done
+}
+
+add_compiz_manager_to_the_startup() {
+
+    # FIXME: kept for reference
+    #if [ -e "/usr/share/autostart" ]; then
+    #    cp $compiz_manager_desktop_file /usr/share/autostart/ -p
+    #    # link that to the GNOME startup dir
+    #    if [ -e /usr/share/gnome/autostart ]; then
+    #      ln -sf /usr/share/autostart/$compiz_manager /usr/share/gnome/autostart/
+    #    fi
+    #fi
+
+    add_kde=1
+    add_gnome=1
+
+    if [ -e "$xprofile_file" ]; then
+        kde_wm_exists=$(cat /etc/xprofile | grep KDEWM=/usr/bin/compiz-start | grep -v "^#")
+        gnome_wm_exists=$(cat /etc/xprofile | grep WINDOW_MANAGER=/usr/bin/compiz-start | grep -v "^#")
+        if [ -n "$kde_wm_exists" ]; then
+            add_kde=0
+	fi
+        if [ -n "$gnome_wm_exists" ]; then
+            add_gnome=0
+	fi
+    else
+        touch $xprofile_file
+    fi
+
+    if [ "$add_kde" == 1 ]; then
+        echo "export KDEWM=/usr/bin/compiz-start" >> $xprofile_file
+    fi
+    if [ "$add_gnome" == 1 ]; then
+        echo "export WINDOW_MANAGER=/usr/bin/compiz-start" >> $xprofile_file
+    fi
+
+    echo "export XLIB_SKIP_ARGB_VISUALS=1" >> $xprofile_file
+
+    # if it's available, add compiz-settings too
+    if [ -e "$compiz_settings_desktop_file" ]; then
+        for user in `ls /home/`; do
+            if [ -d "/home/$user/Desktop" ]; then
+                cp $compiz_settings_desktop_file /home/$user/Desktop/
+                chown $user /home/$user/Desktop/$compiz_settings
+            fi
+        done
+    fi
+
+}
+
+remove_compiz_manager_from_the_startup() {
+    #rm -f /usr/share/gnome/autostart/$compiz_manager
+    #rm -f /usr/share/autostart/$compiz_manager
+
+    # remove compiz variables in /etc/xprofile
+    if [ -e "$xprofile_file" ]; then
+        sed -i '/WINDOW_MANAGER=/d' $xprofile_file
+        sed -i '/KDEWM=/d' $xprofile_file
+        sed -i '/XLIB_SKIP_ARGB_VISUALS=/d' $xprofile_file
+    fi
+
+    # if it's available, remove compiz-settings too
+    if [ -e "$compiz_settings_desktop_file" ]; then
+        for user in `ls /home/`; do
+            if [ -d "/home/$user/Desktop" ]; then
+                rm -f /home/$user/Desktop/$compiz_settings
+            fi
+        done
+    fi
+}
+
+enable_aiglx_in_xorg_conf() {
+    # Enable AIGLX Stuff
+    sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
+    sed -i '/"Composite"/ s/#//g' $xorg_conf
+}
+
+disable_aiglx_in_xorg_conf() {
+    # Disable AIGLX Option
+    sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
+    sed -i '/"AddARGBGLXVisuals"/ s/Option/#Option/' $xorg_conf
+    sed -i '/"Composite"/ s/#//' $xorg_conf
+    sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
+    # for security sake
+    sed -i '/"RenderAccel"/ s/#//' $xorg_conf
+    sed -i '/"RenderAccel"/ s/Option/#Option/' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/Option/#Option/' $xorg_conf
+}
+
+enable_nvidia_in_xorg_conf() {
+    # Enable nvidia stuff, no AIGLX option
+    opengl_nvidia=$(eselect opengl show | grep nvidia)
+    if [ -n "$opengl_nvidia" ]; then
+        sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
+        sed -i '/"RenderAccel"/ s/#//' $xorg_conf
+    fi
+    sed -i '/"Composite"/ s/#//g' $xorg_conf
+}
+
+disable_nvidia_in_xorg_conf() {
+    # Disable nvidia
+    sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
+    sed -i '/"AddARGBGLXVisuals"/ s/Option/#Option/' $xorg_conf
+    sed -i '/"Composite"/ s/#//' $xorg_conf
+    sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
+    sed -i '/"RenderAccel"/ s/#//' $xorg_conf
+    sed -i '/"RenderAccel"/ s/Option/#Option/' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
+    sed -i '/"XAANoOffscreenPixmaps"/ s/Option/#Option/' $xorg_conf
+}
+
+show_help=0
+if [ -z "$2" ] || [ "$1" == "--help" ]; then
+    show_help=1
+fi
+if [ "$1" != "aiglx" ] && [ "$1" != "xgl" ] && [ "$1" != "nvidia" ] && [ "$2" != "enable" ] && [ "$2" != "disable" ]; then
+    show_help=1
+fi
+
+if [ "$show_help" == 1 ]; then
+   echo
+   echo "desktop-acceleration-setup - SabayonLinux - Copyright 2007"
+   echo
+   echo "This helper enable/disable AIGLX/XGL Subsystem fueled by Compiz."
+   echo "   Usage:"
+   echo "   # desktop-acceleration-setup aiglx/xgl enable/disable"
+   echo
+   exit 1
+fi
+
+if [ "$UID" != "0" ]; then
+   echo "Error: this application must be run as root."
+   exit 2
+fi
+
+if [ ! -e "/usr/bin/compiz" ]; then
+   echo "Error: Compiz is not installed. /usr/bin/compiz not found."
+   exit 3
+fi
+
+echo "Working..."
+
+# Create our config file if it does not exist
+if [ ! -e "$desktop_acceleration_helpers_config_file" ]; then
+    # Acceleration is disabled (AND MUST BE) by default
+    echo "Acceleration=none" > $desktop_acceleration_helpers_config_file
+fi
+
+if [ "$1" == "xgl" ]; then
+
+    if [ "$2" == "enable" ]; then
+        echo -en "Enabling XGL system wide..."
+
+	# Configure kdmrc
+	configure_kdm xgl
+
+        # remove old stuff
+        scan_and_remove_old_files
+
+	# Compiz Manager startup file - create file $compiz_manager_desktop_file
+	#create_compiz_manager_desktop_file
+
+	# Add Beryl to the startup
+	add_compiz_manager_to_the_startup
+
+	# remove junk
+	rm -f $compiz_manager_desktop_file
+
+	# set XGL in the config file
+	write_acceleration_method xgl
+
+        echo -e "Done"
+    else
+        echo -en "Disabling XGL system wide (reverting to X.Org)..."
+
+        # Changing KDM configuration
+        configure_kdm none
+
+        # remove old stuff
+        scan_and_remove_old_files
+
+        # remove compiz-manager
+        remove_compiz_manager_from_the_startup
+
+	# set No Acceleration in the config file
+	write_acceleration_method none
+
+        echo -e "Done"
+    fi
+
+elif [ "$1" == "aiglx" ]; then
+
+   if [ "$2" == "enable" ]; then
+        echo "Enabling AIGLX system wide..."
+
+        # Changing KDM configuration
+        configure_kdm aiglx
+
+        # remove old stuff
+        scan_and_remove_old_files
+
+	# Enable AIGLX
+	enable_aiglx_in_xorg_conf
+
+	# Beryl Manager startup file - create file $compiz_manager_desktop_file
+	#create_compiz_manager_desktop_file
+
+	# Add Beryl to the startup
+	add_compiz_manager_to_the_startup
+
+	# remove junk
+	rm -f $compiz_manager_desktop_file
+
+	# set XGL in the config file
+	write_acceleration_method aiglx
+
+        echo -e "Done"
+   else
+        echo "Disabling AIGLX system wide..."
+
+        # Changing KDM configuration
+        configure_kdm none
+
+        # remove old stuff
+        scan_and_remove_old_files
+
+	# Disable AIGLX
+	disable_aiglx_in_xorg_conf
+
+        # remove compiz-manager
+        remove_compiz_manager_from_the_startup
+
+	# set No Acceleration in the config file
+	write_acceleration_method none
+
+        echo -e "Done"
+   fi
+
+elif [ "$1" == "nvidia" ]; then
+
+   if [ "$2" == "enable" ]; then
+        echo "Enabling NVidia system wide..."
+
+        # Changing KDM configuration
+        configure_kdm nvidia
+
+        # remove old stuff
+        scan_and_remove_old_files
+
+	# Enable NVidia
+	enable_nvidia_in_xorg_conf
+
+	# Beryl Manager startup file - create file $compiz_manager_desktop_file
+	#create_compiz_manager_desktop_file
+
+	# Add Beryl to the startup
+	add_compiz_manager_to_the_startup
+
+	# remove junk
+	if [ -e "$compiz_manager_desktop_file" ]; then
+	    rm -f $compiz_manager_desktop_file
+	fi
+
+
+	# set NVidia in the config file
+	write_acceleration_method nvidia
+
+        echo -e "Done"
+   else
+        echo "Disabling NVidia system wide..."
+
+        # Changing KDM configuration
+        configure_kdm none
+
+        # remove old stuff
+        scan_and_remove_old_files
+
+	# Disable NVidia
+	disable_nvidia_in_xorg_conf
+
+        # remove compiz-manager
+        remove_compiz_manager_from_the_startup
+
+	# set No Acceleration in the config file
+	write_acceleration_method none
+
+        echo -e "Done"
+   fi
+
+fi

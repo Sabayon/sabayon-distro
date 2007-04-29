@@ -13,7 +13,7 @@ KEYWORDS="x86 amd64 ppc"
 IUSE=""
 
 DEPEND=">=x11-base/xorg-x11-7.1
-	>=x11-wm/beryl-0.2.0"
+	>=x11-wm/compiz-0.5.0"
 
 
 src_unpack () {
