@@ -31,7 +31,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PN}-2.6.21-prism2.patch ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${DISTDIR}/ipw3945-1.2.0-2.6.21.patch ${FILESDIR}/${PN}-2.6.21-unionfs-1.3.diff
 		${FILESDIR}/${PN}-2.6.21-git-20070402-dvb.patch ${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch
-		${FILESDIR}/${PN}-2.6.21-at76c503a.patch ${FILESDIR}/linux-phc-0.3.0-pre1-kernel-vanilla-2.6.19-rc1.patch
+		${FILESDIR}/${PN}-2.6.21-at76c503a.patch ${FILESDIR}/linux-phc-0.2.9-for-2.6.21.patch
 		${DISTDIR}/${PV}-rc7-ext4-1.bz2 ${FILESDIR}/${P}-staircase-0.46.patch
 		${FILESDIR}/${P}-mactel.patch ${FILESDIR}/${P}-thinkpad.patch
 		${FILESDIR}/${P}-sony-laptops.patch ${FILESDIR}/${P}-${PV}.1.patch
