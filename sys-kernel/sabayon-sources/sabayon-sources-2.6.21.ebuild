@@ -32,10 +32,9 @@ UNIPATCH_LIST="
 		${DISTDIR}/ipw3945-1.2.0-2.6.21.patch ${FILESDIR}/${PN}-2.6.21-unionfs-1.3.diff
 		${FILESDIR}/${PN}-2.6.21-git-20070402-dvb.patch ${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch
 		${FILESDIR}/${PN}-2.6.21-at76c503a.patch ${FILESDIR}/linux-phc-0.2.9-for-2.6.21.patch
-		${DISTDIR}/${PV}-rc7-ext4-1.bz2 ${FILESDIR}/${P}-staircase-0.46.patch
-		${FILESDIR}/${P}-mactel.patch ${FILESDIR}/${P}-thinkpad.patch
-		${FILESDIR}/${P}-sony-laptops.patch ${FILESDIR}/${P}-${PV}.1.patch
-		${FILESDIR}/${P}-adaptive-readahead.patch
+		${DISTDIR}/${PV}-rc7-ext4-1.bz2 ${FILESDIR}/${P}-mactel.patch 
+		${FILESDIR}/${P}-thinkpad.patch ${FILESDIR}/${P}-sony-laptops.patch
+		${FILESDIR}/${P}-${PV}.1.patch ${FILESDIR}/${P}-adaptive-readahead.patch
 		"
 
 UNIPATCH_STRICTORDER="yes"
