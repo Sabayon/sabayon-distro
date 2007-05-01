@@ -1,3 +1,4 @@
+#!/bin/sh
 # compiz-start script
 #
 # hacky autodetection of neccessary options for XGL/AIGLX/NVIDIA
@@ -20,8 +21,8 @@ COMPIZ_OPTIONS="--replace"
 
 if [ $GLX_WITH_DIRECT -eq 3 ]; then
 	if [ $GLX_RENDER -eq 0 ]; then
-		echo NVIDA detected
-		export __GL_YIELD="NOTHING" 
+		echo NVIDIA detected
+		export __GL_YIELD="NOTHING"
 	else
 		echo XGL detected
 	fi
@@ -40,4 +41,46 @@ else
 fi
 
 echo "Starting Compiz with: "$COMPIZ_OPTIONS
-compiz $COMPIZ_OPTIONS gconf miniwin decoration transset wobbly fade minimize cube rotate zoom scale move neg resize place switcher trailfocus water dbus
+compiz $COMPIZ_OPTIONS gconf decoration 3d png miniwin wobbly fade minimize cube rotate zoom scale move neg resize place switcher trailfocus water dbus &
+
+# Wait and see if compiz ran fine
+sleep 5
+
+processes=$(ps ax)
+compiz_running=0
+for process in $processes; do
+	if [ "$process" == "compiz" ]; then
+		compiz_running=1
+	fi
+done
+
+if [ "$compiz_running" == 0 ]; then
+
+	# shait, we need to revert back to the DE window manager
+
+	if [ -x "/sbin/lspci" ]; then
+		export lspci_cmd="/sbin/lspci"
+	elif [ -x "/usr/sbin/lspci" ]; then
+		export lspci_cmd="/usr/sbin/lspci"
+	else
+		export lspci_cmd="echo Unknown"
+	fi
+	current_gpu=`$lspci_cmd | grep "VGA" | cut -d "V" -f 2- | cut -d":" -f 2-`
+
+	if [ -n "`echo $DESKTOP_SESSION | grep kde`" ]; then
+		# run kwin
+		`which kwin` --replace &
+		dcop knotify default notify Installer_status Installer "Compiz cannot be started. Please check that you have a working and supported Video Card, OpenGL functionality or visit Sabayon Linux Support forum at: http://www.sabayonlinux.org/forum
+GPU: $(echo $current_gpu)" '' '' 2 0
+
+	else
+
+		# run metacity
+		`which metacity` --replace &
+		zenity --error --text "Compiz cannot be started. Please check that you have a working and supported Video Card, OpenGL functionality or visit Sabayon Linux Support forum at:\n <u>http://www.sabayonlinux.org/forum</u>.\n\n<u>Current Graphics Processing Unit</u>\n<b>$(echo $current_gpu)</b>" --title "Compiz issues..."
+
+	fi
+
+
+
+fi
