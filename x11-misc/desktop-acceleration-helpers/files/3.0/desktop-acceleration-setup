@@ -62,25 +62,18 @@ configure_kdm() {
 
 create_compiz_manager_desktop_file() {
 
-    # FIXME: kept for future reference
     # it works with both KDE and GNOME
-    #echo "[Desktop Entry]" > $compiz_manager_desktop_file
-    #echo "Name=Compiz Manager" >> $compiz_manager_desktop_file
-    #echo "Encoding=UTF-8" >> $compiz_manager_desktop_file
-    #echo "MimeType=" >> $compiz_manager_desktop_file
-    #echo "Icon=agent" >> $compiz_manager_desktop_file
-    #echo "Version=1.0" >> $compiz_manager_desktop_file
-    #echo "Exec=/usr/bin/compiz-start" >> $compiz_manager_desktop_file
-    #echo "Path=" >> $compiz_manager_desktop_file
-    #echo "StartupNotify=false" >> $compiz_manager_desktop_file
-    #echo "Terminal=false" >> $compiz_manager_desktop_file
-    #echo "TerminalOptions=" >> $compiz_manager_desktop_file
-    #echo "Type=Application" >> $compiz_manager_desktop_file
-    #echo "X-DCOP-ServiceType=" >> $compiz_manager_desktop_file
-    #echo "X-KDE-SubstituteUID=false" >> $compiz_manager_desktop_file
-    #echo "X-KDE-Username=" >> $compiz_manager_desktop_file
-    #echo "X-GNOME-Autostart-enabled=true" >> $compiz_manager_desktop_file
-    echo > /dev/null
+    echo "[Desktop Entry]" > $compiz_manager_desktop_file
+    echo "Name=Compiz" >> $compiz_manager_desktop_file
+    echo "Encoding=UTF-8" >> $compiz_manager_desktop_file
+    echo "Icon=/usr/share/compiz/icon.png" >> $compiz_manager_desktop_file
+    echo "Version=1.0" >> $compiz_manager_desktop_file
+    echo "Exec=compiz-start" >> $compiz_manager_desktop_file
+    echo "X-KDE-autostart-after=panel" >> $compiz_manager_desktop_file
+    echo "X-KDE-StartupNotify=false" >> $compiz_manager_desktop_file
+    echo "Terminal=false" >> $compiz_manager_desktop_file
+    echo "Type=Application" >> $compiz_manager_desktop_file
+    echo "X-GNOME-Autostart-enabled=true" >> $compiz_manager_desktop_file
 
 }
 
@@ -98,38 +91,17 @@ scan_and_remove_old_files() {
 
 add_compiz_manager_to_the_startup() {
 
-    # FIXME: kept for reference
-    #if [ -e "/usr/share/autostart" ]; then
-    #    cp $compiz_manager_desktop_file /usr/share/autostart/ -p
+    if [ -e "/usr/share/autostart" ]; then
+        cp $compiz_manager_desktop_file /usr/share/autostart/ -p
     #    # link that to the GNOME startup dir
-    #    if [ -e /usr/share/gnome/autostart ]; then
-    #      ln -sf /usr/share/autostart/$compiz_manager /usr/share/gnome/autostart/
-    #    fi
-    #fi
+        if [ -e /usr/share/gnome/autostart ]; then
+          ln -sf /usr/share/autostart/$compiz_manager /usr/share/gnome/autostart/
+        fi
+    fi
 
-    add_kde=1
-    add_gnome=1
-
-    if [ -e "$xprofile_file" ]; then
-        kde_wm_exists=$(cat /etc/xprofile | grep KDEWM=/usr/bin/compiz-start | grep -v "^#")
-        gnome_wm_exists=$(cat /etc/xprofile | grep WINDOW_MANAGER=/usr/bin/compiz-start | grep -v "^#")
-        if [ -n "$kde_wm_exists" ]; then
-            add_kde=0
-	fi
-        if [ -n "$gnome_wm_exists" ]; then
-            add_gnome=0
-	fi
-    else
+    if [ ! -e "$xprofile_file" ]; then
         touch $xprofile_file
     fi
-
-    if [ "$add_kde" == 1 ]; then
-        echo "export KDEWM=/usr/bin/compiz-start" >> $xprofile_file
-    fi
-    if [ "$add_gnome" == 1 ]; then
-        echo "export WINDOW_MANAGER=/usr/bin/compiz-start" >> $xprofile_file
-    fi
-
     echo "export XLIB_SKIP_ARGB_VISUALS=1" >> $xprofile_file
 
     # if it's available, add compiz-settings too
@@ -145,8 +117,8 @@ add_compiz_manager_to_the_startup() {
 }
 
 remove_compiz_manager_from_the_startup() {
-    #rm -f /usr/share/gnome/autostart/$compiz_manager
-    #rm -f /usr/share/autostart/$compiz_manager
+    rm -f /usr/share/gnome/autostart/$compiz_manager
+    rm -f /usr/share/autostart/$compiz_manager
 
     # remove compiz variables in /etc/xprofile
     if [ -e "$xprofile_file" ]; then
@@ -256,7 +228,7 @@ if [ "$1" == "xgl" ]; then
         scan_and_remove_old_files
 
 	# Compiz Manager startup file - create file $compiz_manager_desktop_file
-	#create_compiz_manager_desktop_file
+	create_compiz_manager_desktop_file
 
 	# Add Beryl to the startup
 	add_compiz_manager_to_the_startup
@@ -301,7 +273,7 @@ elif [ "$1" == "aiglx" ]; then
 	enable_aiglx_in_xorg_conf
 
 	# Beryl Manager startup file - create file $compiz_manager_desktop_file
-	#create_compiz_manager_desktop_file
+	create_compiz_manager_desktop_file
 
 	# Add Beryl to the startup
 	add_compiz_manager_to_the_startup
@@ -348,8 +320,8 @@ elif [ "$1" == "nvidia" ]; then
 	# Enable NVidia
 	enable_nvidia_in_xorg_conf
 
-	# Beryl Manager startup file - create file $compiz_manager_desktop_file
-	#create_compiz_manager_desktop_file
+	# Compiz startup file - create file $compiz_manager_desktop_file
+	create_compiz_manager_desktop_file
 
 	# Add Beryl to the startup
 	add_compiz_manager_to_the_startup
