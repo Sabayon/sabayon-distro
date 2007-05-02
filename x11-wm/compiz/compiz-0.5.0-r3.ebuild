@@ -32,6 +32,14 @@ DEPEND=">=media-libs/mesa-6.5.1-r1
 RDEPEND="${DEPEND}
 	x11-apps/mesa-progs"
 
+PDEPEND="~x11-plugins/compiz-extra-${PV}"
+
+src_unpack() {
+	unpack ${A}
+	cd ${WORKDIR}
+	tar xjf ${FILESDIR}/compiz-settings-${PV}.tar.bz2
+}
+
 src_compile() {
 	econf --with-default-plugins \
 		--enable-gtk \
@@ -50,4 +58,25 @@ src_install() {
 	emake DESTDIR="${D}" install || die
 	dobin "${FILESDIR}/compiz-start" || die
 	dodoc AUTHORS ChangeLog NEWS README TODO || die
+
+	# Install Settings
+	if [ -d "/etc/skel" ]; then
+		dodir /etc/skel/.compiz
+		insinto /etc/skel/.compiz
+		doins -r ${WORKDIR}/compiz-settings/*
+	fi
+
+	# hackish thing...
+	addwrite /home
+	for user in /home/*; do
+		if [ ! -e "$user/.compiz" ]; then
+			username=$(echo $user | cut -d/ -f3)
+			if [ -n "`cat /etc/passwd | grep ^$username`" ]; then
+				cp ${WORKDIR}/compiz-settings/* $user/.compiz/ -R
+				mkdir $user/.compiz
+				chown $username $user/.compiz -R
+			fi
+		fi
+	done
+
 }

@@ -4,6 +4,7 @@
 # hacky autodetection of neccessary options for XGL/AIGLX/NVIDIA
 #
 # Hanno Boeck, http://www.hboeck.de/
+# Fabio Erculiani, http://www.sabayonlinux.org - Sabayon Linux Project Leader
 #
 # Licensed under the same conditions as compiz itself (MIT or GPL)
 
@@ -32,8 +33,10 @@ elif [ $GLX_WITH_INDIRECT -eq 3 ]; then
 	COMPIZ_OPTIONS=$COMPIZ_OPTIONS" --indirect-rendering"
 fi
 
+selected_windeco="gtk-window-decorator"
 if [ ! -z $KDE_FULL_SESSION ] && [ -x /usr/bin/kde-window-decorator ]; then
 	echo Using KDE decorator
+	selected_windeco="kde-window-decorator"
 	kde-window-decorator --replace &
 else
 	echo Using GTK decorator
@@ -41,7 +44,7 @@ else
 fi
 
 echo "Starting Compiz with: "$COMPIZ_OPTIONS
-compiz $COMPIZ_OPTIONS gconf decoration 3d png miniwin wobbly fade minimize cube rotate zoom scale move neg resize place switcher trailfocus water dbus &
+compiz $COMPIZ_OPTIONS ini &
 
 # Wait and see if compiz ran fine
 sleep 5
@@ -81,6 +84,43 @@ GPU: $(echo $current_gpu)" '' '' 2 0
 
 	fi
 
+else
 
+	# start loop check
+	while true; do
+
+		sleep 3
+
+		# check if $selected_windeco is still running, otherwise, respawn
+		processes=$(ps ax)
+		check_enabled=0
+		for process in $processes; do
+			if [ "$process" == "compiz" ]; then
+				check_enabled=1
+			fi
+		done
+		
+		if [ "$check_enabled" == 1 ]; then
+			windeco_running=0
+			for process in $processes; do
+				if [ "$process" == "$selected_windeco" ]; then
+					windeco_running=1
+				fi
+			done
+			if [ "$windeco_running" == 0 ]; then
+				# respawn!
+				$selected_windeco --replace &
+			fi
+		else
+			# we also have to respawn compiz, I know it's a dirty thing but
+			# another compiz-start should take over this process
+			echo "Compiz crashed - take over!"
+			/usr/bin/compiz-start
+		fi
+
+	done
 
 fi
+
+
+
