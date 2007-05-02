@@ -1,0 +1,11 @@
+--- NetworkManager-0.6.5.orig/src/nm-device-802-11-wireless.c
++++ NetworkManager-0.6.5/src/nm-device-802-11-wireless.c
+@@ -2668,7 +2668,7 @@ supplicant_status_cb (GIOChannel *source
+ 			if ((self->priv->link_timeout == NULL) && !self->priv->scanning)
+ 			{
+ 				GMainContext *	context = nm_device_get_main_context (dev);
+-				self->priv->link_timeout = g_timeout_source_new (8000);
++				self->priv->link_timeout = g_timeout_source_new (20000);
+ 				g_source_set_callback (self->priv->link_timeout,
+ 									   link_timeout_cb,
+ 									   self,
