@@ -115,6 +115,7 @@ else
 			# we also have to respawn compiz, I know it's a dirty thing but
 			# another compiz-start should take over this process
 			echo "Compiz crashed - take over!"
+			killall -9 compiz $selected_windeco &> /dev/null
 			/usr/bin/compiz-start
 		fi
 
