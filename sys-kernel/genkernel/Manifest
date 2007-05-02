@@ -42,6 +42,10 @@ AUX genkernel-3.4.7-unionfs-inkernel-support.patch 5695 RMD160 9b461693cb8b99ab1
 MD5 ac9e53d6c84ef726add6d4dba3596f65 files/genkernel-3.4.7-unionfs-inkernel-support.patch 5695
 RMD160 9b461693cb8b99ab1ea4013181e360e0d5804437 files/genkernel-3.4.7-unionfs-inkernel-support.patch 5695
 SHA256 be249c5508476a5d8aa5bdb654c741be087720fa44f83deaa4be8380a1ab5c42 files/genkernel-3.4.7-unionfs-inkernel-support.patch 5695
+AUX genkernel-3.4.8-fix-smarter-doslowusb.patch 304 RMD160 f067c22b6239693cbd3429d362b1bef326057b04 SHA1 f2fffcee76583f29a8a95fab6b1103115c4174b8 SHA256 9bcf8469ea5ee2b5f96049728ef0f19d0e093108355109dfb9769a0970248243
+MD5 6a20091e87b12886605794c28df8057d files/genkernel-3.4.8-fix-smarter-doslowusb.patch 304
+RMD160 f067c22b6239693cbd3429d362b1bef326057b04 files/genkernel-3.4.8-fix-smarter-doslowusb.patch 304
+SHA256 9bcf8469ea5ee2b5f96049728ef0f19d0e093108355109dfb9769a0970248243 files/genkernel-3.4.8-fix-smarter-doslowusb.patch 304
 AUX genkernel.bash 2438 RMD160 b3d8e4436d8768c07d18c5aaff9c14fc16641729 SHA1 e15a9c6ef506aa6872a6a97d26751246dedded04 SHA256 e7de9771ba79ef878e2c9a21a1c1720f092c6047d3cc7d4a49ff6b90e7e2c248
 MD5 a86c191115d517b3cd4dc09a857ccaa2 files/genkernel.bash 2438
 RMD160 b3d8e4436d8768c07d18c5aaff9c14fc16641729 files/genkernel.bash 2438
@@ -108,6 +112,10 @@ EBUILD genkernel-3.4.8-r1.ebuild 3898 RMD160 1e505308b4540c438360e9787b67dc8f139
 MD5 883f18bcc6e8e1c3f8402722043c1a5c genkernel-3.4.8-r1.ebuild 3898
 RMD160 1e505308b4540c438360e9787b67dc8f1399a2c1 genkernel-3.4.8-r1.ebuild 3898
 SHA256 bdaa4d130062c5b8c27343c883f801285ba8513b35e5852579cef182ef48c2d3 genkernel-3.4.8-r1.ebuild 3898
+EBUILD genkernel-3.4.8-r2.ebuild 3992 RMD160 bd99251753134cbda21bab36b1bb549fbb9a0461 SHA1 5e8386e23941140e769afb179c761b78efd3be92 SHA256 b0e6cb6534a8c99c0589b6c5a3a2f5c1163ed40183b7f38bfa128f708a6c9274
+MD5 fff4ffc1615764d7a277132bef96c1f4 genkernel-3.4.8-r2.ebuild 3992
+RMD160 bd99251753134cbda21bab36b1bb549fbb9a0461 genkernel-3.4.8-r2.ebuild 3992
+SHA256 b0e6cb6534a8c99c0589b6c5a3a2f5c1163ed40183b7f38bfa128f708a6c9274 genkernel-3.4.8-r2.ebuild 3992
 MD5 ccb9fec2a148ec67a44b66643d5f3d7a files/digest-genkernel-3.4.5-r1 1732
 RMD160 6ce8bfdc09977cb81d3a50277c9a8821da29da9b files/digest-genkernel-3.4.5-r1 1732
 SHA256 98a891eb2b6737e431e5ffed1c8e901034b189bad423777c0bbfe1a855cd1498 files/digest-genkernel-3.4.5-r1 1732
@@ -141,3 +149,6 @@ SHA256 0c9916fd43ebe4131f0b6c08575c9ec26cf6c818ba165d3acd49a64c5c0e856d files/di
 MD5 28eb937426edba3826d42ddf0df7b251 files/digest-genkernel-3.4.8-r1 1991
 RMD160 b4ec10c1f1bef299bf3d59c04fe4465c5500be75 files/digest-genkernel-3.4.8-r1 1991
 SHA256 a8cf9f3055f81d3a426cae4abbb8432b1fbf4e3b3ddbd4b4082729fa12290668 files/digest-genkernel-3.4.8-r1 1991
+MD5 28eb937426edba3826d42ddf0df7b251 files/digest-genkernel-3.4.8-r2 1991
+RMD160 b4ec10c1f1bef299bf3d59c04fe4465c5500be75 files/digest-genkernel-3.4.8-r2 1991
+SHA256 a8cf9f3055f81d3a426cae4abbb8432b1fbf4e3b3ddbd4b4082729fa12290668 files/digest-genkernel-3.4.8-r2 1991

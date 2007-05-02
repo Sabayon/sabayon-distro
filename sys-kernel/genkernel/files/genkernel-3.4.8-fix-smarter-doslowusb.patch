@@ -1,0 +1,11 @@
+--- a/generic/initrd.scripts
++++ b/generic/initrd.scripts
+@@ -325,7 +325,7 @@ start_dev_mgr() {
+ 	then
+ 		for dir in /sys/bus/usb/drivers/usb-storage/*
+ 		do
+-			if [ -d "${dir}" ]
++			if [ -d "${dir}" ] && [ "${dir}" != "/sys/bus/usb/drivers/usb-storage/module" ]
+ 			then
+ 				FORCE_slowusb="1"
+ 			fi
