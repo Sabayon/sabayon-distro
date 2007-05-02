@@ -37,14 +37,14 @@ selected_windeco="gtk-window-decorator"
 if [ ! -z $KDE_FULL_SESSION ] && [ -x /usr/bin/kde-window-decorator ]; then
 	echo Using KDE decorator
 	selected_windeco="kde-window-decorator"
-	kde-window-decorator --replace &
+	nice -15 kde-window-decorator --replace &
 else
 	echo Using GTK decorator
-	gtk-window-decorator --replace &
+	nice -15 gtk-window-decorator --replace &
 fi
 
 echo "Starting Compiz with: "$COMPIZ_OPTIONS
-compiz $COMPIZ_OPTIONS ini &
+nice -15 compiz $COMPIZ_OPTIONS ini &
 
 # Wait and see if compiz ran fine
 sleep 5
@@ -109,7 +109,7 @@ else
 			done
 			if [ "$windeco_running" == 0 ]; then
 				# respawn!
-				$selected_windeco --replace &
+				nice -15 $selected_windeco --replace &
 			fi
 		else
 			# we also have to respawn compiz, I know it's a dirty thing but
@@ -122,6 +122,4 @@ else
 	done
 
 fi
-
-
 
