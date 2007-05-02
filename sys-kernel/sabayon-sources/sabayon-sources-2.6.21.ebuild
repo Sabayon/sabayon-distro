@@ -34,8 +34,10 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PN}-2.6.21-at76c503a.patch ${FILESDIR}/linux-phc-0.2.9-for-2.6.21.patch
 		${DISTDIR}/${PV}-rc7-ext4-1.bz2 ${FILESDIR}/${P}-mactel.patch 
 		${FILESDIR}/${P}-thinkpad.patch ${FILESDIR}/${P}-sony-laptops.patch
-		${FILESDIR}/${P}-${PV}.1.patch ${FILESDIR}/${P}-adaptive-readahead.patch
+		${FILESDIR}/${P}-${PV}.1.patch
 		"
+# disabled for testing
+# ${FILESDIR}/${P}-adaptive-readahead.patch
 
 UNIPATCH_STRICTORDER="yes"
 
