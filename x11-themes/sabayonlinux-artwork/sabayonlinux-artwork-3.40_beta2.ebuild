@@ -15,7 +15,7 @@ RESTRICT="nomirror"
 DEPEND=">=x11-libs/gtk+-2.10
 	x11-themes/ubuntulooks
 	>=kde-misc/ksplash-engine-moodin-0.4.2
-	x11-themes/darklight
+	x11-themes/evilred
 	"
 
 
