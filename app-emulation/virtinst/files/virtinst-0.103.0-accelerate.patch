@@ -1,0 +1,30 @@
+changeset:   161:00984cdd0c55
+user:        Mark McLoughlin <markmc@redhat.com>
+date:        Mon Apr 30 11:43:24 2007 -0400
+files:       virt-install
+description:
+[et-mgmt-tools] [patch 1/4] Typo in kvm support
+Patch from David Lutterkort
+
+Fixes a minor type in kvm support where we reference a
+non-existent module.
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+
+
+diff -r 71f2046b9805 -r 00984cdd0c55 virt-install
+--- a/virt-install	Wed Apr 25 15:56:03 2007 -0400
++++ b/virt-install	Mon Apr 30 11:43:24 2007 -0400
+@@ -519,9 +519,9 @@ def main():
+         hvm = True
+         type = "qemu"
+         if options.accelerate:
+-            if util.is_kvm_capable():
++            if virtinst.util.is_kvm_capable():
+                 type = "kvm"
+-            elif util.is_kqemu_capable():
++            elif virtinst.util.is_kqemu_capable():
+                 type = "kqemu"
+ 
+     if hvm:
+

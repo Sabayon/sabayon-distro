@@ -1,0 +1,32 @@
+changeset:   162:ba44389ce195
+user:        Mark McLoughlin <markmc@redhat.com>
+date:        Mon Apr 30 11:43:35 2007 -0400
+files:       virtinst/FullVirtGuest.py
+description:
+[et-mgmt-tools] [patch 2/4] Fix typo in hvm kernel/initrd XML
+Fixes a minor typo in the libvirt XML we output when booting
+qemu with a kernel/initrd - the <features> block should be
+outside the <os> block.
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+
+
+diff -r 00984cdd0c55 -r ba44389ce195 virtinst/FullVirtGuest.py
+--- a/virtinst/FullVirtGuest.py	Mon Apr 30 11:43:24 2007 -0400
++++ b/virtinst/FullVirtGuest.py	Mon Apr 30 11:43:35 2007 -0400
+@@ -185,10 +185,10 @@ class FullVirtGuest(Guest.XenGuest):
+     <kernel>%(kernel)s</kernel>
+     <initrd>%(initrd)s</initrd>
+     <cmdline>%(extra)s</cmdline>
+-    <features>
+-      %(features)s
+-    </features>
+-  </os>""" % \
++  </os>
++  <features>
++    %(features)s
++  </features>""" % \
+     { "kernel": self.kernel, \
+       "initrd": self.initrd, \
+       "extra": self.extraargs, \
+

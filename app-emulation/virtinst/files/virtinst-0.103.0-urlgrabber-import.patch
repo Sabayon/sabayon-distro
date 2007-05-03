@@ -1,0 +1,11 @@
+--- virtinst-0.103.0/virtinst/Guest.py.urlgrabber-import	2007-04-16 08:35:35.000000000 -0400
++++ virtinst-0.103.0/virtinst/Guest.py	2007-04-17 12:30:41.514314000 -0400
+@@ -23,6 +23,8 @@
+ 
+ import logging
+ 
++import urlgrabber.progress as progress
++
+ class VirtualDisk:
+     DRIVER_FILE = "file"
+     DRIVER_PHY = "phy"
