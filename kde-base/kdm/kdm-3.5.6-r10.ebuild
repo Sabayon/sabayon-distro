@@ -29,7 +29,8 @@ RDEPEND="${DEPEND}
 	x11-apps/xmessage"
 PDEPEND="$(deprange $PV $MAXKDEVER kde-base/kdesktop)"
 
-PATCHES="${FILESDIR}/${PN}-keyboard-repeat-fix.patch"
+PATCHES="${FILESDIR}/${PN}-keyboard-repeat-fix.patch
+	${FILESDIR}/${PN}-make_it_cool.diff"
 
 src_compile() {
 	local myconf="--with-x-binaries-dir=/usr/bin $(use_with pam)"

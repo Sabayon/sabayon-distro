@@ -5,7 +5,7 @@
  "# Xsetup - run as root before the login dialog appears\n"
  "\n"
 -"#xconsole -geometry 480x130-0-0 -notify -verbose -fn fixed -exitOnFail -file /dev/xconsole &\n";
-+"xset r rate 195 35\n";
++"xset r rate 195 35\n"
 +"kbdrate -s -r 25\n";
  
  static const char def_startup[] =
