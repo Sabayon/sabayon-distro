@@ -3186,9 +3186,6 @@ Signed-off-by: Manu Abraham <abraham.manu@gmail.com>
 +
 +/* usb specific object needed to register this driver with the usb subsystem */
 +static struct usb_driver af9005_usb_driver = {
-+#if LINUX_VERSION_CODE <=  KERNEL_VERSION(2,6,15)
-+	.owner = THIS_MODULE,
-+#endif
 +	.name = "dvb_usb_af9005",
 +	.probe = af9005_usb_probe,
 +	.disconnect = dvb_usb_device_exit,
