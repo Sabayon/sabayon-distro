@@ -2092,7 +2092,7 @@ Signed-off-by: Manu Abraham <abraham.manu@gmail.com>
 +};
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/drivers/media/dvb/dvb-usb/af9005.c	Tue Apr 10 19:45:21 2007 +0400
-@@ -0,0 +1,1144 @@
+@@ -0,0 +1,1141 @@
 +/* DVB USB compliant Linux driver for the Afatech 9005
 + * USB1.1 DVB-T receiver.
 + *
@@ -3234,8 +3234,8 @@ Signed-off-by: Manu Abraham <abraham.manu@gmail.com>
 +MODULE_DESCRIPTION("Driver for Afatech 9005 DVB-T USB1.1 stick");
 +MODULE_VERSION("1.0");
 +MODULE_LICENSE("GPL");
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/drivers/media/dvb/dvb-usb/af9005.h	Tue Apr 10 19:45:21 2007 +0400
+--- /dev/null
++++ b/drivers/media/dvb/dvb-usb/af9005.h
 @@ -0,0 +1,3496 @@
 +/* Common header-file of the Linux driver for the Afatech 9005
 + * USB1.1 DVB-T receiver.
@@ -6733,4 +6733,3 @@ Signed-off-by: Manu Abraham <abraham.manu@gmail.com>
 +extern int af9005_rc_keys_size;
 +
 +#endif
-
