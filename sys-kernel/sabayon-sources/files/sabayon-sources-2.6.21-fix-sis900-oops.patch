@@ -1,0 +1,57 @@
+From: Neil Horman <nhorman@tuxdriver.com>
+Date: Thu, 26 Apr 2007 17:47:36 +0000 (-0400)
+Subject: sis900: Allocate rx replacement buffer before rx operation
+X-Git-Url: http://git.kernel.org/?p=linux%2Fkernel%2Fgit%2Ftorvalds%2Flinux-2.6.git;a=commitdiff_plain;h=dc5a144991ba803bc8afded105c9db1dea0e57ab
+
+sis900: Allocate rx replacement buffer before rx operation
+
+Just found a hole in my last patch.  It was reported to me that shortly after we
+integrated this patch.  The report was of an oops that took place inside of
+netif_rx when using the sis900 driver.  Looking at my origional patch I noted
+that there was a spot between the new skb_alloc and the refill_rx_ring label
+where skb got reassigned to the pointer currently held in the rx_ring for the
+purposes of receiveing the frame.  The result of this is however that the buffer
+that gets passed to netif_rx (if it is called), then gets placed right back into
+the rx_ring.  So if you receive frames fast enough the skb being processed by
+the network stack can get corrupted.  The reporter is testing out the fix I've
+written for this below (I'm not near my hardware at the moment to test myself),
+but I wanted to post it for review ASAP.  I'll post test results when I hear
+them, but I think this is a pretty straightforward fix.  It just uses a separate
+pointer to do the rx operation, so that we don't improperly reassign the pointer
+that we use to refill the rx ring.
+
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
+---
+
+---
+ drivers/net/sis900.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+Index: linux-2.6.21/drivers/net/sis900.c
+===================================================================
+--- linux-2.6.21.orig/drivers/net/sis900.c
++++ linux-2.6.21/drivers/net/sis900.c
+@@ -1754,6 +1754,7 @@ static int sis900_rx(struct net_device *
+ 			sis_priv->rx_ring[entry].cmdsts = RX_BUF_SIZE;
+ 		} else {
+ 			struct sk_buff * skb;
++			struct sk_buff * rx_skb;
+ 
+ 			pci_unmap_single(sis_priv->pci_dev,
+ 				sis_priv->rx_ring[entry].bufptr, RX_BUF_SIZE,
+@@ -1787,10 +1788,10 @@ static int sis900_rx(struct net_device *
+ 			}
+ 
+ 			/* give the socket buffer to upper layers */
+-			skb = sis_priv->rx_skbuff[entry];
+-			skb_put(skb, rx_size);
+-			skb->protocol = eth_type_trans(skb, net_dev);
+-			netif_rx(skb);
++			rx_skb = sis_priv->rx_skbuff[entry];
++			skb_put(rx_skb, rx_size);
++			rx_skb->protocol = eth_type_trans(rx_skb, net_dev);
++			netif_rx(rx_skb);
+ 
+ 			/* some network statistics */
+ 			if ((rx_status & BCAST) == MCAST)
