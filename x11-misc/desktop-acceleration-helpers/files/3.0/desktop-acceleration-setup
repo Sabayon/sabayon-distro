@@ -70,6 +70,7 @@ create_compiz_manager_desktop_file() {
     echo "Version=1.0" >> $compiz_manager_desktop_file
     echo "Exec=compiz-start" >> $compiz_manager_desktop_file
     echo "X-KDE-autostart-after=panel" >> $compiz_manager_desktop_file
+    echo "X-KDE-autostart-phase=2" >> $compiz_manager_desktop_file
     echo "X-KDE-StartupNotify=false" >> $compiz_manager_desktop_file
     echo "Terminal=false" >> $compiz_manager_desktop_file
     echo "Type=Application" >> $compiz_manager_desktop_file
