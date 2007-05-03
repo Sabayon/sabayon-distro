@@ -49,6 +49,13 @@ nice -15 compiz $COMPIZ_OPTIONS ini &
 # Wait and see if compiz ran fine
 sleep 5
 
+# if KDE, respawn kded
+if [ -n "$KDE_FULL_SESSION" ]; then
+	killall -9 kded &> /dev/null
+	kded
+fi
+
+
 processes=$(ps ax)
 compiz_running=0
 for process in $processes; do
