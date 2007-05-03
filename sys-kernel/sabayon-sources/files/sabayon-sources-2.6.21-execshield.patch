@@ -1,0 +1,1736 @@
+Index: linux-2.6/arch/i386/kernel/cpu/common.c
+===================================================================
+--- linux-2.6.orig/arch/i386/kernel/cpu/common.c
++++ linux-2.6/arch/i386/kernel/cpu/common.c
+@@ -437,6 +437,13 @@ void __cpuinit identify_cpu(struct cpuin
+ 	if (disable_pse)
+ 		clear_bit(X86_FEATURE_PSE, c->x86_capability);
+ 
++	if (exec_shield != 0) {
++#ifdef CONFIG_HIGHMEM64G   /* NX implies PAE */
++		if (!test_bit(X86_FEATURE_NX, c->x86_capability))
++#endif
++		clear_bit(X86_FEATURE_SEP, c->x86_capability);
++	}
++
+ 	/* If the model name is still unset, do table lookup. */
+ 	if ( !c->x86_model_id[0] ) {
+ 		char *p;
+Index: linux-2.6/arch/i386/kernel/process.c
+===================================================================
+--- linux-2.6.orig/arch/i386/kernel/process.c
++++ linux-2.6/arch/i386/kernel/process.c
+@@ -647,6 +647,8 @@ struct task_struct fastcall * __switch_t
+ 	/* never put a printk in __switch_to... printk() calls wake_up*() indirectly */
+ 
+ 	__unlazy_fpu(prev_p);
++	if (next_p->mm)
++		load_user_cs_desc(cpu, next_p->mm);
+ 
+ 	/*
+ 	 * Reload esp0.
+@@ -907,3 +909,60 @@ unsigned long arch_align_stack(unsigned 
+ 		sp -= get_random_int() % 8192;
+ 	return sp & ~0xf;
+ }
++
++void arch_add_exec_range(struct mm_struct *mm, unsigned long limit)
++{
++	if (limit > mm->context.exec_limit) {
++		mm->context.exec_limit = limit;
++		set_user_cs(&mm->context.user_cs, limit);
++		if (mm == current->mm) {
++			preempt_disable();
++			load_user_cs_desc(smp_processor_id(), mm);
++			preempt_enable();
++		}
++	}
++}
++
++void arch_remove_exec_range(struct mm_struct *mm, unsigned long old_end)
++{
++	struct vm_area_struct *vma;
++	unsigned long limit = PAGE_SIZE;
++
++	if (old_end == mm->context.exec_limit) {
++		for (vma = mm->mmap; vma; vma = vma->vm_next)
++			if ((vma->vm_flags & VM_EXEC) && (vma->vm_end > limit))
++				limit = vma->vm_end;
++
++		mm->context.exec_limit = limit;
++		set_user_cs(&mm->context.user_cs, limit);
++		if (mm == current->mm) {
++			preempt_disable();
++			load_user_cs_desc(smp_processor_id(), mm);
++			preempt_enable();
++		}
++	}
++}
++
++void arch_flush_exec_range(struct mm_struct *mm)
++{
++	mm->context.exec_limit = 0;
++	set_user_cs(&mm->context.user_cs, 0);
++}
++
++/*
++ * Generate random brk address between 128MB and 196MB. (if the layout
++ * allows it.)
++ */
++void randomize_brk(unsigned long old_brk)
++{
++	unsigned long new_brk, range_start, range_end;
++
++	range_start = 0x08000000;
++	if (current->mm->brk >= range_start)
++		range_start = current->mm->brk;
++	range_end = range_start + 0x02000000;
++	new_brk = randomize_range(range_start, range_end, 0);
++	if (new_brk)
++		current->mm->brk = new_brk;
++}
++
+--- linux-2.6.20.noarch/arch/i386/kernel/smp.c~	2007-02-17 21:43:47.000000000 -0500
++++ linux-2.6.20.noarch/arch/i386/kernel/smp.c	2007-02-17 21:43:53.000000000 -0500
+@@ -23,6 +23,7 @@
+ 
+ #include <asm/mtrr.h>
+ #include <asm/tlbflush.h>
++#include <asm/desc.h>
+ #include <mach_apic.h>
+ 
+ /*
+@@ -325,6 +326,8 @@ fastcall void smp_invalidate_interrupt(s
+ 	unsigned long cpu;
+ 
+ 	cpu = get_cpu();
++	if (current->active_mm)
++		load_user_cs_desc(cpu, current->active_mm);
+ 
+ 	if (!cpu_isset(cpu, flush_cpumask))
+ 		goto out;
+Index: linux-2.6/arch/i386/kernel/sysenter.c
+===================================================================
+--- linux-2.6.orig/arch/i386/kernel/sysenter.c
++++ linux-2.6/arch/i386/kernel/sysenter.c
+@@ -16,6 +16,7 @@
+ #include <linux/string.h>
+ #include <linux/elf.h>
+ #include <linux/mm.h>
++#include <linux/mman.h>
+ #include <linux/module.h>
+ 
+ #include <asm/cpufeature.h>
+@@ -118,7 +118,8 @@ static struct vm_operations_struct sysca
+ extern void SYSENTER_RETURN;
+ 
+ /* Setup a VMA at program startup for the vsyscall page */
+-int arch_setup_additional_pages(struct linux_binprm *bprm, int exstack)
++int arch_setup_additional_pages(struct linux_binprm *bprm, int exstack,
++				unsigned long start_code, unsigned long interp_map_address)
+ {
+ 	struct vm_area_struct *vma;
+ 	struct mm_struct *mm = current->mm;
+@@ -126,7 +127,7 @@ int arch_setup_additional_pages(struct l
+ 	int ret;
+ 
+ 	down_write(&mm->mmap_sem);
+-	addr = get_unmapped_area(NULL, 0, PAGE_SIZE, 0, 0);
++	addr = get_unmapped_area_prot(NULL, 0, PAGE_SIZE, 0, 0, 1);
+ 	if (IS_ERR_VALUE(addr)) {
+ 		ret = addr;
+ 		goto up_fail;
+Index: linux-2.6/kernel/sysctl.c
+===================================================================
+--- linux-2.6.orig/kernel/sysctl.c
++++ linux-2.6/kernel/sysctl.c
+@@ -77,6 +77,26 @@
+ extern int percpu_pagelist_fraction;
+ extern int compat_log;
+ 
++int exec_shield = (1<<0);
++/* exec_shield is a bitmask:
++          0: off; vdso at STACK_TOP, 1 page below TASK_SIZE
++   (1<<0) 1: on [also on if !=0]
++   (1<<1) 2: force noexecstack regardless of PT_GNU_STACK
++   The old settings
++   (1<<2) 4: vdso just below .text of main (unless too low)
++   (1<<3) 8: vdso just below .text of PT_INTERP (unless too low)
++   are ignored because the vdso is placed completely randomly
++*/
++
++static int __init setup_exec_shield(char *str)
++{
++        get_option (&str, &exec_shield);
++
++        return 1;
++}
++
++__setup("exec-shield=", setup_exec_shield);
++
+ /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
+ static int maxolduid = 65535;
+ static int minolduid;
+@@ -331,6 +351,22 @@
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+ 	{
++		.ctl_name	= KERN_EXEC_SHIELD,
++		.procname	= "exec-shield",
++		.data		= &exec_shield,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
++		.ctl_name	= KERN_PRINT_FATAL,
++		.procname	= "print-fatal-signals",
++		.data		= &print_fatal_signals,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
+ 		.ctl_name	= KERN_CORE_USES_PID,
+ 		.procname	= "core_uses_pid",
+ 		.data		= &core_uses_pid,
+Index: linux-2.6/mm/mmap.c
+===================================================================
+--- linux-2.6.orig/mm/mmap.c
++++ linux-2.6/mm/mmap.c
+@@ -25,6 +25,7 @@
+ #include <linux/mount.h>
+ #include <linux/mempolicy.h>
+ #include <linux/rmap.h>
++#include <linux/random.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/cacheflush.h>
+@@ -370,6 +371,8 @@ static inline void
+ __vma_link_list(struct mm_struct *mm, struct vm_area_struct *vma,
+ 		struct vm_area_struct *prev, struct rb_node *rb_parent)
+ {
++	if (vma->vm_flags & VM_EXEC)
++		arch_add_exec_range(mm, vma->vm_end);
+ 	if (prev) {
+ 		vma->vm_next = prev->vm_next;
+ 		prev->vm_next = vma;
+@@ -473,6 +476,8 @@ __vma_unlink(struct mm_struct *mm, struc
+ 	rb_erase(&vma->vm_rb, &mm->mm_rb);
+ 	if (mm->mmap_cache == vma)
+ 		mm->mmap_cache = prev;
++	if (vma->vm_flags & VM_EXEC)
++		arch_remove_exec_range(mm, vma->vm_end);
+ }
+ 
+ /*
+@@ -778,6 +783,8 @@ struct vm_area_struct *vma_merge(struct 
+ 		} else					/* cases 2, 5, 7 */
+ 			vma_adjust(prev, prev->vm_start,
+ 				end, prev->vm_pgoff, NULL);
++		if (prev->vm_flags & VM_EXEC)
++			arch_add_exec_range(mm, prev->vm_end);
+ 		return prev;
+ 	}
+ 
+@@ -933,7 +940,7 @@ unsigned long do_mmap_pgoff(struct file 
+ 	/* Obtain the address to map to. we verify (or select) it and ensure
+ 	 * that it represents a valid section of the address space.
+ 	 */
+-	addr = get_unmapped_area(file, addr, len, pgoff, flags);
++	addr = get_unmapped_area_prot(file, addr, len, pgoff, flags, prot & PROT_EXEC);
+ 	if (addr & ~PAGE_MASK)
+ 		return addr;
+ 
+@@ -1353,16 +1360,21 @@ void arch_unmap_area_topdown(struct mm_s
+ 		mm->free_area_cache = mm->mmap_base;
+ }
+ 
++
+ unsigned long
+-get_unmapped_area(struct file *file, unsigned long addr, unsigned long len,
+-		unsigned long pgoff, unsigned long flags)
++get_unmapped_area_prot(struct file *file, unsigned long addr, unsigned long len,
++		unsigned long pgoff, unsigned long flags, int exec)
+ {
+ 	unsigned long ret;
+ 
+ 	if (!(flags & MAP_FIXED)) {
+ 		unsigned long (*get_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
+ 
+-		get_area = current->mm->get_unmapped_area;
++		if (exec && current->mm->get_unmapped_exec_area)
++			get_area = current->mm->get_unmapped_exec_area;
++		else
++			get_area = current->mm->get_unmapped_area;
++
+ 		if (file && file->f_op && file->f_op->get_unmapped_area)
+ 			get_area = file->f_op->get_unmapped_area;
+ 		addr = get_area(file, addr, len, pgoff, flags);
+@@ -1393,7 +1405,71 @@ get_unmapped_area(struct file *file, uns
+ 	return addr;
+ }
+ 
+-EXPORT_SYMBOL(get_unmapped_area);
++EXPORT_SYMBOL(get_unmapped_area_prot);
++
++#define SHLIB_BASE             0x00110000
++
++unsigned long arch_get_unmapped_exec_area(struct file *filp, unsigned long addr0,
++		unsigned long len0, unsigned long pgoff, unsigned long flags)
++{
++	unsigned long addr = addr0, len = len0;
++	struct mm_struct *mm = current->mm;
++	struct vm_area_struct *vma;
++	unsigned long tmp;
++
++	if (len > TASK_SIZE)
++		return -ENOMEM;
++
++	if (!addr && !(flags & MAP_FIXED))
++		addr = randomize_range(SHLIB_BASE, 0x01000000, len);
++
++	if (addr) {
++		addr = PAGE_ALIGN(addr);
++		vma = find_vma(mm, addr);
++		if (TASK_SIZE - len >= addr &&
++		    (!vma || addr + len <= vma->vm_start)) {
++			return addr;
++		}
++	}
++
++	addr = SHLIB_BASE;
++	for (vma = find_vma(mm, addr); ; vma = vma->vm_next) {
++		/* At this point:  (!vma || addr < vma->vm_end). */
++		if (TASK_SIZE - len < addr)
++			return -ENOMEM;
++
++		if (!vma || addr + len <= vma->vm_start) {
++			/*
++			 * Must not let a PROT_EXEC mapping get into the
++			 * brk area:
++			 */
++			if (addr + len > mm->brk)
++				goto failed;
++
++			/*
++			 * Up until the brk area we randomize addresses
++			 * as much as possible:
++			 */
++			if (addr >= 0x01000000) {
++				tmp = randomize_range(0x01000000, PAGE_ALIGN(max(mm->start_brk, (unsigned long)0x08000000)), len);
++				vma = find_vma(mm, tmp);
++				if (TASK_SIZE - len >= tmp &&
++				    (!vma || tmp + len <= vma->vm_start))
++					return tmp;
++			}
++			/*
++			 * Ok, randomization didnt work out - return
++			 * the result of the linear search:
++			 */
++			return addr;
++		}
++		addr = vma->vm_end;
++	}
++
++failed:
++	return current->mm->get_unmapped_area(filp, addr0, len0, pgoff, flags);
++}
++
+ 
+ /* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
+ struct vm_area_struct * find_vma(struct mm_struct * mm, unsigned long addr)
+@@ -1468,6 +1544,14 @@ out:
+ 	return prev ? prev->vm_next : vma;
+ }
+ 
++static int over_stack_limit(unsigned long sz)
++{
++	if (sz < EXEC_STACK_BIAS)
++		return 0;
++	return (sz - EXEC_STACK_BIAS) >
++			current->signal->rlim[RLIMIT_STACK].rlim_cur;
++}
++
+ /*
+  * Verify that the stack growth is acceptable and
+  * update accounting. This is shared with both the
+@@ -1483,7 +1567,7 @@ static int acct_stack_growth(struct vm_a
+ 		return -ENOMEM;
+ 
+ 	/* Stack limit test */
+-	if (size > rlim[RLIMIT_STACK].rlim_cur)
++	if (over_stack_limit(size))
+ 		return -ENOMEM;
+ 
+ 	/* mlock limit tests */
+@@ -1763,10 +1847,14 @@ int split_vma(struct mm_struct * mm, str
+ 	if (new->vm_ops && new->vm_ops->open)
+ 		new->vm_ops->open(new);
+ 
+-	if (new_below)
++	if (new_below) {
++		unsigned long old_end = vma->vm_end;
++
+ 		vma_adjust(vma, addr, vma->vm_end, vma->vm_pgoff +
+ 			((addr - new->vm_start) >> PAGE_SHIFT), new);
+-	else
++		if (vma->vm_flags & VM_EXEC)
++			arch_remove_exec_range(mm, old_end);
++	} else
+ 		vma_adjust(vma, vma->vm_start, addr, vma->vm_pgoff, new);
+ 
+ 	return 0;
+@@ -1979,6 +2067,7 @@ void exit_mmap(struct mm_struct *mm)
+ 	vm_unacct_memory(nr_accounted);
+ 	free_pgtables(&tlb, vma, FIRST_USER_ADDRESS, 0);
+ 	tlb_finish_mmu(tlb, 0, end);
++	arch_flush_exec_range(mm);
+ 
+ 	/*
+ 	 * Walk the list again, actually closing and freeing it,
+Index: linux-2.6/arch/i386/kernel/traps.c
+===================================================================
+--- linux-2.6.orig/arch/i386/kernel/traps.c
++++ linux-2.6/arch/i386/kernel/traps.c
+@@ -638,7 +638,82 @@ DO_ERROR(10, SIGSEGV, "invalid TSS", inv
+ DO_ERROR(11, SIGBUS,  "segment not present", segment_not_present)
+ DO_ERROR(12, SIGBUS,  "stack segment", stack_segment)
+ DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, BUS_ADRALN, 0)
+-DO_ERROR_INFO(32, SIGSEGV, "iret exception", iret_error, ILL_BADSTK, 0)
++
++
++/*
++ * lazy-check for CS validity on exec-shield binaries:
++ *
++ * the original non-exec stack patch was written by
++ * Solar Designer <solar at openwall.com>. Thanks!
++ */
++static int
++check_lazy_exec_limit(int cpu, struct pt_regs *regs, long error_code)
++{
++	struct desc_struct *desc1, *desc2;
++	struct vm_area_struct *vma;
++	unsigned long limit;
++
++	if (current->mm == NULL)
++		return 0;
++
++	limit = -1UL;
++	if (current->mm->context.exec_limit != -1UL) {
++		limit = PAGE_SIZE;
++		spin_lock(&current->mm->page_table_lock);
++		for (vma = current->mm->mmap; vma; vma = vma->vm_next)
++			if ((vma->vm_flags & VM_EXEC) && (vma->vm_end > limit))
++				limit = vma->vm_end;
++		spin_unlock(&current->mm->page_table_lock);
++		if (limit >= TASK_SIZE)
++			limit = -1UL;
++		current->mm->context.exec_limit = limit;
++	}
++	set_user_cs(&current->mm->context.user_cs, limit);
++
++	desc1 = &current->mm->context.user_cs;
++	desc2 = get_cpu_gdt_table(cpu) + GDT_ENTRY_DEFAULT_USER_CS;
++
++	if (desc1->a != desc2->a || desc1->b != desc2->b) {
++		/*
++		 * The CS was not in sync - reload it and retry the
++		 * instruction. If the instruction still faults then
++		 * we won't hit this branch next time around.
++		 */
++		if (print_fatal_signals >= 2) {
++			printk("#GPF fixup (%ld[seg:%lx]) at %08lx, CPU#%d.\n", error_code, error_code/8, regs->eip, smp_processor_id());
++			printk(" exec_limit: %08lx, user_cs: %08lx/%08lx, CPU_cs: %08lx/%08lx.\n", current->mm->context.exec_limit, desc1->a, desc1->b, desc2->a, desc2->b);
++		}
++		load_user_cs_desc(cpu, current->mm);
++		return 1;
++	}
++
++	return 0;
++}
++
++/*
++ * The fixup code for errors in iret jumps to here (iret_exc).  It loses
++ * the original trap number and error code.  The bogus trap 32 and error
++ * code 0 are what the vanilla kernel delivers via:
++ * DO_ERROR_INFO(32, SIGSEGV, "iret exception", iret_error, ILL_BADSTK, 0)
++ *
++ * In case of a general protection fault in the iret instruction, we
++ * need to check for a lazy CS update for exec-shield.
++ */
++fastcall void do_iret_error(struct pt_regs *regs, long error_code)
++{
++	int ok = check_lazy_exec_limit(get_cpu(), regs, error_code);
++	put_cpu();
++	if (!ok && notify_die(DIE_TRAP, "iret exception", regs,
++			      error_code, 32, SIGSEGV) != NOTIFY_STOP) {
++		siginfo_t info;
++		info.si_signo = SIGSEGV;
++		info.si_errno = 0;
++		info.si_code = ILL_BADSTK;
++		info.si_addr = 0;
++		do_trap(32, SIGSEGV, "iret exception", 0, regs, error_code,
++			&info);
++	}
++}
+ 
+ fastcall void __kprobes do_general_protection(struct pt_regs * regs,
+ 					      long error_code)
+@@ -646,6 +721,7 @@ fastcall void __kprobes do_general_prote
+ 	int cpu = get_cpu();
+ 	struct tss_struct *tss = &per_cpu(init_tss, cpu);
+ 	struct thread_struct *thread = &current->thread;
++	int ok;
+ 
+ 	/*
+ 	 * Perform the lazy TSS's I/O bitmap copy. If the TSS has an
+@@ -672,7 +748,6 @@ fastcall void __kprobes do_general_prote
+ 		put_cpu();
+ 		return;
+ 	}
+-	put_cpu();
+ 
+ 	current->thread.error_code = error_code;
+ 	current->thread.trap_no = 13;
+@@ -683,17 +758,31 @@ fastcall void __kprobes do_general_prote
+ 	if (!user_mode(regs))
+ 		goto gp_in_kernel;
+ 
++	ok = check_lazy_exec_limit(cpu, regs, error_code);
++
++	put_cpu();
++
++	if (ok)
++		return;
++
++	if (print_fatal_signals) {
++		printk("#GPF(%ld[seg:%lx]) at %08lx, CPU#%d.\n", error_code, error_code/8, regs->eip, smp_processor_id());
++		printk(" exec_limit: %08lx, user_cs: %08lx/%08lx.\n", current->mm->context.exec_limit, current->mm->context.user_cs.a, current->mm->context.user_cs.b);
++	}
++
+ 	current->thread.error_code = error_code;
+ 	current->thread.trap_no = 13;
+ 	force_sig(SIGSEGV, current);
+ 	return;
+ 
+ gp_in_vm86:
++	put_cpu();
+ 	local_irq_enable();
+ 	handle_vm86_fault((struct kernel_vm86_regs *) regs, error_code);
+ 	return;
+ 
+ gp_in_kernel:
++	put_cpu();
+ 	if (!fixup_exception(regs)) {
+ 		if (notify_die(DIE_GPF, "general protection fault", regs,
+ 				error_code, 13, SIGSEGV) == NOTIFY_STOP)
+Index: linux-2.6/arch/i386/mm/init.c
+===================================================================
+--- linux-2.6.orig/arch/i386/mm/init.c
++++ linux-2.6/arch/i386/mm/init.c
+@@ -433,7 +433,7 @@ u64 __supported_pte_mask __read_mostly =
+  * Control non executable mappings.
+  *
+  * on      Enable
+- * off     Disable
++ * off     Disable (disables exec-shield too)
+  */
+ static int __init noexec_setup(char *str)
+ {
+@@ -445,6 +445,7 @@ static int __init noexec_setup(char *str
+ 	} else if (!strcmp(str,"off")) {
+ 		disable_nx = 1;
+ 		__supported_pte_mask &= ~_PAGE_NX;
++		exec_shield = 0;
+ 	} else
+ 		return -EINVAL;
+ 
+@@ -514,7 +515,10 @@ void __init paging_init(void)
+ 	set_nx();
+ 	if (nx_enabled)
+ 		printk("NX (Execute Disable) protection: active\n");
++	else
+ #endif
++	if (exec_shield)
++		printk("Using x86 segment limits to approximate NX protection\n");
+ 
+ 	pagetable_init();
+ 
+Index: linux-2.6/arch/i386/mm/mmap.c
+===================================================================
+--- linux-2.6.orig/arch/i386/mm/mmap.c
++++ linux-2.6/arch/i386/mm/mmap.c
+@@ -62,15 +62,17 @@ void arch_pick_mmap_layout(struct mm_str
+ 	 * Fall back to the standard layout if the personality
+ 	 * bit is set, or if the expected stack growth is unlimited:
+ 	 */
+-	if (sysctl_legacy_va_layout ||
++	if (!(2 & exec_shield) && (sysctl_legacy_va_layout ||
+ 			(current->personality & ADDR_COMPAT_LAYOUT) ||
+-			current->signal->rlim[RLIMIT_STACK].rlim_cur == RLIM_INFINITY) {
++			current->signal->rlim[RLIMIT_STACK].rlim_cur == RLIM_INFINITY)) {
+ 		mm->mmap_base = TASK_UNMAPPED_BASE;
+ 		mm->get_unmapped_area = arch_get_unmapped_area;
+ 		mm->unmap_area = arch_unmap_area;
+ 	} else {
+ 		mm->mmap_base = mmap_base(mm);
+ 		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
++		if (!(current->personality & READ_IMPLIES_EXEC))
++			mm->get_unmapped_exec_area = arch_get_unmapped_exec_area;
+ 		mm->unmap_area = arch_unmap_area_topdown;
+ 	}
+ }
+Index: linux-2.6/arch/i386/mm/pageattr.c
+===================================================================
+--- linux-2.6.orig/arch/i386/mm/pageattr.c
++++ linux-2.6/arch/i386/mm/pageattr.c
+@@ -8,6 +8,8 @@
+ #include <linux/highmem.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
++#include <linux/kernel.h>
++#include <asm/sections.h>
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
+ #include <asm/tlbflush.h>
+@@ -130,6 +132,12 @@ __change_page_attr(struct page *page, pg
+ 	BUG_ON(PageHighMem(page));
+ 	address = (unsigned long)page_address(page);
+ 
++	if (address >= (unsigned long)__start_rodata && address <= (unsigned long)__end_rodata &&
++		(pgprot_val(prot) & _PAGE_RW)) {
++		pgprot_val(prot) &= ~(_PAGE_RW);
++		add_taint(TAINT_MACHINE_CHECK);
++	}
++
+ 	kpte = lookup_address(address);
+ 	if (!kpte)
+ 		return -EINVAL;
+Index: linux-2.6/arch/ia64/ia32/binfmt_elf32.c
+===================================================================
+--- linux-2.6.orig/arch/ia64/ia32/binfmt_elf32.c
++++ linux-2.6/arch/ia64/ia32/binfmt_elf32.c
+@@ -266,7 +266,7 @@ elf32_set_personality (void)
+ }
+ 
+ static unsigned long
+-elf32_map (struct file *filep, unsigned long addr, struct elf_phdr *eppnt, int prot, int type)
++elf32_map (struct file *filep, unsigned long addr, struct elf_phdr *eppnt, int prot, int type, unsigned long unused)
+ {
+ 	unsigned long pgoff = (eppnt->p_vaddr) & ~IA32_PAGE_MASK;
+ 
+Index: linux-2.6/arch/powerpc/kernel/vdso.c
+===================================================================
+--- linux-2.6.orig/arch/powerpc/kernel/vdso.c
++++ linux-2.6/arch/powerpc/kernel/vdso.c
+@@ -218,7 +218,8 @@ static struct vm_operations_struct vdso_
+  * vDSO and insert it into the mm struct tree
+  */
+ int arch_setup_additional_pages(struct linux_binprm *bprm,
+-				int executable_stack)
++				int executable_stack, unsigned long start_code,
++				unsigned long interp_map_address)
+ {
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+Index: linux-2.6/arch/x86_64/ia32/ia32_binfmt.c
+===================================================================
+--- linux-2.6.orig/arch/x86_64/ia32/ia32_binfmt.c
++++ linux-2.6/arch/x86_64/ia32/ia32_binfmt.c
+@@ -251,8 +251,6 @@ elf_core_copy_task_xfpregs(struct task_s
+ #define elf_check_arch(x) \
+ 	((x)->e_machine == EM_386)
+ 
+-extern int force_personality32;
+-
+ #define ELF_EXEC_PAGESIZE PAGE_SIZE
+ #define ELF_HWCAP (boot_cpu_data.x86_capability[0])
+ #define ELF_PLATFORM  ("i686")
+@@ -266,8 +264,6 @@ do {							\
+ 		set_thread_flag(TIF_ABI_PENDING);		\
+ 	else							\
+ 		clear_thread_flag(TIF_ABI_PENDING);		\
+-	/* XXX This overwrites the user set personality */	\
+-	current->personality |= force_personality32;		\
+ } while (0)
+ 
+ /* Override some function names */
+@@ -311,7 +307,7 @@ static void elf32_init(struct pt_regs *)
+ 
+ #define ARCH_HAS_SETUP_ADDITIONAL_PAGES 1
+ #define arch_setup_additional_pages syscall32_setup_pages
+-extern int syscall32_setup_pages(struct linux_binprm *, int exstack);
++extern int syscall32_setup_pages(struct linux_binprm *, int exstack, unsigned long start_code, unsigned long interp_map_address);
+ 
+ #include "../../../fs/binfmt_elf.c" 
+ 
+Index: linux-2.6/arch/x86_64/ia32/syscall32.c
+===================================================================
+--- linux-2.6.orig/arch/x86_64/ia32/syscall32.c
++++ linux-2.6/arch/x86_64/ia32/syscall32.c
+@@ -42,7 +42,9 @@ static struct vm_operations_struct sysca
+ struct linux_binprm;
+ 
+ /* Setup a VMA at program startup for the vsyscall page */
+-int syscall32_setup_pages(struct linux_binprm *bprm, int exstack)
++int syscall32_setup_pages(struct linux_binprm *bprm, int exstack,
++			  unsigned long start_code,
++			  unsigned long interp_map_address)
+ {
+ 	int npages = (VSYSCALL32_END - VSYSCALL32_BASE) >> PAGE_SHIFT;
+ 	struct vm_area_struct *vma;
+Index: linux-2.6/arch/x86_64/kernel/process.c
+===================================================================
+--- linux-2.6.orig/arch/x86_64/kernel/process.c
++++ linux-2.6/arch/x86_64/kernel/process.c
+@@ -686,12 +686,6 @@ void set_personality_64bit(void)
+ 
+ 	/* Make sure to be in 64bit mode */
+ 	clear_thread_flag(TIF_IA32); 
+-
+-	/* TBD: overwrites user setup. Should have two bits.
+-	   But 64bit processes have always behaved this way,
+-	   so it's not too bad. The main problem is just that
+-   	   32bit childs are affected again. */
+-	current->personality &= ~READ_IMPLIES_EXEC;
+ }
+ 
+ asmlinkage long sys_fork(struct pt_regs *regs)
+Index: linux-2.6/arch/x86_64/kernel/setup64.c
+===================================================================
+--- linux-2.6.orig/arch/x86_64/kernel/setup64.c
++++ linux-2.6/arch/x86_64/kernel/setup64.c
+@@ -40,46 +40,6 @@ unsigned long __supported_pte_mask __rea
+ EXPORT_SYMBOL(__supported_pte_mask);
+ static int do_not_nx __cpuinitdata = 0;
+ 
+-/* noexec=on|off
+-Control non executable mappings for 64bit processes.
+-
+-on	Enable(default)
+-off	Disable
+-*/ 
+-static int __init nonx_setup(char *str)
+-{
+-	if (!str)
+-		return -EINVAL;
+-	if (!strncmp(str, "on", 2)) {
+-                __supported_pte_mask |= _PAGE_NX; 
+- 		do_not_nx = 0; 
+-	} else if (!strncmp(str, "off", 3)) {
+-		do_not_nx = 1;
+-		__supported_pte_mask &= ~_PAGE_NX;
+-        }
+-	return 0;
+-} 
+-early_param("noexec", nonx_setup);
+-
+-int force_personality32 = 0; 
+-
+-/* noexec32=on|off
+-Control non executable heap for 32bit processes.
+-To control the stack too use noexec=off
+-
+-on	PROT_READ does not imply PROT_EXEC for 32bit processes
+-off	PROT_READ implies PROT_EXEC (default)
+-*/
+-static int __init nonx32_setup(char *str)
+-{
+-	if (!strcmp(str, "on"))
+-		force_personality32 &= ~READ_IMPLIES_EXEC;
+-	else if (!strcmp(str, "off"))
+-		force_personality32 |= READ_IMPLIES_EXEC;
+-	return 1;
+-}
+-__setup("noexec32=", nonx32_setup);
+-
+ /*
+  * Great future plan:
+  * Declare PDA itself and support (irqstack,tss,pgd) as per cpu data.
+Index: linux-2.6/arch/x86_64/mm/fault.c
+===================================================================
+--- linux-2.6.orig/arch/x86_64/mm/fault.c
++++ linux-2.6/arch/x86_64/mm/fault.c
+@@ -108,7 +108,7 @@ static noinline int is_prefetch(struct p
+ 	instr = (unsigned char __user *)convert_rip_to_linear(current, regs);
+ 	max_instr = instr + 15;
+ 
+-	if (user_mode(regs) && instr >= (unsigned char *)TASK_SIZE)
++	if (user_mode(regs) && instr >= (unsigned char *)TASK_SIZE64)
+ 		return 0;
+ 
+ 	while (scan_more && instr < max_instr) { 
+Index: linux-2.6/arch/x86_64/mm/mmap.c
+===================================================================
+--- linux-2.6.orig/arch/x86_64/mm/mmap.c
++++ linux-2.6/arch/x86_64/mm/mmap.c
+@@ -1,29 +1,87 @@
+-/* Copyright 2005 Andi Kleen, SuSE Labs.
+- * Licensed under GPL, v.2
++/*
++ *  linux/arch/x86-64/mm/mmap.c
++ *
++ *  flexible mmap layout support
++ *
++ * Copyright 2003-2004 Red Hat Inc., Durham, North Carolina.
++ * All Rights Reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ *
++ * Started by Ingo Molnar <mingo@elte.hu>
+  */
++
++#include <linux/personality.h>
+ #include <linux/mm.h>
+-#include <linux/sched.h>
+ #include <linux/random.h>
+-#include <asm/ia32.h>
+ 
+-/* Notebook: move the mmap code from sys_x86_64.c over here. */
++/*
++ * Top of mmap area (just below the process stack).
++ *
++ * Leave an at least ~128 MB hole.
++ */
++#define MIN_GAP (128*1024*1024)
++#define MAX_GAP (TASK_SIZE/6*5)
++
++static inline unsigned long mmap_base(void)
++{
++	unsigned long gap = current->signal->rlim[RLIMIT_STACK].rlim_cur;
++
++	if (gap < MIN_GAP)
++		gap = MIN_GAP;
++	else if (gap > MAX_GAP)
++		gap = MAX_GAP;
++
++	return TASK_SIZE - (gap & PAGE_MASK);
++}
+ 
++static inline int mmap_is_legacy(void)
++{
++	/*
++	 * Force standard allocation for 64 bit programs.
++	 */
++	if (!test_thread_flag(TIF_IA32))
++		return 1;
++
++	if (current->personality & ADDR_COMPAT_LAYOUT)
++		return 1;
++
++	if (current->signal->rlim[RLIMIT_STACK].rlim_cur == RLIM_INFINITY)
++		return 1;
++
++	return sysctl_legacy_va_layout;
++}
++
++/*
++ * This function, called very early during the creation of a new
++ * process VM image, sets up which VM layout function to use:
++ */
+ void arch_pick_mmap_layout(struct mm_struct *mm)
+ {
+-#ifdef CONFIG_IA32_EMULATION
+-	if (current_thread_info()->flags & _TIF_IA32)
+-		return ia32_pick_mmap_layout(mm);
+-#endif
+-	mm->mmap_base = TASK_UNMAPPED_BASE;
+-	if (current->flags & PF_RANDOMIZE) {
+-		/* Add 28bit randomness which is about 40bits of address space
+-		   because mmap base has to be page aligned.
+- 		   or ~1/128 of the total user VM
+-	   	   (total user address space is 47bits) */
+-		unsigned rnd = get_random_int() & 0xfffffff;
+-		mm->mmap_base += ((unsigned long)rnd) << PAGE_SHIFT;
++	/*
++	 * Fall back to the standard layout if the personality
++	 * bit is set, or if the expected stack growth is unlimited:
++	 */
++	if (mmap_is_legacy()) {
++		mm->mmap_base = TASK_UNMAPPED_BASE;
++		mm->get_unmapped_area = arch_get_unmapped_area;
++		mm->unmap_area = arch_unmap_area;
++	} else {
++		mm->mmap_base = mmap_base();
++		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
++		mm->unmap_area = arch_unmap_area_topdown;
+ 	}
+-	mm->get_unmapped_area = arch_get_unmapped_area;
+-	mm->unmap_area = arch_unmap_area;
+ }
+-
+--- linux-2.6.19.noarch/drivers/char/random.c~	2006-12-04 11:12:32.000000000 -0500
++++ linux-2.6.19.noarch/drivers/char/random.c	2006-12-04 11:18:10.000000000 -0500
+@@ -1635,13 +1635,19 @@ EXPORT_SYMBOL(secure_dccp_sequence_numbe
+  */
+ unsigned int get_random_int(void)
+ {
++	unsigned int val = 0;
++
++#ifdef CONFIG_X86_HAS_TSC
++	rdtscl(val);
++#endif
++
+ 	/*
+ 	 * Use IP's RNG. It suits our purpose perfectly: it re-keys itself
+ 	 * every second, from the entropy pool (and thus creates a limited
+ 	 * drain on it), and uses halfMD4Transform within the second. We
+ 	 * also mix it with jiffies and the PID:
+ 	 */
+-	return secure_ip_id((__force __be32)(current->pid + jiffies));
++	return secure_ip_id((__force __be32)(current->pid + jiffies  + (int)val));
+ }
+ 
+ /*
+Index: linux-2.6/fs/binfmt_elf.c
+===================================================================
+--- linux-2.6.orig/fs/binfmt_elf.c
++++ linux-2.6/fs/binfmt_elf.c
+@@ -45,7 +45,7 @@
+ 
+ static int load_elf_binary(struct linux_binprm *bprm, struct pt_regs *regs);
+ static int load_elf_library(struct file *);
+-static unsigned long elf_map (struct file *, unsigned long, struct elf_phdr *, int, int);
++static unsigned long elf_map (struct file *, unsigned long, struct elf_phdr *, int, int, unsigned long);
+ 
+ #ifndef elf_addr_t
+ #define elf_addr_t unsigned long
+@@ -83,7 +83,7 @@ static struct linux_binfmt elf_format = 
+ 		.min_coredump	= ELF_EXEC_PAGESIZE
+ };
+ 
+-#define BAD_ADDR(x) ((unsigned long)(x) >= TASK_SIZE)
++#define BAD_ADDR(x) ((unsigned long)(x) >= PAGE_MASK)
+ 
+ static int set_brk(unsigned long start, unsigned long end)
+ {
+@@ -285,33 +285,71 @@ create_elf_tables(struct linux_binprm *b
+ #ifndef elf_map
+ 
+ static unsigned long elf_map(struct file *filep, unsigned long addr,
+-		struct elf_phdr *eppnt, int prot, int type)
++		struct elf_phdr *eppnt, int prot, int type,
++		unsigned long total_size)
+ {
+ 	unsigned long map_addr;
+-	unsigned long pageoffset = ELF_PAGEOFFSET(eppnt->p_vaddr);
++	unsigned long size = eppnt->p_filesz + ELF_PAGEOFFSET(eppnt->p_vaddr);
++	unsigned long off = eppnt->p_offset - ELF_PAGEOFFSET(eppnt->p_vaddr);
++
++	addr = ELF_PAGESTART(addr);
++	size = ELF_PAGEALIGN(size);
+ 
+-	down_write(&current->mm->mmap_sem);
+ 	/* mmap() will return -EINVAL if given a zero size, but a
+ 	 * segment with zero filesize is perfectly valid */
+-	if (eppnt->p_filesz + pageoffset)
+-		map_addr = do_mmap(filep, ELF_PAGESTART(addr),
+-				   eppnt->p_filesz + pageoffset, prot, type,
+-				   eppnt->p_offset - pageoffset);
+-	else
+-		map_addr = ELF_PAGESTART(addr);
++	if (!size)
++		return addr;
++
++	down_write(&current->mm->mmap_sem);
++	/*
++	* total_size is the size of the ELF (interpreter) image.
++	* The _first_ mmap needs to know the full size, otherwise
++	* randomization might put this image into an overlapping
++	* position with the ELF binary image. (since size < total_size)
++	* So we first map the 'big' image - and unmap the remainder at
++	* the end. (which unmap is needed for ELF images with holes.)
++	*/
++	if (total_size) {
++		total_size = ELF_PAGEALIGN(total_size);
++		map_addr = do_mmap(filep, addr, total_size, prot, type, off);
++		if (!BAD_ADDR(map_addr))
++			do_munmap(current->mm, map_addr+size, total_size-size);
++	} else
++		map_addr = do_mmap(filep, addr, size, prot, type, off);
++
+ 	up_write(&current->mm->mmap_sem);
+ 	return(map_addr);
+ }
+ 
+ #endif /* !elf_map */
+ 
++static inline unsigned long total_mapping_size(struct elf_phdr *cmds, int nr)
++{
++	int i, first_idx = -1, last_idx = -1;
++
++	for (i = 0; i < nr; i++)
++		if (cmds[i].p_type == PT_LOAD) {
++			last_idx = i;
++			if (first_idx == -1)
++				first_idx = i;
++		}
++
++	if (first_idx == -1)
++		return 0;
++
++	return cmds[last_idx].p_vaddr + cmds[last_idx].p_memsz -
++				ELF_PAGESTART(cmds[first_idx].p_vaddr);
++}
++
++
+ /* This is much more generalized than the library routine read function,
+    so we keep this separate.  Technically the library read function
+    is only provided so that we can read a.out libraries that have
+    an ELF header */
+ 
+ static unsigned long load_elf_interp(struct elfhdr *interp_elf_ex,
+-		struct file *interpreter, unsigned long *interp_load_addr)
++		struct file *interpreter, unsigned long *interp_map_addr,
++		unsigned long no_base)
+ {
+ 	struct elf_phdr *elf_phdata;
+ 	struct elf_phdr *eppnt;
+@@ -319,6 +357,7 @@ static unsigned long load_elf_interp(str
+ 	int load_addr_set = 0;
+ 	unsigned long last_bss = 0, elf_bss = 0;
+ 	unsigned long error = ~0UL;
++	unsigned long total_size;
+ 	int retval, i, size;
+ 
+ 	/* First of all, some simple consistency checks */
+@@ -357,6 +396,10 @@ static unsigned long load_elf_interp(str
+ 		goto out_close;
+ 	}
+ 
++	total_size = total_mapping_size(elf_phdata, interp_elf_ex->e_phnum);
++	if (!total_size)
++		goto out_close;
++
+ 	eppnt = elf_phdata;
+ 	for (i = 0; i < interp_elf_ex->e_phnum; i++, eppnt++) {
+ 		if (eppnt->p_type == PT_LOAD) {
+@@ -374,9 +417,14 @@ static unsigned long load_elf_interp(str
+ 			vaddr = eppnt->p_vaddr;
+ 			if (interp_elf_ex->e_type == ET_EXEC || load_addr_set)
+ 				elf_type |= MAP_FIXED;
++			else if (no_base && interp_elf_ex->e_type == ET_DYN)
++				load_addr = -vaddr;
+ 
+ 			map_addr = elf_map(interpreter, load_addr + vaddr,
+-					   eppnt, elf_prot, elf_type);
++					   eppnt, elf_prot, elf_type, total_size);
++			total_size = 0;
++			if (!*interp_map_addr)
++				*interp_map_addr = map_addr;
+ 			error = map_addr;
+ 			if (BAD_ADDR(map_addr))
+ 				goto out_close;
+@@ -442,8 +490,7 @@ static unsigned long load_elf_interp(str
+ 			goto out_close;
+ 	}
+ 
+-	*interp_load_addr = load_addr;
+-	error = ((unsigned long)interp_elf_ex->e_entry) + load_addr;
++	error = load_addr;
+ 
+ out_close:
+ 	kfree(elf_phdata);
+@@ -586,12 +586,12 @@ static int load_elf_binary(struct linux_
+ 	int elf_exec_fileno;
+ 	int retval, i;
+ 	unsigned int size;
+-	unsigned long elf_entry, interp_load_addr = 0;
++	unsigned long elf_entry, interp_load_addr = 0, interp_map_addr = 0;
+ 	unsigned long start_code, end_code, start_data, end_data;
+ 	unsigned long reloc_func_desc = 0;
+ 	char passed_fileno[6];
+ 	struct files_struct *files;
+-	int executable_stack = EXSTACK_DEFAULT;
++	int executable_stack;
+ 	unsigned long def_flags = 0;
+ 	struct {
+ 		struct elfhdr elf_ex;
+@@ -700,6 +747,8 @@ static int load_elf_binary(struct linux_
+ 	}
+ 
+ 	elf_ppnt = elf_phdata;
++	executable_stack = EXSTACK_DEFAULT;
++
+ 	for (i = 0; i < loc->elf_ex.e_phnum; i++, elf_ppnt++)
+ 		if (elf_ppnt->p_type == PT_GNU_STACK) {
+ 			if (elf_ppnt->p_flags & PF_X)
+@@ -710,6 +759,11 @@ static int load_elf_binary(struct linux_
+ 		}
+ 	have_pt_gnu_stack = (i < loc->elf_ex.e_phnum);
+ 
++	if (current->personality == PER_LINUX && (exec_shield & 2)) {
++		executable_stack = EXSTACK_DISABLE_X;
++		current->flags |= PF_RANDOMIZE;
++	}
++
+ 	/* Some simple consistency checks for the interpreter */
+ 	if (elf_interpreter) {
+ 		interpreter_type = INTERPRETER_ELF | INTERPRETER_AOUT;
+@@ -762,6 +816,15 @@ static int load_elf_binary(struct linux_
+ 	if (retval)
+ 		goto out_free_dentry;
+ 
++#ifdef __i386__
++	/*
++	 * Turn off the CS limit completely if exec-shield disabled or
++	 * NX active:
++	 */
++	if (!exec_shield || executable_stack != EXSTACK_DISABLE_X || nx_enabled)
++		arch_add_exec_range(current->mm, -1);
++#endif
++
+ 	/* Discard our unneeded old files struct */
+ 	if (files) {
+ 		put_files_struct(files);
+@@ -779,7 +842,8 @@ static int load_elf_binary(struct linux_
+ 	/* Do this immediately, since STACK_TOP as used in setup_arg_pages
+ 	   may depend on the personality.  */
+ 	SET_PERSONALITY(loc->elf_ex, ibcs2_interpreter);
+-	if (elf_read_implies_exec(loc->elf_ex, executable_stack))
++	if (!(exec_shield & 2) &&
++			elf_read_implies_exec(loc->elf_ex, executable_stack))
+ 		current->personality |= READ_IMPLIES_EXEC;
+ 
+ 	if (!(current->personality & ADDR_NO_RANDOMIZE) && randomize_va_space)
+@@ -800,9 +864,8 @@ static int load_elf_binary(struct linux_
+ 	current->mm->start_stack = bprm->p;
+ 
+ 	/* Now we do a little grungy work by mmaping the ELF image into
+-	   the correct location in memory.  At this point, we assume that
+-	   the image should be loaded at fixed address, not at a variable
+-	   address. */
++	   the correct location in memory.
++	 */
+ 	for(i = 0, elf_ppnt = elf_phdata;
+ 	    i < loc->elf_ex.e_phnum; i++, elf_ppnt++) {
+ 		int elf_prot = 0, elf_flags;
+@@ -927,7 +927,7 @@ static int load_elf_binary(struct linux_
+ 		}
+ 
+ 		error = elf_map(bprm->file, load_bias + vaddr, elf_ppnt,
+-				elf_prot, elf_flags);
++				elf_prot, elf_flags, 0);
+ 		if (BAD_ADDR(error)) {
+ 			send_sig(SIGKILL, current, 0);
+ 			goto out_free_dentry;
+@@ -936,10 +998,17 @@ static int load_elf_binary(struct linux_
+ 		if (interpreter_type == INTERPRETER_AOUT)
+ 			elf_entry = load_aout_interp(&loc->interp_ex,
+ 						     interpreter);
+-		else
++		else {
+ 			elf_entry = load_elf_interp(&loc->interp_elf_ex,
+ 						    interpreter,
+-						    &interp_load_addr);
++						    &interp_map_addr,
++						    load_bias);
++			if (!BAD_ADDR(elf_entry)) {
++				/* load_elf_interp() returns relocation adjustment */
++				interp_load_addr = elf_entry;
++				elf_entry += loc->interp_elf_ex.e_entry;
++			}
++		}
+ 		if (BAD_ADDR(elf_entry)) {
+ 			force_sig(SIGSEGV, current);
+ 			retval = IS_ERR((void *)elf_entry) ?
+@@ -960,21 +1029,22 @@ static int load_elf_binary(struct linux_
+ 		}
+ 	}
+ 
+-	kfree(elf_phdata);
+-
+ 	if (interpreter_type != INTERPRETER_AOUT)
+ 		sys_close(elf_exec_fileno);
+ 
+ 	set_binfmt(&elf_format);
+ 
+ #ifdef ARCH_HAS_SETUP_ADDITIONAL_PAGES
+-	retval = arch_setup_additional_pages(bprm, executable_stack);
++	retval = arch_setup_additional_pages(bprm, executable_stack,
++			start_code, interp_map_addr);
+ 	if (retval < 0) {
+ 		send_sig(SIGKILL, current, 0);
+-		goto out;
++		goto out_free_fh;
+ 	}
+ #endif /* ARCH_HAS_SETUP_ADDITIONAL_PAGES */
+ 
++	kfree(elf_phdata);
++
+ 	compute_creds(bprm);
+ 	current->flags &= ~PF_FORKNOEXEC;
+ 	create_elf_tables(bprm, &loc->elf_ex,
+@@ -989,6 +1059,10 @@ static int load_elf_binary(struct linux_
+ 	current->mm->end_data = end_data;
+ 	current->mm->start_stack = bprm->p;
+ 
++#ifdef __HAVE_ARCH_RANDOMIZE_BRK
++	if (current->flags & PF_RANDOMIZE)
++		randomize_brk(elf_brk);
++#endif
+ 	if (current->personality & MMAP_PAGE_ZERO) {
+ 		/* Why this, you ask???  Well SVr4 maps page 0 as read-only,
+ 		   and some applications "depend" upon this behavior.
+Index: linux-2.6/fs/proc/array.c
+===================================================================
+--- linux-2.6.orig/fs/proc/array.c
++++ linux-2.6/fs/proc/array.c
+@@ -403,8 +403,12 @@ static int do_task_stat(struct task_stru
+ 	rcu_read_unlock();
+ 	mutex_unlock(&tty_mutex);
+ 
+-	if (!whole || num_threads<2)
+-		wchan = get_wchan(task);
++	if (!whole || num_threads<2) {
++		wchan = 0;
++		if (current->uid == task->uid || current->euid == task->uid ||
++				capable(CAP_SYS_NICE))
++			wchan = get_wchan(task);
++	}
+ 	if (!whole) {
+ 		min_flt = task->min_flt;
+ 		maj_flt = task->maj_flt;
+Index: linux-2.6/fs/proc/base.c
+===================================================================
+--- linux-2.6.orig/fs/proc/base.c
++++ linux-2.6/fs/proc/base.c
+@@ -1754,7 +1754,7 @@ static struct pid_entry tgid_base_stuff[
+ 	INF("cmdline",    S_IRUGO, pid_cmdline),
+ 	INF("stat",       S_IRUGO, tgid_stat),
+ 	INF("statm",      S_IRUGO, pid_statm),
+-	REG("maps",       S_IRUGO, maps),
++	REG("maps",       S_IRUSR, maps),
+ #ifdef CONFIG_NUMA
+ 	REG("numa_maps",  S_IRUGO, numa_maps),
+ #endif
+@@ -1768,7 +1768,7 @@ static struct pid_entry tgid_base_stuff[
+ 	REG("mounts",     S_IRUGO, mounts),
+ 	REG("mountstats", S_IRUSR, mountstats),
+ #ifdef CONFIG_MMU
+-	REG("smaps",      S_IRUGO, smaps),
++	REG("smaps",      S_IRUSR, smaps),
+ #endif
+ #ifdef CONFIG_SECURITY
+ 	DIR("attr",       S_IRUGO|S_IXUGO, attr_dir),
+@@ -2029,7 +2029,7 @@ static struct pid_entry tid_base_stuff[]
+ 	INF("cmdline",   S_IRUGO, pid_cmdline),
+ 	INF("stat",      S_IRUGO, tid_stat),
+ 	INF("statm",     S_IRUGO, pid_statm),
+-	REG("maps",      S_IRUGO, maps),
++	REG("maps",      S_IRUSR, maps),
+ #ifdef CONFIG_NUMA
+ 	REG("numa_maps", S_IRUGO, numa_maps),
+ #endif
+@@ -2042,7 +2042,7 @@ static struct pid_entry tid_base_stuff[]
+ 	LNK("exe",       exe),
+ 	REG("mounts",    S_IRUGO, mounts),
+ #ifdef CONFIG_MMU
+-	REG("smaps",     S_IRUGO, smaps),
++	REG("smaps",     S_IRUSR, smaps),
+ #endif
+ #ifdef CONFIG_SECURITY
+ 	DIR("attr",      S_IRUGO|S_IXUGO, attr_dir),
+Index: linux-2.6/fs/proc/task_mmu.c
+===================================================================
+--- linux-2.6.orig/fs/proc/task_mmu.c
++++ linux-2.6/fs/proc/task_mmu.c
+@@ -43,7 +43,11 @@ char *task_mem(struct mm_struct *mm, cha
+ 		"VmStk:\t%8lu kB\n"
+ 		"VmExe:\t%8lu kB\n"
+ 		"VmLib:\t%8lu kB\n"
+-		"VmPTE:\t%8lu kB\n",
++		"VmPTE:\t%8lu kB\n"
++		"StaBrk:\t%08lx kB\n"
++		"Brk:\t%08lx kB\n"
++		"StaStk:\t%08lx kB\n"
++		,
+ 		hiwater_vm << (PAGE_SHIFT-10),
+ 		(total_vm - mm->reserved_vm) << (PAGE_SHIFT-10),
+ 		mm->locked_vm << (PAGE_SHIFT-10),
+@@ -51,7 +55,13 @@ char *task_mem(struct mm_struct *mm, cha
+ 		total_rss << (PAGE_SHIFT-10),
+ 		data << (PAGE_SHIFT-10),
+ 		mm->stack_vm << (PAGE_SHIFT-10), text, lib,
+-		(PTRS_PER_PTE*sizeof(pte_t)*mm->nr_ptes) >> 10);
++		(PTRS_PER_PTE*sizeof(pte_t)*mm->nr_ptes) >> 10,
++		mm->start_brk, mm->brk, mm->start_stack);
++#ifdef __i386__
++	if (!nx_enabled)
++		buffer += sprintf(buffer,
++			"ExecLim:\t%08lx\n", mm->context.exec_limit);
++#endif
+ 	return buffer;
+ }
+ 
+@@ -126,6 +136,9 @@ static int show_map_internal(struct seq_
+ {
+ 	struct proc_maps_private *priv = m->private;
+ 	struct task_struct *task = priv->task;
++#ifdef __i386__
++	struct mm_struct *tmm = get_task_mm(task);
++#endif
+ 	struct vm_area_struct *vma = v;
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	struct file *file = vma->vm_file;
+@@ -145,10 +158,20 @@ static int show_map_internal(struct seq_
+ 			vma->vm_end,
+ 			flags & VM_READ ? 'r' : '-',
+ 			flags & VM_WRITE ? 'w' : '-',
+-			flags & VM_EXEC ? 'x' : '-',
++			(flags & VM_EXEC
++#ifdef __i386__
++				|| (!nx_enabled && tmm &&
++				(vma->vm_start < tmm->context.exec_limit))
++#endif
++			)
++				? 'x' : '-',
+ 			flags & VM_MAYSHARE ? 's' : 'p',
+ 			vma->vm_pgoff << PAGE_SHIFT,
+ 			MAJOR(dev), MINOR(dev), ino, &len);
++#ifdef __i386__
++	if (tmm)
++		mmput(tmm);
++#endif
+ 
+ 	/*
+ 	 * Print the dentry name for named mappings, and a
+Index: linux-2.6/include/asm-i386/a.out.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/a.out.h
++++ linux-2.6/include/asm-i386/a.out.h
+@@ -19,7 +19,7 @@ struct exec
+ 
+ #ifdef __KERNEL__
+ 
+-#define STACK_TOP	TASK_SIZE
++#define STACK_TOP	(TASK_SIZE - PAGE_SIZE)  /* 1 page for vdso */
+ 
+ #endif
+ 
+--- linux-2.6.19.noarch/include/asm-i386/desc.h~	2006-12-08 06:52:55.000000000 -0500
++++ linux-2.6.19.noarch/include/asm-i386/desc.h	2006-12-08 06:53:14.000000000 -0500
+@@ -185,6 +185,20 @@ static inline unsigned long get_desc_bas
+ 	return base;
+ }
+ 
++static inline void set_user_cs(struct desc_struct *desc, unsigned long limit)
++{
++	limit = (limit - 1) / PAGE_SIZE;
++	desc->a = limit & 0xffff;
++	desc->b = (limit & 0xf0000) | 0x00c0fb00;
++}
++
++#define load_user_cs_desc(cpu, mm) \
++	get_cpu_gdt_table(cpu)[GDT_ENTRY_DEFAULT_USER_CS] = (mm)->context.user_cs
++
++extern void arch_add_exec_range(struct mm_struct *mm, unsigned long limit);
++extern void arch_remove_exec_range(struct mm_struct *mm, unsigned long limit);
++extern void arch_flush_exec_range(struct mm_struct *mm);
++
+ #else /* __ASSEMBLY__ */
+ 
+ /*
+Index: linux-2.6/include/asm-i386/elf.h
+===================================================================
+--- linux-2.6.19.noarch/include/asm-i386/elf.h~	2007-01-29 11:28:35.000000000 -0500
++++ linux-2.6.19.noarch/include/asm-i386/elf.h	2007-01-29 11:32:29.000000000 -0500
+@@ -157,7 +157,8 @@ extern void __kernel_vsyscall;
+ #define ARCH_HAS_SETUP_ADDITIONAL_PAGES
+ struct linux_binprm;
+ extern int arch_setup_additional_pages(struct linux_binprm *bprm,
+-                                       int executable_stack);
++                                       int executable_stack, unsigned long start_code,
++                                       unsigned long interp_map_address);
+ #endif
+ 
+ extern unsigned int vdso_enabled;
+@@ -215,4 +216,7 @@ do {									      \
+ 
+ #endif
+ 
++#define __HAVE_ARCH_RANDOMIZE_BRK
++extern void randomize_brk(unsigned long old_brk);
++
+ #endif
+Index: linux-2.6/include/asm-i386/mmu.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/mmu.h
++++ linux-2.6/include/asm-i386/mmu.h
+@@ -7,11 +7,15 @@
+  * we put the segment information here.
+  *
+  * cpu_vm_mask is used to optimize ldt flushing.
++ * exec_limit is used to track the range PROT_EXEC
++ * mappings span.
+  */
+ typedef struct { 
+ 	int size;
+ 	struct semaphore sem;
+ 	void *ldt;
++	struct desc_struct user_cs;
++	unsigned long exec_limit;
+ 	void *vdso;
+ } mm_context_t;
+ 
+Index: linux-2.6/include/asm-i386/pgalloc.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/pgalloc.h
++++ linux-2.6/include/asm-i386/pgalloc.h
+@@ -2,6 +2,7 @@
+ #define _I386_PGALLOC_H
+ 
+ #include <asm/fixmap.h>
++#include <asm/desc.h>
+ #include <linux/threads.h>
+ #include <linux/mm.h>		/* for struct page */
+ 
+Index: linux-2.6/include/asm-i386/processor.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/processor.h
++++ linux-2.6/include/asm-i386/processor.h
+@@ -326,7 +326,10 @@ extern int bootloader_type;
+ /* This decides where the kernel will search for a free chunk of vm
+  * space during mmap's.
+  */
+-#define TASK_UNMAPPED_BASE	(PAGE_ALIGN(TASK_SIZE / 3))
++#define TASK_UNMAPPED_BASE	PAGE_ALIGN(TASK_SIZE/3)
++
++#define __HAVE_ARCH_ALIGN_STACK
++extern unsigned long arch_align_stack(unsigned long sp);
+ 
+ #define HAVE_ARCH_PICK_MMAP_LAYOUT
+ 
+@@ -508,6 +511,9 @@ static inline void load_esp0(struct tss_
+ 	regs->xcs = __USER_CS;					\
+ 	regs->eip = new_eip;					\
+ 	regs->esp = new_esp;					\
++	preempt_disable();					\
++	load_user_cs_desc(smp_processor_id(), current->mm);	\
++	preempt_enable();					\
+ } while (0)
+ 
+ /*
+Index: linux-2.6/include/asm-ia64/pgalloc.h
+===================================================================
+--- linux-2.6.orig/include/asm-ia64/pgalloc.h
++++ linux-2.6/include/asm-ia64/pgalloc.h
+@@ -1,6 +1,10 @@
+ #ifndef _ASM_IA64_PGALLOC_H
+ #define _ASM_IA64_PGALLOC_H
+ 
++#define arch_add_exec_range(mm, limit)		do { ; } while (0)
++#define arch_flush_exec_range(mm)		do { ; } while (0)
++#define arch_remove_exec_range(mm, limit)	do { ; } while (0)
++
+ /*
+  * This file contains the functions and defines necessary to allocate
+  * page tables.
+Index: linux-2.6/include/asm-powerpc/elf.h
+===================================================================
+--- linux-2.6.orig/include/asm-powerpc/elf.h
++++ linux-2.6/include/asm-powerpc/elf.h
+@@ -272,7 +272,8 @@ extern int ucache_bsize;
+ #define ARCH_HAS_SETUP_ADDITIONAL_PAGES
+ struct linux_binprm;
+ extern int arch_setup_additional_pages(struct linux_binprm *bprm,
+-				       int executable_stack);
++				       int executable_stack, unsigned long start_code,
++					   unsigned long interp_map_address);
+ #define VDSO_AUX_ENT(a,b) NEW_AUX_ENT(a,b);
+ 
+ /*
+Index: linux-2.6/include/asm-powerpc/pgalloc.h
+===================================================================
+--- linux-2.6.orig/include/asm-powerpc/pgalloc.h
++++ linux-2.6/include/asm-powerpc/pgalloc.h
+@@ -26,6 +26,11 @@ extern kmem_cache_t *pgtable_cache[];
+ #define HUGEPTE_CACHE_NUM 2
+ #endif
+ 
++/* Dummy functions since we don't support execshield on ppc */
++#define arch_add_exec_range(mm, limit) do { ; } while (0)
++#define arch_flush_exec_range(mm)      do { ; } while (0)
++#define arch_remove_exec_range(mm, limit) do { ; } while (0)
++
+ /*
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+Index: linux-2.6/include/asm-ppc/pgalloc.h
+===================================================================
+--- linux-2.6.orig/include/asm-ppc/pgalloc.h
++++ linux-2.6/include/asm-ppc/pgalloc.h
+@@ -39,5 +39,10 @@ extern void pte_free(struct page *pte);
+ 
+ #define check_pgt_cache()	do { } while (0)
+ 
++#define arch_add_exec_range(mm, limit)         do { ; } while (0)
++#define arch_flush_exec_range(mm)              do { ; } while (0)
++#define arch_remove_exec_range(mm, limit)      do { ; } while (0)
++
++
+ #endif /* _PPC_PGALLOC_H */
+ #endif /* __KERNEL__ */
+Index: linux-2.6/include/asm-s390/pgalloc.h
+===================================================================
+--- linux-2.6.orig/include/asm-s390/pgalloc.h
++++ linux-2.6/include/asm-s390/pgalloc.h
+@@ -17,6 +17,10 @@
+ #include <linux/gfp.h>
+ #include <linux/mm.h>
+ 
++#define arch_add_exec_range(mm, limit) do { ; } while (0)
++#define arch_flush_exec_range(mm)      do { ; } while (0)
++#define arch_remove_exec_range(mm, limit) do { ; } while (0)
++
+ #define check_pgt_cache()	do {} while (0)
+ 
+ extern void diag10(unsigned long addr);
+Index: linux-2.6/include/asm-sparc/pgalloc.h
+===================================================================
+--- linux-2.6.orig/include/asm-sparc/pgalloc.h
++++ linux-2.6/include/asm-sparc/pgalloc.h
+@@ -65,4 +65,8 @@ BTFIXUPDEF_CALL(void, pte_free, struct p
+ #define pte_free(pte)		BTFIXUP_CALL(pte_free)(pte)
+ #define __pte_free_tlb(tlb, pte)	pte_free(pte)
+ 
++#define arch_add_exec_range(mm, limit)		do { ; } while (0)
++#define arch_flush_exec_range(mm)		do { ; } while (0)
++#define arch_remove_exec_range(mm, limit)	do { ; } while (0)
++
+ #endif /* _SPARC_PGALLOC_H */
+Index: linux-2.6/include/asm-sparc64/pgalloc.h
+===================================================================
+--- linux-2.6.orig/include/asm-sparc64/pgalloc.h
++++ linux-2.6/include/asm-sparc64/pgalloc.h
+@@ -68,4 +68,8 @@ static inline void pte_free(struct page 
+ 
+ #define check_pgt_cache()	do { } while (0)
+ 
++#define arch_add_exec_range(mm, limit)		do { ; } while (0)
++#define arch_flush_exec_range(mm)		do { ; } while (0)
++#define arch_remove_exec_range(mm, limit)	do { ; } while (0)
++
+ #endif /* _SPARC64_PGALLOC_H */
+Index: linux-2.6/include/asm-x86_64/pgalloc.h
+===================================================================
+--- linux-2.6.orig/include/asm-x86_64/pgalloc.h
++++ linux-2.6/include/asm-x86_64/pgalloc.h
+@@ -6,6 +6,13 @@
+ #include <linux/threads.h>
+ #include <linux/mm.h>
+ 
++#define arch_add_exec_range(mm, limit) \
++		do { (void)(mm), (void)(limit); } while (0)
++#define arch_flush_exec_range(mm) \
++		do { (void)(mm); } while (0)
++#define arch_remove_exec_range(mm, limit) \
++		do { (void)(mm), (void)(limit); } while (0)
++
+ #define pmd_populate_kernel(mm, pmd, pte) \
+ 		set_pmd(pmd, __pmd(_PAGE_TABLE | __pa(pte)))
+ #define pud_populate(mm, pud, pmd) \
+Index: linux-2.6/include/linux/mm.h
+===================================================================
+--- linux-2.6.orig/include/linux/mm.h
++++ linux-2.6/include/linux/mm.h
+@@ -994,7 +994,14 @@
+ extern void exit_mmap(struct mm_struct *);
+ extern int may_expand_vm(struct mm_struct *mm, unsigned long npages);
+ 
+-extern unsigned long get_unmapped_area(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
++extern unsigned long get_unmapped_area_prot(struct file *, unsigned long, unsigned long, unsigned long, unsigned long, int);
++
++
++static inline unsigned long get_unmapped_area(struct file * file, unsigned long addr,
++		unsigned long len, unsigned long pgoff, unsigned long flags)
++{
++	return get_unmapped_area_prot(file, addr, len, pgoff, flags, 0);
++}
+ 
+ extern unsigned long do_mmap_pgoff(struct file *file, unsigned long addr,
+ 	unsigned long len, unsigned long prot,
+@@ -1046,7 +1053,7 @@
+ 			  struct file *filp,
+ 			  pgoff_t offset,
+ 			  unsigned long size);
+-void handle_ra_miss(struct address_space *mapping, 
++void handle_ra_miss(struct address_space *mapping,
+ 		    struct file_ra_state *ra, pgoff_t offset);
+ unsigned long max_sane_readahead(unsigned long nr);
+ 
+Index: linux-2.6/include/linux/resource.h
+===================================================================
+--- linux-2.6.orig/include/linux/resource.h
++++ linux-2.6/include/linux/resource.h
+@@ -54,8 +54,11 @@ struct rlimit {
+ /*
+  * Limit the stack by to some sane default: root can always
+  * increase this limit if needed..  8MB seems reasonable.
++ *
++ * (2MB more to cover randomization effects.)
+  */
+-#define _STK_LIM	(8*1024*1024)
++#define _STK_LIM	(10*1024*1024)
++#define EXEC_STACK_BIAS	(2*1024*1024)
+ 
+ /*
+  * GPG wants 32kB of mlocked memory, to make sure pass phrases
+Index: linux-2.6/include/linux/sched.h
+===================================================================
+--- linux-2.6.orig/include/linux/sched.h
++++ linux-2.6/include/linux/sched.h
+@@ -87,6 +87,8 @@ struct sched_param {
+ 
+ struct exec_domain;
+ struct futex_pi_state;
++extern int exec_shield;
++extern int print_fatal_signals;
+ 
+ /*
+  * List of flags we want to share for kernel threads,
+@@ -252,6 +254,10 @@ extern int sysctl_max_map_count;
+ extern unsigned long
+ arch_get_unmapped_area(struct file *, unsigned long, unsigned long,
+ 		       unsigned long, unsigned long);
++
++extern unsigned long
++arch_get_unmapped_exec_area(struct file *, unsigned long, unsigned long,
++		       unsigned long, unsigned long);
+ extern unsigned long
+ arch_get_unmapped_area_topdown(struct file *filp, unsigned long addr,
+ 			  unsigned long len, unsigned long pgoff,
+@@ -304,6 +310,9 @@ struct mm_struct {
+ 	unsigned long (*get_unmapped_area) (struct file *filp,
+ 				unsigned long addr, unsigned long len,
+ 				unsigned long pgoff, unsigned long flags);
++	unsigned long (*get_unmapped_exec_area) (struct file *filp,
++				unsigned long addr, unsigned long len,
++				unsigned long pgoff, unsigned long flags);
+ 	void (*unmap_area) (struct mm_struct *mm, unsigned long addr);
+ 	unsigned long mmap_base;		/* base of mmap area */
+ 	unsigned long task_size;		/* size of task vm space */
+Index: linux-2.6/include/linux/sysctl.h
+===================================================================
+--- linux-2.6.orig/include/linux/sysctl.h
++++ linux-2.6/include/linux/sysctl.h
+@@ -100,6 +100,8 @@ enum
+ 
+ 	KERN_CAP_BSET=14,	/* int: capability bounding set */
+ 	KERN_PANIC=15,		/* int: panic timeout */
++	KERN_EXEC_SHIELD=1000,	/* int: exec-shield enabled (0/1/2) */
++	KERN_PRINT_FATAL=1001,	/* int: print fatal signals (0/1/2) */
+ 	KERN_REALROOTDEV=16,	/* real root device to mount after initrd */
+ 
+ 	KERN_SPARC_REBOOT=21,	/* reboot command on Sparc */
+Index: linux-2.6/kernel/signal.c
+===================================================================
+--- linux-2.6.orig/kernel/signal.c
++++ linux-2.6/kernel/signal.c
+@@ -764,6 +764,37 @@ out_set:
+ #define LEGACY_QUEUE(sigptr, sig) \
+ 	(((sig) < SIGRTMIN) && sigismember(&(sigptr)->signal, (sig)))
+ 
++int print_fatal_signals = 0;
++
++static void print_fatal_signal(struct pt_regs *regs, int signr)
++{
++	printk("%s/%d: potentially unexpected fatal signal %d.\n",
++		current->comm, current->pid, signr);
++
++#ifdef __i386__
++	printk("code at %08lx: ", regs->eip);
++	{
++		int i;
++		for (i = 0; i < 16; i++) {
++			unsigned char insn;
++
++			__get_user(insn, (unsigned char *)(regs->eip + i));
++			printk("%02x ", insn);
++		}
++	}
++#endif
++	printk("\n");
++	show_regs(regs);
++}
++
++static int __init setup_print_fatal_signals(char *str)
++{
++	get_option (&str, &print_fatal_signals);
++
++	return 1;
++}
++
++__setup("print-fatal-signals=", setup_print_fatal_signals);
+ 
+ static int
+ specific_send_sig_info(int sig, struct siginfo *info, struct task_struct *t)
+@@ -1795,6 +1826,8 @@ relock:
+ 		 * Anything else is fatal, maybe with a core dump.
+ 		 */
+ 		current->flags |= PF_SIGNALED;
++		if (print_fatal_signals)
++			print_fatal_signal(regs, signr);
+ 		if (sig_kernel_coredump(signr)) {
+ 			/*
+ 			 * If it was able to dump core, this kills all
+Index: linux-2.6/mm/mprotect.c
+===================================================================
+--- linux-2.6.orig/mm/mprotect.c
++++ linux-2.6/mm/mprotect.c
+@@ -23,6 +23,7 @@
+ #include <linux/swapops.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
++#include <asm/pgalloc.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
+ 
+@@ -135,7 +136,7 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long oldflags = vma->vm_flags;
+ 	long nrpages = (end - start) >> PAGE_SHIFT;
+-	unsigned long charged = 0;
++	unsigned long charged = 0, old_end = vma->vm_end;
+ 	pgoff_t pgoff;
+ 	int error;
+ 	int dirty_accountable = 0;
+@@ -201,6 +202,9 @@ success:
+ 		dirty_accountable = 1;
+ 	}
+ 
++	if (oldflags & VM_EXEC)
++		arch_remove_exec_range(current->mm, old_end);
++
+ 	if (is_vm_hugetlb_page(vma))
+ 		hugetlb_change_protection(vma, start, end, vma->vm_page_prot);
+ 	else
+Index: linux-2.6/mm/mremap.c
+===================================================================
+--- linux-2.6.orig/mm/mremap.c
++++ linux-2.6/mm/mremap.c
+@@ -389,8 +389,8 @@ unsigned long do_mremap(unsigned long ad
+ 			if (vma->vm_flags & VM_MAYSHARE)
+ 				map_flags |= MAP_SHARED;
+ 
+-			new_addr = get_unmapped_area(vma->vm_file, 0, new_len,
+-						vma->vm_pgoff, map_flags);
++			new_addr = get_unmapped_area_prot(vma->vm_file, 0, new_len,
++				vma->vm_pgoff, map_flags, vma->vm_flags & VM_EXEC);
+ 			ret = new_addr;
+ 			if (new_addr & ~PAGE_MASK)
+ 				goto out;
