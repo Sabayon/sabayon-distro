@@ -36,11 +36,12 @@ UNIPATCH_LIST="
 		${FILESDIR}/${P}-thinkpad.patch ${FILESDIR}/${P}-sony-laptops.patch
 		${FILESDIR}/${P}-${PV}.1.patch ${FILESDIR}/${P}-libertas-wireless-driver.patch
 		${FILESDIR}/${P}-sata_nv-fixes.patch ${FILESDIR}/${P}-i965-support.patch
-		${FILESDIR}/${P}-kvm-19.patch ${FILESDIR}/${P}-execshield.patch
-		${FILESDIR}/${P}-fix-sis900-oops.patch
+		${FILESDIR}/${P}-kvm-19.patch ${FILESDIR}/${P}-fix-sis900-oops.patch
 		"
 # disabled for testing
 # ${FILESDIR}/${P}-adaptive-readahead.patch
+# ${FILESDIR}/${P}-execshield.patch
+
 
 UNIPATCH_STRICTORDER="yes"
 
