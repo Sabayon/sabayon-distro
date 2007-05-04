@@ -17,7 +17,7 @@ SL_PATCHES_URI="
 		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/ipw3945-1.2.0-2.6.21.patch
 		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/squashfs-3.2-2.6.21.patch
 		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/fbsplash-0.9.2-r5-2.6.21.patch
-		http://www2.kernel.org/pub/linux/kernel/people/tytso/ext4-patches/${PV}-rc7-ext4-1/${PV}-rc7-ext4-1.bz2
+		http://www2.kernel.org/pub/linux/kernel/people/tytso/ext4-patches/${PV}-ext4-1/${PV}-ext4-1.bz2
 		"
 
 SUSPEND2_VERSION="2.2.9.13"
@@ -32,7 +32,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/ipw3945-1.2.0-2.6.21.patch ${FILESDIR}/${PN}-2.6.21-unionfs-1.3.diff
 		${FILESDIR}/${PN}-2.6.21-git-20070402-dvb.patch ${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch
 		${FILESDIR}/${PN}-2.6.21-at76c503a.patch ${FILESDIR}/linux-phc-0.2.9-for-2.6.21.patch
-		${DISTDIR}/${PV}-rc7-ext4-1.bz2 ${FILESDIR}/${P}-mactel.patch 
+		${DISTDIR}/${PV}-ext4-1.bz2 ${FILESDIR}/${P}-mactel.patch 
 		${FILESDIR}/${P}-thinkpad.patch ${FILESDIR}/${P}-sony-laptops.patch
 		${FILESDIR}/${P}-${PV}.1.patch ${FILESDIR}/${P}-libertas-wireless-driver.patch
 		${FILESDIR}/${P}-sata_nv-fixes.patch ${FILESDIR}/${P}-i965-support.patch
