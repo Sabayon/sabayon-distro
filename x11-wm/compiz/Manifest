@@ -1,3 +1,15 @@
+AUX compiz-0.5.0-fix-ini-module-memleaks.patch 4712 RMD160 491da0547f36beeacb559263c89f34ee2f560dbe SHA1 61a7ae263c2cd1dbad547f8b9bb2e343cd262e45 SHA256 70097ba3cde2506cf16a4812e11eb0c4b04a11ca59b65490e0e264954e7be960
+MD5 71f7713ff60f0066b2bb74e1ccb09a0d files/compiz-0.5.0-fix-ini-module-memleaks.patch 4712
+RMD160 491da0547f36beeacb559263c89f34ee2f560dbe files/compiz-0.5.0-fix-ini-module-memleaks.patch 4712
+SHA256 70097ba3cde2506cf16a4812e11eb0c4b04a11ca59b65490e0e264954e7be960 files/compiz-0.5.0-fix-ini-module-memleaks.patch 4712
+AUX compiz-0.5.0-fix-unredirect-fullscreen-windows.patch 1642 RMD160 aea278b54c629075b6901a2f2382f93f709b3b36 SHA1 24cbaba7047b3f20d7429a79e1542625b8855f54 SHA256 8cca467e2998789d40b5dbe289c4a43e42b80ac724f6237bce8c7f95f5f0a237
+MD5 8c0393f2d5448ad8317e52faef9b329b files/compiz-0.5.0-fix-unredirect-fullscreen-windows.patch 1642
+RMD160 aea278b54c629075b6901a2f2382f93f709b3b36 files/compiz-0.5.0-fix-unredirect-fullscreen-windows.patch 1642
+SHA256 8cca467e2998789d40b5dbe289c4a43e42b80ac724f6237bce8c7f95f5f0a237 files/compiz-0.5.0-fix-unredirect-fullscreen-windows.patch 1642
+AUX compiz-0.5.0-kwd-improvements.patch 1406 RMD160 93d966d312a8d9b877ae9e4c3cbca07afec42dbb SHA1 843b3c1d40e0fc7365b23cc6027fbf17be86e82d SHA256 3559af3f846858f5efdb3a64660e4e19fb574af5520e06f1f50bf06c331a273f
+MD5 69a94952621fcd1c483bfb1cef926e4b files/compiz-0.5.0-kwd-improvements.patch 1406
+RMD160 93d966d312a8d9b877ae9e4c3cbca07afec42dbb files/compiz-0.5.0-kwd-improvements.patch 1406
+SHA256 3559af3f846858f5efdb3a64660e4e19fb574af5520e06f1f50bf06c331a273f files/compiz-0.5.0-kwd-improvements.patch 1406
 AUX compiz-settings-0.5.0.tar.bz2 4413 RMD160 fd5fe26b0a349c7b5e797df1de7e273de540f63e SHA1 8d05ca77a34d8dc0e4f2863ad27e71d16b144f8d SHA256 866fec163861d5b090487e896a011a298167d9604d416b636cf8d7632b23245a
 MD5 e2fd4bafb222f3f4d94eedffa41963c6 files/compiz-settings-0.5.0.tar.bz2 4413
 RMD160 fd5fe26b0a349c7b5e797df1de7e273de540f63e files/compiz-settings-0.5.0.tar.bz2 4413
@@ -7,10 +19,10 @@ MD5 88fbadf90b0464cf6206fe64bae1ae50 files/compiz-start 3532
 RMD160 6da9e0abb14ad0f57c710489fc03dce657633470 files/compiz-start 3532
 SHA256 8b4918bcaefdd46289248b980be4a235e3f3ced1cc6045562353aa3261b6ac82 files/compiz-start 3532
 DIST compiz-0.5.0.tar.bz2 926090 RMD160 c9b38ea1184e9b897d878c499c883dd388af17bd SHA1 453b4e8423b39d4ec3539817f2846d7ea485749e SHA256 4191745d86bec37de4cdc79bf0031afde1d28079eac2e3fc29aed18cd7a2a4e6
-EBUILD compiz-0.5.0-r3.ebuild 2012 RMD160 350538508d489ea342684ef06970acfe1616ee17 SHA1 3043b11e9403bdb6e98ddd71163e6e10163ae916 SHA256 9f51f97706ee659d27b7d0ae4357e51af3e82a15dcc97fccef62040a0a20703b
-MD5 e69c4f11a7295e6c05ebfe2bc6f4fcf2 compiz-0.5.0-r3.ebuild 2012
-RMD160 350538508d489ea342684ef06970acfe1616ee17 compiz-0.5.0-r3.ebuild 2012
-SHA256 9f51f97706ee659d27b7d0ae4357e51af3e82a15dcc97fccef62040a0a20703b compiz-0.5.0-r3.ebuild 2012
-MD5 796f9a8a5c0429ff46cbac3552c26866 files/digest-compiz-0.5.0-r3 241
-RMD160 7ae4afff6094f26a201949943bdd0f875d53a7f5 files/digest-compiz-0.5.0-r3 241
-SHA256 43b51289c923bc70cd483932143e9076e75a11982dc016e691a1537667f09e87 files/digest-compiz-0.5.0-r3 241
+EBUILD compiz-0.5.0-r4.ebuild 2207 RMD160 45839b9852b95628c7a52e230b806ea575fa4deb SHA1 3e8d65aa2b051041ed197b5cf2aaa1b1a350de17 SHA256 3182c0fa3151c3102911bb41ae0a908e0dc49ab34ff8b7739e0ffc4021d5d728
+MD5 a2090d39668d41e1689d8028aa2cb7e9 compiz-0.5.0-r4.ebuild 2207
+RMD160 45839b9852b95628c7a52e230b806ea575fa4deb compiz-0.5.0-r4.ebuild 2207
+SHA256 3182c0fa3151c3102911bb41ae0a908e0dc49ab34ff8b7739e0ffc4021d5d728 compiz-0.5.0-r4.ebuild 2207
+MD5 796f9a8a5c0429ff46cbac3552c26866 files/digest-compiz-0.5.0-r4 241
+RMD160 7ae4afff6094f26a201949943bdd0f875d53a7f5 files/digest-compiz-0.5.0-r4 241
+SHA256 43b51289c923bc70cd483932143e9076e75a11982dc016e691a1537667f09e87 files/digest-compiz-0.5.0-r4 241

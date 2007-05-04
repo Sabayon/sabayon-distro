@@ -1,0 +1,57 @@
+From: James Jones <jajones@jatest.nvidia.com>
+Date: Tue, 24 Apr 2007 00:59:03 +0000 (-0700)
+Subject: Fix unredirect fullscreen windows.
+X-Git-Url: http://gitweb.freedesktop.org/?p=xorg/app/compiz.git;a=commitdiff;h=5a7eedc61f8872da1300715b1bcdf862d98d880a
+
+Fix unredirect fullscreen windows.
+
+In paint.c!paintScreenRegion():
+
+-Need to subtract window's region from tmpRegion
+ before checking if tmpRegion is NULL.
+
+-Don't try to draw the unredirected window, as
+ it will be immediately redirected again by
+ paint.c!drawWindow()
+---
+
+--- a/src/paint.c
++++ b/src/paint.c
+@@ -160,6 +160,7 @@ paintScreenRegion (CompScreen	       *sc
+     CompWindow    *w;
+     CompCursor	  *c;
+     int		  count, windowMask, backgroundMask;
++    CompWindow	  *fullscreenWindow = NULL;
+ 
+     if (!tmpRegion)
+     {
+@@ -201,6 +202,8 @@ paintScreenRegion (CompScreen	       *sc
+ 	if ((*screen->paintWindow) (w, &w->paint, transform, tmpRegion,
+ 				    PAINT_WINDOW_OCCLUSION_DETECTION_MASK))
+ 	{
++	    XSubtractRegion (tmpRegion, w->region, tmpRegion);
++
+ 	    /* unredirect top most fullscreen windows. */
+ 	    if (count == 0					      &&
+ 		!REGION_NOT_EMPTY (tmpRegion)			      &&
+@@ -208,9 +211,8 @@ paintScreenRegion (CompScreen	       *sc
+ 		XEqualRegion (w->region, &screen->region))
+ 	    {
+ 		unredirectWindow (w);
++		fullscreenWindow = w;
+ 	    }
+-
+-	    XSubtractRegion (tmpRegion, w->region, tmpRegion);
+ 	}
+ 
+ 	count++;
+@@ -224,6 +226,9 @@ paintScreenRegion (CompScreen	       *sc
+ 	if (w->destroyed)
+ 	    continue;
+ 
++	if (w == fullscreenWindow)
++	    continue;
++
+ 	if (!w->shaded)
+ 	{
+ 	    if (w->attrib.map_state != IsViewable || !w->damaged)

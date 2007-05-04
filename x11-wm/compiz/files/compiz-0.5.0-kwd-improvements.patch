@@ -1,0 +1,50 @@
+From: David Reveman <davidr@novell.com>
+Date: Thu, 5 Apr 2007 18:19:52 +0000 (-0400)
+Subject: Avoid unnecessary work in kwd when window position changed.
+X-Git-Url: http://gitweb.freedesktop.org/?p=xorg/app/compiz.git;a=commitdiff;h=36bd6fb709a673e02913fe229173510ce21834a3
+
+Avoid unnecessary work in kwd when window position changed.
+---
+
+--- a/kde/window-decorator/window.cpp
++++ b/kde/window-decorator/window.cpp
+@@ -1476,24 +1476,24 @@ KWD::Window::updateSelected (WId selecte
+ void
+ KWD::Window::updateWindowGeometry (void)
+ {
+-    unsigned int w, h, bw, d;
+-    int          x, y;
+-    XID		 root;
++    KWin::WindowInfo wInfo = KWin::windowInfo (mClientId, NET::WMGeometry);
++    QRect	     geometry = wInfo.geometry ();
+ 
+-    KWD::trapXError ();
+-    XGetGeometry (qt_xdisplay (), mClientId, &root, &x, &y, &w, &h, &bw, &d);
+-    if (KWD::popXError ())
+-	return;
+-
+-    w += bw * 2;
+-    h += bw * 2;
++    if (mGeometry.width ()  != geometry.width () ||
++	mGeometry.height () != geometry.height ())
++    {
++	mGeometry = geometry;
+ 
+-    mGeometry = QRect (x, y, w, h);
+-    if (resizeDecoration ())
+-	return;
++	if (resizeDecoration ())
++	    return;
++    }
++    else
++    {
++	mGeometry = geometry;
++    }
+ 
+-    move (x + ROOT_OFF_X - mBorder.left,
+-	  y + ROOT_OFF_Y - mBorder.top);
++    move (mGeometry.x () + ROOT_OFF_X - mBorder.left,
++	  mGeometry.y () + ROOT_OFF_Y - mBorder.top);
+ }
+ 
+ void

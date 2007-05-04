@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/x11-wm/compiz/compiz-0.5.0.ebuild,v 1.1 2007/04/24 01:51:02 hanno Exp $
 
+inherit eutils
+
 DESCRIPTION="3D composite- and windowmanager"
 HOMEPAGE="http://www.compiz.org/"
 SRC_URI="http://xorg.freedesktop.org/archive/individual/app/${P}.tar.bz2"
@@ -38,6 +40,12 @@ src_unpack() {
 	unpack ${A}
 	cd ${WORKDIR}
 	tar xjf ${FILESDIR}/compiz-settings-${PV}.tar.bz2
+
+	cd ${S}
+	epatch ${FILESDIR}/${P}-kwd-improvements.patch
+	epatch ${FILESDIR}/${P}-fix-ini-module-memleaks.patch
+	epatch ${FILESDIR}/${P}-fix-unredirect-fullscreen-windows.patch
+
 }
 
 src_compile() {
