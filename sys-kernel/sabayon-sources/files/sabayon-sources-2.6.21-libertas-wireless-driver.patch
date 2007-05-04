@@ -1,13 +1,14 @@
 diff -Nurp linux-2.6.21-sabayon-r1.orig/drivers/net/wireless/Kconfig linux-2.6.21-sabayon-r1/drivers/net/wireless/Kconfig
 --- linux-2.6.21-sabayon-r1.orig/drivers/net/wireless/Kconfig	2007-05-03 14:47:33.000000000 +0200
 +++ linux-2.6.21-sabayon-r1/drivers/net/wireless/Kconfig	2007-05-03 14:55:41.000000000 +0200
-@@ -265,6 +265,19 @@ config IPW2200_DEBUG
+@@ -265,6 +265,20 @@ config IPW2200_DEBUG
  
  	  If you are not sure, say N here.
  
 +config LIBERTAS_USB
 +	tristate "Marvell Libertas 802.11a/b/g cards"
-+	depends on NET_RADIO && USB
++	depends on WLAN_80211 && USB
++	select WIRELESS_EXT
 +	select FW_LOADER
 +	---help---
 +	  A driver for Marvel Libertas USB devices.

@@ -86,10 +86,10 @@ AUX sabayon-sources-2.6.21-kvm-19.patch 90670 RMD160 5a3e335f7abc74bd023f9e4d5ca
 MD5 66f8ac95c078acf392dfed8f2b8d4a5b files/sabayon-sources-2.6.21-kvm-19.patch 90670
 RMD160 5a3e335f7abc74bd023f9e4d5ca7c835127a6a78 files/sabayon-sources-2.6.21-kvm-19.patch 90670
 SHA256 d28c73e9b03d9949a87e5a64764328ac3cff4a1dc78e386845015c2acf2bce71 files/sabayon-sources-2.6.21-kvm-19.patch 90670
-AUX sabayon-sources-2.6.21-libertas-wireless-driver.patch 733106 RMD160 a4ce93363a224057f300b92dd97e2c9fec127b42 SHA1 15fc49f2120ac19a28e3e7c63b950f288ccd7eac SHA256 5917b067ce823c24c2e616eaa3f971821aef2611378f6f8b4d95f844ea2e0c86
-MD5 facb1c8ea41aff129c709e14d7101866 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 733106
-RMD160 a4ce93363a224057f300b92dd97e2c9fec127b42 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 733106
-SHA256 5917b067ce823c24c2e616eaa3f971821aef2611378f6f8b4d95f844ea2e0c86 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 733106
+AUX sabayon-sources-2.6.21-libertas-wireless-driver.patch 733129 RMD160 05885bc16db305abdbcc96b05702f1edd3f6eba8 SHA1 c18487d006dad0e59f98275390c81920f4368c70 SHA256 1e2692ffc224d95c0c1e1b22e910b026755597bd3a792239fae098c5cc8e1040
+MD5 f778586850b1d5e9de25a82baa42d1ed files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 733129
+RMD160 05885bc16db305abdbcc96b05702f1edd3f6eba8 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 733129
+SHA256 1e2692ffc224d95c0c1e1b22e910b026755597bd3a792239fae098c5cc8e1040 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 733129
 AUX sabayon-sources-2.6.21-mactel.patch 80488 RMD160 48443c199391d2be56c7c8ca1e3b90c95fad23cc SHA1 d0cd25fbe32be96bdb715364fe9c5c698b8bf655 SHA256 0654309f918067ad6c77eb5b867009221ebeea4d26ed05afd6b40e67126d5a8f
 MD5 2cad90e2ea19d799254af8370807bab4 files/sabayon-sources-2.6.21-mactel.patch 80488
 RMD160 48443c199391d2be56c7c8ca1e3b90c95fad23cc files/sabayon-sources-2.6.21-mactel.patch 80488
