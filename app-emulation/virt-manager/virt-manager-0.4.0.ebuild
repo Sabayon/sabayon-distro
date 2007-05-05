@@ -30,5 +30,6 @@ src_unpack() {
 }
 
 src_install() {
+	addwrite /var/lib/scrollkeeper
 	make DESTDIR=${D} install || die
 }
