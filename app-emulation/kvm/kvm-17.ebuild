@@ -71,9 +71,20 @@ src_compile() {
 	fi
 
 	./configure ${BUILDOPTS} || die "configure failed"
-	make || die "make failed"
+
+	cd ${S}/user
+	make || die "make libkvm failed"
+
+	cd ${S}/qemu
+	make || die "make qemu failed"
 
 	ARCH=$OLD_ARCH
+
+	if ! use no_kernel_module; then
+		cd ${S}/kernel
+		# linux-mod_src_compile
+		make || die "make kernel module failed"
+	fi
 	
 }
 
@@ -81,8 +92,12 @@ src_install() {
 	if ! use no_kernel_module; then
 		linux-mod_src_install
 	fi
+
+	cd ${S}/user
+        make DESTDIR="${D}" install || die "make libkvm install failed"
 	cd ${S}/qemu
-        make DESTDIR="${D}" install || die "make install failed"
+        make DESTDIR="${D}" install || die "make qemu install failed"
+	
 	if use amd64; then
 		dosym /usr/bin/qemu-system-x86_64 /usr/bin/kvm
 	elif use x86; then
