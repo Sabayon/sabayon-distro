@@ -32,6 +32,11 @@ src_compile() {
 	fi
 
 	econf ${EOPTS} || die "econf failed"
+
+	if ! use xen; then
+		epatch ${FILESDIR}/${P}-disable-xen.patch
+	fi
+
 	emake || die "make failed"
 
 }
