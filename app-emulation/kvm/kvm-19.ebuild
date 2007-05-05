@@ -83,7 +83,7 @@ src_compile() {
 	if ! use no_kernel_module; then
 		cd ${S}/kernel
 		# linux-mod_src_compile
-		make || die "make kernel module failed"
+		make KERNELDIR=${KV_DIR} || die "make kernel module failed"
 	fi
 	
 }
