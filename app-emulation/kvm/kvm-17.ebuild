@@ -66,7 +66,6 @@ src_compile() {
 	
 	cd ${S}
 	BUILDOPTS="--disable-gcc-check --qemu-cc=/usr/bin/gcc"
-	BUILDOPTS="${BUILDOPTS} --kerneldir=${KV_DIR}"
 	if use no_kernel_module; then
 		BUILDOPTS="${BUILDOPTS} --with-patched-kernel"
 	fi
