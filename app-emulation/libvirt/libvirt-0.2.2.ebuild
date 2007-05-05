@@ -11,16 +11,29 @@ SRC_URI="ftp://libvirt.org/libvirt/${P}.tar.gz"
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="xen"
 
 DEPEND="sys-libs/readline
 	sys-libs/ncurses
 	dev-libs/libxml2
-	app-emulation/xen-tools
+	xen? ( >=app-emulation/xen-tools-3.0.4_p1 )
 	dev-lang/python"
 
 src_unpack() {
 	unpack ${A}
+}
+
+src_compile() {
+	cd ${S}
+	
+	EOPTS=""
+	if ! use xen; then
+		EOPTS="${EOPTS} --without-xen"
+	fi
+
+	econf ${EOPTS} || die "econf failed"
+	emake || die "make failed"
+
 }
 
 src_install() {
