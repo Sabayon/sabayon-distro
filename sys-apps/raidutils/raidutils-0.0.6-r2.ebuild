@@ -8,7 +8,7 @@ DESCRIPTION="Utilities to manage i2o/dtp RAID controllers."
 SRC_URI="http://i2o.shadowconnect.com/raidutils/${P}.tar.bz2"
 HOMEPAGE="http://i2o.shadowconnect.com/"
 
-KEYWORDS="x86"
+KEYWORDS="x86 ~amd64"
 IUSE=""
 
 SLOT="0"
