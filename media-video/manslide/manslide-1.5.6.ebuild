@@ -10,7 +10,7 @@ SRC_URI="http://csgib36.ifrance.com/Manslide/${P}.tar.gz"
 HOMEPAGE="http://www.kde-apps.org/content/show.php?content=46558"
 
 LICENSE="GPL"
-KEYWORDS="~x86"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND="
