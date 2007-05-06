@@ -27,6 +27,8 @@ DEPEND="
 
 src_unpack() {
 	unpack ${A}
+	cd ${S}
+	epatch ${FILESDIR}/${PN}-hal-dbus-dirty-workarounds.patch
 }
 
 src_install() {
