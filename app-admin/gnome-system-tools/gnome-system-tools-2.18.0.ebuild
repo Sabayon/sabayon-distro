@@ -22,7 +22,7 @@ RDEPEND="net-misc/openssh
 	>=gnome-base/gconf-2.2
 	>=dev-libs/libxml2-2.4.12
 	>=gnome-base/nautilus-2.9.90
-	>=app-admin/system-tools-backends-1.3.0
+	>=app-admin/system-tools-backends-2.2.0
 	nfs? ( net-fs/nfs-utils )
 	samba? ( >=net-fs/samba-3 )"
 
