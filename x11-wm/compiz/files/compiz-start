@@ -18,7 +18,7 @@ GLX_WITH_INDIRECT=`LIBGL_ALWAYS_INDIRECT=1 glxinfo|grep -c GLX_EXT_texture_from_
 GLX_RENDER=`glxinfo|grep -c "OpenGL renderer string: Mesa GLX Indirect"`
 
 
-COMPIZ_OPTIONS="--replace --loose-binding"
+COMPIZ_OPTIONS="--replace"
 
 export __GL_YIELD="NOTHING"
 if [ $GLX_WITH_DIRECT -eq 3 ]; then
