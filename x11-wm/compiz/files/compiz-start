@@ -18,12 +18,12 @@ GLX_WITH_INDIRECT=`LIBGL_ALWAYS_INDIRECT=1 glxinfo|grep -c GLX_EXT_texture_from_
 GLX_RENDER=`glxinfo|grep -c "OpenGL renderer string: Mesa GLX Indirect"`
 
 
-COMPIZ_OPTIONS="--replace"
+COMPIZ_OPTIONS="--replace --loose-binding"
 
+export __GL_YIELD="NOTHING"
 if [ $GLX_WITH_DIRECT -eq 3 ]; then
 	if [ $GLX_RENDER -eq 0 ]; then
 		echo NVIDIA detected
-		export __GL_YIELD="NOTHING"
 	else
 		echo XGL detected
 	fi
