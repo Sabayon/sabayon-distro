@@ -110,6 +110,10 @@ AUX sabayon-sources-2.6.21-sata_nv-fixes.patch 3977 RMD160 66baa5ac03d73b61903b7
 MD5 c1c043a3e12197057587246f34eda841 files/sabayon-sources-2.6.21-sata_nv-fixes.patch 3977
 RMD160 66baa5ac03d73b61903b7be854181a94f1fe79b4 files/sabayon-sources-2.6.21-sata_nv-fixes.patch 3977
 SHA256 0fc82cad9b6ba3591a8f502da63ea05d2aabeb5eb4ca54e6ae2e32c29a9e602a files/sabayon-sources-2.6.21-sata_nv-fixes.patch 3977
+AUX sabayon-sources-2.6.21-sd-0.48.patch 79766 RMD160 2973ef9c87ab3ae8a21bb893219062509d2e19fb SHA1 69a4b56800aee145f6b5e8716487420f8dbcd97e SHA256 b92af631d3d63e1afc02f07c5eb763f225174432ff2a8ee9cfef5cb1338b81b4
+MD5 f45a91048102456b22d5880bcecc3082 files/sabayon-sources-2.6.21-sd-0.48.patch 79766
+RMD160 2973ef9c87ab3ae8a21bb893219062509d2e19fb files/sabayon-sources-2.6.21-sd-0.48.patch 79766
+SHA256 b92af631d3d63e1afc02f07c5eb763f225174432ff2a8ee9cfef5cb1338b81b4 files/sabayon-sources-2.6.21-sd-0.48.patch 79766
 AUX sabayon-sources-2.6.21-sony-laptops.patch 66608 RMD160 9f621d3ceed1b7031e25af3536fab33a1dc507c7 SHA1 668de075a8d1c281d73ad781460498da4becf784 SHA256 44ee58e8ec3b2f7ef203fab705cc918284f18371ad8cb32f2d04d90aa1ca22b6
 MD5 a1f4a7d616bf49ba7c36a5367bb46f5b files/sabayon-sources-2.6.21-sony-laptops.patch 66608
 RMD160 9f621d3ceed1b7031e25af3536fab33a1dc507c7 files/sabayon-sources-2.6.21-sony-laptops.patch 66608
@@ -195,10 +199,10 @@ EBUILD sabayon-sources-2.6.20_rc7.ebuild 1468 RMD160 b4c680256c9445a066a8d25342f
 MD5 c065b0ed96b72f2fbe53eaa82c387480 sabayon-sources-2.6.20_rc7.ebuild 1468
 RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 sabayon-sources-2.6.20_rc7.ebuild 1468
 SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186 sabayon-sources-2.6.20_rc7.ebuild 1468
-EBUILD sabayon-sources-2.6.21-r1.ebuild 4159 RMD160 61f22286bcdc6f1df30a449ecb491b1ccfdcb668 SHA1 9ebfc08abbb0f33b342be40dd6da3fe858fbbe5c SHA256 f9645d151b6878a3a720313920cac537cceafb1ac2b3a3108d212c6ad4f912f0
-MD5 ddeff2c0d5c252d8e85f518b45c1b053 sabayon-sources-2.6.21-r1.ebuild 4159
-RMD160 61f22286bcdc6f1df30a449ecb491b1ccfdcb668 sabayon-sources-2.6.21-r1.ebuild 4159
-SHA256 f9645d151b6878a3a720313920cac537cceafb1ac2b3a3108d212c6ad4f912f0 sabayon-sources-2.6.21-r1.ebuild 4159
+EBUILD sabayon-sources-2.6.21-r1.ebuild 4190 RMD160 d730a9adb1ae44ff4e831fd51b17191a4a5b0d04 SHA1 6c5fe13a6e5524de289a9ed3a15bde5e0c49ed70 SHA256 fb39612757737e7c4c34d9e93a70da49516cb4c631186b0acf7ad006081b49bd
+MD5 37f5f563f2338791452cd0a99a19c2b1 sabayon-sources-2.6.21-r1.ebuild 4190
+RMD160 d730a9adb1ae44ff4e831fd51b17191a4a5b0d04 sabayon-sources-2.6.21-r1.ebuild 4190
+SHA256 fb39612757737e7c4c34d9e93a70da49516cb4c631186b0acf7ad006081b49bd sabayon-sources-2.6.21-r1.ebuild 4190
 EBUILD sabayon-sources-2.6.21.ebuild 3888 RMD160 3de14fe34e5aa1ce134c70d64e356192d4c44f2a SHA1 4310d27ecbb75a2ad1ca9c8ce2fb22f6db4c4756 SHA256 781ff98950e4f4dd04d98c8b9552b0127ed385193aa6cf5f52859ae3ac7d8763
 MD5 7c68e2dc04bbaadea15a282e2ebf5d0f sabayon-sources-2.6.21.ebuild 3888
 RMD160 3de14fe34e5aa1ce134c70d64e356192d4c44f2a sabayon-sources-2.6.21.ebuild 3888
