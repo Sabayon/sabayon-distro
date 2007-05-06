@@ -16,8 +16,7 @@ RDEPEND="net-misc/openssh
 	userland_GNU? ( sys-apps/shadow )
 	>=dev-libs/libxml2-2.4.12
 	!<app-admin/gnome-system-tools-1.1.91
-	dev-lang/perl
-	>=app-admin/liboobs-2.18"
+	dev-lang/perl"
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	>=dev-util/intltool-0.29"

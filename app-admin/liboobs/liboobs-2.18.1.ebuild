@@ -12,7 +12,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
 IUSE=""
 
 RDEPEND="
-	app-admin/system-tools-backends
+	>=app-admin/system-tools-backends-2.2.0
 	"
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
