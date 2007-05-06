@@ -12485,7 +12485,7 @@ diff -Nurp linux-2.6.21-sabayon-r1.orig/drivers/net/wireless/libertas/wlan_fw.c 
 +
 +#include <linux/module.h>
 +#include <linux/moduleparam.h>
-+#include <linux/config.h>
++
 +
 +#include <linux/vmalloc.h>
 +#include <linux/firmware.h>
