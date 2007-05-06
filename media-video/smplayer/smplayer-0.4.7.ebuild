@@ -10,12 +10,11 @@ SRC_URI="http://smplayer.sourceforge.net/download/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86"
-IUSE="kde"
+KEYWORDS="~x86 ~amd64"
+IUSE=""
 
 DEPEND="
         >=x11-libs/qt-4.2
-	kde? ( >=kde-base/kdelibs-3.5 )
 	"
 
 RDEPEND="${DEPEND}
