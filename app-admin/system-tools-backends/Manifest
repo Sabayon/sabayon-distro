@@ -1,0 +1,8 @@
+DIST system-tools-backends-2.2.1.tar.bz2 409158 RMD160 36e0a385e0969b3d515c67a590c3088fc80d7dec SHA1 eaa7b45e2723774ad017248cab684ae37c47bad5 SHA256 192e79dccf72e84be4ff16c9936cc358f66bd626ba4c994e181663944d6648b7
+EBUILD system-tools-backends-2.2.1.ebuild 877 RMD160 8c82261e009783be0733b8a9abc8fcc350c215bd SHA1 a7aa02abca80a6ac4324e0ff6a2d7b3a341e2532 SHA256 9835af739801dbc12002c478ed0856a78de50a07bb7140cffce3f3e1888399a9
+MD5 7380db1b8d48c257c20bf52390edab8b system-tools-backends-2.2.1.ebuild 877
+RMD160 8c82261e009783be0733b8a9abc8fcc350c215bd system-tools-backends-2.2.1.ebuild 877
+SHA256 9835af739801dbc12002c478ed0856a78de50a07bb7140cffce3f3e1888399a9 system-tools-backends-2.2.1.ebuild 877
+MD5 3f962be6407f068cb7210d2d38747538 files/digest-system-tools-backends-2.2.1 286
+RMD160 5350033484dabdd05404940084f19e8276ce4030 files/digest-system-tools-backends-2.2.1 286
+SHA256 b978771ae954272b3f520369a6689762ebb67891b4b6dd7b3ebca85b6082594f files/digest-system-tools-backends-2.2.1 286
