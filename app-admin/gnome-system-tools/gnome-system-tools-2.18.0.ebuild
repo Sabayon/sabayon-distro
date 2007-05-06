@@ -30,6 +30,7 @@ DEPEND="${RDEPEND}
 	app-text/scrollkeeper
 	>=app-text/gnome-doc-utils-0.3.2
 	dev-util/pkgconfig
+	>=app-admin/liboobs-2.18
 	>=dev-util/intltool-0.34.2"
 
 DOCS="AUTHORS BUGS ChangeLog HACKING NEWS README TODO"

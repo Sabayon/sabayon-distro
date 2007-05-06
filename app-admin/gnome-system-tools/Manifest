@@ -1,8 +1,8 @@
 DIST gnome-system-tools-2.18.0.tar.bz2 2815588 RMD160 3a34c7e44df7267e096bacd5e3f364978c169928 SHA1 d92f512533e940d2c5aaa028449a21dbb5a826e9 SHA256 de4667c8a95c55e1936b19d3bed85507a37f0eabcaa1f2eadd3c7ef89e39c480
-EBUILD gnome-system-tools-2.18.0.ebuild 1305 RMD160 5fdb47a259bdd87b371c03d9475200f2ff89ca27 SHA1 45d34f3a77979619f6e37d65ec83fe1978df8f6e SHA256 7fc6b8e0ff12cd79e1c223744e3d932ba9efcadaaab3c0a6a48d9e2a0de4f2b8
-MD5 094300ec7cf0077a669f805a4e649121 gnome-system-tools-2.18.0.ebuild 1305
-RMD160 5fdb47a259bdd87b371c03d9475200f2ff89ca27 gnome-system-tools-2.18.0.ebuild 1305
-SHA256 7fc6b8e0ff12cd79e1c223744e3d932ba9efcadaaab3c0a6a48d9e2a0de4f2b8 gnome-system-tools-2.18.0.ebuild 1305
+EBUILD gnome-system-tools-2.18.0.ebuild 1331 RMD160 662e7e8d9a7af8d46e8272f5d809e35368d228b7 SHA1 1df71641e0b5a2f1e9a34a3484a21aeb43626143 SHA256 addb64788031eeea255596eccbd3177a4750d1ac3aa9dbf71329817be880a473
+MD5 5b09099a23254b9b1fe7891565d51090 gnome-system-tools-2.18.0.ebuild 1331
+RMD160 662e7e8d9a7af8d46e8272f5d809e35368d228b7 gnome-system-tools-2.18.0.ebuild 1331
+SHA256 addb64788031eeea255596eccbd3177a4750d1ac3aa9dbf71329817be880a473 gnome-system-tools-2.18.0.ebuild 1331
 MD5 1d35d2adcc88fe53deda441bd31c95b6 files/digest-gnome-system-tools-2.18.0 283
 RMD160 7e6cf63cf7a460fba9173f1d5640f2fb117e1eb1 files/digest-gnome-system-tools-2.18.0 283
 SHA256 42a825abb2c6e89088ed19fd3f06173ec766af1fb76851e78ffb361ed4653577 files/digest-gnome-system-tools-2.18.0 283
