@@ -1,18 +1,3 @@
-# Subversion ebuild, might break.
-=media-sound/picard-9999
-
-# Subversion ebuild, might break.
-=media-libs/tunepimp-9999
-
-# Subversion ebuild, might break.
-=dev-python/python-musicbrainz2-9999
-
-# This overlay requires tunepimp to be useful at all - reverse the mask.
--media-libs/tunepimp
-
-# This package is old and will screw up your system, it was a proof of concept
-x11-misc/xglswitch
-
 # Breaks API
 =x11-libs/wxGTK-2.8.0_rc3
 
@@ -22,26 +7,11 @@ x11-misc/xglswitch
 # Needs a new Murrina GTK Theme
 >=x11-themes/murrine-0.31
 
-# Causes kdeinit errors
-=x11-libs/qt-4.2.2
-
-# SVN build of aquamarine
-=x11-wm/aquamarine-9999
-
-# Very beta and very breaking prone but good
->=sys-apps/einit-0.14.0.500
-
-# Masked for testing of staticIP and profiles
-=net-misc/networkmanager-0.6.4_pre20070122-r2
-
 # Horribly broken
 kde-misc/guidance
 
 # Broken
 app-emulation/qemu-gui
-
-# Builds normally, but in ebuild, fails
-=media-video/seom-9999
 
 # Highly unstable
 ~net-im/skype-1.4.0.58
