@@ -11777,3 +11777,133 @@ diff -Nurp linux-2.6.21-sabayon-r1.orig/drivers/net/wireless/prism54usb/sent_dat
 +				 islsm_data_packet3}
 +	,
 +};
+--- /dev/null	2007-05-06 11:37:42.809011547 +0200
++++ wireless-2.6/include/linux/isl_38xx.h	2007-04-04 09:22:33.000000000 +0200
+@@ -0,0 +1,127 @@
++/*
++ *  Copyright (C) 2002 Intersil Americas Inc.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#ifndef _LINUX_ISL_38XX_H
++#define _LINUX_ISL_38XX_H
++
++#include <asm/io.h>
++
++#define ISL38XX_CB_RX_QSIZE                     8
++#define ISL38XX_CB_TX_QSIZE                     32
++
++/* ISL38XX Access Point Specific definitions */
++#define ISL38XX_MAX_WDS_LINKS                   8
++
++/* ISL38xx Client Specific definitions */
++#define ISL38XX_PSM_ACTIVE_STATE                0
++#define ISL38XX_PSM_POWERSAVE_STATE             1
++
++/* ISL38XX Host Interface Definitions */
++#define ISL38XX_PCI_MEM_SIZE                    0x02000
++#define ISL38XX_MEMORY_WINDOW_SIZE              0x01000
++#define ISL38XX_DEV_FIRMWARE_ADDRES             0x20000
++#define ISL38XX_WRITEIO_DELAY                   10	/* in us */
++#define ISL38XX_RESET_DELAY                     50	/* in ms */
++#define ISL38XX_WAIT_CYCLE                      10	/* in 10ms */
++#define ISL38XX_MAX_WAIT_CYCLES                 10
++
++/* PCI Memory Area */
++#define ISL38XX_HARDWARE_REG                    0x0000
++#define ISL38XX_CARDBUS_CIS                     0x0800
++#define ISL38XX_DIRECT_MEM_WIN                  0x1000
++
++/* Hardware registers */
++#define ISL38XX_DEV_INT_REG                     0x0000
++#define ISL38XX_INT_IDENT_REG                   0x0010
++#define ISL38XX_INT_ACK_REG                     0x0014
++#define ISL38XX_INT_EN_REG                      0x0018
++#define ISL38XX_GEN_PURP_COM_REG_1              0x0020
++#define ISL38XX_GEN_PURP_COM_REG_2              0x0024
++#define ISL38XX_CTRL_BLK_BASE_REG               ISL38XX_GEN_PURP_COM_REG_1
++#define ISL38XX_DIR_MEM_BASE_REG                0x0030
++#define ISL38XX_CTRL_STAT_REG                   0x0078
++
++/* High end mobos queue up pci writes, the following
++ * is used to "read" from after a write to force flush */
++#define ISL38XX_PCI_POSTING_FLUSH		ISL38XX_INT_EN_REG
++
++/**
++ * isl38xx_w32_flush - PCI iomem write helper
++ * @base: (host) memory base address of the device
++ * @val: 32bit value (host order) to write
++ * @offset: byte offset into @base to write value to
++ * 
++ *  This helper takes care of writing a 32bit datum to the
++ *  specified offset into the device's pci memory space, and making sure 
++ *  the pci memory buffers get flushed by performing one harmless read 
++ *  from the %ISL38XX_PCI_POSTING_FLUSH offset.
++ */
++static inline void
++isl38xx_w32_flush(void __iomem *base, u32 val, unsigned long offset)
++{
++	writel(val, base + offset);
++	(void) readl(base + ISL38XX_PCI_POSTING_FLUSH);
++}
++
++/* Device Interrupt register bits */
++#define ISL38XX_DEV_INT_RESET                   0x0001
++#define ISL38XX_DEV_INT_UPDATE                  0x0002
++#define ISL38XX_DEV_INT_WAKEUP                  0x0008
++#define ISL38XX_DEV_INT_SLEEP                   0x0010
++#define ISL38XX_DEV_INT_ABORT                   0x0020
++/* thos two only used in USB */
++#define ISL38XX_DEV_INT_DATA                    0x0040
++#define ISL38XX_DEV_INT_MGMT                    0x0080
++
++#define ISL38XX_DEV_INT_PCIUART_CTS             0x4000
++#define ISL38XX_DEV_INT_PCIUART_DR              0x8000
++
++/* Interrupt Identification/Acknowledge/Enable register bits */
++#define ISL38XX_INT_IDENT_UPDATE                0x0002
++#define ISL38XX_INT_IDENT_INIT                  0x0004
++#define ISL38XX_INT_IDENT_WAKEUP                0x0008
++#define ISL38XX_INT_IDENT_SLEEP                 0x0010
++#define ISL38XX_INT_IDENT_PCIUART_CTS           0x4000
++#define ISL38XX_INT_IDENT_PCIUART_DR            0x8000
++
++#define ISL38XX_INT_SOURCES                     (ISL38XX_INT_IDENT_UPDATE | \
++						 ISL38XX_INT_IDENT_INIT | \
++						 ISL38XX_INT_IDENT_WAKEUP | \
++						 ISL38XX_INT_IDENT_SLEEP | \
++						 ISL38XX_INT_IDENT_PCIUART_CTS | \
++						 ISL38XX_INT_IDENT_PCIUART_DR)
++
++/* Control/Status register bits */
++/* Looks like there are other meaningful bits
++    0x20004400 seen in normal operation,
++    0x200044db at 'timeout waiting for mgmt response'
++*/
++#define ISL38XX_CTRL_STAT_SLEEPMODE             0x00000200
++#define	ISL38XX_CTRL_STAT_CLKRUN		0x00800000
++#define ISL38XX_CTRL_STAT_RESET                 0x10000000
++#define ISL38XX_CTRL_STAT_RAMBOOT               0x20000000
++#define ISL38XX_CTRL_STAT_STARTHALTED           0x40000000
++#define ISL38XX_CTRL_STAT_HOST_OVERRIDE         0x80000000
++
++/* Some flags for the isl hardware registers controlling DMA inside the
++ * chip */
++#define ISL38XX_DMA_STATUS_DONE                 0x00000001
++#define ISL38XX_DMA_STATUS_READY                0x00000002
++#define NET2280_EPA_FIFO_PCI_ADDR               0x20000000
++#define ISL38XX_DMA_MASTER_CONTROL_TRIGGER      0x00000004
++
++#endif /* _LINUX_ISL_38XX_H */

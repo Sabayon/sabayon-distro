@@ -90,10 +90,10 @@ AUX sabayon-sources-2.6.21-kvm-19.patch 90670 RMD160 5a3e335f7abc74bd023f9e4d5ca
 MD5 66f8ac95c078acf392dfed8f2b8d4a5b files/sabayon-sources-2.6.21-kvm-19.patch 90670
 RMD160 5a3e335f7abc74bd023f9e4d5ca7c835127a6a78 files/sabayon-sources-2.6.21-kvm-19.patch 90670
 SHA256 d28c73e9b03d9949a87e5a64764328ac3cff4a1dc78e386845015c2acf2bce71 files/sabayon-sources-2.6.21-kvm-19.patch 90670
-AUX sabayon-sources-2.6.21-libertas-wireless-driver.patch 614571 RMD160 03a58eca362823822eb845c452dcb8b37de3e9a5 SHA1 d85d6c557c3c645eacb06020c4f53f807032e3f2 SHA256 4207c5044c3ec7d284a379c98d349a4f5acace8ee4255f8c2095c76ad28c4aff
-MD5 dad2656703acb9e9e493f0436775c058 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 614571
-RMD160 03a58eca362823822eb845c452dcb8b37de3e9a5 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 614571
-SHA256 4207c5044c3ec7d284a379c98d349a4f5acace8ee4255f8c2095c76ad28c4aff files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 614571
+AUX sabayon-sources-2.6.21-libertas-wireless-driver.patch 621800 RMD160 bcd011cd6e8ea697e5042e6bb445e6da6a683c87 SHA1 5ae14f813ff9d045bd0fdca1728ac23d979b3032 SHA256 cd11ae136376435743d580c3d24c6f2d22cdc2da6489e50df3147af2e9000f2a
+MD5 ba9271ab56776a47c50b16b0c77a65c2 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 621800
+RMD160 bcd011cd6e8ea697e5042e6bb445e6da6a683c87 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 621800
+SHA256 cd11ae136376435743d580c3d24c6f2d22cdc2da6489e50df3147af2e9000f2a files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 621800
 AUX sabayon-sources-2.6.21-mactel.patch 80488 RMD160 48443c199391d2be56c7c8ca1e3b90c95fad23cc SHA1 d0cd25fbe32be96bdb715364fe9c5c698b8bf655 SHA256 0654309f918067ad6c77eb5b867009221ebeea4d26ed05afd6b40e67126d5a8f
 MD5 2cad90e2ea19d799254af8370807bab4 files/sabayon-sources-2.6.21-mactel.patch 80488
 RMD160 48443c199391d2be56c7c8ca1e3b90c95fad23cc files/sabayon-sources-2.6.21-mactel.patch 80488
@@ -102,10 +102,10 @@ AUX sabayon-sources-2.6.21-prism2.patch 743686 RMD160 31c7cb0e5b441e3c0712bc0504
 MD5 a192c27cbbc3005140a480811a4c622f files/sabayon-sources-2.6.21-prism2.patch 743686
 RMD160 31c7cb0e5b441e3c0712bc05042e40f8dea89b94 files/sabayon-sources-2.6.21-prism2.patch 743686
 SHA256 a6d1c2613344b5bed451d8c273d4e2ccdfa3cb5de4a0fb33cc3c9d3d2679e98c files/sabayon-sources-2.6.21-prism2.patch 743686
-AUX sabayon-sources-2.6.21-prism54-updates.patch 352621 RMD160 70d3c90d70aa51d4432ddbaee1b3048e137f9019 SHA1 bcc6830f28b4f2cff2047c5b73835f5cf77c18a8 SHA256 0a4fc824b36f6b3170333facee87f39d95c08f25367261f6c1dc591eb8bd605e
-MD5 b4e96f369f93c3502620a181bd5f4546 files/sabayon-sources-2.6.21-prism54-updates.patch 352621
-RMD160 70d3c90d70aa51d4432ddbaee1b3048e137f9019 files/sabayon-sources-2.6.21-prism54-updates.patch 352621
-SHA256 0a4fc824b36f6b3170333facee87f39d95c08f25367261f6c1dc591eb8bd605e files/sabayon-sources-2.6.21-prism54-updates.patch 352621
+AUX sabayon-sources-2.6.21-prism54-updates.patch 358119 RMD160 d2ae3fb48e8ff49452f28010a3c775e318eb2eba SHA1 346cbe18814c4bdbc37ce68a78ed7f0005b1ce7d SHA256 a491236cd28a059ccabc9977a0096c313b5c06fa3fe7d1543880d968f1697b54
+MD5 b00b6c7a84c3f72cde35c60327e2da3d files/sabayon-sources-2.6.21-prism54-updates.patch 358119
+RMD160 d2ae3fb48e8ff49452f28010a3c775e318eb2eba files/sabayon-sources-2.6.21-prism54-updates.patch 358119
+SHA256 a491236cd28a059ccabc9977a0096c313b5c06fa3fe7d1543880d968f1697b54 files/sabayon-sources-2.6.21-prism54-updates.patch 358119
 AUX sabayon-sources-2.6.21-ricoh-mmc-driver.patch 18604 RMD160 d8b165effa5dfa77faaa7cc6c8e1db1dae6288d2 SHA1 d0bd995acf4196b258077612064a610be1becb06 SHA256 cd388419a1b554cf5498d61115df30c77ddc3ea20e05626b851ede28928ead87
 MD5 8f04639a71b03838328131b369971eed files/sabayon-sources-2.6.21-ricoh-mmc-driver.patch 18604
 RMD160 d8b165effa5dfa77faaa7cc6c8e1db1dae6288d2 files/sabayon-sources-2.6.21-ricoh-mmc-driver.patch 18604
