@@ -34,7 +34,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PN}-2.6.21-tiacx-adm8211-drivers.patch ${FILESDIR}/${PN}-2.6.21-at76c503a.patch 
 		${DISTDIR}/${PV}-ext4-1.bz2 ${FILESDIR}/${P}-mactel.patch 
 		${FILESDIR}/${P}-thinkpad.patch ${FILESDIR}/${P}-sony-laptops.patch
-		${FILESDIR}/${P}-${PV}.1.patch ${FILESDIR}/${P}-prism54-updates.patch 
+		${FILESDIR}/${P}-${PV}.1.patch 
 		${FILESDIR}/${P}-i965-support.patch ${FILESDIR}/${P}-fix-sis900-oops.patch
 		${FILESDIR}/${P}-from-ext4dev-to-ext4.patch ${FILESDIR}/${P}-ricoh-mmc-driver.patch
 		${FILESDIR}/${P}-sata_nv-fixes.patch ${FILESDIR}/${P}-sd-0.48.patch
@@ -42,7 +42,7 @@ UNIPATCH_LIST="
 # disabled for testing
 # ${FILESDIR}/${P}-adaptive-readahead.patch
 # ${FILESDIR}/${P}-execshield.patch
-
+# ${FILESDIR}/${P}-prism54-updates.patch
 
 UNIPATCH_STRICTORDER="yes"
 
