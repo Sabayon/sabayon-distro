@@ -17,8 +17,9 @@ GLX_WITH_DIRECT=`glxinfo|grep -c GLX_EXT_texture_from_pixmap`
 GLX_WITH_INDIRECT=`LIBGL_ALWAYS_INDIRECT=1 glxinfo|grep -c GLX_EXT_texture_from_pixmap`
 GLX_RENDER=`glxinfo|grep -c "OpenGL renderer string: Mesa GLX Indirect"`
 
-
+PROCESSES=$(ps ax)
 COMPIZ_OPTIONS="--replace"
+XGL_RUNNING=$(echo $PROCESSES | grep Xgl)
 
 export __GL_YIELD="NOTHING"
 if [ $GLX_WITH_DIRECT -eq 3 ]; then
@@ -44,8 +45,11 @@ else
 fi
 
 echo "Starting Compiz with: "$COMPIZ_OPTIONS
-nice -15 compiz $COMPIZ_OPTIONS ini &
-
+if [ -n "$XGL_RUNNING" ]; then
+	LD_LIBRARY_PATH="/usr/lib/opengl/xorg-x11/lib" compiz $COMPIZ_OPTIONS ini &
+else
+	nice -15 compiz $COMPIZ_OPTIONS ini &
+fi
 # Wait and see if compiz ran fine
 sleep 5
 
