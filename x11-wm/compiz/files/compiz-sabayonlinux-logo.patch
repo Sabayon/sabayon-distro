@@ -1,0 +1,12 @@
+diff -Nurp compiz-0.5.0.orig/metadata/cube.xml.in compiz-0.5.0/metadata/cube.xml.in
+--- compiz-0.5.0.orig/metadata/cube.xml.in	2007-05-09 15:41:53.000000000 +0200
++++ compiz-0.5.0/metadata/cube.xml.in	2007-05-09 15:52:54.000000000 +0200
+@@ -50,7 +50,7 @@
+ 		<_short>Image files</_short>
+ 		<_long>List of PNG and SVG files that should be rendered on top face of cube</_long>
+ 		<type>string</type>
+-		<default>freedesktop</default>
++		<default>sabayonlinux</default>
+ 	    </option>
+ 	    <option name="skydome" type="bool">
+ 		<_short>Skydome</_short>
