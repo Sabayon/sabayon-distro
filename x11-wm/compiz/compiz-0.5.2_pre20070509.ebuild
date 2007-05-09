@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/x11-wm/compiz/compiz-0.5.0.ebuild,v 1.1 2007/04/24 01:51:02 hanno Exp $
 
-inherit eutils
+inherit eutils autotools
 
 DESCRIPTION="3D composite- and windowmanager"
 HOMEPAGE="http://www.compiz.org/"
@@ -49,6 +49,10 @@ src_unpack() {
 }
 
 src_compile() {
+	eautoreconf || die "eautoreconf failed"
+	intltoolize --copy --force || die "intltoolize failed"
+	glib-gettextize --copy --force || die "glib-gettextize failed"
+
 	econf --with-default-plugins \
 		--enable-gtk \
 		--enable-gconf \
