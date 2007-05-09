@@ -82,6 +82,10 @@ EBUILD ati-drivers-8.36.5-r90.ebuild 13665 RMD160 21798c277c053b732d9ce8edaa2c5e
 MD5 078a3a992b68d7ddcebd9f860c4d94ff ati-drivers-8.36.5-r90.ebuild 13665
 RMD160 21798c277c053b732d9ce8edaa2c5ecd0ee66853 ati-drivers-8.36.5-r90.ebuild 13665
 SHA256 b76085ba95c4c443b2ca37c33e4d123e97a51ff36e88371d932df51523830e97 ati-drivers-8.36.5-r90.ebuild 13665
+EBUILD ati-drivers-8.36.5-r91.ebuild 14190 RMD160 0cbf1e4e7fae97dc6176c66c7382d687ce79378e SHA1 f5028131bc7a3bbf1b7133cddc9ef338ee3ec766 SHA256 11bc92c6fdd4e613212b495a35ee27a459d1ce878e7b62a25f7f1ac5d32cea81
+MD5 f98b90267a3d6ea706e82b6de579349b ati-drivers-8.36.5-r91.ebuild 14190
+RMD160 0cbf1e4e7fae97dc6176c66c7382d687ce79378e ati-drivers-8.36.5-r91.ebuild 14190
+SHA256 11bc92c6fdd4e613212b495a35ee27a459d1ce878e7b62a25f7f1ac5d32cea81 ati-drivers-8.36.5-r91.ebuild 14190
 MD5 def642418453b0cfdd7964633b0ffc8f files/digest-ati-drivers-8.29.6-r99 280
 RMD160 24625bb4e4e00d67975e90f65f8c84ecf7a58177 files/digest-ati-drivers-8.29.6-r99 280
 SHA256 1be5719dcefe0f04a6bae5aa005174cf1dbead722948f6328c6470bcf9a10c36 files/digest-ati-drivers-8.29.6-r99 280
@@ -112,3 +116,6 @@ SHA256 659a782745be00b18560605815672be5383db3e4cbe267c299c2777048421f67 files/di
 MD5 0a1221c6a3dfb79b5f10053b80e6ccfb files/digest-ati-drivers-8.36.5-r90 313
 RMD160 7105cac2defbf243c6a0e67fb786669041efeede files/digest-ati-drivers-8.36.5-r90 313
 SHA256 ab93e3b6c75657e038f051d598c0051fe1a63736cbdd392fe7c98a8f12625c37 files/digest-ati-drivers-8.36.5-r90 313
+MD5 0a1221c6a3dfb79b5f10053b80e6ccfb files/digest-ati-drivers-8.36.5-r91 313
+RMD160 7105cac2defbf243c6a0e67fb786669041efeede files/digest-ati-drivers-8.36.5-r91 313
+SHA256 ab93e3b6c75657e038f051d598c0051fe1a63736cbdd392fe7c98a8f12625c37 files/digest-ati-drivers-8.36.5-r91 313
