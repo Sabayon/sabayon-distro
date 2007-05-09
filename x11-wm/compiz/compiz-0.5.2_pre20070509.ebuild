@@ -56,7 +56,7 @@ src_compile() {
 	econf --with-default-plugins \
 		--enable-gtk \
 		--enable-gconf \
-		`use_enable gnome` \
+		--disable-gnome \
 		`use_enable gnome metacity` \
 		`use_enable kde` \
 		`use_enable svg librsvg` \
@@ -67,9 +67,9 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
-	dobin "${FILESDIR}/compiz-start" || die
-	dodoc AUTHORS ChangeLog NEWS README TODO || die
+	make DESTDIR="${D}" install || die "make install failed"
+	dobin "${FILESDIR}/compiz-start"
+	dodoc AUTHORS ChangeLog NEWS README TODO
 
 	# Install Settings
 	if [ -d "/etc/skel" ]; then
