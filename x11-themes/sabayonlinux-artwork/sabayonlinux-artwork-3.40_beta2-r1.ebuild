@@ -25,39 +25,31 @@ S="${WORKDIR}/${PN}"
 
 src_install () {
 
-	if [ ! -e ${ROOT}/usr/share/backgrounds ]; then
-          dodir ${ROOT}/usr/share/backgrounds
-        fi
-
-	if [ ! -e ${ROOT}/usr/share/themes ]; then
-          dodir ${ROOT}/usr/share/themes
-        fi
-
-	if [ ! -e ${ROOT}/etc/splash ]; then
-          dodir ${ROOT}/etc/splash
-        fi
+	dodir /usr/share/backgrounds
+	dodir /usr/share/themes
+	dodir /etc/splash
 
 	cd ${S}/background
-	insinto ${ROOT}/usr/share/backgrounds
+	insinto /usr/share/backgrounds
 	doins *.jpg *.png
 
 	cd ${S}/gtk
-	insinto ${ROOT}/usr/share/themes
+	insinto /usr/share/themes
 	doins -r ./
 
 	cd ${S}/metacity
-	insinto ${ROOT}/usr/share/themes
+	insinto /usr/share/themes
 	doins -r ./
 
 	# GNOME splash
 	cd ${S}/gnome-splash
-	insinto ${ROOT}/usr/share/pixmaps/splash
+	insinto /usr/share/pixmaps/splash
 	doins *.png
 
-	if [ -e ${ROOT}/usr/kde/3.5 ]; then
-	  kdedir="${ROOT}/usr/kde/3.5"
-	elif [ -e ${ROOT}/usr/kde/3.4 ]; then
-	  kdedir="${ROOT}/usr/kde/3.4"
+	if [ -e /usr/kde/3.5 ]; then
+	  kdedir="/usr/kde/3.5"
+	elif [ -e /usr/kde/3.4 ]; then
+	  kdedir="/usr/kde/3.4"
 	else
 	  kdedir="nokde"	
 	fi
@@ -71,7 +63,7 @@ src_install () {
 
 	  # KDM theme
 	  cd ${S}/kdm
-	  insinto ${ROOT}/$kdedir/share/apps/kdm/themes/
+	  insinto /$kdedir/share/apps/kdm/themes/
 	  doins -r ./
 
 	fi
@@ -83,8 +75,8 @@ src_install () {
 
 	# Emerald theme
 	#cd ${S}/emerald
-	#dodir ${ROOT}/usr/share/emerald/themes
-	#insinto ${ROOT}/usr/share/emerald/themes
+	#dodir /usr/share/emerald/themes
+	#insinto /usr/share/emerald/themes
 	#doins -r ./
 
 	cd ${S}/mouse/PolarCursor/cursors/
