@@ -83,11 +83,6 @@ scan_and_remove_old_files() {
        do
           rm -rf $file
        done
-
-    for file in `find /home -maxdepth 2 -name .compiz*`
-        do
-            rm -rf $file
-        done
 }
 
 add_compiz_manager_to_the_startup() {
