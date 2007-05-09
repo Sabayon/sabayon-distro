@@ -43,6 +43,9 @@ src_unpack() {
 	cd ${WORKDIR}
 	tar xjf ${FILESDIR}/compiz-settings-${PRE_PV}.tar.bz2
 
+	# change freedesktop to sabayonlinux
+	sed -i 's/freedesktop/sabayonlinux/' compiz-settings/options/cube-screen0.conf
+
 	cd ${S}
 	epatch ${FILESDIR}/${P}.patch
 	epatch ${FILESDIR}/${PN}-sabayonlinux-logo.patch
