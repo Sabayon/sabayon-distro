@@ -95,10 +95,10 @@ add_compiz_manager_to_the_startup() {
         fi
     fi
 
-    if [ ! -e "$xprofile_file" ]; then
-        touch $xprofile_file
-    fi
-    echo "export XLIB_SKIP_ARGB_VISUALS=1" >> $xprofile_file
+    #if [ ! -e "$xprofile_file" ]; then
+    #    touch $xprofile_file
+    #fi
+    #echo "export XLIB_SKIP_ARGB_VISUALS=1" >> $xprofile_file
 
     # if it's available, add compiz-settings too
     if [ -e "$compiz_settings_desktop_file" ]; then
