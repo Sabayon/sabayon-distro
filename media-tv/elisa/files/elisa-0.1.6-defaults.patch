@@ -1,0 +1,39 @@
+diff -Nurp elisa-0.1.6.orig/elisa/core/config.py elisa-0.1.6/elisa/core/config.py
+--- elisa-0.1.6.orig/elisa/core/config.py	2007-03-09 13:38:26.000000000 +0100
++++ elisa-0.1.6/elisa/core/config.py	2007-05-10 14:57:08.000000000 +0200
+@@ -33,22 +33,22 @@ renderer = 'opengl1'
+ # resolution = [800, 600]
+ 
+ # should elisa switch to fullscreen on startup? 0: no, 1: yes
+-start_fullscreen = 0
++start_fullscreen = 1
+ 
+ # the main menu plugins to use
+ plugins = ['pictures', 'music', 'movies', 'dvd', 'services']
+ 
+ # the data access plugins, each plugin handles a set of URI schemes
+ # possible values: 'vfs', 'upnp', 'local_fs', 'meta_fs', 'flickr','ipod','daap_fs'
+-plugins.data = ['vfs', 'upnp', 'local_fs', 'meta_fs','daap_fs','ipod']
++plugins.data = ['vfs', 'upnp', 'local_fs', 'meta_fs','daap_fs','ipod','flickr']
+ 
+ # the plugins to load under the "services" menu
+ # possible values: 'weather', 'config'
+-plugins.services = ['weather']
++plugins.services = ['weather','config']
+ 
+ # miscellaneous plugins
+ # possible values: 'audioscrobbler','lastfm','lirc', 'web_radio', 'hal','http_server','upnp_server'
+-plugins.misc = ['audioscrobbler','lirc', 'web_radio', 'hal', 'lastfm']
++plugins.misc = ['audioscrobbler','lirc', 'web_radio', 'hal', 'lastfm' , 'http_server' , 'upnp_server']
+ 
+ # the player queue to use
+ # possible values: 'default_queue', 'smart_queue'
+@@ -74,7 +74,7 @@ enable_profiling = 0
+ 
+ [media_manager]
+ # enable or disable the media manager
+-enable_cache = 0
++enable_cache = 1
+ 
+ # the database filename. the file will be stored in the same directory as
+ # the config file
