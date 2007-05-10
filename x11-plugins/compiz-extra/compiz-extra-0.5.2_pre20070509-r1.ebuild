@@ -1,7 +1,7 @@
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-inherit gnome2
+inherit gnome2 eutils
 
 DESCRIPTION="Compiz extra third party plugins"
 HOMEPAGE="http://www.go-compiz.org/index.php?title=Download"
@@ -17,6 +17,13 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND=">=x11-wm/compiz-${PV}"
+
+src_unpack() {
+	unpack ${A}
+	cd ${S}
+	epatch ${FILESDIR}/${P}-plugins.patch
+
+}
 
 src_compile() {
 	cd ${S}
