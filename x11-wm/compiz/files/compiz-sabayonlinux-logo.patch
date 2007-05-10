@@ -10,3 +10,19 @@ diff -Nurp compiz-0.5.0.orig/metadata/cube.xml.in compiz-0.5.0/metadata/cube.xml
  	    </option>
  	    <option name="skydome" type="bool">
  		<_short>Skydome</_short>
+diff -Nurp compiz-0.5.0.orig/metadata/cube.xml.in compiz-0.5.0/metadata/cube.xml.in
+--- compiz-0.5.0.orig/metadata/cube.xml.in	2007-05-10 20:13:58.000000000 +0200
++++ compiz-0.5.0/metadata/cube.xml.in	2007-05-10 20:20:12.000000000 +0200
+@@ -31,9 +31,9 @@
+ 		<_short>Cube Color</_short>
+ 		<_long>Color of top and bottom sides of the cube</_long>
+ 		<default>
+-		    <red>0xfefe</red>
+-		    <green>0xffff</green>
+-		    <blue>0xc7c7</blue>
++		    <red>0x000000</red>
++		    <green>0x000000</green>
++		    <blue>0x000000</blue>
+ 		</default>
+ 	    </option>
+ 	    <option name="in" type="bool">
