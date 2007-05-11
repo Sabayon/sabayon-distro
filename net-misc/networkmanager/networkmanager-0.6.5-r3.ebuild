@@ -44,7 +44,7 @@ src_unpack () {
 	epatch ${FILESDIR}/${PN}-0.6.4-dhcp-manager.c.patch
 	
 	# Fix possible early-xdm related problem
-	epatch ${FILESDIR}/${PN}-0.6.4-force-before-xdm.patch
+	# epatch ${FILESDIR}/${PN}-0.6.4-force-before-xdm.patch
 
 	# Fix possible associations problems
 	epatch ${FILESDIR}/${PN}-0.6.4-high-delay.patch

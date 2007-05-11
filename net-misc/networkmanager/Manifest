@@ -82,7 +82,7 @@ AUX networkmanager-use-kernel-headers.patch 466 RMD160 cd16279966d4e3594a20aa0b8
 MD5 e9879921dd5b0669337e27ca2196cfd4 files/networkmanager-use-kernel-headers.patch 466
 RMD160 cd16279966d4e3594a20aa0b89d08f3baa3c2e58 files/networkmanager-use-kernel-headers.patch 466
 SHA256 952948f41676fafcf76210cbef46728cbb219d6c851d5417d892b984fd725402 files/networkmanager-use-kernel-headers.patch 466
-DIST NetworkManager-0.6.4_pre20061028.tar.bz2 152040 RMD160 baa65bfc4a3e0792d168fe115ab92cc9ca52d7e4 SHA1 d590e07b3ef89fb089c1afa24ced351b80339e83 SHA256 f7859642ad611ac035610b2e681ddc0c0893fbe78febd4c776406fc60b5e5ea7
+DIST NetworkManager-0.6.4_pre20061028.tar.bz2 1780993 RMD160 eef9c8fedaacba413b833b98ee56af5bd74ada2b SHA1 ddbdb4579908f2ce73ee9c6ce31b79fd4082e8a6 SHA256 4a7114367d0f14eeaee094e3c08bfb728a175fd23ac6b97a5868aa734011583c
 DIST NetworkManager-0.6.5.tar.gz 966900 RMD160 ce3b3fb1968d91ce53762f8eef5a19e5054d6f02 SHA1 6cb2883f22e450a9c832f52e3bdf24ff5c479167 SHA256 92fa11dccf100c030540189d883967b25418e1ea310fd910388604ee18cb31ed
 EBUILD networkmanager-0.6.4_pre20061223.ebuild 3296 RMD160 393f83343f8e2a84c6efed8d5ccfbd55f3d78a09 SHA1 b058553d5579217022b8f9aea9e84f108ad4dde0 SHA256 4002a6b3e22de2f47c2cd480cd55f67a1d79c99866e3992f1bb8fe2efecc8f5f
 MD5 f12904aab82e3236068ef61160598981 networkmanager-0.6.4_pre20061223.ebuild 3296
@@ -116,34 +116,34 @@ EBUILD networkmanager-0.6.5-r1.ebuild 3134 RMD160 b1c9c15c176e40b717a0dced718454
 MD5 eec9e998dce477d73b860f00180603de networkmanager-0.6.5-r1.ebuild 3134
 RMD160 b1c9c15c176e40b717a0dced718454f0e5fd909a networkmanager-0.6.5-r1.ebuild 3134
 SHA256 b92728dbc73a3809556887f4b4627f86db14f2ff2c450de317b0c9068ba4c9da networkmanager-0.6.5-r1.ebuild 3134
-EBUILD networkmanager-0.6.5-r2.ebuild 3226 RMD160 842ab580c4f344bcd5fa078fb445a14ad912bc3f SHA1 60a76baeb022bf21bb4f379a39eff0ded59550d9 SHA256 03ee081f7c8f01844a0cf6a543548b6da1d087e4cd87ea4d3f0f7d8f4983ffc6
-MD5 dbee5d20e169bf8e22fadb92533ab599 networkmanager-0.6.5-r2.ebuild 3226
-RMD160 842ab580c4f344bcd5fa078fb445a14ad912bc3f networkmanager-0.6.5-r2.ebuild 3226
-SHA256 03ee081f7c8f01844a0cf6a543548b6da1d087e4cd87ea4d3f0f7d8f4983ffc6 networkmanager-0.6.5-r2.ebuild 3226
-MD5 26fe48bbf0b5ea8eb5b7c1bc30981211 files/digest-networkmanager-0.6.4_pre20061223 301
-RMD160 795e592ad1f8ee6cde39ab0db2b6d312f94ab5bf files/digest-networkmanager-0.6.4_pre20061223 301
-SHA256 9eb8337b9a97eba6de4a3352713e31e27bd6df86aa9b5d4d4f9aba7c8eaa98d6 files/digest-networkmanager-0.6.4_pre20061223 301
-MD5 26fe48bbf0b5ea8eb5b7c1bc30981211 files/digest-networkmanager-0.6.4_pre20070122-r1 301
-RMD160 795e592ad1f8ee6cde39ab0db2b6d312f94ab5bf files/digest-networkmanager-0.6.4_pre20070122-r1 301
-SHA256 9eb8337b9a97eba6de4a3352713e31e27bd6df86aa9b5d4d4f9aba7c8eaa98d6 files/digest-networkmanager-0.6.4_pre20070122-r1 301
-MD5 26fe48bbf0b5ea8eb5b7c1bc30981211 files/digest-networkmanager-0.6.4_pre20070122-r2 301
-RMD160 795e592ad1f8ee6cde39ab0db2b6d312f94ab5bf files/digest-networkmanager-0.6.4_pre20070122-r2 301
-SHA256 9eb8337b9a97eba6de4a3352713e31e27bd6df86aa9b5d4d4f9aba7c8eaa98d6 files/digest-networkmanager-0.6.4_pre20070122-r2 301
-MD5 26fe48bbf0b5ea8eb5b7c1bc30981211 files/digest-networkmanager-0.6.4_pre20070208 301
-RMD160 795e592ad1f8ee6cde39ab0db2b6d312f94ab5bf files/digest-networkmanager-0.6.4_pre20070208 301
-SHA256 9eb8337b9a97eba6de4a3352713e31e27bd6df86aa9b5d4d4f9aba7c8eaa98d6 files/digest-networkmanager-0.6.4_pre20070208 301
-MD5 26fe48bbf0b5ea8eb5b7c1bc30981211 files/digest-networkmanager-0.6.4_pre20070213 301
-RMD160 795e592ad1f8ee6cde39ab0db2b6d312f94ab5bf files/digest-networkmanager-0.6.4_pre20070213 301
-SHA256 9eb8337b9a97eba6de4a3352713e31e27bd6df86aa9b5d4d4f9aba7c8eaa98d6 files/digest-networkmanager-0.6.4_pre20070213 301
-MD5 26fe48bbf0b5ea8eb5b7c1bc30981211 files/digest-networkmanager-0.6.4_pre20070213-r1 301
-RMD160 795e592ad1f8ee6cde39ab0db2b6d312f94ab5bf files/digest-networkmanager-0.6.4_pre20070213-r1 301
-SHA256 9eb8337b9a97eba6de4a3352713e31e27bd6df86aa9b5d4d4f9aba7c8eaa98d6 files/digest-networkmanager-0.6.4_pre20070213-r1 301
-MD5 26fe48bbf0b5ea8eb5b7c1bc30981211 files/digest-networkmanager-0.6.4_pre20070308 301
-RMD160 795e592ad1f8ee6cde39ab0db2b6d312f94ab5bf files/digest-networkmanager-0.6.4_pre20070308 301
-SHA256 9eb8337b9a97eba6de4a3352713e31e27bd6df86aa9b5d4d4f9aba7c8eaa98d6 files/digest-networkmanager-0.6.4_pre20070308 301
+EBUILD networkmanager-0.6.5-r3.ebuild 3228 RMD160 0cea29425a2f61ca91dac5113cba85df43726033 SHA1 30ab7080056e7672d1338c9c1dd3b37edf461ae3 SHA256 8d5e31f5cb2e364ce1ede95d2016ad0c20a0de2e83b854b714cb392bfda54fa7
+MD5 acbf8ed959d62821ac1d7172e1d06d0f networkmanager-0.6.5-r3.ebuild 3228
+RMD160 0cea29425a2f61ca91dac5113cba85df43726033 networkmanager-0.6.5-r3.ebuild 3228
+SHA256 8d5e31f5cb2e364ce1ede95d2016ad0c20a0de2e83b854b714cb392bfda54fa7 networkmanager-0.6.5-r3.ebuild 3228
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20061223 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20061223 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20061223 304
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20070122-r1 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20070122-r1 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20070122-r1 304
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20070122-r2 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20070122-r2 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20070122-r2 304
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20070208 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20070208 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20070208 304
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20070213 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20070213 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20070213 304
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20070213-r1 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20070213-r1 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20070213-r1 304
+MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20070308 304
+RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20070308 304
+SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20070308 304
 MD5 6411087715eebfcef820ecfdb7137783 files/digest-networkmanager-0.6.5-r1 262
 RMD160 95caf1137080b31c372a92bb3a507c506c5addc6 files/digest-networkmanager-0.6.5-r1 262
 SHA256 371cace70b07acd128e96072f7c68028c2e73ea5eee69e9620637f89c5eb2850 files/digest-networkmanager-0.6.5-r1 262
-MD5 6411087715eebfcef820ecfdb7137783 files/digest-networkmanager-0.6.5-r2 262
-RMD160 95caf1137080b31c372a92bb3a507c506c5addc6 files/digest-networkmanager-0.6.5-r2 262
-SHA256 371cace70b07acd128e96072f7c68028c2e73ea5eee69e9620637f89c5eb2850 files/digest-networkmanager-0.6.5-r2 262
+MD5 6411087715eebfcef820ecfdb7137783 files/digest-networkmanager-0.6.5-r3 262
+RMD160 95caf1137080b31c372a92bb3a507c506c5addc6 files/digest-networkmanager-0.6.5-r3 262
+SHA256 371cace70b07acd128e96072f7c68028c2e73ea5eee69e9620637f89c5eb2850 files/digest-networkmanager-0.6.5-r3 262
