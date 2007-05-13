@@ -1,6 +1,6 @@
 diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/smpboot.c linux-2.6.21-sabayon-r2/arch/i386/kernel/smpboot.c
---- linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/smpboot.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/arch/i386/kernel/smpboot.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/smpboot.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/arch/i386/kernel/smpboot.c	2007-05-13 19:59:09.000000000 +0200
 @@ -980,18 +980,6 @@ exit:
  }
  #endif
@@ -29,17 +29,16 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/smpboot.c linux-2.6.21-
  	set_cpu_sibling_map(0);
  
 diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/syscall_table.S linux-2.6.21-sabayon-r2/arch/i386/kernel/syscall_table.S
---- linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/syscall_table.S	2007-05-12 12:41:49.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/arch/i386/kernel/syscall_table.S	2007-05-12 12:44:58.000000000 +0200
-@@ -320,3 +320,5 @@ ENTRY(sys_call_table)
+--- linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/syscall_table.S	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/arch/i386/kernel/syscall_table.S	2007-05-13 19:59:43.000000000 +0200
+@@ -320,3 +320,4 @@ ENTRY(sys_call_table)
  	.long sys_getcpu
  	.long sys_epoll_pwait
  	.long sys_fallocate		/* 320 */
 +	.long sys_sched_yield_to
-+
 diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/tsc.c linux-2.6.21-sabayon-r2/arch/i386/kernel/tsc.c
---- linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/tsc.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/arch/i386/kernel/tsc.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/tsc.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/arch/i386/kernel/tsc.c	2007-05-13 19:59:09.000000000 +0200
 @@ -106,8 +106,13 @@ unsigned long long sched_clock(void)
  
  	/*
@@ -64,8 +63,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/i386/kernel/tsc.c linux-2.6.21-saba
  		tsc_unstable = 1;
  		tsc_enabled = 0;
 diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/ia64/kernel/setup.c linux-2.6.21-sabayon-r2/arch/ia64/kernel/setup.c
---- linux-2.6.21-sabayon-r2.orig/arch/ia64/kernel/setup.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/arch/ia64/kernel/setup.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/arch/ia64/kernel/setup.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/arch/ia64/kernel/setup.c	2007-05-13 19:59:09.000000000 +0200
 @@ -806,7 +806,6 @@ static void __cpuinit
  get_max_cacheline_size (void)
  {
@@ -94,8 +93,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/ia64/kernel/setup.c linux-2.6.21-sa
  		ia64_max_cacheline_size = max;
  }
 diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/mips/kernel/smp.c linux-2.6.21-sabayon-r2/arch/mips/kernel/smp.c
---- linux-2.6.21-sabayon-r2.orig/arch/mips/kernel/smp.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/arch/mips/kernel/smp.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/arch/mips/kernel/smp.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/arch/mips/kernel/smp.c	2007-05-13 19:59:09.000000000 +0200
 @@ -51,16 +51,6 @@ int __cpu_logical_map[NR_CPUS];		/* Map 
  EXPORT_SYMBOL(phys_cpu_present_map);
  EXPORT_SYMBOL(cpu_online_map);
@@ -122,8 +121,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/mips/kernel/smp.c linux-2.6.21-saba
  #ifndef CONFIG_HOTPLUG_CPU
  	cpu_present_map = cpu_possible_map;
 diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/sparc/kernel/smp.c linux-2.6.21-sabayon-r2/arch/sparc/kernel/smp.c
---- linux-2.6.21-sabayon-r2.orig/arch/sparc/kernel/smp.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/arch/sparc/kernel/smp.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/arch/sparc/kernel/smp.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/arch/sparc/kernel/smp.c	2007-05-13 19:59:09.000000000 +0200
 @@ -69,16 +69,6 @@ void __cpuinit smp_store_cpu_info(int id
  	cpu_data(id).prom_node = cpu_node;
  	cpu_data(id).mid = cpu_get_hwmid(cpu_node);
@@ -142,8 +141,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/sparc/kernel/smp.c linux-2.6.21-sab
  		panic("No MID found for CPU%d at node 0x%08d", id, cpu_node);
  }
 diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/sparc64/kernel/smp.c linux-2.6.21-sabayon-r2/arch/sparc64/kernel/smp.c
---- linux-2.6.21-sabayon-r2.orig/arch/sparc64/kernel/smp.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/arch/sparc64/kernel/smp.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/arch/sparc64/kernel/smp.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/arch/sparc64/kernel/smp.c	2007-05-13 19:59:09.000000000 +0200
 @@ -1293,41 +1293,6 @@ int setup_profiling_timer(unsigned int m
  	return 0;
  }
@@ -195,8 +194,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/arch/sparc64/kernel/smp.c linux-2.6.21-s
  
  /* Set this up early so that things like the scheduler can init
 diff -Nurp linux-2.6.21-sabayon-r2.orig/Documentation/kernel-parameters.txt linux-2.6.21-sabayon-r2/Documentation/kernel-parameters.txt
---- linux-2.6.21-sabayon-r2.orig/Documentation/kernel-parameters.txt	2007-05-12 12:41:47.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/Documentation/kernel-parameters.txt	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/Documentation/kernel-parameters.txt	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/Documentation/kernel-parameters.txt	2007-05-13 19:59:09.000000000 +0200
 @@ -946,49 +946,6 @@ and is between 256 and 4096 characters. 
  
  	mga=		[HW,DRM]
@@ -249,7 +248,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/Documentation/kernel-parameters.txt linu
  			leaving touchpad surface for touch to be considered
 diff -Nurp linux-2.6.21-sabayon-r2.orig/Documentation/kernel-parameters.txt.orig linux-2.6.21-sabayon-r2/Documentation/kernel-parameters.txt.orig
 --- linux-2.6.21-sabayon-r2.orig/Documentation/kernel-parameters.txt.orig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-sabayon-r2/Documentation/kernel-parameters.txt.orig	2007-05-12 12:41:47.000000000 +0200
++++ linux-2.6.21-sabayon-r2/Documentation/kernel-parameters.txt.orig	2007-05-13 19:57:09.000000000 +0200
 @@ -0,0 +1,1868 @@
 +                          Kernel Parameters
 +                          ~~~~~~~~~~~~~~~~~
@@ -2121,7 +2120,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/Documentation/kernel-parameters.txt.orig
 +	Add more DRM drivers.
 diff -Nurp linux-2.6.21-sabayon-r2.orig/Documentation/sched-design-CFS.txt linux-2.6.21-sabayon-r2/Documentation/sched-design-CFS.txt
 --- linux-2.6.21-sabayon-r2.orig/Documentation/sched-design-CFS.txt	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-sabayon-r2/Documentation/sched-design-CFS.txt	2007-05-12 12:44:08.000000000 +0200
++++ linux-2.6.21-sabayon-r2/Documentation/sched-design-CFS.txt	2007-05-13 19:59:09.000000000 +0200
 @@ -0,0 +1,107 @@
 +[announce] [patch] Modular Scheduler Core and Completely Fair Scheduler [CFS]
 +
@@ -2230,9 +2229,24 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/Documentation/sched-design-CFS.txt linux
 +more than welcome,
 +
 +	Ingo
+diff -Nurp linux-2.6.21-sabayon-r2.orig/drivers/char/drm/radeon_cp.c linux-2.6.21-sabayon-r2/drivers/char/drm/radeon_cp.c
+--- linux-2.6.21-sabayon-r2.orig/drivers/char/drm/radeon_cp.c	2007-04-26 05:08:32.000000000 +0200
++++ linux-2.6.21-sabayon-r2/drivers/char/drm/radeon_cp.c	2007-05-13 19:59:09.000000000 +0200
+@@ -2210,6 +2210,11 @@ int radeon_driver_load(struct drm_device
+ 
+ 	DRM_DEBUG("%s card detected\n",
+ 		  ((dev_priv->flags & RADEON_IS_AGP) ? "AGP" : (((dev_priv->flags & RADEON_IS_PCIE) ? "PCIE" : "PCI"))));
++	if (sysctl_sched_yield_bug_workaround == -1) {
++		sysctl_sched_yield_bug_workaround = 1;
++		printk(KERN_WARNING "quirk installed: turning on "
++			"sys_sched_yield() workaround for Radeon DRM.\n");
++	}
+ 	return ret;
+ }
+ 
 diff -Nurp linux-2.6.21-sabayon-r2.orig/fs/proc/array.c linux-2.6.21-sabayon-r2/fs/proc/array.c
---- linux-2.6.21-sabayon-r2.orig/fs/proc/array.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/fs/proc/array.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/fs/proc/array.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/fs/proc/array.c	2007-05-13 19:59:09.000000000 +0200
 @@ -165,7 +165,6 @@ static inline char * task_state(struct t
  	rcu_read_lock();
  	buffer += sprintf(buffer,
@@ -2292,8 +2306,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/fs/proc/array.c linux-2.6.21-sabayon-r2/
  		cputime_to_clock_t(cstime),
  		priority,
 diff -Nurp linux-2.6.21-sabayon-r2.orig/fs/proc/base.c linux-2.6.21-sabayon-r2/fs/proc/base.c
---- linux-2.6.21-sabayon-r2.orig/fs/proc/base.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/fs/proc/base.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/fs/proc/base.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/fs/proc/base.c	2007-05-13 19:59:09.000000000 +0200
 @@ -1834,6 +1834,7 @@ static struct pid_entry tgid_base_stuff[
  	INF("environ",    S_IRUSR, pid_environ),
  	INF("auxv",       S_IRUSR, pid_auxv),
@@ -2311,8 +2325,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/fs/proc/base.c linux-2.6.21-sabayon-r2/f
  	INF("stat",      S_IRUGO, tid_stat),
  	INF("statm",     S_IRUGO, pid_statm),
 diff -Nurp linux-2.6.21-sabayon-r2.orig/fs/proc/internal.h linux-2.6.21-sabayon-r2/fs/proc/internal.h
---- linux-2.6.21-sabayon-r2.orig/fs/proc/internal.h	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/fs/proc/internal.h	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/fs/proc/internal.h	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/fs/proc/internal.h	2007-05-13 19:59:09.000000000 +0200
 @@ -42,6 +42,7 @@ extern int proc_exe_link(struct inode *,
  extern int proc_tid_stat(struct task_struct *,  char *);
  extern int proc_tgid_stat(struct task_struct *, char *);
@@ -2322,8 +2336,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/fs/proc/internal.h linux-2.6.21-sabayon-
  
  extern const struct file_operations proc_maps_operations;
 diff -Nurp linux-2.6.21-sabayon-r2.orig/include/asm-generic/bitops/sched.h linux-2.6.21-sabayon-r2/include/asm-generic/bitops/sched.h
---- linux-2.6.21-sabayon-r2.orig/include/asm-generic/bitops/sched.h	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/include/asm-generic/bitops/sched.h	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/include/asm-generic/bitops/sched.h	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/include/asm-generic/bitops/sched.h	2007-05-13 19:59:09.000000000 +0200
 @@ -6,28 +6,23 @@
  
  /*
@@ -2362,9 +2376,9 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/asm-generic/bitops/sched.h linux
  #error BITS_PER_LONG not defined
  #endif
 diff -Nurp linux-2.6.21-sabayon-r2.orig/include/asm-i386/unistd.h linux-2.6.21-sabayon-r2/include/asm-i386/unistd.h
---- linux-2.6.21-sabayon-r2.orig/include/asm-i386/unistd.h	2007-05-12 12:41:49.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/include/asm-i386/unistd.h	2007-05-12 12:46:01.000000000 +0200
-@@ -326,10 +326,11 @@
+--- linux-2.6.21-sabayon-r2.orig/include/asm-i386/unistd.h	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/include/asm-i386/unistd.h	2007-05-13 20:01:05.000000000 +0200
+@@ -326,10 +326,12 @@
  #define __NR_getcpu		318
  #define __NR_epoll_pwait	319
  #define __NR_fallocate		320
@@ -2374,17 +2388,18 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/asm-i386/unistd.h linux-2.6.21-s
  
 -#define NR_syscalls 321
 +#define NR_syscalls 322
++
  
  #define __ARCH_WANT_IPC_PARSE_VERSION
  #define __ARCH_WANT_OLD_READDIR
 diff -Nurp linux-2.6.21-sabayon-r2.orig/include/asm-x86_64/unistd.h linux-2.6.21-sabayon-r2/include/asm-x86_64/unistd.h
---- linux-2.6.21-sabayon-r2.orig/include/asm-x86_64/unistd.h	2007-05-12 12:41:49.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/include/asm-x86_64/unistd.h	2007-05-12 12:46:55.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/include/asm-x86_64/unistd.h	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/include/asm-x86_64/unistd.h	2007-05-13 20:01:46.000000000 +0200
 @@ -621,8 +621,10 @@ __SYSCALL(__NR_vmsplice, sys_vmsplice)
  __SYSCALL(__NR_move_pages, sys_move_pages)
  #define __NR_fallocate		280
  __SYSCALL(__NR_fallocate, sys_fallocate)
-+#define __NR_sched_yield_to   281
++#define __NR_sched_yield_to	281
 +__SYSCALL(__NR_sched_yield_to, sys_sched_yield_to)
  
 -#define __NR_syscall_max __NR_fallocate
@@ -2393,8 +2408,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/asm-x86_64/unistd.h linux-2.6.21
  #ifndef __NO_STUBS
  #define __ARCH_WANT_OLD_READDIR
 diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/hardirq.h linux-2.6.21-sabayon-r2/include/linux/hardirq.h
---- linux-2.6.21-sabayon-r2.orig/include/linux/hardirq.h	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/include/linux/hardirq.h	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/include/linux/hardirq.h	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/include/linux/hardirq.h	2007-05-13 19:59:09.000000000 +0200
 @@ -79,6 +79,19 @@
  #endif
  
@@ -2416,8 +2431,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/hardirq.h linux-2.6.21-sab
  # define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
  #else
 diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/sched.h linux-2.6.21-sabayon-r2/include/linux/sched.h
---- linux-2.6.21-sabayon-r2.orig/include/linux/sched.h	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/include/linux/sched.h	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/include/linux/sched.h	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/include/linux/sched.h	2007-05-13 19:59:09.000000000 +0200
 @@ -2,7 +2,6 @@
  #define _LINUX_SCHED_H
  
@@ -2533,7 +2548,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/sched.h linux-2.6.21-sabay
  
  struct task_struct {
  	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
-@@ -812,26 +829,44 @@ struct task_struct {
+@@ -812,26 +829,45 @@ struct task_struct {
  #endif
  #endif
  	int load_weight;	/* for niceness load balancing purposes */
@@ -2568,6 +2583,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/sched.h linux-2.6.21-sabay
 +	u64 sum_exec_runtime;
 +	s64 fair_key;
 +	s64 sum_wait_runtime, sum_sleep_runtime;
++	unsigned long wait_runtime_overruns, wait_runtime_underruns;
  
  	unsigned long policy;
  	cpumask_t cpus_allowed;
@@ -2584,7 +2600,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/sched.h linux-2.6.21-sabay
  
  	struct list_head tasks;
  	/*
-@@ -1196,8 +1231,9 @@ static inline int set_cpus_allowed(struc
+@@ -1196,8 +1232,9 @@ static inline int set_cpus_allowed(struc
  #endif
  
  extern unsigned long long sched_clock(void);
@@ -2595,7 +2611,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/sched.h linux-2.6.21-sabay
  
  /* sched_exec is called by processes performing an exec */
  #ifdef CONFIG_SMP
-@@ -1213,6 +1249,13 @@ static inline void idle_task_exit(void) 
+@@ -1213,6 +1250,13 @@ static inline void idle_task_exit(void) 
  #endif
  
  extern void sched_idle_next(void);
@@ -2603,23 +2619,24 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/sched.h linux-2.6.21-sabay
 +
 +extern unsigned int sysctl_sched_granularity;
 +extern unsigned int sysctl_sched_wakeup_granularity;
-+extern unsigned int sysctl_sched_sleep_history_max;
 +extern unsigned int sysctl_sched_child_runs_first;
 +extern unsigned int sysctl_sched_load_smoothing;
++extern int sysctl_sched_yield_bug_workaround;
  
  #ifdef CONFIG_RT_MUTEXES
  extern int rt_mutex_getprio(struct task_struct *p);
-@@ -1291,8 +1334,7 @@ extern void FASTCALL(wake_up_new_task(st
+@@ -1291,8 +1335,8 @@ extern void FASTCALL(wake_up_new_task(st
  #else
   static inline void kick_process(struct task_struct *tsk) { }
  #endif
 -extern void FASTCALL(sched_fork(struct task_struct * p, int clone_flags));
 -extern void FASTCALL(sched_exit(struct task_struct * p));
 +extern void sched_fork(struct task_struct * p, int clone_flags);
++extern void sched_dead(struct task_struct * p);
  
  extern int in_group_p(gid_t);
  extern int in_egroup_p(gid_t);
-@@ -1609,10 +1651,7 @@ static inline unsigned int task_cpu(cons
+@@ -1609,10 +1653,7 @@ static inline unsigned int task_cpu(cons
  	return task_thread_info(p)->cpu;
  }
  
@@ -2631,7 +2648,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/sched.h linux-2.6.21-sabay
  
  #else
  
-@@ -1621,6 +1660,10 @@ static inline unsigned int task_cpu(cons
+@@ -1621,6 +1662,10 @@ static inline unsigned int task_cpu(cons
  	return 0;
  }
  
@@ -2643,8 +2660,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/include/linux/sched.h linux-2.6.21-sabay
  {
  }
 diff -Nurp linux-2.6.21-sabayon-r2.orig/init/main.c linux-2.6.21-sabayon-r2/init/main.c
---- linux-2.6.21-sabayon-r2.orig/init/main.c	2007-05-12 12:41:47.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/init/main.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/init/main.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/init/main.c	2007-05-13 19:59:09.000000000 +0200
 @@ -442,7 +442,7 @@ static void noinline rest_init(void)
  
  	/*
@@ -2656,7 +2673,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/init/main.c linux-2.6.21-sabayon-r2/init
  	schedule();
 diff -Nurp linux-2.6.21-sabayon-r2.orig/init/main.c.orig linux-2.6.21-sabayon-r2/init/main.c.orig
 --- linux-2.6.21-sabayon-r2.orig/init/main.c.orig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-sabayon-r2/init/main.c.orig	2007-05-12 12:41:47.000000000 +0200
++++ linux-2.6.21-sabayon-r2/init/main.c.orig	2007-05-13 19:57:09.000000000 +0200
 @@ -0,0 +1,828 @@
 +/*
 + *  linux/init/main.c
@@ -3487,8 +3504,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/init/main.c.orig linux-2.6.21-sabayon-r2
 +	return 0;
 +}
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/exit.c linux-2.6.21-sabayon-r2/kernel/exit.c
---- linux-2.6.21-sabayon-r2.orig/kernel/exit.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/kernel/exit.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/kernel/exit.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/kernel/exit.c	2007-05-13 19:59:09.000000000 +0200
 @@ -112,7 +112,7 @@ static void __exit_signal(struct task_st
  		sig->maj_flt += tsk->maj_flt;
  		sig->nvcsw += tsk->nvcsw;
@@ -3507,9 +3524,17 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/exit.c linux-2.6.21-sabayon-r2/ke
  	proc_flush_task(p);
  	release_thread(p);
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/fork.c linux-2.6.21-sabayon-r2/kernel/fork.c
---- linux-2.6.21-sabayon-r2.orig/kernel/fork.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/kernel/fork.c	2007-05-12 12:44:08.000000000 +0200
-@@ -874,7 +874,7 @@ static inline int copy_signal(unsigned l
+--- linux-2.6.21-sabayon-r2.orig/kernel/fork.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/kernel/fork.c	2007-05-13 19:59:09.000000000 +0200
+@@ -117,6 +117,7 @@ void __put_task_struct(struct task_struc
+ 	WARN_ON(!(tsk->exit_state & (EXIT_DEAD | EXIT_ZOMBIE)));
+ 	WARN_ON(atomic_read(&tsk->usage));
+ 	WARN_ON(tsk == current);
++	sched_dead(tsk);
+ 
+ 	security_task_free(tsk);
+ 	free_uid(tsk->user);
+@@ -874,7 +875,7 @@ static inline int copy_signal(unsigned l
  	sig->utime = sig->stime = sig->cutime = sig->cstime = cputime_zero;
  	sig->nvcsw = sig->nivcsw = sig->cnvcsw = sig->cnivcsw = 0;
  	sig->min_flt = sig->maj_flt = sig->cmin_flt = sig->cmaj_flt = 0;
@@ -3518,7 +3543,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/fork.c linux-2.6.21-sabayon-r2/ke
  	INIT_LIST_HEAD(&sig->cpu_timers[0]);
  	INIT_LIST_HEAD(&sig->cpu_timers[1]);
  	INIT_LIST_HEAD(&sig->cpu_timers[2]);
-@@ -1037,7 +1037,7 @@ static struct task_struct *copy_process(
+@@ -1037,7 +1038,7 @@ static struct task_struct *copy_process(
  
  	p->utime = cputime_zero;
  	p->stime = cputime_zero;
@@ -3528,8 +3553,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/fork.c linux-2.6.21-sabayon-r2/ke
  	p->rchar = 0;		/* I/O counter: bytes read */
  	p->wchar = 0;		/* I/O counter: bytes written */
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/posix-cpu-timers.c linux-2.6.21-sabayon-r2/kernel/posix-cpu-timers.c
---- linux-2.6.21-sabayon-r2.orig/kernel/posix-cpu-timers.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/kernel/posix-cpu-timers.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/kernel/posix-cpu-timers.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/kernel/posix-cpu-timers.c	2007-05-13 19:59:09.000000000 +0200
 @@ -161,7 +161,7 @@ static inline cputime_t virt_ticks(struc
  }
  static inline unsigned long long sched_ns(struct task_struct *p)
@@ -3671,8 +3696,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/posix-cpu-timers.c linux-2.6.21-s
  
  #undef	UNEXPIRED
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/kernel/sched.c
---- linux-2.6.21-sabayon-r2.orig/kernel/sched.c	2007-04-26 05:08:32.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/kernel/sched.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/kernel/sched.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/kernel/sched.c	2007-05-13 19:59:09.000000000 +0200
 @@ -16,6 +16,11 @@
   *		by Davide Libenzi, preemptible kernel bits by Robert Love.
   *  2003-09-03	Interactivity tuning by Con Kolivas.
@@ -3770,25 +3795,25 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 -	else
 -		return SCALE_PRIO(DEF_TIMESLICE, static_prio);
 -}
- 
- /*
+-
+-/*
 - * task_timeslice() scales user-nice values [ -20 ... 0 ... 19 ]
 - * to time slice values: [800ms ... 100ms ... 5ms]
 - *
 - * The higher a thread's priority, the bigger timeslices
 - * it gets during one round of execution. But even the lowest
 - * priority thread gets MIN_TIMESLICE worth of execution time.
-+ * This is the priority-queue data structure of the RT scheduling class:
-  */
+- */
 -
 -static inline unsigned int task_timeslice(struct task_struct *p)
 -{
 -	return static_prio_timeslice(p->static_prio);
 -}
--
--/*
+ 
+ /*
 - * These are the runqueue data structures:
-- */
++ * This is the priority-queue data structure of the RT scheduling class:
+  */
 -
  struct prio_array {
 -	unsigned int nr_active;
@@ -3818,7 +3843,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  	/*
  	 * This is part of a global counter where only the total sum
-@@ -234,14 +143,29 @@ struct rq {
+@@ -234,14 +143,30 @@ struct rq {
  	 */
  	unsigned long nr_uninterruptible;
  
@@ -3835,7 +3860,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 +	s64 clock_max_delta;
 +	u64 fair_clock, prev_fair_clock;
 +	u64 exec_clock, prev_exec_clock;
-+	u64 wait_runtime;
++	s64 wait_runtime;
++	unsigned long wait_runtime_overruns, wait_runtime_underruns;
 +
 +	unsigned int clock_warps;
 +	unsigned int clock_unstable_events;
@@ -3853,7 +3879,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	atomic_t nr_iowait;
  
  #ifdef CONFIG_SMP
-@@ -278,7 +202,108 @@ struct rq {
+@@ -278,7 +203,114 @@ struct rq {
  	struct lock_class_key rq_lock_key;
  };
  
@@ -3907,6 +3933,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 +	P(min_wait_runtime);
 +	P(last_ran);
 +	P(wait_runtime);
++	P(wait_runtime_overruns);
++	P(wait_runtime_underruns);
 +	P(sum_exec_runtime);
 +#undef P
 +
@@ -3916,6 +3944,10 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 +				(long long)t1-t0);
 +	buffer += sprintf(buffer, "%-25s:%20Ld\n", "rq-wait_runtime",
 +				(long long)this_rq->wait_runtime);
++	buffer += sprintf(buffer, "%-25s:%20Ld\n", "rq-wait_runtime_overruns",
++				(long long)this_rq->wait_runtime_overruns);
++	buffer += sprintf(buffer, "%-25s:%20Ld\n", "rq-wait_runtime_underruns",
++				(long long)this_rq->wait_runtime_underruns);
 +	buffer += sprintf(buffer, "%-25s:%20Ld\n", "rq-exec_clock",
 +				(long long)this_rq->exec_clock);
 +	buffer += sprintf(buffer, "%-25s:%20Ld\n", "rq-fair_clock",
@@ -3963,7 +3995,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  static inline int cpu_of(struct rq *rq)
  {
-@@ -289,6 +314,16 @@ static inline int cpu_of(struct rq *rq)
+@@ -289,6 +321,16 @@ static inline int cpu_of(struct rq *rq)
  #endif
  }
  
@@ -3980,7 +4012,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  /*
   * The domain tree (rq->sd) is protected by RCU's quiescent state transition.
   * See detach_destroy_domains: synchronize_sched for details.
-@@ -433,134 +468,6 @@ static inline void task_rq_unlock(struct
+@@ -433,134 +475,6 @@ static inline void task_rq_unlock(struct
  	spin_unlock_irqrestore(&rq->lock, *flags);
  }
  
@@ -4115,7 +4147,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  /*
   * this_rq_lock - lock this runqueue and disable interrupts.
   */
-@@ -576,178 +483,60 @@ static inline struct rq *this_rq_lock(vo
+@@ -576,178 +490,60 @@ static inline struct rq *this_rq_lock(vo
  	return rq;
  }
  
@@ -4328,7 +4360,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  /*
   * To aid in avoiding the subversion of "niceness" due to uneven distribution
-@@ -771,22 +560,44 @@ static inline int __normal_prio(struct t
+@@ -771,22 +567,45 @@ static inline int __normal_prio(struct t
  #define RTPRIO_TO_LOAD_WEIGHT(rp) \
  	(PRIO_TO_LOAD_WEIGHT(MAX_RT_PRIO) + LOAD_WEIGHT(rp))
  
@@ -4355,6 +4387,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 +
  static void set_load_weight(struct task_struct *p)
  {
++	task_rq(p)->wait_runtime -= p->wait_runtime;
 +	p->wait_runtime = 0;
 +
  	if (has_rt_policy(p)) {
@@ -4386,7 +4419,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  }
  
  static inline void
-@@ -813,6 +624,40 @@ static inline void dec_nr_running(struct
+@@ -813,6 +632,40 @@ static inline void dec_nr_running(struct
  	dec_raw_weighted_load(rq, p);
  }
  
@@ -4427,7 +4460,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  /*
   * Calculate the expected normal priority: i.e. priority
   * without taking RT-inheritance into account. Might be
-@@ -852,210 +697,31 @@ static int effective_prio(struct task_st
+@@ -852,211 +705,32 @@ static int effective_prio(struct task_st
  }
  
  /*
@@ -4601,8 +4634,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	dec_nr_running(p, rq);
 -	dequeue_task(p, p->array);
 -	p->array = NULL;
--}
--
+ }
+ 
 -/*
 - * resched_task - mark a task 'to be rescheduled now'.
 - *
@@ -4641,12 +4674,13 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 -{
 -	assert_spin_locked(&task_rq(p)->lock);
 -	set_tsk_need_resched(p);
- }
+-}
 -#endif
- 
+-
  /**
   * task_curr - is this task currently executing on a CPU?
-@@ -1073,6 +739,36 @@ unsigned long weighted_cpuload(const int
+  * @p: the task in question.
+@@ -1073,6 +747,36 @@ unsigned long weighted_cpuload(const int
  }
  
  #ifdef CONFIG_SMP
@@ -4683,7 +4717,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  struct migration_req {
  	struct list_head list;
  
-@@ -1095,7 +791,7 @@ migrate_task(struct task_struct *p, int 
+@@ -1095,7 +799,7 @@ migrate_task(struct task_struct *p, int 
  	 * If the task is not on a runqueue (and not running), then
  	 * it is sufficient to simply update the task's cpu field.
  	 */
@@ -4692,7 +4726,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		set_task_cpu(p, dest_cpu);
  		return 0;
  	}
-@@ -1126,7 +822,7 @@ void wait_task_inactive(struct task_stru
+@@ -1126,7 +830,7 @@ void wait_task_inactive(struct task_stru
  repeat:
  	rq = task_rq_lock(p, &flags);
  	/* Must be off runqueue entirely, not preempted. */
@@ -4701,7 +4735,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		/* If it's preempted, we yield.  It could be a while. */
  		preempted = !task_running(rq, p);
  		task_rq_unlock(rq, &flags);
-@@ -1302,9 +998,9 @@ static int sched_balance_self(int cpu, i
+@@ -1302,9 +1006,9 @@ static int sched_balance_self(int cpu, i
  	struct sched_domain *tmp, *sd = NULL;
  
  	for_each_domain(cpu, tmp) {
@@ -4714,7 +4748,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		if (tmp->flags & SD_POWERSAVINGS_BALANCE)
  			break;
  		if (tmp->flags & flag)
-@@ -1422,7 +1118,7 @@ static int try_to_wake_up(struct task_st
+@@ -1422,7 +1126,7 @@ static int try_to_wake_up(struct task_st
  	if (!(old_state & state))
  		goto out;
  
@@ -4723,7 +4757,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		goto out_running;
  
  	cpu = task_cpu(p);
-@@ -1515,7 +1211,7 @@ out_set_cpu:
+@@ -1515,7 +1219,7 @@ out_set_cpu:
  		old_state = p->state;
  		if (!(old_state & state))
  			goto out;
@@ -4732,7 +4766,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  			goto out_running;
  
  		this_cpu = smp_processor_id();
-@@ -1524,25 +1220,10 @@ out_set_cpu:
+@@ -1524,25 +1228,10 @@ out_set_cpu:
  
  out_activate:
  #endif /* CONFIG_SMP */
@@ -4760,7 +4794,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	/*
  	 * Sync wakeups (i.e. those types of wakeups where the waker
  	 * has indicated that it will leave the CPU in short order)
-@@ -1551,10 +1232,8 @@ out_activate:
+@@ -1551,10 +1240,8 @@ out_activate:
  	 * the waker guarantees that the freshly woken up task is going
  	 * to be considered on this CPU.)
  	 */
@@ -4773,7 +4807,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	success = 1;
  
  out_running:
-@@ -1577,19 +1256,42 @@ int fastcall wake_up_state(struct task_s
+@@ -1577,19 +1264,45 @@ int fastcall wake_up_state(struct task_s
  	return try_to_wake_up(p, state, 0);
  }
  
@@ -4807,14 +4841,17 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 -#endif
 -	set_task_cpu(p, cpu);
 +	p->wait_runtime = 0;
-+	if (p->load_weight < NICE_0_LOAD)
++	if (p->load_weight < NICE_0_LOAD) {
 +		p->wait_runtime = -(s64)
 +			((u64)(sysctl_sched_granularity / p->load_weight)
 +				<< NICE_0_SHIFT);
++		task_rq(p)->wait_runtime += p->wait_runtime;
++	}
 +
 +	p->sum_wait_runtime = p->sum_sleep_runtime = 0;
 +	p->sleep_start = p->sleep_start_fair = p->block_start = 0;
 +	p->sleep_max = p->block_max = p->exec_max = p->wait_max = 0;
++	p->wait_runtime_overruns = p->wait_runtime_underruns = 0;
 +
 +	INIT_LIST_HEAD(&p->run_list);
 +	p->on_rq = 0;
@@ -4823,7 +4860,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  	/*
  	 * We mark the process as running here, but have not actually
-@@ -1598,16 +1300,29 @@ void fastcall sched_fork(struct task_str
+@@ -1598,16 +1311,29 @@ void fastcall sched_fork(struct task_str
  	 * event cannot wake it up and insert it on the runqueue either.
  	 */
  	p->state = TASK_RUNNING;
@@ -4856,12 +4893,10 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		memset(&p->sched_info, 0, sizeof(p->sched_info));
  #endif
  #if defined(CONFIG_SMP) && defined(__ARCH_WANT_UNLOCKED_CTXSW)
-@@ -1615,145 +1330,47 @@ void fastcall sched_fork(struct task_str
- #endif
- #ifdef CONFIG_PREEMPT
+@@ -1617,34 +1343,16 @@ void fastcall sched_fork(struct task_str
  	/* Want to start with kernel preemption disabled. */
--	task_thread_info(p)->preempt_count = 1;
--#endif
+ 	task_thread_info(p)->preempt_count = 1;
+ #endif
 -	/*
 -	 * Share the timeslice between parent and child, thus the
 -	 * total amount of pending timeslices in the system doesn't change,
@@ -4886,20 +4921,25 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 -		task_running_tick(cpu_rq(cpu), current);
 -	}
 -	local_irq_enable();
--	put_cpu();
--}
--
--/*
-- * wake_up_new_task - wake up a newly created task for the first time.
-- *
-- * This function will do some initial scheduler statistics housekeeping
-- * that must be done for every newly created context, then puts the task
-- * on the runqueue and wakes it.
-- */
--void fastcall wake_up_new_task(struct task_struct *p, unsigned long clone_flags)
--{
+ 	put_cpu();
+ }
+ 
+ /*
++ * After fork, child runs first. (default) If set to 0 then
++ * parent will (try to) run first.
++ */
++unsigned int __read_mostly sysctl_sched_child_runs_first = 1;
++
++/*
+  * wake_up_new_task - wake up a newly created task for the first time.
+  *
+  * This function will do some initial scheduler statistics housekeeping
+@@ -1653,108 +1361,37 @@ void fastcall sched_fork(struct task_str
+  */
+ void fastcall wake_up_new_task(struct task_struct *p, unsigned long clone_flags)
+ {
 -	struct rq *rq, *this_rq;
--	unsigned long flags;
+ 	unsigned long flags;
 -	int this_cpu, cpu;
 -
 -	rq = task_rq_lock(p, &flags);
@@ -4948,7 +4988,9 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 -		this_rq = rq;
 -	} else {
 -		this_rq = cpu_rq(this_cpu);
--
++	struct rq *rq;
++	int this_cpu;
+ 
 -		/*
 -		 * Not the local CPU - must adjust timestamp. This should
 -		 * get optimised away in the !CONFIG_SMP case.
@@ -4958,47 +5000,48 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 -		__activate_task(p, rq);
 -		if (TASK_PREEMPTS_CURR(p, rq))
 -			resched_task(rq->curr);
--
--		/*
++	rq = task_rq_lock(p, &flags);
++	BUG_ON(p->state != TASK_RUNNING);
++	this_cpu = smp_processor_id(); /* parent's CPU */
++
++	p->prio = effective_prio(p);
+ 
++	if (!sysctl_sched_child_runs_first || (clone_flags & CLONE_VM) ||
++			task_cpu(p) != this_cpu || !current->on_rq) {
++		activate_task(rq, p, 0);
++	} else {
+ 		/*
 -		 * Parent and child are on different CPUs, now get the
 -		 * parent runqueue to update the parent's ->sleep_avg:
--		 */
++		 * Let the scheduling class do new task startup
++		 * management (if any):
+ 		 */
 -		task_rq_unlock(rq, &flags);
 -		this_rq = task_rq_lock(current, &flags);
--	}
++		p->sched_class->task_new(rq, p);
+ 	}
 -	current->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(current) *
 -		PARENT_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
 -	task_rq_unlock(this_rq, &flags);
-+	task_thread_info(p)->preempt_count = 1;
-+#endif
-+	put_cpu();
++	check_preempt_curr(rq, p);
++	task_rq_unlock(rq, &flags);
  }
  
- /*
+-/*
 - * Potentially available exiting-child timeslices are
 - * retrieved here - this way the parent does not get
 - * penalized for creating too many threads.
-+ * After fork, child runs first. (default) If set to 0 then
-+ * parent will (try to) run first.
-+ */
-+unsigned int __read_mostly sysctl_sched_child_runs_first = 1;
-+
-+/*
-+ * wake_up_new_task - wake up a newly created task for the first time.
-  *
+- *
 - * (this cannot be used to 'generate' timeslices
 - * artificially, because any timeslice recovered here
 - * was given away by the parent in the first place.)
-+ * This function will do some initial scheduler statistics housekeeping
-+ * that must be done for every newly created context, then puts the task
-+ * on the runqueue and wakes it.
-  */
+- */
 -void fastcall sched_exit(struct task_struct *p)
-+void fastcall wake_up_new_task(struct task_struct *p, unsigned long clone_flags)
++void sched_dead(struct task_struct *p)
  {
- 	unsigned long flags;
- 	struct rq *rq;
-+	int this_cpu;
+-	unsigned long flags;
+-	struct rq *rq;
++	struct rq *rq = task_rq(p);
  
 -	/*
 -	 * If the child was a (relative-) CPU hog then decrease
@@ -5014,27 +5057,14 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 -		p->parent->sleep_avg = p->parent->sleep_avg /
 -		(EXIT_WEIGHT + 1) * EXIT_WEIGHT + p->sleep_avg /
 -		(EXIT_WEIGHT + 1);
-+	rq = task_rq_lock(p, &flags);
-+	BUG_ON(p->state != TASK_RUNNING);
-+	this_cpu = smp_processor_id(); /* parent's CPU */
+-	task_rq_unlock(rq, &flags);
++	rq->wait_runtime -= p->wait_runtime;
 +
-+	p->prio = effective_prio(p);
-+
-+	if (!sysctl_sched_child_runs_first || (clone_flags & CLONE_VM) ||
-+			task_cpu(p) != this_cpu || !current->on_rq) {
-+		activate_task(rq, p, 0);
-+	} else {
-+		/*
-+		 * Let the scheduling class do new task startup
-+		 * management (if any):
-+		 */
-+		p->sched_class->task_new(rq, p);
-+	}
-+	check_preempt_curr(rq, p);
- 	task_rq_unlock(rq, &flags);
++	WARN_ON_ONCE(p->on_rq);
  }
  
-@@ -1958,17 +1575,59 @@ unsigned long nr_active(void)
+ /**
+@@ -1958,17 +1595,59 @@ unsigned long nr_active(void)
  	return running + uninterruptible;
  }
  
@@ -5102,7 +5132,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  /*
   * double_rq_lock - safely lock two runqueues
   *
-@@ -2085,23 +1744,17 @@ void sched_exec(void)
+@@ -2085,23 +1764,17 @@ void sched_exec(void)
   * pull_task - move a task from a remote runqueue to the local runqueue.
   * Both runqueues must be locked.
   */
@@ -5131,7 +5161,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  }
  
  /*
-@@ -2126,25 +1779,59 @@ int can_migrate_task(struct task_struct 
+@@ -2126,25 +1799,59 @@ int can_migrate_task(struct task_struct 
  		return 0;
  
  	/*
@@ -5204,7 +5234,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  /*
   * move_tasks tries to move up to max_nr_move tasks and max_load_move weighted
-@@ -2158,11 +1845,9 @@ static int move_tasks(struct rq *this_rq
+@@ -2158,11 +1865,9 @@ static int move_tasks(struct rq *this_rq
  		      struct sched_domain *sd, enum idle_type idle,
  		      int *all_pinned)
  {
@@ -5218,7 +5248,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	long rem_load_move;
  
  	if (max_nr_move == 0 || max_load_move == 0)
-@@ -2182,76 +1867,41 @@ static int move_tasks(struct rq *this_rq
+@@ -2182,76 +1887,41 @@ static int move_tasks(struct rq *this_rq
  	best_prio_seen = best_prio == busiest->curr->prio;
  
  	/*
@@ -5272,7 +5302,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
 -	skip_for_load = tmp->load_weight > rem_load_move;
 -	if (skip_for_load && idx < this_best_prio)
 -		skip_for_load = !best_prio_seen && idx == best_prio;
-+	skip_for_load = p->load_weight > rem_load_move;
++	skip_for_load = (p->load_weight >> 1) > rem_load_move + SCHED_LOAD_SCALE_FUZZ;
 +	if (skip_for_load && p->prio < this_best_prio)
 +		skip_for_load = !best_prio_seen && p->prio == best_prio;
  	if (skip_for_load ||
@@ -5313,7 +5343,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	}
  out:
  	/*
-@@ -2377,8 +2027,8 @@ find_busiest_group(struct sched_domain *
+@@ -2377,8 +2047,8 @@ find_busiest_group(struct sched_domain *
  		 * Busy processors will not participate in power savings
  		 * balance.
  		 */
@@ -5324,7 +5354,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  		/*
  		 * If the local group is idle or completely loaded
-@@ -2388,42 +2038,42 @@ find_busiest_group(struct sched_domain *
+@@ -2388,42 +2058,42 @@ find_busiest_group(struct sched_domain *
  				    !this_nr_running))
  			power_savings_balance = 0;
  
@@ -5392,16 +5422,16 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		}
  group_next:
  #endif
-@@ -2478,7 +2128,7 @@ group_next:
+@@ -2478,7 +2148,7 @@ group_next:
  	 * a think about bumping its value to force at least one task to be
  	 * moved
  	 */
 -	if (*imbalance < busiest_load_per_task) {
-+	if (*imbalance + SCHED_LOAD_SCALE_FUZZ < busiest_load_per_task) {
++	if (*imbalance + SCHED_LOAD_SCALE_FUZZ < busiest_load_per_task/2) {
  		unsigned long tmp, pwr_now, pwr_move;
  		unsigned int imbn;
  
-@@ -2492,7 +2142,8 @@ small_imbalance:
+@@ -2492,7 +2162,8 @@ small_imbalance:
  		} else
  			this_load_per_task = SCHED_LOAD_SCALE;
  
@@ -5411,7 +5441,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  			*imbalance = busiest_load_per_task;
  			return busiest;
  		}
-@@ -2901,32 +2552,6 @@ static void active_load_balance(struct r
+@@ -2901,32 +2572,6 @@ static void active_load_balance(struct r
  	spin_unlock(&target_rq->lock);
  }
  
@@ -5444,7 +5474,17 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  /*
   * run_rebalance_domains is triggered when needed from the scheduler tick.
   *
-@@ -3011,54 +2636,22 @@ DEFINE_PER_CPU(struct kernel_stat, kstat
+@@ -2964,6 +2609,9 @@ static void run_rebalance_domains(struct
+ 		interval = msecs_to_jiffies(interval);
+ 		if (unlikely(!interval))
+ 			interval = 1;
++		if (interval > HZ*NR_CPUS/10)
++			interval = HZ*NR_CPUS/10;
++
+ 
+ 		if (sd->flags & SD_SERIALIZE) {
+ 			if (!spin_trylock(&balancing))
+@@ -3011,54 +2659,22 @@ DEFINE_PER_CPU(struct kernel_stat, kstat
  EXPORT_PER_CPU_SYMBOL(kstat);
  
  /*
@@ -5502,7 +5542,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
   * Account user cpu time to a process.
   * @p: the process that the cpu time gets accounted to
   * @hardirq_offset: the offset to subtract from hardirq_count()
-@@ -3131,81 +2724,6 @@ void account_steal_time(struct task_stru
+@@ -3131,81 +2747,6 @@ void account_steal_time(struct task_stru
  		cpustat->steal = cputime64_add(cpustat->steal, tmp);
  }
  
@@ -5584,7 +5624,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  /*
   * This function gets called by the timer code, with HZ frequency.
   * We call it with interrupts disabled.
-@@ -3215,17 +2733,14 @@ out_unlock:
+@@ -3215,17 +2756,14 @@ out_unlock:
   */
  void scheduler_tick(void)
  {
@@ -5603,7 +5643,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	if (time_after_eq(jiffies, rq->next_balance))
  		raise_softirq(SCHED_SOFTIRQ);
  #endif
-@@ -3269,49 +2784,27 @@ EXPORT_SYMBOL(sub_preempt_count);
+@@ -3269,49 +2807,27 @@ EXPORT_SYMBOL(sub_preempt_count);
  
  #endif
  
@@ -5659,7 +5699,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	/*
  	 * The idle thread is not allowed to schedule!
  	 * Remove this check after it has been exercised a bit.
-@@ -3322,19 +2815,45 @@ need_resched_nonpreemptible:
+@@ -3322,19 +2838,45 @@ need_resched_nonpreemptible:
  	}
  
  	schedstat_inc(rq, sched_cnt);
@@ -5717,7 +5757,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  	spin_lock_irq(&rq->lock);
  
-@@ -3347,7 +2866,7 @@ need_resched_nonpreemptible:
+@@ -3347,7 +2889,7 @@ need_resched_nonpreemptible:
  		else {
  			if (prev->state == TASK_UNINTERRUPTIBLE)
  				rq->nr_uninterruptible++;
@@ -5726,7 +5766,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		}
  	}
  
-@@ -3355,65 +2874,25 @@ need_resched_nonpreemptible:
+@@ -3355,65 +2897,25 @@ need_resched_nonpreemptible:
  	if (unlikely(!rq->nr_running)) {
  		idle_balance(cpu, rq);
  		if (!rq->nr_running) {
@@ -5797,7 +5837,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		rq->nr_switches++;
  		rq->curr = next;
  		++*switch_count;
-@@ -3844,29 +3323,28 @@ EXPORT_SYMBOL(sleep_on_timeout);
+@@ -3844,29 +3346,28 @@ EXPORT_SYMBOL(sleep_on_timeout);
   */
  void rt_mutex_setprio(struct task_struct *p, int prio)
  {
@@ -5839,7 +5879,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		/*
  		 * Reschedule if we are currently running on this runqueue and
  		 * our priority decreased, or if we are not currently running on
-@@ -3875,8 +3353,9 @@ void rt_mutex_setprio(struct task_struct
+@@ -3875,8 +3376,9 @@ void rt_mutex_setprio(struct task_struct
  		if (task_running(rq, p)) {
  			if (p->prio > oldprio)
  				resched_task(rq->curr);
@@ -5851,7 +5891,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	}
  	task_rq_unlock(rq, &flags);
  }
-@@ -3885,8 +3364,7 @@ void rt_mutex_setprio(struct task_struct
+@@ -3885,8 +3387,7 @@ void rt_mutex_setprio(struct task_struct
  
  void set_user_nice(struct task_struct *p, long nice)
  {
@@ -5861,7 +5901,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	unsigned long flags;
  	struct rq *rq;
  
-@@ -3907,9 +3385,9 @@ void set_user_nice(struct task_struct *p
+@@ -3907,9 +3408,9 @@ void set_user_nice(struct task_struct *p
  		p->static_prio = NICE_TO_PRIO(nice);
  		goto out_unlock;
  	}
@@ -5874,7 +5914,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		dec_raw_weighted_load(rq, p);
  	}
  
-@@ -3919,8 +3397,8 @@ void set_user_nice(struct task_struct *p
+@@ -3919,8 +3420,8 @@ void set_user_nice(struct task_struct *p
  	p->prio = effective_prio(p);
  	delta = p->prio - old_prio;
  
@@ -5885,7 +5925,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		inc_raw_weighted_load(rq, p);
  		/*
  		 * If the task increased its priority or is running and
-@@ -4041,20 +3519,27 @@ static inline struct task_struct *find_p
+@@ -4041,20 +3542,27 @@ static inline struct task_struct *find_p
  }
  
  /* Actually do priority change: must hold rq lock. */
@@ -5920,7 +5960,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	set_load_weight(p);
  }
  
-@@ -4069,8 +3554,7 @@ static void __setscheduler(struct task_s
+@@ -4069,8 +3577,7 @@ static void __setscheduler(struct task_s
  int sched_setscheduler(struct task_struct *p, int policy,
  		       struct sched_param *param)
  {
@@ -5930,7 +5970,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	unsigned long flags;
  	struct rq *rq;
  
-@@ -4144,13 +3628,13 @@ recheck:
+@@ -4144,13 +3651,13 @@ recheck:
  		spin_unlock_irqrestore(&p->pi_lock, flags);
  		goto recheck;
  	}
@@ -5950,7 +5990,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		/*
  		 * Reschedule if we are currently running on this runqueue and
  		 * our priority decreased, or if we are not currently running on
-@@ -4159,8 +3643,9 @@ recheck:
+@@ -4159,8 +3666,9 @@ recheck:
  		if (task_running(rq, p)) {
  			if (p->prio > oldprio)
  				resched_task(rq->curr);
@@ -5962,7 +6002,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	}
  	__task_rq_unlock(rq);
  	spin_unlock_irqrestore(&p->pi_lock, flags);
-@@ -4423,50 +3908,66 @@ asmlinkage long sys_sched_getaffinity(pi
+@@ -4423,50 +3931,66 @@ asmlinkage long sys_sched_getaffinity(pi
  	if (ret < 0)
  		return ret;
  
@@ -6060,7 +6100,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  	/*
  	 * Since we are going to call schedule() anyway, there's
-@@ -4475,13 +3976,19 @@ asmlinkage long sys_sched_yield(void)
+@@ -4475,13 +3999,19 @@ asmlinkage long sys_sched_yield(void)
  	__release(rq->lock);
  	spin_release(&rq->lock.dep_map, 1, _THIS_IP_);
  	_raw_spin_unlock(&rq->lock);
@@ -6080,7 +6120,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  static void __cond_resched(void)
  {
  #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-@@ -4677,7 +4184,7 @@ long sys_sched_rr_get_interval(pid_t pid
+@@ -4677,7 +4207,7 @@ long sys_sched_rr_get_interval(pid_t pid
  		goto out_unlock;
  
  	jiffies_to_timespec(p->policy == SCHED_FIFO ?
@@ -6089,7 +6129,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	read_unlock(&tasklist_lock);
  	retval = copy_to_user(interval, &t, sizeof(t)) ? -EFAULT : 0;
  out_nounlock:
-@@ -4746,7 +4253,7 @@ void show_state_filter(unsigned long sta
+@@ -4746,7 +4276,7 @@ void show_state_filter(unsigned long sta
  		 * console might take alot of time:
  		 */
  		touch_nmi_watchdog();
@@ -6098,7 +6138,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  			show_task(p);
  	} while_each_thread(g, p);
  
-@@ -4756,6 +4263,7 @@ void show_state_filter(unsigned long sta
+@@ -4756,6 +4286,7 @@ void show_state_filter(unsigned long sta
  	 */
  	if (state_filter == -1)
  		debug_show_all_locks();
@@ -6106,7 +6146,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  }
  
  /**
-@@ -4771,13 +4279,12 @@ void __cpuinit init_idle(struct task_str
+@@ -4771,13 +4302,12 @@ void __cpuinit init_idle(struct task_str
  	struct rq *rq = cpu_rq(cpu);
  	unsigned long flags;
  
@@ -6124,7 +6164,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  	spin_lock_irqsave(&rq->lock, flags);
  	rq->curr = rq->idle = idle;
-@@ -4893,19 +4400,10 @@ static int __migrate_task(struct task_st
+@@ -4893,19 +4423,10 @@ static int __migrate_task(struct task_st
  		goto out;
  
  	set_task_cpu(p, dest_cpu);
@@ -6148,7 +6188,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	}
  	ret = 1;
  out:
-@@ -5077,10 +4575,10 @@ void sched_idle_next(void)
+@@ -5077,10 +4598,10 @@ void sched_idle_next(void)
  	 */
  	spin_lock_irqsave(&rq->lock, flags);
  
@@ -6161,7 +6201,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  	spin_unlock_irqrestore(&rq->lock, flags);
  }
-@@ -5130,16 +4628,15 @@ static void migrate_dead(unsigned int de
+@@ -5130,16 +4651,15 @@ static void migrate_dead(unsigned int de
  static void migrate_dead_tasks(unsigned int dead_cpu)
  {
  	struct rq *rq = cpu_rq(dead_cpu);
@@ -6186,7 +6226,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	}
  }
  #endif /* CONFIG_HOTPLUG_CPU */
-@@ -5165,7 +4662,7 @@ migration_call(struct notifier_block *nf
+@@ -5165,7 +4685,7 @@ migration_call(struct notifier_block *nf
  		kthread_bind(p, cpu);
  		/* Must be high prio: stop_machine expects to yield to it. */
  		rq = task_rq_lock(p, &flags);
@@ -6195,7 +6235,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		task_rq_unlock(rq, &flags);
  		cpu_rq(cpu)->migration_thread = p;
  		break;
-@@ -5193,9 +4690,9 @@ migration_call(struct notifier_block *nf
+@@ -5193,9 +4713,9 @@ migration_call(struct notifier_block *nf
  		rq->migration_thread = NULL;
  		/* Idle task back to normal (off runqueue, low prio) */
  		rq = task_rq_lock(rq->idle, &flags);
@@ -6207,7 +6247,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		migrate_dead_tasks(cpu);
  		task_rq_unlock(rq, &flags);
  		migrate_nr_uninterruptible(rq);
-@@ -5496,483 +4993,6 @@ init_sched_build_groups(cpumask_t span, 
+@@ -5496,483 +5016,6 @@ init_sched_build_groups(cpumask_t span, 
  
  #define SD_NODES_PER_DOMAIN 16
  
@@ -6691,7 +6731,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  #ifdef CONFIG_NUMA
  
  /**
-@@ -6502,10 +5522,6 @@ static int build_sched_domains(const cpu
+@@ -6502,10 +5545,6 @@ static int build_sched_domains(const cpu
  #endif
  		cpu_attach_domain(sd, i);
  	}
@@ -6702,7 +6742,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  	return 0;
  
-@@ -6706,6 +5722,16 @@ void __init sched_init_smp(void)
+@@ -6706,6 +5745,16 @@ void __init sched_init_smp(void)
  	/* Move init over to a non-isolated CPU */
  	if (set_cpus_allowed(current, non_isolated_cpus) < 0)
  		BUG();
@@ -6719,7 +6759,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  }
  #else
  void __init sched_init_smp(void)
-@@ -6725,7 +5751,14 @@ int in_sched_functions(unsigned long add
+@@ -6725,7 +5774,14 @@ int in_sched_functions(unsigned long add
  
  void __init sched_init(void)
  {
@@ -6735,7 +6775,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  
  	for_each_possible_cpu(i) {
  		struct prio_array *array;
-@@ -6735,14 +5768,13 @@ void __init sched_init(void)
+@@ -6735,14 +5791,13 @@ void __init sched_init(void)
  		spin_lock_init(&rq->lock);
  		lockdep_set_class(&rq->lock, &rq->rq_lock_key);
  		rq->nr_running = 0;
@@ -6754,7 +6794,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  		rq->active_balance = 0;
  		rq->push_cpu = 0;
  		rq->cpu = i;
-@@ -6751,15 +5783,13 @@ void __init sched_init(void)
+@@ -6751,15 +5806,13 @@ void __init sched_init(void)
  #endif
  		atomic_set(&rq->nr_iowait, 0);
  
@@ -6776,7 +6816,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	}
  
  	set_load_weight(&init_task);
-@@ -6815,28 +5845,55 @@ EXPORT_SYMBOL(__might_sleep);
+@@ -6815,28 +5868,55 @@ EXPORT_SYMBOL(__might_sleep);
  #ifdef CONFIG_MAGIC_SYSRQ
  void normalize_rt_tasks(void)
  {
@@ -6843,8 +6883,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched.c linux-2.6.21-sabayon-r2/k
  	}
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_debug.c linux-2.6.21-sabayon-r2/kernel/sched_debug.c
 --- linux-2.6.21-sabayon-r2.orig/kernel/sched_debug.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-sabayon-r2/kernel/sched_debug.c	2007-05-12 12:44:08.000000000 +0200
-@@ -0,0 +1,161 @@
++++ linux-2.6.21-sabayon-r2/kernel/sched_debug.c	2007-05-13 19:59:09.000000000 +0200
+@@ -0,0 +1,168 @@
 +/*
 + * kernel/time/sched_debug.c
 + *
@@ -6890,7 +6930,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_debug.c linux-2.6.21-sabayo
 +		SEQ_printf(m, " ");
 +
 +	SEQ_printf(m, "%15s %5d %15Ld %13Ld %13Ld %9Ld %5d "
-+		      "%15Ld %15Ld %15Ld\n",
++		      "%15Ld %15Ld %15Ld %15Ld %15Ld\n",
 +		p->comm, p->pid,
 +		(long long)p->fair_key, (long long)p->fair_key - rq->fair_clock,
 +		(long long)p->wait_runtime,
@@ -6898,7 +6938,9 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_debug.c linux-2.6.21-sabayo
 +		p->prio,
 +		(long long)p->sum_exec_runtime,
 +		(long long)p->sum_wait_runtime,
-+		(long long)p->sum_sleep_runtime);
++		(long long)p->sum_sleep_runtime,
++		(long long)p->wait_runtime_overruns,
++		(long long)p->wait_runtime_underruns);
 +}
 +
 +static void print_rq(struct seq_file *m, struct rq *rq, u64 now)
@@ -6910,10 +6952,12 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_debug.c linux-2.6.21-sabayo
 +	"\nrunnable tasks:\n"
 +	"            task   PID        tree-key         delta       waiting"
 +	"  switches  prio"
-+	"        sum-exec        sum-wait       sum-sleep\n"
++	"        sum-exec        sum-wait       sum-sleep"
++	"    wait-overrun   wait-underrun\n"
 +	"------------------------------------------------------------------"
 +	"----------------"
-+	"------------------------------------------------\n");
++	"------------------------------------------------"
++	"--------------------------------\n");
 +
 +	curr = first_fair(rq);
 +	while (curr) {
@@ -6930,13 +6974,14 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_debug.c linux-2.6.21-sabayo
 +
 +	SEQ_printf(m, "\ncpu: %d\n", cpu);
 +#define P(x) \
-+	SEQ_printf(m, "  .%-22s: %Lu\n", #x, (unsigned long long)(rq->x))
++	SEQ_printf(m, "  .%-22s: %Ld\n", #x, (long long)(rq->x))
 +
 +	P(nr_running);
 +	P(raw_weighted_load);
 +	P(nr_switches);
 +	P(nr_load_updates);
 +	P(nr_uninterruptible);
++	SEQ_printf(m, "  .%-22s: %lu\n", "jiffies", jiffies);
 +	P(next_balance);
 +	P(curr->pid);
 +	P(clock);
@@ -6950,6 +6995,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_debug.c linux-2.6.21-sabayo
 +	P(exec_clock);
 +	P(prev_exec_clock);
 +	P(wait_runtime);
++	P(wait_runtime_overruns);
++	P(wait_runtime_underruns);
 +	P(cpu_load[0]);
 +	P(cpu_load[1]);
 +	P(cpu_load[2]);
@@ -7008,8 +7055,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_debug.c linux-2.6.21-sabayo
 +__initcall(init_sched_debug_procfs);
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon-r2/kernel/sched_fair.c
 --- linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-sabayon-r2/kernel/sched_fair.c	2007-05-12 12:44:08.000000000 +0200
-@@ -0,0 +1,689 @@
++++ linux-2.6.21-sabayon-r2/kernel/sched_fair.c	2007-05-13 19:59:09.000000000 +0200
+@@ -0,0 +1,742 @@
 +/*
 + * Completely Fair Scheduling (CFS) Class (SCHED_NORMAL/SCHED_BATCH)
 + */
@@ -7030,10 +7077,6 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 + */
 +unsigned int sysctl_sched_granularity __read_mostly = 2000000;
 +
-+unsigned int sysctl_sched_sleep_history_max __read_mostly = 2000000000;
-+
-+unsigned int sysctl_sched_load_smoothing = 0 | 0 | 0 | 8;
-+
 +/*
 + * Wake-up granularity.
 + * (default: 1 msec, units: nanoseconds)
@@ -7044,6 +7087,19 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 + */
 +unsigned int sysctl_sched_wakeup_granularity __read_mostly = 0;
 +
++unsigned int sysctl_sched_load_smoothing __read_mostly = 0 | 0 | 0 | 0 | 0;
++
++/*
++ * sys_sched_yield unfairness bug workaround switch.
++ * (default: -1:auto-detect+disabled. Other values: 0:disabled, 1:enabled)
++ *
++ * This option switches the unfair yield implementation of the
++ * old scheduler back on. Needed for good performance of certain
++ * apps like 3D games on Radeon cards.
++ */
++int sysctl_sched_yield_bug_workaround __read_mostly = 1;
++
++EXPORT_SYMBOL_GPL(sysctl_sched_yield_bug_workaround);
 +
 +extern struct sched_class fair_sched_class;
 +
@@ -7148,15 +7204,28 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 +	return load;
 +}
 +
-+static void limit_wait_runtime(struct task_struct *p)
++static void limit_wait_runtime(struct rq *rq, struct task_struct *p)
 +{
 +	s64 limit = sysctl_sched_granularity * 16;
-+	s64 nice_limit = niced_granularity(p, sysctl_sched_granularity * 16);
++	s64 nice_limit = niced_granularity(p, limit);
 +
-+	if (p->wait_runtime > nice_limit)
-+		p->wait_runtime = limit;
-+	if (p->wait_runtime < -limit)
++	/*
++	 * Niced tasks have the same history dynamic range as
++	 * non-niced tasks, but their limits are offset.
++	 */
++	if (p->wait_runtime > nice_limit) {
++		rq->wait_runtime -= p->wait_runtime - nice_limit;
++		p->wait_runtime = nice_limit;
++		p->wait_runtime_overruns++;
++		rq->wait_runtime_overruns++;
++	}
++	limit = (limit << 1) - nice_limit;
++	if (p->wait_runtime < -limit) {
++		rq->wait_runtime -= p->wait_runtime + limit;
 +		p->wait_runtime = -limit;
++		p->wait_runtime_underruns++;
++		rq->wait_runtime_underruns++;
++	}
 +}
 +
 +/*
@@ -7202,16 +7271,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 +
 +	curr->sum_exec_runtime += delta_exec;
 +	curr->exec_start = now;
-+
-+	rq->fair_clock += delta_fair;
 +	rq->exec_clock += delta_exec;
-+
-+	/*
-+	 * We executed delta_exec amount of time on the CPU,
-+	 * but we were only entitled to delta_mine amount of
-+	 * time during that period (if nr_running == 1 then
-+	 * the two values are equal):
-+	 */
 +
 +	/*
 +	 * Task already marked for preemption, do not burden
@@ -7220,12 +7280,20 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 +	if (unlikely(test_tsk_thread_flag(curr, TIF_NEED_RESCHED)))
 +		goto out_nowait;
 +
++	rq->fair_clock += delta_fair;
++	/*
++	 * We executed delta_exec amount of time on the CPU,
++	 * but we were only entitled to delta_mine amount of
++	 * time during that period (if nr_running == 1 then
++	 * the two values are equal):
++	 */
 +	curr->wait_runtime -= delta_exec - delta_mine;
-+	limit_wait_runtime(curr);
++	curr->sum_wait_runtime += delta_exec - delta_mine;
++	rq->wait_runtime -= delta_exec - delta_mine;
++	limit_wait_runtime(rq, curr);
 +	if (unlikely(curr->wait_runtime < curr->min_wait_runtime))
 +		curr->min_wait_runtime = curr->wait_runtime;
 +
-+	rq->wait_runtime -= delta_exec - delta_mine;
 +out_nowait:
 +	;
 +}
@@ -7321,10 +7389,10 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 +	if (unlikely(p->load_weight != NICE_0_LOAD))
 +		delta_fair = (delta_fair * (u64)p->load_weight) / NICE_0_LOAD;
 +
++	p->wait_runtime += delta_fair;
 +	p->sum_wait_runtime += delta_fair;
 +	rq->wait_runtime += delta_fair;
-+	p->wait_runtime += delta_fair;
-+	limit_wait_runtime(p);
++	limit_wait_runtime(rq, p);
 +
 +	p->wait_start_fair = 0;
 +	p->wait_start = 0;
@@ -7374,6 +7442,9 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 +	unsigned long load = get_rq_load(rq);
 +	u64 delta_fair = 0;
 +
++	if (!(sysctl_sched_load_smoothing & 16))
++		return;
++
 +	delta_fair = rq->fair_clock - p->sleep_start_fair;
 +
 +	if ((s64)delta_fair < 0)
@@ -7391,7 +7462,9 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 +	}
 +
 +	p->wait_runtime += delta_fair;
-+	limit_wait_runtime(p);
++	p->sum_wait_runtime += delta_fair;
++	rq->wait_runtime += delta_fair;
++	limit_wait_runtime(rq, p);
 +
 +	p->sleep_start_fair = 0;
 +}
@@ -7472,6 +7545,33 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 +	struct task_struct *p_next;
 +	s64 yield_key;
 +	u64 now;
++
++	/*
++	 * Bug workaround for 3D apps running on the radeon 3D driver:
++	 */
++	if (unlikely(sysctl_sched_yield_bug_workaround > 0)) {
++		if (sysctl_sched_yield_bug_workaround == 2) {
++			resched_task(p);
++			return;
++		}
++		now = __rq_clock(rq);
++		/*
++		 * Dequeue and enqueue the task to update its
++		 * position within the tree:
++		 */
++		dequeue_task_fair(rq, p, 0, now);
++		p->on_rq = 0;
++		enqueue_task_fair(rq, p, 0, now);
++		p->on_rq = 1;
++
++		/*
++		 * Reschedule if another task tops the current one.
++		 */
++		p_next = __pick_next_task_fair(rq);
++		if (p_next != p)
++			resched_task(p);
++		return;
++	}
 +
 +	/*
 +	 * yield-to support: if we are on the same runqueue then
@@ -7701,7 +7801,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_fair.c linux-2.6.21-sabayon
 +};
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_rt.c linux-2.6.21-sabayon-r2/kernel/sched_rt.c
 --- linux-2.6.21-sabayon-r2.orig/kernel/sched_rt.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-sabayon-r2/kernel/sched_rt.c	2007-05-12 12:44:08.000000000 +0200
++++ linux-2.6.21-sabayon-r2/kernel/sched_rt.c	2007-05-13 19:59:09.000000000 +0200
 @@ -0,0 +1,184 @@
 +/*
 + * Real-Time Scheduling Class (mapped to the SCHED_FIFO and SCHED_RR
@@ -7889,7 +7989,7 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_rt.c linux-2.6.21-sabayon-r
 +};
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_stats.h linux-2.6.21-sabayon-r2/kernel/sched_stats.h
 --- linux-2.6.21-sabayon-r2.orig/kernel/sched_stats.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.21-sabayon-r2/kernel/sched_stats.h	2007-05-12 12:44:08.000000000 +0200
++++ linux-2.6.21-sabayon-r2/kernel/sched_stats.h	2007-05-13 19:59:09.000000000 +0200
 @@ -0,0 +1,235 @@
 +
 +#ifdef CONFIG_SCHEDSTATS
@@ -8127,8 +8227,8 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sched_stats.h linux-2.6.21-sabayo
 +#endif /* CONFIG_SCHEDSTATS || CONFIG_TASK_DELAY_ACCT */
 +
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sysctl.c linux-2.6.21-sabayon-r2/kernel/sysctl.c
---- linux-2.6.21-sabayon-r2.orig/kernel/sysctl.c	2007-05-12 12:41:47.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/kernel/sysctl.c	2007-05-12 12:44:08.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/kernel/sysctl.c	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/kernel/sysctl.c	2007-05-13 19:59:09.000000000 +0200
 @@ -209,6 +209,46 @@ static ctl_table root_table[] = {
  
  static ctl_table kern_table[] = {
@@ -8150,14 +8250,6 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sysctl.c linux-2.6.21-sabayon-r2/
 +	},
 +	{
 +		.ctl_name	= CTL_UNNUMBERED,
-+		.procname	= "sched_sleep_history_max_ns",
-+		.data		= &sysctl_sched_sleep_history_max,
-+		.maxlen		= sizeof(unsigned int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= CTL_UNNUMBERED,
 +		.procname	= "sched_child_runs_first",
 +		.data		= &sysctl_sched_child_runs_first,
 +		.maxlen		= sizeof(unsigned int),
@@ -8173,12 +8265,20 @@ diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sysctl.c linux-2.6.21-sabayon-r2/
 +		.proc_handler	= &proc_dointvec,
 +	},
 +	{
++		.ctl_name	= CTL_UNNUMBERED,
++		.procname	= "sched_yield_bug_workaround",
++		.data		= &sysctl_sched_yield_bug_workaround,
++		.maxlen		= sizeof(unsigned int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
  		.ctl_name	= KERN_PANIC,
  		.procname	= "panic",
  		.data		= &panic_timeout,
 diff -Nurp linux-2.6.21-sabayon-r2.orig/kernel/sysctl.c.orig linux-2.6.21-sabayon-r2/kernel/sysctl.c.orig
---- linux-2.6.21-sabayon-r2.orig/kernel/sysctl.c.orig	2007-05-12 12:41:47.000000000 +0200
-+++ linux-2.6.21-sabayon-r2/kernel/sysctl.c.orig	2007-05-12 12:41:47.000000000 +0200
+--- linux-2.6.21-sabayon-r2.orig/kernel/sysctl.c.orig	2007-05-13 19:57:09.000000000 +0200
++++ linux-2.6.21-sabayon-r2/kernel/sysctl.c.orig	2007-05-13 19:57:09.000000000 +0200
 @@ -87,6 +87,9 @@ static int ngroups_max = NGROUPS_MAX;
  #ifdef CONFIG_KMOD
  extern char modprobe_path[];
