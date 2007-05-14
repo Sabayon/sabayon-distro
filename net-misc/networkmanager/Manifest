@@ -112,10 +112,10 @@ EBUILD networkmanager-0.6.4_pre20070308.ebuild 3494 RMD160 4dfd708827abfe73bbd0e
 MD5 076fb75fa70aa1ae292d0757e5939a58 networkmanager-0.6.4_pre20070308.ebuild 3494
 RMD160 4dfd708827abfe73bbd0ed1d167c30d214965df4 networkmanager-0.6.4_pre20070308.ebuild 3494
 SHA256 8be3c3ab13ce9d59ee2e00ec5d885999b48f78874cf9a0bc600fc980f286c2d5 networkmanager-0.6.4_pre20070308.ebuild 3494
-EBUILD networkmanager-0.6.5-r4.ebuild 3193 RMD160 5dc6b8f1a833756e0c277aee9f894462ed3b5c9a SHA1 d35d4e504e46fe87fd3735cb512d2d8ace268ee4 SHA256 0ca692c20ac65b6e1a813f572cc5fcfa6a2eb78547166d311198b4f31c7f8f7b
-MD5 17f35500144ce214f51aceccbf082d45 networkmanager-0.6.5-r4.ebuild 3193
-RMD160 5dc6b8f1a833756e0c277aee9f894462ed3b5c9a networkmanager-0.6.5-r4.ebuild 3193
-SHA256 0ca692c20ac65b6e1a813f572cc5fcfa6a2eb78547166d311198b4f31c7f8f7b networkmanager-0.6.5-r4.ebuild 3193
+EBUILD networkmanager-0.6.5-r4.ebuild 3195 RMD160 8c2c54bf56e032c628f7eb1e71b7c1a26c751226 SHA1 80122955f74685b98d8cd6d49d25580fd4e6080d SHA256 bb0d3c1331adf4b46ddda4d7d154ab021269afbcca543521085176c6ad01065d
+MD5 b06b09cbeabdbbc88546eeacf0170670 networkmanager-0.6.5-r4.ebuild 3195
+RMD160 8c2c54bf56e032c628f7eb1e71b7c1a26c751226 networkmanager-0.6.5-r4.ebuild 3195
+SHA256 bb0d3c1331adf4b46ddda4d7d154ab021269afbcca543521085176c6ad01065d networkmanager-0.6.5-r4.ebuild 3195
 MD5 25e40b69e15e1d17224bf3a584bd3038 files/digest-networkmanager-0.6.4_pre20061223 304
 RMD160 991b9fdcb07c2cc321db6e8c26cb5860b9905844 files/digest-networkmanager-0.6.4_pre20061223 304
 SHA256 f06e1d714c3ceb634d637c0927c02176da3f4144d7fafb66ab646562102d43f7 files/digest-networkmanager-0.6.4_pre20061223 304

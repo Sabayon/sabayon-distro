@@ -62,7 +62,7 @@ src_unpack () {
 	epatch ${FILESDIR}/${PN}-0.6.4-remove-gentoo-set-hostname.patch
 
 	# Better suspend support, especially for ipw3945
-	epatch ${FILESDIR}/${PN}-0.6.5-better-suspend.patch
+	# epatch ${FILESDIR}/${PN}-0.6.5-better-suspend.patch
 
 	# Better multiple ESSID support	
 	epatch ${FILESDIR}/${PN}-0.6.5-better-multiple-essid-support.patch
