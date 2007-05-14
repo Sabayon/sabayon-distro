@@ -6,7 +6,7 @@ inherit eutils
 
 DESCRIPTION="Network configuration and management in an easy way. Desktop env independent"
 HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
-SRC_URI="http://people.redhat.com/dcbw/NetworkManager/${PV}/NetworkManager-${PV}.tar.gz"
+SRC_URI="mirror://gentoo/NetworkManager-${PV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -44,7 +44,7 @@ src_unpack () {
 	epatch ${FILESDIR}/${PN}-0.6.4-dhcp-manager.c.patch
 	
 	# Fix possible early-xdm related problem
-	epatch ${FILESDIR}/${PN}-0.6.4-force-before-xdm.patch
+	# epatch ${FILESDIR}/${PN}-0.6.4-force-before-xdm.patch
 
 	# Fix possible associations problems
 	epatch ${FILESDIR}/${PN}-0.6.4-high-delay.patch
@@ -66,6 +66,9 @@ src_unpack () {
 
 	# Better multiple ESSID support	
 	epatch ${FILESDIR}/${PN}-0.6.5-better-multiple-essid-support.patch
+
+	# Better timeout handling
+	epatch ${FILESDIR}/${PN}-0.6.5-grow-reconnection-timeout.patch
 
 }
 
