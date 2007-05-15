@@ -946,3 +946,68 @@ diff -Nurp trunk.orig/unichrome/via.man trunk/unichrome/via.man
 -__xservername__(__appmansuffix__), __xconfigfile__(__filemansuffix__), xorgconfig(__appmansuffix__), Xserver(__appmansuffix__), X(__miscmansuffix__)
 -.SH AUTHORS
 -Authors include: ...
+diff -Nurp trunk.orig/libxvmc/Imakefile trunk/libxvmc/Imakefile
+--- trunk.orig/libxvmc/Imakefile	2007-05-16 00:37:57.000000000 +0200
++++ trunk/libxvmc/Imakefile	2007-05-16 00:46:58.000000000 +0200
+@@ -2,7 +2,7 @@
+ #define DoSharedLib SharedLibXvMC
+ #define DoDebugLib DebugLibXvMC
+ #define DoProfileLib ProfileLibXvMC
+-/*#define LibName viaXvMC*/
++/*#define LibName openchromeXvMC*/
+ #define SoRev SOXVMCREV
+ #define LibHeaders NO
+ 
+@@ -41,10 +41,10 @@ ALLOC_DEFINES = -DMALLOC_0_RETURNS_NULL
+ 
+ #include <Library.tmpl>
+ 
+-SharedLibraryTarget(viaXvMC,$(SoRev),$(OBJS) $(EXTRASHAREDOBJS),.,.)
+-SharedLibraryTarget(viaXvMCPro,$(SoRev),$(OBJSPRO) $(EXTRASHAREDOBJS),.,.)
+-InstallSharedLibrary(viaXvMC,$(SoRev),$(SHLIBDIR))
+-InstallSharedLibrary(viaXvMCPro,$(SoRev),$(SHLIBDIR))
++SharedLibraryTarget(openchromeXvMC,$(SoRev),$(OBJS) $(EXTRASHAREDOBJS),.,.)
++SharedLibraryTarget(openchromeXvMCPro,$(SoRev),$(OBJSPRO) $(EXTRASHAREDOBJS),.,.)
++InstallSharedLibrary(openchromeXvMC,$(SoRev),$(SHLIBDIR))
++InstallSharedLibrary(openchromeXvMCPro,$(SoRev),$(SHLIBDIR))
+ 
+ #if defined(LinuxArchitecture)
+ OS_SUBDIR = linux
+diff -Nurp trunk.orig/libxvmc/Makefile.am trunk/libxvmc/Makefile.am
+--- trunk.orig/libxvmc/Makefile.am	2007-05-16 00:37:57.000000000 +0200
++++ trunk/libxvmc/Makefile.am	2007-05-16 00:51:46.000000000 +0200
+@@ -1,7 +1,7 @@
+ if XVMC
+-lib_LTLIBRARIES=libviaXvMC.la libviaXvMCPro.la
++lib_LTLIBRARIES=libopenchromeXvMC.la libopenchromeXvMCPro.la
+ 
+-libviaXvMC_la_SOURCES = \
++libopenchromeXvMC_la_SOURCES = \
+ 	viaLowLevel.c \
+ 	driDrawable.c \
+ 	viaXvMC.c \
+@@ -12,7 +12,7 @@ libviaXvMC_la_SOURCES = \
+ 	xf86dri.h \
+ 	xf86dristr.h \
+ 	vldXvMC.h
+-libviaXvMCPro_la_SOURCES = \
++libopenchromeXvMCPro_la_SOURCES = \
+ 	viaLowLevelPro.c \
+ 	driDrawable.c \
+ 	viaXvMC.c \
+@@ -24,11 +24,11 @@ libviaXvMCPro_la_SOURCES = \
+ 	xf86dristr.h \
+ 	vldXvMC.h
+ 
+-libviaXvMC_la_CFLAGS = @XORG_CFLAGS@ @DRI_CFLAGS@ -I$(top_srcdir)/unichrome -I$(top_srcdir)/libxvmc -DTRUE=1 -DFALSE=0
+-libviaXvMC_la_LDFLAGS = @DRI_LIBS@ -version-number 1:0:0
++libopenchromeXvMC_la_CFLAGS = @XORG_CFLAGS@ @DRI_CFLAGS@ -I$(top_srcdir)/unichrome -I$(top_srcdir)/libxvmc -DTRUE=1 -DFALSE=0
++libopenchromeXvMC_la_LDFLAGS = @DRI_LIBS@ -version-number 1:0:0
+ 
+-libviaXvMCPro_la_CFLAGS = @XORG_CFLAGS@ @DRI_CFLAGS@ -I$(top_srcdir)/unichrome -I$(top_srcdir)/libxvmc -DTRUE=1 -DFALSE=0
+-libviaXvMCPro_la_LDFLAGS = @DRI_LIBS@ -version-number 1:0:0
++libopenchromeXvMCPro_la_CFLAGS = @XORG_CFLAGS@ @DRI_CFLAGS@ -I$(top_srcdir)/unichrome -I$(top_srcdir)/libxvmc -DTRUE=1 -DFALSE=0
++libopenchromeXvMCPro_la_LDFLAGS = @DRI_LIBS@ -version-number 1:0:0
+ else
+ EXTRA_DIST = \
+ 	driDrawable.c \
