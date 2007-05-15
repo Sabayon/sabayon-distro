@@ -38,15 +38,6 @@ diff -Nurp trunk.orig/unichrome/Makefile.am trunk/unichrome/Makefile.am
           via_dri.c \
           via_dri.h \
           via_drmclient.h \
-@@ -84,7 +84,7 @@ EXTRA_DIST += \
-          via_xvmc.h 
- endif
- 
--via_driver.lo: svnversion.h
-+openchrome_driver.lo: svnversion.h
- svnversion.h:
- 	@if [ -f svnrelease.h ]; then \
- 	echo '#include "svnrelease.h"' > $@.tmp; \
 diff -Nurp trunk.orig/unichrome/openchrome.man trunk/unichrome/openchrome.man
 --- trunk.orig/unichrome/openchrome.man	1970-01-01 01:00:00.000000000 +0100
 +++ trunk/unichrome/openchrome.man	2007-05-15 17:04:41.000000000 +0200
