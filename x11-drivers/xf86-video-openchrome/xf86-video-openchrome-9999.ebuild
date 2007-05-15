@@ -34,6 +34,8 @@ CONFIGURE_OPTIONS="$(use_enable dri)"
 
 src_unpack() {
 	subversion_src_unpack
+	cd ${S}
+	epatch ${FILESDIR}/${PN}-change-driver-name.patch
 }
 
 src_compile() {
