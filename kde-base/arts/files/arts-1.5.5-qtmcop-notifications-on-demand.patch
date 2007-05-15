@@ -1,0 +1,121 @@
+Index: mcop/notification.h
+===================================================================
+--- mcop/notification.h	(revision 664999)
++++ mcop/notification.h	(working copy)
+@@ -72,10 +72,7 @@
+ 	{
+ 		return instance;
+ 	}
+-	inline void send(Notification wm)
+-	{
+-		todo.push(wm);
+-	}
++	void send(Notification wm);
+ 	inline bool pending()
+ 	{
+ 		return !todo.empty();
+Index: mcop/iomanager.cc
+===================================================================
+--- mcop/iomanager.cc	(revision 664999)
++++ mcop/iomanager.cc	(working copy)
+@@ -409,9 +409,15 @@
+ 
+ void StdIOManager::addTimer(int milliseconds, TimeNotify *notify)
+ {
+-	timeList.push_back(new TimeWatcher(milliseconds,notify));
+-	timeListChanged = true;
+-	Dispatcher::wakeUp();
++    if (milliseconds == -1 && notify == 0) {
++        // HACK: in order to not add a virtual function to IOManager we're calling addTimer with
++        // magic values. This call tells the ioManager that notifications are pending and
++        // NotificationManager::run() should get called soon.
++    } else {
++        timeList.push_back(new TimeWatcher(milliseconds,notify));
++        timeListChanged = true;
++        Dispatcher::wakeUp();
++    }
+ }
+ 
+ void StdIOManager::removeTimer(TimeNotify *notify)
+Index: mcop/notification.cc
+===================================================================
+--- mcop/notification.cc	(revision 664999)
++++ mcop/notification.cc	(working copy)
+@@ -22,6 +22,7 @@
+ 
+ #include "notification.h"
+ #include "debug.h"
++#include "dispatcher.h"
+ 
+ using namespace Arts;
+ 
+@@ -41,6 +42,17 @@
+ 	instance = 0;
+ }
+ 
++void NotificationManager::send(Notification wm)
++{
++    if (todo.empty()) {
++        // HACK: in order to not add a virtual function to IOManager we're calling addTimer with
++        // magic values. This call tells the ioManager that notifications are pending and
++        // NotificationManager::run() should get called soon.
++        Arts::Dispatcher::the()->ioManager()->addTimer(-1, 0);
++    }
++    todo.push(wm);
++}
++
+ bool NotificationManager::run()
+ {
+ 	if(todo.empty()) return false;
+Index: qtmcop/qiomanager.cc
+===================================================================
+--- qtmcop/qiomanager.cc	(revision 664999)
++++ qtmcop/qiomanager.cc	(working copy)
+@@ -102,30 +102,13 @@
+ 
+ class HandleNotifications : public TimeNotify {
+ public:
+-	HandleNotifications()
+-	{
+-		Arts::Dispatcher::the()->ioManager()->addTimer(50, this);
+-	}
+ 	void notifyTime()
+ 	{
++		Arts::Dispatcher::the()->ioManager()->removeTimer(this);
+ 		NotificationManager::the()->run();
++		delete this;
+ 	}
+-	virtual ~HandleNotifications()
+-	{
+-		Arts::Dispatcher::the()->ioManager()->removeTimer(this);
+-	}
+ };
+-
+-class HandleNotificationsStartup :public StartupClass
+-{
+-public:
+-	void startup()	{ h = new HandleNotifications(); }
+-	void shutdown()	{ delete h; }
+-private:
+-	HandleNotifications *h;
+-};
+-static HandleNotificationsStartup handleNotifications;
+-
+ }
+ 
+ /*
+@@ -237,6 +220,14 @@
+ 
+ void QIOManager::addTimer(int milliseconds, TimeNotify *notify)
+ {
++	if (milliseconds == -1 && notify == 0)
++	{
++		// HACK: in order to not add a virtual function to IOManager we're calling addTimer with
++		// magic values. This call tells the ioManager that notifications are pending and
++		// NotificationManager::run() should get called soon.
++		notify = new HandleNotifications();
++		milliseconds = 0;
++	}
+ 	timeList.push_back(new QTimeWatch(milliseconds,notify));
+ }
+ 
