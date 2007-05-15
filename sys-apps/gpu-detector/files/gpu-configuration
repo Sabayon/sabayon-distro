@@ -61,6 +61,7 @@ SISUSB=$(if [ -e /sys/module/sisusbvga ]; then echo sisusb; fi) # udev will take
 VMWARE=$($lspci_output | grep ' VGA ' | grep VMWare || $lspci_output | grep ' VGA ' | grep VMware )
 VIRGE=$($lspci_output | grep ' VGA ' | grep -i "S3.*virge")
 VIA=$($lspci_output | grep ' VGA ' | grep -i "VIA Tech.*")
+VIAUNICHROME=$($lspci_output | grep ' VGA ' | grep -i "VIA Tech.*" | grep -i "chrome")
 MATROX=$($lspci_output | grep ' VGA ' | grep -i Matrox)
 CIRRUS=$($lspci_output | grep ' VGA ' | grep -i Cirrus)
 NOPROP=$(cat /proc/cmdline | grep "noproprietary")
@@ -197,7 +198,7 @@ if [ -n "$is_there_xdriver" ]; then
      xdriver=$(echo $word | cut -d= -f 2)
      change_xorg_driver $xdriver
      if [ -z "$NVIDIA" ]; then
-       if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$R1XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$SIS" ] || [ -n "$XGISIS"  ] || [ -n "$MATROX" ]; then
+       if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$R1XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$VIAUNICHROME" ] || [ -n "$SIS" ] || [ -n "$XGISIS"  ] || [ -n "$MATROX" ]; then
          remove_proprietary_opengl
        fi
        enable_dri
@@ -460,15 +461,25 @@ elif [ -n "$MATROX" ]; then
  remove_proprietary_opengl
  echo -e "\t Display Driver: MATROX"
 
-elif [ -n "$VIA" ]; then
+elif [ -n "$VIAUNICHROME" ]; then
 
  # Check if the openchrome driver exists
  check_if_driver_is_available openchrome
  if [ "$xdriver" = "1" ]; then
      change_xorg_driver via
+     enable_dri
+     remove_proprietary_opengl
+     echo -e "\t Display Driver: VIA Technologies"
  else
      change_xorg_driver openchrome
+     enable_dri
+     remove_proprietary_opengl
+     echo -e "\t Display Driver: VIA Technologies UniChrome Chipset"
  fi
+
+elif [ -n "$VIA" ]; then
+
+ change_xorg_driver via
  enable_dri
  remove_proprietary_opengl
  echo -e "\t Display Driver: VIA Technologies"
