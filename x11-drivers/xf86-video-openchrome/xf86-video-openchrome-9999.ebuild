@@ -25,6 +25,7 @@ DEPEND="${RDEPEND}
 	x11-proto/renderproto
 	x11-proto/xextproto
 	x11-proto/xproto
+	!x11-drivers/xf86-video-via
 	dri? ( x11-proto/xf86driproto
 		x11-proto/glproto
 		>=x11-libs/libdrm-2
@@ -34,8 +35,6 @@ CONFIGURE_OPTIONS="$(use_enable dri)"
 
 src_unpack() {
 	subversion_src_unpack
-	cd ${S}
-	epatch ${FILESDIR}/${PN}-change-driver-name.patch
 }
 
 src_compile() {
