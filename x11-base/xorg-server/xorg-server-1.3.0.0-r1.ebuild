@@ -97,7 +97,6 @@ IUSE_VIDEO_CARDS="
 	video_cards_vesa
 	video_cards_vga
 	video_cards_via
-	video_cards_unichrome
 	video_cards_vmware
 	video_cards_voodoo
 	video_cards_nvidia"
@@ -255,8 +254,7 @@ PDEPEND="
 		video_cards_v4l? ( >=x11-drivers/xf86-video-v4l-0.1.1 )
 		video_cards_vesa? ( >=x11-drivers/xf86-video-vesa-1.1.0 )
 		video_cards_vga? ( >=x11-drivers/xf86-video-vga-4.1.0 )
-		video_cards_via? ( >=x11-drivers/xf86-video-via-0.2.1 )
-		video_cards_unichrome? ( x11-drivers/xf86-video-unichrome )
+		video_cards_via? ( x11-drivers/xf86-video-openchrome )
 		video_cards_vmware? ( >=x11-drivers/xf86-video-vmware-10.13.0 )
 		video_cards_voodoo? ( >=x11-drivers/xf86-video-voodoo-1.1.0 )
 
