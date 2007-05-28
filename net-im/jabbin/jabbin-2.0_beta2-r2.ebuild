@@ -39,9 +39,9 @@ src_compile() {
 	fi
 	chmod +x ./configure
 	econf || die "could not configure"
-	QMAKE=/usr/qt/3/bin/qmake QTDIR=/usr/qt/3 qmake QTDIR=/usr/qt/3 QMAKE=/usr/qt/3/bin/qmake jabbin.pro
-	QMAKE=/usr/qt/3/bin/qmake QTDIR=/usr/qt/3 make QTDIR=/usr/qt/3 QMAKE=/usr/qt/3/bin/qmake qmake
-	QMAKE=/usr/qt/3/bin/qmake QTDIR=/usr/qt/3 make QTDIR=/usr/qt/3 QMAKE=/usr/qt/3/bin/qmake
+	QMAKE=/usr/qt/3/bin/qmake QTDIR=/usr/qt/3 qmake QTDIR=/usr/qt/3 QMAKE=/usr/qt/3/bin/qmake jabbin.pro || die
+	QMAKE=/usr/qt/3/bin/qmake QTDIR=/usr/qt/3 make QTDIR=/usr/qt/3 QMAKE=/usr/qt/3/bin/qmake qmake || die
+	QMAKE=/usr/qt/3/bin/qmake QTDIR=/usr/qt/3 make QTDIR=/usr/qt/3 QMAKE=/usr/qt/3/bin/qmake || die
 }
 
 src_install() {
