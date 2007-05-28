@@ -3,7 +3,7 @@ HOMEPAGE="http://www.jabbin.com/"
 VER="2.0beta2a"
 SRC_URI="mirror://sourceforge/${PN}/${PN}-${VER}.tar.bz2 http://pub.jcw.pl/linux/${PN}/${PN}-${VER}_amd64.patch.tar.bz2"
 
-inherit eutils
+inherit eutils qt3
 
 LICENSE="GPL"
 SLOT="0"
