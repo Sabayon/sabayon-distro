@@ -15,7 +15,7 @@ IUSE="source"
 
 DEPEND="sys-boot/grub
 	sys-apps/gawk
-	source? ( =sys-kernel/sabayon-sources-${PV} )"
+	source? ( =sys-kernel/sabayon-sources-${PV}-${PR} )"
 
 RDEPEND="${DEPEND}"
 
