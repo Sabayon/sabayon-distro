@@ -1,0 +1,27 @@
+--- a/kicker/kicker/buttons/knewbutton.cpp
++++ b/kicker/kicker/buttons/knewbutton.cpp
+@@ -182,6 +182,13 @@
+ int KNewButton::widthForHeight(int height) const
+ {
+     int r = m_iconSize.width() * buttonScaleFactor(QSize(m_iconSize.width(), height));
++
++    if (!m_movie->running() && height != m_active_pixmap.height())
++    {
++        KNewButton* that = const_cast<KNewButton*>(this);
++        QTimer::singleShot(0, that, SLOT(slotStopAnimation()));
++    }
++ 
+     return r;
+ }
+ 
+@@ -193,6 +200,11 @@
+ int KNewButton::heightForWidth(int width) const
+ {
+     int r = m_iconSize.width() * buttonScaleFactor(QSize(width, m_iconSize.height()));
++    if (!m_movie->running() && width != m_active_pixmap.width())
++    {
++        KNewButton* that = const_cast<KNewButton*>(this);
++        QTimer::singleShot(0, that, SLOT(slotStopAnimation()));
++    }
+     return r;
+ }
