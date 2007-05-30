@@ -15,6 +15,3 @@ app-emulation/qemu-gui
 
 # Highly unstable
 ~net-im/skype-1.4.0.58
-
-# Testing Entropy stuff
-sys-kernel/linux-core
