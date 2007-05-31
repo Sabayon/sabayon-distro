@@ -99,7 +99,7 @@ src_compile() {
 
 	#use amd64 && multilib_toolchain_setup x86
 
-	export LDFLAGS="-m32 -L/emul/linux/x86/usr/lib -L/emul/linux/x86/lib"
+	export LDFLAGS="-m32 -L/usr/lib32 -L/lib32"
 	#	$(use_enable amd64 win64)
 	econf \
 		--sysconfdir=/etc/wine \
