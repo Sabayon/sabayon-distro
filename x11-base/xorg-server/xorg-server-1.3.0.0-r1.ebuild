@@ -264,8 +264,7 @@ PDEPEND="
 				>=x11-drivers/nvidia-legacy-drivers-1.0.7184
 			)
 		)
-		!x11-drivers/ati-drivers
-	)"
+		)"
 LICENSE="${LICENSE} MIT"
 
 pkg_setup() {
