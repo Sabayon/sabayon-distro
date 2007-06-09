@@ -97,15 +97,17 @@ src_compile() {
 
 	strip-flags
 
-	#use amd64 && multilib_toolchain_setup x86
+	EXTRA_OPTS=""
+
+	use amd64 && EXTRA_OPTS="${EXTRA_OPTS} --libdir=/usr/lib32"
 
 	export LDFLAGS="-m32 -L/usr/lib32 -L/lib32"
 	#	$(use_enable amd64 win64)
-	econf \
+	econf ${EXTRA_OPTS} \
 		--sysconfdir=/etc/wine \
 		$(use_with ncurses curses) \
 		$(use_with opengl) \
-		--x-libraries=/emul/linux/x86/usr/lib \
+		--x-libraries=/usr/lib32 \
 		$(use_with X x) \
 		|| die "configure failed"
 
