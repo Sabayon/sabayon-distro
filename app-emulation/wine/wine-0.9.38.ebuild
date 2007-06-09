@@ -107,7 +107,7 @@ src_compile() {
 		--sysconfdir=/etc/wine \
 		$(use_with ncurses curses) \
 		$(use_with opengl) \
-		--x-libraries=/emul/linux/x86/usr/lib \
+		--x-libraries=/usr/lib32 \
 		$(use_with X x) \
 		|| die "configure failed"
 
