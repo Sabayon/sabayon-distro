@@ -8,6 +8,7 @@ DESCRIPTION="free implementation of Windows(tm) on Unix"
 HOMEPAGE="http://www.winehq.com/"
 EGIT_REPO_URI="git://source.winehq.org/git/wine.git"
 
+
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
@@ -97,17 +98,15 @@ src_compile() {
 
 	strip-flags
 
-	EXTRA_OPTS=""
+	#use amd64 && multilib_toolchain_setup x86
 
-	use amd64 && EXTRA_OPTS="${EXTRA_OPTS} --libdir=/usr/lib32"
-
-	export LDFLAGS="-m32 -L/usr/lib32 -L/lib32"
+	export LDFLAGS="-m32 -L/emul/linux/x86/usr/lib -L/emul/linux/x86/lib"
 	#	$(use_enable amd64 win64)
-	econf ${EXTRA_OPTS} \
+	econf \
 		--sysconfdir=/etc/wine \
 		$(use_with ncurses curses) \
 		$(use_with opengl) \
-		--x-libraries=/usr/lib32 \
+		--x-libraries=/emul/linux/x86/usr/lib \
 		$(use_with X x) \
 		|| die "configure failed"
 
