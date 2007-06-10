@@ -1,7 +1,7 @@
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/app-emulation/wine/wine-0.9.18.ebuild,v 1.2 2006/07/30 17:52:17 vapier Exp $
-
+#it's supposed to work for now correctly
 inherit eutils flag-o-matic multilib
 
 DESCRIPTION="free implementation of Windows(tm) on Unix"
