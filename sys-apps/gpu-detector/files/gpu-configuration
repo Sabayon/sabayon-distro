@@ -67,6 +67,8 @@ CIRRUS=$($lspci_output | grep ' VGA ' | grep -i Cirrus)
 NOPROP=$(cat /proc/cmdline | grep "noproprietary")
 LEGACY=$(cat /proc/cmdline | grep "legacy")
 IS_LIVE=$(cat /proc/cmdline | grep " cdroot")
+NVIDIA_SETTINGS="/usr/share/applications/nvidia-settings.desktop"
+ATI_SETTINGS="/usr/share/applications/amdcccle-ati-drivers.desktop"
 
 remove_proprietary_opengl() {
     if [ -z "$dry_run_detected" ]; then
@@ -180,6 +182,38 @@ fix_possible_opengl_misconfiguration() {
 
 }
 
+copy_nvidia_settings_on_desktop() {
+
+    # if it's available, add compiz-settings too
+    if [ -e "$NVIDIA_SETTINGS" ]; then
+        for user in `ls /home/`; do
+            if [ -d "/home/$user/Desktop" ]; then
+                cp $NVIDIA_SETTINGS /home/$user/Desktop/
+                chown $user /home/$user/Desktop/$NVIDIA_SETTINGS
+            fi
+        done
+        # also copy in /etc/skel
+	cp $NVIDIA_SETTINGS /etc/skel/Desktop/ -p
+    fi
+
+}
+
+copy_ati_settings_on_desktop() {
+
+    # if it's available, add compiz-settings too
+    if [ -e "$ATI_SETTINGS" ]; then
+        for user in `ls /home/`; do
+            if [ -d "/home/$user/Desktop" ]; then
+                cp $ATI_SETTINGS /home/$user/Desktop/
+                chown $user /home/$user/Desktop/$ATI_SETTINGS
+            fi
+        done
+        # also copy in /etc/skel
+	cp $ATI_SETTINGS /etc/skel/Desktop/ -p
+    fi
+
+}
+
 # Code
 
 current_arch=$(uname -m)
@@ -207,6 +241,7 @@ if [ -n "$is_there_xdriver" ]; then
        check_if_proprietary_driver_system_is_healthy nvidia
        if [ "$opengl_status" == "0" ]; then
            fix_possible_opengl_misconfiguration nvidia
+           copy_nvidia_settings_on_desktop
        else
            change_xorg_driver nv
        fi
@@ -215,6 +250,7 @@ if [ -n "$is_there_xdriver" ]; then
        check_if_proprietary_driver_system_is_healthy fglrx
        if [ "$opengl_status" == "0" ]; then
            fix_possible_opengl_misconfiguration ati
+           copy_ati_settings_on_desktop
        else
            change_xorg_driver radeon
        fi
@@ -300,6 +336,7 @@ if [ -n "$NVIDIA" ]; then
                      if [ "$opengl_status" == "0" ]; then
                          change_xorg_driver nvidia
                          fix_possible_opengl_misconfiguration nvidia
+                         copy_nvidia_settings_on_desktop
                      else
                          change_xorg_driver nv
                      fi
@@ -325,6 +362,7 @@ if [ -n "$NVIDIA" ]; then
        if [ "$opengl_status" == "0" ]; then
            change_xorg_driver nvidia
            fix_possible_opengl_misconfiguration nvidia
+           copy_nvidia_settings_on_desktop
        else
            change_xorg_driver nv
        fi
@@ -388,6 +426,7 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$RX800" ] || [ -n "$RX600" ] || [
                 change_xorg_driver fglrx
                 fix_possible_opengl_misconfiguration ati
                 enable_dri
+                copy_ati_settings_on_desktop
             else
                 change_xorg_driver radeon
                 enable_dri
