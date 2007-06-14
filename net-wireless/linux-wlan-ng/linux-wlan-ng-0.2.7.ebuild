@@ -12,7 +12,7 @@ SRC_URI="ftp://ftp.linux-wlan.org/pub/linux-wlan-ng/${P}.tar.bz2"
 # includes dual licensed files but also stuff only under MPL-1.1
 LICENSE="|| ( GPL-2 MPL-1.1 ) MPL-1.1"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="-*"
 
 IUSE="debug doc"
 
