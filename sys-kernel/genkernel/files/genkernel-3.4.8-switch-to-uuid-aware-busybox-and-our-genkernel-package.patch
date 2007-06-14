@@ -1,0 +1,34 @@
+diff -Nurp genkernel-3.4.8.orig/genkernel.conf genkernel-3.4.8/genkernel.conf
+--- genkernel-3.4.8.orig/genkernel.conf	2007-06-14 10:49:09.000000000 +0200
++++ genkernel-3.4.8/genkernel.conf	2007-06-14 10:59:02.000000000 +0200
+@@ -72,7 +72,7 @@ DEFAULT_KERNEL_SOURCE="/usr/src/linux"
+ # Configuration file for busybox
+ BUSYBOX_CONFIG="${GK_SHARE}/%%ARCH%%/busy-config"
+ # BusyBox Version
+-BUSYBOX_VER="1.1.3+gentoo"
++BUSYBOX_VER="1.1.3+sabayon"
+ # Busybox bin-cache location, to store pre-compiled busybox
+ # binary is just a bzip2 busybox executable
+ BUSYBOX_BINCACHE="%%CACHE%%/busybox-${BUSYBOX_VER}-%%ARCH%%.bz2"
+diff -Nurp genkernel-3.4.8.orig/x86/busy-config genkernel-3.4.8/x86/busy-config
+--- genkernel-3.4.8.orig/x86/busy-config	2007-04-12 13:44:46.000000000 +0200
++++ genkernel-3.4.8/x86/busy-config	2007-06-14 10:59:59.000000000 +0200
+@@ -384,6 +384,7 @@ CONFIG_MORE=y
+ CONFIG_FEATURE_USE_TERMIOS=y
+ CONFIG_MOUNT=y
+ CONFIG_FEATURE_MOUNT_NFS=y
++CONFIG_FEATURE_MOUNT_LABEL=y
+ CONFIG_PIVOT_ROOT=y
+ CONFIG_SWITCH_ROOT=y
+ CONFIG_RDATE=y
+diff -Nurp genkernel-3.4.8.orig/x86_64/busy-config genkernel-3.4.8/x86_64/busy-config
+--- genkernel-3.4.8.orig/x86_64/busy-config	2007-04-12 13:44:45.000000000 +0200
++++ genkernel-3.4.8/x86_64/busy-config	2007-06-14 11:00:20.000000000 +0200
+@@ -384,6 +384,7 @@ CONFIG_MORE=y
+ CONFIG_FEATURE_USE_TERMIOS=y
+ CONFIG_MOUNT=y
+ CONFIG_FEATURE_MOUNT_NFS=y
++CONFIG_FEATURE_MOUNT_LABEL=y
+ CONFIG_PIVOT_ROOT=y
+ CONFIG_SWITCH_ROOT=y
+ CONFIG_RDATE=y

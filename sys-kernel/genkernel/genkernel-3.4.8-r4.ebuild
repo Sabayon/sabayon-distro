@@ -21,8 +21,7 @@ SRC_URI="http://dev.gentoo.org/~wolf31o2/sources/genkernel/${P}.tar.bz2
 	ftp://sources.redhat.com/pub/dm/old/device-mapper.${VERSION_DMAP}.tgz
 	mirror://sourceforge/suspend/suspend-${VERSION_SUSPEND}.tar.gz
 	ftp://ftp.fsl.cs.sunysb.edu/pub/unionfs/unionfs-utils-0.x/unionfs-utils-${VERSION_UNIONFS}.tar.gz
-	mirror://sourceforge/e2fsprogs/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz
-	"
+	mirror://sourceforge/e2fsprogs/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -54,6 +53,12 @@ src_unpack() {
 
 	# Fix SMART doslowusb patch
 	epatch ${FILESDIR}/genkernel-3.4.8-fix-smarter-doslowusb.patch
+
+	# Fix System.map shit written by a ... man
+	epatch ${FILESDIR}/${P}-fix-System.map.patch
+
+	# Switch to our genkernel package and add LABEL/UUID support to busybox
+	epatch ${FILESDIR}/${P}-switch-to-uuid-aware-busybox-and-our-genkernel-package.patch
 
 }
 
