@@ -33,7 +33,7 @@ src_install() {
 
 	dodir /usr/bin
 	exeinto /usr/bin
-	doexe Manencode-${PV}/Manencode
+	doexe ${S}/Manencode
 
 	dodir /usr/share/manencode
 	dodir /usr/share/applnk/Multimedia
@@ -50,6 +50,6 @@ src_install() {
 
 	dodir /usr/share/icons
 	insinto /usr/share/icons
-        newins ${S}/Manencode-${PV}/Interface/executer.png manencode.png
+        newins ${S}/Interface/executer.png manencode.png
 
 }
