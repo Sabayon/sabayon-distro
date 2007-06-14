@@ -1,0 +1,12 @@
+diff -ur linux-wlan-ng-0.2.3.old/etc/wlan/shared linux-wlan-ng-0.2.3/etc/wlan/shared
+--- linux-wlan-ng-0.2.3.old/etc/wlan/shared	2006-06-23 13:52:27.100566344 +0300
++++ linux-wlan-ng-0.2.3/etc/wlan/shared	2006-06-23 13:52:51.393873200 +0300
+@@ -71,7 +71,7 @@
+ fi
+ 
+ if [ -f /proc/sys/kernel/hotplug -a \
+-	-x `cat /proc/sys/kernel/hotplug` -a \
++	-x "`cat /proc/sys/kernel/hotplug`" -a \
+ 	-f /etc/hotplug/wlan.agent ] ; then
+ 	HAS_HOTPLUG=y
+ else
