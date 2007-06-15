@@ -1,0 +1,86 @@
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Thu, 12 Apr 2007 19:39:06 +0000 (-0400)
+Subject: fix contains_not fdi-directive
+X-Git-Tag: HAL_0_2
+X-Git-Url: http://gitweb.freedesktop.org/?p=hal.git;a=commitdiff;h=485f9aa6780690d915a13d813bc753501a3c899e
+
+fix contains_not fdi-directive
+
+This patch fixes the contains_not FDI file directive/rule to return true (let
+the match not fail) if the property is not set on the device. This allow to
+have this rule:
+
+       <match key="info.addons" contains_not="hald-addon-input">
+         <append key="info.addons" type="strlist">hald-addon-input</append>
+       </match>
+
+Without this patch this fails if info.addons is not already set. With the
+change it would match if:
+* info.addons is not available
+or
+* info.addons contains no string 'hald-addon-input'
+---
+
+--- a/doc/spec/hal-spec-fdi-files.xml
++++ b/doc/spec/hal-spec-fdi-files.xml
+@@ -156,10 +156,10 @@
+           <para>
+             <literal>contains_not</literal> - can only be used with strlist (string list) 
+ 	    and string properties.
+-            For a string list this match if the given string is not match any of the
+-            item of the list for a string this match of the property not contains the
+-	    (sub-)string. You can use this attribute to construct if/else blocks together 
+-	    with e.g. <literal>contains</literal>.
++            For a string list this match if the given string not match any of the
++            item of the list (or the property is not set for the device). For a string  
++	    this match of the property not contains the (sub-)string. You can use this 
++	    attribute to construct if/else blocks together with e.g. <literal>contains</literal>.
+           </para>
+         </listitem>
+         <listitem>
+--- a/hald/device_info.c
++++ b/hald/device_info.c
+@@ -447,27 +447,28 @@ handle_match (struct rule *rule, HalDevi
+ 	{
+ 		dbus_bool_t contains = FALSE;
+ 
+-		if (hal_device_property_get_type (d, prop_to_check) == HAL_PROPERTY_TYPE_STRING) {
+-			if (hal_device_has_property (d, prop_to_check)) {
++		if (hal_device_has_property (d, prop_to_check) && value != NULL) {
++
++			if (hal_device_property_get_type (d, prop_to_check) == HAL_PROPERTY_TYPE_STRING) {
+ 				const char *haystack;
+ 
+ 				haystack = hal_device_property_get_string (d, prop_to_check);
+-				if (value != NULL && haystack != NULL &&  (strstr(haystack, value) != NULL))
+-					contains = TRUE;
+-			}
+-		} else if (hal_device_property_get_type (d, prop_to_check) == HAL_PROPERTY_TYPE_STRLIST && value != NULL) {
+-			HalDeviceStrListIter iter;
+-			for (hal_device_property_strlist_iter_init (d, prop_to_check, &iter);
+-			     hal_device_property_strlist_iter_is_valid (&iter);
+-			     hal_device_property_strlist_iter_next (&iter)) {
+-				const char *str = hal_device_property_strlist_iter_get_value (&iter);
+-				if (strcmp (str, value) == 0) {
++				if (haystack != NULL &&  (strstr(haystack, value) != NULL))
+ 					contains = TRUE;
+-					break;
++			} else if (hal_device_property_get_type (d, prop_to_check) == HAL_PROPERTY_TYPE_STRLIST) {
++				HalDeviceStrListIter iter;
++				for (hal_device_property_strlist_iter_init (d, prop_to_check, &iter);
++				     hal_device_property_strlist_iter_is_valid (&iter);
++				     hal_device_property_strlist_iter_next (&iter)) {
++					const char *str = hal_device_property_strlist_iter_get_value (&iter);
++					if (strcmp (str, value) == 0) {
++						contains = TRUE;
++						break;
++					}
+ 				}
++			} else {
++				return FALSE;
+ 			}
+-		} else {
+-			return FALSE;
+ 		}
+ 	
+ 		if (rule->type_match == MATCH_CONTAINS) {	

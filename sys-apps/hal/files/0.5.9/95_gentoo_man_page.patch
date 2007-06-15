@@ -1,0 +1,507 @@
+---
+ doc/man/hal-disable-polling.1         |    1 +
+ doc/man/hal-disable-polling.1.in      |    1 +
+ doc/man/hal-find-by-capability.1      |    1 +
+ doc/man/hal-find-by-capability.1.in   |    1 +
+ doc/man/hal-find-by-property.1        |    1 +
+ doc/man/hal-find-by-property.1.in     |    1 +
+ doc/man/hal-get-property.1            |    1 +
+ doc/man/hal-get-property.1.in         |    1 +
+ doc/man/hal-is-caller-locked-out.1    |    1 +
+ doc/man/hal-is-caller-locked-out.1.in |    1 +
+ doc/man/hal-lock.1                    |    1 +
+ doc/man/hal-lock.1.in                 |    1 +
+ doc/man/hal-set-property.1            |    1 +
+ doc/man/hal-set-property.1.in         |    1 +
+ doc/man/hald.8                        |    1 +
+ doc/man/hald.8.in                     |    6 ++++--
+ 16 files changed, 19 insertions(+), 2 deletions(-)
+
+Index: b/doc/man/hal-disable-polling.1
+===================================================================
+--- a/doc/man/hal-disable-polling.1	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-disable-polling.1	2007-04-06 20:26:09.000000000 -0400
+@@ -18,7 +18,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "/usr/share/doc/hal/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -117,7 +118,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -134,4 +135,5 @@
+ .SH AUTHOR
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+ 
+Index: b/doc/man/hal-disable-polling.1.in
+===================================================================
+--- a/doc/man/hal-disable-polling.1.in	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-disable-polling.1.in	2007-04-06 20:26:18.000000000 -0400
+@@ -18,7 +18,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "@docdir@/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -117,7 +118,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -134,4 +135,4 @@
+ .SH AUTHOR
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+-
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-find-by-capability.1
+===================================================================
+--- a/doc/man/hal-find-by-capability.1	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-find-by-capability.1	2007-04-06 20:25:54.000000000 -0400
+@@ -20,7 +20,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "/usr/share/doc/hal/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -46,7 +47,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -64,3 +65,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-find-by-capability.1.in
+===================================================================
+--- a/doc/man/hal-find-by-capability.1.in	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-find-by-capability.1.in	2007-04-06 20:25:30.000000000 -0400
+@@ -20,7 +20,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "@docdir@/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -46,7 +47,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -64,3 +65,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-find-by-property.1
+===================================================================
+--- a/doc/man/hal-find-by-property.1	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-find-by-property.1	2007-04-06 20:25:30.000000000 -0400
+@@ -20,7 +20,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "/usr/share/doc/hal/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -49,7 +50,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -67,3 +68,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-find-by-property.1.in
+===================================================================
+--- a/doc/man/hal-find-by-property.1.in	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-find-by-property.1.in	2007-04-06 20:25:30.000000000 -0400
+@@ -20,7 +20,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "@docdir@/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -49,7 +50,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -67,3 +68,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-get-property.1
+===================================================================
+--- a/doc/man/hal-get-property.1	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-get-property.1	2007-04-06 20:25:30.000000000 -0400
+@@ -20,7 +20,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "/usr/share/doc/hal/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -53,7 +54,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -70,3 +71,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-get-property.1.in
+===================================================================
+--- a/doc/man/hal-get-property.1.in	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-get-property.1.in	2007-04-06 20:25:30.000000000 -0400
+@@ -20,7 +20,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "@docdir@/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -53,7 +54,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -70,3 +71,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-is-caller-locked-out.1
+===================================================================
+--- a/doc/man/hal-is-caller-locked-out.1	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-is-caller-locked-out.1	2007-04-06 20:25:30.000000000 -0400
+@@ -18,7 +18,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "/usr/share/doc/hal/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -47,7 +48,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -65,3 +66,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-is-caller-locked-out.1.in
+===================================================================
+--- a/doc/man/hal-is-caller-locked-out.1.in	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-is-caller-locked-out.1.in	2007-04-06 20:25:30.000000000 -0400
+@@ -18,7 +18,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "@docdir@/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -47,7 +48,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -65,3 +66,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-lock.1
+===================================================================
+--- a/doc/man/hal-lock.1	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-lock.1	2007-04-06 20:25:30.000000000 -0400
+@@ -18,7 +18,8 @@
+ .B HAL
+ locks, refer to the \fIHAL spec\fP which can be found in
+ .I "/usr/share/doc/hal/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -78,7 +79,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -96,3 +97,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-lock.1.in
+===================================================================
+--- a/doc/man/hal-lock.1.in	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-lock.1.in	2007-04-06 20:25:30.000000000 -0400
+@@ -18,7 +18,8 @@
+ .B HAL
+ locks, refer to the \fIHAL spec\fP which can be found in
+ .I "@docdir@/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -78,7 +79,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -96,3 +97,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-set-property.1
+===================================================================
+--- a/doc/man/hal-set-property.1	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-set-property.1	2007-04-06 20:25:30.000000000 -0400
+@@ -20,7 +20,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "/usr/share/doc/hal/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -87,7 +88,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -104,3 +105,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hal-set-property.1.in
+===================================================================
+--- a/doc/man/hal-set-property.1.in	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hal-set-property.1.in	2007-04-06 20:25:30.000000000 -0400
+@@ -20,7 +20,8 @@
+ .B HAL
+ properties, refer to the \fIHAL spec\fP which can be found in
+ .I "@docdir@/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -87,7 +88,7 @@
+ 
+ .SH BUGS
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+@@ -104,3 +105,4 @@
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+ 
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+Index: b/doc/man/hald.8
+===================================================================
+--- a/doc/man/hald.8	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hald.8	2007-04-06 20:29:53.000000000 -0400
+@@ -19,7 +19,8 @@
+ more information about both the big picture and specific API details,
+ refer to the \fIHAL spec\fP which can be found in
+ .I "/usr/share/doc/hal/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -38,24 +39,20 @@
+ 
+ .SH BUGS AND DEBUGGING
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+ 
+-First, to obtain useful debug traces you will need to have
+-.B debuginfo
+-packages installed. On a Fedora system this is in the 
+-.B hal-debuginfo 
+-package and can be installed via the
+-.I yum
+-update program. 
++First, to obtain useful debug traces you will need to have HAL emerged with
++.B USE=debug
++enabled. Additionally you should read http://www.gentoo.org/proj/en/qa/backtraces.xml
+ 
+ Second, shut down the existing 
+ .B hald
+-daemon instance; on a Fedora system this is achieved by
++daemon instance; on a Gentoo system this is achieved by
+ 
+-.I "/etc/init.d/haldaemon stop"
++.I "/etc/init.d/hald stop"
+ 
+ After having shut down the daemon, you might want to run
+ 
+@@ -102,4 +99,5 @@
+ .SH AUTHOR
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.
+ 
+Index: b/doc/man/hald.8.in
+===================================================================
+--- a/doc/man/hald.8.in	2007-04-06 19:37:52.000000000 -0400
++++ b/doc/man/hald.8.in	2007-04-06 20:30:19.000000000 -0400
+@@ -19,7 +19,8 @@
+ more information about both the big picture and specific API details,
+ refer to the \fIHAL spec\fP which can be found in
+ .I "@docdir@/spec/hal-spec.html"
+-depending on the distribution.
++if emerged with
++.B USE=doc.
+ 
+ .SH OPTIONS
+ The following options are supported:
+@@ -38,18 +39,14 @@
+ 
+ .SH BUGS AND DEBUGGING
+ .PP
+-Please send bug reports to either the distribution or the HAL
++Please send bug reports to http://bugs.gentoo.org or the HAL
+ mailing list, see 
+ .I "http://lists.freedesktop.org/mailman/listinfo/hal"
+ on how to subscribe.
+ 
+-First, to obtain useful debug traces you will need to have
+-.B debuginfo
+-packages installed. On a Fedora system this is in the 
+-.B hal-debuginfo 
+-package and can be installed via the
+-.I yum
+-update program. 
++First, to obtain useful debug traces you will need to have HAL emerged with
++.B USE=debug
++enabled. Additionally you should read http://www.gentoo.org/proj/en/qa/backtraces.xml
+ 
+ Second, shut down the existing 
+ .B hald
+@@ -102,4 +99,4 @@
+ .SH AUTHOR
+ Written by David Zeuthen <david@fubar.dk> with a lot of help from many
+ others.
+-
++Gentoo specific changes by Doug Goldstein <cardoe@gentoo.org> and Steev Klimaszewski <steev@gentoo.org> with help from Gentoo testers and contributors.

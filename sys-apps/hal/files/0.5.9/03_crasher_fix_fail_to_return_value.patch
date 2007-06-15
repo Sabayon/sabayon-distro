@@ -1,0 +1,19 @@
+From: David Zeuthen <davidz@redhat.com>
+Date: Thu, 5 Apr 2007 05:04:53 +0000 (-0400)
+Subject: fix a potential crasher
+X-Git-Tag: HAL_0_2
+X-Git-Url: http://gitweb.freedesktop.org/?p=hal.git;a=commitdiff;h=7ce45a77001031a0d7777d7e1e5269256791b6f1
+
+fix a potential crasher
+---
+
+--- a/hald/hald_dbus.c
++++ b/hald/hald_dbus.c
+@@ -2161,6 +2161,7 @@ device_is_caller_locked_out (DBusConnect
+         /* only allow HAL helpers / privileged users to ask this question */
+         if (!local_interface && !access_check_message_caller_is_root_or_hal (ci_tracker, message)) {
+                 raise_permission_denied (connection, message, "IsCallerLockedOut: not privileged");
++                return DBUS_HANDLER_RESULT_HANDLED;
+         }
+ 
+ 	dbus_error_init (&error);

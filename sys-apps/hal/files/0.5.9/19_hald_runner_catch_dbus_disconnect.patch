@@ -1,0 +1,30 @@
+Index: b/hald/hald_runner.c
+===================================================================
+--- a/hald/hald_runner.c	2007-04-25 16:17:30.000000000 -0400
++++ b/hald/hald_runner.c	2007-04-25 17:21:47.000000000 -0400
+@@ -726,6 +726,13 @@
+ 					      msg, &call, INT_MAX))
+ 		DIE (("No memory"));
+ 
++	/**
++	 * The connection was disconnected as per D-Bus API
++	 * This is an error condition and should not really happen
++	 */
++	if (call == NULL)
++		goto error;
++
+ 	hd = g_new0 (HelperData, 1);
+ 	hd->d = device;
+ 	hd->cb = cb;
+Index: b/hald/hald.c
+===================================================================
+--- a/hald/hald.c	2007-04-12 21:19:50.000000000 -0400
++++ b/hald/hald.c	2007-04-25 17:22:31.000000000 -0400
+@@ -722,6 +722,7 @@
+ 
+ 
+ 	if (!hald_dbus_init ()) {
++		HAL_INFO (("hald_dbus_init() failed"));
+ 		hald_runner_kill_all();
+ 		exit (1);
+ 	}

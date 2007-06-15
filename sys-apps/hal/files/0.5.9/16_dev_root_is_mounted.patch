@@ -1,0 +1,140 @@
+Index: b/hald/linux/blockdev.c
+===================================================================
+--- a/hald/linux/blockdev.c	2007-03-07 16:52:19.000000000 -0500
++++ b/hald/linux/blockdev.c	2007-04-24 11:31:22.000000000 -0400
+@@ -165,9 +165,6 @@
+ 	struct mntent mnt;
+ 	struct mntent *mnte;
+ 	char buf[1024];
+-	unsigned int major;
+-	unsigned int minor;
+-	dev_t devt = makedev(0, 0);
+ 	GSList *volumes = NULL;
+ 	GSList *volume;
+ 
+@@ -189,43 +186,53 @@
+ 	/* loop over /proc/mounts */
+ 	while ((mnte = getmntent_r (f, &mnt, buf, sizeof(buf))) != NULL) {
+ 		struct stat statbuf;
+-		gboolean use_device_name_for_match;
++		dev_t devt;
+ 
+-		/*HAL_INFO ((" * /proc/mounts contain dev %s - type %s", mnt.mnt_fsname, mnt.mnt_type));*/
++		/* HAL_INFO ((" * /proc/mounts contain dev %s - type %s", mnt.mnt_fsname, mnt.mnt_type)); */
+ 
+-		/* If this is a nfs mount (fstype == 'nfs') ignore the mount. Reason:
+-		 *  1. we don't list nfs devices in HAL
+-		 *  2. more problematic: stat on mountpoints with 'stale nfs handle' never come
+-		 *     back and block complete HAL and all applications using HAL fail.
++		/* We don't handle nfs mounts in HAL and stat() on mountpoints,
++		 * and we would block on 'stale nfs handle'.
+ 		 */
+ 		if (strcmp(mnt.mnt_type, "nfs") == 0)
+ 			continue;
+ 
+-		use_device_name_for_match = FALSE;
+-		/* get major:minor of special device file */
+-		if (stat (mnt.mnt_fsname, &statbuf) != 0) {
+-			/* DING DING DING... device node may have been deleted by udev 
+-			 * but device is still mounted and we haven't processed the uevent
+-			 * for that deletion from udev.. 
+-			 * 
+-			 * So in this case... fall back to comparing on device names 
+-			 * rather than pretending the device is not mounted as that's
+-			 * what will happen if we just skip this /proc/mounts entry.
+-			 *
+-			 * The reason it's nicer to compare on major:minor is that
+-			 * /proc/mounts is broken - it contains the *device name*
+-			 * passed to mount(2) which in some cases may be a symlink
+-			 * (on many distros it's common to see /proc/mounts contain
+-			 * /dev/root as the device for /). Sigh...
+-			 */
+-			use_device_name_for_match = TRUE;
+-		} else {
++		/* skip plain names, we look for device nodes */
++		if (mnt.mnt_fsname[0] != '/')
++			continue;
++
++		/*
++		 * We can't just stat() the mountpoint, because it breaks all sorts
++		 * non-disk filesystems. So assume, that the names in /proc/mounts
++		 * are existing device-files used to mount the filesystem.
++		 */
++		devt = makedev(0, 0);
++		if (stat (mnt.mnt_fsname, &statbuf) == 0) {
++			/* not a device node */
+ 			if (major (statbuf.st_rdev) == 0)
+ 				continue;
++
++			/* found major/minor */
++			devt = statbuf.st_rdev;
++		} else {
++			/* The root filesystem may be mounted by a device name that doesn't
++			 * exist in the real root, like /dev/root, which the kernel uses
++			 * internally, when no initramfs image is used. For "/", it is safe
++			 * to get the major/minor by stat()'ing the mount-point.
++			 */
++			if (strcmp (mnt.mnt_dir, "/") == 0 && stat ("/", &statbuf) == 0)
++				devt = statbuf.st_dev;
++
++			/* DING DING DING... the device-node may not exist, or is
++			 * already deleted, but the device may be still mounted.
++			 *
++			 * We will fall back to looking up the device-name, instead
++			 * of using major/minor.
++		 	 */
+ 		}
+ 
+-		/*HAL_INFO (("* found mounts dev %s (%i:%i)", mnt.mnt_fsname, major (statbuf.st_rdev), minor (statbuf.st_rdev)));*/
+-		/* match against all hal volumes */
++		/* HAL_INFO (("* found mounts dev %s (%i:%i)", mnt.mnt_fsname,
++			   major (devt), minor (devt))); */
++
+ 		for (volume = volumes; volume != NULL; volume = g_slist_next (volume)) {
+ 			HalDevice *dev;
+ 			gboolean is_match;
+@@ -233,7 +240,8 @@
+ 			is_match = FALSE;
+ 			dev = HAL_DEVICE (volume->data);
+ 
+-			if (use_device_name_for_match) {
++			/* lookup dev_t or devname of known hal devices */
++			if (major (devt) == 0) {
+ 				const char *device_name;
+ 
+ 				device_name = hal_device_property_get_string (dev, "block.device");
+@@ -243,14 +251,16 @@
+ 				if (strcmp (device_name, mnt.mnt_fsname) == 0)
+ 					is_match = TRUE;
+ 			} else {
+-				major = hal_device_property_get_int (dev, "block.major");
+-				if (major == 0)
++				unsigned int majornum;
++				unsigned int minornum;
++
++				majornum = hal_device_property_get_int (dev, "block.major");
++				if (majornum == 0)
+ 					continue;
+-				minor = hal_device_property_get_int (dev, "block.minor");
+-				devt = makedev (major, minor);
+-				/*HAL_INFO (("  match %s (%i:%i)", hal_device_get_udi (dev), major, minor));*/
++				minornum = hal_device_property_get_int (dev, "block.minor");
++				/* HAL_INFO (("  match %s (%i:%i)", hal_device_get_udi (dev), majornum, minornum)); */
+ 
+-				if (statbuf.st_rdev == devt)
++				if (majornum == major (devt) && minornum == minor (devt))
+ 					is_match = TRUE;
+ 			}
+ 
+@@ -262,9 +272,8 @@
+ 							      hasmntopt (&mnt, MNTOPT_RO) ? TRUE : FALSE);
+ 				hal_device_property_set_string (dev, "volume.mount_point", mnt.mnt_dir);
+ 				device_property_atomic_update_end ();
+-				/*HAL_INFO (("  set %s to be mounted at %s (%s)",
+-				  hal_device_get_udi (dev), mnt.mnt_dir,
+-					   hasmntopt (&mnt, MNTOPT_RO) ? "ro" : "rw"));*/
++				/* HAL_INFO (("  set %s to be mounted at %s (%s)", hal_device_get_udi (dev),
++					   mnt.mnt_dir, hasmntopt (&mnt, MNTOPT_RO) ? "ro" : "rw")); */
+ 				volumes = g_slist_delete_link (volumes, volume);
+ 				break;
+ 			}

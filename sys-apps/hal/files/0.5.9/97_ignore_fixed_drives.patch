@@ -1,0 +1,38 @@
+Index: b/fdi/policy/10osvendor/95-storage-ignore-fixed-drives.fdi
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ b/fdi/policy/10osvendor/95-storage-ignore-fixed-drives.fdi	2007-04-24 11:42:44.000000000 -0400
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="UTF-8"?>
++
++<deviceinfo version="0.2">
++  <device>
++    <match key="volume.fsusage" string="filesystem">
++      <match key="@block.storage_device:storage.hotpluggable" bool="false">
++        <match key="@block.storage_device:storage.removable" bool="false">
++          <match key="volume.is_mounted" bool="true">
++            <merge key="volume.ignore" type="bool">true</merge>
++            <!-- Show /media/ mounted devices -->
++            <match key="volume.mount_point" prefix="/media">
++              <merge key="volume.ignore" type="bool">false</merge>
++            </match>
++          </match>
++        </match>
++      </match>
++    </match>
++  </device>
++</deviceinfo>
+Index: b/fdi/policy/10osvendor/Makefile.am
+===================================================================
+--- a/fdi/policy/10osvendor/Makefile.am	2007-04-20 14:10:05.000000000 -0400
++++ b/fdi/policy/10osvendor/Makefile.am	2007-04-24 11:42:44.000000000 -0400
+@@ -7,7 +7,8 @@
+ 	10-rfkill-switch.fdi		\
+ 	10-laptop-panel-mgmt-policy.fdi	\
+ 	15-storage-luks.fdi		\
+-	20-storage-methods.fdi
++	20-storage-methods.fdi		\
++	95-storage-ignore-fixed-drives.fdi
+ 
+ if BUILD_MACBOOKPRO
+ dist_fdi_DATA += 10-macbookpro-utils.fdi

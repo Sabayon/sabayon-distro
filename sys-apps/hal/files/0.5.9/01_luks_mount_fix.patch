@@ -1,0 +1,67 @@
+From: David Zeuthen <davidz@redhat.com>
+Date: Tue, 3 Apr 2007 17:18:23 +0000 (-0400)
+Subject: fix lock checking for LUKS setup/teardown
+X-Git-Tag: HAL_0_2
+X-Git-Url: http://gitweb.freedesktop.org/?p=hal.git;a=commitdiff;h=55256f3d56e3317b3e1efbf84f732b9464eacf8a
+
+fix lock checking for LUKS setup/teardown
+
+Reported here
+
+ http://lists.freedesktop.org/archives/hal/2007-April/007936.html
+---
+
+--- a/tools/hal-luks-setup
++++ b/tools/hal-luks-setup
+@@ -22,17 +22,17 @@ fi
+ # Respect the same locks as Mount()/Unmount() etc.
+ if [ -n "$HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME" ] ; then
+     hal-is-caller-locked-out --udi $HAL_PROP_INFO_UDI \
+-        --interface org.freedesktop.Hal.Volume \
+-        --caller $HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME
++        --interface org.freedesktop.Hal.Device.Volume \
++        --caller "$HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME"
+     RET=$?
+-    if [ "$RET" != "1" ] ; then
++    if [ "$RET" != "0" ] ; then
+         locked_out
+     fi
+-    hal-is-caller-locked-out --udi $HAL_PROP_STORAGE_ORIGINATING_DEVICE \
+-        --interface org.freedesktop.Hal.Storage \
+-        --caller $HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME
++    hal-is-caller-locked-out --udi $HAL_PROP_BLOCK_STORAGE_DEVICE \
++        --interface org.freedesktop.Hal.Device.Storage \
++        --caller "$HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME"
+     RET=$?
+-    if [ "$RET" != "1" ] ; then
++    if [ "$RET" != "0" ] ; then
+         locked_out
+     fi
+ fi
+--- a/tools/hal-luks-teardown
++++ b/tools/hal-luks-teardown
+@@ -23,17 +23,17 @@ fi
+ # Respect the same locks as Mount()/Unmount() etc.
+ if [ -n "$HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME" ] ; then
+     hal-is-caller-locked-out --udi $HAL_PROP_INFO_UDI \
+-        --interface org.freedesktop.Hal.Volume \
+-        --caller $HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME
++        --interface org.freedesktop.Hal.Device.Volume \
++        --caller "$HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME"
+     RET=$?
+-    if [ "$RET" != "1" ] ; then
++    if [ "$RET" != "0" ] ; then
+         locked_out
+     fi
+-    hal-is-caller-locked-out --udi $HAL_PROP_STORAGE_ORIGINATING_DEVICE \
+-        --interface org.freedesktop.Hal.Storage \
+-        --caller $HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME
++    hal-is-caller-locked-out --udi $HAL_PROP_BLOCK_STORAGE_DEVICE \
++        --interface org.freedesktop.Hal.Device.Storage \
++        --caller "$HAL_METHOD_INVOKED_BY_SYSTEMBUS_CONNECTION_NAME"
+     RET=$?
+-    if [ "$RET" != "1" ] ; then
++    if [ "$RET" != "0" ] ; then
+         locked_out
+     fi
+ fi

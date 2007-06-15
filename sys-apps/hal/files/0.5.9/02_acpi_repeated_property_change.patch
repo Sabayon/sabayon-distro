@@ -1,0 +1,39 @@
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Wed, 4 Apr 2007 22:48:10 +0000 (-0400)
+Subject: fix problem with repeated property-changed signals
+X-Git-Tag: HAL_0_2
+X-Git-Url: http://gitweb.freedesktop.org/?p=hal.git;a=commitdiff;h=3ede8e2ce38e48ba7c292ed17d348f6e810db2c1
+
+fix problem with repeated property-changed signals
+
+> On Mittwoch, 4. April 2007, Richard Hughes wrote:
+> > With git I'm getting the following when I remove AC:
+> >
+> > 15:56:02.865: acpi_ACAD property ac_adapter.present = false
+> > 15:56:03.041: acpi_ACAD property ac_adapter.present = false
+> > 15:56:03.048: acpi_BAT1 property battery.charge_level.percentage = 96
+> > (0x60) 15:56:03.051: acpi_BAT1 property battery.charge_level.percentage =
+> > 96 (0x60)
+> >
+> > acpi_listen seems to think that there is one event from either device,
+> > so I'm unsure what the problem is here.
+>
+> I can confirm this, I take a look at the problem. It is IMO something in
+> the acpi code, could not see this atm for other devices.
+
+This is a general problem. The signal for device_property_changed is listed
+twice in hald.c in function hald_get_gdl().
+---
+
+--- a/hald/hald.c
++++ b/hald/hald.c
+@@ -203,9 +203,6 @@ hald_get_gdl (void)
+ 				  "device_capability_added",
+ 				  G_CALLBACK (gdl_capability_added), NULL);
+ 		g_signal_connect (global_device_list,
+-				  "device_property_changed",
+-				  G_CALLBACK (gdl_property_changed), NULL);
+-		g_signal_connect (global_device_list,
+ 				  "device_lock_acquired",
+ 				  G_CALLBACK (gdl_lock_acquired), NULL);
+ 		g_signal_connect (global_device_list,

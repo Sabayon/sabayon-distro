@@ -1,0 +1,31 @@
+From: Kristian HÃ¸gsberg <krh@redhat.com>
+Date: Wed, 25 Apr 2007 19:20:39 +0000 (-0400)
+Subject: update firewire prober to use correct ioctl codes
+X-Git-Tag: HAL_0_2
+X-Git-Url: http://gitweb.freedesktop.org/?p=hal.git;a=commitdiff;h=c2b62d08f68881584e020fd031dc6bb143a78a43
+
+update firewire prober to use correct ioctl codes
+---
+
+--- a/hald/linux/probing/probe-ieee1394-unit.c
++++ b/hald/linux/probing/probe-ieee1394-unit.c
+@@ -83,14 +83,11 @@ struct fw_cdev_event_request {
+ 	__u32 data[0];
+ };
+ 
+-#define FW_CDEV_IOC_GET_INFO		_IO('#', 0x00)
+-#define FW_CDEV_IOC_SEND_REQUEST	_IO('#', 0x01)
+-#define FW_CDEV_IOC_ALLOCATE		_IO('#', 0x02)
+-#define FW_CDEV_IOC_DEALLOCATE		_IO('#', 0x03)
+-#define FW_CDEV_IOC_SEND_RESPONSE	_IO('#', 0x04)
+-#define FW_CDEV_IOC_INITIATE_BUS_RESET	_IO('#', 0x05)
+-#define FW_CDEV_IOC_ADD_DESCRIPTOR	_IO('#', 0x06)
+-#define FW_CDEV_IOC_REMOVE_DESCRIPTOR	_IO('#', 0x07)
++#define FW_CDEV_IOC_GET_INFO		_IOWR('#', 0x00, struct fw_cdev_get_info)
++#define FW_CDEV_IOC_SEND_REQUEST	_IOW('#', 0x01, struct fw_cdev_send_request)
++#define FW_CDEV_IOC_ALLOCATE		_IOWR('#', 0x02, struct fw_cdev_allocate)
++#define FW_CDEV_IOC_DEALLOCATE		_IOW('#', 0x03, struct fw_cdev_deallocate)
++#define FW_CDEV_IOC_SEND_RESPONSE	_IOW('#', 0x04, struct fw_cdev_send_response)
+ 
+ /* FW_CDEV_VERSION History
+  *

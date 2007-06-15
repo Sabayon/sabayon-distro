@@ -1,0 +1,74 @@
+commit 674d2415aed43b43b81b262cbad2228f0477e34a
+Author: Danny Kukawka <danny.kukawka@web.de>
+Date:   Tue Apr 17 15:09:22 2007 +0200
+
+    fix problems with case if vid->label[0] is '\0'
+    
+    Fix problems with the case where vid->label[0] is '\0'. Don't call
+    strdup_valid_utf8 in this case, simply ignore the label in this case.
+    Cleaned up the code to prevent code duplication.
+
+    This fix fd.o bug #10362.
+
+diff --git a/hald/linux/probing/probe-volume.c b/hald/linux/probing/probe-volume.c
+index b5f71c0..b003b25 100644
+--- a/hald/linux/probing/probe-volume.c
++++ b/hald/linux/probing/probe-volume.c
+@@ -131,38 +131,34 @@ set_volume_id_values (LibHalContext *ctx, const char *udi, LibHalChangeSet *cs,
+ 		libhal_changeset_set_property_string (cs, "volume.fsversion", vid->type_version);
+ 		HAL_DEBUG(("volume.fsversion = '%s'", vid->type_version));
+ 	}
++
+ 	libhal_changeset_set_property_string (cs, "volume.uuid", vid->uuid);
+ 	HAL_DEBUG(("volume.uuid = '%s'", vid->uuid));
+ 
+-	/* we need to be sure for a utf8 valid label, because dbus accept only utf8 valid strings */
+-	volume_label = strdup_valid_utf8 (vid->label);
+-	if( volume_label != NULL ) {
+-		libhal_changeset_set_property_string (cs, "volume.label", volume_label);
+-		HAL_DEBUG(("volume.label = '%s'", volume_label));
++	if(vid->label != NULL && vid->label[0] != '\0') {
++		/* we need to be sure for a utf8 valid label, because dbus accept only utf8 valid strings */
++		volume_label = strdup_valid_utf8 (vid->label);
++		if( volume_label != NULL ) {
++			libhal_changeset_set_property_string (cs, "volume.label", volume_label);
++			HAL_DEBUG(("volume.label = '%s'", volume_label));
+ 		
+-		if (strlen(volume_label) > 0) {	
+-			libhal_changeset_set_property_string (cs, "info.product", volume_label);
+-		}
+-		else {
+-			if (vid->type != NULL) {
+-				snprintf (buf, sizeof (buf), "Volume (%s)", vid->type);
+-			} else {
+-				snprintf (buf, sizeof (buf), "Volume (unknown)");
++			if (strlen(volume_label) > 0) {	
++				libhal_changeset_set_property_string (cs, "info.product", volume_label);
++				g_free(volume_label);
++				return;
+ 			}
+ 
+-			libhal_changeset_set_property_string (cs, "info.product", buf);
+-				
+-		}
+-		g_free(volume_label);
+-	} else {
+-		if (vid->type != NULL) {
+-			snprintf (buf, sizeof (buf), "Volume (%s)", vid->type);
+-		} else {
+-			snprintf (buf, sizeof (buf), "Volume (unknown)");
++			g_free(volume_label);
+ 		}
++	}
+ 
+-		libhal_changeset_set_property_string (cs, "info.product", buf);
++	if (vid->type != NULL) {
++		snprintf (buf, sizeof (buf), "Volume (%s)", vid->type);
++	} else {
++		snprintf (buf, sizeof (buf), "Volume (unknown)");
+ 	}
++
++	libhal_changeset_set_property_string (cs, "info.product", buf);
+ }
+ 
+ static void
