@@ -13,12 +13,12 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-RDEPEND=">=sys-apps/hal-0.5.4
+RDEPEND=">=sys-apps/hal-0.5.9
 	dev-libs/dbus-qt3-old
 	x11-libs/libXScrnSaver
 	x11-libs/libXext
 	x11-libs/libXtst
-	>=sys-power/powersave-0.11.5"
+	"
 DEPEND="${RDEPEND}"
 
 set-kdedir
