@@ -1,13 +1,13 @@
 diff -Nurp genkernel-3.4.8.orig/generic/linuxrc genkernel-3.4.8/generic/linuxrc
---- genkernel-3.4.8.orig/generic/linuxrc	2007-06-15 09:32:36.000000000 +0200
-+++ genkernel-3.4.8/generic/linuxrc	2007-06-15 09:37:19.000000000 +0200
-@@ -554,6 +554,9 @@ then
- 		FS_LOCATION='mnt/livecd'
- 	fi
+--- genkernel-3.4.8.orig/generic/linuxrc	2007-06-15 20:43:54.000000000 +0200
++++ genkernel-3.4.8/generic/linuxrc	2007-06-15 20:45:20.000000000 +0200
+@@ -563,7 +563,9 @@ then
+ 		union_insert_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
  
-+	# bind inside the newly created root tree
-+	mount --bind ${NEW_ROOT}/mnt/cdrom ${NEW_ROOT}/mnt/cdrom
-+
- #
- # End cdrom looptype determination and mounting if necessary
- #
+ 		mkdir ${UNION}/mnt/livecd
++		mkdir ${UNION}/mnt/cdrom &> /dev/null
+ 		mount --bind ${NEW_ROOT}/${FS_LOCATION} ${UNION}/mnt/livecd
++		mount --bind ${NEW_ROOT}/mnt/cdrom ${UNION}/mnt/cdrom
+ 		
+ 		# Make sure fstab notes livecd is mounted ro.  Makes system skip remount which fails on unionfs dirs.
+ 		sed -e 's|\(.*\s/\s*tmpfs\s*\)defaults\(.*\)|\1defaults,ro\2|' /${UNION}/etc/fstab > /${UNION}/etc/fstab.new
