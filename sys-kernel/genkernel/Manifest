@@ -42,10 +42,10 @@ AUX genkernel-3.4.7-unionfs-inkernel-support.patch 5695 RMD160 9b461693cb8b99ab1
 MD5 ac9e53d6c84ef726add6d4dba3596f65 files/genkernel-3.4.7-unionfs-inkernel-support.patch 5695
 RMD160 9b461693cb8b99ab1ea4013181e360e0d5804437 files/genkernel-3.4.7-unionfs-inkernel-support.patch 5695
 SHA256 be249c5508476a5d8aa5bdb654c741be087720fa44f83deaa4be8380a1ab5c42 files/genkernel-3.4.7-unionfs-inkernel-support.patch 5695
-AUX genkernel-3.4.8-bind-cdrom-inside-chroot.patch 723 RMD160 b7255ceb960e372a75a7bc6e0e321ae4a524949d SHA1 42064005039d7bf54a05f96093beae279cc47b10 SHA256 30a131f5f80a125789bc3571a9dfdcd0fd038086cf6a1292d4e1e2e0bc4ddb2c
-MD5 1ee76e4e13496ea7e21c19c21a8d18d1 files/genkernel-3.4.8-bind-cdrom-inside-chroot.patch 723
-RMD160 b7255ceb960e372a75a7bc6e0e321ae4a524949d files/genkernel-3.4.8-bind-cdrom-inside-chroot.patch 723
-SHA256 30a131f5f80a125789bc3571a9dfdcd0fd038086cf6a1292d4e1e2e0bc4ddb2c files/genkernel-3.4.8-bind-cdrom-inside-chroot.patch 723
+AUX genkernel-3.4.8-bind-cdrom-inside-chroot.patch 763 RMD160 b3df6eba9eca4f0b30ca38402a9a51edc1c45238 SHA1 52936eccb706b2509f43f2f81fe340b8704052de SHA256 1924ab8df8401e4e3f7c951d208387ebc36ea3fd1a2f3b7f399e1d785113dae0
+MD5 213d52441fbc3655e7c72347b7b0dba1 files/genkernel-3.4.8-bind-cdrom-inside-chroot.patch 763
+RMD160 b3df6eba9eca4f0b30ca38402a9a51edc1c45238 files/genkernel-3.4.8-bind-cdrom-inside-chroot.patch 763
+SHA256 1924ab8df8401e4e3f7c951d208387ebc36ea3fd1a2f3b7f399e1d785113dae0 files/genkernel-3.4.8-bind-cdrom-inside-chroot.patch 763
 AUX genkernel-3.4.8-fix-System.map.patch 842 RMD160 6f0a199c88b91bc19b707e6e2bd6bf7ae62c5841 SHA1 f4e79d26fbbab33b4ac9322e5e7854853cd979e9 SHA256 f9d32d597ba80c6a96dcff119dcee12dfc0474b9a543b8356e5660a8728a9796
 MD5 27701347fd34416a8b97a548f21aedef files/genkernel-3.4.8-fix-System.map.patch 842
 RMD160 6f0a199c88b91bc19b707e6e2bd6bf7ae62c5841 files/genkernel-3.4.8-fix-System.map.patch 842
