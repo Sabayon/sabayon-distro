@@ -62,9 +62,6 @@ src_unpack() {
 	sed -i '/^UPDATE_DESKTOP_DATABASE/s:=.*:=true:' tools/Makefile.in
 	epatch "${FILESDIR}"/wine-gentoo-no-ssp.patch #66002
 	sed -i '/^MimeType/d' tools/wine.desktop || die #117785
-
-	# Fix a small bug in d3d
-	epatch "${FILESDIR}"/wine-wined3d-fixes.patch
 }
 
 config_cache() {
@@ -100,11 +97,13 @@ src_compile() {
 
 	strip-flags
 
-	#use amd64 && multilib_toolchain_setup x86
+	EXTRA_OPTS=""
 
-	export LDFLAGS="-m32 -L/emul/linux/x86/usr/lib -L/emul/linux/x86/lib"
+	use amd64 && EXTRA_OPTS="${EXTRA_OPTS} --libdir=/usr/lib32"
+
+	export LDFLAGS="-m32 -L/usr/lib32 -L/lib32"
 	#	$(use_enable amd64 win64)
-	econf \
+	econf ${EXTRA_OPTS} \
 		--sysconfdir=/etc/wine \
 		$(use_with ncurses curses) \
 		$(use_with opengl) \
