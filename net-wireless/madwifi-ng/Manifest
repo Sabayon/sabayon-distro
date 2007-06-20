@@ -20,10 +20,10 @@ EBUILD madwifi-ng-0.9.3-r3.ebuild 2776 RMD160 7f81e61b8397a57ad3dfa36fd97e4d9c77
 MD5 ddda9ed34706ffa0ed2260c5b71f435a madwifi-ng-0.9.3-r3.ebuild 2776
 RMD160 7f81e61b8397a57ad3dfa36fd97e4d9c77712ded madwifi-ng-0.9.3-r3.ebuild 2776
 SHA256 48fa472e199a1f153d9de8e3600df89e5b63f0e1d33f47672f560c6a458e7d02 madwifi-ng-0.9.3-r3.ebuild 2776
-EBUILD madwifi-ng-0.9.4.ebuild 2919 RMD160 21b9fbe0548cf0cf890f6d92429fd01671c6c6e2 SHA1 1bb99c5379e5712e0d8c08127a6152127e36457c SHA256 367703cbb1fec046ecfbf11fbca14c7bdde9938a228a6a28f021913aac056ce8
-MD5 07e04f62f34e43666d941ed61cc25a65 madwifi-ng-0.9.4.ebuild 2919
-RMD160 21b9fbe0548cf0cf890f6d92429fd01671c6c6e2 madwifi-ng-0.9.4.ebuild 2919
-SHA256 367703cbb1fec046ecfbf11fbca14c7bdde9938a228a6a28f021913aac056ce8 madwifi-ng-0.9.4.ebuild 2919
+EBUILD madwifi-ng-0.9.4.ebuild 2916 RMD160 b9cd2f5dca7db5f557a8ab2e41a59f28fadb9250 SHA1 00db7d97ce16ff68f202142dcb1ec2e0a84bca91 SHA256 841b81e3733f1dc3889afe15b26377036aafa67ff3f5b4789b39daadfaf52e18
+MD5 7756da84d2040ed64268ad36e18522b2 madwifi-ng-0.9.4.ebuild 2916
+RMD160 b9cd2f5dca7db5f557a8ab2e41a59f28fadb9250 madwifi-ng-0.9.4.ebuild 2916
+SHA256 841b81e3733f1dc3889afe15b26377036aafa67ff3f5b4789b39daadfaf52e18 madwifi-ng-0.9.4.ebuild 2916
 MD5 08d87d4cb379b29c4e24063b03dc75a3 files/digest-madwifi-ng-0.9.3-r3 247
 RMD160 a3b16a034a59b6f8208c0e1e29653d0756de0b8a files/digest-madwifi-ng-0.9.3-r3 247
 SHA256 c35fa1fbdf62a5dc311f54e25a329e6fe220b00e6858f8e5335149056ab97bf0 files/digest-madwifi-ng-0.9.3-r3 247

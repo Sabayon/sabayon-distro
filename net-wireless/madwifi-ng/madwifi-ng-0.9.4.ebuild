@@ -16,7 +16,7 @@ IUSE=""
 
 DEPEND="app-arch/sharutils"
 RDEPEND="!net-wireless/madwifi-old
-		~net-wireless/madwifi-ng-tools-${PV:0:5}"
+		>=net-wireless/madwifi-ng-tools-0.9.3"
 
 CONFIG_CHECK="CRYPTO WLAN_80211 SYSCTL"
 ERROR_CRYPTO="${P} requires Cryptographic API support (CONFIG_CRYPTO)."
