@@ -17,6 +17,7 @@ S=${WORKDIR}/${P}
 DEPEND="
 	|| ( >=kde-base/kdebase-3.5.0 >=kde-base/kdebase-meta-3.5.0 )
 	<x11-libs/qt-4
+	sys-apps/hwinfo
 	"
 
 need-kde 3.5
