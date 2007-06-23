@@ -1,21 +1,18 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-libs/wxGTK/wxGTK-2.6.3.3.ebuild,v 1.3 2006/11/23 16:48:09 yvasilev Exp $
 
-inherit eutils multilib toolchain-funcs gnuconfig versionator flag-o-matic
+inherit eutils flag-o-matic multilib toolchain-funcs versionator
 
-DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit and
-wxbase non-gui library"
+HTML_PV="$(get_version_component_range 1-3)"
 
-SRC_URI="http://ftp.wxwidgets.org/pub/2.8.2-rc1/wxGTK-${PV/_/-}.tar.bz2
-	doc? ( http://ftp.wxwidgets.org/pub/2.8.2-rc1/wxWidgets-${PV/_/-}-HTML.tar.gz )"
+DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit and wxbase non-gui library"
 
-RESTRICT="nomirror"
+SRC_URI="mirror://sourceforge/wxpython/wxPython-src-${PV}.tar.bz2
+		doc? ( mirror://sourceforge/wxwindows/wxWidgets-${HTML_PV}-HTML.tar.gz )"
 
-SLOT="2.6"
-KEYWORDS="-*"
-#KEYWORDS="~alpha ~amd64 arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="doc gnome joystick odbc opengl sdl unicode X"
+SLOT="2.8"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
+IUSE="debug doc gnome joystick odbc opengl sdl stl unicode X gif"
 LICENSE="wxWinLL-3"
 HOMEPAGE="http://www.wxwidgets.org"
 
@@ -25,7 +22,7 @@ HOMEPAGE="http://www.wxwidgets.org"
 #         There is no USE flag for this.
 
 RDEPEND="X? ( opengl? ( virtual/opengl )
-		>=x11-libs/gtk+-2.10
+		>=x11-libs/gtk+-2.0
 		>=dev-libs/glib-2.0
 		media-libs/tiff
 		x11-libs/libXinerama
@@ -44,8 +41,8 @@ DEPEND="${RDEPEND}
 		x11-proto/xf86vidmodeproto
 	   )"
 
-S=${WORKDIR}/wxGTK-${PV/_/-}
-HTML_S=${WORKDIR}/wxWidgets-${PV/_/-}
+S=${WORKDIR}/wxPython-src-${PV}
+HTML_S=${WORKDIR}/wxWidgets-${HTML_PV}
 
 # Configure a build.
 # It takes three parameters;
@@ -109,13 +106,24 @@ install_build() {
 	fi
 }
 
-
 pkg_setup() {
 	if use X; then
-		einfo "To install only wxbase (non-gui libs) use USE=-X"
+		elog "To install only wxbase (non-gui libs) use USE=-X"
 	else
-		einfo "To install GUI libraries, in addition to wxbase, use USE=X"
+		elog "To install GUI libraries, in addition to wxbase, use USE=X"
 	fi
+}
+
+src_unpack() {
+	unpack ${A}
+	cd "${S}"
+#	epatch "${FILESDIR}/socketfix.patch"
+#	epatch "${FILESDIR}/${P}-wxrc_build_fix.patch"
+#	epatch "${FILESDIR}/${P}-dialog_focus.patch"
+#	epatch "${FILESDIR}/${P}-slider_linesize.patch"
+#
+#	# Reverse apply patch in wxPython tarball that breaks ABI
+#	EPATCH_OPTS="-R" epatch "${S}/patches/listctrl-ongetitemcolumnimage.patch"
 }
 
 src_compile() {
@@ -131,6 +139,19 @@ src_compile() {
 			$(use_with opengl)
 			$(use_with gnome gnomeprint)"
 	fi
+	if use stl; then 
+		myconf="${myconf}
+		$(use_enable stl)"
+	fi
+
+	if use gif; then 
+		myconf="${myconf}
+			$(use_enable gif)"
+	else
+		myconf="${myconf}
+		$(use_disable gif)"
+	fi
+
 
 	use X && configure_build gtk2 unicode "${myconf} --with-gtk=2"
 	use X || configure_build base unicode "${myconf} --disable-gui"
@@ -154,12 +175,12 @@ src_install() {
 	dodoc ${S}/docs/gtk/readme.txt
 
 	if use doc; then
-		dohtml -r ${HTML_S}/docs/html/*
+		dohtml -r ${HTML_S}/html/*
 	fi
 }
 
 pkg_postinst() {
-	einfo "dev-libs/wxbase has been removed from portage."
-	einfo "wxBase is installed with wxGTK, as one of many libraries."
-	einfo "If only wxBase is wanted, -X USE flag may be specified."
+	elog "dev-libs/wxbase has been removed from portage."
+	elog "wxBase is installed with wxGTK, as one of many libraries."
+	elog "If only wxBase is wanted, -X USE flag may be specified."
 }
