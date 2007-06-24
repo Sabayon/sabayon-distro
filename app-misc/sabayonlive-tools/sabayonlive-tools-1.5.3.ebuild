@@ -9,14 +9,15 @@ HOMEPAGE="http://www.sabayonlinux.org"
 SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="amd64 x86"
-IUSE="opengl"
+IUSE="opengl business_edition"
 
 RDEPEND="dev-util/dialog
 	sys-apps/pciutils
 	sys-apps/gawk
-	app-admin/eselect-opengl
+	!business_edition? ( app-admin/eselect-opengl )
 	!app-misc/livecd-tools
-	x11-misc/desktop-acceleration-helpers"
+	!business_edition? ( x11-misc/desktop-acceleration-helpers )
+	"
 
 src_unpack() {
 	cd ${WORKDIR}
