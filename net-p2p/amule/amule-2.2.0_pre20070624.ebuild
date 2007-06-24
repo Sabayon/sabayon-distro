@@ -62,6 +62,12 @@ pkg_preinst() {
 	fi
 }
 
+src_unpack() {
+	unpack ${A}
+	cd ${S}
+	epatch ${FILESDIR}/${PN}-remove-stupid-parameter.patch
+}
+
 src_compile() {
 		local myconf=""
 
