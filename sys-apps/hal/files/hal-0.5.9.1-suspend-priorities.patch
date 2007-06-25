@@ -1,0 +1,46 @@
+--- hal-0.5.9.orig/tools/linux/hal-system-power-suspend-linux
++++ hal-0.5.9/tools/linux/hal-system-power-suspend-linux
+@@ -84,6 +84,20 @@ elif [ -f "/etc/redhat-release" ] || [ -
+ 		unsupported
+ 	fi
+ 
++#Sabayon still uses old dear sysfs interface
++elif [ -f "/etc/sabayon-release" ]; then
++
++	if [ -x "/usr/sbin/pm-suspend" ] ; then
++		/usr/sbin/pm-suspend $QUIRKS
++		RET=$?
++	elif [ -w "/sys/power/state" ] ; then
++		# Use the raw kernel sysfs interface
++		echo "mem" > /sys/power/state
++		RET=$?
++	else
++		echo "suspend not supported? please check hal-system-power-suspend-linux"
++	fi
++
+ #Other distros just need to have *any* tools installed
+ else
+ 	if [ -x "/usr/bin/powersave" ] ; then
+--- hal-0.5.9.orig/tools/linux/hal-system-power-hibernate-linux
++++ hal-0.5.9/tools/linux/hal-system-power-hibernate-linux
+@@ -52,6 +52,20 @@ elif [ -f /etc/redhat-release ] || [ -f 
+ 		unsupported
+ 	fi
+ 
++#Sabayon still uses old dear sysfs interface
++elif [ -f "/etc/sabayon-release" ]; then
++
++	if [ -x "/usr/sbin/pm-hibernate" ] ; then
++		/usr/sbin/pm-hibernate $QUIRKS
++		RET=$?
++	elif [ -w "/sys/power/state" ] ; then
++		# Use the raw kernel sysfs interface
++		echo "disk" > /sys/power/state
++		RET=$?
++	else
++		echo "suspend not supported? please check hal-system-power-hibernate-linux"
++	fi
++
+ #Other distros just need to have *any* tools installed
+ else
+ 	if [ -x "/usr/bin/powersave" ] ; then
