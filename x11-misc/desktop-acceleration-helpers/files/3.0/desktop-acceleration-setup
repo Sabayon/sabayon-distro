@@ -20,8 +20,10 @@ compiz_tmpdir="/tmp/"
 xprofile_file="/etc/xprofile"
 compiz_manager="compiz-manager.desktop"
 compiz_settings="compiz-settings.desktop"
+ccsm_settings="ccsm.desktop"
 compiz_manager_desktop_file=$compiz_tmpdir$compiz_manager
 compiz_settings_desktop_file="/usr/share/applications/"$compiz_settings
+ccsm_settings_desktop_file="/usr/share/applications/"$ccsm_settings
 xorg_conf="/etc/X11/xorg.conf"
 desktop_acceleration_helpers_config_file="/etc/desktop-acceleration-helpers.conf"
 
@@ -101,7 +103,15 @@ add_compiz_manager_to_the_startup() {
     #echo "export XLIB_SKIP_ARGB_VISUALS=1" >> $xprofile_file
 
     # if it's available, add compiz-settings too
-    if [ -e "$compiz_settings_desktop_file" ]; then
+
+    if [ -e "$ccsm_settings_desktop_file" ]; then
+        for user in `ls /home/`; do
+            if [ -d "/home/$user/Desktop" ]; then
+                cp $ccsm_settings_desktop_file /home/$user/Desktop/
+                chown $user /home/$user/Desktop/$ccsm_settings
+            fi
+        done
+    elif [ -e "$compiz_settings_desktop_file" ]; then
         for user in `ls /home/`; do
             if [ -d "/home/$user/Desktop" ]; then
                 cp $compiz_settings_desktop_file /home/$user/Desktop/
@@ -124,7 +134,13 @@ remove_compiz_manager_from_the_startup() {
     fi
 
     # if it's available, remove compiz-settings too
-    if [ -e "$compiz_settings_desktop_file" ]; then
+    if [ -e "$ccsm_settings_desktop_file" ]; then
+        for user in `ls /home/`; do
+            if [ -d "/home/$user/Desktop" ]; then
+                rm -f /home/$user/Desktop/$ccsm_settings
+            fi
+        done
+    elif [ -e "$compiz_settings_desktop_file" ]; then
         for user in `ls /home/`; do
             if [ -d "/home/$user/Desktop" ]; then
                 rm -f /home/$user/Desktop/$compiz_settings
@@ -138,6 +154,19 @@ enable_aiglx_in_xorg_conf() {
     sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
     sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
     sed -i '/"Composite"/ s/#//g' $xorg_conf
+    sed -i 's/"Composite".*".*"/"Composite" "Enable"/' $xorg_conf
+
+    # check if Option Compisite is in xorg.conf
+    option_composite=$(cat $xorg_conf | grep -i "Option.*Composite")
+    if [ -z "$option_composite" ]; then
+        # add it
+        echo '' >> $xorg_conf
+        echo 'Section "Extensions"' >> $xorg_conf
+        echo '   Option "Composite" "Enable"' >> $xorg_conf
+        echo 'EndSection' >> $xorg_conf
+        echo '' >> $xorg_conf
+    fi
+
 }
 
 disable_aiglx_in_xorg_conf() {
