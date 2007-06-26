@@ -19,6 +19,10 @@ GLX_RENDER=`glxinfo|grep -c "OpenGL renderer string: Mesa GLX Indirect"`
 
 PROCESSES=$(ps ax)
 COMPIZ_OPTIONS="--replace"
+# if Compiz Fusion is available
+if [ -x "/usr/bin/ccsm" ]; then # what a dirty way...
+	COMPIZ_OPTIONS=$COMPIZ_OPTIONS" ccp --sm-disable "
+fi
 XGL_RUNNING=$(echo $PROCESSES | grep Xgl)
 
 export __GL_YIELD="NOTHING"
