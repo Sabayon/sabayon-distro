@@ -1,0 +1,6 @@
+# ChangeLog for Gentoo XEffects Overlay
+# $Header: $
+
+  13 May 2007; Alex Heck <nesl247@gmail.com> +ccs-python-9999.ebuild:
+  dev-python/ccs-python: Initial import
+

@@ -1,0 +1,38 @@
+# ChangeLog for x11-wm/emerald
+# Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  17 Mar 2007; Alex Heck <nesl247@gmail.com> emerald-9999.ebuild:
+  Switch to git per upstream
+
+  17 Mar 2007; Alex Heck <nesl247@gmail.com> +emerald-0.2.1.ebuild:
+  Version bump - license fixes, nothing new
+
+  15 Mar 2007; Alex Heck <nesl247@gmail.com> +emerald-0.2.0.ebuild:
+  Version bump - 0.2.0
+
+  24 Feb 2007; Alex Heck <nesl247@gmail.com> -emerald-0.1.9999.1.ebuild,
+  emerald-0.1.9999.2.ebuild, emerald-9999.ebuild:
+  Updated deps to include build stuff like pkgconfig, gettext, intltool
+
+  17 Feb 2007; Alex Heck <nesl247@gmail.com> emerald-9999.ebuild:
+  Fix for new svn url
+
+  13 Feb 2007; Alex Heck <nesl247@gmail.com> +emerald-0.1.9999.2.ebuild:
+  Version bump
+
+  12 Feb 2007; Alex Heck <nesl247@gmail.com> -emerald-0.1.99.2.ebuild:
+  Version cleanup
+
+  28 Jan 2007; Alex Heck <nesl247@gmail.com> +metadata.xml:
+  Add missing metadata.xml
+
+  25 Jan 2007; Alex Heck <nesl247@gmail.com> +emerald-0.1.99.2.ebuild:
+  Version bump
+
+  20 Dec 2006; Alex Heck <nesl247@gmail.com> -emerald-0.1.3.ebuild:
+  0.1.3 in portage
+
+  12 Nov 2006; Alex Heck <nesl247@gmail.com> emerald-9999.ebuild:
+  Make emerald dep on 9999 only
+

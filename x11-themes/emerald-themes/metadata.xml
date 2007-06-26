@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd></herd>
+<maintainer>
+<email>nesl247@bery-project.org</email>
+<name>Alex Heck</name>
+</maintainer>
+<maintainer>
+<email>tsunam@gentoo.org</email>
+<name>Joshua Jackson</name>
+</maintainer>
+<longdescription lang="en">Emerald themes are the themes for emerald
+</longdescription>
+</pkgmetadata>

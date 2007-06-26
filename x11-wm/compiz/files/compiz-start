@@ -51,7 +51,7 @@ else
 	nice -15 compiz $COMPIZ_OPTIONS ini &
 fi
 # Wait and see if compiz ran fine
-sleep 5
+sleep 8
 
 # if KDE, respawn kded
 if [ -n "$KDE_FULL_SESSION" ]; then
