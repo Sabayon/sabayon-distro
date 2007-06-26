@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=LightScribe SimpleLabeler
+Comment=Simple LightScribe Optical Media Labeling Software
+Exec=lightscribe-simplelabeler
+Icon=/opt/lightscribeApplications/SimpleLabeler/content/images/LabelWizardIcon.png
+Type=Application
+Terminal=false
+Encoding=UTF-8
+Categories=Application;AudioVideo;DiscBurning;System
