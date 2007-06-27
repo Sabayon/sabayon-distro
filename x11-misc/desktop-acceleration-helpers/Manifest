@@ -26,10 +26,6 @@ AUX 3.0/desktop-acceleration-setup 11330 RMD160 8b201daa2ea0df7fbf14d2f80286befd
 MD5 1b8be9d52b2e2f19136798656406bcb4 files/3.0/desktop-acceleration-setup 11330
 RMD160 8b201daa2ea0df7fbf14d2f80286befd31967556 files/3.0/desktop-acceleration-setup 11330
 SHA256 5d598adb6cb6f83b699bb31d1d952d391e27b44f297c72a4e91636db8fa8df7e files/3.0/desktop-acceleration-setup 11330
-AUX 3.0/desktop-acceleration-setup~ 11330 RMD160 8b201daa2ea0df7fbf14d2f80286befd31967556 SHA1 1ddb75e3a298409e899f05cb57e45e9a83c7513a SHA256 5d598adb6cb6f83b699bb31d1d952d391e27b44f297c72a4e91636db8fa8df7e
-MD5 1b8be9d52b2e2f19136798656406bcb4 files/3.0/desktop-acceleration-setup~ 11330
-RMD160 8b201daa2ea0df7fbf14d2f80286befd31967556 files/3.0/desktop-acceleration-setup~ 11330
-SHA256 5d598adb6cb6f83b699bb31d1d952d391e27b44f297c72a4e91636db8fa8df7e files/3.0/desktop-acceleration-setup~ 11330
 AUX 3.0/xgl-setup 219 RMD160 004230d5aad08da7d0f50db8abfe00f9f5ee88f1 SHA1 417ea00e0042617f8eb72cb3ecdef6ab654150e3 SHA256 b9c721eadec976e820f81522438af9ca902c866a05568ee02bee48dbb312629d
 MD5 a127a7e722c6231bc6ff35ae314caf7d files/3.0/xgl-setup 219
 RMD160 004230d5aad08da7d0f50db8abfe00f9f5ee88f1 files/3.0/xgl-setup 219
