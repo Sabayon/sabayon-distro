@@ -297,7 +297,7 @@ src_install() {
 		doins -r common/usr/share/ati
 		insinto /usr/share/pixmaps
 		doins common/usr/share/icons/ccc_{large,small}.xpm
-		make_desktop_entry amdcccle 'ATI Catalyst Control Center' \
+		make_desktop_entry /opt/bin/amdcccle 'ATI Catalyst Control Center' \
 			ccc_large.xpm System
 	fi
 
