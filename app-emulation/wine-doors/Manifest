@@ -1,0 +1,8 @@
+DIST wine-doors-0.1pre1.tar.gz 2654551 RMD160 53561ddce0a5e883516d71dedb4deea26c428f8d SHA1 6b1f46ddb0864125c5023c56eaca4b9e0ff52b4e SHA256 deb9f18d1f69e4353957986a351cc22a40f8654f6a0438d9997ed16a2a02f949
+EBUILD wine-doors-0.1_pre1.ebuild 1298 RMD160 13f3b26a2e146933ab724b1f7d5e1fd2a2eea85e SHA1 f01b8e6756d432bfad863961e35f3c56dca9b5a6 SHA256 2a6fd265485cb71a7ca52c485cfc5e964f11cff22eae97a74284c691d9346807
+MD5 412df1d2fba57ed8a92ba5a481aae492 wine-doors-0.1_pre1.ebuild 1298
+RMD160 13f3b26a2e146933ab724b1f7d5e1fd2a2eea85e wine-doors-0.1_pre1.ebuild 1298
+SHA256 2a6fd265485cb71a7ca52c485cfc5e964f11cff22eae97a74284c691d9346807 wine-doors-0.1_pre1.ebuild 1298
+MD5 fdfc70df7c82c810468955d4751e0ad4 files/digest-wine-doors-0.1_pre1 259
+RMD160 3a9aae723815838ea2fd4bb1ee277b714fe6762e files/digest-wine-doors-0.1_pre1 259
+SHA256 5dec3c37a676ed326af7d7b894161c3ac480dc1d68db46c581f1d3e276ab3e53 files/digest-wine-doors-0.1_pre1 259
