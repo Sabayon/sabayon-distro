@@ -14,10 +14,10 @@ AUX kicker-3.5.6.kickoff-r649417.diff 401805 RMD160 252bc120520bcd29d0bde2dae351
 MD5 b75606b653d7b164a784be5428a8d25a files/kicker-3.5.6.kickoff-r649417.diff 401805
 RMD160 252bc120520bcd29d0bde2dae35116cdf9caff3f files/kicker-3.5.6.kickoff-r649417.diff 401805
 SHA256 45b1f5e709ee6844ccfba19c0009b97ef2d05d9269c363a6058292425a661878 files/kicker-3.5.6.kickoff-r649417.diff 401805
-AUX kicker-3.5.7-fix-kickoff-button.patch 862 RMD160 1254dedb8b91ef735b312d2442071471a9f6a204 SHA1 3ab6d04592cf0e09422a8d1cddaad89a6459606e SHA256 6c91c0485479ce7e7a2acddef6c3a68ba80f0360257fae60122e5c753a04d29b
-MD5 0967663e13b6903a141cfdf55cf7f2d1 files/kicker-3.5.7-fix-kickoff-button.patch 862
-RMD160 1254dedb8b91ef735b312d2442071471a9f6a204 files/kicker-3.5.7-fix-kickoff-button.patch 862
-SHA256 6c91c0485479ce7e7a2acddef6c3a68ba80f0360257fae60122e5c753a04d29b files/kicker-3.5.7-fix-kickoff-button.patch 862
+AUX kicker-3.5.7-fix-kickoff-button.patch 976 RMD160 e681e4df7daf78ce387fc768b0c4d4972f6f23fc SHA1 a9b1c4062f82ffa4f332d98abfe18fa008c61df7 SHA256 5b51617df0cf8a0d20880eb2e39ade1ea9ddd1521d7eaa68ca0b1792713da1ec
+MD5 36465c548d640d4a6537fd321be9f399 files/kicker-3.5.7-fix-kickoff-button.patch 976
+RMD160 e681e4df7daf78ce387fc768b0c4d4972f6f23fc files/kicker-3.5.7-fix-kickoff-button.patch 976
+SHA256 5b51617df0cf8a0d20880eb2e39ade1ea9ddd1521d7eaa68ca0b1792713da1ec files/kicker-3.5.7-fix-kickoff-button.patch 976
 AUX kickoff-icons-r649417.tar.bz2 328829 RMD160 43a17f77fe27782ea4a1c605710bac0466c01dc5 SHA1 4baf3930fb05993e0e78e42d63c6d9a5e6cf47ba SHA256 ef38084fd388ac57c825d168817fe0db2f1adc3ec235b7260e880140c6abd9d1
 MD5 71545c5e92e23687ff6288e6d138b6b1 files/kickoff-icons-r649417.tar.bz2 328829
 RMD160 43a17f77fe27782ea4a1c605710bac0466c01dc5 files/kickoff-icons-r649417.tar.bz2 328829
@@ -76,6 +76,10 @@ EBUILD kicker-3.5.7-r11.ebuild 2171 RMD160 18c080d11778e0df71a7776cd7623e5d7864d
 MD5 94d6d0eee7326355e5e1768ef8947ef2 kicker-3.5.7-r11.ebuild 2171
 RMD160 18c080d11778e0df71a7776cd7623e5d7864d1a6 kicker-3.5.7-r11.ebuild 2171
 SHA256 80ce40bb4abff02e62c8f5f5ea251e91a8e0a0f90b20043fbe7e3da82b24efd3 kicker-3.5.7-r11.ebuild 2171
+EBUILD kicker-3.5.7-r12.ebuild 2171 RMD160 18c080d11778e0df71a7776cd7623e5d7864d1a6 SHA1 3ea4a90d94b302c8b67d9594eb2dcbb83afb9c98 SHA256 80ce40bb4abff02e62c8f5f5ea251e91a8e0a0f90b20043fbe7e3da82b24efd3
+MD5 94d6d0eee7326355e5e1768ef8947ef2 kicker-3.5.7-r12.ebuild 2171
+RMD160 18c080d11778e0df71a7776cd7623e5d7864d1a6 kicker-3.5.7-r12.ebuild 2171
+SHA256 80ce40bb4abff02e62c8f5f5ea251e91a8e0a0f90b20043fbe7e3da82b24efd3 kicker-3.5.7-r12.ebuild 2171
 MD5 40f64408fbb46290c447fee43535eb5f files/digest-kicker-3.5.5-r90 524
 RMD160 6c59eff06382afd9e31420442b78041332f715c0 files/digest-kicker-3.5.5-r90 524
 SHA256 358e9de2e9643d5d904af6d9279249df5565855de2c58aaf062a47ebbc06e745 files/digest-kicker-3.5.5-r90 524
@@ -97,3 +101,6 @@ SHA256 11bbf15ec8cbbe44d698d6ff90385926a37599e75f18e55e21bc994709398ec6 files/di
 MD5 f168a743f84d79e060b92c87b762e515 files/digest-kicker-3.5.7-r11 521
 RMD160 3456c99daa483a5bd70c5cbf52c2cdc6ab37023f files/digest-kicker-3.5.7-r11 521
 SHA256 11bbf15ec8cbbe44d698d6ff90385926a37599e75f18e55e21bc994709398ec6 files/digest-kicker-3.5.7-r11 521
+MD5 f168a743f84d79e060b92c87b762e515 files/digest-kicker-3.5.7-r12 521
+RMD160 3456c99daa483a5bd70c5cbf52c2cdc6ab37023f files/digest-kicker-3.5.7-r12 521
+SHA256 11bbf15ec8cbbe44d698d6ff90385926a37599e75f18e55e21bc994709398ec6 files/digest-kicker-3.5.7-r12 521
