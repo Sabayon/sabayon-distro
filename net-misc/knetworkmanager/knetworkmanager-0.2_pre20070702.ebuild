@@ -21,7 +21,9 @@ DEPEND="
 	"
 
 src_compile() {
-	
-	kde_src_compile all || die "compile failed"
+	kde_src_compile
 }
 
+src_install() {
+	kde_src_install
+}
