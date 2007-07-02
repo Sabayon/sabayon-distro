@@ -21,6 +21,7 @@ DEPEND="
 	"
 
 src_compile() {
+	export MAKEOPTS="-j1"
 	kde_src_compile
 }
 
