@@ -34,6 +34,10 @@ AUX atieventsd.rc6 590 RMD160 fbf8aba7ada36aed666d506d6b0f7146e1b2f4ad SHA1 b2b4
 MD5 07a53c230d412cbfbd4a76954c5c85bb files/atieventsd.rc6 590
 RMD160 fbf8aba7ada36aed666d506d6b0f7146e1b2f4ad files/atieventsd.rc6 590
 SHA256 a00aa241e53b21872218bd247bfdb6292a075d9ef641f36198d8f4e399cc025e files/atieventsd.rc6 590
+AUX libGL.la.in 749 RMD160 b2eb11cd123cb0e789adb1e22dffdbfc03542f69 SHA1 be41cc2eb1754a44134a95475be5f0cb894e24bc SHA256 a7b4b58b1311f8e1caf83222cb020dfbc48e2881a8deef21eddefa23b3992f13
+MD5 164dbf7ccea38894db8dab919c06a677 files/libGL.la.in 749
+RMD160 b2eb11cd123cb0e789adb1e22dffdbfc03542f69 files/libGL.la.in 749
+SHA256 a7b4b58b1311f8e1caf83222cb020dfbc48e2881a8deef21eddefa23b3992f13 files/libGL.la.in 749
 DIST ati-driver-installer-8.29.6.run 57776757 RMD160 b2440a153e4c95c8926d7333efbd864b2c1450bc SHA1 db53f411fa076bc927023f2636171b474aa360f0 SHA256 d1d341db0a4a6d723ce99b553dbc332f9e234e92ba22cb5cc4dbec40ece5ce6b
 DIST ati-driver-installer-8.30.3.run 58041208 RMD160 d4481bba9313cf9bcb71b7603034595677eb53f9 SHA1 37e73967e6921b0a362cb344929282be99e163ce SHA256 3d03b64ba8fd6fef3c50a2037a4e8d97955086fee3da274c2993d55aae058dcc
 DIST ati-driver-installer-8.31.5-x86.x86_64.run 58458617 RMD160 a3291d8e67c7d964c2345eee292806a1b3fb290e SHA1 995f1f9669904212a8c3fdf3056afadca3b6e7ae SHA256 7dd2ba781292a58609d58aefca54f7e7c3c3fddb239613dac499ecf5a16e3413
@@ -92,10 +96,10 @@ EBUILD ati-drivers-8.37.6-r90.ebuild 13874 RMD160 29eb180072983488a3a6ed1d4bab90
 MD5 86ec420659271e4e472decd1c2058c41 ati-drivers-8.37.6-r90.ebuild 13874
 RMD160 29eb180072983488a3a6ed1d4bab90e30b9a2cdb ati-drivers-8.37.6-r90.ebuild 13874
 SHA256 da33c4d0185252c2513e2b95348372d5eb95a6bf99d5be9c547af465ef679b38 ati-drivers-8.37.6-r90.ebuild 13874
-EBUILD ati-drivers-8.38.6-r10.ebuild 13472 RMD160 f9aafdaaefbcd222aced71395f65dd3d0b50ea38 SHA1 caf96f93dce6c59fafe99a065e937c0de389af30 SHA256 ac1e7ff71c9cd013747f30aad64fb6f9cd9cdff1f4b76ee7a1e1c39ebd301bda
-MD5 ad4bb0a49c589d5a1cdab471e14d36cc ati-drivers-8.38.6-r10.ebuild 13472
-RMD160 f9aafdaaefbcd222aced71395f65dd3d0b50ea38 ati-drivers-8.38.6-r10.ebuild 13472
-SHA256 ac1e7ff71c9cd013747f30aad64fb6f9cd9cdff1f4b76ee7a1e1c39ebd301bda ati-drivers-8.38.6-r10.ebuild 13472
+EBUILD ati-drivers-8.38.6-r10.ebuild 13823 RMD160 9bc0bc4b92e87ce722462675cbafa3fc4330d2c0 SHA1 a7fcb157b9eb93ae72cdd94f1262ec42817a57fc SHA256 d26c546f6c42ae44b6053b22ec3535bb5d0ec128738b893365e40dfe1dfc1de9
+MD5 e03cddef7663f56a6d56c5ec56bf173a ati-drivers-8.38.6-r10.ebuild 13823
+RMD160 9bc0bc4b92e87ce722462675cbafa3fc4330d2c0 ati-drivers-8.38.6-r10.ebuild 13823
+SHA256 d26c546f6c42ae44b6053b22ec3535bb5d0ec128738b893365e40dfe1dfc1de9 ati-drivers-8.38.6-r10.ebuild 13823
 MD5 def642418453b0cfdd7964633b0ffc8f files/digest-ati-drivers-8.29.6-r99 280
 RMD160 24625bb4e4e00d67975e90f65f8c84ecf7a58177 files/digest-ati-drivers-8.29.6-r99 280
 SHA256 1be5719dcefe0f04a6bae5aa005174cf1dbead722948f6328c6470bcf9a10c36 files/digest-ati-drivers-8.29.6-r99 280

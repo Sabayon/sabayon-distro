@@ -1,8 +1,7 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 2004-2007 Saayon Linux
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.35.5.ebuild,v 1.2 2007/03/30 15:46:11 marienz Exp $
 
-IUSE="acpi qt3 distribution"
+IUSE="acpi distribution"
 
 inherit eutils multilib linux-mod toolchain-funcs
 
@@ -11,7 +10,7 @@ HOMEPAGE="http://www.ati.com"
 ATI_URL="https://a248.e.akamai.net/f/674/9206/0/www2.ati.com/drivers/linux/"
 SRC_URI="${ATI_URL}/ati-driver-installer-${PV}-x86.x86_64.run"
 
-LICENSE="ATI GPL-2 QPL-1.0"
+LICENSE="ATI GPL-2 QPL-1.0 as-is"
 KEYWORDS="~amd64 ~x86"
 
 # The portage dep is for COLON_SEPARATED support in env-update.
@@ -23,7 +22,6 @@ RDEPEND="x11-base/xorg-server
 		x11-apps/xauth
 		sys-power/acpid
 	)
-	qt3? ( =x11-libs/qt-3* )
 	>=sys-apps/portage-2.1.1-r1"
 
 DEPEND="${RDEPEND}
@@ -113,12 +111,6 @@ src_unpack() {
 		"${ARCH_DIR}"/usr/X11R6/${PKG_LIBDIR}/libfglrx_gamma* \
 		|| die "bin rm failed"
 
-	# These patches are conditional because they contain api changes.
-#	if kernel_is ge 2 6 20; then
-#		epatch "${FILESDIR}"/ati-drivers-2.6.20.patch
-#		epatch "${FILESDIR}"/ati-drivers-${PV}-2.6.20.patch
-#	fi
-
 	if use acpi; then
 		sed -i \
 			-e "s:/var/lib/xdm/authdir/:/etc/X11/xdm/authdir/:" \
@@ -147,12 +139,7 @@ src_unpack() {
 		|| die "MODVERSIONS sed failed"
 	popd >/dev/null
 
-	mkdir panel extra || die "mkdirs failed"
-	# The ./ in these unpacks is required (or unpack looks in ${DISTDIR})
-	if ! use qt3; then
-		# Get rid of the precompiled control panel.
-		rm "${ARCH_DIR}"/usr/X11R6/bin/amdcccle || die "rm failed"
-	fi
+	mkdir extra || die "mkdirs failed"
 	cd extra
 	unpack ./../common/usr/src/ati/fglrx_sample_source.tgz
 	sed -i -e 's:include/extensions/extutil.h:X11/extensions/extutil.h:' \
@@ -251,6 +238,8 @@ src_install() {
 	doexe "${BASE_DIR}"/usr/X11R6/${PKG_LIBDIR}/modules/drivers/fglrx_drv.so
 	exeinto /usr/$(get_libdir)/xorg/modules/linux
 	doexe "${BASE_DIR}"/usr/X11R6/${PKG_LIBDIR}/modules/linux/libfglrxdrm.so
+	exeinto /usr/$(get_libdir)/xorg/modules
+	doexe "${BASE_DIR}"/usr/X11R6/${PKG_LIBDIR}/modules/{esut.a,glesx.so}
 
 	# Arch-specific files.
 	# (s)bin.
@@ -258,10 +247,9 @@ src_install() {
 	if use acpi; then
 		dosbin "${ARCH_DIR}"/usr/sbin/atieventsd
 	fi
-	# We cleaned out the compilable stuff in src_unpack
-	if use qt3; then
-		dobin "${ARCH_DIR}"/usr/X11R6/bin/*
-	fi
+
+	# Installing binaries
+	dobin "${ARCH_DIR}"/usr/X11R6/bin/*
 
 	# lib.
 	exeinto /usr/$(get_libdir)
@@ -292,14 +280,11 @@ src_install() {
 	dosbin common/usr/sbin/*
 
 	# data files for the control panel.
-	if use qt3; then
-		insinto /usr/share
-		doins -r common/usr/share/ati
-		insinto /usr/share/pixmaps
-		doins common/usr/share/icons/ccc_{large,small}.xpm
-		make_desktop_entry /opt/bin/amdcccle 'ATI Catalyst Control Center' \
-			ccc_large.xpm System
-	fi
+	insinto /usr/share
+	doins -r common/usr/share/ati
+	insinto /usr/share/pixmaps
+	doins common/usr/share/icons/ccc_{large,small}.xpm
+	make_desktop_entry /opt/bin/amdcccle 'ATI Catalyst Control Center' ccc_large.xpm System
 
 	# doc.
 	dohtml -r common/usr/share/doc/fglrx
@@ -354,25 +339,41 @@ src_install-libs() {
 	einfo "ati tree '${pkglibdir}' -> '$(get_libdir)' on system"
 
 	local ATI_ROOT=/usr/$(get_libdir)/opengl/ati
+	# To make sure we do not miss a spot when these change.
+	local libmajor=1 libminor=2
+	local libver=${libmajor}.${libminor}
 
 	# The GLX libraries
 	# (yes, this really is "lib" even on amd64/multilib --marienz)
 	exeinto ${ATI_ROOT}/lib
-	doexe "${ARCH_DIR}"/usr/X11R6/${pkglibdir}/libGL.so.1.2
-	dosym libGL.so.1.2 ${ATI_ROOT}/lib/libGL.so.1
-	dosym libGL.so.1.2 ${ATI_ROOT}/lib/libGL.so
+	doexe "${ARCH_DIR}"/usr/X11R6/${pkglibdir}/libGL.so.${libver}
+	dosym libGL.so.${libver} ${ATI_ROOT}/lib/libGL.so.${libmajor}
+	dosym libGL.so.${libver} ${ATI_ROOT}/lib/libGL.so
 
 	# Same as the xorg implementation (eselect opengl does not fall
 	# back to xorg-x11 if we omit this symlink, meaning no glx).
 	dosym ../xorg-x11/extensions ${ATI_ROOT}/extensions
 
-	# Is this necessary? Is this sane? --marienz
-	sed -e "s:libdir=.*:libdir=${ATI_ROOT}/lib:" \
-		/usr/$(get_libdir)/opengl/xorg-x11/lib/libGL.la \
-		> "${D}"/${ATI_ROOT}/lib/libGL.la
+	# DRI modules, installed into the path used by recent versions of mesa.
+	exeinto /usr/$(get_libdir)/dri
+	doexe "${ARCH_DIR}"/usr/X11R6/${pkglibdir}/modules/dri/fglrx_dri.so
 
-	# Commented out until determined it is necessary --marienz
-	# dosym ../xorg-x11/include ${ATI_ROOT}/include
+	# Make up a libGL.la. Ati does not provide one, but mesa does. If
+	# a (libtool-based) libfoo is built with libGL.la present a
+	# reference to it is put into libfoo.la, and compiling
+	# (libtool-based) things that link too libfoo.la will complain if
+	# libGL.la disappears. So if we do not make up a libGL.la
+	# switching between mesa and ati becomes painful.
+	#
+	# According to the libtool manual the "revision" should be updated
+	# whenever the code changes. We construct this from the version
+	# (8.37.6 becomes 83706).
+	local revision=$(printf '%d%02d%02d' $(get_version_components))
+	sed -e "s:\${libmajor}:${libmajor}:g" \
+               -e "s:\${libminor}:${libminor}:g" \
+               -e "s:\${libdir}:$(get_libdir):g" \
+               -e "s:\${revision}:${revision}:g" \
+               "${FILESDIR}"/libGL.la.in > "${D}"/${ATI_ROOT}/lib/libGL.la
 
 	# DRI modules, installed into the path used by recent versions of mesa.
 	exeinto /usr/$(get_libdir)/dri
