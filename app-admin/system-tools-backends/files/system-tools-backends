@@ -1,0 +1,27 @@
+#!/sbin/runscript
+# Copyright 2007 Fabio Erculiani
+# Distributed under the terms of the GNU General Public License v2 
+depend() {
+	
+	need dbus
+	before xdm
+
+}
+
+PIDFILE=/var/run/system-tools-backends.pid
+STB=/usr/bin/system-tools-backends
+DESC="System Tools Backends"
+
+start() {
+	ebegin "Starting "$DESC
+	start-stop-daemon --start -q --exec $STB --pidfile $PIDFILE
+	eend $?
+}
+
+
+stop() {
+	ebegin "Stopping "$DESC
+	start-stop-daemon --stop -q --pidfile $PIDFILE
+	eend $?
+}
+
