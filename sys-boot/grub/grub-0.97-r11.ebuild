@@ -9,7 +9,7 @@ DESCRIPTION="GNU GRUB Legacy boot loader"
 HOMEPAGE="http://www.gnu.org/software/grub/"
 SRC_URI="mirror://gentoo/${P}.tar.gz
 	ftp://alpha.gnu.org/gnu/${PN}/${P}.tar.gz
-	http://sabayonlinuxdev.com/distfiles/splash.xpm.gz
+	http://www.sabayonlinux.org/distfiles/sys-boot/grub/splash.xpm.gz
 	mirror://gentoo/${P}-patches-${PATCHVER}.tar.bz2"
 
 LICENSE="GPL-2"
