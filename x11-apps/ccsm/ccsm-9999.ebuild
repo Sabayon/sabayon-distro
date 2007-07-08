@@ -21,7 +21,8 @@ DEPEND="~dev-python/compizconfig-python-${PV}
 S="${WORKDIR}/${PN}"
 
 src_compile() {
-	eautoreconf || die "eautoreconf failed"
+	cd ${S}
+	./autogen.sh || die "autogen failed"
 
 	econf || die "econf failed"
 	emake || die "make failed"
