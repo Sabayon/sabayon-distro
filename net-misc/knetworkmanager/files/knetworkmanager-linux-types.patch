@@ -1,0 +1,23 @@
+diff -Nurp knetworkmanager.orig/knetworkmanager/src/knetworkmanager-devicestore.h knetworkmanager/knetworkmanager/src/knetworkmanager-devicestore.h
+--- knetworkmanager.orig/knetworkmanager/src/knetworkmanager-devicestore.h	2007-07-02 01:51:23.000000000 +0200
++++ knetworkmanager/knetworkmanager/src/knetworkmanager-devicestore.h	2007-07-08 22:05:56.000000000 +0200
+@@ -27,6 +27,7 @@
+ #define KNETWORKMANAGER_DEVICESTORE_H
+ 
+ #include <NetworkManager/NetworkManager.h>
++#include <sys/types.h>
+ 
+ #include "knetworkmanager.h"
+ #include "knetworkmanager-device.h"
+diff -Nurp knetworkmanager.orig/knetworkmanager/src/Makefile.am knetworkmanager/knetworkmanager/src/Makefile.am
+--- knetworkmanager.orig/knetworkmanager/src/Makefile.am	2007-07-02 01:51:23.000000000 +0200
++++ knetworkmanager/knetworkmanager/src/Makefile.am	2007-07-08 22:06:11.000000000 +0200
+@@ -31,7 +31,7 @@ bin_PROGRAMS =
+ lib_LTLIBRARIES =
+ kdeinit_LTLIBRARIES = knetworkmanager.la
+ 
+-KDE_CXXFLAGS = -UQT_NO_ASCII_CAST
++KDE_CXXFLAGS = -std=gnu++98 -UQT_NO_ASCII_CAST
+ 
+ # the application source, library search path, and link libraries
+ knetworkmanager_la_SOURCES = main.cpp knetworkmanager.cpp knetworkmanager-dbus.cpp \
