@@ -1,0 +1,66 @@
+diff -Nurp plugins-extra.orig/configure.ac plugins-extra/configure.ac
+--- plugins-extra.orig/configure.ac	2007-07-07 21:15:59.000000000 +0200
++++ plugins-extra/configure.ac	2007-07-08 12:33:49.000000000 +0200
+@@ -174,7 +174,6 @@ src/goto-viewport/Makefile
+ src/group/Makefile
+ src/mblur/Makefile
+ src/reflex/Makefile
+-src/scalefilter/Makefile
+ src/showdesktop/Makefile
+ src/splash/Makefile
+ src/trailfocus/Makefile
+diff -Nurp plugins-extra.orig/metadata/Makefile.am plugins-extra/metadata/Makefile.am
+--- plugins-extra.orig/metadata/Makefile.am	2007-07-07 21:15:59.000000000 +0200
++++ plugins-extra/metadata/Makefile.am	2007-07-08 12:34:11.000000000 +0200
+@@ -11,7 +11,6 @@ xml_in_files = 	         \
+ 	group.xml.in \
+ 	mblur.xml.in \
+ 	reflex.xml.in \
+-	scalefilter.xml.in \
+ 	showdesktop.xml.in \
+ 	splash.xml.in \
+ 	trailfocus.xml.in
+diff -Nurp plugins-extra.orig/src/Makefile.am plugins-extra/src/Makefile.am
+--- plugins-extra.orig/src/Makefile.am	2007-07-07 21:15:59.000000000 +0200
++++ plugins-extra/src/Makefile.am	2007-07-08 12:33:59.000000000 +0200
+@@ -10,7 +10,6 @@ SUBDIRS = addhelper \
+ 	  group \
+ 	  mblur \
+ 	  reflex \
+-	  scalefilter \
+ 	  showdesktop \
+ 	  splash \
+ 	  trailfocus
+diff -Nurp plugins-extra.orig/src/scalefilter/Makefile.am plugins-extra/src/scalefilter/Makefile.am
+--- plugins-extra.orig/src/scalefilter/Makefile.am	2007-07-07 21:15:59.000000000 +0200
++++ plugins-extra/src/scalefilter/Makefile.am	1970-01-01 01:00:00.000000000 +0100
+@@ -1,29 +0,0 @@
+-## Process this file with automake to produce Makefile.in
+-PFLAGS=-module -avoid-version -no-undefined
+-
+-libscalefilter_la_LDFLAGS = $(PFLAGS)
+-libscalefilter_la_LIBADD = @COMPIZ_LIBS@
+-libscalefilter_la_SOURCES = scalefilter_options.c \
+-			    scalefilter_options.h \
+-			    scalefilter.c
+-
+-INCLUDES =                              \
+-	@COMPIZ_CFLAGS@                  \
+-	-DDATADIR='"$(datadir)"'          \
+-	-DLIBDIR='"$(libdir)"'              \
+-	-DLOCALEDIR="\"@datadir@/locale\""  \
+-	-DIMAGEDIR='"$(imagedir)"'          \
+-	-I$(top_srcdir)/include
+-
+-moduledir = $(plugindir)
+-
+-
+-module_LTLIBRARIES = libscalefilter.la
+-
+-CLEANFILES = *_options.c *_options.h
+-
+-%_options.h: ../../metadata/%.xml
+-		$(BCOP_BIN) --header $@ $<
+-
+-%_options.c: ../../metadata/%.xml %_options.h
+-		$(BCOP_BIN) --source $@ $<

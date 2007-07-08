@@ -36,6 +36,12 @@ pkg_setup() {
 	fi
 }
 
+src_unpack() {
+	git_src_unpack
+	cd ${S}
+	epatch ${FILESDIR}/scalefilter-disable.patch
+}
+
 src_compile() {
 	filter-ldflags -znow -z,now
 	filter-ldflags -Wl,-znow -Wl,-z,now
