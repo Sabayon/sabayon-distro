@@ -13,9 +13,7 @@ detect_arch
 #x86? ( http://www.sabayonlinux.org/sabayon/kconfigs/SabayonLinux-x86-3.3.1.config )
 
 
-SL_PATCHES_URI="
-		http://www.sabayonlinux.org/distfiles/sys-kernel/${PN}/squashfs-3.2-2.6.21.patch
-		"
+SL_PATCHES_URI=""
 
 SUSPEND2_VERSION="2.2.10"
 SUSPEND2_TARGET="2.6.22-rc3"
@@ -26,7 +24,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${P}-wireless-dev.patch
 
 		${FILESDIR}/${P}-fbsplash-0.9.2-r5.patch ${FILESDIR}/${P}-linux-phc-0.2.10.patch
-		${DISTDIR}/squashfs-3.2-2.6.21.patch ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
+		${FILESDIR}/${P}-squashfs-3.2.patch ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${FILESDIR}/${P}-ipw3945-1.2.0-2.6.22.patch ${FILESDIR}/${PN}-2.6.21-unionfs-1.3.diff
 		${FILESDIR}/${PN}-2.6.21-from-ext4dev-to-ext4.patch ${FILESDIR}/${P}-cfs-19.patch
 		${FILESDIR}/${P}-thinkpad.patch ${FILESDIR}/${P}-toshiba.patch
