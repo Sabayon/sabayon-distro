@@ -1,0 +1,68 @@
+Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+
+---
+ drivers/hwmon/hdaps.c |   26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
+
+Index: linux-2.6.22-rc3/drivers/hwmon/hdaps.c
+===================================================================
+--- linux-2.6.22-rc3.orig/drivers/hwmon/hdaps.c
++++ linux-2.6.22-rc3/drivers/hwmon/hdaps.c
+@@ -451,6 +451,18 @@ static ssize_t hdaps_invert_store(struct
+ 	return count;
+ }
+ 
++static int hdaps_mousedev_open(struct input_dev *dev)
++{
++	add_timer(&hdaps_timer);
++	return 0;
++}
++
++static void hdaps_mousedev_close(struct input_dev *dev)
++{
++	del_timer_sync(&hdaps_timer);
++	return 0;
++}
++
+ static DEVICE_ATTR(position, 0444, hdaps_position_show, NULL);
+ static DEVICE_ATTR(variance, 0444, hdaps_variance_show, NULL);
+ static DEVICE_ATTR(temp1, 0444, hdaps_temp1_show, NULL);
+@@ -572,10 +584,17 @@ static int __init hdaps_init(void)
+ 	/* initial calibrate for the input device */
+ 	hdaps_calibrate();
+ 
++	/* start up our timer for the input device */
++	init_timer(&hdaps_timer);
++	hdaps_timer.function = hdaps_mousedev_poll;
++	hdaps_timer.expires = jiffies + HDAPS_POLL_PERIOD;
++
+ 	/* initialize the input class */
+ 	hdaps_idev->name = "hdaps";
+ 	hdaps_idev->dev.parent = &pdev->dev;
+ 	hdaps_idev->evbit[0] = BIT(EV_ABS);
++	hdaps_idev->open = hdaps_mousedev_open;
++	hdaps_idev->close = hdaps_mousedev_close;
+ 	input_set_abs_params(hdaps_idev, ABS_X,
+ 			-256, 256, HDAPS_INPUT_FUZZ, HDAPS_INPUT_FLAT);
+ 	input_set_abs_params(hdaps_idev, ABS_Y,
+@@ -585,12 +604,6 @@ static int __init hdaps_init(void)
+ 	if (ret)
+ 		goto out_idev;
+ 
+-	/* start up our timer for the input device */
+-	init_timer(&hdaps_timer);
+-	hdaps_timer.function = hdaps_mousedev_poll;
+-	hdaps_timer.expires = jiffies + HDAPS_POLL_PERIOD;
+-	add_timer(&hdaps_timer);
+-
+ 	printk(KERN_INFO "hdaps: driver successfully loaded.\n");
+ 	return 0;
+ 
+@@ -611,7 +624,6 @@ out:
+ 
+ static void __exit hdaps_exit(void)
+ {
+-	del_timer_sync(&hdaps_timer);
+ 	input_unregister_device(hdaps_idev);
+ 	sysfs_remove_group(&pdev->dev.kobj, &hdaps_attribute_group);
+ 	platform_device_unregister(pdev);
