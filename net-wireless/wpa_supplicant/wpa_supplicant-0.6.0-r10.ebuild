@@ -17,8 +17,7 @@ RDEPEND="dbus? ( sys-apps/dbus )
 		kernel_linux? (
 			gsm? ( sys-apps/pcsc-lite )
 		 	madwifi? ( ||
-				( >net-wireless/madwifi-ng-tools-0.9.3
-				<net-wireless/madwifi-ng-0.9.3-r4
+				( >=net-wireless/madwifi-ng-0.9.4
 				net-wireless/madwifi-old )
 			)
 		)
