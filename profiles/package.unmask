@@ -1,4 +1,4 @@
 # Unmask amule snapshot, stabler than stable
 =net-p2p/amule-2.2.0_pre*
 =x11-libs/wxGTK-2.8.4
-
+>=net-wireless/wpa_supplicant-0.6.0
