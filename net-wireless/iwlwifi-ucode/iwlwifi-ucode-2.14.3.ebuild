@@ -6,7 +6,7 @@ HOMEPAGE="http://intellinuxwireless.org/?p=iwlwifi"
 SRC_URI="http://intellinuxwireless.org/iwlwifi/downloads/iwlwifi-3945-ucode-${PV}.tgz"
 LICENSE="iwlwifi-ucode"
 SLOT="0"
-KEYWORDS="-*"
+KEYWORDS="~x86 ~amd64"
 
 IUSE=""
 DEPEND=">=sys-apps/hotplug-20040923"
