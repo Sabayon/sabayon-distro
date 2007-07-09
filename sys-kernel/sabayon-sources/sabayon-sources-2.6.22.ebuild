@@ -25,7 +25,7 @@ UNIPATCH_LIST="
 
 		${FILESDIR}/${P}-fbsplash-0.9.2-r5.patch ${FILESDIR}/${P}-linux-phc-0.2.10.patch
 		${FILESDIR}/${P}-squashfs-3.2.patch ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
-		${FILESDIR}/${P}-ipw3945-1.2.0-2.6.22.patch ${FILESDIR}/${PN}-2.6.21-unionfs-1.3.diff
+		${FILESDIR}/${P}-ipw3945-1.2.0-2.6.22.patch ${FILESDIR}/${P}-unionfs-1.3.diff
 		${FILESDIR}/${PN}-2.6.21-from-ext4dev-to-ext4.patch ${FILESDIR}/${P}-cfs-19.patch
 		${FILESDIR}/${P}-thinkpad.patch ${FILESDIR}/${P}-toshiba.patch
 		${FILESDIR}/${P}-dvb-af9005.patch
