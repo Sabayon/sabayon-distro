@@ -1,0 +1,21 @@
+diff -rup wpa_supplicant-0.6.0/src/utils/common.h wpa_supplicant-0.6.0a/src/utils/common.h
+--- wpa_supplicant-0.6.0/src/utils/common.h     2007-05-28 19:26:55.000000000 +0200
++++ wpa_supplicant-0.6.0a/src/utils/common.h    2007-07-09 18:28:04.827866733 +0200
+@@ -381,15 +381,15 @@ typedef u16 __bitwise be16;
+ typedef u16 __bitwise le16;
+ typedef u32 __bitwise be32;
+ typedef u32 __bitwise le32;
+-typedef u64 __bitwise be64;
+-typedef u64 __bitwise le64;
++//typedef u64 __bitwise be64;//
++//typedef u64 __bitwise le64;//
+
+ typedef u16 __bitwise __be16;
+ typedef u32 __bitwise __be32;
+-typedef u64 __bitwise __be64;
++//typedef u64 __bitwise __be64;//
+ typedef u16 __bitwise __le16;
+ typedef u32 __bitwise __le32;
+-typedef u64 __bitwise __le64;
++//typedef u64 __bitwise __le64;//
+
