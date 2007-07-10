@@ -41,7 +41,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${P}-pm-jiffies-patches.patch
 
 		${FILESDIR}/${P}-at76c503a.patch
-		${FILESDIR}/${P}-acx-mac80211.patch
+		${FILESDIR}/${P}-acx.patch
 
 		"
 # disabled for testing
