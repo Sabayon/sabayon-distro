@@ -9,7 +9,7 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS=""
-IUSE="gnome kde"
+IUSE="gnome kde branding"
 
 RDEPEND="~x11-wm/compiz-${PV}
 	~x11-plugins/compiz-fusion-plugins-main-${PV}
@@ -17,7 +17,8 @@ RDEPEND="~x11-wm/compiz-${PV}
 	~x11-wm/emerald-${PV}
 	~x11-apps/ccsm-${PV}
 	gnome? ( ~x11-libs/compizconfig-backend-gconf-${PV} )
-	kde? ( ~x11-libs/compizconfig-backend-kconfig-${PV} )"
+	kde? ( ~x11-libs/compizconfig-backend-kconfig-${PV} )
+	branding? ( x11-themes/sabayonlinux-artwork )"
 
 pkg_postinst() {
 	ewarn "DO NOT report bugs to Gentoo's bugzilla"
