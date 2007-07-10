@@ -1,0 +1,5 @@
+[kde_session]
+backend = ini
+profile = 
+integration = true
+
