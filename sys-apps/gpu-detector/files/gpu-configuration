@@ -68,7 +68,6 @@ NOPROP=$(cat /proc/cmdline | grep "noproprietary")
 LEGACY=$(cat /proc/cmdline | grep "legacy")
 IS_LIVE=$(cat /proc/cmdline | grep " cdroot")
 NVIDIA_SETTINGS="/usr/share/applications/nvidia-settings.desktop"
-ATI_SETTINGS="/usr/share/applications/amdcccle-ati-drivers.desktop"
 
 remove_proprietary_opengl() {
     if [ -z "$dry_run_detected" ]; then
@@ -200,17 +199,19 @@ copy_nvidia_settings_on_desktop() {
 
 copy_ati_settings_on_desktop() {
 
-    # if it's available, add compiz-settings too
-    if [ -e "$ATI_SETTINGS" ]; then
-        for user in `ls /home/`; do
-            if [ -d "/home/$user/Desktop" ]; then
-                cp $ATI_SETTINGS /home/$user/Desktop/
-                chown $user /home/$user/Desktop/$ATI_SETTINGS
-            fi
-        done
-        # also copy in /etc/skel
-	cp $ATI_SETTINGS /etc/skel/Desktop/ -p
-    fi
+    for file in `qlist -e ati-drivers | grep ".desktop"`; do
+        # if it's available, add compiz-settings too
+        if [ -e "$file" ]; then
+            for user in `ls /home/`; do
+                if [ -d "/home/$user/Desktop" ]; then
+                    cp $file /home/$user/Desktop/
+                    chown $user /home/$user/Desktop/*.desktop
+                fi
+            done
+            # also copy in /etc/skel
+	    cp $file /etc/skel/Desktop/ -p
+        fi
+    done
 
 }
 
