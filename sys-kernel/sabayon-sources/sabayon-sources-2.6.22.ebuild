@@ -13,7 +13,9 @@ detect_arch
 #x86? ( http://www.sabayonlinux.org/sabayon/kconfigs/SabayonLinux-x86-3.3.1.config )
 
 
-SL_PATCHES_URI=""
+SL_PATCHES_URI="
+		http://www.kernel.org/pub/linux/kernel/v2.6/patch-2.6.22.1.bz2
+		"
 
 SUSPEND2_VERSION="2.2.10"
 SUSPEND2_TARGET="2.6.22-rc3"
@@ -42,6 +44,8 @@ UNIPATCH_LIST="
 
 		${FILESDIR}/${P}-at76c503a.patch
 		${FILESDIR}/${P}-acx.patch
+
+		${DISTDIR}/patch-2.6.22.1.bz2
 
 		"
 # disabled for testing
