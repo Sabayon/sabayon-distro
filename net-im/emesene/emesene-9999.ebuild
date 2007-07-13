@@ -41,6 +41,9 @@ src_install() {
 	echo -e '#!/bin/sh \n python /usr/share/emesene/Controller.py'>> emesene
 	doexe emesene
 
+        newicon ${S}/themes/default/icon96.png ${PN}.png
+        make_desktop_entry emesene "EmeSeNe" ${PN}.png
+
 }
 
 pkg_postinst() {
