@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if [ -n "$DESKTOP_SESSION" ]; then
+
+	if [ -n "`echo $DESKTOP_SESSION | grep kde`" ]; then
+		kdesu -t --nonewdcop -c portato qt
+	else
+		gksu -D "Portato (GTK)" -u root portato gtk
+	fi
+else
+	gksu -D "Portato (GTK)" -u root portato gtk
+fi
+
+if [ "$?" == "127" ]; then
+	portato
+fi
+

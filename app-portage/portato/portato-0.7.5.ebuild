@@ -117,7 +117,15 @@ src_install() {
 	# icon
 	doicon icons/portato-icon.png
 
-	# menus
-	( use gtk || ( ! use gtk && ! use qt4 ) ) && domenu portato_gtk.desktop
-	use qt4 && domenu portato_qt.desktop
+	# menus - disabled
+	#( use gtk || ( ! use gtk && ! use qt4 ) ) && domenu portato_gtk.desktop
+	#use qt4 && domenu portato_qt.desktop
+
+	# launcher
+	exeinto /usr/bin
+	doexe ${FILESDIR}/portato-launch
+
+	# desktop file
+	make_desktop_entry portato-launch "Portato" portato-icon
+
 }
