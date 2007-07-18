@@ -20,8 +20,3 @@ RDEPEND="~x11-wm/compiz-${PV}
 	kde? ( ~x11-libs/compizconfig-backend-kconfig-${PV} )
 	branding? ( x11-themes/sabayonlinux-artwork )"
 
-pkg_postinst() {
-	ewarn "DO NOT report bugs to Gentoo's bugzilla"
-	einfo "Please report all bugs to nesl247@gmail.com"
-	einfo "Thank you on behalf of the Gentoo Xeffects team"
-}

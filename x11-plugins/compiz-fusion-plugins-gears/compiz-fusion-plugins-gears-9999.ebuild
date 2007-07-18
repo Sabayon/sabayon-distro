@@ -40,8 +40,3 @@ src_install() {
 	make DESTDIR="${D}/usr/lib/compiz" XMLDIR="${D}/usr/share/compiz" install || die "make install failed"
 }
 
-pkg_postinst() {
-	ewarn "DO NOT report bugs to Gentoo's bugzilla"
-	einfo "Please report all bugs to http://forums.gentoo-xeffects.org"
-	einfo "Thank you on behalf of the Gentoo Xeffects team"
-}

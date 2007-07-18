@@ -30,8 +30,3 @@ src_install() {
 	make DESTDIR="${D}" install || die "make install failed"
 }
 
-pkg_postinst() {
-	ewarn "DO NOT report bugs to Gentoo's bugzilla"
-	einfo "Please report all bugs to nesl247@gmail.com"
-	einfo "Thank you on behalf of the Gentoo Xeffects team"
-}
