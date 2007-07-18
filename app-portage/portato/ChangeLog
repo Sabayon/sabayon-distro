@@ -1,0 +1,35 @@
+# ChangeLog for app-portage/portato
+# Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  23 Jun 2007; René Neumann (Necoro) <necoro@necoro.net>
+  -portato-0.7.4.2.ebuild, +portato-0.7.5.ebuild:
+  Version bump
+
+  21 Jun 2007; René Neumann (Necoro) <necoro@necoro.net>
+  portato-0.7.4.2.ebuild:
+  Allowed portage-2.1.3
+
+  14 Jun 2007; René Neumann (Necoro) <necoro@necoro.net>
+  portato-0.7.4.2.ebuild:
+  Removed syntax useflag and made the portatosourceview mandatory
+
+  03 Jun 2007; René Neumann (Necoro) <necoro@necoro.net>
+  -portato-0.7.4.1.ebuild, +portato-0.7.4.2.ebuild:
+  Version bump
+
+  01 Jun 2007; Ali Polatel (hawking) <polatel@gmail.com>
+  -portato-0.7.3.ebuild:
+  Drop old
+
+  01 Jun 2007; René Neumann (Necoro) <necoro@necoro.net>
+  +portato-0.7.4.1.ebuild:
+  Version bump to 0.7.4.1
+
+  25 May 2007; Markus Ullmann <jokey@gentoo.org> portato-0.7.3.ebuild:
+  coding style improvement
+
+  12 May 2007; René Neumann (Necoro) <necoro@necoro.net>
+  +portato-0.7.3.ebuild, +metadata.xml:
+  New ebuild for bug #156545
+
