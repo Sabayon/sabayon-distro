@@ -1,0 +1,16 @@
+# ChangeLog for dev-util/portatosourceview
+# Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  15 Jun 2007; Ali Polatel (hawking) <polatel@gmail.com>
+  portatosourceview-2.16.0-r1.ebuild:
+  removed trailing whitespace
+
+  14 Jun 2007; René Neumann (Necoro) <necoro@necoro.net>
+  -portatosourceview-2.16.0.ebuild, +portatosourceview-2.16.0-r1.ebuild:
+  Removed bloating GNOME-dependencies
+
+  12 May 2007; René Neumann (Necoro) <necoro@necoro.net>
+  +portatosourceview-2.16.0.ebuild, +metadata.xml:
+  New ebuild for bug #156545
+
