@@ -45,6 +45,8 @@ UNIPATCH_LIST="
 		${FILESDIR}/${P}-at76c503a.patch
 		${FILESDIR}/${P}-acx.patch
 
+		${FILESDIR}/${P}-ich8m-support.patch
+
 		${DISTDIR}/patch-2.6.22.1.bz2
 
 		"
