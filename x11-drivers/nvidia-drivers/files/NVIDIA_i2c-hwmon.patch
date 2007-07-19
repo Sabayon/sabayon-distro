@@ -1,0 +1,17 @@
+---
+ usr/src/nv/nv-i2c.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- NVIDIA-Linux-x86-1.0-9746-pkg1.orig/usr/src/nv/nv-i2c.c	2006-12-15 19:32:58.000000000 +0100
++++ NVIDIA-Linux-x86-1.0-9746-pkg1/usr/src/nv/nv-i2c.c	2007-01-06 16:50:48.000000000 +0100
+@@ -250,6 +250,10 @@ void* NV_API_CALL nv_i2c_add_adapter(nv_
+     snprintf(pI2cAdapter->name, I2C_NAME_SIZE,
+              "NVIDIA i2c adapter %u at %x:%02x.%u", port, nv->bus,
+              nv->slot, PCI_FUNC(nvl->dev->devfn));
++#ifdef I2C_CLASS_HWMON
++    if (port == 2)
++        pI2cAdapter->class = I2C_CLASS_HWMON;
++#endif
+ 
+     // add our data to the structure
+     pI2cAdapter->algo_data = (void *)nv;
