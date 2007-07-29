@@ -26,6 +26,8 @@ compiz_settings_desktop_file="/usr/share/applications/"$compiz_settings
 ccsm_settings_desktop_file="/usr/share/applications/"$ccsm_settings
 xorg_conf="/etc/X11/xorg.conf"
 desktop_acceleration_helpers_config_file="/etc/desktop-acceleration-helpers.conf"
+xgl_nvidia=$($lspci | grep ' VGA ' | grep -i nvidia)
+xgl_ati=$($lspci | grep ' VGA ' | grep ATI)
 
 
 # Functions
@@ -40,8 +42,6 @@ write_acceleration_method() {
 
 configure_kdm() {
     if [ "$1" == "xgl" ]; then
-        xgl_nvidia=$($lspci | grep ' VGA ' | grep -i nvidia)
-        xgl_ati=$($lspci | grep ' VGA ' | grep ATI)
         # Changing KDM configuration
 	if [ -n "$xgl_nvidia" ]; then
 	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:fbo /' $kdmdir/kdmrc
