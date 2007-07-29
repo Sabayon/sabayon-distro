@@ -21,7 +21,6 @@ src_unpack () {
 
         cd ${WORKDIR}
         cp ${FILESDIR}/${PV}/*-setup . -p
-	epatch "${FILESDIR}"/desktop-acceleration-setup-ati-compiz-patch.patch
 }
 
 src_install () {

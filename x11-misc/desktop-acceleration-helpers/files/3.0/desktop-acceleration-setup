@@ -70,7 +70,11 @@ create_compiz_manager_desktop_file() {
     echo "Encoding=UTF-8" >> $compiz_manager_desktop_file
     echo "Icon=/usr/share/compiz/icon.png" >> $compiz_manager_desktop_file
     echo "Version=1.0" >> $compiz_manager_desktop_file
-    echo "Exec=fusion-icon" >> $compiz_manager_desktop_file
+    if [ -n "$xgl_ati" ];then
+        echo "Exec=LD_LIBRARY_PATH=/usr/lib/opengl/xorg-x11/lib fusion-icon" >> $compiz_manager_desktop_file
+    else
+        echo "Exec=fusion-icon" >> $compiz_manager_desktop_file
+    fi
     echo "X-KDE-autostart-after=panel" >> $compiz_manager_desktop_file
     echo "X-KDE-autostart-phase=2" >> $compiz_manager_desktop_file
     echo "X-KDE-StartupNotify=false" >> $compiz_manager_desktop_file
