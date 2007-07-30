@@ -36,10 +36,10 @@ src_install() {
 	cd ${S}/libraries
 	insinto /usr/share/entropy/libraries
 	doins entropyTools.py
+	doins clientConstants.py
 	doins outputTools.py
 	doins entropyConstants.py
 	doins databaseTools.py
-	doins mirrorTools.py
 	doins logTools.py
 	doins remoteTools.py
 	doins timeoutsocket.py
@@ -63,6 +63,10 @@ src_install() {
 	cd ${S}/conf
 	dodir /etc/entropy
 	insinto /etc/entropy
-	doins *.conf
+	doins entropy.conf
+	doins database.conf
+	doins equo.conf
+	doins remote.conf
+	doins repositories.conf
 	
 }
