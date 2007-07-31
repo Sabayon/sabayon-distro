@@ -1,0 +1,107 @@
+# ChangeLog for dev-python/lxml
+# Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/lxml/ChangeLog,v 1.23 2007/07/08 07:39:58 hawking Exp $
+
+  08 Jul 2007; Ali Polatel <hawking@gentoo.org> lxml-1.3.2.ebuild:
+  Fixed setuptools dependency. bug 184549
+
+  04 Jul 2007; Lukasz Strzygowski <lucass@gentoo.org> lxml-1.3.2.ebuild:
+  Removed use_setuptools sed.
+
+*lxml-1.3.2 (04 Jul 2007)
+
+  04 Jul 2007; Lukasz Strzygowski <lucass@gentoo.org> -lxml-1.3.1.ebuild,
+  +lxml-1.3.2.ebuild:
+  Version bump. Dropped old version.
+
+*lxml-1.3.1 (03 Jul 2007)
+
+  03 Jul 2007; Lukasz Strzygowski <lucass@gentoo.org> -lxml-1.3.ebuild,
+  +lxml-1.3.1.ebuild:
+  Version bump. Dropped old version.
+
+*lxml-1.3 (24 Jun 2007)
+
+  24 Jun 2007; Lukasz Strzygowski <lucass@gentoo.org> -lxml-1.2.ebuild,
+  -lxml-1.2.1.ebuild, +lxml-1.3.ebuild:
+  Version bump. Dropped old versions.
+
+*lxml-1.2.1 (27 Feb 2007)
+
+  27 Feb 2007; Lukasz Strzygowski <lucass@gentoo.org> +lxml-1.2.1.ebuild:
+  Version bump.
+
+  21 Feb 2007; Lukasz Strzygowski <lucass@gentoo.org>
+  -files/lxml-1.1.2-distutils.patch, -lxml-1.1.2.ebuild:
+  Removed 1.1.2 because of failing regression tests.
+
+*lxml-1.2 (21 Feb 2007)
+
+  21 Feb 2007; Lukasz Strzygowski <lucass@gentoo.org> +lxml-1.2.ebuild:
+  Version bump: added dep on setuptools, added NEED_PYTHON.
+
+*lxml-1.1.2 (10 Jan 2007)
+
+  10 Jan 2007; Tiziano Müller <dev-zero@gentoo.org>
+  +files/lxml-1.1.2-distutils.patch, -lxml-1.0.ebuild, -lxml-1.0.3.ebuild,
+  +lxml-1.1.2.ebuild:
+  Version bump, bug #148776. Dropped old versions.
+
+  15 Oct 2006; Bryan Østergaard <kloeri@gentoo.org> lxml-1.0.2.ebuild:
+  Stable on ia64.
+
+  28 Sep 2006; Stephanie Lockwood-Childs <wormo@gentoo.org> lxml-1.0.3.ebuild:
+  mark ~ppc -- reported by David Gurvich (Bug #148734)
+
+*lxml-1.0.3 (09 Aug 2006)
+
+  09 Aug 2006; Lukasz Strzygowski <lucass@gentoo.org> +lxml-1.0.3.ebuild:
+  Version bump.
+
+  01 Aug 2006; Lukasz Strzygowski <lucass@gentoo.org>
+  -files/lxml-0.9.1-distutils.diff, -files/lxml-0.9.2-distutils.diff,
+  -lxml-0.6.ebuild, -lxml-0.7.ebuild, -lxml-0.9.1.ebuild,
+  -lxml-0.9.2.ebuild, lxml-1.0.ebuild, lxml-1.0.2.ebuild:
+  Minor cleanup. Removed 0.x releases.
+
+  01 Aug 2006; Krzysiek Pawlik <nelchael@gentoo.org> lxml-1.0.2.ebuild:
+  Stable on x86
+
+*lxml-1.0.2 (28 Jun 2006)
+
+  28 Jun 2006; Lukasz Strzygowski <lucass@gentoo.org> +lxml-1.0.2.ebuild:
+  Version bump.
+
+*lxml-1.0 (02 Jun 2006)
+
+  02 Jun 2006; Lukasz Strzygowski <lucass@gentoo.org>
+  +files/lxml-1.0-distutils.diff, +lxml-1.0.ebuild:
+  Version bump.
+
+*lxml-0.9.2 (19 May 2006)
+
+  19 May 2006; Lukasz Strzygowski <lucass@gentoo.org>
+  +files/lxml-0.9.2-distutils.diff, +lxml-0.9.2.ebuild:
+  Version bump. Marked ~amd64.
+
+*lxml-0.9.1 (03 Apr 2006)
+
+  03 Apr 2006; Lukasz Strzygowski <lucass@gentoo.org>
+  +files/lxml-0.9.1-distutils.diff, +lxml-0.9.1.ebuild:
+  Version bump: cleanup, fixed dep on libxml2, patch to force use of distutils.
+
+  01 Apr 2006; Aron Griffis <agriffis@gentoo.org> lxml-0.7.ebuild:
+  Mark 0.7 ~ia64
+
+*lxml-0.7 (19 Jul 2005)
+
+  19 Jul 2005; Lukasz Strzygowski <lucass@gentoo.org> lxml-0.6.ebuild,
+  +lxml-0.7.ebuild:
+  Version bump. lxml-0.6 marked stable on x86.
+
+*lxml-0.6 (01 Jun 2005)
+
+  01 Jun 2005; Lukasz Strzygowski <lucass@gentoo.org> +metadata.xml,
+  +lxml-0.6.ebuild:
+  Initial commit. Thanks to Henry Bucklow for bug #94623.
+

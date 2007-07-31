@@ -1,0 +1,19 @@
+--- setup.py.old	2006-06-02 15:30:13.000000000 +0200
++++ setup.py	2006-06-02 15:31:01.000000000 +0200
+@@ -1,14 +1,8 @@
+ import sys, os, os.path, re
+ 
+ setup_args = {}
+-try:
+-    from setuptools import setup
+-    from setuptools.extension import Extension
+-    # prevent setuptools from making local etree.so copies:
+-    setup_args['zip_safe'] = False
+-except ImportError:
+-    from distutils.core import setup
+-    from distutils.extension import Extension
++from distutils.core import setup
++from distutils.extension import Extension
+ 
+ # This is called if the '--static' option is passed
+ def setupStaticBuild():
