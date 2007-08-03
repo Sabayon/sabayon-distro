@@ -15,7 +15,7 @@ need-kde ${PV}
 LANGS="af ar az bg bn br bs ca cs csb cy da de el en_GB eo es et
 eu fa fi fr fy ga gl he hi hr hu is it ja kk km ko lt lv mk
 mn ms nb nds nl nn pa pl pt pt_BR ro ru rw se sk sl sr
-sr_Latn ss sv ta tg th tr uk uz vi zh_CN zh_TW"
+sr_latn ss sv ta tg th tr uk uz vi zh_CN zh_TW"
 
 #RDEPEND="!kde-base/kde-i18n"
 for X in ${LANGS} ; do
