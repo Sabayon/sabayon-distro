@@ -59,7 +59,6 @@ src_install() {
 	doins entropy.conf
 	doins database.conf
 	doins equo.conf
-	doins remote.conf
 	doins repositories.conf
 	
 }
