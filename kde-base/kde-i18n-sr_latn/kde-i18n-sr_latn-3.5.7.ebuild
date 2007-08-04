@@ -9,9 +9,10 @@ LICENSE="GPL-2"
 
 SLOT="3.5"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
+DEPEND="!kde-base/kde-i18n"
 IUSE=""
 
-LOCALE=${PN/kde-i18n-/}
+LOCALE="sr@Latn"
 need-kde ${PV}
 
 SRC_URI="mirror://kde/stable/${PV}/src/kde-i18n/kde-i18n-${LOCALE}-${PV}.tar.bz2"
