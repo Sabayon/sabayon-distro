@@ -1,0 +1,42 @@
+diff -Naurp ImageMagick-6.2.9.old/PerlMagick/Makefile.PL.in ImageMagick-6.2.9/PerlMagick/Makefile.PL.in
+--- ImageMagick-6.2.9.old/PerlMagick/Makefile.PL.in	2006-09-07 21:28:34.000000000 -0400
++++ ImageMagick-6.2.9/PerlMagick/Makefile.PL.in	2006-09-22 09:45:10.000000000 -0400
+@@ -53,17 +53,16 @@ WriteMakefile
+    'CCFLAGS'     => "$Config{'ccflags'} @CFLAGS@",
+ 
+    # Linker flags for building an executable
+-   'LDFLAGS'    =>  "-L../magick/.libs -L@MAGICKLIBDIR@ $Config{'ldflags'}",
++   'LDFLAGS'    =>  "-L../magick/.libs -lMagick $Config{'ldflags'}",
+ 
+    # Linker flags for building a dynamically loadable module
+-   'LDDLFLAGS'  => "-L../magick/.libs -L@MAGICKLIBDIR@ $Config{'lddlflags'}",
++   'LDDLFLAGS'  => "-L../magick/.libs -lMagick $Config{'lddlflags'}",
+ 
+    # Install PerlMagick binary into ImageMagick bin directory
+    'INSTALLBIN'	=> '@BIN_DIR@',
+ 
+    # Library specification
+-   'LIBS'	=> ['-lMagick @MAGICK_DEP_LIBS@'],
+-
++   'LIBS'  => [ '-L@MAGICKLIBDIR@ @LDFLAGS@ @MAGICK_DEP_LIBS@' ],
+    # Perl binary name (if a Perl binary is built)
+    'MAP_TARGET'	=> 'PerlMagick',
+ 
+diff -Naurp ImageMagick-6.2.9.old/PerlMagick/Makefile.am ImageMagick-6.2.9/PerlMagick/Makefile.am
+--- ImageMagick-6.2.9.old/PerlMagick/Makefile.am	2005-04-20 12:27:36.000000000 -0400
++++ ImageMagick-6.2.9/PerlMagick/Makefile.am	2006-09-22 09:44:09.000000000 -0400
+@@ -45,11 +45,10 @@ $(PERLMAKEFILE): perl-sources $(PERLMAKE
+ 	cd $(PERLMAGICK) && @PERL@ Makefile.PL $(PERL_MAKE_OPTIONS)
+ 
+ install-exec-perl: $(PERLMAKEFILE)
+-	( cd $(PERLMAGICK) && $(MAKE) CC='@CC@' && \
+-	$(MAKE) CC='@CC@' install && \
+-	$(MAKE) clean && rm -f  Makefile.old )
++	cd $(PERLMAGICK) && $(MAKE) CC='@CC@' install
+ 
+-all-perl:
++all-perl: $(PERLMAKEFILE)
++	cd $(PERLMAGICK) && $(MAKE) CC='@CC@'
+ 
+ uninstall-exec-perl: $(PERLMAKEFILE)
+ 	echo "Uninstall not supported for PerlMagick"
