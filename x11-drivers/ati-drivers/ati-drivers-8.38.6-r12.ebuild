@@ -21,8 +21,7 @@ RDEPEND="x11-base/xorg-server
 	acpi? (
 		x11-apps/xauth
 		sys-power/acpid
-	)
-	>=sys-apps/portage-2.1.1-r1"
+	)"
 
 DEPEND="${RDEPEND}
 	x11-proto/xf86miscproto
