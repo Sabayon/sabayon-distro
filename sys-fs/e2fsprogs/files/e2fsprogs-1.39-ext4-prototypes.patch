@@ -1,0 +1,12 @@
+--- e2fsprogs-1.39/lib/ext2fs/ext2fs.h
++++ e2fsprogs-1.39/lib/ext2fs/ext2fs.h
+@@ -963,6 +963,9 @@
+ 				   int bufsize);
+ extern void ext2fs_swap_inode(ext2_filsys fs,struct ext2_inode *t,
+ 			      struct ext2_inode *f, int hostorder);
++extern void ext2fs_swap_extent(struct ext4_extent *ex);
++extern void ext2fs_swap_extent_index(struct ext4_extent_idx *ix);
++extern void ext2fs_swap_extent_header(struct ext4_extent_header *eh);
+ 
+ /* valid_blk.c */
+ extern int ext2fs_inode_has_valid_blocks(struct ext2_inode *inode);

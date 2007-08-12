@@ -1,0 +1,30 @@
+Fix issues with non-C locales (like ee)
+
+http://bugs.gentoo.org/104116
+http://bugs.gentoo.org/131462
+
+--- e2fsprogs/lib/et/compile_et.sh.in
++++ e2fsprogs/lib/et/compile_et.sh.in
+@@ -1,6 +1,10 @@
+ #!/bin/sh
+ #
+ #
++
++# the awk scripts here use a-z and such
++export LC_ALL="C"
++
+ AWK=@AWK@
+ DIR="${DIR-@datadir@/et}"
+ ET_DIR="@ET_DIR@"
+--- e2fsprogs/lib/ss/mk_cmds.sh.in
++++ e2fsprogs/lib/ss/mk_cmds.sh.in
+@@ -2,6 +2,9 @@
+ #
+ #
+ 
++# the awk/sed scripts here use a-z and such
++export LC_ALL="C"
++
+ DIR="${DIR-@datadir@/ss}"
+ SS_DIR="@SS_DIR@"
+ AWK=@AWK@

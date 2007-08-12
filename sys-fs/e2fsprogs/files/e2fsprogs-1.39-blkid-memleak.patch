@@ -1,0 +1,53 @@
+http://bugs.gentoo.org/171844
+
+# HG changeset patch
+# User tytso@mit.edu
+# Date Tue Mar  6 19:56:18 2007 -0500
+# Node ID 5a2a75111d7a6fc4b5ee99663f252a42d5a2b227
+# parent: 69a666bd25f57107a09e5bad0a158b8a810e6a63
+Fix memory leak in blkid library
+
+Addresses Debian Bug: #413661
+
+Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
+
+2007-03-06  Theodore Tso  <tytso@mit.edu>
+
+	* devname.c (dm_probe_all), probe.c (blkid_verify): Fix memory
+		leak.  (Addresses Debian Bug #413661)
+
+--- a/lib/blkid/devname.c	Sun Mar  4 08:17:18 2007 -0500
++++ b/lib/blkid/devname.c	Tue Mar  6 19:56:18 2007 -0500
+@@ -305,6 +305,7 @@
+ 		probe_one(cache, device, dev, BLKID_PRI_DM, only_if_new);
+ 
+ try_next:
++		free(device);
+ 		next = names->next;
+ 	} while (next);
+ 
+--- a/lib/blkid/probe.c	Sun Mar  4 08:17:18 2007 -0500
++++ b/lib/blkid/probe.c	Tue Mar  6 19:56:18 2007 -0500
+@@ -886,9 +886,9 @@
+ 	}
+ 
+ 	if (!dev->bid_type) {
+-		if (probe.fd >= 0) close(probe.fd);
+ 		blkid_free_dev(dev);
+-		return NULL;
++		dev = 0;
++		goto found_type;
+ 	}
+ 		
+ found_type:
+@@ -908,7 +908,8 @@
+ 		free(probe.sbbuf);
+ 	if (probe.buf)
+ 		free(probe.buf);
+-	close(probe.fd);
++	if (probe.fd >= 0) 
++		close(probe.fd);
+ 
+ 	return dev;
+ }
+
