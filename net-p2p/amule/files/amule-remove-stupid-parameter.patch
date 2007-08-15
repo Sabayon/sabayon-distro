@@ -1,7 +1,7 @@
 diff -Nurp amule-cvs.orig/src/amule.cpp amule-cvs/src/amule.cpp
---- amule-cvs.orig/src/amule.cpp	2007-06-19 21:11:43.000000000 +0200
-+++ amule-cvs/src/amule.cpp	2007-06-24 11:27:05.000000000 +0200
-@@ -454,7 +454,6 @@ bool CamuleApp::OnInit()
+--- amule-cvs.orig/src/amule.cpp	2007-08-12 14:07:31.000000000 +0200
++++ amule-cvs/src/amule.cpp	2007-08-15 11:08:35.000000000 +0200
+@@ -456,7 +456,6 @@ bool CamuleApp::OnInit()
  	cmdline.AddSwitch(wxT("d"), wxT("disable-fatal"), wxT("Does not handle fatal exception."));
  	cmdline.AddSwitch(wxT("o"), wxT("log-stdout"), wxT("Print log messages to stdout."));
  	cmdline.AddSwitch(wxT("r"), wxT("reset-config"), wxT("Resets config to default values."));
@@ -9,7 +9,7 @@ diff -Nurp amule-cvs.orig/src/amule.cpp amule-cvs/src/amule.cpp
  	
  	// Show help on --help or invalid commands
  	if ( cmdline.Parse() ) {
-@@ -464,11 +463,6 @@ bool CamuleApp::OnInit()
+@@ -466,11 +465,6 @@ bool CamuleApp::OnInit()
  		return false;
  	}	
  
@@ -17,7 +17,7 @@ diff -Nurp amule-cvs.orig/src/amule.cpp amule-cvs/src/amule.cpp
 -		printf("This binary requires you to use the flag --even-if-lfroen-surreptitiously-removes-it-this-will-stay and only if you're very sure of it. Warning: If you're lfroen or wuischke, you might find this annoying. That pleases me.\n");
 -		return false;
 -	}	
--	
+-
+ 	bool ec_config = false;	
+ 	
  #ifdef AMULE_DAEMON
- 	if ( cmdline.Found(wxT("config-dir"), &ConfigDir) ) {
- 		if (ConfigDir.Last() != wxFileName::GetPathSeparator()) {
