@@ -58,6 +58,10 @@ EBUILD sabayon-version-3.4-r1.ebuild 1295 RMD160 9045b2ae60a15f7cdf9269421223972
 MD5 5206018e1e91af2edbc3be496371d352 sabayon-version-3.4-r1.ebuild 1295
 RMD160 9045b2ae60a15f7cdf9269421223972b0e7c1f3b sabayon-version-3.4-r1.ebuild 1295
 SHA256 18f419c2b4c5cb3a9b70e4068874e22925e878b9831ccaca78fb9b069aee65f2 sabayon-version-3.4-r1.ebuild 1295
+EBUILD sabayon-version-3.4-r2.ebuild 1340 RMD160 b5350e5329fa888cd30b4f3791747829386ddb8e SHA1 c637b5cc47f8cf0ac48c4985d0701550dc0964fe SHA256 667a10e700a8ab8b6a15e5dfb79eb017473c7c07857f2cac2e0fd53015543a01
+MD5 9c9eec1649bcab958732bc4f6e26415d sabayon-version-3.4-r2.ebuild 1340
+RMD160 b5350e5329fa888cd30b4f3791747829386ddb8e sabayon-version-3.4-r2.ebuild 1340
+SHA256 667a10e700a8ab8b6a15e5dfb79eb017473c7c07857f2cac2e0fd53015543a01 sabayon-version-3.4-r2.ebuild 1340
 EBUILD sabayon-version-3.4.ebuild 784 RMD160 ed0c9553c99185cc925e977bcd18032b0fc88cc7 SHA1 8e5d0d5908ae2fce64884d9afed08354b44e8459 SHA256 fb4bc506663ea73348114e146e42e9356096acbb5833b8d22eea18975757aead
 MD5 8adfb6b26baacccb478225cdfd9619e2 sabayon-version-3.4.ebuild 784
 RMD160 ed0c9553c99185cc925e977bcd18032b0fc88cc7 sabayon-version-3.4.ebuild 784
@@ -74,3 +78,6 @@ SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/di
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayon-version-3.4-r1 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayon-version-3.4-r1 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayon-version-3.4-r1 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-sabayon-version-3.4-r2 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-sabayon-version-3.4-r2 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-sabayon-version-3.4-r2 0
