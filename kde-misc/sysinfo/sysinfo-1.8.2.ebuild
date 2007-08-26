@@ -5,7 +5,7 @@ inherit kde eutils flag-o-matic
 
 DESCRIPTION="A modified system information page for konqi from Suse"
 HOMEPAGE="http://opensuse.org"
-SRC_URI="http://sabayonlinux.org/distfiles/kde-misc/${PN}/${P}.tar.gz"
+SRC_URI="http://download.tuxfamily.org/kiosysinfo/Sources/kio-sysinfo-${PV}.tar.gz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~ppc"
