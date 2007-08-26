@@ -16,7 +16,7 @@ S=${WORKDIR}/${P}
 
 DEPEND="
 	=kde-base/kdelibs-3.5*
-	|| ( ( =kde-base/kdebase-kioslaves-3.5* =kde-base/kjsembed-3.5* ) =kde-base/kdebase-3.5* )
+	|| ( ( =kde-base/kdebase-kioslaves-3.5* ) =kde-base/kdebase-3.5* )
 	<x11-libs/qt-4
 	sys-apps/hwinfo
 	>=sys-apps/dbus-1.0
