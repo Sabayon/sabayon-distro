@@ -13,57 +13,58 @@ else
         lspci_output="/usr/sbin/lspci"
     fi
 fi
-NEOMAGIC=$($lspci_output | grep ' VGA ' | grep -i 'neomagic')
-MACH64=$($lspci_output | grep ' VGA ' | grep -i 'mach64' )
-SAVAGE=$($lspci_output | grep ' VGA ' | grep -i 'savage' )
-VIRGE=$($lspci_output | grep ' VGA ' | grep -i 'Virge' )
-CYRIX=$($lspci_output | grep ' VGA ' | grep -i 'cyrix' )
-I128=$($lspci_output | grep ' VGA ' | grep -i 'i128' )
-I740=$($lspci_output | grep ' VGA ' | grep -iE ' intel.*74' )
-RENDITION=$($lspci_output | grep ' VGA ' | grep -i 'rendition' )
-SILICONMOTION=$($lspci_output | grep ' VGA ' | grep -iE ' silicon.*motion' )
-TSENG=$($lspci_output | grep ' VGA ' | grep -i 'tseng')
-IGRANTSDALE=$($lspci_output | grep ' VGA ' | grep -i "Intel Corp.*915.*")
-INTEL=$($lspci_output | grep ' VGA ' | grep -i "Intel Corp")
-I830=$($lspci_output | grep ' VGA ' | grep -i "Intel Corp.*82830.*")
-I845=$($lspci_output | grep ' VGA ' | grep -i "Intel Corp.*845.*")
-I855=$($lspci_output | grep ' VGA ' | grep -i "Intel Corp.*855.*")
-V3DFX=$($lspci_output | grep ' VGA ' | grep -i "3Dfx Interactive" )
-I915=$($lspci_output | grep ' VGA ' | grep -i "Intel Corp.*915.*")
-I945=$($lspci_output | grep ' VGA ' |grep -i "Intel Corp.*945.*" || $lspci_output | grep ' VGA ' | grep -i "Intel Corp.*940.*" )
-TRIDENT=$($lspci_output | grep ' VGA '  | grep Trident)
-NVIDIA=$($lspci_output | grep ' VGA ' | grep -i "nVidia")
-NVIDIATNT=$($lspci_output | grep ' VGA ' | grep -i "RIVA TNT")
-ATI=$($lspci_output | grep ' VGA ' | grep ATI)
-R7000=$($lspci_output | grep ' VGA ' | grep R100 || $lspci_output | grep ' VGA ' | grep RV100 )
+LSPCI=$($lspci_output)
+NEOMAGIC=$(echo $LSPCI | grep ' VGA ' | grep -i 'neomagic')
+MACH64=$(echo $LSPCI | grep ' VGA ' | grep -i 'mach64' )
+SAVAGE=$(echo $LSPCI | grep ' VGA ' | grep -i 'savage' )
+VIRGE=$(echo $LSPCI | grep ' VGA ' | grep -i 'Virge' )
+CYRIX=$(echo $LSPCI | grep ' VGA ' | grep -i 'cyrix' )
+I128=$(echo $LSPCI | grep ' VGA ' | grep -i 'i128' )
+I740=$(echo $LSPCI | grep ' VGA ' | grep -iE ' intel.*74' )
+RENDITION=$(echo $LSPCI | grep ' VGA ' | grep -i 'rendition' )
+SILICONMOTION=$(echo $LSPCI | grep ' VGA ' | grep -iE ' silicon.*motion' )
+TSENG=$(echo $LSPCI | grep ' VGA ' | grep -i 'tseng')
+IGRANTSDALE=$(echo $LSPCI | grep ' VGA ' | grep -i "Intel Corp.*915.*")
+INTEL=$(echo $LSPCI | grep ' VGA ' | grep -i "Intel Corp")
+I830=$(echo $LSPCI | grep ' VGA ' | grep -i "Intel Corp.*82830.*")
+I845=$(echo $LSPCI | grep ' VGA ' | grep -i "Intel Corp.*845.*")
+I855=$(echo $LSPCI | grep ' VGA ' | grep -i "Intel Corp.*855.*")
+V3DFX=$(echo $LSPCI | grep ' VGA ' | grep -i "3Dfx Interactive" )
+I915=$(echo $LSPCI | grep ' VGA ' | grep -i "Intel Corp.*915.*")
+I945=$(echo $LSPCI | grep ' VGA ' |grep -i "Intel Corp.*945.*" || echo $LSPCI | grep ' VGA ' | grep -i "Intel Corp.*940.*" )
+TRIDENT=$(echo $LSPCI | grep ' VGA '  | grep Trident)
+NVIDIA=$(echo $LSPCI | grep ' VGA ' | grep -i "nVidia")
+NVIDIATNT=$(echo $LSPCI | grep ' VGA ' | grep -i "RIVA TNT")
+ATI=$(echo $LSPCI | grep ' VGA ' | grep ATI)
+R7000=$(echo $LSPCI | grep ' VGA ' | grep R100 || echo $LSPCI | grep ' VGA ' | grep RV100 )
 if [ -z "$R7000" ]; then
-  R7000=$($lspci_output | grep ' VGA ' | grep "Radeon.*7000")
+  R7000=$(echo $LSPCI | grep ' VGA ' | grep "Radeon.*7000")
 fi
-R7200=$($lspci_output | grep ' VGA ' | grep -i "Radeon R100")
+R7200=$(echo $LSPCI | grep ' VGA ' | grep -i "Radeon R100")
 if [ -z "$R7200" ]; then
-  R7200=$($lspci_output | grep ' VGA ' | grep "Radeon.*7200")
+  R7200=$(echo $LSPCI | grep ' VGA ' | grep "Radeon.*7200")
 fi
-R7500=$($lspci_output | grep ' VGA ' | grep -i "Radeon RV200")
+R7500=$(echo $LSPCI | grep ' VGA ' | grep -i "Radeon RV200")
 if [ -z "$R7500" ]; then
-  R7500=$($lspci_output | grep ' VGA ' | grep "Radeon.*7500")
+  R7500=$(echo $LSPCI | grep ' VGA ' | grep "Radeon.*7500")
 fi
-R2XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R2.*")
-R1XX=$($lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV1.*" || $lspci_output | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R1.*")
-RX700=$($lspci_output | grep ' VGA ' | grep -i "ATI.*Radeon.*X700")
-RX600=$($lspci_output | grep ' VGA ' | grep -i "ATI.*Radeon.*X600")
-RX800=$($lspci_output | grep ' VGA ' | grep -i "ATI.*Radeon.*X8.*0")
-RX200=$($lspci_output | grep ' VGA ' | grep -i "ATI.*Radeon.*X.*200M")
-R9600=$($lspci_output | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
-RAGE128=$($lspci_output | grep ' VGA ' | grep -i "Rage 128")
-SIS=$($lspci_output | grep ' VGA ' | grep -i "SiS" || $lspci_output | grep ' VGA ' | grep "Silicon Integrated Systems")
-XGISIS=$($lspci_output | grep ' VGA ' | grep -i XGI | grep Volari) # SiS driver only supports Z7/V3/V5/V8 - the future new xf86-video-xgi driver will support the rest of the family
+R2XX=$(echo $LSPCI | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV2.*" || echo $LSPCI | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R2.*")
+R1XX=$(echo $LSPCI | grep ' VGA ' | grep -i "ATi Tech" |grep -i "RV1.*" || echo $LSPCI | grep ' VGA ' | grep -i "ATi Tech" |grep -i "R1.*")
+RX700=$(echo $LSPCI | grep ' VGA ' | grep -i "ATI.*Radeon.*X700")
+RX600=$(echo $LSPCI | grep ' VGA ' | grep -i "ATI.*Radeon.*X600")
+RX800=$(echo $LSPCI | grep ' VGA ' | grep -i "ATI.*Radeon.*X8.*0")
+RX200=$(echo $LSPCI | grep ' VGA ' | grep -i "ATI.*Radeon.*X.*200M")
+R9600=$(echo $LSPCI | grep ' VGA ' | grep -i 'ATI Technologies .* RV350' )
+RAGE128=$(echo $LSPCI | grep ' VGA ' | grep -i "Rage 128")
+SIS=$(echo $LSPCI | grep ' VGA ' | grep -i "SiS" || echo $LSPCI | grep ' VGA ' | grep "Silicon Integrated Systems")
+XGISIS=$(echo $LSPCI | grep ' VGA ' | grep -i XGI | grep Volari) # SiS driver only supports Z7/V3/V5/V8 - the future new xf86-video-xgi driver will support the rest of the family
 SISUSB=$(if [ -e /sys/module/sisusbvga ]; then echo sisusb; fi) # udev will take care of the kernel module
-VMWARE=$($lspci_output | grep ' VGA ' | grep VMWare || $lspci_output | grep ' VGA ' | grep VMware )
-VIRGE=$($lspci_output | grep ' VGA ' | grep -i "S3.*virge")
-VIA=$($lspci_output | grep ' VGA ' | grep -i "VIA Tech.*")
-VIAUNICHROME=$($lspci_output | grep ' VGA ' | grep -i "VIA Tech.*" | grep -i "chrome")
-MATROX=$($lspci_output | grep ' VGA ' | grep -i Matrox)
-CIRRUS=$($lspci_output | grep ' VGA ' | grep -i Cirrus)
+VMWARE=$(echo $LSPCI | grep ' VGA ' | grep VMWare || echo $LSPCI | grep ' VGA ' | grep VMware )
+VIRGE=$(echo $LSPCI | grep ' VGA ' | grep -i "S3.*virge")
+VIA=$(echo $LSPCI | grep ' VGA ' | grep -i "VIA Tech.*")
+VIAUNICHROME=$(echo $LSPCI | grep ' VGA ' | grep -i "VIA Tech.*" | grep -i "chrome")
+MATROX=$(echo $LSPCI | grep ' VGA ' | grep -i Matrox)
+CIRRUS=$(echo $LSPCI | grep ' VGA ' | grep -i Cirrus)
 NOPROP=$(cat /proc/cmdline | grep "noproprietary")
 LEGACY=$(cat /proc/cmdline | grep "legacy")
 IS_LIVE=$(cat /proc/cmdline | grep " cdroot")
@@ -77,7 +78,6 @@ remove_proprietary_opengl() {
         # FIX For fscking ATI env.d file
         mv /etc/env.d/09ati /tmp/ &> /dev/null
         sed -i '/LIBGL_DRIVERS_PATH/ s/.*//' /etc/profile.env
-        source /etc/profile &> /dev/null
         fix_possible_opengl_misconfiguration xorg-x11
     else
         echo "I was about to remove proprietary OpenGL libraries"
@@ -325,7 +325,6 @@ if [ -n "$NVIDIA" ]; then
                      # create nvidia.ko
                      ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
                      # mandatory because we need to re-run the opengl configuration
-                     source /etc/profile
                      nice -20 opengl-activator xorg-x11 &> /dev/null
                      nice -20 opengl-activator nvidia &> /dev/null
                      # hope that will work
@@ -434,8 +433,6 @@ elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$RX800" ] || [ -n "$RX600" ] || [
                 remove_proprietary_opengl
             fi
 
-          nice -20 env-update &> /dev/null
-          source /etc/profile
     	  echo -e "\t Display Driver: ATI (Proprietary)"
 
 	else
@@ -545,3 +542,8 @@ else
  sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
 
 fi
+
+if [ -z "$IS_LIVE" ]; then
+    nice -20 env-update &> /dev/null
+fi
+source /etc/profile
