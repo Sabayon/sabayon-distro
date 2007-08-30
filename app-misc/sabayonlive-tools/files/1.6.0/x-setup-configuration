@@ -7,23 +7,23 @@ if [ -n "$cmdline_opengl_exists" ]; then
       case $word in
          opengl=*)
             opengl_toset=$(echo $word | cut -d "=" -f 2)
-            nice -20 /usr/bin/eselect opengl set $opengl_toset
+            nice -20 opengl-activator $opengl_toset
             ;;
       esac
    done
 else
    get_video_cards &> /dev/null
-   get_current_gl=$(eselect opengl show)
+   get_current_gl=$(opengl-activator show)
 
    if [ "$get_current_gl" != "$GLTYPE" ]; then
       if [ -z "$cmdline_noproprietary_exist" ]; then
          source /etc/profile
-         nice -20 eselect opengl set $GLTYPE
+         nice -20 opengl-activator $GLTYPE
          source /etc/profile
       else
          if [ -z "$cmdline_cdroot_exist" ]; then
             source /etc/profile
-            nice -20 eselect opengl set xorg-x11
+            nice -20 opengl-activator xorg-x11
             source /etc/profile
         fi
       fi
@@ -174,15 +174,13 @@ configure_input_devices() {
    #Option		"FingerHigh"		"30"
    if [ -e "/proc/bus/input/devices" ]; then
 
-      alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
-      synaptics_touchpad_exist=$(cat /proc/bus/input/devices | grep -i synaptics)
       # Enable Synaptic/ALPS touchpad
       if [ -n "$alps_touchpad_exist" ] || [ -n "$synaptics_touchpad_exist" ]; then
          sed -i '/InputDevice.*Synaptics1/ s/#//' /etc/X11/xorg.conf
       fi
 
 
-      if [ "$alps_touchpad_exist" ]; then
+      if [ -n "$alps_touchpad_exist" ]; then
          sed -i '/MaxSpeed/ s/#//' /etc/X11/xorg.conf
          sed -i '/MinSpeed/ s/#//' /etc/X11/xorg.conf
          sed -i '/AccelFactor/ s/#//' /etc/X11/xorg.conf
@@ -193,6 +191,43 @@ configure_input_devices() {
          sed -i '/FingerLow/ s/#//' /etc/X11/xorg.conf
          sed -i '/FingerHigh/ s/#//' /etc/X11/xorg.conf
       fi
+
+      # Configure touchpad for MacBook
+      if [ -n "$is_macbook" ]; then
+         sed -i '/MaxSpeed/ s/#//' /etc/X11/xorg.conf
+         sed -i '/MinSpeed/ s/#//' /etc/X11/xorg.conf
+         sed -i '/AccelFactor/ s/#//' /etc/X11/xorg.conf
+         sed -i '/TopEdge/ s/#//' /etc/X11/xorg.conf
+         sed -i '/LeftEdge/ s/#//' /etc/X11/xorg.conf
+         sed -i '/BottomEdge/ s/#//' /etc/X11/xorg.conf
+         sed -i '/RightEdge/ s/#//' /etc/X11/xorg.conf
+         sed -i '/FingerLow/ s/#//' /etc/X11/xorg.conf
+         sed -i '/FingerHigh/ s/#//' /etc/X11/xorg.conf
+         sed -i '/MaxTapTime/ s/#//' /etc/X11/xorg.conf
+         sed -i '/MaxTapMove/ s/#//' /etc/X11/xorg.conf
+         sed -i '/MaxDoubleTapTime/ s/#//' /etc/X11/xorg.conf
+         sed -i '/VertScrollDelta/ s/#//' /etc/X11/xorg.conf
+         sed -i '/HorizScrollDelta/ s/#//' /etc/X11/xorg.conf
+         sed -i '/TapButton2/ s/#//' /etc/X11/xorg.conf
+         sed -i '/TapButton3/ s/#//' /etc/X11/xorg.conf
+         sed -i '/VertTwoFingerScroll/ s/#//' /etc/X11/xorg.conf
+         # now change values
+	 sed -i '/LeftEdge/ s/"LeftEdge".*".*"/"LeftEdge"\t\t"100"/' /etc/X11/xorg.conf
+	 sed -i '/RightEdge/ s/"RightEdge".*".*"/"RightEdge"\t\t"1120"/' /etc/X11/xorg.conf
+	 sed -i '/TopEdge/ s/"TopEdge".*".*"/"TopEdge"\t\t"50"/' /etc/X11/xorg.conf
+	 sed -i '/BottomEdge/ s/"BottomEdge".*".*"/"BottomEdge"\t\t"310"/' /etc/X11/xorg.conf
+	 sed -i '/FingerLow/ s/"FingerLow".*".*"/"FingerLow"\t\t"25"/' /etc/X11/xorg.conf
+	 sed -i '/FingerHigh/ s/"FingerHigh".*".*"/"FingerHigh"\t\t"30"/' /etc/X11/xorg.conf
+	 sed -i '/MaxTapTime/ s/"MaxTapTime".*".*"/"MaxTapTime"\t\t"180"/' /etc/X11/xorg.conf
+	 sed -i '/MaxTapMove/ s/"MaxTapMove".*".*"/"MaxTapMove"\t\t"220"/' /etc/X11/xorg.conf
+	 sed -i '/MaxDoubleTapTime/ s/"MaxDoubleTapTime".*".*"/"MaxDoubleTapTime"\t\t"180"/' /etc/X11/xorg.conf
+	 sed -i '/VertScrollDelta/ s/"VertScrollDelta".*".*"/"VertScrollDelta"\t\t"20"/' /etc/X11/xorg.conf
+	 sed -i '/HorizScrollDelta/ s/"HorizScrollDelta".*".*"/"HorizScrollDelta"\t\t"50"/' /etc/X11/xorg.conf
+	 sed -i '/MinSpeed/ s/"MinSpeed".*".*"/"MinSpeed"\t\t"0.79"/' /etc/X11/xorg.conf
+	 sed -i '/MaxSpeed/ s/"MaxSpeed".*".*"/"MaxSpeed"\t\t"0.88"/' /etc/X11/xorg.conf
+	 sed -i '/AccelFactor/ s/"AccelFactor".*".*"/"AccelFactor"\t\t"0.0015"/' /etc/X11/xorg.conf
+      fi
+
    else
       echo "warning: /proc/bus/input/devices does not exist, cannot detect ALPS TouchPads"
    fi
@@ -208,6 +243,12 @@ configure_input_devices() {
       sed -i '/InputDevice.*wacom3/ s/#//' /etc/X11/xorg.conf
       
    fi
+
+   # Detect Macintosh - Enabling Apple Key
+   if [ -n "$is_mactel" ]; then
+      sed -i '/XkbOptions/ s/#//' /etc/X11/xorg.conf
+   fi
+
 
 }
 
@@ -227,6 +268,10 @@ configure_input_devices() {
       cmdline_hsync_exist=$(cat /proc/cmdline | grep hsync=)
       cmdline_noddc_exist=$(cat /proc/cmdline | grep "noddc")
       cmdline_cdroot_exist=$(cat /proc/cmdline | grep " cdroot")
+      is_mactel=$(dmidecode | grep "Vendor" | grep "Apple Computer")
+      is_macbook=$(dmidecode | grep "Product Name" | grep -i "MacBook")
+      alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
+      synaptics_touchpad_exist=$(cat /proc/bus/input/devices | grep -i synaptics)
 
       # Prepare Video Cards Proprietary Drivers
       if [ -n "$cmdline_cdroot_exist" ]; then
