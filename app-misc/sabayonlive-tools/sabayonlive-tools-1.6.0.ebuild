@@ -27,7 +27,7 @@ src_unpack() {
 	cp ${FILESDIR}/${PV}/x-setup-configuration . -p
 	cp ${FILESDIR}/${PV}/xorg.conf . -p
 	cp ${FILESDIR}/${PV}/bashlogin . -p
-
+	cp ${FILESDIR}/${PV}/opengl-activator . -p
 }
 
 src_install() {
@@ -43,6 +43,8 @@ src_install() {
 	into /
 	dosbin livecd-functions.sh
 	dobin bashlogin
+	exeinto /usr/bin
+	doexe opengl-activator
 
 	insinto /etc/X11
 	doins xorg.conf
