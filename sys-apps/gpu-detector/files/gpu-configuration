@@ -144,7 +144,7 @@ disable_dri() {
 }
 
 fix_possible_opengl_misconfiguration() {
-    current_opengl_subsystem=$(eselect opengl show)
+    current_opengl_subsystem=$(opengl-activator show)
     if [ -z "$dry_run_detected" ]; then
         if [ "$1" = "ati" ]; then
             if [ "$current_opengl_subsystem" != "ati" ]; then
@@ -153,7 +153,7 @@ fix_possible_opengl_misconfiguration() {
                 umount /usr/lib/opengl/ati &> /dev/null
                 umount /usr/lib/opengl/ati &> /dev/null
 		mv /tmp/09ati /etc/env.d/ &> /dev/null
-                nice -20 eselect opengl set ati
+                nice -20 opengl-activator ati
             fi
         fi
 
@@ -163,7 +163,7 @@ fix_possible_opengl_misconfiguration() {
                 # it's better to do that anyway
                 umount /usr/lib/opengl/nvidia &> /dev/null
                 umount /usr/lib/opengl/nvidia &> /dev/null
-                nice -20 eselect opengl set nvidia
+                nice -20 opengl-activator nvidia
             fi
         fi
 
@@ -171,7 +171,7 @@ fix_possible_opengl_misconfiguration() {
 	    # this MUST be run after remove_proprietary_opengl or inside it
             if [ "$current_opengl_subsystem" != "xorg-x11" ]; then
                 # fix it!
-                nice -20 eselect opengl set xorg-x11
+                nice -20 opengl-activator xorg-x11
             fi
         fi
 
@@ -326,8 +326,8 @@ if [ -n "$NVIDIA" ]; then
                      ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
                      # mandatory because we need to re-run the opengl configuration
                      source /etc/profile
-                     nice -20 eselect opengl set xorg-x11 &> /dev/null
-                     nice -20 eselect opengl set nvidia &> /dev/null
+                     nice -20 opengl-activator xorg-x11 &> /dev/null
+                     nice -20 opengl-activator nvidia &> /dev/null
                      # hope that will work
                      mkdir -p /lib/nvidia/legacy
                      touch /lib/nvidia/legacy/running
