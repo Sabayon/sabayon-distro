@@ -1,0 +1,8 @@
+DIST compizconfig-backend-gconf-0.5.2.tar.bz2 236234 RMD160 bbcdb7186e624d1b89d5e7eb8860d8db49a4108d SHA1 fb6897799c34c8bbe527a5c4f4e2b0fbd8b61654 SHA256 9c62533019683cbf6811e8d71feb4ea7ef1e4e37e44b5a63f701b2b25d12d4c1
+EBUILD compizconfig-backend-gconf-0.5.2.ebuild 854 RMD160 05248af68e9ad82f249767cec514651fe8606035 SHA1 63162bc97a4a23c646bb358a2a1f1c8112f0813e SHA256 c7435a358351b79d5eb3dddf05601ed4572c8cd3cade2378365daf445826ada0
+MD5 05ad40038b6ac3574894d59284a6ffc3 compizconfig-backend-gconf-0.5.2.ebuild 854
+RMD160 05248af68e9ad82f249767cec514651fe8606035 compizconfig-backend-gconf-0.5.2.ebuild 854
+SHA256 c7435a358351b79d5eb3dddf05601ed4572c8cd3cade2378365daf445826ada0 compizconfig-backend-gconf-0.5.2.ebuild 854
+MD5 469fc5485caebd032a0e341a0f6ae1ed files/digest-compizconfig-backend-gconf-0.5.2 216
+RMD160 70ba5cc2f2b71f4ca973536ce0c054ec79614d78 files/digest-compizconfig-backend-gconf-0.5.2 216
+SHA256 07d0c8ae9f5ecb504e04ada1c05513002b036b3114f40f643566614e40d3eaec files/digest-compizconfig-backend-gconf-0.5.2 216

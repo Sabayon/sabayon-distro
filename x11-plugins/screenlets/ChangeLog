@@ -1,0 +1,54 @@
+# ChangeLog for Gentoo XEffects Overlay
+# $Header: $
+
+  20 Aug 2007; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  +metadata.xml, screenlets-0.0.8_pre-r6.ebuild:
+  Fixed some QA errors.
+  Added metadata.xml
+
+  31 Mar 2007; <roderick_greening@hotmail.com>
+  -screenlets-0.0.8_pre-r3.ebuild, -screenlets-0.0.8_pre-r4.ebuild,
+  -screenlets-0.0.8_pre-r5.ebuild, +screenlets-0.0.8_pre-r6.ebuild:
+  Added wnck use as a requirement if using nognome
+
+  28 Mar 2007; <roderick_greening@hotmail.com>
+  +screenlets-0.0.8_pre-r5.ebuild:
+  Fixed themes distfile for new Notes theme. Was installed to incorrect dir.
+
+  28 Mar 2007; <roderick_greening@hotmail.com>
+  +screenlets-0.0.8_pre-r4.ebuild:
+  Updated screenlets extra package. Added new note and clock theme.
+
+  27 Mar 2007; <roderick_greening@hotmail.com> -screenlets-0.0.8_pre.ebuild,
+  -screenlets-0.0.8_pre-r1.ebuild, -screenlets-0.0.8_pre-r2.ebuild,
+  +screenlets-0.0.8_pre-r3.ebuild,
+  +files/screenlets-0.0.8_pre-scandir_fix.patch, +files/controlpanel.glade,
+  +files/screenlets.desktop, +files/screenlets.svg,
+  +files/screenlets-control, files/screenlets-tray:
+  Remove old versions. Add new -r3. New version contains screenlets control
+  panel.
+
+  27 Mar 2007; <roderick_greening@hotmail.com>
+  +screenlets-0.0.8_pre-r2.ebuild:
+  Bump version and added extra screenlets.
+
+  27 Mar 2007; <roderick_greening@hotmail.com>
+  +screenlets-0.0.8_pre-r1.ebuild, +files/screenlets-0.0.8_pre-path.patch,
+  +files/logo24.png, +files/screenlets-tray:
+  New version for testing. Fixes path to /usr rather than /usr/local. Added in
+  tray icon.
+
+  22 Mar 2007; <roderick_greening@hotmail.com> screenlets-0.0.8_pre.ebuild:
+  Added libnotify dep to screenlets. Missed that one.
+
+  21 Mar 2007; <roderick_greening@hotmail.com> screenlets-0.0.8_pre.ebuild:
+  Updated ebuild to work better with updated gnome-python-desktop ebuild.
+
+  21 Mar 2007; <roderick_greening@hotmail.com> screenlets-0.0.8_pre.ebuild:
+  Fixed ebuild for proper USE checking.
+
+  21 Mar 2007; <roderick_greening@hotmail.com> ChangeLog:
+  Added screenlets from ebuild posted here:
+  http://forums.gentoo.org/viewtopic-t-543047.html. It has been modified for
+  proper deps.
+

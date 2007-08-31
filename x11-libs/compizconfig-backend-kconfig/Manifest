@@ -1,0 +1,8 @@
+DIST compizconfig-backend-kconfig-0.5.2.tar.bz2 411731 RMD160 a06a92cc7466ecbbb687a079049f4990b0868b6a SHA1 d701d6c360cc7330502254292e7c70ca0f00597a SHA256 409e592d2e7a6bf09b33dc04ae18251a5b31e757ca488d266f63d441c258ceef
+EBUILD compizconfig-backend-kconfig-0.5.2.ebuild 647 RMD160 fb08da8e7dc250091ee098e1ea0fe6a5babd4e00 SHA1 ec2a0e3e6fbb23bf73c02a111f9f3aecb2e4547c SHA256 c1a83449920e0e48426c33ac4ee747008b24d6b32392a22eef6d163b2e35f98d
+MD5 0dcfa98427e6af6a21233d16c1e0b504 compizconfig-backend-kconfig-0.5.2.ebuild 647
+RMD160 fb08da8e7dc250091ee098e1ea0fe6a5babd4e00 compizconfig-backend-kconfig-0.5.2.ebuild 647
+SHA256 c1a83449920e0e48426c33ac4ee747008b24d6b32392a22eef6d163b2e35f98d compizconfig-backend-kconfig-0.5.2.ebuild 647
+MD5 a1ee1306b5ec4fe81806b2be1c6e22ef files/digest-compizconfig-backend-kconfig-0.5.2 220
+RMD160 3d65b11fcb792e138629c45991f0584fbace2bfd files/digest-compizconfig-backend-kconfig-0.5.2 220
+SHA256 27b39d2a1689d252a4429d06117110d4c5ba1f34418357cdcba59e8aceaaaf19 files/digest-compizconfig-backend-kconfig-0.5.2 220

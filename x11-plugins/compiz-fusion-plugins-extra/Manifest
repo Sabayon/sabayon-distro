@@ -1,0 +1,8 @@
+DIST compiz-fusion-plugins-extra-0.5.2.tar.bz2 1647092 RMD160 c1d68567a88273ec434bbb69a810fecf3e68817e SHA1 bf0c13850ff7e11986f91653fe0c3103ee000ab2 SHA256 0fa0259bea5983df832c782751e509b4d392f34124163fb91d387746c93c4f6b
+EBUILD compiz-fusion-plugins-extra-0.5.2.ebuild 1420 RMD160 63886d5bb8c921fee9bbde9e57b6d0ee0e4ee6cd SHA1 61ab965dc50bf318a0df489d4d7a27ad7b5abf5a SHA256 0423f2e06af01ca862ff92c9f09c4e68a47f9ab78d48089d9543768856c3e450
+MD5 e52f3e9789be10bd8c73b309f8524196 compiz-fusion-plugins-extra-0.5.2.ebuild 1420
+RMD160 63886d5bb8c921fee9bbde9e57b6d0ee0e4ee6cd compiz-fusion-plugins-extra-0.5.2.ebuild 1420
+SHA256 0423f2e06af01ca862ff92c9f09c4e68a47f9ab78d48089d9543768856c3e450 compiz-fusion-plugins-extra-0.5.2.ebuild 1420
+MD5 4a818a44461a96cac75039723086565f files/digest-compiz-fusion-plugins-extra-0.5.2 220
+RMD160 7c06f542715da75b6bc07aa8272e9df4065bb054 files/digest-compiz-fusion-plugins-extra-0.5.2 220
+SHA256 8980ee54492a89e2c3eab4625a41230436f2a1829063c2f01ff714091cf9b075 files/digest-compiz-fusion-plugins-extra-0.5.2 220

@@ -1,0 +1,8 @@
+DIST compiz-fusion-plugins-unsupported-0.5.2.tar.bz2 409777 RMD160 65557183b31cfd894cb8d91ddaa1be56343df776 SHA1 20f747ad5d932b216b647ff192ef4924a9c24cec SHA256 cc3d1f3b620f3d6e2979a21b65c971ed06b29656ebb4fceabadc4cfd2143b24d
+EBUILD compiz-fusion-plugins-unsupported-0.5.2.ebuild 1379 RMD160 9391b550811ae001845a1de8ae12f75ed40a3f51 SHA1 1b8751d46b99ca545013bc3de93a7578c087f49b SHA256 927737151768ee1fbdcfecabc6e54befdd919769be22a292202c1059e82ea4be
+MD5 b131acc3390076d40daf74c2483708a0 compiz-fusion-plugins-unsupported-0.5.2.ebuild 1379
+RMD160 9391b550811ae001845a1de8ae12f75ed40a3f51 compiz-fusion-plugins-unsupported-0.5.2.ebuild 1379
+SHA256 927737151768ee1fbdcfecabc6e54befdd919769be22a292202c1059e82ea4be compiz-fusion-plugins-unsupported-0.5.2.ebuild 1379
+MD5 3486acc865a8a40c4548c2cc7e7e2856 files/digest-compiz-fusion-plugins-unsupported-0.5.2 230
+RMD160 be6e6f140c6e427d7af936a6afe9b46d6cb2eace files/digest-compiz-fusion-plugins-unsupported-0.5.2 230
+SHA256 28082014c8acdf90f1631bd3fdd1042e8558640b3a6c4f3d7b6a2b950d4e4d70 files/digest-compiz-fusion-plugins-unsupported-0.5.2 230

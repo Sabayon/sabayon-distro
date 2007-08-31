@@ -1,0 +1,105 @@
+#! /usr/bin/python
+
+#
+#Screenlets-tray - Program for managing Screenlets
+#Copyright (C) 2007 Hendrik Kaju <hendrik@kaju.pri.ee>
+#
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+import pygtk
+import gtk
+import gobject
+import sys
+import dbus
+import os
+
+class ScreenletsTray:
+	"""Icon in system tray for managing screenlets daemon"""
+	
+	screenlets_dir = '/usr/share/screenlets/'
+	
+	def __init__(self):
+		tray = gtk.StatusIcon()
+		pixbuf = gtk.gdk.pixbuf_new_from_file(self.screenlets_dir + "logo24.png")
+		tray.set_from_pixbuf(pixbuf)
+		tray.connect("popup-menu", self.show_menu)
+		tray.set_tooltip("Screenlets daemon")
+		#self.check_options()
+		self.start_stop_restart_daemon("start")
+
+	def start_stop_restart_daemon(self, action):
+		os.system("screenletsd " + action)
+	
+	def restart_menu_activate(self, widget):
+		self.start_stop_restart_daemon("restart")
+
+	def start_menu_activate(self, widget):
+		self.start_stop_restart_daemon("start")
+
+	def stop_menu_activate(self, widget):
+		self.start_stop_restart_daemon("stop")
+
+	def quit_menu_activate(self, widget):
+		self.start_stop_restart_daemon("stop")
+		gtk.main_quit()
+
+	def show_menu(self, status_icon, button, activate_time):
+		menu = gtk.Menu()
+		item = gtk.MenuItem("Settings...")
+		item.connect("activate", self.settings_menu_activate)
+		menu.append(item)
+		item = gtk.MenuItem("Add Control Screenlet")
+		item.connect("activate", self.add_control_menu_activate)
+		menu.append(item)
+		item1 = gtk.MenuItem("Daemon")
+		menu2 = gtk.Menu()
+		item = gtk.MenuItem("Start daemon")
+		item.connect("activate", self.start_menu_activate)
+		menu2.append(item)
+		item = gtk.MenuItem("Stop daemon")
+		item.connect("activate", self.stop_menu_activate)
+		menu2.append(item)
+		item = gtk.MenuItem("Restart daemon")
+		item.connect("activate",self.restart_menu_activate)
+		menu2.append(item)
+		menu.append(item1)
+		item1.set_submenu(menu2)
+		item = gtk.SeparatorMenuItem()
+		menu.append(item)
+		item = gtk.ImageMenuItem(stock_id=gtk.STOCK_QUIT)
+		item.connect("activate", self.quit_menu_activate)
+		menu.append(item)
+		menu.show_all()
+		menu.popup(None, None, None, button, activate_time)
+
+	def add_control_menu_activate(self, widget):
+		os.system("screenletsd add Control")
+
+	def settings_menu_activate(self, widget):
+		os.system("screenlets-control &")
+		
+	def get_daemon_status(self):
+		"""Check if the daemon is running"""
+		#Get the PID of screenletsd.py, "" if not running
+		SL_PID = commands.getoutput("""ps axo "%p,%a" |grep "./screenletsd.py start"|grep -v grep|cut -d',' -f1""")
+		if SL_PID == "":
+			return False
+		else:
+			return True
+
+if __name__ == "__main__":
+	start = ScreenletsTray()
+	gtk.main()

@@ -1,0 +1,9 @@
+--- configure.ac        2007-06-17 13:04:46.000000000 -0400
++++ configure.ac       2007-06-18 01:45:41.000000000 -0400
+@@ -152,6 +152,8 @@
+   if test x"$GCONFTOOL" = xno; then
+     AC_MSG_ERROR([gconftool-2 executable not found in your path - should be installed with GConf])
+   fi
++else
++  AM_CONDITIONAL(GCONF_SCHEMAS_INSTALL, test "x$use_gconf" = "xyes")
+ fi

@@ -1,0 +1,17 @@
+# ChangeLog for x11-apps/fusion-icon
+# Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  21 Aug 2007; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  metadata.xml:
+  Updated metadata.xml
+
+  20 Aug 2007; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  +metadata.xml:
+  Added metadata.xml
+
+  19 Aug 2007; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  fusion-icon-9999.ebuild:
+  Update to allow compiz-0.5.2 or compiz-9999 and compizconfig-python-0.5.2
+  or compizconfig-python-9999 as deps.
+

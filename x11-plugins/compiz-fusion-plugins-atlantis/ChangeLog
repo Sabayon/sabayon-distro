@@ -1,0 +1,21 @@
+# ChangeLog for Gentoo XEffects Overlay
+# $Header: $
+
+  22 Aug 2007; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  compiz-fusion-plugins-atlantis-9999.ebuild:
+  Removed dep on compiz-0.5.2 for the live ebuild as it doesn't work.
+
+  20 Aug 2007; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  +metadata.xml, compiz-fusion-plugins-atlantis-9999.ebuild:
+  Fixed some QA errors on the ebuild.
+  Added metadata.xml
+
+  19 Aug 2007; Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
+  compiz-fusion-plugins-atlantis-9999.ebuild:
+  Update to allow compiz-0.5.2 or compiz-9999 as deps.
+
+  31 Jul 2007; <roderick_greening@hotmail.com> +, +,
+  +compiz-fusion-plugins-atlantis-9999.ebuild,
+  -compiz-fusion-plugins-gears-9999.ebuild:
+  Initial commit
+
