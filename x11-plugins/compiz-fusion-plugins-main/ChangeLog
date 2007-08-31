@@ -1,7 +1,0 @@
-# ChangeLog for Gentoo XEffects Overlay
-# $Header: $
-
-  23 May 2007; Alex Heck <nesl247@gmail.com>
-  +compcomm-plugins-main-9999.ebuild:
-  x11-plugins/compcomm-plugins-main: Initial import
-

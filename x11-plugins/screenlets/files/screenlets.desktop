@@ -1,8 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Encoding=UTF-8
-Name=Screenlets
-Type=Application
-Exec=screenlets-tray
-Icon=/usr/share/screenlets/screenlets.svg
-Categories=GNOME;Application;Utility;
