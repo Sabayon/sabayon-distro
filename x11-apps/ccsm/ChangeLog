@@ -1,9 +1,0 @@
-# ChangeLog for Gentoo XEffects Overlay
-# $Header: $
-
-  14 May 2007; Alex Heck <nesl247@gmail.com> ccsm-9999.ebuild:
-  x11-apps/ccsm: Require pygtk 2.10 instead of 2.8
-
-  13 May 2007; Alex Heck <nesl247@gmail.com> +ccsm-9999.ebuild:
-  x11-apps/ccsm: Initial import
-
