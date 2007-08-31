@@ -13,7 +13,7 @@ KEYWORDS="x86 amd64 ppc ppc64"
 IUSE="symlink business_edition kde gtk"
 RESTRICT="nomirror"
 DEPEND="
-	gtk? ( >=x11-libs/gtk-2.8 )
+	gtk? ( >=x11-libs/gtk+-2.8 )
 	kde? ( || ( kde-base/kde-meta kde-base/kde ) )
 	"
 
