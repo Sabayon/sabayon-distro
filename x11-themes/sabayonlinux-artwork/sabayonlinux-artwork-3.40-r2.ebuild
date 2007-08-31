@@ -118,12 +118,10 @@ src_install () {
 
         # Install Settings
         if [ -d "/etc/skel/.config" ]; then
-                dodir /etc/skel/.config/compizconfig
-                insinto /etc/skel/.config/compizconfig
+                dodir /etc/skel/.config/compiz/compizconfig
+                insinto /etc/skel/.config/compiz/compizconfig
                 doins ${FILESDIR}/compiz-fusion-config/config
                 doins ${FILESDIR}/compiz-fusion-config/Default.ini
-		insinto /etc/skel/.config
-                doins ${FILESDIR}/compiz-fusion-config/fusion-icon
 	
         fi
 
@@ -133,10 +131,9 @@ src_install () {
                 if [ ! -e "$user/.config" ]; then
                         username=$(echo $user | cut -d/ -f3)
                         if [ -n "`cat /etc/passwd | grep ^$username`" ]; then
-                                mkdir $user/.config/compizconfig -p &> /dev/null
-                                cp ${FILESDIR}/compiz-fusion-config/Default.ini $user/.config/compizconfig/
-                                cp ${FILESDIR}/compiz-fusion-config/config $user/.config/compizconfig/
-                                cp ${FILESDIR}/compiz-fusion-config/fusion-icon $user/.config/
+                                mkdir $user/.config/compiz/compizconfig -p &> /dev/null
+                                cp ${FILESDIR}/compiz-fusion-config/Default.ini $user/.config/compiz/compizconfig/
+                                cp ${FILESDIR}/compiz-fusion-config/config $user/.config/compiz/compizconfig/
                                 chown $username $user/.config -R
                         fi
                 fi
