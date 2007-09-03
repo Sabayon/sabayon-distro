@@ -14,7 +14,7 @@ detect_arch
 
 
 SL_PATCHES_URI="
-		http://www.kernel.org/pub/linux/kernel/v2.6/patch-2.6.22.1.bz2
+		http://www.kernel.org/pub/linux/kernel/v2.6/patch-2.6.22.6.bz2
 		"
 
 SUSPEND2_VERSION="2.2.10"
@@ -45,9 +45,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${P}-at76c503a.patch
 		${FILESDIR}/${P}-acx.patch
 
-		${FILESDIR}/${P}-ich8m-support.patch
-
-		${DISTDIR}/patch-2.6.22.1.bz2
+		${DISTDIR}/patch-2.6.22.6.bz2
 
 		"
 # disabled for testing
@@ -66,82 +64,4 @@ pkg_postinst() {
 	kernel-2_pkg_postinst
 	einfo "This is a modified version of the Gentoo's gentoo-sources. Please report problems to us first."
 	einfo "http://bugs.sabayonlinux.org"
-}
-
-src_compile() {
-	if use build; then
-
-		# setup sandbox permissions
-		addwrite /etc/kernels
-		addwrite /var/tmp/genkernel
-		addwrite /usr/share/genkernel
-		addwrite /dev
-
-		# creating workdirs
-		mkdir ${WORKDIR}/boot/grub/
-		mkdir ${WORKDIR}/lib
-		mkdir ${WORKDIR}/cache
-		if [ -e "/boot/grub/grub.conf" ]; then
-			cp /boot/grub/grub.conf ${WORKDIR}/boot/grub/ -p
-		fi
-
-		cd ${S}
-		if use amd64; then
-			KCONF="${DISTDIR}"/SabayonLinux-x86-64-3.3.config
-		elif use x86; then
-			KCONF="${DISTDIR}"/SabayonLinux-x86-3.3.config
-		fi
-		# spawn genkernel
-
-		GKARGS="--dmraid --lvm2 --luks --gensplash=sabayon"
-		#if use dmraid; then
-		#	GKARGS="${GKARGS} --dmraid"
-		#fi
-		#if use lvm2; then
-		#	GKARGS="${GKARGS} --lvm2"
-		#fi
-		#if use luks; then
-		#	GKARGS="${GKARGS} --luks"
-		#fi
-		#if use sabayon_splash; then
-		#	GKARGS="${GKARGS} --gensplash=sabayon"
-		#fi
-
-		OLDARCH=${ARCH}
-		unset ARCH
-		genkernel ${GKARGS} \
-			--kerneldir=${S} \
-			--kernel-config=${KCONF} \
-			--cachedir=${WORKDIR}/cache \
-			--makeopts=-j2 \
-			--debugfile=${WORKDIR}/genkernel.log \
-			--bootdir=${WORKDIR}/boot \
-			--module-prefix=${WORKDIR}/lib \
-			--bootloader=grub \
-			all || die "genkernel failed"
-		ARCH=${OLDARCH}
-	fi
-}
-
-
-src_install() {
-	kernel-2_src_install || die "kernel-2_src_install failed"
-	
-	if use build; then
-		# installing the kernel
-		cd ${WORKDIR}/boot
-		insinto /boot
-		doins -r ./*
-
-		# installing the modules
-		cd ${WORKDIR}/lib/lib
-		insinto /lib
-		doins -r ./*
-
-		# installing new grub.conf
-		if [ -e "${WORKDIR}/boot/grub.conf" ]; then
-			insinto /boot/grub/
-			doins ${WORKDIR}/boot/grub.conf
-		fi
-	fi
 }
