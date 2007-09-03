@@ -18,9 +18,9 @@ SL_PATCHES_URI="
 		"
 
 SUSPEND2_VERSION="2.2.10"
-SUSPEND2_TARGET="2.6.22-rc3"
+SUSPEND2_TARGET="2.6.22"
 SUSPEND2_SRC="suspend2-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
-SUSPEND2_URI="http://www.suspend2.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
+SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 
 UNIPATCH_LIST="
 		${FILESDIR}/${P}-wireless-dev.patch
