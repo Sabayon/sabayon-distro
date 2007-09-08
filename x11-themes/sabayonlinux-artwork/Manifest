@@ -58,10 +58,14 @@ EBUILD sabayonlinux-artwork-3.40-r1.ebuild 3401 RMD160 bb5ff3ad94899c39c82902d11
 MD5 518977cfe3da9aeabf53436e47f8f39d sabayonlinux-artwork-3.40-r1.ebuild 3401
 RMD160 bb5ff3ad94899c39c82902d114c0bf227cc0849c sabayonlinux-artwork-3.40-r1.ebuild 3401
 SHA256 9e5cdc008c023ef8ab60d32f0b2be13aaf90d0ead89cdbb7a8e23282e94810c6 sabayonlinux-artwork-3.40-r1.ebuild 3401
-EBUILD sabayonlinux-artwork-3.40-r2.ebuild 3613 RMD160 19cae2f6487bf2a38100f751d6629892d72291b8 SHA1 00d2a583d5e003f6536e375483d7947cdf78f0ee SHA256 ba332e6a51c6a81e068c81a12835e12756178ae705fcc9b8be373021576c77ec
-MD5 c3a2e1986a3a8b6be5e84ac8587c58a1 sabayonlinux-artwork-3.40-r2.ebuild 3613
-RMD160 19cae2f6487bf2a38100f751d6629892d72291b8 sabayonlinux-artwork-3.40-r2.ebuild 3613
-SHA256 ba332e6a51c6a81e068c81a12835e12756178ae705fcc9b8be373021576c77ec sabayonlinux-artwork-3.40-r2.ebuild 3613
+EBUILD sabayonlinux-artwork-3.40-r2.ebuild 3592 RMD160 15fadfb68e65191fbae3f5adc7dae176a5361f22 SHA1 45e5db617de132850b1cfa0749305cab1920deed SHA256 dac2853c484aaa224e122a6e8c5a3a6c3158bc2e63a0f952623312ee611e5772
+MD5 7159b2617404449e48ab645b9bf45267 sabayonlinux-artwork-3.40-r2.ebuild 3592
+RMD160 15fadfb68e65191fbae3f5adc7dae176a5361f22 sabayonlinux-artwork-3.40-r2.ebuild 3592
+SHA256 dac2853c484aaa224e122a6e8c5a3a6c3158bc2e63a0f952623312ee611e5772 sabayonlinux-artwork-3.40-r2.ebuild 3592
+EBUILD sabayonlinux-artwork-3.40-r3.ebuild 3592 RMD160 15fadfb68e65191fbae3f5adc7dae176a5361f22 SHA1 45e5db617de132850b1cfa0749305cab1920deed SHA256 dac2853c484aaa224e122a6e8c5a3a6c3158bc2e63a0f952623312ee611e5772
+MD5 7159b2617404449e48ab645b9bf45267 sabayonlinux-artwork-3.40-r3.ebuild 3592
+RMD160 15fadfb68e65191fbae3f5adc7dae176a5361f22 sabayonlinux-artwork-3.40-r3.ebuild 3592
+SHA256 dac2853c484aaa224e122a6e8c5a3a6c3158bc2e63a0f952623312ee611e5772 sabayonlinux-artwork-3.40-r3.ebuild 3592
 EBUILD sabayonlinux-artwork-3.40.ebuild 2640 RMD160 d9e4d953e1b058db77620dcdb8dee8f37f8f5e35 SHA1 907ff26c210eaf11b7bce10f2663bf90ceda67a0 SHA256 8f2c7477e80d8de96f3850eda8cd76b4e7d76a805ae2c432c20bfc34617ed171
 MD5 9c1bfcb45b274e45185239437deb84d2 sabayonlinux-artwork-3.40.ebuild 2640
 RMD160 d9e4d953e1b058db77620dcdb8dee8f37f8f5e35 sabayonlinux-artwork-3.40.ebuild 2640
@@ -128,6 +132,9 @@ SHA256 c8aa636e8f3e0007a22e62a26bd23467d359780e4f0f49a75b5fcb85616042cc files/di
 MD5 44b87cfb5012b684f514cb2edc7eb037 files/digest-sabayonlinux-artwork-3.40-r2 283
 RMD160 d8a6765a1c51ef080c1760596ced0288d7278f7d files/digest-sabayonlinux-artwork-3.40-r2 283
 SHA256 c8aa636e8f3e0007a22e62a26bd23467d359780e4f0f49a75b5fcb85616042cc files/digest-sabayonlinux-artwork-3.40-r2 283
+MD5 44b87cfb5012b684f514cb2edc7eb037 files/digest-sabayonlinux-artwork-3.40-r3 283
+RMD160 d8a6765a1c51ef080c1760596ced0288d7278f7d files/digest-sabayonlinux-artwork-3.40-r3 283
+SHA256 c8aa636e8f3e0007a22e62a26bd23467d359780e4f0f49a75b5fcb85616042cc files/digest-sabayonlinux-artwork-3.40-r3 283
 MD5 b8d5f1e344ddd14bfac731ffbe287ccd files/digest-sabayonlinux-artwork-3.40_beta1 301
 RMD160 39649e3ee8528ed15d9b680fce535a69a4786e5e files/digest-sabayonlinux-artwork-3.40_beta1 301
 SHA256 bc2951a2d8e237360280ca1718bfee62a68e40d3b84bdbbf5042ec1480dd3529 files/digest-sabayonlinux-artwork-3.40_beta1 301
