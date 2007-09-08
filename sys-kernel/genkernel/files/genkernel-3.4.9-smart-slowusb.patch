@@ -1,0 +1,1762 @@
+diff -Nurp genkernel-3.4.9_pre2.orig/generic/initrd.scripts genkernel-3.4.9_pre2/generic/initrd.scripts
+--- genkernel-3.4.9_pre2.orig/generic/initrd.scripts	2007-08-30 20:27:56.000000000 +0200
++++ genkernel-3.4.9_pre2/generic/initrd.scripts	2007-09-08 18:28:38.000000000 +0200
+@@ -365,11 +365,27 @@ start_dev_mgr() {
+ 	then
+ 		cd /sys
+ 		[ "${DO_slowusb}" ] && sleep 10
++
++	        # Smarter control
++        	[ "${DO_slowusb}" ] || \
++        	for dir in /sys/bus/usb/drivers/usb-storage/*; do
++                	if [ -d "${dir}" ]
++                	then
++                        	FORCE_slowusb="1"
++                	fi
++        	done
++        	[ "${FORCE_slowusb}" ] && sleep 10
++
+ 		kill_devfsd
+ 		good_msg 'Activating mdev'
+ #		runUdev
+ 		runmdev
+ 		[ "${DO_slowusb}" ] && sleep 20
++
++                # Smarter control
++                [ "${DO_slowusb}" ] || \
++                [ "${FORCE_slowusb}" ] && sleep 20
++
+ 		cd /
+ 	else
+ 		good_msg 'Activating devfs'
+diff -Nurp genkernel-3.4.9_pre2.orig/generic/initrd.scripts.orig genkernel-3.4.9_pre2/generic/initrd.scripts.orig
+--- genkernel-3.4.9_pre2.orig/generic/initrd.scripts.orig	1970-01-01 01:00:00.000000000 +0100
++++ genkernel-3.4.9_pre2/generic/initrd.scripts.orig	2007-08-30 20:27:56.000000000 +0200
+@@ -0,0 +1,897 @@
++#!/bin/ash
++
++. /etc/initrd.defaults
++
++backup() {
++	echo -ne "\033[0G\033[0K"
++}
++
++strlen() {
++	if [ -z "$1" ]
++	then
++		echo "usage: strlen <variable_name>"
++		die
++	fi
++	eval echo "\${#${1}}"
++}
++
++parse_opt() {
++	case "$1" in
++		*\=*)
++			local key_name="`echo "$1" | cut -f1 -d=`"
++			local key_len=`strlen key_name`
++			local value_start=$((key_len+2))
++			echo "$1" | cut -c ${value_start}-
++		;;
++	esac
++}
++
++modules_load() {
++	for module in $*
++	do
++		echo ${module} >> /etc/modules/extra_load
++	done
++
++	modules_scan extra_load
++}
++
++modules_scan() {
++	local MODS
++	[ -d /etc/modules/${1} ] || touch /etc/modules/${1}
++
++	[ -f /etc/modules/${1} ] && MODS=`cat /etc/modules/${1}`
++	for x in ${MODS}
++	do
++		MLOAD=`echo ${MLIST} | sed -e "s/.*${x}.*/${x}/"`
++		if [ "${MLIST}" = "${x}" ] # Only module to no-load
++		then
++			echo -e "${BOLD}   ::${NORMAL} Skipping ${x}..."
++		elif [ "${MLOAD}" = "${MLIST}" ] # == No change == No specified no-load
++		then
++			[ -n "${DEBUG}" ] && echo -ne "${BOLD}   ::${NORMAL} Checking for ${x}..."
++			# find -name does not work since the return status is always zero
++			if find /lib/modules | grep /"${x}${KSUFF}" >/dev/null 2>&1
++			then
++				echo -ne "${BOLD}   ::${NORMAL} Scanning for ${x}..."
++				modprobe ${x} -n
++				backup
++				echo -ne "${NORMAL}"
++			fi
++		else
++			echo -e "${BOLD}   ::${NORMAL} Skipping ${x}..."
++		fi
++	done
++}
++
++findcdmount() {
++	if [ "$#" -gt "0" ]
++	then
++		for x in $*
++		do
++			# Check for a block device to mount
++			if [ -b "${x}" ]
++			then
++				good_msg "Attempting to mount media:- ${x}"
++				if [ -z "${CDROOT_DEV}" ]
++				then
++					mount -r -t auto ${x} ${NEW_ROOT}/mnt/cdrom \
++						> /dev/null 2>&1
++				else
++					mount -r -t iso9660 ${x} ${NEW_ROOT}/mnt/cdrom \
++						> /dev/null 2>&1
++				fi
++				if [ "$?" = '0' ]
++				then
++					# Check for a LiveCD
++					if [ -f ${NEW_ROOT}/mnt/cdrom/${SUBDIR}/livecd ]
++					then
++						REAL_ROOT="${x}"
++						break
++					else
++						umount ${NEW_ROOT}/mnt/cdrom
++					fi
++				fi
++			fi
++		done
++		if [ "${REAL_ROOT}" != '' ]
++		then
++			good_msg "Media found on ${x}"
++		fi
++	fi
++}
++
++findkeymount() {
++        if [ "$#" -gt "0" ]
++        then
++                for x in $*
++                do
++                        # Check for a block device to mount
++                        if [ -b "${x}" ]
++                        then
++				if [ ${crypt_silent} = '' ]
++				then
++	                                good_msg "Attempting to mount key media:- ${x}"
++				fi
++
++                                mount -r -t auto ${x} ${NEW_ROOT}/mnt/keydev \
++                                                > /dev/null 2>&1
++                                if [ "$?" = '0' ]
++                                then
++                                        # Check for the key
++                                        if [ -e ${NEW_ROOT}/mnt/keydev/${LUKS_ROOT_KEY} ]
++                                        then
++                                                LUKS_ROOT_KEYDEV="${x}"
++						umount ${NEW_ROOT}/mnt/keydev
++                                                break
++                                        else
++                                                umount ${NEW_ROOT}/mnt/keydev
++                                        fi
++                                fi
++                        fi
++                done
++                if [ "${LUKS_ROOT_KEYDEV}" != '' ]
++                then
++			if [ ${crypt_silent} = '' ]
++			then
++	                        good_msg "Key media found on ${x}"
++			fi
++                fi
++        fi
++}
++
++
++cache_cd_contents() {
++	# Check loop file exists and cache to ramdisk if DO_cache is enabled
++	if [ "${LOOPTYPE}" != "noloop" ] && [ "${LOOPTYPE}" != "sgimips" ]
++	then
++		check_loop
++		if [ "${DO_cache}" ]
++		then
++			# TODO: Check the size of the image versus the size of our tmpfs
++			# along with the amount of available RAM and increase tmpfs size
++			# if necessary. (Not having awk sucks...)
++			# z=0
++			# for i in $(cat /proc/meminfo | grep -e ^MemFree -e ^Cached | \
++			# cut -d: -f2 | cut -dk -f1 | sed -e "s/^\s*//") ; do
++			# z=$(($z + $i)) ; done
++			# echo $z
++			good_msg "Copying loop file for caching..."
++			cp -a ${NEW_ROOT}/mnt/cdrom/${LOOP} ${NEW_ROOT}/mnt/${LOOP}
++			if [ $? -ne 0 ]
++			then
++				bad_msg "Failed to cache the loop file! Lack of space?"
++				rm -rf ${NEW_ROOT}/mnt/livecd.* 2>/dev/null
++				rm -rf ${NEW_ROOT}/mnt/zisofs 2>/dev/null
++			else
++				LOOPEXT='../'
++			fi
++		fi
++	fi
++}
++
++mount_sysfs() {
++	if [ "${KV_2_6_OR_GREATER}" ]
++	then
++		# Udev is semi-broken on non /sys sysfs mount points.
++		mount -t sysfs /sys /sys >/dev/null 2>&1
++		ret=$?
++	
++		# sysfs mount failed .. udev wont work fall back to devfs if available
++		[ "$ret" -eq '0' ] || USE_UDEV_NORMAL=0
++	fi
++}
++
++# Insert a directory tree $2 to an union specified by $1
++# Top-level read-write branch is specified by it's index 0
++# $1 = union absolute path (starting with /)
++# $2 = path to data directory
++#
++union_insert_dir() {
++	# detect branch 0 because newer unionfs doesn't support "0,1,2"
++	BRANCH_0="/"$(/sbin/unionctl $1 --list | cut -d/ -f2- | cut -d'(' -f1)
++	/sbin/unionctl $1 --add --after $BRANCH_0 --mode ro $2
++	if [ $? = '0' ]
++	then
++		good_msg "Addition of $2 to $1 after branch $BRANCH_0 successful"
++	fi
++}
++
++findnfsmount() {
++
++	if [ "${IP}" != '' ] || busybox udhcpc -R rootpath -n -s /bin/udhcpc.scripts
++	then
++		[ -e /rootpath ] && NFSROOT=`cat /rootpath`
++
++		if [ "${NFSROOT}" = '' ]
++		then
++			# Obtain NFSIP	
++			OPTIONS=`busybox dmesg | grep rootserver | sed -e "s/,/ /g"`
++			for OPTION in $OPTIONS
++			do
++				if [ `echo $OPTION | sed -e "s/=/ /g" | cut -d " " -f 1` = 'rootserver' ]
++				then
++					NFSIP=`echo $OPTION | sed -e "s/=/ /g" | cut -d " " -f 2`
++				fi 
++			done
++			
++			# Obtain NFSPATH
++			OPTIONS=`busybox dmesg | grep rootpath | sed -e "s/,/ /g"`	
++			for OPTION in $OPTIONS
++			do
++				if [ `echo $OPTION | sed -e "s/=/ /g" | cut -d " " -f 1` = 'rootpath' ]
++				then
++					NFSPATH=`echo $OPTION | sed -e "s/=/ /g" | cut -d " " -f 2`
++		 		fi
++			done
++
++			# Setup NFSROOT
++			if [ "${NFSIP}" != '' ] && [ "$NFSPATH" != '' ]
++			then
++				NFSROOT="${NFSIP}:${NFSPATH}"
++			else
++				bad_msg "The DHCP Server did not send a valid root-path."
++				bad_msg "Please check your DHCP setup, or provide a nfsroot=<...> parameter."
++			fi
++		fi
++
++		if [ "${NFSROOT}" != '' ]
++		then
++			if [ "${CDROOT}" != '0' ]
++			then
++				good_msg "Attempting to mount NFS CD image on ${NFSROOT}"
++				mount -t nfs -o ro,nolock,rsize=1024,wsize=1024 ${NFSROOT} ${NEW_ROOT}/mnt/cdrom
++				if [ "$?" = '0' ]
++				then
++					REAL_ROOT="/dev/nfs"
++				else
++					bad_msg "NFS Mounting failed. Is the path corrent ?"
++				fi
++			else	
++				good_msg "Attemping to mount NFS root on ${NFSROOT}"
++				mount -t nfs -o ro,nolock,rsize=1024,wsize=1024 ${NFSROOT} ${NEW_ROOT}
++				if [ "$?" = '0' ]
++				then
++					REAL_ROOT="/dev/nfs"
++				else
++					bad_msg "NFS Mounting failed. Is the path correct ?"
++				fi
++				# FIXME: Need to start portmap and the other rpc daemons in order to
++				# FIXME: remount rw.
++			fi
++
++		fi
++	fi
++}
++
++kill_devfsd() {
++	killall devfsd > /dev/null 2>&1
++}
++
++check_loop() {
++	if [ "${LOOP}" = '' -o ! -e "mnt/cdrom/${LOOP}" ]
++	then
++	
++		bad_msg "Invalid loop location: ${LOOP}"
++		bad_msg 'Please export LOOP with a valid location, or reboot and pass a proper loop=...'
++		bad_msg 'kernel command line!'
++	
++		run_shell
++	fi
++}
++
++run_shell() {
++	/bin/ash
++}
++
++runUdev() {
++	mount -t tmpfs -o size=100k udev /dev
++	mkdir /dev/pts
++	mkdir /dev/shm
++	echo  > /proc/sys/kernel/hotplug 
++	/sbin/udevd --daemon
++	mkdir -p /dev/.udev/queue
++	/sbin/udevtrigger
++
++	good_msg 'Letting udev process events'
++	loop=0
++	while test -d /dev/.udev/queue; do
++		sleep 1;
++		test "$loop" -gt 30 && break
++		loop=$(($loop + 1))
++	done
++	good_msg "Udev finished proccsing after $loop iterations"
++
++	killall udevd > /dev/null 2>&1
++	ln -snf /proc/self/fd /dev/fd
++	ln -snf /proc/self/fd/0 /dev/stdin
++	ln -snf /proc/self/fd/1 /dev/stdout
++	ln -snf /proc/self/fd/2 /dev/stderr
++	ln -snf /proc/kcore /dev/core
++}
++
++runmdev() {
++	# busybox udev replacement
++	mdev -s
++
++	# catch udev hotplug events
++	echo /sbin/mdev > /proc/sys/kernel/hotplug
++}
++
++test_success() {
++	error_string=$1
++	error_string="${error_string:-run command}"
++	# If last command failed send error message and fall back to a shell	
++	if [ "$?" != '0' ]
++	then
++		bad_msg 'Failed to $1; failing back to the shell...'
++		run_shell
++	fi
++}
++
++good_msg() {
++	msg_string=$1
++	msg_string="${msg_string:-...}"
++	echo -e "${GOOD}>>${NORMAL}${BOLD} ${msg_string} ${NORMAL}"
++}
++
++bad_msg() {
++	msg_string=$1
++	msg_string="${msg_string:-...}"
++	splash 'verbose' > /dev/null &
++	echo -e "${BAD}!!${NORMAL}${BOLD} ${msg_string} ${NORMAL}"
++} 
++
++warn_msg() {
++	msg_string=$1
++	msg_string="${msg_string:-...}"
++	echo -e "${WARN}**${NORMAL}${BOLD} ${msg_string} ${NORMAL}"
++} 
++
++bind_mount_dev() {
++	# bind-mount /dev/ so that loop devices can be found
++	mount -o bind ${NEW_ROOT}/dev /dev
++}
++
++start_dev_mgr() {
++	# Check udev is available...
++	if [ "${KV_2_6_OR_GREATER}" -a ! "${USE_UDEV_NORMAL}" -eq '0' ]
++	then
++		USE_UDEV_NORMAL=1
++	else
++		USE_UDEV_NORMAL=0
++	fi
++
++	if [ "${USE_UDEV_NORMAL}" -eq '1' ]
++	then
++		cd /sys
++		[ "${DO_slowusb}" ] && sleep 10
++		kill_devfsd
++		good_msg 'Activating mdev'
++#		runUdev
++		runmdev
++		[ "${DO_slowusb}" ] && sleep 20
++		cd /
++	else
++		good_msg 'Activating devfs'
++		mount -t devfs devfs /dev 2>/dev/null
++		devfsd /dev -np
++	fi
++}
++
++bootstrapCD() {
++	# Locate the cdrom device with our media on it.
++	# CDROM DEVICES
++	DEVICES="/dev/cdroms/* /dev/ide/cd/* /dev/sr*"
++	# USB Keychain/Storage
++	DEVICES="$DEVICES /dev/sd*"
++	# IDE devices
++	DEVICES="$DEVICES /dev/hd*"
++	# USB using the USB Block Driver
++	DEVICES="$DEVICES /dev/ubd* /dev/ubd/*"
++	# iSeries devices
++	DEVICES="$DEVICES /dev/iseries/vcd*"
++	# The device was specified on the command line.  Shold we even be doing a
++	# scan at this point?  I think not.
++	[ -n "${CDROOT_DEV}" ] && DEVICES="$DEVICES ${CDROOT_DEV}"
++
++	findcdmount $DEVICES
++}
++
++bootstrapKey() {
++        # Locate the device with our key on it.
++        # USB Keychain/Storage
++        KEYDEVS="/dev/sd*"
++        # CDROM DEVICES
++        KEYDEVS="${KEYDEVS} /dev/cdroms/* /dev/ide/cd/* /dev/sr*"
++        # IDE devices
++        KEYDEVS="${KEYDEVS} /dev/hd*"
++        # USB using the USB Block Driver
++        KEYDEVS="${KEYDEVS} /dev/ubd* /dev/ubd/*"
++        # iSeries devices
++        KEYDEVS="${KEYDEVs} /dev/iseries/vcd*"
++
++        findkeymount ${KEYDEVS}
++}
++
++
++cmdline_hwopts() {
++	# Scan CMDLINE for any "doscsi" or "noscsi"-type arguments
++	
++	local FOUND
++	local TMP_HWOPTS
++
++	for x in $HWOPTS
++	do
++		for y in $CMDLINE
++		do
++			if [ "${y}" = "do${x}" ]
++			then
++				MY_HWOPTS="${MY_HWOPTS} $x"
++			elif [ "${y}" = "no${x}" ]
++			then
++				MY_HWOPTS="`echo ${MY_HWOPTS} | sed -e \"s/${x}//g\" -`"
++			fi
++		done
++	done
++   
++	# Shouldnt need to sort this as the following loop should figure out the
++	# duplicates and strip them out
++	#MY_HWOPTS=`echo ${MY_HWOPTS}|  sort`
++	
++	for x in ${MY_HWOPTS}
++	do
++		FOUND=0
++		for y in ${TMP_HWOPTS}
++		do
++			if [ "${y}" = "${x}" ]
++			then 
++				FOUND=1
++			fi
++		done
++		if [ ! "${FOUND}" = '1' ]
++		then
++			TMP_HWOPTS="${TMP_HWOPTS} ${x}"
++		fi
++	done
++
++	MY_HWOPTS=${TMP_HWOPTS}
++}
++
++load_modules() {
++	# Load modules listed in MY_HWOPTS if /lib/modules exists
++	
++	if [ -d '/lib/modules' ]
++	then
++		good_msg 'Loading modules'
++		# Load appropriate kernel modules
++		for modules in $MY_HWOPTS
++		do
++			modules_scan $modules
++			eval DO_`echo $modules | sed 's/-//'`=1
++		done
++	else
++		good_msg 'Skipping module load; no modules in the initrd!'
++	fi
++}
++
++detect_sbp2_devices() {
++	# http://www.linux1394.org/sbp2.php
++	
++	# /proc
++	# /proc/scsi/sbp2/0, /proc/scsi/sbp2/1, etc.
++	#
++	# You may manually add/remove SBP-2 devices via the procfs with:
++	# add-single-device <h> <b> <t> <l> or remove-single-device <h> <b> <t> <l>,
++	# where:
++	#
++	# <h> = host (starting at zero for first SCSI adapter)
++	# <b> = bus (normally zero)
++	# <t> = target (starting at zero for first SBP-2 device)
++	# <l> - lun (normally zero) 
++	# e.g. To manually add/detect a new SBP-2 device
++	# echo "scsi add-single-device 0 0 0 0" > /proc/scsi/scsi
++	# e.g. To manually remove a SBP-2 device after it's been unplugged
++	# echo "scsi remove-single-device 0 0 0 0" > /proc/scsi/scsi
++	# e.g. To check to see which SBP-2/SCSI devices are currently registered
++	# cat /proc/scsi/scsi 
++
++	[ -e /proc/scsi/scsi ] && echo 'scsi add-single-device 0 0 0 0' > /proc/scsi/scsi
++}
++
++setup_keymap() {
++	if [ "${DO_keymap}" ]
++	then
++		if [ ! -e /dev/vc/0 -a ! -e /dev/tty0 ]
++		then
++			DEVBIND=1
++			mount -o bind ${NEW_ROOT}/dev /dev
++		fi
++		[ ! -e /dev/tty0 ] && ln -s /dev/tty1 /dev/tty0
++
++		chooseKeymap
++
++		[ "${DEVBIND}" -eq '1' ] && umount /dev
++		
++		if [ -e /etc/sysconfig/keyboard -a "${CDROOT}" -eq '1' ]
++		then
++			mkdir -p ${NEW_ROOT}/etc/sysconfig/
++			cp /etc/sysconfig/keyboard ${NEW_ROOT}/etc/sysconfig/keyboard
++		fi
++	fi
++}
++
++chooseKeymap() {
++	good_msg "Loading keymaps"
++	cat /lib/keymaps/keymapList
++	read -t 10 -p '<< Load keymap (Enter for default): ' keymap
++	case ${keymap} in
++		1|azerty) keymap=azerty ;;
++		2|be) keymap=be ;;
++		3|bg) keymap=bg ;;
++		4|br-a) keymap=br-a ;;
++		5|br-l) keymap=br-l ;;
++		6|by) keymap=by ;;
++		7|cf) keymap=cf ;;
++		8|croat) keymap=croat ;;
++		9|cz) keymap=cz ;;
++		10|de) keymap=de ;;
++		11|dk) keymap=dk ;;
++		12|dvorak) keymap=dvorak ;;
++		13|es) keymap=es ;;
++		14|et) keymap=et ;;
++		15|fi) keymap=fi ;;
++		16|fr) keymap=fr ;;
++		17|gr) keymap=gr ;;
++		18|hu) keymap=hu ;;
++		19|il) keymap=il ;;
++		20|is) keymap=is ;;
++		21|it) keymap=it ;;
++		22|jp) keymap=jp ;;
++		23|la) keymap=la ;;
++		24|lt) keymap=lt ;;
++		25|mk) keymap=mk ;;
++		26|nl) keymap=nl ;;
++		27|no) keymap=no ;;
++		28|pl) keymap=pl ;;
++		29|pt) keymap=pt ;;
++		30|ro) keymap=ro ;;
++		31|ru) keymap=ru ;;
++		32|se) keymap=se ;;
++		33|sg) keymap=sg ;;
++		34|sk-y) keymap=sk-y ;;
++		35|sk-z) keymap=sk-z ;;
++		36|slovene) keymap=slovene ;;
++		37|trf) keymap=trf ;;
++		38|trq) keymap=trq ;;
++		39|ua) keymap=ua ;;
++		40|uk) keymap=uk ;;
++		41|us) keymap=us ;;
++		42|wangbe) keymap=wangbe ;;
++	esac
++	if [ -e /lib/keymaps/${keymap}.map ]
++	then
++		good_msg "Loading the ''${keymap}'' keymap"
++		loadkmap < /lib/keymaps/${keymap}.map
++#		xkeymap=${keymap}
++#		echo ${keymap} | egrep -e "[0-9]+" >/dev/null 2>&1
++#		if [ "$?" -eq '0'  ]
++#		then
++#			xkeymap=`tail -n 7 /lib/keymaps/keymapList | grep ${keymap} | sed -r "s/.*\s+${keymap}\s+([a-z-]+).*/\1/g" | egrep -v 1`
++#		fi
++		mkdir -p /etc/sysconfig
++#		echo "XKEYBOARD=${xkeymap}" > /etc/sysconfig/keyboard
++		echo "XKEYBOARD=${keymap}" > /etc/sysconfig/keyboard
++	elif [ "$keymap" = '' ]
++	then
++		echo
++		good_msg "Keeping default keymap"
++	else
++		bad_msg "Sorry, but keymap ''${keymap}'' is invalid!"
++		chooseKeymap
++	fi
++}
++
++startVolumes() {
++	#good_msg 'Checking if volumes need to be started...'
++
++	# Here, we check for /dev/device-mapper, and if it exists, we setup a
++	# a symlink, which should hopefully fix bug #142775 and bug #147015
++	if [ -e /dev/device-mapper ] && [ ! -e /dev/mapper/control ]
++	then
++		mkdir -p /dev/mapper
++		ln -sf /dev/device-mapper /dev/mapper/control
++	fi
++	
++	if [ "${USE_DMRAID_NORMAL}" -eq '1' ]
++	then
++		if [ -e '/sbin/dmraid' ]
++		then
++			good_msg "Activating Device-Mapper RAID(s)"
++			if [ '${DMRAID_OPTS}' = '' ]
++			then
++				/sbin/dmraid -ay
++			else
++				/sbin/dmraid -ay ${DMRAID_OPTS}
++			fi
++		fi
++	fi
++
++	if [ "${USE_LVM2_NORMAL}" -eq '1' ]
++	then
++		if [ -e '/bin/vgscan' -a -e '/bin/vgchange' ]
++		then
++			for dev in ${RAID_DEVICES}
++			do
++				setup_md_device "${dev}"
++			done
++
++			good_msg "Scanning for Volume Groups"
++			/bin/vgscan --ignorelockingfailure --mknodes 2>/dev/null
++			good_msg "Activating Volume Groups"
++			/bin/vgchange -ay --ignorelockingfailure 2>/dev/null
++
++			# Disable EVMS since lvm2 is activated and they dont work together.
++			if [ "${USE_EVMS2_NORMAL}" -eq '1' ]
++			then
++				bad_msg "Disabling EVMS Support because LVM2 started"
++				bad_msg "Do not add dolvm2 to the cmdline if this is not what you want"
++				bad_msg "LVM2 and EVMS do not work well together"
++				USE_EVMS2_NORMAL=0
++			fi
++		else
++			bad_msg "vgscan or vgchange not found: skipping LVM2 volume group activation!"
++		fi
++	fi
++
++	if [ "${USE_EVMS2_NORMAL}" -eq '1' ]
++	then
++		if [ -e '/sbin/evms_activate' ]
++		then
++			good_msg "Activating EVMS"
++			evms_activate
++		fi
++	fi
++}
++
++# Open a LUKS device
++# $1 LUKS device
++# $2 LUKS name
++openLUKS() {
++	LUKS_DEVICE="$1"
++	LUKS_NAME="$2"
++	if [ -e /sbin/cryptsetup ]
++	then
++		while [ 1 ]
++		do
++			if [ "${LUKS_DEVICE}" = '' ]
++			then
++				# LUKS device could not be opened. Prompt user for device.
++				bad_msg "The LUKS ${LUKS_NAME} block device is not detected."
++				echo "   Please specify a ${LUKS_NAME} LUKS device to open, "q" to skip, or "shell" for a shell..."
++				echo -n "LUKS ${LUKS_NAME}() :: "
++				read LUKS_DEVICE
++				continue
++			elif [ "${LUKS_DEVICE}" = 'shell' ]
++			then
++				run_shell
++				
++				LUKS_DEVICE=''
++				continue
++			elif [ "${LUKS_DEVICE}" = 'q' ]
++			then
++				break
++			else
++				setup_md_device ${LUKS_DEVICE}
++				if cryptsetup isLuks ${LUKS_DEVICE}
++				then
++					good_msg "Opening LUKS device ${LUKS_DEVICE}"
++					
++					cryptsetup luksOpen ${LUKS_DEVICE} ${LUKS_NAME}
++					if [ ! "$?" -eq '0' ]
++					then
++						bad_msg "Failed open LUKS device ${LUKS_DEVICE}"
++					else
++						break
++					fi
++				else
++					bad_msg "The LUKS device ${LUKS_DEVICE} does not contain a LUKS header"
++				fi
++			fi
++			LUKS_DEVICE=''
++		done
++	else
++		bad_msg "The initrd does not support LUKS"
++	fi
++}
++
++startLUKS() {
++	if [ -n "${LUKS_ROOT}" ]
++	then
++		openLUKS "${LUKS_ROOT}" "root" 
++		if [ -n "${REAL_ROOT}" ]
++		then
++			# Rescan volumes
++			startVolumes
++		else
++			REAL_ROOT="/dev/mapper/root"
++		fi
++	fi
++	if [ -n "${LUKS_SWAP}" ]
++	then
++		openLUKS "${LUKS_SWAP}" "swap" 
++		break
++	fi
++}
++
++sdelay() {
++	# Sleep a specific number of seconds if SDELAY is set otherwise only sleep
++	# 1 second
++	if [ -n "${SDELAY}" ]
++	then
++		sleep ${SDELAY}
++	else
++		sleep 1
++	fi
++}
++
++quiet_kmsg() {
++	# if QUIET is set make the kernel less chatty
++	[ -n "$QUIET" ] && echo '0' > /proc/sys/kernel/printk
++}
++
++verbose_kmsg() {
++	# if QUIET is set make the kernel less chatty
++	[ -n "$QUIET" ] && echo '6' > /proc/sys/kernel/printk
++}
++
++
++cdupdate() {
++	if [ "${CDROOT}" -eq '1' ]
++	then
++		if [ -x /${NEW_ROOT}/mnt/cdrom/cdupdate.sh ]
++		then
++			good_msg "Running cdupdate.sh"
++			${NEW_ROOT}/mnt/cdrom/cdupdate.sh
++			if [ "$?" != '0' ]
++			then
++				bad_msg "Executing cdupdate.sh failed!"
++				run_shell
++			fi
++		else
++			good_msg 'No cdupdate.sh script found, skipping...'
++		fi
++	fi
++}
++
++setup_md_device() {
++	local device
++
++	[ -z "$1" ] && device="${REAL_ROOT}" || device="$1"
++	[ -z "${device}" ] && return # LiveCD
++
++	if [ `echo ${device}|sed -e 's#\(luks:\)\?\(/dev/md\)[[:digit:]]\+#\2#'` = "/dev/md" ]
++	then
++		good_msg 'Detected real_root as a md device. Setting up the device node...'
++		MD_NUMBER=`echo ${device}|sed -e 's#\(luks:\)\?/dev/md\([[:digit:]]\+\)#\2#'`
++		if [ ! -e /dev/md${MD_NUMBER} ]
++		then
++			mknod /dev/md${MD_NUMBER} b 9 ${MD_NUMBER} >/dev/null 2>&1
++			[ "$?" -ne 0 ] && bad_msg "Creation of /dev/md${MD_NUMBER} failed..."
++		fi
++		mdstart ${MDPART} /dev/md${MD_NUMBER}
++	fi
++}
++
++rundebugshell() {
++	if [ -n "$DEBUG" ]
++	then
++		good_msg 'Starting debug shell as requested by "debug" option.'
++		good_msg 'Type "exit" to continue with normal bootup.'
++		[ -x /bin/sh ] && /bin/sh || /bin/ash
++	fi
++}
++
++setup_unionfs() {
++	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
++	then
++		# Directory used for rw changes in union mount filesystem
++		UNION=/union
++		MEMORY=/memory
++		if [ -z "$UID" ]
++		then
++			CHANGES=$MEMORY/unionfs_changes/default
++		else
++			CHANGES=$MEMORY/unionfs_changes/$UID
++		fi
++
++		mkdir -p ${MEMORY}
++		mkdir -p ${UNION}
++		good_msg "Loading unionfs module"
++		modprobe unionfs > /dev/null 2>&1
++		if [ -n "${UNIONFS}" ]
++		then
++			CHANGESDEV=${UNIONFS}
++			good_msg "mounting $CHANGESDEV to $MEMORY for unionfs support"
++			mount -t auto $CHANGESDEV $MEMORY
++			# mount tmpfs only in the case when changes= boot parameter was
++			# empty or we were not able to mount the storage device
++			ret=$?
++			if [ "${ret}" -ne 0 ]
++			then
++				bad_msg "mount of $CHANGESDEV failed falling back to ramdisk based unionfs"
++				mount -t tmpfs tmpfs $MEMORY
++			fi
++			if [ "${CDROOT}" -eq '1' -a ! -f ${MEMORY}/livecd.unionfs  ]
++			then
++				umount $MEMORY
++				bad_msg "failed to find livecd.unionfs file on $CHANGESDEV"
++				bad_msg "create a livecd.unionfs file on this device if you wish to use it for unionfs"
++				bad_msg "falling back to ramdisk based unionfs for safety"
++				mount -t tmpfs tmpfs $MEMORY
++			fi
++		else 
++			good_msg "Mounting ramdisk to $MEMORY for unionfs support..."
++			mount -t tmpfs tmpfs $MEMORY 
++		fi 
++
++		mkdir -p $CHANGES 
++		mount -t unionfs -o dirs=$CHANGES=rw unionfs ${UNION}
++		ret=$?
++		if [ "${ret}" -ne 0 ]
++		then 
++			bad_msg "Can't setup union ${UNION} in directory!"
++			USE_UNIONFS_NORMAL=0
++		fi
++	else
++		USE_UNIONFS_NORMAL=0
++	fi
++}
++
++#suspend_resume() {
++#	[ -x /sbin/resume ] || return 0
++#	/sbin/resume
++#	local ret=$?
++
++#	if [ "${ret}" -eq 0 ]; then
++#		exit 0
++#	fi
++
++#	return 0
++#}
++
++suspend2_resume() {
++	if [ -d /proc/suspend2 ] || [ -d /sys/power/suspend2 ]; then
++		local splash_theme
++
++		if grep "splash=" /proc/cmdline > /dev/null 2>&1; then
++			splash_theme=`cat /proc/cmdline | sed 's/.*splash=/splash=/' | sed 's/ .*//' | sed 's/.*theme://' | sed 's/,.*//'`
++		fi
++
++		local suspend2_userui_program="/sys/power/suspend2/user_interface/program"
++		local suspend2_do_resume="/sys/power/suspend2/do_resume"
++
++		#
++		# Backward compatibility
++		#
++		if [ -e /proc/suspend2 ]; then
++			suspend2_userui_program="/proc/suspend2/userui_program"
++			suspend2_do_resume="/proc/suspend2/do_resume"
++		fi
++
++		modules_scan suspend2
++
++		if which suspend2ui_text > /dev/null 2>&1; then
++			which suspend2ui_text > "${suspend2_userui_program}"
++		fi
++
++		if [ -n "${splash_theme}" ]; then
++			ln -s /etc/splash/${splash_theme} /etc/splash/suspend2
++
++			if which suspend2ui_fbsplash > /dev/null 2>&1; then
++				which suspend2ui_fbsplash > "${suspend2_userui_program}"
++			fi
++		fi
++
++		echo > "${suspend2_do_resume}"
++	fi
++}
+diff -Nurp genkernel-3.4.9_pre2.orig/generic/linuxrc genkernel-3.4.9_pre2/generic/linuxrc
+--- genkernel-3.4.9_pre2.orig/generic/linuxrc	2007-09-08 18:27:55.000000000 +0200
++++ genkernel-3.4.9_pre2/generic/linuxrc	2007-09-08 18:35:23.000000000 +0200
+@@ -694,10 +694,20 @@ then
+ 	# Let Init scripts know that we booted from CD
+ 	export CDBOOT
+ 	CDBOOT=1
++
++	# Smarter control
++	for dir in /sys/bus/usb/drivers/usb-storage/*; do
++		if [ -d "${dir}" ] && [ "${dir}" != "/sys/bus/usb/drivers/usb-storage/module" ]
++		then
++			FORCE_slowusb="1"
++		fi
++	done
++
+ 	if [ "${DO_slowusb}" ] || [ "${FORCE_slowusb}" ]
+ 	then
+ 		sleep 10
+ 	fi
++
+ else
+ 	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
+ 	then
+diff -Nurp genkernel-3.4.9_pre2.orig/generic/linuxrc.orig genkernel-3.4.9_pre2/generic/linuxrc.orig
+--- genkernel-3.4.9_pre2.orig/generic/linuxrc.orig	2007-09-08 18:27:55.000000000 +0200
++++ genkernel-3.4.9_pre2/generic/linuxrc.orig	1970-01-01 01:00:00.000000000 +0100
+@@ -1,802 +0,0 @@
+-#!/bin/sh
+-# Copyright 2003-2006 Gentoo Foundation 
+-# Distributed under the terms of the GNU General Public License v2
+-
+-. /etc/initrd.defaults
+-. /etc/initrd.scripts
+-
+-splash() {
+-	return 0
+-}
+-
+-[ -e /etc/initrd.splash ] && . /etc/initrd.splash
+-
+-# Clean input/output
+-exec >${CONSOLE} <${CONSOLE} 2>&1
+-
+-if [ "$$" != '1' ]
+-then
+-	echo '/linuxrc has to be run as the init process as the one'
+-	echo 'with a PID of 1. Try adding init="/linuxrc" to the'
+-	echo 'kernel command line or running "exec /linuxrc".'
+-	exit 1
+-fi
+-
+-mount -t proc proc /proc >/dev/null 2>&1
+-mount -o remount,rw / >/dev/null 2>&1
+-
+-# Set up symlinks
+-if [ "$0" = '/init' ]
+-then
+-	/bin/busybox --install -s
+-
+-	[ -e /linuxrc ] && rm /linuxrc
+-	 
+-	if [ -e /bin/lvm ]
+-	then
+-		ln -s /bin/lvm /bin/vgscan
+-		ln -s /bin/lvm /bin/vgchange
+-	fi
+-fi
+-
+-quiet_kmsg
+-
+-CMDLINE="`cat /proc/cmdline`"
+-# Scan CMDLINE for any specified real_root= or cdroot arguments
+-REAL_ROOT=''
+-FAKE_ROOT=''
+-REAL_ROOTFLAGS=''
+-for x in ${CMDLINE}
+-do
+-	case "${x}" in
+-		real_root\=*)
+-			REAL_ROOT=`parse_opt "${x}"`
+-		;;
+-		root\=*)
+-			FAKE_ROOT=`parse_opt "${x}"`
+-		;;
+-		subdir\=*)
+-			SUBDIR=`parse_opt "${x}"`
+-		;;
+-		real_init\=*)
+-			REAL_INIT=`parse_opt "${x}"`
+-		;;
+-		init_opts\=*)
+-			INIT_OPTS=`parse_opt "${x}"`
+-		;;
+-		# Livecd options
+-		cdroot)
+-			CDROOT=1
+-		;;
+-		cdroot\=*)
+-			CDROOT=1
+-			CDROOT_DEV=`parse_opt "${x}"`
+-		;;
+-		# Start livecd loop, looptype options
+-		loop\=*)
+-			LOOP=`parse_opt "${x}"`
+-		;;
+-		looptype\=*)
+-			LOOPTYPE=`parse_opt "${x}"`
+-		;;
+-		# Start Device Manager options 
+-		devfs)
+-			USE_DEVFS_NORMAL=1
+-			USE_UDEV_NORMAL=0
+-		;;
+-		udev)
+-			USE_DEVFS_NORMAL=0
+-			USE_UDEV_NORMAL=1
+-		;;
+-		unionfs)
+-			if [ ! -x /sbin/unionctl ]
+-			then
+-				USE_UNIONFS_NORMAL=0
+-				bad_msg 'Unionctl not found: aborting use of unionfs!'
+-			else
+-				USE_UNIONFS_NORMAL=1
+-			fi
+-		;;
+-		unionfs\=*)
+-			if [ ! -x /sbin/unionctl ]
+-			then
+-				USE_UNIONFS_NORMAL=0
+-				bad_msg 'Unionctl not found: aborting use of unionfs!'
+-			else
+-				USE_UNIONFS_NORMAL=1
+-				CMD_UNIONFS=`parse_opt "${x}"`
+-				echo ${CMD_UNIONFS}|grep , >/dev/null 2>&1
+-				if [ "$?" -eq '0' ]
+-				then
+-					UID=`echo ${CMD_UNIONFS#*,}`
+-					UNIONFS=`echo ${CMD_UNIONFS%,*}`
+-				else
+-					UNIONFS=${CMD_UNIONFS}
+-				fi
+-			fi
+-		;;
+-		# Start Volume manager options 
+-		dolvm2)
+-			USE_LVM2_NORMAL=1
+-		;;
+-		dodmraid)
+-			USE_DMRAID_NORMAL=1
+-		;;
+-		dodmraid\=*)
+-			DMRAID_OPTS=`parse_opt "${x}"`
+-			USE_DMRAID_NORMAL=1
+-		;;
+-		doevms2)
+-			USE_EVMS2_NORMAL=1
+-		;;
+-		# Debug Options
+-		debug)
+-			DEBUG='yes'
+-		;;
+-		 # Scan delay options 
+-		scandelay\=*)
+-			SDELAY=`parse_opt "${x}"`
+-		;;
+-		scandelay)
+-			SDELAY=10
+-		;;
+-		# Module no-loads
+-		doload\=*)
+-			MDOLIST=`parse_opt "${x}"`
+-			MDOLIST="`echo ${MDOLIST} | sed -e \"s/,/ /g\"`"
+-		;;
+-		nodetect)
+-			NODETECT=1
+-		;;
+-		noload\=*)
+-			MLIST=`parse_opt "${x}"`
+-			MLIST="`echo ${MLIST} | sed -e \"s/,/ /g\"`"
+-			export MLIST
+-		;;
+-		# Redirect output to a specific tty
+-		CONSOLE\=*)
+-			CONSOLE=`parse_opt "${x}"`
+-			exec >${CONSOLE} <${CONSOLE} 2>&1
+-		;;
+-		# /dev/md
+-		lvmraid\=*)
+-			RAID_DEVICES="`parse_opt ${x}`"
+-			RAID_DEVICES="`echo ${RAID_DEVICES} | sed -e 's/,/ /g'`"
+-		;;
+-		part\=*)
+-			MDPART=`parse_opt "${x}"`
+-		;;
+-		# NFS
+-		ip\=*)
+-			IP=`parse_opt "${x}"`
+-		;;
+-		nfsroot\=*)
+-			NFSROOT=`parse_opt "${x}"`
+-		;;
+-		crypt_root\=*)
+-			LUKS_ROOT=`parse_opt "${x}"`
+-		;;
+-		crypt_swap\=*)
+-			LUKS_SWAP=`parse_opt "${x}"`
+-		;;
+-		crypt_silent\=*)
+-			LUKS_SILENT=`parse_opt "${x}"`
+-		;;
+-		real_rootflags\=*)
+-			REAL_ROOTFLAGS=`parse_opt "${x}"`
+-		;;
+-	esac
+-done
+-
+-if [ -z "${REAL_ROOT}" -a \( "${CDROOT}" -eq 0 \)  -a \( "${FAKE_ROOT}" != "/dev/ram0" \) ]
+-then
+-	REAL_ROOT="${FAKE_ROOT}"	
+-fi
+-
+-splash 'init'
+-
+-detect_sbp2_devices
+-cmdline_hwopts
+-
+-# Load modules listed in MY_HWOPTS if /lib/modules exists
+-if [ -d '/lib/modules' ]
+-then
+-	good_msg 'Loading modules'
+-	# Load appropriate kernel modules
+-	if [ "${NODETECT}" -ne '1' ]
+-	then
+-		for modules in $MY_HWOPTS
+-		do
+-			modules_scan $modules
+-			eval DO_`echo $modules | sed 's/-//'`=1
+-		done
+-	fi
+-	# Always eval doload=...
+-	modules_load $MDOLIST
+-else
+-	for modules in $MY_HWOPTS
+-	do
+-		eval DO_`echo $modules | sed 's/-//'`=1
+-	done
+-	good_msg 'Skipping module load; no modules in the initrd!'
+-fi
+-
+-# Mount sysfs
+-mount_sysfs
+-
+-# Delay if needed for USB hardware
+-sdelay
+-
+-# Start udev/devfs
+-start_dev_mgr
+-
+-# Setup md device nodes if they dont exist
+-setup_md_device
+-
+-# Scan volumes
+-startVolumes
+-
+-# Initialize LUKS root device except for livecd's
+-if [ "${CDROOT}" -ne '1' ]
+-then
+-	startLUKS
+-fi
+-
+-# Set up unionfs
+-mkdir -p ${NEW_ROOT}
+-setup_unionfs
+-
+-if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
+-then
+-	CHROOT=${UNION}
+-else
+-	CHROOT=${NEW_ROOT}
+-fi
+-
+-# Run debug shell if requested
+-rundebugshell
+-
+-#suspend_resume
+-suspend2_resume
+-
+-if [ "${CDROOT}" -eq '1' ]
+-then
+-	if [ ! "${USE_UNIONFS_NORMAL}" -eq '1' ]
+-	then
+-		good_msg "Making tmpfs for ${NEW_ROOT}"
+-		mount -t tmpfs tmpfs ${NEW_ROOT}
+-	fi
+-	
+-	for i in dev mnt mnt/cdrom mnt/livecd mnt/keydev tmp tmp/.initrd mnt/gentoo sys
+-	do
+-		mkdir -p ${NEW_ROOT}/$i
+-		chmod 755 ${NEW_ROOT}/$i
+-	done
+-	[ ! -e ${NEW_ROOT}/dev/null ] && mknod ${NEW_ROOT}/dev/null c 1 3
+-	[ ! -e ${NEW_ROOT}/dev/console ] && mknod ${NEW_ROOT}/dev/console c 5 1
+-
+-	# For SGI LiveCDs ...
+-	if [ "${LOOPTYPE}" = "sgimips" ]
+-	then
+-		[ ! -e ${NEW_ROOT}/dev/sr0 ] && mknod ${NEW_ROOT}/dev/sr0 b 11 0
+-		[ ! -e ${NEW_ROOT}/dev/loop0 ] && mknod ${NEW_ROOT}/dev/loop0 b 7 0
+-	fi
+-
+-	# Required for gensplash to work.  Not an issue with the initrd as this
+-	# device isnt created there and is not needed.
+-	if [ -e /dev/tty1 ]
+-	then
+-		[ ! -e ${NEW_ROOT}/dev/tty1 ] && mknod ${NEW_ROOT}/dev/tty1 c 4 1
+-	fi
+-
+-	if [ "${REAL_ROOT}" != "/dev/nfs" ] && [ "${LOOPTYPE}" != "sgimips" ]
+-	then
+-		bootstrapCD
+-	fi
+-
+-	if [ "${REAL_ROOT}" = '' ]
+-	then
+-		echo -n -e "${WARN}>>${NORMAL}${BOLD} No bootable medium found. Waiting for new devices"
+-		
+-		COUNTER=0
+-		while [ $COUNTER -lt 3 ]; do
+-			sleep 3
+-			echo -n '.'
+-			let COUNTER=$COUNTER+1
+-		done	
+-		
+-		sleep 1
+-		echo -e "${NORMAL}"
+-		bootstrapCD
+-	fi
+-
+-	if [ "${REAL_ROOT}" = '' ]
+-	then
+-		# Undo stuff
+-		umount  ${NEW_ROOT}/dev 2>/dev/null
+-		umount  ${NEW_ROOT}/sys 2>/dev/null
+-		umount /sys 2>/dev/null
+-
+-		umount  ${NEW_ROOT}
+-		rm -rf  ${NEW_ROOT}/*
+-
+-		bad_msg 'Could not find CD to boot, something else needed!'
+-		CDROOT=0
+-	fi
+-fi
+-
+-setup_keymap
+-
+-# Determine root device
+-good_msg 'Determining root device...'
+-while true
+-do
+-	while [ "${got_good_root}" != '1' ]
+-	do
+-		case "${REAL_ROOT}" in
+-			LABEL\=*|UUID\=*)
+-			
+-				ROOT_DEV=""
+-				retval=1
+-				
+-				if [ "${retval}" -ne '0' ]; then
+-					ROOT_DEV=`findfs "${REAL_ROOT}" 2>/dev/null`
+-					retval=$?
+-				fi
+-				
+-				if [ "$retval" -ne '0' ]; then
+-					ROOT_DEV=`busybox findfs "${REAL_ROOT}" 2>/dev/null`
+-					retval=$?
+-				fi
+-				
+-				if [ "${retval}" -ne '0' ]; then
+-					ROOT_DEV=`blkid -t "${REAL_ROOT}" | cut -d ":" -f 1 2>/dev/null`
+-					retval=$?
+-				fi
+-				
+-				if [ "${retval}" -eq '0' ] && [ -n "${ROOT_DEV}" ]; then
+-					good_msg "Detected real_root=${ROOT_DEV}"
+-					REAL_ROOT="${ROOT_DEV}"
+-				else
+-					bad_msg "Could not find root block device: ${REAL_ROOT}"
+-					echo '   Please specify a device to boot, or "shell" for a shell...'
+-					echo -n 'boot() :: '
+-					read REAL_ROOT
+-					got_good_root=0
+-					continue
+-				fi
+-				;;
+-		esac
+-				
+-		if [ "${REAL_ROOT}" = 'shell' ]
+-		then
+-			run_shell
+-
+-			REAL_ROOT=''
+-			got_good_root=0
+-			continue
+-		
+-		elif [ "${REAL_ROOT}" = '' ]
+-		then
+-			# No REAL_ROOT determined/specified. Prompt user for root block device.
+-			bad_msg "The root block device is unspecified or not detected."
+-			echo '   Please specify a device to boot, or "shell" for a shell...'
+-			echo -n 'boot() :: '
+-			read REAL_ROOT
+-			got_good_root=0
+-
+-		# Check for a block device or /dev/nfs
+-		elif [ -b "${REAL_ROOT}" ] || [ "${REAL_ROOT}" = "/dev/nfs" ]
+-		then
+-			got_good_root=1
+-
+-		else
+-			bad_msg "Block device ${REAL_ROOT} is not a valid root device..."
+-			REAL_ROOT=""
+-			got_good_root=0
+-		fi
+-	done
+-
+-
+-	if [ "${CDROOT}" -eq '1' -a "${got_good_root}" = '1' -a "${REAL_ROOT}" != "/dev/nfs" ]
+-	then
+-		# CD already mounted; no further checks necessary
+-		break
+-	elif [ "${LOOPTYPE}" = "sgimips" ]
+-	then
+-		# sgimips mounts the livecd root partition directly
+-		# there is no isofs filesystem to worry about
+-		break
+-	else
+-		good_msg "Mounting root..."
+-
+-		# Try to mount the device as ${NEW_ROOT}
+-		if [ "${REAL_ROOT}" = '/dev/nfs' ]; then
+-			findnfsmount
+-		else
+-			# mount ro so fsck doesn't barf later
+-#			REAL_ROOT_TYPE=`vol_id -t ${REAL_ROOT}`
+-#			mount -t ${REAL_ROOT_TYPE} -o ro ${REAL_ROOT} ${NEW_ROOT}
+-			if [ "${REAL_ROOTFLAGS}" = '' ]; then
+-				mount -o ro ${REAL_ROOT} ${NEW_ROOT}
+-			else
+-				good_msg "Using mount -o ro,${REAL_ROOTFLAGS}"
+-				mount -o ro,${REAL_ROOTFLAGS} ${REAL_ROOT} ${NEW_ROOT}
+-			fi
+-		fi
+-		
+-		# If mount is successful break out of the loop 
+-		# else not a good root and start over.
+-
+-		if [ "$?" = '0' ]
+-		then
+-			break
+-		else
+-			bad_msg "Could not mount specified ROOT, try again"
+-			got_good_root=0
+-			REAL_ROOT=''
+-		fi
+-	fi
+-done
+-# End determine root device
+-
+-#verbose_kmsg
+-
+-# If cdroot is set determine the looptype to boot
+-if [ "${CDROOT}" = '1' ]
+-then
+-	good_msg 'Determining looptype ...'
+-	cd ${NEW_ROOT}
+-
+-	# Find loop and looptype if we have NFS-mounted a livecd
+-	if  [ "${LOOP}" = '' ] && [ "${REAL_ROOT}" = '/dev/nfs' ]
+-	then
+-		if [ -e "${NEW_ROOT}/mnt/cdrom/livecd.loop" ]; then
+-			LOOP='/livecd.loop'
+-			LOOPTYPE='normal'
+-				elif [ -e "${NEW_ROOT}/mnt/cdrom/zisofs" ]; then
+-			LOOP='/zisofs'
+-			LOOPTYPE='zisofs'
+-				elif [ -e "${NEW_ROOT}/mnt/cdrom/livecd.squashfs" ]; then
+-			LOOP='/livecd.squashfs'
+-			LOOPTYPE='squashfs'
+-				elif [ -e "${NEW_ROOT}/mnt/cdrom/image.squashfs" ]; then
+-			LOOP='/image.squashfs'
+-			LOOPTYPE='squashfs'
+-				elif [ -e "${NEW_ROOT}/mnt/cdrom/livecd.gcloop" ]; then
+-			LOOP='/livecd.gcloop'
+-			LOOPTYPE='gcloop'
+-				else
+-			LOOPTYPE='noloop'
+-		fi
+-	fi
+-
+-	# Failsafe the loop type wasn't set
+-	if [ "${LOOPTYPE}" = '' ]
+-	then
+-		warn_msg 'Warning: loop type unspecified!'
+-		if [ "${LOOP}" = '/livecd.loop' ]
+-		then
+-			LOOPTYPE='normal'
+-		elif [ "${LOOP}" = '/zisofs' ]
+-		then
+-			LOOPTYPE='zisofs'
+-		elif [ "${LOOP}" = '/livecd.squashfs' ]
+-		then
+-			LOOPTYPE='squashfs'
+-		elif [ "${LOOP}" = '/image.squashfs' ]
+-		then
+-			LOOPTYPE='squashfs'
+-		elif [ "${LOOP}" = '/livecd.gcloop' ]
+-		then
+-			LOOPTYPE='gcloop'
+-		else
+-			LOOPTYPE='noloop'
+-		fi
+-	fi
+-
+-	cache_cd_contents
+-	
+-
+-        # If encrypted, find key and mount, otherwise mount as usual
+-	if [ "${LUKS_ROOT}" != '' ] 
+-	then
+-		if [ "${LUKS_SILENT}" = '' ]
+-		then
+-			good_msg 'You booted an encrypted livecd'
+-		fi
+-
+-		LUKS_ROOT_KEY=$(head -n 1 ${NEW_ROOT}/mnt/cdrom/livecd)
+-
+-		if [ "${LUKS_ROOT_KEY}" ]
+-		then
+-			bootstrapKey
+-		fi
+-		
+-		losetup /dev/loop0 ${NEW_ROOT}/mnt/cdrom/${LOOPEXT}${LOOP}
+-		
+-		test_success 'Preparing loop filesystem'
+-		
+-		LUKS_ROOT='/dev/loop0'
+-		
+-		startLUKS
+-		
+-		case ${LOOPTYPE} in
+-			normal)
+-				MOUNTTYPE="ext2"
+-				;;
+-			*)
+-				MOUNTTYPE="${LOOPTYPE}"
+-				;;
+-		esac		
+-
+-
+-		mount -t ${MOUNTTYPE} -o ro /dev/mapper/root ${NEW_ROOT}/mnt/livecd 
+-		
+-		test_success 'Mount filesystem'	
+-		FS_LOCATION='mnt/livecd'
+-
+-
+-
+-	# Setup the loopback mounts, if unencrypted
+-	else
+-		if [ "${LOOPTYPE}" = 'normal' ]
+-		then
+-			good_msg 'Mounting loop filesystem'
+-			mount -t ext2 -o loop,ro ${NEW_ROOT}/mnt/cdrom/${LOOPEXT}${LOOP} ${NEW_ROOT}/mnt/livecd
+-			test_success 'Mount filesystem'
+-			FS_LOCATION='mnt/livecd'
+-	
+-	
+-		elif [ "${LOOPTYPE}" = 'squashfs' ]
+-		then
+-			good_msg 'Mounting squashfs filesystem'
+-			mount -t squashfs -o loop,ro ${NEW_ROOT}/mnt/cdrom/${LOOPEXT}${LOOP} ${NEW_ROOT}/mnt/livecd
+-			
+-			test_success 'Mount filesystem'
+-			FS_LOCATION='mnt/livecd'
+-		
+-		elif [ "${LOOPTYPE}" = 'gcloop' ]
+-		then
+-			good_msg 'Mounting gcloop filesystem'
+-			echo ' ' | losetup -E 19 -e ucl-0 -p0 ${NEW_ROOT}/dev/loop0 ${NEW_ROOT}/mnt/cdrom/${LOOPEXT}${LOOP}
+-			test_success 'losetup the loop device'
+-	
+-			mount -t ext2 -o ro ${NEW_ROOT}/dev/loop0 ${NEW_ROOT}/mnt/livecd
+-			test_success 'Mount the losetup loop device'
+-			FS_LOCATION='mnt/livecd'
+-		
+-		elif [ "${LOOPTYPE}" = 'zisofs' ]
+-		then
+-			FS_LOCATION="mnt/cdrom/${LOOPEXT}${LOOP}"
+-		
+-		elif [ "${LOOPTYPE}" = 'noloop' ]
+-		then
+-			FS_LOCATION='mnt/cdrom'
+-	
+-		elif [ "${LOOPTYPE}" = 'sgimips' ]
+-		then
+-			# getdvhoff finds the starting offset (in bytes) of the squashfs
+-			# partition on the cdrom and returns this offset for losetup
+-			#
+-			# All currently supported SGI Systems use SCSI CD-ROMs, so
+-			# so we know that the CD-ROM is usually going to be /dev/sr0.
+-			#
+-			# We use the value given to losetup to set /dev/loop0 to point
+-			# to the liveCD root partition, and then mount /dev/loop0 as
+-			# the LiveCD rootfs
+-			good_msg 'Locating the SGI LiveCD Root Partition'
+-			echo ' ' | \
+-				losetup -o $(/bin/getdvhoff ${NEW_ROOT}${REAL_ROOT} 0) \
+-					${NEW_ROOT}${CDROOT_DEV} \
+-					${NEW_ROOT}${REAL_ROOT}
+-			test_success 'losetup /dev/sr0 /dev/loop0'
+-	
+-			good_msg 'Mounting the Root Partition'
+-			mount -t squashfs -o ro ${NEW_ROOT}${CDROOT_DEV} ${NEW_ROOT}/mnt/livecd
+-			test_success 'mount /dev/loop0 /'
+-			FS_LOCATION='mnt/livecd'
+-		fi
+-	fi
+-#
+-# End cdrom looptype determination and mounting if necessary
+-#
+-
+-	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
+-	then
+-		union_insert_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
+-		
+-		# Make sure fstab notes livecd is mounted ro.  Makes system skip remount which fails on unionfs dirs.
+-		sed -e 's|\(.*\s/\s*tmpfs\s*\)defaults\(.*\)|\1defaults,ro\2|' /${UNION}/etc/fstab > /${UNION}/etc/fstab.new
+-		mv /${UNION}/etc/fstab.new /${UNION}/etc/fstab
+-	fi
+-
+-	# Unpacking additional packages from NFS mount
+-	# This is useful for adding kernel modules to /lib
+-	# We do this now, so that additional packages can add whereever they want.
+-	if [ "${REAL_ROOT}" = '/dev/nfs' ]
+-	then
+-		if [ -e "${CHROOT}/mnt/cdrom/add" ]
+-		then
+-				for targz in `ls ${CHROOT}/mnt/cdrom/add/*.tar.gz`
+-				do	
+-					tarname=`basename ${targz}`
+-					good_msg "Adding additional package ${tarname}"
+-					(cd ${CHROOT} ; /bin/tar -xzf ${targz})
+-				done
+-		fi
+-	fi
+-
+-	
+-	if [ ! "${USE_UNIONFS_NORMAL}" -eq '1' ]
+-	then
+-		good_msg "Copying read-write image contents to tmpfs"
+-		# Copy over stuff that should be writable
+-		(cd ${NEW_ROOT}/${FS_LOCATION}; cp -a ${ROOT_TREES} ${NEW_ROOT})
+-
+-		# Now we do the links.
+-		for x in ${ROOT_LINKS}
+-		do
+-			if [ -L "${NEW_ROOT}/${FS_LOCATION}/${x}" ]
+-			then
+-				ln -s "`readlink ${NEW_ROOT}/${FS_LOCATION}/${x}`" "${x}" 2>/dev/null
+-			else
+-				# List all subdirectories of x
+-				for directory in `find "${NEW_ROOT}/${FS_LOCATION}/${x}" -type d 2>/dev/null`
+-				do
+-					## Strip the prefix of the FS_LOCATION
+-					directory=${directory#${NEW_ROOT}/${FS_LOCATION}/}
+-
+-					## Skip this directory if we already linked a parent directory
+-					if [ "${curent_parrent}" != '' ]; then
+-						var=`echo "${directory}" | grep "^${curent_parrent}"`
+-						if [ "${var}" != '' ]; then
+-							continue
+-						fi
+-					fi
+-					## Test if the directory exists already
+-					if [ -e "/${NEW_ROOT}/${directory}" ]
+-					then
+-						# It does exist, link all the individual files
+-						for file in `ls /${NEW_ROOT}/${FS_LOCATION}/${directory}`
+-						do
+-						if [ ! -d "/${NEW_ROOT}/${FS_LOCATION}/${directory}/${file}" ] && [ ! -e "${NEW_ROOT}/${directory}/${file}" ]; then
+-								ln -s "/${FS_LOCATION}/${directory}/${file}" "${directory}/${file}" 2> /dev/null
+-							fi
+-						done
+-					else
+-						# It does not exist, make a link to the livecd
+-						ln -s "/${FS_LOCATION}/${directory}" "${directory}" 2>/dev/null
+-						current_parent=${directory}
+-					fi
+-				done
+-			fi
+-		done
+-
+-		if [ "${DO_slowusb}" ] || [ "${FORCE_slowusb}" ]
+-		then
+-			sleep 10
+-		fi
+-		mkdir initrd proc tmp sys 2>/dev/null
+-		chmod 1777 tmp
+-	fi
+-	
+-	#UML=`cat /proc/cpuinfo|grep UML|sed -e 's|model name.*: ||'`
+-	#if [ "${UML}" = 'UML' ]
+-	#then
+-	#	# UML Fixes
+-	#	good_msg 'Updating for uml system'
+-	#fi
+-
+-	# Let Init scripts know that we booted from CD
+-	export CDBOOT
+-	CDBOOT=1
+-	if [ "${DO_slowusb}" ] || [ "${FORCE_slowusb}" ]
+-	then
+-		sleep 10
+-	fi
+-else
+-	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
+-	then
+-		union_insert_dir ${UNION} ${NEW_ROOT}
+-		mkdir -p ${UNION}/tmp/.initrd
+-	fi
+-fi
+-
+-# Execute script on the cdrom just before boot to update things if necessary
+-cdupdate
+-
+-if [ "${SUBDIR}" != '' -a -e "${CHROOT}/${SUBDIR}" ]
+-then
+-	good_msg "Entering ${SUBDIR} to boot"
+-	CHROOT=${CHROOT}/${SUBDIR}
+-fi
+-
+-verbose_kmsg
+-
+-# Move the /memory mount point to what will be the system root so that 
+-# init scripts will be able to unmount it properly at next reboot
+-#
+-# Eventually, all "unions over /" mounts should go in that /.unions/
+-if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
+-then
+-	mkdir -p /${CHROOT}/.unions/memory 2>/dev/null
+-	mount -o move /memory /${CHROOT}/.unions/memory || echo '*: Failed to move unionfs /memory into the system root!'
+-fi
+-
+-if [ "$0" = '/linuxrc' ] || [ "$0" = 'linuxrc' ]
+-then
+-	[ ! -e ${CHROOT}/dev/console ] && mknod ${CHROOT}/dev/console c 5 1
+-	echo -ne "${GOOD}>>${NORMAL}${BOLD} Booting"
+-
+-	cd ${CHROOT}
+-	mkdir ${CHROOT}/proc ${CHROOT}/sys 2>/dev/null
+-	pivot_root . tmp/.initrd
+-	if [ "${DO_slowusb}" ] || [ "${FORCE_slowusb}" ]
+-	then
+-		sleep 10
+-	fi
+-	echo -n '.'
+-
+-	if /tmp/.initrd/bin/[ "${USE_DEVFS_NORMAL}" -eq '1' -a "${CDROOT}" -eq '0' ]
+-	then
+-		umount /tmp/.initrd/proc || echo '*: Failed to unmount the initrd /proc!'
+-		mount -n --move /tmp/.initrd/dev dev || echo '*: Failed to move over the /dev tree!'
+-		rm -rf /tmp/.initrd/dev || echo '*: Failed to remove the initrd /dev!'
+-	elif /tmp/.initrd/bin/[ "${USE_UDEV_NORMAL}" -eq '1' ]
+-	then
+-		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/fd ] && rm /tmp/.initrd/dev/fd
+-		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/stdin ] && rm /tmp/.initrd/dev/stdin
+-		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/stdout ] && rm /tmp/.initrd/dev/stdout
+-		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/stderr ] && rm /tmp/.initrd/dev/stderr
+-		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/core ] && rm /tmp/.initrd/dev/core 
+-		umount /tmp/.initrd/dev || echo '*: Failed to unmount the initrd /dev!'
+-		umount /tmp/.initrd/proc || echo '*: Failed to unmount the initrd /proc!'
+-		umount /tmp/.initrd/sys || echo '*: Failed to unmount the initrd /sys!'
+-	elif /tmp/.initrd/bin/[ "${CDROOT}" -eq '1' ]
+-	then
+-		umount /tmp/.initrd/proc || echo "*: Failed to unmount the initrd /proc!"
+-		umount /dev 2>/dev/null
+-		mount -n --move /tmp/.initrd/dev dev 2>/dev/null
+-		rm -rf /tmp/.initrd/dev || echo '*: Failed to remove the initrd /dev!'
+-
+-		umount /sys 2>/dev/null
+-		umount /tmp/.initrd/sys 2>/dev/null
+-	fi
+-	echo -n '.'
+-
+-	# /usr/src/linux/Documentation/initrd.txt:
+-	#	exec chroot . /sbin/init </dev/console >/dev/console 2>&1
+-
+-	exec <dev/console >dev/console 2>&1
+-	echo '.'
+-	exec chroot . /bin/sh <<- EOF
+-		umount /tmp/.initrd || echo "*: Failed to unmount the initrd!"
+-		/sbin/blockdev --flushbufs /dev/ram0 >/dev/null 2>&1
+-		exec ${REAL_INIT:-/sbin/init} ${INIT_OPTS}
+-EOF
+-elif [ "$0" = '/init' ]
+-then
+-	[ ! -e ${CHROOT}/dev/console ] && mknod ${CHROOT}/dev/console c 5 1
+-	[ ! -e ${CHROOT}/dev/tty1 ] && mknod ${CHROOT}/dev/tty1 c 4 1
+-	echo -ne "${GOOD}>>${NORMAL}${BOLD} Booting (initramfs)"
+-
+-	cd ${CHROOT}
+-	mkdir ${CHROOT}/proc ${CHROOT}/sys 2>/dev/null
+-	echo -n '.'
+-		umount /sys || echo '*: Failed to unmount the initrd /sys!'
+-		umount /proc || echo '*: Failed to unmount the initrd /proc!'
+-	echo -n '.'
+-
+-	exec switch_root -c "/dev/console" "${CHROOT}" ${REAL_INIT:-/sbin/init} ${INIT_OPTS}
+-fi
+-
+-splash 'verbose'
+-
+-echo 'A fatal error has probably occured since /sbin/init did not'
+-echo 'boot correctly. Trying to open a shell...'
+-echo
+-exec /bin/bash
+-exec /bin/sh
+-exec /bin/ash
+-exec sh

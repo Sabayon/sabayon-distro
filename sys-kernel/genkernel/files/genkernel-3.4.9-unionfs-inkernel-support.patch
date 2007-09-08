@@ -1,0 +1,2051 @@
+diff -Nurp genkernel-3.4.9_pre2.orig/gen_compile.sh genkernel-3.4.9_pre2/gen_compile.sh
+--- genkernel-3.4.9_pre2.orig/gen_compile.sh	2007-08-30 20:27:56.000000000 +0200
++++ genkernel-3.4.9_pre2/gen_compile.sh	2007-09-08 18:21:52.000000000 +0200
+@@ -403,13 +403,10 @@ compile_unionfs_utils() {
+ 			gen_die 'Unionfs directory ${UNIONFS_DIR} is invalid!'
+ 		cd "${UNIONFS_DIR}"
+ 		print_info 1 'unionfs tools: >> Compiling...'
+-		sed -i utils/Makefile -e 's|${CC} -o|${CC} -static -o|g'
+-		sed -i Makefile -e 's|${CC} -o|${CC} -static -o|g'
+-		compile_generic utils utils
+-
+-		if [ ! -e "uniondbg" ]; then
+-			cd utils
+-		fi
++		./bootstrap &> /dev/null
++		./configure >> ${DEBUGFILE} 2>&1 || gen_die 'Configuring unionfs-utils failed!'
++		sed -i Makefile -e 's|LDFLAGS = |LDFLAGS = -all-static|g'
++		compile_generic '' utils
+ 		print_info 1 'unionfs: >> Copying to cache...'
+ 		strip uniondbg unionctl
+ 		cp uniondbg ${TEMP}/unionfs/sbin/ || 
+diff -Nurp genkernel-3.4.9_pre2.orig/generic/linuxrc genkernel-3.4.9_pre2/generic/linuxrc
+--- genkernel-3.4.9_pre2.orig/generic/linuxrc	2007-08-30 20:27:56.000000000 +0200
++++ genkernel-3.4.9_pre2/generic/linuxrc	2007-09-08 18:21:52.000000000 +0200
+@@ -605,6 +605,9 @@ then
+ 	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
+ 	then
+ 		union_insert_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
++
++		mkdir ${UNION}/mnt/livecd
++		mount --bind ${NEW_ROOT}/${FS_LOCATION} ${UNION}/mnt/livecd
+ 		
+ 		# Make sure fstab notes livecd is mounted ro.  Makes system skip remount which fails on unionfs dirs.
+ 		sed -e 's|\(.*\s/\s*tmpfs\s*\)defaults\(.*\)|\1defaults,ro\2|' /${UNION}/etc/fstab > /${UNION}/etc/fstab.new
+diff -Nurp genkernel-3.4.9_pre2.orig/generic/linuxrc.orig genkernel-3.4.9_pre2/generic/linuxrc.orig
+--- genkernel-3.4.9_pre2.orig/generic/linuxrc.orig	1970-01-01 01:00:00.000000000 +0100
++++ genkernel-3.4.9_pre2/generic/linuxrc.orig	2007-08-30 20:27:56.000000000 +0200
+@@ -0,0 +1,802 @@
++#!/bin/sh
++# Copyright 2003-2006 Gentoo Foundation 
++# Distributed under the terms of the GNU General Public License v2
++
++. /etc/initrd.defaults
++. /etc/initrd.scripts
++
++splash() {
++	return 0
++}
++
++[ -e /etc/initrd.splash ] && . /etc/initrd.splash
++
++# Clean input/output
++exec >${CONSOLE} <${CONSOLE} 2>&1
++
++if [ "$$" != '1' ]
++then
++	echo '/linuxrc has to be run as the init process as the one'
++	echo 'with a PID of 1. Try adding init="/linuxrc" to the'
++	echo 'kernel command line or running "exec /linuxrc".'
++	exit 1
++fi
++
++mount -t proc proc /proc >/dev/null 2>&1
++mount -o remount,rw / >/dev/null 2>&1
++
++# Set up symlinks
++if [ "$0" = '/init' ]
++then
++	/bin/busybox --install -s
++
++	[ -e /linuxrc ] && rm /linuxrc
++	 
++	if [ -e /bin/lvm ]
++	then
++		ln -s /bin/lvm /bin/vgscan
++		ln -s /bin/lvm /bin/vgchange
++	fi
++fi
++
++quiet_kmsg
++
++CMDLINE="`cat /proc/cmdline`"
++# Scan CMDLINE for any specified real_root= or cdroot arguments
++REAL_ROOT=''
++FAKE_ROOT=''
++REAL_ROOTFLAGS=''
++for x in ${CMDLINE}
++do
++	case "${x}" in
++		real_root\=*)
++			REAL_ROOT=`parse_opt "${x}"`
++		;;
++		root\=*)
++			FAKE_ROOT=`parse_opt "${x}"`
++		;;
++		subdir\=*)
++			SUBDIR=`parse_opt "${x}"`
++		;;
++		real_init\=*)
++			REAL_INIT=`parse_opt "${x}"`
++		;;
++		init_opts\=*)
++			INIT_OPTS=`parse_opt "${x}"`
++		;;
++		# Livecd options
++		cdroot)
++			CDROOT=1
++		;;
++		cdroot\=*)
++			CDROOT=1
++			CDROOT_DEV=`parse_opt "${x}"`
++		;;
++		# Start livecd loop, looptype options
++		loop\=*)
++			LOOP=`parse_opt "${x}"`
++		;;
++		looptype\=*)
++			LOOPTYPE=`parse_opt "${x}"`
++		;;
++		# Start Device Manager options 
++		devfs)
++			USE_DEVFS_NORMAL=1
++			USE_UDEV_NORMAL=0
++		;;
++		udev)
++			USE_DEVFS_NORMAL=0
++			USE_UDEV_NORMAL=1
++		;;
++		unionfs)
++			if [ ! -x /sbin/unionctl ]
++			then
++				USE_UNIONFS_NORMAL=0
++				bad_msg 'Unionctl not found: aborting use of unionfs!'
++			else
++				USE_UNIONFS_NORMAL=1
++			fi
++		;;
++		unionfs\=*)
++			if [ ! -x /sbin/unionctl ]
++			then
++				USE_UNIONFS_NORMAL=0
++				bad_msg 'Unionctl not found: aborting use of unionfs!'
++			else
++				USE_UNIONFS_NORMAL=1
++				CMD_UNIONFS=`parse_opt "${x}"`
++				echo ${CMD_UNIONFS}|grep , >/dev/null 2>&1
++				if [ "$?" -eq '0' ]
++				then
++					UID=`echo ${CMD_UNIONFS#*,}`
++					UNIONFS=`echo ${CMD_UNIONFS%,*}`
++				else
++					UNIONFS=${CMD_UNIONFS}
++				fi
++			fi
++		;;
++		# Start Volume manager options 
++		dolvm2)
++			USE_LVM2_NORMAL=1
++		;;
++		dodmraid)
++			USE_DMRAID_NORMAL=1
++		;;
++		dodmraid\=*)
++			DMRAID_OPTS=`parse_opt "${x}"`
++			USE_DMRAID_NORMAL=1
++		;;
++		doevms2)
++			USE_EVMS2_NORMAL=1
++		;;
++		# Debug Options
++		debug)
++			DEBUG='yes'
++		;;
++		 # Scan delay options 
++		scandelay\=*)
++			SDELAY=`parse_opt "${x}"`
++		;;
++		scandelay)
++			SDELAY=10
++		;;
++		# Module no-loads
++		doload\=*)
++			MDOLIST=`parse_opt "${x}"`
++			MDOLIST="`echo ${MDOLIST} | sed -e \"s/,/ /g\"`"
++		;;
++		nodetect)
++			NODETECT=1
++		;;
++		noload\=*)
++			MLIST=`parse_opt "${x}"`
++			MLIST="`echo ${MLIST} | sed -e \"s/,/ /g\"`"
++			export MLIST
++		;;
++		# Redirect output to a specific tty
++		CONSOLE\=*)
++			CONSOLE=`parse_opt "${x}"`
++			exec >${CONSOLE} <${CONSOLE} 2>&1
++		;;
++		# /dev/md
++		lvmraid\=*)
++			RAID_DEVICES="`parse_opt ${x}`"
++			RAID_DEVICES="`echo ${RAID_DEVICES} | sed -e 's/,/ /g'`"
++		;;
++		part\=*)
++			MDPART=`parse_opt "${x}"`
++		;;
++		# NFS
++		ip\=*)
++			IP=`parse_opt "${x}"`
++		;;
++		nfsroot\=*)
++			NFSROOT=`parse_opt "${x}"`
++		;;
++		crypt_root\=*)
++			LUKS_ROOT=`parse_opt "${x}"`
++		;;
++		crypt_swap\=*)
++			LUKS_SWAP=`parse_opt "${x}"`
++		;;
++		crypt_silent\=*)
++			LUKS_SILENT=`parse_opt "${x}"`
++		;;
++		real_rootflags\=*)
++			REAL_ROOTFLAGS=`parse_opt "${x}"`
++		;;
++	esac
++done
++
++if [ -z "${REAL_ROOT}" -a \( "${CDROOT}" -eq 0 \)  -a \( "${FAKE_ROOT}" != "/dev/ram0" \) ]
++then
++	REAL_ROOT="${FAKE_ROOT}"	
++fi
++
++splash 'init'
++
++detect_sbp2_devices
++cmdline_hwopts
++
++# Load modules listed in MY_HWOPTS if /lib/modules exists
++if [ -d '/lib/modules' ]
++then
++	good_msg 'Loading modules'
++	# Load appropriate kernel modules
++	if [ "${NODETECT}" -ne '1' ]
++	then
++		for modules in $MY_HWOPTS
++		do
++			modules_scan $modules
++			eval DO_`echo $modules | sed 's/-//'`=1
++		done
++	fi
++	# Always eval doload=...
++	modules_load $MDOLIST
++else
++	for modules in $MY_HWOPTS
++	do
++		eval DO_`echo $modules | sed 's/-//'`=1
++	done
++	good_msg 'Skipping module load; no modules in the initrd!'
++fi
++
++# Mount sysfs
++mount_sysfs
++
++# Delay if needed for USB hardware
++sdelay
++
++# Start udev/devfs
++start_dev_mgr
++
++# Setup md device nodes if they dont exist
++setup_md_device
++
++# Scan volumes
++startVolumes
++
++# Initialize LUKS root device except for livecd's
++if [ "${CDROOT}" -ne '1' ]
++then
++	startLUKS
++fi
++
++# Set up unionfs
++mkdir -p ${NEW_ROOT}
++setup_unionfs
++
++if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
++then
++	CHROOT=${UNION}
++else
++	CHROOT=${NEW_ROOT}
++fi
++
++# Run debug shell if requested
++rundebugshell
++
++#suspend_resume
++suspend2_resume
++
++if [ "${CDROOT}" -eq '1' ]
++then
++	if [ ! "${USE_UNIONFS_NORMAL}" -eq '1' ]
++	then
++		good_msg "Making tmpfs for ${NEW_ROOT}"
++		mount -t tmpfs tmpfs ${NEW_ROOT}
++	fi
++	
++	for i in dev mnt mnt/cdrom mnt/livecd mnt/keydev tmp tmp/.initrd mnt/gentoo sys
++	do
++		mkdir -p ${NEW_ROOT}/$i
++		chmod 755 ${NEW_ROOT}/$i
++	done
++	[ ! -e ${NEW_ROOT}/dev/null ] && mknod ${NEW_ROOT}/dev/null c 1 3
++	[ ! -e ${NEW_ROOT}/dev/console ] && mknod ${NEW_ROOT}/dev/console c 5 1
++
++	# For SGI LiveCDs ...
++	if [ "${LOOPTYPE}" = "sgimips" ]
++	then
++		[ ! -e ${NEW_ROOT}/dev/sr0 ] && mknod ${NEW_ROOT}/dev/sr0 b 11 0
++		[ ! -e ${NEW_ROOT}/dev/loop0 ] && mknod ${NEW_ROOT}/dev/loop0 b 7 0
++	fi
++
++	# Required for gensplash to work.  Not an issue with the initrd as this
++	# device isnt created there and is not needed.
++	if [ -e /dev/tty1 ]
++	then
++		[ ! -e ${NEW_ROOT}/dev/tty1 ] && mknod ${NEW_ROOT}/dev/tty1 c 4 1
++	fi
++
++	if [ "${REAL_ROOT}" != "/dev/nfs" ] && [ "${LOOPTYPE}" != "sgimips" ]
++	then
++		bootstrapCD
++	fi
++
++	if [ "${REAL_ROOT}" = '' ]
++	then
++		echo -n -e "${WARN}>>${NORMAL}${BOLD} No bootable medium found. Waiting for new devices"
++		
++		COUNTER=0
++		while [ $COUNTER -lt 3 ]; do
++			sleep 3
++			echo -n '.'
++			let COUNTER=$COUNTER+1
++		done	
++		
++		sleep 1
++		echo -e "${NORMAL}"
++		bootstrapCD
++	fi
++
++	if [ "${REAL_ROOT}" = '' ]
++	then
++		# Undo stuff
++		umount  ${NEW_ROOT}/dev 2>/dev/null
++		umount  ${NEW_ROOT}/sys 2>/dev/null
++		umount /sys 2>/dev/null
++
++		umount  ${NEW_ROOT}
++		rm -rf  ${NEW_ROOT}/*
++
++		bad_msg 'Could not find CD to boot, something else needed!'
++		CDROOT=0
++	fi
++fi
++
++setup_keymap
++
++# Determine root device
++good_msg 'Determining root device...'
++while true
++do
++	while [ "${got_good_root}" != '1' ]
++	do
++		case "${REAL_ROOT}" in
++			LABEL\=*|UUID\=*)
++			
++				ROOT_DEV=""
++				retval=1
++				
++				if [ "${retval}" -ne '0' ]; then
++					ROOT_DEV=`findfs "${REAL_ROOT}" 2>/dev/null`
++					retval=$?
++				fi
++				
++				if [ "$retval" -ne '0' ]; then
++					ROOT_DEV=`busybox findfs "${REAL_ROOT}" 2>/dev/null`
++					retval=$?
++				fi
++				
++				if [ "${retval}" -ne '0' ]; then
++					ROOT_DEV=`blkid -t "${REAL_ROOT}" | cut -d ":" -f 1 2>/dev/null`
++					retval=$?
++				fi
++				
++				if [ "${retval}" -eq '0' ] && [ -n "${ROOT_DEV}" ]; then
++					good_msg "Detected real_root=${ROOT_DEV}"
++					REAL_ROOT="${ROOT_DEV}"
++				else
++					bad_msg "Could not find root block device: ${REAL_ROOT}"
++					echo '   Please specify a device to boot, or "shell" for a shell...'
++					echo -n 'boot() :: '
++					read REAL_ROOT
++					got_good_root=0
++					continue
++				fi
++				;;
++		esac
++				
++		if [ "${REAL_ROOT}" = 'shell' ]
++		then
++			run_shell
++
++			REAL_ROOT=''
++			got_good_root=0
++			continue
++		
++		elif [ "${REAL_ROOT}" = '' ]
++		then
++			# No REAL_ROOT determined/specified. Prompt user for root block device.
++			bad_msg "The root block device is unspecified or not detected."
++			echo '   Please specify a device to boot, or "shell" for a shell...'
++			echo -n 'boot() :: '
++			read REAL_ROOT
++			got_good_root=0
++
++		# Check for a block device or /dev/nfs
++		elif [ -b "${REAL_ROOT}" ] || [ "${REAL_ROOT}" = "/dev/nfs" ]
++		then
++			got_good_root=1
++
++		else
++			bad_msg "Block device ${REAL_ROOT} is not a valid root device..."
++			REAL_ROOT=""
++			got_good_root=0
++		fi
++	done
++
++
++	if [ "${CDROOT}" -eq '1' -a "${got_good_root}" = '1' -a "${REAL_ROOT}" != "/dev/nfs" ]
++	then
++		# CD already mounted; no further checks necessary
++		break
++	elif [ "${LOOPTYPE}" = "sgimips" ]
++	then
++		# sgimips mounts the livecd root partition directly
++		# there is no isofs filesystem to worry about
++		break
++	else
++		good_msg "Mounting root..."
++
++		# Try to mount the device as ${NEW_ROOT}
++		if [ "${REAL_ROOT}" = '/dev/nfs' ]; then
++			findnfsmount
++		else
++			# mount ro so fsck doesn't barf later
++#			REAL_ROOT_TYPE=`vol_id -t ${REAL_ROOT}`
++#			mount -t ${REAL_ROOT_TYPE} -o ro ${REAL_ROOT} ${NEW_ROOT}
++			if [ "${REAL_ROOTFLAGS}" = '' ]; then
++				mount -o ro ${REAL_ROOT} ${NEW_ROOT}
++			else
++				good_msg "Using mount -o ro,${REAL_ROOTFLAGS}"
++				mount -o ro,${REAL_ROOTFLAGS} ${REAL_ROOT} ${NEW_ROOT}
++			fi
++		fi
++		
++		# If mount is successful break out of the loop 
++		# else not a good root and start over.
++
++		if [ "$?" = '0' ]
++		then
++			break
++		else
++			bad_msg "Could not mount specified ROOT, try again"
++			got_good_root=0
++			REAL_ROOT=''
++		fi
++	fi
++done
++# End determine root device
++
++#verbose_kmsg
++
++# If cdroot is set determine the looptype to boot
++if [ "${CDROOT}" = '1' ]
++then
++	good_msg 'Determining looptype ...'
++	cd ${NEW_ROOT}
++
++	# Find loop and looptype if we have NFS-mounted a livecd
++	if  [ "${LOOP}" = '' ] && [ "${REAL_ROOT}" = '/dev/nfs' ]
++	then
++		if [ -e "${NEW_ROOT}/mnt/cdrom/livecd.loop" ]; then
++			LOOP='/livecd.loop'
++			LOOPTYPE='normal'
++				elif [ -e "${NEW_ROOT}/mnt/cdrom/zisofs" ]; then
++			LOOP='/zisofs'
++			LOOPTYPE='zisofs'
++				elif [ -e "${NEW_ROOT}/mnt/cdrom/livecd.squashfs" ]; then
++			LOOP='/livecd.squashfs'
++			LOOPTYPE='squashfs'
++				elif [ -e "${NEW_ROOT}/mnt/cdrom/image.squashfs" ]; then
++			LOOP='/image.squashfs'
++			LOOPTYPE='squashfs'
++				elif [ -e "${NEW_ROOT}/mnt/cdrom/livecd.gcloop" ]; then
++			LOOP='/livecd.gcloop'
++			LOOPTYPE='gcloop'
++				else
++			LOOPTYPE='noloop'
++		fi
++	fi
++
++	# Failsafe the loop type wasn't set
++	if [ "${LOOPTYPE}" = '' ]
++	then
++		warn_msg 'Warning: loop type unspecified!'
++		if [ "${LOOP}" = '/livecd.loop' ]
++		then
++			LOOPTYPE='normal'
++		elif [ "${LOOP}" = '/zisofs' ]
++		then
++			LOOPTYPE='zisofs'
++		elif [ "${LOOP}" = '/livecd.squashfs' ]
++		then
++			LOOPTYPE='squashfs'
++		elif [ "${LOOP}" = '/image.squashfs' ]
++		then
++			LOOPTYPE='squashfs'
++		elif [ "${LOOP}" = '/livecd.gcloop' ]
++		then
++			LOOPTYPE='gcloop'
++		else
++			LOOPTYPE='noloop'
++		fi
++	fi
++
++	cache_cd_contents
++	
++
++        # If encrypted, find key and mount, otherwise mount as usual
++	if [ "${LUKS_ROOT}" != '' ] 
++	then
++		if [ "${LUKS_SILENT}" = '' ]
++		then
++			good_msg 'You booted an encrypted livecd'
++		fi
++
++		LUKS_ROOT_KEY=$(head -n 1 ${NEW_ROOT}/mnt/cdrom/livecd)
++
++		if [ "${LUKS_ROOT_KEY}" ]
++		then
++			bootstrapKey
++		fi
++		
++		losetup /dev/loop0 ${NEW_ROOT}/mnt/cdrom/${LOOPEXT}${LOOP}
++		
++		test_success 'Preparing loop filesystem'
++		
++		LUKS_ROOT='/dev/loop0'
++		
++		startLUKS
++		
++		case ${LOOPTYPE} in
++			normal)
++				MOUNTTYPE="ext2"
++				;;
++			*)
++				MOUNTTYPE="${LOOPTYPE}"
++				;;
++		esac		
++
++
++		mount -t ${MOUNTTYPE} -o ro /dev/mapper/root ${NEW_ROOT}/mnt/livecd 
++		
++		test_success 'Mount filesystem'	
++		FS_LOCATION='mnt/livecd'
++
++
++
++	# Setup the loopback mounts, if unencrypted
++	else
++		if [ "${LOOPTYPE}" = 'normal' ]
++		then
++			good_msg 'Mounting loop filesystem'
++			mount -t ext2 -o loop,ro ${NEW_ROOT}/mnt/cdrom/${LOOPEXT}${LOOP} ${NEW_ROOT}/mnt/livecd
++			test_success 'Mount filesystem'
++			FS_LOCATION='mnt/livecd'
++	
++	
++		elif [ "${LOOPTYPE}" = 'squashfs' ]
++		then
++			good_msg 'Mounting squashfs filesystem'
++			mount -t squashfs -o loop,ro ${NEW_ROOT}/mnt/cdrom/${LOOPEXT}${LOOP} ${NEW_ROOT}/mnt/livecd
++			
++			test_success 'Mount filesystem'
++			FS_LOCATION='mnt/livecd'
++		
++		elif [ "${LOOPTYPE}" = 'gcloop' ]
++		then
++			good_msg 'Mounting gcloop filesystem'
++			echo ' ' | losetup -E 19 -e ucl-0 -p0 ${NEW_ROOT}/dev/loop0 ${NEW_ROOT}/mnt/cdrom/${LOOPEXT}${LOOP}
++			test_success 'losetup the loop device'
++	
++			mount -t ext2 -o ro ${NEW_ROOT}/dev/loop0 ${NEW_ROOT}/mnt/livecd
++			test_success 'Mount the losetup loop device'
++			FS_LOCATION='mnt/livecd'
++		
++		elif [ "${LOOPTYPE}" = 'zisofs' ]
++		then
++			FS_LOCATION="mnt/cdrom/${LOOPEXT}${LOOP}"
++		
++		elif [ "${LOOPTYPE}" = 'noloop' ]
++		then
++			FS_LOCATION='mnt/cdrom'
++	
++		elif [ "${LOOPTYPE}" = 'sgimips' ]
++		then
++			# getdvhoff finds the starting offset (in bytes) of the squashfs
++			# partition on the cdrom and returns this offset for losetup
++			#
++			# All currently supported SGI Systems use SCSI CD-ROMs, so
++			# so we know that the CD-ROM is usually going to be /dev/sr0.
++			#
++			# We use the value given to losetup to set /dev/loop0 to point
++			# to the liveCD root partition, and then mount /dev/loop0 as
++			# the LiveCD rootfs
++			good_msg 'Locating the SGI LiveCD Root Partition'
++			echo ' ' | \
++				losetup -o $(/bin/getdvhoff ${NEW_ROOT}${REAL_ROOT} 0) \
++					${NEW_ROOT}${CDROOT_DEV} \
++					${NEW_ROOT}${REAL_ROOT}
++			test_success 'losetup /dev/sr0 /dev/loop0'
++	
++			good_msg 'Mounting the Root Partition'
++			mount -t squashfs -o ro ${NEW_ROOT}${CDROOT_DEV} ${NEW_ROOT}/mnt/livecd
++			test_success 'mount /dev/loop0 /'
++			FS_LOCATION='mnt/livecd'
++		fi
++	fi
++#
++# End cdrom looptype determination and mounting if necessary
++#
++
++	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
++	then
++		union_insert_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
++		
++		# Make sure fstab notes livecd is mounted ro.  Makes system skip remount which fails on unionfs dirs.
++		sed -e 's|\(.*\s/\s*tmpfs\s*\)defaults\(.*\)|\1defaults,ro\2|' /${UNION}/etc/fstab > /${UNION}/etc/fstab.new
++		mv /${UNION}/etc/fstab.new /${UNION}/etc/fstab
++	fi
++
++	# Unpacking additional packages from NFS mount
++	# This is useful for adding kernel modules to /lib
++	# We do this now, so that additional packages can add whereever they want.
++	if [ "${REAL_ROOT}" = '/dev/nfs' ]
++	then
++		if [ -e "${CHROOT}/mnt/cdrom/add" ]
++		then
++				for targz in `ls ${CHROOT}/mnt/cdrom/add/*.tar.gz`
++				do	
++					tarname=`basename ${targz}`
++					good_msg "Adding additional package ${tarname}"
++					(cd ${CHROOT} ; /bin/tar -xzf ${targz})
++				done
++		fi
++	fi
++
++	
++	if [ ! "${USE_UNIONFS_NORMAL}" -eq '1' ]
++	then
++		good_msg "Copying read-write image contents to tmpfs"
++		# Copy over stuff that should be writable
++		(cd ${NEW_ROOT}/${FS_LOCATION}; cp -a ${ROOT_TREES} ${NEW_ROOT})
++
++		# Now we do the links.
++		for x in ${ROOT_LINKS}
++		do
++			if [ -L "${NEW_ROOT}/${FS_LOCATION}/${x}" ]
++			then
++				ln -s "`readlink ${NEW_ROOT}/${FS_LOCATION}/${x}`" "${x}" 2>/dev/null
++			else
++				# List all subdirectories of x
++				for directory in `find "${NEW_ROOT}/${FS_LOCATION}/${x}" -type d 2>/dev/null`
++				do
++					## Strip the prefix of the FS_LOCATION
++					directory=${directory#${NEW_ROOT}/${FS_LOCATION}/}
++
++					## Skip this directory if we already linked a parent directory
++					if [ "${curent_parrent}" != '' ]; then
++						var=`echo "${directory}" | grep "^${curent_parrent}"`
++						if [ "${var}" != '' ]; then
++							continue
++						fi
++					fi
++					## Test if the directory exists already
++					if [ -e "/${NEW_ROOT}/${directory}" ]
++					then
++						# It does exist, link all the individual files
++						for file in `ls /${NEW_ROOT}/${FS_LOCATION}/${directory}`
++						do
++						if [ ! -d "/${NEW_ROOT}/${FS_LOCATION}/${directory}/${file}" ] && [ ! -e "${NEW_ROOT}/${directory}/${file}" ]; then
++								ln -s "/${FS_LOCATION}/${directory}/${file}" "${directory}/${file}" 2> /dev/null
++							fi
++						done
++					else
++						# It does not exist, make a link to the livecd
++						ln -s "/${FS_LOCATION}/${directory}" "${directory}" 2>/dev/null
++						current_parent=${directory}
++					fi
++				done
++			fi
++		done
++
++		if [ "${DO_slowusb}" ] || [ "${FORCE_slowusb}" ]
++		then
++			sleep 10
++		fi
++		mkdir initrd proc tmp sys 2>/dev/null
++		chmod 1777 tmp
++	fi
++	
++	#UML=`cat /proc/cpuinfo|grep UML|sed -e 's|model name.*: ||'`
++	#if [ "${UML}" = 'UML' ]
++	#then
++	#	# UML Fixes
++	#	good_msg 'Updating for uml system'
++	#fi
++
++	# Let Init scripts know that we booted from CD
++	export CDBOOT
++	CDBOOT=1
++	if [ "${DO_slowusb}" ] || [ "${FORCE_slowusb}" ]
++	then
++		sleep 10
++	fi
++else
++	if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
++	then
++		union_insert_dir ${UNION} ${NEW_ROOT}
++		mkdir -p ${UNION}/tmp/.initrd
++	fi
++fi
++
++# Execute script on the cdrom just before boot to update things if necessary
++cdupdate
++
++if [ "${SUBDIR}" != '' -a -e "${CHROOT}/${SUBDIR}" ]
++then
++	good_msg "Entering ${SUBDIR} to boot"
++	CHROOT=${CHROOT}/${SUBDIR}
++fi
++
++verbose_kmsg
++
++# Move the /memory mount point to what will be the system root so that 
++# init scripts will be able to unmount it properly at next reboot
++#
++# Eventually, all "unions over /" mounts should go in that /.unions/
++if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
++then
++	mkdir -p /${CHROOT}/.unions/memory 2>/dev/null
++	mount -o move /memory /${CHROOT}/.unions/memory || echo '*: Failed to move unionfs /memory into the system root!'
++fi
++
++if [ "$0" = '/linuxrc' ] || [ "$0" = 'linuxrc' ]
++then
++	[ ! -e ${CHROOT}/dev/console ] && mknod ${CHROOT}/dev/console c 5 1
++	echo -ne "${GOOD}>>${NORMAL}${BOLD} Booting"
++
++	cd ${CHROOT}
++	mkdir ${CHROOT}/proc ${CHROOT}/sys 2>/dev/null
++	pivot_root . tmp/.initrd
++	if [ "${DO_slowusb}" ] || [ "${FORCE_slowusb}" ]
++	then
++		sleep 10
++	fi
++	echo -n '.'
++
++	if /tmp/.initrd/bin/[ "${USE_DEVFS_NORMAL}" -eq '1' -a "${CDROOT}" -eq '0' ]
++	then
++		umount /tmp/.initrd/proc || echo '*: Failed to unmount the initrd /proc!'
++		mount -n --move /tmp/.initrd/dev dev || echo '*: Failed to move over the /dev tree!'
++		rm -rf /tmp/.initrd/dev || echo '*: Failed to remove the initrd /dev!'
++	elif /tmp/.initrd/bin/[ "${USE_UDEV_NORMAL}" -eq '1' ]
++	then
++		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/fd ] && rm /tmp/.initrd/dev/fd
++		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/stdin ] && rm /tmp/.initrd/dev/stdin
++		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/stdout ] && rm /tmp/.initrd/dev/stdout
++		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/stderr ] && rm /tmp/.initrd/dev/stderr
++		/tmp/.initrd/bin/[ -e /tmp/.initrd/dev/core ] && rm /tmp/.initrd/dev/core 
++		umount /tmp/.initrd/dev || echo '*: Failed to unmount the initrd /dev!'
++		umount /tmp/.initrd/proc || echo '*: Failed to unmount the initrd /proc!'
++		umount /tmp/.initrd/sys || echo '*: Failed to unmount the initrd /sys!'
++	elif /tmp/.initrd/bin/[ "${CDROOT}" -eq '1' ]
++	then
++		umount /tmp/.initrd/proc || echo "*: Failed to unmount the initrd /proc!"
++		umount /dev 2>/dev/null
++		mount -n --move /tmp/.initrd/dev dev 2>/dev/null
++		rm -rf /tmp/.initrd/dev || echo '*: Failed to remove the initrd /dev!'
++
++		umount /sys 2>/dev/null
++		umount /tmp/.initrd/sys 2>/dev/null
++	fi
++	echo -n '.'
++
++	# /usr/src/linux/Documentation/initrd.txt:
++	#	exec chroot . /sbin/init </dev/console >/dev/console 2>&1
++
++	exec <dev/console >dev/console 2>&1
++	echo '.'
++	exec chroot . /bin/sh <<- EOF
++		umount /tmp/.initrd || echo "*: Failed to unmount the initrd!"
++		/sbin/blockdev --flushbufs /dev/ram0 >/dev/null 2>&1
++		exec ${REAL_INIT:-/sbin/init} ${INIT_OPTS}
++EOF
++elif [ "$0" = '/init' ]
++then
++	[ ! -e ${CHROOT}/dev/console ] && mknod ${CHROOT}/dev/console c 5 1
++	[ ! -e ${CHROOT}/dev/tty1 ] && mknod ${CHROOT}/dev/tty1 c 4 1
++	echo -ne "${GOOD}>>${NORMAL}${BOLD} Booting (initramfs)"
++
++	cd ${CHROOT}
++	mkdir ${CHROOT}/proc ${CHROOT}/sys 2>/dev/null
++	echo -n '.'
++		umount /sys || echo '*: Failed to unmount the initrd /sys!'
++		umount /proc || echo '*: Failed to unmount the initrd /proc!'
++	echo -n '.'
++
++	exec switch_root -c "/dev/console" "${CHROOT}" ${REAL_INIT:-/sbin/init} ${INIT_OPTS}
++fi
++
++splash 'verbose'
++
++echo 'A fatal error has probably occured since /sbin/init did not'
++echo 'boot correctly. Trying to open a shell...'
++echo
++exec /bin/bash
++exec /bin/sh
++exec /bin/ash
++exec sh
+diff -Nurp genkernel-3.4.9_pre2.orig/gen_initramfs.sh genkernel-3.4.9_pre2/gen_initramfs.sh
+--- genkernel-3.4.9_pre2.orig/gen_initramfs.sh	2007-08-30 20:27:56.000000000 +0200
++++ genkernel-3.4.9_pre2/gen_initramfs.sh	2007-09-08 18:21:52.000000000 +0200
+@@ -118,21 +118,6 @@ append_devfs(){
+ 	rm -rf "${TEMP}/initramfs-devfs-temp" > /dev/null
+ }
+ 
+-append_unionfs_modules(){
+-	if [ -d "${TEMP}/initramfs-unionfs-modules-temp" ]
+-	then
+-		rm -r "${TEMP}/initramfs-unionfs-modules-temp/"
+-	fi
+-	print_info 1 'UNIONFS MODULES: Adding support (compiling)...'
+-	compile_unionfs_modules
+-	mkdir -p "${TEMP}/initramfs-unionfs-modules-temp/"
+-	/bin/tar -jxpf "${UNIONFS_MODULES_BINCACHE}" -C "${TEMP}/initramfs-unionfs-modules-temp" ||
+-		gen_die "Could not extract unionfs modules binary cache!";
+-	cd "${TEMP}/initramfs-unionfs-modules-temp/"
+-	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
+-	rm -r "${TEMP}/initramfs-unionfs-modules-temp/"
+-}
+-
+ append_unionfs_tools(){
+ 	if [ -d "${TEMP}/initramfs-unionfs-tools-temp" ]
+ 	then
+@@ -476,7 +461,6 @@ create_initramfs() {
+ 	append_data 'busybox' "${BUSYBOX}"
+ 	append_data 'devfs' "${DEVFS}"
+ #	append_data 'udev' "${UDEV}"
+-	append_data 'unionfs_modules' "${UNIONFS}"
+ 	append_data 'unionfs_tools' "${UNIONFS}"
+ #	append_data 'suspend' "${SUSPEND}"
+ 	append_data 'lvm2' "${LVM2}"
+diff -Nurp genkernel-3.4.9_pre2.orig/gen_initramfs.sh.orig genkernel-3.4.9_pre2/gen_initramfs.sh.orig
+--- genkernel-3.4.9_pre2.orig/gen_initramfs.sh.orig	1970-01-01 01:00:00.000000000 +0100
++++ genkernel-3.4.9_pre2/gen_initramfs.sh.orig	2007-08-30 20:27:56.000000000 +0200
+@@ -0,0 +1,526 @@
++#!/bin/bash
++
++CPIO_ARGS="--quiet -o -H newc"
++
++append_base_layout() {
++	if [ -d "${TEMP}/initramfs-base-temp" ]
++	then
++		rm -rf "${TEMP}/initramfs-base-temp" > /dev/null
++	fi
++	mkdir -p ${TEMP}/initramfs-base-temp/dev
++	mkdir -p ${TEMP}/initramfs-base-temp/bin
++	mkdir -p ${TEMP}/initramfs-base-temp/etc
++	mkdir -p ${TEMP}/initramfs-base-temp/usr
++	mkdir -p ${TEMP}/initramfs-base-temp/proc
++	mkdir -p ${TEMP}/initramfs-base-temp/temp
++	mkdir -p ${TEMP}/initramfs-base-temp/sys
++	mkdir -p ${TEMP}/initramfs-temp/.initrd
++	mkdir -p ${TEMP}/initramfs-base-temp/var/lock/dmraid
++	mkdir -p ${TEMP}/initramfs-base-temp/sbin
++	mkdir -p ${TEMP}/initramfs-base-temp/usr/bin
++	mkdir -p ${TEMP}/initramfs-base-temp/usr/sbin
++	ln -s  lib  ${TEMP}/initramfs-base-temp/lib64
++
++	echo "/dev/ram0     /           ext2    defaults	0 0" > ${TEMP}/initramfs-base-temp/etc/fstab
++	echo "proc          /proc       proc    defaults    0 0" >> ${TEMP}/initramfs-base-temp/etc/fstab
++	
++	if [ "${DEVFS}" -eq '1' ]
++	then
++	    echo "REGISTER        .*           MKOLDCOMPAT" > ${TEMP}/initramfs-base-temp/etc/devfsd.conf
++	    echo "UNREGISTER      .*           RMOLDCOMPAT" >> ${TEMP}/initramfs-base-temp/etc/devfsd.conf
++	    echo "REGISTER        .*           MKNEWCOMPAT" >> ${TEMP}/initramfs-base-temp/etc/devfsd.conf
++	    echo "UNREGISTER      .*           RMNEWCOMPAT" >> ${TEMP}/initramfs-base-temp/etc/devfsd.conf
++	fi
++
++	cd ${TEMP}/initramfs-base-temp/dev
++	mknod -m 660 console c 5 1
++	mknod -m 660 null c 1 3
++	mknod -m 600 tty1 c 4 1
++	cd "${TEMP}/initramfs-base-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -rf "${TEMP}/initramfs-base-temp" > /dev/null
++}
++
++append_busybox() {
++	if [ -d "${TEMP}/initramfs-busybox-temp" ]
++	then
++		rm -rf "${TEMP}/initramfs-busybox-temp" > /dev/null
++	fi
++	mkdir -p "${TEMP}/initramfs-busybox-temp/bin/" 
++
++	cp "${GK_SHARE}/generic/udhcpc.scripts" ${TEMP}/initramfs-busybox-temp/bin/
++	chmod +x "${TEMP}/initramfs-busybox-temp/bin/udhcpc.scripts"
++	cp "${BUSYBOX_BINCACHE}" "${TEMP}/initramfs-busybox-temp/bin/busybox.tar.bz2" ||
++		gen_die 'Could not copy busybox from bincache!'
++	tar -xjf "${TEMP}/initramfs-busybox-temp/bin/busybox.tar.bz2" -C "${TEMP}/initramfs-busybox-temp/bin" busybox ||
++		gen_die 'Could not extract busybox bincache!'
++	chmod +x "${TEMP}/initramfs-busybox-temp/bin/busybox"
++
++	# down devfsd we use with dietlibc
++#	cp "${DEVFSD_CONF_BINCACHE}" "${TEMP}/initramfs-temp/etc/devfsd.conf.bz2" ||
++#		gen_die "could not copy devfsd.conf from bincache"
++#	bunzip2 "${TEMP}/initramfs-temp/etc/devfsd.conf.bz2" ||
++#		gen_die "could not uncompress devfsd.conf"
++	for i in '[' ash sh mount uname echo cut; do
++		rm -f ${TEMP}/initramfs-busybox-temp/bin/$i > /dev/null
++		ln ${TEMP}/initramfs-busybox-temp/bin/busybox ${TEMP}/initramfs-busybox-temp/bin/$i ||
++			gen_die "Busybox error: could not link ${i}!"
++	done
++	
++	cd "${TEMP}/initramfs-busybox-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -rf "${TEMP}/initramfs-busybox-temp" > /dev/null
++}
++
++append_udev(){
++	if [ -d "${TEMP}/initramfs-udev-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-udev-temp/"
++	fi
++	cd ${TEMP}
++	mkdir -p "${TEMP}/initramfs-udev-temp/bin/"
++	[ "${UDEV}" -eq '1' ] && { /bin/tar -jxpf "${UDEV_BINCACHE}" -C "${TEMP}/initramfs-udev-temp" ||
++		gen_die "Could not extract udev binary cache!"; }
++	cd "${TEMP}/initramfs-udev-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -rf "${TEMP}/initramfs-udev-temp" > /dev/null
++}
++
++append_blkid(){
++	if [ -d "${TEMP}/initramfs-blkid-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-blkid-temp/"
++	fi
++	cd ${TEMP}
++	mkdir -p "${TEMP}/initramfs-blkid-temp/bin/"
++	[ "${DISKLABEL}" -eq '1' ] && { /bin/bzip2 -dc "${BLKID_BINCACHE}" > "${TEMP}/initramfs-blkid-temp/bin/blkid" ||
++		gen_die "Could not extract blkid binary cache!"; }
++	chmod a+x "${TEMP}/initramfs-blkid-temp/bin/blkid"
++	cd "${TEMP}/initramfs-blkid-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -rf "${TEMP}/initramfs-blkid-temp" > /dev/null
++}
++
++append_devfs(){
++	if [ -d "${TEMP}/initramfs-devfs-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-devfs-temp/"
++	fi
++	cd ${TEMP}
++	print_info 1 'DEVFS: Adding support (compiling binaries)...'
++	compile_devfsd
++	mkdir -p "${TEMP}/initramfs-devfs-temp/bin/"
++	cp "${DEVFSD_BINCACHE}" "${TEMP}/initramfs-devfs-temp/bin/devfsd.bz2" || gen_die "could not copy devfsd executable from bincache"
++	bunzip2 "${TEMP}/initramfs-devfs-temp/bin/devfsd.bz2" || gen_die "could not uncompress devfsd"
++	chmod +x "${TEMP}/initramfs-devfs-temp/bin/devfsd"
++	cd "${TEMP}/initramfs-devfs-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -rf "${TEMP}/initramfs-devfs-temp" > /dev/null
++}
++
++append_unionfs_modules(){
++	if [ -d "${TEMP}/initramfs-unionfs-modules-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-unionfs-modules-temp/"
++	fi
++	print_info 1 'UNIONFS MODULES: Adding support (compiling)...'
++	compile_unionfs_modules
++	mkdir -p "${TEMP}/initramfs-unionfs-modules-temp/"
++	/bin/tar -jxpf "${UNIONFS_MODULES_BINCACHE}" -C "${TEMP}/initramfs-unionfs-modules-temp" ||
++		gen_die "Could not extract unionfs modules binary cache!";
++	cd "${TEMP}/initramfs-unionfs-modules-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -r "${TEMP}/initramfs-unionfs-modules-temp/"
++}
++
++append_unionfs_tools(){
++	if [ -d "${TEMP}/initramfs-unionfs-tools-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-unionfs-tools-temp/"
++	fi
++	print_info 1 'UNIONFS TOOLS: Adding support (compiling)...'
++	compile_unionfs_utils
++	mkdir -p "${TEMP}/initramfs-unionfs-tools-temp/bin/"
++	/bin/tar -jxpf "${UNIONFS_BINCACHE}" -C "${TEMP}/initramfs-unionfs-tools-temp" ||
++		gen_die "Could not extract unionfs tools binary cache!";
++	cd "${TEMP}/initramfs-unionfs-tools-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -r "${TEMP}/initramfs-unionfs-tools-temp/"
++}
++
++#append_suspend(){
++#	if [ -d "${TEMP}/initramfs-suspend-temp" ];
++#	then
++#		rm -r "${TEMP}/initramfs-suspend-temp/"
++#	fi
++#	print_info 1 'SUSPEND: Adding support (compiling binaries)...'
++#	compile_suspend
++#	mkdir -p "${TEMP}/initramfs-suspend-temp/"
++#	/bin/tar -jxpf "${SUSPEND_BINCACHE}" -C "${TEMP}/initramfs-suspend-temp" ||
++#		gen_die "Could not extract suspend binary cache!"
++#	mkdir -p "${TEMP}/initramfs-suspend-temp/etc"
++#	cp -f /etc/suspend.conf "${TEMP}/initramfs-suspend-temp/etc" ||
++#		gen_die 'Could not copy /etc/suspend.conf'
++#	cd "${TEMP}/initramfs-suspend-temp/"
++#	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++#	rm -r "${TEMP}/initramfs-suspend-temp/"
++#}
++
++append_dmraid(){
++	if [ -d "${TEMP}/initramfs-dmraid-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-dmraid-temp/"
++	fi
++	print_info 1 'DMRAID: Adding support (compiling binaries)...'
++	compile_dmraid
++	mkdir -p "${TEMP}/initramfs-dmraid-temp/"
++	/bin/tar -jxpf "${DMRAID_BINCACHE}" -C "${TEMP}/initramfs-dmraid-temp" ||
++		gen_die "Could not extract dmraid binary cache!";
++	cd "${TEMP}/initramfs-dmraid-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -r "${TEMP}/initramfs-dmraid-temp/"
++}
++
++append_lvm2(){
++	if [ -d "${TEMP}/initramfs-lvm2-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-lvm2-temp/"
++	fi
++	cd ${TEMP}
++	mkdir -p "${TEMP}/initramfs-lvm2-temp/bin/"
++	mkdir -p "${TEMP}/initramfs-lvm2-temp/etc/lvm/"
++	if [ -e '/sbin/lvm' ] && LC_ALL="C" ldd /sbin/lvm|grep -q 'not a dynamic executable'
++	then
++		print_info 1 '		LVM2: Adding support (using local static binaries)...'
++		cp /sbin/lvm "${TEMP}/initramfs-lvm2-temp/bin/lvm" ||
++			gen_die 'Could not copy over lvm!'
++	else
++		print_info 1 '		LVM2: Adding support (compiling binaries)...'
++		compile_lvm2
++		/bin/tar -jxpf "${LVM2_BINCACHE}" -C "${TEMP}/initramfs-lvm2-temp" ||
++			gen_die "Could not extract lvm2 binary cache!";
++		mv ${TEMP}/initramfs-lvm2-temp/sbin/lvm.static ${TEMP}/initramfs-lvm2-temp/bin/lvm ||
++			gen_die 'LVM2 error: Could not move lvm.static to lvm!'
++	fi
++	if [ -x /sbin/lvm ]
++	then
++#		lvm dumpconfig 2>&1 > /dev/null || gen_die 'Could not copy over lvm.conf!'
++#		ret=$?
++#		if [ ${ret} != 0 ]
++#		then
++			cp /etc/lvm/lvm.conf "${TEMP}/initramfs-lvm2-temp/etc/lvm/" ||
++				gen_die 'Could not copy over lvm.conf!'
++#		else
++#			gen_die 'Could not copy over lvm.conf!'
++#		fi
++	fi
++	cd "${TEMP}/initramfs-lvm2-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -r "${TEMP}/initramfs-lvm2-temp/"
++}
++
++append_evms2(){
++	if [ -d "${TEMP}/initramfs-evms2-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-evms2-temp/"
++	fi
++	mkdir -p "${TEMP}/initramfs-evms2-temp/lib/evms"
++	mkdir -p "${TEMP}/initramfs-evms2-temp/etc/"
++	mkdir -p "${TEMP}/initramfs-evms2-temp/bin/"
++	mkdir -p "${TEMP}/initramfs-evms2-temp/sbin/"
++	if [ "${EVMS2}" -eq '1' ]
++	then
++		print_info 1 '		EVMS2: Adding support...'
++		mkdir -p ${TEMP}/initramfs-evms2-temp/lib
++		cp -a /lib/ld-* "${TEMP}/initramfs-evms2-temp/lib" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		if [ -n "`ls /lib/libgcc_s*`" ]
++		then
++			cp -a /lib/libgcc_s* "${TEMP}/initramfs-evms2-temp/lib" \
++				|| gen_die 'Could not copy files for EVMS2!'
++		fi
++		cp -a /lib/libc-* /lib/libc.* "${TEMP}/initramfs-evms2-temp/lib" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		cp -a /lib/libdl-* /lib/libdl.* "${TEMP}/initramfs-evms2-temp/lib" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		cp -a /lib/libpthread* "${TEMP}/initramfs-evms2-temp/lib" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		cp -a /lib/libuuid*so* "${TEMP}/initramfs-evms2-temp/lib" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		cp -a /lib/libevms*so* "${TEMP}/initramfs-evms2-temp/lib" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		cp -a /lib/evms "${TEMP}/initramfs-evms2-temp/lib" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		cp -a /lib/evms/* "${TEMP}/initramfs-evms2-temp/lib/evms" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		cp -a /etc/evms.conf "${TEMP}/initramfs-evms2-temp/etc" \
++			|| gen_die 'Could not copy files for EVMS2!'
++		cp /sbin/evms_activate "${TEMP}/initramfs-evms2-temp/sbin" \
++			|| gen_die 'Could not copy over evms_activate!'
++
++		# Fix EVMS2 complaining that it can't find the swap utilities.
++		# These are not required in the initramfs
++		for swap_libs in "${TEMP}/initramfs-evms2-temp/lib/evms/*/swap*.so"
++		do
++			rm ${swap_libs}
++		done
++	fi
++	cd "${TEMP}/initramfs-evms2-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -r "${TEMP}/initramfs-evms2-temp/"
++}
++
++append_gensplash(){
++	if [ -x /usr/bin/splash_geninitramfs ] || [ -x /sbin/splash_geninitramfs ]
++	then
++		[ -z "${GENSPLASH_THEME}" ] && [ -e /etc/conf.d/splash ] && source /etc/conf.d/splash
++		[ -z "${GENSPLASH_THEME}" ] && GENSPLASH_THEME=default
++		print_info 1 "  >> Installing gensplash [ using the ${GENSPLASH_THEME} theme ]..."
++		if [ -d "${TEMP}/initramfs-gensplash-temp" ]
++		then
++			rm -r "${TEMP}/initramfs-gensplash-temp/"
++		fi
++		mkdir -p "${TEMP}/initramfs-gensplash-temp"
++		cd /
++		local tmp=""
++		[ -n "${GENSPLASH_RES}" ] && tmp="-r ${GENSPLASH_RES}"
++		splash_geninitramfs -c "${TEMP}/initramfs-gensplash-temp" ${tmp} ${GENSPLASH_THEME} || gen_die "Could not build splash cpio archive"
++		if [ -e "/usr/share/splashutils/initrd.splash" ]; then
++			mkdir -p "${TEMP}/initramfs-gensplash-temp/etc"
++			cp -f "/usr/share/splashutils/initrd.splash" "${TEMP}/initramfs-gensplash-temp/etc"
++		fi
++		cd "${TEMP}/initramfs-gensplash-temp/"
++		find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}" \
++			|| gen_die "compressing splash cpio"
++		rm -r "${TEMP}/initramfs-gensplash-temp/"
++	else
++		print_warning 1 '               >> No splash detected; skipping!'
++	fi
++}
++
++append_overlay(){
++	cd ${INITRAMFS_OVERLAY}
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++}
++print_list()
++{
++	local x
++	for x in ${*}
++	do
++		echo ${x}
++	done
++}
++
++append_modules() {
++	local group
++	local group_modules
++	local MOD_EXT=".ko"
++
++	print_info 2 "initramfs: >> Searching for modules..."
++	if [ "${INSTALL_MOD_PATH}" != '' ]
++	then
++	  cd ${INSTALL_MOD_PATH}
++	else
++	  cd /
++	fi
++	
++	if [ -d "${TEMP}/initramfs-modules-${KV}-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-modules-${KV}-temp/"
++	fi
++	mkdir -p "${TEMP}/initramfs-modules-${KV}-temp/lib/modules/${KV}"	
++	for i in `gen_dep_list`
++	do
++		mymod=`find ./lib/modules/${KV} -name "${i}${MOD_EXT}" 2>/dev/null| head -n 1 `
++		if [ -z "${mymod}" ]
++		then
++			print_warning 2 "Warning :: ${i}${MOD_EXT} not found; skipping..."
++			continue;
++		fi
++		
++		print_info 2 "initramfs: >> Copying ${i}${MOD_EXT}..."
++		cp -ax --parents "${mymod}" "${TEMP}/initramfs-modules-${KV}-temp"
++	done
++	
++	cp -ax --parents ./lib/modules/${KV}/modules* ${TEMP}/initramfs-modules-${KV}-temp 2>/dev/null
++
++	mkdir -p "${TEMP}/initramfs-modules-${KV}-temp/etc/modules"
++	for group_modules in ${!MODULES_*}; do
++		group="$(echo $group_modules | cut -d_ -f2 | tr "[:upper:]" "[:lower:]")"
++		print_list ${!group_modules} > "${TEMP}/initramfs-modules-${KV}-temp/etc/modules/${group}"
++	done
++	cd "${TEMP}/initramfs-modules-${KV}-temp/"
++	find . | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	cd "${TEMP}"
++	rm -r "${TEMP}/initramfs-modules-${KV}-temp/"	
++}
++
++# check for static linked file with objdump
++is_static() {
++	LANG="C" LC_ALL="C" objdump -T $1 2>&1 | grep "not a dynamic object" > /dev/null
++	return $?
++}
++
++append_auxilary() {
++	if [ -d "${TEMP}/initramfs-aux-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-aux-temp/"
++	fi
++	mkdir -p "${TEMP}/initramfs-aux-temp/etc"	
++	mkdir -p "${TEMP}/initramfs-aux-temp/sbin"	
++	if [ -f "${CMD_LINUXRC}" ]
++	then
++		cp "${CMD_LINUXRC}" "${TEMP}/initramfs-aux-temp/init"
++		print_info 2 "        >> Copying user specified linuxrc: ${CMD_LINUXRC} to init"
++	else	
++		if [ -f "${GK_SHARE}/${ARCH}/linuxrc" ]
++		then
++			cp "${GK_SHARE}/${ARCH}/linuxrc" "${TEMP}/initramfs-aux-temp/init"
++		else
++			cp "${GK_SHARE}/generic/linuxrc" "${TEMP}/initramfs-aux-temp/init"
++		fi
++	fi
++
++	# Make sure it's executable
++	chmod 0755 "${TEMP}/initramfs-aux-temp/init"
++
++	# Make a symlink to init .. incase we are bundled inside the kernel as one
++	# big cpio.
++	cd ${TEMP}/initramfs-aux-temp
++	ln -s init linuxrc
++#	ln ${TEMP}/initramfs-aux-temp/init ${TEMP}/initramfs-aux-temp/linuxrc 
++
++	if [ -f "${GK_SHARE}/${ARCH}/initrd.scripts" ]
++	then
++		cp "${GK_SHARE}/${ARCH}/initrd.scripts" "${TEMP}/initramfs-aux-temp/etc/initrd.scripts"
++	else	
++		cp "${GK_SHARE}/generic/initrd.scripts" "${TEMP}/initramfs-aux-temp/etc/initrd.scripts"
++	fi
++
++	if [ -f "${GK_SHARE}/${ARCH}/initrd.defaults" ]
++	then
++		cp "${GK_SHARE}/${ARCH}/initrd.defaults" "${TEMP}/initramfs-aux-temp/etc/initrd.defaults"
++	else
++		cp "${GK_SHARE}/generic/initrd.defaults" "${TEMP}/initramfs-aux-temp/etc/initrd.defaults"
++	fi
++	
++	echo -n 'HWOPTS="$HWOPTS ' >> "${TEMP}/initramfs-aux-temp/etc/initrd.defaults"	
++	for group_modules in ${!MODULES_*}; do
++		group="$(echo $group_modules | cut -d_ -f2 | tr "[:upper:]" "[:lower:]")"
++		echo -n "${group} " >> "${TEMP}/initramfs-aux-temp/etc/initrd.defaults"
++	done
++	echo '"' >> "${TEMP}/initramfs-aux-temp/etc/initrd.defaults"	
++
++	if [ -f "${GK_SHARE}/${ARCH}/modprobe" ]
++	then
++		cp "${GK_SHARE}/${ARCH}/modprobe" "${TEMP}/initramfs-aux-temp/sbin/modprobe"
++	else
++		cp "${GK_SHARE}/generic/modprobe" "${TEMP}/initramfs-aux-temp/sbin/modprobe"
++	fi
++	if isTrue $CMD_DOKEYMAPAUTO
++	then
++		echo 'MY_HWOPTS="${MY_HWOPTS} keymap"' >> ${TEMP}/initramfs-aux-temp/etc/initrd.defaults
++	fi
++	mkdir -p "${TEMP}/initramfs-aux-temp/lib/keymaps"
++	/bin/tar -C "${TEMP}/initramfs-aux-temp/lib/keymaps" -zxf "${GK_SHARE}/generic/keymaps.tar.gz"
++	if isTrue $CMD_SLOWUSB
++	then
++		echo 'MY_HWOPTS="${MY_HWOPTS} slowusb"' >> ${TEMP}/initramfs-aux-temp/etc/initrd.defaults
++	fi
++	if isTrue ${LUKS}
++	then
++		if is_static /bin/cryptsetup
++		then
++			print_info 1 "Including LUKS support"
++			rm -f ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
++			cp /bin/cryptsetup ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
++			chmod +x "${TEMP}/initramfs-aux-temp/sbin/cryptsetup"
++		else
++			print_info 1 "LUKS support requires static cryptsetup at /bin/cryptsetup"
++			print_info 1 "Not including LUKS support"
++		fi
++	fi
++
++	cd ${TEMP}/initramfs-aux-temp/sbin && ln -s ../init init
++	cd ${TEMP}
++	chmod +x "${TEMP}/initramfs-aux-temp/init"
++	chmod +x "${TEMP}/initramfs-aux-temp/etc/initrd.scripts"
++	chmod +x "${TEMP}/initramfs-aux-temp/etc/initrd.defaults"
++	chmod +x "${TEMP}/initramfs-aux-temp/sbin/modprobe"
++	cd "${TEMP}/initramfs-aux-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -r "${TEMP}/initramfs-aux-temp/"	
++}
++
++append_data() {
++	local name=$1 var=$2
++	local func="append_${name}"
++
++	if [ $# -eq '1' ] || [ "${var}" -eq '1' ]
++	then
++	    print_info 1 "        >> Appending ${name} cpio data..."
++	    ${func}
++	fi
++}
++
++create_initramfs() {
++	print_info 1 "initramfs: >> Initializing..."
++
++	# Create empty cpio
++	CPIO="${TMPDIR}/initramfs-${KV}"
++	echo | cpio ${CPIO_ARGS} -F "${CPIO}" 2>/dev/null \
++		|| gen_die "Could not create empty cpio at ${CPIO}"
++
++	append_data 'base_layout'
++	append_data 'auxilary'
++	append_data 'busybox' "${BUSYBOX}"
++	append_data 'devfs' "${DEVFS}"
++#	append_data 'udev' "${UDEV}"
++	append_data 'unionfs_modules' "${UNIONFS}"
++	append_data 'unionfs_tools' "${UNIONFS}"
++#	append_data 'suspend' "${SUSPEND}"
++	append_data 'lvm2' "${LVM2}"
++	append_data 'dmraid' "${DMRAID}"
++	append_data 'evms2' "${EVMS2}"
++	
++	if [ "${NOINITRDMODULES}" = '' ]
++	then
++		append_data 'modules'
++	else
++		print_info 1 "initramfs: Not copying modules..."
++	fi
++
++	append_data 'blkid' "${DISKLABEL}"
++	append_data 'gensplash' "${GENSPLASH}"
++
++	# This should always be appended last
++	if [ "${INITRAMFS_OVERLAY}" != '' ]
++	then
++		append_data 'overlay'
++	fi
++
++	gzip -9 "${CPIO}"
++	mv -f "${CPIO}.gz" "${CPIO}"
++
++	# Pegasos hack for merging the initramfs into the kernel at compile time
++	[ "${KERNEL_MAKE_DIRECTIVE}" == 'zImage.initrd' -a "${GENERATE_Z_IMAGE}" = '1' ] ||
++		[ "${KERNEL_MAKE_DIRECTIVE_2}" == 'zImage.initrd' -a "${GENERATE_Z_IMAGE}" = '1' ] &&
++			cp ${TMPDIR}/initramfs-${KV} ${KERNEL_DIR}/arch/powerpc/boot/ramdisk.image.gz &&
++			rm ${TMPDIR}/initramfs-${KV}
++
++	# Mips also mimics Pegasos to merge the initramfs into the kernel
++	if [ ${BUILD_INITRAMFS} -eq 1 ]; then
++		cp ${TMPDIR}/initramfs-${KV} ${KERNEL_DIR}/initramfs.cpio.gz
++		gunzip -f ${KERNEL_DIR}/initramfs.cpio.gz
++	fi
++
++	if ! isTrue "${CMD_NOINSTALL}"
++	then
++		if [ "${GENERATE_Z_IMAGE}" != '1' ]
++		then
++			copy_image_with_preserve "initramfs" \
++				"${TMPDIR}/initramfs-${KV}" \
++				"initramfs-${KNAME}-${ARCH}-${KV}"
++		fi
++	fi
++}
+diff -Nurp genkernel-3.4.9_pre2.orig/gen_initrd.sh genkernel-3.4.9_pre2/gen_initrd.sh
+--- genkernel-3.4.9_pre2.orig/gen_initrd.sh	2007-08-30 20:27:55.000000000 +0200
++++ genkernel-3.4.9_pre2/gen_initrd.sh	2007-09-08 18:21:52.000000000 +0200
+@@ -109,15 +109,6 @@ create_base_initrd_sys() {
+ #		fi
+ #	fi
+ 	
+-	#unionfs modules
+-	if [ "${UNIONFS}" -eq '1' ]
+-	then
+-		print_info 1 'UNIONFS MODULES: Adding support (compiling)...'
+-		compile_unionfs_modules
+-		/bin/tar -jxpf "${UNIONFS_MODULES_BINCACHE}" -C "${TEMP}/initrd-temp" ||
+-			gen_die "Could not extract unionfs modules binary cache!";
+-	fi
+-	
+ 	#unionfs utils
+ 	if [ "${UNIONFS}" -eq '1' ]
+ 	then
+diff -Nurp genkernel-3.4.9_pre2.orig/gen_initrd.sh.orig genkernel-3.4.9_pre2/gen_initrd.sh.orig
+--- genkernel-3.4.9_pre2.orig/gen_initrd.sh.orig	1970-01-01 01:00:00.000000000 +0100
++++ genkernel-3.4.9_pre2/gen_initrd.sh.orig	2007-08-30 20:27:55.000000000 +0200
+@@ -0,0 +1,447 @@
++#!/bin/bash
++
++# create_initrd_loop(size)
++create_initrd_loop() {
++	local inodes
++	[ "$#" -ne '1' ] && gen_die 'create_initrd_loop(): Not enough arguments!'
++	mkdir -p ${TEMP}/initrd-mount ||
++		gen_die 'Could not create loopback mount directory!'
++	dd if=/dev/zero of=${TMPDIR}/initrd-${KV} bs=1k count=${1} >> "${DEBUGFILE}" 2>&1 ||
++		gen_die "Could not zero initrd-${KV}"
++	mke2fs -F -N750 -q "${TMPDIR}/initrd-${KV}" >> "${DEBUGFILE}" 2>&1 ||
++		gen_die "Could not format initrd-${KV}!"
++	mount -t ext2 -o loop "${TMPDIR}/initrd-${KV}" "${TEMP}/initrd-mount" >> "${DEBUGFILE}" 2>&1 ||
++		gen_die 'Could not mount the initrd filesystem!'
++}
++
++create_initrd_unmount_loop()
++{
++	cd ${TEMP}
++	umount "${TEMP}/initrd-mount" ||
++		gen_die 'Could not unmount initrd system!'
++}
++
++move_initrd_to_loop()
++{
++	cd "${TEMP}/initrd-temp"
++	mv * "${TEMP}/initrd-mount" >> ${DEBUGFILE} 2>&1
++}
++
++# check for static linked file with objdump
++is_static() {
++	LANG="C" LC_ALL="C" objdump -T $1 2>&1 | grep "not a dynamic object" > /dev/null
++	return $?
++}
++
++create_base_initrd_sys() {
++	rm -rf "${TEMP}/initrd-temp" > /dev/null
++	mkdir -p ${TEMP}/initrd-temp/dev
++	mkdir -p ${TEMP}/initrd-temp/bin
++	mkdir -p ${TEMP}/initrd-temp/etc
++	mkdir -p ${TEMP}/initrd-temp/usr
++	mkdir -p ${TEMP}/initrd-temp/proc
++	mkdir -p ${TEMP}/initrd-temp/temp
++	mkdir -p ${TEMP}/initrd-temp/sys
++	mkdir -p ${TEMP}/initrd-temp/.initrd
++	mkdir -p ${TEMP}/initrd-temp/var/lock/dmraid
++	ln -s bin ${TEMP}/initrd-temp/sbin
++	ln -s ../bin ${TEMP}/initrd-temp/usr/bin
++	ln -s ../bin ${TEMP}/initrd-temp/usr/sbin
++
++	echo "/dev/ram0     /           ext2    defaults	0 0" > ${TEMP}/initrd-temp/etc/fstab
++	echo "proc          /proc       proc    defaults    0 0" >> ${TEMP}/initrd-temp/etc/fstab
++
++	if [ "${NODEVFSD}" = '' ]
++	then
++		echo "REGISTER        .*           MKOLDCOMPAT" > ${TEMP}/initrd-temp/etc/devfsd.conf
++		echo "UNREGISTER      .*           RMOLDCOMPAT" >> ${TEMP}/initrd-temp/etc/devfsd.conf
++		echo "REGISTER        .*           MKNEWCOMPAT" >> ${TEMP}/initrd-temp/etc/devfsd.conf
++		echo "UNREGISTER      .*           RMNEWCOMPAT" >> ${TEMP}/initrd-temp/etc/devfsd.conf
++	fi
++
++	# SGI LiveCDs need the following binary (no better place for it than here)
++	# getdvhoff is a DEPEND of genkernel, so it *should* exist
++	if [ ${BUILD_INITRAMFS} -eq 1 ]
++	then
++		[ -e /usr/lib/getdvhoff/getdvhoff ] \
++			&& cp /usr/lib/getdvhoff/getdvhoff ${TEMP}/initrd-temp/bin \
++			|| gen_die "sys-boot/getdvhoff not merged!"
++	fi
++
++	cd ${TEMP}/initrd-temp/dev
++	MAKEDEV std
++	MAKEDEV console
++
++	if [ "${DISKLABEL}" -eq '1' ]; then
++		cp "${BLKID_BINCACHE}" "${TEMP}/initrd-temp/bin/blkid.bz2" ||
++			gen_die 'Could not copy blkid from bincache!'
++		bunzip2 "${TEMP}/initrd-temp/bin/blkid.bz2" ||
++			gen_die 'Could not uncompress blkid!'
++		chmod +x "${TEMP}/initrd-temp/bin/blkid"
++	fi
++
++	cp "${BUSYBOX_BINCACHE}" "${TEMP}/initrd-temp/bin/busybox.tar.bz2" ||
++		gen_die 'Could not copy busybox from bincache!'
++	tar -xjf "${TEMP}/initrd-temp/bin/busybox.tar.bz2" -C "${TEMP}/initrd-temp/bin" busybox ||
++		gen_die 'Could not extract busybox bincache!'
++	chmod +x "${TEMP}/initrd-temp/bin/busybox"
++
++	# devfsd
++	if [ "${DEVFS}" -eq '1' ]
++	then
++		cp "${DEVFSD_BINCACHE}" "${TEMP}/initrd-temp/bin/devfsd.bz2" || gen_die 'Could not copy devfsd executable from bincache!'
++		bunzip2 "${TEMP}/initrd-temp/bin/devfsd.bz2" || gen_die 'Could not uncompress devfsd!'
++		chmod +x "${TEMP}/initrd-temp/bin/devfsd"
++	fi
++
++	# udev
++#	if [ "${UDEV}" -eq '1' ]
++#	then
++#		/bin/tar -jxpf "${UDEV_BINCACHE}" -C "${TEMP}/initrd-temp" || gen_die 'Could not extract udev binary cache!'
++#		if [ ! -e "${TEMP}/initrd-temp/bin/udevstart" ]
++#		then
++#		    ln -sf "./udev" "${TEMP}/initrd-temp/bin/udevstart" || gen_die 'Could not symlink udev -> udevstart!'
++#		fi
++		
++#		if [ ! -e "${TEMP}/initrd-temp/bin/udevsend" ]
++#		then
++#		    ln -sf "./udev" "${TEMP}/initrd-temp/bin/udevsend" || gen_die 'Could not symlink udev -> udevsend!'
++#		fi
++#	fi
++	
++	#unionfs modules
++	if [ "${UNIONFS}" -eq '1' ]
++	then
++		print_info 1 'UNIONFS MODULES: Adding support (compiling)...'
++		compile_unionfs_modules
++		/bin/tar -jxpf "${UNIONFS_MODULES_BINCACHE}" -C "${TEMP}/initrd-temp" ||
++			gen_die "Could not extract unionfs modules binary cache!";
++	fi
++	
++	#unionfs utils
++	if [ "${UNIONFS}" -eq '1' ]
++	then
++		print_info 1 'UNIONFS TOOLS: Adding support (compiling)...'
++		compile_unionfs_utils
++		/bin/tar -jxpf "${UNIONFS_BINCACHE}" -C "${TEMP}/initrd-temp" ||
++			gen_die "Could not extract unionfs tools binary cache!";
++	fi
++
++	# Suspend
++	if [ "${SUSPEND}" = '1' ]
++	then
++		print_info 1 'SUSPEND: Adding support (compiling binaries)...'
++		compile_suspend
++		/bin/tar -jxpf "${SUSPEND_BINCACHE}" -C "${TEMP}/initrd-temp" ||
++			gen_die "Could not extract suspend binary cache!"
++		mkdir -p "${TEMP}/initrd-temp/etc"
++		cp -f /etc/suspend.conf "${TEMP}/initrd-temp/etc" ||
++			gen_die 'Could not copy /etc/suspend.conf'
++	fi
++
++	# DMRAID 
++	if [ "${DMRAID}" = '1' ]
++	then
++		print_info 1 'DMRAID: Adding support (compiling binaries)...'
++		compile_dmraid
++		/bin/tar -jxpf "${DMRAID_BINCACHE}" -C "${TEMP}/initrd-temp" ||
++			gen_die "Could not extract dmraid binary cache!";
++	fi
++
++	# LVM2
++	if [ "${LVM2}" = '1' ]
++	then
++		if [ -e '/sbin/lvm' ] && LC_ALL="C" ldd /sbin/lvm|grep -q 'not a dynamic executable';
++		then
++			print_info 1 'LVM2: Adding support (using local static binaries)...'
++			cp /sbin/lvm "${TEMP}/initrd-temp/bin/lvm" ||
++				gen_die 'Could not copy over lvm!'
++		else
++			print_info 1 'LVM2: Adding support (compiling binaries)...'
++			compile_lvm2
++
++			/bin/tar -jxpf "${LVM2_BINCACHE}" -C "${TEMP}/initrd-temp" ||
++				gen_die "Could not extract lvm2 binary cache!";
++			mv ${TEMP}/initrd-temp/bin/lvm.static ${TEMP}/initrd-temp/bin/lvm ||
++				gen_die 'LVM2 error: Could not move lvm.static to lvm!'
++		fi
++		for i in vgchange vgscan; do
++			ln  ${TEMP}/initrd-temp/bin/lvm ${TEMP}/initrd-temp/bin/$i ||
++				gen_die "LVM2 error: Could not link ${i}!"
++		done
++		mkdir -p ${TEMP}/initrd-temp/etc/lvm
++		if [ -x /sbin/lvm ]
++		then
++#			lvm dumpconfig 2>&1 > /dev/null || gen_die 'Could not copy over lvm.conf!'
++#			ret=$?
++#			if [ ${ret} != 0 ]
++#			then
++				cp /etc/lvm/lvm.conf "${TEMP}/initrd-temp/etc/lvm/" ||
++					gen_die 'Could not copy over lvm.conf!'
++#			else
++#				gen_die 'Could not copy over lvm.conf!'
++#			fi
++		fi
++	fi
++	
++	# EVMS2
++	if [ "${EVMS2}" = '1' ]
++	then
++		if [ -e '/sbin/evms_activate' ]
++		then
++			print_info 1 'EVMS2: Adding support...'	
++			mkdir -p ${TEMP}/initrd-temp/lib
++			mkdir -p ${TEMP}/initrd-temp/sbin
++			mkdir -p ${TEMP}/initrd-temp/etc
++			mkdir -p ${TEMP}/initrd-temp/bin
++			cp -a /lib/ld-* "${TEMP}/initrd-temp/lib" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			if [ -n "`ls /lib/libgcc_s*`" ]
++			then
++				cp -a /lib/libgcc_s* "${TEMP}/initrd-temp/lib" \
++					|| gen_die 'Could not copy files for EVMS2!'
++			fi
++			cp -a /lib/libc-* /lib/libc.* "${TEMP}/initrd-temp/lib" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			cp -a /lib/libdl-* /lib/libdl.* "${TEMP}/initrd-temp/lib" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			cp -a /lib/libpthread* "${TEMP}/initrd-temp/lib" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			cp -a /lib/libuuid*so* "${TEMP}/initrd-temp/lib" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			cp -a /lib/libevms*so* "${TEMP}/initrd-temp/lib" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			cp -a /lib/evms "${TEMP}/initrd-temp/lib" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			cp -a /lib/evms/* "${TEMP}/initrd-temp/lib/evms" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			cp -a /etc/evms.conf "${TEMP}/initrd-temp/etc" \
++				|| gen_die 'Could not copy files for EVMS2!'
++			cp /sbin/evms_activate "${TEMP}/initrd-temp/sbin" \
++				|| gen_die 'Could not copy over evms_activate!'
++			# Fix EVMS2 complaining that it cant find the swap utilities.
++			# These are not required in the initrd
++			for swap_libs in "${TEMP}/initrd-temp/lib/evms/*/swap*.so"
++			do
++				rm ${swap_libs}
++			done
++		fi
++	fi	
++
++	for i in '[' ash basename cat chroot clear cp dirname echo env false find \
++	grep gunzip gzip ln ls loadkmap losetup lsmod mdev mkdir mknod more mount \
++	mv pivot_root ps awk pwd rm rmdir rmmod sed sh sleep tar test touch true \
++	umount uname xargs yes zcat chmod chown cut kill killall; do
++		rm -f ${TEMP}/initrd-temp/bin/$i > /dev/null
++		ln  ${TEMP}/initrd-temp/bin/busybox ${TEMP}/initrd-temp/bin/$i ||
++			gen_die "Busybox error: could not link ${i}!"
++	done
++
++	if isTrue ${LUKS}
++	then
++		if is_static /bin/cryptsetup
++		then
++			print_info 1 "Including LUKS support"
++			rm -f ${TEMP}/initrd-temp/sbin/cryptsetup
++			cp /bin/cryptsetup ${TEMP}/initrd-temp/sbin/cryptsetup
++			chmod +x "${TEMP}/initrd-temp/sbin/cryptsetup"
++		else
++			print_info 1 "LUKS support requires static cryptsetup at /bin/cryptsetup"
++			print_info 1 "Not including LUKS support"
++		fi
++	fi
++}
++
++print_list() {
++	local x
++	for x in ${*}
++	do
++		echo ${x}
++	done
++}
++
++create_initrd_modules() {
++	local group
++	local group_modules
++	
++	if [ "${PAT}" -gt "4" ]
++	then
++		MOD_EXT=".ko"
++	else
++		MOD_EXT=".o"
++	fi
++
++	print_info 2 "initrd: >> Searching for modules..."
++
++	if [ "${INSTALL_MOD_PATH}" != '' ]
++	then
++		cd ${INSTALL_MOD_PATH}
++	else
++		cd /
++	fi
++												 	
++	for i in `gen_dep_list`
++	do
++		mymod=`find ./lib/modules/${KV} -name "${i}${MOD_EXT}" 2>/dev/null| head -n 1`
++		if [ -z "${mymod}" ]
++		then
++			print_warning 2 "Warning :: ${i}${MOD_EXT} not found; skipping..."
++			continue;
++		fi
++		print_info 2 "initrd: >> Copying ${i}${MOD_EXT}..."
++		cp -ax --parents "${mymod}" "${TEMP}/initrd-temp"
++	done
++
++	cp -ax --parents ./lib/modules/${KV}/modules* ${TEMP}/initrd-temp 2>/dev/null
++
++	mkdir -p "${TEMP}/initrd-temp/etc/modules"
++	for group_modules in ${!MODULES_*}; do
++		group="$(echo $group_modules | cut -d_ -f2 | tr "[:upper:]" "[:lower:]")"
++		print_list ${!group_modules} > "${TEMP}/initrd-temp/etc/modules/${group}"
++	done
++}
++
++create_initrd_aux() {
++	if [ -f "${CMD_LINUXRC}" ]
++	then
++		cp "${CMD_LINUXRC}" "${TEMP}/initrd-temp/linuxrc"
++		print_info 2 "        >> Copying user specified linuxrc: ${CMD_LINUXRC}"
++	else	
++		if [ -f "${GK_SHARE}/${ARCH}/linuxrc" ]
++		then
++			cp "${GK_SHARE}/${ARCH}/linuxrc" "${TEMP}/initrd-temp/linuxrc"
++		else
++			cp "${GK_SHARE}/generic/linuxrc" "${TEMP}/initrd-temp/linuxrc"
++		fi
++	fi
++
++	# Make sure it's executable
++	chmod 0755 "${TEMP}/initrd-temp/linuxrc"
++
++	if [ -f "${GK_SHARE}/${ARCH}/initrd.scripts" ]
++	then
++		cp "${GK_SHARE}/${ARCH}/initrd.scripts" "${TEMP}/initrd-temp/etc/initrd.scripts"
++	else	
++		cp "${GK_SHARE}/generic/initrd.scripts" "${TEMP}/initrd-temp/etc/initrd.scripts"
++	fi
++
++	if [ -f "${GK_SHARE}/${ARCH}/initrd.defaults" ]
++	then
++		cp "${GK_SHARE}/${ARCH}/initrd.defaults" "${TEMP}/initrd-temp/etc/initrd.defaults"
++	else
++		cp "${GK_SHARE}/generic/initrd.defaults" "${TEMP}/initrd-temp/etc/initrd.defaults"
++	fi
++	
++	echo -n 'HWOPTS="$HWOPTS ' >> "${TEMP}/initrd-temp/etc/initrd.defaults"	
++	for group_modules in ${!MODULES_*}; do
++		group="$(echo $group_modules | cut -d_ -f2 | tr "[:upper:]" "[:lower:]")"
++		echo -n "${group} " >> "${TEMP}/initrd-temp/etc/initrd.defaults"
++	done
++	echo '"' >> "${TEMP}/initrd-temp/etc/initrd.defaults"	
++
++	if [ -f "${GK_SHARE}/${ARCH}/modprobe" ]
++	then
++		cp "${GK_SHARE}/${ARCH}/modprobe" "${TEMP}/initrd-temp/sbin/modprobe"
++	else
++		cp "${GK_SHARE}/generic/modprobe" "${TEMP}/initrd-temp/sbin/modprobe"
++	fi
++	if isTrue $CMD_DOKEYMAPAUTO
++	then
++		echo 'MY_HWOPTS="${MY_HWOPTS} keymap"' >> ${TEMP}/initrd-temp/etc/initrd.defaults
++	fi
++	mkdir -p "${TEMP}/initrd-temp/lib/keymaps"
++	/bin/tar -C "${TEMP}/initrd-temp/lib/keymaps" -zxf "${GK_SHARE}/generic/keymaps.tar.gz"
++	if isTrue $CMD_SLOWUSB
++	then
++		echo 'MY_HWOPTS="${MY_HWOPTS} slowusb"' >> ${TEMP}/initrd-temp/etc/initrd.defaults
++	fi
++
++	cd ${TEMP}/initrd-temp/sbin && ln -s ../linuxrc init
++	cd ${OLDPWD}
++	chmod +x "${TEMP}/initrd-temp/linuxrc"
++	chmod +x "${TEMP}/initrd-temp/etc/initrd.scripts"
++	chmod +x "${TEMP}/initrd-temp/etc/initrd.defaults"
++	chmod +x "${TEMP}/initrd-temp/sbin/modprobe"
++}
++
++calc_initrd_size() {
++	local TEST
++	cd ${TEMP}/initrd-temp/
++	TEST=`du -sk 2> /dev/null` 
++	echo $TEST | cut "-d " -f1
++}
++
++create_initrd() {
++	local MOD_EXT
++
++	print_info 1 "initrd: >> Initializing..."
++	create_base_initrd_sys
++
++	if [ "${NOINITRDMODULES}" = '' ]
++	then
++		print_info 1 "        >> Copying modules..."
++		create_initrd_modules
++	else
++		print_info 1 "initrd: Not copying modules..."
++	fi
++
++	print_info 1 "        >> Copying auxilary files..."
++	create_initrd_aux
++
++	INITRD_CALC_SIZE=`calc_initrd_size`
++	INITRD_SIZE=`expr ${INITRD_CALC_SIZE} + 250`
++	print_info 1 "        :: Size is at ${INITRD_SIZE}K"
++	print_info 1 "        >> Creating loopback filesystem..."
++	create_initrd_loop ${INITRD_SIZE}
++
++	print_info 1 "        >> Moving initrd files to the loopback..."
++	move_initrd_to_loop
++
++	print_info 1 "        >> Cleaning up and compressing the initrd..."
++	create_initrd_unmount_loop
++
++	if [ "${COMPRESS_INITRD}" ]
++	then
++		gzip -f -9 ${TMPDIR}/initrd-${KV}
++		mv ${TMPDIR}/initrd-${KV}.gz ${TMPDIR}/initrd-${KV}
++	fi
++
++	if [ "${BOOTSPLASH}" -eq "1" ]
++	then
++		if [ -x /sbin/splash ]
++		then
++			[ -z "${BOOTSPLASH_THEME}" ] && [ -e /etc/conf.d/bootsplash.conf ] && source /etc/conf.d/bootsplash.conf
++			[ -z "${BOOTSPLASH_THEME}" ] && [ -e /etc/conf.d/bootsplash ] && source /etc/conf.d/bootsplash
++			[ -z "${BOOTSPLASH_THEME}" ] && BOOTSPLASH_THEME=default
++			print_info 1 "        >> Installing bootsplash [ using the ${BOOTSPLASH_THEME} theme ]..."
++			for bootRes in '800x600' '1024x768' '1280x1024' '1600x1200'
++			do
++				if [ -f "/etc/bootsplash/${BOOTSPLASH_THEME}/config/bootsplash-${bootRes}.cfg" ]
++				then
++					/sbin/splash -s -f /etc/bootsplash/${BOOTSPLASH_THEME}/config/bootsplash-${bootRes}.cfg >> ${TMPDIR}/initrd-${KV} ||
++						gen_die "Error: could not copy ${bootRes} bootsplash!"
++				else
++					print_warning 1 "splash: Did not find a bootsplash for the ${bootRes} resolution..."
++				fi
++			done
++		else
++			print_warning 1 '        >> No bootsplash detected; skipping!'
++		fi
++	fi
++	if ! isTrue "${CMD_NOINSTALL}"
++	then
++		copy_image_with_preserve "initrd" \
++			"${TMPDIR}/initrd-${KV}" \
++			"initrd-${KNAME}-${ARCH}-${KV}"
++	fi
++
++	# Pegasos hack for merging the initrd into the kernel at compile time
++	[ "${KERNEL_MAKE_DIRECTIVE}" == 'zImage.initrd' -a "${GENERATE_Z_IMAGE}" = '1' ] ||
++		[ "${KERNEL_MAKE_DIRECTIVE_2}" == 'zImage.initrd' -a "${GENERATE_Z_IMAGE}" = '1' ] &&
++		cp ${TMPDIR}/initrd-${KV} ${KERNEL_DIR}/arch/${ARCH}/boot/images/ramdisk.image.gz &&
++		rm ${TMPDIR}/initrd-${KV}
++
++	# Mips also mimics Pegasos to merge the initrd into the kernel
++	[ ${BUILD_INITRAMFS} -eq 1 ] \
++		&& cp ${TMPDIR}/initrd-${KV} ${KERNEL_DIR}/mips/ramdisk/initrd.img.gz
++}
+diff -Nurp genkernel-3.4.9_pre2.orig/genkernel.conf genkernel-3.4.9_pre2/genkernel.conf
+--- genkernel-3.4.9_pre2.orig/genkernel.conf	2007-08-30 20:27:51.000000000 +0200
++++ genkernel-3.4.9_pre2/genkernel.conf	2007-09-08 18:21:52.000000000 +0200
+@@ -122,10 +122,9 @@ DMRAID_BINCACHE="%%CACHE%%/dmraid-${DMRA
+ # Kernel Version Compatibility
+ # (from http://www.am-utils.org/project-unionfs.html)
+ UNIONFS_VER="VERSION_UNIONFS"
+-UNIONFS_DIR="unionfs-${UNIONFS_VER}"
+-UNIONFS_SRCTAR="${GK_SHARE}/pkg/unionfs-${UNIONFS_VER}.tar.gz"
+-UNIONFS_BINCACHE="%%CACHE%%/unionfs-${UNIONFS_VER}-tools-%%ARCH%%.tar.bz2"
+-UNIONFS_MODULES_BINCACHE="%%CACHE%%/unionfs-${UNIONFS_VER}-modules-%%KV%%-%%ARCH%%.tar.bz2"
++UNIONFS_DIR="unionfs-utils"
++UNIONFS_SRCTAR="${GK_SHARE}/pkg/unionfs-utils-${UNIONFS_VER}.tar.gz"
++UNIONFS_BINCACHE="%%CACHE%%/unionfs-utils-${UNIONFS_VER}-%%ARCH%%.tar.bz2"
+ 
+ E2FSPROGS_VER="VERSION_E2FSPROGS"
+ E2FSPROGS_DIR="e2fsprogs-${E2FSPROGS_VER}"
+diff -Nurp genkernel-3.4.9_pre2.orig/genkernel.conf.orig genkernel-3.4.9_pre2/genkernel.conf.orig
+--- genkernel-3.4.9_pre2.orig/genkernel.conf.orig	1970-01-01 01:00:00.000000000 +0100
++++ genkernel-3.4.9_pre2/genkernel.conf.orig	2007-08-30 20:27:51.000000000 +0200
+@@ -0,0 +1,139 @@
++# Genkernel Configuration File
++
++# ===========GENKERNEL BASIC CONFIGURATION=============
++
++# Run 'make oldconfig' before compiling this kernel?
++# If set to "yes", also suppresses the fetch of the kernel .config file from
++# /etc/kernels, thus preserving the .config file in /usr/src/linux.
++# OLDCONFIG="no"
++
++# Run 'make menuconfig' before compiling this kernel?
++MENUCONFIG="no"
++
++# Run 'make clean' before compilation?
++# If set to NO, implies MRPROPER WILL NOT be run
++# Also, if clean is NO, it won't copy over any configuration
++# file, it will use what's there.
++CLEAN="yes"
++
++# Run 'make mrproper' before configuration/compilation?
++MRPROPER="yes"
++
++# Copy bootsplash into the initrd image?
++BOOTSPLASH="yes"
++
++# Override the arch detection?
++# ARCH_OVERRIDE="x86"
++
++# Mount BOOTDIR automatically if it isn't mounted?
++MOUNTBOOT="yes"
++
++# Make symlinks in BOOTDIR automatically?
++# SYMLINK="no"
++
++# Save the new configuration in /etc/kernels upon
++# successfull compilation
++SAVE_CONFIG="yes"
++
++# Use Color output in Genkernel?
++USECOLOR="yes"
++
++# Add new kernel to grub?
++# BOOTLOADER="grub"
++
++# Clear build cache dir
++# CLEAR_CACHE_DIR="yes"
++
++# Genkernel uses an independent configuration for MAKEOPTS, and does not source
++# /etc/make.conf . You can override the default setting by uncommenting and
++# tweaking the following line. Default setting is set up by
++# ${GK_SHARE}/${ARCH_OVERRIDE}/config.sh . The recommended value for -j
++# argument is: <number of processors>*<number of cores per processor>+1
++# MAKEOPTS="-j2"
++
++# =========GENKERNEL LOCATION CONFIGURATION============
++# Variables:
++#   %%ARCH%%  - Final determined architecture
++#   %%CACHE%% - Final determined cache location
++
++# Set genkernel's temporary work directory.  Default is /var/tmp/genkernel
++# TMPDIR="/var/tmp/genkernel"
++
++# Set the boot directory, default is /boot
++#BOOTDIR="/boot"
++
++# Default share directory location
++GK_SHARE="/usr/share/genkernel"
++
++# Location of helper-scripts
++GK_BIN="${GK_SHARE}"
++# Location of the default cache
++CACHE_DIR="/var/cache/genkernel/%%ARCH%%"
++# Log output file
++DEBUGFILE="/var/log/genkernel.log"
++# Debug Level
++DEBUGLEVEL=1
++
++# Default location of kernel source
++DEFAULT_KERNEL_SOURCE="/usr/src/linux"
++# Default kernel config (only use to override using
++# %%ARCH%%/kernel-config-${VER}.${PAT} !)
++# DEFAULT_KERNEL_CONFIG="${GK_SHARE}/%%ARCH%%/kernel-config"
++
++# Configuration file for busybox
++BUSYBOX_CONFIG="${GK_SHARE}/%%ARCH%%/busy-config"
++# BusyBox Version
++BUSYBOX_VER="1.1.3+gentoo"
++# Busybox bin-cache location, to store pre-compiled busybox
++# binary is just a bzip2 busybox executable
++BUSYBOX_BINCACHE="%%CACHE%%/busybox-${BUSYBOX_VER}-%%ARCH%%.tar.bz2"
++# Location of BusyBox source tarball
++BUSYBOX_SRCTAR="${GK_SHARE}/pkg/busybox-${BUSYBOX_VER}.tar.bz2"
++# Directory created after busybox tarball is extracted
++BUSYBOX_DIR="busybox-${BUSYBOX_VER}"
++
++DIETLIBC_VER="0.27"
++DIETLIBC_SRCTAR="${GK_SHARE}/pkg/dietlibc-${DIETLIBC_VER}.tar.bz2"
++DIETLIBC_DIR="dietlibc-${DIETLIBC_VER}"
++DIETLIBC_BINCACHE="%%CACHE%%/dietlibc-${DIETLIBC_VER}-%%ARCH%%.tar.bz2"
++DIETLIBC_BINCACHE_TEMP="%%CACHE%%/dietlibc-${DIETLIBC_VER}-%%ARCH%%-tempdir"
++
++DEVFSD_VER="1.3.25-dietlibc-kernel25"
++DEVFSD_SRCTAR="${GK_SHARE}/pkg/devfsd-${DEVFSD_VER}.tar.bz2"
++DEVFSD_DIR="devfsd"
++DEVFSD_BINCACHE="%%CACHE%%/devfsd-${DEVFSD_VER}-%%ARCH%%.bz2"
++DEVFSD_CONF_BINCACHE="%%CACHE%%/devfsd-conf-${DIETLIBC_VER}-%%ARCH%%.bz2"
++
++DEVICE_MAPPER_VER="VERSION_DMAP"
++DEVICE_MAPPER_DIR="device-mapper.${DEVICE_MAPPER_VER}"
++DEVICE_MAPPER_SRCTAR="${GK_SHARE}/pkg/device-mapper.${DEVICE_MAPPER_VER}.tgz"
++DEVICE_MAPPER_BINCACHE="%%CACHE%%/device-mapper-${DEVICE_MAPPER_VER}-%%ARCH%%.tar.bz2"
++
++LVM2_VER="VERSION_LVM2"
++LVM2_DIR="LVM2.${LVM2_VER}"
++LVM2_SRCTAR="${GK_SHARE}/pkg/LVM2.${LVM2_VER}.tgz"
++LVM2_BINCACHE="%%CACHE%%/LVM2.${LVM2_VER}-%%ARCH%%.tar.bz2"
++
++DMRAID_VER="VERSION_DMRAID"
++DMRAID_DIR="dmraid/${DMRAID_VER}"
++DMRAID_SRCTAR="${GK_SHARE}/pkg/dmraid-${DMRAID_VER}.tar.bz2"
++DMRAID_BINCACHE="%%CACHE%%/dmraid-${DMRAID_VER}-%%ARCH%%.tar.bz2"
++
++# Kernel Version Compatibility
++# (from http://www.am-utils.org/project-unionfs.html)
++UNIONFS_VER="VERSION_UNIONFS"
++UNIONFS_DIR="unionfs-${UNIONFS_VER}"
++UNIONFS_SRCTAR="${GK_SHARE}/pkg/unionfs-${UNIONFS_VER}.tar.gz"
++UNIONFS_BINCACHE="%%CACHE%%/unionfs-${UNIONFS_VER}-tools-%%ARCH%%.tar.bz2"
++UNIONFS_MODULES_BINCACHE="%%CACHE%%/unionfs-${UNIONFS_VER}-modules-%%KV%%-%%ARCH%%.tar.bz2"
++
++E2FSPROGS_VER="VERSION_E2FSPROGS"
++E2FSPROGS_DIR="e2fsprogs-${E2FSPROGS_VER}"
++E2FSPROGS_SRCTAR="${GK_SHARE}/pkg/e2fsprogs-${E2FSPROGS_VER}.tar.gz"
++BLKID_BINCACHE="%%CACHE%%/blkid-${E2FSPROGS_VER}-%%ARCH%%.bz2"
++
++#SUSPEND_VER="VERSION_SUSPEND"
++#SUSPEND_DIR="suspend-${SUSPEND_VER}"
++#SUSPEND_SRCTAR="${GK_SHARE}/pkg/suspend-${SUSPEND_VER}.tar.gz"
++#SUSPEND_BINCACHE="%%CACHE%%/suspend-${SUSPEND_VER}-%%ARCH%%.tar.bz2"
++
+diff -Nurp genkernel-3.4.9_pre2.orig/x86/modules_load genkernel-3.4.9_pre2/x86/modules_load
+--- genkernel-3.4.9_pre2.orig/x86/modules_load	2007-08-30 20:27:55.000000000 +0200
++++ genkernel-3.4.9_pre2/x86/modules_load	2007-09-08 18:22:18.000000000 +0200
+@@ -39,4 +39,4 @@ MODULES_USB="ehci-hcd uhci usb-ohci hid 
+ ohci-hcd usbhid sl811-hcd"
+ 
+ # Filesystems
+-MODULES_FS="ext2 ext3 reiserfs jfs nfs xfs"
++MODULES_FS="ext2 ext3 reiserfs jfs nfs xfs unionfs"
+diff -Nurp genkernel-3.4.9_pre2.orig/x86_64/modules_load genkernel-3.4.9_pre2/x86_64/modules_load
+--- genkernel-3.4.9_pre2.orig/x86_64/modules_load	2007-08-30 20:27:51.000000000 +0200
++++ genkernel-3.4.9_pre2/x86_64/modules_load	2007-09-08 18:22:48.000000000 +0200
+@@ -39,4 +39,4 @@ MODULES_USB="ehci-hcd uhci usb-ohci hid 
+ ohci-hcd usbhid sl811-hcd"
+ 
+ # Filesystems
+-MODULES_FS="ext2 ext3 reiserfs jfs nfs xfs"
++MODULES_FS="ext2 ext3 reiserfs jfs nfs xfs unionfs"
