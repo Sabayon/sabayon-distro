@@ -1,0 +1,249 @@
+diff -Nurp kicker-3.5.7.orig/kicker/kicker/ui/k_new_mnu.cpp kicker-3.5.7-fixed/kicker/kicker/ui/k_new_mnu.cpp
+--- kicker-3.5.7.orig/kicker/kicker/ui/k_new_mnu.cpp	2007-09-10 20:40:05.000000000 +0200
++++ kicker-3.5.7-fixed/kicker/kicker/ui/k_new_mnu.cpp	2007-09-10 20:54:36.000000000 +0200
+@@ -95,7 +95,6 @@
+ #include <sys/vfs.h>
+ #include <mykickoffsearchinterface.h>
+ 
+-#include "media_watcher.h"
+ #include "k_mnu.h"
+ #include "k_new_mnu.h"
+ #include "k_new_mnu.moc"
+@@ -1367,11 +1366,6 @@ void KMenu::insertStaticItems()
+     m_systemView->insertItem( "remote", i18n( "Network Folders" ),
+                               "remote:/", "remote:/", nId++, index++ );
+ 
+-    m_mediaWatcher = new MediaWatcher( this );
+-    connect( m_mediaWatcher, SIGNAL( mediumChanged() ), SLOT( updateMedia() ) );
+-    m_media_id = 0;
+-
+-    connect(&m_mediaFreeTimer, SIGNAL(timeout()), SLOT( updateMedia()));
+ }
+ 
+ int KMenu::insertClientMenu(KickerClientMenu *)
+@@ -1649,9 +1643,6 @@ void KMenu::show()
+     m_browserDirty=true;
+     m_recentDirty=true;
+ 
+-    updateMedia();
+-    m_mediaFreeTimer.start(10 * 1000); // refresh all 10s
+-
+     m_stacker->raiseWidget(FavoriteTab);
+     m_kcommand->clear();
+     current_query.clear();
+@@ -3436,76 +3427,6 @@ void KMenu::slotFavoritesMoved( QListVie
+     m_favoriteView->slotMoveContent();
+ }
+ 
+-void KMenu::updateMedia()
+-{
+-    QStringList devices = m_mediaWatcher->devices();
+-    if ( devices.isEmpty() )
+-        return;
+-
+-    int nId = serviceMenuStartId();
+-    if ( m_media_id ) {
+-        for ( int i = m_media_id + 1 ;; ++i )
+-        {
+-            KMenuItem *item = m_systemView->findItem( i );
+-            if ( !item )
+-                break;
+-            if ( !item->path().startsWith( "system:/" ) )
+-                break;
+-            media_mimetypes.remove(item->path());
+-            delete item;
+-        }
+-        nId = m_media_id + 1;
+-    } else {
+-        m_media_id = nId;
+-        m_systemView->insertSeparator( nId++, i18n("Media"), -1);
+-    }
+-
+-    for ( QStringList::ConstIterator it = devices.constBegin(); it != devices.constEnd(); ++it )
+-    {
+-        QString id = ( *it );
+-        QString name = *++it;
+-        QString label = *++it;
+-        QString userLabel = ( *++it );
+-        bool mountable = ( *++it == "true" ); // bool
+-        ( void )mountable;
+-        QString deviceNode = ( *++it );
+-        QString mountPoint = ( *++it );
+-        QString fsType = ( *++it );
+-        bool mounted = ( *++it == "true" ); // bool
+-        QString baseURL = ( *++it );
+-        QString mimeType = ( *++it );
+-        QString iconName = ( *++it );
+-
+-        media_mimetypes["system:/media/"+name] = mimeType;
+-
+-        if ( iconName.isEmpty() ) // no user icon, query the MIME type
+-        {
+-            KMimeType::Ptr mime = KMimeType::mimeType( mimeType );
+-            iconName = mime->icon( QString::null, false );
+-        }
+-
+-        QString descr = deviceNode;
+-        if ( mounted )
+-        {
+-            descr = mountPoint;
+-            // calc the free/total space
+-            struct statfs sfs;
+-            if ( statfs( QFile::encodeName( mountPoint ), &sfs ) == 0 )
+-            {
+-                uint64_t total = ( uint64_t )sfs.f_blocks * sfs.f_bsize;
+-                uint64_t avail = ( uint64_t )( getuid() ? sfs.f_bavail : sfs.f_bfree ) * sfs.f_bsize;
+-                if ( avail < total && avail > 1024 ) {
+-                    label += " " + i18n( "(%1 available)" ).arg( KIO::convertSize(avail) );
+-                }
+-            }
+-        }
+-        m_systemView->insertItem( iconName, userLabel.isEmpty() ? label : userLabel,
+-                                  descr, "system:/media/" + name, nId++, -1 );
+-
+-        ++it; // skip separator
+-    }
+-}
+-
+ bool KMenu::ensureServiceRunning(const QString & service)
+ {
+     QStringList URLs;
+diff -Nurp kicker-3.5.7.orig/kicker/kicker/ui/k_new_mnu.h kicker-3.5.7-fixed/kicker/kicker/ui/k_new_mnu.h
+--- kicker-3.5.7.orig/kicker/kicker/ui/k_new_mnu.h	2007-09-10 20:40:05.000000000 +0200
++++ kicker-3.5.7-fixed/kicker/kicker/ui/k_new_mnu.h	2007-09-10 21:06:28.000000000 +0200
+@@ -160,7 +160,6 @@ protected slots:
+     void slotContextMenu(int);
+     void slotFavoritesMoved( QListViewItem*, QListViewItem*, QListViewItem* );
+ 
+-    void updateMedia();
+     void slotFavDropped(QDropEvent * e, QListViewItem *after );
+     void slotSuspend(int id);
+ 
+diff -Nurp kicker-3.5.7.orig/kicker/kicker/ui/Makefile.am kicker-3.5.7-fixed/kicker/kicker/ui/Makefile.am
+--- kicker-3.5.7.orig/kicker/kicker/ui/Makefile.am	2007-09-10 20:40:05.000000000 +0200
++++ kicker-3.5.7-fixed/kicker/kicker/ui/Makefile.am	2007-09-10 20:52:56.000000000 +0200
+@@ -16,7 +16,7 @@ libkicker_ui_la_SOURCES = addbutton_mnu.
+         removeapplet_mnu.cpp removeextension_mnu.cpp removecontainer_mnu.cpp \
+         removebutton_mnu.cpp popupmenutitle.cpp hidebutton.cpp \
+         addappletvisualfeedback.cpp flipscrollview.cpp \
+-	media_watcher.cpp media_watcher.skel mykickoffsearchinterface.cpp query.cpp
++	mykickoffsearchinterface.cpp query.cpp
+ 
+ libkicker_ui_la_LIBADD = $(top_builddir)/libkonq/libkonq.la $(top_builddir)/kdmlib/libdmctl.la \
+ 		$(LIB_KABC) ../interfaces/libkickoffsearch_interfaces.la -llazy
+diff -Nurp kicker-3.5.7.orig/kicker/kicker/ui/media_watcher.cpp kicker-3.5.7-fixed/kicker/kicker/ui/media_watcher.cpp
+--- kicker-3.5.7.orig/kicker/kicker/ui/media_watcher.cpp	2007-09-10 20:40:05.000000000 +0200
++++ kicker-3.5.7-fixed/kicker/kicker/ui/media_watcher.cpp	1970-01-01 01:00:00.000000000 +0100
+@@ -1,57 +0,0 @@
+-/*****************************************************************
+-
+-Copyright (c) 2006 Stephan Kulow <coolo@novell.com>
+-
+-Permission is hereby granted, free of charge, to any person obtaining a copy
+-of this software and associated documentation files (the "Software"), to deal
+-in the Software without restriction, including without limitation the rights
+-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-copies of the Software, and to permit persons to whom the Software is
+-furnished to do so, subject to the following conditions:
+-
+-The above copyright notice and this permission notice shall be included in
+-all copies or substantial portions of the Software.
+-
+-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+-AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+-AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-
+-******************************************************************/
+-
+-#include "media_watcher.h"
+-#include <kapplication.h>
+-#include <kdebug.h>
+-#include <dcopclient.h>
+-#include <dcopref.h>
+-
+-MediaWatcher::MediaWatcher( QObject *parent ) :
+-    QObject( parent ), DCOPObject("mediawatcher")
+-{
+-    connectDCOPSignal( "kded", "mediamanager", "mediumAdded(QString,bool)",
+-                       "slotMediumAdded(QString,bool)", true );
+-    connectDCOPSignal( "kded", "mediamanager", "mediumRemoved(QString,bool)",
+-                       "slotMediumAdded(QString,bool)", true );
+-    connectDCOPSignal( "kded", "mediamanager", "mediumChanged(QString,bool)",
+-                       "slotMediumAdded(QString,bool)", true );
+-
+-    updateDevices();
+-}
+-
+-void MediaWatcher::updateDevices()
+-{
+-    DCOPRef nsd( "kded", "mediamanager" );
+-    nsd.setDCOPClient( kapp->dcopClient() );
+-    m_devices = nsd.call( "fullList" );
+-}
+-
+-void MediaWatcher::slotMediumAdded( QString item, bool a )
+-{
+-    updateDevices();
+-
+-    emit mediumChanged();
+-}
+-
+-#include "media_watcher.moc"
+diff -Nurp kicker-3.5.7.orig/kicker/kicker/ui/media_watcher.h kicker-3.5.7-fixed/kicker/kicker/ui/media_watcher.h
+--- kicker-3.5.7.orig/kicker/kicker/ui/media_watcher.h	2007-09-10 20:40:05.000000000 +0200
++++ kicker-3.5.7-fixed/kicker/kicker/ui/media_watcher.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,51 +0,0 @@
+-/*****************************************************************
+-
+-Copyright (c) 2006 Stephan Kulow <coolo@novell.com>
+-
+-Permission is hereby granted, free of charge, to any person obtaining a copy
+-of this software and associated documentation files (the "Software"), to deal
+-in the Software without restriction, including without limitation the rights
+-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-copies of the Software, and to permit persons to whom the Software is
+-furnished to do so, subject to the following conditions:
+-
+-The above copyright notice and this permission notice shall be included in
+-all copies or substantial portions of the Software.
+-
+-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+-AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+-AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-
+-******************************************************************/
+-
+-#ifndef _media_watcher_
+-#define _media_watcher_
+-
+-#include <dcopobject.h>
+-#include <qobject.h>
+-#include <qstringlist.h>
+-
+-class MediaWatcher : public QObject, public DCOPObject
+-{
+-    Q_OBJECT
+-    K_DCOP
+-
+-    QStringList m_devices;
+-    void updateDevices();
+-
+-k_dcop:
+-    void slotMediumAdded(QString medium, bool a);
+-
+-signals:
+-    void mediumChanged();
+-
+-public:
+-    MediaWatcher(QObject *parent);
+-
+-    QStringList devices() const { return m_devices; }
+-};
+-
+-#endif
