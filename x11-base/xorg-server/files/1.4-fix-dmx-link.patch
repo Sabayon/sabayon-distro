@@ -1,0 +1,12 @@
+diff --git a/hw/dmx/Makefile.am b/hw/dmx/Makefile.am
+index 002ea11..15dc281 100644
+--- a/hw/dmx/Makefile.am
++++ b/hw/dmx/Makefile.am
+@@ -87,6 +87,7 @@ Xdmx_LDADD = $(XORG_CORE_LIBS) \
+              $(GLX_LIBS) \
+              input/libdmxinput.a \
+              config/libdmxconfig.a \
++             @XSERVER_LIBS@ \
+              @DMXMODULES_LIBS@
+ 
+ # Man page
