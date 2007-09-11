@@ -22,10 +22,10 @@ AUX 3.0/desktop-acceleration-helpers.conf 18 RMD160 2f80facf3f2a3d51901b445e0dd2
 MD5 34ed388fce1197e363fd1473d067d836 files/3.0/desktop-acceleration-helpers.conf 18
 RMD160 2f80facf3f2a3d51901b445e0dd2316b72f5bf77 files/3.0/desktop-acceleration-helpers.conf 18
 SHA256 c3bfe6b211a6c55ac7c0b70fc622f95b09dd7e1e053e0a8a9231ba669c19e838 files/3.0/desktop-acceleration-helpers.conf 18
-AUX 3.0/desktop-acceleration-setup 11354 RMD160 b06768a6da7b177d4457198dc90f0b76de0f9345 SHA1 c588f32c204000486d3de0645848b9b0c9d7c642 SHA256 ccacaef0cd2cc2a4945c5decfd47f10c84aa465a30dabb96f76dcaa8f792e52f
-MD5 989a62c11483434521458171ec6e3f55 files/3.0/desktop-acceleration-setup 11354
-RMD160 b06768a6da7b177d4457198dc90f0b76de0f9345 files/3.0/desktop-acceleration-setup 11354
-SHA256 ccacaef0cd2cc2a4945c5decfd47f10c84aa465a30dabb96f76dcaa8f792e52f files/3.0/desktop-acceleration-setup 11354
+AUX 3.0/desktop-acceleration-setup 11356 RMD160 f286832e46e0e42e83690f897e01c6ce7437859d SHA1 a4fe96b48aaf17abef873e0164b30bed6d32d728 SHA256 ac00d852286674d90afa41438442a7cdb8f356c858a08e059578b9eef9791916
+MD5 34aeab894eca19908ea7d72911ee30d9 files/3.0/desktop-acceleration-setup 11356
+RMD160 f286832e46e0e42e83690f897e01c6ce7437859d files/3.0/desktop-acceleration-setup 11356
+SHA256 ac00d852286674d90afa41438442a7cdb8f356c858a08e059578b9eef9791916 files/3.0/desktop-acceleration-setup 11356
 AUX 3.0/xgl-setup 219 RMD160 004230d5aad08da7d0f50db8abfe00f9f5ee88f1 SHA1 417ea00e0042617f8eb72cb3ecdef6ab654150e3 SHA256 b9c721eadec976e820f81522438af9ca902c866a05568ee02bee48dbb312629d
 MD5 a127a7e722c6231bc6ff35ae314caf7d files/3.0/xgl-setup 219
 RMD160 004230d5aad08da7d0f50db8abfe00f9f5ee88f1 files/3.0/xgl-setup 219
@@ -34,13 +34,13 @@ EBUILD desktop-acceleration-helpers-2.1.1-r4.ebuild 632 RMD160 3275d4dc103c118b1
 MD5 22834409faaefd23058b287b09e75f3d desktop-acceleration-helpers-2.1.1-r4.ebuild 632
 RMD160 3275d4dc103c118b1bebdc906d30d975931af897 desktop-acceleration-helpers-2.1.1-r4.ebuild 632
 SHA256 49a6fdefcbefc14d3a9e0e9ac02c7cbd08acdb5acc31669b60293ac76c737cd4 desktop-acceleration-helpers-2.1.1-r4.ebuild 632
-EBUILD desktop-acceleration-helpers-3.0-r6.ebuild 654 RMD160 c10e699cd02ebb39990f4e44368aa51bd2861505 SHA1 e57fd96bfd06a7964064b14ad166a08697071a5a SHA256 05f0b949020200db696170eb3b0b20949b09817a04df8aac689d6aa51091460a
-MD5 5f57954c8a279f0c9caa476b91bb3bff desktop-acceleration-helpers-3.0-r6.ebuild 654
-RMD160 c10e699cd02ebb39990f4e44368aa51bd2861505 desktop-acceleration-helpers-3.0-r6.ebuild 654
-SHA256 05f0b949020200db696170eb3b0b20949b09817a04df8aac689d6aa51091460a desktop-acceleration-helpers-3.0-r6.ebuild 654
+EBUILD desktop-acceleration-helpers-3.0-r7.ebuild 654 RMD160 c10e699cd02ebb39990f4e44368aa51bd2861505 SHA1 e57fd96bfd06a7964064b14ad166a08697071a5a SHA256 05f0b949020200db696170eb3b0b20949b09817a04df8aac689d6aa51091460a
+MD5 5f57954c8a279f0c9caa476b91bb3bff desktop-acceleration-helpers-3.0-r7.ebuild 654
+RMD160 c10e699cd02ebb39990f4e44368aa51bd2861505 desktop-acceleration-helpers-3.0-r7.ebuild 654
+SHA256 05f0b949020200db696170eb3b0b20949b09817a04df8aac689d6aa51091460a desktop-acceleration-helpers-3.0-r7.ebuild 654
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-desktop-acceleration-helpers-2.1.1-r4 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-desktop-acceleration-helpers-2.1.1-r4 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-desktop-acceleration-helpers-2.1.1-r4 0
-MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-desktop-acceleration-helpers-3.0-r6 0
-RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-desktop-acceleration-helpers-3.0-r6 0
-SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-desktop-acceleration-helpers-3.0-r6 0
+MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-desktop-acceleration-helpers-3.0-r7 0
+RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-desktop-acceleration-helpers-3.0-r7 0
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-desktop-acceleration-helpers-3.0-r7 0
