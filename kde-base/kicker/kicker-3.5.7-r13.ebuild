@@ -12,7 +12,7 @@ SRC_URI="${SRC_URI}
 
 DESCRIPTION="Kicker is the KDE application starter panel and is also capable of some useful applets and extensions."
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="xcomposite beagle"
+IUSE="xcomposite kickoff"
 
 RDEPEND="
 $(deprange $PV $MAXKDEVER kde-base/libkonq)
@@ -27,8 +27,7 @@ $(deprange $PV $MAXKDEVER kde-base/kdebase-data)
 
 DEPEND="${RDEPEND}
 	xcomposite? ( || ( x11-proto/compositeproto <x11-base/xorg-x11-7 ) )
-	dev-libs/liblazy
-	beagle? ( >=app-misc/beagle-0.2.11 )"
+	kickoff? ( >=app-misc/beagle-0.2.11 dev-libs/liblazy )"
 
 KMCOPYLIB="libkonq libkonq"
 KMEXTRACTONLY="libkonq
@@ -38,48 +37,57 @@ KMCOMPILEONLY="kdmlib/"
 src_unpack() {
         kde-meta-suse_src_unpack
 
-        # Add Kickoff support
-        epatch "${FILESDIR}/kicker-3.5.6.kickoff-r649417.diff"
+	if use kickoff; then
+        	# Add Kickoff support
+        	epatch "${FILESDIR}/kicker-3.5.6.kickoff-r649417.diff"
 
-	# Sabayon Linux integration
-        epatch "${FILESDIR}/kickoff-sabayonlinux-integration-r649417.patch"
+		# Sabayon Linux integration
+        	epatch "${FILESDIR}/kickoff-sabayonlinux-integration-r649417.patch"
 
-	# Fix KickOff button size
-	epatch ${FILESDIR}/${P}-fix-kickoff-button.patch
+		# Fix KickOff button size
+		epatch ${FILESDIR}/${P}-fix-kickoff-button.patch
 
-	# Fix Compiz Fusion freeze
-	epatch ${FILESDIR}/${P}-fix-kickoff-freeze.patch
+		# Fix Compiz Fusion freeze
+		epatch ${FILESDIR}/${P}-fix-kickoff-freeze.patch
 
-	# copy icons over
-	tar xjf ${FILESDIR}/kickoff-icons-r649417.tar.bz2 -C ${WORKDIR}/${PN}-${PV}/${PN}/data
+		# copy icons over
+		tar xjf ${FILESDIR}/kickoff-icons-r649417.tar.bz2 -C ${WORKDIR}/${PN}-${PV}/${PN}/data
+	fi
 
 }
 
 
 src_compile() {
 
-	# BUG HUNTERS - DO NOT REPORT BUGS AGAINST THIS EBUILD
-	# AUTOMAKE IS BROKEN (AND CANNOT BE USED WITHOUT THESE
-	# WORKAROUNDS) WITH SUSE_KICKOFF BRANCH
-	# WE WILL ONLY ACCEPT REAL SOLUTIONS
+	if use kickoff; then
 
-	export UNSERMAKE="no"
+		# BUG HUNTERS - DO NOT REPORT BUGS AGAINST THIS EBUILD
+		# AUTOMAKE IS BROKEN (AND CANNOT BE USED WITHOUT THESE
+		# WORKAROUNDS) WITH SUSE_KICKOFF BRANCH
+		# WE WILL ONLY ACCEPT REAL SOLUTIONS
 
-	myconf="$myconf $(use_with xcomposite composite)"
-	kde-meta-suse_src_compile
+		export UNSERMAKE="no"
 
-	# First try
-	sed -i '/SUBDIRS/ s/ui core/core ui/' kicker/kicker/Makefile.am
-	emake
+		myconf="$myconf $(use_with xcomposite composite)"
+		kde-meta-suse_src_compile
 
-	# Second try
-	sed -i '/SUBDIRS/ s/core ui/interfaces core ui/' kicker/kicker/Makefile.am
-	emake
+		# First try
+		sed -i '/SUBDIRS/ s/ui core/core ui/' kicker/kicker/Makefile.am
+		emake
 
+		# Second try
+		sed -i '/SUBDIRS/ s/core ui/interfaces core ui/' kicker/kicker/Makefile.am
+		emake
 
-	# Third try
-	sed -i '/SUBDIRS/ s/interfaces core ui/ui interfaces core ui/' kicker/kicker/Makefile.am
-	emake
+		# Third try
+		sed -i '/SUBDIRS/ s/interfaces core ui/ui interfaces core ui/' kicker/kicker/Makefile.am
+		emake
+
+	else
+
+		kde-meta-suse_src_compile
+
+	fi
 
 
 }
