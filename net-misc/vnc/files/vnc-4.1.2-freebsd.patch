@@ -1,0 +1,29 @@
+--- vnc-4_1_2-unixsrc/unix/vncserver.orig	2007-05-13 20:42:50 -0600
++++ vnc-4_1_2-unixsrc/unix/vncserver	2007-05-13 20:42:41 -0600
+@@ -127,8 +127,24 @@
+ $desktopLog = "$vncUserDir/$host:$displayNumber.log";
+ unlink($desktopLog);
+ 
+-# Make an X server cookie - use mcookie
+-$cookie = `/usr/bin/mcookie`;
++# Make an X server cookie
++#   For FreeBSD, generate it randomly
++#   For Linux, use mcookie
++if (`/usr/bin/uname` == 'FreeBSD')
++{
++    srand;
++    $cookie = '';
++    for (1..16)
++    {
++        $cookie .= sprintf("%02x", int(rand(256)));
++    }
++}
++else
++{
++    $cookie = `/usr/bin/mcookie`;
++}
++
++# Now use the cookie in the xauth file
+ open (XAUTH, "|xauth -f $xauthorityFile source -");
+ print XAUTH "add $host:$displayNumber . $cookie\n";
+ print XAUTH "add $host/unix:$displayNumber . $cookie\n";
