@@ -3,8 +3,8 @@
 
 DESCRIPTION="Firmware for Wireless Ralink RT61 based cards"
 
-HOMEPAGE="http://www.ralinktech.com/supp-1.htm"
-SRC_URI="http://www.ralinktech.com/drivers/Linux/RT71W_Firmware_V${PV}.zip"
+HOMEPAGE="http://www.ralinktech.com/ralink/Home/Support/Linux.html"
+SRC_URI="http://www.ralinktech.com.tw/data/RT71W_Firmware_V1.8.zip"
 
 LICENSE="AS-IS"
 SLOT="0"
