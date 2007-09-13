@@ -1,10 +1,9 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-NEED_PYTHON=2.4
+NEED_PYTHON=2.5
 
 inherit eutils subversion distutils python multilib
-
 ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk"
 
 DESCRIPTION="Official Sabayon Linux Package Manager Client (SVN release)"
