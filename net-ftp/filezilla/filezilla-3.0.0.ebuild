@@ -33,8 +33,8 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
-	doicon src/interface/resources/${PN}.xpm || die "doicon failed"
-	make_desktop_entry ${PN} "FileZilla" ${PN}.xpm
+	doicon src/interface/resources/48x48/${PN}.png || die "doicon failed"
+	make_desktop_entry ${PN} "FileZilla" ${PN}.png
 
 	dodoc AUTHORS ChangeLog NEWS
 }
