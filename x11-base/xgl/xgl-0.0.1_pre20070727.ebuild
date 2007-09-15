@@ -1,4 +1,4 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -7,14 +7,16 @@ SNAPSHOT="yes"
 inherit flag-o-matic x-modular multilib
 
 SNAPSHOT_DATE=${PV##*_pre}
-MESA_PN="Mesa"
-MESA_SRC_P="${MESA_PN}-20061027"
+MESA_PN="Mesa-6.5.2"
+MESA_SRC_P="${MESA_PN/Mesa/MesaLib}"
 XGL_SRC_P="${PN}-${SNAPSHOT_DATE}"
 
-SRC_URI="http://distfiles.gentoo-xeffects.org/snapshots/${MESA_PN}/${MESA_SRC_P}.tar.bz2
-	http://distfiles.gentoo-xeffects.org/snapshots/${PN}/${XGL_SRC_P}.tar.bz2"
+SRC_URI="mirror://sourceforge/mesa3d/${MESA_SRC_P}.tar.bz2
+	http://www.sabayonlinux.org/distfiles/x11-base/${XGL_SRC_P}.tar.bz2"
 
-PATCHES="${FILESDIR}/${PN}-java-wmhack.patch"
+PATCHES="${FILESDIR}/${PN}-java-wmhack.patch
+	${FILESDIR}/${PN}-composite-hack.patch
+	${FILESDIR}/${P}-add-missing-gl-struct.patch"
 
 S="${WORKDIR}/${PN}"
 
@@ -25,7 +27,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64 ~ppc"
 IUSE="ipv6 xinerama"
 DEPEND=">=media-libs/glitz-0.5.6
-	>=media-libs/mesa-6.5.1-r1
+	>=media-libs/mesa-6.5.2_pre20061102
 	x11-proto/xf86driproto
 	x11-proto/randrproto
 	x11-proto/renderproto
@@ -81,5 +83,5 @@ src_install() {
 	rm "${D}/usr/share/aclocal/xorg-server.m4" \
 		"${D}/usr/$(get_libdir)/xserver/SecurityPolicy" \
 		"${D}/usr/$(get_libdir)/pkgconfig/xorg-server.pc" \
-		"${D}/usr/share/man/man1/Xserver.1x"
+		"${D}/usr/share/man/man1/Xserver.1*"
 }

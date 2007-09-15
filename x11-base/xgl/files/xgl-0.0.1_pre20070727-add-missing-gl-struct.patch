@@ -1,0 +1,24 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 02_fix_gl.dpatch by Christopher James Halse Rogers (RAOF) <chalserogers@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad xserver-xgl-1.1.99.1~git20070721~/GL/mesa/X/xf86glx_util.h xserver-xgl-1.1.99.1~git20070721/GL/mesa/X/xf86glx_util.h
+--- xserver-xgl-1.1.99.1~git20070721~/GL/mesa/X/xf86glx_util.h	2007-07-21 10:30:55.000000000 +1000
++++ xserver-xgl-1.1.99.1~git20070721/GL/mesa/X/xf86glx_util.h	2007-07-21 14:01:26.000000000 +1000
+@@ -51,6 +51,13 @@
+ 
+ #define XMESA_USE_PUTPIXEL_MACRO
+ 
++struct _XMesaImageRec {
++    int width, height;
++    char *data;
++    int bytes_per_line; /* Padded to 32 bits */
++    int bits_per_pixel;
++};
++
+ extern XMesaImage *XMesaCreateImage(int bitsPerPixel, int width, int height,
+ 				    char *data);
+ extern void XMesaDestroyImage(XMesaImage *image);
