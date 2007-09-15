@@ -80,10 +80,10 @@ function notify_inotify() {
 }
 
 pkg_setup() {
-	if built_with_use --missing false sys-apps/pciutils zlib ; then
-		eerror "You MUST build sys-apps/pciutils without the zlib USE flag"
-		die "You MUST build sys-apps/pciutils without the zlib USE flag"
-	fi
+	#if built_with_use --missing false sys-apps/pciutils zlib ; then
+	#	eerror "You MUST build sys-apps/pciutils without the zlib USE flag"
+	#	die "You MUST build sys-apps/pciutils without the zlib USE flag"
+	#fi
 
 	if use kernel_linux; then
 		kernel_is ge 2 6 17 || ewarn "HAL requires a kernel version 2.6.17 or newer"
@@ -124,6 +124,9 @@ src_unpack() {
 	
 	# cache patch
 	epatch ${FILESDIR}/${P}-hald-cache-test-path.patch
+
+	# update parted support
+	epatch ${FILESDIR}/${P}-update-parted-support.patch
 
 	eautoreconf
 
