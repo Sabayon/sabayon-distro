@@ -48,7 +48,8 @@ DEPEND=">=media-libs/glitz-0.5.6
 	x11-libs/libXfont
 	x11-libs/libxkbfile
 	x11-libs/libxkbui
-	x11-libs/libXxf86misc"
+	x11-libs/libXxf86misc
+	!>=x11-base/xorg-server-1.4"
 
 RESTRICT="nomirror"
 
