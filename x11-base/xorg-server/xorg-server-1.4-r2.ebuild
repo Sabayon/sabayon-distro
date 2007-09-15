@@ -184,6 +184,7 @@ DEPEND="${RDEPEND}
 
 # Drivers
 PDEPEND="
+	!x11-base/xgl
 	xorg? (
 		input_devices_acecad? ( >=x11-drivers/xf86-input-acecad-1.1.0 )
 		input_devices_aiptek? ( >=x11-drivers/xf86-input-aiptek-1.0.1 )
