@@ -10,8 +10,9 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="gnome kde"
+COMPIZ_PV="0.5.4"
 
-RDEPEND="~x11-wm/compiz-${PV}
+RDEPEND="~x11-wm/compiz-${COMPIZ_PV}
 	~x11-plugins/compiz-fusion-plugins-main-${PV}
 	~x11-plugins/compiz-fusion-plugins-extra-${PV}
 	~x11-wm/emerald-${PV}
