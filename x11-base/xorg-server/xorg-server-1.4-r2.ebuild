@@ -107,7 +107,7 @@ IUSE="${IUSE_VIDEO_CARDS}
 	${IUSE_INPUT_DEVICES}
 	${IUSE_SERVERS}
 	3dfx
-	dri hal ipv6 minimal nptl sdl xprint"
+	dri hal ipv6 minimal nptl sdl xprint xgl"
 RDEPEND="hal? ( sys-apps/hal )
 	>=x11-libs/libXfont-1.3.1
 	>=x11-libs/xtrans-1.0.4
@@ -317,6 +317,7 @@ pkg_setup() {
 		$(use_enable !minimal xorgcfg)
 		$(use_enable hal config-dbus)
 		$(use_enable hal config-hal)
+		$(use_enable xgl)
 		--sysconfdir=/etc/X11
 		--localstatedir=/var
 		--enable-install-setuid
