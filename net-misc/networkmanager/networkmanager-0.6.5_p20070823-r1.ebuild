@@ -16,7 +16,7 @@ SRC_URI="mirror://gentoo/${MY_P}.tar.gz
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 ppc ~x86"
-IUSE="crypt doc gnome"
+IUSE="crypt doc gnome applet"
 
 RDEPEND=">=sys-apps/dbus-0.60
 	>=sys-apps/hal-0.5
@@ -37,7 +37,7 @@ RDEPEND=">=sys-apps/dbus-0.60
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	dev-util/intltool"
-PDEPEND="gnome? ( >=gnome-extra/nm-applet-0.6.5 )"
+PDEPEND="applet? ( >=gnome-extra/nm-applet-0.6.5 )"
 
 DOCS="AUTHORS ChangeLog NEWS README"
 USE_DESTDIR="1"
