@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit eutils
+inherit eutils qt4
 S="${WORKDIR}"
 
 DESCRIPTION="KDE application that creates video slideshows."
@@ -14,13 +14,13 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND="
-	>=media-video/xine-ui-0.99.4
 	>=media-sound/vorbis-tools-1.0.1
-	>=media-sound/sox-12.17.9
+	>=media-sound/sox-13.0.0
 	>=media-video/tcmplex-panteltje-0.4.7
 	>=media-video/mjpegtools-1.8.0
-	>=media-gfx/imagemagick-6.2.4.0
-	>=x11-libs/qt-4.2.2
+	>=media-gfx/imagemagick-6.3.2.9
+	media-video/mplayer
+	( $(qt4_min_version 4.2.0) )
 	"
 
 RDEPEND="${DEPEND}"
