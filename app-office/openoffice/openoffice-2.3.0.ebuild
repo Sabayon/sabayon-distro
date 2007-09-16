@@ -16,18 +16,21 @@ S_OLD="${WORKDIR}/ooo-build-${MY_PV}"
 CONFFILE="${S}/distro-configs/Gentoo.conf.in"
 DESCRIPTION="OpenOffice.org, a full office productivity suite."
 
-SRC_URI="mirror://openoffice/stable/${PV}/${SRC}_core.tar.bz2
+SRC_URI="
 	binfilter? ( mirror://openoffice/stable/${PV}/${SRC}_binfilter.tar.bz2 )
 	http://go-oo.org/packages/OOG680/ooo-build-${MY_PV}.tar.gz
 	odk? ( mirror://openoffice/stable/${PV}/${SRC}_sdk.tar.bz2
 		java? ( http://tools.openoffice.org/unowinreg_prebuild/680/unowinreg.dll ) )
+	http://go-oo.org/packages/${PATCHLEVEL}/cli_types.dll
+	http://go-oo.org/packages/${PATCHLEVEL}/cli_types_bridgetest.dll
 	http://go-oo.org/packages/SRC680/extras-2.tar.bz2
 	http://go-oo.org/packages/SRC680/biblio.tar.bz2
 	http://go-oo.org/packages/SRC680/hunspell_UNO_1.1.tar.gz
 	http://go-oo.org/packages/xt/xt-20051206-src-only.zip
 	http://go-oo.org/packages/SRC680/lp_solve_5.5.tar.gz
 	http://go-oo.org/packages/SRC680/libwps-0.1.0~svn20070129.tar.gz
-	http://go-oo.org/packages/SRC680/libwpg-0.1.0~cvs20070608.tar.gz"
+	http://go-oo.org/packages/SRC680/libwpg-0.1.0~cvs20070608.tar.gz
+	http://go-oo.org/packages/${PATCHLEVEL}/oog680-m5-core.tar.bz2"
 
 LANGS1="af ar as_IN be_BY bg bn br bs ca cs cy da de dz el en_GB en_ZA eo es et fa fi fr ga gl gu_IN he hi_IN hr hu it ja km ko ku lt lv mk ml_IN mr_IN nb ne nl nn nr ns or_IN pa_IN pl pt pt_BR ru rw sh_YU sk sl sr_CS ss st sv sw_TZ ta_IN te_IN tg th ti_ER tn tr ts uk ur_IN ve vi xh zh_CN zh_TW zu"
 LANGS="${LANGS1} en en_US"
@@ -299,7 +302,7 @@ src_compile() {
 		--with-num-cpus="${JOBS}" \
 		--without-binsuffix \
 		--with-installed-ooo-dirname="openoffice" \
-		--with-tag="OOG680_m5" \
+		--with-tag="oog680-m5" \
 		"${GTKFLAG}" \
 		`use_enable kde` \
 		`use_enable cairo` \
