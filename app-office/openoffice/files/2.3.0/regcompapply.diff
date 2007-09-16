@@ -1,0 +1,13 @@
+--- patches/src680/apply 
++++ patches/src680/apply 
+@@ -1089,6 +1089,9 @@
+ system-db-check.diff, i#65979, hmth
+ # User ~/.ooo-2.0 as user dir
+ scp2-user-config-ooo-2.0.diff, pmladek
++#fix build on ppc
++disable-regcomp-java.diff
++disable-regcomp-python.diff
+ 
+ [ DebianBaseOnly ]
+ SectionOwner => rengelha
+
