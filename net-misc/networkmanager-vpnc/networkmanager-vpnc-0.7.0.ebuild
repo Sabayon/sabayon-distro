@@ -47,8 +47,15 @@ G2CONF="${G2CONF} \
 	--with-dbus-sys=/etc/dbus-1/system.d \
 	--enable-notification-icon"
 
-src_unpack () {
 
+pkg_setup() {
+        if ! built_with_use --missing false net-misc/networkmanager gnome; then
+                eerror "You MUST build net-misc/networkmanager with the gnome USE flag"
+                die "You MUST build net-misc/networkmanager with the gnome USE flag"
+        fi
+}
+
+src_unpack () {
 	unpack ${A}
 	cd ${S}
 	# Gentoo puts vpnc somewhere that the source doesn't expect.

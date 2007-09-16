@@ -7,10 +7,10 @@ MD5 84fea2787a2b10f0b13ecd89b70ffe67 files/nm-vpnc-path.patch 396
 RMD160 6634dae0d82b9f0a240bf31efa8c183e79618218 files/nm-vpnc-path.patch 396
 SHA256 174c59b7d98236804a65591879253ba9795ce65f4e5eb1f27badcd25cc2d3b36 files/nm-vpnc-path.patch 396
 DIST NetworkManager-vpnc-0.7.0.tar.gz 401930 RMD160 985e72a2dccae73c5a8ac45e908c271fa35be33a SHA1 e82e823af64d339f9fe241b365f89bc4402de5c9 SHA256 6b27fc289ac04cf0e053d04c083003b183ee72deb5e70630495681f653757b92
-EBUILD networkmanager-vpnc-0.7.0.ebuild 1510 RMD160 b7cf856c1e7d6b28e947265c47d858d7061f130d SHA1 e1626c4c59e036acd469eec95c61f296d6f03635 SHA256 00575c5b9d64cb68b454cfc569b8e245bd8fb6f48686558c506d5661e3c99d16
-MD5 5ae110c1aa831c449ef2db0f6969b6a0 networkmanager-vpnc-0.7.0.ebuild 1510
-RMD160 b7cf856c1e7d6b28e947265c47d858d7061f130d networkmanager-vpnc-0.7.0.ebuild 1510
-SHA256 00575c5b9d64cb68b454cfc569b8e245bd8fb6f48686558c506d5661e3c99d16 networkmanager-vpnc-0.7.0.ebuild 1510
+EBUILD networkmanager-vpnc-0.7.0.ebuild 1791 RMD160 685e299f0c0531c8e7c089cd9ee4223d0175b072 SHA1 011b9bd44104de418babc0e262c955eaff72165e SHA256 4cb2309140c3b622496bb1a1c7ce8a66a4b2ba7252f2cad74d3256e948985daa
+MD5 eeaeac72cb1cd5fa53aa7ae670a8d5e1 networkmanager-vpnc-0.7.0.ebuild 1791
+RMD160 685e299f0c0531c8e7c089cd9ee4223d0175b072 networkmanager-vpnc-0.7.0.ebuild 1791
+SHA256 4cb2309140c3b622496bb1a1c7ce8a66a4b2ba7252f2cad74d3256e948985daa networkmanager-vpnc-0.7.0.ebuild 1791
 MD5 a38bef4447d0f3bbb95e9b88738bdb50 files/digest-networkmanager-vpnc-0.7.0 277
 RMD160 58e14ff52038a0096675c35dc63f35d99b01bceb files/digest-networkmanager-vpnc-0.7.0 277
 SHA256 c5fbdb9efee72ab1609947e8e7f3e1d30edd3ec2bce8de2a635edf037cf4b7a9 files/digest-networkmanager-vpnc-0.7.0 277
