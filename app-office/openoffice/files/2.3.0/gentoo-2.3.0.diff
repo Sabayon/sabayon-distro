@@ -8,15 +8,3 @@
  EOT
      chmod 755 $1
  }
---- patches/src680/apply 
-+++ patches/src680/apply 
-@@ -1185,6 +1185,8 @@
- system-db-check.diff, i#65979, hmth
- # User ~/.ooo-2.0 as user dir
- scp2-user-config-ooo-2.0.diff, pmladek
-+# Fix visbility issue with gcc-4.2
-+swregion-gcc42.diff, i#78417, aprosky
- 
- [ DebianBaseOnly ]
- SectionOwner => rengelha
-

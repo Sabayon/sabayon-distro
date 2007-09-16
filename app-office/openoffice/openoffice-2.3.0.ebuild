@@ -27,9 +27,10 @@ SRC_URI="
 	http://go-oo.org/packages/SRC680/biblio.tar.bz2
 	http://go-oo.org/packages/SRC680/hunspell_UNO_1.1.tar.gz
 	http://go-oo.org/packages/xt/xt-20051206-src-only.zip
-	http://go-oo.org/packages/SRC680/lp_solve_5.5.tar.gz
-	http://go-oo.org/packages/SRC680/libwps-0.1.0~svn20070129.tar.gz
-	http://go-oo.org/packages/SRC680/libwpg-0.1.0~cvs20070608.tar.gz
+	http://go-oo.org/packages/SRC680/lp_solve_5.5.0.10_source.tar.gz
+	http://go-oo.org/packages/SRC680/libwps-0.1.0.tar.gz
+	http://go-oo.org/packages/SRC680/libwpg-0.1.0.tar.gz
+	http://go-oo.org/packages/SRC680/libsvg-0.1.4.tar.gz
 	http://go-oo.org/packages/${PATCHLEVEL}/oog680-m5-core.tar.bz2"
 
 LANGS1="af ar as_IN be_BY bg bn br bs ca cs cy da de dz el en_GB en_ZA eo es et fa fi fr ga gl gu_IN he hi_IN hr hu it ja km ko ku lt lv mk ml_IN mr_IN nb ne nl nn nr ns or_IN pa_IN pl pt pt_BR ru rw sh_YU sk sl sr_CS ss st sv sw_TZ ta_IN te_IN tg th ti_ER tn tr ts uk ur_IN ve vi xh zh_CN zh_TW zu"
@@ -96,6 +97,7 @@ COMMON_DEPEND="!app-office/openoffice-bin
 	>=dev-libs/STLport-5.1.2
 	>=dev-libs/glib-2.12
 	>=app-text/libwpd-0.8.8
+	net-libs/xulrunner
 	linguas_ja? ( >=media-fonts/kochi-substitute-20030809-r3 )
 	linguas_zh_CN? ( >=media-fonts/arphicfonts-0.1-r2 )
 	linguas_zh_TW? ( >=media-fonts/arphicfonts-0.1-r2 )"
@@ -199,7 +201,6 @@ src_unpack() {
 
 	#Some fixes for our patchset
 	cd ${S}
-	cp -f ${FILESDIR}/${PV}/swregion-gcc42.diff ${S}/patches/src680 || die
 	epatch ${FILESDIR}/${PV}/gentoo-${PV}.diff
 	epatch ${FILESDIR}/${PV}/ooo-env_log.diff
 
