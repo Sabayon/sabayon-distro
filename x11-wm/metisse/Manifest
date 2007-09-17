@@ -10,6 +10,10 @@ AUX metisse-0.4.0-rc4-fixpagerborder.patch 689 RMD160 1a551d536bec3a217b82998076
 MD5 b16a65579289ef5ac28e02c9380c7eb3 files/metisse-0.4.0-rc4-fixpagerborder.patch 689
 RMD160 1a551d536bec3a217b8299807639dd51de29edd5 files/metisse-0.4.0-rc4-fixpagerborder.patch 689
 SHA256 4913408efaa80e22c926004038e52871709357bb1a6d9e12d24fe974cfba0fe1 files/metisse-0.4.0-rc4-fixpagerborder.patch 689
+AUX metisse-0.4.0-rc4-gcc42.patch 620 RMD160 3ff0e6bf6216ae28ca2025ee5bed680c2402470d SHA1 23011f23bd8c3b8603b8371ac17796d7a3d73083 SHA256 76093d769255766eecbde359d099cd91c191839b3efd0425d1fd57da9ec75543
+MD5 6c49e09c24517558e2abb1e37a391f1c files/metisse-0.4.0-rc4-gcc42.patch 620
+RMD160 3ff0e6bf6216ae28ca2025ee5bed680c2402470d files/metisse-0.4.0-rc4-gcc42.patch 620
+SHA256 76093d769255766eecbde359d099cd91c191839b3efd0425d1fd57da9ec75543 files/metisse-0.4.0-rc4-gcc42.patch 620
 AUX metisse-20061130-background.patch 1308 RMD160 f5c6d64c11c892b7984cf173e353ecbf9dc229df SHA1 b4324f981067953087c72c44fff4842d8ddc0eb5 SHA256 4356329182b72d987b6b3e947f9feaa4c52c135924363f7d962c47f27a94a078
 MD5 88ff66de3dae2aac3759447b2cb26346 files/metisse-20061130-background.patch 1308
 RMD160 f5c6d64c11c892b7984cf173e353ecbf9dc229df files/metisse-20061130-background.patch 1308
@@ -55,6 +59,13 @@ EBUILD metisse-0.4.0_rc4-r1.ebuild 1830 RMD160 49163548096ff19c8411d4f286426fe33
 MD5 eda488faca9898c268a1bc19c6b7f19d metisse-0.4.0_rc4-r1.ebuild 1830
 RMD160 49163548096ff19c8411d4f286426fe335926274 metisse-0.4.0_rc4-r1.ebuild 1830
 SHA256 812b68704f62b2c38394965c2f4445f4ff7a0849cd18afa4ef2b1117e29f11c1 metisse-0.4.0_rc4-r1.ebuild 1830
+EBUILD metisse-0.4.0_rc4-r2.ebuild 1871 RMD160 c88face76c8f5d2a5b6cb0768fcd92878c673912 SHA1 68ec5e6e1536049c2c93a85d6380d57195ae6ec6 SHA256 148c6d8cfc69638bd2d7fdae15cb654b84025bf0af3c2b074b03b821dc6957bf
+MD5 9a50099ecd7aae4372bf473d2dd0b0c0 metisse-0.4.0_rc4-r2.ebuild 1871
+RMD160 c88face76c8f5d2a5b6cb0768fcd92878c673912 metisse-0.4.0_rc4-r2.ebuild 1871
+SHA256 148c6d8cfc69638bd2d7fdae15cb654b84025bf0af3c2b074b03b821dc6957bf metisse-0.4.0_rc4-r2.ebuild 1871
 MD5 9ae5502a8dfd454e3271b114f3b42ff6 files/digest-metisse-0.4.0_rc4-r1 259
 RMD160 4cbefa31d7fbfd475d5a17cf2ff7ea8ca8343253 files/digest-metisse-0.4.0_rc4-r1 259
 SHA256 5791a0aae17d57f519e1a14cf36cc8b393a517186505d63fb8b77f15602b16d9 files/digest-metisse-0.4.0_rc4-r1 259
+MD5 9ae5502a8dfd454e3271b114f3b42ff6 files/digest-metisse-0.4.0_rc4-r2 259
+RMD160 4cbefa31d7fbfd475d5a17cf2ff7ea8ca8343253 files/digest-metisse-0.4.0_rc4-r2 259
+SHA256 5791a0aae17d57f519e1a14cf36cc8b393a517186505d63fb8b77f15602b16d9 files/digest-metisse-0.4.0_rc4-r2 259

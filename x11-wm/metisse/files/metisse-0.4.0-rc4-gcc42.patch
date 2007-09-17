@@ -1,0 +1,15 @@
+diff -Nurp metisse-0.4.0-rc4.orig/xserver/include/GL/glu.h metisse-0.4.0-rc4/xserver/include/GL/glu.h
+--- metisse-0.4.0-rc4.orig/xserver/include/GL/glu.h	2004-07-08 10:21:30.000000000 +0200
++++ metisse-0.4.0-rc4/xserver/include/GL/glu.h	2007-09-17 13:42:30.000000000 +0200
+@@ -256,7 +256,11 @@ typedef struct GLUtesselator GLUtriangul
+ #define GLU_TESS_MAX_COORD 1.0e150
+ 
+ /* Internal convenience typedefs */
++#ifdef __cplusplus
++typedef void (*_GLUfuncptr)(void);
++#else
+ typedef GLvoid (*_GLUfuncptr)(GLvoid);
++#endif
+ 
+ extern void gluBeginCurve (GLUnurbs* nurb);
+ extern void gluBeginPolygon (GLUtesselator* tess);
