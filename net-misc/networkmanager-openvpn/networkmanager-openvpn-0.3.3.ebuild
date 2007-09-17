@@ -5,7 +5,7 @@
 inherit gnome2  eutils
 
 DESCRIPTION="NetworkManager vpnc daemon/client configuration and management in an easy way."
-HOMEPAGE="http://people.redhat.com/dcbw/NetworkManager/"
+HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
 SRC_URI="http://dev.gentoo.org/~steev/distfiles/NetworkManager-openvpn-${PV}.tar.gz"
 
 LICENSE="GPL-2"
@@ -46,3 +46,10 @@ G2CONF="${G2CONF} \
 	--disable-more-warnings \
 	--with-dbus-sys=/etc/dbus-1/system.d \
 	--enable-notification-icon"
+
+pkg_setup() {
+        if ! built_with_use --missing false net-misc/networkmanager gnome; then
+                eerror "You MUST build net-misc/networkmanager with the gnome USE flag"
+                die "You MUST build net-misc/networkmanager with the gnome USE flag"
+        fi
+}
