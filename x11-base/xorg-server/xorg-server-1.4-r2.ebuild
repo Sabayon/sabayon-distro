@@ -99,9 +99,9 @@ IUSE_VIDEO_CARDS="
 	video_cards_via
 	video_cards_vmware
 	video_cards_voodoo
-	video_cards_xgi"
+	video_cards_xgi
+	video_cards_nvidia"
 #	video_cards_fglrx
-#	video_cards_nvidia"
 IUSE_SERVERS="dmx kdrive xorg"
 IUSE="${IUSE_VIDEO_CARDS}
 	${IUSE_INPUT_DEVICES}
@@ -265,10 +265,9 @@ PDEPEND="
 		video_cards_voodoo? ( >=x11-drivers/xf86-video-voodoo-1.1.0 )
 		video_cards_xgi? ( >=x11-drivers/xf86-video-xgi-1.5.0 )
 		video_cards_tdfx? ( 3dfx? ( >=media-libs/glide-v3-3.10 ) )
-		!x11-drivers/nvidia-drivers
+		video_cards_nvidia? ( >=x11-drivers/nvidia-drivers-100.14.19 )
 		!x11-drivers/ati-drivers
 	)"
-#		video_cards_nvidia? ( x11-drivers/nvidia-drivers )
 #		video_cards_fglrx? ( >=x11-drivers/ati-drivers-8.37.6 )
 LICENSE="${LICENSE} MIT"
 
