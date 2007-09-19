@@ -12,6 +12,7 @@ S=${WORKDIR}/linux-core-${PV}
 LICENSE="GPL-2"
 KEYWORDS="amd64 x86"
 IUSE="source grub"
+SLOT="2.6.22"
 
 DEPEND="sys-boot/grub
 	sys-apps/gawk
