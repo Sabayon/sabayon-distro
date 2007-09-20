@@ -15,6 +15,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~hppa ~ppc ~ppc64 ~sparc ~x86"
 IUSE="amuled debug gtk nls remote stats unicode"
+RESTRICT="nomirror"
 
 DEPEND=">=x11-libs/wxGTK-2.8.0
 		>=sys-libs/zlib-1.2.1
@@ -60,12 +61,6 @@ pkg_preinst() {
 		enewgroup p2p
 		enewuser p2p -1 -1 /home/p2p p2p
 	fi
-}
-
-src_unpack() {
-	unpack ${A}
-	cd ${S}
-	epatch ${FILESDIR}/${PN}-remove-stupid-parameter.patch
 }
 
 src_compile() {
