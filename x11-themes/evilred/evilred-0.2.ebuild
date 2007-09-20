@@ -6,7 +6,7 @@ inherit kde
 
 DESCRIPTION="The Evil Red Windows Decoration for KDE3 (taken from Human Blue)"
 HOMEPAGE="http://www.kde-look.org/content/show.php/Human+Blue?content=48318"
-SRC_URI="http://www.sabayonlinuxdev.com/distfiles/x11-themes/${PN}/${P}.tar.bz2"
+SRC_URI="http://www.sabayonlinux.org/distfiles/x11-themes/${PN}/${P}.tar.bz2"
 RESTRICT="nomirror"
 
 SLOT="0"
