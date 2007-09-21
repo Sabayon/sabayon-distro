@@ -10,7 +10,7 @@ SRC_URI="http://xorg.freedesktop.org/archive/individual/app/${P}.tar.gz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 IUSE="dbus fuse gnome gtk kde svg"
 RESTRICT="mirror"
 
