@@ -18,10 +18,10 @@ EBUILD language-configuration-helpers-1.1.1.ebuild 662 RMD160 8d90b280d3337ec97b
 MD5 36c752f5d8bd8004c721dfff505a5092 language-configuration-helpers-1.1.1.ebuild 662
 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 language-configuration-helpers-1.1.1.ebuild 662
 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19 language-configuration-helpers-1.1.1.ebuild 662
-EBUILD language-configuration-helpers-1.2.0.ebuild 662 RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 SHA1 628265a3dea1237a499bd3798479464426bf2190 SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19
-MD5 36c752f5d8bd8004c721dfff505a5092 language-configuration-helpers-1.2.0.ebuild 662
-RMD160 8d90b280d3337ec97b127e6facec375a56be7d82 language-configuration-helpers-1.2.0.ebuild 662
-SHA256 f990f70d943205727247f9da0ad056ad5dc20ab745cc3852106a1b637fae8a19 language-configuration-helpers-1.2.0.ebuild 662
+EBUILD language-configuration-helpers-1.2.0.ebuild 683 RMD160 3e8a3ca196eca8fdb1a1e0ec2946865f58c23e5f SHA1 7dbfcefc288439fb3c16b023561adc1454c622af SHA256 93f5e69d6b950be1c25ed55b1ed37a0a20ea0627ecb4e1cfd9ccbf836579e952
+MD5 728aa5f86b0284536b2794c855317f14 language-configuration-helpers-1.2.0.ebuild 683
+RMD160 3e8a3ca196eca8fdb1a1e0ec2946865f58c23e5f language-configuration-helpers-1.2.0.ebuild 683
+SHA256 93f5e69d6b950be1c25ed55b1ed37a0a20ea0627ecb4e1cfd9ccbf836579e952 language-configuration-helpers-1.2.0.ebuild 683
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-language-configuration-helpers-1.1.1 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-language-configuration-helpers-1.1.1 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-language-configuration-helpers-1.1.1 0

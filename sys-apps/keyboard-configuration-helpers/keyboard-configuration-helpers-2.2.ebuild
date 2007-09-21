@@ -11,10 +11,11 @@ SLOT="0"
 KEYWORDS="x86 amd64 ppc ppc64 sparc"
 IUSE=""
 
-DEPEND="sys-apps/sed
+RDEPEND="sys-apps/sed
 	sys-apps/baselayout
 	>=dev-lang/python-2.4.0"
 
+DEPEND="${RDEPEND}"
 
 src_unpack () {
 

@@ -6,10 +6,10 @@ AUX 1.0/safe-browsing-setup 17927 RMD160 d617ef99b8de8ff8c18578f8751ef1ce6b4a813
 MD5 81bfa86d599d57ae3235f261f9f027d3 files/1.0/safe-browsing-setup 17927
 RMD160 d617ef99b8de8ff8c18578f8751ef1ce6b4a813a files/1.0/safe-browsing-setup 17927
 SHA256 b9d87f3342f28ade8a57fd53c86ade84b92339d17a8cbd807ebe819d85463e02 files/1.0/safe-browsing-setup 17927
-EBUILD safe-browsing-helpers-1.0.1.ebuild 507 RMD160 496c529dc1909e6f7cb90d1845b4b8bf31f6ca64 SHA1 839123215277ceee1e21948995036afdd36e95e9 SHA256 d2ab04ebdaaa15b8a3d78244a59bd842df91c2abe8b9ead77f2a7ce622a453ed
-MD5 e2fef53754597f29b59985be687fb717 safe-browsing-helpers-1.0.1.ebuild 507
-RMD160 496c529dc1909e6f7cb90d1845b4b8bf31f6ca64 safe-browsing-helpers-1.0.1.ebuild 507
-SHA256 d2ab04ebdaaa15b8a3d78244a59bd842df91c2abe8b9ead77f2a7ce622a453ed safe-browsing-helpers-1.0.1.ebuild 507
+EBUILD safe-browsing-helpers-1.0.1.ebuild 532 RMD160 0da703714cda24c75af4630f371f1143bd913dae SHA1 b34636ac456e95040c8fa9c9794677f17ed4a9d5 SHA256 31fb21c14d13a891a008be9ec820a778347153bcdb0f5b226d11320f59111df7
+MD5 7a287543b8e840875679a5b94301eed9 safe-browsing-helpers-1.0.1.ebuild 532
+RMD160 0da703714cda24c75af4630f371f1143bd913dae safe-browsing-helpers-1.0.1.ebuild 532
+SHA256 31fb21c14d13a891a008be9ec820a778347153bcdb0f5b226d11320f59111df7 safe-browsing-helpers-1.0.1.ebuild 532
 EBUILD safe-browsing-helpers-1.0.ebuild 507 RMD160 496c529dc1909e6f7cb90d1845b4b8bf31f6ca64 SHA1 839123215277ceee1e21948995036afdd36e95e9 SHA256 d2ab04ebdaaa15b8a3d78244a59bd842df91c2abe8b9ead77f2a7ce622a453ed
 MD5 e2fef53754597f29b59985be687fb717 safe-browsing-helpers-1.0.ebuild 507
 RMD160 496c529dc1909e6f7cb90d1845b4b8bf31f6ca64 safe-browsing-helpers-1.0.ebuild 507

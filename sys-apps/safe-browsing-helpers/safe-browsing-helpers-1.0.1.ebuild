@@ -9,9 +9,12 @@ SLOT="0"
 KEYWORDS="x86 amd64 ppc ppc64 sparc"
 IUSE=""
 
-DEPEND="net-proxy/privoxy
+RDEPEND="
+	net-proxy/privoxy
 	net-misc/tor
-	>=dev-lang/python-2.4.0"
+	>=dev-lang/python-2.4.0
+	"
+DEPEND="${RDEPEND}"
 
 src_unpack () {
         cd ${WORKDIR}
