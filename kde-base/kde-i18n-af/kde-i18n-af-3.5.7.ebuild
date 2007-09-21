@@ -9,8 +9,8 @@ LICENSE="GPL-2"
 
 SLOT="3.5"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-DEPEND="!kde-base/kde-i18n"
-DEPEND="!kde-base/kde-i18n"
+RDEPEND="!kde-base/kde-i18n"
+RDEPEND="!kde-base/kde-i18n"
 IUSE=""
 
 LOCALE=${PN/kde-i18n-/}
