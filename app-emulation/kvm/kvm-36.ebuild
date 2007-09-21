@@ -14,8 +14,6 @@ IUSE="no_kernel_module"
 
 RESTRICT="nomirror"
 
-DEPEND="${RDEPEND}"
-
 # FIXME: add kernel dependency
 RDEPEND=">=media-libs/alsa-lib-1.0.11
 	>=media-libs/libsdl-1.2.10
@@ -27,6 +25,8 @@ RDEPEND=">=media-libs/alsa-lib-1.0.11
 	>=sys-libs/ncurses-5.5
 	>=sys-fs/udev-100
 	"
+
+DEPEND="${RDEPEND}"
 
 pkg_setup() {
 	if ! use no_kernel_module; then

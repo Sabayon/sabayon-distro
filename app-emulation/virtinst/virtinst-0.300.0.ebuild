@@ -12,11 +12,10 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="${RDEPEND}"
-
 RDEPEND=">=app-emulation/libvirt-0.2.0
 	dev-lang/python"
 
+DEPEND="${RDEPEND}"
 
 src_unpack() {
 	unpack ${A}

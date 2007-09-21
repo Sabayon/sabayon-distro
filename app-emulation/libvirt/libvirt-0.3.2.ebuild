@@ -13,13 +13,13 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="xen"
 
-DEPEND="${RDEPEND}"
-
 RDEPEND="sys-libs/readline
 	sys-libs/ncurses
 	dev-libs/libxml2
 	xen? ( >=app-emulation/xen-tools-3.0.4_p1 )
 	dev-lang/python"
+
+DEPEND="${RDEPEND}"
 
 src_unpack() {
 	unpack ${A}
