@@ -12,13 +12,14 @@ KEYWORDS="~x86 ~amd64"
 RESTRICT="nomirror"
 S=${WORKDIR}/${PN}
 
-DEPEND="
-	>=net-misc/networkmanager-0.6.3
+RDEPEND="
 	>=kde-base/kdelibs-3.2
 	|| ( >=dev-libs/dbus-qt3-old-0.70
 		( <sys-apps/dbus-0.70 ) )
 	>=sys-apps/hal-0.5.9
+	>=net-misc/networkmanager-0.6.3
 	"
+DEPEND="${RDEPEND}"
 
 src_unpack() {
 	kde_src_unpack

@@ -1,4 +1,0 @@
-# Configuration file for dhcdbd
-#
-# Arguments to pass to the dhcdbd daemon.
-DHCDBD_ARGS="--system"
