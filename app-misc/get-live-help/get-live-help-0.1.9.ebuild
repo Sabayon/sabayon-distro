@@ -12,10 +12,12 @@ LICENSE="GPL-2"
 KEYWORDS="amd64 x86"
 IUSE="kde"
 
-DEPEND="
+RDEPEND="
 	net-irc/irssi
 	kde? ( net-irc/konversation )
 	"
+
+DEPEND="${RDEPEND}"
 
 src_unpack() {
         subversion_src_unpack

@@ -26,10 +26,10 @@ EBUILD get-live-help-0.1.8.ebuild 873 RMD160 77e30cdcaab9e823bb259b39b83e09c9902
 MD5 7f6fedae2373e1b943195d3a1ea08890 get-live-help-0.1.8.ebuild 873
 RMD160 77e30cdcaab9e823bb259b39b83e09c99027b796 get-live-help-0.1.8.ebuild 873
 SHA256 151f0ed3d1a59c0a0ad8d955c57eb4416d5fd7def09208be25d96a2b1188707f get-live-help-0.1.8.ebuild 873
-EBUILD get-live-help-0.1.9.ebuild 873 RMD160 77e30cdcaab9e823bb259b39b83e09c99027b796 SHA1 59752625d363a26a9f1b425d3c638ba396707bde SHA256 151f0ed3d1a59c0a0ad8d955c57eb4416d5fd7def09208be25d96a2b1188707f
-MD5 7f6fedae2373e1b943195d3a1ea08890 get-live-help-0.1.9.ebuild 873
-RMD160 77e30cdcaab9e823bb259b39b83e09c99027b796 get-live-help-0.1.9.ebuild 873
-SHA256 151f0ed3d1a59c0a0ad8d955c57eb4416d5fd7def09208be25d96a2b1188707f get-live-help-0.1.9.ebuild 873
+EBUILD get-live-help-0.1.9.ebuild 895 RMD160 dfe34b17cdfec2e5cc5a48702b361cfed1f739be SHA1 9ac18e75692cf50de250473f236e54bff0446695 SHA256 8dd10f666334dfa4b0d78dd586b773b698f8b5da499225eaec4275a19ccadbf7
+MD5 f3617bbddda72e424db5262d267a132e get-live-help-0.1.9.ebuild 895
+RMD160 dfe34b17cdfec2e5cc5a48702b361cfed1f739be get-live-help-0.1.9.ebuild 895
+SHA256 8dd10f666334dfa4b0d78dd586b773b698f8b5da499225eaec4275a19ccadbf7 get-live-help-0.1.9.ebuild 895
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-get-live-help-0.1.3 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-get-live-help-0.1.3 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-get-live-help-0.1.3 0
