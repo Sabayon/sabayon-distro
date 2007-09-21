@@ -23,12 +23,11 @@ $(deprange $PV $MAXKDEVER kde-base/kdebase-data)
 			x11-libs/libXrender
 			x11-libs/libXtst
 		) <virtual/x11-7 )
-	xcomposite? ( || ( x11-libs/libXcomposite <x11-base/xorg-x11-7 ) )"
-
-DEPEND="${RDEPEND}
-	xcomposite? ( || ( x11-proto/compositeproto <x11-base/xorg-x11-7 ) )
+	xcomposite? ( || ( x11-libs/libXcomposite <x11-base/xorg-x11-7 ) )
 	kickoff? ( >=app-misc/beagle-0.2.11 dev-libs/liblazy )"
 
+DEPEND="${RDEPEND}
+	xcomposite? ( || ( x11-proto/compositeproto <x11-base/xorg-x11-7 ) )"
 KMCOPYLIB="libkonq libkonq"
 KMEXTRACTONLY="libkonq
 	kdm/kfrontend/themer/"
