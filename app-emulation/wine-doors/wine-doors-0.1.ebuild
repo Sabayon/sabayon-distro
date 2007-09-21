@@ -14,7 +14,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 S=${WORKDIR}/${PN}-${MY_PV}
 
-DEPEND="
+RDEPEND="
 	>=dev-lang/python-2.4.0
 	>=dev-python/pycairo-1.2.0
 	>=x11-libs/cairo-1.2.0
@@ -29,6 +29,8 @@ DEPEND="
 	dev-libs/libxml2
 	app-pda/orange
 	"
+
+DEPEND="${RDEPEND}"
 
 pkg_setup() {
 
