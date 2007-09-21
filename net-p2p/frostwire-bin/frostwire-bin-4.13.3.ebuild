@@ -3,7 +3,7 @@
 # $Header: $
 
 inherit eutils
-MY_P="FrostWire"
+MY_P="frostwire"
 
 DESCRIPTION="FrostWire is a high quality, FREE peer-to-peer application."
 HOMEPAGE="http://www.frostwire.com"
@@ -20,13 +20,19 @@ S="${WORKDIR}"
 
 src_install() {
 
-	insinto /usr/lib
-	doins -r ${S}/${MY_P}-${PV}/usr/lib/*
+	dodir /usr/share/${MY_P}
+	insinto /usr/share/${MY_P}
+	doins -r ${S}/${MY_P}-${PV}.noarch/*
 
-	insinto /usr/share
-	doins -r ${S}/${MY_P}-${PV}/usr/share/*
+        dodir /usr/bin
+        echo '#!/bin/sh' > ${MY_P}
+        echo 'cd /usr/share/'${MY_P} >> ${MY_P}
+        echo './runFrostwire.sh "$@"' >> ${MY_P}
+        exeinto /usr/bin
+        doexe ${MY_P}
 
-	exeinto /usr/bin
-	doexe ${S}/${MY_P}-${PV}/usr/bin/*
+	insinto /usr/share/applications
+	dodir /usr/share/applications
+	doins ${S}/${MY_P}-${PV}.noarch/frostwire.desktop
 
 }
