@@ -14,10 +14,10 @@ IUSE="no_kernel_module"
 
 RESTRICT="nomirror"
 
-RDEPEND="${DEPEND}"
+DEPEND="${RDEPEND}"
 
 # FIXME: add kernel dependency
-DEPEND=">=media-libs/alsa-lib-1.0.11
+RDEPEND=">=media-libs/alsa-lib-1.0.11
 	>=media-libs/libsdl-1.2.10
 	sys-fs/e2fsprogs
 	x11-libs/libX11
