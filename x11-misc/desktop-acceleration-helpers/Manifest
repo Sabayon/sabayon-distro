@@ -34,10 +34,10 @@ EBUILD desktop-acceleration-helpers-2.1.1-r4.ebuild 632 RMD160 3275d4dc103c118b1
 MD5 22834409faaefd23058b287b09e75f3d desktop-acceleration-helpers-2.1.1-r4.ebuild 632
 RMD160 3275d4dc103c118b1bebdc906d30d975931af897 desktop-acceleration-helpers-2.1.1-r4.ebuild 632
 SHA256 49a6fdefcbefc14d3a9e0e9ac02c7cbd08acdb5acc31669b60293ac76c737cd4 desktop-acceleration-helpers-2.1.1-r4.ebuild 632
-EBUILD desktop-acceleration-helpers-3.0-r7.ebuild 654 RMD160 c10e699cd02ebb39990f4e44368aa51bd2861505 SHA1 e57fd96bfd06a7964064b14ad166a08697071a5a SHA256 05f0b949020200db696170eb3b0b20949b09817a04df8aac689d6aa51091460a
-MD5 5f57954c8a279f0c9caa476b91bb3bff desktop-acceleration-helpers-3.0-r7.ebuild 654
-RMD160 c10e699cd02ebb39990f4e44368aa51bd2861505 desktop-acceleration-helpers-3.0-r7.ebuild 654
-SHA256 05f0b949020200db696170eb3b0b20949b09817a04df8aac689d6aa51091460a desktop-acceleration-helpers-3.0-r7.ebuild 654
+EBUILD desktop-acceleration-helpers-3.0-r7.ebuild 676 RMD160 e241ed962ea6cedaa213062f66f3a7ce1a016041 SHA1 64c18995e54ccf8bf53ae5176a80ef147d7fdaae SHA256 c9552ae59a1159bfc98ccea999de855a3051861b8d7cd2802968056eafa0fff5
+MD5 8ff6beddfa8ce863902cf22aa03df328 desktop-acceleration-helpers-3.0-r7.ebuild 676
+RMD160 e241ed962ea6cedaa213062f66f3a7ce1a016041 desktop-acceleration-helpers-3.0-r7.ebuild 676
+SHA256 c9552ae59a1159bfc98ccea999de855a3051861b8d7cd2802968056eafa0fff5 desktop-acceleration-helpers-3.0-r7.ebuild 676
 MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-desktop-acceleration-helpers-2.1.1-r4 0
 RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-desktop-acceleration-helpers-2.1.1-r4 0
 SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-desktop-acceleration-helpers-2.1.1-r4 0
