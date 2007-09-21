@@ -1,7 +1,7 @@
 # Copyright 2006 SabayonLinux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils subversion
+inherit eutils subversion qt4
 
 DESCRIPTION="Acceleration Manager for AIGLX/XGL on SabayonLinux"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -11,12 +11,15 @@ KEYWORDS="~x86 ~amd64 ~ppc ~ppc64"
 IUSE=""
 ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/${PN}/tags/${PV}"
 
-DEPEND=">=x11-base/xorg-x11-7.1
-	>=x11-libs/qt-4.2
+RDEPEND="
+	$(qt4_min_version 4.2)
+	>=x11-base/xorg-x11-7.1
         || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 )
         x11-misc/desktop-acceleration-helpers
 	x11-base/xgl
 	"
+
+DEPEND="${RDEPEND}"
 
 src_unpack() {
         subversion_src_unpack
