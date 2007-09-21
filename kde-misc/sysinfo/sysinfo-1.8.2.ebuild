@@ -14,7 +14,7 @@ SLOT="0"
 RDEPEND="${DEPEND}"
 S=${WORKDIR}/${P}
 
-DEPEND="
+RDEPEND="
 	=kde-base/kdelibs-3.5*
 	|| ( ( =kde-base/kdebase-kioslaves-3.5* ) =kde-base/kdebase-3.5* )
 	<x11-libs/qt-4
@@ -22,6 +22,7 @@ DEPEND="
 	>=sys-apps/dbus-1.0
 	>=sys-apps/hal-0.5
 	"
+DEPEND="${RDEPEND}"
 
 need-kde 3.5
 
