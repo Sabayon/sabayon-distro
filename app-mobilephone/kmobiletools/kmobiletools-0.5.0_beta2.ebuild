@@ -14,7 +14,8 @@ LICENSE="GPL-2"
 IUSE="kde"
 KEYWORDS="~amd64 ~ppc ~x86"
 
-DEPEND="kde? ( || ( ( kde-base/libkcal kde-base/kontact ) kde-base/kdepim ) )"
+RDEPEND="kde? ( || ( ( kde-base/libkcal kde-base/kontact ) kde-base/kdepim ) )"
+DEPEND="${RDEPEND}"
 
 need-kde 3.3
 
