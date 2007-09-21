@@ -13,7 +13,8 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
-DEPEND="sys-libs/zlib"
+RDEPEND="sys-libs/zlib"
+DEPEND="${RDEPEND}"
 
 src_unpack() {
 	unpack ${A}
