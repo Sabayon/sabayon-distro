@@ -12,7 +12,9 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="
+DEPEND="${RDEPEND}"
+
+RDEPEND="
 	>=app-emulation/libvirt-0.2.2-r1
 	dev-python/dbus-python
 	>=gnome-base/gconf-2.8
