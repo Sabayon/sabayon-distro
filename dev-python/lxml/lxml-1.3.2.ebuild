@@ -16,9 +16,10 @@ KEYWORDS="~amd64 ~ia64 ~ppc ~x86"
 IUSE="doc examples"
 
 # Note: This version comes with it's own bundled svn version of pyrex
-DEPEND=">=dev-libs/libxml2-2.6.16
+RDEPEND=">=dev-libs/libxml2-2.6.16
 		>=dev-libs/libxslt-1.1.12
 		>=dev-python/setuptools-0.6_rc5"
+DEPEND="${RDEPEND}"
 
 src_install() {
 	distutils_src_install

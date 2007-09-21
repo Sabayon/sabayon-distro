@@ -14,10 +14,12 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="mirror"
 
-DEPEND="~x11-libs/libcompizconfig-${PV}
+RDEPEND="~x11-libs/libcompizconfig-${PV}
 	>=dev-libs/glib-2.6
 	|| ( >=dev-lang/python-2.4 >=dev-lang/python-2.5 )
 	dev-python/pyrex"
+
+DEPEND="${RDEPEND}"
 
 S="${WORKDIR}/${P}"
 

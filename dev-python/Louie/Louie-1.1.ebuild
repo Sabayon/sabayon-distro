@@ -11,7 +11,9 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~ia64 ~ppc ~x86"
 
-DEPEND=">=dev-lang/python-2.4.0"
+RDEPEND=">=dev-lang/python-2.4.0"
+
+DEPEND="${RDEPEND}"
 
 src_install() {
 	distutils_src_install

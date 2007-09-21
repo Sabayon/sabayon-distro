@@ -17,6 +17,8 @@ IUSE=""
 DEPEND=">=dev-lang/python-2.4
 	>=sys-apps/parted-1.7.0"
 
+RDEPEND="${DEPEND}"
+
 src_compile() {
 	einfo "Fixing libdir"
 	sed -i "s/\$(shell rpm --eval \"%{_libdir}\")/usr\/$(get_libdir)/" Makefile || die "cannot fix libdir"

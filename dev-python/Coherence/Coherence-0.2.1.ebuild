@@ -12,7 +12,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~ia64 ~ppc ~x86"
 RESTRICT="nomirror"
 
-DEPEND="
+RDEPEND="
 	>=dev-lang/python-2.4
 	dev-python/elementtree
 	dev-python/celementtree
@@ -23,6 +23,7 @@ DEPEND="
 	dev-python/nevow
 	
 	"
+DEPEND="${RDEPEND}"
 
 src_install() {
 	distutils_src_install
