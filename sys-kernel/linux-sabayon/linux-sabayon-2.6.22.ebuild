@@ -14,11 +14,11 @@ KEYWORDS="amd64 x86"
 IUSE="source grub"
 SLOT="2.6.22"
 
-DEPEND="sys-boot/grub
-	sys-apps/gawk
+RDEPEND="sys-apps/gawk
+	sys-boot/grub
 	source? ( =sys-kernel/sabayon-sources-${PV} )"
 
-RDEPEND="${DEPEND}"
+DEPEND="${RDEPEND}"
 
 src_install() {
 
