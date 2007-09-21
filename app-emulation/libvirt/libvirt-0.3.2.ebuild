@@ -13,7 +13,9 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="xen"
 
-DEPEND="sys-libs/readline
+DEPEND="${RDEPEND}"
+
+RDEPEND="sys-libs/readline
 	sys-libs/ncurses
 	dev-libs/libxml2
 	xen? ( >=app-emulation/xen-tools-3.0.4_p1 )
