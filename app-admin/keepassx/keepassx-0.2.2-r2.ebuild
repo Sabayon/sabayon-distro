@@ -13,7 +13,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 DEPEND=">=x11-libs/qt-4.1"
-RDEPEND="$DEPEND"
+RDEPEND="${DEPEND}"
 
 src_compile() {
 	/usr/bin/qmake || die "qmake failed"
