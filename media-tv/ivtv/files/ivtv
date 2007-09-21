@@ -1,5 +1,0 @@
-alias char-major-81     videodev
-alias char-major-81-0   ivtv
-alias char-major-81-1	ivtv
-alias char-major-61 lirc_i2c
-#add above ivtv lirc_dev lirc_i2c

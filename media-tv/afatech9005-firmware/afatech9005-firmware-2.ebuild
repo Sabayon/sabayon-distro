@@ -11,7 +11,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86 ~ppc"
 
 IUSE=""
-DEPEND=">=sys-apps/hotplug-20040923"
+RDEPEND=">=sys-apps/hotplug-20040923"
 
 src_unpack()
 {
