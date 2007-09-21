@@ -17,9 +17,9 @@ IUSE=""
 
 RDEPEND=">=x11-libs/wxGTK-2.8.0
 	>=net-libs/gnutls-1.6.1
-	net-dns/libidn
-	>=sys-devel/libtool-1.4"
+	net-dns/libidn"
 DEPEND="${RDEPEND}
+	>=sys-devel/libtool-1.4
 	>=sys-devel/gettext-0.11"
 
 src_compile() {
