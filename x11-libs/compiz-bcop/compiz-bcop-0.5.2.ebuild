@@ -14,8 +14,10 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="mirror"
 
-DEPEND=">=dev-util/pkgconfig-0.19
-	dev-libs/libxslt"
+RDEPEND="dev-libs/libxslt"
+
+DEPEND="${RDEPEND}
+	>=dev-util/pkgconfig-0.19"
 
 S="${WORKDIR}/${P}"
 
