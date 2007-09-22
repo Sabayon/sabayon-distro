@@ -14,9 +14,11 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="mirror"
 
-DEPEND=">=dev-util/pkgconfig-0.19
-	~x11-wm/compiz-${PV}
+RDEPEND="~x11-wm/compiz-${PV}
 	dev-libs/libxml2"
+
+DEPEND="${RDEPEND}
+	>=dev-util/pkgconfig-0.19"
 
 S="${WORKDIR}/${P}"
 
