@@ -18,6 +18,7 @@ RDEPEND="dev-util/dialog
 	!app-misc/livecd-tools
 	!business_edition? ( x11-misc/desktop-acceleration-helpers )
 	"
+DEPEND="${RDEPEND}"
 
 src_unpack() {
 	cd ${WORKDIR}

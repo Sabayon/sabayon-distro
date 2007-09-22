@@ -249,6 +249,10 @@ configure_input_devices() {
       sed -i '/XkbOptions/ s/#//' /etc/X11/xorg.conf
    fi
 
+   # Detect VMware
+   if [ -n "$is_vmware" ]; then
+      sed -i '/Driver.*mouse/ s/mouse/vmmouse/' /etc/X11/xorg.conf
+   fi
 
 }
 
@@ -270,6 +274,7 @@ configure_input_devices() {
       cmdline_cdroot_exist=$(cat /proc/cmdline | grep " cdroot")
       is_mactel=$(dmidecode | grep "Vendor" | grep "Apple Computer")
       is_macbook=$(dmidecode | grep "Product Name" | grep -i "MacBook")
+      is_vmware=$(dmidecode | grep "Product Name" | grep -i "vmware")
       alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i alps)
       synaptics_touchpad_exist=$(cat /proc/bus/input/devices | grep -i synaptics)
 
