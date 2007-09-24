@@ -9,14 +9,14 @@ HOMEPAGE="http://www.sabayonlinux.org"
 SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="amd64 x86"
-IUSE="opengl business_edition"
+IUSE="opengl professional_edition"
 
 RDEPEND="dev-util/dialog
 	sys-apps/pciutils
 	sys-apps/gawk
-	!business_edition? ( app-admin/eselect-opengl )
+	!professiona_edition? ( app-admin/eselect-opengl )
 	!app-misc/livecd-tools
-	!business_edition? ( x11-misc/desktop-acceleration-helpers )
+	!professional_edition? ( x11-misc/desktop-acceleration-helpers )
 	"
 DEPEND="${RDEPEND}"
 
