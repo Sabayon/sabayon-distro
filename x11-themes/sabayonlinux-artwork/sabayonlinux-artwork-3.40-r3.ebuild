@@ -10,7 +10,7 @@ SRC_URI="http://www.sabayonlinux.org/distfiles/x11-themes/${PN}/${PN}-${PV}.tar.
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64 ppc ppc64"
-IUSE="symlink business_edition kde gtk"
+IUSE="symlink professional_edition kde gtk"
 RESTRICT="nomirror"
 RDEPEND="
 	gtk? ( >=x11-libs/gtk+-2.8 )
@@ -30,7 +30,7 @@ src_install () {
 
 	cd ${S}/background
 	insinto /usr/share/backgrounds
-	if use business_edition; then
+	if use professional_edition; then
 		mv sabayonlinux-be.png sabayonlinux.png
 	fi
 	doins *.jpg *.png
