@@ -9,7 +9,7 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
-IUSE="x86_release x86_64_release x86_mini_release x86_64_mini_release x86_be_release x86_64_be_release"
+IUSE="x86_release x86_64_release x86_mini_release x86_64_mini_release x86_pe_release x86_64_pe_release"
 SABAYON_VER="${PV}"
 SABAYON_BUSINESS_VER="1.1"
 SABAYON_HEADER="Sabayon Linux"
@@ -27,10 +27,10 @@ src_unpack () {
 		echo ${SABAYON_HEADER}" x86.miniEdition "${SABAYON_VER} > ${SABAYON_RELEASE}
 	elif use x86_64_mini_release; then
 		echo ${SABAYON_HEADER}" x86-64.miniEdition "${SABAYON_VER} > ${SABAYON_RELEASE}
-	elif use x86_be_release; then
-		echo ${SABAYON_HEADER}" x86.BusinessEdition "${SABAYON_BUSINESS_VER} > ${SABAYON_RELEASE}
-	elif use x86_64_be_release; then
-		echo ${SABAYON_HEADER}" x86-64.BusinessEdition "${SABAYON_BUSINESS_VER} > ${SABAYON_RELEASE}
+	elif use x86_pe_release; then
+		echo ${SABAYON_HEADER}" x86.ProfessionalEdition "${SABAYON_BUSINESS_VER} > ${SABAYON_RELEASE}
+	elif use x86_64_pe_release; then
+		echo ${SABAYON_HEADER}" x86-64.ProfessionalEdition "${SABAYON_BUSINESS_VER} > ${SABAYON_RELEASE}
 	else
 		die "No release type selected using USE flags"
 	fi
