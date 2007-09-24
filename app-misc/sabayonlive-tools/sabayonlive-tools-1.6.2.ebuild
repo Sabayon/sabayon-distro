@@ -8,7 +8,7 @@ HOMEPAGE="http://www.sabayonlinux.org"
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="opengl business_edition"
 
 RDEPEND="dev-util/dialog
