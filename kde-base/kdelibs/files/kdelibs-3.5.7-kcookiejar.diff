@@ -1,0 +1,59 @@
+Index: kcookiejar.cpp
+===================================================================
+--- kdelibs-3.5.7.orig/kioslave/http/kcookiejar/kcookiejar.cpp	(revision 707307)
++++ kdelibs-3.5.7/kioslave/http/kcookiejar/kcookiejar.cpp	(working copy)
+@@ -981,44 +981,27 @@
+ //
+ KCookieAdvice KCookieJar::cookieAdvice(KHttpCookiePtr cookiePtr)
+ {
+-    QStringList domains;
+-
+     if (m_rejectCrossDomainCookies && cookiePtr->isCrossDomain())
+        return KCookieReject;
+ 
+-    if (m_autoAcceptSessionCookies && (cookiePtr->expireDate() == 0 ||
+-        m_ignoreCookieExpirationDate))
+-       return KCookieAccept;
++    QStringList domains;
+ 
+     extractDomains(cookiePtr->host(), domains);
+ 
+-    // If the cookie specifies a domain, check whether it is valid and
+-    // correct otherwise.
++    // If the cookie specifies a domain, check whether it is valid. Otherwise,
++    // accept the cookie anyways but removes the domain="" value to prevent
++    // cross-site cookie injection.
+     if (!cookiePtr->domain().isEmpty())
+     {
+-       bool valid = false;
+-
+-       // This checks whether the cookie is valid based on
+-       // what ::extractDomains returns
+-       if (!valid)
+-       {
+-          if (domains.contains(cookiePtr->domain()))
+-             valid = true;
+-       }
+-
+-       if (!valid)
+-       {
+-          // Maybe it points to a sub-domain
+-          if (cookiePtr->domain().endsWith("."+cookiePtr->host()))
+-             valid = true;
+-       }
+-
+-       if (!valid)
+-       {
++      if (!domains.contains(cookiePtr->domain()) && 
++          !cookiePtr->domain().endsWith("."+cookiePtr->host()))
+           cookiePtr->fixDomain(QString::null);
+-       }
+     }
+ 
++    if (m_autoAcceptSessionCookies && (cookiePtr->expireDate() == 0 ||
++        m_ignoreCookieExpirationDate))
++       return KCookieAccept;
++
+     KCookieAdvice advice = KCookieDunno;
+     bool isFQDN = true; // First is FQDN
+     QStringList::Iterator it = domains.begin(); // Start with FQDN which first in the list.
