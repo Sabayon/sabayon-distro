@@ -65,7 +65,7 @@ src_install() {
 	# copy client
 	cd ${S}/client
 	insinto /usr/share/entropy/client
-	doins equoTools.py
+	doins *.py
 	exeinto /usr/share/entropy/client
 	doins equo
 
