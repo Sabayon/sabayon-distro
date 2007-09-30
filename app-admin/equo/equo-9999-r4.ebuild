@@ -40,6 +40,10 @@ src_unpack() {
 	sed -i -e "s/\(coding: \)ISO-8859-1/\1utf-8/" \
 		pysqlite2/__init__.py pysqlite2/dbapi2.py || die "sed failed"
 
+	# setting svn revision
+	cd ${ESVN_STORE_DIR}/${PN}/trunk
+	SVNREV=$(svnversion)
+	echo $SVNREV > libraries/revision
 }
 
 src_compile() {
@@ -61,6 +65,7 @@ src_install() {
 	cd ${S}/libraries
 	insinto /usr/share/entropy/libraries
 	doins *.py
+	doins revision
 
 	# copy client
 	cd ${S}/client
