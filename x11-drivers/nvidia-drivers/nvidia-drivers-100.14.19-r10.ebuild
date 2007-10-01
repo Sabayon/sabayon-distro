@@ -382,9 +382,6 @@ want_tls() {
 
 	[[ ${valid_chost} == "false" ]] && return 1
 
-	# If we've got nptl, we've got tls
-	built_with_use --missing true sys-libs/glibc nptl && return 0
-
 	# 2.3.5 turned off tls for linuxthreads glibc on i486 and i586
 	if use x86 && has_version '>=sys-libs/glibc-2.3.5' ; then
 		case ${CHOST/-*} in
