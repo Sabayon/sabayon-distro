@@ -1,0 +1,3779 @@
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/Kconfig linux-2.6.23-sabayon/drivers/net/wireless/Kconfig
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/Kconfig	2007-10-10 01:36:16.000000000 +0200
++++ linux-2.6.23-sabayon/drivers/net/wireless/Kconfig	2007-10-10 01:39:07.000000000 +0200
+@@ -585,6 +585,19 @@ config RTL8187
+ 
+ 	  Thanks to Realtek for their support!
+ 
++config P54_COMMON
++	tristate "Softmac Prism54 support"
++	depends on MAC80211 && WLAN_80211 && FW_LOADER && EXPERIMENTAL
++
++config P54_USB
++	tristate "Prism54 USB support"
++	depends on P54_COMMON && USB
++	select CRC32
++
++config P54_PCI
++	tristate "Prism54 PCI support"
++	depends on P54_COMMON && PCI
++
+ config ATH5K
+ 	tristate "Atheros 5xxx wireless cards support"
+ 	depends on PCI && MAC80211 && WLAN_80211 && EXPERIMENTAL
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/Makefile linux-2.6.23-sabayon/drivers/net/wireless/Makefile
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/Makefile	2007-10-10 01:36:16.000000000 +0200
++++ linux-2.6.23-sabayon/drivers/net/wireless/Makefile	2007-10-10 01:38:34.000000000 +0200
+@@ -58,3 +58,6 @@ obj-$(CONFIG_USB_ATMEL)		+= at76c503/
+ 
+ rtl8187-objs		:= rtl8187_dev.o rtl8187_rtl8225.o
+ obj-$(CONFIG_RTL8187)	+= rtl8187.o
++obj-$(CONFIG_P54_COMMON)        += p54common.o
++obj-$(CONFIG_P54_USB)           += p54usb.o
++obj-$(CONFIG_P54_PCI)           += p54pci.o
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/net2280.h linux-2.6.23-sabayon/drivers/net/wireless/net2280.h
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/net2280.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.23-sabayon/drivers/net/wireless/net2280.h	2007-10-10 01:37:25.000000000 +0200
+@@ -0,0 +1,452 @@
++#ifndef NET2280_H
++#define NET2280_H
++/*
++ * NetChip 2280 high/full speed USB device controller.
++ * Unlike many such controllers, this one talks PCI.
++ */
++
++/*
++ * Copyright (C) 2002 NetChip Technology, Inc. (http://www.netchip.com)
++ * Copyright (C) 2003 David Brownell
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++/*-------------------------------------------------------------------------*/
++
++/* NET2280 MEMORY MAPPED REGISTERS
++ *
++ * The register layout came from the chip documentation, and the bit
++ * number definitions were extracted from chip specification.
++ *
++ * Use the shift operator ('<<') to build bit masks, with readl/writel
++ * to access the registers through PCI.
++ */
++
++/* main registers, BAR0 + 0x0000 */
++struct net2280_regs {
++	// offset 0x0000
++	__le32                  devinit;
++#define     LOCAL_CLOCK_FREQUENCY                               8
++#define     FORCE_PCI_RESET                                     7
++#define     PCI_ID                                              6
++#define     PCI_ENABLE                                          5
++#define     FIFO_SOFT_RESET                                     4
++#define     CFG_SOFT_RESET                                      3
++#define     PCI_SOFT_RESET                                      2
++#define     USB_SOFT_RESET                                      1
++#define     M8051_RESET                                         0
++	__le32                  eectl;
++#define     EEPROM_ADDRESS_WIDTH                                23
++#define     EEPROM_CHIP_SELECT_ACTIVE                           22
++#define     EEPROM_PRESENT                                      21
++#define     EEPROM_VALID                                        20
++#define     EEPROM_BUSY                                         19
++#define     EEPROM_CHIP_SELECT_ENABLE                           18
++#define     EEPROM_BYTE_READ_START                              17
++#define     EEPROM_BYTE_WRITE_START                             16
++#define     EEPROM_READ_DATA                                    8
++#define     EEPROM_WRITE_DATA                                   0
++	__le32                  eeclkfreq;
++	u32                     _unused0;
++	// offset 0x0010
++
++	__le32                  pciirqenb0;	/* interrupt PCI master ... */
++#define     SETUP_PACKET_INTERRUPT_ENABLE                       7
++#define     ENDPOINT_F_INTERRUPT_ENABLE                         6
++#define     ENDPOINT_E_INTERRUPT_ENABLE                         5
++#define     ENDPOINT_D_INTERRUPT_ENABLE                         4
++#define     ENDPOINT_C_INTERRUPT_ENABLE                         3
++#define     ENDPOINT_B_INTERRUPT_ENABLE                         2
++#define     ENDPOINT_A_INTERRUPT_ENABLE                         1
++#define     ENDPOINT_0_INTERRUPT_ENABLE                         0
++	__le32                  pciirqenb1;
++#define     PCI_INTERRUPT_ENABLE                                31
++#define     POWER_STATE_CHANGE_INTERRUPT_ENABLE                 27
++#define     PCI_ARBITER_TIMEOUT_INTERRUPT_ENABLE                26
++#define     PCI_PARITY_ERROR_INTERRUPT_ENABLE                   25
++#define     PCI_MASTER_ABORT_RECEIVED_INTERRUPT_ENABLE          20
++#define     PCI_TARGET_ABORT_RECEIVED_INTERRUPT_ENABLE          19
++#define     PCI_TARGET_ABORT_ASSERTED_INTERRUPT_ENABLE          18
++#define     PCI_RETRY_ABORT_INTERRUPT_ENABLE                    17
++#define     PCI_MASTER_CYCLE_DONE_INTERRUPT_ENABLE              16
++#define     GPIO_INTERRUPT_ENABLE                               13
++#define     DMA_D_INTERRUPT_ENABLE                              12
++#define     DMA_C_INTERRUPT_ENABLE                              11
++#define     DMA_B_INTERRUPT_ENABLE                              10
++#define     DMA_A_INTERRUPT_ENABLE                              9
++#define     EEPROM_DONE_INTERRUPT_ENABLE                        8
++#define     VBUS_INTERRUPT_ENABLE                               7
++#define     CONTROL_STATUS_INTERRUPT_ENABLE                     6
++#define     ROOT_PORT_RESET_INTERRUPT_ENABLE                    4
++#define     SUSPEND_REQUEST_INTERRUPT_ENABLE                    3
++#define     SUSPEND_REQUEST_CHANGE_INTERRUPT_ENABLE             2
++#define     RESUME_INTERRUPT_ENABLE                             1
++#define     SOF_INTERRUPT_ENABLE                                0
++	__le32                  cpu_irqenb0;	/* ... or onboard 8051 */
++#define     SETUP_PACKET_INTERRUPT_ENABLE                       7
++#define     ENDPOINT_F_INTERRUPT_ENABLE                         6
++#define     ENDPOINT_E_INTERRUPT_ENABLE                         5
++#define     ENDPOINT_D_INTERRUPT_ENABLE                         4
++#define     ENDPOINT_C_INTERRUPT_ENABLE                         3
++#define     ENDPOINT_B_INTERRUPT_ENABLE                         2
++#define     ENDPOINT_A_INTERRUPT_ENABLE                         1
++#define     ENDPOINT_0_INTERRUPT_ENABLE                         0
++	__le32                  cpu_irqenb1;
++#define     CPU_INTERRUPT_ENABLE                                31
++#define     POWER_STATE_CHANGE_INTERRUPT_ENABLE                 27
++#define     PCI_ARBITER_TIMEOUT_INTERRUPT_ENABLE                26
++#define     PCI_PARITY_ERROR_INTERRUPT_ENABLE                   25
++#define     PCI_INTA_INTERRUPT_ENABLE                           24
++#define     PCI_PME_INTERRUPT_ENABLE                            23
++#define     PCI_SERR_INTERRUPT_ENABLE                           22
++#define     PCI_PERR_INTERRUPT_ENABLE                           21
++#define     PCI_MASTER_ABORT_RECEIVED_INTERRUPT_ENABLE          20
++#define     PCI_TARGET_ABORT_RECEIVED_INTERRUPT_ENABLE          19
++#define     PCI_RETRY_ABORT_INTERRUPT_ENABLE                    17
++#define     PCI_MASTER_CYCLE_DONE_INTERRUPT_ENABLE              16
++#define     GPIO_INTERRUPT_ENABLE                               13
++#define     DMA_D_INTERRUPT_ENABLE                              12
++#define     DMA_C_INTERRUPT_ENABLE                              11
++#define     DMA_B_INTERRUPT_ENABLE                              10
++#define     DMA_A_INTERRUPT_ENABLE                              9
++#define     EEPROM_DONE_INTERRUPT_ENABLE                        8
++#define     VBUS_INTERRUPT_ENABLE                               7
++#define     CONTROL_STATUS_INTERRUPT_ENABLE                     6
++#define     ROOT_PORT_RESET_INTERRUPT_ENABLE                    4
++#define     SUSPEND_REQUEST_INTERRUPT_ENABLE                    3
++#define     SUSPEND_REQUEST_CHANGE_INTERRUPT_ENABLE             2
++#define     RESUME_INTERRUPT_ENABLE                             1
++#define     SOF_INTERRUPT_ENABLE                                0
++
++	// offset 0x0020
++	u32                     _unused1;
++	__le32                  usbirqenb1;
++#define     USB_INTERRUPT_ENABLE                                31
++#define     POWER_STATE_CHANGE_INTERRUPT_ENABLE                 27
++#define     PCI_ARBITER_TIMEOUT_INTERRUPT_ENABLE                26
++#define     PCI_PARITY_ERROR_INTERRUPT_ENABLE                   25
++#define     PCI_INTA_INTERRUPT_ENABLE                           24
++#define     PCI_PME_INTERRUPT_ENABLE                            23
++#define     PCI_SERR_INTERRUPT_ENABLE                           22
++#define     PCI_PERR_INTERRUPT_ENABLE                           21
++#define     PCI_MASTER_ABORT_RECEIVED_INTERRUPT_ENABLE          20
++#define     PCI_TARGET_ABORT_RECEIVED_INTERRUPT_ENABLE          19
++#define     PCI_RETRY_ABORT_INTERRUPT_ENABLE                    17
++#define     PCI_MASTER_CYCLE_DONE_INTERRUPT_ENABLE              16
++#define     GPIO_INTERRUPT_ENABLE                               13
++#define     DMA_D_INTERRUPT_ENABLE                              12
++#define     DMA_C_INTERRUPT_ENABLE                              11
++#define     DMA_B_INTERRUPT_ENABLE                              10
++#define     DMA_A_INTERRUPT_ENABLE                              9
++#define     EEPROM_DONE_INTERRUPT_ENABLE                        8
++#define     VBUS_INTERRUPT_ENABLE                               7
++#define     CONTROL_STATUS_INTERRUPT_ENABLE                     6
++#define     ROOT_PORT_RESET_INTERRUPT_ENABLE                    4
++#define     SUSPEND_REQUEST_INTERRUPT_ENABLE                    3
++#define     SUSPEND_REQUEST_CHANGE_INTERRUPT_ENABLE             2
++#define     RESUME_INTERRUPT_ENABLE                             1
++#define     SOF_INTERRUPT_ENABLE                                0
++	__le32                  irqstat0;
++#define     INTA_ASSERTED                                       12
++#define     SETUP_PACKET_INTERRUPT                              7
++#define     ENDPOINT_F_INTERRUPT                                6
++#define     ENDPOINT_E_INTERRUPT                                5
++#define     ENDPOINT_D_INTERRUPT                                4
++#define     ENDPOINT_C_INTERRUPT                                3
++#define     ENDPOINT_B_INTERRUPT                                2
++#define     ENDPOINT_A_INTERRUPT                                1
++#define     ENDPOINT_0_INTERRUPT                                0
++	__le32                  irqstat1;
++#define     POWER_STATE_CHANGE_INTERRUPT                        27
++#define     PCI_ARBITER_TIMEOUT_INTERRUPT                       26
++#define     PCI_PARITY_ERROR_INTERRUPT                          25
++#define     PCI_INTA_INTERRUPT                                  24
++#define     PCI_PME_INTERRUPT                                   23
++#define     PCI_SERR_INTERRUPT                                  22
++#define     PCI_PERR_INTERRUPT                                  21
++#define     PCI_MASTER_ABORT_RECEIVED_INTERRUPT                 20
++#define     PCI_TARGET_ABORT_RECEIVED_INTERRUPT                 19
++#define     PCI_RETRY_ABORT_INTERRUPT                           17
++#define     PCI_MASTER_CYCLE_DONE_INTERRUPT                     16
++#define     GPIO_INTERRUPT                                      13
++#define     DMA_D_INTERRUPT                                     12
++#define     DMA_C_INTERRUPT                                     11
++#define     DMA_B_INTERRUPT                                     10
++#define     DMA_A_INTERRUPT                                     9
++#define     EEPROM_DONE_INTERRUPT                               8
++#define     VBUS_INTERRUPT                                      7
++#define     CONTROL_STATUS_INTERRUPT                            6
++#define     ROOT_PORT_RESET_INTERRUPT                           4
++#define     SUSPEND_REQUEST_INTERRUPT                           3
++#define     SUSPEND_REQUEST_CHANGE_INTERRUPT                    2
++#define     RESUME_INTERRUPT                                    1
++#define     SOF_INTERRUPT                                       0
++	// offset 0x0030
++	__le32                  idxaddr;
++	__le32                  idxdata;
++	__le32                  fifoctl;
++#define     PCI_BASE2_RANGE                                     16
++#define     IGNORE_FIFO_AVAILABILITY                            3
++#define     PCI_BASE2_SELECT                                    2
++#define     FIFO_CONFIGURATION_SELECT                           0
++	u32                     _unused2;
++	// offset 0x0040
++	__le32                  memaddr;
++#define     START                                               28
++#define     DIRECTION                                           27
++#define     FIFO_DIAGNOSTIC_SELECT                              24
++#define     MEMORY_ADDRESS                                      0
++	__le32                  memdata0;
++	__le32                  memdata1;
++	u32                     _unused3;
++	// offset 0x0050
++	__le32                  gpioctl;
++#define     GPIO3_LED_SELECT                                    12
++#define     GPIO3_INTERRUPT_ENABLE                              11
++#define     GPIO2_INTERRUPT_ENABLE                              10
++#define     GPIO1_INTERRUPT_ENABLE                              9
++#define     GPIO0_INTERRUPT_ENABLE                              8
++#define     GPIO3_OUTPUT_ENABLE                                 7
++#define     GPIO2_OUTPUT_ENABLE                                 6
++#define     GPIO1_OUTPUT_ENABLE                                 5
++#define     GPIO0_OUTPUT_ENABLE                                 4
++#define     GPIO3_DATA                                          3
++#define     GPIO2_DATA                                          2
++#define     GPIO1_DATA                                          1
++#define     GPIO0_DATA                                          0
++	__le32                  gpiostat;
++#define     GPIO3_INTERRUPT                                     3
++#define     GPIO2_INTERRUPT                                     2
++#define     GPIO1_INTERRUPT                                     1
++#define     GPIO0_INTERRUPT                                     0
++} __attribute__ ((packed));
++
++/* usb control, BAR0 + 0x0080 */
++struct net2280_usb_regs {
++	// offset 0x0080
++	__le32                  stdrsp;
++#define     STALL_UNSUPPORTED_REQUESTS                          31
++#define     SET_TEST_MODE                                       16
++#define     GET_OTHER_SPEED_CONFIGURATION                       15
++#define     GET_DEVICE_QUALIFIER                                14
++#define     SET_ADDRESS                                         13
++#define     ENDPOINT_SET_CLEAR_HALT                             12
++#define     DEVICE_SET_CLEAR_DEVICE_REMOTE_WAKEUP               11
++#define     GET_STRING_DESCRIPTOR_2                             10
++#define     GET_STRING_DESCRIPTOR_1                             9
++#define     GET_STRING_DESCRIPTOR_0                             8
++#define     GET_SET_INTERFACE                                   6
++#define     GET_SET_CONFIGURATION                               5
++#define     GET_CONFIGURATION_DESCRIPTOR                        4
++#define     GET_DEVICE_DESCRIPTOR                               3
++#define     GET_ENDPOINT_STATUS                                 2
++#define     GET_INTERFACE_STATUS                                1
++#define     GET_DEVICE_STATUS                                   0
++	__le32                  prodvendid;
++#define     PRODUCT_ID                                          16
++#define     VENDOR_ID                                           0
++	__le32                  relnum;
++	__le32                  usbctl;
++#define     SERIAL_NUMBER_INDEX                                 16
++#define     PRODUCT_ID_STRING_ENABLE                            13
++#define     VENDOR_ID_STRING_ENABLE                             12
++#define     USB_ROOT_PORT_WAKEUP_ENABLE                         11
++#define     VBUS_PIN                                            10
++#define     TIMED_DISCONNECT                                    9
++#define     SUSPEND_IMMEDIATELY                                 7
++#define     SELF_POWERED_USB_DEVICE                             6
++#define     REMOTE_WAKEUP_SUPPORT                               5
++#define     PME_POLARITY                                        4
++#define     USB_DETECT_ENABLE                                   3
++#define     PME_WAKEUP_ENABLE                                   2
++#define     DEVICE_REMOTE_WAKEUP_ENABLE                         1
++#define     SELF_POWERED_STATUS                                 0
++	// offset 0x0090
++	__le32                  usbstat;
++#define     HIGH_SPEED                                          7
++#define     FULL_SPEED                                          6
++#define     GENERATE_RESUME                                     5
++#define     GENERATE_DEVICE_REMOTE_WAKEUP                       4
++	__le32                  xcvrdiag;
++#define     FORCE_HIGH_SPEED_MODE                               31
++#define     FORCE_FULL_SPEED_MODE                               30
++#define     USB_TEST_MODE                                       24
++#define     LINE_STATE                                          16
++#define     TRANSCEIVER_OPERATION_MODE                          2
++#define     TRANSCEIVER_SELECT                                  1
++#define     TERMINATION_SELECT                                  0
++	__le32                  setup0123;
++	__le32                  setup4567;
++	// offset 0x0090
++	u32                     _unused0;
++	__le32                  ouraddr;
++#define     FORCE_IMMEDIATE                                     7
++#define     OUR_USB_ADDRESS                                     0
++	__le32                  ourconfig;
++} __attribute__ ((packed));
++
++/* pci control, BAR0 + 0x0100 */
++struct net2280_pci_regs {
++	// offset 0x0100
++	__le32                  pcimstctl;
++#define     PCI_ARBITER_PARK_SELECT                             13
++#define     PCI_MULTI LEVEL_ARBITER                             12
++#define     PCI_RETRY_ABORT_ENABLE                              11
++#define     DMA_MEMORY_WRITE_AND_INVALIDATE_ENABLE              10
++#define     DMA_READ_MULTIPLE_ENABLE                            9
++#define     DMA_READ_LINE_ENABLE                                8
++#define     PCI_MASTER_COMMAND_SELECT                           6
++#define         MEM_READ_OR_WRITE                                   0
++#define         IO_READ_OR_WRITE                                    1
++#define         CFG_READ_OR_WRITE                                   2
++#define     PCI_MASTER_START                                    5
++#define     PCI_MASTER_READ_WRITE                               4
++#define         PCI_MASTER_WRITE                                    0
++#define         PCI_MASTER_READ                                     1
++#define     PCI_MASTER_BYTE_WRITE_ENABLES                       0
++	__le32                  pcimstaddr;
++	__le32                  pcimstdata;
++	__le32                  pcimststat;
++#define     PCI_ARBITER_CLEAR                                   2
++#define     PCI_EXTERNAL_ARBITER                                1
++#define     PCI_HOST_MODE                                       0
++} __attribute__ ((packed));
++
++/* dma control, BAR0 + 0x0180 ... array of four structs like this,
++ * for channels 0..3.  see also struct net2280_dma:  descriptor
++ * that can be loaded into some of these registers.
++ */
++struct net2280_dma_regs {	/* [11.7] */
++	// offset 0x0180, 0x01a0, 0x01c0, 0x01e0,
++	__le32                  dmactl;
++#define     DMA_SCATTER_GATHER_DONE_INTERRUPT_ENABLE            25
++#define     DMA_CLEAR_COUNT_ENABLE                              21
++#define     DESCRIPTOR_POLLING_RATE                             19
++#define         POLL_CONTINUOUS                                     0
++#define         POLL_1_USEC                                         1
++#define         POLL_100_USEC                                       2
++#define         POLL_1_MSEC                                         3
++#define     DMA_VALID_BIT_POLLING_ENABLE                        18
++#define     DMA_VALID_BIT_ENABLE                                17
++#define     DMA_SCATTER_GATHER_ENABLE                           16
++#define     DMA_OUT_AUTO_START_ENABLE                           4
++#define     DMA_PREEMPT_ENABLE                                  3
++#define     DMA_FIFO_VALIDATE                                   2
++#define     DMA_ENABLE                                          1
++#define     DMA_ADDRESS_HOLD                                    0
++	__le32                  dmastat;
++#define     DMA_SCATTER_GATHER_DONE_INTERRUPT                   25
++#define     DMA_TRANSACTION_DONE_INTERRUPT                      24
++#define     DMA_ABORT                                           1
++#define     DMA_START                                           0
++	u32                     _unused0[2];
++	// offset 0x0190, 0x01b0, 0x01d0, 0x01f0,
++	__le32                  dmacount;
++#define     VALID_BIT                                           31
++#define     DMA_DIRECTION                                       30
++#define     DMA_DONE_INTERRUPT_ENABLE                           29
++#define     END_OF_CHAIN                                        28
++#define         DMA_BYTE_COUNT_MASK                                 ((1<<24)-1)
++#define     DMA_BYTE_COUNT                                      0
++	__le32                  dmaaddr;
++	__le32                  dmadesc;
++	u32                     _unused1;
++} __attribute__ ((packed));
++
++/* dedicated endpoint registers, BAR0 + 0x0200 */
++
++struct net2280_dep_regs {	/* [11.8] */
++	// offset 0x0200, 0x0210, 0x220, 0x230, 0x240
++	__le32                  dep_cfg;
++	// offset 0x0204, 0x0214, 0x224, 0x234, 0x244
++	__le32                  dep_rsp;
++	u32                     _unused[2];
++} __attribute__ ((packed));
++
++/* configurable endpoint registers, BAR0 + 0x0300 ... array of seven structs
++ * like this, for ep0 then the configurable endpoints A..F
++ * ep0 reserved for control; E and F have only 64 bytes of fifo
++ */
++struct net2280_ep_regs {	/* [11.9] */
++	// offset 0x0300, 0x0320, 0x0340, 0x0360, 0x0380, 0x03a0, 0x03c0
++	__le32                  ep_cfg;
++#define     ENDPOINT_BYTE_COUNT                                 16
++#define     ENDPOINT_ENABLE                                     10
++#define     ENDPOINT_TYPE                                       8
++#define     ENDPOINT_DIRECTION                                  7
++#define     ENDPOINT_NUMBER                                     0
++	__le32                  ep_rsp;
++#define     SET_NAK_OUT_PACKETS                                 15
++#define     SET_EP_HIDE_STATUS_PHASE                            14
++#define     SET_EP_FORCE_CRC_ERROR                              13
++#define     SET_INTERRUPT_MODE                                  12
++#define     SET_CONTROL_STATUS_PHASE_HANDSHAKE                  11
++#define     SET_NAK_OUT_PACKETS_MODE                            10
++#define     SET_ENDPOINT_TOGGLE                                 9
++#define     SET_ENDPOINT_HALT                                   8
++#define     CLEAR_NAK_OUT_PACKETS                               7
++#define     CLEAR_EP_HIDE_STATUS_PHASE                          6
++#define     CLEAR_EP_FORCE_CRC_ERROR                            5
++#define     CLEAR_INTERRUPT_MODE                                4
++#define     CLEAR_CONTROL_STATUS_PHASE_HANDSHAKE                3
++#define     CLEAR_NAK_OUT_PACKETS_MODE                          2
++#define     CLEAR_ENDPOINT_TOGGLE                               1
++#define     CLEAR_ENDPOINT_HALT                                 0
++	__le32                  ep_irqenb;
++#define     SHORT_PACKET_OUT_DONE_INTERRUPT_ENABLE              6
++#define     SHORT_PACKET_TRANSFERRED_INTERRUPT_ENABLE           5
++#define     DATA_PACKET_RECEIVED_INTERRUPT_ENABLE               3
++#define     DATA_PACKET_TRANSMITTED_INTERRUPT_ENABLE            2
++#define     DATA_OUT_PING_TOKEN_INTERRUPT_ENABLE                1
++#define     DATA_IN_TOKEN_INTERRUPT_ENABLE                      0
++	__le32                  ep_stat;
++#define     FIFO_VALID_COUNT                                    24
++#define     HIGH_BANDWIDTH_OUT_TRANSACTION_PID                  22
++#define     TIMEOUT                                             21
++#define     USB_STALL_SENT                                      20
++#define     USB_IN_NAK_SENT                                     19
++#define     USB_IN_ACK_RCVD                                     18
++#define     USB_OUT_PING_NAK_SENT                               17
++#define     USB_OUT_ACK_SENT                                    16
++#define     FIFO_OVERFLOW                                       13
++#define     FIFO_UNDERFLOW                                      12
++#define     FIFO_FULL                                           11
++#define     FIFO_EMPTY                                          10
++#define     FIFO_FLUSH                                          9
++#define     SHORT_PACKET_OUT_DONE_INTERRUPT                     6
++#define     SHORT_PACKET_TRANSFERRED_INTERRUPT                  5
++#define     NAK_OUT_PACKETS                                     4
++#define     DATA_PACKET_RECEIVED_INTERRUPT                      3
++#define     DATA_PACKET_TRANSMITTED_INTERRUPT                   2
++#define     DATA_OUT_PING_TOKEN_INTERRUPT                       1
++#define     DATA_IN_TOKEN_INTERRUPT                             0
++	// offset 0x0310, 0x0330, 0x0350, 0x0370, 0x0390, 0x03b0, 0x03d0
++	__le32                  ep_avail;
++	__le32                  ep_data;
++	u32                     _unused0[2];
++} __attribute__ ((packed));
++
++struct net2280_reg_write {
++	__le16 port;
++	__le32 addr;
++	__le32 val;
++} __attribute__ ((packed));
++
++struct net2280_reg_read {
++	__le16 port;
++	__le32 addr;
++} __attribute__ ((packed));
++#endif /* NET2280_H */
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/p54common.c linux-2.6.23-sabayon/drivers/net/wireless/p54common.c
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/p54common.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.23-sabayon/drivers/net/wireless/p54common.c	2007-10-10 01:14:42.000000000 +0200
+@@ -0,0 +1,1019 @@
++
++/*
++ * Common code for mac80211 Prism54 drivers
++ *
++ * Copyright (c) 2006, Michael Wu <flamingice@sourmilk.net>
++ * Copyright (c) 2007, Christian Lamparter <chunkeey@web.de>
++ *
++ * Based on the islsm (softmac prism54) driver, which is:
++ * Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/init.h>
++#include <linux/firmware.h>
++#include <linux/etherdevice.h>
++
++#include <net/mac80211.h>
++
++#include "p54.h"
++#include "p54common.h"
++
++MODULE_AUTHOR("Michael Wu <flamingice@sourmilk.net>");
++MODULE_DESCRIPTION("Softmac Prism54 common code");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("prism54common");
++
++void p54_parse_firmware(struct ieee80211_hw *dev, const struct firmware *fw)
++{
++	struct p54_common *priv = dev->priv;
++	struct bootrec_exp_if *exp_if;
++	struct bootrec *bootrec;
++	u32 *data = (u32 *)fw->data;
++	u32 *end_data = (u32 *)fw->data + (fw->size >> 2);
++	u8 *fw_version = NULL;
++	size_t len;
++	int i;
++
++	if (priv->rx_start)
++		return;
++
++	while (data < end_data && *data)
++		data++;
++
++	while (data < end_data && !*data)
++		data++;
++
++	bootrec = (struct bootrec *) data;
++
++	while (bootrec->data <= end_data &&
++	       (bootrec->data + (len = le32_to_cpu(bootrec->len))) <= end_data) {
++		u32 code = le32_to_cpu(bootrec->code);
++		switch (code) {
++		case BR_CODE_COMPONENT_ID:
++			switch (be32_to_cpu(*bootrec->data)) {
++			case FW_FMAC:
++				printk(KERN_INFO "p54: FreeMAC firmware\n");
++				break;
++			case FW_LM20:
++				printk(KERN_INFO "p54: LM20 firmware\n");
++				break;
++			case FW_LM86:
++				printk(KERN_INFO "p54: LM86 firmware\n");
++				break;
++			case FW_LM87:
++				printk(KERN_INFO "p54: LM87 firmware - not supported yet!\n");
++				break;
++			default:
++				printk(KERN_INFO "p54: unknown firmware\n");
++				break;
++			}
++			break;
++		case BR_CODE_COMPONENT_VERSION:
++			/* 24 bytes should be enough for all firmwares */
++			if (strnlen((unsigned char*)bootrec->data, 24) < 24)
++				fw_version = (unsigned char*)bootrec->data;
++			break;
++		case BR_CODE_DESCR:
++			priv->rx_start = le32_to_cpu(bootrec->data[1]);
++			/* FIXME add sanity checking */
++			priv->rx_end = le32_to_cpu(bootrec->data[2]) - 0x3500;
++			break;
++		case BR_CODE_EXPOSED_IF:
++			exp_if = (struct bootrec_exp_if *) bootrec->data;
++			for (i = 0; i < (len * sizeof(*exp_if) / 4); i++)
++				if (exp_if[i].if_id == 0x1a)
++					priv->fw_var = le16_to_cpu(exp_if[i].variant);
++			break;
++		case BR_CODE_DEPENDENT_IF:
++			break;
++		case BR_CODE_END_OF_BRA:
++		case LEGACY_BR_CODE_END_OF_BRA:
++			end_data = NULL;
++			break;
++		default:
++			break;
++		}
++		bootrec = (struct bootrec *)&bootrec->data[len];
++	}
++
++	if (fw_version)
++		printk(KERN_INFO "p54: FW rev %s - Softmac protocol %x.%x\n",
++			fw_version, priv->fw_var >> 8, priv->fw_var & 0xff);
++
++	if (priv->fw_var >= 0x300) {
++		/* Firmware supports QoS, use it! */
++		priv->tx_stats.data[0].limit = 3;
++		priv->tx_stats.data[1].limit = 4;
++		priv->tx_stats.data[2].limit = 3;
++		priv->tx_stats.data[3].limit = 1;
++		dev->queues = 4;
++	}
++}
++EXPORT_SYMBOL_GPL(p54_parse_firmware);
++
++static int p54_convert_rev0_to_rev1(struct ieee80211_hw *dev,
++				    struct pda_pa_curve_data *curve_data)
++{
++	struct p54_common *priv = dev->priv;
++	struct pda_pa_curve_data_sample_rev1 *rev1;
++	struct pda_pa_curve_data_sample_rev0 *rev0;
++	size_t cd_len = sizeof(*curve_data) +
++		(curve_data->points_per_channel*sizeof(*rev1) + 2) *
++		 curve_data->channels;
++	unsigned int i, j;
++	void *source, *target;
++
++	priv->curve_data = kmalloc(cd_len, GFP_KERNEL);
++	if (!priv->curve_data)
++		return -ENOMEM;
++
++	memcpy(priv->curve_data, curve_data, sizeof(*curve_data));
++	source = curve_data->data;
++	target = priv->curve_data->data;
++	for (i = 0; i < curve_data->channels; i++) {
++		__le16 *freq = source;
++		source += sizeof(__le16);
++		*((__le16 *)target) = *freq;
++		target += sizeof(__le16);
++		for (j = 0; j < curve_data->points_per_channel; j++) {
++			rev1 = target;
++			rev0 = source;
++
++			rev1->rf_power = rev0->rf_power;
++			rev1->pa_detector = rev0->pa_detector;
++			rev1->data_64qam = rev0->pcv;
++			/* "invent" the points for the other modulations */
++#define SUB(x,y) (u8)((x) - (y)) > (x) ? 0 : (x) - (y)
++			rev1->data_16qam = SUB(rev0->pcv, 12);
++			rev1->data_qpsk  = SUB(rev1->data_16qam, 12);
++			rev1->data_bpsk  = SUB(rev1->data_qpsk, 12);
++			rev1->data_barker= SUB(rev1->data_bpsk, 14);
++#undef SUB
++			target += sizeof(*rev1);
++			source += sizeof(*rev0);
++		}
++	}
++
++	return 0;
++}
++
++int p54_parse_eeprom(struct ieee80211_hw *dev, void *eeprom, int len)
++{
++	struct p54_common *priv = dev->priv;
++	struct eeprom_pda_wrap *wrap = NULL;
++	struct pda_entry *entry;
++	int i = 0;
++	unsigned int data_len, entry_len;
++	void *tmp;
++	int err;
++
++	wrap = (struct eeprom_pda_wrap *) eeprom;
++	entry = (void *)wrap->data + wrap->len;
++	i += 2;
++	i += le16_to_cpu(entry->len)*2;
++	while (i < len) {
++		entry_len = le16_to_cpu(entry->len);
++		data_len = ((entry_len - 1) << 1);
++		switch (le16_to_cpu(entry->code)) {
++		case PDR_MAC_ADDRESS:
++			SET_IEEE80211_PERM_ADDR(dev, entry->data);
++			break;
++		case PDR_PRISM_PA_CAL_OUTPUT_POWER_LIMITS:
++			if (data_len < 2) {
++				err = -EINVAL;
++				goto err;
++			}
++
++			if (2 + entry->data[1]*sizeof(*priv->output_limit) > data_len) {
++				err = -EINVAL;
++				goto err;
++			}
++
++			priv->output_limit = kmalloc(entry->data[1] *
++				sizeof(*priv->output_limit), GFP_KERNEL);
++
++			if (!priv->output_limit) {
++				err = -ENOMEM;
++				goto err;
++			}
++
++			memcpy(priv->output_limit, &entry->data[2],
++			       entry->data[1]*sizeof(*priv->output_limit));
++			priv->output_limit_len = entry->data[1];
++			break;
++		case PDR_PRISM_PA_CAL_CURVE_DATA:
++			if (data_len < sizeof(struct pda_pa_curve_data)) {
++				err = -EINVAL;
++				goto err;
++			}
++
++			if (((struct pda_pa_curve_data *)entry->data)->cal_method_rev) {
++				priv->curve_data = kmalloc(data_len, GFP_KERNEL);
++				if (!priv->curve_data) {
++					err = -ENOMEM;
++					goto err;
++				}
++
++				memcpy(priv->curve_data, entry->data, data_len);
++			} else {
++				err = p54_convert_rev0_to_rev1(dev, (struct pda_pa_curve_data *)entry->data);
++				if (err)
++					goto err;
++			}
++
++			break;
++		case PDR_PRISM_ZIF_TX_IQ_CALIBRATION:
++			priv->iq_autocal = kmalloc(data_len, GFP_KERNEL);
++			if (!priv->iq_autocal) {
++				err = -ENOMEM;
++				goto err;
++			}
++
++			memcpy(priv->iq_autocal, entry->data, data_len);
++			priv->iq_autocal_len = data_len / sizeof(struct pda_iq_autocal_entry);
++			break;
++		case PDR_INTERFACE_LIST:
++			tmp = entry->data;
++			while ((u8 *)tmp < entry->data + data_len) {
++				struct bootrec_exp_if *exp_if = tmp;
++				if (le16_to_cpu(exp_if->if_id) == 0xF)
++					priv->rxhw = exp_if->variant & cpu_to_le16(0x07);
++				tmp += sizeof(struct bootrec_exp_if);
++			}
++			break;
++		case PDR_HARDWARE_PLATFORM_COMPONENT_ID:
++			priv->version = *(u8 *)(entry->data + 1);
++			break;
++		case PDR_END:
++			i = len;
++			break;
++		}
++
++		entry = (void *)entry + (entry_len + 1)*2;
++		i += 2;
++		i += entry_len*2;
++	}
++
++	if (!priv->iq_autocal || !priv->output_limit || !priv->curve_data) {
++		printk(KERN_ERR "p54: not all required entries found in eeprom!\n");
++		err = -EINVAL;
++		goto err;
++	}
++
++	return 0;
++
++  err:
++	if (priv->iq_autocal) {
++		kfree(priv->iq_autocal);
++		priv->iq_autocal = NULL;
++	}
++
++	if (priv->output_limit) {
++		kfree(priv->output_limit);
++		priv->output_limit = NULL;
++	}
++
++	if (priv->curve_data) {
++		kfree(priv->curve_data);
++		priv->curve_data = NULL;
++	}
++
++	printk(KERN_ERR "p54: eeprom parse failed!\n");
++	return err;
++}
++EXPORT_SYMBOL_GPL(p54_parse_eeprom);
++
++void p54_fill_eeprom_readback(struct p54_control_hdr *hdr)
++{
++	struct p54_eeprom_lm86 *eeprom_hdr;
++
++	hdr->magic1 = cpu_to_le16(0x8000);
++	hdr->len = cpu_to_le16(sizeof(*eeprom_hdr) + 0x2000);
++	hdr->type = cpu_to_le16(P54_CONTROL_TYPE_EEPROM_READBACK);
++	hdr->retry1 = hdr->retry2 = 0;
++	eeprom_hdr = (struct p54_eeprom_lm86 *) hdr->data;
++	eeprom_hdr->offset = 0x0;
++	eeprom_hdr->len = cpu_to_le16(0x2000);
++}
++EXPORT_SYMBOL_GPL(p54_fill_eeprom_readback);
++
++static void p54_rx_data(struct ieee80211_hw *dev, struct sk_buff *skb)
++{
++	struct p54_rx_hdr *hdr = (struct p54_rx_hdr *) skb->data;
++	struct ieee80211_rx_status rx_status = {0};
++	u16 freq = le16_to_cpu(hdr->freq);
++
++	rx_status.ssi = hdr->rssi;
++	rx_status.rate = hdr->rate & 0x1f; /* report short preambles & CCK too */
++	rx_status.channel = freq == 2484 ? 14 : (freq - 2407)/5;
++	rx_status.freq = freq;
++	rx_status.phymode = MODE_IEEE80211G;
++	rx_status.antenna = hdr->antenna;
++	rx_status.mactime = le64_to_cpu(hdr->timestamp);
++
++	skb_pull(skb, sizeof(*hdr));
++	skb_trim(skb, le16_to_cpu(hdr->len));
++
++	ieee80211_rx_irqsafe(dev, skb, &rx_status);
++}
++
++static void inline p54_wake_free_queues(struct ieee80211_hw *dev)
++{
++	struct p54_common *priv = dev->priv;
++	int i;
++
++	/* ieee80211_start_queues is great if all queues are really empty.
++	 * But, what if some are full? */
++
++	for (i = 0; i < dev->queues; i++)
++		if (priv->tx_stats.data[i].len < priv->tx_stats.data[i].limit)
++			ieee80211_wake_queue(dev, i);
++}
++
++static void p54_rx_frame_sent(struct ieee80211_hw *dev, struct sk_buff *skb)
++{
++	struct p54_common *priv = dev->priv;
++	struct p54_control_hdr *hdr = (struct p54_control_hdr *) skb->data;
++	struct p54_frame_sent_hdr *payload = (struct p54_frame_sent_hdr *) hdr->data;
++	struct sk_buff *entry = (struct sk_buff *) priv->tx_queue.next;
++	u32 addr = le32_to_cpu(hdr->req_id) - 0x70;
++	struct memrecord *range = NULL;
++	u32 freed = 0;
++	u32 last_addr = priv->rx_start;
++
++	while (entry != (struct sk_buff *)&priv->tx_queue) {
++		range = (struct memrecord *)&entry->cb;
++		if (range->start_addr == addr) {
++			struct ieee80211_tx_status status = {{0}};
++			struct p54_control_hdr *entry_hdr;
++			struct p54_tx_control_allocdata *entry_data;
++			int pad = 0;
++
++			if (entry->next != (struct sk_buff *)&priv->tx_queue)
++				freed = ((struct memrecord *)&entry->next->cb)->start_addr - last_addr;
++			else
++				freed = priv->rx_end - last_addr;
++
++			last_addr = range->end_addr;
++			__skb_unlink(entry, &priv->tx_queue);
++			if (!range->control) {
++				kfree_skb(entry);
++				break;
++			}
++			memcpy(&status.control, range->control,
++			       sizeof(status.control));
++			kfree(range->control);
++			priv->tx_stats.data[status.control.queue].len--;
++
++			entry_hdr = (struct p54_control_hdr *) entry->data;
++			entry_data = (struct p54_tx_control_allocdata *) entry_hdr->data;
++			if ((entry_hdr->magic1 & cpu_to_le16(0x4000)) != 0)
++				pad = entry_data->align[0];
++
++			if (!status.control.flags & IEEE80211_TXCTL_NO_ACK) {
++				if (!(payload->status & 0x01))
++					status.flags |= IEEE80211_TX_STATUS_ACK;
++				else
++					status.excessive_retries = 1;
++			}
++			status.retry_count = payload->retries - 1;
++			status.ack_signal = le16_to_cpu(payload->ack_rssi);
++			skb_pull(entry, sizeof(*hdr) + pad + sizeof(*entry_data));
++			ieee80211_tx_status_irqsafe(dev, entry, &status);
++			break;
++		} else
++			last_addr = range->end_addr;
++		entry = entry->next;
++	}
++
++	if (freed >= IEEE80211_MAX_RTS_THRESHOLD + 0x170 +
++	    sizeof(struct p54_control_hdr))
++		p54_wake_free_queues(dev);
++}
++
++static void p54_rx_control(struct ieee80211_hw *dev, struct sk_buff *skb)
++{
++	struct p54_control_hdr *hdr = (struct p54_control_hdr *) skb->data;
++
++	switch (le16_to_cpu(hdr->type)) {
++	case P54_CONTROL_TYPE_TXDONE:
++		p54_rx_frame_sent(dev, skb);
++		break;
++	case P54_CONTROL_TYPE_BBP:
++		break;
++	default:
++		printk(KERN_DEBUG "%s: not handling 0x%02x type control frame\n",
++		       wiphy_name(dev->wiphy), le16_to_cpu(hdr->type));
++		break;
++	}
++}
++
++/* returns zero if skb can be reused */
++int p54_rx(struct ieee80211_hw *dev, struct sk_buff *skb)
++{
++	u8 type = le16_to_cpu(*((__le16 *)skb->data)) >> 8;
++	switch (type) {
++	case 0x00:
++	case 0x01:
++		p54_rx_data(dev, skb);
++		return -1;
++	case 0x4d:
++		/* TODO: do something better... but then again, I've never seen this happen */
++		printk(KERN_ERR "%s: Received fault. Probably need to restart hardware now..\n",
++		       wiphy_name(dev->wiphy));
++		break;
++	case 0x80:
++		p54_rx_control(dev, skb);
++		break;
++	default:
++		printk(KERN_ERR "%s: unknown frame RXed (0x%02x)\n",
++		       wiphy_name(dev->wiphy), type);
++		break;
++	}
++	return 0;
++}
++EXPORT_SYMBOL_GPL(p54_rx);
++
++/*
++ * So, the firmware is somewhat stupid and doesn't know what places in its
++ * memory incoming data should go to. By poking around in the firmware, we
++ * can find some unused memory to upload our packets to. However, data that we
++ * want the card to TX needs to stay intact until the card has told us that
++ * it is done with it. This function finds empty places we can upload to and
++ * marks allocated areas as reserved if necessary. p54_rx_frame_sent frees
++ * allocated areas.
++ */
++static void p54_assign_address(struct ieee80211_hw *dev, struct sk_buff *skb,
++			       struct p54_control_hdr *data, u32 len,
++			       struct ieee80211_tx_control *control)
++{
++	struct p54_common *priv = dev->priv;
++	struct sk_buff *entry = priv->tx_queue.next;
++	struct sk_buff *target_skb = NULL;
++	struct memrecord *range;
++	u32 last_addr = priv->rx_start;
++	u32 largest_hole = 0;
++	u32 target_addr = priv->rx_start;
++	unsigned long flags;
++	unsigned int left;
++	len = (len + 0x170 + 3) & ~0x3; /* 0x70 headroom, 0x100 tailroom */
++
++	spin_lock_irqsave(&priv->tx_queue.lock, flags);
++	left = skb_queue_len(&priv->tx_queue);
++	while (left--) {
++		u32 hole_size;
++		range = (struct memrecord *)&entry->cb;
++		hole_size = range->start_addr - last_addr;
++		if (!target_skb && hole_size >= len) {
++			target_skb = entry->prev;
++			hole_size -= len;
++			target_addr = last_addr;
++		}
++		largest_hole = max(largest_hole, hole_size);
++		last_addr = range->end_addr;
++		entry = entry->next;
++	}
++	if (!target_skb && priv->rx_end - last_addr >= len) {
++		target_skb = priv->tx_queue.prev;
++		largest_hole = max(largest_hole, priv->rx_end - last_addr - len);
++		if (!skb_queue_empty(&priv->tx_queue)) {
++			range = (struct memrecord *)&target_skb->cb;
++			target_addr = range->end_addr;
++		}
++	} else
++		largest_hole = max(largest_hole, priv->rx_end - last_addr);
++
++	if (skb) {
++		range = (struct memrecord *)&skb->cb;
++		range->start_addr = target_addr;
++		range->end_addr = target_addr + len;
++		range->control = control;
++		__skb_queue_after(&priv->tx_queue, target_skb, skb);
++		if (largest_hole < IEEE80211_MAX_RTS_THRESHOLD + 0x170 +
++				   sizeof(struct p54_control_hdr))
++			ieee80211_stop_queues(dev);
++	}
++	spin_unlock_irqrestore(&priv->tx_queue.lock, flags);
++
++	data->req_id = cpu_to_le32(target_addr + 0x70);
++}
++
++static int p54_tx(struct ieee80211_hw *dev, struct sk_buff *skb,
++		  struct ieee80211_tx_control *control)
++{
++	struct ieee80211_tx_queue_stats_data *current_queue;
++	struct p54_common *priv = dev->priv;
++	struct p54_control_hdr *hdr;
++	struct p54_tx_control_allocdata *txhdr;
++	struct ieee80211_tx_control *control_copy;
++	size_t padding, len;
++	u8 rate;
++
++	current_queue = &priv->tx_stats.data[control->queue];
++	if (unlikely(current_queue->len > current_queue->limit))
++		return NETDEV_TX_BUSY;
++	current_queue->len++;
++	current_queue->count++;
++	if (current_queue->len == current_queue->limit)
++		ieee80211_stop_queue(dev, control->queue);
++
++	padding = (unsigned long)(skb->data - (sizeof(*hdr) + sizeof(*txhdr))) & 3;
++	len = skb->len;
++
++	control_copy = kmalloc(sizeof(*control), GFP_ATOMIC);
++	if (control_copy)
++		memcpy(control_copy, control, sizeof(*control));
++
++	txhdr = (struct p54_tx_control_allocdata *)
++			skb_push(skb, sizeof(*txhdr) + padding);
++	hdr = (struct p54_control_hdr *) skb_push(skb, sizeof(*hdr));
++
++	if (padding)
++		hdr->magic1 = cpu_to_le16(0x4010);
++	else
++		hdr->magic1 = cpu_to_le16(0x0010);
++	hdr->len = cpu_to_le16(len);
++	hdr->type = (control->flags & IEEE80211_TXCTL_NO_ACK) ? 0 : cpu_to_le16(1);
++	hdr->retry1 = hdr->retry2 = control->retry_limit;
++	p54_assign_address(dev, skb, hdr, skb->len, control_copy);
++
++	memset(txhdr->wep_key, 0x0, 16);
++	txhdr->padding = 0;
++	txhdr->padding2 = 0;
++
++	/* TODO: add support for alternate retry TX rates */
++	rate = control->tx_rate;
++	if (control->flags & IEEE80211_TXCTL_USE_RTS_CTS)
++		rate |= 0x40;
++	else if (control->flags & IEEE80211_TXCTL_USE_CTS_PROTECT)
++		rate |= 0x20;
++	memset(txhdr->rateset, rate, 8);
++	txhdr->wep_key_present = 0;
++	txhdr->wep_key_len = 0;
++	txhdr->frame_type = cpu_to_le32(control->queue + 4);
++	txhdr->magic4 = 0;
++	txhdr->antenna = (control->antenna_sel_tx == 0) ?
++		2 : control->antenna_sel_tx - 1;
++	txhdr->output_power = 0x7f; // HW Maximum
++	txhdr->magic5 = (control->flags & IEEE80211_TXCTL_NO_ACK) ?
++		0 : ((rate > 0x3) ? cpu_to_le32(0x33) : cpu_to_le32(0x23));
++	if (padding)
++		txhdr->align[0] = padding;
++
++	priv->tx(dev, hdr, skb->len, 0);
++	return 0;
++}
++
++static int p54_set_filter(struct ieee80211_hw *dev, u16 filter_type,
++			  const u8 *dst, const u8 *src, u8 antenna,
++			  u32 magic3, u32 magic8, u32 magic9)
++{
++	struct p54_common *priv = dev->priv;
++	struct p54_control_hdr *hdr;
++	struct p54_tx_control_filter *filter;
++
++	hdr = kzalloc(sizeof(*hdr) + sizeof(*filter) +
++		      priv->tx_hdr_len, GFP_KERNEL);
++	if (!hdr)
++		return -ENOMEM;
++
++	hdr = (void *)hdr + priv->tx_hdr_len;
++
++	filter = (struct p54_tx_control_filter *) hdr->data;
++	hdr->magic1 = cpu_to_le16(0x8001);
++	hdr->len = cpu_to_le16(sizeof(*filter));
++	p54_assign_address(dev, NULL, hdr, sizeof(*hdr) + sizeof(*filter), NULL);
++	hdr->type = cpu_to_le16(P54_CONTROL_TYPE_FILTER_SET);
++
++	filter->filter_type = cpu_to_le16(filter_type);
++	memcpy(filter->dst, dst, ETH_ALEN);
++	if (!src)
++		memset(filter->src, ~0, ETH_ALEN);
++	else
++		memcpy(filter->src, src, ETH_ALEN);
++	filter->antenna = antenna;
++	filter->magic3 = cpu_to_le32(magic3);
++	filter->rx_addr = cpu_to_le32(priv->rx_end);
++	filter->max_rx = cpu_to_le16(0x0620);	/* FIXME: for usb ver 1.. maybe */
++	filter->rxhw = priv->rxhw;
++	filter->magic8 = cpu_to_le16(magic8);
++	filter->magic9 = cpu_to_le16(magic9);
++
++	priv->tx(dev, hdr, sizeof(*hdr) + sizeof(*filter), 1);
++	return 0;
++}
++
++static int p54_set_freq(struct ieee80211_hw *dev, __le16 freq)
++{
++	struct p54_common *priv = dev->priv;
++	struct p54_control_hdr *hdr;
++	struct p54_tx_control_channel *chan;
++	unsigned int i;
++	size_t payload_len = sizeof(*chan) + sizeof(u32)*2 +
++			     sizeof(*chan->curve_data) *
++			     priv->curve_data->points_per_channel;
++	void *entry;
++
++	hdr = kzalloc(sizeof(*hdr) + payload_len +
++		      priv->tx_hdr_len, GFP_KERNEL);
++	if (!hdr)
++		return -ENOMEM;
++
++	hdr = (void *)hdr + priv->tx_hdr_len;
++
++	chan = (struct p54_tx_control_channel *) hdr->data;
++
++	hdr->magic1 = cpu_to_le16(0x8001);
++	hdr->len = cpu_to_le16(sizeof(*chan));
++	hdr->type = cpu_to_le16(P54_CONTROL_TYPE_CHANNEL_CHANGE);
++	p54_assign_address(dev, NULL, hdr, sizeof(*hdr) + payload_len, NULL);
++
++	chan->magic1 = cpu_to_le16(0x1);
++	chan->magic2 = cpu_to_le16(0x0);
++
++	for (i = 0; i < priv->iq_autocal_len; i++) {
++		if (priv->iq_autocal[i].freq != freq)
++			continue;
++
++		memcpy(&chan->iq_autocal, &priv->iq_autocal[i],
++		       sizeof(*priv->iq_autocal));
++		break;
++	}
++	if (i == priv->iq_autocal_len)
++		goto err;
++
++	for (i = 0; i < priv->output_limit_len; i++) {
++		if (priv->output_limit[i].freq != freq)
++			continue;
++
++		chan->val_barker = 0x38;
++		chan->val_bpsk = priv->output_limit[i].val_bpsk;
++		chan->val_qpsk = priv->output_limit[i].val_qpsk;
++		chan->val_16qam = priv->output_limit[i].val_16qam;
++		chan->val_64qam = priv->output_limit[i].val_64qam;
++		break;
++	}
++	if (i == priv->output_limit_len)
++		goto err;
++
++	chan->pa_points_per_curve = priv->curve_data->points_per_channel;
++
++	entry = priv->curve_data->data;
++	for (i = 0; i < priv->curve_data->channels; i++) {
++		if (*((__le16 *)entry) != freq) {
++			entry += sizeof(__le16);
++			entry += sizeof(struct pda_pa_curve_data_sample_rev1) *
++				 chan->pa_points_per_curve;
++			continue;
++		}
++
++		entry += sizeof(__le16);
++		memcpy(chan->curve_data, entry, sizeof(*chan->curve_data) *
++		       chan->pa_points_per_curve);
++		break;
++	}
++
++	memcpy(hdr->data + payload_len - 4, &chan->val_bpsk, 4);
++
++	priv->tx(dev, hdr, sizeof(*hdr) + payload_len, 1);
++	return 0;
++
++ err:
++	printk(KERN_ERR "%s: frequency change failed\n", wiphy_name(dev->wiphy));
++	kfree(hdr);
++	return -EINVAL;
++}
++
++static int p54_set_leds(struct ieee80211_hw *dev, int mode, int link, int act)
++{
++	struct p54_common *priv = dev->priv;
++	struct p54_control_hdr *hdr;
++	struct p54_tx_control_led *led;
++
++	hdr = kzalloc(sizeof(*hdr) + sizeof(*led) +
++		      priv->tx_hdr_len, GFP_KERNEL);
++	if (!hdr)
++		return -ENOMEM;
++
++	hdr = (void *)hdr + priv->tx_hdr_len;
++	hdr->magic1 = cpu_to_le16(0x8001);
++	hdr->len = cpu_to_le16(sizeof(*led));
++	hdr->type = cpu_to_le16(P54_CONTROL_TYPE_LED);
++	p54_assign_address(dev, NULL, hdr, sizeof(*hdr) + sizeof(*led), NULL);
++
++	led = (struct p54_tx_control_led *) hdr->data;
++	led->mode = cpu_to_le16(mode);
++	led->led_permanent = cpu_to_le16(link);
++	led->led_temporary = cpu_to_le16(act);
++	led->duration = cpu_to_le16(1000);
++
++	priv->tx(dev, hdr, sizeof(*hdr) + sizeof(*led), 1);
++
++	return 0;
++}
++
++#define P54_SET_QUEUE(queue, ai_fs, cw_min, cw_max, burst)	\
++do {	 							\
++	queue.aifs = cpu_to_le16(ai_fs);			\
++	queue.cwmin = cpu_to_le16(cw_min);			\
++	queue.cwmax = cpu_to_le16(cw_max);			\
++	queue.txop = (burst == 0) ? 				\
++		0 : cpu_to_le16((burst * 100) / 32 + 1);	\
++} while(0)
++
++static void p54_init_vdcf(struct ieee80211_hw *dev)
++{
++	struct p54_common *priv = dev->priv;
++	struct p54_control_hdr *hdr;
++	struct p54_tx_control_vdcf *vdcf;
++
++	/* all USB V1 adapters need a extra headroom */
++	hdr = (void *)priv->cached_vdcf + priv->tx_hdr_len;
++	hdr->magic1 = cpu_to_le16(0x8001);
++	hdr->len = cpu_to_le16(sizeof(*vdcf));
++	hdr->type = cpu_to_le16(P54_CONTROL_TYPE_DCFINIT);
++	hdr->req_id = cpu_to_le32(priv->rx_start);
++
++	vdcf = (struct p54_tx_control_vdcf *) hdr->data;
++
++	P54_SET_QUEUE(vdcf->queue[0], 0x0002, 0x0003, 0x0007, 0x000f);
++	P54_SET_QUEUE(vdcf->queue[1], 0x0002, 0x0007, 0x000f, 0x001e);
++	P54_SET_QUEUE(vdcf->queue[2], 0x0002, 0x000f, 0x03ff, 0x0014);
++	P54_SET_QUEUE(vdcf->queue[3], 0x0007, 0x000f, 0x03ff, 0x0000);
++}
++
++static void p54_set_vdcf(struct ieee80211_hw *dev)
++{
++	struct p54_common *priv = dev->priv;
++	struct p54_control_hdr *hdr;
++	struct p54_tx_control_vdcf *vdcf;
++
++	hdr = (void *)priv->cached_vdcf + priv->tx_hdr_len;
++
++	p54_assign_address(dev, NULL, hdr, sizeof(*hdr) + sizeof(*vdcf), NULL);
++
++	vdcf = (struct p54_tx_control_vdcf *) hdr->data;
++
++	if (dev->conf.flags & IEEE80211_CONF_SHORT_SLOT_TIME) {
++		vdcf->slottime = 9;
++		vdcf->magic1 = 0x00;
++		vdcf->magic2 = 0x10;
++	} else {
++		vdcf->slottime = 20;
++		vdcf->magic1 = 0x0a;
++		vdcf->magic2 = 0x06;
++	}
++
++	/* (see prism54/isl_oid.h for further details) */
++	vdcf->frameburst = cpu_to_le16(0);
++
++	priv->tx(dev, hdr, sizeof(*hdr) + sizeof(*vdcf), 0);
++}
++
++static int p54_start(struct ieee80211_hw *dev)
++{
++	struct p54_common *priv = dev->priv;
++	int err;
++
++	err = priv->open(dev);
++	if (!err)
++		priv->mode = IEEE80211_IF_TYPE_MNTR;
++
++	return err;
++}
++
++static void p54_stop(struct ieee80211_hw *dev)
++{
++	struct p54_common *priv = dev->priv;
++	struct sk_buff *skb;
++	while ((skb = skb_dequeue(&priv->tx_queue))) {
++		struct memrecord *range = (struct memrecord *)&skb->cb;
++		if (range->control)
++			kfree(range->control);
++		kfree_skb(skb);
++	}
++	priv->stop(dev);
++	priv->mode = IEEE80211_IF_TYPE_INVALID;
++}
++
++static int p54_add_interface(struct ieee80211_hw *dev,
++			     struct ieee80211_if_init_conf *conf)
++{
++	struct p54_common *priv = dev->priv;
++
++	if (priv->mode != IEEE80211_IF_TYPE_MNTR)
++		return -EOPNOTSUPP;
++
++	switch (conf->type) {
++	case IEEE80211_IF_TYPE_STA:
++		priv->mode = conf->type;
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	memcpy(priv->mac_addr, conf->mac_addr, ETH_ALEN);
++
++	p54_set_filter(dev, 0, priv->mac_addr, NULL, 0, 1, 0, 0xF642);
++	p54_set_filter(dev, 0, priv->mac_addr, NULL, 1, 0, 0, 0xF642);
++
++	switch (conf->type) {
++	case IEEE80211_IF_TYPE_STA:
++		p54_set_filter(dev, 1, priv->mac_addr, NULL, 0, 0x15F, 0x1F4, 0);
++		break;
++	default:
++		BUG();	/* impossible */
++		break;
++	}
++
++	p54_set_leds(dev, 1, 0, 0);
++
++	return 0;
++}
++
++static void p54_remove_interface(struct ieee80211_hw *dev,
++				 struct ieee80211_if_init_conf *conf)
++{
++	struct p54_common *priv = dev->priv;
++	priv->mode = IEEE80211_IF_TYPE_MNTR;
++	memset(priv->mac_addr, 0, ETH_ALEN);
++	p54_set_filter(dev, 0, priv->mac_addr, NULL, 2, 0, 0, 0);
++}
++
++static int p54_config(struct ieee80211_hw *dev, struct ieee80211_conf *conf)
++{
++	int ret;
++
++	ret = p54_set_freq(dev, cpu_to_le16(conf->freq));
++	p54_set_vdcf(dev);
++	return ret;
++}
++
++static int p54_config_interface(struct ieee80211_hw *dev, int if_id,
++				struct ieee80211_if_conf *conf)
++{
++	struct p54_common *priv = dev->priv;
++
++	p54_set_filter(dev, 0, priv->mac_addr, conf->bssid, 0, 1, 0, 0xF642);
++	p54_set_filter(dev, 0, priv->mac_addr, conf->bssid, 2, 0, 0, 0);
++	p54_set_leds(dev, 1, !is_multicast_ether_addr(conf->bssid), 0);
++	memcpy(priv->bssid, conf->bssid, ETH_ALEN);
++	return 0;
++}
++
++static void p54_configure_filter(struct ieee80211_hw *dev,
++				 unsigned int changed_flags,
++				 unsigned int *total_flags,
++				 int mc_count, struct dev_mc_list *mclist)
++{
++	struct p54_common *priv = dev->priv;
++
++	*total_flags &= FIF_BCN_PRBRESP_PROMISC;
++
++	if (changed_flags & FIF_BCN_PRBRESP_PROMISC) {
++		if (*total_flags & FIF_BCN_PRBRESP_PROMISC)
++			p54_set_filter(dev, 0, priv->mac_addr,
++				       NULL, 2, 0, 0, 0);
++		else
++			p54_set_filter(dev, 0, priv->mac_addr,
++				       priv->bssid, 2, 0, 0, 0);
++	}
++}
++
++static int p54_conf_tx(struct ieee80211_hw *dev, int queue,
++		       const struct ieee80211_tx_queue_params *params)
++{
++	struct p54_common *priv = dev->priv;
++	struct p54_tx_control_vdcf *vdcf;
++
++	vdcf = (struct p54_tx_control_vdcf *)(((struct p54_control_hdr *)
++		((void *)priv->cached_vdcf + priv->tx_hdr_len))->data);
++
++	if ((params) && !((queue < 0) || (queue > 4))) {
++		P54_SET_QUEUE(vdcf->queue[queue], params->aifs,
++			params->cw_min, params->cw_max, params->burst_time);
++	} else
++		return -EINVAL;
++
++	p54_set_vdcf(dev);
++
++	return 0;
++}
++
++static int p54_get_stats(struct ieee80211_hw *dev,
++			 struct ieee80211_low_level_stats *stats)
++{
++	/* TODO */
++	return 0;
++}
++
++static int p54_get_tx_stats(struct ieee80211_hw *dev,
++			    struct ieee80211_tx_queue_stats *stats)
++{
++	struct p54_common *priv = dev->priv;
++	unsigned int i;
++
++	for (i = 0; i < dev->queues; i++)
++		memcpy(&stats->data[i], &priv->tx_stats.data[i],
++			sizeof(stats->data[i]));
++
++	return 0;
++}
++
++static const struct ieee80211_ops p54_ops = {
++	.tx			= p54_tx,
++	.start			= p54_start,
++	.stop			= p54_stop,
++	.add_interface		= p54_add_interface,
++	.remove_interface	= p54_remove_interface,
++	.config			= p54_config,
++	.config_interface	= p54_config_interface,
++	.configure_filter	= p54_configure_filter,
++	.conf_tx		= p54_conf_tx,
++	.get_stats		= p54_get_stats,
++	.get_tx_stats		= p54_get_tx_stats
++};
++
++struct ieee80211_hw *p54_init_common(size_t priv_data_len)
++{
++	struct ieee80211_hw *dev;
++	struct p54_common *priv;
++	int i;
++
++	dev = ieee80211_alloc_hw(priv_data_len, &p54_ops);
++	if (!dev)
++		return NULL;
++
++	priv = dev->priv;
++	priv->mode = IEEE80211_IF_TYPE_INVALID;
++	skb_queue_head_init(&priv->tx_queue);
++	memcpy(priv->channels, p54_channels, sizeof(p54_channels));
++	memcpy(priv->rates, p54_rates, sizeof(p54_rates));
++	priv->modes[1].mode = MODE_IEEE80211B;
++	priv->modes[1].num_rates = 4;
++	priv->modes[1].rates = priv->rates;
++	priv->modes[1].num_channels = ARRAY_SIZE(p54_channels);
++	priv->modes[1].channels = priv->channels;
++	priv->modes[0].mode = MODE_IEEE80211G;
++	priv->modes[0].num_rates = ARRAY_SIZE(p54_rates);
++	priv->modes[0].rates = priv->rates;
++	priv->modes[0].num_channels = ARRAY_SIZE(p54_channels);
++	priv->modes[0].channels = priv->channels;
++	dev->flags = IEEE80211_HW_HOST_BROADCAST_PS_BUFFERING | /* not sure */
++		    IEEE80211_HW_RX_INCLUDES_FCS;
++	dev->channel_change_time = 1000;	/* TODO: find actual value */
++	dev->max_rssi = 127;
++
++	priv->tx_stats.data[0].limit = 5;
++	dev->queues = 1;
++
++	dev->extra_tx_headroom = sizeof(struct p54_control_hdr) + 4 +
++				 sizeof(struct p54_tx_control_allocdata);
++
++        priv->cached_vdcf = kzalloc(sizeof(struct p54_tx_control_vdcf) +
++              priv->tx_hdr_len + sizeof(struct p54_control_hdr), GFP_KERNEL);
++
++	if (!priv->cached_vdcf) {
++		ieee80211_free_hw(dev);
++		return NULL;
++	}
++
++	p54_init_vdcf(dev);
++
++	for (i = 0; i < 2; i++) {
++		if (ieee80211_register_hwmode(dev, &priv->modes[i])) {
++			kfree(priv->cached_vdcf);
++			ieee80211_free_hw(dev);
++			return NULL;
++		}
++	}
++
++	return dev;
++}
++EXPORT_SYMBOL_GPL(p54_init_common);
++
++void p54_free_common(struct ieee80211_hw *dev)
++{
++	struct p54_common *priv = dev->priv;
++	kfree(priv->iq_autocal);
++	kfree(priv->output_limit);
++	kfree(priv->curve_data);
++	kfree(priv->cached_vdcf);
++}
++EXPORT_SYMBOL_GPL(p54_free_common);
++
++static int __init p54_init(void)
++{
++	return 0;
++}
++
++static void __exit p54_exit(void)
++{
++}
++
++module_init(p54_init);
++module_exit(p54_exit);
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/p54common.h linux-2.6.23-sabayon/drivers/net/wireless/p54common.h
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/p54common.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.23-sabayon/drivers/net/wireless/p54common.h	2007-10-10 01:14:42.000000000 +0200
+@@ -0,0 +1,329 @@
++#ifndef PRISM54COMMON_H
++#define PRISM54COMMON_H
++
++/*
++ * Common code specific definitions for mac80211 Prism54 drivers
++ *
++ * Copyright (c) 2006, Michael Wu <flamingice@sourmilk.net>
++ * Copyright (c) 2007, Christian Lamparter <chunkeey@web.de>
++ *
++ * Based on the islsm (softmac prism54) driver, which is:
++ * Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++struct bootrec {
++	__le32 code;
++	__le32 len;
++	u32 data[0];
++} __attribute__((packed));
++
++struct bootrec_exp_if {
++	__le16 role;
++	__le16 if_id;
++	__le16 variant;
++	__le16 btm_compat;
++	__le16 top_compat;
++} __attribute__((packed));
++
++#define BR_CODE_MIN			0x80000000
++#define BR_CODE_COMPONENT_ID		0x80000001
++#define BR_CODE_COMPONENT_VERSION	0x80000002
++#define BR_CODE_DEPENDENT_IF		0x80000003
++#define BR_CODE_EXPOSED_IF		0x80000004
++#define BR_CODE_DESCR			0x80000101
++#define BR_CODE_MAX			0x8FFFFFFF
++#define BR_CODE_END_OF_BRA		0xFF0000FF
++#define LEGACY_BR_CODE_END_OF_BRA	0xFFFFFFFF
++
++#define FW_FMAC 0x464d4143
++#define FW_LM86 0x4c4d3836
++#define FW_LM87 0x4c4d3837
++#define FW_LM20 0x4c4d3230
++
++/* PDA defines are Copyright (C) 2005 Nokia Corporation (taken from islsm_pda.h) */
++
++struct pda_entry {
++	__le16 len;	/* includes both code and data */
++	__le16 code;
++	u8 data[0];
++} __attribute__ ((packed));
++
++struct eeprom_pda_wrap {
++	u32 magic;
++	u16 pad;
++	u16 len;
++	u32 arm_opcode;
++	u8 data[0];
++} __attribute__ ((packed));
++
++struct pda_iq_autocal_entry {
++        __le16 freq;
++        __le16 iq_param[4];
++} __attribute__ ((packed));
++
++struct pda_channel_output_limit {
++	__le16 freq;
++	u8 val_bpsk;
++	u8 val_qpsk;
++	u8 val_16qam;
++	u8 val_64qam;
++	u8 rate_set_mask;
++	u8 rate_set_size;
++} __attribute__ ((packed));
++
++struct pda_pa_curve_data_sample_rev0 {
++	u8 rf_power;
++	u8 pa_detector;
++	u8 pcv;
++} __attribute__ ((packed));
++
++struct pda_pa_curve_data_sample_rev1 {
++	u8 rf_power;
++	u8 pa_detector;
++	u8 data_barker;
++	u8 data_bpsk;
++	u8 data_qpsk;
++	u8 data_16qam;
++	u8 data_64qam;
++	u8 padding;
++} __attribute__ ((packed));
++
++struct pda_pa_curve_data {
++	u8 cal_method_rev;
++	u8 channels;
++	u8 points_per_channel;
++	u8 padding;
++	u8 data[0];
++} __attribute__ ((packed));
++
++/*
++ * this defines the PDR codes used to build PDAs as defined in document
++ * number 553155. The current implementation mirrors version 1.1 of the
++ * document and lists only PDRs supported by the ARM platform.
++ */
++
++/* common and choice range (0x0000 - 0x0fff) */
++#define PDR_END					0x0000
++#define PDR_MANUFACTURING_PART_NUMBER		0x0001
++#define PDR_PDA_VERSION				0x0002
++#define PDR_NIC_SERIAL_NUMBER			0x0003
++
++#define PDR_MAC_ADDRESS				0x0101
++#define PDR_REGULATORY_DOMAIN_LIST		0x0103
++#define PDR_TEMPERATURE_TYPE			0x0107
++
++#define PDR_PRISM_PCI_IDENTIFIER		0x0402
++
++/* ARM range (0x1000 - 0x1fff) */
++#define PDR_COUNTRY_INFORMATION			0x1000
++#define PDR_INTERFACE_LIST			0x1001
++#define PDR_HARDWARE_PLATFORM_COMPONENT_ID	0x1002
++#define PDR_OEM_NAME				0x1003
++#define PDR_PRODUCT_NAME			0x1004
++#define PDR_UTF8_OEM_NAME			0x1005
++#define PDR_UTF8_PRODUCT_NAME			0x1006
++#define PDR_COUNTRY_LIST			0x1007
++#define PDR_DEFAULT_COUNTRY			0x1008
++
++#define PDR_ANTENNA_GAIN			0x1100
++
++#define PDR_PRISM_INDIGO_PA_CALIBRATION_DATA	0x1901
++#define PDR_RSSI_LINEAR_APPROXIMATION		0x1902
++#define PDR_PRISM_PA_CAL_OUTPUT_POWER_LIMITS	0x1903
++#define PDR_PRISM_PA_CAL_CURVE_DATA		0x1904
++#define PDR_RSSI_LINEAR_APPROXIMATION_DUAL_BAND	0x1905
++#define PDR_PRISM_ZIF_TX_IQ_CALIBRATION		0x1906
++#define PDR_REGULATORY_POWER_LIMITS		0x1907
++#define PDR_RSSI_LINEAR_APPROXIMATION_EXTENDED	0x1908
++#define PDR_RADIATED_TRANSMISSION_CORRECTION	0x1909
++#define PDR_PRISM_TX_IQ_CALIBRATION		0x190a
++
++/* reserved range (0x2000 - 0x7fff) */
++
++/* customer range (0x8000 - 0xffff) */
++#define PDR_BASEBAND_REGISTERS			0x8000
++#define PDR_PER_CHANNEL_BASEBAND_REGISTERS	0x8001
++
++/* stored in skb->cb */
++struct memrecord {
++	u32 start_addr;
++	u32 end_addr;
++	struct ieee80211_tx_control *control;
++};
++
++struct p54_eeprom_lm86 {
++	__le16 offset;
++	__le16 len;
++	u8 data[0];
++} __attribute__ ((packed));
++
++struct p54_rx_hdr {
++	__le16 magic;
++	__le16 len;
++	__le16 freq;
++	u8 antenna;
++	u8 rate;
++	u8 rssi;
++	u8 quality;
++	u16 unknown2;
++	__le64 timestamp;
++	u8 data[0];
++} __attribute__ ((packed));
++
++struct p54_frame_sent_hdr {
++	u8 status;
++	u8 retries;
++	__le16 ack_rssi;
++	__le16 seq;
++	u16 rate;
++} __attribute__ ((packed));
++
++struct p54_tx_control_allocdata {
++	u8 rateset[8];
++	u16 padding;
++	u8 wep_key_present;
++	u8 wep_key_len;
++	u8 wep_key[16];
++	__le32 frame_type;
++	u32 padding2;
++	__le16 magic4;
++	u8 antenna;
++	u8 output_power;
++	__le32 magic5;
++	u8 align[0];
++} __attribute__ ((packed));
++
++struct p54_tx_control_filter {
++	__le16 filter_type;
++	u8 dst[ETH_ALEN];
++	u8 src[ETH_ALEN];
++	u8 antenna;
++	u8 debug;
++	__le32 magic3;
++	u8 rates[8];	// FIXME: what's this for?
++	__le32 rx_addr;
++	__le16 max_rx;
++	__le16 rxhw;
++	__le16 magic8;
++	__le16 magic9;
++} __attribute__ ((packed));
++
++struct p54_tx_control_channel {
++	__le16 magic1;
++	__le16 magic2;
++	u8 padding1[20];
++	struct pda_iq_autocal_entry iq_autocal;
++	u8 pa_points_per_curve;
++	u8 val_barker;
++	u8 val_bpsk;
++	u8 val_qpsk;
++	u8 val_16qam;
++	u8 val_64qam;
++	struct pda_pa_curve_data_sample_rev1 curve_data[0];
++	/* additional padding/data after curve_data */
++} __attribute__ ((packed));
++
++struct p54_tx_control_led {
++	__le16 mode;
++	__le16 led_temporary;
++	__le16 led_permanent;
++	__le16 duration;
++} __attribute__ ((packed));
++
++struct p54_tx_vdcf_queues {
++	__le16 aifs;
++	__le16 cwmin;
++	__le16 cwmax;
++	__le16 txop;
++} __attribute__ ((packed));
++
++struct p54_tx_control_vdcf {
++	u8 padding;
++	u8 slottime;
++	u8 magic1;
++	u8 magic2;
++	struct p54_tx_vdcf_queues queue[8];
++	u8 pad2[4];
++	__le16 frameburst;
++} __attribute__ ((packed));
++
++static const struct ieee80211_rate p54_rates[] = {
++	{ .rate = 10,
++	  .val = 0,
++	  .val2 = 0x10,
++	  .flags = IEEE80211_RATE_CCK_2 },
++	{ .rate = 20,
++	  .val = 1,
++	  .val2 = 0x11,
++	  .flags = IEEE80211_RATE_CCK_2 },
++	{ .rate = 55,
++	  .val = 2,
++	  .val2 = 0x12,
++	  .flags = IEEE80211_RATE_CCK_2 },
++	{ .rate = 110,
++	  .val = 3,
++	  .val2 = 0x13,
++	  .flags = IEEE80211_RATE_CCK_2 },
++	{ .rate = 60,
++	  .val = 4,
++	  .flags = IEEE80211_RATE_OFDM },
++	{ .rate = 90,
++	  .val = 5,
++	  .flags = IEEE80211_RATE_OFDM },
++	{ .rate = 120,
++	  .val = 6,
++	  .flags = IEEE80211_RATE_OFDM },
++	{ .rate = 180,
++	  .val = 7,
++	  .flags = IEEE80211_RATE_OFDM },
++	{ .rate = 240,
++	  .val = 8,
++	  .flags = IEEE80211_RATE_OFDM },
++	{ .rate = 360,
++	  .val = 9,
++	  .flags = IEEE80211_RATE_OFDM },
++	{ .rate = 480,
++	  .val = 10,
++	  .flags = IEEE80211_RATE_OFDM },
++	{ .rate = 540,
++	  .val = 11,
++	  .flags = IEEE80211_RATE_OFDM },
++};
++
++// TODO: just generate this..
++static const struct ieee80211_channel p54_channels[] = {
++	{ .chan = 1,
++	  .freq = 2412},
++	{ .chan = 2,
++	  .freq = 2417},
++	{ .chan = 3,
++	  .freq = 2422},
++	{ .chan = 4,
++	  .freq = 2427},
++	{ .chan = 5,
++	  .freq = 2432},
++	{ .chan = 6,
++	  .freq = 2437},
++	{ .chan = 7,
++	  .freq = 2442},
++	{ .chan = 8,
++	  .freq = 2447},
++	{ .chan = 9,
++	  .freq = 2452},
++	{ .chan = 10,
++	  .freq = 2457},
++	{ .chan = 11,
++	  .freq = 2462},
++	{ .chan = 12,
++	  .freq = 2467},
++	{ .chan = 13,
++	  .freq = 2472},
++	{ .chan = 14,
++	  .freq = 2484}
++};
++
++#endif /* PRISM54COMMON_H */
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/p54.h linux-2.6.23-sabayon/drivers/net/wireless/p54.h
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/p54.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.23-sabayon/drivers/net/wireless/p54.h	2007-10-10 01:14:42.000000000 +0200
+@@ -0,0 +1,81 @@
++#ifndef PRISM54_H
++#define PRISM54_H
++
++/*
++ * Shared defines for all mac80211 Prism54 code
++ *
++ * Copyright (c) 2006, Michael Wu <flamingice@sourmilk.net>
++ *
++ * Based on the islsm (softmac prism54) driver, which is:
++ * Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++enum control_frame_types {
++	P54_CONTROL_TYPE_FILTER_SET = 0,
++	P54_CONTROL_TYPE_CHANNEL_CHANGE,
++	P54_CONTROL_TYPE_FREQDONE,
++	P54_CONTROL_TYPE_DCFINIT,
++	P54_CONTROL_TYPE_FREEQUEUE = 7,
++	P54_CONTROL_TYPE_TXDONE,
++	P54_CONTROL_TYPE_PING,
++	P54_CONTROL_TYPE_STAT_READBACK,
++	P54_CONTROL_TYPE_BBP,
++	P54_CONTROL_TYPE_EEPROM_READBACK,
++	P54_CONTROL_TYPE_LED
++};
++
++struct p54_control_hdr {
++	__le16 magic1;
++	__le16 len;
++	__le32 req_id;
++	__le16 type;	/* enum control_frame_types */
++	u8 retry1;
++	u8 retry2;
++	u8 data[0];
++} __attribute__ ((packed));
++
++#define EEPROM_READBACK_LEN (sizeof(struct p54_control_hdr) + 4 /* p54_eeprom_lm86 */)
++#define MAX_RX_SIZE (IEEE80211_MAX_RTS_THRESHOLD + sizeof(struct p54_control_hdr) + 20 /* length of struct p54_rx_hdr */ + 16 )
++
++#define ISL38XX_DEV_FIRMWARE_ADDR 0x20000
++
++struct p54_common {
++	u32 rx_start;
++	u32 rx_end;
++	struct sk_buff_head tx_queue;
++	void (*tx)(struct ieee80211_hw *dev, struct p54_control_hdr *data,
++		   size_t len, int free_on_tx);
++	int (*open)(struct ieee80211_hw *dev);
++	void (*stop)(struct ieee80211_hw *dev);
++	int mode;
++	u8 mac_addr[ETH_ALEN];
++	u8 bssid[ETH_ALEN];
++	struct pda_iq_autocal_entry *iq_autocal;
++	unsigned int iq_autocal_len;
++	struct pda_channel_output_limit *output_limit;
++	unsigned int output_limit_len;
++	struct pda_pa_curve_data *curve_data;
++	__le16 rxhw;
++	u8 version;
++	unsigned int tx_hdr_len;
++	void *cached_vdcf;
++	unsigned int fw_var;
++	/* FIXME: this channels/modes/rates stuff sucks */
++	struct ieee80211_channel channels[14];
++	struct ieee80211_rate rates[12];
++	struct ieee80211_hw_mode modes[2];
++	struct ieee80211_tx_queue_stats tx_stats;
++};
++
++int p54_rx(struct ieee80211_hw *dev, struct sk_buff *skb);
++void p54_parse_firmware(struct ieee80211_hw *dev, const struct firmware *fw);
++int p54_parse_eeprom(struct ieee80211_hw *dev, void *eeprom, int len);
++void p54_fill_eeprom_readback(struct p54_control_hdr *hdr);
++struct ieee80211_hw *p54_init_common(size_t priv_data_len);
++void p54_free_common(struct ieee80211_hw *dev);
++
++#endif /* PRISM54_H */
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/p54pci.c linux-2.6.23-sabayon/drivers/net/wireless/p54pci.c
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/p54pci.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.23-sabayon/drivers/net/wireless/p54pci.c	2007-10-10 01:14:42.000000000 +0200
+@@ -0,0 +1,690 @@
++
++/*
++ * Linux device driver for PCI based Prism54
++ *
++ * Copyright (c) 2006, Michael Wu <flamingice@sourmilk.net>
++ *
++ * Based on the islsm (softmac prism54) driver, which is:
++ * Copyright 2004-2006 Jean-Baptiste Note <jean-baptiste.note@m4x.org>, et al.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <linux/firmware.h>
++#include <linux/etherdevice.h>
++#include <linux/delay.h>
++#include <linux/completion.h>
++#include <net/mac80211.h>
++
++#include "p54.h"
++#include "p54pci.h"
++
++MODULE_AUTHOR("Michael Wu <flamingice@sourmilk.net>");
++MODULE_DESCRIPTION("Prism54 PCI wireless driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("prism54pci");
++
++static struct pci_device_id p54p_table[] __devinitdata = {
++	/* Intersil PRISM Duette/Prism GT Wireless LAN adapter */
++	{ PCI_DEVICE(0x1260, 0x3890) },
++	/* 3COM 3CRWE154G72 Wireless LAN adapter */
++	{ PCI_DEVICE(0x10b7, 0x6001) },
++	/* Intersil PRISM Indigo Wireless LAN adapter */
++	{ PCI_DEVICE(0x1260, 0x3877) },
++	/* Intersil PRISM Javelin/Xbow Wireless LAN adapter */
++	{ PCI_DEVICE(0x1260, 0x3886) },
++	{ },
++};
++
++MODULE_DEVICE_TABLE(pci, p54p_table);
++
++static int p54p_upload_firmware(struct ieee80211_hw *dev)
++{
++	struct p54p_priv *priv = dev->priv;
++	const struct firmware *fw_entry = NULL;
++	__le32 reg;
++	int err;
++	u32 *data;
++	u32 remains, left, device_addr;
++
++	P54P_WRITE(int_enable, 0);
++	P54P_READ(int_enable);
++	udelay(10);
++
++	reg = P54P_READ(ctrl_stat);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RESET);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RAMBOOT);
++	P54P_WRITE(ctrl_stat, reg);
++	P54P_READ(ctrl_stat);
++	udelay(10);
++
++	reg |= cpu_to_le32(ISL38XX_CTRL_STAT_RESET);
++	P54P_WRITE(ctrl_stat, reg);
++	wmb();
++	udelay(10);
++
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RESET);
++	P54P_WRITE(ctrl_stat, reg);
++	wmb();
++
++	mdelay(50);
++
++	err = request_firmware(&fw_entry, "isl3886", &priv->pdev->dev);
++	if (err) {
++		printk(KERN_ERR "%s (prism54pci): cannot find firmware "
++		       "(isl3886)\n", pci_name(priv->pdev));
++		return err;
++	}
++
++	p54_parse_firmware(dev, fw_entry);
++
++	data = (u32 *) fw_entry->data;
++	remains = fw_entry->size;
++	device_addr = ISL38XX_DEV_FIRMWARE_ADDR;
++	while (remains) {
++		u32 i = 0;
++		left = min((u32)0x1000, remains);
++		P54P_WRITE(direct_mem_base, cpu_to_le32(device_addr));
++		P54P_READ(int_enable);
++
++		device_addr += 0x1000;
++		while (i < left) {
++			P54P_WRITE(direct_mem_win[i], *data++);
++			i += sizeof(u32);
++		}
++
++		remains -= left;
++		P54P_READ(int_enable);
++	}
++
++	release_firmware(fw_entry);
++
++	reg = P54P_READ(ctrl_stat);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_CLKRUN);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RESET);
++	reg |= cpu_to_le32(ISL38XX_CTRL_STAT_RAMBOOT);
++	P54P_WRITE(ctrl_stat, reg);
++	P54P_READ(ctrl_stat);
++	udelay(10);
++
++	reg |= cpu_to_le32(ISL38XX_CTRL_STAT_RESET);
++	P54P_WRITE(ctrl_stat, reg);
++	wmb();
++	udelay(10);
++
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RESET);
++	P54P_WRITE(ctrl_stat, reg);
++	wmb();
++	udelay(10);
++
++	return 0;
++}
++
++static irqreturn_t p54p_simple_interrupt(int irq, void *dev_id)
++{
++	struct p54p_priv *priv = (struct p54p_priv *) dev_id;
++	__le32 reg;
++
++	reg = P54P_READ(int_ident);
++	P54P_WRITE(int_ack, reg);
++
++	if (reg & P54P_READ(int_enable))
++		complete(&priv->boot_comp);
++
++	return IRQ_HANDLED;
++}
++
++static int p54p_read_eeprom(struct ieee80211_hw *dev)
++{
++	struct p54p_priv *priv = dev->priv;
++	int err;
++	struct p54_control_hdr *hdr;
++	void *eeprom;
++	dma_addr_t rx_mapping, tx_mapping;
++	u16 alen;
++
++	init_completion(&priv->boot_comp);
++	err = request_irq(priv->pdev->irq, &p54p_simple_interrupt,
++			  IRQF_SHARED, "prism54pci", priv);
++	if (err) {
++		printk(KERN_ERR "%s (prism54pci): failed to register IRQ handler\n",
++		       pci_name(priv->pdev));
++		return err;
++	}
++
++	eeprom = kmalloc(0x2010 + EEPROM_READBACK_LEN, GFP_KERNEL);
++	if (!eeprom) {
++		printk(KERN_ERR "%s (prism54pci): no memory for eeprom!\n",
++		       pci_name(priv->pdev));
++		err = -ENOMEM;
++		goto out;
++	}
++
++	memset(priv->ring_control, 0, sizeof(*priv->ring_control));
++	P54P_WRITE(ring_control_base, priv->ring_control_dma);
++	P54P_READ(ring_control_base);
++	udelay(10);
++
++	P54P_WRITE(int_enable, cpu_to_le32(ISL38XX_INT_IDENT_INIT));
++	P54P_READ(int_enable);
++	udelay(10);
++
++	P54P_WRITE(dev_int, cpu_to_le32(ISL38XX_DEV_INT_RESET));
++
++	if (!wait_for_completion_interruptible_timeout(&priv->boot_comp, HZ)) {
++		printk(KERN_ERR "%s (prism54pci): Cannot boot firmware!\n",
++		       pci_name(priv->pdev));
++		err = -EINVAL;
++		goto out;
++	}
++
++	P54P_WRITE(int_enable, cpu_to_le32(ISL38XX_INT_IDENT_UPDATE));
++	P54P_READ(int_enable);
++
++	hdr = eeprom + 0x2010;
++	p54_fill_eeprom_readback(hdr);
++	hdr->req_id = cpu_to_le32(priv->common.rx_start);
++
++	rx_mapping = pci_map_single(priv->pdev, eeprom,
++				    0x2010, PCI_DMA_FROMDEVICE);
++	tx_mapping = pci_map_single(priv->pdev, (void *)hdr,
++				    EEPROM_READBACK_LEN, PCI_DMA_TODEVICE);
++
++	priv->ring_control->rx_mgmt[0].host_addr = cpu_to_le32(rx_mapping);
++	priv->ring_control->rx_mgmt[0].len = cpu_to_le16(0x2010);
++	priv->ring_control->tx_data[0].host_addr = cpu_to_le32(tx_mapping);
++	priv->ring_control->tx_data[0].device_addr = hdr->req_id;
++	priv->ring_control->tx_data[0].len = cpu_to_le16(EEPROM_READBACK_LEN);
++
++	priv->ring_control->host_idx[2] = cpu_to_le32(1);
++	priv->ring_control->host_idx[1] = cpu_to_le32(1);
++
++	wmb();
++	mdelay(100);
++	P54P_WRITE(dev_int, cpu_to_le32(ISL38XX_DEV_INT_UPDATE));
++
++	wait_for_completion_interruptible_timeout(&priv->boot_comp, HZ);
++	wait_for_completion_interruptible_timeout(&priv->boot_comp, HZ);
++
++	pci_unmap_single(priv->pdev, tx_mapping,
++			 EEPROM_READBACK_LEN, PCI_DMA_TODEVICE);
++	pci_unmap_single(priv->pdev, rx_mapping,
++			 0x2010, PCI_DMA_FROMDEVICE);
++
++	alen = le16_to_cpu(priv->ring_control->rx_mgmt[0].len);
++	if (le32_to_cpu(priv->ring_control->device_idx[2]) != 1 ||
++	    alen < 0x10) {
++		printk(KERN_ERR "%s (prism54pci): Cannot read eeprom!\n",
++		       pci_name(priv->pdev));
++		err = -EINVAL;
++		goto out;
++	}
++
++	p54_parse_eeprom(dev, (u8 *)eeprom + 0x10, alen - 0x10);
++
++ out:
++	kfree(eeprom);
++	P54P_WRITE(int_enable, 0);
++	P54P_READ(int_enable);
++	udelay(10);
++	free_irq(priv->pdev->irq, priv);
++	P54P_WRITE(dev_int, cpu_to_le32(ISL38XX_DEV_INT_RESET));
++	return err;
++}
++
++static void p54p_refill_rx_ring(struct ieee80211_hw *dev)
++{
++	struct p54p_priv *priv = dev->priv;
++	u32 limit, host_idx, idx;
++
++	host_idx = le32_to_cpu(priv->ring_control->host_idx[0]);
++	limit = host_idx;
++	limit -= le32_to_cpu(priv->ring_control->device_idx[0]);
++	limit = ARRAY_SIZE(priv->ring_control->rx_data) - limit;
++
++	idx = host_idx % ARRAY_SIZE(priv->ring_control->rx_data);
++	while (limit-- > 1) {
++		struct p54p_desc *desc = &priv->ring_control->rx_data[idx];
++
++		if (!desc->host_addr) {
++			struct sk_buff *skb;
++			dma_addr_t mapping;
++			skb = dev_alloc_skb(MAX_RX_SIZE);
++			if (!skb)
++				break;
++
++			mapping = pci_map_single(priv->pdev,
++						 skb_tail_pointer(skb),
++						 MAX_RX_SIZE,
++						 PCI_DMA_FROMDEVICE);
++			desc->host_addr = cpu_to_le32(mapping);
++			desc->device_addr = 0;	// FIXME: necessary?
++			desc->len = cpu_to_le16(MAX_RX_SIZE);
++			desc->flags = 0;
++			priv->rx_buf[idx] = skb;
++		}
++
++		idx++;
++		host_idx++;
++		idx %= ARRAY_SIZE(priv->ring_control->rx_data);
++	}
++
++	wmb();
++	priv->ring_control->host_idx[0] = cpu_to_le32(host_idx);
++}
++
++static irqreturn_t p54p_interrupt(int irq, void *dev_id)
++{
++	struct ieee80211_hw *dev = dev_id;
++	struct p54p_priv *priv = dev->priv;
++	__le32 reg;
++
++	spin_lock(&priv->lock);
++	reg = P54P_READ(int_ident);
++	if (unlikely(reg == 0xFFFFFFFF)) {
++		spin_unlock(&priv->lock);
++		return IRQ_HANDLED;
++	}
++
++	P54P_WRITE(int_ack, reg);
++
++	reg &= P54P_READ(int_enable);
++
++	if (reg & cpu_to_le32(ISL38XX_INT_IDENT_UPDATE)) {
++		struct p54p_desc *desc;
++		u32 idx, i;
++		i = priv->tx_idx;
++		i %= ARRAY_SIZE(priv->ring_control->tx_data);
++		priv->tx_idx = idx = le32_to_cpu(priv->ring_control->device_idx[1]);
++		idx %= ARRAY_SIZE(priv->ring_control->tx_data);
++
++		while (i != idx) {
++			desc = &priv->ring_control->tx_data[i];
++			if (priv->tx_buf[i]) {
++				kfree(priv->tx_buf[i]);
++				priv->tx_buf[i] = NULL;
++			}
++
++			pci_unmap_single(priv->pdev, le32_to_cpu(desc->host_addr),
++					 le16_to_cpu(desc->len), PCI_DMA_TODEVICE);
++
++			desc->host_addr = 0;
++			desc->device_addr = 0;
++			desc->len = 0;
++			desc->flags = 0;
++
++			i++;
++			i %= ARRAY_SIZE(priv->ring_control->tx_data);
++		}
++
++		i = priv->rx_idx;
++		i %= ARRAY_SIZE(priv->ring_control->rx_data);
++		priv->rx_idx = idx = le32_to_cpu(priv->ring_control->device_idx[0]);
++		idx %= ARRAY_SIZE(priv->ring_control->rx_data);
++		while (i != idx) {
++			u16 len;
++			struct sk_buff *skb;
++			desc = &priv->ring_control->rx_data[i];
++			len = le16_to_cpu(desc->len);
++			skb = priv->rx_buf[i];
++
++			skb_put(skb, len);
++
++			if (p54_rx(dev, skb)) {
++				pci_unmap_single(priv->pdev,
++						 le32_to_cpu(desc->host_addr),
++						 MAX_RX_SIZE, PCI_DMA_FROMDEVICE);
++
++				priv->rx_buf[i] = NULL;
++				desc->host_addr = 0;
++			} else {
++				skb_trim(skb, 0);
++				desc->len = cpu_to_le16(MAX_RX_SIZE);
++			}
++
++			i++;
++			i %= ARRAY_SIZE(priv->ring_control->rx_data);
++		}
++
++		p54p_refill_rx_ring(dev);
++
++		wmb();
++		P54P_WRITE(dev_int, cpu_to_le32(ISL38XX_DEV_INT_UPDATE));
++	} else if (reg & cpu_to_le32(ISL38XX_INT_IDENT_INIT))
++		complete(&priv->boot_comp);
++
++	spin_unlock(&priv->lock);
++
++	return reg ? IRQ_HANDLED : IRQ_NONE;
++}
++
++static void p54p_tx(struct ieee80211_hw *dev, struct p54_control_hdr *data,
++		    size_t len, int free_on_tx)
++{
++	struct p54p_priv *priv = dev->priv;
++	unsigned long flags;
++	struct p54p_desc *desc;
++	dma_addr_t mapping;
++	u32 device_idx, idx, i;
++
++	spin_lock_irqsave(&priv->lock, flags);
++
++	device_idx = le32_to_cpu(priv->ring_control->device_idx[1]);
++	idx = le32_to_cpu(priv->ring_control->host_idx[1]);
++	i = idx % ARRAY_SIZE(priv->ring_control->tx_data);
++
++	mapping = pci_map_single(priv->pdev, data, len, PCI_DMA_TODEVICE);
++	desc = &priv->ring_control->tx_data[i];
++	desc->host_addr = cpu_to_le32(mapping);
++	desc->device_addr = data->req_id;
++	desc->len = cpu_to_le16(len);
++	desc->flags = 0;
++
++	wmb();
++	priv->ring_control->host_idx[1] = cpu_to_le32(idx + 1);
++
++	if (free_on_tx)
++		priv->tx_buf[i] = data;
++
++	spin_unlock_irqrestore(&priv->lock, flags);
++
++	P54P_WRITE(dev_int, cpu_to_le32(ISL38XX_DEV_INT_UPDATE));
++	P54P_READ(dev_int);
++
++	/* FIXME: unlikely to happen because the device usually runs out of
++	   memory before we fill the ring up, but we can make it impossible */
++	if (idx - device_idx > ARRAY_SIZE(priv->ring_control->tx_data) - 2)
++		printk(KERN_INFO "%s: tx overflow.\n", wiphy_name(dev->wiphy));
++}
++
++static int p54p_open(struct ieee80211_hw *dev)
++{
++	struct p54p_priv *priv = dev->priv;
++	int err;
++
++	init_completion(&priv->boot_comp);
++	err = request_irq(priv->pdev->irq, &p54p_interrupt,
++			  IRQF_SHARED, "prism54pci", dev);
++	if (err) {
++		printk(KERN_ERR "%s: failed to register IRQ handler\n",
++		       wiphy_name(dev->wiphy));
++		return err;
++	}
++
++	memset(priv->ring_control, 0, sizeof(*priv->ring_control));
++	priv->rx_idx = priv->tx_idx = 0;
++	p54p_refill_rx_ring(dev);
++
++	p54p_upload_firmware(dev);
++
++	P54P_WRITE(ring_control_base, priv->ring_control_dma);
++	P54P_READ(ring_control_base);
++	wmb();
++	udelay(10);
++
++	P54P_WRITE(int_enable, cpu_to_le32(ISL38XX_INT_IDENT_INIT));
++	P54P_READ(int_enable);
++	wmb();
++	udelay(10);
++
++	P54P_WRITE(dev_int, cpu_to_le32(ISL38XX_DEV_INT_RESET));
++	P54P_READ(dev_int);
++
++	if (!wait_for_completion_interruptible_timeout(&priv->boot_comp, HZ)) {
++		printk(KERN_ERR "%s: Cannot boot firmware!\n",
++		       wiphy_name(dev->wiphy));
++		free_irq(priv->pdev->irq, dev);
++		return -ETIMEDOUT;
++	}
++
++	P54P_WRITE(int_enable, cpu_to_le32(ISL38XX_INT_IDENT_UPDATE));
++	P54P_READ(int_enable);
++	wmb();
++	udelay(10);
++
++	P54P_WRITE(dev_int, cpu_to_le32(ISL38XX_DEV_INT_UPDATE));
++	P54P_READ(dev_int);
++	wmb();
++	udelay(10);
++
++	return 0;
++}
++
++static void p54p_stop(struct ieee80211_hw *dev)
++{
++	struct p54p_priv *priv = dev->priv;
++	unsigned int i;
++	struct p54p_desc *desc;
++
++	P54P_WRITE(int_enable, 0);
++	P54P_READ(int_enable);
++	udelay(10);
++
++	free_irq(priv->pdev->irq, dev);
++
++	P54P_WRITE(dev_int, cpu_to_le32(ISL38XX_DEV_INT_RESET));
++
++	for (i = 0; i < ARRAY_SIZE(priv->rx_buf); i++) {
++		desc = &priv->ring_control->rx_data[i];
++		if (desc->host_addr)
++			pci_unmap_single(priv->pdev, le32_to_cpu(desc->host_addr),
++					 MAX_RX_SIZE, PCI_DMA_FROMDEVICE);
++		kfree_skb(priv->rx_buf[i]);
++		priv->rx_buf[i] = NULL;
++	}
++
++	for (i = 0; i < ARRAY_SIZE(priv->tx_buf); i++) {
++		desc = &priv->ring_control->tx_data[i];
++		if (desc->host_addr)
++			pci_unmap_single(priv->pdev, le32_to_cpu(desc->host_addr),
++					 le16_to_cpu(desc->len), PCI_DMA_TODEVICE);
++
++		kfree(priv->tx_buf[i]);
++		priv->tx_buf[i] = NULL;
++	}
++
++	memset(priv->ring_control, 0, sizeof(*priv->ring_control));
++}
++
++static int __devinit p54p_probe(struct pci_dev *pdev,
++				const struct pci_device_id *id)
++{
++	struct p54p_priv *priv;
++	struct ieee80211_hw *dev;
++	unsigned long mem_addr, mem_len;
++	int err;
++
++	err = pci_enable_device(pdev);
++	if (err) {
++		printk(KERN_ERR "%s (prism54pci): Cannot enable new PCI device\n",
++		       pci_name(pdev));
++		return err;
++	}
++
++	mem_addr = pci_resource_start(pdev, 0);
++	mem_len = pci_resource_len(pdev, 0);
++	if (mem_len < sizeof(struct p54p_csr)) {
++		printk(KERN_ERR "%s (prism54pci): Too short PCI resources\n",
++		       pci_name(pdev));
++		pci_disable_device(pdev);
++		return err;
++	}
++
++	err = pci_request_regions(pdev, "prism54pci");
++	if (err) {
++		printk(KERN_ERR "%s (prism54pci): Cannot obtain PCI resources\n",
++		       pci_name(pdev));
++		return err;
++	}
++
++	if (pci_set_dma_mask(pdev, DMA_32BIT_MASK) ||
++	    pci_set_consistent_dma_mask(pdev, DMA_32BIT_MASK)) {
++		printk(KERN_ERR "%s (prism54pci): No suitable DMA available\n",
++		       pci_name(pdev));
++		goto err_free_reg;
++	}
++
++	pci_set_master(pdev);
++	pci_try_set_mwi(pdev);
++
++	pci_write_config_byte(pdev, 0x40, 0);
++	pci_write_config_byte(pdev, 0x41, 0);
++
++	dev = p54_init_common(sizeof(*priv));
++	if (!dev) {
++		printk(KERN_ERR "%s (prism54pci): ieee80211 alloc failed\n",
++		       pci_name(pdev));
++		err = -ENOMEM;
++		goto err_free_reg;
++	}
++
++	priv = dev->priv;
++	priv->pdev = pdev;
++
++	SET_IEEE80211_DEV(dev, &pdev->dev);
++	pci_set_drvdata(pdev, dev);
++
++	priv->map = ioremap(mem_addr, mem_len);
++	if (!priv->map) {
++		printk(KERN_ERR "%s (prism54pci): Cannot map device memory\n",
++		       pci_name(pdev));
++		err = -EINVAL;	// TODO: use a better error code?
++		goto err_free_dev;
++	}
++
++	priv->ring_control = pci_alloc_consistent(pdev, sizeof(*priv->ring_control),
++						  &priv->ring_control_dma);
++	if (!priv->ring_control) {
++		printk(KERN_ERR "%s (prism54pci): Cannot allocate rings\n",
++		       pci_name(pdev));
++		err = -ENOMEM;
++		goto err_iounmap;
++	}
++	memset(priv->ring_control, 0, sizeof(*priv->ring_control));
++
++	err = p54p_upload_firmware(dev);
++	if (err)
++		goto err_free_desc;
++
++	err = p54p_read_eeprom(dev);
++	if (err)
++		goto err_free_desc;
++
++	priv->common.open = p54p_open;
++	priv->common.stop = p54p_stop;
++	priv->common.tx = p54p_tx;
++
++	spin_lock_init(&priv->lock);
++
++	err = ieee80211_register_hw(dev);
++	if (err) {
++		printk(KERN_ERR "%s (prism54pci): Cannot register netdevice\n",
++		       pci_name(pdev));
++		goto err_free_common;
++	}
++
++	printk(KERN_INFO "%s: hwaddr " MAC_FMT ", isl38%02x\n",
++	       wiphy_name(dev->wiphy), MAC_ARG(dev->wiphy->perm_addr),
++	       priv->common.version);
++
++	return 0;
++
++ err_free_common:
++	p54_free_common(dev);
++
++ err_free_desc:
++	pci_free_consistent(pdev, sizeof(*priv->ring_control),
++			    priv->ring_control, priv->ring_control_dma);
++
++ err_iounmap:
++	iounmap(priv->map);
++
++ err_free_dev:
++	pci_set_drvdata(pdev, NULL);
++	ieee80211_free_hw(dev);
++
++ err_free_reg:
++	pci_release_regions(pdev);
++	pci_disable_device(pdev);
++	return err;
++}
++
++static void __devexit p54p_remove(struct pci_dev *pdev)
++{
++	struct ieee80211_hw *dev = pci_get_drvdata(pdev);
++	struct p54p_priv *priv;
++
++	if (!dev)
++		return;
++
++	ieee80211_unregister_hw(dev);
++	priv = dev->priv;
++	pci_free_consistent(pdev, sizeof(*priv->ring_control),
++			    priv->ring_control, priv->ring_control_dma);
++	p54_free_common(dev);
++	iounmap(priv->map);
++	pci_release_regions(pdev);
++	pci_disable_device(pdev);
++	ieee80211_free_hw(dev);
++}
++
++#ifdef CONFIG_PM
++static int p54p_suspend(struct pci_dev *pdev, pm_message_t state)
++{
++	struct ieee80211_hw *dev = pci_get_drvdata(pdev);
++	struct p54p_priv *priv = dev->priv;
++
++	if (priv->common.mode != IEEE80211_IF_TYPE_INVALID) {
++		ieee80211_stop_queues(dev);
++		p54p_stop(dev);
++	}
++
++	pci_save_state(pdev);
++	pci_set_power_state(pdev, pci_choose_state(pdev, state));
++	return 0;
++}
++
++static int p54p_resume(struct pci_dev *pdev)
++{
++	struct ieee80211_hw *dev = pci_get_drvdata(pdev);
++	struct p54p_priv *priv = dev->priv;
++
++	pci_set_power_state(pdev, PCI_D0);
++	pci_restore_state(pdev);
++
++	if (priv->common.mode != IEEE80211_IF_TYPE_INVALID) {
++		p54p_open(dev);
++		ieee80211_start_queues(dev);
++	}
++
++	return 0;
++}
++#endif /* CONFIG_PM */
++
++static struct pci_driver p54p_driver = {
++	.name		= "prism54pci",
++	.id_table	= p54p_table,
++	.probe		= p54p_probe,
++	.remove		= __devexit_p(p54p_remove),
++#ifdef CONFIG_PM
++	.suspend	= p54p_suspend,
++	.resume		= p54p_resume,
++#endif /* CONFIG_PM */
++};
++
++static int __init p54p_init(void)
++{
++	return pci_register_driver(&p54p_driver);
++}
++
++static void __exit p54p_exit(void)
++{
++	pci_unregister_driver(&p54p_driver);
++}
++
++module_init(p54p_init);
++module_exit(p54p_exit);
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/p54pci.h linux-2.6.23-sabayon/drivers/net/wireless/p54pci.h
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/p54pci.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.23-sabayon/drivers/net/wireless/p54pci.h	2007-10-10 01:14:42.000000000 +0200
+@@ -0,0 +1,106 @@
++#ifndef PRISM54PCI_H
++#define PRISM54PCI_H
++
++/*
++ * Defines for PCI based mac80211 Prism54 driver
++ *
++ * Copyright (c) 2006, Michael Wu <flamingice@sourmilk.net>
++ *
++ * Based on the islsm (softmac prism54) driver, which is:
++ * Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/* Device Interrupt register bits */
++#define ISL38XX_DEV_INT_RESET                   0x0001
++#define ISL38XX_DEV_INT_UPDATE                  0x0002
++#define ISL38XX_DEV_INT_WAKEUP                  0x0008
++#define ISL38XX_DEV_INT_SLEEP                   0x0010
++#define ISL38XX_DEV_INT_ABORT                   0x0020
++/* these two only used in USB */
++#define ISL38XX_DEV_INT_DATA                    0x0040
++#define ISL38XX_DEV_INT_MGMT                    0x0080
++
++#define ISL38XX_DEV_INT_PCIUART_CTS             0x4000
++#define ISL38XX_DEV_INT_PCIUART_DR              0x8000
++
++/* Interrupt Identification/Acknowledge/Enable register bits */
++#define ISL38XX_INT_IDENT_UPDATE		0x0002
++#define ISL38XX_INT_IDENT_INIT			0x0004
++#define ISL38XX_INT_IDENT_WAKEUP		0x0008
++#define ISL38XX_INT_IDENT_SLEEP			0x0010
++#define ISL38XX_INT_IDENT_PCIUART_CTS		0x4000
++#define ISL38XX_INT_IDENT_PCIUART_DR		0x8000
++
++/* Control/Status register bits */
++#define ISL38XX_CTRL_STAT_SLEEPMODE		0x00000200
++#define ISL38XX_CTRL_STAT_CLKRUN		0x00800000
++#define ISL38XX_CTRL_STAT_RESET			0x10000000
++#define ISL38XX_CTRL_STAT_RAMBOOT		0x20000000
++#define ISL38XX_CTRL_STAT_STARTHALTED		0x40000000
++#define ISL38XX_CTRL_STAT_HOST_OVERRIDE		0x80000000
++
++struct p54p_csr {
++	__le32 dev_int;
++	u8 unused_1[12];
++	__le32 int_ident;
++	__le32 int_ack;
++	__le32 int_enable;
++	u8 unused_2[4];
++	union {
++		__le32 ring_control_base;
++		__le32 gen_purp_com[2];
++	};
++	u8 unused_3[8];
++	__le32 direct_mem_base;
++	u8 unused_4[44];
++	__le32 dma_addr;
++	__le32 dma_len;
++	__le32 dma_ctrl;
++	u8 unused_5[12];
++	__le32 ctrl_stat;
++	u8 unused_6[1924];
++	u8 cardbus_cis[0x800];
++	u8 direct_mem_win[0x1000];
++} __attribute__ ((packed));
++
++/* usb backend only needs the register defines above */
++#ifndef PRISM54USB_H
++struct p54p_desc {
++	__le32 host_addr;
++	__le32 device_addr;
++	__le16 len;
++	__le16 flags;
++} __attribute__ ((packed));
++
++struct p54p_ring_control {
++	__le32 host_idx[4];
++	__le32 device_idx[4];
++	struct p54p_desc rx_data[8];
++	struct p54p_desc tx_data[32];
++	struct p54p_desc rx_mgmt[4];
++	struct p54p_desc tx_mgmt[4];
++} __attribute__ ((packed));
++
++#define P54P_READ(r) __raw_readl(&priv->map->r)
++#define P54P_WRITE(r, val) __raw_writel((__force u32)(val), &priv->map->r)
++
++struct p54p_priv {
++	struct p54_common common;
++	struct pci_dev *pdev;
++	struct p54p_csr __iomem *map;
++
++	spinlock_t lock;
++	struct p54p_ring_control *ring_control;
++	dma_addr_t ring_control_dma;
++	u32 rx_idx, tx_idx;
++	struct sk_buff *rx_buf[8];
++	void *tx_buf[32];
++	struct completion boot_comp;
++};
++
++#endif /* PRISM54USB_H */
++#endif /* PRISM54PCI_H */
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/p54usb.c linux-2.6.23-sabayon/drivers/net/wireless/p54usb.c
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/p54usb.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.23-sabayon/drivers/net/wireless/p54usb.c	2007-10-10 01:14:42.000000000 +0200
+@@ -0,0 +1,904 @@
++
++/*
++ * Linux device driver for USB based Prism54
++ *
++ * Copyright (c) 2006, Michael Wu <flamingice@sourmilk.net>
++ *
++ * Based on the islsm (softmac prism54) driver, which is:
++ * Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/init.h>
++#include <linux/usb.h>
++#include <linux/pci.h>
++#include <linux/firmware.h>
++#include <linux/etherdevice.h>
++#include <linux/delay.h>
++#include <linux/crc32.h>
++#include <net/mac80211.h>
++
++#include "p54.h"
++#include "p54usb.h"
++
++MODULE_AUTHOR("Michael Wu <flamingice@sourmilk.net>");
++MODULE_DESCRIPTION("Prism54 USB wireless driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("prism54usb");
++
++static struct usb_device_id p54u_table[] __devinitdata = {
++	/* Version 1 devices (pci chip + net2280) */
++	{USB_DEVICE(0x0506, 0x0a11)},	/* 3COM 3CRWE254G72 */
++	{USB_DEVICE(0x0707, 0xee06)},	/* SMC 2862W-G */
++	{USB_DEVICE(0x083a, 0x4501)},	/* Accton 802.11g WN4501 USB */
++	{USB_DEVICE(0x083a, 0x4502)},	/* Siemens Gigaset USB Adapter */
++	{USB_DEVICE(0x0846, 0x4200)},	/* Netgear WG121 */
++	{USB_DEVICE(0x0846, 0x4210)},	/* Netgear WG121 the second ? */
++	{USB_DEVICE(0x0846, 0x4220)},	/* Netgear WG111 */
++	{USB_DEVICE(0x0cde, 0x0006)},	/* Medion 40900, Roper Europe */
++	{USB_DEVICE(0x124a, 0x4023)},	/* Shuttle PN15, Airvast WM168g, IOGear GWU513 */
++	{USB_DEVICE(0x1915, 0x2234)},	/* Linksys WUSB54G OEM */
++	{USB_DEVICE(0x1915, 0x2235)},	/* Linksys WUSB54G Portable OEM */
++	{USB_DEVICE(0x2001, 0x3701)},	/* DLink DWL-G120 Spinnaker */
++	{USB_DEVICE(0x2001, 0x3703)},	/* DLink DWL-G122 */
++	{USB_DEVICE(0x5041, 0x2234)},	/* Linksys WUSB54G */
++	{USB_DEVICE(0x5041, 0x2235)},	/* Linksys WUSB54G Portable */
++
++	/* Version 2 devices (3887) */
++	{USB_DEVICE(0x050d, 0x7050)},	/* Belkin F5D7050 ver 1000 */
++	{USB_DEVICE(0x0572, 0x2000)},	/* Cohiba Proto board */
++	{USB_DEVICE(0x0572, 0x2002)},	/* Cohiba Proto board */
++	{USB_DEVICE(0x0707, 0xee13)},   /* SMC 2862W-G version 2 */
++	{USB_DEVICE(0x083a, 0x4521)},   /* Siemens Gigaset USB Adapter 54 version 2 */
++	{USB_DEVICE(0x0846, 0x4240)},	/* Netgear WG111 (v2) */
++	{USB_DEVICE(0x0915, 0x2000)},	/* Cohiba Proto board */
++	{USB_DEVICE(0x0915, 0x2002)},	/* Cohiba Proto board */
++	{USB_DEVICE(0x0baf, 0x0118)},   /* U.S. Robotics U5 802.11g Adapter*/
++	{USB_DEVICE(0x0bf8, 0x1009)},   /* FUJITSU E-5400 USB D1700*/
++	{USB_DEVICE(0x0cde, 0x0006)},   /* Medion MD40900 */
++	{USB_DEVICE(0x0cde, 0x0008)},	/* Sagem XG703A */
++	{USB_DEVICE(0x0d8e, 0x3762)},	/* DLink DWL-G120 Cohiba */
++	{USB_DEVICE(0x09aa, 0x1000)},	/* Spinnaker Proto board */
++	{USB_DEVICE(0x1435, 0x0427)},	/* Inventel UR054G */
++	{USB_DEVICE(0x2001, 0x3704)},	/* DLink DWL-G122 rev A2 */
++	{USB_DEVICE(0x413c, 0x8102)},	/* Spinnaker DUT */
++	{USB_DEVICE(0x413c, 0x8104)},	/* Cohiba Proto board */
++	{}
++};
++
++MODULE_DEVICE_TABLE(usb, p54u_table);
++
++static void p54u_rx_cb(struct urb *urb)
++{
++	struct sk_buff *skb = (struct sk_buff *) urb->context;
++	struct p54u_rx_info *info = (struct p54u_rx_info *)skb->cb;
++	struct ieee80211_hw *dev = info->dev;
++	struct p54u_priv *priv = dev->priv;
++
++	if (unlikely(urb->status)) {
++		info->urb = NULL;
++		usb_free_urb(urb);
++		return;
++	}
++
++	skb_unlink(skb, &priv->rx_queue);
++	skb_put(skb, urb->actual_length);
++	if (!priv->hw_type)
++		skb_pull(skb, sizeof(struct net2280_tx_hdr));
++
++	if (p54_rx(dev, skb)) {
++		skb = dev_alloc_skb(MAX_RX_SIZE);
++		if (unlikely(!skb)) {
++			usb_free_urb(urb);
++			/* TODO check rx queue length and refill *somewhere* */
++			return;
++		}
++
++		info = (struct p54u_rx_info *) skb->cb;
++		info->urb = urb;
++		info->dev = dev;
++		urb->transfer_buffer = skb_tail_pointer(skb);
++		urb->context = skb;
++		skb_queue_tail(&priv->rx_queue, skb);
++	} else {
++		skb_trim(skb, 0);
++		skb_queue_tail(&priv->rx_queue, skb);
++	}
++
++	usb_submit_urb(urb, GFP_ATOMIC);
++}
++
++static void p54u_tx_cb(struct urb *urb)
++{
++	usb_free_urb(urb);
++}
++
++static void p54u_tx_free_cb(struct urb *urb)
++{
++	kfree(urb->transfer_buffer);
++	usb_free_urb(urb);
++}
++
++static int p54u_init_urbs(struct ieee80211_hw *dev)
++{
++	struct p54u_priv *priv = dev->priv;
++	struct urb *entry;
++	struct sk_buff *skb;
++	struct p54u_rx_info *info;
++
++	while (skb_queue_len(&priv->rx_queue) < 32) {
++		skb = __dev_alloc_skb(MAX_RX_SIZE, GFP_KERNEL);
++		if (!skb)
++			break;
++		entry = usb_alloc_urb(0, GFP_KERNEL);
++		if (!entry) {
++			kfree_skb(skb);
++			break;
++		}
++		usb_fill_bulk_urb(entry, priv->udev, usb_rcvbulkpipe(priv->udev, P54U_PIPE_DATA), skb_tail_pointer(skb), MAX_RX_SIZE, p54u_rx_cb, skb);
++		info = (struct p54u_rx_info *) skb->cb;
++		info->urb = entry;
++		info->dev = dev;
++		skb_queue_tail(&priv->rx_queue, skb);
++		usb_submit_urb(entry, GFP_KERNEL);
++	}
++
++	return 0;
++}
++
++static void p54u_free_urbs(struct ieee80211_hw *dev)
++{
++	struct p54u_priv *priv = dev->priv;
++	struct p54u_rx_info *info;
++	struct sk_buff *skb;
++
++	while ((skb = skb_dequeue(&priv->rx_queue))) {
++		info = (struct p54u_rx_info *) skb->cb;
++		if (!info->urb)
++			continue;
++
++		usb_kill_urb(info->urb);
++		kfree_skb(skb);
++	}
++}
++
++static void p54u_tx_3887(struct ieee80211_hw *dev, struct p54_control_hdr *data,
++			 size_t len, int free_on_tx)
++{
++	struct p54u_priv *priv = dev->priv;
++	struct urb *addr_urb, *data_urb;
++
++	addr_urb = usb_alloc_urb(0, GFP_ATOMIC);
++	if (!addr_urb)
++		return;
++
++	data_urb = usb_alloc_urb(0, GFP_ATOMIC);
++	if (!data_urb) {
++		usb_free_urb(addr_urb);
++		return;
++	}
++
++	usb_fill_bulk_urb(addr_urb, priv->udev,
++		usb_sndbulkpipe(priv->udev, P54U_PIPE_DATA), &data->req_id,
++		sizeof(data->req_id), p54u_tx_cb, dev);
++	usb_fill_bulk_urb(data_urb, priv->udev,
++		usb_sndbulkpipe(priv->udev, P54U_PIPE_DATA), data, len,
++		free_on_tx ? p54u_tx_free_cb : p54u_tx_cb, dev);
++
++	usb_submit_urb(addr_urb, GFP_ATOMIC);
++	usb_submit_urb(data_urb, GFP_ATOMIC);
++}
++
++static void p54u_tx_net2280(struct ieee80211_hw *dev, struct p54_control_hdr *data,
++			    size_t len, int free_on_tx)
++{
++	struct p54u_priv *priv = dev->priv;
++	struct urb *int_urb, *data_urb;
++	struct net2280_tx_hdr *hdr;
++	struct net2280_reg_write *reg;
++
++	reg = kmalloc(sizeof(*reg), GFP_ATOMIC);
++	if (!reg)
++		return;
++
++	int_urb = usb_alloc_urb(0, GFP_ATOMIC);
++	if (!int_urb) {
++		kfree(reg);
++		return;
++	}
++
++	data_urb = usb_alloc_urb(0, GFP_ATOMIC);
++	if (!data_urb) {
++		kfree(reg);
++		usb_free_urb(int_urb);
++		return;
++	}
++
++	reg->port = cpu_to_le16(NET2280_DEV_U32);
++	reg->addr = cpu_to_le32(P54U_DEV_BASE);
++	reg->val = cpu_to_le32(ISL38XX_DEV_INT_DATA);
++
++	len += sizeof(*data);
++	hdr = (void *)data - sizeof(*hdr);
++	memset(hdr, 0, sizeof(*hdr));
++	hdr->device_addr = data->req_id;
++	hdr->len = cpu_to_le16(len);
++
++	usb_fill_bulk_urb(int_urb, priv->udev,
++		usb_sndbulkpipe(priv->udev, P54U_PIPE_DEV), reg, sizeof(*reg),
++		p54u_tx_free_cb, dev);
++	usb_submit_urb(int_urb, GFP_ATOMIC);
++
++	usb_fill_bulk_urb(data_urb, priv->udev,
++		usb_sndbulkpipe(priv->udev, P54U_PIPE_DATA), hdr, len + sizeof(*hdr),
++		free_on_tx ? p54u_tx_free_cb : p54u_tx_cb, dev);
++	usb_submit_urb(data_urb, GFP_ATOMIC);
++}
++
++static int p54u_write(struct p54u_priv *priv,
++		      struct net2280_reg_write *buf,
++		      enum net2280_op_type type,
++		      __le32 addr, __le32 val)
++{
++	unsigned int ep;
++	int alen;
++
++	if (type & 0x0800)
++		ep = usb_sndbulkpipe(priv->udev, P54U_PIPE_DEV);
++	else
++		ep = usb_sndbulkpipe(priv->udev, P54U_PIPE_BRG);
++
++	buf->port = cpu_to_le16(type);
++	buf->addr = addr;
++	buf->val = val;
++
++	return usb_bulk_msg(priv->udev, ep, buf, sizeof(*buf), &alen, 1000);
++}
++
++static int p54u_read(struct p54u_priv *priv, void *buf,
++		     enum net2280_op_type type,
++		     __le32 addr, __le32 *val)
++{
++	struct net2280_reg_read *read = buf;
++	__le32 *reg = buf;
++	unsigned int ep;
++	int alen, err;
++
++	if (type & 0x0800)
++		ep = P54U_PIPE_DEV;
++	else
++		ep = P54U_PIPE_BRG;
++
++	read->port = cpu_to_le16(type);
++	read->addr = addr;
++
++	err = usb_bulk_msg(priv->udev, usb_sndbulkpipe(priv->udev, ep),
++			   read, sizeof(*read), &alen, 1000);
++	if (err)
++		return err;
++
++	err = usb_bulk_msg(priv->udev, usb_rcvbulkpipe(priv->udev, ep),
++			   reg, sizeof(*reg), &alen, 1000);
++	if (err)
++		return err;
++
++	*val = *reg;
++	return 0;
++}
++
++static int p54u_bulk_msg(struct p54u_priv *priv, unsigned int ep,
++			 void *data, size_t len)
++{
++	int alen;
++	return usb_bulk_msg(priv->udev, usb_sndbulkpipe(priv->udev, ep),
++			    data, len, &alen, 2000);
++}
++
++static int p54u_read_eeprom(struct ieee80211_hw *dev)
++{
++	struct p54u_priv *priv = dev->priv;
++	void *buf;
++	struct p54_control_hdr *hdr;
++	int err, alen;
++	size_t offset = priv->hw_type ? 0x10 : 0x20;
++
++	buf = kmalloc(0x2020, GFP_KERNEL);
++	if (!buf) {
++		printk(KERN_ERR "prism54usb: cannot allocate memory for"
++		       "eeprom readback!\n");
++		return -ENOMEM;
++	}
++
++	if (priv->hw_type) {
++		*((u32 *) buf) = priv->common.rx_start;
++		err = p54u_bulk_msg(priv, P54U_PIPE_DATA, buf, sizeof(u32));
++		if (err) {
++			printk(KERN_ERR "prism54usb: addr send failed\n");
++			goto fail;
++		}
++	} else {
++		struct net2280_reg_write *reg = buf;
++		reg->port = cpu_to_le16(NET2280_DEV_U32);
++		reg->addr = cpu_to_le32(P54U_DEV_BASE);
++		reg->val = cpu_to_le32(ISL38XX_DEV_INT_DATA);
++		err = p54u_bulk_msg(priv, P54U_PIPE_DEV, buf, sizeof(*reg));
++		if (err) {
++			printk(KERN_ERR "prism54usb: dev_int send failed\n");
++			goto fail;
++		}
++	}
++
++	hdr = buf + priv->common.tx_hdr_len;
++	p54_fill_eeprom_readback(hdr);
++	hdr->req_id = cpu_to_le32(priv->common.rx_start);
++	if (priv->common.tx_hdr_len) {
++		struct net2280_tx_hdr *tx_hdr = buf;
++		tx_hdr->device_addr = hdr->req_id;
++		tx_hdr->len = cpu_to_le16(EEPROM_READBACK_LEN);
++	}
++
++	/* we can just pretend to send 0x2000 bytes of nothing in the headers */
++	err = p54u_bulk_msg(priv, P54U_PIPE_DATA, buf,
++			    EEPROM_READBACK_LEN + priv->common.tx_hdr_len);
++	if (err) {
++		printk(KERN_ERR "prism54usb: eeprom req send failed\n");
++		goto fail;
++	}
++
++	err = usb_bulk_msg(priv->udev,
++			   usb_rcvbulkpipe(priv->udev, P54U_PIPE_DATA),
++			   buf, 0x2020, &alen, 1000);
++	if (!err && alen > offset) {
++		p54_parse_eeprom(dev, (u8 *)buf + offset, alen - offset);
++	} else {
++		printk(KERN_ERR "prism54usb: eeprom read failed!\n");
++		err = -EINVAL;
++		goto fail;
++	}
++
++ fail:
++	kfree(buf);
++	return err;
++}
++
++static int p54u_upload_firmware_3887(struct ieee80211_hw *dev)
++{
++	static char start_string[] = "~~~~<\r";
++	struct p54u_priv *priv = dev->priv;
++	const struct firmware *fw_entry = NULL;
++	int err, alen;
++	u8 carry = 0;
++	u8 *buf, *tmp, *data;
++	unsigned int left, remains, block_size;
++	struct x2_header *hdr;
++	unsigned long timeout;
++
++	tmp = buf = kmalloc(P54U_FW_BLOCK, GFP_KERNEL);
++	if (!buf) {
++		printk(KERN_ERR "p54usb: cannot allocate firmware upload buffer!\n");
++		err = -ENOMEM;
++		goto err_bufalloc;
++	}
++
++	memcpy(buf, start_string, 4);
++	err = p54u_bulk_msg(priv, P54U_PIPE_DATA, buf, 4);
++	if (err) {
++		printk(KERN_ERR "p54usb: reset failed! (%d)\n", err);
++		goto err_reset;
++	}
++
++	err = request_firmware(&fw_entry, "isl3887usb_bare", &priv->udev->dev);
++	if (err) {
++		printk(KERN_ERR "p54usb: cannot find firmware (isl3887usb_bare)!\n");
++		goto err_req_fw_failed;
++	}
++
++	p54_parse_firmware(dev, fw_entry);
++
++	left = block_size = min((size_t)P54U_FW_BLOCK, fw_entry->size);
++	strcpy(buf, start_string);
++	left -= strlen(start_string);
++	tmp += strlen(start_string);
++
++	data = fw_entry->data;
++	remains = fw_entry->size;
++
++	hdr = (struct x2_header *)(buf + strlen(start_string));
++	memcpy(hdr->signature, X2_SIGNATURE, X2_SIGNATURE_SIZE);
++	hdr->fw_load_addr = cpu_to_le32(ISL38XX_DEV_FIRMWARE_ADDR);
++	hdr->fw_length = cpu_to_le32(fw_entry->size);
++	hdr->crc = cpu_to_le32(~crc32_le(~0, (void *)&hdr->fw_load_addr,
++					 sizeof(u32)*2));
++	left -= sizeof(*hdr);
++	tmp += sizeof(*hdr);
++
++	while (remains) {
++		while (left--) {
++			if (carry) {
++				*tmp++ = carry;
++				carry = 0;
++				remains--;
++				continue;
++			}
++			switch (*data) {
++			case '~':
++				*tmp++ = '}';
++				carry = '^';
++				break;
++			case '}':
++				*tmp++ = '}';
++				carry = ']';
++				break;
++			default:
++				*tmp++ = *data;
++				remains--;
++				break;
++			}
++			data++;
++		}
++
++		err = p54u_bulk_msg(priv, P54U_PIPE_DATA, buf, block_size);
++		if (err) {
++			printk(KERN_ERR "prism54usb: firmware upload failed!\n");
++			goto err_upload_failed;
++		}
++
++		tmp = buf;
++		left = block_size = min((unsigned int)P54U_FW_BLOCK, remains);
++	}
++
++	*((__le32 *)buf) = cpu_to_le32(~crc32_le(~0, fw_entry->data, fw_entry->size));
++	err = p54u_bulk_msg(priv, P54U_PIPE_DATA, buf, sizeof(u32));
++	if (err) {
++		printk(KERN_ERR "prism54usb: firmware upload failed!\n");
++		goto err_upload_failed;
++	}
++
++	timeout = jiffies + msecs_to_jiffies(1000);
++	while (!(err = usb_bulk_msg(priv->udev,
++		usb_rcvbulkpipe(priv->udev, P54U_PIPE_DATA), buf, 128, &alen, 1000))) {
++		if (alen > 2 && !memcmp(buf, "OK", 2))
++			break;
++
++		if (alen > 5 && !memcmp(buf, "ERROR", 5)) {
++			printk(KERN_INFO "prism54usb: firmware upload failed!\n");
++			err = -EINVAL;
++			break;
++		}
++
++		if (time_after(jiffies, timeout)) {
++			printk(KERN_ERR "prism54usb: firmware boot timed out!\n");
++			err = -ETIMEDOUT;
++			break;
++		}
++	}
++	if (err)
++		goto err_upload_failed;
++
++	buf[0] = 'g';
++	buf[1] = '\r';
++	err = p54u_bulk_msg(priv, P54U_PIPE_DATA, buf, 2);
++	if (err) {
++		printk(KERN_ERR "prism54usb: firmware boot failed!\n");
++		goto err_upload_failed;
++	}
++
++	timeout = jiffies + msecs_to_jiffies(1000);
++	while (!(err = usb_bulk_msg(priv->udev,
++		usb_rcvbulkpipe(priv->udev, P54U_PIPE_DATA), buf, 128, &alen, 1000))) {
++		if (alen > 0 && buf[0] == 'g')
++			break;
++
++		if (time_after(jiffies, timeout)) {
++			err = -ETIMEDOUT;
++			break;
++		}
++	}
++	if (err)
++		goto err_upload_failed;
++
++  err_upload_failed:
++	release_firmware(fw_entry);
++  err_req_fw_failed:
++  err_reset:
++	kfree(buf);
++  err_bufalloc:
++	return err;
++}
++
++static int p54u_upload_firmware_net2280(struct ieee80211_hw *dev)
++{
++	struct p54u_priv *priv = dev->priv;
++	const struct firmware *fw_entry = NULL;
++	const struct p54p_csr *devreg = (const struct p54p_csr *) P54U_DEV_BASE;
++	int err, alen;
++	void *buf;
++	__le32 reg;
++	unsigned int remains, offset;
++	u8 *data;
++
++	buf = kmalloc(512, GFP_KERNEL);
++	if (!buf) {
++		printk(KERN_ERR "p54usb: firmware buffer alloc failed!\n");
++		return -ENOMEM;
++	}
++
++	err = request_firmware(&fw_entry, "isl3890usb", &priv->udev->dev);
++	if (err) {
++		printk(KERN_ERR "p54usb: cannot find firmware (isl3890usb)!\n");
++		kfree(buf);
++		return err;
++	}
++
++	p54_parse_firmware(dev, fw_entry);
++
++#define P54U_WRITE(type, addr, data) \
++	do {\
++		err = p54u_write(priv, buf, type,\
++				 cpu_to_le32((u32)(unsigned long)addr), data);\
++		if (err) \
++			goto fail;\
++	} while (0)
++
++#define P54U_READ(type, addr) \
++	do {\
++		err = p54u_read(priv, buf, type,\
++				cpu_to_le32((u32)(unsigned long)addr), &reg);\
++		if (err)\
++			goto fail;\
++	} while (0)
++
++	/* power down net2280 bridge */
++	P54U_READ(NET2280_BRG_U32, NET2280_GPIOCTL);
++	reg |= cpu_to_le32(P54U_BRG_POWER_DOWN);
++	reg &= cpu_to_le32(~P54U_BRG_POWER_UP);
++	P54U_WRITE(NET2280_BRG_U32, NET2280_GPIOCTL, reg);
++
++	mdelay(100);
++
++	/* power up bridge */
++	reg |= cpu_to_le32(P54U_BRG_POWER_UP);
++	reg &= cpu_to_le32(~P54U_BRG_POWER_DOWN);
++	P54U_WRITE(NET2280_BRG_U32, NET2280_GPIOCTL, reg);
++
++	mdelay(100);
++
++	P54U_WRITE(NET2280_BRG_U32, NET2280_DEVINIT,
++		   cpu_to_le32(NET2280_CLK_30Mhz |
++			       NET2280_PCI_ENABLE |
++			       NET2280_PCI_SOFT_RESET));
++
++	mdelay(20);
++
++	P54U_WRITE(NET2280_BRG_CFG_U16, PCI_COMMAND,
++		   cpu_to_le32(PCI_COMMAND_MEMORY |
++			       PCI_COMMAND_MASTER));
++
++	P54U_WRITE(NET2280_BRG_CFG_U32, PCI_BASE_ADDRESS_0,
++		   cpu_to_le32(NET2280_BASE));
++
++	P54U_READ(NET2280_BRG_CFG_U16, PCI_STATUS);
++	reg |= cpu_to_le32(PCI_STATUS_REC_MASTER_ABORT);
++	P54U_WRITE(NET2280_BRG_CFG_U16, PCI_STATUS, reg);
++
++	// TODO: we really need this?
++	P54U_READ(NET2280_BRG_U32, NET2280_RELNUM);
++
++	P54U_WRITE(NET2280_BRG_U32, NET2280_EPA_RSP,
++		   cpu_to_le32(NET2280_CLEAR_NAK_OUT_PACKETS_MODE));
++	P54U_WRITE(NET2280_BRG_U32, NET2280_EPC_RSP,
++		   cpu_to_le32(NET2280_CLEAR_NAK_OUT_PACKETS_MODE));
++
++	P54U_WRITE(NET2280_BRG_CFG_U32, PCI_BASE_ADDRESS_2,
++		   cpu_to_le32(NET2280_BASE2));
++
++	/* finally done setting up the bridge */
++
++	P54U_WRITE(NET2280_DEV_CFG_U16, 0x10000 | PCI_COMMAND,
++		   cpu_to_le32(PCI_COMMAND_MEMORY |
++			       PCI_COMMAND_MASTER));
++
++	P54U_WRITE(NET2280_DEV_CFG_U16, 0x10000 | 0x40 /* TRDY timeout */, 0);
++	P54U_WRITE(NET2280_DEV_CFG_U32, 0x10000 | PCI_BASE_ADDRESS_0,
++		   cpu_to_le32(P54U_DEV_BASE));
++
++	P54U_WRITE(NET2280_BRG_U32, NET2280_USBIRQENB1, 0);
++	P54U_WRITE(NET2280_BRG_U32, NET2280_IRQSTAT1,
++		   cpu_to_le32(NET2280_PCI_INTA_INTERRUPT));
++
++	/* do romboot */
++	P54U_WRITE(NET2280_DEV_U32, &devreg->int_enable, 0);
++
++	P54U_READ(NET2280_DEV_U32, &devreg->ctrl_stat);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RESET);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RAMBOOT);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_CLKRUN);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->ctrl_stat, reg);
++
++	mdelay(20);
++
++	reg |= cpu_to_le32(ISL38XX_CTRL_STAT_RESET);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->ctrl_stat, reg);
++
++	mdelay(20);
++
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RESET);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->ctrl_stat, reg);
++
++	mdelay(100);
++
++	P54U_READ(NET2280_DEV_U32, &devreg->int_ident);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->int_ack, reg);
++
++	/* finally, we can upload firmware now! */
++	remains = fw_entry->size;
++	data = fw_entry->data;
++	offset = ISL38XX_DEV_FIRMWARE_ADDR;
++
++	while (remains) {
++		unsigned int block_len = min(remains, (unsigned int)512);
++		memcpy(buf, data, block_len);
++
++		err = p54u_bulk_msg(priv, P54U_PIPE_DATA, buf, block_len);
++		if (err) {
++			printk(KERN_ERR "prism54usb: firmware block upload "
++			       "failed\n");
++			goto fail;
++		}
++
++		P54U_WRITE(NET2280_DEV_U32, &devreg->direct_mem_base,
++			   cpu_to_le32(0xc0000f00));
++
++		P54U_WRITE(NET2280_DEV_U32,
++			   0x0020 | (unsigned long)&devreg->direct_mem_win, 0);
++		P54U_WRITE(NET2280_DEV_U32,
++			   0x0020 | (unsigned long)&devreg->direct_mem_win,
++			   cpu_to_le32(1));
++
++		P54U_WRITE(NET2280_DEV_U32,
++			   0x0024 | (unsigned long)&devreg->direct_mem_win,
++			   cpu_to_le32(block_len));
++		P54U_WRITE(NET2280_DEV_U32,
++			   0x0028 | (unsigned long)&devreg->direct_mem_win,
++			   cpu_to_le32(offset));
++
++		P54U_WRITE(NET2280_DEV_U32, &devreg->dma_addr,
++			   cpu_to_le32(NET2280_EPA_FIFO_PCI_ADDR));
++		P54U_WRITE(NET2280_DEV_U32, &devreg->dma_len,
++			   cpu_to_le32(block_len >> 2));
++		P54U_WRITE(NET2280_DEV_U32, &devreg->dma_ctrl,
++			   cpu_to_le32(ISL38XX_DMA_MASTER_CONTROL_TRIGGER));
++
++		mdelay(10);
++
++		P54U_READ(NET2280_DEV_U32,
++			  0x002C | (unsigned long)&devreg->direct_mem_win);
++		if (!(reg & cpu_to_le32(ISL38XX_DMA_STATUS_DONE)) ||
++		    !(reg & cpu_to_le32(ISL38XX_DMA_STATUS_READY))) {
++			printk(KERN_ERR "prism54usb: firmware DMA transfer "
++			       "failed\n");
++			goto fail;
++		}
++
++		P54U_WRITE(NET2280_BRG_U32, NET2280_EPA_STAT,
++			   cpu_to_le32(NET2280_FIFO_FLUSH));
++
++		remains -= block_len;
++		data += block_len;
++		offset += block_len;
++	}
++
++	/* do ramboot */
++	P54U_READ(NET2280_DEV_U32, &devreg->ctrl_stat);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RESET);
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_CLKRUN);
++	reg |= cpu_to_le32(ISL38XX_CTRL_STAT_RAMBOOT);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->ctrl_stat, reg);
++
++	mdelay(20);
++
++	reg |= cpu_to_le32(ISL38XX_CTRL_STAT_RESET);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->ctrl_stat, reg);
++
++	reg &= cpu_to_le32(~ISL38XX_CTRL_STAT_RESET);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->ctrl_stat, reg);
++
++	mdelay(100);
++
++	P54U_READ(NET2280_DEV_U32, &devreg->int_ident);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->int_ack, reg);
++
++	/* start up the firmware */
++	P54U_WRITE(NET2280_DEV_U32, &devreg->int_enable,
++		   cpu_to_le32(ISL38XX_INT_IDENT_INIT));
++
++	P54U_WRITE(NET2280_BRG_U32, NET2280_IRQSTAT1,
++		   cpu_to_le32(NET2280_PCI_INTA_INTERRUPT));
++
++	P54U_WRITE(NET2280_BRG_U32, NET2280_USBIRQENB1,
++		   cpu_to_le32(NET2280_PCI_INTA_INTERRUPT_ENABLE |
++			       NET2280_USB_INTERRUPT_ENABLE));
++
++	P54U_WRITE(NET2280_DEV_U32, &devreg->dev_int,
++		   cpu_to_le32(ISL38XX_DEV_INT_RESET));
++
++	err = usb_interrupt_msg(priv->udev,
++				usb_rcvbulkpipe(priv->udev, P54U_PIPE_INT),
++				buf, sizeof(__le32), &alen, 1000);
++	if (err || alen != sizeof(__le32))
++		goto fail;
++
++	P54U_READ(NET2280_DEV_U32, &devreg->int_ident);
++	P54U_WRITE(NET2280_DEV_U32, &devreg->int_ack, reg);
++
++	if (!(reg & cpu_to_le32(ISL38XX_INT_IDENT_INIT)))
++		err = -EINVAL;
++
++	P54U_WRITE(NET2280_BRG_U32, NET2280_USBIRQENB1, 0);
++	P54U_WRITE(NET2280_BRG_U32, NET2280_IRQSTAT1,
++		   cpu_to_le32(NET2280_PCI_INTA_INTERRUPT));
++
++#undef P54U_WRITE
++#undef P54U_READ
++
++ fail:
++	release_firmware(fw_entry);
++	kfree(buf);
++	return err;
++}
++
++static int p54u_open(struct ieee80211_hw *dev)
++{
++	struct p54u_priv *priv = dev->priv;
++	int err;
++
++	err = p54u_init_urbs(dev);
++	if (err) {
++		return err;
++	}
++
++	priv->common.open = p54u_init_urbs;
++
++	return 0;
++}
++
++static void p54u_stop(struct ieee80211_hw *dev)
++{
++	/* TODO: figure out how to reliably stop the 3887 and net2280 so
++	   the hardware is still usable next time we want to start it.
++	   until then, we just stop listening to the hardware.. */
++	p54u_free_urbs(dev);
++	return;
++}
++
++static int __devinit p54u_probe(struct usb_interface *intf,
++				const struct usb_device_id *id)
++{
++	struct usb_device *udev = interface_to_usbdev(intf);
++	struct ieee80211_hw *dev;
++	struct p54u_priv *priv;
++	int err;
++	unsigned int i, recognized_pipes;
++
++	dev = p54_init_common(sizeof(*priv));
++	if (!dev) {
++		printk(KERN_ERR "prism54usb: ieee80211 alloc failed\n");
++		return -ENOMEM;
++	}
++
++	priv = dev->priv;
++
++	SET_IEEE80211_DEV(dev, &intf->dev);
++	usb_set_intfdata(intf, dev);
++	priv->udev = udev;
++
++	usb_get_dev(udev);
++
++	/* really lazy and simple way of figuring out if we're a 3887 */
++	/* TODO: should just stick the identification in the device table */
++	i = intf->altsetting->desc.bNumEndpoints;
++	recognized_pipes = 0;
++	while (i--) {
++		switch (intf->altsetting->endpoint[i].desc.bEndpointAddress) {
++		case P54U_PIPE_DATA:
++		case P54U_PIPE_MGMT:
++		case P54U_PIPE_BRG:
++		case P54U_PIPE_DEV:
++		case P54U_PIPE_DATA | USB_DIR_IN:
++		case P54U_PIPE_MGMT | USB_DIR_IN:
++		case P54U_PIPE_BRG | USB_DIR_IN:
++		case P54U_PIPE_DEV | USB_DIR_IN:
++		case P54U_PIPE_INT | USB_DIR_IN:
++			recognized_pipes++;
++		}
++	}
++	priv->common.open = p54u_open;
++
++	if (recognized_pipes < P54U_PIPE_NUMBER) {
++		priv->hw_type = P54U_3887;
++		priv->common.tx = p54u_tx_3887;
++	} else {
++		dev->extra_tx_headroom += sizeof(struct net2280_tx_hdr);
++		priv->common.tx_hdr_len = sizeof(struct net2280_tx_hdr);
++		priv->common.tx = p54u_tx_net2280;
++	}
++	priv->common.stop = p54u_stop;
++
++	if (priv->hw_type)
++		err = p54u_upload_firmware_3887(dev);
++	else
++		err = p54u_upload_firmware_net2280(dev);
++	if (err)
++		goto err_free_dev;
++
++	err = p54u_read_eeprom(dev);
++	if (err)
++		goto err_free_dev;
++
++	if (!is_valid_ether_addr(dev->wiphy->perm_addr)) {
++		u8 perm_addr[ETH_ALEN];
++
++		printk(KERN_WARNING "prism54usb: Invalid hwaddr! Using randomly generated MAC addr\n");
++		random_ether_addr(perm_addr);
++		SET_IEEE80211_PERM_ADDR(dev, perm_addr);
++	}
++
++	skb_queue_head_init(&priv->rx_queue);
++
++	err = ieee80211_register_hw(dev);
++	if (err) {
++		printk(KERN_ERR "prism54usb: Cannot register netdevice\n");
++		goto err_free_dev;
++	}
++
++	printk(KERN_INFO "%s: hwaddr " MAC_FMT ", isl38%02x\n",
++	       wiphy_name(dev->wiphy), MAC_ARG(dev->wiphy->perm_addr),
++	       priv->common.version);
++
++	return 0;
++
++ err_free_dev:
++	ieee80211_free_hw(dev);
++	usb_set_intfdata(intf, NULL);
++	usb_put_dev(udev);
++	return err;
++}
++
++static void __devexit p54u_disconnect(struct usb_interface *intf)
++{
++	struct ieee80211_hw *dev = usb_get_intfdata(intf);
++	struct p54u_priv *priv;
++
++	if (!dev)
++		return;
++
++	ieee80211_unregister_hw(dev);
++
++	priv = dev->priv;
++	usb_put_dev(interface_to_usbdev(intf));
++	p54_free_common(dev);
++	ieee80211_free_hw(dev);
++}
++
++static struct usb_driver p54u_driver = {
++	.name	= "prism54usb",
++	.id_table = p54u_table,
++	.probe = p54u_probe,
++	.disconnect = p54u_disconnect,
++};
++
++static int __init p54u_init(void)
++{
++	return usb_register(&p54u_driver);
++}
++
++static void __exit p54u_exit(void)
++{
++	usb_deregister(&p54u_driver);
++}
++
++module_init(p54u_init);
++module_exit(p54u_exit);
+diff -Nurp linux-2.6.23-sabayon.orig/drivers/net/wireless/p54usb.h linux-2.6.23-sabayon/drivers/net/wireless/p54usb.h
+--- linux-2.6.23-sabayon.orig/drivers/net/wireless/p54usb.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.23-sabayon/drivers/net/wireless/p54usb.h	2007-10-10 01:14:42.000000000 +0200
+@@ -0,0 +1,133 @@
++#ifndef PRISM54USB_H
++#define PRISM54USB_H
++
++/*
++ * Defines for USB based mac80211 Prism54 driver
++ *
++ * Copyright (c) 2006, Michael Wu <flamingice@sourmilk.net>
++ *
++ * Based on the islsm (softmac prism54) driver, which is:
++ * Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/* for isl3886 register definitions used on ver 1 devices */
++#include "p54pci.h"
++#include "net2280.h"
++
++/* pci */
++#define NET2280_BASE		0x10000000
++#define NET2280_BASE2		0x20000000
++
++/* gpio */
++#define P54U_BRG_POWER_UP	(1 << GPIO0_DATA)
++#define P54U_BRG_POWER_DOWN	(1 << GPIO1_DATA)
++
++/* devinit */
++#define NET2280_CLK_4Mhz	(15 << LOCAL_CLOCK_FREQUENCY)
++#define NET2280_CLK_30Mhz	(2 << LOCAL_CLOCK_FREQUENCY)
++#define NET2280_CLK_60Mhz	(1 << LOCAL_CLOCK_FREQUENCY)
++#define NET2280_CLK_STOP	(0 << LOCAL_CLOCK_FREQUENCY)
++#define NET2280_PCI_ENABLE	(1 << PCI_ENABLE)
++#define NET2280_PCI_SOFT_RESET	(1 << PCI_SOFT_RESET)
++
++/* endpoints */
++#define NET2280_CLEAR_NAK_OUT_PACKETS_MODE	(1 << CLEAR_NAK_OUT_PACKETS_MODE)
++#define NET2280_FIFO_FLUSH			(1 << FIFO_FLUSH)
++
++/* irq */
++#define NET2280_USB_INTERRUPT_ENABLE		(1 << USB_INTERRUPT_ENABLE)
++#define NET2280_PCI_INTA_INTERRUPT		(1 << PCI_INTA_INTERRUPT)
++#define NET2280_PCI_INTA_INTERRUPT_ENABLE	(1 << PCI_INTA_INTERRUPT_ENABLE)
++
++/* registers */
++#define NET2280_DEVINIT		0x00
++#define NET2280_USBIRQENB1	0x24
++#define NET2280_IRQSTAT1	0x2c
++#define NET2280_FIFOCTL         0x38
++#define NET2280_GPIOCTL		0x50
++#define NET2280_RELNUM		0x88
++#define NET2280_EPA_RSP		0x324
++#define NET2280_EPA_STAT	0x32c
++#define NET2280_EPB_STAT	0x34c
++#define NET2280_EPC_RSP		0x364
++#define NET2280_EPC_STAT	0x36c
++#define NET2280_EPD_STAT	0x38c
++
++#define NET2280_EPA_CFG     0x320
++#define NET2280_EPB_CFG     0x340
++#define NET2280_EPC_CFG     0x360
++#define NET2280_EPD_CFG     0x380
++#define NET2280_EPE_CFG     0x3A0
++#define NET2280_EPF_CFG     0x3C0
++#define P54U_DEV_BASE 0x40000000
++
++struct net2280_tx_hdr {
++	__le32 device_addr;
++	__le16 len;
++	__le16 follower;	/* ? */
++	u8 padding[8];
++} __attribute__((packed));
++
++/* Some flags for the isl hardware registers controlling DMA inside the
++ * chip */
++#define ISL38XX_DMA_STATUS_DONE			0x00000001
++#define ISL38XX_DMA_STATUS_READY		0x00000002
++#define NET2280_EPA_FIFO_PCI_ADDR		0x20000000
++#define ISL38XX_DMA_MASTER_CONTROL_TRIGGER	0x00000004
++
++enum net2280_op_type {
++	NET2280_BRG_U32		= 0x001F,
++	NET2280_BRG_CFG_U32	= 0x000F,
++	NET2280_BRG_CFG_U16	= 0x0003,
++	NET2280_DEV_U32		= 0x080F,
++	NET2280_DEV_CFG_U32	= 0x088F,
++	NET2280_DEV_CFG_U16	= 0x0883
++};
++
++#define P54U_FW_BLOCK 2048
++
++#define X2_SIGNATURE "x2  "
++#define X2_SIGNATURE_SIZE 4
++
++struct x2_header {
++	u8 signature[X2_SIGNATURE_SIZE];
++	__le32 fw_load_addr;
++	__le32 fw_length;
++	__le32 crc;
++} __attribute__((packed));
++
++/* pipes 3 and 4 are not used by the driver */
++#define P54U_PIPE_NUMBER 9
++
++enum p54u_pipe_addr {
++        P54U_PIPE_DATA = 0x01,
++        P54U_PIPE_MGMT = 0x02,
++        P54U_PIPE_3 = 0x03,
++        P54U_PIPE_4 = 0x04,
++        P54U_PIPE_BRG = 0x0d,
++        P54U_PIPE_DEV = 0x0e,
++        P54U_PIPE_INT = 0x0f
++};
++
++struct p54u_rx_info {
++	struct urb *urb;
++	struct ieee80211_hw *dev;
++};
++
++struct p54u_priv {
++	struct p54_common common;
++	struct usb_device *udev;
++	enum {
++		P54U_NET2280 = 0,
++		P54U_3887
++	} hw_type;
++
++	spinlock_t lock;
++	struct sk_buff_head rx_queue;
++};
++
++#endif /* PRISM54USB_H */
