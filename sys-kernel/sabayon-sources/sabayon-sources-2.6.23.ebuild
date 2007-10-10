@@ -21,6 +21,7 @@ SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
 		${DISTDIR}/fbcondecor-0.9.4-${PV}-rc7.patch
 		${FILESDIR}/${PN}-2.6.22-squashfs-3.2.patch 
+		${FILESDIR}/${P}-squashfs-update.patch
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${FILESDIR}/${PN}-2.6.22-ipw3945-1.2.0-2.6.22.patch 
 		${FILESDIR}/${PN}-2.6.21-from-ext4dev-to-ext4.patch
