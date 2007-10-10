@@ -26,17 +26,18 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PN}-2.6.22-ipw3945-1.2.0-2.6.22.patch 
 		${FILESDIR}/${PN}-2.6.21-from-ext4dev-to-ext4.patch
 		${DISTDIR}/unionfs-2.1.6_for_2.6.23-rc8.diff.gz
-		${FILESDIR}/${P}-at76c503a.patch
-		${FILESDIR}/${PN}-2.6.22-acx.patch
-		${FILESDIR}/${P}-rt2x00.patch
-		${FILESDIR}/${P}-iwlwifi-ath5k.patch
-		${FILESDIR}/${P}-zd1211rw-mac80211.patch
-		${FILESDIR}/${P}-b43.patch
-		${FILESDIR}/${P}-adm8211.patch
-		${FILESDIR}/${P}-p54.patch
+		${FILESDIR}/${P}-mac80211-drivers.patch
+		${FILESDIR}/${P}-acx.patch
+
 		${FILESDIR}/${PN}-2.6.22-mactel-appleir.patch
-		${FILESDIR}/${PN}-2.6.22-pm-hdaps.patch
-		${FILESDIR}/${PN}-2.6.22-pm-hpet-intel.patch
+		${FILESDIR}/acer-acpi-2.6.23.patch
+		${FILESDIR}/linux-phc-0.3.0-pre1-2.6.23.patch
+		${FILESDIR}/hrtimers-2.6.23.patch
+		${FILESDIR}/powertop-2.6.23.patch
+		${FILESDIR}/pm_qos-2.6.23.patch
+		${FILESDIR}/thinkpad-2.6.23.patch
+		${FILESDIR}/mactel-patches-2.6.23.patch
+
 		"
 # disabled for testing
 #${FILESDIR}/${PN}-2.6.22-unionfs-1.3.diff
