@@ -1,0 +1,41 @@
+diff -Naur common/lib/modules/fglrx/build_mod/firegl_public.c common/lib/modules/fglrx/build_mod/firegl_public.c
+--- common/lib/modules/fglrx/build_mod/firegl_public.c	2007-07-29 13:36:37.000000000 +0200
++++ common/lib/modules/fglrx/build_mod/firegl_public.c	2007-07-29 14:24:11.000000000 +0200
+@@ -2409,7 +2409,11 @@
+ #ifdef pte_offset_map
+     pte_p = pte_offset_map(pmd_p, virtual_addr);
+     if (pte_present(*pte_p))
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
+         ret = (ptep_clear_flush_dirty(vma, virtual_addr, pte_p) ? 1 : 0);
++#else
++    return 0;
++#endif
+     else
+         __KE_DEBUG("page not exists!\n");
+     pte_unmap(pte_p); 
+@@ -3399,9 +3403,11 @@
+         sprintf(buf, "0x%Lx %c%c%c%c%c%c\n",
+            *phys_address,
+            pte_present (pte) ? 'p' : '-',
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
+            pte_read    (pte) ? 'r' : '-',
+-           pte_write   (pte) ? 'w' : '-',
+            pte_exec    (pte) ? 'x' : '-',
++#endif
++           pte_write   (pte) ? 'w' : '-',
+            pte_dirty   (pte) ? 'd' : '-',
+            pte_young   (pte) ? 'a' : '-');
+     }
+@@ -5348,7 +5354,11 @@
+     DBG_TRACE("creating slab object '%s'", slabcache_obj->name);
+ 
+     if ((slabcache_obj->cache =
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
+             kmem_cache_create(slabcache_obj->name, iEntrySize, 0, 0, NULL, NULL)))
++#else
++            kmem_cache_create(slabcache_obj->name, iEntrySize, 0, 0, NULL)))
++#endif
+     {
+         ret = 1;
+     }
+

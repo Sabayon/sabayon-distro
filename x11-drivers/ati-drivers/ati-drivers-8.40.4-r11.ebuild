@@ -138,6 +138,11 @@ src_unpack() {
 		epatch "${FILESDIR}"/ati-powermode-opt-path.patch
 	fi
 
+	# Add 2.6.23 kernel support
+	epatch ${FILESDIR}/${P}-warnings.patch
+	epatch ${FILESDIR}/${PN}-2.6.23.patch
+	
+
 	pushd common/lib/modules/fglrx/build_mod >/dev/null
 	ln -s "${ARCH_DIR}"/lib/modules/fglrx/build_mod/libfglrx_ip.a.GCC$(gcc-major-version) \
 		|| die "symlinking precompiled core failed"
