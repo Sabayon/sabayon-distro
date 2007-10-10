@@ -46,10 +46,10 @@ src_unpack() {
 	use selinux && sed -i 's/###//g' gen_compile.sh
 
 	# Add UnionFS support
-	epatch ${FILESDIR}/genkernel-3.4.9-unionfs-inkernel-support.patch
+	epatch ${FILESDIR}/genkernel-3.4.9-unionfs-inkernel-support-new.patch
 
 	# Add Sabayon Linux text
-	epatch ${FILESDIR}/genkernel-3.4.6-sabayon-linux.patch
+	epatch ${FILESDIR}/genkernel-3.4.9-sabayon-linux.patch
 
 	# SMART doslowusb patch
 	epatch ${FILESDIR}/${PN}-3.4.9-smart-slowusb.patch
