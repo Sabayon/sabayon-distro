@@ -12,7 +12,7 @@ diff -Nurp genkernel-3.4.9_pre3.orig/gen_compile.sh genkernel-3.4.9_pre3/gen_com
 -		if [ ! -e "uniondbg" ]; then
 -			cd utils
 -		fi
-+		./bootstrap &> /dev/null
++		#./bootstrap &> /dev/null
 +		./configure >> ${DEBUGFILE} 2>&1 || gen_die 'Configuring unionfs-utils failed!'
 +		sed -i Makefile -e 's|LDFLAGS = |LDFLAGS = -all-static|g'
 +		compile_generic '' utils

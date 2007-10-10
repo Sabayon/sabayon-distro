@@ -66,10 +66,10 @@ AUX genkernel-3.4.9-smart-slowusb.patch 1649 RMD160 628204f22dba921fc180879962ca
 MD5 265529feffc86785af09d87058c0e063 files/genkernel-3.4.9-smart-slowusb.patch 1649
 RMD160 628204f22dba921fc180879962ca3ffdcc57ff70 files/genkernel-3.4.9-smart-slowusb.patch 1649
 SHA256 d1eb805a402f059d9bb91b8dae5e393ef10f6f5fcd1f3ab4ddc8a54499deb2f0 files/genkernel-3.4.9-smart-slowusb.patch 1649
-AUX genkernel-3.4.9-unionfs-inkernel-support-new.patch 2951 RMD160 ac1dd4f94d3012d142a99e86683949774f3e18e9 SHA1 502b79d087d01b0c6ccd355d5d952df733d331ab SHA256 a30ee3a713d8a08dadf3d08042456cb008fdb58786ee18c1b3f289d17bd64313
-MD5 91c55ded83ea23f666a50b2acf8a1c98 files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 2951
-RMD160 ac1dd4f94d3012d142a99e86683949774f3e18e9 files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 2951
-SHA256 a30ee3a713d8a08dadf3d08042456cb008fdb58786ee18c1b3f289d17bd64313 files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 2951
+AUX genkernel-3.4.9-unionfs-inkernel-support-new.patch 2952 RMD160 b4d17e4cb0d9f55995946e3bbfaf5c21444dfb27 SHA1 f9e902f06a73962c8f75ba1b4a3d2dba3a963647 SHA256 2fbf3b0fc2637ca6b4b0f4fd1aa881c4f5de23f860108223480c5fee2b25b415
+MD5 db0ff6db8a835b0a08411decb1804768 files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 2952
+RMD160 b4d17e4cb0d9f55995946e3bbfaf5c21444dfb27 files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 2952
+SHA256 2fbf3b0fc2637ca6b4b0f4fd1aa881c4f5de23f860108223480c5fee2b25b415 files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 2952
 AUX genkernel.bash 2438 RMD160 b3d8e4436d8768c07d18c5aaff9c14fc16641729 SHA1 e15a9c6ef506aa6872a6a97d26751246dedded04 SHA256 e7de9771ba79ef878e2c9a21a1c1720f092c6047d3cc7d4a49ff6b90e7e2c248
 MD5 a86c191115d517b3cd4dc09a857ccaa2 files/genkernel.bash 2438
 RMD160 b3d8e4436d8768c07d18c5aaff9c14fc16641729 files/genkernel.bash 2438
