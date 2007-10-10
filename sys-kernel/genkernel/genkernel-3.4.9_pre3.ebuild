@@ -72,7 +72,7 @@ src_install() {
 		${D}/etc/genkernel.conf || die "Could not adjust versions"
 
 	# Fix unionfs-utils patch
-	sed -i 's/unionfs-/unionfs-utils-/g' ${D}/etc/genkernel.conf || die "Could not adjust unionfs-utils"
+	sed -i 's/unionfs-/unionfs_utils-/g' ${D}/etc/genkernel.conf || die "Could not adjust unionfs-utils"
 
 	dodir /usr/share/genkernel
 	use ibm && cp "${S}"/ppc64/kernel-2.6-pSeries "${S}"/ppc64/kernel-2.6 || \
@@ -91,7 +91,7 @@ src_install() {
 	cp "${DISTDIR}"/dmraid-${VERSION_DMRAID}.tar.bz2 \
 	"${DISTDIR}"/LVM2.${VERSION_LVM2}.tgz \
 	"${DISTDIR}"/device-mapper.${VERSION_DMAP}.tgz \
-	"${DISTDIR}"/unionfs-utils-${VERSION_UNIONFS}.tar.gz \
+	"${DISTDIR}"/unionfs_utils-${VERSION_UNIONFS}.tar.gz \
 	"${DISTDIR}"/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz \
 	"${DISTDIR}"/suspend-${VERSION_SUSPEND}.tar.gz \
 	${D}/usr/share/genkernel/pkg

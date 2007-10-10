@@ -160,10 +160,10 @@ EBUILD genkernel-3.4.9_pre2.ebuild 4130 RMD160 56e50f9cdd4cc2d532062bb41f64e9ab1
 MD5 d74393fb25cece931409cb4ed7543608 genkernel-3.4.9_pre2.ebuild 4130
 RMD160 56e50f9cdd4cc2d532062bb41f64e9ab1072cef9 genkernel-3.4.9_pre2.ebuild 4130
 SHA256 e62317d2248333c2b961a73ca97789171313ff4ccde5f69a701a954e7b1bc0e5 genkernel-3.4.9_pre2.ebuild 4130
-EBUILD genkernel-3.4.9_pre3.ebuild 4266 RMD160 eaf08cfa3f32b303aecb8836dfe3ecde78280001 SHA1 6daa4cdb3dbd94cca1b117987b6baf5111894e62 SHA256 f3994bb60b18d6bbd164d88e4d95504da81786a79d2efa6a17826c6531a259dd
-MD5 e55c4b44456fa6fc3d871b0b2534c2a7 genkernel-3.4.9_pre3.ebuild 4266
-RMD160 eaf08cfa3f32b303aecb8836dfe3ecde78280001 genkernel-3.4.9_pre3.ebuild 4266
-SHA256 f3994bb60b18d6bbd164d88e4d95504da81786a79d2efa6a17826c6531a259dd genkernel-3.4.9_pre3.ebuild 4266
+EBUILD genkernel-3.4.9_pre3.ebuild 4266 RMD160 b848a7e41673b17521ddc752da6d004265a31793 SHA1 69e3816530f19853ed67af74cddb45b2282608cd SHA256 e69bfba9b805945bc0aaec1e08db9fd7e45ba0b201e161807ee3e118321b0f8a
+MD5 62911825234aaaa3cfb7f95b0d2fd3b8 genkernel-3.4.9_pre3.ebuild 4266
+RMD160 b848a7e41673b17521ddc752da6d004265a31793 genkernel-3.4.9_pre3.ebuild 4266
+SHA256 e69bfba9b805945bc0aaec1e08db9fd7e45ba0b201e161807ee3e118321b0f8a genkernel-3.4.9_pre3.ebuild 4266
 MD5 ccb9fec2a148ec67a44b66643d5f3d7a files/digest-genkernel-3.4.5-r1 1732
 RMD160 6ce8bfdc09977cb81d3a50277c9a8821da29da9b files/digest-genkernel-3.4.5-r1 1732
 SHA256 98a891eb2b6737e431e5ffed1c8e901034b189bad423777c0bbfe1a855cd1498 files/digest-genkernel-3.4.5-r1 1732
