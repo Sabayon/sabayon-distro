@@ -27,7 +27,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PN}-2.6.21-from-ext4dev-to-ext4.patch
 		${DISTDIR}/unionfs-2.1.6_for_2.6.23-rc8.diff.gz
 		${FILESDIR}/${P}-mac80211-drivers.patch
-		${FILESDIR}/${P}-acx.patch
+		${FILESDIR}/${P}-acx-old.patch
 
 		${FILESDIR}/${PN}-2.6.22-mactel-appleir.patch
 		${FILESDIR}/acer-acpi-2.6.23.patch
@@ -48,7 +48,7 @@ UNIPATCH_LIST="
 UNIPATCH_STRICTORDER="yes"
 
 KEYWORDS="~amd64 ~x86 ~ppc ~ppc64"
-HOMEPAGE="http://dev.gentoo.org/~dsd/genpatches http://www.sabayonlinux.org"
+HOMEPAGE="http://www.sabayonlinux.org"
 
 DESCRIPTION="Full sources including the Gentoo patchset and SabayonLinux ones for the ${KV_MAJOR}.${KV_MINOR} kernel tree"
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${SUSPEND2_URI} ${SL_PATCHES_URI}"
