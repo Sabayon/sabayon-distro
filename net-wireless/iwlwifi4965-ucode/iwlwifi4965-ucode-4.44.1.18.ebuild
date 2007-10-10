@@ -15,6 +15,6 @@ S=${WORKDIR}/iwlwifi-4965-ucode-${PV}
 src_install() {
 	cd ${S}
 	insinto /lib/firmware
-	doins iwlwifi-4965.ucode LICENSE.*
+	doins iwlwifi-4965*.ucode LICENSE.*
 	dodoc README.*
 }
