@@ -10,7 +10,7 @@ VERSION_E2FSPROGS='1.39'
 VERSION_LVM2='2.02.10'
 VERSION_PKG='3.4-r1'
 VERSION_SUSPEND='0.5'
-VERSION_UNIONFS='0.1'
+VERSION_UNIONFS='0.2.1'
 
 DESCRIPTION="Gentoo autokernel build scripts"
 HOMEPAGE="http://www.gentoo.org"
@@ -23,7 +23,7 @@ SRC_URI="mirror://gentoo/${P}.tar.bz2
 	ftp://sources.redhat.com/pub/lvm2/old/LVM2.${VERSION_LVM2}.tgz
 	ftp://sources.redhat.com/pub/dm/old/device-mapper.${VERSION_DMAP}.tgz
 	mirror://sourceforge/suspend/suspend-${VERSION_SUSPEND}.tar.gz
-	ftp://ftp.fsl.cs.sunysb.edu/pub/unionfs/unionfs-utils-0.x/unionfs-utils-${VERSION_UNIONFS}.tar.gz
+	ftp://ftp.fsl.cs.sunysb.edu/pub/unionfs/unionfs-utils-0.x/unionfs_utils-${VERSION_UNIONFS}.tar.gz
 	mirror://sourceforge/e2fsprogs/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz"
 
 LICENSE="GPL-2"
@@ -70,6 +70,9 @@ src_install() {
 		-e "s:VERSION_UNIONFS:$VERSION_UNIONFS:" \
 		-e "s:VERSION_SUSPEND:$VERSION_SUSPEND:" \
 		${D}/etc/genkernel.conf || die "Could not adjust versions"
+
+	# Fix unionfs-utils patch
+	sed -i 's/unionfs-/unionfs-utils-/g' ${D}/etc/genkernel.conf || die "Could not adjust unionfs-utils"
 
 	dodir /usr/share/genkernel
 	use ibm && cp "${S}"/ppc64/kernel-2.6-pSeries "${S}"/ppc64/kernel-2.6 || \

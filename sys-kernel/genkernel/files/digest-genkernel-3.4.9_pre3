@@ -19,6 +19,6 @@ SHA256 e3ed36492a76c95ddc928fe3d871117707eb0625c50448596939f5b761ce6bcc genkerne
 MD5 c0a89e47eeaf14ec68f9114f74b16d09 suspend-0.5.tar.gz 163148
 RMD160 8b38fcb18c7f860b4c292a4329f268bce6dc177a suspend-0.5.tar.gz 163148
 SHA256 ab87f1ee097dab98b4d56f98c95779a47a859de81512292743213e6bd5a352f1 suspend-0.5.tar.gz 163148
-MD5 adbe18f19d1d45e80697fbccdf38d8df unionfs-utils-0.1.tar.gz 37049
-RMD160 058ce9c27dd36a90e338aa9f0314fd6d65c4f55d unionfs-utils-0.1.tar.gz 37049
-SHA256 345e213a0b6c95bbdcfc67ce1bddcff626664cb186559bb8c5ffcfa58c12aac2 unionfs-utils-0.1.tar.gz 37049
+MD5 c88ba424a7eb196ac930ee41ef3b6f43 unionfs_utils-0.2.1.tar.gz 321077
+RMD160 273a454f1f4e80e3e83edeb633875f2fda6b4f92 unionfs_utils-0.2.1.tar.gz 321077
+SHA256 be3c689f0e9b4f2fc33684eefaddeff5fb6cc67197f2632290e5ac10c8e24638 unionfs_utils-0.2.1.tar.gz 321077
