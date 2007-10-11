@@ -11,7 +11,7 @@ KEYWORDS="amd64 x86"
 
 IUSE=""
 DEPEND=">=sys-apps/hotplug-20040923"
-
+S="${WORKDIR}/${PV}"
 pkg_preinst() {
 	ewarn "This firmware is suitable ONLY for mac80211 Broadcom driver"
 	ewarn "DO NOT USE THIS IF YOU DON'T KNOW WHAT YOU ARE DOING !!!!!!"
@@ -19,7 +19,7 @@ pkg_preinst() {
 }
 
 src_install() {
-	cd cd ${WORKDIR}/b43-firmware-${PV}
+	cd ${S}/
 	insinto /lib/firmware
 	doins -r *
 }
