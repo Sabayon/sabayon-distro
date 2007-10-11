@@ -282,6 +282,10 @@ AUX sabayon-sources-2.6.23-mac80211-drivers.patch 5171213 RMD160 c2050f251556d28
 MD5 1616e838de52549a836e84de6cf86caf files/sabayon-sources-2.6.23-mac80211-drivers.patch 5171213
 RMD160 c2050f251556d280d257025f34f6daa0e6c12e2b files/sabayon-sources-2.6.23-mac80211-drivers.patch 5171213
 SHA256 255db9657ffe4584453d4e36f49cf17647c07f681432d3be954d4761812b4094 files/sabayon-sources-2.6.23-mac80211-drivers.patch 5171213
+AUX sabayon-sources-2.6.23-sandbox-violation.patch 527 RMD160 f8ff245f658327137160fa58bc3e64ac957f8f53 SHA1 2bcce7ba68041a38bf7f71c6ba4b9716ad86eef4 SHA256 60b26946f74fd7d15c70c4aa15c669a75486a5cb9f959d3326f079e32c6da558
+MD5 677f002363856ac3521b296250d289c0 files/sabayon-sources-2.6.23-sandbox-violation.patch 527
+RMD160 f8ff245f658327137160fa58bc3e64ac957f8f53 files/sabayon-sources-2.6.23-sandbox-violation.patch 527
+SHA256 60b26946f74fd7d15c70c4aa15c669a75486a5cb9f959d3326f079e32c6da558 files/sabayon-sources-2.6.23-sandbox-violation.patch 527
 AUX sabayon-sources-2.6.23-squashfs-update.patch 684 RMD160 ef81e679f67b095b1e1b50b368da96e5a8bf2967 SHA1 6fe33d53a507526bb8bac252735f3edf715468fe SHA256 cf6158a2e12fb7ab01ca0831bd2075548cc94505653e5793b68579d803c219f6
 MD5 e1dde08c9b4d7c61589c56a55e52b822 files/sabayon-sources-2.6.23-squashfs-update.patch 684
 RMD160 ef81e679f67b095b1e1b50b368da96e5a8bf2967 files/sabayon-sources-2.6.23-squashfs-update.patch 684
@@ -370,10 +374,10 @@ EBUILD sabayon-sources-2.6.22.ebuild 2180 RMD160 246ccc3e119034a8328be22c3cef327
 MD5 3b0e5bb1922de7eed9beea71bb939d7b sabayon-sources-2.6.22.ebuild 2180
 RMD160 246ccc3e119034a8328be22c3cef327f77c25f9f sabayon-sources-2.6.22.ebuild 2180
 SHA256 8b5ed0960fbb0bb559b661c1c1c9512f2009831ab673ba8e12e0725271200e9e sabayon-sources-2.6.22.ebuild 2180
-EBUILD sabayon-sources-2.6.23.ebuild 1923 RMD160 1497d34e3eab97d27bcaad0073c1dadd86ab7f01 SHA1 b13735f2726e0fed972fcb0fe399732db8b98268 SHA256 8ef5fd8a58a7b177089be0f777d81dd3e854201ab13ae04dbd1fb3ecdc810054
-MD5 d157bd8ef007992d83b8a79124c94ddb sabayon-sources-2.6.23.ebuild 1923
-RMD160 1497d34e3eab97d27bcaad0073c1dadd86ab7f01 sabayon-sources-2.6.23.ebuild 1923
-SHA256 8ef5fd8a58a7b177089be0f777d81dd3e854201ab13ae04dbd1fb3ecdc810054 sabayon-sources-2.6.23.ebuild 1923
+EBUILD sabayon-sources-2.6.23.ebuild 1966 RMD160 67d36753a5a246f7d411807c1479b32caed88a79 SHA1 328c53539354ef51cf0188a44519852d38b268c4 SHA256 7f9f93675e05219fc38cff9c519050615452856ffe58a2d5cf93d4a99c5b2cfb
+MD5 bfd309b479f8eb30b24b0c171eac4c04 sabayon-sources-2.6.23.ebuild 1966
+RMD160 67d36753a5a246f7d411807c1479b32caed88a79 sabayon-sources-2.6.23.ebuild 1966
+SHA256 7f9f93675e05219fc38cff9c519050615452856ffe58a2d5cf93d4a99c5b2cfb sabayon-sources-2.6.23.ebuild 1966
 MD5 8141b16d777d8667c2a75ec6948a36e4 files/digest-sabayon-sources-2.6.20 1346
 RMD160 0f16f06691e6ec5fe5384b1835690dbe9a3b6484 files/digest-sabayon-sources-2.6.20 1346
 SHA256 273f25b39c9b4522c0a4a2ae7f330607d3eae3ad354b898629ca3357fbf57a28 files/digest-sabayon-sources-2.6.20 1346

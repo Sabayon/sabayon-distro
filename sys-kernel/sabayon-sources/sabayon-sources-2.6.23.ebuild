@@ -37,6 +37,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/pm_qos-2.6.23.patch
 		${FILESDIR}/thinkpad-2.6.23.patch
 		${FILESDIR}/mactel-patches-2.6.23.patch
+		${FILESDIR}/${P}-sandbox-violation.patch
 
 		"
 # disabled for testing
