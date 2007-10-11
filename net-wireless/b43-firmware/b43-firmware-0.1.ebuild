@@ -11,7 +11,7 @@ KEYWORDS="amd64 x86"
 
 IUSE=""
 DEPEND=">=sys-apps/hotplug-20040923"
-S="${WORKDIR}/${PV}"
+S="${WORKDIR}"
 pkg_preinst() {
 	ewarn "This firmware is suitable ONLY for mac80211 Broadcom driver"
 	ewarn "DO NOT USE THIS IF YOU DON'T KNOW WHAT YOU ARE DOING !!!!!!"
