@@ -1,0 +1,15 @@
+--- Linux/Kernel/Dm-target.c.orig	2007-10-11 17:09:44.000000000 +0000
++++ Linux/Kernel/Dm-target.c	2007-10-11 17:16:41.000000000 +0000
+@@ -656,7 +656,12 @@
+ 		goto err;
+ 	}
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
+ 	bio_ctx_cache = kmem_cache_create ("truecrypt-bioctx", sizeof (struct bio_ctx), 0, 0, NULL, NULL);
++#else 
++	bio_ctx_cache = kmem_cache_create ("truecrypt-bioctx", sizeof (struct bio_ctx), 0, 0, NULL);
++#endif
++
+ 	if (!bio_ctx_cache)
+ 	{
+ 		error ("kmem_cache_create failed");
