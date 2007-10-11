@@ -19,6 +19,7 @@ pkg_preinst() {
 }
 
 src_install() {
+	cd cd ${WORKDIR}/b43-firmware-${PV}
 	insinto /lib/firmware
 	doins -r *
 }
