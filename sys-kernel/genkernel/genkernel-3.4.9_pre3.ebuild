@@ -54,9 +54,6 @@ src_unpack() {
 	# SMART doslowusb patch
 	epatch ${FILESDIR}/${PN}-3.4.9-smart-slowusb.patch
 
-	# Always bind CDROM inside chroot
-	epatch ${FILESDIR}/${PN}-3.4.8-bind-cdrom-inside-chroot.patch
-
 }
 
 src_install() {
