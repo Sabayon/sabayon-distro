@@ -1,6 +1,6 @@
 diff -Nurp genkernel-3.4.9_pre3.orig/gen_compile.sh genkernel-3.4.9_pre3/gen_compile.sh
---- genkernel-3.4.9_pre3.orig/gen_compile.sh	2007-09-17 21:52:20.000000000 +0200
-+++ genkernel-3.4.9_pre3/gen_compile.sh	2007-10-11 23:14:38.000000000 +0200
+--- genkernel-3.4.9_pre3.orig/gen_compile.sh	2007-10-12 02:18:19.000000000 +0200
++++ genkernel-3.4.9_pre3/gen_compile.sh	2007-10-12 02:18:30.000000000 +0200
 @@ -403,13 +403,10 @@ compile_unionfs_utils() {
  			gen_die 'Unionfs directory ${UNIONFS_DIR} is invalid!'
  		cd "${UNIONFS_DIR}"
@@ -20,8 +20,8 @@ diff -Nurp genkernel-3.4.9_pre3.orig/gen_compile.sh genkernel-3.4.9_pre3/gen_com
  		strip uniondbg unionctl
  		cp uniondbg ${TEMP}/unionfs/sbin/ || 
 diff -Nurp genkernel-3.4.9_pre3.orig/generic/initrd.scripts genkernel-3.4.9_pre3/generic/initrd.scripts
---- genkernel-3.4.9_pre3.orig/generic/initrd.scripts	2007-10-11 23:13:54.000000000 +0200
-+++ genkernel-3.4.9_pre3/generic/initrd.scripts	2007-10-11 23:57:49.000000000 +0200
+--- genkernel-3.4.9_pre3.orig/generic/initrd.scripts	2007-10-12 02:18:19.000000000 +0200
++++ genkernel-3.4.9_pre3/generic/initrd.scripts	2007-10-12 02:18:30.000000000 +0200
 @@ -186,13 +186,10 @@ mount_sysfs() {
  # $1 = union absolute path (starting with /)
  # $2 = path to data directory
@@ -97,8 +97,8 @@ diff -Nurp genkernel-3.4.9_pre3.orig/generic/initrd.scripts genkernel-3.4.9_pre3
  }
  
 diff -Nurp genkernel-3.4.9_pre3.orig/generic/linuxrc genkernel-3.4.9_pre3/generic/linuxrc
---- genkernel-3.4.9_pre3.orig/generic/linuxrc	2007-10-11 23:13:54.000000000 +0200
-+++ genkernel-3.4.9_pre3/generic/linuxrc	2007-10-11 23:56:17.000000000 +0200
+--- genkernel-3.4.9_pre3.orig/generic/linuxrc	2007-10-12 02:18:19.000000000 +0200
++++ genkernel-3.4.9_pre3/generic/linuxrc	2007-10-12 02:19:45.000000000 +0200
 @@ -80,30 +80,18 @@ do
  			LOOPTYPE=`parse_opt "${x}"`
  		;;
@@ -163,9 +163,26 @@ diff -Nurp genkernel-3.4.9_pre3.orig/generic/linuxrc genkernel-3.4.9_pre3/generi
  		mkdir -p ${UNION}/tmp/.initrd
  	fi
  fi
+@@ -715,16 +710,6 @@ fi
+ 
+ verbose_kmsg
+ 
+-# Move the /memory mount point to what will be the system root so that 
+-# init scripts will be able to unmount it properly at next reboot
+-#
+-# Eventually, all "unions over /" mounts should go in that /.unions/
+-if [ "${USE_UNIONFS_NORMAL}" -eq '1' ]
+-then
+-	mkdir -p /${CHROOT}/.unions/memory 2>/dev/null
+-	mount -o move /memory /${CHROOT}/.unions/memory || echo '*: Failed to move unionfs /memory into the system root!'
+-fi
+-
+ if [ "$0" = '/linuxrc' ] || [ "$0" = 'linuxrc' ]
+ then
+ 	[ ! -e ${CHROOT}/dev/console ] && mknod ${CHROOT}/dev/console c 5 1
 diff -Nurp genkernel-3.4.9_pre3.orig/gen_initramfs.sh genkernel-3.4.9_pre3/gen_initramfs.sh
---- genkernel-3.4.9_pre3.orig/gen_initramfs.sh	2007-09-17 21:52:20.000000000 +0200
-+++ genkernel-3.4.9_pre3/gen_initramfs.sh	2007-10-11 23:14:38.000000000 +0200
+--- genkernel-3.4.9_pre3.orig/gen_initramfs.sh	2007-10-12 02:18:19.000000000 +0200
++++ genkernel-3.4.9_pre3/gen_initramfs.sh	2007-10-12 02:18:30.000000000 +0200
 @@ -74,21 +74,6 @@ append_blkid(){
  	rm -rf "${TEMP}/initramfs-blkid-temp" > /dev/null
  }
