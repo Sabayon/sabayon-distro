@@ -1,0 +1,494 @@
+--- et131x-1.2.3.orig/debian/patches/series
++++ et131x-1.2.3/debian/patches/series
+@@ -0,0 +1,2 @@
++01_et131x-1.2.3-patch2.6.21.patch 	-p0
++02_et131x-1.2.3-2.6.21.kmem.patch 	-p0
+--- et131x-1.2.3.orig/debian/patches/02_et131x-1.2.3-2.6.21.kmem.patch
++++ et131x-1.2.3/debian/patches/02_et131x-1.2.3-2.6.21.kmem.patch
+@@ -0,0 +1,11 @@
++--- ET1310_rx.h	2007-03-23 13:32:10.000000000 +0100
+++++ ../../et131x-1.2.3/ET1310_rx.h	2007-05-25 23:56:41.000000000 +0200
++@@ -438,7 +438,7 @@
++     /**************************************************************************
++        lookaside lists
++      *************************************************************************/
++-    kmem_cache_t             *RecvLookaside;
+++    struct kmem_cache             *RecvLookaside;
++ }
++ RX_RING_t, *PRX_RING_t;
++ 
+--- et131x-1.2.3.orig/debian/patches/03_fix-makefile.patch
++++ et131x-1.2.3/debian/patches/03_fix-makefile.patch
+@@ -0,0 +1,13 @@
++--- Makefile.or	2007-08-20 00:28:46.000000000 +0200
+++++ Makefile	2007-08-20 00:29:04.000000000 +0200
++@@ -111,8 +111,8 @@
++ 	rm -f *.o *.d *~ core
++ 
++ modules_install:
++-	cp $(MODNAME).o $(MODULE_DIR)/kernel/drivers/net
++-	/sbin/depmod -a -q
+++	cp -p $(MODNAME).o $(MODULE_DIR)/kernel/drivers/net
+++#	/sbin/depmod -a -q
++ 
++ else
++ 
+--- et131x-1.2.3.orig/debian/patches/01_et131x-1.2.3-patch2.6.21.patch
++++ et131x-1.2.3/debian/patches/01_et131x-1.2.3-patch2.6.21.patch
+@@ -0,0 +1,14 @@
++--- et131x_netdev.c	2007-03-23 13:32:10.000000000 +0100
+++++ ../../et131x-1.2.3/et131x_netdev.c	2007-05-25 23:18:56.000000000 +0200
++@@ -1600,10 +1600,7 @@
++ 
++     DBG_VERBOSE( et131x_dbginfo, "VLAN, Remove VID: %d\n", vid );
++ 
++-    if( pAdapter->vlgrp )
++-    {
++-        pAdapter->vlgrp->vlan_devices[vid] = NULL;
++-    }
+++    vlan_group_set_device(pAdapter->vlgrp,vid,NULL);
++ 
++ 
++     /**************************************************************************
+--- et131x-1.2.3.orig/debian/docs
++++ et131x-1.2.3/debian/docs
+@@ -0,0 +1,2 @@
++README
++README.doc
+--- et131x-1.2.3.orig/debian/README.Debian
++++ et131x-1.2.3/debian/README.Debian
+@@ -0,0 +1,28 @@
++et131x for Debian
++-----------------
++
++Please see ./README for a description of the et131x software.
++
++The Debian et131x source package provides two packages,
++
++ 1) et131x, which the provides the userspace daemon
++ 2) et131x-source, which provides the source for the kernel modules
++
++The et131x-source package can be used in several ways,
++ - Using m-a provided by module-assistant package. Executing:
++
++    	 m-a a-i et131x
++
++   will build and install the module.
++
++ - Using the make-kpkg(1) command provided by the kernel-package Debian
++   package. This will produce a corresponding et131x-modules package for
++   the Debian kernel-image package that you are using. This is "the Debian
++   way". See the "modules_image" section of the make-kpkg(1) man page.
++
++ - Changing to the /usr/src/modules/et131x/ directory and building as
++   the README file instructs using "make; make install". This will build
++   and install a module specific to the system you are building on and is
++   not under control of the packaging system.
++
++ -- Miguel Gea Milvaques <xerakko@debian.org>  Sat, 10 Feb 2007 19:40:08 +0100
+--- et131x-1.2.3.orig/debian/rules
++++ et131x-1.2.3/debian/rules
+@@ -0,0 +1,204 @@
++#!/usr/bin/make -f
++# -*- makefile -*-
++# Sample debian/rules that uses debhelper. 
++# This file was originally written by Joey Hess and Craig Small.
++# As a special exception, when this file is copied by dh-make into a
++# dh-make output file, you may use that output file without restriction.
++# This special exception was added by Craig Small in version 0.37 of dh-make.
++#
++# This version is for a hypothetical package that can build a kernel modules
++# architecture-dependant package via make-kpkg, as well as an
++# architecture-independent module source package, and other packages
++# either dep/indep for things like common files or userspace components
++# needed for the kernel modules.
++
++# Uncomment this to turn on verbose mode. 
++#export DH_VERBOSE=1
++
++CFLAGS = -Wall -g
++
++ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
++	CFLAGS += -O0
++else
++	CFLAGS += -O2
++endif
++
++# some default definitions, important!
++# 
++# Name of the source package
++psource:=et131x-source
++
++# The short upstream name, used for the module source directory
++sname:=et131x
++
++### KERNEL SETUP
++### Setup the stuff needed for making kernel module packages
++### taken from /usr/share/kernel-package/sample.module.rules
++
++# prefix of the target package name
++PACKAGE=et131x-modules
++# modifieable for experiments or debugging m-a
++MA_DIR ?= /usr/share/modass
++# load generic variable handling
++-include $(MA_DIR)/include/generic.make
++# load default rules, including kdist, kdist_image, ...
++-include $(MA_DIR)/include/common-rules.make
++  
++# module assistant calculates all needed things for us and sets
++# following variables:
++# KSRC (kernel source directory), KVERS (kernel version string), KDREV
++# (revision of the Debian kernel-image package), CC (the correct
++# compiler), VERSION (the final package version string), PKGNAME (full
++# package name with KVERS included), DEB_DESTDIR (path to store DEBs)
++  
++# The kdist_config target is called by make-kpkg modules_config and
++# by kdist* rules by dependency. It should configure the module so it is
++# ready for compilation (mostly useful for calling configure).
++# prep-deb-files from module-assistant creates the neccessary debian/ files 
++.PHONY: kdist_config
++kdist_config: prep-deb-files
++  
++# the kdist_clean target is called by make-kpkg modules_clean and from
++# kdist* rules. It is responsible for cleaning up any changes that have
++# been made by the other kdist_commands (except for the .deb files created)
++kdist_clean: 
++	#dh_clean
++	$(MAKE) $(MFLAGS) -f debian/rules clean
++#	rm -f driver/*.o driver/*.ko
++#
++### end  KERNEL SETUP
++
++configure: configure-stamp
++configure-stamp:
++	dh_testdir
++	$(MAKE) -f /usr/share/quilt/quilt.make patch
++	# Add here commands to configure the package.
++
++	touch configure-stamp
++
++
++build-arch: configure-stamp  build-arch-stamp
++build-arch-stamp:
++	dh_testdir
++
++	# Add here command to compile/build the package.
++	#$(MAKE)
++
++	touch $@
++
++k = $(shell echo $(KVERS) | grep -q ^2.6 && echo k)
++
++# the binary-modules rule is invoked by module-assistant while processing the
++# kdist* targets. It is called by module-assistant or make-kpkg and *not*
++# during a normal build
++binary-modules: kdist_config
++	dh_testdir
++	dh_testroot
++	dh_clean -k
++	dh_installdirs lib/modules/$(KVERS)/extra
++	# Build the module
++	$(MAKE) KERNEL_SRC=$(KSRC) KVERS=$(KVERS)
++	# Install the module
++	cp et131x.$ko debian/$(PKGNAME)/lib/modules/$(KVERS)/extra
++	
++	dh_installdocs
++	dh_installmodules
++	dh_installchangelogs
++	dh_compress
++	dh_fixperms
++	dh_installdeb
++	dh_gencontrol -- -v$(VERSION)
++	dh_md5sums
++	dh_builddeb --destdir=$(DEB_DESTDIR)
++	dh_clean -k
++
++build-indep:  configure-stamp build-indep-stamp
++build-indep-stamp:
++	dh_testdir
++
++	touch $@
++
++build: build-arch build-indep
++
++clean:	
++	#dh_testdir 
++	dh_testroot
++	rm -f build-arch-stamp build-indep-stamp configure-stamp
++	
++	# Add here commands to clean up after the build process.
++	[ ! -f Makefile ] || $(MAKE) clean
++	$(MAKE) -f /usr/share/quilt/quilt.make unpatch
++	-dh_clean
++
++#install: DH_OPTIONS=
++install: build
++	#dh_testdir
++	dh_testroot
++	dh_clean -k
++	dh_installdirs -i usr/src/modules
++	dh_installdirs -i usr/share/modass/overrides/
++	
++	chown -R root.src debian/$(psource)/usr/src/modules
++	mkdir -p debian/$(psource)/usr/src
++	# cd debian/$(psource)/usr/src \
++	#        && tar cf - modules | gzip -9 > $(CURDIR)/debian/$(psource)/usr/src/et131x.tar.gz
++	
++	ln -s ../packages/default.sh debian/$(psource)/usr/share/modass/overrides/$(psource)
++	
++	# Create the directories to install the source into
++	dh_installdirs -p$(psource)  usr/src/modules/$(sname)/debian
++	
++	# Copy only the driver source to the proper location
++	cp  *.[ch] debian/$(psource)/usr/src/modules/$(sname)
++	cp Makefile debian/$(psource)/usr/src/modules/$(sname)
++	# Copy the needed debian/ pieces to the proper location
++	cp debian/*modules.in* \
++		debian/$(psource)/usr/src/modules/$(sname)/debian
++	cp debian/*_KVERS_* debian/rules debian/changelog debian/copyright \
++		debian/compat debian/$(psource)/usr/src/modules/$(sname)/debian/
++	cd debian/$(psource)/usr/src && tar c modules | bzip2 -9 > $(sname).tar.bz2 && rm -rf modules; cd -
++
++	# Add here commands to install the package into debian/et131x.
++	# /lib/modules/2.6.18-4-amd64/extra»
++	#install -m 0644 et131x.ko debian/$(pname)/lib/modules/$(KVERS)/
++	#$(MAKE) MODULE_DIR=$(CURDIR)/debian/et131x modules_install
++
++	dh_install
++
++# Build architecture-independent files here.
++# Pass -i to all debhelper commands in this target to reduce clutter.
++binary-indep: build install
++	dh_testdir -i
++	dh_testroot -i
++	dh_installchangelogs  -i
++	dh_installdocs -i
++	dh_install -i
++	dh_link -i
++	dh_compress -i
++	dh_fixperms -i
++	dh_installdeb -i
++	dh_installdeb -i
++	dh_shlibdeps -i
++	dh_gencontrol -i
++	dh_md5sums -i
++	dh_builddeb -i
++
++# Build architecture-dependent files here.
++binary-arch: build install
++#	dh_testdir -s
++#	dh_testroot -s
++#	dh_installdebconf -s
++#	dh_installdocs -s
++#	dh_installchangelogs  -s
++#	dh_strip -s
++#	dh_link -s
++#	dh_compress -s
++#	dh_fixperms -s
++#	dh_installdeb -s
++#	dh_shlibdeps -s
++#	dh_gencontrol -s
++#	dh_md5sums -s
++#	dh_builddeb -s
++
++binary: binary-indep binary-arch
++.PHONY: build clean binary-indep binary-arch binary install configure binary-modules kdist kdist_configure kdist_image kdist_clean
+--- et131x-1.2.3.orig/debian/et131x-modules-_KVERS_.postinst.modules.in
++++ et131x-1.2.3/debian/et131x-modules-_KVERS_.postinst.modules.in
+@@ -0,0 +1,43 @@
++#!/bin/sh
++# postinst script for modules package built from et131x
++
++set -e
++
++# summary of how this script can be called:
++#        * <postinst> `configure' <most-recently-configured-version>
++#        * <old-postinst> `abort-upgrade' <new version>
++#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
++#          <new-version>
++#        * <postinst> `abort-remove'
++#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
++#          <failed-install-package> <version> `removing'
++#          <conflicting-package> <version>
++# for details, see http://www.debian.org/doc/debian-policy/ or
++# the debian-policy package
++
++
++case "$1" in
++    configure)
++        if [ -x /usr/sbin/update-devfsd ] ; then
++            /usr/sbin/update-devfsd 2>/dev/null || true
++        fi
++        modprobe et131x 2>/dev/null || true
++    ;;
++
++    abort-upgrade|abort-remove|abort-deconfigure)
++    ;;
++
++    *)
++        echo "postinst called with unknown argument \`$1'" >&2
++        exit 1
++    ;;
++esac
++
++# dh_installdeb will replace this with shell code automatically
++# generated by other debhelper scripts.
++
++#DEBHELPER#
++
++exit 0
++
++
+--- et131x-1.2.3.orig/debian/copyright
++++ et131x-1.2.3/debian/copyright
+@@ -0,0 +1,56 @@
++This package was debianized by Miguel Gea Milvaques <xerakko@debian.org> on
++Sat, 10 Feb 2007 19:40:08 +0100.
++
++It was downloaded from http://dadams1969.googlepages.com/et131x-1.2.3.tar.gz
++
++Upstream Author:  dadams1969@gmail.com 
++
++Copyright: 2005 Agere Systems Inc.
++
++License:
++
++The Debian packaging is (C) 2007, Miguel Gea Milvaques <xerakko@debian.org> and
++is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
++
++
++SOFTWARE LICENSE:
++ 
++ * This software is provided subject to the following terms and conditions,
++ * which you should read carefully before using the software.  Using this
++ * software indicates your acceptance of these terms and conditions.  If you do
++ * not agree with these terms and conditions, do not use the software.
++ *
++ * Copyright © 2005 Agere Systems Inc.
++ * All rights reserved.
++ *
++ * Redistribution and use in source or binary forms, with or without
++ * modifications, are permitted provided that the following conditions are met:
++ *
++ * . Redistributions of source code must retain the above copyright notice, this
++ *    list of conditions and the following Disclaimer as comments in the code as
++ *    well as in the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * . Redistributions in binary form must reproduce the above copyright notice,
++ *    this list of conditions and the following Disclaimer in the documentation
++ *    and/or other materials provided with the distribution.
++ *
++ * . Neither the name of Agere Systems Inc. nor the names of the contributors
++ *    may be used to endorse or promote products derived from this software
++ *    without specific prior written permission.
++ *
++ * Disclaimer
++ *
++ * THIS SOFTWARE IS PROVIDED <93>AS IS<94> AND ANY EXPRESS OR IMPLIED WARRANTIES,
++ * INCLUDING, BUT NOT LIMITED TO, INFRINGEMENT AND THE IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ANY
++ * USE, MODIFICATION OR DISTRIBUTION OF THIS SOFTWARE IS SOLELY AT THE USERS OWN
++ * RISK. IN NO EVENT SHALL AGERE SYSTEMS INC. OR CONTRIBUTORS BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, INCLUDING, BUT NOT LIMITED TO, CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
++ * DAMAGE.
++
+--- et131x-1.2.3.orig/debian/control
++++ et131x-1.2.3/debian/control
+@@ -0,0 +1,18 @@
++Source: et131x
++Section: net
++Priority: optional
++Maintainer: Miguel Gea Milvaques <xerakko@debian.org>
++Build-Depends: debhelper (>= 5), bzip2, quilt
++Standards-Version: 3.7.2
++
++Package: et131x-source
++Architecture: all
++Depends: module-assistant, debhelper (>= 5), make, bzip2, quilt
++Description: Source for et131x Ethernet Controller driver from Agere Systems
++ This package provides the source code for the et131x kernel modules.
++ The et131x package is also required in order to make use of these
++ modules. Kernel source or headers are required to compile these modules.
++ .
++ This works with Agere Systems ET-131x PCI-E Ethernet Controller.
++ .
++  Homepage: http://sourceforge.net/projects/et131x/
+--- et131x-1.2.3.orig/debian/compat
++++ et131x-1.2.3/debian/compat
+@@ -0,0 +1 @@
++5
+--- et131x-1.2.3.orig/debian/changelog
++++ et131x-1.2.3/debian/changelog
+@@ -0,0 +1,41 @@
++et131x (1.2.3-4) unstable; urgency=low
++
++  * Solved FTBFS (now builds with -k option) Closes: #436346
++  * Lintian clean (modified clean target in rules)
++
++ -- Miguel Gea Milvaques <xerakko@debian.org>  Mon, 20 Aug 2007 00:39:52 +0200
++
++et131x (1.2.3-3) unstable; urgency=low
++
++  * Modified rules to get it build in clean chroot. (Closes: #426813)
++  * Added quit to control.modules.in Build-depends.
++
++ -- Miguel Gea Milvaques <xerakko@debian.org>  Sun, 03 Jun 2007 13:25:26 +0200
++
++et131x (1.2.3-2) unstable; urgency=low
++
++  * Added quilt in Depends. 
++
++ -- Miguel Gea Milvaques <xerakko@debian.org>  Mon, 28 May 2007 18:32:06 +0200
++
++et131x (1.2.3-1) unstable; urgency=low
++
++  * New upstream release
++  * Added patches for building with kernels 2.6.21
++  * Updated upstream page in copyright file.
++
++ -- Miguel Gea Milvaques <xerakko@debian.org>  Thu, 24 May 2007 15:09:09 +0200
++
++et131x (1.2.2-2) experimental; urgency=low
++
++  * Added patch to build with 2.6.20
++  * Addes quilt build-dependence.
++
++ -- Miguel Gea Milvaques <xerakko@debian.org>  Wed, 02 May 2007 20:35:20 +0200
++
++et131x (1.2.2-1) experimental; urgency=low
++
++  * Initial release (Closes: #410510)
++
++ -- Miguel Gea Milvaques <xerakko@debian.org>  Sat, 10 Feb 2007 19:40:08 +0100
++
+--- et131x-1.2.3.orig/debian/control.modules.in
++++ et131x-1.2.3/debian/control.modules.in
+@@ -0,0 +1,22 @@
++Source: et131x
++Section: net
++Priority: optional
++Maintainer: Miguel Gea Milvaques <xerakko@debian.org>
++Build-Depends: debhelper (>= 5),quilt
++Standards-Version: 3.7.2
++
++Package: et131x-modules-_KVERS_
++Architecture: any
++Provides: et131x-modules
++Description: et131x modules for Linux (kernel _KVERS_).
++ This package contains the set of loadable kernel modules for the
++ Agere Systems ET-131x PCI-E Ethernet Controller.
++ .
++ This package contains the compiled kernel modules for _KVERS_
++ .
++ If you have compiled your own kernel, you will most likely need to build
++ your own et131x-modules. The et131x-source package has been
++ provided for use with the Debian's module-assistant or kernel-package
++ utilities to produce a version of et131x-modules for your kernel.
++ .
++  Homepage: http://sourceforge.net/projects/et131x/
