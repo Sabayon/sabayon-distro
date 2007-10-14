@@ -307,11 +307,15 @@ ati = re.compile('.*ati.*technologies.*')
 radeon_1x0 = re.compile('.*ati.*technologies.*r(v)?1[0-9]0.*')
 radeon_2x0 = re.compile('.*ati.*technologies.*r(v)?2[0-9]0.*')
 radeon_3x0 = re.compile('.*ati.*technologies.*r(v)?3[0-9]0.*')
+radeon_4x0 = re.compile('.*ati.*technologies.*r(v)?4[0-9]0.*')
+radeon_5x0 = re.compile('.*ati.*technologies.*r(v)?5[0-9]0.*')
+radeon_6x0 = re.compile('.*ati.*technologies.*r(v)?6[0-9]0.*')
 radeon_7xx0 = re.compile('.*ati.*technologies.*radeon.*7[0-9][0-9]0.*')
 radeon_8xx0 = re.compile('.*ati.*technologies.*radeon.*8[0-9][0-9]0.*')
 radeon_9xx0_free = re.compile('.*ati.*technologies.*radeon.*9[0-2][0-9]0.*')
 radeon_9xx0_closed = re.compile('.*ati.*technologies.*radeon.*9[5-9][0-9]0.*')
 radeon_Xxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9]0.*')
+radeon_Xxxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9][0-9]0.*')
 
 for videocard in videocards:
 
