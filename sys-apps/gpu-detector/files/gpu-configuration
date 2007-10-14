@@ -282,6 +282,12 @@ def generate_nvidia_steps():
 				steps.append(('opengl_activate','xorg-x11'))
 			steps.append(('change_xorg_driver','nv'))
 
+def generate_generic_steps():
+	if (not noopengl):
+		steps.append(('set_dri',True))
+		steps.append(('remove_proprietary_opengl',))
+		steps.append(('opengl_activate','xorg-x11'))
+
 ### APPLICATION
 
 # Create videocards list
@@ -345,170 +351,106 @@ for videocard in videocards:
 			steps.append(('set_dri',True))
 			steps.append(('remove_proprietary_opengl',))
 		else:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 		steps.append(('change_xorg_driver',forced_xdriver))
 	else:
 
 		if os.path.isfile('/sys/module/sisusbvga'):
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','sisusb'))
 			print "SiS USB!"
 
 		elif videocard.lower().find('neomagic') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','neomagic'))
 			print "Neomagic!"
 	
 		elif videocard.lower().find('mach64') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','ati'))
 			print "Mach64!"
 	
 		elif videocard.lower().find('savage') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','savage'))
 			print "Savage!"
 	
 		elif videocard.lower().find('virge') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','s3virge'))
 			print "Virge!"
 	
 		elif videocard.lower().find('cyrix') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
-			steps.append(('change_xorg_driver','cyrix'))
+			generate_generic_steps()
 			print "Cyrix!"
 	
 		elif videocard.lower().find('i128') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','i128'))
 			print "i128!"
 	
 		elif videocard.lower().find('rendition') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','rendition'))
 			print "Rendition!"
 	
 		elif videocard.lower().find('tseng') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','tseng'))
 			print "Tseng!"
 	
 		elif videocard.lower().find('3dfx interactive') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','tdfx'))
 			print "3Dfx!"
 	
 		elif videocard.lower().find('trident') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','trident'))
 			print "Trident!"
 	
 		elif videocard.lower().find('rage 128') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','r128'))
 			print "Rage128!"
 	
 		elif videocard.find('Matrox') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','mga'))
 			print "Matrox!"
 	
 		elif videocard.find('Cirrus') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','cirrus'))
 			print "Cirrus!"
 		
 		elif videocard.find(' SiS ') != -1 or videocard.find('Silicon Integrated Systems') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','sis'))
 			print "SiS!"
 	
 		elif videocard.lower().find('xgi') != -1 and videocard.find('Volari') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','sis'))
 			print "XGI Volari!"
 	
 		elif videocard.find('VMWare') != -1 or videocard.find('VMware') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','vmware'))
 			print "VMware!"
 	
 		elif i740.match(videocard.lower()):
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','i740'))
 			print "i740!"
 	
 		elif s3virge.match(videocard):
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','s3virge'))
 			print "S3Virge!"
 	
 		elif via.match(videocard):
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			if unichrome.match(videocard.lower()):
 				if check_if_driver_is_available('openchrome'):
 					steps.append(('change_xorg_driver','openchrome'))
@@ -520,26 +462,17 @@ for videocard in videocards:
 				print "VIA Tech!"
 	
 		elif silicon_motion.match(videocard.lower()):
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','siliconmotion'))
 			print "Silicon Motion!"
 	
 		elif i810.match(videocard): # non lower
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','i810'))
 			print "Intel >= 810!"
 	
 		elif videocard.lower().find('riva tnt') != -1:
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				steps.append(('remove_proprietary_opengl',))
-				steps.append(('opengl_activate','xorg-x11'))
+			generate_generic_steps()
 			steps.append(('change_xorg_driver','nv'))
 			print "Riva TNT!"
 	
@@ -550,10 +483,7 @@ for videocard in videocards:
 		elif ati.match(videocard.lower()):
 			print "ATI Technologies"
 			if radeon_1x0.match(videocard.lower()) or radeon_2x0.match(videocard.lower()) or radeon_7xx0.match(videocard.lower()) or radeon_8xx0.match(videocard.lower()) or radeon_9xx0_free.match(videocard.lower()):
-				if (not noopengl):
-					steps.append(('set_dri',True))
-					steps.append(('remove_proprietary_opengl',))
-					steps.append(('opengl_activate','xorg-x11'))
+				generate_generic_steps()
 				steps.append(('change_xorg_driver','radeon'))
 			elif radeon_3x0.match(videocard.lower()) or radeon_4x0.match(videocard.lower()) or radeon_5x0.match(videocard.lower()) or radeon_6x0.match(videocard.lower()) or radeon_9xx0_closed.match(videocard.lower()) or radeon_Xxx0_closed.match(videocard.lower()) or radeon_Xxxx0_closed.match(videocard.lower()):
 				if (not noopengl):
@@ -568,10 +498,7 @@ for videocard in videocards:
 				print "ATTENTION !!!"
 				print "--> ATI Card undetected: "+videocard
 				print "SETTING OPEN SOURCE DRIVERS"
-				if (not noopengl):
-					steps.append(('set_dri',True))
-					steps.append(('remove_proprietary_opengl',))
-					steps.append(('opengl_activate','xorg-x11'))
+				generate_generic_steps()
 				steps.append(('change_xorg_driver','radeon'))
 		else:
 			print "ATTENTION !!!"
