@@ -346,7 +346,7 @@ for videocard in videocards:
 		elif forced_xdriver == "nvidia":
 			generate_nvidia_steps()
 		elif forced_xdriver == "vesa":
-			steps.append(('enable_forced_modes'))
+			steps.append(('enable_forced_modes',))
 		elif forced_xdriver == "sisusb":
 			steps.append(('set_dri',True))
 			steps.append(('remove_proprietary_opengl',))
