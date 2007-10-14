@@ -1,549 +1,586 @@
-#!/bin/sh
-
-XORGFILE="/etc/X11/xorg.conf"
-dry_run_detected=$(echo $@ | grep "dry-run")
-lspci_output=$(echo $@ | grep "with-lspci=")
-if [ -n "$lspci_output" ]; then
-    lspci_output="echo $@"
-    lsusb_output="echo $@"
-else
-    if [ -e /sbin/lspci ]; then
-        lspci_output="/sbin/lspci"
-    else
-        lspci_output="/usr/sbin/lspci"
-    fi
-fi
-LSPCI=$($lspci_output | grep ' VGA ')
-NEOMAGIC=$(echo $LSPCI | grep -i 'neomagic')
-MACH64=$(echo $LSPCI | grep -i 'mach64' )
-SAVAGE=$(echo $LSPCI | grep -i 'savage' )
-VIRGE=$(echo $LSPCI | grep -i 'Virge' )
-CYRIX=$(echo $LSPCI | grep -i 'cyrix' )
-I128=$(echo $LSPCI | grep -i 'i128' )
-I740=$(echo $LSPCI | grep -iE ' intel.*74' )
-RENDITION=$(echo $LSPCI | grep -i 'rendition' )
-SILICONMOTION=$(echo $LSPCI | grep -iE ' silicon.*motion' )
-TSENG=$(echo $LSPCI | grep -i 'tseng')
-IGRANTSDALE=$(echo $LSPCI | grep -i "Intel Corp.*915.*")
-INTEL=$(echo $LSPCI | grep -i "Intel Corp")
-I830=$(echo $LSPCI | grep -i "Intel Corp.*82830.*")
-I845=$(echo $LSPCI | grep -i "Intel Corp.*845.*")
-I855=$(echo $LSPCI | grep -i "Intel Corp.*855.*")
-V3DFX=$(echo $LSPCI | grep -i "3Dfx Interactive" )
-I915=$(echo $LSPCI | grep -i "Intel Corp.*915.*")
-I945=$(echo $LSPCI |grep -i "Intel Corp.*945.*" || echo $LSPCI | grep -i "Intel Corp.*940.*" )
-TRIDENT=$(echo $LSPCI  | grep Trident)
-NVIDIA=$(echo $LSPCI | grep -i "nVidia")
-NVIDIATNT=$(echo $LSPCI | grep -i "RIVA TNT")
-ATI=$(echo $LSPCI | grep ATI)
-R7000=$(echo $LSPCI | grep R100 || echo $LSPCI | grep RV100 )
-if [ -z "$R7000" ]; then
-  R7000=$(echo $LSPCI | grep "Radeon.*7000")
-fi
-R7200=$(echo $LSPCI | grep -i "Radeon R100")
-if [ -z "$R7200" ]; then
-  R7200=$(echo $LSPCI | grep "Radeon.*7200")
-fi
-R7500=$(echo $LSPCI | grep -i "Radeon RV200")
-if [ -z "$R7500" ]; then
-  R7500=$(echo $LSPCI | grep "Radeon.*7500")
-fi
-R2XX=$(echo $LSPCI | grep -i "ATi Tech" |grep -i "RV2.*" || echo $LSPCI | grep -i "ATi Tech" |grep -i "R2.*")
-R1XX=$(echo $LSPCI | grep -i "ATi Tech" |grep -i "RV1.*" || echo $LSPCI | grep -i "ATi Tech" |grep -i "R1.*")
-RX700=$(echo $LSPCI | grep -i "ATI.*Radeon.*X700")
-RX600=$(echo $LSPCI | grep -i "ATI.*Radeon.*X600")
-RX800=$(echo $LSPCI | grep -i "ATI.*Radeon.*X8.*0")
-RX200=$(echo $LSPCI | grep -i "ATI.*Radeon.*X.*200M")
-R9600=$(echo $LSPCI | grep -i 'ATI Technologies .* RV350' )
-RAGE128=$(echo $LSPCI | grep -i "Rage 128")
-SIS=$(echo $LSPCI | grep -i "SiS" || echo $LSPCI | grep "Silicon Integrated Systems")
-XGISIS=$(echo $LSPCI | grep -i XGI | grep Volari) # SiS driver only supports Z7/V3/V5/V8 - the future new xf86-video-xgi driver will support the rest of the family
-SISUSB=$(if [ -e /sys/module/sisusbvga ]; then echo sisusb; fi) # udev will take care of the kernel module
-VMWARE=$(echo $LSPCI | grep VMWare || echo $LSPCI | grep VMware )
-VIRGE=$(echo $LSPCI | grep -i "S3.*virge")
-VIA=$(echo $LSPCI | grep -i "VIA Tech.*")
-VIAUNICHROME=$(echo $LSPCI | grep -i "VIA Tech.*" | grep -i "chrome")
-MATROX=$(echo $LSPCI | grep -i Matrox)
-CIRRUS=$(echo $LSPCI | grep -i Cirrus)
-NOPROP=$(cat /proc/cmdline | grep "noproprietary")
-LEGACY=$(cat /proc/cmdline | grep "legacy")
-IS_LIVE=$(cat /proc/cmdline | grep " cdroot")
-NVIDIA_SETTINGS="/usr/share/applications/nvidia-settings.desktop"
-
-remove_proprietary_opengl() {
-    if [ -z "$dry_run_detected" ]; then
-        # Fix for DRI accel
-        mount -t tmpfs none /usr/lib/opengl/ati &> /dev/null
-        mount -t tmpfs none /usr/lib/opengl/nvidia &> /dev/null
-        # FIX For fscking ATI env.d file
-        mv /etc/env.d/09ati /tmp/ &> /dev/null
-        sed -i '/LIBGL_DRIVERS_PATH/ s/.*//' /etc/profile.env
-        fix_possible_opengl_misconfiguration xorg-x11
-    else
-        echo "I was about to remove proprietary OpenGL libraries"
-    fi
-}
-
-check_if_driver_is_available() {
-    xdriver=$1
-    xdriver_exists=$(find /usr/lib/xorg/modules/drivers -name $xdriver\_drv.so)
-    if [ -n "$xdriver_exists" ]; then
-        xdriver="0"
-    else
-        xdriver="1"
-    fi
-}
-
-check_if_proprietary_driver_system_is_healthy() {
-    # we should really accept only "nvidia" and "fglrx"
-    kernel_module=$1
-    modprobe $kernel_module &> /dev/null
-    lsmod_output=$(lsmod | grep $kernel_module)
-    if [ -n "$lsmod_output" ]; then
-        # now check the opengl subsystem
-        if [ "$kernel_module" == "nvidia" ]; then
-            if [ -e "/usr/lib/opengl/nvidia/lib" ]; then
-                opengl_status=0
-            else
-                opengl_status=1
-            fi
-        elif [ "$kernel_module" == "fglrx" ]; then
-            if [ -e "/usr/lib/opengl/ati/lib" ]; then
-                opengl_status=0
-            else
-                opengl_status=1
-            fi
-        fi
-    else
-        return 1
-    fi
-}
-
-change_xorg_driver() {
-    if [ -z "$dry_run_detected" ]; then
-        sed -i '/do not remove vesa/ s/".*"/"'$1'"/' $XORGFILE
-    else
-        echo "I was about to change X.Org driver to: "$1
-    fi
-}
-
-enable_dri() {
-    if [ -z "$dry_run_detected" ]; then
-        sed -i '/"dri"/ s/#//' $XORGFILE
-    else
-        echo "I was about to Enable DRI"
-    fi
-}
-
-disable_dri() {
-    if [ -z "$dry_run_detected" ]; then
-        sed -i '/Load.*"dri"/ s/Load/#Load/' $XORGFILE
-    else
-        echo "I was about to disable DRI"
-    fi
-}
-
-fix_possible_opengl_misconfiguration() {
-    current_opengl_subsystem=$(opengl-activator show)
-    if [ -z "$dry_run_detected" ]; then
-        if [ "$1" = "ati" ]; then
-            if [ "$current_opengl_subsystem" != "ati" ]; then
-                # fix it!
-                # it's better to do that anyway
-                umount /usr/lib/opengl/ati &> /dev/null
-                umount /usr/lib/opengl/ati &> /dev/null
-		mv /tmp/09ati /etc/env.d/ &> /dev/null
-                nice -20 opengl-activator ati
-            fi
-        fi
-
-        if [ "$1" = "nvidia" ]; then
-            if [ "$current_opengl_subsystem" != "nvidia" ]; then
-                # fix it!
-                # it's better to do that anyway
-                umount /usr/lib/opengl/nvidia &> /dev/null
-                umount /usr/lib/opengl/nvidia &> /dev/null
-                nice -20 opengl-activator nvidia
-            fi
-        fi
-
-        if [ "$1" = "xorg-x11" ]; then
-	    # this MUST be run after remove_proprietary_opengl or inside it
-            if [ "$current_opengl_subsystem" != "xorg-x11" ]; then
-                # fix it!
-                nice -20 opengl-activator xorg-x11
-            fi
-        fi
-
-    else
-        echo "I was about to fix OpenGL subsystem to: "$1", while the current implementation is "$current_opengl_subsystem
-    fi
-
-}
-
-copy_nvidia_settings_on_desktop() {
-
-    # if it's available, add compiz-settings too
-    if [ -e "$NVIDIA_SETTINGS" ]; then
-        for user in `ls /home/`; do
-            if [ -d "/home/$user/Desktop" ]; then
-                cp $NVIDIA_SETTINGS /home/$user/Desktop/
-                chown $user /home/$user/Desktop/$NVIDIA_SETTINGS
-            fi
-        done
-        # also copy in /etc/skel
-	cp $NVIDIA_SETTINGS /etc/skel/Desktop/ -p
-    fi
-
-}
-
-copy_ati_settings_on_desktop() {
-
-    for file in `qlist -e ati-drivers | grep ".desktop"`; do
-        # if it's available, add compiz-settings too
-        if [ -e "$file" ]; then
-            for user in `ls /home/`; do
-                if [ -d "/home/$user/Desktop" ]; then
-                    cp $file /home/$user/Desktop/
-                    chown $user /home/$user/Desktop/*.desktop
-                fi
-            done
-            # also copy in /etc/skel
-	    cp $file /etc/skel/Desktop/ -p
-        fi
-    done
-
-}
-
-# Code
-
-current_arch=$(uname -m)
-if [ "$current_arch" == "x86_64" ]; then
-  ld_arch="elf_x86_64"
-elif [ "$current_arch" == "i686" ]; then
-  ld_arch="elf_i386"
-fi
-
-# Check for xdriver=
-is_there_xdriver=$(cat /proc/cmdline | grep "xdriver=")
-if [ -n "$is_there_xdriver" ]; then
-  for word in `cat /proc/cmdline`; do
-  case $word in
-    xdriver=*)
-     xdriver=$(echo $word | cut -d= -f 2)
-     change_xorg_driver $xdriver
-     if [ -z "$NVIDIA" ]; then
-       if [ -n "$R7000" ] || [ -n "$R7200" ] || [ -z "$R7500" ] || [ -n "$R2XX" ] || [ -n "$R1XX" ] || [ -n "$INTEL" ] || [ -n "$VIA" ] || [ -n "$VIAUNICHROME" ] || [ -n "$SIS" ] || [ -n "$XGISIS"  ] || [ -n "$MATROX" ]; then
-         remove_proprietary_opengl
-       fi
-       enable_dri
-     fi
-     if [ "$xdriver" = "nvidia" ]; then
-       check_if_proprietary_driver_system_is_healthy nvidia
-       if [ "$opengl_status" == "0" ]; then
-           fix_possible_opengl_misconfiguration nvidia
-           copy_nvidia_settings_on_desktop
-       else
-           change_xorg_driver nv
-       fi
-     fi
-     if [ "$xdriver" = "fglrx" ]; then
-       check_if_proprietary_driver_system_is_healthy fglrx
-       if [ "$opengl_status" == "0" ]; then
-           fix_possible_opengl_misconfiguration ati
-           copy_ati_settings_on_desktop
-       else
-           change_xorg_driver radeon
-       fi
-     fi
-     if [ "$xdriver" = "vesa" ]; then
-       sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
-     fi
-    ;;
-  esac
-  done
-  exit 0
-fi
-
-if [ -n "$SISUSB" ]; then
-  # SiS USB Video dongle will take the priority
-  change_xorg_driver sisusb
-  enable_dri
-  remove_proprietary_opengl
-  echo -e "\t Display Driver: SiS USB"
-  exit 0
-fi
-
-if [ -n "$NVIDIA" ]; then
-
-  if [ -n "$NOPROP" ] || [ -n "$LEGACY" ]; then
-
-     change_xorg_driver nv
-     echo -e "\t Display Driver: NVIDIA (OpenSource)"
-
-  else
-
-     modprobe nvidia &> /dev/null
-     if [ "$?" != "0" ] || [ -n "`cat /proc/cmdline | grep 'nvidia=forcefail'`" ]; then
-         # nvidia=forcefail is only used for debugging...
-         if [ -z "`cat /proc/cmdline | grep 'nvidia=disablelegacy'`" ]; then
-             rmmod nvidia &> /dev/null
-             nv_mod_failed="yes"
-         else
-             nv_mod_failed="no"
-         fi
-     else
-         nv_mod_failed="no"
-     fi
-     # Check for errors
-     if [ "$nv_mod_failed" == "yes" ]; then
-         if [ -z "$dry_run_detected" ]; then
-             # ok, maybe unsupported
-             # check if we are running in the live mode
-             if [ -n "$IS_LIVE" ]; then
-                 # yes, so, check for the legacy drivers
-                 nv_driver_package=$(ls /install-data/drivers/nvidia-drivers-*)
-                 if [ -n "$nv_driver_package" ] && [ -f "$nv_driver_package" ]; then
-
-                     # prepare legacy drivers
-                     if [ -e "/usr/bin/qlist" ]; then
-                         qlist -e nvidia-drivers | xargs rm -rf
-                         rm -rf /var/db/pkg/x11-drivers/nvidia-drivers-*
-                         sed -i '/.*nvidia-drivers.*/d' /var/lib/portage/world
-                     else
-                         emerge -C nvidia-drivers &> /dev/null
-                     fi
-
-                     # remove old garbage
-                     rm /lib/modules/$(uname -r)/video/nvidia.ko -f
-                     rm /lib/nvidia/* -rf
-
-                     # copy over
-                     # well... unpack roughly here
-                     tar xjf $nv_driver_package -C / &> /dev/null
-
-                     # create nvidia.ko
-                     ld -m $ld_arch -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
-                     # mandatory because we need to re-run the opengl configuration
-                     nice -20 opengl-activator xorg-x11 &> /dev/null
-                     nice -20 opengl-activator nvidia &> /dev/null
-                     # hope that will work
-                     mkdir -p /lib/nvidia/legacy
-                     touch /lib/nvidia/legacy/running
-                     modprobe nvidia &> /dev/null
-
-                     check_if_proprietary_driver_system_is_healthy nvidia
-                     if [ "$opengl_status" == "0" ]; then
-                         change_xorg_driver nvidia
-                         fix_possible_opengl_misconfiguration nvidia
-                         copy_nvidia_settings_on_desktop
-                     else
-                         change_xorg_driver nv
-                     fi
-
-                 else
-
-                     # revert to nv
-                     change_xorg_driver nv
-                     echo -e "\t Display Driver: NVIDIA (OpenSource) - Legacy drivers cannot be deployed"
-
-                 fi
-             else
-                 # revert to nv
-                 change_xorg_driver nv
-                 echo -e "\t Display Driver: NVIDIA (OpenSource) - Proprietary drivers can't be loaded - unsupported video card?"
-             fi
-         else
-             echo "NVIDIA non-legacy drivers modprobe failed, I was about to try nvidia-legacy ones"
-         fi
-     else
-       # ok, configure the standard nvidia driver
-       check_if_proprietary_driver_system_is_healthy nvidia
-       if [ "$opengl_status" == "0" ]; then
-           change_xorg_driver nvidia
-           fix_possible_opengl_misconfiguration nvidia
-           copy_nvidia_settings_on_desktop
-       else
-           change_xorg_driver nv
-       fi
-       echo -e "\t Display Driver: NVIDIA (Proprietary)"
-     fi
-
-  fi
-
-elif [ -n "$RAGE128" ]; then
-
-    change_xorg_driver r128
-    enable_dri
-    remove_proprietary_opengl
-    echo -e "\t Display Driver: ATI Rage 128"
-
-elif [ -n "$V3DFX" ]; then
-
-    change_xorg_driver tdfx
-    enable_dri
-    remove_proprietary_opengl
-    sed -i '/DefaultDepth/ s/24/16/' $XORGFILE
-    echo -e "\t Display Driver: 3Dfx Video Card"
-
-elif [ -n "$I855" ] || [ -n "$I915" ] || [ -n "$I945" ] || [ -n "$I845" ] || [ -n "$IGRANTSDALE" ] || [ -n "$I830" ]; then
-
-    change_xorg_driver i810
-    enable_dri
-    remove_proprietary_opengl
-
-    echo -e "\t Display Driver: Intel Video Card"
-
-elif [ -n "$INTEL" ]; then
-
-    # unfortunately, I cannot detect the Intel card correctly, so I am trying to force i810 at least
-    change_xorg_driver i810
-    enable_dri
-    remove_proprietary_opengl
-    echo -e "\t Display Driver: Intel Video Card - not detected with precision, trying i810 driver"
-
-elif [ -n "$ATI" ] || [ -n "$RX700" ] || [ -n "$RX800" ] || [ -n "$RX600" ] || [ -n "$R9600" ] || [ -n "$RX200" ]; then
-
-  if [ -n "$NOPROP" ] || [ -n "$LEGACY" ]; then
-
-    change_xorg_driver radeon
-    enable_dri
-    remove_proprietary_opengl
-    sed -i '/ColorTiling/ s/#//' $XORGFILE
-    sed -i '/EnablePageFlip/ s/#//' $XORGFILE
-    echo -e "\t Display Driver: ATI (OpenSource)"
-
-  else
-
-    if [ -z "$R7000" ] && [ -z "$R7200" ] && [ -z "$R7500" ] && [ -z "$R2XX" ] && [ -z "$R1XX" ]; then
-
-	modprobe fglrx &> /dev/null
-        lsmod_ati=$(lsmod | grep fglrx)
-	if [ -n "$lsmod_ati" ];then
-
-            check_if_proprietary_driver_system_is_healthy fglrx
-            if [ "$opengl_status" == "0" ]; then
-                change_xorg_driver fglrx
-                fix_possible_opengl_misconfiguration ati
-                enable_dri
-                copy_ati_settings_on_desktop
-            else
-                change_xorg_driver radeon
-                enable_dri
-                remove_proprietary_opengl
-            fi
-
-    	  echo -e "\t Display Driver: ATI (Proprietary)"
-
-	else
-
-	  change_xorg_driver radeon
-          enable_dri
-	  remove_proprietary_opengl
-          sed -i '/ColorTiling/ s/#//' /etc/X11/xorg.conf
-          sed -i '/EnablePageFlip/ s/#//' /etc/X11/xorg.conf
-          echo -e "\t Display Driver: ATI (OpenSource) - Proprietary drivers can't be loaded"
-
-	fi
-
-    else
-
-	change_xorg_driver radeon
-        enable_dri
-        remove_proprietary_opengl
-    	echo -e "\t Display Driver: ATI (OpenSource)"
-
-    fi
-
-  fi
-
-elif [ -n "$SIS" ] || [ -n "$XGISIS" ]; then
-
- change_xorg_driver sis
- enable_dri
- remove_proprietary_opengl
- echo -e "\t Display Driver: SiS/XGI"
-
-
-elif [ -n "$VMWARE" ]; then
-
- change_xorg_driver vmware
- enable_dri
-
- # Uncomment "Modes"
- sed -i '/Modes/ s/#//g' /etc/X11/xorg.conf
- sed -i '/HorizSync/ s/#//g' /etc/X11/xorg.conf
- sed -i '/VertRefresh/ s/#//g' /etc/X11/xorg.conf
-
- echo -e "\t Display Driver: VMWARE"
-
-elif [ -n "$SAVAGE" ]; then
-
- change_xorg_driver savage
- enable_dri
- remove_proprietary_opengl
- echo -e "\t Display Driver: Savage"
-
-elif [ -n "$VIRGE" ]; then
-
- change_xorg_driver s3virge
- enable_dri
- remove_proprietary_opengl
- echo -e "\t Display Driver: S3 Virge"
-
-elif [ -n "$MATROX" ]; then
-
- change_xorg_driver mga
- enable_dri
- remove_proprietary_opengl
- echo -e "\t Display Driver: MATROX"
-
-elif [ -n "$VIAUNICHROME" ]; then
-
- # Check if the openchrome driver exists
- check_if_driver_is_available openchrome
- if [ "$xdriver" = "1" ]; then
-     change_xorg_driver via
-     enable_dri
-     remove_proprietary_opengl
-     echo -e "\t Display Driver: VIA Technologies"
- else
-     change_xorg_driver openchrome
-     enable_dri
-     remove_proprietary_opengl
-     echo -e "\t Display Driver: VIA Technologies UniChrome Chipset"
- fi
-
-elif [ -n "$VIA" ]; then
-
- change_xorg_driver via
- enable_dri
- remove_proprietary_opengl
- echo -e "\t Display Driver: VIA Technologies"
-
-elif [ -n "$CIRRUS" ]; then
-
- change_xorg_driver cirrus
- #enable_dri
-
- echo -e "\t Display Driver: Cirrus Logic"
-
-elif [ -n "$TRIDENT" ]; then
-
- change_xorg_driver trident
- #enable_dri
-
- echo -e "\t Display Driver: Cirrus Logic"
-
-
-else
-
- echo -e "\t Display Driver: VESA (no supported card detected)"
- sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
-
-fi
-
-if [ -z "$IS_LIVE" ]; then
-    nice -20 env-update &> /dev/null
-fi
-source /etc/profile
+#!/usr/bin/python
+
+import os
+import string
+import commands
+import shutil
+import sys
+
+# Variables
+xorgfile = "/etc/X11/xorg.conf"
+lspci = '/sbin/lspci'
+nvidia_settings = "/usr/share/applications/nvidia-settings.desktop"
+
+# cmdlines
+options = sys.argv[1:]
+dryrun = False
+noproprietary = False
+nvidia_forcefail = False
+nvidia_disablelegacy = False
+legacy = False
+noopengl = False
+livecd = False
+steps = []
+forced_xdriver = ''
+current_arch = os.uname()[4]
+if current_arch == "x86_64":
+	ld_arch = "elf_x86_64"
+else:
+	ld_arch = "elf_i386"
+lspci_output = ''
+for option in options:
+	if option == "--dry-run":
+		dryrun = True
+	elif option.startswith('--with-lspci=') and len(option.split("=")) >= 2:
+		option = option.split("=")[1:]
+		option = string.join(option,"=")
+		if option.startswith('"'): option = option[1:]
+		if option.startswith("'"): option = option[1:]
+		if option.endswith("'"): option = option[:len(option)-1]
+		if option.endswith('"'): option = option[:len(option)-1]
+		lspci_output = option
+	elif option.startswith('--forced-xdriver=') and len(option.split("=")) == 2:
+		forced_xdriver = option.split("=")[1]
+	elif option == "--noopengl":
+		noopengl = True
+
+if (not lspci_output):
+	lspci_output = commands.getoutput(lspci+' -nn | grep VGA')
+else:
+	lspci_output = commands.getoutput('echo '+lspci_output+' | grep VGA')
+
+# parse cmdline
+# FIXME: add support for no-dri?
+f = open("/proc/cmdline","r")
+cmdline = f.readline().split()
+f.close()
+for cmd in cmdline:
+	if cmd == "noproprietary":
+		noproprietary = True
+	elif cmd == "nvidia=forcefail":
+		nvidia_forcefail = True
+	elif cmd == "nvidia=disablelegacy":
+		nvidia_disablelegacy = True
+	elif cmd == "legacy":
+		legacy = True
+	elif cmd == "noopengl":
+		noopengl = True
+	elif cmd == "cdroot":
+		livecd = True
+	elif cmd.startswith("xdriver=") and (len(cmd.split("=")) == 2):
+		if (not forced_xdriver): forced_xdriver = cmd.split("=")[1] # --forced-xdriver= owns
+
+
+# Functions
+def remove_proprietary_opengl():
+	if (not dryrun):
+		os.system('''
+		mount -t tmpfs none /usr/lib/opengl/ati &> /dev/null
+		mount -t tmpfs none /usr/lib/opengl/nvidia &> /dev/null
+		sed -i '/LIBGL_DRIVERS_PATH/ s/.*//' /etc/profile.env
+		''')
+		fix_possible_opengl_misconfiguration('xorg-x11')
+	else:
+		print "I was about to remove proprietary OpenGL libraries"
+
+def check_if_driver_is_available(xdriver):
+	if os.path.isfile('/usr/lib/xorg/modules/drivers/'+xdriver+'_drv.so'):
+		print "check_if_driver_is_available for "+xdriver+": available"
+		return True
+	print "check_if_driver_is_available for "+xdriver+": not available"
+	return False
+
+def check_if_proprietary_driver_system_is_healthy(kernelmod): #FIXME attenzione a dove usi questa
+	rc = os.system('modprobe '+kernelmod+' &> /dev/null')
+	if (rc == 0):
+		if kernelmod == "nvidia":
+			if os.path.exists('/usr/lib/opengl/nvidia/lib'):
+				print "check_if_proprietary_driver_system_is_healthy: nvidia healthy"
+				return True
+			print "check_if_proprietary_driver_system_is_healthy: nvidia NOT healthy"
+			return False
+		if kernelmod == "fglrx":
+			if os.path.exists('/usr/lib/opengl/ati/lib'):
+				print "check_if_proprietary_driver_system_is_healthy: ati healthy"
+				return True
+			print "check_if_proprietary_driver_system_is_healthy: ati NOT healthy"
+			return False
+	else:
+		return False
+
+def deploy_nvidia_9xxxxx_drivers(): # reduce os.system usage
+	if (not dryrun):
+		# are they available ? we're on livecd...
+		if not os.path.isdir("/install-data/drivers"):
+			print "No /install-data/drivers available"
+			return False
+		
+		packages = os.listdir("/install-data/drivers")
+		packages = [x for x in packages if x.startswith("nvidia-drivers-9") and x.endswith(".tbz2")]
+		if not packages:
+			return False
+		package_file = "/install-data/drivers/"+packages[0]
+		if not os.path.isfile(package_file):
+			print package_file+" does not exist???"
+			return False
+		
+		# prepare system
+		if os.access('/usr/bin/qlist',os.X_OK):
+			os.system("""
+				qlist -e nvidia-drivers | xargs rm -rf
+				rm -rf /var/db/pkg/x11-drivers/nvidia-drivers-*
+				sed -i '/.*nvidia-drivers.*/d' /var/lib/portage/world
+			""")
+		else:
+			os.system("emerge -C nvidia-drivers &> /dev/null")
+		
+		# remove old garbage - copy over - create module
+		os.system("""
+			rm /lib/modules/$(uname -r)/video/nvidia.ko -f
+			rm /lib/nvidia/* -rf
+	
+			tar xjf """+package_file+""" -C / &> /dev/null
+	
+			ld -m """+ld_arch+""" -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
+		""")
+		# try to check driver status now
+		rc = check_if_proprietary_driver_system_is_healthy("nvidia")
+		return rc
+	else:
+		print "I was about to run deploy_nvidia_9xxxxx_drivers"
+		return False
+	
+
+def change_xorg_driver(xdriver):
+	if (not dryrun):
+		print "change X driver to "+xdriver
+		f = open(xorgfile,"r")
+		xorgconf = f.readlines()
+		f.close()
+		device = False
+		f = open(xorgfile,"w")
+		for line in xorgconf:
+			if (line.lower().find("section") != -1) and (line.lower().find("device") != -1):
+				device = True
+			if (line.lower().find("endsection") != -1):
+				device = False
+			if (device):
+				if (line.lower().find("driver") != -1):
+					# change line
+					line = '    Driver    "'+xdriver+'"\n'
+			f.write(line)
+		f.flush()
+		f.close()
+	else:
+		print "I was about to change X driver to "+xdriver
+
+def set_dri(status = True):
+	if (not dryrun):
+		if (status):
+			# enable
+			os.system('sed -i \'/"dri"/ s/#//\' '+xorgfile)
+		else:
+			# disable
+			os.system('sed -i \'/Load.*"dri"/ s/Load/#Load/\' '+xorgfile)
+	else:
+		print "I was about to set DRI to "+str(status)
+
+def enable_forced_modes():
+	os.system('sed -i \'/Modes/ s/#//\' '+xorgfile)
+
+def opengl_activate(profile):
+	if (not dryrun):
+		if (livecd):
+			os.system("opengl-activator "+profile+" &> /dev/null")
+		else:
+			os.system("eselect opengl set "+profile+" &> /dev/null")
+	else:
+		print "I was about to set opengl subsystem to: "+profile
+
+def opengl_show():
+	if (livecd):
+		profile = commands.getoutput("opengl-activator show").split("\n")[0].strip()
+	else:
+		profile = commands.getoutput("eselect opengl show").split("\n")[0].strip()
+	return profile
+
+def fix_possible_opengl_misconfiguration(profile):
+	# get current subsystem
+	current = opengl_show()
+	if (not dryrun):
+		if (profile in ("ati","nvidia","xorg-x11")) and (profile != current):
+			if profile == "ati" or profile == "nvidia":
+				os.system("""
+				umount /usr/lib/opengl/"""+profile+""" &> /dev/null
+				umount /usr/lib/opengl/"""+profile+""" &> /dev/null
+				""")
+			opengl_activate(profile)
+	else:
+		print "I was about to fix OpenGL subsystem to: "+profile+" while the current implementation is: "+current
+	
+def copy_nvidia_settings_on_desktop():
+	if os.path.isfile(nvidia_settings):
+		homes = os.listdir("/home")
+		homes = [x for x in homes if os.path.isdir("/home/"+x+"/Desktop")]
+		for home in homes:
+			try:
+				user = home
+				group = "users"
+				shutil.copy2(nvidia_settings,"/home/"+home+"/Desktop")
+				shutil.copystat(nvidia_settings,"/home/"+home+"/Desktop")
+				os.chown("/home/"+home+"/Desktop/"+os.path.basename(nvidia_settings),user,group)
+			except:
+				pass
+
+def copy_ati_settings_on_desktop():
+	desktop_files = commands.getoutput('qlist -e ati-drivers | grep ".desktop"').split("\n")
+	desktop_files = [x for x in desktop_files if os.path.isfile(x)]
+	for ati_settings in desktop_files:
+		homes = os.listdir("/home")
+		homes = [x for x in homes if os.path.isdir("/home/"+x+"/Desktop")]
+		for home in homes:
+			try:
+				user = home
+				group = "users"
+				shutil.copy2(ati_settings,"/home/"+home+"/Desktop")
+				shutil.copystat(ati_settings,"/home/"+home+"/Desktop")
+				os.chown("/home/"+home+"/Desktop/"+os.path.basename(ati_settings),user,group)
+			except:
+				pass
+
+def generate_nvidia_steps():
+	if check_if_proprietary_driver_system_is_healthy("nvidia"):
+		if (not noopengl):
+			steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
+			steps.append(('copy_nvidia_settings_on_desktop',))
+			steps.append(('opengl_activate','nvidia'))
+		steps.append(('change_xorg_driver','nvidia'))
+	else:
+		if (livecd):
+			print "latest NVIDIA drivers couldn't be loaded, trying 9x.xx.xx drivers"
+			rc = deploy_nvidia_9xxxxx_drivers()
+			if (rc):
+				# then activate nvidia opengl subsystem after resetting it
+				steps.append(('opengl_activate','xorg-x11'))
+				steps.append(('opengl_activate','nvidia'))
+				os.makedirs("/lib/nvidia/legacy")
+				f = open("/lib/nvidia/legacy/running","w")
+				f.write("NVIDIA 9x.xx.xx\n")
+				f.flush()
+				f.close()
+				steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
+				steps.append(('copy_nvidia_settings_on_desktop',))
+			else:
+				# it's a no-go!
+				print "NVIDIA drivers 9x.xx.xx failed to load too... sorry, switching to nv driver"
+				if (not noopengl):
+					steps.append(('opengl_activate','xorg-x11'))
+				steps.append(('change_xorg_driver','nv'))
+		else:
+			print "latest NVIDIA drivers couldn't be loaded, switchting to nv driver"
+			if (not noopengl):
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','nv'))
+
+### APPLICATION
+
+# Create videocards list
+videocards = lspci_output.split("\n")
+
+# Run the program
+cardnumber = 0
+
+import re
+# Intel
+i740 = re.compile('.*intel.*74[0-9].*')
+i810 = re.compile('.*Intel.*Corp.*')
+# misc
+silicon_motion = re.compile('.*silicon.*motion.*')
+s3virge = re.compile('.*S3.*Virge.*')
+# VIA
+via = re.compile('.*VIA.*Tech.*')
+unichrome = re.compile('.*via.*tech.*chrome.*')
+# nVidia
+nvidia = re.compile('.*nvidia corporation.*')
+# ATi
+ati = re.compile('.*ati.*technologies.*')
+radeon_1x0 = re.compile('.*ati.*technologies.*r(v)?1[0-9]0.*')
+radeon_2x0 = re.compile('.*ati.*technologies.*r(v)?2[0-9]0.*')
+radeon_3x0 = re.compile('.*ati.*technologies.*r(v)?3[0-9]0.*')
+radeon_7xx0 = re.compile('.*ati.*technologies.*radeon.*7[0-9][0-9]0.*')
+radeon_8xx0 = re.compile('.*ati.*technologies.*radeon.*8[0-9][0-9]0.*')
+radeon_9xx0_free = re.compile('.*ati.*technologies.*radeon.*9[0-2][0-9]0.*')
+radeon_9xx0_closed = re.compile('.*ati.*technologies.*radeon.*9[5-9][0-9]0.*')
+radeon_Xxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9]0.*')
+
+for videocard in videocards:
+
+	# setup card number
+	cardnumber += 1
+	print "Card Number: "+str(cardnumber)
+	
+	steps = []
+	
+	if forced_xdriver:
+		print "You have chosen to force X driver: "+forced_xdriver
+		if forced_xdriver == "fglrx":
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				if check_if_proprietary_driver_system_is_healthy("fglrx"):
+					steps.append(('fix_possible_opengl_misconfiguration','ati'))
+					steps.append(('copy_ati_settings_on_desktop',))
+					steps.append(('opengl_activate','ati'))
+				else:
+					steps.append(('opengl_activate','xorg-x11'))
+					forced_xdriver = "radeon"
+		elif forced_xdriver == "nvidia":
+			generate_nvidia_steps()
+		elif forced_xdriver == "vesa":
+			steps.append(('enable_forced_modes'))
+		elif forced_xdriver == "sisusb":
+			steps.append(('set_dri',True))
+			steps.append(('remove_proprietary_opengl',))
+		else:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+		steps.append(('change_xorg_driver',forced_xdriver))
+	else:
+
+		if os.path.isfile('/sys/module/sisusbvga'):
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','sisusb'))
+			print "SiS USB!"
+
+		elif videocard.lower().find('neomagic') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','neomagic'))
+			print "Neomagic!"
+	
+		elif videocard.lower().find('mach64') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','ati'))
+			print "Mach64!"
+	
+		elif videocard.lower().find('savage') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','savage'))
+			print "Savage!"
+	
+		elif videocard.lower().find('virge') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','s3virge'))
+			print "Virge!"
+	
+		elif videocard.lower().find('cyrix') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','cyrix'))
+			print "Cyrix!"
+	
+		elif videocard.lower().find('i128') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','i128'))
+			print "i128!"
+	
+		elif videocard.lower().find('rendition') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','rendition'))
+			print "Rendition!"
+	
+		elif videocard.lower().find('tseng') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','tseng'))
+			print "Tseng!"
+	
+		elif videocard.lower().find('3dfx interactive') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','tdfx'))
+			print "3Dfx!"
+	
+		elif videocard.lower().find('trident') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','trident'))
+			print "Trident!"
+	
+		elif videocard.lower().find('rage 128') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','r128'))
+			print "Rage128!"
+	
+		elif videocard.find('Matrox') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','mga'))
+			print "Matrox!"
+	
+		elif videocard.find('Cirrus') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','cirrus'))
+			print "Cirrus!"
+		
+		elif videocard.find(' SiS ') != -1 or videocard.find('Silicon Integrated Systems') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','sis'))
+			print "SiS!"
+	
+		elif videocard.lower().find('xgi') != -1 and videocard.find('Volari') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','sis'))
+			print "XGI Volari!"
+	
+		elif videocard.find('VMWare') != -1 or videocard.find('VMware') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','vmware'))
+			print "VMware!"
+	
+		elif i740.match(videocard.lower()):
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','i740'))
+			print "i740!"
+	
+		elif s3virge.match(videocard):
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','s3virge'))
+			print "S3Virge!"
+	
+		elif via.match(videocard):
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			if unichrome.match(videocard.lower()):
+				if check_if_driver_is_available('openchrome'):
+					steps.append(('change_xorg_driver','openchrome'))
+				else:
+					steps.append(('change_xorg_driver','via'))
+				print "UniChrome!"
+			else:
+				steps.append(('change_xorg_driver','via'))
+				print "VIA Tech!"
+	
+		elif silicon_motion.match(videocard.lower()):
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','siliconmotion'))
+			print "Silicon Motion!"
+	
+		elif i810.match(videocard): # non lower
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','i810'))
+			print "Intel >= 810!"
+	
+		elif videocard.lower().find('riva tnt') != -1:
+			if (not noopengl):
+				steps.append(('set_dri',True))
+				steps.append(('remove_proprietary_opengl',))
+				steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('change_xorg_driver','nv'))
+			print "Riva TNT!"
+	
+		elif nvidia.match(videocard.lower()):
+			generate_nvidia_steps()
+			print "NVIDIA!"
+		
+		elif ati.match(videocard.lower()):
+			print "ATI Technologies"
+			if radeon_1x0.match(videocard.lower()) or radeon_2x0.match(videocard.lower()) or radeon_7xx0.match(videocard.lower()) or radeon_8xx0.match(videocard.lower()) or radeon_9xx0_free.match(videocard.lower()):
+				if (not noopengl):
+					steps.append(('set_dri',True))
+					steps.append(('remove_proprietary_opengl',))
+					steps.append(('opengl_activate','xorg-x11'))
+				steps.append(('change_xorg_driver','radeon'))
+			elif radeon_3x0.match(videocard.lower()) or radeon_4x0.match(videocard.lower()) or radeon_5x0.match(videocard.lower()) or radeon_6x0.match(videocard.lower()) or radeon_9xx0_closed.match(videocard.lower()) or radeon_Xxx0_closed.match(videocard.lower()) or radeon_Xxxx0_closed.match(videocard.lower()):
+				if (not noopengl):
+					steps.append(('set_dri',True))
+					steps.append(('fix_possible_opengl_misconfiguration','ati'))
+					steps.append(('copy_ati_settings_on_desktop',))
+					steps.append(('opengl_activate','ati'))
+				steps.append(('change_xorg_driver','fglrx'))
+			else:
+				print "ATTENTION !!!"
+				print "ATTENTION !!!"
+				print "ATTENTION !!!"
+				print "--> ATI Card undetected: "+videocard
+				print "SETTING OPEN SOURCE DRIVERS"
+				if (not noopengl):
+					steps.append(('set_dri',True))
+					steps.append(('remove_proprietary_opengl',))
+					steps.append(('opengl_activate','xorg-x11'))
+				steps.append(('change_xorg_driver','radeon'))
+		else:
+			print "ATTENTION !!!"
+			print "ATTENTION !!!"
+			print "ATTENTION !!!"
+			print "--> Video Card undetected: "+videocard
+			print "SETTING TO VESA"
+			print "Please report this output to Sabayon Linux developers or mail to LXNAY <at> SABAYONLINUX <dot> ORG"
+	
+	# now run those steps
+	for step in steps:
+		if len(step) == 1:
+			eval(step[0])()
+		else:
+			param = step[1:][0]
+			eval(step[0])(param)
