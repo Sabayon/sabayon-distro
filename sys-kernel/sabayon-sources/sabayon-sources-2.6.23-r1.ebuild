@@ -49,7 +49,8 @@ UNIPATCH_LIST="
 
 UNIPATCH_STRICTORDER="yes"
 
-KEYWORDS="~amd64 ~x86 ~ppc ~ppc64"
+#KEYWORDS="~amd64 ~x86 ~ppc ~ppc64"
+KEYWORDS="-*"
 HOMEPAGE="http://www.sabayonlinux.org"
 
 DESCRIPTION="Full sources including the Gentoo patchset and SabayonLinux ones for the ${KV_MAJOR}.${KV_MINOR} kernel tree"
