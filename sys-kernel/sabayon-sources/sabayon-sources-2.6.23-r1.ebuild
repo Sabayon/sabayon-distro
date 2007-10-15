@@ -38,7 +38,9 @@ UNIPATCH_LIST="
 		${FILESDIR}/thinkpad-2.6.23.patch
 		${FILESDIR}/mactel-patches-2.6.23.patch
 		${FILESDIR}/${P}-sandbox-violation.patch
-		${FILESDIR}/sabayon-sources-2.6.23.1.patch
+		${FILESDIR}/linux-2.6.23.1.patch
+		${FILESDIR}/acpi-release-20070126-2.6.23.patch
+		${FILESDIR}/rt2x00-latest-2.6.23.patch
 
 		"
 # disabled for testing
@@ -49,8 +51,7 @@ UNIPATCH_LIST="
 
 UNIPATCH_STRICTORDER="yes"
 
-#KEYWORDS="~amd64 ~x86 ~ppc ~ppc64"
-KEYWORDS="-*"
+KEYWORDS="~amd64 ~x86 ~ppc ~ppc64"
 HOMEPAGE="http://www.sabayonlinux.org"
 
 DESCRIPTION="Full sources including the Gentoo patchset and SabayonLinux ones for the ${KV_MAJOR}.${KV_MINOR} kernel tree"
