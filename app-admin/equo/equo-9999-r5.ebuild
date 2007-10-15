@@ -43,7 +43,7 @@ src_unpack() {
 	# setting svn revision
 	cd ${ESVN_STORE_DIR}/${PN}/trunk
 	SVNREV=$(svnversion)
-	echo $SVNREV > libraries/revision
+	echo $SVNREV > ${S}/libraries/revision
 }
 
 src_compile() {
