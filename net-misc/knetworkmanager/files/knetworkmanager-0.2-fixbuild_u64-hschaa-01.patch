@@ -1,0 +1,15 @@
+From Suse.
+
+"This patch won't be submitted to the svn version as it is only an ugly workaround for issues caused by libnl's handling of kernel types (fixed in libnl trunk)."
+
+--- knetworkmanager/src/Makefile.am
++++ knetworkmanager/src/Makefile.am
+@@ -31,7 +31,7 @@
+ lib_LTLIBRARIES =
+ kdeinit_LTLIBRARIES = knetworkmanager.la
+ 
+-KDE_CXXFLAGS = -UQT_NO_ASCII_CAST
++KDE_CXXFLAGS = -UQT_NO_ASCII_CAST -std=gnu++98
+ 
+ # the application source, library search path, and link libraries
+ knetworkmanager_la_SOURCES = main.cpp knetworkmanager.cpp knetworkmanager-dbus.cpp \

@@ -1,0 +1,30 @@
+Add Gentoo support for dial-up Dialog.
+
+Sent upstream: http://bugs.kde.org/148951
+
+Index: knetworkmanager-0.2/knetworkmanager/configure.in.in
+===================================================================
+--- knetworkmanager-0.2.orig/knetworkmanager/configure.in.in
++++ knetworkmanager-0.2/knetworkmanager/configure.in.in
+@@ -85,9 +85,10 @@ CPPFLAGS=$safe_CPPFLAGS
+ LIBS=$safe_LIBS
+ AC_LANG_RESTORE
+ 
+-AC_ARG_WITH(distro, AC_HELP_STRING([--with-distro=DISTRO], [Specify the Linux distribution to target: suse]))
++AC_ARG_WITH(distro, AC_HELP_STRING([--with-distro=DISTRO], [Specify the Linux distribution to target: suse,gentoo]))
+ if test "x$with_distro" = "x"; then
+ 	AC_CHECK_FILE(/etc/SuSE-release,with_distro="suse")
++	AC_CHECK_FILE(/etc/gentoo-release,with_distro="gentoo")
+ 	if test "x$with_distro" = "x"; then
+ 		with_distro=`lsb_release -is`
+ 	fi
+@@ -102,6 +103,9 @@ else
+ 		suse)
+ 			AC_DEFINE_UNQUOTED(KNETWORKMANAGER_DIALUP_CONFIG, "kdesu --nonewdcop /sbin/yast2 modem", [Command to launch dial up configuration tool])
+ 			;;
++		gentoo)
++			AC_DEFINE_UNQUOTED(KNETWORKMANAGER_DIALUP_CONFIG, "kdesu --nonewdcop ${KDEDIR}/bin/kppp", [Command to launch dial up configuration tool])
++			;;
+ 		*)
+ 			echo "Your distribution (${with_distro}) is not yet supported (e.g. you will not be able to launch a tool to configure dial-up connections.)"
+ 			;;

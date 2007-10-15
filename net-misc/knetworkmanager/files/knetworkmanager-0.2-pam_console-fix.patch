@@ -1,0 +1,29 @@
+Name: knetworkmanager-pam_console-fix.patch
+URL: svn://svn.gentoo-xeffects.org/xeffects/trunk/kde-misc/knetworkmanager/files/knetworkmanager-pam_console-fix.patch
+Repository Root: svn://svn.gentoo-xeffects.org/xeffects
+Repository UUID: 293eb232-8020-0410-9bbe-a7a9c2f1b3fa
+
+Last Changed Author: roderick
+Last Changed Rev: 540
+Last Changed Date: 2007-03-17 22:17:12 +0100 (Sat, 17 Mar 2007)
+
+------------------------------------------------------------------------
+r540 | roderick | 2007-03-17 22:17:12 +0100 (Sat, 17 Mar 2007) | 1 line
+
+Fix to use group permissions plugdev rather than require pam console.
+------------------------------------------------------------------------
+
+
+Index: knetworkmanager-0.2/knetworkmanager/knetworkmanager.conf
+===================================================================
+--- knetworkmanager-0.2.orig/knetworkmanager/knetworkmanager.conf
++++ knetworkmanager-0.2/knetworkmanager/knetworkmanager.conf
+@@ -8,7 +8,7 @@
+ 		<allow send_destination="org.freedesktop.NetworkManagerInfo"/>
+                 <allow send_interface="org.freedesktop.NetworkManagerInfo"/>
+ 	</policy>
+-	<policy at_console="true">
++	<policy group="plugdev">
+ 		<allow own="org.freedesktop.NetworkManagerInfo"/>
+ 
+ 		<allow send_destination="org.freedesktop.NetworkManagerInfo"/>

@@ -1,0 +1,56 @@
+Index: configure.in.in
+===================================================================
+--- configure.in.in	(revision 706976)
++++ configure.in.in	(working copy)
+@@ -97,23 +97,34 @@
+ 
+ with_distro=`echo ${with_distro} | tr '[[:upper:]]' '[[:lower:]]' `
+ 
+-if test "x$with_distro" = "x"; then
+-	echo "Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO"
+-else
+-	case $with_distro in
+-		suse)
+-			AC_DEFINE_UNQUOTED(KNETWORKMANAGER_DIALUP_CONFIG, "kdesu --nonewdcop /sbin/yast2 modem", [Command to launch dial up configuration tool])
+-			;;
+-		gentoo)
+-			AC_DEFINE_UNQUOTED(KNETWORKMANAGER_DIALUP_CONFIG, "kdesu --nonewdcop ${KDEDIR}/bin/kppp", [Command to launch dial up configuration tool])
+-			;;
+-    fedora)
+-			AC_DEFINE_UNQUOTED(KNETWORKMANAGER_DIALUP_CONFIG, "kdesu --nonewdcop /usr/bin/kppp", [Command to launch dial up configuration tool])
+-			;; 
+-		*)
+-			echo "Your distribution (${with_distro}) is not yet supported (e.g. you will not be able to launch a tool to configure dial-up connections.)"
+-			;;
+-	esac
++# Compile dialup support
++
++AC_ARG_WITH(dialup, AC_HELP_STRING([--with-dialup], [Build KNetworkManager with Dialup support (default)]))
++if test "x$with_dialup" != "xno"; then
++	if test "x$with_distro" = "x"; then
++		echo "Linux distribution autodetection failed, you must specify the distribution to target using --with-distro=DISTRO"
++	else
++		case $with_distro in
++			suse)
++				AC_DEFINE_UNQUOTED(KNETWORKMANAGER_DIALUP_CONFIG,
++					"kdesu --nonewdcop /sbin/yast2 modem",
++					[Command to launch dial up configuration tool])
++				;;
++			gentoo)
++				AC_DEFINE_UNQUOTED(KNETWORKMANAGER_DIALUP_CONFIG,
++					"kdesu --nonewdcop ${KDEDIR}/bin/kppp",
++					[Command to launch dial up configuration tool])
++				;;
++			fedora)
++				AC_DEFINE_UNQUOTED(KNETWORKMANAGER_DIALUP_CONFIG,
++					"kdesu --nonewdcop /usr/bin/kppp",
++					[Command to launch dial up configuration tool])
++				;; 
++			*)
++				echo "Your distribution (${with_distro}) is not yet supported (e.g. you will not be able to launch a tool to configure dial-up connections.)"
++				;;
++		esac
++	fi
+ fi
+ 
+ # openvpn support
