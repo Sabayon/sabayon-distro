@@ -16,7 +16,7 @@ SRC_URI="x86? ( http://us.download.nvidia.com/XFree86/Linux-x86/${NV_V}/${X86_NV
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86"
-IUSE="gtk multilib distribution"
+IUSE="acpi gtk multilib distribution"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
@@ -29,6 +29,7 @@ DEPEND="${COMMON}
 RDEPEND="${COMMON}
 	kernel_linux? ( virtual/modutils )
 	media-libs/mesa
+	acpi? ( sys-power/acpid )
 	app-admin/eselect-opengl"
 PDEPEND="gtk? ( media-video/nvidia-settings )"
 
@@ -71,6 +72,21 @@ QA_WX_LOAD_amd64="usr/lib64/opengl/nvidia/lib/libGL.so.${PV}
 	usr/lib32/opengl/nvidia/lib/libGL.so.${PV}
 	usr/lib32/opengl/nvidia/lib/libGLcore.so.${PV}
 	usr/lib32/opengl/nvidia/extensions/libglx.so"
+
+QA_EXECSTACK_amd64="usr/lib64/xorg/modules/drivers/nvidia_drv.so
+	usr/lib64/opengl/nvidia/lib/libGL.so.${PV}
+	usr/lib64/opengl/nvidia/lib/libnvidia-cfg.so.${PV}
+	usr/lib64/opengl/nvidia/extensions/libglx.so
+	usr/lib64/libXvMCNVIDIA.so.${PV}
+	usr/bin/nvidia-xconfig"
+
+QA_EXECSTACK_x86="usr/lib/xorg/modules/drivers/nvidia_drv.so
+	usr/lib/opengl/nvidia/lib/libGL.so.${PV}
+	usr/lib/opengl/nvidia/lib/libnvidia-cfg.so.${PV}
+	usr/lib/opengl/nvidia/extensions/libglx.so
+	usr/lib/libXvMCNVIDIA.so.${PV}
+	usr/bin/nvidia-xconfig"
+
 
 export _POSIX2_VERSION="199209"
 
@@ -173,13 +189,15 @@ src_install() {
 		eerror "Failed to determine the video group gid."
 		die "Failed to determine the video group gid."
 	fi
-
+	
 	# Add the aliases
-	[ -f "${FILESDIR}/nvidia-2" ] || die "nvidia-2 missing in FILESDIR"
-	sed -e 's:\${PACKAGE}:'${PF}':g' \
-		-e 's:VIDEOGID:'${VIDEOGROUP}':' "${FILESDIR}"/nvidia-2 > "${WORKDIR}"/nvidia
+	[ -f "${FILESDIR}/nvidia" ] || die "nvidia missing in FILESDIR"
+	sed -e 's:PACKAGE:'${PF}':g' \
+		-e 's:VIDEOGID:'${VIDEOGROUP}':' "${FILESDIR}"/nvidia > \
+		"${WORKDIR}"/nvidia
 	insinto /etc/modules.d
-	newins "${WORKDIR}"/nvidia nvidia || die
+	doins "${WORKDIR}"/nvidia || die
+
 
 	if [[ "${MLTEST/set_abi}" == "${MLTEST}" ]] && has_multilib_profile ; then
 		local OABI=${ABI}
@@ -339,11 +357,11 @@ pkg_preinst() {
 	# Clean the dynamic libGL stuff's home to ensure
 	# we dont have stale libs floating around
 	if [[ -d ${ROOT}/usr/lib/opengl/nvidia ]] ; then
-		rm -rf ${ROOT}/usr/lib/opengl/nvidia/*
+		rm -rf "${ROOT}"/usr/lib/opengl/nvidia/*
 	fi
 	# Make sure we nuke the old nvidia-glx's env.d file
 	if [[ -e ${ROOT}/etc/env.d/09nvidia ]] ; then
-		rm -f ${ROOT}/etc/env.d/09nvidia
+		rm -f "${ROOT}"/etc/env.d/09nvidia
 	fi
 }
 
@@ -381,6 +399,9 @@ want_tls() {
 	fi
 
 	[[ ${valid_chost} == "false" ]] && return 1
+
+	# If we've got nptl, we've got tls
+	built_with_use --missing true sys-libs/glibc nptl && return 0
 
 	# 2.3.5 turned off tls for linuxthreads glibc on i486 and i586
 	if use x86 && has_version '>=sys-libs/glibc-2.3.5' ; then
