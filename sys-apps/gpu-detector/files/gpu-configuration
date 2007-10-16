@@ -157,7 +157,7 @@ def deploy_nvidia_9xxxxx_drivers(): # reduce os.system usage
 	
 
 def change_xorg_driver(xdriver):
-	if (not dryrun):
+	if (dryrun):
 		print "change X driver to "+xdriver
 		f = open(xorgfile,"r")
 		xorgconf = f.readlines()
@@ -165,7 +165,7 @@ def change_xorg_driver(xdriver):
 		device = False
 		f = open(xorgfile,"w")
 		for line in xorgconf:
-			if (line.lower().find("section") != -1) and (line.lower().find("device") != -1):
+			if (line.lower().find("section") != -1) and (line.lower().find("\"device\"") != -1):
 				device = True
 			if (line.lower().find("endsection") != -1):
 				device = False
@@ -188,7 +188,7 @@ def set_exa(exa = True):
 		device = False
 		f = open(xorgfile,"w")
 		for line in xorgconf:
-			if (line.lower().find("section") != -1) and (line.lower().find("device") != -1):
+			if (line.lower().find("section") != -1) and (line.lower().find("\"device\"") != -1):
 				device = True
 			if (line.lower().find("endsection") != -1):
 				device = False
