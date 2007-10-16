@@ -257,8 +257,8 @@ def copy_nvidia_settings_on_desktop():
 			try:
 				user = home
 				group = "users"
-				shutil.copy2(nvidia_settings,"/home/"+home+"/Desktop")
-				shutil.copystat(nvidia_settings,"/home/"+home+"/Desktop")
+				shutil.copy2(nvidia_settings,"/home/"+home+"/Desktop/"+os.path.basename(nvidia_settings))
+				shutil.copystat(nvidia_settings,"/home/"+home+"/Desktop/"+os.path.basename(nvidia_settings))
 				os.chown("/home/"+home+"/Desktop/"+os.path.basename(nvidia_settings),user,group)
 			except:
 				pass
@@ -266,6 +266,7 @@ def copy_nvidia_settings_on_desktop():
 def copy_ati_settings_on_desktop():
 	desktop_files = commands.getoutput('qlist -e ati-drivers | grep ".desktop"').split("\n")
 	desktop_files = [x for x in desktop_files if os.path.isfile(x)]
+	print "copy_ati_settings_on_desktop: found files: "+str(desktop_files)
 	for ati_settings in desktop_files:
 		homes = os.listdir("/home")
 		homes = [x for x in homes if os.path.isdir("/home/"+x+"/Desktop")]
@@ -273,8 +274,8 @@ def copy_ati_settings_on_desktop():
 			try:
 				user = home
 				group = "users"
-				shutil.copy2(ati_settings,"/home/"+home+"/Desktop")
-				shutil.copystat(ati_settings,"/home/"+home+"/Desktop")
+				shutil.copy2(ati_settings,"/home/"+home+"/Desktop/"+os.path.basename(ati_settings))
+				shutil.copystat(ati_settings,"/home/"+home+"/Desktop/"+os.path.basename(ati_settings))
 				os.chown("/home/"+home+"/Desktop/"+os.path.basename(ati_settings),user,group)
 			except:
 				pass
