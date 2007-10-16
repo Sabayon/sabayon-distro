@@ -262,6 +262,8 @@ def copy_nvidia_settings_on_desktop():
 				os.chown("/home/"+home+"/Desktop/"+os.path.basename(nvidia_settings),user,group)
 			except:
 				pass
+		if os.path.isdir("/etc/skel/Desktop"):
+			shutil.copy2(nvidia_settings,"/etc/skel/Desktop/"+os.path.basename(nvidia_settings))
 
 def copy_ati_settings_on_desktop():
 	desktop_files = commands.getoutput('qlist -e ati-drivers | grep ".desktop"').split("\n")
@@ -279,6 +281,8 @@ def copy_ati_settings_on_desktop():
 				os.chown("/home/"+home+"/Desktop/"+os.path.basename(ati_settings),user,group)
 			except:
 				pass
+		if os.path.isdir("/etc/skel/Desktop"):
+			shutil.copy2(ati_settings,"/etc/skel/Desktop/"+os.path.basename(ati_settings))
 
 def generate_nvidia_steps():
 	if check_if_proprietary_driver_system_is_healthy("nvidia"):
