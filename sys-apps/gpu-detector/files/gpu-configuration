@@ -157,7 +157,7 @@ def deploy_nvidia_9xxxxx_drivers(): # reduce os.system usage
 	
 
 def change_xorg_driver(xdriver):
-	if (dryrun):
+	if (not dryrun):
 		print "change X driver to "+xdriver
 		f = open(xorgfile,"r")
 		xorgconf = f.readlines()
