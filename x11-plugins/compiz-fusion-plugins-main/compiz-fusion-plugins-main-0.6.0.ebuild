@@ -2,11 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit autotools
+inherit flag-o-matic autotools
 
 COMPIZ_RELEASE=0.6.2
 
-DESCRIPTION="Emerald Window Decorator"
+DESCRIPTION="Compiz Fusion Window Decorator Plugins"
 HOMEPAGE="http://opencompositing.org"
 SRC_URI="http://releases.compiz-fusion.org/${PV}/${P}.tar.bz2"
 
@@ -16,11 +16,10 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="mirror"
 
-PDEPEND="~x11-themes/emerald-themes-${PV}"
-
-RDEPEND=">=x11-libs/gtk+-2.8.0
-	>=x11-libs/libwnck-2.14.2
-	|| ( ~x11-wm/compiz-${PV} =x11-wm/compiz-${COMPIZ_RELEASE} )"
+RDEPEND="~x11-wm/compiz-${COMPIZ_RELEASE}
+	media-libs/jpeg
+	>=gnome-base/librsvg-2.14.0
+	~x11-libs/compiz-bcop-${PV}"
 
 DEPEND="${RDEPEND}
 	>=dev-util/pkgconfig-0.19
@@ -29,13 +28,23 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/${P}"
 
-src_compile() {
-	eautoreconf || die "eautoreconf failed"
-	glib-gettextize --copy --force || die
-	intltoolize --automake --copy --force || die
+pkg_setup() {
+	if ! built_with_use x11-libs/cairo glitz ; then
+		einfo "Please rebuild cairo with USE=\"glitz\""
+		die "x11-libs/cairo missing glitz support"
+	fi
+}
 
-	econf --disable-mime-update || die "econf failed"
-	emake || die "emake failed"
+src_compile() {
+	filter-ldflags -znow -z,now
+	filter-ldflags -Wl,-znow -Wl,-z,now
+
+	eautoreconf || die "eautoreconf failed"
+	glib-gettextize --copy --force || die "glib-gettextize failed"
+	intltoolize --automake --copy --force || die "intloolize failed"
+
+	econf || die "econf failed"
+	emake -j1 || die "make failed"
 }
 
 src_install() {

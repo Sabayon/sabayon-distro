@@ -1,0 +1,43 @@
+--- d3lphin-0.9.2/src/dolphin.cpp	2007-07-24 20:11:39.000000000 +0200
++++ dolphin.cpp	2007-10-05 05:36:12.000000000 +0200
+@@ -915,25 +915,37 @@
+ }
+ 
+ void Dolphin::goHome()
+ {
+     clearStatusBar();
+     m_activeView->goHome();
+ }
+ 
+ void Dolphin::openTerminal()
+ {
+-    QString command("konsole --workdir \"");
+-    command.append(m_activeView->url().path());
++    KConfigGroup confGroup( KGlobal::config(), QString::fromLatin1("General") );
++    QString command(confGroup.readPathEntry("TerminalApplication", QString::fromLatin1("konsole")));
++
++    if (command == "konsole" )
++    {
++        command.append(" --workdir \"");
++        command.append(m_activeView->url().path());
++    }
++    else
++    {
++        command.append(" -e $SHELL -c \"cd \\\"");
++        command.append(m_activeView->url().path());
++        command.append("\\\"; exec $SHELL\"\"");
++    }
+     command.append('\"');
+ 
+-    KRun::runCommand(command, "Konsole", "konsole");
++    KRun::runCommand(command, KGlobal::config()->readPathEntry("TerminalApplication", "konsole"), KGlobal::config()->readPathEntry("TerminalApplication", "konsole"));
+ }
+ 
+ void Dolphin::findFile()
+ {
+     KRun::run("kfind", m_activeView->url());
+ }
+ 
+ void Dolphin::compareFiles()
+ {
+     // The method is only invoked if exactly 2 files have

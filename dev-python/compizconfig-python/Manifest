@@ -1,8 +1,16 @@
 DIST compizconfig-python-0.5.2.tar.bz2 254604 RMD160 16d2c06b97d76a984a609e5288d3c75574ada549 SHA1 3f1da3f3d01d32b9c975571929e5f112ba1e2b68 SHA256 8bd8ffde02f2d0d3bc5ed754beaa5f94c69fc43ecdfefc1fba3ec0298c943e1c
+DIST compizconfig-python-0.6.0.tar.bz2 257060 RMD160 a92a80d98a9d8877ef6d6544ba606bb0e6f6000e SHA1 37c23084a3bb21b5bf07956793c70ff0af2ca9ea SHA256 ee502e6703926262ccb503667cf9daa8b37fb89946eaab3594556b6eede5b396
 EBUILD compizconfig-python-0.5.2.ebuild 926 RMD160 59b8a1e25a74f2c8bcdb659f20f7e8a9d2a545da SHA1 0df3c96c3097e233d249c8f5b6916aacb66040a6 SHA256 f8317f5b2a1e33fa9897a6fc783de16bf80d3e06b691b0789f42016951a97fbe
 MD5 8c8de72ae15bee466db3554e52347182 compizconfig-python-0.5.2.ebuild 926
 RMD160 59b8a1e25a74f2c8bcdb659f20f7e8a9d2a545da compizconfig-python-0.5.2.ebuild 926
 SHA256 f8317f5b2a1e33fa9897a6fc783de16bf80d3e06b691b0789f42016951a97fbe compizconfig-python-0.5.2.ebuild 926
+EBUILD compizconfig-python-0.6.0.ebuild 972 RMD160 06ae312b97f015f1cd0d436986711a2854226887 SHA1 66479c596355d5fb247161515920ca7efc72f252 SHA256 94976f82cf0068e3437ec1150f7a99a9c35e03797fbccb80cd692335f7c17ff7
+MD5 58783832ca54f3086b6cffc00cdaf7e0 compizconfig-python-0.6.0.ebuild 972
+RMD160 06ae312b97f015f1cd0d436986711a2854226887 compizconfig-python-0.6.0.ebuild 972
+SHA256 94976f82cf0068e3437ec1150f7a99a9c35e03797fbccb80cd692335f7c17ff7 compizconfig-python-0.6.0.ebuild 972
 MD5 024c1bdbad9b88c71241e58e07efc011 files/digest-compizconfig-python-0.5.2 280
 RMD160 14ffbdcd0ded60859229b67dd8281f91f47659ee files/digest-compizconfig-python-0.5.2 280
 SHA256 89ced84a5e099af733c3c4898d59efbbef4187d8a640b27471c70a91355ec17c files/digest-compizconfig-python-0.5.2 280
+MD5 36ec3a08ca3b16728a4bf78d0dd81c63 files/digest-compizconfig-python-0.6.0 280
+RMD160 dd0a91e95544eec0b809afc88f9469ab02b27717 files/digest-compizconfig-python-0.6.0 280
+SHA256 2d2c69d1fd768f8df35ec6046fb0f806a5a705d8139faada0919e820221a4742 files/digest-compizconfig-python-0.6.0 280

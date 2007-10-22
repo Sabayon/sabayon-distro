@@ -4,9 +4,7 @@
 
 inherit autotools
 
-COMPIZ_RELEASE=0.6.2
-
-DESCRIPTION="Emerald Window Decorator"
+DESCRIPTION="Compiz Option code Generator"
 HOMEPAGE="http://opencompositing.org"
 SRC_URI="http://releases.compiz-fusion.org/${PV}/${P}.tar.bz2"
 
@@ -16,26 +14,17 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="mirror"
 
-PDEPEND="~x11-themes/emerald-themes-${PV}"
-
-RDEPEND=">=x11-libs/gtk+-2.8.0
-	>=x11-libs/libwnck-2.14.2
-	|| ( ~x11-wm/compiz-${PV} =x11-wm/compiz-${COMPIZ_RELEASE} )"
-
+RDEPEND="dev-libs/libxslt"
 DEPEND="${RDEPEND}
-	>=dev-util/pkgconfig-0.19
-	>=sys-devel/gettext-0.15
-	>=dev-util/intltool-0.35"
+	>=dev-util/pkgconfig-0.19"
 
 S="${WORKDIR}/${P}"
 
 src_compile() {
 	eautoreconf || die "eautoreconf failed"
-	glib-gettextize --copy --force || die
-	intltoolize --automake --copy --force || die
 
-	econf --disable-mime-update || die "econf failed"
-	emake || die "emake failed"
+	econf || die "econf failed"
+	emake || die "make failed"
 }
 
 src_install() {
