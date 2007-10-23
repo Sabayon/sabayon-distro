@@ -1,10 +1,10 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-NEED_PYTHON=2.5
+NEED_PYTHON=2.4
 
 inherit eutils subversion distutils python multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
 
 DESCRIPTION="Official Sabayon Linux Package Manager Client (SVN release)"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -41,9 +41,9 @@ src_unpack() {
 		pysqlite2/__init__.py pysqlite2/dbapi2.py || die "sed failed"
 
 	# setting svn revision
-	cd ${ESVN_STORE_DIR}/${PN}/trunk
-	SVNREV=$(svnversion)
-	echo $SVNREV > libraries/revision
+	#cd ${ESVN_STORE_DIR}/${PN}/trunk
+	#SVNREV=$(svnversion)
+	echo "${PV}" > ${S}/libraries/revision
 }
 
 src_compile() {
@@ -78,7 +78,7 @@ src_install() {
 	dodir /usr/bin
 	echo '#!/bin/sh' > equo
 	echo 'cd /usr/share/entropy/client' >> equo
-	echo 'python equo "$@"' >> equo
+	echo 'LD_LIBRARY_PATH="/usr/share/entropy/client/libraries/:/usr/share/entropy/client/libraries/pysqlite2/" python equo "$@"' >> equo
 	exeinto /usr/bin
 	doexe equo
 
@@ -102,9 +102,21 @@ src_install() {
 	distutils_src_install
 	rm -rf "${D}"/usr/pysqlite2-doc
 	rm -rf "${D}"/usr/share/doc
+
+	########
+	#
+	# Python
+	#
+	########
 	
 	python_version
 	mkdir "${D}"/usr/share/entropy/libraries/pysqlite2
 	mv "${D}"/usr/$(get_libdir)/python${PYVER}/site-packages/${PYTHON_MODNAME}/* "${D}"/usr/share/entropy/libraries/pysqlite2/ || die "cannot move pysqlite library"
 	rm -rf "${D}"/usr/$(get_libdir)/python${PYVER}
+	if use amd64; then
+		cp ${S}/libraries/python/amd64/libpython* "${D}"/usr/share/entropy/libraries/pysqlite2/
+	else
+		cp ${S}/libraries/python/x86/libpython* "${D}"/usr/share/entropy/libraries/pysqlite2/
+	fi
+	chmod 555 "${D}"/usr/share/entropy/libraries/pysqlite2/libpython*
 }
