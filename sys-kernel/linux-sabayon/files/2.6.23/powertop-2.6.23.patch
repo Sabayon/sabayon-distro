@@ -1,0 +1,138 @@
+From e6f2ff1e4763212f1dcc945db76fb744b951ac53 Mon Sep 17 00:00:00 2001
+From: Josh Triplett <josh@freedesktop.org>
+Date: Sun, 13 May 2007 15:21:39 -0700
+Subject: [PATCH] Lengthen and align background timers to decrease wakeups
+
+This patch changes a few background timers in the Linux kernel to
+1) be aligned to full seconds so that multiple timers get handled in one
+   processor wakeup
+2) have longer timeouts for those timers that can use such longer timeouts
+
+Some of these are a bit crude, but it's effective.
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+[Josh: Updates for 2.6.22-rc1]
+Signed-off-by: Josh Triplett <josh@kernel.org>
+---
+ kernel/time/clocksource.c |   10 ++++++++--
+ mm/page-writeback.c       |    8 ++++----
+ mm/slab.c                 |    6 +++---
+ net/core/neighbour.c      |    4 ++--
+ 4 files changed, 17 insertions(+), 11 deletions(-)
+
+diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
+index 3db5c3c..77308c4 100644
+--- a/kernel/time/clocksource.c
++++ b/kernel/time/clocksource.c
+@@ -79,11 +79,17 @@ static int watchdog_resumed;
+ /*
+  * Interval: 0.5sec Threshold: 0.0625s
+  */
+-#define WATCHDOG_INTERVAL (HZ >> 1)
++#define WATCHDOG_INTERVAL (HZ*10)
+ #define WATCHDOG_THRESHOLD (NSEC_PER_SEC >> 4)
+ 
++static int secondtime;
++
+ static void clocksource_ratewd(struct clocksource *cs, int64_t delta)
+ {
++	if (!secondtime) {
++		secondtime = 1;
++		return;
++	};
+ 	if (delta > -WATCHDOG_THRESHOLD && delta < WATCHDOG_THRESHOLD)
+ 		return;
+ 
+@@ -145,7 +151,7 @@ static void clocksource_watchdog(unsigned long data)
+ 
+ 	if (!list_empty(&watchdog_list)) {
+ 		__mod_timer(&watchdog_timer,
+-			    watchdog_timer.expires + WATCHDOG_INTERVAL);
++			    round_jiffies(watchdog_timer.expires + WATCHDOG_INTERVAL));
+ 	}
+ 	spin_unlock(&watchdog_lock);
+ }
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index eec1481..26318e5 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -77,7 +77,7 @@ int vm_dirty_ratio = 10;
+ /*
+  * The interval between `kupdate'-style writebacks, in jiffies
+  */
+-int dirty_writeback_interval = 5 * HZ;
++int dirty_writeback_interval = 15 * HZ;
+ 
+ /*
+  * The longest number of jiffies for which data is allowed to remain dirty
+@@ -450,7 +450,7 @@ static void wb_kupdate(unsigned long arg)
+ 
+ 	oldest_jif = jiffies - dirty_expire_interval;
+ 	start_jif = jiffies;
+-	next_jif = start_jif + dirty_writeback_interval;
++	next_jif = round_jiffies(start_jif + dirty_writeback_interval);
+ 	nr_to_write = global_page_state(NR_FILE_DIRTY) +
+ 			global_page_state(NR_UNSTABLE_NFS) +
+ 			(inodes_stat.nr_inodes - inodes_stat.nr_unused);
+@@ -467,7 +467,7 @@ static void wb_kupdate(unsigned long arg)
+ 		nr_to_write -= MAX_WRITEBACK_PAGES - wbc.nr_to_write;
+ 	}
+ 	if (time_before(next_jif, jiffies + HZ))
+-		next_jif = jiffies + HZ;
++		next_jif = round_jiffies(jiffies + HZ);
+ 	if (dirty_writeback_interval)
+ 		mod_timer(&wb_timer, next_jif);
+ }
+@@ -491,7 +491,7 @@ int dirty_writeback_centisecs_handler(ctl_table *table, int write,
+ static void wb_timer_fn(unsigned long unused)
+ {
+ 	if (pdflush_operation(wb_kupdate, 0) < 0)
+-		mod_timer(&wb_timer, jiffies + HZ); /* delay 1 second */
++		mod_timer(&wb_timer, round_jiffies(jiffies + HZ)); /* delay 1 second */
+ }
+ 
+ static void laptop_flush(unsigned long unused)
+diff --git a/mm/slab.c b/mm/slab.c
+index 944b205..6003eef 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -467,8 +467,8 @@ struct kmem_cache {
+  * OTOH the cpuarrays can contain lots of objects,
+  * which could lock up otherwise freeable slabs.
+  */
+-#define REAPTIMEOUT_CPUC	(2*HZ)
+-#define REAPTIMEOUT_LIST3	(4*HZ)
++#define REAPTIMEOUT_CPUC	(12*HZ)
++#define REAPTIMEOUT_LIST3	(20*HZ)
+ 
+ #if STATS
+ #define	STATS_INC_ACTIVE(x)	((x)->num_active++)
+@@ -959,7 +959,7 @@ static void __devinit start_cpu_timer(int cpu)
+ 		init_reap_node(cpu);
+ 		INIT_DELAYED_WORK(reap_work, cache_reap);
+ 		schedule_delayed_work_on(cpu, reap_work,
+-					__round_jiffies_relative(HZ, cpu));
++					__round_jiffies_relative(HZ*4, cpu));
+ 	}
+ }
+ 
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 6f3bb73..e6aaa9c 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -696,10 +696,10 @@ next_elt:
+ 	if (!expire)
+ 		expire = 1;
+ 
+-	if (expire>HZ)
++	if (expire>4*HZ)
+ 		mod_timer(&tbl->gc_timer, round_jiffies(now + expire));
+ 	else
+-		mod_timer(&tbl->gc_timer, now + expire);
++		mod_timer(&tbl->gc_timer, round_jiffies(now + 4*HZ));
+ 
+ 	write_unlock(&tbl->lock);
+ }
+-- 
+1.5.2-rc2.GIT
+

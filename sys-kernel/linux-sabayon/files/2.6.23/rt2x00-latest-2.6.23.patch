@@ -1,0 +1,2434 @@
+diff -urpN a/drivers/net/wireless/hostap/hostap_cs.c testtry/drivers/net/wireless/hostap/hostap_cs.c
+--- a/drivers/net/wireless/hostap/hostap_cs.c	2007-10-16 00:00:28.000000000 +0000
++++ testtry/drivers/net/wireless/hostap/hostap_cs.c	2007-10-15 15:10:20.000000000 +0000
+@@ -822,6 +822,7 @@ static struct pcmcia_device_id hostap_cs
+ 	PCMCIA_DEVICE_MANF_CARD(0x0101, 0x0777),
+ 	PCMCIA_DEVICE_MANF_CARD(0x0126, 0x8000),
+ 	PCMCIA_DEVICE_MANF_CARD(0x0138, 0x0002),
++	PCMCIA_DEVICE_MANF_CARD(0x01bf, 0x3301),
+ 	PCMCIA_DEVICE_MANF_CARD(0x0250, 0x0002),
+ 	PCMCIA_DEVICE_MANF_CARD(0x026f, 0x030b),
+ 	PCMCIA_DEVICE_MANF_CARD(0x0274, 0x1612),
+@@ -889,6 +890,10 @@ static struct pcmcia_device_id hostap_cs
+ 	PCMCIA_DEVICE_PROD_ID123(
+ 		"corega", "WL PCCL-11", "ISL37300P",
+ 		0xa21501a, 0x59868926, 0xc9049a39),
++	PCMCIA_DEVICE_PROD_ID1234(
++		"The Linksys Group, Inc.", "Wireless Network CF Card", "ISL37300P",
++		"RevA",
++		0xa5f472c2, 0x9c05598d, 0xc9049a39, 0x57a66194),
+ 	PCMCIA_DEVICE_NULL
+ };
+ MODULE_DEVICE_TABLE(pcmcia, hostap_cs_ids);
+diff -urpN a/drivers/net/wireless/libertas/assoc.c testtry/drivers/net/wireless/libertas/assoc.c
+--- a/drivers/net/wireless/libertas/assoc.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/assoc.c	2007-10-15 15:13:17.000000000 +0000
+@@ -372,15 +372,40 @@ static int assoc_helper_wpa_keys(wlan_pr
+                                  struct assoc_request * assoc_req)
+ {
+ 	int ret = 0;
++	unsigned int flags = assoc_req->flags;
+ 
+ 	lbs_deb_enter(LBS_DEB_ASSOC);
+ 
+-	ret = libertas_prepare_and_send_command(priv,
+-				    CMD_802_11_KEY_MATERIAL,
+-				    CMD_ACT_SET,
+-				    CMD_OPTION_WAITFORRSP,
+-				    0, assoc_req);
++	/* Work around older firmware bug where WPA unicast and multicast
++	 * keys must be set independently.  Seen in SDIO parts with firmware
++	 * version 5.0.11p0.
++	 */
++
++	if (test_bit(ASSOC_FLAG_WPA_UCAST_KEY, &assoc_req->flags)) {
++		clear_bit(ASSOC_FLAG_WPA_MCAST_KEY, &assoc_req->flags);
++		ret = libertas_prepare_and_send_command(priv,
++					CMD_802_11_KEY_MATERIAL,
++					CMD_ACT_SET,
++					CMD_OPTION_WAITFORRSP,
++					0, assoc_req);
++		assoc_req->flags = flags;
++	}
++
++	if (ret)
++		goto out;
++
++	if (test_bit(ASSOC_FLAG_WPA_MCAST_KEY, &assoc_req->flags)) {
++		clear_bit(ASSOC_FLAG_WPA_UCAST_KEY, &assoc_req->flags);
++
++		ret = libertas_prepare_and_send_command(priv,
++					CMD_802_11_KEY_MATERIAL,
++					CMD_ACT_SET,
++					CMD_OPTION_WAITFORRSP,
++					0, assoc_req);
++		assoc_req->flags = flags;
++	}
+ 
++out:
+ 	lbs_deb_leave_args(LBS_DEB_ASSOC, "ret %d", ret);
+ 	return ret;
+ }
+diff -urpN a/drivers/net/wireless/libertas/cmd.c testtry/drivers/net/wireless/libertas/cmd.c
+--- a/drivers/net/wireless/libertas/cmd.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/cmd.c	2007-10-15 15:13:17.000000000 +0000
+@@ -181,13 +181,13 @@ static int wlan_cmd_802_11_set_wep(wlan_
+ 
+ 			switch (pkey->len) {
+ 			case KEY_LEN_WEP_40:
+-				wep->keytype[i] = (u8)CMD_TYPE_WEP_40_BIT;
++				wep->keytype[i] = CMD_TYPE_WEP_40_BIT;
+ 				memmove(&wep->keymaterial[i], pkey->key,
+ 				        pkey->len);
+ 				lbs_deb_cmd("SET_WEP: add key %d (40 bit)\n", i);
+ 				break;
+ 			case KEY_LEN_WEP_104:
+-				wep->keytype[i] = (u8)CMD_TYPE_WEP_104_BIT;
++				wep->keytype[i] = CMD_TYPE_WEP_104_BIT;
+ 				memmove(&wep->keymaterial[i], pkey->key,
+ 				        pkey->len);
+ 				lbs_deb_cmd("SET_WEP: add key %d (104 bit)\n", i);
+diff -urpN a/drivers/net/wireless/libertas/cmdresp.c testtry/drivers/net/wireless/libertas/cmdresp.c
+--- a/drivers/net/wireless/libertas/cmdresp.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/cmdresp.c	2007-10-15 15:13:17.000000000 +0000
+@@ -148,7 +148,7 @@ static int wlan_ret_reg_access(wlan_priv
+ 		ret = -1;
+ 	}
+ 
+-	lbs_deb_enter_args(LBS_DEB_CMD, "ret %d", ret);
++	lbs_deb_leave_args(LBS_DEB_CMD, "ret %d", ret);
+ 	return ret;
+ }
+ 
+diff -urpN a/drivers/net/wireless/libertas/debugfs.c testtry/drivers/net/wireless/libertas/debugfs.c
+--- a/drivers/net/wireless/libertas/debugfs.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/debugfs.c	2007-10-15 15:13:17.000000000 +0000
+@@ -3,6 +3,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/delay.h>
+ #include <linux/mm.h>
++#include <linux/string.h>
+ #include <net/iw_handler.h>
+ 
+ #include "dev.h"
+@@ -204,7 +205,7 @@ static int libertas_parse_chan(char *buf
+ 	if (!start)
+ 		return -EINVAL;
+ 	start += 5;
+-	end = strstr(start, " ");
++	end = strchr(start, ' ');
+ 	if (!end)
+ 		end = buf + count;
+ 	hold = kzalloc((end - start)+1, GFP_KERNEL);
+@@ -255,7 +256,7 @@ static void libertas_parse_ssid(char *bu
+ 	if (!hold)
+ 		return;
+ 	hold += 5;
+-	end = strstr(hold, " ");
++	end = strchr(hold, ' ');
+ 	if (!end)
+ 		end = buf + count - 1;
+ 
+diff -urpN a/drivers/net/wireless/libertas/host.h testtry/drivers/net/wireless/libertas/host.h
+--- a/drivers/net/wireless/libertas/host.h	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/host.h	2007-10-15 15:13:17.000000000 +0000
+@@ -138,8 +138,8 @@
+ #define CMD_ACT_REMOVE                      0x0004
+ #define CMD_ACT_USE_DEFAULT                 0x0008
+ 
+-#define CMD_TYPE_WEP_40_BIT                 0x0001
+-#define CMD_TYPE_WEP_104_BIT                0x0002
++#define CMD_TYPE_WEP_40_BIT                 0x01
++#define CMD_TYPE_WEP_104_BIT                0x02
+ 
+ #define CMD_NUM_OF_WEP_KEYS                 4
+ 
+diff -urpN a/drivers/net/wireless/libertas/if_usb.c testtry/drivers/net/wireless/libertas/if_usb.c
+--- a/drivers/net/wireless/libertas/if_usb.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/if_usb.c	2007-10-15 15:13:17.000000000 +0000
+@@ -15,7 +15,6 @@
+ #include "defs.h"
+ #include "dev.h"
+ #include "if_usb.h"
+-#include "decl.h"
+ 
+ #define MESSAGE_HEADER_LEN	4
+ 
+diff -urpN a/drivers/net/wireless/libertas/join.c testtry/drivers/net/wireless/libertas/join.c
+--- a/drivers/net/wireless/libertas/join.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/join.c	2007-10-15 15:13:17.000000000 +0000
+@@ -797,8 +797,6 @@ int libertas_ret_80211_associate(wlan_pr
+ 		netif_wake_queue(priv->mesh_dev);
+ 	}
+ 
+-	lbs_deb_join("ASSOC_RESP: Associated \n");
+-
+ 	memcpy(wrqu.ap_addr.sa_data, adapter->curbssparams.bssid, ETH_ALEN);
+ 	wrqu.ap_addr.sa_family = ARPHRD_ETHER;
+ 	wireless_send_event(priv->dev, SIOCGIWAP, &wrqu, NULL);
+diff -urpN a/drivers/net/wireless/libertas/scan.c testtry/drivers/net/wireless/libertas/scan.c
+--- a/drivers/net/wireless/libertas/scan.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/scan.c	2007-10-15 15:13:17.000000000 +0000
+@@ -65,6 +65,15 @@
+ static const u8 zeromac[ETH_ALEN] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+ static const u8 bcastmac[ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+ 
++
++
++
++/*********************************************************************/
++/*                                                                   */
++/*  Misc helper functions                                            */
++/*                                                                   */
++/*********************************************************************/
++
+ static inline void clear_bss_descriptor (struct bss_descriptor * bss)
+ {
+ 	/* Don't blow away ->list, just BSS data */
+@@ -165,7 +174,7 @@ static int is_network_compatible(wlan_ad
+ {
+ 	int matched = 0;
+ 
+-	lbs_deb_enter(LBS_DEB_ASSOC);
++	lbs_deb_enter(LBS_DEB_SCAN);
+ 
+ 	if (bss->mode != mode)
+ 		goto done;
+@@ -214,13 +223,41 @@ static int is_network_compatible(wlan_ad
+ 	       (bss->capability & WLAN_CAPABILITY_PRIVACY));
+ 
+ done:
+-	lbs_deb_leave(LBS_DEB_SCAN);
++	lbs_deb_leave_args(LBS_DEB_SCAN, "matched: %d", matched);
+ 	return matched;
+ }
+ 
+ /**
++ *  @brief Compare two SSIDs
++ *
++ *  @param ssid1    A pointer to ssid to compare
++ *  @param ssid2    A pointer to ssid to compare
++ *
++ *  @return         0--ssid is same, otherwise is different
++ */
++int libertas_ssid_cmp(u8 *ssid1, u8 ssid1_len, u8 *ssid2, u8 ssid2_len)
++{
++	if (ssid1_len != ssid2_len)
++		return -1;
++
++	return memcmp(ssid1, ssid2, ssid1_len);
++}
++
++
++
++
++/*********************************************************************/
++/*                                                                   */
++/*  Main scanning support                                            */
++/*                                                                   */
++/*********************************************************************/
++
++
++/**
+  *  @brief Create a channel list for the driver to scan based on region info
+  *
++ *  Only used from wlan_scan_setup_scan_config()
++ *
+  *  Use the driver region/band information to construct a comprehensive list
+  *    of channels to scan.  This routine is used for any scan that is not
+  *    provided a specific channel list to scan.
+@@ -248,6 +285,8 @@ static void wlan_scan_create_channel_lis
+ 	int nextchan;
+ 	u8 scantype;
+ 
++	lbs_deb_enter_args(LBS_DEB_SCAN, "filteredscan %d", filteredscan);
++
+ 	chanidx = 0;
+ 
+ 	/* Set the default scan type to the user specified type, will later
+@@ -384,6 +423,8 @@ wlan_scan_setup_scan_config(wlan_private
+ 	int channel;
+ 	int radiotype;
+ 
++	lbs_deb_enter(LBS_DEB_SCAN);
++
+ 	pscancfgout = kzalloc(MAX_SCAN_CFG_ALLOC, GFP_KERNEL);
+ 	if (pscancfgout == NULL)
+ 		goto out;
+@@ -481,13 +522,12 @@ wlan_scan_setup_scan_config(wlan_private
+ 
+ 	if (!puserscanin || !puserscanin->chanlist[0].channumber) {
+ 		/* Create a default channel scan list */
+-		lbs_deb_scan("Scan: Creating full region channel list\n");
++		lbs_deb_scan("creating full region channel list\n");
+ 		wlan_scan_create_channel_list(priv, pscanchanlist,
+ 					      *pfilteredscan);
+ 		goto out;
+ 	}
+ 
+-	lbs_deb_scan("Scan: Using supplied channel list\n");
+ 	for (chanidx = 0;
+ 	     chanidx < WLAN_IOCTL_USER_SCAN_CHAN_MAX
+ 	     && puserscanin->chanlist[chanidx].channumber; chanidx++) {
+@@ -529,7 +569,7 @@ wlan_scan_setup_scan_config(wlan_private
+ 	    (puserscanin->chanlist[0].channumber ==
+ 			       priv->adapter->curbssparams.channel)) {
+ 		*pscancurrentonly = 1;
+-		lbs_deb_scan("Scan: Scanning current channel only");
++		lbs_deb_scan("scanning current channel only");
+ 	}
+ 
+ out:
+@@ -539,6 +579,8 @@ out:
+ /**
+  *  @brief Construct and send multiple scan config commands to the firmware
+  *
++ *  Only used from wlan_scan_networks()
++ *
+  *  Previous routines have created a wlan_scan_cmd_config with any requested
+  *   TLVs.  This function splits the channel TLV into maxchanperscan lists
+  *   and sends the portion of the channel TLV along with the other TLVs
+@@ -576,12 +618,14 @@ static int wlan_scan_channel_list(wlan_p
+ 	int scanned = 0;
+ 	union iwreq_data wrqu;
+ 
+-	lbs_deb_enter(LBS_DEB_ASSOC);
++	lbs_deb_enter_args(LBS_DEB_SCAN, "maxchanperscan %d, filteredscan %d, "
++		"full_scan %d", maxchanperscan, filteredscan, full_scan);
+ 
+-	if (pscancfgout == 0 || pchantlvout == 0 || pscanchanlist == 0) {
+-		lbs_deb_scan("Scan: Null detect: %p, %p, %p\n",
+-		       pscancfgout, pchantlvout, pscanchanlist);
+-		return -1;
++	if (!pscancfgout || !pchantlvout || !pscanchanlist) {
++		lbs_deb_scan("pscancfgout, pchantlvout or "
++			"pscanchanlist is NULL\n");
++		ret = -1;
++		goto out;
+ 	}
+ 
+ 	pchantlvout->header.type = cpu_to_le16(TLV_TYPE_CHANLIST);
+@@ -613,9 +657,10 @@ static int wlan_scan_channel_list(wlan_p
+ 		while (tlvidx < maxchanperscan && ptmpchan->channumber
+ 		       && !doneearly && scanned < 2) {
+ 
+-			lbs_deb_scan("Scan: Chan(%3d), Radio(%d), mode(%d,%d), "
+-			             "Dur(%d)\n",
+-			             ptmpchan->channumber, ptmpchan->radiotype,
++			lbs_deb_scan("channel %d, radio %d, passive %d, "
++				"dischanflt %d, maxscantime %d\n",
++				ptmpchan->channumber,
++				ptmpchan->radiotype,
+ 			             ptmpchan->chanscanmode.passivescan,
+ 			             ptmpchan->chanscanmode.disablechanfilt,
+ 			             ptmpchan->maxscantime);
+@@ -700,20 +745,25 @@ done:
+ 		wireless_send_event(priv->dev, SIOCGIWSCAN, &wrqu, NULL);
+ 	}
+ 
++out:
+ 	lbs_deb_leave_args(LBS_DEB_SCAN, "ret %d", ret);
+ 	return ret;
+ }
+ 
+-static void
+-clear_selected_scan_list_entries(wlan_adapter * adapter,
+-                                 const struct wlan_ioctl_user_scan_cfg * scan_cfg)
++/*
++ * Only used from wlan_scan_networks()
++*/
++static void clear_selected_scan_list_entries(wlan_adapter *adapter,
++	const struct wlan_ioctl_user_scan_cfg *scan_cfg)
+ {
+-	struct bss_descriptor * bss;
+-	struct bss_descriptor * safe;
++	struct bss_descriptor *bss;
++	struct bss_descriptor *safe;
+ 	u32 clear_ssid_flag = 0, clear_bssid_flag = 0;
+ 
++	lbs_deb_enter(LBS_DEB_SCAN);
++
+ 	if (!scan_cfg)
+-		return;
++		goto out;
+ 
+ 	if (scan_cfg->clear_ssid && scan_cfg->ssid_len)
+ 		clear_ssid_flag = 1;
+@@ -725,7 +775,7 @@ clear_selected_scan_list_entries(wlan_ad
+ 	}
+ 
+ 	if (!clear_ssid_flag && !clear_bssid_flag)
+-		return;
++		goto out;
+ 
+ 	mutex_lock(&adapter->lock);
+ 	list_for_each_entry_safe (bss, safe, &adapter->network_list, list) {
+@@ -748,12 +798,16 @@ clear_selected_scan_list_entries(wlan_ad
+ 		}
+ 	}
+ 	mutex_unlock(&adapter->lock);
++out:
++	lbs_deb_leave(LBS_DEB_SCAN);
+ }
+ 
+ 
+ /**
+  *  @brief Internal function used to start a scan based on an input config
+  *
++ *  Also used from debugfs
++ *
+  *  Use the input user scan configuration information when provided in
+  *    order to send the appropriate scan commands to firmware to populate or
+  *    update the internal driver scan table
+@@ -761,6 +815,7 @@ clear_selected_scan_list_entries(wlan_ad
+  *  @param priv          A pointer to wlan_private structure
+  *  @param puserscanin   Pointer to the input configuration for the requested
+  *                       scan.
++ *  @param full_scan     ???
+  *
+  *  @return              0 or < 0 if error
+  */
+@@ -781,7 +836,7 @@ int wlan_scan_networks(wlan_private * pr
+ 	int i = 0;
+ #endif
+ 
+-	lbs_deb_enter(LBS_DEB_SCAN);
++	lbs_deb_enter_args(LBS_DEB_SCAN, "full_scan %d", full_scan);
+ 
+ 	/* Cancel any partial outstanding partial scans if this scan
+ 	 * is a full scan.
+@@ -832,8 +887,9 @@ int wlan_scan_networks(wlan_private * pr
+ #ifdef CONFIG_LIBERTAS_DEBUG
+ 	/* Dump the scan table */
+ 	mutex_lock(&adapter->lock);
++	lbs_deb_scan("The scan table contains:\n");
+ 	list_for_each_entry (iter_bss, &adapter->network_list, list) {
+-		lbs_deb_scan("Scan:(%02d) " MAC_FMT ", RSSI[%03d], SSID[%s]\n",
++		lbs_deb_scan("scan %02d, " MAC_FMT ", RSSI, %d, SSID '%s'\n",
+ 		       i++, MAC_ARG(iter_bss->bssid), (s32) iter_bss->rssi,
+ 		       escape_essid(iter_bss->ssid, iter_bss->ssid_len));
+ 	}
+@@ -884,7 +940,7 @@ static int libertas_process_bss(struct b
+ 	u16 beaconsize = 0;
+ 	int ret;
+ 
+-	lbs_deb_enter(LBS_DEB_ASSOC);
++	lbs_deb_enter(LBS_DEB_SCAN);
+ 
+ 	if (*bytesleft >= sizeof(beaconsize)) {
+ 		/* Extract & convert beacon size from the command buffer */
+@@ -896,7 +952,8 @@ static int libertas_process_bss(struct b
+ 	if (beaconsize == 0 || beaconsize > *bytesleft) {
+ 		*pbeaconinfo += *bytesleft;
+ 		*bytesleft = 0;
+-		return -1;
++		ret = -1;
++		goto done;
+ 	}
+ 
+ 	/* Initialize the current working beacon pointer for this BSS iteration */
+@@ -913,7 +970,8 @@ static int libertas_process_bss(struct b
+ 
+ 	if ((end - pos) < 12) {
+ 		lbs_deb_scan("process_bss: Not enough bytes left\n");
+-		return -1;
++		ret = -1;
++		goto done;
+ 	}
+ 
+ 	/*
+@@ -1089,38 +1147,26 @@ done:
+ }
+ 
+ /**
+- *  @brief Compare two SSIDs
+- *
+- *  @param ssid1    A pointer to ssid to compare
+- *  @param ssid2    A pointer to ssid to compare
+- *
+- *  @return         0--ssid is same, otherwise is different
+- */
+-int libertas_ssid_cmp(u8 *ssid1, u8 ssid1_len, u8 *ssid2, u8 ssid2_len)
+-{
+-	if (ssid1_len != ssid2_len)
+-		return -1;
+-
+-	return memcmp(ssid1, ssid2, ssid1_len);
+-}
+-
+-/**
+  *  @brief This function finds a specific compatible BSSID in the scan list
+  *
++ *  Used in association code
++ *
+  *  @param adapter  A pointer to wlan_adapter
+  *  @param bssid    BSSID to find in the scan list
+  *  @param mode     Network mode: Infrastructure or IBSS
+  *
+  *  @return         index in BSSID list, or error return code (< 0)
+  */
+-struct bss_descriptor * libertas_find_bssid_in_list(wlan_adapter * adapter,
++struct bss_descriptor *libertas_find_bssid_in_list(wlan_adapter * adapter,
+ 		u8 * bssid, u8 mode)
+ {
+ 	struct bss_descriptor * iter_bss;
+ 	struct bss_descriptor * found_bss = NULL;
+ 
++	lbs_deb_enter(LBS_DEB_SCAN);
++
+ 	if (!bssid)
+-		return NULL;
++		goto out;
+ 
+ 	lbs_deb_hex(LBS_DEB_SCAN, "looking for",
+ 		bssid, ETH_ALEN);
+@@ -1147,12 +1193,16 @@ struct bss_descriptor * libertas_find_bs
+ 	}
+ 	mutex_unlock(&adapter->lock);
+ 
++out:
++	lbs_deb_leave_args(LBS_DEB_SCAN, "found_bss %p", found_bss);
+ 	return found_bss;
+ }
+ 
+ /**
+  *  @brief This function finds ssid in ssid list.
+  *
++ *  Used in association code
++ *
+  *  @param adapter  A pointer to wlan_adapter
+  *  @param ssid     SSID to find in the list
+  *  @param bssid    BSSID to qualify the SSID selection (if provided)
+@@ -1169,6 +1219,8 @@ struct bss_descriptor * libertas_find_ss
+ 	struct bss_descriptor * found_bss = NULL;
+ 	struct bss_descriptor * tmp_oldest = NULL;
+ 
++	lbs_deb_enter(LBS_DEB_SCAN);
++
+ 	mutex_lock(&adapter->lock);
+ 
+ 	list_for_each_entry (iter_bss, &adapter->network_list, list) {
+@@ -1213,6 +1265,7 @@ struct bss_descriptor * libertas_find_ss
+ 
+ out:
+ 	mutex_unlock(&adapter->lock);
++	lbs_deb_leave_args(LBS_DEB_SCAN, "found_bss %p", found_bss);
+ 	return found_bss;
+ }
+ 
+@@ -1233,6 +1286,8 @@ static struct bss_descriptor * libertas_
+ 	struct bss_descriptor * iter_bss;
+ 	struct bss_descriptor * best_bss = NULL;
+ 
++	lbs_deb_enter(LBS_DEB_SCAN);
++
+ 	mutex_lock(&adapter->lock);
+ 
+ 	list_for_each_entry (iter_bss, &adapter->network_list, list) {
+@@ -1257,12 +1312,15 @@ static struct bss_descriptor * libertas_
+ 	}
+ 
+ 	mutex_unlock(&adapter->lock);
++	lbs_deb_leave_args(LBS_DEB_SCAN, "best_bss %p", best_bss);
+ 	return best_bss;
+ }
+ 
+ /**
+  *  @brief Find the AP with specific ssid in the scan list
+  *
++ *  Used from association worker.
++ *
+  *  @param priv         A pointer to wlan_private structure
+  *  @param pSSID        A pointer to AP's ssid
+  *
+@@ -1275,11 +1333,11 @@ int libertas_find_best_network_ssid(wlan
+ 	int ret = -1;
+ 	struct bss_descriptor * found;
+ 
+-	lbs_deb_enter(LBS_DEB_ASSOC);
++	lbs_deb_enter(LBS_DEB_SCAN);
+ 
+ 	wlan_scan_networks(priv, NULL, 1);
+ 	if (adapter->surpriseremoved)
+-		return -1;
++		goto out;
+ 
+ 	wait_event_interruptible(adapter->cmd_pending, !adapter->nr_cmd_pending);
+ 
+@@ -1291,6 +1349,7 @@ int libertas_find_best_network_ssid(wlan
+ 		ret = 0;
+ 	}
+ 
++out:
+ 	lbs_deb_leave_args(LBS_DEB_SCAN, "ret %d", ret);
+ 	return ret;
+ }
+@@ -1325,10 +1384,17 @@ int libertas_set_scan(struct net_device 
+ 	return 0;
+ }
+ 
++
+ /**
+  *  @brief Send a scan command for all available channels filtered on a spec
+  *
++ *  Used in association code and from debugfs
++ *
+  *  @param priv             A pointer to wlan_private structure
++ *  @param ssid             A pointer to the SSID to scan for
++ *  @param ssid_len         Length of the SSID
++ *  @param clear_ssid       Should existing scan results with this SSID
++ *                          be cleared?
+  *  @param prequestedssid   A pointer to AP's ssid
+  *  @param keeppreviousscan Flag used to save/clear scan table before scan
+  *
+@@ -1341,7 +1407,8 @@ int libertas_send_specific_ssid_scan(wla
+ 	struct wlan_ioctl_user_scan_cfg scancfg;
+ 	int ret = 0;
+ 
+-	lbs_deb_enter(LBS_DEB_ASSOC);
++	lbs_deb_enter_args(LBS_DEB_SCAN, "SSID '%s', clear %d",
++		escape_essid(ssid, ssid_len), clear_ssid);
+ 
+ 	if (!ssid_len)
+ 		goto out;
+@@ -1352,15 +1419,26 @@ int libertas_send_specific_ssid_scan(wla
+ 	scancfg.clear_ssid = clear_ssid;
+ 
+ 	wlan_scan_networks(priv, &scancfg, 1);
+-	if (adapter->surpriseremoved)
+-		return -1;
++	if (adapter->surpriseremoved) {
++		ret = -1;
++		goto out;
++	}
+ 	wait_event_interruptible(adapter->cmd_pending, !adapter->nr_cmd_pending);
+ 
+ out:
+-	lbs_deb_leave(LBS_DEB_ASSOC);
++	lbs_deb_leave_args(LBS_DEB_SCAN, "ret %d", ret);
+ 	return ret;
+ }
+ 
++
++
++
++/*********************************************************************/
++/*                                                                   */
++/*  Support for Wireless Extensions                                  */
++/*                                                                   */
++/*********************************************************************/
++
+ #define MAX_CUSTOM_LEN 64
+ 
+ static inline char *libertas_translate_scan(wlan_private *priv,
+@@ -1377,10 +1455,13 @@ static inline char *libertas_translate_s
+ #define RSSI_DIFF    ((u8)(PERFECT_RSSI - WORST_RSSI))
+ 	u8 rssi;
+ 
++	lbs_deb_enter(LBS_DEB_SCAN);
++
+ 	cfp = libertas_find_cfp_by_band_and_channel(adapter, 0, bss->channel);
+ 	if (!cfp) {
+ 		lbs_deb_scan("Invalid channel number %d\n", bss->channel);
+-		return NULL;
++		start = NULL;
++		goto out;
+ 	}
+ 
+ 	/* First entry *MUST* be the AP BSSID */
+@@ -1508,11 +1589,13 @@ static inline char *libertas_translate_s
+ 			start = iwe_stream_add_point(start, stop, &iwe, custom);
+ 	}
+ 
++out:
++	lbs_deb_leave_args(LBS_DEB_SCAN, "start %p", start);
+ 	return start;
+ }
+ 
+ /**
+- *  @brief  Retrieve the scan table entries via wireless tools IOCTL call
++ *  @brief  Handle Retrieve scan table ioctl
+  *
+  *  @param dev          A pointer to net_device structure
+  *  @param info         A pointer to iw_request_info structure
+@@ -1533,7 +1616,7 @@ int libertas_get_scan(struct net_device 
+ 	struct bss_descriptor * iter_bss;
+ 	struct bss_descriptor * safe;
+ 
+-	lbs_deb_enter(LBS_DEB_ASSOC);
++	lbs_deb_enter(LBS_DEB_SCAN);
+ 
+ 	/* Update RSSI if current BSS is a locally created ad-hoc BSS */
+ 	if ((adapter->mode == IW_MODE_ADHOC) && adapter->adhoccreate) {
+@@ -1575,19 +1658,27 @@ int libertas_get_scan(struct net_device 
+ 	dwrq->length = (ev - extra);
+ 	dwrq->flags = 0;
+ 
+-	lbs_deb_leave(LBS_DEB_ASSOC);
++	lbs_deb_leave_args(LBS_DEB_SCAN, "ret %d", err);
+ 	return err;
+ }
+ 
++
++
++
++/*********************************************************************/
++/*                                                                   */
++/*  Command execution                                                */
++/*                                                                   */
++/*********************************************************************/
++
++
+ /**
+  *  @brief Prepare a scan command to be sent to the firmware
+  *
+- *  Use the wlan_scan_cmd_config sent to the command processing module in
+- *   the libertas_prepare_and_send_command to configure a cmd_ds_802_11_scan command
+- *   struct to send to firmware.
++ *  Called from libertas_prepare_and_send_command() in cmd.c
+  *
+- *  The fixed fields specifying the BSS type and BSSID filters as well as a
+- *   variable number/length of TLVs are sent in the command to firmware.
++ *  Sends a fixed lenght data part (specifying the BSS type and BSSID filters)
++ *  as well as a variable number/length of TLVs to the firmware.
+  *
+  *  @param priv       A pointer to wlan_private structure
+  *  @param cmd        A pointer to cmd_ds_command structure to be sent to
+@@ -1596,18 +1687,14 @@ int libertas_get_scan(struct net_device 
+  *                    to set the fields/TLVs for the command sent to firmware
+  *
+  *  @return           0 or -1
+- *
+- *  @sa wlan_scan_create_channel_list
+  */
+ int libertas_cmd_80211_scan(wlan_private * priv,
+ 			 struct cmd_ds_command *cmd, void *pdata_buf)
+ {
+ 	struct cmd_ds_802_11_scan *pscan = &cmd->params.scan;
+-	struct wlan_scan_cmd_config *pscancfg;
+-
+-	lbs_deb_enter(LBS_DEB_ASSOC);
++	struct wlan_scan_cmd_config *pscancfg = pdata_buf;
+ 
+-	pscancfg = pdata_buf;
++	lbs_deb_enter(LBS_DEB_SCAN);
+ 
+ 	/* Set fixed field variables in scan command */
+ 	pscan->bsstype = pscancfg->bsstype;
+@@ -1620,11 +1707,11 @@ int libertas_cmd_80211_scan(wlan_private
+ 	cmd->size = cpu_to_le16(sizeof(pscan->bsstype) + ETH_ALEN
+ 				+ pscancfg->tlvbufferlen + S_DS_GEN);
+ 
+-	lbs_deb_scan("SCAN_CMD: command=%x, size=%x, seqnum=%x\n",
++	lbs_deb_scan("SCAN_CMD: command 0x%04x, size %d, seqnum %d\n",
+ 		     le16_to_cpu(cmd->command), le16_to_cpu(cmd->size),
+ 		     le16_to_cpu(cmd->seqnum));
+ 
+-	lbs_deb_leave(LBS_DEB_ASSOC);
++	lbs_deb_leave(LBS_DEB_SCAN);
+ 	return 0;
+ }
+ 
+@@ -1643,6 +1730,8 @@ static inline int is_same_network(struct
+ /**
+  *  @brief This function handles the command response of scan
+  *
++ *  Called from handle_cmd_response() in cmdrespc.
++ *
+  *   The response buffer for the scan command has the following
+  *      memory layout:
+  *
+@@ -1677,7 +1766,7 @@ int libertas_ret_80211_scan(wlan_private
+ 	int tlvbufsize;
+ 	int ret;
+ 
+-	lbs_deb_enter(LBS_DEB_ASSOC);
++	lbs_deb_enter(LBS_DEB_SCAN);
+ 
+ 	/* Prune old entries from scan table */
+ 	list_for_each_entry_safe (iter_bss, safe, &adapter->network_list, list) {
+diff -urpN a/drivers/net/wireless/libertas/wext.c testtry/drivers/net/wireless/libertas/wext.c
+--- a/drivers/net/wireless/libertas/wext.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/libertas/wext.c	2007-10-15 15:13:17.000000000 +0000
+@@ -237,37 +237,16 @@ static int wlan_set_nick(struct net_devi
+ static int wlan_get_nick(struct net_device *dev, struct iw_request_info *info,
+ 			 struct iw_point *dwrq, char *extra)
+ {
+-	const char *cp;
+-	char comm[6] = { "COMM-" };
+-	char mrvl[6] = { "MRVL-" };
+-	int cnt;
++	wlan_private *priv = dev->priv;
++	wlan_adapter *adapter = priv->adapter;
+ 
+ 	lbs_deb_enter(LBS_DEB_WEXT);
+ 
+-	/*
+-	 * Nick Name is not used internally in this mode,
+-	 * therefore return something useful instead. Jean II
+-	 */
+-
+-	strcpy(extra, mrvl);
+-
+-	cp = strstr(libertas_driver_version, comm);
+-	if (cp == libertas_driver_version)	//skip leading "COMM-"
+-		cp = libertas_driver_version + strlen(comm);
+-	else
+-		cp = libertas_driver_version;
++	dwrq->length = strlen(adapter->nodename);
++	memcpy(extra, adapter->nodename, dwrq->length);
++	extra[dwrq->length] = '\0';
+ 
+-	cnt = strlen(mrvl);
+-	extra += cnt;
+-	while (cnt < 16 && (*cp != '-')) {
+-		*extra++ = toupper(*cp++);
+-		cnt++;
+-	}
+-
+-	/*
+-	 * Push it out !
+-	 */
+-	dwrq->length = cnt;
++	dwrq->flags = 1;	/* active */
+ 
+ 	lbs_deb_leave(LBS_DEB_WEXT);
+ 	return 0;
+@@ -297,6 +276,7 @@ static int mesh_get_nick(struct net_devi
+ 	lbs_deb_leave(LBS_DEB_WEXT);
+ 	return 0;
+ }
++
+ static int wlan_set_rts(struct net_device *dev, struct iw_request_info *info,
+ 			struct iw_param *vwrq, char *extra)
+ {
+diff -urpN a/drivers/net/wireless/Module.symvers testtry/drivers/net/wireless/Module.symvers
+--- a/drivers/net/wireless/Module.symvers	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/Module.symvers	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,108 @@
++0x9e49639f	rt2x00pci_uninitialize	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
++0xf43570e9	hostap_handle_sta_tx_exc	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x0ad7d270	hostap_info_process	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x078c6eb3	hostap_set_multicast_list_queue	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xf2a3a9da	free_orinocodev	drivers/net/wireless/orinoco	EXPORT_SYMBOL
++0xb5179941	hostap_check_sta_fw_version	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xc60b5e9e	hermes_bap_pwrite	drivers/net/wireless/hermes	EXPORT_SYMBOL
++0x93e53be5	rt2x00usb_vendor_request	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0x1d412fa1	rt2x00usb_disable_radio	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0xd5168829	hermes_allocate	drivers/net/wireless/hermes	EXPORT_SYMBOL
++0x06094f2c	rt2x00lib_remove_dev	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0xa75a3422	p54_free_common	drivers/net/wireless/p54common	EXPORT_SYMBOL_GPL
++0x6cb9d5ea	init_airo_card	drivers/net/wireless/airo	EXPORT_SYMBOL
++0xe4668f90	atmel_open	drivers/net/wireless/atmel	EXPORT_SYMBOL
++0x7a84a725	rt2x00mac_get_stats	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0xd6574c8b	libertas_send_tx_feedback	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0x5647897a	stop_airo_card	drivers/net/wireless/airo	EXPORT_SYMBOL
++0x70378f78	hostap_set_roaming	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x40dfa39e	hostap_set_encryption	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x5c72fd5c	hostap_80211_rx	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x087fdeea	rt2x00usb_write_tx_data	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0x216cf45f	rt2x00lib_write_tx_desc	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x7d845306	hostap_set_hostapd	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x204d376b	hostap_init_proc	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x48cfc502	rt2x00usb_initialize	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0xf8fdeeb4	p54_rx	drivers/net/wireless/p54common	EXPORT_SYMBOL_GPL
++0x27a069d6	hostap_dump_rx_header	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x3abcbf80	hostap_dump_tx_header	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x37c40dfe	libertas_interrupt	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0x1f7d1164	rt2x00usb_enable_radio	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0x53544b97	hostap_free_data	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x6d164e8c	rt2x00mac_add_interface	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0xd5cf1a72	rt2x00usb_vendor_request_buff	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0x7efec5f4	libertas_remove_mesh	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0x73da882b	hostap_get_stats	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x843a632d	libertas_process_rxed_packet	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0xceecfc05	hostap_info_init	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xdd8c58f6	__orinoco_down	drivers/net/wireless/orinoco	EXPORT_SYMBOL
++0xed47b224	hermes_struct_init	drivers/net/wireless/hermes	EXPORT_SYMBOL
++0x8cdbe249	rt2x00mac_remove_interface	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0xf1bec9df	rt2x00pci_suspend	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
++0xe477a5da	rt2x00mac_conf_tx	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x5ca810b6	hostap_add_interface	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xce0311cc	rt2x00pci_remove	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
++0x24c2d556	rt2x00pci_resume	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
++0xed105e12	libertas_add_mesh	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0xd17b5710	p54_parse_eeprom	drivers/net/wireless/p54common	EXPORT_SYMBOL_GPL
++0x2d1c82c4	rt2x00usb_probe	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0x01dbb07e	libertas_start_card	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0xd54e219d	hermes_docmd_wait	drivers/net/wireless/hermes	EXPORT_SYMBOL
++0x17a4bdc8	rt2x00usb_uninitialize	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0xde58c104	hostap_80211_header_parse	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x2f19a9ef	hostap_set_string	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x3cb49af5	rt2x00mac_config	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x97a01170	orinoco_reinit_firmware	drivers/net/wireless/orinoco	EXPORT_SYMBOL
++0xaa748adb	p54_fill_eeprom_readback	drivers/net/wireless/p54common	EXPORT_SYMBOL_GPL
++0xc3eb5494	rt2x00mac_config_interface	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x4e733d36	rt2x00pci_rxdone	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
++0xe2bcd460	rt2x00mac_get_tx_stats	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x4196c38b	hermes_write_ltv	drivers/net/wireless/hermes	EXPORT_SYMBOL
++0x58a70f46	hostap_init_data	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x973045c8	libertas_add_card	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0x56fff9a1	prism2_update_comms_qual	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x861c0feb	reset_airo_card	drivers/net/wireless/airo	EXPORT_SYMBOL
++0x1ce6a90f	rt2x00lib_txdone	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x0e81d9dc	rt2x00lib_suspend	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x52f8ff21	rt2x00lib_beacondone	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0xfd774188	hostap_remove_proc	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xe56c102f	rt2x00lib_resume	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x5d934c61	rt2x00usb_disconnect	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0xb389be05	libertas_prepare_and_send_command	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0x321c5e1d	libertas_reset_device	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0xe3e5d063	hostap_set_word	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x5ae9de22	libertas_stop_card	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0x0085abe1	hostap_init_ap_proc	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x616ce30b	alloc_orinocodev	drivers/net/wireless/orinoco	EXPORT_SYMBOL
++0x49f5c36e	rt2x00mac_tx	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x3b0537ce	rt2x00mac_erp_ie_changed	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0xcc888113	init_atmel_card	drivers/net/wireless/atmel	EXPORT_SYMBOL
++0x6903f16c	hostap_80211_get_hdrlen	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xa8cfc855	hostap_set_auth_algs	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x9966f83f	__orinoco_up	drivers/net/wireless/orinoco	EXPORT_SYMBOL
++0xf51eb97e	rt2x00pci_write_tx_data	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
++0xb1d5966c	rt2x00lib_rxdone	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0xb668e92b	rt2x00lib_probe_dev	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x36e8b784	rt2x00pci_initialize	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
++0x6ba3058f	rt2x00usb_suspend	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0x89602f5d	hostap_set_hostapd_sta	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x12dde9b7	libertas_debug	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0xfd697c64	libertas_remove_card	drivers/net/wireless/libertas/libertas	EXPORT_SYMBOL_GPL
++0x496923a0	rt2x00usb_resume	drivers/net/wireless/rt2x00/rt2x00usb	EXPORT_SYMBOL_GPL
++0x94e11af9	stop_atmel_card	drivers/net/wireless/atmel	EXPORT_SYMBOL
++0xd3f714e5	hermes_bap_pread	drivers/net/wireless/hermes	EXPORT_SYMBOL
++0xd23bf6f4	p54_parse_firmware	drivers/net/wireless/p54common	EXPORT_SYMBOL_GPL
++0xa50fa2c2	hostap_master_start_xmit	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xd5336e5d	hermes_init	drivers/net/wireless/hermes	EXPORT_SYMBOL
++0x66476c85	rt2x00mac_stop	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x6f04ba95	hostap_remove_interface	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xe21289c3	hostap_get_porttype	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x7489feae	rt2x00pci_beacon_update	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
++0x4eeeb2ef	hostap_setup_dev	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0xda6d2d87	rt2x00mac_start	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x75f18d9c	hostap_set_antsel	drivers/net/wireless/hostap/hostap	EXPORT_SYMBOL
++0x1a9d334a	orinoco_interrupt	drivers/net/wireless/orinoco	EXPORT_SYMBOL
++0xd38d8ae2	hermes_read_ltv	drivers/net/wireless/hermes	EXPORT_SYMBOL
++0x35cf49a2	p54_init_common	drivers/net/wireless/p54common	EXPORT_SYMBOL_GPL
++0x10fa8562	rt2x00lib_get_ring	drivers/net/wireless/rt2x00/rt2x00lib	EXPORT_SYMBOL_GPL
++0x81d1d295	rt2x00pci_probe	drivers/net/wireless/rt2x00/rt2x00pci	EXPORT_SYMBOL_GPL
+diff -urpN a/drivers/net/wireless/p54usb.c testtry/drivers/net/wireless/p54usb.c
+--- a/drivers/net/wireless/p54usb.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/p54usb.c	2007-10-15 15:09:53.000000000 +0000
+@@ -62,6 +62,7 @@ static struct usb_device_id p54u_table[]
+ 	{USB_DEVICE(0x0cde, 0x0008)},	/* Sagem XG703A */
+ 	{USB_DEVICE(0x0d8e, 0x3762)},	/* DLink DWL-G120 Cohiba */
+ 	{USB_DEVICE(0x09aa, 0x1000)},	/* Spinnaker Proto board */
++	{USB_DEVICE(0x13B1, 0x000C)},	/* Linksys WUSB54AG */
+ 	{USB_DEVICE(0x1435, 0x0427)},	/* Inventel UR054G */
+ 	{USB_DEVICE(0x2001, 0x3704)},	/* DLink DWL-G122 rev A2 */
+ 	{USB_DEVICE(0x413c, 0x8102)},	/* Spinnaker DUT */
+diff -urpN a/drivers/net/wireless/rt2x00/rt2400pci.c testtry/drivers/net/wireless/rt2x00/rt2400pci.c
+--- a/drivers/net/wireless/rt2x00/rt2400pci.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt2400pci.c	2007-10-15 15:09:24.000000000 +0000
+@@ -417,11 +417,10 @@ static void rt2400pci_config_antenna(str
+ 		break;
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r1, BBP_R1_TX_ANTENNA, 2);
+@@ -440,11 +439,10 @@ static void rt2400pci_config_antenna(str
+ 		break;
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 2);
+diff -urpN a/drivers/net/wireless/rt2x00/rt2500pci.c testtry/drivers/net/wireless/rt2x00/rt2500pci.c
+--- a/drivers/net/wireless/rt2x00/rt2500pci.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt2500pci.c	2007-10-15 15:09:24.000000000 +0000
+@@ -446,11 +446,10 @@ static void rt2500pci_config_antenna(str
+ 	case ANTENNA_HW_DIVERSITY:
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r2, BBP_R2_TX_ANTENNA, 2);
+@@ -469,11 +468,10 @@ static void rt2500pci_config_antenna(str
+ 	case ANTENNA_HW_DIVERSITY:
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r14, BBP_R14_RX_ANTENNA, 2);
+diff -urpN a/drivers/net/wireless/rt2x00/rt2500usb.c testtry/drivers/net/wireless/rt2x00/rt2500usb.c
+--- a/drivers/net/wireless/rt2x00/rt2500usb.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt2500usb.c	2007-10-15 15:09:24.000000000 +0000
+@@ -413,11 +413,10 @@ static void rt2500usb_config_antenna(str
+ 		break;
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r2, BBP_R2_TX_ANTENNA, 2);
+@@ -438,11 +437,10 @@ static void rt2500usb_config_antenna(str
+ 		break;
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r14, BBP_R14_RX_ANTENNA, 2);
+diff -urpN a/drivers/net/wireless/rt2x00/rt2x00config.c testtry/drivers/net/wireless/rt2x00/rt2x00config.c
+--- a/drivers/net/wireless/rt2x00/rt2x00config.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt2x00config.c	2007-10-15 15:09:24.000000000 +0000
+@@ -103,6 +103,13 @@ void rt2x00lib_config_antenna(struct rt2
+ 	libconf.ant.tx = tx;
+ 
+ 	/*
++	 * Antenna setup changes require the RX to be disabled,
++	 * else the changes will be ignored by the device.
++	 */
++	if (test_bit(DEVICE_ENABLED_RADIO, &rt2x00dev->flags))
++		rt2x00lib_toggle_rx(rt2x00dev, STATE_RADIO_RX_OFF);
++
++	/*
+ 	 * Write new antenna setup to device and reset the link tuner.
+ 	 * The latter is required since we need to recalibrate the
+ 	 * noise-sensitivity ratio for the new setup.
+@@ -112,6 +119,9 @@ void rt2x00lib_config_antenna(struct rt2
+ 
+ 	rt2x00dev->link.ant.active.rx = libconf.ant.rx;
+ 	rt2x00dev->link.ant.active.tx = libconf.ant.tx;
++
++	if (test_bit(DEVICE_ENABLED_RADIO, &rt2x00dev->flags))
++		rt2x00lib_toggle_rx(rt2x00dev, STATE_RADIO_RX_ON);
+ }
+ 
+ void rt2x00lib_config(struct rt2x00_dev *rt2x00dev,
+@@ -166,6 +176,8 @@ void rt2x00lib_config(struct rt2x00_dev 
+ 	else if (conf->antenna_sel_rx &&
+ 		 conf->antenna_sel_rx != active_ant->rx)
+ 		flags |= CONFIG_UPDATE_ANTENNA;
++	else if (active_ant->rx == ANTENNA_SW_DIVERSITY)
++		flags |= CONFIG_UPDATE_ANTENNA;
+ 
+ 	if (!conf->antenna_sel_tx &&
+ 	    default_ant->tx != ANTENNA_SW_DIVERSITY &&
+@@ -174,6 +186,8 @@ void rt2x00lib_config(struct rt2x00_dev 
+ 	else if (conf->antenna_sel_tx &&
+ 		 conf->antenna_sel_tx != active_ant->tx)
+ 		flags |= CONFIG_UPDATE_ANTENNA;
++	else if (active_ant->tx == ANTENNA_SW_DIVERSITY)
++		flags |= CONFIG_UPDATE_ANTENNA;
+ 
+ 	/*
+ 	 * The following configuration options are never
+@@ -262,11 +276,17 @@ config:
+ 	if (flags & (CONFIG_UPDATE_CHANNEL | CONFIG_UPDATE_ANTENNA))
+ 		rt2x00lib_reset_link_tuner(rt2x00dev);
+ 
+-	rt2x00dev->curr_hwmode = libconf.phymode;
+-	rt2x00dev->rx_status.phymode = conf->phymode;
++	if (flags & CONFIG_UPDATE_PHYMODE) {
++		rt2x00dev->curr_hwmode = libconf.phymode;
++		rt2x00dev->rx_status.phymode = conf->phymode;
++	}
++
+ 	rt2x00dev->rx_status.freq = conf->freq;
+ 	rt2x00dev->rx_status.channel = conf->channel;
+ 	rt2x00dev->tx_power = conf->power_level;
+-	rt2x00dev->link.ant.active.rx = libconf.ant.rx;
+-	rt2x00dev->link.ant.active.tx = libconf.ant.tx;
++
++	if (flags & CONFIG_UPDATE_ANTENNA) {
++		rt2x00dev->link.ant.active.rx = libconf.ant.rx;
++		rt2x00dev->link.ant.active.tx = libconf.ant.tx;
++	}
+ }
+diff -urpN a/drivers/net/wireless/rt2x00/rt2x00.h testtry/drivers/net/wireless/rt2x00/rt2x00.h
+--- a/drivers/net/wireless/rt2x00/rt2x00.h	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt2x00.h	2007-10-15 15:09:24.000000000 +0000
+@@ -42,7 +42,7 @@
+  * Module information.
+  * DRV_NAME should be set within the individual module source files.
+  */
+-#define DRV_VERSION	"2.0.10"
++#define DRV_VERSION	"2.0.11"
+ #define DRV_PROJECT	"http://rt2x00.serialmonkey.com"
+ 
+ /*
+diff -urpN a/drivers/net/wireless/rt2x00/rt2x00rfkill.c testtry/drivers/net/wireless/rt2x00/rt2x00rfkill.c
+--- a/drivers/net/wireless/rt2x00/rt2x00rfkill.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt2x00rfkill.c	2007-10-15 15:09:24.000000000 +0000
+@@ -68,8 +68,10 @@ static void rt2x00rfkill_poll(struct inp
+ 	struct rt2x00_dev *rt2x00dev = poll_dev->private;
+ 	int state = rt2x00dev->ops->lib->rfkill_poll(rt2x00dev);
+ 
+-	if (rt2x00dev->rfkill->state != state)
++	if (rt2x00dev->rfkill->state != state) {
+ 		input_report_key(poll_dev->input, KEY_WLAN, 1);
++		input_report_key(poll_dev->input, KEY_WLAN, 0);
++	}
+ }
+ 
+ int rt2x00rfkill_register(struct rt2x00_dev *rt2x00dev)
+@@ -92,6 +94,13 @@ int rt2x00rfkill_register(struct rt2x00_
+ 		return retval;
+ 	}
+ 
++	/*
++	 * Force initial poll which will detect the initial device state,
++	 * and correctly sends the signal to the rfkill layer about this
++	 * state.
++	 */
++	rt2x00rfkill_poll(rt2x00dev->poll_dev);
++
+ 	return 0;
+ }
+ 
+@@ -114,26 +123,50 @@ int rt2x00rfkill_allocate(struct rt2x00_
+ 	rt2x00dev->rfkill = rfkill_allocate(device, RFKILL_TYPE_WLAN);
+ 	if (!rt2x00dev->rfkill) {
+ 		ERROR(rt2x00dev, "Failed to allocate rfkill handler.\n");
+-		return -ENOMEM;
++		goto exit;
+ 	}
+ 
+ 	rt2x00dev->rfkill->name = rt2x00dev->ops->name;
+ 	rt2x00dev->rfkill->data = rt2x00dev;
+-	rt2x00dev->rfkill->state = rt2x00dev->ops->lib->rfkill_poll(rt2x00dev);
++	rt2x00dev->rfkill->state = -1;
+ 	rt2x00dev->rfkill->toggle_radio = rt2x00rfkill_toggle_radio;
+ 
+ 	rt2x00dev->poll_dev = input_allocate_polled_device();
+ 	if (!rt2x00dev->poll_dev) {
+ 		ERROR(rt2x00dev, "Failed to allocate polled device.\n");
+-		rfkill_free(rt2x00dev->rfkill);
+-		return -ENOMEM;
++		goto exit_free_rfkill;
+ 	}
+ 
+ 	rt2x00dev->poll_dev->private = rt2x00dev;
+ 	rt2x00dev->poll_dev->poll = rt2x00rfkill_poll;
+ 	rt2x00dev->poll_dev->poll_interval = RFKILL_POLL_INTERVAL;
+ 
++	rt2x00dev->poll_dev->input = input_allocate_device();
++	if (!rt2x00dev->poll_dev->input) {
++		ERROR(rt2x00dev, "Failed to allocate input device.\n");
++		goto exit_free_polldev;
++	}
++
++	rt2x00dev->poll_dev->input->name = rt2x00dev->ops->name;
++	rt2x00dev->poll_dev->input->phys = wiphy_name(rt2x00dev->hw->wiphy);
++	rt2x00dev->poll_dev->input->id.bustype = BUS_HOST;
++	rt2x00dev->poll_dev->input->id.vendor = 0x1814;
++	rt2x00dev->poll_dev->input->id.product = rt2x00dev->chip.rt;
++	rt2x00dev->poll_dev->input->id.version = rt2x00dev->chip.rev;
++	rt2x00dev->poll_dev->input->dev.parent = device;
++	rt2x00dev->poll_dev->input->evbit[0] = BIT(EV_KEY);
++	set_bit(KEY_WLAN, rt2x00dev->poll_dev->input->keybit);
++
+ 	return 0;
++
++exit_free_polldev:
++	input_free_polled_device(rt2x00dev->poll_dev);
++
++exit_free_rfkill:
++	rfkill_free(rt2x00dev->rfkill);
++
++exit:
++	return -ENOMEM;
+ }
+ 
+ void rt2x00rfkill_free(struct rt2x00_dev *rt2x00dev)
+@@ -141,6 +174,7 @@ void rt2x00rfkill_free(struct rt2x00_dev
+ 	if (!test_bit(CONFIG_SUPPORT_HW_BUTTON, &rt2x00dev->flags))
+ 		return;
+ 
++	input_free_device(rt2x00dev->poll_dev->input);
+ 	input_free_polled_device(rt2x00dev->poll_dev);
+ 	rfkill_free(rt2x00dev->rfkill);
+ }
+diff -urpN a/drivers/net/wireless/rt2x00/rt61pci.c testtry/drivers/net/wireless/rt2x00/rt61pci.c
+--- a/drivers/net/wireless/rt2x00/rt61pci.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt61pci.c	2007-10-15 15:09:24.000000000 +0000
+@@ -424,6 +424,29 @@ static void rt61pci_config_antenna_5x(st
+ 	rt2x00_set_field8(&r3, BBP_R3_SMART_MODE,
+ 			  !rt2x00_rf(&rt2x00dev->chip, RF5225));
+ 
++	/*
++	 * Configure the TX antenna.
++	 */
++	switch (ant->tx) {
++	case ANTENNA_A:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 0);
++		break;
++	case ANTENNA_SW_DIVERSITY:
++	case ANTENNA_HW_DIVERSITY:
++		/*
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
++		 */
++	case ANTENNA_B:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 3);
++		break;
++	}
++
++	/*
++	 * Configure the RX antenna.
++	 */
+ 	switch (ant->rx) {
+ 	case ANTENNA_HW_DIVERSITY:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 2);
+@@ -433,28 +456,17 @@ static void rt61pci_config_antenna_5x(st
+ 	case ANTENNA_A:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END, 0);
+-
+-		if (rt2x00dev->curr_hwmode == HWMODE_A)
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 0);
+-		else
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+ 		break;
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END, 0);
+-
+-		if (rt2x00dev->curr_hwmode == HWMODE_A)
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+-		else
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 0);
+ 		break;
+ 	}
+ 
+@@ -479,25 +491,45 @@ static void rt61pci_config_antenna_2x(st
+ 	rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END,
+ 			  !test_bit(CONFIG_FRAME_TYPE, &rt2x00dev->flags));
+ 
++	/*
++	 * Configure the TX antenna.
++	 */
++	switch (ant->tx) {
++	case ANTENNA_A:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 0);
++		break;
++	case ANTENNA_SW_DIVERSITY:
++	case ANTENNA_HW_DIVERSITY:
++		/*
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
++		 */
++	case ANTENNA_B:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 3);
++		break;
++	}
++
++	/*
++	 * Configure the RX antenna.
++	 */
+ 	switch (ant->rx) {
+ 	case ANTENNA_HW_DIVERSITY:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 2);
+ 		break;
+ 	case ANTENNA_A:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+-		rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+ 		break;
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+-		rt2x00_set_field8(&r77, BBP_R77_PAIR, 0);
+ 		break;
+ 	}
+ 
+@@ -532,74 +564,75 @@ static void rt61pci_config_antenna_2529(
+ 	u8 r3;
+ 	u8 r4;
+ 	u8 r77;
++	u8 rx_ant;
+ 
+ 	rt61pci_bbp_read(rt2x00dev, 3, &r3);
+ 	rt61pci_bbp_read(rt2x00dev, 4, &r4);
+ 	rt61pci_bbp_read(rt2x00dev, 77, &r77);
++
+ 	rt2x00_eeprom_read(rt2x00dev, EEPROM_NIC, &eeprom);
++	rx_ant = !!(rt2x00_get_field16(eeprom, EEPROM_NIC_TX_RX_FIXED) & 2);
+ 
+ 	rt2x00_set_field8(&r3, BBP_R3_SMART_MODE, 0);
+ 
+-	if (rt2x00_get_field16(eeprom, EEPROM_NIC_ENABLE_DIVERSITY) &&
+-	    rt2x00_get_field16(eeprom, EEPROM_NIC_TX_DIVERSITY)) {
+-		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 2);
+-		rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END, 1);
+-		rt61pci_config_antenna_2529_rx(rt2x00dev, 0, 1);
+-	} else if (rt2x00_get_field16(eeprom, EEPROM_NIC_ENABLE_DIVERSITY)) {
+-		if (rt2x00_get_field16(eeprom, EEPROM_NIC_TX_RX_FIXED) >= 2) {
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+-			rt61pci_bbp_write(rt2x00dev, 77, r77);
+-		}
+-		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+-		rt61pci_config_antenna_2529_rx(rt2x00dev, 1, 1);
+-	} else if (!rt2x00_get_field16(eeprom, EEPROM_NIC_ENABLE_DIVERSITY) &&
+-		   rt2x00_get_field16(eeprom, EEPROM_NIC_TX_DIVERSITY)) {
+-		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 2);
+-		rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END, 0);
++	/*
++	 * Configure the TX antenna.
++	 */
++	switch (ant->tx) {
++	case ANTENNA_A:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 0);
++		break;
++	case ANTENNA_SW_DIVERSITY:
++	case ANTENNA_HW_DIVERSITY:
++		/*
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
++		 */
++	case ANTENNA_B:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 3);
++		break;
++	}
+ 
+-		switch (rt2x00_get_field16(eeprom, EEPROM_NIC_TX_RX_FIXED)) {
+-		case 0:
+-			rt61pci_config_antenna_2529_rx(rt2x00dev, 0, 1);
+-			break;
+-		case 1:
+-			rt61pci_config_antenna_2529_rx(rt2x00dev, 1, 0);
+-			break;
+-		case 2:
+-			rt61pci_config_antenna_2529_rx(rt2x00dev, 0, 0);
+-			break;
+-		case 3:
+-			rt61pci_config_antenna_2529_rx(rt2x00dev, 1, 1);
+-			break;
+-		}
+-	} else if (!rt2x00_get_field16(eeprom, EEPROM_NIC_ENABLE_DIVERSITY) &&
+-		   !rt2x00_get_field16(eeprom, EEPROM_NIC_TX_DIVERSITY)) {
++	/*
++	 * Configure the RX antenna.
++	 */
++	switch (ant->rx) {
++	case ANTENNA_A:
++		rt61pci_config_antenna_2529_rx(rt2x00dev, 0, rx_ant);
++		break;
++	case ANTENNA_SW_DIVERSITY:
++	case ANTENNA_HW_DIVERSITY:
++		/*
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
++		 */
++	case ANTENNA_B:
++		rt61pci_config_antenna_2529_rx(rt2x00dev, 1, rx_ant);
++		break;
++	}
++
++	/*
++	 * FIXME: We are using the default antenna setup to
++	 * determine the remaining settings. This because we
++	 * need to know what the EEPROM indicated.
++	 * It is however unclear if this is required, and overall
++	 * using the default antenna settings here is incorrect
++	 * since mac80211 might have told us to use fixed settings.
++	 */
++	if (rt2x00dev->default_ant.tx == ANTENNA_SW_DIVERSITY)
++		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 2);
++	else
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+-		rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END, 0);
+ 
+-		switch (rt2x00_get_field16(eeprom, EEPROM_NIC_TX_RX_FIXED)) {
+-		case 0:
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 0);
+-			rt61pci_bbp_write(rt2x00dev, 77, r77);
+-			rt61pci_config_antenna_2529_rx(rt2x00dev, 0, 1);
+-			break;
+-		case 1:
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 0);
+-			rt61pci_bbp_write(rt2x00dev, 77, r77);
+-			rt61pci_config_antenna_2529_rx(rt2x00dev, 1, 0);
+-			break;
+-		case 2:
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+-			rt61pci_bbp_write(rt2x00dev, 77, r77);
+-			rt61pci_config_antenna_2529_rx(rt2x00dev, 0, 0);
+-			break;
+-		case 3:
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+-			rt61pci_bbp_write(rt2x00dev, 77, r77);
+-			rt61pci_config_antenna_2529_rx(rt2x00dev, 1, 1);
+-			break;
+-		}
+-	}
++	rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END,
++			  (rt2x00dev->default_ant.tx == ANTENNA_SW_DIVERSITY) &&
++			  (rt2x00dev->default_ant.rx == ANTENNA_SW_DIVERSITY));
+ 
++	rt61pci_bbp_write(rt2x00dev, 77, r77);
+ 	rt61pci_bbp_write(rt2x00dev, 3, r3);
+ 	rt61pci_bbp_write(rt2x00dev, 4, r4);
+ }
+@@ -2019,6 +2052,12 @@ static int rt61pci_init_eeprom(struct rt
+ 	}
+ 
+ 	/*
++	 * Determine number of antenna's.
++	 */
++	if (rt2x00_get_field16(eeprom, EEPROM_ANTENNA_NUM) == 2)
++		__set_bit(CONFIG_DOUBLE_ANTENNA, &rt2x00dev->flags);
++
++	/*
+ 	 * Identify default antenna configuration.
+ 	 */
+ 	rt2x00dev->default_ant.tx =
+@@ -2033,12 +2072,6 @@ static int rt61pci_init_eeprom(struct rt
+ 		__set_bit(CONFIG_FRAME_TYPE, &rt2x00dev->flags);
+ 
+ 	/*
+-	 * Determine number of antenna's.
+-	 */
+-	if (rt2x00_get_field16(eeprom, EEPROM_ANTENNA_NUM) == 2)
+-		__set_bit(CONFIG_DOUBLE_ANTENNA, &rt2x00dev->flags);
+-
+-	/*
+ 	 * Detect if this device has an hardware controlled radio.
+ 	 */
+ #ifdef CONFIG_RT61PCI_RFKILL
+@@ -2066,6 +2099,38 @@ static int rt61pci_init_eeprom(struct rt
+ 		__set_bit(CONFIG_EXTERNAL_LNA_BG, &rt2x00dev->flags);
+ 
+ 	/*
++	 * When working with a RF2529 chip without double antenna
++	 * the antenna settings should be gathered from the NIC
++	 * eeprom word.
++	 */
++	if (rt2x00_rf(&rt2x00dev->chip, RF2529) &&
++	    !test_bit(CONFIG_DOUBLE_ANTENNA, &rt2x00dev->flags)) {
++		switch (rt2x00_get_field16(eeprom, EEPROM_NIC_TX_RX_FIXED)) {
++		case 0:
++			rt2x00dev->default_ant.tx = ANTENNA_B;
++			rt2x00dev->default_ant.rx = ANTENNA_A;
++			break;
++		case 1:
++			rt2x00dev->default_ant.tx = ANTENNA_B;
++			rt2x00dev->default_ant.rx = ANTENNA_B;
++			break;
++		case 2:
++			rt2x00dev->default_ant.tx = ANTENNA_A;
++			rt2x00dev->default_ant.rx = ANTENNA_A;
++			break;
++		case 3:
++			rt2x00dev->default_ant.tx = ANTENNA_A;
++			rt2x00dev->default_ant.rx = ANTENNA_B;
++			break;
++		}
++
++		if (rt2x00_get_field16(eeprom, EEPROM_NIC_TX_DIVERSITY))
++			rt2x00dev->default_ant.tx = ANTENNA_SW_DIVERSITY;
++		if (rt2x00_get_field16(eeprom, EEPROM_NIC_ENABLE_DIVERSITY))
++			rt2x00dev->default_ant.rx = ANTENNA_SW_DIVERSITY;
++	}
++
++	/*
+ 	 * Store led settings, for correct led behaviour.
+ 	 * If the eeprom value is invalid,
+ 	 * switch to default led mode.
+diff -urpN a/drivers/net/wireless/rt2x00/rt61pci.h testtry/drivers/net/wireless/rt2x00/rt61pci.h
+--- a/drivers/net/wireless/rt2x00/rt61pci.h	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt61pci.h	2007-10-15 15:09:24.000000000 +0000
+@@ -1083,7 +1083,7 @@ struct hw_pairwise_ta_entry {
+ /*
+  * R77
+  */
+-#define BBP_R77_PAIR			FIELD8(0x03)
++#define BBP_R77_TX_ANTENNA		FIELD8(0x03)
+ 
+ /*
+  * RF registers
+diff -urpN a/drivers/net/wireless/rt2x00/rt73usb.c testtry/drivers/net/wireless/rt2x00/rt73usb.c
+--- a/drivers/net/wireless/rt2x00/rt73usb.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt73usb.c	2007-10-15 15:09:24.000000000 +0000
+@@ -408,6 +408,29 @@ static void rt73usb_config_antenna_5x(st
+ 
+ 	rt2x00_set_field8(&r3, BBP_R3_SMART_MODE, 0);
+ 
++	/*
++	 * Configure the TX antenna.
++	 */
++	switch (ant->tx) {
++	case ANTENNA_A:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 0);
++		break;
++	case ANTENNA_SW_DIVERSITY:
++	case ANTENNA_HW_DIVERSITY:
++		/*
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
++		 */
++	case ANTENNA_B:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 3);
++		break;
++	}
++
++	/*
++	 * Configure the RX antenna.
++	 */
+ 	switch (ant->rx) {
+ 	case ANTENNA_HW_DIVERSITY:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 2);
+@@ -417,28 +440,17 @@ static void rt73usb_config_antenna_5x(st
+ 	case ANTENNA_A:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END, 0);
+-
+-		if (rt2x00dev->curr_hwmode == HWMODE_A)
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 0);
+-		else
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+ 		break;
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END, 0);
+-
+-		if (rt2x00dev->curr_hwmode == HWMODE_A)
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+-		else
+-			rt2x00_set_field8(&r77, BBP_R77_PAIR, 0);
+ 		break;
+ 	}
+ 
+@@ -462,25 +474,45 @@ static void rt73usb_config_antenna_2x(st
+ 	rt2x00_set_field8(&r4, BBP_R4_RX_FRAME_END,
+ 			  !test_bit(CONFIG_FRAME_TYPE, &rt2x00dev->flags));
+ 
++	/*
++	 * Configure the TX antenna.
++	 */
++	switch (ant->tx) {
++	case ANTENNA_A:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 0);
++		break;
++	case ANTENNA_SW_DIVERSITY:
++	case ANTENNA_HW_DIVERSITY:
++		/*
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
++		 */
++	case ANTENNA_B:
++		rt2x00_set_field8(&r77, BBP_R77_TX_ANTENNA, 3);
++		break;
++	}
++
++	/*
++	 * Configure the RX antenna.
++	 */
+ 	switch (ant->rx) {
+ 	case ANTENNA_HW_DIVERSITY:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 2);
+ 		break;
+ 	case ANTENNA_A:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+-		rt2x00_set_field8(&r77, BBP_R77_PAIR, 3);
+ 		break;
+ 	case ANTENNA_SW_DIVERSITY:
+ 		/*
+-		 * NOTE: rt2x00lib should have caught this and
+-		 * send us the correct antenna explicitely.
+-		 * So we should never come here, but instead
+-		 * of bugging out, we should just default to
+-		 * antenna B.
++		 * NOTE: We should never come here because rt2x00lib is
++		 * supposed to catch this and send us the correct antenna
++		 * explicitely. However we are nog going to bug about this.
++		 * Instead, just default to antenna B.
+ 		 */
+ 	case ANTENNA_B:
+ 		rt2x00_set_field8(&r4, BBP_R4_RX_ANTENNA, 1);
+-		rt2x00_set_field8(&r77, BBP_R77_PAIR, 0);
+ 		break;
+ 	}
+ 
+@@ -2037,6 +2069,7 @@ static struct usb_device_id rt73usb_devi
+ 	{ USB_DEVICE(0x050d, 0x7050), USB_DEVICE_DATA(&rt73usb_ops) },
+ 	{ USB_DEVICE(0x050d, 0x705a), USB_DEVICE_DATA(&rt73usb_ops) },
+ 	{ USB_DEVICE(0x050d, 0x905b), USB_DEVICE_DATA(&rt73usb_ops) },
++	{ USB_DEVICE(0x050d, 0x905c), USB_DEVICE_DATA(&rt73usb_ops) },
+ 	/* Billionton */
+ 	{ USB_DEVICE(0x1631, 0xc019), USB_DEVICE_DATA(&rt73usb_ops) },
+ 	/* Buffalo */
+diff -urpN a/drivers/net/wireless/rt2x00/rt73usb.h testtry/drivers/net/wireless/rt2x00/rt73usb.h
+--- a/drivers/net/wireless/rt2x00/rt73usb.h	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/rt2x00/rt73usb.h	2007-10-15 15:09:24.000000000 +0000
+@@ -719,7 +719,7 @@ struct hw_pairwise_ta_entry {
+ /*
+  * R77
+  */
+-#define BBP_R77_PAIR			FIELD8(0x03)
++#define BBP_R77_TX_ANTENNA		FIELD8(0x03)
+ 
+ /*
+  * RF registers
+diff -urpN a/drivers/net/wireless/rtl8187_dev.c testtry/drivers/net/wireless/rtl8187_dev.c
+--- a/drivers/net/wireless/rtl8187_dev.c	2007-10-16 00:00:28.000000000 +0000
++++ testtry/drivers/net/wireless/rtl8187_dev.c	2007-10-15 15:09:24.000000000 +0000
+@@ -36,6 +36,8 @@ static struct usb_device_id rtl8187_tabl
+ 	/* Netgear */
+ 	{USB_DEVICE(0x0846, 0x6100)},
+ 	{USB_DEVICE(0x0846, 0x6a00)},
++	/* HP */
++	{USB_DEVICE(0x03f0, 0xca02)},
+ 	{}
+ };
+ 
+diff -urpN a/drivers/net/wireless/.tmp_versions/acx.mod testtry/drivers/net/wireless/.tmp_versions/acx.mod
+--- a/drivers/net/wireless/.tmp_versions/acx.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/acx.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/acx/acx.ko
++drivers/net/wireless/acx/wlan.o drivers/net/wireless/acx/conv.o drivers/net/wireless/acx/ioctl.o drivers/net/wireless/acx/common.o drivers/net/wireless/acx/pci.o drivers/net/wireless/acx/usb.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/adm8211.mod testtry/drivers/net/wireless/.tmp_versions/adm8211.mod
+--- a/drivers/net/wireless/.tmp_versions/adm8211.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/adm8211.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/adm8211.ko
++drivers/net/wireless/adm8211.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/airo_cs.mod testtry/drivers/net/wireless/.tmp_versions/airo_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/airo_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/airo_cs.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/airo_cs.ko
++drivers/net/wireless/airo_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/airo.mod testtry/drivers/net/wireless/.tmp_versions/airo.mod
+--- a/drivers/net/wireless/.tmp_versions/airo.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/airo.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/airo.ko
++drivers/net/wireless/airo.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/ath5k.mod testtry/drivers/net/wireless/.tmp_versions/ath5k.mod
+--- a/drivers/net/wireless/.tmp_versions/ath5k.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/ath5k.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/ath5k/ath5k.ko
++drivers/net/wireless/ath5k/base.o drivers/net/wireless/ath5k/hw.o drivers/net/wireless/ath5k/regdom.o drivers/net/wireless/ath5k/initvals.o drivers/net/wireless/ath5k/phy.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/atmel_cs.mod testtry/drivers/net/wireless/.tmp_versions/atmel_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/atmel_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/atmel_cs.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/atmel_cs.ko
++drivers/net/wireless/atmel_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/atmel.mod testtry/drivers/net/wireless/.tmp_versions/atmel.mod
+--- a/drivers/net/wireless/.tmp_versions/atmel.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/atmel.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/atmel.ko
++drivers/net/wireless/atmel.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/atmel_pci.mod testtry/drivers/net/wireless/.tmp_versions/atmel_pci.mod
+--- a/drivers/net/wireless/.tmp_versions/atmel_pci.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/atmel_pci.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/atmel_pci.ko
++drivers/net/wireless/atmel_pci.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/b43legacy.mod testtry/drivers/net/wireless/.tmp_versions/b43legacy.mod
+--- a/drivers/net/wireless/.tmp_versions/b43legacy.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/b43legacy.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/b43legacy/b43legacy.ko
++drivers/net/wireless/b43legacy/main.o drivers/net/wireless/b43legacy/ilt.o drivers/net/wireless/b43legacy/leds.o drivers/net/wireless/b43legacy/phy.o drivers/net/wireless/b43legacy/radio.o drivers/net/wireless/b43legacy/sysfs.o drivers/net/wireless/b43legacy/xmit.o drivers/net/wireless/b43legacy/dma.o drivers/net/wireless/b43legacy/pio.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/b43.mod testtry/drivers/net/wireless/.tmp_versions/b43.mod
+--- a/drivers/net/wireless/.tmp_versions/b43.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/b43.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/b43/b43.ko
++drivers/net/wireless/b43/main.o drivers/net/wireless/b43/tables.o drivers/net/wireless/b43/phy.o drivers/net/wireless/b43/sysfs.o drivers/net/wireless/b43/xmit.o drivers/net/wireless/b43/lo.o drivers/net/wireless/b43/rfkill.o drivers/net/wireless/b43/leds.o drivers/net/wireless/b43/pcmcia.o drivers/net/wireless/b43/dma.o drivers/net/wireless/b43/pio.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/hermes.mod testtry/drivers/net/wireless/.tmp_versions/hermes.mod
+--- a/drivers/net/wireless/.tmp_versions/hermes.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/hermes.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/hermes.ko
++drivers/net/wireless/hermes.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/hostap_cs.mod testtry/drivers/net/wireless/.tmp_versions/hostap_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/hostap_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/hostap_cs.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/hostap/hostap_cs.ko
++drivers/net/wireless/hostap/hostap_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/hostap.mod testtry/drivers/net/wireless/.tmp_versions/hostap.mod
+--- a/drivers/net/wireless/.tmp_versions/hostap.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/hostap.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/hostap/hostap.ko
++drivers/net/wireless/hostap/hostap_80211_rx.o drivers/net/wireless/hostap/hostap_80211_tx.o drivers/net/wireless/hostap/hostap_ap.o drivers/net/wireless/hostap/hostap_info.o drivers/net/wireless/hostap/hostap_ioctl.o drivers/net/wireless/hostap/hostap_main.o drivers/net/wireless/hostap/hostap_proc.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/hostap_pci.mod testtry/drivers/net/wireless/.tmp_versions/hostap_pci.mod
+--- a/drivers/net/wireless/.tmp_versions/hostap_pci.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/hostap_pci.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/hostap/hostap_pci.ko
++drivers/net/wireless/hostap/hostap_pci.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/hostap_plx.mod testtry/drivers/net/wireless/.tmp_versions/hostap_plx.mod
+--- a/drivers/net/wireless/.tmp_versions/hostap_plx.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/hostap_plx.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/hostap/hostap_plx.ko
++drivers/net/wireless/hostap/hostap_plx.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/ipw2100.mod testtry/drivers/net/wireless/.tmp_versions/ipw2100.mod
+--- a/drivers/net/wireless/.tmp_versions/ipw2100.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/ipw2100.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/ipw2100.ko
++drivers/net/wireless/ipw2100.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/ipw2200.mod testtry/drivers/net/wireless/.tmp_versions/ipw2200.mod
+--- a/drivers/net/wireless/.tmp_versions/ipw2200.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/ipw2200.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/ipw2200.ko
++drivers/net/wireless/ipw2200.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/ipw3945.mod testtry/drivers/net/wireless/.tmp_versions/ipw3945.mod
+--- a/drivers/net/wireless/.tmp_versions/ipw3945.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/ipw3945.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/ipw3945.ko
++drivers/net/wireless/ipw3945.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/iwl4965.mod testtry/drivers/net/wireless/.tmp_versions/iwl4965.mod
+--- a/drivers/net/wireless/.tmp_versions/iwl4965.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/iwl4965.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/iwlwifi/iwl4965.ko
++drivers/net/wireless/iwlwifi/iwl4965-base.o drivers/net/wireless/iwlwifi/iwl-4965.o drivers/net/wireless/iwlwifi/iwl-4965-rs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/libertas_cs.mod testtry/drivers/net/wireless/.tmp_versions/libertas_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/libertas_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/libertas_cs.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/libertas/libertas_cs.ko
++drivers/net/wireless/libertas/if_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/libertas.mod testtry/drivers/net/wireless/.tmp_versions/libertas.mod
+--- a/drivers/net/wireless/.tmp_versions/libertas.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/libertas.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/libertas/libertas.ko
++drivers/net/wireless/libertas/main.o drivers/net/wireless/libertas/wext.o drivers/net/wireless/libertas/rx.o drivers/net/wireless/libertas/tx.o drivers/net/wireless/libertas/cmd.o drivers/net/wireless/libertas/cmdresp.o drivers/net/wireless/libertas/scan.o drivers/net/wireless/libertas/join.o drivers/net/wireless/libertas/11d.o drivers/net/wireless/libertas/debugfs.o drivers/net/wireless/libertas/ethtool.o drivers/net/wireless/libertas/assoc.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/netwave_cs.mod testtry/drivers/net/wireless/.tmp_versions/netwave_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/netwave_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/netwave_cs.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/netwave_cs.ko
++drivers/net/wireless/netwave_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/orinoco_cs.mod testtry/drivers/net/wireless/.tmp_versions/orinoco_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/orinoco_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/orinoco_cs.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/orinoco_cs.ko
++drivers/net/wireless/orinoco_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/orinoco.mod testtry/drivers/net/wireless/.tmp_versions/orinoco.mod
+--- a/drivers/net/wireless/.tmp_versions/orinoco.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/orinoco.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/orinoco.ko
++drivers/net/wireless/orinoco.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/orinoco_nortel.mod testtry/drivers/net/wireless/.tmp_versions/orinoco_nortel.mod
+--- a/drivers/net/wireless/.tmp_versions/orinoco_nortel.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/orinoco_nortel.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/orinoco_nortel.ko
++drivers/net/wireless/orinoco_nortel.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/orinoco_pci.mod testtry/drivers/net/wireless/.tmp_versions/orinoco_pci.mod
+--- a/drivers/net/wireless/.tmp_versions/orinoco_pci.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/orinoco_pci.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/orinoco_pci.ko
++drivers/net/wireless/orinoco_pci.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/orinoco_plx.mod testtry/drivers/net/wireless/.tmp_versions/orinoco_plx.mod
+--- a/drivers/net/wireless/.tmp_versions/orinoco_plx.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/orinoco_plx.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/orinoco_plx.ko
++drivers/net/wireless/orinoco_plx.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/orinoco_tmd.mod testtry/drivers/net/wireless/.tmp_versions/orinoco_tmd.mod
+--- a/drivers/net/wireless/.tmp_versions/orinoco_tmd.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/orinoco_tmd.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/orinoco_tmd.ko
++drivers/net/wireless/orinoco_tmd.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/p54common.mod testtry/drivers/net/wireless/.tmp_versions/p54common.mod
+--- a/drivers/net/wireless/.tmp_versions/p54common.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/p54common.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/p54common.ko
++drivers/net/wireless/p54common.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/p54pci.mod testtry/drivers/net/wireless/.tmp_versions/p54pci.mod
+--- a/drivers/net/wireless/.tmp_versions/p54pci.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/p54pci.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/p54pci.ko
++drivers/net/wireless/p54pci.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/p54usb.mod testtry/drivers/net/wireless/.tmp_versions/p54usb.mod
+--- a/drivers/net/wireless/.tmp_versions/p54usb.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/p54usb.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/p54usb.ko
++drivers/net/wireless/p54usb.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/prism54.mod testtry/drivers/net/wireless/.tmp_versions/prism54.mod
+--- a/drivers/net/wireless/.tmp_versions/prism54.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/prism54.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/prism54/prism54.ko
++drivers/net/wireless/prism54/islpci_eth.o drivers/net/wireless/prism54/islpci_mgt.o drivers/net/wireless/prism54/isl_38xx.o drivers/net/wireless/prism54/isl_ioctl.o drivers/net/wireless/prism54/islpci_dev.o drivers/net/wireless/prism54/islpci_hotplug.o drivers/net/wireless/prism54/oid_mgt.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/ray_cs.mod testtry/drivers/net/wireless/.tmp_versions/ray_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/ray_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/ray_cs.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/ray_cs.ko
++drivers/net/wireless/ray_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rt2400pci.mod testtry/drivers/net/wireless/.tmp_versions/rt2400pci.mod
+--- a/drivers/net/wireless/.tmp_versions/rt2400pci.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rt2400pci.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rt2x00/rt2400pci.ko
++drivers/net/wireless/rt2x00/rt2400pci.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rt2500pci.mod testtry/drivers/net/wireless/.tmp_versions/rt2500pci.mod
+--- a/drivers/net/wireless/.tmp_versions/rt2500pci.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rt2500pci.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rt2x00/rt2500pci.ko
++drivers/net/wireless/rt2x00/rt2500pci.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rt2500usb.mod testtry/drivers/net/wireless/.tmp_versions/rt2500usb.mod
+--- a/drivers/net/wireless/.tmp_versions/rt2500usb.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rt2500usb.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rt2x00/rt2500usb.ko
++drivers/net/wireless/rt2x00/rt2500usb.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rt2x00lib.mod testtry/drivers/net/wireless/.tmp_versions/rt2x00lib.mod
+--- a/drivers/net/wireless/.tmp_versions/rt2x00lib.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rt2x00lib.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rt2x00/rt2x00lib.ko
++drivers/net/wireless/rt2x00/rt2x00dev.o drivers/net/wireless/rt2x00/rt2x00mac.o drivers/net/wireless/rt2x00/rt2x00config.o drivers/net/wireless/rt2x00/rt2x00rfkill.o drivers/net/wireless/rt2x00/rt2x00firmware.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rt2x00pci.mod testtry/drivers/net/wireless/.tmp_versions/rt2x00pci.mod
+--- a/drivers/net/wireless/.tmp_versions/rt2x00pci.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rt2x00pci.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rt2x00/rt2x00pci.ko
++drivers/net/wireless/rt2x00/rt2x00pci.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rt2x00usb.mod testtry/drivers/net/wireless/.tmp_versions/rt2x00usb.mod
+--- a/drivers/net/wireless/.tmp_versions/rt2x00usb.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rt2x00usb.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rt2x00/rt2x00usb.ko
++drivers/net/wireless/rt2x00/rt2x00usb.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rt61pci.mod testtry/drivers/net/wireless/.tmp_versions/rt61pci.mod
+--- a/drivers/net/wireless/.tmp_versions/rt61pci.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rt61pci.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rt2x00/rt61pci.ko
++drivers/net/wireless/rt2x00/rt61pci.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rt73usb.mod testtry/drivers/net/wireless/.tmp_versions/rt73usb.mod
+--- a/drivers/net/wireless/.tmp_versions/rt73usb.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rt73usb.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rt2x00/rt73usb.ko
++drivers/net/wireless/rt2x00/rt73usb.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/rtl8187.mod testtry/drivers/net/wireless/.tmp_versions/rtl8187.mod
+--- a/drivers/net/wireless/.tmp_versions/rtl8187.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/rtl8187.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/rtl8187.ko
++drivers/net/wireless/rtl8187_dev.o drivers/net/wireless/rtl8187_rtl8225.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/spectrum_cs.mod testtry/drivers/net/wireless/.tmp_versions/spectrum_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/spectrum_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/spectrum_cs.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/spectrum_cs.ko
++drivers/net/wireless/spectrum_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/strip.mod testtry/drivers/net/wireless/.tmp_versions/strip.mod
+--- a/drivers/net/wireless/.tmp_versions/strip.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/strip.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/strip.ko
++drivers/net/wireless/strip.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/usb8xxx.mod testtry/drivers/net/wireless/.tmp_versions/usb8xxx.mod
+--- a/drivers/net/wireless/.tmp_versions/usb8xxx.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/usb8xxx.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/libertas/usb8xxx.ko
++drivers/net/wireless/libertas/if_usb.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/wavelan_cs.mod testtry/drivers/net/wireless/.tmp_versions/wavelan_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/wavelan_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/wavelan_cs.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/wavelan_cs.ko
++drivers/net/wireless/wavelan_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/wl3501_cs.mod testtry/drivers/net/wireless/.tmp_versions/wl3501_cs.mod
+--- a/drivers/net/wireless/.tmp_versions/wl3501_cs.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/wl3501_cs.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/wl3501_cs.ko
++drivers/net/wireless/wl3501_cs.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/zd1201.mod testtry/drivers/net/wireless/.tmp_versions/zd1201.mod
+--- a/drivers/net/wireless/.tmp_versions/zd1201.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/zd1201.mod	2007-10-15 16:30:25.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/zd1201.ko
++drivers/net/wireless/zd1201.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/zd1211rw-mac80211.mod testtry/drivers/net/wireless/.tmp_versions/zd1211rw-mac80211.mod
+--- a/drivers/net/wireless/.tmp_versions/zd1211rw-mac80211.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/zd1211rw-mac80211.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/zd1211rw-mac80211/zd1211rw-mac80211.ko
++drivers/net/wireless/zd1211rw-mac80211/zd_chip.o drivers/net/wireless/zd1211rw-mac80211/zd_mac.o drivers/net/wireless/zd1211rw-mac80211/zd_rf_al2230.o drivers/net/wireless/zd1211rw-mac80211/zd_rf_rf2959.o drivers/net/wireless/zd1211rw-mac80211/zd_rf_al7230b.o drivers/net/wireless/zd1211rw-mac80211/zd_rf_uw2453.o drivers/net/wireless/zd1211rw-mac80211/zd_ieee80211.o drivers/net/wireless/zd1211rw-mac80211/zd_rf.o drivers/net/wireless/zd1211rw-mac80211/zd_usb.o
+diff -urpN a/drivers/net/wireless/.tmp_versions/zd1211rw.mod testtry/drivers/net/wireless/.tmp_versions/zd1211rw.mod
+--- a/drivers/net/wireless/.tmp_versions/zd1211rw.mod	1970-01-01 00:00:00.000000000 +0000
++++ testtry/drivers/net/wireless/.tmp_versions/zd1211rw.mod	2007-10-15 16:30:26.000000000 +0000
+@@ -0,0 +1,2 @@
++drivers/net/wireless/zd1211rw/zd1211rw.ko
++drivers/net/wireless/zd1211rw/zd_chip.o drivers/net/wireless/zd1211rw/zd_ieee80211.o drivers/net/wireless/zd1211rw/zd_mac.o drivers/net/wireless/zd1211rw/zd_netdev.o drivers/net/wireless/zd1211rw/zd_rf_al2230.o drivers/net/wireless/zd1211rw/zd_rf_rf2959.o drivers/net/wireless/zd1211rw/zd_rf_al7230b.o drivers/net/wireless/zd1211rw/zd_rf_uw2453.o drivers/net/wireless/zd1211rw/zd_rf.o drivers/net/wireless/zd1211rw/zd_usb.o
+diff -urpN a/drivers/net/wireless/zd1211rw/zd_usb.c testtry/drivers/net/wireless/zd1211rw/zd_usb.c
+--- a/drivers/net/wireless/zd1211rw/zd_usb.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/zd1211rw/zd_usb.c	2007-10-15 15:10:49.000000000 +0000
+@@ -76,6 +76,7 @@ static struct usb_device_id usb_ids[] = 
+ 	{ USB_DEVICE(0x129b, 0x1667), .driver_info = DEVICE_ZD1211B },
+ 	{ USB_DEVICE(0x0cde, 0x001a), .driver_info = DEVICE_ZD1211B },
+ 	{ USB_DEVICE(0x0586, 0x340a), .driver_info = DEVICE_ZD1211B },
++	{ USB_DEVICE(0x0471, 0x1237), .driver_info = DEVICE_ZD1211B },
+ 	/* "Driverless" devices that need ejecting */
+ 	{ USB_DEVICE(0x0ace, 0x2011), .driver_info = DEVICE_INSTALLER },
+ 	{ USB_DEVICE(0x0ace, 0x20ff), .driver_info = DEVICE_INSTALLER },
+diff -urpN a/drivers/net/wireless/zd1211rw-mac80211/zd_chip.c testtry/drivers/net/wireless/zd1211rw-mac80211/zd_chip.c
+--- a/drivers/net/wireless/zd1211rw-mac80211/zd_chip.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/zd1211rw-mac80211/zd_chip.c	2007-10-15 15:10:49.000000000 +0000
+@@ -50,7 +50,7 @@ void zd_chip_clear(struct zd_chip *chip)
+ 
+ static int scnprint_mac_oui(struct zd_chip *chip, char *buffer, size_t size)
+ {
+-	u8 *addr = zd_chip_to_mac(chip)->hwaddr;
++	u8 *addr = zd_mac_get_perm_addr(zd_chip_to_mac(chip));
+ 	return scnprintf(buffer, size, "%02x-%02x-%02x",
+ 		         addr[0], addr[1], addr[2]);
+ }
+@@ -377,15 +377,18 @@ int zd_write_mac_addr(struct zd_chip *ch
+ 		[1] = { .addr = CR_MAC_ADDR_P2 },
+ 	};
+ 
+-	reqs[0].value = (mac_addr[3] << 24)
+-		      | (mac_addr[2] << 16)
+-		      | (mac_addr[1] <<  8)
+-		      |  mac_addr[0];
+-	reqs[1].value = (mac_addr[5] <<  8)
+-		      |  mac_addr[4];
+-
+-	dev_dbg_f(zd_chip_dev(chip),
+-		"mac addr " MAC_FMT "\n", MAC_ARG(mac_addr));
++	if (mac_addr) {
++		reqs[0].value = (mac_addr[3] << 24)
++			      | (mac_addr[2] << 16)
++			      | (mac_addr[1] <<  8)
++			      |  mac_addr[0];
++		reqs[1].value = (mac_addr[5] <<  8)
++			      |  mac_addr[4];
++		dev_dbg_f(zd_chip_dev(chip),
++			"mac addr " MAC_FMT "\n", MAC_ARG(mac_addr));
++	} else {
++		dev_dbg_f(zd_chip_dev(chip), "set NULL mac\n");
++	}
+ 
+ 	mutex_lock(&chip->mutex);
+ 	r = zd_iowrite32a_locked(chip, reqs, ARRAY_SIZE(reqs));
+diff -urpN a/drivers/net/wireless/zd1211rw-mac80211/zd_chip.h testtry/drivers/net/wireless/zd1211rw-mac80211/zd_chip.h
+--- a/drivers/net/wireless/zd1211rw-mac80211/zd_chip.h	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/zd1211rw-mac80211/zd_chip.h	2007-10-15 15:10:49.000000000 +0000
+@@ -510,15 +510,37 @@ enum {
+ #define CR_UNDERRUN_CNT			CTL_REG(0x0688)
+ 
+ #define CR_RX_FILTER			CTL_REG(0x068c)
++#define RX_FILTER_ASSOC_REQUEST		(1 <<  0)
+ #define RX_FILTER_ASSOC_RESPONSE	(1 <<  1)
++#define RX_FILTER_REASSOC_REQUEST	(1 <<  2)
+ #define RX_FILTER_REASSOC_RESPONSE	(1 <<  3)
++#define RX_FILTER_PROBE_REQUEST		(1 <<  4)
+ #define RX_FILTER_PROBE_RESPONSE	(1 <<  5)
++/* bits 6 and 7 reserved */
+ #define RX_FILTER_BEACON		(1 <<  8)
++#define RX_FILTER_ATIM			(1 <<  9)
+ #define RX_FILTER_DISASSOC		(1 << 10)
+ #define RX_FILTER_AUTH			(1 << 11)
++#define RX_FILTER_DEAUTH		(1 << 12)
++#define RX_FILTER_PSPOLL		(1 << 26)
++#define RX_FILTER_RTS			(1 << 27)
++#define RX_FILTER_CTS			(1 << 28)
+ #define RX_FILTER_ACK			(1 << 29)
+-#define AP_RX_FILTER			0x0400feff
+-#define STA_RX_FILTER			0x2000ffff
++#define RX_FILTER_CFEND			(1 << 30)
++#define RX_FILTER_CFACK			(1 << 31)
++
++/* Enable bits for all frames you are interested in. */
++#define STA_RX_FILTER	(RX_FILTER_ASSOC_REQUEST | RX_FILTER_ASSOC_RESPONSE | \
++	RX_FILTER_REASSOC_REQUEST | RX_FILTER_REASSOC_RESPONSE | \
++	RX_FILTER_PROBE_REQUEST | RX_FILTER_PROBE_RESPONSE | \
++	(0x3 << 6) /* vendor driver sets these reserved bits */ | \
++	RX_FILTER_BEACON | RX_FILTER_ATIM | RX_FILTER_DISASSOC | \
++	RX_FILTER_AUTH | RX_FILTER_DEAUTH | \
++	(0x7 << 13) /* vendor driver sets these reserved bits */ | \
++	RX_FILTER_PSPOLL | RX_FILTER_ACK) /* 0x2400ffff */
++
++#define RX_FILTER_CTRL (RX_FILTER_RTS | RX_FILTER_CTS | \
++	RX_FILTER_CFEND | RX_FILTER_CFACK)
+ 
+ /* Monitor mode sets filter to 0xfffff */
+ 
+diff -urpN a/drivers/net/wireless/zd1211rw-mac80211/zd_mac.c testtry/drivers/net/wireless/zd1211rw-mac80211/zd_mac.c
+--- a/drivers/net/wireless/zd1211rw-mac80211/zd_mac.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/zd1211rw-mac80211/zd_mac.c	2007-10-15 15:10:49.000000000 +0000
+@@ -117,10 +117,7 @@ int zd_mac_preinit_hw(struct ieee80211_h
+ 	if (r)
+ 		return r;
+ 
+-	spin_lock_irq(&mac->lock);
+ 	SET_IEEE80211_PERM_ADDR(hw, addr);
+-	memcpy(mac->hwaddr, addr, ETH_ALEN);
+-	spin_unlock_irq(&mac->lock);
+ 
+ 	return 0;
+ }
+@@ -171,39 +168,23 @@ void zd_mac_clear(struct zd_mac *mac)
+ 	ZD_MEMCLEAR(mac, sizeof(struct zd_mac));
+ }
+ 
+-/**
+- * has_monitor_interfaces - have monitor interfaces been enabled?
+- * @mac: the struct zd_mac pointer
+- *
+- * The function returns, whether the device has monitor interfaces attached.
+- */
+-static int has_monitor_interfaces(struct zd_mac *mac)
+-{
+-	return mac->type == IEEE80211_IF_TYPE_MNTR;
+-}
+-
+ static int set_rx_filter(struct zd_mac *mac)
+ {
+-	u32 filter = has_monitor_interfaces(mac) ? ~0 : STA_RX_FILTER;
++	unsigned long flags;
++	u32 filter = STA_RX_FILTER;
+ 
+-	return zd_iowrite32(&mac->chip, CR_RX_FILTER, filter);
+-}
++	spin_lock_irqsave(&mac->lock, flags);
++	if (mac->pass_ctrl)
++		filter |= RX_FILTER_CTRL;
++	spin_unlock_irqrestore(&mac->lock, flags);
+ 
+-static int set_sniffer(struct zd_mac *mac)
+-{
+-	return zd_iowrite32(&mac->chip, CR_SNIFFER_ON,
+-		has_monitor_interfaces(mac) ? 1 : 0);
+-	return 0;
++	return zd_iowrite32(&mac->chip, CR_RX_FILTER, filter);
+ }
+ 
+ static int set_mc_hash(struct zd_mac *mac)
+ {
+ 	struct zd_mc_hash hash;
+-
+ 	zd_mc_clear(&hash);
+-	if (has_monitor_interfaces(mac))
+-		zd_mc_add_all(&hash);
+-
+ 	return zd_chip_set_multicast_hash(&mac->chip, &hash);
+ }
+ 
+@@ -224,18 +205,12 @@ static int zd_op_start(struct ieee80211_
+ 	if (r < 0)
+ 		goto out;
+ 
+-	r = zd_write_mac_addr(chip, mac->hwaddr);
+-	if (r)
+-		goto disable_int;
+ 	r = zd_chip_set_basic_rates(chip, CR_RATES_80211B | CR_RATES_80211G);
+ 	if (r < 0)
+ 		goto disable_int;
+ 	r = set_rx_filter(mac);
+ 	if (r)
+ 		goto disable_int;
+-	r = set_sniffer(mac);
+-	if (r)
+-		goto disable_int;
+ 	r = set_mc_hash(mac);
+ 	if (r)
+ 		goto disable_int;
+@@ -601,32 +576,6 @@ static int zd_op_tx(struct ieee80211_hw 
+ 	return 0;
+ }
+ 
+-static int fill_rx_stats(struct ieee80211_rx_status *stats,
+-	                 const struct rx_status **pstatus,
+-		         struct zd_mac *mac,
+-			 const u8 *buffer, unsigned int length)
+-{
+-	const struct rx_status *status;
+-
+-	/* Caller has to ensure that length >= sizeof(struct rx_status). */
+-	*pstatus = status = (struct rx_status *)
+-		(buffer + (length - sizeof(struct rx_status)));
+-	if (status->frame_status & ZD_RX_ERROR)
+-		return -EINVAL; /* FIXME: stats update */
+-	memset(stats, 0, sizeof(*stats));
+-
+-	stats->channel = _zd_chip_get_channel(&mac->chip);
+-	stats->freq = zd_channels[stats->channel - 1].freq;
+-	stats->phymode = MODE_IEEE80211G;
+-	stats->ssi = status->signal_strength;
+-	stats->signal = zd_rx_qual_percent(buffer,
+-		                          length - sizeof(struct rx_status),
+-		                          status);
+-	stats->rate = zd_rx_rate(buffer, status);
+-
+-	return 0;
+-}
+-
+ /**
+  * filter_ack - filters incoming packets for acknowledgements
+  * @dev: the mac80211 device
+@@ -638,6 +587,8 @@ static int fill_rx_stats(struct ieee8021
+  * the upper layers is informed about the successful transmission. If
+  * mac80211 queues have been stopped and the number of frames still to be
+  * transmitted is low the queues will be opened again.
++ *
++ * Returns 1 if the frame was an ACK, 0 if it was ignored.
+  */
+ static int filter_ack(struct ieee80211_hw *hw, struct ieee80211_hdr *rx_hdr,
+ 		      struct ieee80211_rx_status *stats)
+@@ -674,25 +625,60 @@ out:
+ 
+ int zd_mac_rx(struct ieee80211_hw *hw, const u8 *buffer, unsigned int length)
+ {
+-	int r;
+ 	struct zd_mac *mac = zd_hw_mac(hw);
+ 	struct ieee80211_rx_status stats;
+ 	const struct rx_status *status;
+ 	struct sk_buff *skb;
++	int bad_frame = 0;
+ 
+ 	if (length < ZD_PLCP_HEADER_SIZE + 10 /* IEEE80211_1ADDR_LEN */ +
+ 	             FCS_LEN + sizeof(struct rx_status))
+ 		return -EINVAL;
+ 
+-	r = fill_rx_stats(&stats, &status, mac, buffer, length);
+-	if (r)
+-		return r;
++	memset(&stats, 0, sizeof(stats));
++
++	/* Note about pass_failed_fcs and pass_ctrl access below:
++	 * mac locking intentionally omitted here, as this is the only unlocked
++	 * reader and the only writer is configure_filter. Plus, if there were
++	 * any races accessing these variables, it wouldn't really matter.
++	 * If mac80211 ever provides a way for us to access filter flags
++	 * from outside configure_filter, we could improve on this. Also, this
++	 * situation may change once we implement some kind of DMA-into-skb
++	 * RX path. */
++
++	/* Caller has to ensure that length >= sizeof(struct rx_status). */
++	status = (struct rx_status *)
++		(buffer + (length - sizeof(struct rx_status)));
++	if (status->frame_status & ZD_RX_ERROR) {
++		if (mac->pass_failed_fcs &&
++				(status->frame_status & ZD_RX_CRC32_ERROR)) {
++			stats.flag |= RX_FLAG_FAILED_FCS_CRC;
++			bad_frame = 1;
++		} else {
++			return -EINVAL;
++		}
++	}
++
++	stats.channel = _zd_chip_get_channel(&mac->chip);
++	stats.freq = zd_channels[stats.channel - 1].freq;
++	stats.phymode = MODE_IEEE80211G;
++	stats.ssi = status->signal_strength;
++	stats.signal = zd_rx_qual_percent(buffer,
++		                          length - sizeof(struct rx_status),
++		                          status);
++	stats.rate = zd_rx_rate(buffer, status);
+ 
+ 	length -= ZD_PLCP_HEADER_SIZE + sizeof(struct rx_status);
+ 	buffer += ZD_PLCP_HEADER_SIZE;
+ 
+-	if (filter_ack(hw, (struct ieee80211_hdr *)buffer, &stats) &&
+-	    !has_monitor_interfaces(mac))
++	/* Except for bad frames, filter each frame to see if it is an ACK, in
++	 * which case our internal TX tracking is updated. Normally we then
++	 * bail here as there's no need to pass ACKs on up to the stack, but
++	 * there is also the case where the stack has requested us to pass
++	 * control frames on up (pass_ctrl) which we must consider. */
++	if (!bad_frame &&
++			filter_ack(hw, (struct ieee80211_hdr *)buffer, &stats)
++			&& !mac->pass_ctrl)
+ 		return 0;
+ 
+ 	skb = dev_alloc_skb(length);
+@@ -722,9 +708,7 @@ static int zd_op_add_interface(struct ie
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	mac->hwaddr = conf->mac_addr;
+-
+-	return 0;
++	return zd_write_mac_addr(&mac->chip, conf->mac_addr);
+ }
+ 
+ static void zd_op_remove_interface(struct ieee80211_hw *hw,
+@@ -732,6 +716,7 @@ static void zd_op_remove_interface(struc
+ {
+ 	struct zd_mac *mac = zd_hw_mac(hw);
+ 	mac->type = IEEE80211_IF_TYPE_INVALID;
++	zd_write_mac_addr(&mac->chip, NULL);
+ }
+ 
+ static int zd_op_config(struct ieee80211_hw *hw, struct ieee80211_conf *conf)
+@@ -766,8 +751,21 @@ static void set_multicast_hash_handler(s
+ 	zd_chip_set_multicast_hash(&mac->chip, &hash);
+ }
+ 
++static void set_rx_filter_handler(struct work_struct *work)
++{
++	struct zd_mac *mac =
++		container_of(work, struct zd_mac, set_rx_filter_work);
++	int r;
++
++	dev_dbg_f(zd_mac_dev(mac), "\n");
++	r = set_rx_filter(mac);
++	if (r)
++		dev_err(zd_mac_dev(mac), "set_rx_filter_handler error %d\n", r);
++}
++
+ #define SUPPORTED_FIF_FLAGS \
+-	FIF_PROMISC_IN_BSS | FIF_ALLMULTI
++	(FIF_PROMISC_IN_BSS | FIF_ALLMULTI | FIF_FCSFAIL | FIF_CONTROL | \
++	FIF_OTHER_BSS)
+ static void zd_op_configure_filter(struct ieee80211_hw *hw,
+ 			unsigned int changed_flags,
+ 			unsigned int *new_flags,
+@@ -788,8 +786,7 @@ static void zd_op_configure_filter(struc
+ 	if (!changed_flags)
+ 		return;
+ 
+-	if ((*new_flags & (FIF_PROMISC_IN_BSS | FIF_ALLMULTI)) ||
+-	     has_monitor_interfaces(mac)) {
++	if (*new_flags & (FIF_PROMISC_IN_BSS | FIF_ALLMULTI)) {
+ 		zd_mc_add_all(&hash);
+ 	} else {
+ 		zd_mc_clear(&hash);
+@@ -804,9 +801,23 @@ static void zd_op_configure_filter(struc
+ 	}
+ 
+ 	spin_lock_irqsave(&mac->lock, flags);
++	mac->pass_failed_fcs = !!(*new_flags & FIF_FCSFAIL);
++	mac->pass_ctrl = !!(*new_flags & FIF_CONTROL);
+ 	mac->multicast_hash = hash;
+ 	spin_unlock_irqrestore(&mac->lock, flags);
+ 	queue_work(zd_workqueue, &mac->set_multicast_hash_work);
++
++	if (changed_flags & FIF_CONTROL)
++		queue_work(zd_workqueue, &mac->set_rx_filter_work);
++
++	/* no handling required for FIF_OTHER_BSS as we don't currently
++	 * do BSSID filtering */
++	/* FIXME: in future it would be nice to enable the probe response
++	 * filter (so that the driver doesn't see them) until
++	 * FIF_BCN_PRBRESP_PROMISC is set. however due to atomicity here, we'd
++	 * have to schedule work to enable prbresp reception, which might
++	 * happen too late. For now we'll just listen and forward them all the
++	 * time. */
+ }
+ 
+ static void set_rts_cts_work(struct work_struct *work)
+@@ -879,7 +890,6 @@ struct ieee80211_hw *zd_mac_alloc_hw(str
+ 	mac->hw = hw;
+ 
+ 	mac->type = IEEE80211_IF_TYPE_INVALID;
+-	mac->hwaddr = hw->wiphy->perm_addr;
+ 
+ 	memcpy(mac->channels, zd_channels, sizeof(zd_channels));
+ 	memcpy(mac->rates, zd_rates, sizeof(zd_rates));
+@@ -916,6 +926,7 @@ struct ieee80211_hw *zd_mac_alloc_hw(str
+ 	housekeeping_init(mac);
+ 	INIT_WORK(&mac->set_multicast_hash_work, set_multicast_hash_handler);
+ 	INIT_WORK(&mac->set_rts_cts_work, set_rts_cts_work);
++	INIT_WORK(&mac->set_rx_filter_work, set_rx_filter_handler);
+ 
+ 	SET_IEEE80211_DEV(hw, &intf->dev);
+ 	return hw;
+diff -urpN a/drivers/net/wireless/zd1211rw-mac80211/zd_mac.h testtry/drivers/net/wireless/zd1211rw-mac80211/zd_mac.h
+--- a/drivers/net/wireless/zd1211rw-mac80211/zd_mac.h	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/zd1211rw-mac80211/zd_mac.h	2007-10-15 15:10:49.000000000 +0000
+@@ -173,12 +173,12 @@ struct zd_mac {
+ 	struct housekeeping housekeeping;
+ 	struct work_struct set_multicast_hash_work;
+ 	struct work_struct set_rts_cts_work;
++	struct work_struct set_rx_filter_work;
+ 	struct zd_mc_hash multicast_hash;
+ 	u8 regdomain;
+ 	u8 default_regdomain;
+ 	int type;
+ 	int associated;
+-	u8 *hwaddr;
+ 	struct sk_buff_head ack_wait_queue;
+ 	struct ieee80211_channel channels[14];
+ 	struct ieee80211_rate rates[12];
+@@ -189,6 +189,12 @@ struct zd_mac {
+ 
+ 	/* flags to indicate update in progress */
+ 	unsigned int updating_rts_rate:1;
++
++	/* whether to pass frames with CRC errors to stack */
++	unsigned int pass_failed_fcs:1;
++
++	/* whether to pass control frames to stack */
++	unsigned int pass_ctrl:1;
+ };
+ 
+ static inline struct zd_mac *zd_hw_mac(struct ieee80211_hw *hw)
+@@ -206,6 +212,11 @@ static inline struct zd_mac *zd_usb_to_m
+ 	return zd_chip_to_mac(zd_usb_to_chip(usb));
+ }
+ 
++static inline u8 *zd_mac_get_perm_addr(struct zd_mac *mac)
++{
++	return mac->hw->wiphy->perm_addr;
++}
++
+ #define zd_mac_dev(mac) (zd_chip_dev(&(mac)->chip))
+ 
+ struct ieee80211_hw *zd_mac_alloc_hw(struct usb_interface *intf);
+diff -urpN a/drivers/net/wireless/zd1211rw-mac80211/zd_usb.c testtry/drivers/net/wireless/zd1211rw-mac80211/zd_usb.c
+--- a/drivers/net/wireless/zd1211rw-mac80211/zd_usb.c	2007-10-16 00:00:27.000000000 +0000
++++ testtry/drivers/net/wireless/zd1211rw-mac80211/zd_usb.c	2007-10-15 15:10:49.000000000 +0000
+@@ -74,6 +74,7 @@ static struct usb_device_id usb_ids[] = 
+ 	{ USB_DEVICE(0x129b, 0x1667), .driver_info = DEVICE_ZD1211B },
+ 	{ USB_DEVICE(0x0cde, 0x001a), .driver_info = DEVICE_ZD1211B },
+ 	{ USB_DEVICE(0x0586, 0x340a), .driver_info = DEVICE_ZD1211B },
++	{ USB_DEVICE(0x0471, 0x1237), .driver_info = DEVICE_ZD1211B },
+ 	/* "Driverless" devices that need ejecting */
+ 	{ USB_DEVICE(0x0ace, 0x2011), .driver_info = DEVICE_INSTALLER },
+ 	{ USB_DEVICE(0x0ace, 0x20ff), .driver_info = DEVICE_INSTALLER },
+diff -urpN a/net/mac80211/ieee80211_iface.c testtry/net/mac80211/ieee80211_iface.c
+--- a/net/mac80211/ieee80211_iface.c	2007-10-15 23:59:58.000000000 +0000
++++ testtry/net/mac80211/ieee80211_iface.c	2007-10-15 15:15:49.000000000 +0000
+@@ -106,7 +106,7 @@ void ieee80211_if_set_type(struct net_de
+ 	 * which already has a hard_start_xmit routine assigned
+ 	 * which must not be changed.
+ 	 */
+-	if (!dev->hard_start_xmit)
++	if (dev != sdata->local->mdev)
+ 		dev->hard_start_xmit = ieee80211_subif_start_xmit;
+ 
+ 	/*
+diff -urpN a/net/mac80211/rx.c testtry/net/mac80211/rx.c
+--- a/net/mac80211/rx.c	2007-10-15 23:59:58.000000000 +0000
++++ testtry/net/mac80211/rx.c	2007-10-15 15:16:05.000000000 +0000
+@@ -535,7 +535,7 @@ ieee80211_rx_h_decrypt(struct ieee80211_
+ 		break;
+ 	}
+ 
+-	/* either the frame will be decrypted or dropped */
++	/* either the frame has been decrypted or will be dropped */
+ 	rx->u.rx.status->flag |= RX_FLAG_DECRYPTED;
+ 
+ 	return result;
