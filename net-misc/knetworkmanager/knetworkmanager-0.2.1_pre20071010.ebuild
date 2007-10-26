@@ -7,7 +7,7 @@ inherit kde eutils
 DESCRIPTION="A NetworkManager front-end for KDE"
 HOMEPAGE="http://en.opensuse.org/Projects/KNetworkManager"
 LICENSE="GPL-2"
-SRC_URI="http://www.sabayonlinux.org/distfiles/net-misc/${PN}/${P}.tar.bz2"
+SRC_URI="http://www.sabayonlinux.org/distfiles/net-misc/${PN}/${PN}-${PV/.1_pre*/}_pre20070702.tar.bz2"
 KEYWORDS="~x86 ~amd64"
 RESTRICT="nomirror"
 S=${WORKDIR}/${PN}
