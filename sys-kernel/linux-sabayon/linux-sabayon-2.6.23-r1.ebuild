@@ -16,7 +16,7 @@ DEPEND="
 	splash? ( x11-themes/sabayonlinux-artwork )
 	"
 RDEPEND="grub? ( sys-boot/grub )"
-IUSE="splash dmraid grub"
+IUSE="splash dmraid grub no_sources"
 
 DESCRIPTION="Official Sabayon Linux kernel images"
 MY_P="${PV}/sabayon-sources-${PV}"
@@ -116,6 +116,17 @@ src_compile() {
 }
 
 src_install() {
+
+	if ! use no_sources; then
+		kernel-2_src_install || die "sources install failed"
+		cp ${FILESDIR}/${P}-${ARCH}.config ${D}/usr/src/linux-${KV_FULL}/.config || die "cannot copy kernel configuration"
+		cd ${D}/usr/src/linux-${KV_FULL} || die "cannot cd into sources directory"
+		OLDARCH=${ARCH}
+		unset ARCH
+		make prepare modules_prepare || die "cannot run make prepare modules_prepare"
+		ARCH=${OLDARCH}
+	fi
+
 	insinto /boot
 	doins ${WORKDIR}/boot/*
 	cp -Rp ${WORKDIR}/lib/* ${D}/
