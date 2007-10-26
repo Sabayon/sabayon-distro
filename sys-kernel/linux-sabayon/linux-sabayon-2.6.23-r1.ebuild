@@ -96,10 +96,10 @@ src_compile() {
 	unset ARCH
 	cd ${S}
 	GK_ARGS=""
-	use splash && GKARGS="${GK_ARGS} --gensplash=sabayon"
-	use dmraid && GKARGS="${GK_ARGS} --dmraid"
-	use grub && GKARGS="${GK_ARGS} --bootloader=grub"
-	genkernel ${GK_ARGS} \
+	use splash && GKARGS="${GKARGS} --gensplash=sabayon"
+	use dmraid && GKARGS="${GKARGS} --dmraid"
+	use grub && GKARGS="${GKARGS} --bootloader=grub"
+	genkernel ${GKARGS} \
 		--kerneldir=${S} \
 		--kernel-config=${WORKDIR}/config \
 		--cachedir=${WORKDIR}/cache \
