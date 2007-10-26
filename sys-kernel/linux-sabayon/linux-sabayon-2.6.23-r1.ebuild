@@ -23,6 +23,7 @@ MY_P="${PV}/sabayon-sources-${PV}"
 KV_FULL=${KV_FULL/linux/sabayon}
 K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
+SLOT="${PV}"
 
 ## INIT: Exported data
 SL_PATCHES_URI="
