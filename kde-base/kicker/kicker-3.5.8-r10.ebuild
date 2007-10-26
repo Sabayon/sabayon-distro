@@ -49,6 +49,12 @@ src_unpack() {
 		# Fix Compiz Fusion freeze
 		epatch ${FILESDIR}/${PN}-3.5.7-fix-kickoff-freeze.patch
 
+		# Fix undeclared bool
+		epatch ${FILESDIR}/${P}-fix-kickertip.h.patch
+
+		# Revert some SVN changes
+		epatch ${FILESDIR}/${P}-fix-revert-pagerapplet-changes.patch
+
 		# copy icons over
 		tar xjf ${FILESDIR}/kickoff-icons-r649417.tar.bz2 -C ${WORKDIR}/${PN}-${PV}/${PN}/data
 	fi

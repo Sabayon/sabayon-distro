@@ -1,0 +1,106 @@
+diff -Nurp kicker-3.5.8.orig/kicker/applets/minipager/pagerapplet.cpp kicker-3.5.8/kicker/applets/minipager/pagerapplet.cpp
+--- kicker-3.5.8.orig/kicker/applets/minipager/pagerapplet.cpp	2007-10-26 10:36:04.000000000 +0200
++++ kicker-3.5.8/kicker/applets/minipager/pagerapplet.cpp	2007-10-26 10:36:23.000000000 +0200
+@@ -42,7 +42,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE 
+ #include <kiconloader.h>
+ #include <dcopclient.h>
+ #include <netwm.h>
+-#include <kmanagerselection.h>
+ 
+ #include "global.h"
+ #include "kickertip.h"
+@@ -84,7 +83,6 @@ KMiniPager::KMiniPager(const QString& co
+                        QWidget *parent, const char *name)
+     : KPanelApplet( configFile, type, actions, parent, name ),
+       m_layout(0),
+-      m_desktopLayoutOwner( NULL ),
+       m_shadowEngine(0),
+       m_contextMenu(0),
+       m_settings( new PagerSettings(sharedConfig()) )
+@@ -230,7 +228,7 @@ void KMiniPager::slotButtonSelected( int
+     {
+         QPoint p;
+ 
+-        p.setX( (desk-1) * QApplication::desktop()->width());
++        p.setX( (desk-1) * QApplication::desktop()->screenGeometry().width());
+         p.setY( 0 );
+ 
+         KWin::setCurrentDesktopViewport(m_kwin->currentDesktop(), p);
+@@ -352,28 +350,27 @@ void KMiniPager::updateDesktopLayout(int
+       return;
+     }
+ 
++    QCString kwin_name;
++    int screen_number = DefaultScreen(qt_xdisplay());
++    if (screen_number == 0)
++        kwin_name = "kwin";
++    else
++        kwin_name.sprintf("kwin-screen-%d", screen_number);
++
++    QCString replyType;
++    QByteArray data, replyData;
++    QDataStream arg(data, IO_WriteOnly);
++    arg << o << x << y;
++    if ( !(kapp->dcopClient()->call( kwin_name, "KWinInterface", "setDesktopLayout(int, int, int)",
++           data, replyType, replyData)))
++    {
++        kdDebug() << "KMiniPager: Call to KWinInterface::setDesktopLayout(int, int, int) failed" << endl;
++        return;
++    }
++
+     desktopLayoutOrientation = o;
+     desktopLayoutX = x;
+     desktopLayoutY = y;
+-    if( x == -1 ) // do-the-maths-yourself is encoded as 0 in the wm spec
+-        x = 0;
+-    if( y == -1 )
+-        y = 0;
+-    if( m_desktopLayoutOwner == NULL )
+-    { // must own manager selection before setting global desktop layout
+-        int screen = DefaultScreen( qt_xdisplay());
+-        m_desktopLayoutOwner = new KSelectionOwner( QString( "_NET_DESKTOP_LAYOUT_S%1" ).arg( screen ).latin1(),
+-            screen, this );
+-        if( !m_desktopLayoutOwner->claim( false ))
+-        {
+-            delete m_desktopLayoutOwner;
+-            m_desktopLayoutOwner = NULL;
+-            return;
+-        }
+-    }
+-    NET::Orientation orient = o == Qt::Horizontal ? NET::OrientationHorizontal : NET::OrientationVertical;
+-    NETRootInfo i( qt_xdisplay(), 0 );
+-    i.setDesktopLayout( orient, x, y, NET::DesktopLayoutCornerTopLeft );
+ }
+ 
+ void KMiniPager::resizeEvent(QResizeEvent*)
+diff -Nurp kicker-3.5.8.orig/kicker/applets/minipager/pagerapplet.h kicker-3.5.8/kicker/applets/minipager/pagerapplet.h
+--- kicker-3.5.8.orig/kicker/applets/minipager/pagerapplet.h	2007-10-08 11:51:21.000000000 +0200
++++ kicker-3.5.8/kicker/applets/minipager/pagerapplet.h	2007-10-26 10:36:25.000000000 +0200
+@@ -28,7 +28,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE 
+ #include <qintdict.h>
+ 
+ #include <kpanelapplet.h>
+-#include <kwin.h>
+ 
+ #include "pagerbutton.h"
+ #include "pagersettings.h"
+@@ -40,7 +39,10 @@ class QTimer;
+ class KProcess;
+ class KWinModule;
+ class KShadowEngine;
+-class KSelectionOwner;
++
++namespace KWin { 
++    class WindowInfo;
++}
+ 
+ class PagerSettings;
+ 
+@@ -125,7 +127,6 @@ private:
+     int desktopLayoutOrientation;
+     int desktopLayoutX;
+     int desktopLayoutY;
+-    KSelectionOwner* m_desktopLayoutOwner;
+ 
+     KWinModule *m_kwin;
+     KShadowEngine* m_shadowEngine;
