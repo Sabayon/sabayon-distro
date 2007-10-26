@@ -16,7 +16,7 @@ BUILD_TARGETS="modules"
 
 pkg_setup() {
 	linux-mod_pkg_setup
-	BUILD_PARAMS="KSRC=${KV_DIR} KERNEL_PATH=${KV_DIR}"
+	BUILD_PARAMS="KSRC=${KV_DIR} KERNEL_DIR=${KV_DIR} KERNEL_PATH=${KV_DIR}"
 }
 
 src_unpack() {
@@ -29,6 +29,8 @@ src_unpack() {
 	epatch ${FILESDIR}/${P}-2.6.23-r2.patch
 	# fix KERNEL_VER
 	sed -i '/KERNEL_VER :=/ s/.*/KERNEL_VER := '${KV_FULL}'/' Makefile
+	# fix KERNEL_DIR
+	#sed -i '/KERNEL_DIR :=/ s/.*/KERNEL_DIR := '${KV_DIR}'/' Makefile
 }
 
 src_install() {
