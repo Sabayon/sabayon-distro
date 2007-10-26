@@ -158,6 +158,10 @@ EBUILD xorg-server-1.4-r3.ebuild 17713 RMD160 df24bc6115c0fac65346e984a696b6ec7c
 MD5 50269f8ac708378b03143a26948905e3 xorg-server-1.4-r3.ebuild 17713
 RMD160 df24bc6115c0fac65346e984a696b6ec7c429a2a xorg-server-1.4-r3.ebuild 17713
 SHA256 6917d1dbc1d6b71bed00281f6754877f76302c872c7932d94b13164aaa138b83 xorg-server-1.4-r3.ebuild 17713
+EBUILD xorg-server-1.4-r4.ebuild 18362 RMD160 b0bbb559eccda860f22f90c7fff4b5470b9793bf SHA1 541e5ce52c662459a3774cc35369dec67253ce0d SHA256 3d8f8dc3af4c27775651c6932ca5818264beebf4a1f22e03fb97ca3bca77afb1
+MD5 78c94de9fd56f776f48f007e872b0bdf xorg-server-1.4-r4.ebuild 18362
+RMD160 b0bbb559eccda860f22f90c7fff4b5470b9793bf xorg-server-1.4-r4.ebuild 18362
+SHA256 3d8f8dc3af4c27775651c6932ca5818264beebf4a1f22e03fb97ca3bca77afb1 xorg-server-1.4-r4.ebuild 18362
 MD5 6e5b9a5a0ac3d68af3d045db1b88f401 files/digest-xorg-server-1.1.99.902 521
 RMD160 43f57262e7cf3eaf37372ebfee701f29018a259e files/digest-xorg-server-1.1.99.902 521
 SHA256 da8e6ec5f8014b663c04bdcd101b699fbb6c70365234f8173f447f325e033472 files/digest-xorg-server-1.1.99.902 521
@@ -182,3 +186,6 @@ SHA256 5ab16a882768bd84a26edb98b129ddd5ed9171f22e1fdfcc19ab97402d0cbcbe files/di
 MD5 a786bf92e7f6a676ca17c72643400702 files/digest-xorg-server-1.4-r3 500
 RMD160 d88df94e7c8c7a0e16aff8d597ce8e7e570331b2 files/digest-xorg-server-1.4-r3 500
 SHA256 5ab16a882768bd84a26edb98b129ddd5ed9171f22e1fdfcc19ab97402d0cbcbe files/digest-xorg-server-1.4-r3 500
+MD5 a786bf92e7f6a676ca17c72643400702 files/digest-xorg-server-1.4-r4 500
+RMD160 d88df94e7c8c7a0e16aff8d597ce8e7e570331b2 files/digest-xorg-server-1.4-r4 500
+SHA256 5ab16a882768bd84a26edb98b129ddd5ed9171f22e1fdfcc19ab97402d0cbcbe files/digest-xorg-server-1.4-r4 500
