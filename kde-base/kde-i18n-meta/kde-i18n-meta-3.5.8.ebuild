@@ -21,5 +21,5 @@ RDEPEND="!kde-base/kde-i18n"
 for X in ${LANGS} ; do
 	#SRC_URI="${SRC_URI} linguas_${X}? ( mirror://kde/stable/${PV}/src/kde-i18n/kde-i18n-${X}-${PV}.tar.bz2 )"
 	IUSE="${IUSE} linguas_${X}"
-	RDEPEND="${RDEPEND} ~kde-base/kde-i18n-${X}-${PV}"
+	RDEPEND="${RDEPEND} linguas_${X}? ( ~kde-base/kde-i18n-${X}-${PV} )"
 done
