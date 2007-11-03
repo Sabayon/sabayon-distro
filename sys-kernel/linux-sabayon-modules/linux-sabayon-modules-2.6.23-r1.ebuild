@@ -17,7 +17,7 @@ RDEPEND="
 	app-crypt/truecrypt
 	x11-drivers/nvidia-drivers
 	net-wireless/madwifi-ng
-	net-wireless/ndiswarpper
+	net-wireless/ndiswrapper
 	net-dialup/slmodem
 	net-misc/et131x
 	"
