@@ -4,7 +4,7 @@
 NEED_PYTHON=2.4
 
 inherit eutils subversion distutils python multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk"
 
 DESCRIPTION="Official Sabayon Linux Package Manager Client (SVN release)"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -15,7 +15,7 @@ SRC_URI="http://initd.org/pub/software/pysqlite/releases/${PYSQLITE_VER:0:3}/${P
 
 LICENSE="GPL-2 pysqlite"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 IUSE=""
 S="${WORKDIR}"/trunk
 
@@ -42,9 +42,9 @@ src_unpack() {
 		pysqlite2/__init__.py pysqlite2/dbapi2.py || die "sed failed"
 
 	# setting svn revision
-	#cd ${ESVN_STORE_DIR}/${PN}/trunk
-	#SVNREV=$(svnversion)
-	echo "${PV}" > ${S}/libraries/revision
+	cd ${ESVN_STORE_DIR}/${PN}/trunk
+	SVNREV=$(svnversion)
+	echo $SVNREV > ${S}/libraries/revision
 }
 
 src_compile() {
@@ -73,7 +73,7 @@ src_install() {
 	insinto /usr/$(get_libdir)/entropy/client
 	doins *.py
 	exeinto /usr/$(get_libdir)/entropy/client
-	doexe equo
+	doins equo
 
 	cd ${S}
 	dodir /usr/bin

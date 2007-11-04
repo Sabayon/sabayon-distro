@@ -4,7 +4,7 @@
 NEED_PYTHON=2.4
 
 inherit eutils subversion distutils python multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
 
 DESCRIPTION="Official Sabayon Linux Package Manager Client (SVN release)"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -15,12 +15,12 @@ SRC_URI="http://initd.org/pub/software/pysqlite/releases/${PYSQLITE_VER:0:3}/${P
 
 LICENSE="GPL-2 pysqlite"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND=">=dev-db/sqlite-3.1
-	!sys-apps/entropy"
+	!app-admin/equo"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
@@ -42,9 +42,9 @@ src_unpack() {
 		pysqlite2/__init__.py pysqlite2/dbapi2.py || die "sed failed"
 
 	# setting svn revision
-	cd ${ESVN_STORE_DIR}/${PN}/trunk
-	SVNREV=$(svnversion)
-	echo $SVNREV > ${S}/libraries/revision
+	#cd ${ESVN_STORE_DIR}/${PN}/trunk
+	#SVNREV=$(svnversion)
+	echo "${PV}" > ${S}/libraries/revision
 }
 
 src_compile() {
@@ -59,29 +59,52 @@ src_install() {
 	#
 	#########
 
-	dodir /usr/share/entropy/libraries
-	dodir /usr/share/entropy/client
+	dodir /usr/$(get_libdir)/entropy/libraries
+	dodir /usr/$(get_libdir)/entropy/client
+	dodir /usr/$(get_libdir)/entropy/server
 	
 	# copying libraries
 	cd ${S}/libraries
-	insinto /usr/share/entropy/libraries
+	insinto /usr/$(get_libdir)/entropy/libraries
 	doins *.py
 	doins revision
 
 	# copy client
 	cd ${S}/client
-	insinto /usr/share/entropy/client
+	insinto /usr/$(get_libdir)/entropy/client
 	doins *.py
-	exeinto /usr/share/entropy/client
-	doins equo
+	exeinto /usr/$(get_libdir)/entropy/client
+	doexe equo
+
+	# copy server
+	cd ${S}/server
+	exeinto /usr/$(get_libdir)/entropy/server
+	doexe reagent
+	doexe activator
 
 	cd ${S}
 	dodir /usr/bin
 	echo '#!/bin/sh' > equo
-	echo 'cd /usr/share/entropy/client' >> equo
-	echo 'LD_LIBRARY_PATH="/usr/share/entropy/client/libraries/:/usr/share/entropy/client/libraries/pysqlite2/" python equo "$@"' >> equo
+	echo 'cd /usr/'$(get_libdir)'/entropy/client' >> equo
+	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/client/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python equo "$@"' >> equo
 	exeinto /usr/bin
-	doexe equo
+	doexe reagent
+
+	cd ${S}
+	dodir /usr/bin
+	echo '#!/bin/sh' > reagent
+	echo 'cd /usr/'$(get_libdir)'/entropy/server' >> reagent
+	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/server/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python reagent "$@"' >> reagent
+	exeinto /usr/bin
+	doexe reagent
+
+	cd ${S}
+	dodir /usr/bin
+	echo '#!/bin/sh' > activator
+	echo 'cd /usr/'$(get_libdir)'/entropy/server' >> activator
+	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/server/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python activator "$@"' >> activator
+	exeinto /usr/bin
+	doexe activator
 
 	# copy configuration
 	cd ${S}/conf
@@ -111,13 +134,13 @@ src_install() {
 	########
 	
 	python_version
-	mkdir "${D}"/usr/share/entropy/libraries/pysqlite2
-	mv "${D}"/usr/$(get_libdir)/python${PYVER}/site-packages/${PYTHON_MODNAME}/* "${D}"/usr/share/entropy/libraries/pysqlite2/ || die "cannot move pysqlite library"
+	mkdir "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2
+	mv "${D}"/usr/$(get_libdir)/python${PYVER}/site-packages/${PYTHON_MODNAME}/* "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/ || die "cannot move pysqlite library"
 	rm -rf "${D}"/usr/$(get_libdir)/python${PYVER}
 	if use amd64; then
-		cp ${S}/libraries/python/amd64/libpython* "${D}"/usr/share/entropy/libraries/pysqlite2/
+		cp ${S}/libraries/python/amd64/libpython* "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/
 	else
-		cp ${S}/libraries/python/x86/libpython* "${D}"/usr/share/entropy/libraries/pysqlite2/
+		cp ${S}/libraries/python/x86/libpython* "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/
 	fi
-	chmod 555 "${D}"/usr/share/entropy/libraries/pysqlite2/libpython*
+	chmod 555 "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/libpython*
 }
