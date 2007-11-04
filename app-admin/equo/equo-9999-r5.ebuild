@@ -19,7 +19,8 @@ KEYWORDS=""
 IUSE=""
 S="${WORKDIR}"/trunk
 
-DEPEND=">=dev-db/sqlite-3.1"
+DEPEND=">=dev-db/sqlite-3.1
+	!sys-apps/entropy"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
