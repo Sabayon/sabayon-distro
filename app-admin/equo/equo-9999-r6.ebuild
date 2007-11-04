@@ -78,7 +78,7 @@ src_install() {
 	cd ${S}
 	dodir /usr/bin
 	echo '#!/bin/sh' > equo
-	echo 'cd /usr/$(get_libdir)/entropy/client' >> equo
+	echo 'cd /usr/'$(get_libdir)'/entropy/client' >> equo
 	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/client/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python equo "$@"' >> equo
 	exeinto /usr/bin
 	doexe equo
