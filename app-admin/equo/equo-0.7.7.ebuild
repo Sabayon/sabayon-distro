@@ -19,7 +19,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
-DEPEND=">=dev-db/sqlite-3.1"
+DEPEND=">=dev-db/sqlite-3.1
+	!sys-apps/entropy"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
@@ -58,27 +59,27 @@ src_install() {
 	#
 	#########
 
-	dodir /usr/share/entropy/libraries
-	dodir /usr/share/entropy/client
+	dodir /usr/$(get_libdir)/entropy/libraries
+	dodir /usr/$(get_libdir)/entropy/client
 	
 	# copying libraries
 	cd ${S}/libraries
-	insinto /usr/share/entropy/libraries
+	insinto /usr/$(get_libdir)/entropy/libraries
 	doins *.py
 	doins revision
 
 	# copy client
 	cd ${S}/client
-	insinto /usr/share/entropy/client
+	insinto /usr/$(get_libdir)/entropy/client
 	doins *.py
-	exeinto /usr/share/entropy/client
-	doins equo
+	exeinto /usr/$(get_libdir)/entropy/client
+	doexe equo
 
 	cd ${S}
 	dodir /usr/bin
 	echo '#!/bin/sh' > equo
-	echo 'cd /usr/share/entropy/client' >> equo
-	echo 'LD_LIBRARY_PATH="/usr/share/entropy/client/libraries/:/usr/share/entropy/client/libraries/pysqlite2/" python equo "$@"' >> equo
+	echo 'cd /usr/'$(get_libdir)'/entropy/client' >> equo
+	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/client/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python equo "$@"' >> equo
 	exeinto /usr/bin
 	doexe equo
 
@@ -110,13 +111,13 @@ src_install() {
 	########
 	
 	python_version
-	mkdir "${D}"/usr/share/entropy/libraries/pysqlite2
-	mv "${D}"/usr/$(get_libdir)/python${PYVER}/site-packages/${PYTHON_MODNAME}/* "${D}"/usr/share/entropy/libraries/pysqlite2/ || die "cannot move pysqlite library"
+	mkdir "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2
+	mv "${D}"/usr/$(get_libdir)/python${PYVER}/site-packages/${PYTHON_MODNAME}/* "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/ || die "cannot move pysqlite library"
 	rm -rf "${D}"/usr/$(get_libdir)/python${PYVER}
 	if use amd64; then
-		cp ${S}/libraries/python/amd64/libpython* "${D}"/usr/share/entropy/libraries/pysqlite2/
+		cp ${S}/libraries/python/amd64/libpython* "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/
 	else
-		cp ${S}/libraries/python/x86/libpython* "${D}"/usr/share/entropy/libraries/pysqlite2/
+		cp ${S}/libraries/python/x86/libpython* "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/
 	fi
-	chmod 555 "${D}"/usr/share/entropy/libraries/pysqlite2/libpython*
+	chmod 555 "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/libpython*
 }
