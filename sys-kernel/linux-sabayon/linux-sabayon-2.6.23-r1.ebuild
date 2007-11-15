@@ -12,7 +12,7 @@ UNIPATCH_STRICTORDER="yes"
 KEYWORDS="~amd64 ~x86"
 HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
-	>=sys-kernel/genkernel-3.4.9_pre3
+	>=sys-kernel/genkernel-3.4.9_pre9
 	splash? ( x11-themes/sabayonlinux-artwork )
 	"
 RDEPEND="grub? ( sys-boot/grub )"
@@ -105,7 +105,7 @@ src_compile() {
 		--cachedir=${WORKDIR}/cache \
 		--makeopts=-j3 \
 		--tempdir=${S}/temp \
-		--debugfile=${WORKDIR}/genkernel.log \
+		--logfile=${WORKDIR}/genkernel.log \
 		--bootdir=${WORKDIR}/boot \
 		--mountboot \
 		--lvm \
