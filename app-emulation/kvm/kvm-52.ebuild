@@ -32,6 +32,7 @@ src_unpack() {
 	unpack ${A}
 	einfo "Setting up proper install path"
 	cd ${S}
+	epatch ${FILESDIR}/${P}-disable-headers-installation.patch
 	sed -i 's/prefix=\/usr\/local/prefix=\/usr/' configure
 	sed -i '/datadir=/ s/qemu/kvm/' qemu/configure
 	sed -i '/docdir=/ s/qemu/kvm/' qemu/configure
