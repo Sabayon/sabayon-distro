@@ -53,4 +53,8 @@ src_install() {
 	elif use x86; then
 		dosym /usr/bin/qemu /usr/bin/kvm
 	fi
+	# Install previously removed headers
+	insinto /usr/include/linux
+	doins ${S}/kernel/include/linux/kvm.h
+	doins ${S}/kernel/include/linux/kvm_para.h
 }
