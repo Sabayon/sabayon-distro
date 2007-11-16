@@ -12,7 +12,6 @@ IUSE=""
 DEPEND="=sys-kernel/linux-sabayon-${PVR}"
 RDEPEND="
 	media-video/gspcav1
-	app-emulation/kvm
 	app-emulation/virtualbox-modules
 	app-crypt/truecrypt
 	x11-drivers/nvidia-drivers
