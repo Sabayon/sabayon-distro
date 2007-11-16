@@ -14,11 +14,12 @@ HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
 	>=sys-kernel/genkernel-3.4.9_pre9
 	splash? ( x11-themes/sabayonlinux-artwork )
+	!sys-kernel/sabayon-sources
 	"
 RDEPEND="grub? ( sys-boot/grub )"
-IUSE="splash dmraid grub no_sources"
+IUSE="splash dmraid grub no_sources only_sources"
 
-DESCRIPTION="Official Sabayon Linux kernel images"
+DESCRIPTION="Official Sabayon Linux kernel images and sources"
 MY_P="${PV}/sabayon-sources-${PV}"
 KV_FULL=${KV_FULL/linux/sabayon}
 K_NOSETEXTRAVERSION="1"
@@ -74,71 +75,79 @@ src_unpack() {
 
 src_compile() {
 
-	# disable sandbox	
-	export SANDBOX_ON=0
+	if ! use only_sources; then
 
-	# creating workdirs
-	mkdir -p ${WORKDIR}/boot/grub
-	mkdir ${WORKDIR}/lib
-	mkdir ${WORKDIR}/cache
-	mkdir ${S}/temp
+		# disable sandbox
+		export SANDBOX_ON=0
 
-	einfo "Starting to compile kernel..."
-	cp ${FILESDIR}/${P}-${ARCH}.config ${WORKDIR}/config
-
-	if use grub; then
-		if [ -e "/boot/grub/grub.conf" ]; then
-			cp /boot/grub/grub.conf ${WORKDIR}/boot/grub -p
+		# creating workdirs
+		mkdir -p ${WORKDIR}/boot/grub
+		mkdir ${WORKDIR}/lib
+		mkdir ${WORKDIR}/cache
+		mkdir ${S}/temp
+	
+		einfo "Starting to compile kernel..."
+		cp ${FILESDIR}/${P}-${ARCH}.config ${WORKDIR}/config
+	
+		if use grub; then
+			if [ -e "/boot/grub/grub.conf" ]; then
+				cp /boot/grub/grub.conf ${WORKDIR}/boot/grub -p
+			fi
 		fi
-	fi
 
-	OLDARCH=${ARCH}
-	unset ARCH
-	cd ${S}
-	GK_ARGS=""
-	use splash && GKARGS="${GKARGS} --gensplash=sabayon"
-	use dmraid && GKARGS="${GKARGS} --dmraid"
-	use grub && GKARGS="${GKARGS} --bootloader=grub"
-	genkernel ${GKARGS} \
-		--kerneldir=${S} \
-		--kernel-config=${WORKDIR}/config \
-		--cachedir=${WORKDIR}/cache \
-		--makeopts=-j3 \
-		--tempdir=${S}/temp \
-		--logfile=${WORKDIR}/genkernel.log \
-		--bootdir=${WORKDIR}/boot \
-		--mountboot \
-		--lvm \
-		--luks \
-		--module-prefix=${WORKDIR}/lib \
-		all || die "genkernel failed"
-	ARCH=${OLDARCH}
+		OLDARCH=${ARCH}
+		unset ARCH
+		cd ${S}
+		GK_ARGS=""
+		use splash && GKARGS="${GKARGS} --gensplash=sabayon"
+		use dmraid && GKARGS="${GKARGS} --dmraid"
+		use grub && GKARGS="${GKARGS} --bootloader=grub"
+		genkernel ${GKARGS} \
+			--kerneldir=${S} \
+			--kernel-config=${WORKDIR}/config \
+			--cachedir=${WORKDIR}/cache \
+			--makeopts=-j3 \
+			--tempdir=${S}/temp \
+			--logfile=${WORKDIR}/genkernel.log \
+			--bootdir=${WORKDIR}/boot \
+			--mountboot \
+			--lvm \
+			--luks \
+			--module-prefix=${WORKDIR}/lib \
+			all || die "genkernel failed"
+		ARCH=${OLDARCH}
+
+	fi
 }
 
 src_install() {
 
-	if ! use no_sources; then
+	if ! use no_sources || use only_sources; then
 		kernel-2_src_install || die "sources install failed"
-		cd ${D}/usr/src/linux-${KV_FULL} || die "cannot cd into sources directory"
-		OLDARCH=${ARCH}
-		unset ARCH
-		make distclean || die "cannot run make distclean"
-		cp ${FILESDIR}/${P}-${OLDARCH}.config ${D}/usr/src/linux-${KV_FULL}/.config || die "cannot copy kernel configuration"
-		make prepare modules_prepare || die "cannot run make prepare modules_prepare"
-		ARCH=${OLDARCH}
+		if ! use only_sources; then
+			cd ${D}/usr/src/linux-${KV_FULL} || die "cannot cd into sources directory"
+			OLDARCH=${ARCH}
+			unset ARCH
+			make distclean || die "cannot run make distclean"
+			cp ${FILESDIR}/${P}-${OLDARCH}.config ${D}/usr/src/linux-${KV_FULL}/.config || die "cannot copy kernel configuration"
+			make prepare modules_prepare || die "cannot run make prepare modules_prepare"
+			ARCH=${OLDARCH}
+		fi
 	fi
 
-	insinto /boot
-	doins ${WORKDIR}/boot/*
-	cp -Rp ${WORKDIR}/lib/* ${D}/
-	rm ${D}/lib/modules/${KV_FULL}/source
-	rm ${D}/lib/modules/${KV_FULL}/build
-	ln -s /usr/src/linux-${KV_FULL} ${D}/lib/modules/${KV_FULL}/source
-	ln -s /usr/src/linux-${KV_FULL} ${D}/lib/modules/${KV_FULL}/build
-	if use grub; then
-		if [ -e "${WORKDIR}/boot/grub.conf" ]; then
-			insinto /boot/grub/
-			doins ${WORKDIR}/boot/grub.conf
+	if ! use only_sources; then
+		insinto /boot
+		doins ${WORKDIR}/boot/*
+		cp -Rp ${WORKDIR}/lib/* ${D}/
+		rm ${D}/lib/modules/${KV_FULL}/source
+		rm ${D}/lib/modules/${KV_FULL}/build
+		ln -s /usr/src/linux-${KV_FULL} ${D}/lib/modules/${KV_FULL}/source
+		ln -s /usr/src/linux-${KV_FULL} ${D}/lib/modules/${KV_FULL}/build
+		if use grub; then
+			if [ -e "${WORKDIR}/boot/grub.conf" ]; then
+				insinto /boot/grub/
+				doins ${WORKDIR}/boot/grub.conf
+			fi
 		fi
 	fi
 }
