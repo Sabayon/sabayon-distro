@@ -99,7 +99,7 @@ src_compile() {
 		unset ARCH
 		cd ${S}
 		GK_ARGS=""
-		use splash && GKARGS="${GKARGS} --gensplash=sabayon"
+		use splash && GKARGS="${GKARGS} --splash=sabayon"
 		use dmraid && GKARGS="${GKARGS} --dmraid"
 		use grub && GKARGS="${GKARGS} --bootloader=grub"
 		genkernel ${GKARGS} \
