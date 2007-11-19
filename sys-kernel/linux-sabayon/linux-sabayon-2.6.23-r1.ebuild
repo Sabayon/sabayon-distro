@@ -102,7 +102,7 @@ src_compile() {
 		use splash && GKARGS="${GKARGS} --splash=sabayon"
 		use dmraid && GKARGS="${GKARGS} --dmraid"
 		use grub && GKARGS="${GKARGS} --bootloader=grub"
-		genkernel ${GKARGS} \
+		CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
 			--kerneldir=${S} \
 			--kernel-config=${WORKDIR}/config \
 			--cachedir=${WORKDIR}/cache \
