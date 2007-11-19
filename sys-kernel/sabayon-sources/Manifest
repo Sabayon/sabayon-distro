@@ -1,7 +1,3 @@
-AUX 2.6.20-mactel.patch 31516 RMD160 eb0f3aa1cedf7efece0e16f403e78101411d2474 SHA1 09609fae7afcbe36d232bcbc4b97c7c14fb1159a SHA256 9a41691f93019361ad4057018b96461eccb340ff861923887a387e20e3f1ba78
-MD5 2aebb1391042ad6349edd5c091f9b40b files/2.6.20-mactel.patch 31516
-RMD160 eb0f3aa1cedf7efece0e16f403e78101411d2474 files/2.6.20-mactel.patch 31516
-SHA256 9a41691f93019361ad4057018b96461eccb340ff861923887a387e20e3f1ba78 files/2.6.20-mactel.patch 31516
 AUX acer-acpi-2.6.23.patch 39757 RMD160 50082205ffe394296c3a62fb8032baed48425ee2 SHA1 b6e3dacdaaa3c0880ae35d7fc48fe80c86620233 SHA256 543d196a5bad964971281bc13f04581b3a16f549b358dd0f4417bc8ee5bb7b12
 MD5 d3048630049c942cfba234bc199a0de0 files/acer-acpi-2.6.23.patch 39757
 RMD160 50082205ffe394296c3a62fb8032baed48425ee2 files/acer-acpi-2.6.23.patch 39757
@@ -18,18 +14,10 @@ AUX linux-2.6.23.1.patch 2917 RMD160 60901a1f503454d2bd628a335170ca15670fadfc SH
 MD5 7712e296aadc6df893d32f0c52140b62 files/linux-2.6.23.1.patch 2917
 RMD160 60901a1f503454d2bd628a335170ca15670fadfc files/linux-2.6.23.1.patch 2917
 SHA256 84c17cc9055287bc0fe6237d7482aa8724019e135acf31babfe0dabd0707544a files/linux-2.6.23.1.patch 2917
-AUX linux-phc-0.2.9-for-2.6.21.patch 35012 RMD160 82b09649599373484763fa134b1658b83a3e26b3 SHA1 cc987db858e4ee4f78ebf5f784285201b170846a SHA256 0f007a7416879d515e966a105748d9b39e300881a7215a77d5795609e5715bce
-MD5 fb30807ea90616cf1c36e5fe88338cf3 files/linux-phc-0.2.9-for-2.6.21.patch 35012
-RMD160 82b09649599373484763fa134b1658b83a3e26b3 files/linux-phc-0.2.9-for-2.6.21.patch 35012
-SHA256 0f007a7416879d515e966a105748d9b39e300881a7215a77d5795609e5715bce files/linux-phc-0.2.9-for-2.6.21.patch 35012
 AUX linux-phc-0.3.0-pre1-2.6.23.patch 15780 RMD160 c32694073cf315b51063e938d510640d1b333ec9 SHA1 66f63c3391e71fd1f0934305ff68643b9379ca13 SHA256 8dbbda9ab58b801342f037b63ca5d3ede2ed12d4dc75b3affb1bff50e468a933
 MD5 c38226a14cd02795c47aa9f14251e930 files/linux-phc-0.3.0-pre1-2.6.23.patch 15780
 RMD160 c32694073cf315b51063e938d510640d1b333ec9 files/linux-phc-0.3.0-pre1-2.6.23.patch 15780
 SHA256 8dbbda9ab58b801342f037b63ca5d3ede2ed12d4dc75b3affb1bff50e468a933 files/linux-phc-0.3.0-pre1-2.6.23.patch 15780
-AUX linux-phc-0.3.0-pre1-kernel-vanilla-2.6.19-rc1.patch 67501 RMD160 d5522e32c43af1f2123b90bb8c13bffc12b1a08f SHA1 1611f18e1701092148f3d6d3e235343722148e8b SHA256 bc95035984d5f6ca19ae652aef308318c709a739dbcf39f75c930388dd6f408d
-MD5 99c9b36c93e8a5e302f40f10f871094b files/linux-phc-0.3.0-pre1-kernel-vanilla-2.6.19-rc1.patch 67501
-RMD160 d5522e32c43af1f2123b90bb8c13bffc12b1a08f files/linux-phc-0.3.0-pre1-kernel-vanilla-2.6.19-rc1.patch 67501
-SHA256 bc95035984d5f6ca19ae652aef308318c709a739dbcf39f75c930388dd6f408d files/linux-phc-0.3.0-pre1-kernel-vanilla-2.6.19-rc1.patch 67501
 AUX mactel-patches-2.6.23.patch 26289 RMD160 59e2d43eac3a0178bf85293046a1a1ed80062fbc SHA1 06f9eb9e2c52efd7843dbdf7c7993d1301a43852 SHA256 dbe35b10ac9c4a2675b2dab7836f456ae994dd36990b101511cae6dbc7e4165b
 MD5 4be03a2c74f6333cd5c8fdaa09007ef0 files/mactel-patches-2.6.23.patch 26289
 RMD160 59e2d43eac3a0178bf85293046a1a1ed80062fbc files/mactel-patches-2.6.23.patch 26289
@@ -46,242 +34,22 @@ AUX rt2x00-latest-2.6.23.patch 101563 RMD160 51ba6e7be27ea51aa555e09b2c2e1edc641
 MD5 9427c431e0782cd6fc971727b29b2f98 files/rt2x00-latest-2.6.23.patch 101563
 RMD160 51ba6e7be27ea51aa555e09b2c2e1edc641e3364 files/rt2x00-latest-2.6.23.patch 101563
 SHA256 3e1eadc095921b5f165894684d1f3808988b068aa9cf7a48b3049b7d25d4cb6b files/rt2x00-latest-2.6.23.patch 101563
-AUX sabayon-sources-2.6.20-2.6.20.2.patch 154050 RMD160 a1dfd0476fb4b85e2956779a8fa7681ec9983684 SHA1 a6a9325c133a700a3feb1aeec5fbfc5493e72803 SHA256 523faf1d164d1e307db7f4117c11acef52b001a9704dc63fa9924fd4ee006543
-MD5 5762062493f0a99e04e54b3b719845e0 files/sabayon-sources-2.6.20-2.6.20.2.patch 154050
-RMD160 a1dfd0476fb4b85e2956779a8fa7681ec9983684 files/sabayon-sources-2.6.20-2.6.20.2.patch 154050
-SHA256 523faf1d164d1e307db7f4117c11acef52b001a9704dc63fa9924fd4ee006543 files/sabayon-sources-2.6.20-2.6.20.2.patch 154050
-AUX sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583 RMD160 881564ce848f7a9252b30b3794e0e54ed898a461 SHA1 8e0b9189b51065116288b97f5d123c6755ca431f SHA256 ea43a827ada57d0c45c1799376aec5359bfdceb27d7f2f60f40530d3a9748382
-MD5 9550fd40d82c321c0d39a2cad4a49b9c files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
-RMD160 881564ce848f7a9252b30b3794e0e54ed898a461 files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
-SHA256 ea43a827ada57d0c45c1799376aec5359bfdceb27d7f2f60f40530d3a9748382 files/sabayon-sources-2.6.20-cx88-tvaudio-fixes.patch 583
-AUX sabayon-sources-2.6.20-dvb-af9005.patch 213952 RMD160 c45f6ce083948a91f0bc506554d8e5ffa279a129 SHA1 4e1264d8220e7f081ec53281392b42123886b816 SHA256 9eaa146b4b078f0af02b31380ea5f5f16fca0950ebc1f79879bd5064acc5a086
-MD5 d755aaae2611717c800bccd6aa3f48bf files/sabayon-sources-2.6.20-dvb-af9005.patch 213952
-RMD160 c45f6ce083948a91f0bc506554d8e5ffa279a129 files/sabayon-sources-2.6.20-dvb-af9005.patch 213952
-SHA256 9eaa146b4b078f0af02b31380ea5f5f16fca0950ebc1f79879bd5064acc5a086 files/sabayon-sources-2.6.20-dvb-af9005.patch 213952
-AUX sabayon-sources-2.6.20-prism2.patch 743689 RMD160 350fd45abf491e05e4b3755fba4536c6b6cfc9c9 SHA1 674f9c29075afc87c15d0df0df60d1e1120c87c1 SHA256 a97c01c507b510e5b9110de679e8564338f7d0205decb82458e552fadcfc1724
-MD5 3f80eee54ca4548921d944bf262ba698 files/sabayon-sources-2.6.20-prism2.patch 743689
-RMD160 350fd45abf491e05e4b3755fba4536c6b6cfc9c9 files/sabayon-sources-2.6.20-prism2.patch 743689
-SHA256 a97c01c507b510e5b9110de679e8564338f7d0205decb82458e552fadcfc1724 files/sabayon-sources-2.6.20-prism2.patch 743689
-AUX sabayon-sources-2.6.20-rtl818x.patch 965773 RMD160 3cd79b2a96813054ccd4f2ea122e3064d483929c SHA1 d97a912b3ad29753739530ca7e29be70faa78275 SHA256 47bc93cfd5fd0de1a536afc3fcc9306696152e132f856f80f125cb3196261f26
-MD5 85fc802fe6eba42b00f25c1a2670f5b9 files/sabayon-sources-2.6.20-rtl818x.patch 965773
-RMD160 3cd79b2a96813054ccd4f2ea122e3064d483929c files/sabayon-sources-2.6.20-rtl818x.patch 965773
-SHA256 47bc93cfd5fd0de1a536afc3fcc9306696152e132f856f80f125cb3196261f26 files/sabayon-sources-2.6.20-rtl818x.patch 965773
-AUX sabayon-sources-2.6.20-unionfs-1.3.diff 515103 RMD160 c4713582ac25929d5829a6295e6e69e289a9ebef SHA1 61c35d6c7b69dca52f7782007571179436dd2fec SHA256 e3b1c263f38e1019ac442abb4c6de42989696812c0157c9b696a5a8cecd8bcbe
-MD5 b6e7b19f1684d195e6dd8ee1c0b8867c files/sabayon-sources-2.6.20-unionfs-1.3.diff 515103
-RMD160 c4713582ac25929d5829a6295e6e69e289a9ebef files/sabayon-sources-2.6.20-unionfs-1.3.diff 515103
-SHA256 e3b1c263f38e1019ac442abb4c6de42989696812c0157c9b696a5a8cecd8bcbe files/sabayon-sources-2.6.20-unionfs-1.3.diff 515103
-AUX sabayon-sources-2.6.20-unionfs-2.0.diff 206206 RMD160 7881cd3612f1cd6b1b339538cab6a3febc435e54 SHA1 82aced84be3b4f5fb4279efa29c03d9cc6361797 SHA256 021b9104e4bac0f5d154362c79f6e4fb8f5634734d2614c9301e0f07c3cbcec6
-MD5 cb34b75e9a3dc6b09230526171ff77d3 files/sabayon-sources-2.6.20-unionfs-2.0.diff 206206
-RMD160 7881cd3612f1cd6b1b339538cab6a3febc435e54 files/sabayon-sources-2.6.20-unionfs-2.0.diff 206206
-SHA256 021b9104e4bac0f5d154362c79f6e4fb8f5634734d2614c9301e0f07c3cbcec6 files/sabayon-sources-2.6.20-unionfs-2.0.diff 206206
-AUX sabayon-sources-2.6.20-wireless-dev.patch 2627371 RMD160 3482cf3388b85f62a33ea2b53c62679f8413bdd1 SHA1 5ca4db98aa34ee328ce33115deb307ab3321c544 SHA256 26dfbdb19827acfe74b7c88386e7ad0290856e5fe05f154f4438a8cd8bf19b1a
-MD5 e60992a6ec151394cbc777a20c9aaac7 files/sabayon-sources-2.6.20-wireless-dev.patch 2627371
-RMD160 3482cf3388b85f62a33ea2b53c62679f8413bdd1 files/sabayon-sources-2.6.20-wireless-dev.patch 2627371
-SHA256 26dfbdb19827acfe74b7c88386e7ad0290856e5fe05f154f4438a8cd8bf19b1a files/sabayon-sources-2.6.20-wireless-dev.patch 2627371
-AUX sabayon-sources-2.6.21-2.6.21.5.patch 163121 RMD160 0134e43ff638eaaa303b7e8ff0b3c5dc6aa581b0 SHA1 b89b7477fd7ad981eab30c4535fbc9ff6193002e SHA256 c222c6a4fcf68253d05e10b6c4d8f6dc81a75f65a55f45f03450c69f63618a67
-MD5 e05a0007000f54c15c4a4289a5f68db6 files/sabayon-sources-2.6.21-2.6.21.5.patch 163121
-RMD160 0134e43ff638eaaa303b7e8ff0b3c5dc6aa581b0 files/sabayon-sources-2.6.21-2.6.21.5.patch 163121
-SHA256 c222c6a4fcf68253d05e10b6c4d8f6dc81a75f65a55f45f03450c69f63618a67 files/sabayon-sources-2.6.21-2.6.21.5.patch 163121
-AUX sabayon-sources-2.6.21-adaptive-readahead.patch 74058 RMD160 855d0d33dcc3ef037fe880e1a21f95074b06e55d SHA1 e2f78675ca84240e0568edb912e021699bf33a7c SHA256 e76bc82822499ac7c581407ac1786647f78226e5ad417251611c3e943418fe80
-MD5 03c2aac4303b55bc8fd4503245db9c7b files/sabayon-sources-2.6.21-adaptive-readahead.patch 74058
-RMD160 855d0d33dcc3ef037fe880e1a21f95074b06e55d files/sabayon-sources-2.6.21-adaptive-readahead.patch 74058
-SHA256 e76bc82822499ac7c581407ac1786647f78226e5ad417251611c3e943418fe80 files/sabayon-sources-2.6.21-adaptive-readahead.patch 74058
-AUX sabayon-sources-2.6.21-at76c503a.patch 254296 RMD160 337f27022baaddd17ed9ff7b9e3717d7ee0ccd88 SHA1 b7aa6bf78c6899ebd65201bdd93183c4e25fa4c1 SHA256 80953cca3a2eef76bf797367732d8567d7e3e35da181c12b64b6d69aa9f2227d
-MD5 1d2b81f935237ba90e3eb13432e88ff7 files/sabayon-sources-2.6.21-at76c503a.patch 254296
-RMD160 337f27022baaddd17ed9ff7b9e3717d7ee0ccd88 files/sabayon-sources-2.6.21-at76c503a.patch 254296
-SHA256 80953cca3a2eef76bf797367732d8567d7e3e35da181c12b64b6d69aa9f2227d files/sabayon-sources-2.6.21-at76c503a.patch 254296
-AUX sabayon-sources-2.6.21-cfs-v12.patch 245484 RMD160 24ff34f8b2f164f034073f4f4e614eb0a68b3453 SHA1 82327f28978947b957313bb7805887c296b5f14d SHA256 da450a552aa34de7bb7e56321a2c27751e28a4c20cc60414ccf61dd9904cd4e9
-MD5 fe23a284083542d574cc228ea641dfcd files/sabayon-sources-2.6.21-cfs-v12.patch 245484
-RMD160 24ff34f8b2f164f034073f4f4e614eb0a68b3453 files/sabayon-sources-2.6.21-cfs-v12.patch 245484
-SHA256 da450a552aa34de7bb7e56321a2c27751e28a4c20cc60414ccf61dd9904cd4e9 files/sabayon-sources-2.6.21-cfs-v12.patch 245484
-AUX sabayon-sources-2.6.21-dvb-af9005-updated.patch 209032 RMD160 48f907aa830379e202f1fb62494018e7e434d8b5 SHA1 3a5ad660f7bf447b5c1eaf7b80a86f46d83aff23 SHA256 84e1f02ee056e65e80d660b90a00f108a9340d40a9f36aa36d69ae7a502c7c42
-MD5 99cd85ea9d19324d33ead14dc9434e26 files/sabayon-sources-2.6.21-dvb-af9005-updated.patch 209032
-RMD160 48f907aa830379e202f1fb62494018e7e434d8b5 files/sabayon-sources-2.6.21-dvb-af9005-updated.patch 209032
-SHA256 84e1f02ee056e65e80d660b90a00f108a9340d40a9f36aa36d69ae7a502c7c42 files/sabayon-sources-2.6.21-dvb-af9005-updated.patch 209032
-AUX sabayon-sources-2.6.21-dvb-af9005.patch 213952 RMD160 c45f6ce083948a91f0bc506554d8e5ffa279a129 SHA1 4e1264d8220e7f081ec53281392b42123886b816 SHA256 9eaa146b4b078f0af02b31380ea5f5f16fca0950ebc1f79879bd5064acc5a086
-MD5 d755aaae2611717c800bccd6aa3f48bf files/sabayon-sources-2.6.21-dvb-af9005.patch 213952
-RMD160 c45f6ce083948a91f0bc506554d8e5ffa279a129 files/sabayon-sources-2.6.21-dvb-af9005.patch 213952
-SHA256 9eaa146b4b078f0af02b31380ea5f5f16fca0950ebc1f79879bd5064acc5a086 files/sabayon-sources-2.6.21-dvb-af9005.patch 213952
-AUX sabayon-sources-2.6.21-execshield.patch 56761 RMD160 449bc7e0770e90887c44abaae1b4602047708546 SHA1 be2afa2c13bb9fba2caadca492b400585ccd6cc8 SHA256 f2395c5feee2e5ee3d776856e8634437dfc6520e6e87baca142ad0b0ac452919
-MD5 37b1511008b82c223c708a0c7138db14 files/sabayon-sources-2.6.21-execshield.patch 56761
-RMD160 449bc7e0770e90887c44abaae1b4602047708546 files/sabayon-sources-2.6.21-execshield.patch 56761
-SHA256 f2395c5feee2e5ee3d776856e8634437dfc6520e6e87baca142ad0b0ac452919 files/sabayon-sources-2.6.21-execshield.patch 56761
 AUX sabayon-sources-2.6.21-from-ext4dev-to-ext4.patch 1323 RMD160 ee811d53c2ec0f038518655114c346c7191bf8f2 SHA1 67a88a2c4c084913404037dabd06978c413ab5a5 SHA256 787166df34c422ee07c8bdf4ff61c0bbed983e434b4ffb3bb2010744ca7100bb
 MD5 973a688a2f01f604befbccb4b1b0dd18 files/sabayon-sources-2.6.21-from-ext4dev-to-ext4.patch 1323
 RMD160 ee811d53c2ec0f038518655114c346c7191bf8f2 files/sabayon-sources-2.6.21-from-ext4dev-to-ext4.patch 1323
 SHA256 787166df34c422ee07c8bdf4ff61c0bbed983e434b4ffb3bb2010744ca7100bb files/sabayon-sources-2.6.21-from-ext4dev-to-ext4.patch 1323
-AUX sabayon-sources-2.6.21-git-20070402-dvb.patch 947499 RMD160 b40bb18ef3f44c1244c943e7d3f2b55ddcd14bcb SHA1 3300be8f6acfde439476a64f11242a0970ad6f49 SHA256 43052de027a371cf4652d0c25633352eec8c2280ddc169cf7f5272a80b7682b1
-MD5 ccd10e07436db9a86b7b43dff4cf984f files/sabayon-sources-2.6.21-git-20070402-dvb.patch 947499
-RMD160 b40bb18ef3f44c1244c943e7d3f2b55ddcd14bcb files/sabayon-sources-2.6.21-git-20070402-dvb.patch 947499
-SHA256 43052de027a371cf4652d0c25633352eec8c2280ddc169cf7f5272a80b7682b1 files/sabayon-sources-2.6.21-git-20070402-dvb.patch 947499
-AUX sabayon-sources-2.6.21-i965-support.patch 596 RMD160 27f0b141d5f36754e1ece0c72877883f31a7c2f6 SHA1 c75c76f128b8ec1203692f7b70099526ccb94902 SHA256 f87f4c0ed24d57ad888be6736db8d7adba38f7412294dd1957e4d81e0ddc0997
-MD5 ae6d49ef0fc75dd202b737697b562ac8 files/sabayon-sources-2.6.21-i965-support.patch 596
-RMD160 27f0b141d5f36754e1ece0c72877883f31a7c2f6 files/sabayon-sources-2.6.21-i965-support.patch 596
-SHA256 f87f4c0ed24d57ad888be6736db8d7adba38f7412294dd1957e4d81e0ddc0997 files/sabayon-sources-2.6.21-i965-support.patch 596
-AUX sabayon-sources-2.6.21-iwlwifi.patch 487796 RMD160 597a6ebee1ac0d4e35741e045cfee38275fa7dfe SHA1 3b4ed94dce23034c550310e9dc4120292a90e63b SHA256 73a49311b85af88dbaacf27298208b4652789080e233200f8415aed46a410820
-MD5 96a3ca0bef5411e445c6d30e1670dcc6 files/sabayon-sources-2.6.21-iwlwifi.patch 487796
-RMD160 597a6ebee1ac0d4e35741e045cfee38275fa7dfe files/sabayon-sources-2.6.21-iwlwifi.patch 487796
-SHA256 73a49311b85af88dbaacf27298208b4652789080e233200f8415aed46a410820 files/sabayon-sources-2.6.21-iwlwifi.patch 487796
-AUX sabayon-sources-2.6.21-kvm-19.patch 90670 RMD160 5a3e335f7abc74bd023f9e4d5ca7c835127a6a78 SHA1 4bab66dafa815ce660c41139314a2bfd502c2f54 SHA256 d28c73e9b03d9949a87e5a64764328ac3cff4a1dc78e386845015c2acf2bce71
-MD5 66f8ac95c078acf392dfed8f2b8d4a5b files/sabayon-sources-2.6.21-kvm-19.patch 90670
-RMD160 5a3e335f7abc74bd023f9e4d5ca7c835127a6a78 files/sabayon-sources-2.6.21-kvm-19.patch 90670
-SHA256 d28c73e9b03d9949a87e5a64764328ac3cff4a1dc78e386845015c2acf2bce71 files/sabayon-sources-2.6.21-kvm-19.patch 90670
-AUX sabayon-sources-2.6.21-libertas-wireless-driver.patch 621800 RMD160 bcd011cd6e8ea697e5042e6bb445e6da6a683c87 SHA1 5ae14f813ff9d045bd0fdca1728ac23d979b3032 SHA256 cd11ae136376435743d580c3d24c6f2d22cdc2da6489e50df3147af2e9000f2a
-MD5 ba9271ab56776a47c50b16b0c77a65c2 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 621800
-RMD160 bcd011cd6e8ea697e5042e6bb445e6da6a683c87 files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 621800
-SHA256 cd11ae136376435743d580c3d24c6f2d22cdc2da6489e50df3147af2e9000f2a files/sabayon-sources-2.6.21-libertas-wireless-driver.patch 621800
-AUX sabayon-sources-2.6.21-mactel.patch 80488 RMD160 48443c199391d2be56c7c8ca1e3b90c95fad23cc SHA1 d0cd25fbe32be96bdb715364fe9c5c698b8bf655 SHA256 0654309f918067ad6c77eb5b867009221ebeea4d26ed05afd6b40e67126d5a8f
-MD5 2cad90e2ea19d799254af8370807bab4 files/sabayon-sources-2.6.21-mactel.patch 80488
-RMD160 48443c199391d2be56c7c8ca1e3b90c95fad23cc files/sabayon-sources-2.6.21-mactel.patch 80488
-SHA256 0654309f918067ad6c77eb5b867009221ebeea4d26ed05afd6b40e67126d5a8f files/sabayon-sources-2.6.21-mactel.patch 80488
-AUX sabayon-sources-2.6.21-prism2.patch 743686 RMD160 31c7cb0e5b441e3c0712bc05042e40f8dea89b94 SHA1 2ea3e902c66e78518c0b61394e9bd43f38318492 SHA256 a6d1c2613344b5bed451d8c273d4e2ccdfa3cb5de4a0fb33cc3c9d3d2679e98c
-MD5 a192c27cbbc3005140a480811a4c622f files/sabayon-sources-2.6.21-prism2.patch 743686
-RMD160 31c7cb0e5b441e3c0712bc05042e40f8dea89b94 files/sabayon-sources-2.6.21-prism2.patch 743686
-SHA256 a6d1c2613344b5bed451d8c273d4e2ccdfa3cb5de4a0fb33cc3c9d3d2679e98c files/sabayon-sources-2.6.21-prism2.patch 743686
-AUX sabayon-sources-2.6.21-prism54-updates.patch 358119 RMD160 d2ae3fb48e8ff49452f28010a3c775e318eb2eba SHA1 346cbe18814c4bdbc37ce68a78ed7f0005b1ce7d SHA256 a491236cd28a059ccabc9977a0096c313b5c06fa3fe7d1543880d968f1697b54
-MD5 b00b6c7a84c3f72cde35c60327e2da3d files/sabayon-sources-2.6.21-prism54-updates.patch 358119
-RMD160 d2ae3fb48e8ff49452f28010a3c775e318eb2eba files/sabayon-sources-2.6.21-prism54-updates.patch 358119
-SHA256 a491236cd28a059ccabc9977a0096c313b5c06fa3fe7d1543880d968f1697b54 files/sabayon-sources-2.6.21-prism54-updates.patch 358119
-AUX sabayon-sources-2.6.21-ricoh-mmc-driver.patch 18604 RMD160 d8b165effa5dfa77faaa7cc6c8e1db1dae6288d2 SHA1 d0bd995acf4196b258077612064a610be1becb06 SHA256 cd388419a1b554cf5498d61115df30c77ddc3ea20e05626b851ede28928ead87
-MD5 8f04639a71b03838328131b369971eed files/sabayon-sources-2.6.21-ricoh-mmc-driver.patch 18604
-RMD160 d8b165effa5dfa77faaa7cc6c8e1db1dae6288d2 files/sabayon-sources-2.6.21-ricoh-mmc-driver.patch 18604
-SHA256 cd388419a1b554cf5498d61115df30c77ddc3ea20e05626b851ede28928ead87 files/sabayon-sources-2.6.21-ricoh-mmc-driver.patch 18604
-AUX sabayon-sources-2.6.21-sata_nv-fixes.patch 3977 RMD160 66baa5ac03d73b61903b7be854181a94f1fe79b4 SHA1 8dd63a2d40601affa394f4bd105edb87e6848c34 SHA256 0fc82cad9b6ba3591a8f502da63ea05d2aabeb5eb4ca54e6ae2e32c29a9e602a
-MD5 c1c043a3e12197057587246f34eda841 files/sabayon-sources-2.6.21-sata_nv-fixes.patch 3977
-RMD160 66baa5ac03d73b61903b7be854181a94f1fe79b4 files/sabayon-sources-2.6.21-sata_nv-fixes.patch 3977
-SHA256 0fc82cad9b6ba3591a8f502da63ea05d2aabeb5eb4ca54e6ae2e32c29a9e602a files/sabayon-sources-2.6.21-sata_nv-fixes.patch 3977
-AUX sabayon-sources-2.6.21-sd-0.48.patch 79766 RMD160 2973ef9c87ab3ae8a21bb893219062509d2e19fb SHA1 69a4b56800aee145f6b5e8716487420f8dbcd97e SHA256 b92af631d3d63e1afc02f07c5eb763f225174432ff2a8ee9cfef5cb1338b81b4
-MD5 f45a91048102456b22d5880bcecc3082 files/sabayon-sources-2.6.21-sd-0.48.patch 79766
-RMD160 2973ef9c87ab3ae8a21bb893219062509d2e19fb files/sabayon-sources-2.6.21-sd-0.48.patch 79766
-SHA256 b92af631d3d63e1afc02f07c5eb763f225174432ff2a8ee9cfef5cb1338b81b4 files/sabayon-sources-2.6.21-sd-0.48.patch 79766
-AUX sabayon-sources-2.6.21-sony-laptops.patch 66608 RMD160 9f621d3ceed1b7031e25af3536fab33a1dc507c7 SHA1 668de075a8d1c281d73ad781460498da4becf784 SHA256 44ee58e8ec3b2f7ef203fab705cc918284f18371ad8cb32f2d04d90aa1ca22b6
-MD5 a1f4a7d616bf49ba7c36a5367bb46f5b files/sabayon-sources-2.6.21-sony-laptops.patch 66608
-RMD160 9f621d3ceed1b7031e25af3536fab33a1dc507c7 files/sabayon-sources-2.6.21-sony-laptops.patch 66608
-SHA256 44ee58e8ec3b2f7ef203fab705cc918284f18371ad8cb32f2d04d90aa1ca22b6 files/sabayon-sources-2.6.21-sony-laptops.patch 66608
-AUX sabayon-sources-2.6.21-thinkpad.patch 212911 RMD160 7f06f80bc02e5bc13e829fdde907c06e69d37566 SHA1 0e70f220684731381b8885c682489c770e1f27f5 SHA256 aa1ebcb310970197bf66e306eecc4fbc232fab8dfb32136730d21802c7e2be6d
-MD5 a4d74e756f1d7f3266d8521509a2eafb files/sabayon-sources-2.6.21-thinkpad.patch 212911
-RMD160 7f06f80bc02e5bc13e829fdde907c06e69d37566 files/sabayon-sources-2.6.21-thinkpad.patch 212911
-SHA256 aa1ebcb310970197bf66e306eecc4fbc232fab8dfb32136730d21802c7e2be6d files/sabayon-sources-2.6.21-thinkpad.patch 212911
-AUX sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 715165 RMD160 d0de4a3b0e49bead3db2eb509599da4f230f1d7d SHA1 d72dc7a2c4765a82ac991f30de4ca69ea274a6cb SHA256 fde5a4f41c996abdd2daf439a717f27c640c9b30581e0840de7ba2576f1f485e
-MD5 b1e6514d371ac02d849a692222bb31c2 files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 715165
-RMD160 d0de4a3b0e49bead3db2eb509599da4f230f1d7d files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 715165
-SHA256 fde5a4f41c996abdd2daf439a717f27c640c9b30581e0840de7ba2576f1f485e files/sabayon-sources-2.6.21-tiacx-adm8211-drivers.patch 715165
-AUX sabayon-sources-2.6.21-unionfs-1.3.diff 515159 RMD160 7be790bc05f599c866fb0a7d57a0a09ef3c07096 SHA1 06bfca77abfafdd9d099f3474482f7fe806456eb SHA256 c444ab52d9ecff797767ec40489fde4ab16923d5097ac2b5738cb755baa1464f
-MD5 5d2f535fab3ff7074aae73f8fa85019e files/sabayon-sources-2.6.21-unionfs-1.3.diff 515159
-RMD160 7be790bc05f599c866fb0a7d57a0a09ef3c07096 files/sabayon-sources-2.6.21-unionfs-1.3.diff 515159
-SHA256 c444ab52d9ecff797767ec40489fde4ab16923d5097ac2b5738cb755baa1464f files/sabayon-sources-2.6.21-unionfs-1.3.diff 515159
-AUX sabayon-sources-2.6.21-wireless-dev.patch 2671387 RMD160 46ab7f0bb611a0c82599b736c7ea793c20337f29 SHA1 f37d683fb5af96fb732dbc513cebd963d0843fe9 SHA256 c787d1c4ce47ccb60310e8ad8d9e9cbf6a1cb7e0ff2d98faf204322f707f743e
-MD5 204d69e1ad45b34c8719057164bf4d39 files/sabayon-sources-2.6.21-wireless-dev.patch 2671387
-RMD160 46ab7f0bb611a0c82599b736c7ea793c20337f29 files/sabayon-sources-2.6.21-wireless-dev.patch 2671387
-SHA256 c787d1c4ce47ccb60310e8ad8d9e9cbf6a1cb7e0ff2d98faf204322f707f743e files/sabayon-sources-2.6.21-wireless-dev.patch 2671387
-AUX sabayon-sources-2.6.21_rc5-dvb-af9005.patch 213680 RMD160 1bb5f2bb861e45fa7376a7acf322afe451abc073 SHA1 9344bba9cea43ff083a43ce4fff61350152d6592 SHA256 b1e1e59575ff1b1ffdf88070248117f0604d4aee780e4cd190c22e8768d5c650
-MD5 d2ba0e8fd6ef82e244126f4a3ed24a59 files/sabayon-sources-2.6.21_rc5-dvb-af9005.patch 213680
-RMD160 1bb5f2bb861e45fa7376a7acf322afe451abc073 files/sabayon-sources-2.6.21_rc5-dvb-af9005.patch 213680
-SHA256 b1e1e59575ff1b1ffdf88070248117f0604d4aee780e4cd190c22e8768d5c650 files/sabayon-sources-2.6.21_rc5-dvb-af9005.patch 213680
-AUX sabayon-sources-2.6.21_rc5-unionfs-2.0.patch 246964 RMD160 fb144a76f43b4574c4966e9ba977025261a7924f SHA1 86eec81ce066887895fcd55c583d9d65528086ae SHA256 2e4ba6aa12c6ed4e911019bf1a5f52c8ad3f44ff0939baf4f43848173b590adf
-MD5 6e19621e02eefcef3ff15a06ee07124b files/sabayon-sources-2.6.21_rc5-unionfs-2.0.patch 246964
-RMD160 fb144a76f43b4574c4966e9ba977025261a7924f files/sabayon-sources-2.6.21_rc5-unionfs-2.0.patch 246964
-SHA256 2e4ba6aa12c6ed4e911019bf1a5f52c8ad3f44ff0939baf4f43848173b590adf files/sabayon-sources-2.6.21_rc5-unionfs-2.0.patch 246964
-AUX sabayon-sources-2.6.21_rc5-wireless-dev.patch 3224358 RMD160 2dba6041ef4f61af1848c97fb20b740d8112fb0a SHA1 b524eb2b04a1811e520220334a9930424a8d9a09 SHA256 1dc8c71ab3347608775399ee254928baa741b100a2997df0d0127d176c0c5240
-MD5 7bf4934afa345c0dc699a64ef1ab3b0b files/sabayon-sources-2.6.21_rc5-wireless-dev.patch 3224358
-RMD160 2dba6041ef4f61af1848c97fb20b740d8112fb0a files/sabayon-sources-2.6.21_rc5-wireless-dev.patch 3224358
-SHA256 1dc8c71ab3347608775399ee254928baa741b100a2997df0d0127d176c0c5240 files/sabayon-sources-2.6.21_rc5-wireless-dev.patch 3224358
-AUX sabayon-sources-2.6.21_rc6-wireless-dev.patch 2764358 RMD160 feb0502961238b863a3268cc87313dc51950c1b0 SHA1 3c5e88c1bcb5f8d91fb4392815cf811f0101dd41 SHA256 754396c5d20202225e2db5a0afcaeeb70c4e0f41f55a2b06a7957fcdfa6cd887
-MD5 117500731f3bed84e3c95e9e3ccf5630 files/sabayon-sources-2.6.21_rc6-wireless-dev.patch 2764358
-RMD160 feb0502961238b863a3268cc87313dc51950c1b0 files/sabayon-sources-2.6.21_rc6-wireless-dev.patch 2764358
-SHA256 754396c5d20202225e2db5a0afcaeeb70c4e0f41f55a2b06a7957fcdfa6cd887 files/sabayon-sources-2.6.21_rc6-wireless-dev.patch 2764358
-AUX sabayon-sources-2.6.22-acx-mac80211.patch 440848 RMD160 2cc6da09a2795a346955f78d777ffc978f59098c SHA1 f85a24956204c04fa36fa1dd1fc1df7d00012f69 SHA256 07fb0600ce85f032007e8db7343cba66b824b650888ee382e8b5a2efda9f1983
-MD5 9289ff3b5d714463d61c6d9c2d631fdb files/sabayon-sources-2.6.22-acx-mac80211.patch 440848
-RMD160 2cc6da09a2795a346955f78d777ffc978f59098c files/sabayon-sources-2.6.22-acx-mac80211.patch 440848
-SHA256 07fb0600ce85f032007e8db7343cba66b824b650888ee382e8b5a2efda9f1983 files/sabayon-sources-2.6.22-acx-mac80211.patch 440848
-AUX sabayon-sources-2.6.22-acx.patch 648144 RMD160 5490f309b7d98ce161abf7962e9b5c72969e945a SHA1 21cf60a88780a022c248f7236677fb4faec0357e SHA256 01cf9a59fe4115dfca3b24efbd947b3fd8e4808cec42de3d0113f6ff43ce5e3b
-MD5 2a4fa09a723521a94803a9e8f1389482 files/sabayon-sources-2.6.22-acx.patch 648144
-RMD160 5490f309b7d98ce161abf7962e9b5c72969e945a files/sabayon-sources-2.6.22-acx.patch 648144
-SHA256 01cf9a59fe4115dfca3b24efbd947b3fd8e4808cec42de3d0113f6ff43ce5e3b files/sabayon-sources-2.6.22-acx.patch 648144
-AUX sabayon-sources-2.6.22-at76c503a.patch 298647 RMD160 ba6499f53bdbd1b2ecaf31a557b01c6609b56455 SHA1 e3103a2ea3c3da0eedc7abae6990f9af226189bf SHA256 ea191e9413f72ae99731136e6962d755c1b354b02785d2fa5931c6e735f769a8
-MD5 29c061f84cfa5799629bcd2a074aded4 files/sabayon-sources-2.6.22-at76c503a.patch 298647
-RMD160 ba6499f53bdbd1b2ecaf31a557b01c6609b56455 files/sabayon-sources-2.6.22-at76c503a.patch 298647
-SHA256 ea191e9413f72ae99731136e6962d755c1b354b02785d2fa5931c6e735f769a8 files/sabayon-sources-2.6.22-at76c503a.patch 298647
-AUX sabayon-sources-2.6.22-cfs-19.patch 222598 RMD160 d1770e651048b9dc8742e1cc006c092e8cf38580 SHA1 788d36a5015f36789dac47252f935896e45a9d95 SHA256 dd5974643a9e8216d502bda027aba4af4b1eee81ab0f91763556668d2855f179
-MD5 63d1915c30f92bd5bc5aa5c2f2ec56e5 files/sabayon-sources-2.6.22-cfs-19.patch 222598
-RMD160 d1770e651048b9dc8742e1cc006c092e8cf38580 files/sabayon-sources-2.6.22-cfs-19.patch 222598
-SHA256 dd5974643a9e8216d502bda027aba4af4b1eee81ab0f91763556668d2855f179 files/sabayon-sources-2.6.22-cfs-19.patch 222598
-AUX sabayon-sources-2.6.22-dvb-af9005.patch 208959 RMD160 55a3a01b93fdddc9c5bf11785b41ed01da2caa67 SHA1 03838495b38c7948d883f80aa653261fdf00e896 SHA256 0d8683d8276ae95c69edf7d246a2bb5e8589628174ae7743947852609ad791a1
-MD5 70db71ccebf982a89b41acb14a2f2c56 files/sabayon-sources-2.6.22-dvb-af9005.patch 208959
-RMD160 55a3a01b93fdddc9c5bf11785b41ed01da2caa67 files/sabayon-sources-2.6.22-dvb-af9005.patch 208959
-SHA256 0d8683d8276ae95c69edf7d246a2bb5e8589628174ae7743947852609ad791a1 files/sabayon-sources-2.6.22-dvb-af9005.patch 208959
-AUX sabayon-sources-2.6.22-fbsplash-0.9.2-r5.patch 53513 RMD160 92ba3ff81d8cf1074c1f4883a2bd77382d9a35db SHA1 6f3f6974adbfab654ec59c9326900eea0175a839 SHA256 6e861a20e0085fe4b1e6818295c6ebdef762add755ccb0262f77ac398b53a4f3
-MD5 61f4e4f88babf26e75996948f1d55c7f files/sabayon-sources-2.6.22-fbsplash-0.9.2-r5.patch 53513
-RMD160 92ba3ff81d8cf1074c1f4883a2bd77382d9a35db files/sabayon-sources-2.6.22-fbsplash-0.9.2-r5.patch 53513
-SHA256 6e861a20e0085fe4b1e6818295c6ebdef762add755ccb0262f77ac398b53a4f3 files/sabayon-sources-2.6.22-fbsplash-0.9.2-r5.patch 53513
-AUX sabayon-sources-2.6.22-ich8m-support.patch 617 RMD160 f35811502e1d0047a8ef3a4b69c3e9da1c4ecd5c SHA1 f9dae93b0d0ca5f890d4891a2242e62b9c77f728 SHA256 f6591f6029f48eea430af35e6be167674b1b458a61a6ab6ab9cf4081c75b7ef1
-MD5 de2c61db0697c60d6b49ee8e458ab2f3 files/sabayon-sources-2.6.22-ich8m-support.patch 617
-RMD160 f35811502e1d0047a8ef3a4b69c3e9da1c4ecd5c files/sabayon-sources-2.6.22-ich8m-support.patch 617
-SHA256 f6591f6029f48eea430af35e6be167674b1b458a61a6ab6ab9cf4081c75b7ef1 files/sabayon-sources-2.6.22-ich8m-support.patch 617
 AUX sabayon-sources-2.6.22-ipw3945-1.2.0-2.6.22.patch 616241 RMD160 c2453879ecd7fc660fa27de27e2d7583c272ba48 SHA1 caaa993d919c872dba0526c7f5ac448ddd83ae63 SHA256 3b5bc542a9ccd35f026ec4916db62d45d9b20ff25e1879a7109f465c9c081df8
 MD5 082bbb76d677f79503269befa1cc279b files/sabayon-sources-2.6.22-ipw3945-1.2.0-2.6.22.patch 616241
 RMD160 c2453879ecd7fc660fa27de27e2d7583c272ba48 files/sabayon-sources-2.6.22-ipw3945-1.2.0-2.6.22.patch 616241
 SHA256 3b5bc542a9ccd35f026ec4916db62d45d9b20ff25e1879a7109f465c9c081df8 files/sabayon-sources-2.6.22-ipw3945-1.2.0-2.6.22.patch 616241
-AUX sabayon-sources-2.6.22-linux-phc-0.2.10.patch 36051 RMD160 c0ce8222730d27ecae263a29adbbab6e592d8465 SHA1 6a890bed14b86233777c3688c9e7856cfb31dbca SHA256 652412d313a3a02ad650c069e37d77a44176a86d87e79f041e1cabe319c9eed7
-MD5 2682e77a8bad2782ce0f017dc26d6c50 files/sabayon-sources-2.6.22-linux-phc-0.2.10.patch 36051
-RMD160 c0ce8222730d27ecae263a29adbbab6e592d8465 files/sabayon-sources-2.6.22-linux-phc-0.2.10.patch 36051
-SHA256 652412d313a3a02ad650c069e37d77a44176a86d87e79f041e1cabe319c9eed7 files/sabayon-sources-2.6.22-linux-phc-0.2.10.patch 36051
 AUX sabayon-sources-2.6.22-mactel-appleir.patch 11033 RMD160 ed3a534f1ecb29677be835f79708234d0997f925 SHA1 1c33e384b458a389aad42e675b73faf7a4990e47 SHA256 3632638c9c99684743ab26b9edd3f241eecb0d0199436fb771eeb0cc9ad7ca05
 MD5 19c823d715d4d9bf223bf0eb01e590ae files/sabayon-sources-2.6.22-mactel-appleir.patch 11033
 RMD160 ed3a534f1ecb29677be835f79708234d0997f925 files/sabayon-sources-2.6.22-mactel-appleir.patch 11033
 SHA256 3632638c9c99684743ab26b9edd3f241eecb0d0199436fb771eeb0cc9ad7ca05 files/sabayon-sources-2.6.22-mactel-appleir.patch 11033
-AUX sabayon-sources-2.6.22-mactel-applesmc.patch 19429 RMD160 c23332acfd82b33634717a317e699ddb351a821d SHA1 68940f9ae56eec5a2630fae814b8a6d973fdf7a1 SHA256 0dbe42e54ae0ae52eebc92757d7b05741766291de2ea9f56d3e7af1d38567225
-MD5 22d16972ddc582a04982367ef78428b4 files/sabayon-sources-2.6.22-mactel-applesmc.patch 19429
-RMD160 c23332acfd82b33634717a317e699ddb351a821d files/sabayon-sources-2.6.22-mactel-applesmc.patch 19429
-SHA256 0dbe42e54ae0ae52eebc92757d7b05741766291de2ea9f56d3e7af1d38567225 files/sabayon-sources-2.6.22-mactel-applesmc.patch 19429
-AUX sabayon-sources-2.6.22-mactel-sigmatel-audio.patch 2476 RMD160 5fc37a43c18bbe8a5537470049b1dd0104798a46 SHA1 8f355fed73a4514c3544a7feeb9b9db86b064d0e SHA256 2954b1f5ebc83654485c2253017d508f9b57f1eb4fe670fc643f26f1df2d16e9
-MD5 4de8f125a98a10623f2f43a87a867903 files/sabayon-sources-2.6.22-mactel-sigmatel-audio.patch 2476
-RMD160 5fc37a43c18bbe8a5537470049b1dd0104798a46 files/sabayon-sources-2.6.22-mactel-sigmatel-audio.patch 2476
-SHA256 2954b1f5ebc83654485c2253017d508f9b57f1eb4fe670fc643f26f1df2d16e9 files/sabayon-sources-2.6.22-mactel-sigmatel-audio.patch 2476
-AUX sabayon-sources-2.6.22-pm-appletouch.patch 4519 RMD160 6b3e37b6be392c475cfeef34552f677296f3a5cd SHA1 c6b27abf577ac8e44ec7870eab917dfc876be1a9 SHA256 d5330b3620809bfdc255c206671313a2c91db3609723888c1ec80262272ff855
-MD5 ac781cfb16e230d269a768794aa6db2e files/sabayon-sources-2.6.22-pm-appletouch.patch 4519
-RMD160 6b3e37b6be392c475cfeef34552f677296f3a5cd files/sabayon-sources-2.6.22-pm-appletouch.patch 4519
-SHA256 d5330b3620809bfdc255c206671313a2c91db3609723888c1ec80262272ff855 files/sabayon-sources-2.6.22-pm-appletouch.patch 4519
-AUX sabayon-sources-2.6.22-pm-hdaps.patch 2121 RMD160 3b5dc25018eddfb786cca1e0e9f8fd4e1c75b30b SHA1 59c5abf9ae341641b3c90dfc7256aa25fd56570e SHA256 765e7bfd8ff2d3f6e72d8f01ec3b8f59d32e5927019c41630b2dc7988a08da93
-MD5 b21a0324ae86085ff0dae4a3329e0a1c files/sabayon-sources-2.6.22-pm-hdaps.patch 2121
-RMD160 3b5dc25018eddfb786cca1e0e9f8fd4e1c75b30b files/sabayon-sources-2.6.22-pm-hdaps.patch 2121
-SHA256 765e7bfd8ff2d3f6e72d8f01ec3b8f59d32e5927019c41630b2dc7988a08da93 files/sabayon-sources-2.6.22-pm-hdaps.patch 2121
-AUX sabayon-sources-2.6.22-pm-hpet-intel.patch 6470 RMD160 6f066d97373bde354ecc5d8dcc623411a255213d SHA1 e04380e454f8f0070d91608f522e1ccdd6e8a920 SHA256 8ab4706bac0a9994027653ada297e2172bda742df33e255cf134174dd94ea02f
-MD5 39fcdb10369e4c4bb37e2c9abc7d6d1f files/sabayon-sources-2.6.22-pm-hpet-intel.patch 6470
-RMD160 6f066d97373bde354ecc5d8dcc623411a255213d files/sabayon-sources-2.6.22-pm-hpet-intel.patch 6470
-SHA256 8ab4706bac0a9994027653ada297e2172bda742df33e255cf134174dd94ea02f files/sabayon-sources-2.6.22-pm-hpet-intel.patch 6470
-AUX sabayon-sources-2.6.22-pm-jiffies-patches.patch 3361 RMD160 68ee355f38f138667083d6d29498b9e55cd765c9 SHA1 2ad52b80dd2bbeded16d70a62a5f12ce7636e51c SHA256 71525648955411120c433749865af3d8a3d977d8ff273dc94bba0480fa233194
-MD5 095009e8e0e23e2dda6b13181be68d5a files/sabayon-sources-2.6.22-pm-jiffies-patches.patch 3361
-RMD160 68ee355f38f138667083d6d29498b9e55cd765c9 files/sabayon-sources-2.6.22-pm-jiffies-patches.patch 3361
-SHA256 71525648955411120c433749865af3d8a3d977d8ff273dc94bba0480fa233194 files/sabayon-sources-2.6.22-pm-jiffies-patches.patch 3361
-AUX sabayon-sources-2.6.22-ricoh-mmc-driver.patch 18501 RMD160 8dcd6de9c2a5104bd1d5d1dcf9311628d078919a SHA1 1de23e005fff0226637b9a1641eabc998f2ad4f0 SHA256 709eee2376219e92d2f613ac1608a60c8326e289a43ec3342f54e0c0854781d0
-MD5 61312a09265067b00e23222c6a7a17f9 files/sabayon-sources-2.6.22-ricoh-mmc-driver.patch 18501
-RMD160 8dcd6de9c2a5104bd1d5d1dcf9311628d078919a files/sabayon-sources-2.6.22-ricoh-mmc-driver.patch 18501
-SHA256 709eee2376219e92d2f613ac1608a60c8326e289a43ec3342f54e0c0854781d0 files/sabayon-sources-2.6.22-ricoh-mmc-driver.patch 18501
-AUX sabayon-sources-2.6.22-rt2x00-updates.patch 369110 RMD160 d0bfbd904456e24e91fb143ec71732076ba77266 SHA1 baf840b5172015b8300900a3efdc0df2a5f0d3f3 SHA256 e57497661d8c13b539a390967a743de6287df9b5747555066ce47e9c925592cd
-MD5 5b0605b183ad25d42f4c56fe516171a0 files/sabayon-sources-2.6.22-rt2x00-updates.patch 369110
-RMD160 d0bfbd904456e24e91fb143ec71732076ba77266 files/sabayon-sources-2.6.22-rt2x00-updates.patch 369110
-SHA256 e57497661d8c13b539a390967a743de6287df9b5747555066ce47e9c925592cd files/sabayon-sources-2.6.22-rt2x00-updates.patch 369110
 AUX sabayon-sources-2.6.22-squashfs-3.2.patch 132122 RMD160 2b37cf49d9fce432ed974251e31bca2fbd6856d8 SHA1 55f13f44aba49faf45fd1870218dd95256583892 SHA256 c20e4034ba51d9ec2e6e74f10cb94f5f168528cb84dd1e91f9055ac3bd5d4459
 MD5 31d00350a7765ae9b2577d4f3f7a2276 files/sabayon-sources-2.6.22-squashfs-3.2.patch 132122
 RMD160 2b37cf49d9fce432ed974251e31bca2fbd6856d8 files/sabayon-sources-2.6.22-squashfs-3.2.patch 132122
 SHA256 c20e4034ba51d9ec2e6e74f10cb94f5f168528cb84dd1e91f9055ac3bd5d4459 files/sabayon-sources-2.6.22-squashfs-3.2.patch 132122
-AUX sabayon-sources-2.6.22-thinkpad.patch 48871 RMD160 2ad5d4e06ab545f8bad7a08f6feaec6e29c4b377 SHA1 92c40a2bd88197b4f3f4896937eb26964b768b26 SHA256 3803bf364725a07cfac0c768b2408994be2416f6a573e040a78718660b1e9de3
-MD5 b04f86226c5c06cbcf7af5fd2b64ce2b files/sabayon-sources-2.6.22-thinkpad.patch 48871
-RMD160 2ad5d4e06ab545f8bad7a08f6feaec6e29c4b377 files/sabayon-sources-2.6.22-thinkpad.patch 48871
-SHA256 3803bf364725a07cfac0c768b2408994be2416f6a573e040a78718660b1e9de3 files/sabayon-sources-2.6.22-thinkpad.patch 48871
-AUX sabayon-sources-2.6.22-toshiba.patch 6151 RMD160 148031a09fd888959c14c2f21d43efc76b517499 SHA1 3c0f647a6a636980cb0dcc44925bb4f1019beda8 SHA256 c254cd977d6ef979daec5947da4b857f13b283b31af77830c4001d062d6a51b8
-MD5 f248bc641d42885cda6afafe8e3b53c7 files/sabayon-sources-2.6.22-toshiba.patch 6151
-RMD160 148031a09fd888959c14c2f21d43efc76b517499 files/sabayon-sources-2.6.22-toshiba.patch 6151
-SHA256 c254cd977d6ef979daec5947da4b857f13b283b31af77830c4001d062d6a51b8 files/sabayon-sources-2.6.22-toshiba.patch 6151
-AUX sabayon-sources-2.6.22-unionfs-1.3.diff 515071 RMD160 c2cc6bc232dc030f484bca3bdbbb82cd6df7830f SHA1 13abdaeec27f30d053eca4228390d26f45cd7aef SHA256 00c8e7b73fd7487e626295e39eea48e72e71b69f005f5028a98b42bb3559ef1f
-MD5 401ecaa8bf1adc7383d1b1c03f6b6564 files/sabayon-sources-2.6.22-unionfs-1.3.diff 515071
-RMD160 c2cc6bc232dc030f484bca3bdbbb82cd6df7830f files/sabayon-sources-2.6.22-unionfs-1.3.diff 515071
-SHA256 00c8e7b73fd7487e626295e39eea48e72e71b69f005f5028a98b42bb3559ef1f files/sabayon-sources-2.6.22-unionfs-1.3.diff 515071
-AUX sabayon-sources-2.6.22-wireless-dev.patch 2736168 RMD160 31aa0d43a839d461367f5b241ee803b2e341534f SHA1 255590aeb1bb832b5340dfb30a927954ec507126 SHA256 b7be2068236f25cc9e02aaa2dd5c982ceba157b157c9971136203792adbc3bec
-MD5 585a157d51d73c030b0a29212dbdb4c3 files/sabayon-sources-2.6.22-wireless-dev.patch 2736168
-RMD160 31aa0d43a839d461367f5b241ee803b2e341534f files/sabayon-sources-2.6.22-wireless-dev.patch 2736168
-SHA256 b7be2068236f25cc9e02aaa2dd5c982ceba157b157c9971136203792adbc3bec files/sabayon-sources-2.6.22-wireless-dev.patch 2736168
 AUX sabayon-sources-2.6.23-acx-old.patch 670509 RMD160 b87e8c5e1a48dc73125d374a2077bbfba9528ca3 SHA1 2197cf883b51379700262798c606b77f9b2c6028 SHA256 f6687b464a672a786a273eada69bf7a5a8ce006566ed9dd7047be014fea5f929
 MD5 7bfec14c782776521467b7ceea389d5b files/sabayon-sources-2.6.23-acx-old.patch 670509
 RMD160 b87e8c5e1a48dc73125d374a2077bbfba9528ca3 files/sabayon-sources-2.6.23-acx-old.patch 670509
@@ -302,137 +70,18 @@ AUX sabayon-sources-2.6.23-squashfs-update.patch 684 RMD160 ef81e679f67b095b1e1b
 MD5 e1dde08c9b4d7c61589c56a55e52b822 files/sabayon-sources-2.6.23-squashfs-update.patch 684
 RMD160 ef81e679f67b095b1e1b50b368da96e5a8bf2967 files/sabayon-sources-2.6.23-squashfs-update.patch 684
 SHA256 cf6158a2e12fb7ab01ca0831bd2075548cc94505653e5793b68579d803c219f6 files/sabayon-sources-2.6.23-squashfs-update.patch 684
-AUX suspend2-2.2.9.10-for-2.6.21-rc4.patch 520250 RMD160 4509d2d4931194788ec8cf409aa76da3d35e9d7d SHA1 6d7188b447d9260bee78d3af5811ee35546b373e SHA256 db89f329db6666f02e88712ccd16fb077963d9193fb68ad0fd42a515a87e8988
-MD5 6bad61beb8241cca7c522736314cc937 files/suspend2-2.2.9.10-for-2.6.21-rc4.patch 520250
-RMD160 4509d2d4931194788ec8cf409aa76da3d35e9d7d files/suspend2-2.2.9.10-for-2.6.21-rc4.patch 520250
-SHA256 db89f329db6666f02e88712ccd16fb077963d9193fb68ad0fd42a515a87e8988 files/suspend2-2.2.9.10-for-2.6.21-rc4.patch 520250
 AUX thinkpad-2.6.23.patch 134570 RMD160 b072bad16e6e2e29f1d148414d1a413fe6f980ac SHA1 e8e5e07e807b0bb931c5d8be083c5e9cb93ad62e SHA256 d168992d7ed0150e070aad7bc8caea029aae162f469b7195923addc1a3444529
 MD5 25d5dd6edb0f134e75c4319e068e706d files/thinkpad-2.6.23.patch 134570
 RMD160 b072bad16e6e2e29f1d148414d1a413fe6f980ac files/thinkpad-2.6.23.patch 134570
 SHA256 d168992d7ed0150e070aad7bc8caea029aae162f469b7195923addc1a3444529 files/thinkpad-2.6.23.patch 134570
-DIST 2.6.21-ext4-1.bz2 34638 RMD160 1979a0f183bb10ddf4e4aca93a2aa0202c56b46c SHA1 72f59e37c8496e5ed9b8531c1af01c30386650a3 SHA256 8069afc1f45c67c5838b75445c297476e5c5b2769b9f009d9ac57f416224be6b
-DIST 2.6.21-rc7-ext4-1.bz2 23704 RMD160 a426608e1332e674860cbd93bfd50982fbcad430 SHA1 7973e09e4dc31bc6e384f64b4c942fc07772da7a SHA256 11d2aa1664703f95197ff13b6329530ade4e388ccaa9c52a9c8c8ae0847f201e
-DIST SabayonLinux-x86-3.3.config 75311 RMD160 bcc187d0ab22e6e826af59466547053af2d88d0f SHA1 f32c76dad64a1e38bd5f2716a293cecc30a13425 SHA256 af1d28c3a0269b287107cf8311d00b430c4eed4c1e1e3f3e378d78f81e087358
-DIST SabayonLinux-x86-64-3.3.config 67733 RMD160 ec09ff8e51d9059133039c48770247605f3b1a83 SHA1 d90a1a5e42536f811f9f748b688b64aba0a31c99 SHA256 3632fa3e63863dc391e6ec812aeb0bab8208e24020d5f358c3a7d5d57bb76f1c
 DIST fbcondecor-0.9.4-2.6.23-rc7.patch 55955 RMD160 54f09362d763705640dc89b7a9c4b1064335796b SHA1 4f3b9e66682e78b9e8b59bbe76dd87d1b96c3718 SHA256 f0c966d5b0b95ee76b81a79e573b08951d02380097f6e0c2c365b5f716a09bb3
-DIST fbsplash-0.9.2-r5-2.6.19-rc2.patch 53383 RMD160 d503285b48eb26c40f782e83abe2254a2f61999f SHA1 45beae0cfb66d42e66b130d7b85d5dd1cdd01710 SHA256 a89ed8e338c78be2324a42d13944b8dd265f6801aaaf41db61daa4cf6ba9d13f
-DIST fbsplash-0.9.2-r5-2.6.21.patch 208047 RMD160 54952025956e57893268e0388054b0bdc9624e49 SHA1 737b33eed53f431dd3313742f262c84a22cc18b0 SHA256 42f5b0ed8e816e6a57d6d7453f2bcc6c732392c3abf98093e51a72613f6ad7c9
-DIST ipw3945-1.2.0-2.6.20.patch 616174 RMD160 befea8ee02a021566687dddf37ab4ea48f6ce590 SHA1 7ab2b0bd8b329d3aa11ff8774312dcab60c86524 SHA256 502d8b8d9ebaf2da9df5ec212a8677c405732d30a1fecb55ed0eb1933ed9badf
-DIST ipw3945-1.2.0-2.6.21.patch 616502 RMD160 0818ed143c08392287f55fa27adf36297f359f6f SHA1 3f5eb92f4f4e49d38d33a250a8fc587d33defa3b SHA256 01d4f968a37b9c4ef8ad023695863ee479b00bbfa8be015cf3c14563a872418a
-DIST linux-2.6.19.tar.bz2 42733268 RMD160 75dc65b15cf9cdb359b1abe7084907982c19088b SHA1 c00d5891e2461bce45be51c1ef7846ee842792dd SHA256 c2fd6bcd2b7c1b3d37d64e4d1825703792a75474830a3db7d2dc603a8d392d58
-DIST linux-2.6.20.tar.bz2 43375937 RMD160 14657ade7be4363143dbd5593f5710d21eda7a03 SHA1 e730979adfb287528263e779c91284659672510d SHA256 2c14ada1ac7d272e03b430d3a530d60fc9ec69cc8252382aa049afba7d2b8558
-DIST linux-2.6.21.tar.bz2 43997476 RMD160 b2badf41c61f66b0dda059d99a57c2e2c0ea13f4 SHA1 0d2eb42c8dd5944f1849a020041cd7a4036c798c SHA256 f187b12d70e0a48ce81f0472dfe9504fb5f0f966be339ac9d57dd2b991a74942
-DIST linux-2.6.22.tar.bz2 45119878 RMD160 c4b2ca5ee8e71c0f8f1c95f3c9c5f261f2785912 SHA1 39401f195a618f397312d6d84ff9aebe28d99381 SHA256 73c10604c53f1a6ee65ef805293d23903696f8cef864f42d7de9506f0d2ba4c7
 DIST linux-2.6.23.tar.bz2 45488158 RMD160 755690e80751d5de86d260fe05c6eeadde116c4e SHA1 3a186adf13e44415796ab6381aa8979b16a5d5ca SHA256 d4e67c0935ffb2a4158234bff92cc791b83177866009fc9b2214104e0038dbdb
-DIST patch-2.6.20-rc6.bz2 3800220 RMD160 00f874acc05e8307f98ad791d3fd27fb767c84a3 SHA1 74a78176273e18dad8bd0c856946546bc5ad436c SHA256 7059f5c7cc4cd08152d3775969bf22992de9dda678e1e2dd4c46248883ca1242
-DIST patch-2.6.20-rc7.bz2 3849725 RMD160 66ab2ff5d8adaabb4fc06e3d32a53fc301486d2f SHA1 d8ed301f8824f1ee5039d62c03ec83f9837a84c1 SHA256 08cbaf4595195e5956b781bb5afbff9aa1c073fa887bea895f6b6de4ba332e79
-DIST patch-2.6.21-rc5.bz2 4274469 RMD160 0bd5a683fce28b421acafa60e1800c08f228836c SHA1 a3cc99f8854fe9160fc68601a21826cd44fb33e8 SHA256 9c42eecd8db341d007d35f5a12f0e96c9626eb29ec01181be88cb5a9b4b32cea
-DIST patch-2.6.21-rc6.bz2 4356886 RMD160 62f5b4a8164111f26849aa9395a281f27aee6aff SHA1 c48d9b0c9f4fd981106d53e11374708be8586503 SHA256 4dfe6aebdf6697e9cb20d1ba03abeec60d3355dba50afed8a422d51be06d5b7a
-DIST patch-2.6.22.6.bz2 46194 RMD160 722edf692e435af621d9e6d10df8497471c8bec0 SHA1 93bdb641020fed0f60db83e8f01c3e82ff423104 SHA256 a85c8ce79cdc126b32aa9a74dbc64c368f0e7e9ec33e156af746003e1b5a8c4d
-DIST squashfs-3.2-2.6.20.patch 132210 RMD160 d48bf39a7118b0462867fd43701416e3990227fe SHA1 4ccdbe28611f582aaba01d831196baf5c35c508e SHA256 cfc7060a0387701834a4a3ae2d95f5f247e02d8c7f88cf45b5004c363c1d0c1d
-DIST squashfs-3.2-2.6.21.patch 132210 RMD160 d48bf39a7118b0462867fd43701416e3990227fe SHA1 4ccdbe28611f582aaba01d831196baf5c35c508e SHA256 cfc7060a0387701834a4a3ae2d95f5f247e02d8c7f88cf45b5004c363c1d0c1d
-DIST suspend2-2.2.10-for-2.6.22.patch.bz2 94413 RMD160 84e65893a7cb15d6521f0c2ee4bf095b266fae93 SHA1 3aac0fecece3805d0784c22997e319ea1fa6aede SHA256 4bc095ab00a9649cf325c4e840c5eb5f75a89221a598cf8334e7d701447c7b78
-DIST suspend2-2.2.9.10-for-2.6.21-rc4.patch.bz2 106003 RMD160 29d61e78cc4bb4ae456e58bb58fafa6eb7bb5983 SHA1 1d4dce18540df9571ce438d3b128eb2a4d8d2212 SHA256 d021b436f6f247c703e8c1be251d2b4de0400ec3b0663246e3e78d76e94313f0
-DIST suspend2-2.2.9.11-for-2.6.21-rc6.patch.bz2 106493 RMD160 36193edcfa7d6512d46ec4b307b81888e3b79605 SHA1 9c2ea2e9eacba0618965aa2ce10de34a9d1b6ce0 SHA256 6fc16936d92e66feb7110e854131b913489b7c248aa45887879dec1e1f3be04b
-DIST suspend2-2.2.9.13-for-2.6.21-rc7.patch.bz2 108337 RMD160 c4b943ca2a1323753a6f481af28d0e9f69599f82 SHA1 945ae8dbdd0b1be8499d4e834b1f74d8ffd2ef88 SHA256 5d32d76f8e4d41aafa68939fdac83586a69926daf49501dc4b95c6fbac12e1da
-DIST suspend2-2.2.9.3-for-2.6.20-rc4.patch.bz2 100601 RMD160 e89addaac321c00965a2747ee49191627f60c73d SHA1 75d1871ba0f8672011cbe930ef19fa895a0683cd SHA256 163e0377bf688b304ae5b8fd736858988fcd2b2acfa6e1921b61a9554855a4d4
 DIST tuxonice-2.2.10.4-for-2.6.23-rc9.patch.bz2 103546 RMD160 54041bffd8dca335a252f382b900bfdbf56e2c76 SHA1 76995830d6817ef7ba1732ad6b11e4c9fb7bcc12 SHA256 36bff2e30521c040c0f38f87a1aab0f95358f864bf50dd09dcdfc31be82c40fd
 DIST unionfs-2.1.6_for_2.6.23-rc8.diff.gz 73968 RMD160 c89eec65e297dc9c4b73e69b4a5183e04e7b08aa SHA1 7ec1cc4c8333c3d2ec825de5bf4315c67be4ddb0 SHA256 5813a897abd815f733aa2e8f7f7bc07d1f8bb6477a94a3281753452312d74adb
-EBUILD sabayon-sources-2.6.20-r1.ebuild 1582 RMD160 9d7b7d1d172e2be19fb099337bfcaddcb4781a88 SHA1 5cfacfc7e872c4d6c1af20bc36a4631ac0cbba5f SHA256 a593322774157904ec6f825684239a0408e2b5a0004165574ff3d2c5418e68a9
-MD5 3b5b38a40dd27d5a5ff99b1f53694409 sabayon-sources-2.6.20-r1.ebuild 1582
-RMD160 9d7b7d1d172e2be19fb099337bfcaddcb4781a88 sabayon-sources-2.6.20-r1.ebuild 1582
-SHA256 a593322774157904ec6f825684239a0408e2b5a0004165574ff3d2c5418e68a9 sabayon-sources-2.6.20-r1.ebuild 1582
-EBUILD sabayon-sources-2.6.20-r2.ebuild 1649 RMD160 ed8ec00acf3762da260d1bf6f9b098771ebdbd31 SHA1 2c4c7a47599eceed9e893f1b54093b7b05aea816 SHA256 b7037f511181c5aba358200f0905737817445ee0bade3c1842754bc80de8e9eb
-MD5 3f5b62f716f9d6e73ed6072282bcd0c1 sabayon-sources-2.6.20-r2.ebuild 1649
-RMD160 ed8ec00acf3762da260d1bf6f9b098771ebdbd31 sabayon-sources-2.6.20-r2.ebuild 1649
-SHA256 b7037f511181c5aba358200f0905737817445ee0bade3c1842754bc80de8e9eb sabayon-sources-2.6.20-r2.ebuild 1649
-EBUILD sabayon-sources-2.6.20-r3.ebuild 3479 RMD160 a739323beb62256d4a4f242c2b727262bdd93d1b SHA1 3d3dca86943590ca53f15897e4cdc16d5ace38a0 SHA256 621f177fb09f339dab422e79f2c643756c7d958b0cd8878e4ff194080dc318d4
-MD5 6ace7fdfd6d9179d7584ab090f81eede sabayon-sources-2.6.20-r3.ebuild 3479
-RMD160 a739323beb62256d4a4f242c2b727262bdd93d1b sabayon-sources-2.6.20-r3.ebuild 3479
-SHA256 621f177fb09f339dab422e79f2c643756c7d958b0cd8878e4ff194080dc318d4 sabayon-sources-2.6.20-r3.ebuild 3479
-EBUILD sabayon-sources-2.6.20.ebuild 1468 RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 SHA1 09e05696852c13f11ae9887c20f4789879d76831 SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186
-MD5 c065b0ed96b72f2fbe53eaa82c387480 sabayon-sources-2.6.20.ebuild 1468
-RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 sabayon-sources-2.6.20.ebuild 1468
-SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186 sabayon-sources-2.6.20.ebuild 1468
-EBUILD sabayon-sources-2.6.20_rc6.ebuild 1468 RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 SHA1 09e05696852c13f11ae9887c20f4789879d76831 SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186
-MD5 c065b0ed96b72f2fbe53eaa82c387480 sabayon-sources-2.6.20_rc6.ebuild 1468
-RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 sabayon-sources-2.6.20_rc6.ebuild 1468
-SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186 sabayon-sources-2.6.20_rc6.ebuild 1468
-EBUILD sabayon-sources-2.6.20_rc7.ebuild 1468 RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 SHA1 09e05696852c13f11ae9887c20f4789879d76831 SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186
-MD5 c065b0ed96b72f2fbe53eaa82c387480 sabayon-sources-2.6.20_rc7.ebuild 1468
-RMD160 b4c680256c9445a066a8d25342f773a5d526f3b6 sabayon-sources-2.6.20_rc7.ebuild 1468
-SHA256 05082ca818686b18a58b186409a1b213752cec71888b7f088f58457736f8e186 sabayon-sources-2.6.20_rc7.ebuild 1468
-EBUILD sabayon-sources-2.6.21-r1.ebuild 4187 RMD160 650512bfa3b4e4a71095d086058428a079198e6e SHA1 8aad06069cf073143f88e2f91c9c3fd8a746e477 SHA256 38ae61a18e4825a33595beae1b3c14ba5ede82aa2168928de2dcc2e1d7655821
-MD5 f512ac7037d86ab662f49120195e06ad sabayon-sources-2.6.21-r1.ebuild 4187
-RMD160 650512bfa3b4e4a71095d086058428a079198e6e sabayon-sources-2.6.21-r1.ebuild 4187
-SHA256 38ae61a18e4825a33595beae1b3c14ba5ede82aa2168928de2dcc2e1d7655821 sabayon-sources-2.6.21-r1.ebuild 4187
-EBUILD sabayon-sources-2.6.21-r2.ebuild 4179 RMD160 08432a8ac582552126896b7502d3e2fce9d05f8c SHA1 1d2ad440a55480c8b7244331656fc78b594e8e80 SHA256 9a4c0b8ce06e02a1467f6fc51bb9faeb76342469a1b633dd58eb191291956be8
-MD5 9cd729cf4d8d5e33982f60618b718d23 sabayon-sources-2.6.21-r2.ebuild 4179
-RMD160 08432a8ac582552126896b7502d3e2fce9d05f8c sabayon-sources-2.6.21-r2.ebuild 4179
-SHA256 9a4c0b8ce06e02a1467f6fc51bb9faeb76342469a1b633dd58eb191291956be8 sabayon-sources-2.6.21-r2.ebuild 4179
-EBUILD sabayon-sources-2.6.21.ebuild 3888 RMD160 3de14fe34e5aa1ce134c70d64e356192d4c44f2a SHA1 4310d27ecbb75a2ad1ca9c8ce2fb22f6db4c4756 SHA256 781ff98950e4f4dd04d98c8b9552b0127ed385193aa6cf5f52859ae3ac7d8763
-MD5 7c68e2dc04bbaadea15a282e2ebf5d0f sabayon-sources-2.6.21.ebuild 3888
-RMD160 3de14fe34e5aa1ce134c70d64e356192d4c44f2a sabayon-sources-2.6.21.ebuild 3888
-SHA256 781ff98950e4f4dd04d98c8b9552b0127ed385193aa6cf5f52859ae3ac7d8763 sabayon-sources-2.6.21.ebuild 3888
-EBUILD sabayon-sources-2.6.21_rc5.ebuild 3525 RMD160 822f2c83d51fb7693d2d2c187cfc4badc95cd169 SHA1 c5b7580efd19f5d5160819a61d7ac1a1fa9a186c SHA256 988fd1b20c46ff116ee28c230fd878d8d26f70dda69471386b8357b019889ad1
-MD5 0c4d99ebd53b7b37b2d433ef6ef9dc5b sabayon-sources-2.6.21_rc5.ebuild 3525
-RMD160 822f2c83d51fb7693d2d2c187cfc4badc95cd169 sabayon-sources-2.6.21_rc5.ebuild 3525
-SHA256 988fd1b20c46ff116ee28c230fd878d8d26f70dda69471386b8357b019889ad1 sabayon-sources-2.6.21_rc5.ebuild 3525
-EBUILD sabayon-sources-2.6.21_rc6.ebuild 3607 RMD160 7963331b773a91a87c528e2eb4162d0f87a8d90a SHA1 a6deab710f27b0f02d83b1a9d037ec0fbf0cb574 SHA256 78b4896b7379daa2a57389bb04fc43180b3dbaeae1dc85994fd44993afd3379e
-MD5 17e847219eb7d8b6e8a3a0fcc4c44f92 sabayon-sources-2.6.21_rc6.ebuild 3607
-RMD160 7963331b773a91a87c528e2eb4162d0f87a8d90a sabayon-sources-2.6.21_rc6.ebuild 3607
-SHA256 78b4896b7379daa2a57389bb04fc43180b3dbaeae1dc85994fd44993afd3379e sabayon-sources-2.6.21_rc6.ebuild 3607
-EBUILD sabayon-sources-2.6.22.ebuild 2180 RMD160 246ccc3e119034a8328be22c3cef327f77c25f9f SHA1 e19b8b21f4c07ee490f5d8324c153019fba49845 SHA256 8b5ed0960fbb0bb559b661c1c1c9512f2009831ab673ba8e12e0725271200e9e
-MD5 3b0e5bb1922de7eed9beea71bb939d7b sabayon-sources-2.6.22.ebuild 2180
-RMD160 246ccc3e119034a8328be22c3cef327f77c25f9f sabayon-sources-2.6.22.ebuild 2180
-SHA256 8b5ed0960fbb0bb559b661c1c1c9512f2009831ab673ba8e12e0725271200e9e sabayon-sources-2.6.22.ebuild 2180
 EBUILD sabayon-sources-2.6.23-r1.ebuild 2091 RMD160 f43219b9b8a8eaec39e9c0e8352d18123d817907 SHA1 ba0d98f3e4f4fc2558647130f9b20e4927da383f SHA256 30f674ebe4f366d5515e4f53f59d4f222e980a283b611d3595d636cf1135075b
 MD5 bb00bbe32aa6093f56780bd8ff22e174 sabayon-sources-2.6.23-r1.ebuild 2091
 RMD160 f43219b9b8a8eaec39e9c0e8352d18123d817907 sabayon-sources-2.6.23-r1.ebuild 2091
 SHA256 30f674ebe4f366d5515e4f53f59d4f222e980a283b611d3595d636cf1135075b sabayon-sources-2.6.23-r1.ebuild 2091
-EBUILD sabayon-sources-2.6.23.ebuild 1966 RMD160 67d36753a5a246f7d411807c1479b32caed88a79 SHA1 328c53539354ef51cf0188a44519852d38b268c4 SHA256 7f9f93675e05219fc38cff9c519050615452856ffe58a2d5cf93d4a99c5b2cfb
-MD5 bfd309b479f8eb30b24b0c171eac4c04 sabayon-sources-2.6.23.ebuild 1966
-RMD160 67d36753a5a246f7d411807c1479b32caed88a79 sabayon-sources-2.6.23.ebuild 1966
-SHA256 7f9f93675e05219fc38cff9c519050615452856ffe58a2d5cf93d4a99c5b2cfb sabayon-sources-2.6.23.ebuild 1966
-MD5 8141b16d777d8667c2a75ec6948a36e4 files/digest-sabayon-sources-2.6.20 1346
-RMD160 0f16f06691e6ec5fe5384b1835690dbe9a3b6484 files/digest-sabayon-sources-2.6.20 1346
-SHA256 273f25b39c9b4522c0a4a2ae7f330607d3eae3ad354b898629ca3357fbf57a28 files/digest-sabayon-sources-2.6.20 1346
-MD5 8141b16d777d8667c2a75ec6948a36e4 files/digest-sabayon-sources-2.6.20-r1 1346
-RMD160 0f16f06691e6ec5fe5384b1835690dbe9a3b6484 files/digest-sabayon-sources-2.6.20-r1 1346
-SHA256 273f25b39c9b4522c0a4a2ae7f330607d3eae3ad354b898629ca3357fbf57a28 files/digest-sabayon-sources-2.6.20-r1 1346
-MD5 8141b16d777d8667c2a75ec6948a36e4 files/digest-sabayon-sources-2.6.20-r2 1346
-RMD160 0f16f06691e6ec5fe5384b1835690dbe9a3b6484 files/digest-sabayon-sources-2.6.20-r2 1346
-SHA256 273f25b39c9b4522c0a4a2ae7f330607d3eae3ad354b898629ca3357fbf57a28 files/digest-sabayon-sources-2.6.20-r2 1346
-MD5 6d0372ae2c1ac780c2b3657c3b955c9c files/digest-sabayon-sources-2.6.20-r3 1873
-RMD160 3bd3cf24fcbe289ccd8eed608d59e7a47902d72d files/digest-sabayon-sources-2.6.20-r3 1873
-SHA256 301fa440aa9372729552b3c1e3f7f9c054ddf4bfe1888da2c647d071b443dd10 files/digest-sabayon-sources-2.6.20-r3 1873
-MD5 f9f876e6426518836f06bce50c5f0764 files/digest-sabayon-sources-2.6.20_rc6 1590
-RMD160 67c0e3257eb9fb08f0cf73ee0a15ef6e26658638 files/digest-sabayon-sources-2.6.20_rc6 1590
-SHA256 29de2d4da5afe67a4e930dfb7dd367f9071cd3106dba5b347c0e647b0f08b174 files/digest-sabayon-sources-2.6.20_rc6 1590
-MD5 5ae97355d50d253bd809fc28d3356ed9 files/digest-sabayon-sources-2.6.20_rc7 1590
-RMD160 ee970063487056216ecd78b7899fac2181ea508b files/digest-sabayon-sources-2.6.20_rc7 1590
-SHA256 2c15ad07ac999058c5f838194afb326f8ac454aa09b9a4b79adbd3280362c501 files/digest-sabayon-sources-2.6.20_rc7 1590
-MD5 89bc667f9d4d41d4430a2389c478c154 files/digest-sabayon-sources-2.6.21 1581
-RMD160 aa0a7c79391bb66d979e935f815fbb36c0677b2e files/digest-sabayon-sources-2.6.21 1581
-SHA256 b397ec6d10078219b89bf2c8c05262bc8d268758ac495f00c6b17b99c0527cce files/digest-sabayon-sources-2.6.21 1581
-MD5 264ca750a66cdffa195d9fc7dc526d3b files/digest-sabayon-sources-2.6.21-r1 1569
-RMD160 99d4a27f1f46c2ee040de9626336155677cf83e0 files/digest-sabayon-sources-2.6.21-r1 1569
-SHA256 dd0420f2d1ecda2478bcbfb8517eee6039ee0cc91c5e124c4501c2a2fd20c263 files/digest-sabayon-sources-2.6.21-r1 1569
-MD5 264ca750a66cdffa195d9fc7dc526d3b files/digest-sabayon-sources-2.6.21-r2 1569
-RMD160 99d4a27f1f46c2ee040de9626336155677cf83e0 files/digest-sabayon-sources-2.6.21-r2 1569
-SHA256 dd0420f2d1ecda2478bcbfb8517eee6039ee0cc91c5e124c4501c2a2fd20c263 files/digest-sabayon-sources-2.6.21-r2 1569
-MD5 6f155274139fa6f81b182d119f07842f files/digest-sabayon-sources-2.6.21_rc5 1584
-RMD160 b468f5d327485c4b6d668a8e182492969c4ff694 files/digest-sabayon-sources-2.6.21_rc5 1584
-SHA256 31e837e6c3498cc1faca3b09ac62d38149571bfc0ff61f91916cd11864d0a714 files/digest-sabayon-sources-2.6.21_rc5 1584
-MD5 2bc4c4e35018e0fa9516965fb0972840 files/digest-sabayon-sources-2.6.21_rc6 1584
-RMD160 cba7352b5a8c8e7e89e14fd69e348e16bd72b692 files/digest-sabayon-sources-2.6.21_rc6 1584
-SHA256 cf4ed2ada8d51698d4db62e74e62e7f992109e9592e05d61a49add34d6d69b12 files/digest-sabayon-sources-2.6.21_rc6 1584
-MD5 38ab97fd1c78cc2e5aef9db0342eff91 files/digest-sabayon-sources-2.6.22 765
-RMD160 86639a64203703eb91a4134126ee574526b5da95 files/digest-sabayon-sources-2.6.22 765
-SHA256 eb2b74b0f1421005611bf15345ff74acde1935b0c99109eca96551d22546c4ce files/digest-sabayon-sources-2.6.22 765
-MD5 573f44b1bc737565a41f6d1c5c034ceb files/digest-sabayon-sources-2.6.23 1117
-RMD160 e745415e0aa2bdc99c930813be7daa329bb075ab files/digest-sabayon-sources-2.6.23 1117
-SHA256 68d19e0e26123d29299d5a775ed03eaed079250667acd5ef61da8014ed9d0803 files/digest-sabayon-sources-2.6.23 1117
 MD5 573f44b1bc737565a41f6d1c5c034ceb files/digest-sabayon-sources-2.6.23-r1 1117
 RMD160 e745415e0aa2bdc99c930813be7daa329bb075ab files/digest-sabayon-sources-2.6.23-r1 1117
 SHA256 68d19e0e26123d29299d5a775ed03eaed079250667acd5ef61da8014ed9d0803 files/digest-sabayon-sources-2.6.23-r1 1117
