@@ -14,7 +14,7 @@ HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
 	>=sys-kernel/genkernel-3.4.9_pre9
 	splash? ( x11-themes/sabayonlinux-artwork )
-	!sys-kernel/sabayon-sources
+	!=sys-kernel/sabayon-sources-${PVR}
 	"
 RDEPEND="grub? ( sys-boot/grub )"
 IUSE="splash dmraid grub no_sources only_sources"
