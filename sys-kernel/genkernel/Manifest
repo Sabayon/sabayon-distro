@@ -74,6 +74,10 @@ AUX genkernel-3.4.9-unionfs-inkernel-support-new.patch 7392 RMD160 ee9c618ac91be
 MD5 2498815aa6030edc09d233fb5a6c0b05 files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 7392
 RMD160 ee9c618ac91bef78df862a669e32051f1d8e763f files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 7392
 SHA256 26cce3aa1b6372c8653cb51a144acba0b93721cc366a7ae0998f8beb4b6f87d5 files/genkernel-3.4.9-unionfs-inkernel-support-new.patch 7392
+AUX genkernel-3.4.9_pre9-lvm2fix.patch 626 RMD160 8cea9a5c09f6468fbf1f0d6c96eca3aae7550f25 SHA1 c70fca24cea2d953ccb0c2bd5ae29cdbf7546f32 SHA256 024b81a132331823f1e8413ee26a63421b8a509e56c4fb8e3cecda2f2ae369d8
+MD5 aa932e2254de05a7e1ac5787e51e0d88 files/genkernel-3.4.9_pre9-lvm2fix.patch 626
+RMD160 8cea9a5c09f6468fbf1f0d6c96eca3aae7550f25 files/genkernel-3.4.9_pre9-lvm2fix.patch 626
+SHA256 024b81a132331823f1e8413ee26a63421b8a509e56c4fb8e3cecda2f2ae369d8 files/genkernel-3.4.9_pre9-lvm2fix.patch 626
 AUX genkernel.bash 2438 RMD160 b3d8e4436d8768c07d18c5aaff9c14fc16641729 SHA1 e15a9c6ef506aa6872a6a97d26751246dedded04 SHA256 e7de9771ba79ef878e2c9a21a1c1720f092c6047d3cc7d4a49ff6b90e7e2c248
 MD5 a86c191115d517b3cd4dc09a857ccaa2 files/genkernel.bash 2438
 RMD160 b3d8e4436d8768c07d18c5aaff9c14fc16641729 files/genkernel.bash 2438
@@ -173,6 +177,10 @@ EBUILD genkernel-3.4.9_pre3.ebuild 3981 RMD160 df551584d23b657be9be2ba3ba7eb6f0e
 MD5 1a1eee08ebdf5b6d2e54cfb887ef8932 genkernel-3.4.9_pre3.ebuild 3981
 RMD160 df551584d23b657be9be2ba3ba7eb6f0e28720eb genkernel-3.4.9_pre3.ebuild 3981
 SHA256 4add45794548b45a9717e82ee8ede13cdaba12a76504fa983ed63e4b411051b5 genkernel-3.4.9_pre3.ebuild 3981
+EBUILD genkernel-3.4.9_pre9-r1.ebuild 4021 RMD160 bdf56b1573037db4e3514cd06fc108892def2f1e SHA1 66be94b16dc34c98df40f15672cd684954c6cdc2 SHA256 72c40438a5a8bc7e6b0e923ac1553313d2378846f14fd1db258a1aee106ad953
+MD5 b10cb90dcb7861f59ba39eb67a932d65 genkernel-3.4.9_pre9-r1.ebuild 4021
+RMD160 bdf56b1573037db4e3514cd06fc108892def2f1e genkernel-3.4.9_pre9-r1.ebuild 4021
+SHA256 72c40438a5a8bc7e6b0e923ac1553313d2378846f14fd1db258a1aee106ad953 genkernel-3.4.9_pre9-r1.ebuild 4021
 EBUILD genkernel-3.4.9_pre9.ebuild 4169 RMD160 7038c2235315d3f9694ffa541c2da825cf937134 SHA1 ed31bf744080a11b6b13564b916f8a40be40be3c SHA256 e4945dc2bdc86c680538e6c1d4f6c33bb06181c49e5333b4322f166dab84de1c
 MD5 62f055dde601c113c6b448bc21691a26 genkernel-3.4.9_pre9.ebuild 4169
 RMD160 7038c2235315d3f9694ffa541c2da825cf937134 genkernel-3.4.9_pre9.ebuild 4169
@@ -228,3 +236,6 @@ SHA256 5294727b6254132ebff3767c74942b237ca12e440bc353a0a990acc19379bed5 files/di
 MD5 947a2b62df363bcfdd636eb917cbeb3d files/digest-genkernel-3.4.9_pre9 2015
 RMD160 5a68e6648529418cc6701a101870512c46b4a00c files/digest-genkernel-3.4.9_pre9 2015
 SHA256 75cafd81e9febc93e266a0f64e826f7f05c5136de1ed4f7ab9b70d8dad61e08d files/digest-genkernel-3.4.9_pre9 2015
+MD5 65b845a3b14e4bec1d8395a54c71520c files/digest-genkernel-3.4.9_pre9-r1 1813
+RMD160 ed8886cd87661ae6f47e6795c8cdc6bd0014c05c files/digest-genkernel-3.4.9_pre9-r1 1813
+SHA256 4455944b1be6e4d174c5b30b63dbe3663e3e9ec0911c2e428154fe1c24b15225 files/digest-genkernel-3.4.9_pre9-r1 1813

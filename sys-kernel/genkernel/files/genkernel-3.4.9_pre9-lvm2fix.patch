@@ -1,0 +1,17 @@
+Index: genkernel.conf
+===================================================================
+--- genkernel.conf	(revision 560)
++++ genkernel.conf	(working copy)
+@@ -155,9 +155,9 @@
+ DEVICE_MAPPER_BINCACHE="%%CACHE%%/device-mapper-${DEVICE_MAPPER_VER}-%%ARCH%%.tar.bz2"
+ 
+ LVM_VER="VERSION_LVM"
+-LVM_DIR="LVM.${LVM_VER}"
+-LVM_SRCTAR="${GK_SHARE}/pkg/LVM.${LVM_VER}.tgz"
+-LVM_BINCACHE="%%CACHE%%/LVM.${LVM_VER}-%%ARCH%%.tar.bz2"
++LVM_DIR="LVM2.${LVM_VER}"
++LVM_SRCTAR="${GK_SHARE}/pkg/LVM2.${LVM_VER}.tgz"
++LVM_BINCACHE="%%CACHE%%/LVM2.${LVM_VER}-%%ARCH%%.tar.bz2"
+ 
+ DMRAID_VER="VERSION_DMRAID"
+ DMRAID_DIR="dmraid/${DMRAID_VER}"
