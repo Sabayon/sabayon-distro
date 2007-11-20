@@ -26,7 +26,8 @@ RDEPEND=">=media-libs/alsa-lib-1.0.11
 	>=sys-fs/udev-100
 	"
 
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	>=sys-kernel/linux-headers-2.6.22"
 
 src_unpack() {
 	unpack ${A}
