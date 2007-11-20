@@ -2,6 +2,10 @@ AUX kvm-52-disable-headers-installation.patch 598 RMD160 a7ff98d81eab0298528381a
 MD5 625c609a682eaabd5a005f6fbdfa8c6c files/kvm-52-disable-headers-installation.patch 598
 RMD160 a7ff98d81eab0298528381a63c306a27c9879e0a files/kvm-52-disable-headers-installation.patch 598
 SHA256 dc2920ed040b23c72a8952b20c5b744470fe554ef23c8b9d4c28c78d2539b099 files/kvm-52-disable-headers-installation.patch 598
+AUX kvm-53-disable-headers-installation.patch 598 RMD160 a7ff98d81eab0298528381a63c306a27c9879e0a SHA1 94e238759cbf49c660c8da30b1eb5b6cdfa429e8 SHA256 dc2920ed040b23c72a8952b20c5b744470fe554ef23c8b9d4c28c78d2539b099
+MD5 625c609a682eaabd5a005f6fbdfa8c6c files/kvm-53-disable-headers-installation.patch 598
+RMD160 a7ff98d81eab0298528381a63c306a27c9879e0a files/kvm-53-disable-headers-installation.patch 598
+SHA256 dc2920ed040b23c72a8952b20c5b744470fe554ef23c8b9d4c28c78d2539b099 files/kvm-53-disable-headers-installation.patch 598
 AUX qemu-0.7.0-gcc4-dot-syms.patch 4637 RMD160 39d181ef0af90d2ce8c8375d9d9cc4e2e7eb5231 SHA1 0668c07fdeacab38af2881c947e15eb7c1c06a26 SHA256 a3231609602240538dd7298d3a1daf86d06d964474f9fa3c18f53fc6792cfe6d
 MD5 f0c01d2e9eabfee2179c9dc30dd4fbe4 files/qemu-0.7.0-gcc4-dot-syms.patch 4637
 RMD160 39d181ef0af90d2ce8c8375d9d9cc4e2e7eb5231 files/qemu-0.7.0-gcc4-dot-syms.patch 4637
