@@ -1,0 +1,142 @@
+diff -Naur festival.org/src/modules/base/phrasify.cc festival/src/modules/base/phrasify.cc
+--- festival.org/src/modules/base/phrasify.cc	2001-04-04 06:55:20.000000000 -0500
++++ festival/src/modules/base/phrasify.cc	2003-06-22 10:41:41.000000000 -0500
+@@ -218,7 +218,7 @@
+ 	    EST_Val npbreak = wagon_predict(w,phrase_type_tree);
+ 	    w->set("pbreak",npbreak.string());  // may reset to BB
+ 	}
+-	pbreak = w->f("pbreak");
++	pbreak = (EST_String)w->f("pbreak");
+ 	if (pbreak == "B")
+ 	    w->set("blevel",3);
+ 	else if (pbreak == "mB")
+diff -Naur festival.org/src/modules/base/word.cc festival/src/modules/base/word.cc
+--- festival.org/src/modules/base/word.cc	2001-04-04 06:55:20.000000000 -0500
++++ festival/src/modules/base/word.cc	2003-06-22 10:41:41.000000000 -0500
+@@ -64,10 +64,10 @@
+     for (w=u->relation("Word")->first(); w != 0; w = next(w))
+     {
+ 	lpos = NIL;
+-	pos = ffeature(w,"hg_pos");
++	pos = (EST_String)ffeature(w,"hg_pos");
+                         // explicit homograph pos disambiguation
+ 	if (pos == "0")
+-	    pos = ffeature(w,"pos");
++	    pos = (EST_String)ffeature(w,"pos");
+ 	if (pos != "0")
+ 	    lpos = rintern(pos);
+ 
+@@ -100,8 +100,8 @@
+     //  from which a list can be read.
+     EST_String p;
+ 
+-    if (((p = ffeature(w,"phonemes")) != "0") ||
+-	((p = ffeature(w,"R:Token.parent.phonemes")) != "0"))
++    if (((p = (EST_String)ffeature(w,"phonemes")) != "0") ||
++	((p = (EST_String)ffeature(w,"R:Token.parent.phonemes")) != "0"))
+     {
+ 	LISP phones = read_from_lstring(strintern(p));
+ 
+diff -Naur festival.org/src/modules/Intonation/int_tree.cc festival/src/modules/Intonation/int_tree.cc
+--- festival.org/src/modules/Intonation/int_tree.cc	2001-04-04 06:55:20.000000000 -0500
++++ festival/src/modules/Intonation/int_tree.cc	2003-06-22 10:41:41.000000000 -0500
+@@ -87,11 +87,11 @@
+     for (s=u->relation("Syllable")->first(); s != 0; s=next(s))
+     {
+ 	if ((paccent = accent_specified(s)) == "0") // check if pre-specified
+-	    paccent = wagon_predict(s,accent_tree);
++	    paccent = (EST_String)wagon_predict(s,accent_tree);
+ 	if (paccent != "NONE")
+ 	    add_IntEvent(u,s,paccent);
+ 	if ((ptone = tone_specified(s)) == "0")
+-	    ptone = wagon_predict(s,endtone_tree);
++	    ptone = (EST_String)wagon_predict(s,endtone_tree);
+ 	if (ptone != "NONE")
+ 	    add_IntEvent(u,s,ptone);
+     }
+@@ -107,11 +107,11 @@
+     EST_Item *token = parent(word,"Token");
+     EST_String paccent("0");
+     if (token)
+-	paccent = ffeature(token,"accent");
++	paccent = (EST_String)ffeature(token,"accent");
+ 	
+     if (paccent == "0")
+     {
+-	paccent = ffeature(word,"accent");
++	paccent = (EST_String)ffeature(word,"accent");
+ 	if (paccent == "0")
+ 	    return paccent;
+     }
+@@ -139,11 +139,11 @@
+     EST_Item *token = parent(word,"Token");
+     EST_String ptone("0");
+     if (token)
+-	ptone = ffeature(token,"tone");
++	ptone = (EST_String)ffeature(token,"tone");
+ 
+     if (ptone == "0")
+     {
+-	ptone = ffeature(word,"tone");
++	ptone = (EST_String)ffeature(word,"tone");
+ 	if (ptone == "0")
+ 	    return ptone;
+     }
+diff -Naur festival.org/src/modules/Text/token.cc festival/src/modules/Text/token.cc
+--- festival.org/src/modules/Text/token.cc	2001-04-04 06:55:20.000000000 -0500
++++ festival/src/modules/Text/token.cc	2003-06-22 10:41:41.000000000 -0500
+@@ -230,7 +230,7 @@
+ 	else
+ 	    return cons(strintern(tok),NIL);
+     }
+-    else if ((token_pos = ffeature(token,"token_pos")) == "ordinal")
++    else if ((token_pos = (EST_String)ffeature(token,"token_pos")) == "ordinal")
+ 	return say_num_as_ordinal(tok);
+     else if (token_pos == "year")
+ 	return say_num_as_year(tok);
+@@ -404,7 +404,7 @@
+     const char *tokch = tok;
+ 
+     for (i=0; i<tok.length(); i++)
+-	if (strchr(PunctuationChars,tokch[i]) == NULL)
++	if (strchr((const char *)PunctuationChars,tokch[i]) == NULL)
+ 	    return FALSE;
+ 
+     return TRUE;
+diff -Naur festival.org/src/modules/Text/xxml.cc festival/src/modules/Text/xxml.cc
+--- festival.org/src/modules/Text/xxml.cc	2001-04-04 06:55:20.000000000 -0500
++++ festival/src/modules/Text/xxml.cc	2003-06-22 10:41:41.000000000 -0500
+@@ -93,7 +93,7 @@
+ 	    cerr << "xxml parse error: unexpected end of file \n";
+ 	    festival_error();
+ 	}
+-	line = ts.get_upto_eoln();
++	line = (EST_String)ts.get_upto_eoln();
+ 	type = line.at(0,1);
+ 	remainder = line.after(0);
+ 	if (type == "-")
+@@ -159,7 +159,7 @@
+     EST_Token t;
+ 
+     ts.open_string(remainder);
+-    name = ts.get();
++    name = (EST_String)ts.get();
+     if ((t=ts.get()) == "IMPLIED")
+ 	att = cons(rintern(name),cons(NIL,NIL));
+     else if (t == "TOKEN")
+diff -Naur festival.org/src/modules/UniSyn_diphone/us_diphone_index.cc festival/src/modules/UniSyn_diphone/us_diphone_index.cc
+--- festival.org/src/modules/UniSyn_diphone/us_diphone_index.cc	2002-07-02 06:18:30.000000000 -0500
++++ festival/src/modules/UniSyn_diphone/us_diphone_index.cc	2003-06-22 10:41:41.000000000 -0500
+@@ -106,9 +106,9 @@
+ 
+     if (!item)
+ 	return "";
+-    else if ((d1 = item->f(dname+"_"+dir,def)) != "0")
++    else if ((d1 = (EST_String)item->f(dname+"_"+dir,def)) != "0")
+ 	return d1;
+-    else if ((d1 = item->f(dname,def)) != "0")
++    else if ((d1 = (EST_String)item->f(dname,def)) != "0")
+ 	return d1;
+     else
+ 	return item->f("name","0").string();
+
