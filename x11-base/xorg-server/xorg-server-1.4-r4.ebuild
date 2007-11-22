@@ -265,7 +265,7 @@ PDEPEND="
 		video_cards_voodoo? ( >=x11-drivers/xf86-video-voodoo-1.1.0 )
 		video_cards_xgi? ( >=x11-drivers/xf86-video-xgi-1.5.0 )
 		video_cards_tdfx? ( 3dfx? ( >=media-libs/glide-v3-3.10 ) )
-		video_cards_nvidia? ( >=x11-drivers/nvidia-drivers-100.14.19 )
+		video_cards_nvidia? ( || ( >=x11-drivers/nvidia-drivers-100.14.19 >=x11-drivers/nvidia-drivers-96.43.01 ) )
 		video_cards_fglrx? ( >=x11-drivers/ati-drivers-8.42.3 )
 	)"
 LICENSE="${LICENSE} MIT"
