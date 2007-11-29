@@ -58,8 +58,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/thinkpad-2.6.23.patch
 		${FILESDIR}/${PV}/mactel-patches-2.6.23.patch
 		${FILESDIR}/${MY_P}-sandbox-violation.patch
-		${FILESDIR}/${PV}/linux-2.6.23.1.patch
-		${FILESDIR}/${PV}/acpi-release-20070126-2.6.23.patch
+		${FILESDIR}/${PV}/linux-2.6.23.9.patch
 		${FILESDIR}/${PV}/rt2x00-latest-2.6.23.patch
 
 		"
@@ -103,7 +102,9 @@ src_compile() {
 		use splash && GKARGS="${GKARGS} --splash=sabayon"
 		use dmraid && GKARGS="${GKARGS} --dmraid"
 		use grub && GKARGS="${GKARGS} --bootloader=grub"
-		CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
+		export DEFAULT_KERNEL_SOURCE="${S}"
+		export CMD_KERNEL_DIR="${S}"
+		DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
 			--kerneldir=${S} \
 			--kernel-config=${WORKDIR}/config \
 			--cachedir=${WORKDIR}/cache \
