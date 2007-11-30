@@ -1,0 +1,24 @@
+diff -Nurp genkernel-3.4.9_pre10.orig/gen_initramfs.sh genkernel-3.4.9_pre10/gen_initramfs.sh
+--- genkernel-3.4.9_pre10.orig/gen_initramfs.sh	2007-11-30 16:03:59.000000000 +0100
++++ genkernel-3.4.9_pre10/gen_initramfs.sh	2007-11-30 16:04:41.000000000 +0100
+@@ -393,7 +393,7 @@ append_auxilary() {
+ 			rm -f ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
+ 			cp /bin/cryptsetup ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
+ 			chmod +x "${TEMP}/initramfs-aux-temp/sbin/cryptsetup"
+-		elsif is_static /sbin/cryptsetup
++		elif is_static /sbin/cryptsetup
+ 		then
+ 			print_info 1 "Including LUKS support"
+ 			rm -f ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
+diff -Nurp genkernel-3.4.9_pre10.orig/gen_initrd.sh genkernel-3.4.9_pre10/gen_initrd.sh
+--- genkernel-3.4.9_pre10.orig/gen_initrd.sh	2007-11-28 22:43:16.000000000 +0100
++++ genkernel-3.4.9_pre10/gen_initrd.sh	2007-11-30 16:04:36.000000000 +0100
+@@ -216,7 +216,7 @@ create_base_initrd_sys() {
+ 			rm -f ${TEMP}/initrd-temp/sbin/cryptsetup
+ 			cp /bin/cryptsetup ${TEMP}/initrd-temp/sbin/cryptsetup
+ 			chmod +x "${TEMP}/initrd-temp/sbin/cryptsetup"
+-		elsif is_static /sbin/cryptsetup
++		elif is_static /sbin/cryptsetup
+ 		then
+ 			print_info 1 "Including LUKS support"
+ 			rm -f ${TEMP}/initrd-temp/sbin/cryptsetup
