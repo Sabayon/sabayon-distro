@@ -95,6 +95,10 @@ src_compile() {
 			fi
 		fi
 
+		# do some cleanup
+		rm -rf "${WORKDIR}"/lib
+		rm -rf "${WORKDIR}"/cache
+		rm -rf "${S}"/temp
 		OLDARCH=${ARCH}
 		unset ARCH
 		cd ${S}
