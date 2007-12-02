@@ -1,0 +1,267 @@
+#!/sbin/runscript
+# $Header: /var/cvsroot/gentoo-x86/media-sound/alsa-utils/files/alsasound-init-20070218,v 1.3 2007/02/18 14:00:58 flameeyes Exp $
+#
+# Gentoo users: add this script to 'boot' run level.
+# ==================================================
+#
+# alsasound			This shell script takes care of starting and stopping
+#					the ALSA sound driver.
+#
+# Copyright (c) by Jaroslav Kysela <perex@suse.cz>
+#
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA	 02111-1307 USA
+
+alsastatedir=/var/lib/alsa
+alsascrdir=/etc/alsa.d
+
+opts="${opts} save restore"
+
+depend() {
+	need bootmisc localmount
+	after modules isapnp coldplug hotplug
+}
+
+load_modules() {
+	# List of drivers for each card.
+	local DRIVERS="$(modprobe -c | grep -E "^[[:space:]]*alias[[:space:]]+snd-card-[[:digit:]]" | awk '{print $2}')"
+
+	# Fall back on the automated aliases if we don't have ALSA configured properly...
+	if [[ -z "${DRIVERS}" && ! ( -d /proc/asound && -z "$(grep ' no soundcards ' /proc/asound/cards)" ) ]] ; then
+		ewarn "Could not detect custom ALSA settings.  Loading all detected alsa drivers."
+		DRIVERS="$(modprobe -c | grep pci: |  awk '{ print $3 }' | grep snd.* | sort | uniq)"
+		[[ -z "${DRIVERS}" ]] && eerror "Unable to find any ALSA drivers. Have you compiled alsa-drivers correctly?"
+	fi
+
+	if [[ ${ENABLE_OSS_EMUL} == "yes" ]] && modprobe -c | grep -q "snd.*oss$" ; then
+		# Test for use of OSS
+		local OSS="$(modprobe -l | grep "snd.*oss" | sed -e "s:\/.*\/::" -e "s:\..*::")"
+		# Add oss modules to list
+		local i
+		for i in ${OSS}
+		do
+			DRIVERS="${DRIVERS} ${i}"
+		done
+	fi
+
+	# We want to ensure snd-seq is loaded as it is needed for things like
+	# timidity even if we don't use a real sequencer.
+	DRIVERS="${DRIVERS} $(modprobe -l | grep "snd.seq\." | sed -e "s:\/.*\/::" -e "s:\..*::")"
+
+	# We want to ensure snd-ioctl32 is loaded as it is needed for 32bit
+	# compatibility
+	DRIVERS="${DRIVERS} $(modprobe -l | grep "snd.ioctl32\." | sed -e "s:\/.*\/::" -e "s:\..*::")"
+
+	local DRIVER
+	for DRIVER in ${DRIVERS}
+	do
+		if [[ "${DRIVER}" != "off"	&&
+			  -z $(cut -d' ' -f1 /proc/modules | egrep "^${DRIVER}\$") &&
+			  -z $(cut -d' ' -f1 /proc/modules | egrep "^${DRIVER//-/_}\$") ]] ; then
+			ebegin "  Loading: ${DRIVER}"
+			/sbin/modprobe ${DRIVER}
+			eend $?
+		fi
+	done
+
+	sleep 1
+
+	if [[ -f /proc/asound/seq/drivers ]] ; then
+		local SEQUENCERS="$(awk -F, '$2~/^empty$/ {print $1}' /proc/asound/seq/drivers)"
+		local SEQUENCER
+		for SEQUENCER in ${SEQUENCERS}
+		do
+			if [[ -z $(cut -d' ' -f1 /proc/modules | egrep "^${SEQUENCER}\$")  &&
+				  -z $(cut -d' ' -f1 /proc/modules | egrep "^${SEQUENCER//-/_}\$") ]] ; then
+				ebegin "  Loading: ${SEQUENCER}"
+				/sbin/modprobe ${SEQUENCER}
+				eend $?
+			fi
+		done
+	fi
+
+	for DRIVER in ${DRIVERS}
+	do
+		local TMP=${DRIVER##snd-}
+		TMP=${TMP##snd_}
+		if [[ -x "${alsascrdir}/${TMP}" ]] ; then
+			ebegin "  Running: ${alsascrdir}/${TMP}"
+			${alsascrdir}/${TMP}
+			eend $?
+		fi
+	done
+
+	if [[ ! -d /proc/asound || -n "$(grep ' no soundcards ' /proc/asound/cards)" ]] ; then
+		eerror "ERROR: Failed to load necessary drivers"
+		return 1
+	fi
+}
+
+unload_modules_24() {
+	local LOADED_MODULES="$(/sbin/lsmod | grep -E "^snd" | awk '{print $1}')"
+	local MODULE
+	for MODULE in ${LOADED_MODULES}
+	do
+		/sbin/rmmod ${MODULE} >& /dev/null
+	done
+	/sbin/rmmod soundcore >& /dev/null
+	/sbin/rmmod gameport >& /dev/null
+
+	# Return success if the modules are unloaded
+	[[ -z "$(/sbin/lsmod | grep -E "^snd" | awk '{print $1}')" ]]
+}
+
+unload_modules_recursive() {
+	local revdeps=$(/sbin/lsmod | egrep "^$1\>" | awk '{ print $4 }')
+
+	for module in ${revdeps//,/ }; do
+		unload_modules_recursive "${module}"
+	done
+
+	/sbin/rmmod --wait "$1"
+}
+
+unload_modules_26() {
+	# First of all, remove the snd module and all the modules depending
+	# on it, this should remove already most of ALSA modules.
+	unload_modules_recursive snd
+
+	# Then find the remaining ones, and handle them too.
+	for module in $(lsmod | egrep '^snd' | awk '{ print $1 }'); do
+		unload_modules_recursive "${module}"
+	done
+
+	if lsmod | egrep -q '^snd'; then
+		return 1
+	else
+		return 0;
+	fi
+}
+
+terminate() {
+	#
+	# Kill processes holding open sound devices
+	#
+	# DEVS=`find /dev/ -follow -type c -maxdepth 1 -print 2>/dev/null | xargs ls -dils | grep "1*1[46]," | cut -d: -f2 | cut -d" " -f2; echo /proc/asound/dev/*`
+	local ossdevs="/dev/admmidi? /dev/adsp? /dev/amidi? /dev/audio* /dev/dmfm* \
+			/dev/dmmidi? /dev/dsp* /dev/dspW* /dev/midi0? /dev/mixer? /dev/music \
+			/dev/patmgr? /dev/sequencer* /dev/sndstat"
+	local alsadevs="/proc/asound/dev/* /dev/sound/* /dev/snd/*"
+	fuser -k ${ossdevs} ${alsadevs} >& /dev/null
+
+	# remove all sequencer connections if any
+	[[ -f /proc/asound/seq/clients && -n $(type -p aconnect) ]] && aconnect --removeall
+}
+
+restore() {
+	ebegin "Restoring Mixer Levels"
+
+	if [[ ! -r "${alsastatedir}/asound.state" ]] ; then
+		ewarn "No mixer config in ${alsastatedir}/asound.state, you have to unmute your card!"
+		eend 0
+		return 0
+	fi
+
+	local cards="$( awk '/: / { print $1 }' /proc/asound/cards )"
+	local CARDNUM
+	for cardnum in ${cards}; do
+		[[ -e /dev/snd/controlC${cardnum} ]] || sleep 2
+		[[ -e /dev/snd/controlC${cardnum} ]] || sleep 2
+		[[ -e /dev/snd/controlC${cardnum} ]] || sleep 2
+		[[ -e /dev/snd/controlC${cardnum} ]] || sleep 2
+		alsactl -f "${alsastatedir}/asound.state" restore ${cardnum} \
+			|| ewarn "Errors while restoring defaults, ignoring"
+	done
+
+	push_opts=$(shopt -p nullglob); shopt -s nullglob
+	for ossfile in "${alsastatedir}"/oss/card?_pcm??; do
+		# We use cat because I'm not sure if cp works properly on /proc
+		local procfile=${ossfile##${alsastatedir}/oss}
+		cat "${ossfile}" > /proc/asound/${procfile/_/\/}/oss
+	done
+	eval $push_opts
+
+	eend 0
+}
+
+save() {
+	ebegin "Storing ALSA Mixer Levels"
+
+	mkdir -p "${alsastatedir}"
+	if ! alsactl -f "${alsastatedir}/asound.state" store; then
+		eerror "Error saving levels."
+
+		eend 1
+		return 1
+	fi
+
+	push_opts=$(shopt -p nullglob); shopt -s nullglob
+	for ossfile in /proc/asound/card?/pcm??/oss; do
+		local device=${ossfile##/proc/asound/}; device=${device%%/oss}; device=${device/\//_}
+
+		mkdir -p "${alsastatedir}/oss/"
+		cp "${ossfile}" "${alsastatedir}/oss/${device}"
+	done
+	eval $push_opts
+
+	eend 0
+}
+
+start() {
+	if [[ -f /proc/modules ]] ; then
+		ebegin "Loading ALSA modules"
+		if load_modules ; then
+			eend 0
+		else
+			eend 1
+			return 1
+		fi
+	fi
+
+	if [[ ! -d /proc/asound ]]; then
+		eerror "ALSA failed to load."
+		eend 1
+		return 1
+	fi
+
+	[[ ${RESTORE_ON_START} == "yes" ]] && restore
+}
+
+stop() {
+	if [[ ! -d /proc/asound ]] ; then
+		eerror "ALSA is not loaded"
+		return 0
+	fi
+
+	[[ ${SAVE_ON_STOP} == "yes" ]] && save
+
+	ebegin "Killing processes using ALSA"
+	terminate
+	eend 0
+
+	if [[ -f /proc/modules ]]; then
+		local ver # used to carry the version of kernel used,
+				  # and then to execute the right function.
+		/sbin/rmmod --version | grep -q module-init-tools \
+			&& ver="26" || ver="24"
+
+		ebegin "Unloading ALSA modules"
+		if unload_modules_${ver}; then
+			eend 0
+		else
+			eend 1
+		fi
+	fi
+}

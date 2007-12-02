@@ -1,0 +1,25 @@
+Index: alsa-utils-1.0.11rc2/speaker-test/speaker-test.c
+===================================================================
+--- alsa-utils-1.0.11rc2.orig/speaker-test/speaker-test.c
++++ alsa-utils-1.0.11rc2/speaker-test/speaker-test.c
+@@ -44,9 +44,6 @@
+ #include <getopt.h>
+ #include <inttypes.h>
+ #include <ctype.h>
+-#ifdef ENABLE_NLS
+-#include <locale.h>
+-#endif
+ #include <byteswap.h>
+ 
+ #define ALSA_PCM_NEW_HW_PARAMS_API
+@@ -59,6 +56,10 @@
+ #include "gettext.h"
+ #include "version.h"
+ 
++#ifdef ENABLE_NLS
++#include <locale.h>
++#endif
++
+ enum {
+   TEST_PINK_NOISE = 1,
+   TEST_SINE,

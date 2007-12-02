@@ -1,0 +1,18 @@
+--- a/alsaconf/alsaconf.in
++++ b/alsaconf/alsaconf.in
+@@ -904,13 +904,8 @@ BEGIN { in_sound=0; }
+ 
+     farewell
+     clear
+-    if [ "$distribution" = "gentoo" ]; then
+-      xecho "Running modules-update..."
+-      modules-update
+-    elif [ "$distribution" = "debian" ]; then
+-      xecho "Running update-modules..."
+-      update-modules
+-    fi
++    xecho "Running update-modules..."
++    update-modules
+     if [ -x $rcalsasound ] ; then
+       echo Loading driver...
+       $rcalsasound restart
