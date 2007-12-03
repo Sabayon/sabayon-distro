@@ -30,7 +30,7 @@ S="${WORKDIR}/linux-${KV_FULL}"
 ## INIT: Exported data
 SL_PATCHES_URI="
 		http://dev.gentoo.org/~spock/projects/fbcondecor/archive/fbcondecor-0.9.4-${PV}-rc7.patch
-		http://download.filesystems.org/unionfs/unionfs-2.1/unionfs-2.1.6_for_2.6.23-rc8.diff.gz
+		http://download.filesystems.org/unionfs/unionfs-2.1/unionfs-2.1.10_for_2.6.23.8.diff.gz
 "
 
 SUSPEND2_VERSION="2.2.10.4"
@@ -45,7 +45,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${FILESDIR}/${MY_P}-ipw3945-1.2.0-2.6.22.patch 
 		${FILESDIR}/${MY_P}-from-ext4dev-to-ext4.patch
-		${DISTDIR}/unionfs-2.1.6_for_2.6.23-rc8.diff.gz
+		${DISTDIR}/unionfs-2.1.10_for_2.6.23.8.diff.gz
 		${FILESDIR}/${MY_P}-mac80211-drivers.patch
 		${FILESDIR}/${MY_P}-acx-old.patch
 
