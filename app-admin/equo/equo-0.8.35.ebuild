@@ -89,6 +89,7 @@ src_install() {
 	dodir /etc/entropy
 	insinto /etc/entropy
 	doins -r *
+	rm -f ${D}/etc/entropy/activator.conf
 
 	#########
 	#
