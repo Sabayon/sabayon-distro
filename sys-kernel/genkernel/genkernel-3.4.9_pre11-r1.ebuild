@@ -54,9 +54,6 @@ src_unpack() {
 	# SMART doslowusb patch
 	epatch ${FILESDIR}/${PN}-3.4.9-smart-slowusb.patch
 
-	# Genkernel bug
-	epatch ${FILESDIR}/genkernel-3.4.9_pre10-bash-fix.patch
-
 #	epatch "${FILESDIR}"/${P}-lvm2fix.patch
 }
 
