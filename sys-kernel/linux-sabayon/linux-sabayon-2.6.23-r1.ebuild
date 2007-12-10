@@ -49,6 +49,13 @@ UNIPATCH_LIST="
 		${FILESDIR}/${MY_P}-acx-old.patch
 
 		${FILESDIR}/${MY_P}-mactel-appleir.patch
+		${FILESDIR}/${MY_P}-dm-bbr.patch
+		${FILESDIR}/${MY_P}-acpi-concurrent-thermal-checks.patch
+		${FILESDIR}/${MY_P}-forcedeth-boot-delay.patch
+		${FILESDIR}/${MY_P}-hostap-netdev-type.patch
+		${FILESDIR}/${MY_P}-e1000e.patc
+
+
 		${FILESDIR}/${PV}/acer-acpi-2.6.23.patch
 		${FILESDIR}/${PV}/linux-phc-0.3.0-pre1-2.6.23.patch
 		${FILESDIR}/${PV}/hrtimers-2.6.23.patch

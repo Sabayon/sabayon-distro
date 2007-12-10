@@ -1,0 +1,106 @@
+From: Daniel Drake <dsd@gentoo.org>
+Date: Wed, 26 Sep 2007 20:45:24 +0000 (+0100)
+Subject: [PATCH] hostap: set netdev type before registering AP interface
+X-Git-Url: http://git.kernel.org/?p=linux%2Fkernel%2Fgit%2Flinville%2Fwireless-2.6.git;a=commitdiff_plain;h=d4a248f175f60fa278d792727ca11b6376f2d4e5
+
+[PATCH] hostap: set netdev type before registering AP interface
+
+As detailed at https://bugs.gentoo.org/159646 hostap with hostapd confuses
+udev by presenting 2 interfaces with the same MAC address. Also, at the time
+of detection, the 'type' attribute is 1, identical to other hostap interfaces.
+
+The AP interface is supposed to have type ARPHRD_IEEE80211 (801), but this is
+not set until after registration.
+
+Setting it before register_netdev() is called allows us to avoid this
+confusion. We can do this by propogating the HOSTAP_INTERFACE type through
+to hostap_setup_dev().
+
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+
+Index: linux-2.6.23-gentoo/drivers/net/wireless/hostap/hostap.h
+===================================================================
+--- linux-2.6.23-gentoo.orig/drivers/net/wireless/hostap/hostap.h
++++ linux-2.6.23-gentoo/drivers/net/wireless/hostap/hostap.h
+@@ -35,7 +35,7 @@ int hostap_80211_prism_header_parse(stru
+ int hostap_80211_get_hdrlen(u16 fc);
+ struct net_device_stats *hostap_get_stats(struct net_device *dev);
+ void hostap_setup_dev(struct net_device *dev, local_info_t *local,
+-		      int main_dev);
++		      int type);
+ void hostap_set_multicast_list_queue(struct work_struct *work);
+ int hostap_set_hostapd(local_info_t *local, int val, int rtnl_locked);
+ int hostap_set_hostapd_sta(local_info_t *local, int val, int rtnl_locked);
+Index: linux-2.6.23-gentoo/drivers/net/wireless/hostap/hostap_hw.c
+===================================================================
+--- linux-2.6.23-gentoo.orig/drivers/net/wireless/hostap/hostap_hw.c
++++ linux-2.6.23-gentoo/drivers/net/wireless/hostap/hostap_hw.c
+@@ -3254,7 +3254,7 @@ while (0)
+ 
+ 	INIT_LIST_HEAD(&local->bss_list);
+ 
+-	hostap_setup_dev(dev, local, 1);
++	hostap_setup_dev(dev, local, HOSTAP_INTERFACE_MASTER);
+ 	local->saved_eth_header_parse = dev->hard_header_parse;
+ 
+ 	dev->hard_start_xmit = hostap_master_start_xmit;
+Index: linux-2.6.23-gentoo/drivers/net/wireless/hostap/hostap_main.c
+===================================================================
+--- linux-2.6.23-gentoo.orig/drivers/net/wireless/hostap/hostap_main.c
++++ linux-2.6.23-gentoo/drivers/net/wireless/hostap/hostap_main.c
+@@ -72,7 +72,7 @@ struct net_device * hostap_add_interface
+ 	dev->mem_start = mdev->mem_start;
+ 	dev->mem_end = mdev->mem_end;
+ 
+-	hostap_setup_dev(dev, local, 0);
++	hostap_setup_dev(dev, local, type);
+ 	dev->destructor = free_netdev;
+ 
+ 	sprintf(dev->name, "%s%s", prefix, name);
+@@ -838,7 +838,7 @@ static void prism2_tx_timeout(struct net
+ 
+ 
+ void hostap_setup_dev(struct net_device *dev, local_info_t *local,
+-		      int main_dev)
++		      int type)
+ {
+ 	struct hostap_interface *iface;
+ 
+@@ -858,15 +858,22 @@ void hostap_setup_dev(struct net_device 
+ 	dev->do_ioctl = hostap_ioctl;
+ 	dev->open = prism2_open;
+ 	dev->stop = prism2_close;
+-	dev->hard_start_xmit = hostap_data_start_xmit;
+ 	dev->set_mac_address = prism2_set_mac_address;
+ 	dev->set_multicast_list = hostap_set_multicast_list;
+ 	dev->change_mtu = prism2_change_mtu;
+ 	dev->tx_timeout = prism2_tx_timeout;
+ 	dev->watchdog_timeo = TX_TIMEOUT;
+ 
++	if (type == HOSTAP_INTERFACE_AP) {
++		dev->hard_start_xmit = hostap_mgmt_start_xmit;
++		dev->type = ARPHRD_IEEE80211;
++		dev->hard_header_parse = hostap_80211_header_parse;
++	} else {
++		dev->hard_start_xmit = hostap_data_start_xmit;
++	}
++
+ 	dev->mtu = local->mtu;
+-	if (!main_dev) {
++	if (type != HOSTAP_INTERFACE_MASTER) {
+ 		/* use main radio device queue */
+ 		dev->tx_queue_len = 0;
+ 	}
+@@ -892,10 +899,6 @@ static int hostap_enable_hostapd(local_i
+ 	if (local->apdev == NULL)
+ 		return -ENOMEM;
+ 
+-	local->apdev->hard_start_xmit = hostap_mgmt_start_xmit;
+-	local->apdev->type = ARPHRD_IEEE80211;
+-	local->apdev->hard_header_parse = hostap_80211_header_parse;
+-
+ 	return 0;
+ }
+ 
