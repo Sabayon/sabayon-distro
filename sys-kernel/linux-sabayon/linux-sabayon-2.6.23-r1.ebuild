@@ -30,14 +30,13 @@ S="${WORKDIR}/linux-${KV_FULL}"
 ## INIT: Exported data
 SL_PATCHES_URI="
 		http://dev.gentoo.org/~spock/projects/fbcondecor/archive/fbcondecor-0.9.4-${PV}-rc7.patch
-		http://download.filesystems.org/unionfs/unionfs-2.1/unionfs-2.1.10_for_2.6.23.8.diff.gz
+		http://download.filesystems.org/unionfs/unionfs-2.1/unionfs-2.1.11_for_2.6.23.9.diff.gz
 "
 
-SUSPEND2_VERSION="2.2.10.4"
-SUSPEND2_TARGET="2.6.23-rc9"
+SUSPEND2_VERSION="3.0-rc3"
+SUSPEND2_TARGET="2.6.23.9"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
-
 UNIPATCH_LIST="
 		${DISTDIR}/fbcondecor-0.9.4-${PV}-rc7.patch
 		${FILESDIR}/${MY_P}-squashfs-3.2.patch 
@@ -45,7 +44,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${FILESDIR}/${MY_P}-ipw3945-1.2.0-2.6.22.patch 
 		${FILESDIR}/${MY_P}-from-ext4dev-to-ext4.patch
-		${DISTDIR}/unionfs-2.1.10_for_2.6.23.8.diff.gz
+		${DISTDIR}/unionfs-2.1.11_for_2.6.23.9.diff.gz
 		${FILESDIR}/${MY_P}-mac80211-drivers.patch
 		${FILESDIR}/${MY_P}-acx-old.patch
 
