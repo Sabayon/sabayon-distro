@@ -1,0 +1,33 @@
+diff -ur common.orig/usr/share/doc/fglrx/examples/etc/acpi/ati-powermode.sh common/usr/share/doc/fglrx/examples/etc/acpi/ati-powermode.sh
+--- common.orig/usr/share/doc/fglrx/examples/etc/acpi/ati-powermode.sh	2006-07-28 04:22:36.000000000 +0100
++++ common/usr/share/doc/fglrx/examples/etc/acpi/ati-powermode.sh	2006-08-04 12:19:42.000000000 +0100
+@@ -17,6 +17,10 @@
+         fi
+ }
+ 
++aticonfig='/opt/bin/aticonfig'
++
++# default high power state
++default_state=`$aticonfig --lsp | grep 'default state' | cut -c 3`
+ 
+ grep -q closed /proc/acpi/button/lid/*/state
+ if [ $? = 0 ]; then
+@@ -46,7 +50,7 @@
+ 	getXuser;
+ 	if [ x"$XAUTHORITY" != x"" ]; then
+ 	    export DISPLAY=":$displaynum"	    
+-	    su $user -c "/usr/X11R6/bin/aticonfig --set-powerstate=1 --effective=now"
++	    su $user -c "$aticonfig --set-powerstate=1 --effective=now"
+ 	fi
+     done
+ else
+@@ -56,7 +60,7 @@
+ 	getXuser;
+ 	if [ x"$XAUTHORITY" != x"" ]; then
+ 	    export DISPLAY=":$displaynum"
+-	    su $user -c "/usr/X11R6/bin/aticonfig --set-powerstate=3 --effective=now"
++	    su $user -c "$aticonfig --set-powerstate=$default_state --effective=now"
+ 	fi
+     done
+ fi
+
