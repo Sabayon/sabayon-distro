@@ -52,7 +52,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${MY_P}-dm-bbr.patch
 		${FILESDIR}/${MY_P}-acpi-concurrent-thermal-checks.patch
 		${FILESDIR}/${MY_P}-forcedeth-boot-delay.patch
-		${FILESDIR}/${MY_P}-e1000e.patc
+		${FILESDIR}/${MY_P}-e1000e.patch
 
 
 		${FILESDIR}/${PV}/acer-acpi-2.6.23.patch
