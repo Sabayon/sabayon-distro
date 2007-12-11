@@ -1,3 +1,7 @@
+AUX genkernel-3.4.9-enforce-smartslowusb.patch 1585 RMD160 eeda859fdb6dddc7d74deaf255ab56a5208edaf8 SHA1 94701a96e1b7f86f41e7226b5d44a9f8a8991d9f SHA256 eca0eaf8ad84d1c82d09b18f089de0213794b169f0d4e0cfc3f00119e94a21e7
+MD5 d75bafb0dde08fa35007932438d69a11 files/genkernel-3.4.9-enforce-smartslowusb.patch 1585
+RMD160 eeda859fdb6dddc7d74deaf255ab56a5208edaf8 files/genkernel-3.4.9-enforce-smartslowusb.patch 1585
+SHA256 eca0eaf8ad84d1c82d09b18f089de0213794b169f0d4e0cfc3f00119e94a21e7 files/genkernel-3.4.9-enforce-smartslowusb.patch 1585
 AUX genkernel-3.4.9-sabayon-linux.patch 1233 RMD160 89a24d73bcc29ce0549a6f0bbfda5fa6494b4b6b SHA1 7addcb26eb94342870d4c7acd026d50b6987c603 SHA256 367f5c9fe6c399413d1f33b2be9f1ec6261e7f7b1cbf83399dc9e045b8e36f32
 MD5 90563cdff9fefe92818c8eb48c838868 files/genkernel-3.4.9-sabayon-linux.patch 1233
 RMD160 89a24d73bcc29ce0549a6f0bbfda5fa6494b4b6b files/genkernel-3.4.9-sabayon-linux.patch 1233
@@ -53,6 +57,10 @@ EBUILD genkernel-3.4.9_pre11-r1.ebuild 4022 RMD160 20a7f3453b0853f8fd39a3f77d140
 MD5 770cfd842d8b119d8dc2c0a60fbcc554 genkernel-3.4.9_pre11-r1.ebuild 4022
 RMD160 20a7f3453b0853f8fd39a3f77d140ee3abd4adfd genkernel-3.4.9_pre11-r1.ebuild 4022
 SHA256 f293988b23f1a5a3d2256faa76028223fd8cd964b4a7bb757ce94a6798767f8a genkernel-3.4.9_pre11-r1.ebuild 4022
+EBUILD genkernel-3.4.9_pre11-r2.ebuild 4041 RMD160 0da3f94fa98acc26c1d5098bfd0be42a9e57580e SHA1 46fa9505c8203778732683b4ef232997893151e7 SHA256 2ca1e130d87bd3ec172e5d2602fcf6a16b4d320621ff3f73bce0d3a4161186d8
+MD5 d13a6c9ae77ad9aa0f6318bb8040d6da genkernel-3.4.9_pre11-r2.ebuild 4041
+RMD160 0da3f94fa98acc26c1d5098bfd0be42a9e57580e genkernel-3.4.9_pre11-r2.ebuild 4041
+SHA256 2ca1e130d87bd3ec172e5d2602fcf6a16b4d320621ff3f73bce0d3a4161186d8 genkernel-3.4.9_pre11-r2.ebuild 4041
 EBUILD genkernel-3.4.9_pre9-r1.ebuild 4021 RMD160 bdf56b1573037db4e3514cd06fc108892def2f1e SHA1 66be94b16dc34c98df40f15672cd684954c6cdc2 SHA256 72c40438a5a8bc7e6b0e923ac1553313d2378846f14fd1db258a1aee106ad953
 MD5 b10cb90dcb7861f59ba39eb67a932d65 genkernel-3.4.9_pre9-r1.ebuild 4021
 RMD160 bdf56b1573037db4e3514cd06fc108892def2f1e genkernel-3.4.9_pre9-r1.ebuild 4021
@@ -67,6 +75,9 @@ SHA256 5a6dec46bf8e4910d9bc5a6e189c71b6a5a1819c7eaec434aa36b67a2864b4c4 files/di
 MD5 3dd1be71bfb914e5e91c1215e791cfd4 files/digest-genkernel-3.4.9_pre11-r1 1816
 RMD160 7a5a905e86905be3db86ed3462dfa80e0fa1a5f1 files/digest-genkernel-3.4.9_pre11-r1 1816
 SHA256 8b17b75ff7cea687373acf832cdd270229291e875440059a18be283e251bbc72 files/digest-genkernel-3.4.9_pre11-r1 1816
+MD5 3dd1be71bfb914e5e91c1215e791cfd4 files/digest-genkernel-3.4.9_pre11-r2 1816
+RMD160 7a5a905e86905be3db86ed3462dfa80e0fa1a5f1 files/digest-genkernel-3.4.9_pre11-r2 1816
+SHA256 8b17b75ff7cea687373acf832cdd270229291e875440059a18be283e251bbc72 files/digest-genkernel-3.4.9_pre11-r2 1816
 MD5 947a2b62df363bcfdd636eb917cbeb3d files/digest-genkernel-3.4.9_pre9 2015
 RMD160 5a68e6648529418cc6701a101870512c46b4a00c files/digest-genkernel-3.4.9_pre9 2015
 SHA256 75cafd81e9febc93e266a0f64e826f7f05c5136de1ed4f7ab9b70d8dad61e08d files/digest-genkernel-3.4.9_pre9 2015
