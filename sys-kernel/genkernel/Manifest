@@ -1,7 +1,7 @@
-AUX genkernel-3.4.9-aufs.patch 3477 RMD160 0210996ae446081da42cb59e265f8ab5b2488b23 SHA1 3dcda2508141397725f8207051a1ae60ed0408aa SHA256 448fde272d8bbd7a623e87fed2aa154e96b4978ab70c8b025bd58c5834eccc4f
-MD5 386c9a4d22a89dcac7d633eabbd8255d files/genkernel-3.4.9-aufs.patch 3477
-RMD160 0210996ae446081da42cb59e265f8ab5b2488b23 files/genkernel-3.4.9-aufs.patch 3477
-SHA256 448fde272d8bbd7a623e87fed2aa154e96b4978ab70c8b025bd58c5834eccc4f files/genkernel-3.4.9-aufs.patch 3477
+AUX genkernel-3.4.9-aufs.patch 3503 RMD160 9d3e30bfa5135e8dda8af5ac103ee3508a063140 SHA1 acb451596e2c9a34895d66fdebe011b6bf861d16 SHA256 9ba0c83ead657ba96d3d7961509f47cf07647e3875265c4bb41d173b7d1054f1
+MD5 9d4b15dd7935008cc91cb856779f4df0 files/genkernel-3.4.9-aufs.patch 3503
+RMD160 9d3e30bfa5135e8dda8af5ac103ee3508a063140 files/genkernel-3.4.9-aufs.patch 3503
+SHA256 9ba0c83ead657ba96d3d7961509f47cf07647e3875265c4bb41d173b7d1054f1 files/genkernel-3.4.9-aufs.patch 3503
 AUX genkernel-3.4.9-enforce-smartslowusb.patch 1585 RMD160 eeda859fdb6dddc7d74deaf255ab56a5208edaf8 SHA1 94701a96e1b7f86f41e7226b5d44a9f8a8991d9f SHA256 eca0eaf8ad84d1c82d09b18f089de0213794b169f0d4e0cfc3f00119e94a21e7
 MD5 d75bafb0dde08fa35007932438d69a11 files/genkernel-3.4.9-enforce-smartslowusb.patch 1585
 RMD160 eeda859fdb6dddc7d74deaf255ab56a5208edaf8 files/genkernel-3.4.9-enforce-smartslowusb.patch 1585
