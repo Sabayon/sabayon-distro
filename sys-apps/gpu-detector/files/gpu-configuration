@@ -130,14 +130,7 @@ def deploy_nvidia_9xxxxx_drivers(): # reduce os.system usage
 			return False
 		
 		# prepare system
-		if os.access('/usr/bin/qlist',os.X_OK):
-			os.system("""
-				qlist -e nvidia-drivers | xargs rm -rf
-				rm -rf /var/db/pkg/x11-drivers/nvidia-drivers-*
-				sed -i '/.*nvidia-drivers.*/d' /var/lib/portage/world
-			""")
-		else:
-			os.system("emerge -C nvidia-drivers &> /dev/null")
+		os.system("equo query files nvidia-drivers --quiet | xargs rm -rf")
 		
 		# remove old garbage - copy over - create module
 		os.system("""
@@ -266,7 +259,7 @@ def copy_nvidia_settings_on_desktop():
 			shutil.copy2(nvidia_settings,"/etc/skel/Desktop/"+os.path.basename(nvidia_settings))
 
 def copy_ati_settings_on_desktop():
-	desktop_files = commands.getoutput('qlist -e ati-drivers | grep ".desktop"').split("\n")
+	desktop_files = commands.getoutput('equo query files ati-drivers --quiet | grep ".desktop"').split("\n")
 	desktop_files = [x for x in desktop_files if os.path.isfile(x)]
 	print "copy_ati_settings_on_desktop: found files: "+str(desktop_files)
 	for ati_settings in desktop_files:
