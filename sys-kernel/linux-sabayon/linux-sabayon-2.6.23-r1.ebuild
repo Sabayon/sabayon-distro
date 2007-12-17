@@ -63,7 +63,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/thinkpad-2.6.23.patch
 		${FILESDIR}/${PV}/mactel-patches-2.6.23.patch
 		${FILESDIR}/${MY_P}-sandbox-violation.patch
-		${FILESDIR}/${PV}/linux-2.6.23.9.patch
+		${FILESDIR}/${PV}/linux-2.6.23.11.patch
 		${FILESDIR}/${PV}/rt2x00-latest-2.6.23.patch
 
 		"
