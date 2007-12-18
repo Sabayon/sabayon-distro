@@ -51,6 +51,6 @@ src_install() {
 	insinto /etc/X11
 	doins xorg.conf
 
-	newinitd sabayonlive
+	newinitd sabayonlive sabayonlive
 
 }
