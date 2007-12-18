@@ -8,13 +8,13 @@ HOMEPAGE="http://www.sabayonlinux.org"
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="opengl professional_edition"
 
 RDEPEND="dev-util/dialog
 	sys-apps/pciutils
 	sys-apps/gawk
-	!professiona_edition? ( app-admin/eselect-opengl )
+	!professional_edition? ( app-admin/eselect-opengl )
 	!app-misc/livecd-tools
 	!professional_edition? ( x11-misc/desktop-acceleration-helpers )
 	"
@@ -29,6 +29,7 @@ src_unpack() {
 	cp ${FILESDIR}/${PV}/xorg.conf . -p
 	cp ${FILESDIR}/${PV}/bashlogin . -p
 	cp ${FILESDIR}/${PV}/opengl-activator . -p
+	cp ${FILESDIR}/${PV}/sabayonlive . -p
 }
 
 src_install() {
@@ -49,5 +50,7 @@ src_install() {
 
 	insinto /etc/X11
 	doins xorg.conf
+
+	newinitd sabayonlive
 
 }
