@@ -7,9 +7,9 @@ DESCRIPTION="Sabayon Linux tool to configure networks using Network Manager"
 HOMEPAGE="http://www.sabayonlinux.org"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-*"
+KEYWORDS="~x86 ~amd64 ~ppc ~ppc64"
 IUSE=""
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/${PN}/trunk"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/${PN}/tags/${PV}"
 
 RDEPEND=">=dev-python/PyQt4-4.1"
 
