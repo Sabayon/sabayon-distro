@@ -1,9 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=Acceleration Manager
-Comment=This session is a simple plain X session
-Exec=/usr/share/accel-manager/accel-manager-session
-# no icon yet, only the top three are currently used
-Icon=
-Type=Application
-
