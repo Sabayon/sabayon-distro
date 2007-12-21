@@ -66,6 +66,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/linux-2.6.23.11.patch
 		${FILESDIR}/${PV}/rt2x00-latest-2.6.23.patch
 		${FILESDIR}/${PV}/aufs-cvs-0710115-2.6.23.patch
+		${FILESDIR}/${PV}/linux-2.6.23.11-12.patch
 
 		"
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${SUSPEND2_URI} ${SL_PATCHES_URI}"
