@@ -29,6 +29,7 @@ RDEPEND=">=dev-lang/python-2.4
 	>=media-libs/pigment-0.3
 	>=dev-db/sqlite-3.2.8
 	>=dev-python/pysqlite-2.0.5
+	>=dev-python/Coherence-0.4.0
 	upnp? (
 		dev-python/twisted-web
 		dev-python/elementtree
