@@ -20,6 +20,7 @@ RDEPEND=">=dev-lang/python-2.4
 	dev-python/setuptools
 	>=dev-python/imaging-1
 	>=dev-python/twisted-2.2
+	dev-python/twisted-web
 	dev-python/gnome-python-extras
 	>=media-libs/gstreamer-0.10.4
 	>=dev-python/gst-python-0.10
@@ -30,8 +31,8 @@ RDEPEND=">=dev-lang/python-2.4
 	>=dev-db/sqlite-3.2.8
 	>=dev-python/pysqlite-2.0.5
 	>=dev-python/Coherence-0.4.0
+	dev-python/ctypes
 	upnp? (
-		dev-python/twisted-web
 		dev-python/elementtree
 		dev-python/celementtree
 		dev-python/soappy
@@ -114,4 +115,3 @@ pkg_postinst() {
 	einfo "locations = ['file://./sample_data/music', 'file:///data/music/']"
 
 }
-
