@@ -889,6 +889,25 @@ start() {
 		fi
 	fi
 
+	# Setup automatic DVD ejecting
+	python -c '
+import os
+import commands
+sh_file = "/etc/init.d/shutdown.sh"
+mydev = commands.getoutput("mount | grep \" /mnt/cdrom \" | cut -d\" \" -f 1")
+if mydev.startswith("/dev") and os.path.isfile(sh_file):
+	f = open(sh_file,"r")
+	sh_content = f.readlines()
+	f = open(sh_file,"w")
+	for line in sh_content:
+		if line.startswith("/sbin/halt"):
+			# change
+			line = "eject -mp "+mydev+" && " + line
+		f.write(line)
+	f.flush()
+	f.close()
+	'
+
 
 	# MOVED HERE TO AVOID RACE CONDITIONS ON WRITING /etc/profile.env variables
 	# Check if LANG is forced by cmdline
