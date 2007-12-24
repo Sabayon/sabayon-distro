@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>net-ftp</herd>
+<maintainer>
+<email>jsin@gentoo.org</email>
+<name>Jason Smathers</name>
+</maintainer>
+<longdescription lang="en">
+The native linux ftp/sftp client GUI built on wxGTK
+</longdescription>
+</pkgmetadata>
+
