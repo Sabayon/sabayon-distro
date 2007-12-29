@@ -10,6 +10,7 @@ DESCRIPTION="Ati precompiled drivers for recent chipsets"
 HOMEPAGE="http://www.ati.com"
 ATI_URL="https://a248.e.akamai.net/f/674/9206/0/www2.ati.com/drivers/linux/"
 SRC_URI="${ATI_URL}/ati-driver-installer-7-11-x86.x86_64.run"
+SLOT="0"
 
 LICENSE="AMD GPL-2 QPL-1.0 as-is"
 KEYWORDS="~amd64 ~x86"
