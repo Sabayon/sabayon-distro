@@ -9,6 +9,7 @@ DESCRIPTION="NetworkManager GNOME Client Applet"
 HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
 SRC_URI="http://people.redhat.com/dcbw/NetworkManager/${PV}/nm-applet-${PV}.tar.gz"
 
+SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="~x86 ~amd64 ~ppc"
 IUSE=""

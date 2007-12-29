@@ -10,6 +10,7 @@ HOMEPAGE="http://www.frostwire.com"
 SRC_URI="http://mirror1.peercommons.net/frostwire/${PV}/${MY_P}-${PV}-2.tar.gz"
 LICENSE="GPL-2"
 KEYWORDS="~x86"
+SLOT="0"
 DEPEND="app-arch/gzip"
 
 RDEPEND=">=virtual/jre-1.4.2

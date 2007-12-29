@@ -7,6 +7,7 @@ inherit kde eutils
 MY_PV="0.2.1r738551"
 MY_P=${PN}-${MY_PV}
 
+SLOT="0"
 DESCRIPTION="A KDE frontend for NetworkManager"
 HOMEPAGE="http://en.opensuse.org/Projects/KNetworkManager"
 LICENSE="GPL-2"

@@ -7,6 +7,7 @@ inherit gnome2 eutils autotools
 DESCRIPTION="Liboobs is a lightweight library that provides a GObject based interface to system-tools-backends"
 HOMEPAGE="http://www.gnome.org/"
 
+SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
 IUSE=""

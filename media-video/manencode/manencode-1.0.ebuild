@@ -5,6 +5,7 @@
 inherit eutils qt4
 S="${WORKDIR}/Manencode-${PV}"
 
+SLOT="0"
 DESCRIPTION="Transcode your videos !"
 SRC_URI="http://csgib36.ifrance.com/Manencode/Manencode-${PV}.tar.gz"
 HOMEPAGE="http://www.kde-apps.org/content/show.php/Manencode?content=52228"

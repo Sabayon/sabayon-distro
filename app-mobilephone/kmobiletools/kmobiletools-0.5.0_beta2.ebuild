@@ -9,6 +9,7 @@ S=${WORKDIR}/${MY_P}
 DESCRIPTION="KMobiletools is a KDE-based application that allows to control mobile phones with your PC."
 SRC_URI="http://download2.berlios.de/kmobiletools/${MY_P}.tar.bz2"
 HOMEPAGE="http://www.kmobiletools.org/"
+SLOT="0"
 LICENSE="GPL-2"
 
 IUSE="kde"

@@ -11,6 +11,7 @@ SRC_URI="http://www4.frostwire.com/frostwire/69421145/frostwire-${PV}.noarch.tar
 LICENSE="GPL-2"
 KEYWORDS="~x86"
 DEPEND="app-arch/gzip"
+SLOT="0"
 RESTRICT="nomirror"
 
 RDEPEND=">=virtual/jre-1.4.2
