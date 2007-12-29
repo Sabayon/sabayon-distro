@@ -8,6 +8,7 @@ S="${WORKDIR}"
 DESCRIPTION="KDE application that creates video slideshows."
 SRC_URI="http://csgib36.ifrance.com/Manslide/${P}.tar.gz"
 HOMEPAGE="http://www.kde-apps.org/content/show.php?content=46558"
+SLOT="0"
 
 LICENSE="GPL"
 KEYWORDS="~x86 ~amd64"
