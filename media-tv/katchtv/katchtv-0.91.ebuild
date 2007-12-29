@@ -7,6 +7,7 @@ inherit eutils
 DESCRIPTION="KatchTV is an 'Internet TV' application for KDE, otherwise known as a broadcatcher. "
 HOMEPAGE="http://www.digitalunleashed.com/giving.php"
 SRC_URI="http://www.digitalunleashed.com/downloads/${PN}/${P}.tar.bz2"
+SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 RDEPEND="	|| ( dev-python/pykde kde-base/pykde  )
