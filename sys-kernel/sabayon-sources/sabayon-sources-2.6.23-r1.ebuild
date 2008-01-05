@@ -9,14 +9,15 @@ detect_version
 detect_arch
 
 SL_PATCHES_URI="
-		http://dev.gentoo.org/~spock/projects/fbcondecor/archive/fbcondecor-0.9.4-${PV}-rc7.patch
-		http://download.filesystems.org/unionfs/unionfs-2.1/unionfs-2.1.6_for_2.6.23-rc8.diff.gz
+                http://dev.gentoo.org/~spock/projects/fbcondecor/archive/fbcondecor-0.9.4-${PV}-rc7.patch
+                http://download.filesystems.org/unionfs/unionfs-2.x/unionfs-2.2.1_for_2.6.23.12.diff.gz
 "
 
-SUSPEND2_VERSION="2.2.10.4"
-SUSPEND2_TARGET="2.6.23-rc9"
+SUSPEND2_VERSION="3.0-rc3"
+SUSPEND2_TARGET="2.6.23.9"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
+
 
 UNIPATCH_LIST="
 		${DISTDIR}/fbcondecor-0.9.4-${PV}-rc7.patch
@@ -25,7 +26,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${FILESDIR}/${PN}-2.6.22-ipw3945-1.2.0-2.6.22.patch 
 		${FILESDIR}/${PN}-2.6.21-from-ext4dev-to-ext4.patch
-		${DISTDIR}/unionfs-2.1.6_for_2.6.23-rc8.diff.gz
+		${DISTDIR}/unionfs-2.2.1_for_2.6.23.12.diff.gz
 		${FILESDIR}/${P}-mac80211-drivers.patch
 		${FILESDIR}/${P}-acx-old.patch
 
