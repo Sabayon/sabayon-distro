@@ -61,6 +61,13 @@ src_install() {
 
 	dodir /usr/$(get_libdir)/entropy/libraries
 	dodir /usr/$(get_libdir)/entropy/client
+	dodir /etc/portage
+
+	# copying portage bashrc
+	insinto /etc/portage
+	mv ${S}/conf/etc-portage-bashrc ${S}/conf/bashrc
+	doins ${S}/conf/bashrc
+	
 	
 	# copying libraries
 	cd ${S}/libraries
