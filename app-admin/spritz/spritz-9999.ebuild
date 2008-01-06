@@ -12,10 +12,10 @@ KEYWORDS=""
 IUSE=""
 S="${WORKDIR}"/trunk
 
-DEPEND="|| ( >=sys-apps/entropy-0.10.2 >=app-admin/equo-0.10.2 )
+RDEPEND="|| ( >=sys-apps/entropy-0.10.2 >=app-admin/equo-0.10.2 )
 	>=dev-python/pygtk-2.10
 	"
-RDEPEND="${DEPEND}"
+DEPEND="sys-devel/gettext"
 
 src_unpack() {
 	# prepare spritz stuff
