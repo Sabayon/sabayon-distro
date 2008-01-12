@@ -14,8 +14,19 @@ S="${WORKDIR}"/trunk
 
 RDEPEND="|| ( >=sys-apps/entropy-0.10.2 >=app-admin/equo-0.10.2 )
 	>=dev-python/pygtk-2.10
+	>=x11-libs/vte-0.12.2
 	"
 DEPEND="sys-devel/gettext"
+
+pkg_setup ()
+{
+        if ! built_with_use x11-libs/vte python; then
+                echo
+                eerror "x11-libs/vte has not been built with python support."
+                eerror "Please re-emerge vte with the python use-flag enabled."
+                die "missing python flag for x11-libs/vte"
+        fi
+}
 
 src_unpack() {
 	# prepare spritz stuff
