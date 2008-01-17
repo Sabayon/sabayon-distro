@@ -21,3 +21,16 @@ for X in ${LANGS} ; do
         IUSE="${IUSE} linguas_${X}"
         RDEPEND="${RDEPEND} linguas_${X}? ( ~kde-base/kde-l10n-${X}-${PV} )"
 done
+
+src_unpack() {
+	einfo "nothing to unpack"
+}
+
+
+src_compile() {
+	einfo "nothing to compile"
+}
+
+src_install() {
+	einfo "nothing to install"
+}
