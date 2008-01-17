@@ -19,5 +19,5 @@ mk nb nds ne nl nn pa pl pt pt_BR ru se sl sv th tr uk wa zh_CN zh_TW"
 RDEPEND="!kde-base/kde-l10n"
 for X in ${LANGS} ; do
         IUSE="${IUSE} linguas_${X}"
-        RDEPEND="${RDEPEND} linguas_${X}? ( ~kde-base/kde-l18n-${X}-${PV} )"
+        RDEPEND="${RDEPEND} linguas_${X}? ( ~kde-base/kde-l10n-${X}-${PV} )"
 done
