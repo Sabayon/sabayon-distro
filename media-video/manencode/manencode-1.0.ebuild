@@ -17,7 +17,7 @@ IUSE=""
 DEPEND="
 	>=media-video/transcode-1.0
 	>=media-video/mplayer-1.0_rc1
-	( $(qt4_min_version 4.3.0) )
+	x11-libs/qt:4
 	"
 
 RDEPEND="${DEPEND}"
