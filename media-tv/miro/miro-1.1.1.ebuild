@@ -24,6 +24,7 @@ DEPEND="|| ( >=dev-lang/python-2.5
 	media-libs/xine-lib
 	media-libs/libfame
 	dev-util/pkgconfig
+	net-libs/xulrunner
 	doc? ( dev-util/devhelp )"
 
 pkg_setup() {
