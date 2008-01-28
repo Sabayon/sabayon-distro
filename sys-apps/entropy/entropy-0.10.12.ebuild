@@ -20,7 +20,8 @@ IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND=">=dev-db/sqlite-3.1
-	!app-admin/equo"
+	!app-admin/equo
+	sys-apps/diffutils"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
