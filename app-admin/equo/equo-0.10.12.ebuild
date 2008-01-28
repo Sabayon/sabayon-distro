@@ -6,7 +6,7 @@ NEED_PYTHON=2.4
 inherit eutils subversion distutils python multilib
 ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
 
-DESCRIPTION="Official Sabayon Linux Package Manager Client (SVN release)"
+DESCRIPTION="Official Sabayon Linux Package Manager Client (tagged release)"
 HOMEPAGE="http://www.sabayonlinux.org"
 PYTHON_MODNAME="pysqlite2"
 PYSQLITE_VER="2.3.5"
