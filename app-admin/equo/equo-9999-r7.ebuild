@@ -20,7 +20,8 @@ IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND=">=dev-db/sqlite-3.1
-	!sys-apps/entropy"
+	!sys-apps/entropy
+	sys-apps/diffutils"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
