@@ -16,7 +16,7 @@ SRC_URI="mirror://gentoo/${MY_P}.tar.gz
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 ppc ~x86"
-IUSE="crypt doc gnome applet"
+IUSE="crypt doc applet"
 
 RDEPEND=">=sys-apps/dbus-0.60
 	>=sys-apps/hal-0.5
@@ -27,12 +27,6 @@ RDEPEND=">=sys-apps/dbus-0.60
 	>=net-wireless/wpa_supplicant-0.5.7
 	>=dev-libs/glib-2.8
 	>=x11-libs/libnotify-0.3.2
-	gnome? ( >=x11-libs/gtk+-2.8
-		>=gnome-base/libglade-2
-		>=gnome-base/gnome-keyring-0.4
-		>=gnome-base/gnome-panel-2
-		>=gnome-base/gconf-2
-		>=gnome-base/libgnomeui-2 )
 	crypt? ( dev-libs/libgcrypt )"
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -44,7 +38,7 @@ USE_DESTDIR="1"
 
 G2CONF="${G2CONF} \
 	`use_with crypt gcrypt` \
-	`use_with gnome` \
+	--without-gnome \
 	--disable-more-warnings \
 	--localstatedir=/var \
 	--with-distro=gentoo \
