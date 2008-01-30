@@ -25,7 +25,7 @@ DEPEND="net-misc/networkmanager
 	>=dev-libs/libnl-1.0_pre6-r1
 	!net-misc/knetworkmanager
 	cisco?   ( <net-misc/networkmanager-vpnc-0.7.0 )
-	openvpn? ( <net-misc/networkmanager-openvpn-0.3.3 )
+	openvpn? ( >=net-misc/networkmanager-openvpn-0.3.2 )
 	pptp?    ( <net-misc/networkmanager-pptp-0.7.0 )
 	networksettings? ( net-misc/networksettings )
 	dialup? ( || ( kde-base/kppp kde-base/kdenetwork ) )"
