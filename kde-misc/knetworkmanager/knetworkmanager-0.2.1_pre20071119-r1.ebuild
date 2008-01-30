@@ -22,7 +22,7 @@ DEPEND="net-misc/networkmanager
 	>=dev-libs/dbus-qt3-old-0.70
 	sys-apps/hal
 	net-wireless/wireless-tools
-	>=dev-libs/libnl-1.0_pre6
+	>=dev-libs/libnl-1.1
 	!net-misc/knetworkmanager
 	cisco?   ( <net-misc/networkmanager-vpnc-0.7.0 )
 	openvpn? ( >=net-misc/networkmanager-openvpn-0.3.2 )
