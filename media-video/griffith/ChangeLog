@@ -1,0 +1,85 @@
+# ChangeLog for media-video/griffith
+# Copyright 1999-2008 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-video/griffith/ChangeLog,v 1.20 2008/01/25 07:46:37 nelchael Exp $
+
+  25 Jan 2008; Krzysiek Pawlik <nelchael@gentoo.org> -griffith-0.9.2.ebuild,
+  -griffith-0.9.3.1.ebuild, griffith-0.9.5.ebuild:
+  Depend on dev-python/pysqlite-2.3*, remove old versions.
+
+  16 Dec 2007; Samuli Suominen <drac@gentoo.org> griffith-0.9.5.ebuild:
+  amd64 stable wrt #202308
+
+  16 Dec 2007; Markus Meier <maekke@gentoo.org> griffith-0.9.5.ebuild:
+  x86 stable, bug #202308
+
+  14 Dec 2007; Krzysiek Pawlik <nelchael@gentoo.org> griffith-0.9.5.ebuild:
+  Fix bug #201648: require =dev-python/sqlalchemy-0.3*
+
+  27 Oct 2007; Krzysiek Pawlik <nelchael@gentoo.org> griffith-0.9.2.ebuild,
+  griffith-0.9.3.1.ebuild, griffith-0.9.5.ebuild:
+  Fix variable quoting.
+
+*griffith-0.9.5 (27 Oct 2007)
+
+  27 Oct 2007; Krzysiek Pawlik <nelchael@gentoo.org> +griffith-0.9.5.ebuild:
+  Version bump.
+
+  27 Oct 2007; Krzysiek Pawlik <nelchael@gentoo.org> griffith-0.9.2.ebuild,
+  griffith-0.9.3.1.ebuild:
+  Update homepage, see bug #196998.
+
+*griffith-0.9.3.1 (03 Jul 2007)
+
+  03 Jul 2007; Krzysiek Pawlik <nelchael@gentoo.org> -griffith-0.9.3.ebuild,
+  +griffith-0.9.3.1.ebuild:
+  Version bump.
+
+  01 Jul 2007; Krzysiek Pawlik <nelchael@gentoo.org> griffith-0.9.3.ebuild:
+  Add dev-python/pyxml to RDEPEND, see bug #183895.
+
+*griffith-0.9.3 (01 Jul 2007)
+
+  01 Jul 2007; Krzysiek Pawlik <nelchael@gentoo.org> +griffith-0.9.3.ebuild:
+  Version bump.
+
+  01 Jul 2007; Piotr Jaroszyński <peper@gentoo.org>
+  +files/digest-griffith-0.9.2, Manifest:
+  (QA) Add digests.
+
+  29 Jun 2007; Christian Faulhammer <opfer@gentoo.org>
+  griffith-0.9.2.ebuild:
+  stable x86, bug 177157
+
+  24 Jun 2007; Christoph Mende <angelos@gentoo.org> griffith-0.9.2.ebuild:
+  Stable on amd64 wrt bug 177157
+
+  15 Jun 2007; Daniel Gryniewicz <dang@gentoo.org> griffith-0.9.2.ebuild:
+  Marked ~amd64 Oops, sqlalchemy not stable; fricken repoman
+
+  15 Jun 2007; Daniel Gryniewicz <dang@gentoo.org> griffith-0.9.2.ebuild:
+  Marked stable on amd64 for bug #177157
+
+  05 May 2007; Krzysiek Pawlik <nelchael@gentoo.org> -griffith-0.6.2.ebuild:
+  Remove old version.
+
+*griffith-0.9.2 (17 Mar 2007)
+
+  17 Mar 2007; Krzysiek Pawlik <nelchael@gentoo.org>
+  -griffith-0.9_rc1.ebuild, +griffith-0.9.2.ebuild:
+  Version bump, see bug #169045.
+
+  02 Mar 2007; Simon Stelling <blubb@gentoo.org> griffith-0.9_rc1.ebuild:
+  add ~amd64; bug 168908
+
+*griffith-0.9_rc1 (29 Dec 2006)
+
+  29 Dec 2006; Tiziano Müller <dev-zero@gentoo.org>
+  +griffith-0.9_rc1.ebuild:
+  Version bump
+
+*griffith-0.6.2 (27 Sep 2006)
+
+  27 Sep 2006; Krzysiek Pawlik <nelchael@gentoo.org> +metadata.xml,
+  +griffith-0.6.2.ebuild:
+  Initial version, see bug #100003.
+
