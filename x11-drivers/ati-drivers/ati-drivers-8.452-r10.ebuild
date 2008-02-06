@@ -304,7 +304,7 @@ src_install() {
 	# etc.
 	insinto /etc/ati
 	# Everything except for the authatieventsd.sh script.
-	doins common/etc/ati/{logo*,control,atiogl.xml,signature}
+	doins common/etc/ati/{logo*,control,atiogl.xml,signature,amdpcsdb.default}
 	if use acpi; then
 		doins common/etc/ati/authatieventsd.sh
 	fi
