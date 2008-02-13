@@ -15,6 +15,7 @@ S="${WORKDIR}"/trunk
 RDEPEND="|| ( >=sys-apps/entropy-0.10.2 >=app-admin/equo-0.10.2 )
 	>=dev-python/pygtk-2.10
 	>=x11-libs/vte-0.12.2
+	x11-misc/xdg-utils
 	"
 DEPEND="sys-devel/gettext"
 
