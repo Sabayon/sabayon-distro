@@ -46,6 +46,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/unionfs-2.2.3_for_2.6.24.diff.gz
 		${FILESDIR}/${MY_P}-aufs-cvs-20080121.patch
 
+		${FILESDIR}/${PV}/2.6.24.2.patch
 
 		"
 
