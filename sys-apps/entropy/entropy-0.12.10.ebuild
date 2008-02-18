@@ -72,6 +72,8 @@ src_install() {
 	dodir /etc/entropy
 	insinto /etc/entropy
 	doins -r *
+	rm ${D}/etc/entropy/equo.conf
+	rm ${D}/etc/entropy/repositories.conf
 
 	#########
 	#
