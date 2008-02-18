@@ -74,6 +74,10 @@ src_install() {
 	doins -r *
 	rm ${D}/etc/entropy/equo.conf
 	rm ${D}/etc/entropy/repositories.conf
+	rm ${D}/etc/entropy/reagent.conf
+	rm ${D}/etc/entropy/activator.conf
+	rm ${D}/etc/entropy/remote.conf
+	rm ${D}/etc/entropy/server.conf
 
 	#########
 	#
