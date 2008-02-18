@@ -68,6 +68,11 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/aufs-cvs-0710115-2.6.23.patch
 		${FILESDIR}/${PV}/linux-2.6.23.11-12.patch
 
+		${FILESDIR}/${PV}/patch-2.6.23.12-13
+		${FILESDIR}/${PV}/patch-2.6.23.13-14
+		${FILESDIR}/${PV}/patch-2.6.23.14-15
+		${FILESDIR}/${PV}/patch-2.6.23.15-16
+
 		"
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${SUSPEND2_URI} ${SL_PATCHES_URI}"
 ## END: Exported data
