@@ -60,7 +60,6 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/hrtimers-2.6.23.patch
 		${FILESDIR}/${PV}/powertop-2.6.23.patch
 		${FILESDIR}/${PV}/pm_qos-2.6.23.patch
-		${FILESDIR}/${PV}/thinkpad-2.6.23.patch
 		${FILESDIR}/${PV}/mactel-patches-2.6.23.patch
 		${FILESDIR}/${MY_P}-sandbox-violation.patch
 		${FILESDIR}/${PV}/linux-2.6.23.11.patch
@@ -68,10 +67,10 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/aufs-cvs-0710115-2.6.23.patch
 		${FILESDIR}/${PV}/linux-2.6.23.11-12.patch
 
-		${FILESDIR}/${PV}/patch-2.6.23.12-13
-		${FILESDIR}/${PV}/patch-2.6.23.13-14
-		${FILESDIR}/${PV}/patch-2.6.23.14-15
-		${FILESDIR}/${PV}/patch-2.6.23.15-16
+		${FILESDIR}/${PV}/2.6.23.12-13.patch
+		${FILESDIR}/${PV}/2.6.23.13-14.patch
+		${FILESDIR}/${PV}/2.6.23.14-15.patch
+		${FILESDIR}/${PV}/2.6.23.15-16.patch
 
 		"
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${SUSPEND2_URI} ${SL_PATCHES_URI}"
