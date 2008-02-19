@@ -22,7 +22,7 @@ IUSE=""
 DEPEND="app-arch/sharutils"
 RDEPEND="!net-wireless/madwifi-old
 		net-wireless/wireless-tools
-		~net-wireless/madwifi-ng-tools-${PV}"
+		>=net-wireless/madwifi-ng-tools-0.9.4"
 
 CONFIG_CHECK="CRYPTO WIRELESS_EXT SYSCTL KMOD"
 ERROR_CRYPTO="${P} requires Cryptographic API support (CONFIG_CRYPTO)."
