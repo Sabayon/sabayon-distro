@@ -8,7 +8,7 @@ DESCRIPTION="Official Sabayon Linux Package Manager Client (SVN release)"
 HOMEPAGE="http://www.sabayonlinux.org"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 IUSE=""
 S="${WORKDIR}"/trunk
 
