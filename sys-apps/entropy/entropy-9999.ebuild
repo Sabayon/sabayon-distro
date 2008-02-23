@@ -4,7 +4,7 @@
 NEED_PYTHON=2.4
 
 inherit eutils subversion distutils python multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk/"
 
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -19,8 +19,10 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
-DEPEND=">=dev-db/sqlite-3.1
-	sys-apps/diffutils"
+DEPEND="
+	dev-db/sqlite:3
+	sys-apps/diffutils
+	"
 RDEPEND="${DEPEND}"
 
 src_unpack() {

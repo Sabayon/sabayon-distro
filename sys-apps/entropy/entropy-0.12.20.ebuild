@@ -19,7 +19,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
-DEPEND=">=dev-db/sqlite-3.1
+DEPEND="
+	dev-db/sqlite:3
 	sys-apps/diffutils"
 RDEPEND="${DEPEND}"
 
