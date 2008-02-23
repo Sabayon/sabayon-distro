@@ -6,7 +6,7 @@ NEED_PYTHON=2.4
 inherit eutils subversion distutils python multilib
 ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
 
-DESCRIPTION="Official Sabayon Linux Package Manager Client (SVN release)"
+DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
 PYTHON_MODNAME="pysqlite2"
 PYSQLITE_VER="2.3.5"
@@ -20,7 +20,7 @@ IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND=">=dev-db/sqlite-3.1
-	!app-admin/equo"
+	sys-apps/diffutils"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
@@ -60,8 +60,6 @@ src_install() {
 	#########
 
 	dodir /usr/$(get_libdir)/entropy/libraries
-	dodir /usr/$(get_libdir)/entropy/client
-	dodir /usr/$(get_libdir)/entropy/server
 	
 	# copying libraries
 	cd ${S}/libraries
@@ -69,48 +67,17 @@ src_install() {
 	doins *.py
 	doins revision
 
-	# copy client
-	cd ${S}/client
-	insinto /usr/$(get_libdir)/entropy/client
-	doins *.py
-	exeinto /usr/$(get_libdir)/entropy/client
-	doexe equo
-
-	# copy server
-	cd ${S}/server
-	exeinto /usr/$(get_libdir)/entropy/server
-	doexe reagent
-	doexe activator
-
-	cd ${S}
-	dodir /usr/bin
-	echo '#!/bin/sh' > equo
-	echo 'cd /usr/'$(get_libdir)'/entropy/client' >> equo
-	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/client/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python equo "$@"' >> equo
-	exeinto /usr/bin
-	doexe equo
-
-	cd ${S}
-	dodir /usr/bin
-	echo '#!/bin/sh' > reagent
-	echo 'cd /usr/'$(get_libdir)'/entropy/server' >> reagent
-	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/server/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python reagent "$@"' >> reagent
-	exeinto /usr/bin
-	doexe reagent
-
-	cd ${S}
-	dodir /usr/bin
-	echo '#!/bin/sh' > activator
-	echo 'cd /usr/'$(get_libdir)'/entropy/server' >> activator
-	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/server/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python activator "$@"' >> activator
-	exeinto /usr/bin
-	doexe activator
-
 	# copy configuration
 	cd ${S}/conf
 	dodir /etc/entropy
 	insinto /etc/entropy
 	doins -r *
+	rm ${D}/etc/entropy/equo.conf
+	rm ${D}/etc/entropy/repositories.conf
+	rm ${D}/etc/entropy/reagent.conf
+	rm ${D}/etc/entropy/activator.conf
+	rm ${D}/etc/entropy/remote.conf
+	rm ${D}/etc/entropy/server.conf
 
 	#########
 	#
