@@ -6,18 +6,14 @@ ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
 
 DESCRIPTION="Official Sabayon Linux Package Manager Client (tagged release)"
 HOMEPAGE="http://www.sabayonlinux.org"
-PYTHON_MODNAME="pysqlite2"
-PYSQLITE_VER="2.3.5"
-PYSQLITE_DIRNAME="pysqlite"
-SRC_URI="http://initd.org/pub/software/pysqlite/releases/${PYSQLITE_VER:0:3}/${PYSQLITE_VER}/pysqlite-${PYSQLITE_VER}.tar.gz"
 
-LICENSE="GPL-2 pysqlite"
+LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
-DEPEND="~sys-apps/entropy-${PV} sys-apps/diffutils"
+DEPEND="~sys-apps/entropy-${PV}"
 RDEPEND="${DEPEND}"
 
 src_compile() {
