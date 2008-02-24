@@ -1,0 +1,40 @@
+--- kdm/backend/inifile.c
++++ kdm/backend/inifile.c
+@@ -37,6 +37,7 @@
+ #include "dm_error.h"
+ 
+ #include <sys/types.h>
++#include <sys/stat.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -47,17 +48,27 @@
+ {
+ 	char *data;
+ 	int fd, len;
++	struct stat st;
+ 
+ 	if ((fd = open( fname, O_RDONLY | O_NONBLOCK )) < 0) {
+ 		Debug( "cannot open ini-file %\"s: %m", fname );
+ 		return 0;
+ 	}
+-	len = lseek( fd, 0, SEEK_END );
++	if (fstat( fd, &st ) || !S_ISREG( st.st_mode )) {
++		LogWarn( "Ini-file %\"s is no regular file\n", fname );
++		close( fd );
++		return 0;
++	}
++	if (st.st_size >= 0x10000) {
++		LogWarn( "Ini-file %\"s is too big\n", fname );
++		close( fd );
++		return 0;
++	}
++	len = st.st_size;
+ 	if (!(data = Malloc( len + 2 ))) {
+ 		close( fd );
+ 		return 0;
+ 	}
+-	lseek( fd, 0, SEEK_SET );
+ 	if (read( fd, data, len ) != len) {
+ 		Debug( "cannot read ini-file %\"s: %m", fname );
+ 		free( data );
