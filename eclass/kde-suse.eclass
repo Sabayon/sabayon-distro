@@ -1,16 +1,22 @@
-# Copyright 1999-2004 Gentoo Foundation
+# Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/kde.eclass,v 1.185 2006/10/29 00:23:30 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/kde.eclass,v 1.205 2008/02/23 22:43:15 philantrop Exp $
+
+# @ECLASS: kde.eclass
+# @MAINTAINER:
+# kde@gentoo.org
 #
-# Author Dan Armak <danarmak@gentoo.org>
+# original author Dan Armak <danarmak@gentoo.org>
 #
 # Revisions Caleb Tennis <caleb@gentoo.org>
-# The kde eclass is inherited by all kde-* eclasses. Few ebuilds inherit
-# straight from here.
+# @BLURB: The kde eclass is inherited by all kde-* eclasses.
+# @DESCRIPTION:
+# This eclass is inherited by all kde-* eclasses. Few ebuilds inherit straight from here.
 
-WANT_AUTOMAKE="1.9"
+[[ -z ${WANT_AUTOMAKE} ]] && WANT_AUTOMAKE="1.9"
 
 inherit base eutils kde-functions flag-o-matic libtool autotools
+
 DESCRIPTION="Based on the $ECLASS eclass"
 HOMEPAGE="http://www.kde.org/"
 IUSE="debug xinerama elibc_FreeBSD"
@@ -23,6 +29,13 @@ if [[ ${CATEGORY} == "kde-base" ]]; then
 	IUSE="${IUSE} kdeenablefinal"
 fi
 
+# @ECLASS-VARIABLE: KDE_S
+# @DESCRIPTION:
+# Like the 'normal' ${S} this variable takes the path to the temporary build
+# directory. If unset ${S} will be used.
+
+# @ECLASS-VARIABLE: USE_KEG_PACKAGING
+# @DESCRIPTION:
 # Set USE_KEG_PACKAGING=1 before inheriting if the package use extragear-like
 # packaging and then supports ${LANGS} and ${LANGS_DOC} variables.
 if [[ -n ${USE_KEG_PACKAGING} && -n "${LANGS}${LANGS_DOC}" ]]; then
@@ -34,10 +47,11 @@ fi
 DEPEND="sys-devel/make
 	dev-util/pkgconfig
 	dev-lang/perl
-	|| ( x11-proto/xf86vidmodeproto <virtual/x11-7 )
-	xinerama? ( || ( x11-proto/xineramaproto <virtual/x11-7 ) )"
+	x11-libs/libXt
+	x11-proto/xf86vidmodeproto
+	xinerama? ( x11-proto/xineramaproto )"
 
-RDEPEND="xinerama? ( || ( x11-libs/libXinerama <virtual/x11-7 ) )"
+RDEPEND="xinerama? ( x11-libs/libXinerama )"
 
 if [[ ${ARTS_REQUIRED} == "yes" ]]; then
 	DEPEND="${DEPEND} kde-base/arts"
@@ -50,29 +64,41 @@ fi
 # overridden in other places like kde-dist, kde-source and some individual ebuilds
 SLOT="0"
 
+# @VARIABLE: ARTS_REQUIRED
+# @DESCRIPTION:
+# Is aRTs-support required or not? Possible values are 'yes', 'never'. Otherwise
+# leave this variable unset. This results in an arts USE flag.
+
+# @FUNCTION: kde_pkg_setup
+# @DESCRIPTION:
+# Some basic test about arts-support. It also filters some compiler flags
 kde-suse_pkg_setup() {
 	if [[ ${PN} != "arts" ]] && [[ ${PN} != "kdelibs" ]] ; then
 		if [[ ${ARTS_REQUIRED} == 'yes' ]] || \
 			( [[ ${ARTS_REQUIRED} != "never" ]] && use arts )  ; then
-			if ! built_with_use kde-base/kdelibs arts ; then
-				use arts && \
-					eerror "You are trying to compile ${CATEGORY}/${PF} with the \"arts\" USE flag enabled." || \
+			if ! built_with_use =kde-base/kdelibs-3.5* arts ; then
+				if has arts ${IUSE} && use arts; then
+					eerror "You are trying to compile ${CATEGORY}/${PF} with the \"arts\" USE flag enabled."
+				else
 					eerror "The package ${CATEGORY}/${PF} you're trying to merge requires aRTs."
-				eerror "However, $(best_version kde-base/kdelibs) was compiled with arts flag disabled."
+				fi
+				eerror "However, $(best_version =kde-base/kdelibs-3.5*) was compiled with the arts USE flag disabled."
 				eerror
-				use arts && \
-					eerror "You must either disable this use flag, or recompile" || \
+				if has arts ${IUSE} && use arts; then
+					eerror "You must either disable this USE flag, or recompile"
+				else
 					eerror "To build this package you have to recompile"
-				eerror "$(best_version kde-base/kdelibs) with this arts use flag enabled."
+				fi
+				eerror "$(best_version =kde-base/kdelibs-3.5*) with the arts USE flag enabled."
 				die "kdelibs missing arts"
 			fi
 		fi
 	fi
 
-	if [ "${PN}" = "kdelibs" ] ; then
+	if [[ "${PN}" = "kdelibs" ]]; then
 		use doc && if ! built_with_use =x11-libs/qt-3* doc ; then
-			eerror "Building kdelibs with the doc use flag requires qt to be built with the doc use flag."
-			eerror "Please re-emerge qt-3 with this use flag enabled."
+			eerror "Building kdelibs with the doc USE flag requires qt to be built with the doc USE flag."
+			eerror "Please re-emerge qt-3 with this USE flag enabled."
 		fi
 	fi
 
@@ -81,13 +107,20 @@ kde-suse_pkg_setup() {
 	filter-flags -fvisibility=hidden -fvisibility-inlines-hidden
 }
 
+# @FUNCTION: kde_src_unpack
+# @DESCRIPTION:
+# This function unpacks the sources and patches it. The patches need to be named
+# $PN-$PV-*{diff,patch}
+#
+# This function also handles the linguas if extragear-like packaging is enabled.
+# (See USE_KEG_PACKAGING)
 kde-suse_src_unpack() {
-	debug-print-function $FUNCNAME $*
+	debug-print-function $FUNCNAME "$@"
 
 	[[ -z ${KDE_S} ]] && KDE_S="${S}"
 
 	local PATCHDIR="${WORKDIR}/patches/"
-	if [[ -z $* ]] ; then
+	if [[ -z "$@" ]] ; then
 		# Unpack first and deal with KDE patches after examing possible patch sets.
 		# To be picked up, patches need to be named $PN-$PV-*{diff,patch} and be
 		# placed in $PATCHDIR. Monolithic ebuilds will use the split ebuild patches.
@@ -110,7 +143,7 @@ kde-suse_src_unpack() {
 	else
 		# Call base_src_unpack, which has sections, to do unpacking and patching
 		# step by step transparently as defined in the ebuild.
-		base_src_unpack $*
+		base_src_unpack "$@"
 	fi
 
 	# if extragear-like packaging is enabled, set the translations and the
@@ -124,7 +157,7 @@ kde-suse_src_unpack() {
 			einfo "Enabling all languages"
 		else
 			if [[ -n ${LANGS} ]]; then
-				MAKE_PO=$(echo $(echo "${LINGUAS} ${LANGS}" | fmt -w 1 | sort | uniq -d))
+				MAKE_PO=$(echo $(echo "${LINGUAS} ${LANGS}" | tr ' ' '\n' | sort | uniq -d))
 				einfo "Enabling translations for: ${MAKE_PO}"
 				sed -i -e "s:^SUBDIRS =.*:SUBDIRS = ${MAKE_PO}:" "${KDE_S}/po/Makefile.am" \
 					|| die "sed for locale failed"
@@ -132,9 +165,9 @@ kde-suse_src_unpack() {
 			fi
 
 			if [[ -n ${LANGS_DOC} ]]; then
-				MAKE_DOC=$(echo $(echo "${LINGUAS} ${LANGS_DOC}" | fmt -w 1 | sort | uniq -d))
+				MAKE_DOC=$(echo $(echo "${LINGUAS} ${LANGS_DOC}" | tr ' ' '\n' | sort | uniq -d))
 				einfo "Enabling documentation for: ${MAKE_DOC}"
-				[[ -n ${MAKE_DOC} ]] && [[ -n ${DOC_DIR_SUFFIX} ]] && MAKE_DOC="${MAKE_DOC/ /${DOC_DIR_SUFFIX} }"
+				[[ -n ${MAKE_DOC} ]] && [[ -n ${DOC_DIR_SUFFIX} ]] && MAKE_DOC=$(echo "${MAKE_DOC}" | tr '\n' ' ') && MAKE_DOC="${MAKE_DOC// /${DOC_DIR_SUFFIX} }"
 				sed -i -e "s:^SUBDIRS =.*:SUBDIRS = ${MAKE_DOC} ${PN}:" \
 					"${KDE_S}/doc/Makefile.am" || die "sed for locale failed"
 				rm -f "${KDE_S}/configure"
@@ -145,12 +178,12 @@ kde-suse_src_unpack() {
 	# fix the 'languageChange undeclared' bug group: touch all .ui files, so that the
 	# makefile regenerate any .cpp and .h files depending on them.
 	cd "${KDE_S}"
-	debug-print "$FUNCNAME: Searching for .ui files in $PWD"
-	UIFILES="`find . -name '*.ui' -print`"
+	debug-print "$FUNCNAME: Searching for .ui files in ${PWD}"
+	UIFILES="$(find . -name '*.ui' -print)"
 	debug-print "$FUNCNAME: .ui files found:"
 	debug-print "$UIFILES"
 	# done in two stages, because touch doens't have a silent/force mode
-	if [ -n "$UIFILES" ]; then
+	if [[ -n "$UIFILES" ]]; then
 		debug-print "$FUNCNAME: touching .ui files..."
 		touch $UIFILES
 	fi
@@ -163,10 +196,17 @@ kde-suse_src_unpack() {
 	fi
 }
 
+# @FUNCTION: kde_src_compile
+# @USAGE: [ myconf ] [ configure ] [ make ] [ all ]
+# @DESCRIPTION:
+# This function compiles the sources. It takes care of "cannot write to .kde or
+# .qt"-problem due to sandbox and some other sandbox issues.
+#
+# If no argument is given, all is assumed.
 kde-suse_src_compile() {
+	debug-print-function $FUNCNAME "$@"
 
-	debug-print-function $FUNCNAME $*
-	[ -z "$1" ] && kde-suse_src_compile all
+	[[ -z "$1" ]] && kde-suse_src_compile all
 
 	[[ -z ${KDE_S} ]] && KDE_S="${S}"
 	cd "${KDE_S}"
@@ -177,9 +217,9 @@ kde-suse_src_compile() {
 	# this is a fake homedir that is writeable under the sandbox, so that the build process
 	# can do anything it wants with it.
 	REALHOME="$HOME"
-	mkdir -p $T/fakehome/.kde
-	mkdir -p $T/fakehome/.qt
-	export HOME="$T/fakehome"
+	mkdir -p "${T}"/fakehome/.kde
+	mkdir -p "${T}"/fakehome/.qt
+	export HOME="${T}"/fakehome
 	addwrite "${QTDIR}/etc/settings"
 
 	# Fix bug 96177: if KDEROOTHOME is defined, the ebuild accesses the real homedir via it, and not our exported $HOME
@@ -187,10 +227,10 @@ kde-suse_src_compile() {
 	unset KDEROOTHOME
 
 	# things that should access the real homedir
-	[ -d "$REALHOME/.ccache" ] && ln -sf "$REALHOME/.ccache" "$HOME/"
-	[ -n "$UNSERMAKE" ] && addwrite "/usr/kde/unsermake"
+	[[ -d "$REALHOME/.ccache" ]] && ln -sf "$REALHOME/.ccache" "$HOME/"
+	[[ -n "$UNSERMAKE" ]] && addwrite "/usr/kde/unsermake"
 
-	while [ "$1" ]; do
+	while [[ "$1" ]]; do
 
 		case $1 in
 			myconf)
@@ -224,7 +264,7 @@ kde-suse_src_compile() {
 
 				# rebuild configure script, etc
 				# This can happen with e.g. a cvs snapshot
-				if [ ! -f "./configure" ] || [ -n "$UNSERMAKE" ]; then
+				if [[ ! -f "./configure" ]] || [[ -n "$UNSERMAKE" ]]; then
 					# This is needed to fix building with autoconf 2.60.
 					# Many thanks to who preferred such a stupid check rather
 					# than a working arithmetic comparison.
@@ -247,13 +287,13 @@ EOF
 					fi
 
 					for x in Makefile.cvs admin/Makefile.common; do
-						if [ -f "$x" ] && [ -z "$makefile" ]; then makefile="$x"; fi
+						if [[ -f "$x" && -z "$makefile" ]]; then makefile="$x"; fi
 					done
-					if [ -f "$makefile" ]; then
+					if [[ -f "$makefile" ]]; then
 						debug-print "$FUNCNAME: configure: generating configure script, running make -f $makefile"
 						emake -j1 -f $makefile
 					fi
-					[ -f "./configure" ] || die "no configure script found, generation unsuccessful"
+					[[ -f "./configure" ]] || die "no configure script found, generation unsuccessful"
 				fi
 
 				export PATH="${KDEDIR}/bin:${PATH}"
@@ -324,7 +364,7 @@ EOF
 				# Seems ./configure add -O2 by default but hppa don't want that but we need -ffunction-sections
 				if [[ "${ARCH}" = "hppa" ]]
 				then
-					einfo Fixating Makefiles
+					einfo "Fixing Makefiles"
 					find ${KDE_S} -name Makefile -print0 | xargs -0 sed -i -e \
 						's:-O2:-ffunction-sections:g'
 				fi
@@ -332,7 +372,6 @@ EOF
 			make)
 				export PATH="${KDEDIR}/bin:${PATH}"
 				debug-print-section make
-				#emake || die "died running emake, $FUNCNAME:make"
 				emake
 				;;
 			all)
@@ -346,9 +385,17 @@ EOF
 
 }
 
+# @FUNCTION: kde_src_install
+# @USAGE: [ make ] [ dodoc ] [ all ]
+# @DESCRIPTION:
+# This installs the software, including the right handling of the
+# "/usr/share/doc/kde"-dir, but it only installs AUTHORS, ChangeLog*, README*,
+# NEWS, and TODO (if available) as docs.
+#
+# If no argument is given, all is assumed
 kde-suse_src_install() {
+	debug-print-function $FUNCNAME "$@"
 
-	debug-print-function $FUNCNAME $*
 	[[ -z "$1" ]] && kde-suse_src_install all
 
 	[[ -z ${KDE_S} ]] && KDE_S="${S}"
@@ -359,12 +406,12 @@ kde-suse_src_install() {
 		case $1 in
 			make)
 				debug-print-section make
-				emake install DESTDIR=${D} destdir=${D} || die "died running make install, $FUNCNAME:make"
+				emake install DESTDIR="${D}" destdir="${D}" || die "died running make install, $FUNCNAME:make"
 				;;
 			dodoc)
 				debug-print-section dodoc
 				for doc in AUTHORS ChangeLog* README* NEWS TODO; do
-					[ -s "$doc" ] && dodoc $doc
+					[[ -s "$doc" ]] && dodoc $doc
 				done
 				;;
 			all)
@@ -376,14 +423,19 @@ kde-suse_src_install() {
 	shift
 	done
 
-	if [[ -n ${KDEBASE} ]] && [[ "${PN}" != "arts" ]] ; then
+	if [[ -n ${KDEBASE} && "${PN}" != "arts" && -d "${D}"/usr/share/doc/${PF} ]]; then
 		# work around bug #97196
-		dodir ${KDEDIR}/share/doc/
-		mv ${D}/usr/share/doc/${PF} "${D}/${KDEDIR}/share/doc/"
+		dodir /usr/share/doc/kde && \
+			mv "${D}"/usr/share/doc/${PF} "${D}"/usr/share/doc/kde/ || \
+			die "Failed to move docs to kde/ failed."
 	fi
 }
 
-# slot rebuild function, thanks to Carsten Lohrke in bug 98425.
+# @FUNCTION: slot_rebuild
+# @RETURN: False, if no rebuild is required
+#
+# @MAINTAINER:
+# thanks to Carsten Lohrke in bug 98425.
 slot_rebuild() {
 	local VDB_PATH="$(portageq vdb_path)"
 	local REBUILD_LIST=""
@@ -404,13 +456,13 @@ slot_rebuild() {
 			k="$(grep -o "/.*/lib.*\.la" ${j}/CONTENTS)"
 			m=""
 			for l in ${k} ; do [[ -e ${l} ]] && m="${m} ${l}"; done
-			l="$(echo ${k} ${m} | fmt -w 1 | sort | uniq -u)"
+			l="$(echo ${k} ${m} | tr ' ' '\n' | sort | uniq -u)"
 
 			if [[ ${l} != "" ]] || [[ ${m} == "" ]] ; then
 				eerror "Installation of ${j/${VDB_PATH}\//} is broken."
 				BROKEN_PKGS="${BROKEN_PKGS} ${j/${VDB_PATH}\//}"
 			else
-				if [[ $(cat ${m}  | grep -co "${KDEDIR}") = 0 ]] ; then
+				if [[ $(cat ${m} | grep -co "${KDEDIR}") = 0 ]] ; then
 					REBUILD_LIST="${REBUILD_LIST} =${j/${VDB_PATH}\//}"
 				fi
 			fi
@@ -425,32 +477,46 @@ slot_rebuild() {
 
 	if [[ -n "${REBUILD_LIST}" ]] ; then
 		local temp=""
-		cd ${VDB_PATH}
+		cd "${VDB_PATH}"
 		for i in ${REBUILD_LIST} ; do
 			i="$(echo ${i%-*} | cut -d= -f2)"
-			temp="${temp} $(find .	-iname "DEPEND" -exec grep -H ${i} '{}' \; | cut -f2-3 -d/ | grep -v ${CATEGORY}/${PN})"
+			temp="${temp} $(find . -iname "DEPEND" -exec grep -H ${i} '{}' \; | cut -f2-3 -d/ | grep -v ${CATEGORY}/${PN})"
 		done
-		temp="$(echo ${temp} | fmt -w 1 | sort -u)"
+		temp="$(echo ${temp} | tr ' ' '\n' | sort -u)"
 		for i in ${temp} ; do
 			REBUILD_LIST="${REBUILD_LIST} =${i}"
 		done
 	fi
 
 	if [[ -n "${REBUILD_LIST}" ]] ; then
-		einfo "Please run \"emerge --oneshot ${REBUILD_LIST}\" before continuing.\n"
+		einfo "Please run \"emerge --oneshot ${REBUILD_LIST}\" before continuing."
 	else
-		einfo "Done :), continuing...\n"
+		einfo "Done :), continuing..."
 		return 1
 	fi
 	echo
 }
 
+# @FUNCTION: kde_pkg_preinst
+# @DESCRIPTION:
+# Calls postprocess_desktop_entries
+kde-suse_pkg_preinst() {
+	postprocess_desktop_entries
+}
+
+# @FUNCTION: kde_pkg_postinst
+# @DESCRIPTION:
+# Calls buildsycoca
 kde-suse_pkg_postinst() {
 	buildsycoca
 }
 
+# @FUNCTION: kde_pkg_postrm
+# @DESCRIPTION:
+# Calls buildsycoca
 kde-suse_pkg_postrm() {
 	buildsycoca
 }
 
-EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_install pkg_postinst pkg_postrm
+EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_install pkg_postinst pkg_postrm pkg_preinst
+
