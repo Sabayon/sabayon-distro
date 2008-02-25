@@ -29,6 +29,9 @@ src_unpack() {
 		sed -e "s:\$(KDE_LANG)/${lang}/:\$(KDE_LANG)/:g" \
 			-i "${WORKDIR}/${dir}/docs/common/Makefile.in" || die "Failed to fix ${lang}."
 	done
+
+	epatch "${FILESDIR}"/${P}-russian.patch
+
 }
 
 src_compile() {
