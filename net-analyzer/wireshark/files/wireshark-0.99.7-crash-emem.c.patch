@@ -1,0 +1,32 @@
+http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2012
+http://anonsvn.wireshark.org/viewvc/viewvc.py?view=rev&revision=23557
+Author: 	gerald
+Date: 	Fri Nov 23 23:31:21 2007 UTC (6 weeks, 3 days ago)
+Log Message: 	
+
+Catch a bad bLength, which may cause a loop. Fixes bug 2012.
+
+--- trunk/epan/dissectors/packet-usb.c	2007/11/23 20:16:41	23556
++++ trunk/epan/dissectors/packet-usb.c	2007/11/23 23:31:21	23557
+@@ -34,6 +34,7 @@
+ #include <epan/emem.h>
+ #include <epan/tap.h>
+ #include <epan/conversation.h>
++#include <epan/expert.h>
+ #include <string.h>
+ #include "packet-usb.h"
+ 
+@@ -652,6 +653,13 @@
+     proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
+     bLength = tvb_get_guint8(tvb, offset);
+     offset++;
++    if (bLength < 3) {
++        item = proto_tree_add_text(parent_tree, tvb, offset - 1, 1,
++            "Invalid bLength: %u",  bLength);
++        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
++            "Invalid bLength: %u",  bLength);
++        return offset;
++    }
+ 
+     /* bDescriptorType */
+     proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);

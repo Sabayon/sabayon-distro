@@ -1,0 +1,12 @@
+--- epan/wslua/wslua.h.orig	2008-01-27 18:47:07.000000000 +0300
++++ epan/wslua/wslua.h	2008-01-27 18:46:27.000000000 +0300
+@@ -53,6 +53,9 @@
+ #include <epan/funnel.h>
+ #include <epan/tvbparse.h>
+ #include <epan/epan.h>
++#if GLIB_MAJOR_VERSION < 2
++#include <dirent.h>
++#endif
+ 
+ #include "declare_wslua.h"
+ 

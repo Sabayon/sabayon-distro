@@ -1,0 +1,63 @@
+http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2177
+
+http://anonsvn.wireshark.org/viewvc/viewvc.py?view=rev&revision=24040
+Author: 	guy
+Date: 	Wed Jan 9 11:40:38 2008 UTC (28 hours, 3 minutes ago)
+Log Message: 	
+
+Use dup2() rather than eth_close() followed by dup() to ensure that a
+given file descriptor get duped to another descriptor.
+
+Handle exec errors in sync_pipe_open_command() the same way they're
+handled in sync_pipe_start(); that fixes bug 2177.
+
+--- trunk/capture_sync.c	2008/01/09 09:34:19	24039
++++ trunk/capture_sync.c	2008/01/09 11:40:38	24040
+@@ -507,13 +507,12 @@
+        * Child process - run dumpcap with the right arguments to make
+        * it just capture with the specified capture parameters
+        */
+-      eth_close(2);
+-      dup(sync_pipe[PIPE_WRITE]);
++      dup2(sync_pipe[PIPE_WRITE], 2);
+       eth_close(sync_pipe[PIPE_READ]);
+       execv(argv[0], (gpointer)argv);
+       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
+ 		argv[0], strerror(errno));
+-      sync_pipe_errmsg_to_parent(1, errmsg, "");
++      sync_pipe_errmsg_to_parent(2, errmsg, "");
+ 
+       /* Exit with "_exit()", so that we don't close the connection
+          to the X server (and cause stuff buffered up by our parent but
+@@ -589,6 +588,7 @@
+     PROCESS_INFORMATION pi;
+     int i;
+ #else
++    char errmsg[1024+1];
+     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
+     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
+ #endif
+@@ -678,13 +678,18 @@
+          * Child process - run dumpcap with the right arguments to make
+          * it just capture with the specified capture parameters
+          */
+-        eth_close(1);
+-        dup(sync_pipe[PIPE_WRITE]);
++        dup2(sync_pipe[PIPE_WRITE], 1);
+         eth_close(sync_pipe[PIPE_READ]);
+         execv(argv[0], (gpointer)argv);
+-        *msg = g_strdup_printf("Couldn't run %s in child process: %s",
+-                argv[0], strerror(errno));
+-        return CANT_RUN_DUMPCAP;
++        g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
++		   argv[0], strerror(errno));
++        sync_pipe_errmsg_to_parent(1, errmsg, "");
++
++        /* Exit with "_exit()", so that we don't close the connection
++           to the X server (and cause stuff buffered up by our parent but
++           not yet sent to be sent, as that stuff should only be sent by
++           our parent). */
++        _exit(2);
+     }
+ 
+     *read_fd = sync_pipe[PIPE_READ];
