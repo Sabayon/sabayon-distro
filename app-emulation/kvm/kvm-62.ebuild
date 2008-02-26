@@ -1,7 +1,8 @@
 # Copyright 1999-2006 Sabayon Linux - Fabio Erculiani
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils
+inherit eutils 
+#linux-info
 
 DESCRIPTION="KVM (for Kernel-based Virtual Machine) is a full virtualization solution for Linux on x86 hardware containing virtualization extensions (Intel VT or AMD-V)"
 HOMEPAGE="http://kvm.sourceforge.net/"
@@ -26,13 +27,16 @@ RDEPEND=">=media-libs/alsa-lib-1.0.11
 	>=sys-fs/udev-100
 	"
 
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	sys-devel/bin86
+	>=sys-kernel/linux-headers-2.6.24
+	"
 
 src_unpack() {
 	unpack ${A}
 	einfo "Setting up proper install path"
 	cd ${S}
-	epatch ${FILESDIR}/${P}-disable-headers-installation.patch
+	epatch ${FILESDIR}/${PN}-53-disable-headers-installation.patch
 	sed -i 's/prefix=\/usr\/local/prefix=\/usr/' configure
 	sed -i '/datadir=/ s/qemu/kvm/' qemu/configure
 	sed -i '/docdir=/ s/qemu/kvm/' qemu/configure
@@ -40,9 +44,12 @@ src_unpack() {
 
 src_compile() {
 	cd ${S}
-	BUILDOPTS="--disable-gcc-check --qemu-cc=/usr/bin/gcc --enable-alsa --with-patched-kernel"
+	BUILDOPTS="--disable-gcc-check --qemu-cc=/usr/bin/gcc --enable-alsa --with-patched-kernel --kerneldir=${PWD}/kernel --enable-alsa"
 	./configure ${BUILDOPTS} || die "configure failed"
 	make || die "make kvm failed"
+	# fix bios building
+	sed -i 's/gcc -m32/gcc/' bios/Makefile
+	make bios
 }
 
 src_install() {
