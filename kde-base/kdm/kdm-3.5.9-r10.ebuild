@@ -53,6 +53,10 @@ src_install() {
 	# Customize the kdmrc configuration
 	sed -i -e "s:#SessionsDirs=:SessionsDirs=/usr/share/xsessions\n#SessionsDirs=:" \
 		"${D}/${KDEDIR}/share/config/kdm/kdmrc" || die
+
+	# to avoid issues with the missing directory
+	dodir /var/run/console
+
 }
 
 pkg_postinst() {
