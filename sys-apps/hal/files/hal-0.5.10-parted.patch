@@ -1,0 +1,12 @@
+--- hal-0.5.10.orig/configure.in	2008-02-28 15:02:14.000000000 +0000
++++ hal-0.5.10/configure.in	2008-02-28 15:03:50.000000000 +0000
+@@ -263,7 +263,8 @@ if test "x$use_parted" = "xyes" ; then
+ 	    (major == 1 && minor == 8 && micro == 1) ||
+ 	    (major == 1 && minor == 8 && micro == 2) ||
+ 	    (major == 1 && minor == 8 && micro == 6) ||
+-	    (major == 1 && minor == 8 && micro == 7))
++	    (major == 1 && minor == 8 && micro == 7) ||
++	    (major == 1 && minor == 8 && micro == 8))
+ 	   return 0;
+ 
+ 	return 1;

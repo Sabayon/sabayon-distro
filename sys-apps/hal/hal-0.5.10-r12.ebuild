@@ -33,6 +33,7 @@ RDEPEND=">=dev-libs/glib-2.6
 									~sys-apps/parted-1.7.1
 									~sys-apps/parted-1.8.6
 									~sys-apps/parted-1.8.7
+									~sys-apps/parted-1.8.8
 								)
 						 )
 		 ia64? ( >=sys-apps/dmidecode-2.7 )
@@ -149,6 +150,8 @@ src_unpack() {
 
 	# NTFS-3G support
 	epatch "${FILESDIR}"/${P}-sabayonlinux-ntfs-3g.default.patch
+	# parted 1.8.8
+	epatch "${FILESDIR}"/${P}-parted.patch
 
 
 	eautoreconf
