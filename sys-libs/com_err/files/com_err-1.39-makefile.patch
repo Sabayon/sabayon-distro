@@ -1,0 +1,9 @@
+Fix the symlinks that submakefiles create so that they don't suck at life.
+
+--- lib/Makefile.elf-lib
++++ lib/Makefile.elf-lib
+@@ -49,3 +49,3 @@
+ 	@echo "	SYMLINK $(libdir)/$(ELF_IMAGE).so"
+-	@$(LN_S) -f $(ELF_INSTALL_DIR)/$(ELF_SONAME) \
++	@$(LN_S) -f $(ELF_SONAME) \
+ 		$(DESTDIR)$(libdir)/$(ELF_IMAGE).so
