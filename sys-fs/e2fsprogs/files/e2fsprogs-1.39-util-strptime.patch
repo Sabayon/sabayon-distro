@@ -1,0 +1,10 @@
+--- e2fsprogs-1.39/debugfs/util.c
++++ e2fsprogs-1.39/debugfs/util.c
+@@ -6,6 +6,7 @@
+  *
+  */
+ 
++#define _GNU_SOURCE
+ #include <stdio.h>
+ #include <unistd.h>
+ #include <stdlib.h>

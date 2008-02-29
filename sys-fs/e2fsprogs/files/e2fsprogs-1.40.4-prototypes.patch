@@ -1,0 +1,27 @@
+needed for strcasecmp() prototype
+http://sourceforge.net/tracker/index.php?func=detail&aid=1861659&group_id=2406&atid=302406
+
+--- debugfs/set_fields.c
++++ debugfs/set_fields.c
+@@ -16,6 +16,7 @@
+ #include <stdlib.h>
+ #include <ctype.h>
+ #include <string.h>
++#include <strings.h>
+ #include <time.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+
+http://sourceforge.net/tracker/index.php?func=detail&aid=1861663&group_id=2406&atid=302406
+
+--- misc/uuidd.c
++++ misc/uuidd.c
+@@ -9,6 +9,8 @@
+  * %End-Header%
+  */
+ 
++#define _GNU_SOURCE /* for setres[ug]id() */
++
+ #include <stdio.h>
+ #ifdef HAVE_STDLIB_H
+ #include <stdlib.h>
