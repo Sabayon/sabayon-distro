@@ -1,0 +1,408 @@
+diff -up nspluginwrapper-0.9.91.5/src/npruntime.c.old nspluginwrapper-0.9.91.5/src/npruntime.c
+--- nspluginwrapper-0.9.91.5/src/npruntime.c.old	2007-08-26 00:39:11.000000000 +0200
++++ nspluginwrapper-0.9.91.5/src/npruntime.c	2007-10-10 09:53:40.000000000 +0200
+@@ -59,6 +59,14 @@ NPClass npclass_bridge = {
+   npclass_invoke_RemoveProperty
+ };
+ 
++int npclass_check(NPObject *npobj)
++{
++  NPObjectInfo *p_info = npobject_info_lookup(npobj);
++  if(!p_info->valid)
++    npw_printf("ERROR: NPObject %p is not valid!\n",npobj);
++  return(p_info->valid);
++}
++
+ // NPClass::Invalidate
+ int npclass_handle_Invalidate(rpc_connection_t *connection)
+ {
+@@ -72,7 +80,7 @@ int npclass_handle_Invalidate(rpc_connec
+ 	return error;
+   }
+ 
+-  if (npobj && npobj->_class && npobj->_class->invalidate) {
++  if (npobj && npobj->_class && npclass_check(npobj) && npobj->_class->invalidate) {
+ 	D(bug("NPClass::Invalidate(npobj %p)\n", npobj));
+ 	npobj->_class->invalidate(npobj);
+ 	D(bug(" done\n"));
+@@ -83,6 +91,9 @@ int npclass_handle_Invalidate(rpc_connec
+ 
+ void npclass_invoke_Invalidate(NPObject *npobj)
+ {
++  if(!npclass_check(npobj))
++	return;
++  
+   int error = rpc_method_invoke(g_rpc_connection,
+ 								RPC_METHOD_NPCLASS_INVALIDATE,
+ 								RPC_TYPE_NP_OBJECT, npobj,
+@@ -117,7 +128,7 @@ int npclass_handle_HasMethod(rpc_connect
+   }
+ 
+   uint32_t ret = 0;
+-  if (npobj && npobj->_class && npobj->_class->hasMethod) {
++  if (npobj && npobj->_class && npclass_check(npobj) && npobj->_class->hasMethod) {
+ 	D(bug("NPClass::HasMethod(npobj %p, name id %p)\n", npobj, name));
+ 	ret = npobj->_class->hasMethod(npobj, name);
+ 	D(bug(" return: %d\n", ret));
+@@ -128,6 +139,9 @@ int npclass_handle_HasMethod(rpc_connect
+ 
+ bool npclass_invoke_HasMethod(NPObject *npobj, NPIdentifier name)
+ {
++  if(!npclass_check(npobj))
++	return false;
++  
+   int error = rpc_method_invoke(g_rpc_connection,
+ 								RPC_METHOD_NPCLASS_HAS_METHOD,
+ 								RPC_TYPE_NP_OBJECT, npobj,
+@@ -171,7 +185,7 @@ int npclass_handle_Invoke(rpc_connection
+   uint32_t ret = 0;
+   NPVariant result;
+   VOID_TO_NPVARIANT(result);
+-  if (npobj && npobj->_class && npobj->_class->invoke) {
++  if (npobj && npobj->_class && npclass_check(npobj) && npobj->_class->invoke) {
+ 	D(bug("NPClass::Invoke(npobj %p, name id %p)\n", npobj, name));
+ 	ret = npobj->_class->invoke(npobj, name, args, argCount, &result);
+ 	D(bug(" return: %d\n", ret));
+@@ -191,6 +205,9 @@ bool npclass_invoke_Invoke(NPObject *npo
+   if (result == NULL)
+ 	return false;
+   VOID_TO_NPVARIANT(*result);
++  
++  if(!npclass_check(npobj))
++	return false;  
+ 
+   int error = rpc_method_invoke(g_rpc_connection,
+ 								RPC_METHOD_NPCLASS_INVOKE,
+@@ -237,7 +254,7 @@ int npclass_handle_InvokeDefault(rpc_con
+   uint32_t ret = 0;
+   NPVariant result;
+   VOID_TO_NPVARIANT(result);
+-  if (npobj && npobj->_class && npobj->_class->invokeDefault) {
++  if (npobj && npobj->_class && npclass_check(npobj) && npobj->_class->invokeDefault) {
+ 	D(bug("NPClass::InvokeDefault(npobj %p)\n", npobj));
+ 	ret = npobj->_class->invokeDefault(npobj, args, argCount, &result);
+ 	D(bug(" return: %d\n", ret));
+@@ -257,6 +274,9 @@ bool npclass_invoke_InvokeDefault(NPObje
+   if (result == NULL)
+ 	return false;
+   VOID_TO_NPVARIANT(*result);
++  
++  if(!npclass_check(npobj))
++	return false;
+ 
+   int error = rpc_method_invoke(g_rpc_connection,
+ 								RPC_METHOD_NPCLASS_INVOKE_DEFAULT,
+@@ -299,7 +319,7 @@ int npclass_handle_HasProperty(rpc_conne
+   }
+ 
+   uint32_t ret = 0;
+-  if (npobj && npobj->_class && npobj->_class->hasProperty) {
++  if (npobj && npobj->_class && npclass_check(npobj) && npobj->_class->hasProperty) {
+ 	D(bug("NPClass::HasProperty(npobj %p, name id %p)\n", npobj, name));
+ 	ret = npobj->_class->hasProperty(npobj, name);
+ 	D(bug(" return: %d\n", ret));
+@@ -310,6 +330,9 @@ int npclass_handle_HasProperty(rpc_conne
+ 
+ bool npclass_invoke_HasProperty(NPObject *npobj, NPIdentifier name)
+ {
++  if(!npclass_check(npobj))
++	return false;
++  
+   int error = rpc_method_invoke(g_rpc_connection,
+ 								RPC_METHOD_NPCLASS_HAS_PROPERTY,
+ 								RPC_TYPE_NP_OBJECT, npobj,
+@@ -350,7 +373,7 @@ int npclass_handle_GetProperty(rpc_conne
+   uint32_t ret = 0;
+   NPVariant result;
+   VOID_TO_NPVARIANT(result);
+-  if (npobj && npobj->_class && npobj->_class->getProperty) {
++  if (npobj && npobj->_class && npclass_check(npobj) && npobj->_class->getProperty) {
+ 	D(bug("NPClass::GetProperty(npobj %p, name id %p)\n", npobj, name));
+ 	ret = npobj->_class->getProperty(npobj, name, &result);
+ 	D(bug(" return: %d\n", ret));
+@@ -367,7 +390,10 @@ bool npclass_invoke_GetProperty(NPObject
+   if (result == NULL)
+ 	return false;
+   VOID_TO_NPVARIANT(*result);
+-
++  
++  if(!npclass_check(npobj))
++	return false;
++  
+   int error = rpc_method_invoke(g_rpc_connection,
+ 								RPC_METHOD_NPCLASS_GET_PROPERTY,
+ 								RPC_TYPE_NP_OBJECT, npobj,
+@@ -411,7 +437,7 @@ int npclass_handle_SetProperty(rpc_conne
+   }
+ 
+   uint32_t ret = 0;
+-  if (npobj && npobj->_class && npobj->_class->setProperty) {
++  if (npobj && npobj->_class && npclass_check(npobj) && npobj->_class->setProperty) {
+ 	D(bug("NPClass::SetProperty(npobj %p, name id %p)\n", npobj, name));
+ 	ret = npobj->_class->setProperty(npobj, name, &value);
+ 	D(bug(" return: %d\n", ret));
+@@ -426,6 +452,9 @@ bool npclass_invoke_SetProperty(NPObject
+ {
+   if (value == NULL)
+ 	return false;
++  
++  if(!npclass_check(npobj))
++	return false;
+ 
+   int error = rpc_method_invoke(g_rpc_connection,
+ 								RPC_METHOD_NPCLASS_SET_PROPERTY,
+@@ -468,7 +497,7 @@ int npclass_handle_RemoveProperty(rpc_co
+   }
+ 
+   uint32_t ret = 0;
+-  if (npobj && npobj->_class && npobj->_class->removeProperty) {
++  if (npobj && npobj->_class && npclass_check(npobj) && npobj->_class->removeProperty) {
+ 	D(bug("NPClass::RemoveProperty(npobj %p, name id %p)\n", npobj, name));
+ 	ret = npobj->_class->removeProperty(npobj, name);
+ 	D(bug(" return: %d\n", ret));
+@@ -479,6 +508,9 @@ int npclass_handle_RemoveProperty(rpc_co
+ 
+ bool npclass_invoke_RemoveProperty(NPObject *npobj, NPIdentifier name)
+ {
++  if(!npclass_check(npobj))
++	return false;
++  
+   int error = rpc_method_invoke(g_rpc_connection,
+ 								RPC_METHOD_NPCLASS_REMOVE_PROPERTY,
+ 								RPC_TYPE_NP_OBJECT, npobj,
+@@ -513,6 +545,7 @@ NPObjectInfo *npobject_info_new(NPObject
+ 	static uint32_t id;
+ 	npobj_info->npobj = npobj;
+ 	npobj_info->npobj_id = ++id;
++	npobj_info->valid = 1;
+   }
+   return npobj_info;
+ }
+@@ -638,3 +671,14 @@ NPObject *npobject_lookup(uint32_t npobj
+ {
+   return g_hash_table_lookup(g_npobject_ids, (void *)(uintptr_t)npobj_id);
+ }
++
++static void npruntime_deactivate_func(gpointer key, gpointer value, gpointer user_data)
++{
++  NPObjectInfo *p_info = (NPObjectInfo *)value;
++  p_info->valid = 0;
++}
++
++void npruntime_deactivate(void)
++{
++  g_hash_table_foreach(g_npobjects, npruntime_deactivate_func, NULL);
++}
+diff -up nspluginwrapper-0.9.91.5/src/rpc.c.old nspluginwrapper-0.9.91.5/src/rpc.c
+--- nspluginwrapper-0.9.91.5/src/rpc.c.old	2007-10-10 09:53:40.000000000 +0200
++++ nspluginwrapper-0.9.91.5/src/rpc.c	2007-10-10 09:53:40.000000000 +0200
+@@ -298,6 +298,7 @@ struct rpc_connection_t {
+   pthread_t server_thread;
+   rpc_method_descriptor_t *callbacks;
+   int n_callbacks;
++  rpc_error_callback_t callback_error;
+   int send_offset;
+   char send_buffer[BUFSIZ];
+ };
+@@ -318,6 +319,29 @@ void rpc_connection_unref(rpc_connection
+   }
+ }
+ 
++// Set error callback
++void rpc_connection_error_callback_set(rpc_connection_t *connection,
++                                       rpc_error_callback_t callback)
++{
++  if (connection == NULL)
++	return;
++  if (connection->callback_error != NULL)
++	return;  
++  connection->callback_error = callback;
++}
++
++// Call error callback if the connection is closed
++static void rpc_connection_error_callback_call(rpc_connection_t *connection)
++{
++  if (connection == NULL)
++	return;
++  if (connection->callback_error == NULL)
++	return;
++  
++  (connection->callback_error)(connection);
++  connection->callback_error = NULL;
++}
++
+ // Returns connection status
+ static inline int _rpc_status(rpc_connection_t *connection)
+ {
+@@ -356,6 +380,11 @@ static inline int rpc_error(rpc_connecti
+   assert(error < 0);
+   assert(connection != NULL);
+   _rpc_set_status(connection, error);
++	
++  if(_rpc_status(connection) == RPC_STATUS_CLOSED || _rpc_status(connection) == RPC_STATUS_BROKEN) {
++	rpc_connection_error_callback_call(connection);
++  }
++  
+   return error;
+ }
+ 
+@@ -440,7 +469,8 @@ rpc_connection_t *rpc_init_server(const 
+   connection->server_thread_active = 0;
+   connection->callbacks = NULL;
+   connection->n_callbacks = 0;
+-
++  connection->callback_error = NULL;
++  
+   if ((connection->server_socket = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+ 	perror("server socket");
+ 	free(connection);
+@@ -491,6 +521,7 @@ rpc_connection_t *rpc_init_client(const 
+   connection->server_socket = -1;
+   connection->callbacks = NULL;
+   connection->n_callbacks = 0;
++  connection->callback_error = NULL;
+ 
+   if ((connection->socket = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+ 	perror("client socket");
+diff -up nspluginwrapper-0.9.91.5/src/npruntime-impl.h.old nspluginwrapper-0.9.91.5/src/npruntime-impl.h
+--- nspluginwrapper-0.9.91.5/src/npruntime-impl.h.old	2007-03-04 16:01:22.000000000 +0100
++++ nspluginwrapper-0.9.91.5/src/npruntime-impl.h	2007-10-10 09:53:40.000000000 +0200
+@@ -25,6 +25,7 @@
+ typedef struct {
+   NPObject *npobj;
+   uint32_t npobj_id;
++  uint32_t valid;
+ } NPObjectInfo;
+ 
+ extern NPObjectInfo *npobject_info_new(NPObject *npobj) attribute_hidden;
+@@ -63,4 +64,7 @@ extern int npclass_handle_Invalidate(rpc
+ struct _NPNetscapeFuncs;
+ extern void npruntime_init_callbacks(struct _NPNetscapeFuncs *mozilla_funcs);
+ 
++// Deactivate all NPObject instances
++extern void npruntime_deactivate(void);
++
+ #endif /* NPRUNTIME_IMPL_H */
+diff -up nspluginwrapper-0.9.91.5/src/rpc.h.old nspluginwrapper-0.9.91.5/src/rpc.h
+--- nspluginwrapper-0.9.91.5/src/rpc.h.old	2007-10-10 09:53:40.000000000 +0200
++++ nspluginwrapper-0.9.91.5/src/rpc.h	2007-10-10 09:53:40.000000000 +0200
+@@ -113,4 +113,10 @@ extern int rpc_method_wait_for_reply(rpc
+ extern int rpc_method_get_args(rpc_connection_t *connection, ...) attribute_hidden;
+ extern int rpc_method_send_reply(rpc_connection_t *connection, ...) attribute_hidden;
+ 
++// This callback is called when the connection is closed or broken
++typedef int (*rpc_error_callback_t)(rpc_connection_t *connection);
++
++// Set callback for a connection
++void rpc_connection_error_callback_set(rpc_connection_t *connection, rpc_error_callback_t callback);
++
+ #endif /* RPC_H */
+diff -up nspluginwrapper-0.9.91.5/src/npw-wrapper.c.old nspluginwrapper-0.9.91.5/src/npw-wrapper.c
+--- nspluginwrapper-0.9.91.5/src/npw-wrapper.c.old	2007-10-10 09:53:40.000000000 +0200
++++ nspluginwrapper-0.9.91.5/src/npw-wrapper.c	2007-10-10 12:04:29.000000000 +0200
+@@ -107,7 +107,11 @@ typedef struct _StreamInstance {
+ // Prototypes
+ static void plugin_init(int is_NP_Initialize);
+ static void plugin_exit(void);
+-static NPError plugin_restart_if_needed(void);
++
++static void plugin_kill(rpc_connection_t *connection);
++static NPError plugin_start(void);
++static NPError plugin_start_if_needed(void);
++static int  plugin_killed = 0;
+ 
+ /*
+  *  Notes concerning NSPluginWrapper recovery model.
+@@ -126,10 +130,8 @@ static NPError plugin_restart_if_needed(
+  *  connection and thus can fail early/gracefully in subsequent calls
+  *  to NPP_*() functions.
+  *
+- *  TODO: make NPRuntime aware of per-plugin connections? This
+- *  shouldn't matter from the Wrapper side because npruntime requests
+- *  come from the Viewer side (see NPN_*() handlers). XXX: even with a
+- *  running script (NPClass handlers)?
++ *  All active NPRuntime objects are marked as inactive and 
++ *  are not processed.
+  */
+ 
+ // Minimal time between two plugin restarts in sec
+@@ -1265,7 +1267,7 @@ g_NPP_New(NPMIMEType mime_type, NPP inst
+ 	return NPERR_INVALID_INSTANCE_ERROR;
+ 	
+   // Check if we need to restart the plug-in
+-  NPError ret = plugin_restart_if_needed();
++  NPError ret = plugin_start_if_needed();
+   if (ret != NPERR_NO_ERROR)
+   	return ret;
+ 		
+@@ -2734,6 +2736,9 @@ static void plugin_init(int is_NP_Initia
+ 	return;
+   }
+ 
++  // Set error handler - stop plugin if there's a connection error
++  rpc_connection_error_callback_set(g_rpc_connection, plugin_kill);
++  
+   g_plugin.initialized = 1 + is_NP_Initialize;
+   D(bug("--- INIT ---\n"));
+ }
+@@ -2806,17 +2811,39 @@ static void __attribute__((destructor)) 
+   }
+ }
+ 
+-static NPError plugin_restart(void)
++static void plugin_kill(rpc_connection_t *connection)
+ {
+   if (g_plugin.is_wrapper)
+-	return NPERR_NO_ERROR;
++	return;  
+ 
+-  // Shut it down    
++  D(bug("plugin_kill, connection %p\n",connection));
++	
++  // Kill viewer and plugin
+   plugin_exit();
++
++  // Clear-up
+   g_plugin.initialized = 0;
+   g_plugin.viewer_pid = -1;
+   g_plugin.is_wrapper = 0;
+ 
++  npruntime_deactivate();
++
++  // Set the kill flag
++  plugin_killed = 1;
++}
++
++static NPError plugin_start(void)
++{
++  D(bug("plugin_start\n"));
++
++  if(!plugin_killed) {
++    // Plugin is still active
++    // terminate it before the restart
++    D(bug("plugin_start: plugin_killed = 0!\n"));
++    plugin_kill(g_rpc_connection);
++  }
++  plugin_killed = 0;
++
+   // And start it again
+   plugin_init(1);
+   if (g_plugin.initialized <= 0)
+@@ -2825,7 +2852,7 @@ static NPError plugin_restart(void)
+   return invoke_NP_Initialize(npapi_version);
+ }
+ 
+-static NPError plugin_restart_if_needed(void)
++static NPError plugin_start_if_needed(void)
+ {
+   if (rpc_status(g_rpc_connection) != RPC_STATUS_ACTIVE) {
+ 	static time_t last_restart = 0;
+@@ -2835,7 +2862,7 @@ static NPError plugin_restart_if_needed(
+ 	last_restart = now;
+ 
+ 	D(bug("Restart plugins viewer\n"));
+-	NPError ret = plugin_restart();
++	NPError ret = plugin_start();
+ 	D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+ 	return ret;
+   }

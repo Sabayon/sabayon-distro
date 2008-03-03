@@ -1,0 +1,1297 @@
+--- nspluginwrapper-0.9.91.5/Makefile.rh	2007-08-22 21:20:50.000000000 +0200
++++ nspluginwrapper-0.9.91.5/Makefile	2007-08-28 11:17:19.000000000 +0200
+@@ -52,23 +52,6 @@ ifneq (,$(findstring $(OS),netbsd dragon
+ X_LDFLAGS += -Wl,--rpath,$(x11prefix)/$(lib64)
+ endif
+ 
+-ARCH_32 = $(ARCH)
+-ifeq ($(biarch), yes)
+-ARCH_32 = $(TARGET_ARCH)
+-LSB_LIBS = $(LSB_OBJ_DIR)/libc.so $(LSB_OBJ_DIR)/libgcc_s_32.so
+-LSB_LIBS += $(LSB_CORE_STUBS:%=$(LSB_OBJ_DIR)/%.so)
+-LSB_LIBS += $(LSB_CORE_STATIC_STUBS:%=$(LSB_OBJ_DIR)/%.a)
+-LSB_LIBS += $(LSB_DESKTOP_STUBS:%=$(LSB_OBJ_DIR)/%.so)
+-endif
+-
+-LSB_TOP_DIR = $(SRC_PATH)/lsb-build
+-LSB_INC_DIR = $(LSB_TOP_DIR)/headers
+-LSB_SRC_DIR = $(LSB_TOP_DIR)/stub_libs
+-LSB_OBJ_DIR = lsb-build-$(ARCH_32)
+-LSB_CORE_STUBS = $(shell cat $(LSB_SRC_DIR)/core_filelist)
+-LSB_CORE_STATIC_STUBS = $(shell cat $(LSB_SRC_DIR)/core_static_filelist)
+-LSB_DESKTOP_STUBS = $(shell cat $(LSB_SRC_DIR)/desktop_filelist)
+-
+ ifeq (i386,$(TARGET_ARCH))
+ TARGET_ELF_ARCH = elf32-i386
+ endif
+@@ -76,33 +59,22 @@ ifeq (ppc,$(TARGET_ARCH))
+ TARGET_ELF_ARCH = elf32-powerpc
+ endif
+ 
+-MOZILLA_CFLAGS = -I$(SRC_PATH)/npapi -I$(SRC_PATH)/npapi/nspr
++MOZILLA_CFLAGS = $(GECKO_CFLAGS)
++MOZILLA_LDFLAGS = $(GECKO_LDFLAGS)
+ 
+ npwrapper_LIBRARY = npwrapper.so
+-npwrapper_RAWSRCS = npw-wrapper.c npw-rpc.c rpc.c debug.c utils.c npruntime.c
++npwrapper_RAWSRCS = npw-wrapper.c npw-rpc.c rpc.c debug.c utils.c npruntime.c npw-dir.c
+ npwrapper_SOURCES = $(npwrapper_RAWSRCS:%.c=$(SRC_PATH)/src/%.c)
+ npwrapper_OBJECTS = $(npwrapper_RAWSRCS:%.c=npwrapper-%.os)
+ npwrapper_CFLAGS  = $(CFLAGS) $(X_CFLAGS) $(MOZILLA_CFLAGS) $(GLIB_CFLAGS)
+-npwrapper_LDFLAGS = $(X_LDFLAGS) $(libpthread_LDFLAGS)
+-npwrapper_LDFLAGS += $(GLIB_LDFLAGS)
++npwrapper_LDFLAGS = $(LDFLAGS) $(X_LDFLAGS) $(libpthread_LDFLAGS) $(GLIB_LDFLAGS) $(MOZILLA_LDFLAGS)
+ 
+ npviewer_PROGRAM = npviewer.bin
+ npviewer_RAWSRCS = npw-viewer.c npw-rpc.c rpc.c debug.c utils.c npruntime.c
+ npviewer_SOURCES = $(npviewer_RAWSRCS:%.c=$(SRC_PATH)/src/%.c)
+ npviewer_OBJECTS = $(npviewer_RAWSRCS:%.c=npviewer-%.o)
+-ifeq ($(biarch),yes)
+-npviewer_CFLAGS  = $(CFLAGS_32)
+-npviewer_CFLAGS += -I$(LSB_INC_DIR)
+-npviewer_CFLAGS += -I$(LSB_INC_DIR)/glib-2.0
+-npviewer_CFLAGS += -I$(LSB_INC_DIR)/gtk-2.0
+-npviewer_LDFLAGS = $(LDFLAGS_32) -L$(LSB_OBJ_DIR)
+-npviewer_LDFLAGS += -lgtk-x11-2.0 -lgdk-x11-2.0 -lgobject-2.0 -ldl -lglib-2.0 -lX11 -lXt
+-else
+-npviewer_CFLAGS += $(GTK_CFLAGS)
+-npviewer_LDFLAGS = $(GTK_LDFLAGS) $(X_LDFLAGS)
+-endif
+-npviewer_CFLAGS  += $(MOZILLA_CFLAGS)
+-npviewer_LDFLAGS += $(libdl_LDFLAGS) $(libpthread_LDFLAGS)
++npviewer_CFLAGS  = $(CFLAGS) $(GTK_CFLAGS) $(MOZILLA_CFLAGS)
++npviewer_LDFLAGS = $(LDFLAGS) $(GTK_LDFLAGS) $(X_LDFLAGS) $(libdl_LDFLAGS) $(libpthread_LDFLAGS) $(MOZILLA_LDFLAGS)
+ ifeq ($(TARGET_ARCH),i386)
+ npviewer_MAPFILE = $(SRC_PATH)/src/npw-viewer.map
+ endif
+@@ -127,10 +99,11 @@ libxpcom_LDFLAGS = $(LDFLAGS_32) -L$(LSB
+ endif
+ 
+ npconfig_PROGRAM = npconfig
+-npconfig_RAWSRCS = npw-config.c
++npconfig_RAWSRCS = npw-config.c npw-dir.c
+ npconfig_SOURCES = $(npconfig_RAWSRCS:%.c=$(SRC_PATH)/src/%.c)
+ npconfig_OBJECTS = $(npconfig_RAWSRCS:%.c=npconfig-%.o)
+-npconfig_LDFLAGS = $(libdl_LDFLAGS)
++npconfig_CFLAGS  = $(CFLAGS) $(MOZILLA_CFLAGS)
++npconfig_LDFLAGS = $(LDFLAGS) $(libdl_LDFLAGS) $(MOZILLA_LDFLAGS)
+ ifneq (,$(findstring $(OS),netbsd dragonfly))
+ # We will try to dlopen() the native plugin library. If that lib is
+ # linked against libpthread, then so must our program too.
+@@ -146,10 +119,7 @@ CPPFLAGS	= -I. -I$(SRC_PATH)
+ TARGETS		= $(npconfig_PROGRAM)
+ TARGETS		+= $(nploader_PROGRAM)
+ TARGETS		+= $(npwrapper_LIBRARY)
+-ifeq ($(build_viewer),yes)
+ TARGETS		+= $(npviewer_PROGRAM)
+-TARGETS		+= $(libxpcom_LIBRARY)
+-endif
+ 
+ archivedir	= files/
+ SRCARCHIVE	= $(PACKAGE)-$(VERSION)$(VERSION_SUFFIX).tar
+@@ -187,67 +157,30 @@ clean:
+ distclean: clean
+ 	rm -f config-host.* config.*
+ 
+-uninstall: uninstall.wrapper uninstall.viewer uninstall.libxpcom uninstall.loader uninstall.config uninstall.mkruntime uninstall.dirs
+-uninstall.dirs:
+-	rmdir $(DESTDIR)$(pkglibdir)/noarch
+-	rmdir $(DESTDIR)$(pkglibdir)/$(ARCH)/$(OS)
+-	rmdir $(DESTDIR)$(pkglibdir)/$(ARCH)
+-ifneq ($(ARCH),$(ARCH_32))
+-	rmdir $(DESTDIR)$(pkglibdir)/$(ARCH_32)/$(TARGET_OS)
+-	rmdir $(DESTDIR)$(pkglibdir)/$(ARCH_32)
+-endif
++uninstall: uninstall.wrapper uninstall.viewer uninstall.loader uninstall.config
+ uninstall.wrapper:
+-	rm -f $(DESTDIR)$(pkglibdir)/$(ARCH)/$(OS)/$(npwrapper_LIBRARY)
++	rm -f $(DESTDIR)$(pkglibdir)/$(npwrapper_LIBRARY)
+ uninstall.viewer:
+-	rm -f $(DESTDIR)$(pkglibdir)/$(ARCH_32)/$(TARGET_OS)/$(npviewer_PROGRAM)
+-	rm -f $(DESTDIR)$(pkglibdir)/$(ARCH_32)/$(TARGET_OS)/$(npviewer_PROGRAM:%.bin=%)
+-uninstall.libxpcom:
+-	rm -f $(DESTDIR)$(pkglibdir)/$(ARCH_32)/$(TARGET_OS)/$(libxpcom_LIBRARY)
++	rm -f $(DESTDIR)$(pkglibdir)/$(npviewer_PROGRAM)
++	rm -f $(DESTDIR)$(pkglibdir)/$(npviewer_PROGRAM:%.bin=%)
+ uninstall.loader:
+-	rm -f $(DESTDIR)$(pkglibdir)/noarch/$(nploader_PROGRAM)
++	rm -f $(DESTDIR)$(pkglibdir)/$(nploader_PROGRAM)
+ uninstall.config:
+-	rm -f $(DESTDIR)$(bindir)/nspluginwrapper
+-	rm -f $(DESTDIR)$(pkglibdir)/$(ARCH)/$(OS)/$(npconfig_PROGRAM)
+-uninstall.mkruntime:
+-	rm -f $(DESTDIR)$(pkglibdir)/noarch/mkruntime
++	rm -f $(DESTDIR)$(pkglibdir)/$(npconfig_PROGRAM)
+ 
+-install: install.dirs install.wrapper install.viewer install.libxpcom install.loader install.config install.mkruntime
++install: install.dirs install.wrapper install.viewer install.loader install.config
+ install.dirs:
+-	mkdir -p $(DESTDIR)$(pkglibdir)/noarch
+-	mkdir -p $(DESTDIR)$(pkglibdir)/$(ARCH)
+-	mkdir -p $(DESTDIR)$(pkglibdir)/$(ARCH)/$(OS)
+-ifneq ($(ARCH),$(ARCH_32))
+-	mkdir -p $(DESTDIR)$(pkglibdir)/$(ARCH_32)
+-	mkdir -p $(DESTDIR)$(pkglibdir)/$(ARCH_32)/$(TARGET_OS)
+-endif
++	mkdir -p $(DESTDIR)$(pkglibdir)
+ install.wrapper: $(npwrapper_LIBRARY)
+-	install -m 755 $(STRIP_OPT) $(npwrapper_LIBRARY) $(DESTDIR)$(pkglibdir)/$(ARCH)/$(OS)/$(npwrapper_LIBRARY)
+-ifeq ($(build_viewer),yes)
+-install.viewer: install.viewer.bin install.viewer.glue
+-install.libxpcom: do.install.libxpcom
+-else
+-install.viewer:
+-install.libxpcom:
+-endif
++	install -m 755 $(STRIP_OPT) $(npwrapper_LIBRARY) $(DESTDIR)$(pkglibdir)/$(npwrapper_LIBRARY)
++install.viewer: install.viewer.bin
++
+ install.viewer.bin: $(npviewer_PROGRAM)
+-	install -m 755 $(STRIP_OPT) $(npviewer_PROGRAM) $(DESTDIR)$(pkglibdir)/$(ARCH_32)/$(TARGET_OS)/$(npviewer_PROGRAM)
+-install.viewer.glue::
+-	p=$(DESTDIR)$(pkglibdir)/$(ARCH_32)/$(TARGET_OS)/$(npviewer_PROGRAM:%.bin=%);	\
+-	echo "#!/bin/sh" > $$p;								\
+-	echo "TARGET_OS=$(TARGET_OS)" >> $$p;						\
+-	echo "TARGET_ARCH=$(TARGET_ARCH)" >> $$p;					\
+-	echo ". $(pkglibdir)/noarch/$(nploader_PROGRAM)" >> $$p;			\
+-	chmod 755 $$p
+-do.install.libxpcom: $(libxpcom_LIBRARY)
+-	install -m 755 $(STRIP_OPT) $(libxpcom_LIBRARY) $(DESTDIR)$(pkglibdir)/$(ARCH_32)/$(TARGET_OS)/$(libxpcom_LIBRARY)
++	install -m 755 $(STRIP_OPT) $(npviewer_PROGRAM) $(DESTDIR)$(pkglibdir)/$(npviewer_PROGRAM)
+ install.config: $(npconfig_PROGRAM)
+-	install -m 755 $(STRIP_OPT) $(npconfig_PROGRAM) $(DESTDIR)$(pkglibdir)/$(ARCH)/$(OS)/$(npconfig_PROGRAM)
+-	mkdir -p $(DESTDIR)$(bindir)
+-	ln -sf $(pkglibdir)/$(ARCH)/$(OS)/$(npconfig_PROGRAM) $(DESTDIR)$(bindir)/nspluginwrapper
++	install -m 755 $(STRIP_OPT) $(npconfig_PROGRAM) $(DESTDIR)$(pkglibdir)/$(npconfig_PROGRAM)
+ install.loader: $(nploader_PROGRAM)
+-	install -m 755 $(nploader_PROGRAM) $(DESTDIR)$(pkglibdir)/noarch/$(nploader_PROGRAM)
+-install.mkruntime: $(SRC_PATH)/utils/mkruntime.sh
+-	install -m 755 $< $(DESTDIR)$(pkglibdir)/noarch/mkruntime
++	install -m 755 $(nploader_PROGRAM) $(DESTDIR)$(pkglibdir)/$(nploader_PROGRAM)
+ 
+ $(archivedir)::
+ 	[ -d $(archivedir) ] || mkdir $(archivedir) > /dev/null 2>&1
+@@ -296,35 +229,35 @@ npwrapper-%.os: $(SRC_PATH)/src/%.c
+ 	$(CC) -o $@ -c $< -fPIC $(CPPFLAGS) $(npwrapper_CFLAGS) -DBUILD_WRAPPER
+ 
+ $(npviewer_PROGRAM): $(npviewer_OBJECTS) $(npviewer_MAPFILE) $(LSB_OBJ_DIR) $(LSB_LIBS)
+-	$(CC) $(LDFLAGS_32) -o $@ $(npviewer_OBJECTS) $(npviewer_LDFLAGS)
++	$(CC) -o $@ $(npviewer_OBJECTS) $(npviewer_LDFLAGS)
+ 
+ npviewer-%.o: $(SRC_PATH)/src/%.c
+-	$(CC) $(CFLAGS_32) -o $@ -c $< $(CPPFLAGS) $(npviewer_CFLAGS) -DBUILD_VIEWER
++	$(CC) -o $@ -c $< $(CPPFLAGS) $(npviewer_CFLAGS) -DBUILD_VIEWER
+ 
+ npviewer-%.o: $(SRC_PATH)/src/%.cpp
+-	$(CXX) $(CFLAGS_32) -o $@ -c $< $(CPPFLAGS) $(npviewer_CFLAGS) -DBUILD_VIEWER
+-
+-$(libxpcom_LIBRARY): $(libxpcom_OBJECTS) $(LSB_OBJ_DIR) $(LSB_LIBS)
+-	$(CC) $(LDFLAGS_32) -shared -o $@ $(libxpcom_OBJECTS) $(libxpcom_LDFLAGS) -Wl,--soname,libxpcom.so
+-
+-libxpcom-%.o: $(SRC_PATH)/src/%.c
+-	$(CC) $(CFLAGS_32) -o $@ -c $< $(CPPFLAGS) $(libxpcom_CFLAGS) -DBUILD_XPCOM
++	$(CXX) -o $@ -c $< $(CPPFLAGS) $(npviewer_CFLAGS) -DBUILD_VIEWER
+ 
+ $(npconfig_PROGRAM): $(npconfig_OBJECTS)
+ 	$(CC) -o $@ $(npconfig_OBJECTS) $(npconfig_LDFLAGS)
+ 
+ npconfig-%.o: $(SRC_PATH)/src/%.c
+-	$(CC) -o $@ -c $< $(CPPFLAGS) $(CFLAGS)
++	$(CC) -o $@ -c $< $(CPPFLAGS) $(npconfig_CFLAGS)
+ 
+ $(nploader_PROGRAM): $(nploader_SOURCES)
+-	sed -e "s|%NPW_LIBDIR%|$(pkglibdir)|" $< > $@
++	sed -e "s|%NPW_PREFIX%|$(prefix)|" 	\
++	    -e "s|%NPW_LIB32%|$(lib32)|" 	\
++	    -e "s|%NPW_LIB64%|$(lib64)|" 	\
++	    -e "s|%TARGET_OS%|$(TARGET_OS)|" 	\
++	    -e "s|%TARGET_ARCH%|$(TARGET_ARCH)|" \
++	    -e "s|%GECKO_LIBDIR%|$(GECKO_LIBDIR)|" \
++	    -e "s|%NPW_DIR%|$(pkgdir)|" $< > $@
+ 	chmod 755 $@
+ 
+ $(LSB_OBJ_DIR)::
+ 	@[ -d $(LSB_OBJ_DIR) ] || mkdir $(LSB_OBJ_DIR) > /dev/null 2>&1
+ 
+ $(LSB_OBJ_DIR)/%.o: $(LSB_SRC_DIR)/%.c
+-	$(CC) $(CFLAGS_32) -nostdinc -fno-builtin -I. -I$(LSB_INC_DIR) -c $< -o $@
++	$(CC) $(CFLAGS) -nostdinc -fno-builtin -I. -I$(LSB_INC_DIR) -c $< -o $@
+ 
+ $(LSB_OBJ_DIR)/%.a: $(LSB_OBJ_DIR)/%.o
+ 	$(AR) rc $@ $<
+@@ -337,6 +270,6 @@ $(LSB_OBJ_DIR)/libgcc_s_32.so: $(LSB_OBJ
+ 	ln -sf libgcc_s.so $@
+ 
+ $(LSB_OBJ_DIR)/%.so: $(LSB_OBJ_DIR)/%.o
+-	$(CC) $(LDFLAGS_32) -nostdlib -shared $< -o $@ \
++	$(CC) $(LDFLAGS) -nostdlib -shared $< -o $@ \
+ 		-Wl,--version-script,$(patsubst $(LSB_OBJ_DIR)/%.o,$(LSB_SRC_DIR)/%.Version,$<) \
+ 		-Wl,-soname,`grep "$(patsubst $(LSB_OBJ_DIR)/%.o,%,$<) " $(LSB_SRC_DIR)/LibNameMap.txt | cut -f2 -d' '`
+--- nspluginwrapper-0.9.91.5/configure.rh	2007-08-20 22:44:59.000000000 +0200
++++ nspluginwrapper-0.9.91.5/configure	2007-08-28 11:10:19.000000000 +0200
+@@ -21,45 +21,18 @@ TMPS="${TMPDIR1}/npw-conf-${RANDOM}-$$-$
+ 
+ # default parameters
+ prefix="/usr"
++base_lib=""
++base_libdir=""
+ lib32=""
+ lib64=""
+-x_base_dirs=""
+-biarch="guess"
+-build_viewer="guess"
+-linux_only="guess"
++pkglibdir=""
++x_base_dir=""
+ cc="gcc -std=c99"
+ cxx="g++"
+-host_os=`uname -s | tr '[A-Z]' '[a-z]'`
+-host_cpu=`uname -m`
+ target_os="linux"
+ target_cpu="i386"
+-case "$host_cpu" in
+-i386|i486|i586|i686|i86pc|BePC)
+-    host_cpu="i386"
+-    ;;
+-ia64)
+-    host_cpu="ia64"
+-    ;;
+-"Power Macintosh"|ppc)
+-    host_cpu="ppc"
+-    ;;
+-ppc64)
+-    host_cpu="ppc64"
+-    ;;
+-sparc)
+-    host_cpu="sparc"
+-    ;;
+-sparc64)
+-    host_cpu="sparc64"
+-    ;;
+-x86_64|amd64)
+-    host_cpu="x86_64"
+-    ;;
+-*)
+-    host_cpu="unknown"
+-    ;;
+-esac
+ bigendian="no"
++with_xpcom="no"
+ 
+ # find source path
+ # XXX: we assume an absolute path is given when launching configure, 
+@@ -77,6 +50,9 @@ case "$opt" in
+ --prefix=*)
+     prefix=`echo $opt | cut -d '=' -f 2`
+     ;;
++--pkgdir=*)
++    pkgdir=`echo $opt | cut -d '=' -f 2`
++    ;;
+ --pkglibdir=*)
+     pkglibdir=`echo $opt | cut -d '=' -f 2`
+     ;;
+@@ -86,20 +62,11 @@ case "$opt" in
+ --target-cpu=*)
+     target_cpu=`echo $opt | cut -d '=' -f 2 | sed -e 's/^i.86$/i386/'`
+     ;;
+---generic-build)
+-    linux_only="no"
+-    ;;
+---with-biarch)
+-    biarch="yes"
+-    ;;
+---without-biarch)
+-    biarch="no"
++--with-base-lib=*)
++    base_lib=`echo $opt | cut -d '=' -f 2`
+     ;;
+---with-viewer)
+-    build_viewer="yes"
+-    ;;
+---without-viewer)
+-    build_viewer="no"
++--with-base-libdir=*)
++    base_libdir=`echo $opt | cut -d '=' -f 2`
+     ;;
+ --with-lib32=*)
+     lib32=`echo $opt | cut -d '=' -f 2`
+@@ -108,7 +75,7 @@ case "$opt" in
+     lib64=`echo $opt | cut -d '=' -f 2`
+     ;;
+ --with-x11-prefix=*)
+-    x_base_dirs=`echo $opt | cut -d '=' -f 2`
++    x_base_dir=`echo $opt | cut -d '=' -f 2`
+     ;;
+ --with-cc=*)
+     cc=`echo $opt | cut -d '=' -f 2`
+@@ -116,75 +83,36 @@ case "$opt" in
+ --with-cxx=*)
+     cxx=`echo $opt | cut -d '=' -f 2`
+     ;;
++--with-xpcom=*)
++    with_xpcom=`echo $opt | cut -d '=' -f 2`
++    ;;
+ esac
+ done
+ 
+-# check for linux only build
+-if test "$linux_only" = "guess"; then
+-    if test "$host_os" = "linux" -a "$target_os" = "linux"; then
+-	linux_only="yes"
+-    else
+-	linux_only="no"
+-    fi
+-fi
+-
+-# check for biarch build
+-if test "$biarch" = "guess"; then
+-    case $host_cpu:$target_cpu in
+-    x86_64:i386 | ppc64:ppc)
+-	biarch="yes"
+-	;;
+-    *)
+-	biarch="no"
+-	;;
+-    esac
+-fi
+-
+-# check for viewer builds
+-if test "$build_viewer" = "guess"; then
+-    build_viewer="no"
+-    case $host_os in
+-    linux)
+-	if test "$host_cpu" = "$target_cpu" -o "$biarch" = "yes"; then
+-	    build_viewer="yes"
+-	fi
+-	;;
+-    esac
++if test -z "$lib32"; then
++    lib32="lib"
+ fi
+-
+-# check for libdir name
+ if test -z "$lib64"; then
+-    case $host_os in
+-    linux)
+-	# test if the compiler is 64bit
+-        echo 'int i;' > $TMPC
+-	nspluginwrapper_64bit_output=no
+-	if $cc -o $TMPO -c $TMPC; then
+-	    case `/usr/bin/file $TMPO` in
+-	    *"ELF 64"*)
+-		nspluginwrapper_64bit_output=yes
+-		;;
+-	    esac
+-	fi
+-	rm -f $TMPC $TMPO
+-	;;
+-    esac
+-    case $host_cpu:$nspluginwrapper_64bit_output in
+-    ppc64:yes | s390x:yes | sparc64:yes | x86_64:yes)
+-	lib64="lib64"
+-	;;
+-    *)
+-	lib64="lib"
+-	;;
+-    esac
++    lib32="lib64"
+ fi
+-if test -z "$lib32"; then
+-    lib32="lib"
++if test -z "$base_lib"; then
++    base_lib="lib"
++fi
++if test -z "$base_libdir"; then
++    base_libdir="/usr/lib"
+ fi
+ 
+ # check for installation root
++if test -z "$pkgdir"; then
++    pkgdir="$PACKAGE"
++fi
+ if test -z "$pkglibdir"; then
+-    pkglibdir="$prefix/lib/$PACKAGE"
++    pkglibdir="/usr/lib/$PACKAGE"
++fi
++
++# check prefix
++if test -z "$prefix"; then
++    prefix="/usr"
+ fi
+ 
+ # check for __attribute__((visibility())) support
+@@ -261,12 +189,6 @@ if test -z "$CFLAGS"; then
+ 	CFLAGS="$CFLAGS -mtune=generic"
+     fi
+ fi
+-if test "$biarch" = "yes" -a -z "$CFLAGS_32"; then
+-    CFLAGS_32="-m32 -O2 -g"
+-    if check_cc_option -mtune=generic $CFLAGS_32; then
+-	CFLAGS_32="$CFLAGS_32 -mtune=generic"
+-    fi
+-fi
+ 
+ # check for pkg-config
+ pkgconfig=`which pkg-config`
+@@ -298,7 +220,7 @@ fi
+ rm -f $TMPC $TMPE
+ 
+ # check for GTK+ 2.0 compile CFLAGS
+-if test "$build_viewer" = "yes"; then
++#if test "$build_viewer" = "yes"; then
+     if $pkgconfig --exists gtk+-2.0; then
+ 	GTK_CFLAGS=`$pkgconfig --cflags gtk+-2.0`
+ 	GTK_LDFLAGS=`$pkgconfig --libs gtk+-2.0`
+@@ -319,27 +241,31 @@ EOF
+ 	exit 1
+     fi
+     rm -f $TMPC $TMPE
++#fi
++
++# check for Gecko compile CFLAGS
++if $pkgconfig --exists firefox-plugin; then
++    GECKO_CFLAGS=`$pkgconfig --cflags firefox-plugin`
++    GECKO_LDFLAGS=`$pkgconfig --libs firefox-plugin`
++    GECKO_LIBDIR=""
++else
++    echo "gecko-devel not found"
++    exit 1
+ fi
+ 
+-# check for X11 base dir
+-if test -z "$x_base_dirs"; then
+-    x_base_dirs="
+-	/usr
+-	/usr/X11R6
+-	/usr/local/X11R6
+-	$prefix
+-    "
+-fi
+-for dir in $x_base_dirs; do
+-    x_include_dir="$dir/include"
+-    if test -f $x_include_dir/X11/Intrinsic.h; then
+-	x_lib_dir="$dir/$lib64"
+-	if test -f $x_lib_dir/libX11.so; then
+-	    x_base_dir=$dir
+-	    break
+-	fi
++# check for XPCOM compile CFLAGS
++if [ $with_xpcom == "yes" ]; then
++    if $pkgconfig --exists firefox-xpcom; then
++	GECKO_CFLAGS="$GECKO_CFLAGS"`$pkgconfig --cflags firefox-xpcom`
++        GECKO_LDFLAGS="$GECKO_LDFLAGS"`$pkgconfig --libs firefox-xpcom`
++	GECKO_LIBDIR="$GECKO_LIBDIR"`$pkgconfig --libs-only-L firefox-xpcom | sed -e "s|-L||" -e "s| ||g"`
++    else
++	echo "gecko-devel (XPCOM) not found"
++        exit 1
+     fi
+-done
++fi
++
++# check for X11 base dir
+ if test -z "$x_base_dir"; then
+     echo "X11 environment not found"
+     exit 1
+@@ -450,40 +376,37 @@ EOF
+ echo "Standard options:"
+ echo "  --help                      print this message"
+ echo "  --prefix=PREFIX             install in PREFIX [$prefix]"
++echo "  --pkgdir=name               name of package directory [$pkgdir]"
+ echo "  --pkglibdir=ROOT            install private files in ROOT [$pkglibdir]"
+ echo "  --target-os=OS              build plugin support for target OS [$target_os]"
+ echo "  --target-cpu=CPU            build plugin support for target CPU [$target_cpu]"
+-echo "  --with-viewer               build viewer [$build_viewer]"
+ echo ""
+ echo "Advanced options (experts only):"
+ echo "  --source-path=PATH          path of source code [$source_path]"
+ echo "  --generic-build             don't use system-specific additions"
+-echo "  --with-biarch               build both 32-bit and 64-bit components at once"
+ echo "  --with-lib32=NAME           use NAME as the 32-bit library dir name [$lib32]"
+ echo "  --with-lib64=NAME           use NAME as the 64-bit library dir name [$lib64]"
+ echo "  --with-x11-prefix=PREFIX    use PREFIX as the X11 base dir [autodetect]"
+ echo "  --with-cc=CC                use C compiler CC [$cc]"
+ echo "  --with-cxx=CXX              use C++ compiler CXX [$cxx]"
++echo "  --with-xpcom=yes/no         compile and link with XPCOM support"
+ echo ""
+ echo "NOTE: The object files are built at the place where configure is launched"
+ exit 1
+ fi
+ 
+ echo "Install prefix            $prefix"
++echo "nspluginwrapper dir       $pkgdir"
+ echo "nspluginwrapper root dir  $pkglibdir"
+-echo "Bi-arch build             $biarch"
+-echo "Build viewer              $build_viewer"
+-echo "Build for Linux only      $linux_only"
+ echo "32-bit library dir name   $lib32"
+ echo "64-bit library dir name   $lib64"
+ echo "Source path               $source_path"
+ echo "C compiler                $cc"
+ echo "C++ compiler              $cxx"
+-echo "host OS                   $host_os"
+-echo "host CPU                  $host_cpu"
+ echo "host big endian           $bigendian"
+ echo "target OS                 $target_os"
+ echo "target CPU                $target_cpu"
++echo "XPCOM support             $with_xpcom"
+ 
+ config_mak="config-host.mak"
+ echo "# Automatically generated by configure - do not modify" > $config_mak
+@@ -494,16 +417,16 @@ echo "/* Automatically generated by conf
+ echo "CC=$cc" >> $config_mak
+ echo "CXX=$cxx" >> $config_mak
+ echo "CFLAGS=$CFLAGS" >> $config_mak
++echo "LDFLAGS=$LDFLAGS" >> $config_mak
+ echo "GLIB_CFLAGS=$GLIB_CFLAGS" >> $config_mak
+ echo "GLIB_LDFLAGS=$GLIB_LDFLAGS" >> $config_mak
+ echo "GTK_CFLAGS=$GTK_CFLAGS" >> $config_mak
+ echo "GTK_LDFLAGS=$GTK_LDFLAGS" >> $config_mak
+-if test "$biarch" = "yes"; then
+-echo "LDFLAGS_32=-m32" >> $config_mak
+-echo "CFLAGS_32=$CFLAGS_32" >> $config_mak
+-else
+-echo 'CFLAGS_32=$(CFLAGS)' >> $config_mak
+-fi
++echo "GECKO_CFLAGS=$GECKO_CFLAGS" >> $config_mak
++echo "GECKO_LDFLAGS=$GECKO_LDFLAGS" >> $config_mak
++echo "GECKO_LIBDIR=$GECKO_LIBDIR" >> $config_mak
++
++host_os=$target_os
+ if test "$host_os" = "linux"; then
+     echo "OS=linux" >> $config_mak
+     echo "#define HOST_LINUX 1" >> $config_h
+@@ -524,6 +447,8 @@ else
+     echo "Unsupported OS"
+     exit 1
+ fi
++
++host_cpu=$target_cpu
+ if test "$host_cpu" = "i386" ; then
+     echo "ARCH=i386" >> $config_mak
+     echo "#define HOST_I386 1" >> $config_h
+@@ -565,18 +490,21 @@ if test -n "$fbigendian" ; then
+ fi
+ 
+ echo "SRC_PATH=$source_path" >> $config_mak
+-echo "build_viewer=$build_viewer" >> $config_mak
+-echo "biarch=$biarch" >> $config_mak
+ echo "lib32=$lib32" >> $config_mak
+ echo "lib64=$lib64" >> $config_mak
+ echo "prefix=$prefix" >> $config_mak
+ echo "bindir=$prefix/bin" >> $config_mak
+-libdir="$prefix/$lib64"
+-echo "libdir=$libdir" >> $config_mak
+-echo "#define LIB \"$lib64\"" >> $config_h
+-echo "#define LIBDIR \"$libdir\"" >> $config_h
++echo "base_libdir=$base_libdir" >> $config_mak
++echo "#define LIB \"$base_lib\"" >> $config_h
++echo "#define LIBDIR \"$base_libdir\"" >> $config_h
+ echo "x11prefix=$x_base_dir" >> $config_mak
+ 
++if [ $with_xpcom == "yes" ]; then
++    echo "#define USE_XPCOM 1" >> $config_h
++else
++    echo "#define USE_XPCOM 0" >> $config_h
++fi
++
+ VERSION=`sed < $source_path/$PACKAGE.spec -n '/^\%define version[	]*/s///p'`
+ RELEASE=`sed < $source_path/$PACKAGE.spec -n '/^\%define release[	]*/s///p'`
+ SVNDATE=`sed < $source_path/$PACKAGE.spec -n '/^\%define svndate[ 	]*/s///p'`
+@@ -597,8 +525,14 @@ else
+     echo "#define NPW_VERSION \"$VERSION\"" >> $config_h
+ fi
+ 
++echo "#define NPW_PREFIX \"$prefix\"" >> $config_h
++echo "#define NPW_LIB32 \"$lib32\"" >> $config_h
++echo "#define NPW_LIB64 \"$lib64\"" >> $config_h
++
++echo "pkgdir=$pkgdir" >> $config_mak
++echo "#define NPW_DIR \"$pkgdir\"" >> $config_h
++
+ echo "pkglibdir=$pkglibdir" >> $config_mak
+-echo "#define NPW_LIBDIR \"$pkglibdir\"" >> $config_h
+ 
+ if test "$has_visibility_attribute" = "yes"; then
+     echo "#define attribute_hidden __attribute__((visibility(\"hidden\")))" >> $config_h
+@@ -626,9 +560,8 @@ config_h="config.h"
+ echo "/* Automatically generated by configure - do not modify */" > $config_h
+ echo "#include \"config-host.h\"" >> $config_h
+ 
+-if test "$linux_only" = "yes"; then
+-    echo "#define BUILD_LINUX_ONLY 1" >> $config_h
+-fi
++# Linux only by default
++echo "#define BUILD_LINUX_ONLY 1" >> $config_h
+ 
+ if test "$target_os" = "linux"; then
+     echo "TARGET_OS=linux" >> $config_mak
+@@ -669,3 +602,7 @@ if test "$source_path_used" = "yes" ; th
+     esac
+     ln -sf $source_path/Makefile Makefile
+ fi
++
++# Don't strip binaries
++echo "DONT_STRIP=yes" >> $config_mak
++
+--- nspluginwrapper-0.9.91.5/src/npw-wrapper.c.rh	2007-08-26 00:10:21.000000000 +0200
++++ nspluginwrapper-0.9.91.5/src/npw-wrapper.c	2007-08-28 12:34:02.000000000 +0200
+@@ -43,6 +43,7 @@
+ 
+ #include "rpc.h"
+ #include "npw-rpc.h"
++#include "npw-dir.h"
+ #include "utils.h"
+ 
+ #define XP_UNIX 1
+@@ -211,7 +220,7 @@ g_NPN_GetValue(NPP instance, NPNVariable
+   if (mozilla_funcs.getvalue == NULL)
+ 	return NPERR_INVALID_FUNCTABLE_ERROR;
+ 
+-  D(bug("NPN_GetValue instance=%p, variable=%d\n", instance, variable));
++  D(bug("NPN_GetValue instance=%p, variable=%d\n", instance, variable & 0xffff));
+   NPError ret = mozilla_funcs.getvalue(instance, variable, value);
+   D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+   return ret;
+@@ -249,6 +258,7 @@ static int handle_NPN_GetValue(rpc_conne
+ 	}
+   }
+ 
++  D(bug("NPN_GetValue() - Unknown type of variable %d\n",variable & 0xffff));
+   abort();
+ }
+ 
+@@ -1485,8 +1500,9 @@ invoke_NPP_URLNotify(NPP instance, const
+ 
+   error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INVALID);
+   
+-  if (error != RPC_ERROR_NO_ERROR)
++  if (error != RPC_ERROR_NO_ERROR) {
+ 	npw_perror("NPP_URLNotify() wait for reply", error);
++	}
+ }
+ 
+ static void
+@@ -2467,9 +2483,9 @@ static void plugin_init(int is_NP_Initia
+   static int init_count = 0;
+   ++init_count;
+   char viewer_path[PATH_MAX];
+-  sprintf(viewer_path, "%s/%s/%s/%s", NPW_LIBDIR, NPW_Plugin.target_arch, NPW_Plugin.target_os, NPW_VIEWER);
++  get_viewer(viewer_path,PATH_MAX,NPW_Plugin.target_arch,NPW_VIEWER);
+   char connection_path[128];
+-  sprintf(connection_path, "%s/%s/%d-%d", NPW_CONNECTION_PATH, plugin_file_name, getpid(), init_count);
++  get_connection_path(connection_path, 128, plugin_file_name, init_count);  
+ 
+   // Cache MIME info and plugin name/description
+   if (g_plugin.name == NULL && g_plugin.description == NULL && g_plugin.formats == NULL) {
+--- /dev/null	2007-08-28 09:06:54.719628589 +0200
++++ nspluginwrapper-0.9.91.5/src/npw-dir.c	2007-08-28 11:10:19.000000000 +0200
+@@ -0,0 +1,97 @@
++/*
++ *  npw-dir.h - Directory management for nspluginwrapper
++ *
++ *  by Martin Stransky <stransky@redhat.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include "sysdeps.h"
++#include "npw-dir.h"
++
++#include <assert.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++/*
++Expect defined:
++#define NPW_PREFIX  (/usr)
++#define NPW_LIB32   (lib)
++#define NPW_LIB64   (lib64)
++#define NPW_DIR     (nspluginwrapper)
++*/
++
++char * get_plugin_path(char *p_path, int max_path, const char *p_arch)
++{
++  char *p_arch_lib = NULL;
++  
++  if(!strcmp(p_arch, "i386")) {    
++    p_arch_lib = NPW_LIB32;
++  }
++  else if(!strcmp(p_arch, "x86_64")) {
++    p_arch_lib = NPW_LIB64;
++  } 
++  else {
++    assert(0);
++  }    
++  snprintf(p_path,max_path,"%s/%s/%s",NPW_PREFIX,p_arch_lib,NPW_DIR);
++  return(p_path); 
++}
++
++char * get_plugin(char *p_path, int max_path, const char *p_arch, const char *p_plugin)
++{
++  char *p_arch_lib = NULL;
++  
++  if(!strcmp(p_arch, "i386")) {    
++    p_arch_lib = NPW_LIB32;
++  }
++  else if(!strcmp(p_arch, "x86_64")) {
++    p_arch_lib = NPW_LIB64;
++  } 
++  else {
++    assert(0);
++  }    
++  snprintf(p_path,max_path,"%s/%s/%s/%s",NPW_PREFIX,p_arch_lib,NPW_DIR,p_plugin);
++  return(p_path);  
++}
++
++//#define NPW_DEFAULT_PLUGIN_PATH NPW_LIBDIR "/" HOST_ARCH "/" HOST_OS "/" NPW_WRAPPER
++char * get_default_plugin(char *p_path, int max_path)
++{
++  snprintf(p_path,max_path,"%s/%s/%s",LIBDIR,NPW_DIR,NPW_WRAPPER);
++  return(p_path);
++}
++
++//#define NPW_OLD_DEFAULT_PLUGIN_PATH NPW_LIBDIR "/" HOST_ARCH "/" NPW_WRAPPER
++char * get_old_default_plugin(char *p_path, int max_path)
++{
++  return(get_default_plugin(p_path, max_path));
++}
++
++char * get_viewer_path(char *p_path, int max_path, const char *p_arch)
++{
++  return(get_plugin_path(p_path, max_path, p_arch));
++}
++
++char * get_viewer(char *p_path, int max_path, const char *p_arch, const char *p_viewer)
++{
++  return(get_plugin(p_path, max_path, p_arch, p_viewer));
++}
++
++char * get_connection_path(char *p_path, int max_path, const char *p_plugin, int init_count)
++{
++  snprintf(p_path, max_path, "%s/%s/%d-%d", NPW_CONNECTION_PATH, p_plugin, getpid(), init_count);
++  return(p_path);
++}
+--- nspluginwrapper-0.9.91.5/src/debug.h.rh	2007-03-04 16:01:22.000000000 +0100
++++ nspluginwrapper-0.9.91.5/src/debug.h	2007-08-28 11:10:19.000000000 +0200
+@@ -29,7 +29,7 @@ extern void npw_printf(const char *forma
+ extern void npw_vprintf(const char *format, va_list args) attribute_hidden;
+ 
+ #if DEBUG
+-#define bug npw_dprintf
++#define bug npw_dprintf("%s:%d",__FILE__,__LINE__);npw_dprintf
+ #define D(x) x
+ #else
+ #define D(x) ;
+--- nspluginwrapper-0.9.91.5/src/sysdeps.h.rh	2007-03-04 16:01:22.000000000 +0100
++++ nspluginwrapper-0.9.91.5/src/sysdeps.h	2007-08-28 11:10:19.000000000 +0200
+@@ -43,8 +43,8 @@
+ #define NPW_VIEWER NPW_VIEWER_BASE
+ #define NPW_WRAPPER_BASE "npwrapper"
+ #define NPW_WRAPPER NPW_WRAPPER_BASE ".so"
+-#define NPW_OLD_DEFAULT_PLUGIN_PATH NPW_LIBDIR "/" HOST_ARCH "/" NPW_WRAPPER
+-#define NPW_DEFAULT_PLUGIN_PATH NPW_LIBDIR "/" HOST_ARCH "/" HOST_OS "/" NPW_WRAPPER
++#define NPW_OLD_DEFAULT_PLUGIN_PATH LIBDIR "/" NPW_DIR "/" NPW_WRAPPER
++#define NPW_DEFAULT_PLUGIN_PATH LIBDIR "/" NPW_DIR "/" NPW_WRAPPER
+ #define NPW_PLUGIN_IDENT "NPW:" NPW_VERSION
+ #define NPW_PLUGIN_IDENT_SIZE 32
+ typedef struct __attribute__((packed)) {
+--- nspluginwrapper-0.9.91.5/src/npw-viewer.c.rh	2007-08-26 08:30:19.000000000 +0200
++++ nspluginwrapper-0.9.91.5/src/npw-viewer.c	2007-08-28 11:10:19.000000000 +0200
+@@ -54,10 +54,6 @@
+ #define DEBUG 1
+ #include "debug.h"
+ 
+-
+-// [UNIMPLEMENTED] Define to use XPCOM emulation
+-#define USE_XPCOM 0
+-
+ // Define to use XEMBED
+ #define USE_XEMBED 1
+ 
+@@ -644,11 +640,15 @@ invoke_NPN_GetValue(NPP instance, NPNVar
+ 	return NPERR_GENERIC_ERROR;
+   }
+ 
++  D(bug("invoke_NPN_GetValue, variable = %d\n", variable & 0xffff));
++
+   int32_t ret;
+   switch (rpc_type_of_NPNVariable(variable)) {
+   case RPC_TYPE_BOOLEAN:
+ 	{
+ 	  uint32_t b = 0;
++	  D(bug("invoke_NPN_GetValue, type = boolean\n"));
++
+ 	  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INT32, &ret, RPC_TYPE_BOOLEAN, &b, RPC_TYPE_INVALID);
+ 	  if (error != RPC_ERROR_NO_ERROR) {
+ 		npw_perror("NPN_GetValue() wait for reply", error);
+@@ -661,6 +661,7 @@ invoke_NPN_GetValue(NPP instance, NPNVar
+   case RPC_TYPE_NP_OBJECT:
+ 	{
+ 	  NPObject *npobj = NULL;
++	  D(bug("invoke_NPN_GetValue, type = object\n"));
+ 	  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INT32, &ret, RPC_TYPE_NP_OBJECT, &npobj, RPC_TYPE_INVALID);
+ 	  if (error != RPC_ERROR_NO_ERROR) {
+ 		npw_perror("NPN_GetValue() wait for reply", error);
+@@ -670,8 +671,12 @@ invoke_NPN_GetValue(NPP instance, NPNVar
+ 	  *((NPObject **)value) = npobj;
+ 	  break;
+ 	}
++  default:
++	{
++    	  npw_printf("invoke_NPN_GetValue: WARNING: unhandled type variable %d\n", variable & 0xffff);
++    	  break;
++	}
+   }
+-
+   return ret;
+ }
+ 
+@@ -694,11 +699,19 @@ g_NPN_GetValue(NPP instance, NPNVariable
+   case NPNVserviceManager: {
+ 	nsIServiceManager *sm;
+ 	int ret = NS_GetServiceManager(&sm);
+-	if (NS_FAILED(ret))
++	if (NS_FAILED(ret)) {
++          npw_printf("WARNING: NS_GetServiceManager failed\n");
+ 	  return NPERR_GENERIC_ERROR;
++	}
+ 	*(nsIServiceManager **)value = sm;
+ 	break;
+   }
++  case NPNVDOMElement:
++    	npw_printf("WARNING: NPNVDOMElement is not supported by NPN_GetValue()\n");
++    	return NPERR_INVALID_PARAM;
++  case NPNVDOMWindow:
++    	npw_printf("WARNING: NPNVDOMWindow is not supported by NPN_GetValue()\n");
++	return NPERR_INVALID_PARAM;
+ #endif
+ #if USE_XEMBED
+   case NPNVSupportsXEmbedBool:
+@@ -706,12 +719,13 @@ g_NPN_GetValue(NPP instance, NPNVariable
+   case NPNVWindowNPObject:
+   case NPNVPluginElementNPObject: {
+ 	int ret = invoke_NPN_GetValue(instance, variable, value);
+-	if (ret == NPERR_NO_ERROR)
+-	  return ret;
+-	// fall-through
++	if(ret != NPERR_NO_ERROR)
++          npw_printf("WARNING: error %d returner for %d from NPN_GetValue()\n", ret, variable & 0xffff);
++        return ret;
++	
+   }
+   default:
+-	npw_printf("WARNING: unhandled variable %d in NPN_GetValue()\n", variable);
++	npw_printf("WARNING: unhandled variable %d in NPN_GetValue()\n", variable & 0xffff);
+ 	return NPERR_INVALID_PARAM;
+   }
+ 
+--- nspluginwrapper-0.9.91.5/src/npw-viewer.sh.rh	2007-08-25 23:40:36.000000000 +0200
++++ nspluginwrapper-0.9.91.5/src/npw-viewer.sh	2007-08-28 12:16:21.000000000 +0200
+@@ -4,7 +4,13 @@
+ #
+ OS="`uname -s`"
+ ARCH="`uname -m`"
+-NPW_LIBDIR="%NPW_LIBDIR%"
++NPW_PREFIX="%NPW_PREFIX%"
++NPW_LIB32="%NPW_LIB32%"
++NPW_LIB64="%NPW_LIB64%"
++TARGET_OS="%TARGET_OS%"
++TARGET_ARCH="%TARGET_ARCH%"
++NPW_DIR="%NPW_DIR%"
++GECKO_LIBDIR="%GECKO_LIBDIR%"
+ 
+ if test -z "$TARGET_OS"; then
+     echo "*** NSPlugin Viewer *** error, TARGET_OS not initialized"
+@@ -16,11 +22,6 @@ if test -z "$TARGET_ARCH"; then
+     exit 1
+ fi
+ 
+-NPW_VIEWER_DIR=$NPW_LIBDIR/$TARGET_ARCH/$TARGET_OS
+-
+-# Set a new LD_LIBRARY_PATH that is TARGET specific
+-export LD_LIBRARY_PATH=$NPW_VIEWER_DIR
+-
+ case $ARCH in
+ i?86)
+     ARCH=i386
+@@ -51,6 +52,9 @@ if test "$ARCH" != "$TARGET_ARCH"; then
+ 	    LOADER=`which qemu-i386`
+ 	fi
+ 	;;
++    x86_64)
++	LOADER=""
++	;;
+     ppc)
+ 	if test "$ARCH" = "ppc64"; then
+ 	    case "$OS" in
+@@ -71,6 +75,25 @@ if test "$ARCH" != "$TARGET_ARCH"; then
+     fi
+ fi
+ 
++# Set NPW_VIEWER_DIR (TARGET specific)
++case $TARGET_ARCH in
++      i386)
++      NPW_VIEWER_DIR=$NPW_PREFIX/$NPW_LIB32/$NPW_DIR
++      ;;
++      x86_64)
++      NPW_VIEWER_DIR=$NPW_PREFIX/$NPW_LIB64/$NPW_DIR
++      ;;
++      ppc)
++      NPW_VIEWER_DIR=$NPW_PREFIX/$NPW_LIB32/$NPW_DIR
++      ;;
++      ppc64) 
++      NPW_VIEWER_DIR=$NPW_PREFIX/$NPW_LIB64/$NPW_DIR
++      ;;
++esac
++
++# Set a new LD_LIBRARY_PATH that is TARGET specific
++export LD_LIBRARY_PATH=$NPW_VIEWER_DIR:$GECKO_LIBDIR
++
+ # Expand PATH for RealPlayer package on NetBSD (realplay)
+ if test "$OS" = "NetBSD"; then
+     REALPLAYER_HOME="/usr/pkg/lib/RealPlayer"
+--- /dev/null	2007-08-28 09:06:54.719628589 +0200
++++ nspluginwrapper-0.9.91.5/src/npw-dir.h	2007-08-28 11:10:19.000000000 +0200
+@@ -0,0 +1,35 @@
++/*
++ *  npw-dir.h - Directory management for nspluginwrapper
++ *
++ *  by Martin Stransky <stransky@redhat.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#ifndef NPW_DIR_H
++#define NPW_DIR_H
++
++char * get_plugin_path(char *p_path, int max_path, const char *p_arch);
++char * get_plugin(char *p_path, int max_path, const char *p_arch, const char *p_plugin);
++
++char * get_viewer_path(char *p_path, int max_path, const char *p_arch);
++char * get_viewer(char *p_path, int max_path, const char *p_arch, const char *p_viewer);
++
++char * get_default_plugin(char *p_path, int max_path);
++char * get_old_default_plugin(char *p_path, int max_path);
++
++char * get_connection_path(char *p_path, int max_path, const char *p_plugin, int init_count);
++
++#endif
+--- nspluginwrapper-0.9.91.5/src/npw-config.c.rh	2007-08-20 23:44:27.000000000 +0200
++++ nspluginwrapper-0.9.91.5/src/npw-config.c	2007-08-28 12:42:58.000000000 +0200
+@@ -38,10 +38,15 @@
+ #include <pwd.h>
+ #include <dirent.h>
+ 
++#include <asm/types.h>
++
++#include "npw-dir.h"
+ 
+ static bool g_auto = false;
+ static bool g_verbose = false;
+ static const char NPW_CONFIG[] = "nspluginwrapper";
++static char *p_plugin_dir = NULL;
++static char *p_plugin_prefix = NULL;
+ 
+ static void error(const char *format, ...)
+ {
+@@ -474,83 +517,32 @@ enum {
+   EXIT_VIEWER_NOT_FOUND	= -2,
+   EXIT_VIEWER_ERROR		= -1,
+   EXIT_VIEWER_OK		= 0,
+-  EXIT_VIEWER_NATIVE	= 20
+ };
+ 
+-static int detect_plugin_viewer(const char *filename, NPW_PluginInfo *out_plugin_info)
++static int detect_plugin_viewer_fast(const char *filename, NPW_PluginInfo *out_plugin_info)
+ {
+-  static const char *target_arch_table[] = {
+-	NULL,
+-	"i386",
+-	NULL
+-  };
+-  const int target_arch_table_size = sizeof(target_arch_table) / sizeof(target_arch_table[0]);
++  char viewer_arch_path[PATH_MAX];
++  get_viewer_path(viewer_arch_path,PATH_MAX,out_plugin_info->target_arch);
++  if (access(viewer_arch_path, F_OK) != 0) {
++    return(EXIT_VIEWER_NOT_FOUND);
++  }
+ 
+-  if (out_plugin_info && out_plugin_info->target_arch[0] != '\0')
+-	target_arch_table[0] = out_plugin_info->target_arch;
+-  else
+-	target_arch_table[0] = NULL;
+-
+-  static const char *target_os_table[] = {
+-	NULL,
+-	"linux",
+-	NULL
+-  };
+-  const int target_os_table_size = sizeof(target_os_table) / sizeof(target_os_table[0]);
++  char viewer_path[PATH_MAX];
++  sprintf(viewer_path, "%s/%s", viewer_arch_path, NPW_VIEWER);
++  if (access(viewer_path, F_OK) != 0)
++      return(EXIT_VIEWER_NOT_FOUND);
+ 
+-  if (out_plugin_info && out_plugin_info->target_os[0] != '\0')
+-	target_os_table[0] = out_plugin_info->target_os;
+-  else
+-	target_os_table[0] = NULL;
+-
+-  // don't wrap plugins for host OS/ARCH
+-  if (out_plugin_info
+-	  && out_plugin_info->target_arch && strcmp(out_plugin_info->target_arch, HOST_ARCH) == 0
+-	  && out_plugin_info->target_os && strcmp(out_plugin_info->target_os, HOST_OS) == 0)
+-	return EXIT_VIEWER_NATIVE;
+-
+-  for (int i = 0; i < target_arch_table_size; i++) {
+-	const char *target_arch = target_arch_table[i];
+-	if (target_arch == NULL)
+-	  continue;
+-	char viewer_arch_path[PATH_MAX];
+-	sprintf(viewer_arch_path, "%s/%s", NPW_LIBDIR, target_arch);
+-	if (access(viewer_arch_path, F_OK) != 0) {
+-	  target_arch_table[i] = NULL;		// this target ARCH is not available, skip it for good
+-	  continue;
+-	}
+-	for (int j = 0; j < target_os_table_size; j++) {
+-	  const char *target_os = target_os_table[j];
+-	  if (target_os == NULL)
+-		continue;
+-	  char viewer_path[PATH_MAX];
+-	  sprintf(viewer_path, "%s/%s/%s", viewer_arch_path, target_os, NPW_VIEWER);
+-	  if (access(viewer_path, F_OK) != 0)
+-		continue;
+-	  int pid = fork();
+-	  if (pid < 0)
+-		continue;
+-	  else if (pid == 0) {
+-		execl(viewer_path, NPW_VIEWER, "--test", "--plugin", filename, NULL);
+-		exit(1);
+-	  }
+-	  else {
+-		int status;
+-		while (waitpid(pid, &status, 0) != pid)
+-		  ;
+-		if (WIFEXITED(status)) {
+-		  status = WEXITSTATUS(status);
+-		  if (status == EXIT_VIEWER_OK && out_plugin_info) {
+-			strcpy(out_plugin_info->target_arch, target_arch);
+-			strcpy(out_plugin_info->target_os, target_os);
+-		  }
+-		  return status;
+-		}
+-		return EXIT_VIEWER_ERROR;
+-	  }
+-	}
++  return(EXIT_VIEWER_OK);
++}
++
++static int detect_plugin_viewer(const char *filename, NPW_PluginInfo *out_plugin_info)
++{
++  if(out_plugin_info && out_plugin_info->target_arch) {
++    return(detect_plugin_viewer_fast(filename, out_plugin_info));
++  } 
++  else {
++    return(EXIT_VIEWER_NOT_FOUND);
+   }
+-  return EXIT_VIEWER_NOT_FOUND;
+ }
+ 
+ static bool is_plugin_viewer_available(const char *filename, NPW_PluginInfo *out_plugin_info)
+@@ -686,7 +678,9 @@ static int do_install_plugin(const char 
+   plugin_base += 1;
+ 
+   char d_plugin_path[PATH_MAX];
+-  int n = snprintf(d_plugin_path, sizeof(d_plugin_path), "%s/%s.%s", plugin_dir, NPW_WRAPPER_BASE, plugin_base);
++  int n = snprintf(d_plugin_path, sizeof(d_plugin_path), 
++                   "%s/%s.%s", plugin_dir, p_plugin_prefix ? p_plugin_prefix : NPW_WRAPPER_BASE, 
++                   plugin_base);
+   if (n < 0 || n >= sizeof(d_plugin_path))
+ 	return 3;
+ 
+@@ -772,24 +766,30 @@ static int install_plugin(const char *pl
+   if (g_verbose)
+ 	printf("Install plugin %s\n", plugin_path);
+ 
+-  ret = do_install_plugin(plugin_path, get_system_mozilla_plugin_dir(), plugin_info);
+-  if (ret == 0)
+-	return 0;
+-
+-  // don't install plugin in user home dir if already available system-wide
+-  if (is_system_wide_wrapper_plugin(plugin_path)) {
+-	if (g_verbose)
+-	  printf(" ... already installed system-wide, skipping\n");
+-	return 0;
++  if(p_plugin_dir) {
++  	ret = do_install_plugin(plugin_path, p_plugin_dir, plugin_info);
+   }
++  else {
+ 
+-  const char *user_plugin_dir = get_user_mozilla_plugin_dir();
+-  if (access(user_plugin_dir, R_OK | W_OK) < 0 && mkdir_p(user_plugin_dir) < 0)
+-	return 1;
++  	ret = do_install_plugin(plugin_path, get_system_mozilla_plugin_dir(), plugin_info);
++	  if (ret == 0)
++		return 0;
++
++	  // don't install plugin in user home dir if already available system-wide
++	  if (is_system_wide_wrapper_plugin(plugin_path)) {
++		if (g_verbose)
++		  printf(" ... already installed system-wide, skipping\n");
++		return 0;
++	  }
+ 
+-  ret = do_install_plugin(plugin_path, user_plugin_dir, plugin_info);
+-  if (ret == 0)
+-	return 0;
++	  const char *user_plugin_dir = get_user_mozilla_plugin_dir();
++	  if (access(user_plugin_dir, R_OK | W_OK) < 0 && mkdir_p(user_plugin_dir) < 0)
++		return 1;
++
++	  ret = do_install_plugin(plugin_path, user_plugin_dir, plugin_info);
++	  if (ret == 0)
++		return 0;
++  }
+ 
+   return ret;
+ }
+@@ -920,6 +920,8 @@ static void print_usage(void)
+   printf("   -h --help               print this message\n");
+   printf("   -v --verbose            flag: set verbose mode\n");
+   printf("   -a --auto               flag: set automatic mode for plugins discovery\n");
++  printf("   -d --dir plugin-dir     flag: target plugin(s) directory\n");
++  printf("   -p --prefix prefix      flag: a prefix of wrapped plugin file\n");
+   printf("   -l --list               list plugins currently installed\n");
+   printf("   -u --update             update plugin(s) currently installed\n");
+   printf("   -i --install [FILE(S)]  install plugin(s)\n");
+@@ -945,6 +947,18 @@ static int process_auto(int argc, char *
+   return 0;
+ }
+ 
++static int process_dir(int argc, char *argv[])
++{ 
++  p_plugin_dir = argv[0];
++  return 0;
++}
++
++static int process_prefix(int argc, char *argv[])
++{ 
++  p_plugin_prefix = argv[0];
++  return 0;
++}
++
+ static int process_list(int argvc, char *argv[])
+ {
+   const char **plugin_dirs = get_mozilla_plugin_dirs();
+@@ -1000,8 +1014,6 @@ static int process_install(int argc, cha
+ 	  error("%s is not a valid NPAPI plugin", plugin_path);
+ 	ret = detect_plugin_viewer(plugin_path, &plugin_info);
+ 	if (ret != EXIT_VIEWER_OK) {
+-	  if (ret == EXIT_VIEWER_NATIVE)
+-		return 0; /* silently ignore exit status */
+ 	  error("no appropriate viewer found for %s", plugin_path);
+ 	}
+ 	ret = install_plugin(plugin_path, &plugin_info);
+@@ -1036,55 +1048,54 @@ static int process_remove(int argc, char
+ 
+ int main(int argc, char *argv[])
+ {
+-  char **args;
+-  int i, j, n_args;
+-
+-  n_args = argc - 1;
+-  args = argv + 1;
++  int i, j;
+ 
+-  if (n_args < 1) {
++  if (argc < 2) {
+ 	print_usage();
+ 	return 1;
+   }
+ 
+-  if (args[0][0] != '-') {
++  if (argv[1][0] != '-') {
+ 	print_usage();
+ 	return 1;
+   }
+ 
+   static const struct option {
+-	char short_option;
++	const char *short_option;
+ 	const char *long_option;
+ 	int (*process_callback)(int argc, char *argv[]);
+ 	bool terminal;
++	int  extra_args;
+   }
+   options[] = {
+-	{ 'h', "help",		process_help,		1 },
+-	{ 'v', "verbose",	process_verbose,	0 },
+-	{ 'a', "auto",		process_auto,		0 },
+-	{ 'l', "list",		process_list,		1 },
+-	{ 'u', "update",	process_update,		1 },
+-	{ 'i', "install",	process_install,	1 },
+-	{ 'r', "remove",	process_remove,		1 },
+-	{  0,   NULL,		NULL,				1 }
++	{ "-h", "--help",          process_help,           1, 0 },
++        { "-v", "--verbose",       process_verbose,        0, 0 },
++        { "-a", "--auto",          process_auto,           0, 0 },
++        { "-d", "--dir",           process_dir,            0, 1 },
++        { "-p", "--prefix",        process_prefix,         0, 1 },
++        { "-l", "--list",          process_list,           1, 0 },
++        { "-u", "--update",        process_update,         1, 0 },
++        { "-i", "--install",       process_install,        1, 0 },
++        { "-r", "--remove",        process_remove,         1, 0 }
+   };
+ 
+-  for (i = 0; i < n_args; i++) {
+-	const char *arg = args[i];
++  for (i = 1; i < argc; i++) {
+ 	const struct option *opt = NULL;
+-	for (j = 0; opt == NULL && options[j].process_callback != NULL; j++) {
+-	  if ((arg[0] == '-' && arg[1] == options[j].short_option && arg[2] == '\0') ||
+-		  (arg[0] == '-' && arg[1] == '-' && strcmp(&arg[2], options[j].long_option) == 0))
+-		opt = &options[j];
++	for (j = 0; j < sizeof(options)/sizeof(options[0]); j++) {
++	  if (!strcmp(options[j].short_option,argv[i]) || !strcmp(options[j].long_option,argv[i])) {
++	     opt = &options[j];
++       	     break;
++	  }
+ 	}
+ 	if (opt == NULL) {
+-	  fprintf(stderr, "invalid option %s\n", arg);
++	  fprintf(stderr, "invalid option %s\n", argv[i]);
+ 	  print_usage();
+ 	  return 1;
+ 	}
+-	int ret = opt->process_callback(n_args - i - 1, args + i + 1);
++	int ret = opt->process_callback(argc - i - 1, argv + i + 1);
+ 	if (opt->terminal)
+ 	  return ret;
++	i += opt->extra_args;
+   }
+ 
+   return 0;

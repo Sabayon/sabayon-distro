@@ -1,0 +1,877 @@
+Index: src/npw-viewer.c
+===================================================================
+--- src/npw-viewer.c	(révision 466)
++++ src/npw-viewer.c	(révision 470)
+@@ -2268,6 +2268,8 @@
+ {
+   D(bug("handle_NPP_New\n"));
+ 
++  rpc_connection_ref(connection);
++
+   uint32_t instance_id;
+   NPMIMEType plugin_type;
+   int32_t mode;
+@@ -2344,7 +2346,10 @@
+ 
+   NPSavedData *save_area;
+   NPError ret = g_NPP_Destroy(instance, &save_area);
+-  return rpc_method_send_reply(connection, RPC_TYPE_INT32, ret, RPC_TYPE_NP_SAVED_DATA, save_area, RPC_TYPE_INVALID);
++
++  error = rpc_method_send_reply(connection, RPC_TYPE_INT32, ret, RPC_TYPE_NP_SAVED_DATA, save_area, RPC_TYPE_INVALID);
++  rpc_connection_unref(connection);
++  return error;
+ }
+ 
+ // NPP_SetWindow
+@@ -2654,13 +2659,13 @@
+ g_NPP_WriteReady(NPP instance, NPStream *stream)
+ {
+   if (instance == NULL)
+-	return NPERR_INVALID_INSTANCE_ERROR;
++	return 0;
+ 
+   if (plugin_funcs.writeready == NULL)
+-	return NPERR_INVALID_FUNCTABLE_ERROR;
++	return 0;
+ 
+   if (stream == NULL)
+-	return NPERR_INVALID_PARAM;
++	return 0;
+ 
+   D(bug("NPP_WriteReady instance=%p, stream=%p\n", instance, stream));
+   int32 ret = plugin_funcs.writeready(instance, stream);
+@@ -3086,7 +3091,7 @@
+   if (g_user_agent)
+ 	free(g_user_agent);
+   if (g_rpc_connection)
+-	rpc_exit(g_rpc_connection);
++	rpc_connection_unref(g_rpc_connection);
+ 
+   id_kill();
+   return 0;
+Index: src/npw-wrapper.c
+===================================================================
+--- src/npw-wrapper.c	(révision 466)
++++ src/npw-wrapper.c	(révision 470)
+@@ -21,6 +21,7 @@
+ #define _GNU_SOURCE 1 /* RTLD_DEFAULT */
+ #include "sysdeps.h"
+ 
++#include <assert.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -73,6 +74,9 @@
+ // Netscape exported functions
+ static NPNetscapeFuncs mozilla_funcs;
+ 
++// NPAPI version nspluginwrapper supports
++static int npapi_version = 0;
++
+ // Wrapper plugin data
+ typedef struct {
+   int initialized;
+@@ -89,6 +93,7 @@
+ typedef struct _PluginInstance {
+   NPP instance;
+   uint32_t instance_id;
++  rpc_connection_t *connection;
+ } PluginInstance;
+ 
+ // Plugin side data for an NPStream instance
+@@ -101,7 +106,38 @@
+ // Prototypes
+ static void plugin_init(int is_NP_Initialize);
+ static void plugin_exit(void);
++static NPError plugin_restart_if_needed(void);
+ 
++/*
++ *  Notes concerning NSPluginWrapper recovery model.
++ *
++ *  NSPluginWrapper will restart the Viewer if it detected to be
++ *  dead. It will not attempt to "replay" the plugin. This means that
++ *  if a plugin crashed, its window will remain grayed: only new
++ *  instances will start a new viewer.
++ *
++ *  Each PlugInstance holds a reference to the RPC connection it was
++ *  created with. g_rpc_connection can be seen as the "master"
++ *  connection (used to initialize and shutdown things). The RPC
++ *  connections are reference counted so that when the master
++ *  connection is set to a new one, previous connections are still
++ *  live. That way, old NPP instances are not passed down with the new
++ *  connection and thus can fail early/gracefully in subsequent calls
++ *  to NPP_*() functions.
++ *
++ *  TODO: make NPRuntime aware of per-plugin connections? This
++ *  shouldn't matter from the Wrapper side because npruntime requests
++ *  come from the Viewer side (see NPN_*() handlers). XXX: even with a
++ *  running script (NPClass handlers)?
++ */
++
++// Minimal time between two plugin restarts in sec
++#define MIN_RESTART_INTERVAL 1
++
++// Consume as many bytes as possible when we are not NPP_WriteReady()
++// XXX: move to a common place to Wrapper and Viewer
++#define NPERR_STREAM_BUFSIZ 65536
++
+ // Helpers
+ #ifndef min
+ #define min(x, y) ((x) < (y) ? (x) : (y))
+@@ -110,7 +146,16 @@
+ #define max(x, y) ((x) > (y) ? (x) : (y))
+ #endif
+ 
++#define PLUGIN_INSTANCE(INSTANCE) plugin_instance(INSTANCE)
+ 
++static inline PluginInstance *plugin_instance(NPP instance)
++{
++  PluginInstance *plugin = (PluginInstance *)instance->pdata;
++  assert(plugin->instance == instance);
++  return plugin;
++}
++
++
+ /* ====================================================================== */
+ /* === RPC communication                                              === */
+ /* ====================================================================== */
+@@ -1177,13 +1222,13 @@
+ 
+ // Creates a new instance of a plug-in
+ static NPError
+-invoke_NPP_New(NPMIMEType mime_type, NPP instance,
++invoke_NPP_New(PluginInstance *plugin, NPMIMEType mime_type,
+ 			   uint16_t mode, int16_t argc, char *argn[], char *argv[],
+ 			   NPSavedData *saved)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_NEW,
+-								RPC_TYPE_UINT32, ((PluginInstance *)instance->pdata)->instance_id,
++								RPC_TYPE_UINT32, plugin->instance_id,
+ 								RPC_TYPE_STRING, mime_type,
+ 								RPC_TYPE_INT32, (int32_t)mode,
+ 								RPC_TYPE_ARRAY, RPC_TYPE_STRING, (uint32_t)argc, argn,
+@@ -1197,7 +1242,7 @@
+   }
+ 
+   int32_t ret;
+-  error = rpc_method_wait_for_reply(g_rpc_connection,
++  error = rpc_method_wait_for_reply(plugin->connection,
+ 									RPC_TYPE_INT32, &ret,
+ 									RPC_TYPE_INVALID);
+ 
+@@ -1216,17 +1261,25 @@
+ {
+   if (instance == NULL)
+ 	return NPERR_INVALID_INSTANCE_ERROR;
+-
++	
++  // Check if we need to restart the plug-in
++  NPError ret = plugin_restart_if_needed();
++  if (ret != NPERR_NO_ERROR)
++  	return ret;
++		
+   PluginInstance *plugin = malloc(sizeof(*plugin));
+   if (plugin == NULL)
+ 	return NPERR_OUT_OF_MEMORY_ERROR;
+   memset(plugin, 0, sizeof(*plugin));
+   plugin->instance = instance;
+   plugin->instance_id = id_create(plugin);
++  plugin->connection = g_rpc_connection;
+   instance->pdata = plugin;
+ 
++  rpc_connection_ref(plugin->connection);
++
+   D(bug("NPP_New instance=%p\n", instance));
+-  NPError ret = invoke_NPP_New(mime_type, instance, mode, argc, argn, argv, saved);
++  ret = invoke_NPP_New(plugin, mime_type, mode, argc, argn, argv, saved);
+   D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+ 
+   if (saved) {
+@@ -1240,11 +1293,11 @@
+ 
+ // Deletes a specific instance of a plug-in
+ static NPError
+-invoke_NPP_Destroy(NPP instance, NPSavedData **save)
++invoke_NPP_Destroy(PluginInstance *plugin, NPSavedData **save)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_DESTROY,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_INVALID);
+ 
+   if (error != RPC_ERROR_NO_ERROR) {
+@@ -1254,7 +1307,7 @@
+ 
+   int32_t ret;
+   NPSavedData *save_area = NULL;
+-  error = rpc_method_wait_for_reply(g_rpc_connection,
++  error = rpc_method_wait_for_reply(plugin->connection,
+ 									RPC_TYPE_INT32, &ret,
+ 									RPC_TYPE_NP_SAVED_DATA, &save_area,
+ 									RPC_TYPE_INVALID);
+@@ -1280,28 +1333,29 @@
+ {
+   if (instance == NULL)
+ 	return NPERR_INVALID_INSTANCE_ERROR;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return NPERR_INVALID_INSTANCE_ERROR;
+ 
+   D(bug("NPP_Destroy instance=%p\n", instance));
+-  NPError ret = invoke_NPP_Destroy(instance, save);
++  NPError ret = invoke_NPP_Destroy(plugin, save);
+   D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+ 
+-  PluginInstance *plugin = instance->pdata;
+-  if (plugin) {
+-	id_remove(plugin->instance_id);
+-	free(plugin);
+-	instance->pdata = NULL;
+-  }
++  rpc_connection_unref(plugin->connection);
+ 
++  id_remove(plugin->instance_id);
++  free(plugin);
++  instance->pdata = NULL;
+   return ret;
+ }
+ 
+ // Tells the plug-in when a window is created, moved, sized, or destroyed
+ static NPError
+-invoke_NPP_SetWindow(NPP instance, NPWindow *window)
++invoke_NPP_SetWindow(PluginInstance *plugin, NPWindow *window)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_SET_WINDOW,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_NP_WINDOW, window,
+ 								RPC_TYPE_INVALID);
+ 
+@@ -1311,7 +1365,7 @@
+   }
+ 
+   int32_t ret;
+-  error = rpc_method_wait_for_reply(g_rpc_connection,
++  error = rpc_method_wait_for_reply(plugin->connection,
+ 									RPC_TYPE_INT32, &ret,
+ 									RPC_TYPE_INVALID);
+ 
+@@ -1328,20 +1382,23 @@
+ {
+   if (instance == NULL)
+ 	return NPERR_INVALID_INSTANCE_ERROR;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return NPERR_INVALID_INSTANCE_ERROR;
+ 
+   D(bug("NPP_SetWindow instance=%p\n", instance));
+-  NPError ret = invoke_NPP_SetWindow(instance, window);
++  NPError ret = invoke_NPP_SetWindow(plugin, window);
+   D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+   return ret;
+ }
+ 
+ // Allows the browser to query the plug-in for information
+ static NPError
+-invoke_NPP_GetValue(NPP instance, NPPVariable variable, void *value)
++invoke_NPP_GetValue(PluginInstance *plugin, NPPVariable variable, void *value)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_GET_VALUE,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_INT32, variable,
+ 								RPC_TYPE_INVALID);
+ 
+@@ -1355,7 +1412,7 @@
+   case RPC_TYPE_STRING:
+ 	{
+ 	  char *str = NULL;
+-	  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INT32, &ret, RPC_TYPE_STRING, &str, RPC_TYPE_INVALID);
++	  error = rpc_method_wait_for_reply(plugin->connection, RPC_TYPE_INT32, &ret, RPC_TYPE_STRING, &str, RPC_TYPE_INVALID);
+ 	  if (error != RPC_ERROR_NO_ERROR) {
+ 		npw_perror("NPP_GetValue() wait for reply", error);
+ 		ret = NPERR_GENERIC_ERROR;
+@@ -1384,7 +1441,7 @@
+   case RPC_TYPE_INT32:
+ 	{
+ 	  int32_t n = 0;
+-	  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INT32, &ret, RPC_TYPE_INT32, &n, RPC_TYPE_INVALID);
++	  error = rpc_method_wait_for_reply(plugin->connection, RPC_TYPE_INT32, &ret, RPC_TYPE_INT32, &n, RPC_TYPE_INVALID);
+ 	  if (error != RPC_ERROR_NO_ERROR) {
+ 		npw_perror("NPP_GetValue() wait for reply", error);
+ 		ret = NPERR_GENERIC_ERROR;
+@@ -1396,7 +1453,7 @@
+   case RPC_TYPE_BOOLEAN:
+ 	{
+ 	  uint32_t b = 0;
+-	  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INT32, &ret, RPC_TYPE_BOOLEAN, &b, RPC_TYPE_INVALID);
++	  error = rpc_method_wait_for_reply(plugin->connection, RPC_TYPE_INT32, &ret, RPC_TYPE_BOOLEAN, &b, RPC_TYPE_INVALID);
+ 	  if (error != RPC_ERROR_NO_ERROR) {
+ 		npw_perror("NPP_GetValue() wait for reply", error);
+ 		ret = NPERR_GENERIC_ERROR;
+@@ -1408,7 +1465,7 @@
+   case RPC_TYPE_NP_OBJECT:
+ 	{
+ 	  NPObject *npobj = NULL;
+-	  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INT32, &ret, RPC_TYPE_NP_OBJECT, &npobj, RPC_TYPE_INVALID);
++	  error = rpc_method_wait_for_reply(plugin->connection, RPC_TYPE_INT32, &ret, RPC_TYPE_NP_OBJECT, &npobj, RPC_TYPE_INVALID);
+ 	  if (error != RPC_ERROR_NO_ERROR) {
+ 		npw_perror("NPP_GetValue() wait for reply", error);
+ 		ret = NPERR_GENERIC_ERROR;
+@@ -1427,6 +1484,9 @@
+ {
+   if (instance == NULL)
+ 	return NPERR_INVALID_INSTANCE_ERROR;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return NPERR_INVALID_INSTANCE_ERROR;
+ 
+   switch (rpc_type_of_NPPVariable(variable)) {
+   case RPC_TYPE_STRING:
+@@ -1440,14 +1500,14 @@
+   }
+ 
+   D(bug("NPP_GetValue instance=%p, variable=%d\n", instance, variable));
+-  NPError ret = invoke_NPP_GetValue(instance, variable, value);
++  NPError ret = invoke_NPP_GetValue(plugin, variable, value);
+   D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+   return ret;
+ }
+ 
+ // Sets information about the plug-in
+ static NPError
+-invoke_NPP_SetValue(NPP instance, NPPVariable variable, void *value)
++invoke_NPP_SetValue(PluginInstance *plugin, NPPVariable variable, void *value)
+ {
+   UNIMPLEMENTED();
+ 
+@@ -1459,20 +1519,23 @@
+ {
+   if (instance == NULL)
+ 	return NPERR_INVALID_INSTANCE_ERROR;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return NPERR_INVALID_INSTANCE_ERROR;
+ 
+   D(bug("NPP_SetValue instance=%p, variable=%d\n", instance, variable));
+-  NPError ret = invoke_NPP_SetValue(instance, variable, value);
++  NPError ret = invoke_NPP_SetValue(plugin, variable, value);
+   D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+   return NPERR_GENERIC_ERROR;
+ }
+ 
+ // Notifies the instance of the completion of a URL request
+ static void
+-invoke_NPP_URLNotify(NPP instance, const char *url, NPReason reason, void *notifyData)
++invoke_NPP_URLNotify(PluginInstance *plugin, const char *url, NPReason reason, void *notifyData)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_URL_NOTIFY,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_STRING, url,
+ 								RPC_TYPE_INT32, reason,
+ 								RPC_TYPE_NP_NOTIFY_DATA, notifyData,
+@@ -1483,7 +1546,7 @@
+ 	return;
+   }
+ 
+-  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INVALID);
++  error = rpc_method_wait_for_reply(plugin->connection, RPC_TYPE_INVALID);
+   
+   if (error != RPC_ERROR_NO_ERROR)
+ 	npw_perror("NPP_URLNotify() wait for reply", error);
+@@ -1494,19 +1557,22 @@
+ {
+   if (instance == NULL)
+ 	return;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return;
+ 
+   D(bug("NPP_URLNotify instance=%p, url='%s', reason=%d, notifyData=%p\n", instance, url, reason, notifyData));
+-  invoke_NPP_URLNotify(instance, url, reason, notifyData);
++  invoke_NPP_URLNotify(plugin, url, reason, notifyData);
+   D(bug(" done\n"));
+ }
+ 
+ // Notifies a plug-in instance of a new data stream
+ static NPError
+-invoke_NPP_NewStream(NPP instance, NPMIMEType type, NPStream *stream, NPBool seekable, uint16 *stype)
++invoke_NPP_NewStream(PluginInstance *plugin, NPMIMEType type, NPStream *stream, NPBool seekable, uint16 *stype)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_NEW_STREAM,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_STRING, type,
+ 								RPC_TYPE_UINT32, ((StreamInstance *)stream->pdata)->stream_id,
+ 								RPC_TYPE_STRING, stream->url,
+@@ -1524,7 +1590,7 @@
+ 
+   int32_t ret;
+   uint32_t r_stype;
+-  error = rpc_method_wait_for_reply(g_rpc_connection,
++  error = rpc_method_wait_for_reply(plugin->connection,
+ 									RPC_TYPE_INT32, &ret,
+ 									RPC_TYPE_UINT32, &r_stype,
+ 									RPC_TYPE_NP_NOTIFY_DATA, &stream->notifyData,
+@@ -1544,6 +1610,9 @@
+ {
+   if (instance == NULL)
+ 	return NPERR_INVALID_INSTANCE_ERROR;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return NPERR_INVALID_INSTANCE_ERROR;
+ 
+   StreamInstance *stream_pdata = malloc(sizeof(*stream_pdata));
+   if (stream_pdata == NULL)
+@@ -1555,18 +1624,18 @@
+   stream->pdata = stream_pdata;
+ 
+   D(bug("NPP_NewStream instance=%p\n", instance));
+-  NPError ret = invoke_NPP_NewStream(instance, type, stream, seekable, stype);
++  NPError ret = invoke_NPP_NewStream(plugin, type, stream, seekable, stype);
+   D(bug(" return: %d [%s], stype=%s\n", ret, string_of_NPError(ret), string_of_NPStreamType(*stype)));
+   return ret;
+ }
+ 
+ // Tells the plug-in that a stream is about to be closed or destroyed
+ static NPError
+-invoke_NPP_DestroyStream(NPP instance, NPStream *stream, NPReason reason)
++invoke_NPP_DestroyStream(PluginInstance *plugin, NPStream *stream, NPReason reason)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_DESTROY_STREAM,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_NP_STREAM, stream,
+ 								RPC_TYPE_INT32, reason,
+ 								RPC_TYPE_INVALID);
+@@ -1577,7 +1646,7 @@
+   }
+ 
+   int32_t ret;
+-  error = rpc_method_wait_for_reply(g_rpc_connection,
++  error = rpc_method_wait_for_reply(plugin->connection,
+ 									RPC_TYPE_INT32, &ret,
+ 									RPC_TYPE_INVALID);
+ 
+@@ -1594,9 +1663,12 @@
+ {
+   if (instance == NULL)
+ 	return NPERR_INVALID_INSTANCE_ERROR;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return NPERR_INVALID_INSTANCE_ERROR;
+ 
+   D(bug("NPP_DestroyStream instance=%p\n", instance));
+-  NPError ret = invoke_NPP_DestroyStream(instance, stream, reason);
++  NPError ret = invoke_NPP_DestroyStream(plugin, stream, reason);
+   D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+ 
+   StreamInstance *stream_pdata = stream->pdata;
+@@ -1611,11 +1683,11 @@
+ 
+ // Provides a local file name for the data from a stream
+ static void
+-invoke_NPP_StreamAsFile(NPP instance, NPStream *stream, const char *fname)
++invoke_NPP_StreamAsFile(PluginInstance *plugin, NPStream *stream, const char *fname)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_STREAM_AS_FILE,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_NP_STREAM, stream,
+ 								RPC_TYPE_STRING, fname,
+ 								RPC_TYPE_INVALID);
+@@ -1625,7 +1697,7 @@
+ 	return;
+   }
+ 
+-  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INVALID);
++  error = rpc_method_wait_for_reply(plugin->connection, RPC_TYPE_INVALID);
+ 
+   if (error != RPC_ERROR_NO_ERROR)
+ 	npw_perror("NPP_StreamAsFile() wait for reply", error);
+@@ -1636,35 +1708,38 @@
+ {
+   if (instance == NULL)
+ 	return;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return;
+ 
+   D(bug("NPP_StreamAsFile instance=%p\n", instance));
+-  invoke_NPP_StreamAsFile(instance, stream, fname);
++  invoke_NPP_StreamAsFile(plugin, stream, fname);
+   D(bug(" done\n"));
+ }
+ 
+ // Determines maximum number of bytes that the plug-in can consume
+ static int32
+-invoke_NPP_WriteReady(NPP instance, NPStream *stream)
++invoke_NPP_WriteReady(PluginInstance *plugin, NPStream *stream)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_WRITE_READY,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_NP_STREAM, stream,
+ 								RPC_TYPE_INVALID);
+ 
+   if (error != RPC_ERROR_NO_ERROR) {
+ 	npw_perror("NPP_WriteReady() invoke", error);
+-	return 0;
++	return NPERR_STREAM_BUFSIZ;
+   }
+ 
+   int32_t ret;
+-  error = rpc_method_wait_for_reply(g_rpc_connection,
++  error = rpc_method_wait_for_reply(plugin->connection,
+ 									RPC_TYPE_INT32, &ret,
+ 									RPC_TYPE_INVALID);
+ 
+   if (error != RPC_ERROR_NO_ERROR) {
+ 	npw_perror("NPP_WriteReady() wait for reply", error);
+-	return 0;
++	return NPERR_STREAM_BUFSIZ;
+   }
+ 
+   return ret;
+@@ -1674,10 +1749,13 @@
+ g_NPP_WriteReady(NPP instance, NPStream *stream)
+ {
+   if (instance == NULL)
+-	return -1;
++	return 0;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return 0;
+ 
+   D(bug("NPP_WriteReady instance=%p\n", instance));
+-  int32 ret = invoke_NPP_WriteReady(instance, stream);
++  int32 ret = invoke_NPP_WriteReady(plugin, stream);
+   D(bug(" return: %d\n", ret));
+   return ret;
+ }
+@@ -1685,11 +1763,11 @@
+ 
+ // Delivers data to a plug-in instance
+ static int32
+-invoke_NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len, void *buf)
++invoke_NPP_Write(PluginInstance *plugin, NPStream *stream, int32 offset, int32 len, void *buf)
+ {
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_WRITE,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_NP_STREAM, stream,
+ 								RPC_TYPE_INT32, offset,
+ 								RPC_TYPE_ARRAY, RPC_TYPE_CHAR, len, buf,
+@@ -1701,7 +1779,7 @@
+   }
+ 
+   int32_t ret;
+-  error = rpc_method_wait_for_reply(g_rpc_connection,
++  error = rpc_method_wait_for_reply(plugin->connection,
+ 									RPC_TYPE_INT32, &ret,
+ 									RPC_TYPE_INVALID);
+ 
+@@ -1718,16 +1796,19 @@
+ {
+   if (instance == NULL)
+ 	return -1;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return -1;
+ 
+   D(bug("NPP_Write instance=%p\n", instance));
+-  int32 ret = invoke_NPP_Write(instance, stream, offset, len, buf);
++  int32 ret = invoke_NPP_Write(plugin, stream, offset, len, buf);
+   D(bug(" return: %d\n", ret));
+   return ret;
+ }
+ 
+ 
+ // Requests a platform-specific print operation for an embedded or full-screen plug-in
+-static void invoke_NPP_Print(NPP instance, NPPrint *PrintInfo)
++static void invoke_NPP_Print(PluginInstance *plugin, NPPrint *PrintInfo)
+ {
+   NPPrintCallbackStruct *platformPrint;
+   switch (PrintInfo->mode) {
+@@ -1746,9 +1827,9 @@
+ 	platform_print_id = id_create(platformPrint);
+   D(bug(" platformPrint=%p\n", platformPrint));
+ 
+-  int error = rpc_method_invoke(g_rpc_connection,
++  int error = rpc_method_invoke(plugin->connection,
+ 								RPC_METHOD_NPP_PRINT,
+-								RPC_TYPE_NPP, instance,
++								RPC_TYPE_NPP, plugin->instance,
+ 								RPC_TYPE_UINT32, platform_print_id,
+ 								RPC_TYPE_NP_PRINT, PrintInfo,
+ 								RPC_TYPE_INVALID);
+@@ -1759,7 +1840,7 @@
+   }
+ 
+   uint32_t pluginPrinted;
+-  error = rpc_method_wait_for_reply(g_rpc_connection,
++  error = rpc_method_wait_for_reply(plugin->connection,
+ 									RPC_TYPE_BOOLEAN, &pluginPrinted,
+ 									RPC_TYPE_INVALID);
+ 
+@@ -1780,17 +1861,20 @@
+ {
+   if (instance == NULL)
+ 	return;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return;
+ 
+   if (PrintInfo == NULL)
+ 	return;
+ 
+   D(bug("NPP_Print instance=%p\n", instance));
+-  invoke_NPP_Print(instance, PrintInfo);
++  invoke_NPP_Print(plugin, PrintInfo);
+   D(bug(" done\n"));
+ }
+ 
+ // Delivers a platform-specific window event to the instance
+-static int16 invoke_NPP_HandleEvent(NPP instance, void *event)
++static int16 invoke_NPP_HandleEvent(PluginInstance *plugin, void *event)
+ {
+   UNIMPLEMENTED();
+ 
+@@ -1801,9 +1885,12 @@
+ {
+   if (instance == NULL)
+ 	return NPERR_INVALID_INSTANCE_ERROR;
++  PluginInstance *plugin = PLUGIN_INSTANCE(instance);
++  if (plugin == NULL)
++	return NPERR_INVALID_INSTANCE_ERROR;
+ 
+   D(bug("NPP_HandleEvent instance=%p\n", instance));
+-  int16 ret = invoke_NPP_HandleEvent(instance, event);
++  int16 ret = invoke_NPP_HandleEvent(plugin, event);
+   D(bug(" return: ret\n", ret));
+   return ret;
+ }
+@@ -2206,10 +2293,10 @@
+ g_LONG64_NPP_WriteReady(NPP instance, void *stream)
+ {
+   if (instance == NULL)
+-	return -1L;
++	return 0;
+ 
+   if (stream == NULL)
+-	return -1L;
++	return 0;
+ 
+   return (int64)(int32)g_NPP_WriteReady(instance, NP_STREAM32(stream));
+ }
+@@ -2310,6 +2397,30 @@
+ }
+ 
+ // Provides global initialization for a plug-in
++static NPError
++invoke_NP_Initialize(uint32_t npapi_version)
++{
++  int error = rpc_method_invoke(g_rpc_connection,
++								RPC_METHOD_NP_INITIALIZE,
++								RPC_TYPE_UINT32, npapi_version,
++								RPC_TYPE_INVALID);
++
++  if (error != RPC_ERROR_NO_ERROR) {
++	npw_perror("NP_Initialize() invoke", error);
++	return NPERR_MODULE_LOAD_FAILED_ERROR;
++  }
++
++  int32_t ret;
++  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INT32, &ret, RPC_TYPE_INVALID);
++
++  if (error != RPC_ERROR_NO_ERROR) {
++	npw_perror("NP_Initialize() wait for reply", error);
++	return NPERR_MODULE_LOAD_FAILED_ERROR;
++  }
++
++  return ret;
++}
++
+ NPError
+ NP_Initialize(NPNetscapeFuncs *moz_funcs, NPPluginFuncs *plugin_funcs)
+ {
+@@ -2374,26 +2485,9 @@
+ 
+   // pass down common NPAPI version supported by both the underlying
+   // browser and the thunking capabilities of nspluginwrapper
+-  uint32_t version = min(moz_funcs->version, plugin_funcs->version);
++  npapi_version = min(moz_funcs->version, plugin_funcs->version);
+ 
+-  int error = rpc_method_invoke(g_rpc_connection,
+-								RPC_METHOD_NP_INITIALIZE,
+-								RPC_TYPE_UINT32, (uint32_t)version,
+-								RPC_TYPE_INVALID);
+-
+-  if (error != RPC_ERROR_NO_ERROR) {
+-	npw_perror("NP_Initialize() invoke", error);
+-	return NPERR_MODULE_LOAD_FAILED_ERROR;
+-  }
+-
+-  int32_t ret;
+-  error = rpc_method_wait_for_reply(g_rpc_connection, RPC_TYPE_INT32, &ret, RPC_TYPE_INVALID);
+-
+-  if (error != RPC_ERROR_NO_ERROR) {
+-	npw_perror("NP_Initialize() wait for reply", error);
+-	return NPERR_MODULE_LOAD_FAILED_ERROR;
+-  }
+-
++  NPError ret = invoke_NP_Initialize(npapi_version);
+   D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
+   return ret;
+ }
+@@ -2657,7 +2751,7 @@
+   }
+ 
+   if (g_rpc_connection) {
+-	rpc_exit(g_rpc_connection);
++	rpc_connection_unref(g_rpc_connection);
+ 	g_rpc_connection = NULL;
+   }
+ 
+@@ -2708,3 +2802,40 @@
+ 	g_plugin.description = NULL;
+   }
+ }
++
++static NPError plugin_restart(void)
++{
++  if (g_plugin.is_wrapper)
++	return NPERR_NO_ERROR;
++
++  // Shut it down    
++  plugin_exit();
++  g_plugin.initialized = 0;
++  g_plugin.viewer_pid = -1;
++  g_plugin.is_wrapper = 0;
++
++  // And start it again
++  plugin_init(1);
++  if (g_plugin.initialized <= 0)
++	return NPERR_MODULE_LOAD_FAILED_ERROR;
++
++  return invoke_NP_Initialize(npapi_version);
++}
++
++static NPError plugin_restart_if_needed(void)
++{
++  if (rpc_status(g_rpc_connection) != RPC_STATUS_ACTIVE) {
++	static time_t last_restart = 0;
++	time_t now = time(NULL);
++	if (now - last_restart < MIN_RESTART_INTERVAL)
++	  return NPERR_GENERIC_ERROR;
++	last_restart = now;
++
++	D(bug("Restart plugins viewer\n"));
++	NPError ret = plugin_restart();
++	D(bug(" return: %d [%s]\n", ret, string_of_NPError(ret)));
++	return ret;
++  }
++
++  return NPERR_NO_ERROR;
++}
+Index: src/rpc.c
+===================================================================
+--- src/rpc.c	(révision 466)
++++ src/rpc.c	(révision 470)
+@@ -289,6 +289,7 @@
+ // Client / Server connection
+ struct rpc_connection_t {
+   int type;
++  int refcnt;
+   int status;
+   int socket;
+   char *socket_path;
+@@ -301,6 +302,22 @@
+   char send_buffer[BUFSIZ];
+ };
+ 
++// Increment connection reference count
++void rpc_connection_ref(rpc_connection_t *connection)
++{
++  if (connection)
++	++connection->refcnt;
++}
++
++// Decrement connection reference count and destroy it if it reaches zero
++void rpc_connection_unref(rpc_connection_t *connection)
++{
++  if (connection && --connection->refcnt == 0) {
++	D(bug("Close unused connection\n"));
++	rpc_exit(connection);
++  }
++}
++
+ // Returns connection status
+ static inline int _rpc_status(rpc_connection_t *connection)
+ {
+@@ -417,6 +434,7 @@
+   if (connection == NULL)
+ 	return NULL;
+   connection->type = RPC_CONNECTION_SERVER;
++  connection->refcnt = 1;
+   connection->status = RPC_STATUS_CLOSED;
+   connection->socket = -1;
+   connection->server_thread_active = 0;
+@@ -468,6 +486,7 @@
+   if (connection == NULL)
+ 	return NULL;
+   connection->type = RPC_CONNECTION_CLIENT;
++  connection->refcnt = 1;
+   connection->status = RPC_STATUS_CLOSED;
+   connection->server_socket = -1;
+   connection->callbacks = NULL;
+Index: src/rpc.h
+===================================================================
+--- src/rpc.h	(révision 466)
++++ src/rpc.h	(révision 470)
+@@ -42,6 +42,9 @@
+ 
+ // Connection Handling
+ typedef struct rpc_connection_t rpc_connection_t;
++extern void rpc_connection_ref(rpc_connection_t *connection) attribute_hidden;
++extern void rpc_connection_unref(rpc_connection_t *connection) attribute_hidden;
++
+ extern rpc_connection_t *rpc_init_server(const char *ident) attribute_hidden;
+ extern rpc_connection_t *rpc_init_client(const char *ident) attribute_hidden;
+ extern int rpc_exit(rpc_connection_t *connection) attribute_hidden;
+Index: NEWS
+===================================================================
+--- NEWS	(révision 466)
++++ NEWS	(révision 470)
+@@ -1,6 +1,9 @@
+-nspluginwrapper NEWS -- history of user-visible changes.  2007-08-26
++nspluginwrapper NEWS -- history of user-visible changes.  2007-MM-DD
+ Copyright (C) 2005-2007 Gwenole Beauchesne
+ 
++Version 0.9.92 (BETA) - DD.MMM.2007
++* Restart plugins viewer on error (Martin Stransky)
++
+ Version 0.9.91.5 (BETA) - 26.Aug.2007
+ * Fix a memory leak in NPP_Destroy()
+ * Fix DiamondX XEmbed example plugin
