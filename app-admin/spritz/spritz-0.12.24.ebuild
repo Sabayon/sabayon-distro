@@ -17,6 +17,8 @@ RDEPEND="
 	>=dev-python/pygtk-2.10
 	>=x11-libs/vte-0.12.2
 	x11-misc/xdg-utils
+	dev-python/notify-python
+	>=dev-python/gnome-python-extras-2.19
 	"
 DEPEND="sys-devel/gettext"
 
