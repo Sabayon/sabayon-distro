@@ -12,13 +12,6 @@ SLOT="0"
 KEYWORDS="x86 amd64 ppc"
 IUSE=""
 
-RDEPEND=">=x11-base/xorg-x11-7.1
-	>=x11-wm/compiz-0.5.0
-	x11-apps/fusion-icon"
-
-DEPEND="${RDEPEND}"
-
-
 src_unpack () {
 
         cd ${WORKDIR}
