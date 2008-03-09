@@ -16,7 +16,7 @@ IUSE=""
 
 MAKEOPTS="-j1"
 
-RDEPEND=""
+RDEPEND="=media-tv/elisa-${PV}"
 DEPEND="${DEPEND}
 	>=dev-util/pkgconfig-0.9"
 
