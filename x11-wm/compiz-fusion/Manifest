@@ -1,14 +1,1 @@
-EBUILD compiz-fusion-0.5.2.ebuild 749 RMD160 356403b4b8d35ffc8d1140fd3e4160dc3d8ea11e SHA1 21cc00d234d986c2eedeec24787642f01f919d9c SHA256 7ce93cfc6284be9934bd1abffc94837700cc3c264102c2fbcd841462fd2cbe74
-MD5 9442815afb5c7707c6fc85765102cb4a compiz-fusion-0.5.2.ebuild 749
-RMD160 356403b4b8d35ffc8d1140fd3e4160dc3d8ea11e compiz-fusion-0.5.2.ebuild 749
-SHA256 7ce93cfc6284be9934bd1abffc94837700cc3c264102c2fbcd841462fd2cbe74 compiz-fusion-0.5.2.ebuild 749
-EBUILD compiz-fusion-0.6.0.ebuild 924 RMD160 353f5632abd43bd5d385ca116d1bcc0e5ce54c3f SHA1 b1fa9946d27e4ff3bf9f85fa38fe212a2a14d320 SHA256 51ac8f3f590a8c8867a6599dafd2a48dd36d194a629cbfabbd6eff8d7b4face8
-MD5 bc1f11d763788a1a8a4e2a4832f0fd31 compiz-fusion-0.6.0.ebuild 924
-RMD160 353f5632abd43bd5d385ca116d1bcc0e5ce54c3f compiz-fusion-0.6.0.ebuild 924
-SHA256 51ac8f3f590a8c8867a6599dafd2a48dd36d194a629cbfabbd6eff8d7b4face8 compiz-fusion-0.6.0.ebuild 924
-MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-compiz-fusion-0.5.2 0
-RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-compiz-fusion-0.5.2 0
-SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-compiz-fusion-0.5.2 0
-MD5 d41d8cd98f00b204e9800998ecf8427e files/digest-compiz-fusion-0.6.0 0
-RMD160 9c1185a5c5e9fc54612808977ee8f548b2258d31 files/digest-compiz-fusion-0.6.0 0
-SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 files/digest-compiz-fusion-0.6.0 0
+EBUILD compiz-fusion-0.7.2.ebuild 844 RMD160 7a8228aac7251d2f1dcca67afb4113737f793c70 SHA1 4bfcf90bb263a74653036528624f494415adef59 SHA256 1d91d5207a71935fab1f194011dcc156fdaed3d4fda5f4a2720c4436c873d61f
