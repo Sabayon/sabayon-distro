@@ -14,7 +14,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="mirror"
 
-DEPEND="~x11-wm/emerald-${PV}"
+DEPEND=">=x11-wm/emerald-${PV}"
 
 S="${WORKDIR}/${P}"
 
