@@ -1,0 +1,11 @@
+--- configure.orig	2008-02-16 22:09:12.000000000 -0500
++++ configure	2008-02-16 22:09:22.000000000 -0500
+@@ -23110,7 +23110,7 @@
+ metadatadir=$datadir/compiz
+ 
+ 
+-COMPIZ_REQUIRES="x11-xcb    \
++COMPIZ_REQUIRES="xcb    \
+ 		 xcomposite \
+ 		 xfixes	    \
+ 		 xdamage    \
