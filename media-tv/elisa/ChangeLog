@@ -1,0 +1,356 @@
+# ChangeLog for media-video/elisa
+# Copyright 1999-2008 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  05 Mar 2008; Daniel Gryniewicz <dang@gentoo.org> ++, ++:
+  Bump to 0.3.4 This is Elisa 0.3.4, fourth release of the 0.3 branch.
+  
+  Highlights of the features added since 0.3.3:
+  
+  - Pictures slideshow rewritten with appealing fade in/fade out effect -
+  Drag&Drop support to easily add new media directories inside Elisa - Startup
+  splashscreen together with a slick introduction effect dramatically
+  
+  improving the first time user experience - Elisa core and the various
+  plugins bundles are now released
+  
+  separately which makes it easier to keep hot features up to date - Missing
+  codec detection and installation support - Elisa detects poorly configured
+  graphics driver and warns the user about it - Freedesktop's startup
+  notification support - Simplified playlist management with automatic
+  playback of albums - Player on screen display improved mouse support
+  
+  Bugs fixed since 0.3.3:
+  
+  - 552: Bus messages should be Components - 741: console based EPR client -
+  746: Add support for a startup notification (freedesktop's standard) - 747:
+  Think and design a splash screen for Elisa - 861: Add moblin detection code
+  in setup.py - 873: Untagged photos don't show up under F-spot - 874: F-spot
+  shouldn't show empty entries - 895: Image thumbnailer locks the main thread
+  - 900: Plugin dependencies need to be checked - 910: Remove poblenou plugin
+  - 929: Elisa package (deb file) is too big - 938: add to core an utility to
+  list installed plugin in Elisa - 939: add to core an utility to update the
+  package version - 940: add to core an utility to upgrade the installed
+  plugins - 941: add to core an utility to install or remove plugins - 942:
+  add to core an utility to get information about plugins - 943: Plugins not
+  included in the config are loaded by Elisa - 944: Elisa directory structure
+  re-organiation - 946: media scanner should become plugin - 965: Plugins
+  loaded by .conf get TitleCased (and then fail!) - 966: It is not possible to
+  express dependencies between bindings - 972: Elisa needs a man page - 975:
+  Support of the Apple remote control without inputlirc - 976: "python
+  setup.py install" results in a unusable Elisa - 985: xmlmenu plays ping-pong
+  with MediaLocation messages - 986: take care of version numbers in plugin
+  dependencies - 987: User plugin directory not scanned for plugins - 990: ogg
+  files not recognized/shown - 992: modify Elisa config when installing new
+  plugins, in order to load them - 1006: Running Elisa from a fresh svn
+  checkout looks like not having installed plugins. - 1015: Slideshow jumps 2
+  steps on play - 1018: added music doesn't show up under artists/albums -
+  1021: Empty or corrupted thumbnails when the thumbnailer times out - 1022:
+  Uninstalled plugins get loaded instead of user wide plugins - 1025: Rethink
+  i18n management since split between elisa-core and plugins - 1026:
+  MediaLocationMessage doc sucks - 1027: URI support in EPM - 1033:
+  Thumbnailer should avoid retrying to thumbnail when it fails - 1035: doesn't
+  track choosen album changing view to coverflow - 1039: Do not drop silently
+  metadata retrieval errors - 1043: Upgraded local wide plugins are not loaded
+  correctly - 1045: slideshow from the main-menu does not work - 1051: Text
+  doesn't fit into the popup area - 1055: shoutcast plugin tracebacks on
+  get_real_uri for directories - 1058: crash on startup, ubuntu 7.10 - 1060:
+  The present implementation of upgrade is not always working correctly -
+  1061: daap media timeout on initialize() - 1062: pkg_resources takes very
+  long to import - 1063: elisa-get and empty PYTHONPATH - 1064: Audio: when
+  selecting an album, elisa only plays back the first track - 1070: replace
+  fake 100% cpu usage report in the UI - 1071: "core" is not listed among the
+  plugins - 1072: Add install()/uninstall() methods to the Plugin class -
+  1075: Player OSD sucks CPU - 1076: player config upgrade - 1077: playing a
+  new media type requires manual player stop - 1078: "stop" shortcut not
+  working anymore - 1083: Memory leak - 1085: duration does not get updated
+  proper - 1086: check that the update:updater_service is activated in the
+  configuration - 1088: unpredictable behaviour - 1090: Popup has garbage text
+  when it is displayed the first time. - 1093: ugly progressbar jump on going
+  to the next track - 1096: theme icons in the theme configuration UI appear
+  with inverted colors - 1098: hildon detection fails on hardy - 1099:
+  --version fails - 1102: Elisa does not launch unless elisa-plugins-good is
+  installed - 1105: backport changeset 5202 - 1107: DAAP media unit tests fail
+  - 1109: show_mem & show_cpu options are broken - 1115: switching to player
+  without model tracebacks (but does not block) - 1117: the splashscreen's
+  contour looks sharp and ugly
+
+  22 Jan 2008; Daniel Gryniewicz <dang@gentoo.org> ++, ++, ++, ++:
+  Bump to 0.3.3
+  Highlights of the features added since 0.3.2:
+  
+  - completely new user interface named 'raval' making a better use of screen's
+    real estate
+  - new visualisation modes: grid of pictures, vertical list and cover flow like
+  - stacks of picture replace dull directory icons
+  - mouse support greatly improved
+  - playback from DAAP shares has been reactivated
+  - new YouTube plugin
+  - audio visualisation using libvisual
+  - faster startup
+  - better detection of media types using GStreamer
+  - basic playlist support
+  
+  Bugs fixed since 0.3.2:
+  
+  - 752: [win32] update media_uri with windows path
+  - 885: Online services thumbnails do not appear
+  - 195: Windows port
+  - 385: elisa should not hardcode file extensions as a way to detect file type
+  - 418: Font regeneration when viewport size changes
+  - 427: DAAP playback support
+  - 506: solve the sorting problem
+  - 721: Elisa not starting when running on Python 2.4
+  - 748: Externalisation in separate files of model/controller/views
+    associations
+  - 758: [win32] units tests do not works on windows
+  - 763: Component missing a Python dependency prevents Elisa from starting up
+  - 781: thread issue with hal, dbus and the elisa bus
+  - 446: Cleanup of attribute change notifications
+  - 592: ticket explanation page
+  - 618: Don't ship .mo files in the source distribution
+  - 633: Sizes in player_view of poblenou_frontend should be relative to the
+    canvas
+  - 709: Use ReviewBoard for code reviews
+  - 725: Unicode breaks media_uri (as usual)
+  - 728: Typefinding potential improvements
+  - 732: Windows/task system
+  - 733: faster plugins loading
+  - 738: HAL fails to initialize if dbus not running
+  - 743: Cleanup and proper testing of lists in MVC
+  - 745: Complete unit tests in core
+  - 750: In Pigment based frontends, changing the size of the canvas does not
+    work well
+  - 762: use media_manager wherever os.open or open() is called
+  - 774: Playing a video and then trying to play another one before its end does
+    not work
+  - 778: Hotplug is broken
+  - 787: Remove the classic frontend plugin
+  - 788: Split plugins.bad.media_bad in two plugins
+  - 789: split plugins.good.input_good in two plugins
+  - 790: split plugins.good.media_good
+  - 791: move stage6 plugins in ugly
+  - 792: split plugins.ugly.media_ugly in two plugins
+  - 801: split plugins in plugins.base.media_provider
+  - 839: update configuration updator
+  - 846: Split plugins.bad.input_bad in two plugins
+  - 847: Split plugins.good.services_good in three plugins
+  - 850: Rename and move service plugin (elisa/plugins/service) into an about
+    plugin
+  - 865: Polish (pol) translation
+  - 868: get_metadata should have a priority parameter
+  - 722: PlayerRegistry should state a warning if there are no player engines in
+    the configuration
+  - 723: Play next song after current song is finished.
+  - 724: Bind next track on streamzap remotes to next song by default
+  - 760: make XDG user-dirs support optional
+  - 761: gnomevfs plugin crashes if gnomevfs module is not installed
+  - 765: Elisa starts when pysqlite2 is not installed, but segfaults when it is
+  - 772: playbin engine/player engine will not open property_set('uri'....
+  - 773: EXIF Rotated pictures are rotated  at low quality and not rotated in
+    high
+  - 852: move mouse in player frame dropping video
+  - 854: Subtitles desynced when seeking in media
+  - 861: Add moblin detection code in setup.py
+  - 866: Untranslated strings
+  - 894: GPL-Licence and copyright year update
+
+  11 Dec 2007; Daniel Gryniewicz <dang@gentoo.org> ++, ++:
+  Bump to 0.3.2_p1
+  	- Add a svn snapshot from 20071211 that hopefully works
+
+  01 Nov 2007; Daniel Gryniewicz <dang@gentoo.org> elisa-0.3.2.ebuild:
+  Fix some deps
+
+  10 Oct 2007; Daniel Gryniewicz <dang@gentoo.org> ++, ++,
+  -elisa-0.3.1.ebuild:
+  bump; tests tail on amd64
+
+  02 Sep 2007; Daniel Gryniewicz <dang@gentoo.org> +elisa-0.3.1.ebuild:
+  Bump to 0.3.1 This is the first release of the 0.3 Elisa branch, which is a
+  major rewrite compared to the 0.1 branch. 
+  
+  Features added since 0.1.7:
+  - new multi-frontend system allowing Elisa to run on various graphical
+    toolkits, eventually synchronized
+  - new artwork, including a Tango-like theme
+  - media metadata retrieval support using various sources
+  - improved user interface, it's now much more reliable
+  - added a service to customize the screen aspect ratio
+  
+  Bugs fixed since 0.1.7:
+  - 361: Music only lists 250 of my 267 folders.
+  - 516: Seeking videos => audio/video desync
+  - 366: Failed to play video with external subtitles (.str)
+  - 400: Media scanner monopolizing main thread
+  - 412: Make poblenou frontend aspect-ratio dependent
+  - 413: alphabetical order of songs / albums / artists
+  - 414: Movie preview overlaps image preview
+  - 424: Seeking quickly in the player is not possible (CPU dies)
+  - 425: Previews clutter the main menu.
+  - 435: Down arrow in the menu
+  - 444: elisa hangs on new media in audio
+  - 445: playing ipod and audiocd hangs off whole elisa
+  - 461: Integrate grid widget
+  - 485: staying icons because of list-renew
+  - 528: remove problem in lists
+  - 529: Removing parent leads to problems
+  - 540: PlayAll does not work the second time
+  -  61: Smart media tag browsing
+  -  71: Non-english filename support
+  -  75: Improve GUI fluidity on older GPUs
+  -  97: Precise timeout handling for animations
+  - 163: Wait animation when starting to play a file
+  - 175: Watching big pictures causes a lot of CPU usage
+  - 202: CPU usage on tiny computers
+  - 264: Video thumbnailer adaptation to make use of DataAccess plugins
+  - 291: Rotating an image only rotate the thumbnail and not the picture when
+    displayed in the background
+  - 307: Manage hotplug sources plugged when Elisa is not running
+  - 308: Media manager scan interruption
+  - 333: more remote actions, especially in combination with the Coherence
+    MediaRenderer backend
+  - 337: Start reading a videofile during thumbnail generation cause DeadLock
+  - 339: off-center text
+  - 347: Make use of freedesktop's xdg-user-dirs to locate media
+  - 352: Extended automation Cover-selector (like in Pictures-Plugin)
+  - 359: Selecting Play All  in a music folder crashes elisa
+  - 372: [debian/ubuntu] Depend on python-daap
+  - 373: if config fails to parse, eception about Application not having close
+    method is raised
+  - 374: [PATCH] error in audio_activity.py
+  - 375: [PATCH] media_uri doesn't url encode strings when creating the uri
+  - 376: [PATCH] gtk ui treeview needs to be scrollable
+  - 381: boost python traceback
+  - 382: inotify problem when missing ctypes
+  - 387: /usr write check fails under fakeroot
+  - 390: Elisa does not start when a USB drive is plugged in during start
+  - 392: the mediascanner have to start 10 s after the application launch
+  - 394: application.stop() should return a Deferred
+  - 395: Video display is overlayed by the video icon
+  - 404: Review Player for blocking calls
+  - 406: Failure in plugin loading gives wrong error message
+  - 410: Navigation fix, hitting OK should go down in the menu
+  - 415: Volume level not displayed when changed
+  - 419: When the media playback is finished, the menu should reappear
+  - 422: Uniformise repeat behaviour across the different input devices
+  - 426: Preview focus not set when going in a section: switching to fullscreen
+    makes the wrong preview grow
+  - 428: Movie preview should pause when going into another section
+  - 429: Player shows weird things on streams
+  - 431: Support for non-seekable Videos in Thumbnailer (like Flash-Video)
+  - 433: gtk frontend broken
+  - 441: playing media files without required gstreamer plugins makes elisa sooo
+    slooow
+  - 442: Plugin registry changes behaviour if -t is specified
+  - 448: Player options
+  - 452: Investigation on poblenou:node_controller
+  - 453: Media scanner traceback
+  - 462: non local pictures display support
+  - 464: cover support in UPnP MS
+  - 468: Cover retrieval not yet fine on daap:// and ipod://
+  - 471: While playing a playlist, hit stop => player goes to next track
+  - 484: no title and arrow for loading-image, please
+  - 505: elisa breaks at start if ~/.elisa/plugins is missing
+  - 508: DVD actions
+  - 510: make label of a location configurable
+  - 511: Video preview timeout
+  - 512: Explicit folder actions
+  - 514: Preview cleanups
+  - 515: Playing elisa:// URIs with empty media_db
+  - 517: Adding files on a directory browsed by elisa
+  - 518: Remove duplicated API docs
+  - 524: theme switcher: error in observer
+  - 525: theme switcher icon in tango theme is wrong
+  - 527: HAL makes problems on plugging in seconds stick
+  - 532: no volume in pause
+  - 533: volume stays longer than progress bar on menu appearing
+  - 536: USB key hotplugged results in seeing /media in Elisa
+  - 537: replugging stick while elisa runs raises exception
+  - 539: Menu items thumbnails interverted
+  - 360: Scrolling is to slow.
+  - 383: Macedonian translation
+  - 384: Macedonian translation
+  - 386: exceptions should be caught in ListObservable if an Observable raises
+    an exception
+  - 393: media_scanner must parse sources one by one
+  - 403: local media fails on  wrong encoding in filename
+  - 407: AudioCD without MusicBrainz2
+  - 408: gst-metadata breaks on special filenames sometimes
+  - 409: media_db has problems, when there is no media provider
+  - 416: Cover lookup doesn't work with daap:// and ipod://
+  - 423: Nice fade-in/fade-out at startup/shutdown
+  - 437: Pressing enter on audiocd gives traceback
+  - 438: lirc should use a temporary file
+  - 450: start_fullscreen poblenou frontend option
+  - 459: cache amazon covers in ~/.elisa
+  - 495: my favorites of stage6
+  - 513: Drop 10 items limit in playlists
+  - 493: support non-square pixel aspect ratio
+  -  84: Asynchronous Flickr?
+  - 306: Make the mouse pointer disappear after a few seconds
+  - 355: livecd
+  - 356: livecd
+  - 357: livecd
+  - 389: RTL Language support
+
+  28 Apr 2007; Daniel Gryniewicz <dang@gentoo.org> +elisa-0.1.6.ebuild:
+  Bump to 0.1.6
+  The Elisa team is happy to announce the 0.1.6 release of the Elisa
+  home multimedia system.
+  
+  We fixed 2 crasher bugs in this release:
+  
+  - Under Ubuntu Feisty any attempt to close the elisa's DBus session
+    would lead to a segfault, preventing the configuration from being written
+    back to disk. We don't close the dbus session anymore, it's not even
+    recommended in the DBus developer documentation (and now we know why).
+  - If you were missing multimedia codecs to play a file, in some cases
+    GStreamer would fail to parse the resulting error message, leading
+    to an assertion error and a segfault of the application
+
+  16 Apr 2007; Daniel Gryniewicz <dang@gentoo.org> +elisa-0.1.5.ebuild:
+  Bump to 0.1.5
+  - 2 new config options were added for the player to allow the user to
+    customize how much seconds the player can seek
+    forward/backward. Options are seek_forward_step and
+    seek_backward_step.
+  - a UPnP MediaRenderer plugin has been added, it allows Elisa to
+    display media available on the network via UPnP. This plugin is
+    still experimental, hence disabled by default.
+  - Elisa is now more able to detect missing audio/video codecs and cancel
+    media playback if anything is missing.
+  - New Catalan translation by Josep Torra.
+
+  16 Mar 2007; Daniel Gryniewicz <dang@gentoo.org> +elisa-0.1.4.2.ebuild:
+  Bump to 0.1.4.2
+  - the .desktop file has been fixed and is now valid. Elisa menu will
+    appear in xdg compatible menus
+  - Elisa now detects ogg theora files and is able to play them
+  - the audio visualization effects are now disabled in the default
+    configuration, this doesn't work well and need more work
+  - Elisa now detects coldplugged devices (ex: usb disks plugged before
+    elisa has been started)
+  - next/previous track buttons have been added, allowing the user to
+    skip track currently being played
+  - a Last.FM_ webradios streaming client has been added, it allows
+    Last.FM users to listen music via the Last.FM streaming platform.
+
+  19 Feb 2007; Daniel Gryniewicz <dang@gentoo.org> elisa-0.1.4.1.ebuild:
+  Oops, 0.1.1 for pigment version
+
+  19 Feb 2007; Daniel Gryniewicz <dang@gentoo.org> +elisa-0.1.4.1.ebuild:
+  Bump to 0.1.4.1
+  - the media database system has been improved, one step further
+    towards big media collections support
+  - pictures/movies thumbnails are now compatible with Freedesktop
+    specifications
+  - the skin has been slightly improved in many places (new pictos,
+    better animations, picture-folders icon compositing)
+  - Pigment labels now display much better and are now scalable
+  - The SDL Pigment backend has been replaced by a XWindow/GLX backend
+  - Pigment now handle screens with non-square aspect ratio resolutions
+
+  24 Jan 2007; Daniel Gryniewicz <dang@gentoo.org> ChangeLog:
+  Bump to 0.1.3
+
