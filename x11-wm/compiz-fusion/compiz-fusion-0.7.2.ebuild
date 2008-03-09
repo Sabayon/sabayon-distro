@@ -11,8 +11,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 IUSE="gnome kde"
 
-DEPEND=">=x11-wm/compiz-${PV}
-	>=x11-libs/compiz-bcop-${PV}
+DEPEND="
 	>=x11-plugins/compiz-fusion-plugins-main-${PV}
 	>=x11-plugins/compiz-fusion-plugins-extra-${PV}
 	>=x11-themes/emerald-themes-0.5.2
