@@ -62,6 +62,5 @@ src_compile() {
 
 src_install() {
 	emake DESTDIR="${D}" install || die
-	dobin "${FILESDIR}/0.3.6/compiz-start" || die
 	dodoc AUTHORS ChangeLog NEWS README TODO || die
 }
