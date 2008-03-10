@@ -303,6 +303,7 @@ def generate_nvidia_steps():
 				f.write("NVIDIA %s\n" % (drv_string,))
 				f.flush()
 				f.close()
+				steps.append(('change_xorg_driver','nvidia'))
 				steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
 				steps.append(('copy_nvidia_settings_on_desktop',))
 			else:
