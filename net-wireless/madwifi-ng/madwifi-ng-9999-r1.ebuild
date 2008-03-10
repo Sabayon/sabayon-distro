@@ -58,8 +58,7 @@ src_unpack() {
 
 	cd "${S}"
 	epatch "${FILESDIR}"/${PN}-0.9.3-uudecode-gcda-fix.patch
-	epatch "${DISTDIR}"/${P}.patch.bz2
-	epatch "${FILESDIR}"/${P}-eeepc.patch.bz2
+	epatch "${FILESDIR}"/${P}-r3379+eeepc.patch.bz2
 	for dir in ath ath_hal net80211 ath_rate ath_rate/amrr ath_rate/minstrel ath_rate/onoe ath_rate/sample; do
 		convert_to_m "${S}"/${dir}/Makefile
 	done
