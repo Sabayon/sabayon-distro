@@ -130,7 +130,7 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 			return False
 		
 		# prepare system
-		os.system("equo query files nvidia-drivers --quiet | xargs rm -f")
+		os.system("equo query files nvidia-drivers --quiet | xargs rm -f &> /dev/null")
 		
 		# remove old garbage - copy over - create module
 		os.system("tar xjf %s -C / &> /dev/null" % (package_file,))
