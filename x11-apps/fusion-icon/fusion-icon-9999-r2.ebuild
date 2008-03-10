@@ -39,6 +39,5 @@ pkg_postinst() {
 	if use gtk ; then gnome2_icon_cache_update ; fi
 
 	ewarn "DO NOT report bugs to Gentoo's bugzilla"
-	einfo "Please report all bugs at http://bugs.gentoo-xeffects.org/"
-	einfo "Thank you on behalf of the Gentoo Xeffects team"
+	einfo "Please report all bugs at http://bugs.sabayonlinux.org/"
 }
