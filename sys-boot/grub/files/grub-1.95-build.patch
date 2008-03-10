@@ -1,0 +1,15 @@
+http://bugs.gentoo.org/185361
+
+fix building in parallel
+
+--- grub-1.95/conf/i386-pc.mk
++++ grub-1.95/conf/i386-pc.mk
+@@ -739,7 +739,7 @@
+ 	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
+ -include grub_emu-util_console.d
+ 
+-grub_emu-util_grub_emu.o: util/grub-emu.c
++grub_emu-util_grub_emu.o: util/grub-emu.c grub_modules_init.h
+ 	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
+ -include grub_emu-util_grub_emu.d
+ 
