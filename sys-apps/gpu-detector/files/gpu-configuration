@@ -113,7 +113,7 @@ def check_if_proprietary_driver_system_is_healthy(kernelmod): #FIXME attenzione 
 	else:
 		return False
 
-def deploy_nvidia_9xxxxx_drivers(): # reduce os.system usage
+def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 	if (not dryrun):
 		# are they available ? we're on livecd...
 		if not os.path.isdir("/install-data/drivers"):
@@ -121,7 +121,7 @@ def deploy_nvidia_9xxxxx_drivers(): # reduce os.system usage
 			return False
 		
 		packages = os.listdir("/install-data/drivers")
-		packages = [x for x in packages if x.startswith("nvidia-drivers-9") and x.endswith(".tbz2")]
+		packages = [x for x in packages if x.startswith("nvidia-drivers-"+ver) and x.endswith(".tbz2")]
 		if not packages:
 			return False
 		package_file = "/install-data/drivers/"+packages[0]
@@ -133,6 +133,8 @@ def deploy_nvidia_9xxxxx_drivers(): # reduce os.system usage
 		os.system("equo query files nvidia-drivers --quiet | xargs rm -rf")
 		
 		# remove old garbage - copy over - create module
+		os.system("tar xjf %s -C / &> /dev/null" % (package_file,))
+		'''
 		os.system("""
 			rm /lib/modules/$(uname -r)/video/nvidia.ko -f
 			rm /lib/nvidia/* -rf
@@ -141,13 +143,13 @@ def deploy_nvidia_9xxxxx_drivers(): # reduce os.system usage
 	
 			ld -m """+ld_arch+""" -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
 		""")
+		'''
 		# try to check driver status now
 		rc = check_if_proprietary_driver_system_is_healthy("nvidia")
 		return rc
 	else:
-		print "I was about to run deploy_nvidia_9xxxxx_drivers"
+		print "I was about to run deploy_nvidia_xxxxxx_drivers, ver: %s" % (ver,)
 		return False
-	
 
 def change_xorg_driver(xdriver):
 	if (not dryrun):
@@ -286,22 +288,26 @@ def generate_nvidia_steps():
 		steps.append(('change_xorg_driver','nvidia'))
 	else:
 		if (livecd):
-			print "latest NVIDIA drivers couldn't be loaded, trying 9x.xx.xx drivers"
-			rc = deploy_nvidia_9xxxxx_drivers()
-			if (rc):
+			print "latest NVIDIA drivers couldn't be loaded, trying 9x.xx.xx/7x.xx.xx drivers"
+			rc = deploy_nvidia_xxxxxx_drivers("9")
+			drv_string = "9x.xx.xx"
+			if not rc:
+				drv_string = "7x.xx.xx"
+				rc = deploy_nvidia_xxxxxx_drivers("7")
+			if rc:
 				# then activate nvidia opengl subsystem after resetting it
 				steps.append(('opengl_activate','xorg-x11'))
 				steps.append(('opengl_activate','nvidia'))
 				os.makedirs("/lib/nvidia/legacy")
 				f = open("/lib/nvidia/legacy/running","w")
-				f.write("NVIDIA 9x.xx.xx\n")
+				f.write("NVIDIA %s\n" % (drv_string,))
 				f.flush()
 				f.close()
 				steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
 				steps.append(('copy_nvidia_settings_on_desktop',))
 			else:
 				# it's a no-go!
-				print "NVIDIA drivers 9x.xx.xx failed to load too... sorry, switching to nv driver"
+				print "NVIDIA drivers %s failed to load too... sorry, switching to nv driver" % (drv_string,)
 				if (not noopengl):
 					steps.append(('opengl_activate','xorg-x11'))
 				steps.append(('change_xorg_driver','nv'))
