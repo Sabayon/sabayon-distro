@@ -121,7 +121,7 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 			return False
 		
 		packages = os.listdir("/install-data/drivers")
-		packages = [x for x in packages if x.startswith("nvidia-drivers-"+ver) and x.endswith(".tbz2")]
+		packages = [x for x in packages if x.startswith("x11-drivers:nvidia-drivers-"+ver) and x.endswith(".tbz2")]
 		if not packages:
 			return False
 		package_file = "/install-data/drivers/"+packages[0]
@@ -130,7 +130,7 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 			return False
 		
 		# prepare system
-		os.system("equo query files nvidia-drivers --quiet | xargs rm -rf")
+		os.system("equo query files nvidia-drivers --quiet | xargs rm -f")
 		
 		# remove old garbage - copy over - create module
 		os.system("tar xjf %s -C / &> /dev/null" % (package_file,))
