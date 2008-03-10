@@ -99,6 +99,7 @@ start() {
 	rm -f /usr/share/autostart/kerry.autostart.desktop
 	rm -f /usr/share/autostart/kbluetooth.autostart.desktop
 	rm -f /usr/share/autostart/beagled.desktop
+	rm -f /usr/share/autostart/etp-applet.desktop
 
         # Remove broken entries in /etc/mtab
         sed -i '/.*newroot.*/d' /etc/mtab
@@ -293,6 +294,18 @@ start() {
                         #AutoLoginUser=sabayonuser
                         sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' /usr/kde/3.5/share/config/kdm/kdmrc
 	
+                    ;;
+                    session=xfce)
+
+                        # change default DE to XFCE
+                        echo "[Desktop]" > /home/sabayonuser/.dmrc
+                        echo "Session=xfce" >> /home/sabayonuser/.dmrc
+                        chown sabayonuser /home/sabayonuser/.dmrc
+                        #AutoLoginEnable=true
+                        sed -i 's/AutoLoginEnable=false/AutoLoginEnable=true/' /usr/kde/3.5/share/config/kdm/kdmrc
+                        #AutoLoginUser=sabayonuser
+                        sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' /usr/kde/3.5/share/config/kdm/kdmrc
+
                     ;;
                     session=gnome)
 
@@ -949,6 +962,30 @@ if mydev.startswith("/dev") and os.path.isfile(sh_file):
 		    /sbin/language-setup $lang_toset &> /dev/null
 
         fi
+
+	# Dirty workaround for kde4 apps in !=kde4 DEs
+	python -c '
+import os
+kde4_de_dir = "/usr/kde/4.0/share/applications/kde4"
+kde4_de_files = os.listdir(kde4_de_dir)
+for kde4file in kde4_de_files:
+	kde4file = kde4_de_dir+"/"+kde4file
+	f = open(kde4file,"r")
+	k4content = f.readlines()
+	f.close()
+	f = open(kde4file,"w")
+	for line in k4content:
+		if line.startswith("Exec="):
+			line = line.replace("Exec=","Exec=/usr/kde/3.9/bin/")
+		if line.startswith("Name="):
+			line = line.strip()
+			line += " KDE 4\n"
+		f.write(line)
+	f.flush()
+	f.close()
+'
+	# Add sudo to gparted exec=
+	sed -i 's/Exec=/Exec=sudo /' /home/sabayonuser/Desktop/gparted.desktop
 
 	# Start Accel Manager or Configure XGL/AIGLX
 	start_acceleration_manager
