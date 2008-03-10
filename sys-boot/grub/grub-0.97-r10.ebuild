@@ -9,7 +9,6 @@ DESCRIPTION="GNU GRUB Legacy boot loader"
 HOMEPAGE="http://www.gnu.org/software/grub/"
 SRC_URI="mirror://gentoo/${P}.tar.gz
 	ftp://alpha.gnu.org/gnu/${PN}/${P}.tar.gz
-	mirror://gentoo/splash.xpm.gz
 	mirror://gentoo/${P}-patches-${PATCHVER}.tar.bz2"
 
 LICENSE="GPL-2"
@@ -105,7 +104,7 @@ src_install() {
 	fi
 
 	insinto /boot/grub
-	doins "${DISTDIR}"/splash.xpm.gz
+	doins "${FILESDIR}"/splash.xpm.gz
 	newins docs/menu.lst grub.conf.sample
 
 	dodoc AUTHORS BUGS ChangeLog NEWS README THANKS TODO
