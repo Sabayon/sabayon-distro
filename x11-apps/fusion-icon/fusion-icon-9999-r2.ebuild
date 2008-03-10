@@ -5,8 +5,8 @@
 inherit git gnome2-utils
 
 EGIT_REPO_URI="git://anongit.opencompositing.org/users/crdlb/${PN}"
-COMPIZ_RELEASE=0.6.2
-COMPIZ_FUSION_RELEASE=0.6.0.1
+COMPIZ_RELEASE=0.7.2
+COMPIZ_FUSION_RELEASE=0.7.2
 
 DESCRIPTION="Compiz Fusion Tray Icon and Manager (git)"
 HOMEPAGE="http://opencompositing.org"
@@ -18,7 +18,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="gtk qt4"
 
 RDEPEND="
-	>=x11-wm/compiz-0.6
+	>=x11-wm/compiz-fusion-0.7.2
 	|| ( ~dev-python/compizconfig-python-${PV} ~dev-python/compizconfig-python-${COMPIZ_FUSION_RELEASE} )
 	gtk? ( >=dev-python/pygtk-2.10 )
 	qt4? ( dev-python/PyQt4 )"
