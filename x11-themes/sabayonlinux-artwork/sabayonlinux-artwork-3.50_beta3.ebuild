@@ -9,12 +9,9 @@ SRC_URI="http://www.sabayonlinux.org/distfiles/x11-themes/${PN}/${PN}-${PV}.tar.
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64 ppc ppc64"
-IUSE="symlink professional_edition kde gtk"
+IUSE="symlink"
 RESTRICT="nomirror"
-RDEPEND="
-	gtk? ( >=x11-libs/gtk+-2.8 )
-	kde? ( kde-base/kdelibs )
-	"
+RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 
@@ -26,10 +23,6 @@ src_install () {
 
 	cd ${S}/background
 	insinto /usr/share/backgrounds
-	# FIXME!!
-	#if use professional_edition; then
-	#	mv sabayonlinux-be.png sabayonlinux.png
-	#fi
 	doins *.jpg *.png
 
 	  cd ${S}/gtk
