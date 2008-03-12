@@ -12,7 +12,7 @@ SRC_URI="http://pynetworkmanager.googlecode.com/files/pyNetworkManager-0.7.tar.b
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86"
+KEYWORDS="~x86 ~amd64"
 IUSE="doc"
 
 RDEPEND="net-misc/networkmanager
