@@ -6,7 +6,8 @@ inherit gnome2 eutils
 
 DESCRIPTION="3D composite- and windowmanager"
 HOMEPAGE="http://www.compiz.org/"
-SRC_URI="http://xorg.freedesktop.org/archive/individual/app/${P}.tar.gz"
+RESTRICT="nomirror"
+SRC_URI="http://releases.compiz-fusion.org/0.7.2/compiz/${P}.tar.gz"
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
