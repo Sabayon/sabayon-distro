@@ -36,20 +36,11 @@ src_unpack() {
 	# patch breaks booting for some people #111885
 	rm "${WORKDIR}"/patch/400_*
 
-	# Already applied
-	rm "${WORKDIR}"/patch/001_*
-	rm "${WORKDIR}"/patch/005_*
-	rm "${WORKDIR}"/patch/015_*
-	rm "${WORKDIR}"/patch/020_*
-	rm "${WORKDIR}"/patch/040_*
-	rm "${WORKDIR}"/patch/060_*
-	rm "${WORKDIR}"/patch/500_*
+        # add GPT Partitions support - harmless
+        epatch ${FILESDIR}/${P}-gpt-support.patch
 
-	# Apply Fedora 9 patches:
-	# GPT
-	# >=256 inode block size
-	# VFAT updates
-	epatch ${FILESDIR}/${P}-fedora-9.patch.bz2
+        # Fix buggy A20 boot
+        epatch ${FILESDIR}/${P}-a20.patch
 
 	if [[ -n ${PATCHVER} ]] ; then
 		EPATCH_SUFFIX="patch"
@@ -61,6 +52,9 @@ src_unpack() {
 		automake || die "automake failed"
 	fi
 
+
+	# Fix ext3/4 support
+	epatch ${FILESDIR}/${P}-support-256byte-inode.patch
 
 }
 
