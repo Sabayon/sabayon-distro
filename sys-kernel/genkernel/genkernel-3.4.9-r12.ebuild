@@ -58,7 +58,10 @@ src_unpack() {
 	# Aufs support
 	epatch "${FILESDIR}"/${PN}-3.4.9-aufs-2.patch
 
+	# misc
 	epatch "${FILESDIR}"/${PN}-3.4.9-clean-umount.patch
+	epatch "${FILESDIR}"/${PN}-3.4.9-geninitramfs.patch
+
 
 }
 
