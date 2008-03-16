@@ -36,21 +36,32 @@ src_unpack() {
 	# patch breaks booting for some people #111885
 	rm "${WORKDIR}"/patch/400_*
 
-	# add GPT Partitions support - harmless
-	epatch ${FILESDIR}/${P}-gpt-support.patch
+	# Already applied
+	rm "${WORKDIR}"/patch/001_*
+	rm "${WORKDIR}"/patch/005_*
+	rm "${WORKDIR}"/patch/015_*
+	rm "${WORKDIR}"/patch/020_*
+	rm "${WORKDIR}"/patch/040_*
+	rm "${WORKDIR}"/patch/060_*
+	rm "${WORKDIR}"/patch/500_*
 
-	# Fix buggy A20 boot
-	epatch ${FILESDIR}/${P}-a20.patch
+	# Apply Fedora 9 patches:
+	# GPT
+	# >=256 inode block size
+	# VFAT updates
+	epatch ${FILESDIR}/${P}-fedora-9.patch.bz2
 
 	if [[ -n ${PATCHVER} ]] ; then
 		EPATCH_SUFFIX="patch"
 		epatch "${WORKDIR}"/patch
-
+	
 		# a bunch of patches apply to raw autotool files
 		autoconf || die "autoconf failed"
 		aclocal || die "aclocal failed"
 		automake || die "automake failed"
 	fi
+
+
 }
 
 src_compile() {
