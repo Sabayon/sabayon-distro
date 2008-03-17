@@ -198,7 +198,7 @@ def set_exa(exa = True):
 		f.flush()
 		f.close()
 	else:
-		print "I was about to change X driver to "+xdriver
+		print "I was about to enable EXA"
 
 def set_dri(status = True):
 	if (not dryrun):
@@ -358,6 +358,7 @@ radeon_9xx0_free = re.compile('.*ati.*technologies.*radeon.*9[0-2][0-9]0.*')
 radeon_9xx0_closed = re.compile('.*ati.*technologies.*radeon.*9[5-9][0-9]0.*')
 radeon_Xxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9]0.*')
 radeon_Xxxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9][0-9]0.*')
+ati_firegl = re.compile('.*ati.*technologies.*firegl.*')
 
 for videocard in videocards:
 
@@ -505,8 +506,9 @@ for videocard in videocards:
 		elif i810.match(videocard): # non lower
 			generate_generic_steps()
 			steps.append(('change_xorg_driver','i810'))
-			if (not noexa):
-			    steps.append(('set_exa',))
+			# XXX disabled due to xorg-server bug
+			#if (not noexa):
+			#    steps.append(('set_exa',))
 			print "Intel >= 810!"
 	
 		elif videocard.lower().find('riva tnt') != -1:
@@ -522,10 +524,11 @@ for videocard in videocards:
 			print "ATI Technologies"
 			if radeon_1x0.match(videocard.lower()) or radeon_2x0.match(videocard.lower()) or radeon_7xx0.match(videocard.lower()) or radeon_8xx0.match(videocard.lower()) or radeon_9xx0_free.match(videocard.lower()):
 				generate_generic_steps()
-				if (not noexa):
-			    		steps.append(('set_exa',))
+				# XXX disabled due to xorg-server bugs
+				#if (not noexa):
+			    	#	steps.append(('set_exa',))
 				steps.append(('change_xorg_driver','radeon'))
-			elif radeon_3x0.match(videocard.lower()) or radeon_4x0.match(videocard.lower()) or radeon_5x0.match(videocard.lower()) or radeon_6x0.match(videocard.lower()) or radeon_9xx0_closed.match(videocard.lower()) or radeon_Xxx0_closed.match(videocard.lower()) or radeon_Xxxx0_closed.match(videocard.lower()):
+			elif radeon_3x0.match(videocard.lower()) or radeon_4x0.match(videocard.lower()) or radeon_5x0.match(videocard.lower()) or radeon_6x0.match(videocard.lower()) or radeon_9xx0_closed.match(videocard.lower()) or radeon_Xxx0_closed.match(videocard.lower()) or radeon_Xxxx0_closed.match(videocard.lower()) or ati_firegl.match(videocard.lower()):
 				if (not noopengl):
 					steps.append(('set_dri',True))
 					steps.append(('fix_possible_opengl_misconfiguration','ati'))
@@ -540,8 +543,9 @@ for videocard in videocards:
 				print "SETTING OPEN SOURCE DRIVERS"
 				generate_generic_steps()
 				steps.append(('change_xorg_driver','radeon'))
-				if (not noexa):
-			    		steps.append(('set_exa',))
+				# XXX disabled due to xorg-servers bugs
+				#if (not noexa):
+				#	steps.append(('set_exa',))
 		else:
 			print "ATTENTION !!!"
 			print "ATTENTION !!!"
