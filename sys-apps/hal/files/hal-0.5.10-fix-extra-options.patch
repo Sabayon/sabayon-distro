@@ -1,0 +1,19 @@
+diff -Nurp hal-0.5.10.orig/tools/hal-storage-mount.c hal-0.5.10/tools/hal-storage-mount.c
+--- hal-0.5.10.orig/tools/hal-storage-mount.c	2008-03-22 15:17:33.000000000 +0000
++++ hal-0.5.10/tools/hal-storage-mount.c	2008-03-22 15:21:30.000000000 +0000
+@@ -776,13 +776,13 @@ handle_mount (LibHalContext *hal_ctx, 
+ 
+ 	if (pol_is_fixed) {
+ 		if (pol_change_uid) {
+-			action = NULL; /* "hal-storage-mount-fixed-extra-options"; TODO: rethink */
++			action = "hal-storage-mount-fixed-extra-options";
+ 		} else {
+ 			action = "org.freedesktop.hal.storage.mount-fixed";
+ 		}
+ 	} else {
+ 		if (pol_change_uid) {
+-			action = NULL; /* "hal-storage-mount-removable-extra-options"; TODO: rethink "extra-options" */
++			action = "hal-storage-mount-removable-extra-options";
+ 		} else {
+ 			action = "org.freedesktop.hal.storage.mount-removable";
+ 		}

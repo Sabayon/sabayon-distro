@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.10.ebuild,v 1.8 2008/01/10 18:05:15 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.10.ebuild,v 1.9 2008/02/08 20:11:00 wolf31o2 Exp $
 
 inherit eutils linux-info autotools flag-o-matic
 
@@ -33,6 +33,7 @@ RDEPEND=">=dev-libs/glib-2.6
 									~sys-apps/parted-1.7.1
 									~sys-apps/parted-1.8.6
 									~sys-apps/parted-1.8.7
+									~sys-apps/parted-1.8.8
 								)
 						 )
 		 ia64? ( >=sys-apps/dmidecode-2.7 )
@@ -66,59 +67,41 @@ PDEPEND=">=app-misc/hal-info-20071011
 HALDAEMON_GROUPS_LINUX="haldaemon,plugdev,disk,cdrom,cdrw,floppy,usb"
 HALDAEMON_GROUPS_FREEBSD="haldaemon,plugdev,operator"
 
-function notify_uevent() {
-	ewarn
-	ewarn "You must enable Kernel Userspace Events in your kernel."
-	ewarn "For this you need to enable 'Hotplug' under 'General Setup' and"
-	ewarn "basic networking.  They are marked CONFIG_HOTPLUG and CONFIG_NET"
-	ewarn "in the config file."
-	ewarn
-	ebeep 5
+function check_hotplug_net() {
+	local CONFIG_CHECK="~HOTPLUG ~NET"
+	local WARNING_HOTPLUG="CONFIG_HOTPLUG:\tis not set (required for HAL)"
+	local WARNING_NET="CONFIG_NET:\tis not set (required for HAL)"
+	check_extra_config
+	echo
 }
 
-function notify_inotify() {
-	ewarn
-	ewarn "You must enable the Inotify system in your kernel."
-	ewarn "For this you need to enable 'Inotify support for userspace'"
-	ewarn "in 'File systems'. It is marked CONFIG_INOTIFY_USER in the config file."
-	ewarn
-	ebeep 5
+function check_inotify() {
+	local CONFIG_CHECK="~INOTIFY_USER"
+	local WARNING_INOTIFY_USER="CONFIG_INOTIFY_USER:\tis not set (required for HAL)"
+	check_extra_config
+	echo
 }
 
-function notify_acpi_procfs() {
-	ewarn
-	ewarn "You must enable support for the ACPI proc files in your kernel."
-	ewarn "For this you need to enable '/proc/acpi files' in"
-	ewarn "'ACPI Support (Advanced Configuration and Power Interface) Support'."
-	ewarn "It is marked ewarn CONFIG_ACPI_PROCFS in the config file."
-	ewarn
-	ebeep 5
-}
-
-function notify_acpi_proc_event() {
-	ewarn
-	ewarn "You have not enabled support for the /proc/acpi/event interface."
-	ewarn "For this you need to enable '/proc/acpi/event support' in"
-	ewarn "ACPI Support (Advanced Configuration and Power Interface) Support"
-	ewarn
-	ebeep 5
+function check_acpi_proc() {
+	local CONFIG_CHECK="~ACPI_PROCFS ~ACPI_PROC_EVENT"
+	local WARNING_ACPI_PROCFS="CONFIG_ACPI_PROCFS:\tis not set (required for HAL)"
+	local WARNING_ACPI_PROC_EVENT="CONFIG_ACPI_PROC_EVENT:\tis not set (required for HAL)"
+	check_extra_config
+	echo
 }
 
 pkg_setup() {
-	if use kernel_linux; then
-		kernel_is ge 2 6 19 || ewarn "HAL requires a kernel version 2.6.19 or newer"
-
-		if ! ( linux_chkconfig_present HOTPLUG && linux_chkconfig_present NET )
-		then
-			notify_uevent
+	if use kernel_linux ; then
+		if [ -e ${ROOT}/usr/src/linux/.config ] ; then
+			kernel_is ge 2 6 19 || \
+				ewarn "HAL requires a kernel version 2.6.19 or newer"
+			if kernel_is lt 2 6 23 && use acpi ; then
+				check_acpi_proc
+			fi
 		fi
 
-		linux_chkconfig_present INOTIFY_USER || notify_inotify
-
-		if kernel_is lt 2 6 23 && use acpi ; then
-			linux_chkconfig_present ACPI_PROCFS || notify_acpi_procfs
-			linux_chkconfig_present ACPI_PROC_EVENT || notify_acpi_proc_event
-		fi
+		check_hotplug_net
+		check_inotify
 	fi
 
 	# http://devmanual.gentoo.org/ebuild-writing/functions/
@@ -162,11 +145,16 @@ src_unpack() {
 	# Hide recovery partitions
 	epatch "${FILESDIR}/hal-0.5.9-hide-recovery-partitions.patch"
 
-	# NTFS-3G support
-	epatch "${FILESDIR}"/${P}-sabayonlinux-ntfs-3g.default.patch
-
 	# Enable plugdev support
 	epatch "${FILESDIR}/96_plugdev_allow_send.patch"
+
+	# NTFS-3G support
+	epatch "${FILESDIR}"/${P}-sabayonlinux-ntfs-3g.default.patch
+	# parted 1.8.8
+	epatch "${FILESDIR}"/${P}-parted.patch
+
+	# Fix HAL mount when extra options specified
+	epatch "${FILESDIR}"/${P}-fix-extra-options.patch
 
 	eautoreconf
 }
@@ -278,6 +266,16 @@ src_install() {
 	# HAL keeps its unix socket here
 	keepdir /var/run/hald
 	keepdir /var/lib/hal
+
+	# Copy X11 policies to avoid keyboard bindings issues
+	dodir /etc/hal/fdi/policy
+	insinto /etc/hal/fdi/policy
+	doins ${S}/fdi/policy/10osvendor/10-input-policy.fdi || die "cannot copy policy"
+	doins ${S}/fdi/policy/10osvendor/10-x11-input.fdi || die "cannot copy policy"
+	# Fix NTFS mount
+	insinto /usr/share/hal/fdi/policy/10osvendor/
+	doins "${FILESDIR}"/20-ntfs-config-write-policy.fdi
+
 }
 
 pkg_postinst() {
