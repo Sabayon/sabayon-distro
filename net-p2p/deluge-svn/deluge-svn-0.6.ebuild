@@ -1,6 +1,6 @@
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-p2p/deluge/deluge-9999.ebuild,v 1.7 2007/12/30 15:29:29 armin76 Exp $
+# $Header: $
 
 inherit distutils subversion flag-o-matic
 
