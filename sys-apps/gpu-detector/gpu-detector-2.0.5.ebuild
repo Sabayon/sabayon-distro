@@ -2,7 +2,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
 inherit eutils versionator
-
 DESCRIPTION="SabayonLinux Live tool for X.Org video driver configuration"
 HOMEPAGE="http://www.sabayonlinux.org/"
 SRC_URI=""
