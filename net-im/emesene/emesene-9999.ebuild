@@ -37,8 +37,8 @@ src_install() {
 	insinto /usr/share/emesene
 	doins -r ./*
 	dodir /usr/bin
-	exeinto /usr/bin
-	echo -e '#!/bin/sh \n python /usr/share/emesene/Controller.py'>> emesene
+	dosym /usr/share/emesene/emesene /usr/bin
+	exeinto /usr/share/emesene
 	doexe emesene
 
         newicon ${S}/themes/default/icon96.png ${PN}.png
