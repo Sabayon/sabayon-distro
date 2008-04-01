@@ -40,12 +40,14 @@ src_install() {
         dodir /etc/entropy
         insinto /etc/entropy
         doins equo.conf
+	# FIXME: remove this below
         doins repositories.conf
 	
 	# copy client
 	cd ${S}/client
 	insinto /usr/$(get_libdir)/entropy/client
 	doins *.py
+	doins entropy-system-test-client
 	doins equo
 
 	cd ${S}

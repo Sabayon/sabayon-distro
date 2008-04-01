@@ -32,14 +32,16 @@ src_install() {
         doins reagent.conf
         doins remote.conf
         doins server.conf
-	
+
+	packages="reagent activator"	
 	# copy server
 	cd ${S}/server
 	insinto /usr/$(get_libdir)/entropy/server
-	doins -r ./*
+	for package in ${packages}; do
+		doins ${package}
+	done
 
 	cd ${S}
-	packages="reagent activator"
 	for package in ${packages}; do
 		echo '#!/bin/sh' > ${package}
 		echo 'cd /usr/'$(get_libdir)'/entropy/server' >> ${package}

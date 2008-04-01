@@ -62,6 +62,7 @@ src_install() {
 	#########
 
 	dodir /usr/$(get_libdir)/entropy/libraries
+	dodir /usr/sbin
 	
 	# copying libraries
 	cd ${S}/libraries
@@ -69,13 +70,17 @@ src_install() {
 	doins *.py
 	doins revision
 
+        # copy entropy (client) server
+        cd ${S}/server
+        exeinto /usr/sbin/
+        doexe entropy-system-daemon
+
 	# copy configuration
 	cd ${S}/conf
 	dodir /etc/entropy
 	insinto /etc/entropy
 	doins -r *
 	rm ${D}/etc/entropy/equo.conf
-	rm ${D}/etc/entropy/repositories.conf
 	rm ${D}/etc/entropy/reagent.conf
 	rm ${D}/etc/entropy/activator.conf
 	rm ${D}/etc/entropy/remote.conf
