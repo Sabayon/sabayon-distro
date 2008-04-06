@@ -187,7 +187,7 @@ save() {
 }
 
 start() {
-	if [ -f /proc/modules ] ; then
+	if [ -f /proc/modules ] && [ "${LOAD_ON_START}" = "yes" ]; then
 		ebegin "Loading ALSA modules"
 		eindent
 		load_modules
@@ -214,7 +214,7 @@ stop() {
 
 	[ "${SAVE_ON_STOP}" = "yes" ] && save
 
-	if [ -f /proc/modules ]; then
+	if [ -f /proc/modules ] && [ "${UNLOAD_ON_STOP}" = "yes" ]; then
 		local ver="24"
 		rmmod --version | grep -q module-init-tools && ver="26"
 
