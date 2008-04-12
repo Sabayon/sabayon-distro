@@ -39,6 +39,10 @@ RDEPEND="${DEPEND}
 	x11-apps/mesa-progs"
 
 pkg_setup() {
+	ewarn "If the build fails with an XGetXCBConnection error"
+	ewarn "try this: eselect opengl set xorg-x11"
+	ewarn "and/or read this: http://www.sabayonlinux.org/forum/viewtopic.php?f=53&t=12933"
+
 	built_with_use libX11 xcb && \
 	built_with_use cairo xcb && \
 	built_with_use mesa xcb || \
@@ -71,4 +75,8 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" install || die
 	dodoc AUTHORS ChangeLog NEWS README TODO || die
+}
+
+pkg_postinst() {
+	ewarn "Dont forget to restore your opengl config if you set it to xorg-x11!"
 }
