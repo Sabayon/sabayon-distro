@@ -38,6 +38,13 @@ DEPEND=">=media-libs/mesa-6.5.1-r1
 RDEPEND="${DEPEND}
 	x11-apps/mesa-progs"
 
+pkg_setup() {
+	built_with_use libX11 xcb && \
+	built_with_use cairo xcb && \
+	built_with_use mesa xcb || \
+	die "libX11, cairo and mesa must all be built with the xcb useflag!"
+}
+
 src_unpack() {
 	unpack "${A}"
 	cd "${S}"
