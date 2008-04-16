@@ -1,0 +1,132 @@
+diff --git a/doc/Xserver.man.pre b/doc/Xserver.man.pre
+index aac3b51..c9ee019 100644
+--- a/doc/Xserver.man.pre
++++ b/doc/Xserver.man.pre
+@@ -508,8 +508,7 @@ its parent process after it has set up the various connection schemes.
+ \fIXdm\fP uses this feature to recognize when connecting to the server
+ is possible.
+ .SH FONTS
+-The X server
+-can obtain fonts from directories and/or from font servers.
++The X server can obtain fonts from directories and/or from font servers.
+ The list of directories and font servers
+ the X server uses when trying to open a font is controlled
+ by the \fIfont path\fP.  
+@@ -517,8 +516,45 @@ by the \fIfont path\fP.
+ The default font path is
+ __default_font_path__ .
+ .LP
++A special kind of directory can be specified using the the \fBcatalogue\fP:
++prefix. Directories specified this way can contain symlinks pointing to the
++real font directories. See the FONTPATH.D section for details.
++.LP
+ The font path can be set with the \fB\-fp\fP option or by \fIxset\fP(1)
+ after the server has started.
++.SH "FONTPATH.D"
++You can specify a special kind of font path in the form \fBcatalogue:<dir>\fR.
++The directory specified after the catalogue: prefix will be scanned for symlinks
++and each symlink destination will be added as a local fontfile FPE.
++.PP
++The symlink can be suffixed by attributes such as '\fBunscaled\fR', which
++will be passed through to the underlying fontfile FPE. The only exception is
++the newly introduced '\fBpri\fR' attribute, which will be used for ordering
++the font paths specified by the symlinks.
++
++An example configuration:
++
++.nf
++    75dpi:unscaled:pri=20 \-> /usr/share/X11/fonts/75dpi
++    ghostscript:pri=60 \-> /usr/share/fonts/default/ghostscript
++    misc:unscaled:pri=10 \-> /usr/share/X11/fonts/misc
++    type1:pri=40 \-> /usr/share/X11/fonts/Type1
++    type1:pri=50 \-> /usr/share/fonts/default/Type1
++.fi
++
++This will add /usr/share/X11/fonts/misc as the first FPE with the attribute
++'unscaled', second FPE will be /usr/share/X11/fonts/75dpi, also with
++the attribute unscaled etc. This is functionally equivalent to setting
++the following font path:
++
++.nf
++    /usr/share/X11/fonts/misc:unscaled,
++    /usr/share/X11/fonts/75dpi:unscaled,
++    /usr/share/X11/fonts/Type1,
++    /usr/share/fonts/default/Type1,
++    /usr/share/fonts/default/ghostscript
++.fi
++
+ .SH FILES
+ .TP 30
+ .I /etc/X\fBn\fP.hosts
+diff --git a/hw/xfree86/doc/man/xorg.conf.man.pre b/hw/xfree86/doc/man/xorg.conf.man.pre
+index ce54ea9..54d8eaa 100644
+--- a/hw/xfree86/doc/man/xorg.conf.man.pre
++++ b/hw/xfree86/doc/man/xorg.conf.man.pre
+@@ -293,15 +293,50 @@ server searches for font databases.
+ Multiple
+ .B FontPath
+ entries may be specified, and they will be concatenated to build up the
+-fontpath used by the server.  Font path elements may be either absolute
+-directory paths, or a font server identifier.
++fontpath used by the server.  Font path elements can be absolute
++directory paths, catalogue directories or a font server identifier. The
++formats of the later two are explained below:
++.PP
++.RS 7
++Catalogue directories:
++.PP
++.RS 4
++Catalogue directories can be specified using the prefix \fBcatalogue:\fR
++before the directory name. The directory can then be populated with
++symlinks pointing to the real font directories, using the following
++syntax in the symlink name:
++.PP
++.RS 4
++.IR <identifier> : [attribute]: pri= <priority>
++.RE
++.PP
++where
++.I <identifier>
++is an alphanumeric identifier,
++.I [attribute]
++is an attribute wich will be passed to the underlying FPE and
++.I <priority>
++is a number used to order the fontfile FPEs. Examples:
++.PP
++.RS 4
++.nf
++.I 75dpi:unscaled:pri=20  -> /usr/share/X11/fonts/75dpi
++.I gscript:pri=60 -> /usr/share/fonts/default/ghostscript
++.I misc:unscaled:pri=10 \-> /usr/share/X11/fonts/misc
++.fi
++.PP
++.RE .RE .RE
++.PP
++.RS 7
++Font server identifiers:
++.PP
++.RS 4
+ Font server identifiers have the form:
++.RS 4
+ .PP
+-.RS 11
+ .IR <trans> / <hostname> : <port\-number>
+ .RE
+ .PP
+-.RS 7
+ where
+ .I <trans>
+ is the transport type to use to connect to the font server (e.g.,
+@@ -313,10 +348,11 @@ for a TCP/IP connection),
+ is the hostname of the machine running the font server, and
+ .I <port\-number>
+ is the port number that the font server is listening on (usually 7100).
++.RE
+ .PP
+ When this entry is not specified in the config file, the server falls back
+ to the compiled\-in default font path, which contains the following
+-font path elements:
++font path elements (which can be set inside a catalogue directory):
+ .PP
+ .RS 4
+ .nf
