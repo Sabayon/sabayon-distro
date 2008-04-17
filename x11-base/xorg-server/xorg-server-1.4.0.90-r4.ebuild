@@ -361,6 +361,9 @@ src_unpack() {
 	# fix jerky mouse
 	epatch "${FILESDIR}"/mouse-int-to-float.diff
 
+	# fix autoconf 2.62
+	epatch "${FILESDIR}"/configure.ac.patch
+
 	# Clean up for ${PV}-clean-generated-files.patch
 	pushd hw/xprint >/dev/null
 	rm -f *-wrapper.c || die
