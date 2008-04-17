@@ -1,0 +1,75 @@
+
+From: Tony Vroon <chainsaw@gentoo.org>
+
+Applied in ALSA upstream, queued for 2.6.25
+
+--- a/sound/pci/hda/patch_realtek.c.orig	2008-04-12 13:40:33.000000000 +0100
++++ b/sound/pci/hda/patch_realtek.c	2008-04-12 13:40:40.000000000 +0100
+@@ -7939,7 +7939,8 @@
+ 
+ /*
+  * fujitsu model
+- *  0x14 = headphone/spdif-out, 0x15 = internal speaker
++ *  0x14 = headphone/spdif-out, 0x15 = internal speaker,
++ *  0x1b = port replicator headphone out
+  */
+ 
+ #define ALC_HP_EVENT	0x37
+@@ -7947,6 +7948,8 @@
+ static struct hda_verb alc262_fujitsu_unsol_verbs[] = {
+ 	{0x14, AC_VERB_SET_UNSOLICITED_ENABLE, AC_USRSP_EN | ALC_HP_EVENT},
+ 	{0x14, AC_VERB_SET_PIN_WIDGET_CONTROL, PIN_HP},
++	{0x1b, AC_VERB_SET_UNSOLICITED_ENABLE, AC_USRSP_EN | ALC_HP_EVENT},
++	{0x1b, AC_VERB_SET_PIN_WIDGET_CONTROL, PIN_HP},
+ 	{}
+ };
+ 
+@@ -7987,12 +7990,16 @@
+ 	unsigned int mute;
+ 
+ 	if (force || !spec->sense_updated) {
+-		unsigned int present;
++		unsigned int present_int_hp, present_dock_hp;
+ 		/* need to execute and sync at first */
+ 		snd_hda_codec_read(codec, 0x14, 0, AC_VERB_SET_PIN_SENSE, 0);
+-		present = snd_hda_codec_read(codec, 0x14, 0,
++		present_int_hp = snd_hda_codec_read(codec, 0x14, 0,
+ 				    	 AC_VERB_GET_PIN_SENSE, 0);
+-		spec->jack_present = (present & 0x80000000) != 0;
++		snd_hda_codec_read(codec, 0x1B, 0, AC_VERB_SET_PIN_SENSE, 0);
++		present_dock_hp = snd_hda_codec_read(codec, 0x1b, 0,
++				    	 AC_VERB_GET_PIN_SENSE, 0);
++		spec->jack_present = (present_int_hp & 0x80000000) != 0;
++		spec->jack_present |= (present_dock_hp & 0x80000000) != 0;
+ 		spec->sense_updated = 1;
+ 	}
+ 	if (spec->jack_present) {
+@@ -8034,12 +8041,13 @@
+ 	long *valp = ucontrol->value.integer.value;
+ 	int change;
+ 
+-	change = snd_hda_codec_amp_update(codec, 0x14, 0, HDA_OUTPUT, 0,
+-					  HDA_AMP_MUTE,
+-					  valp[0] ? 0 : HDA_AMP_MUTE);
+-	change |= snd_hda_codec_amp_update(codec, 0x14, 1, HDA_OUTPUT, 0,
+-					   HDA_AMP_MUTE,
+-					   valp[1] ? 0 : HDA_AMP_MUTE);
++	change = snd_hda_codec_amp_stereo(codec, 0x14, HDA_OUTPUT, 0,
++						 HDA_AMP_MUTE,
++						 valp ? 0 : HDA_AMP_MUTE);
++	change |= snd_hda_codec_amp_stereo(codec, 0x1b, HDA_OUTPUT, 0,
++						 HDA_AMP_MUTE,
++						 valp ? 0 : HDA_AMP_MUTE);
++
+ 	if (change)
+ 		alc262_fujitsu_automute(codec, 0);
+ 	return change;
+@@ -8057,6 +8065,8 @@
+ 	},
+ 	HDA_CODEC_VOLUME("CD Playback Volume", 0x0b, 0x04, HDA_INPUT),
+ 	HDA_CODEC_MUTE("CD Playback Switch", 0x0b, 0x04, HDA_INPUT),
++	HDA_CODEC_VOLUME("PC Speaker Volume", 0x0b, 0x05, HDA_INPUT),
++	HDA_CODEC_MUTE("PC Speaker Switch", 0x0b, 0x05, HDA_INPUT),
+ 	HDA_CODEC_VOLUME("Mic Boost", 0x18, 0, HDA_INPUT),
+ 	HDA_CODEC_VOLUME("Mic Playback Volume", 0x0b, 0x0, HDA_INPUT),
+ 	HDA_CODEC_MUTE("Mic Playback Switch", 0x0b, 0x0, HDA_INPUT),
