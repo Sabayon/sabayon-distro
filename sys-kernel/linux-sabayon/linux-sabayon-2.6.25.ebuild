@@ -47,10 +47,11 @@ UNIPATCH_LIST="
 		${FILESDIR}/${MY_P}-from-ext4dev-to-ext4.patch
 		${DISTDIR}/${UNIONFS_PATCH}
 		${FILESDIR}/${PV}/${P}-atl2.patch
+		${FILESDIR}/${PV}/${P}-tuxonice-3.0-rc6.patch.bz2
+		${FILESDIR}/${PV}/${P}-aufs.patch.bz2
 
 		"
 # ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
-# ${FILESDIR}/${MY_P}-aufs-cvs-20080121.patch
 
 SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI}" 
 # ${SUSPEND2_URI}
