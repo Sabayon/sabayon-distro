@@ -12,7 +12,7 @@ UNIPATCH_STRICTORDER="yes"
 KEYWORDS="~amd64 ~x86"
 HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
-	!only_sources? ( >=sys-kernel/genkernel-3.4.9 )
+	!only_sources? ( ~sys-kernel/genkernel-3.4.9 )
 	splash? ( x11-themes/sabayonlinux-artwork )
 	!=sys-kernel/sabayon-sources-${PVR}
 	"
