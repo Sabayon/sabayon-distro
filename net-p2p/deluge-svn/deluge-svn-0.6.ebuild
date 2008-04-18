@@ -14,17 +14,18 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~x86-fbsd"
-IUSE="libnotify browser"
+IUSE="libnotify"
 
 DEPEND=">=dev-lang/python-2.3
-	dev-libs/boost"
+	dev-python/setuptools
+	dev-libs/boost
+	!net-p2p/deluge"
 RDEPEND="${DEPEND}
 	>=dev-python/pygtk-2
 	dev-python/pyxdg
 	dev-python/dbus-python
 	gnome-base/librsvg
-	libnotify? ( dev-python/notify-python )
-	browser? ( dev-python/gnome-python-extras )"
+	libnotify? ( dev-python/notify-python )"
 
 pkg_setup() {
 	if has_version "<dev-libs/boost-1.34" && \
