@@ -158,30 +158,46 @@ AUX 2.6.25/genpatches/4105_dm-bbr.patch 32548 RMD160 e6a65d6905107251760f7907248
 MD5 d2adaef624219dd37e7ff102286f65ce files/2.6.25/genpatches/4105_dm-bbr.patch 32548
 RMD160 e6a65d6905107251760f790724875f488d382fe1 files/2.6.25/genpatches/4105_dm-bbr.patch 32548
 SHA256 8e823b5c15272a55ecc96e87ba9bddcb42e0c2f727e29d27b598163da4c7a8f0 files/2.6.25/genpatches/4105_dm-bbr.patch 32548
+AUX 2.6.25/genpatches/4300_squashfs-3.3.patch 128850 RMD160 f7679ec97f92bafad403ec5f4fb614289498769d SHA1 3c2c3d66d9c2e306b9af229c447163389280ca3f SHA256 8b0618c43b6e9bd773d1f3458b1ad0e1061b46985ca660b1db2e1c7b48d902a7
+MD5 9a2bcd0298dc4f43372c7f0808458521 files/2.6.25/genpatches/4300_squashfs-3.3.patch 128850
+RMD160 f7679ec97f92bafad403ec5f4fb614289498769d files/2.6.25/genpatches/4300_squashfs-3.3.patch 128850
+SHA256 8b0618c43b6e9bd773d1f3458b1ad0e1061b46985ca660b1db2e1c7b48d902a7 files/2.6.25/genpatches/4300_squashfs-3.3.patch 128850
 AUX 2.6.25/linux-sabayon-2.6.25-atl2.patch 238702 RMD160 d9d74661226bc2460650d36892e80fbf511bb880 SHA1 2aa877059157eeb31688f26ad3531188c44636d1 SHA256 5d9901d525b89a13f331596f974b55b3be805875521812f8a42047064eb06d10
 MD5 1de7548b62694b1b4940e849da1bba42 files/2.6.25/linux-sabayon-2.6.25-atl2.patch 238702
 RMD160 d9d74661226bc2460650d36892e80fbf511bb880 files/2.6.25/linux-sabayon-2.6.25-atl2.patch 238702
 SHA256 5d9901d525b89a13f331596f974b55b3be805875521812f8a42047064eb06d10 files/2.6.25/linux-sabayon-2.6.25-atl2.patch 238702
-AUX 2.6.25/linux-sabayon-2.6.25-aufs-cvs-20080121.patch 744970 RMD160 8ab6021b6e71c56603702ef32ad96f0147970030 SHA1 f9b0c5ea54517b5da83f100e9466202c331cc3b5 SHA256 b2038c4d8273ae6918fb165bcc0c49fb6315f18ba93c27e777ed8997760d1219
-MD5 183b38ab035d26f9292b21e0ae189596 files/2.6.25/linux-sabayon-2.6.25-aufs-cvs-20080121.patch 744970
-RMD160 8ab6021b6e71c56603702ef32ad96f0147970030 files/2.6.25/linux-sabayon-2.6.25-aufs-cvs-20080121.patch 744970
-SHA256 b2038c4d8273ae6918fb165bcc0c49fb6315f18ba93c27e777ed8997760d1219 files/2.6.25/linux-sabayon-2.6.25-aufs-cvs-20080121.patch 744970
-AUX 2.6.25/linux-sabayon-2.6.25-aufs.patch.bz2 96139 RMD160 f516e8ceda4fe90489fecd3e0704d2ab18e7483d SHA1 0ef3c7845e74c4ae24bc467b266c2983daf59281 SHA256 d37d209c907f73d0823216a99fbb14ab36f4cc49aca5ce17f73f936118be8c79
-MD5 8e84caadb3f8f8139591aa9c226a85d1 files/2.6.25/linux-sabayon-2.6.25-aufs.patch.bz2 96139
-RMD160 f516e8ceda4fe90489fecd3e0704d2ab18e7483d files/2.6.25/linux-sabayon-2.6.25-aufs.patch.bz2 96139
-SHA256 d37d209c907f73d0823216a99fbb14ab36f4cc49aca5ce17f73f936118be8c79 files/2.6.25/linux-sabayon-2.6.25-aufs.patch.bz2 96139
 AUX 2.6.25/linux-sabayon-2.6.25-from-ext4dev-to-ext4.patch 1323 RMD160 ee811d53c2ec0f038518655114c346c7191bf8f2 SHA1 67a88a2c4c084913404037dabd06978c413ab5a5 SHA256 787166df34c422ee07c8bdf4ff61c0bbed983e434b4ffb3bb2010744ca7100bb
 MD5 973a688a2f01f604befbccb4b1b0dd18 files/2.6.25/linux-sabayon-2.6.25-from-ext4dev-to-ext4.patch 1323
 RMD160 ee811d53c2ec0f038518655114c346c7191bf8f2 files/2.6.25/linux-sabayon-2.6.25-from-ext4dev-to-ext4.patch 1323
 SHA256 787166df34c422ee07c8bdf4ff61c0bbed983e434b4ffb3bb2010744ca7100bb files/2.6.25/linux-sabayon-2.6.25-from-ext4dev-to-ext4.patch 1323
-AUX 2.6.25/linux-sabayon-2.6.25-squashfs-3.3.patch 128850 RMD160 f7679ec97f92bafad403ec5f4fb614289498769d SHA1 3c2c3d66d9c2e306b9af229c447163389280ca3f SHA256 8b0618c43b6e9bd773d1f3458b1ad0e1061b46985ca660b1db2e1c7b48d902a7
-MD5 9a2bcd0298dc4f43372c7f0808458521 files/2.6.25/linux-sabayon-2.6.25-squashfs-3.3.patch 128850
-RMD160 f7679ec97f92bafad403ec5f4fb614289498769d files/2.6.25/linux-sabayon-2.6.25-squashfs-3.3.patch 128850
-SHA256 8b0618c43b6e9bd773d1f3458b1ad0e1061b46985ca660b1db2e1c7b48d902a7 files/2.6.25/linux-sabayon-2.6.25-squashfs-3.3.patch 128850
+AUX 2.6.25/linux-sabayon-2.6.25-squashfs-update.patch 3069 RMD160 c5838f774da6c70b51885fdfeaa751c7e9f90140 SHA1 e4af33ec692069ee7c808a6c276fad4d291be7af SHA256 53a115fcf5ed342bcabf8bb01822483670c1cba6bc4abeeb852fc8eaa3ffaf98
+MD5 c0253f82b5e96c4a67e60b49a8996d8a files/2.6.25/linux-sabayon-2.6.25-squashfs-update.patch 3069
+RMD160 c5838f774da6c70b51885fdfeaa751c7e9f90140 files/2.6.25/linux-sabayon-2.6.25-squashfs-update.patch 3069
+SHA256 53a115fcf5ed342bcabf8bb01822483670c1cba6bc4abeeb852fc8eaa3ffaf98 files/2.6.25/linux-sabayon-2.6.25-squashfs-update.patch 3069
 AUX 2.6.25/linux-sabayon-2.6.25-tuxonice-3.0-rc6.patch.bz2 122089 RMD160 8261f1535f1f546be001504864a8817acbe062d1 SHA1 9dc3b14a96b83e584e170261a86fd6bff22cbeb5 SHA256 9f7d580b614d15ab0e4013b359b4b73bd765481f6f4285be86b74af9d56b295a
 MD5 896e315edca4fa5da8a7c9119076ccd2 files/2.6.25/linux-sabayon-2.6.25-tuxonice-3.0-rc6.patch.bz2 122089
 RMD160 8261f1535f1f546be001504864a8817acbe062d1 files/2.6.25/linux-sabayon-2.6.25-tuxonice-3.0-rc6.patch.bz2 122089
 SHA256 9f7d580b614d15ab0e4013b359b4b73bd765481f6f4285be86b74af9d56b295a files/2.6.25/linux-sabayon-2.6.25-tuxonice-3.0-rc6.patch.bz2 122089
+AUX 2.6.25/redhat/linux-2.6-acpi-eeepc-hotkey.patch.bz2 4328 RMD160 d076522a46352d8859ba3f435d90a5ac4f85e55e SHA1 975a5e38517ed7f9eadd26c3fc042d9ae16da786 SHA256 c2cfdfcaf09364d5b8bf6ddde7e50afd4034d1fd02174d5ba8762d4be61b1dd2
+MD5 a40b01dc6cfa9e1e8d3fc80166d22d0f files/2.6.25/redhat/linux-2.6-acpi-eeepc-hotkey.patch.bz2 4328
+RMD160 d076522a46352d8859ba3f435d90a5ac4f85e55e files/2.6.25/redhat/linux-2.6-acpi-eeepc-hotkey.patch.bz2 4328
+SHA256 c2cfdfcaf09364d5b8bf6ddde7e50afd4034d1fd02174d5ba8762d4be61b1dd2 files/2.6.25/redhat/linux-2.6-acpi-eeepc-hotkey.patch.bz2 4328
+AUX 2.6.25/redhat/linux-2.6-at76.patch.bz2 26302 RMD160 7f6dd92b3a0a6f59a613ca8b9bf5a648ac046986 SHA1 7a8b7cbd5a7dff7b37549945218cf11dfb3fab8f SHA256 18ba874e4786e9f7045df898baffac8ad96cc0ff9e0ed4f8afa4ccde606c2ddb
+MD5 5baed6724c0529a3cb6bbc292fdd9463 files/2.6.25/redhat/linux-2.6-at76.patch.bz2 26302
+RMD160 7f6dd92b3a0a6f59a613ca8b9bf5a648ac046986 files/2.6.25/redhat/linux-2.6-at76.patch.bz2 26302
+SHA256 18ba874e4786e9f7045df898baffac8ad96cc0ff9e0ed4f8afa4ccde606c2ddb files/2.6.25/redhat/linux-2.6-at76.patch.bz2 26302
+AUX 2.6.25/redhat/linux-2.6-e1000-ich9.patch.bz2 647 RMD160 5c75eac5aca929a582252d8a16fd8b660c660af7 SHA1 786868f8927dd282090076073933043986d9877c SHA256 f6cf2ef0b42c737f4c5cb18cf173ccdbd77ff3c84274f34149c8c2a92c449aa5
+MD5 bbcfca19982fe9688f119783f7cbcc18 files/2.6.25/redhat/linux-2.6-e1000-ich9.patch.bz2 647
+RMD160 5c75eac5aca929a582252d8a16fd8b660c660af7 files/2.6.25/redhat/linux-2.6-e1000-ich9.patch.bz2 647
+SHA256 f6cf2ef0b42c737f4c5cb18cf173ccdbd77ff3c84274f34149c8c2a92c449aa5 files/2.6.25/redhat/linux-2.6-e1000-ich9.patch.bz2 647
+AUX 2.6.25/redhat/linux-2.6-sata-eeepc-faster.patch.bz2 674 RMD160 4ecc498d3df66e24fb4393ee6250511948805714 SHA1 40ec4cdcc7047439ea2cd96d089f5abfff49bd8d SHA256 c21c7a66ce602af8eabf30d5b929000b36e279aa66c772c5d91b832fd837116f
+MD5 d51dd7a867a9ef70cc1676cefb9bab98 files/2.6.25/redhat/linux-2.6-sata-eeepc-faster.patch.bz2 674
+RMD160 4ecc498d3df66e24fb4393ee6250511948805714 files/2.6.25/redhat/linux-2.6-sata-eeepc-faster.patch.bz2 674
+SHA256 c21c7a66ce602af8eabf30d5b929000b36e279aa66c772c5d91b832fd837116f files/2.6.25/redhat/linux-2.6-sata-eeepc-faster.patch.bz2 674
+AUX 2.6.25/redhat/linux-2.6-scsi-mpt-vmware-fix.patch.bz2 906 RMD160 c04cffeec22b59f5a236ae98377125263e3deb5f SHA1 43d0a374d53d2a4c73b227f7d2867c9997bd2ea8 SHA256 4e5557264836e9fd12d51d6d1631865ce5bb7e7a951d9f02d18e813aa17708d4
+MD5 2472d56cba79a45967c69781c547814b files/2.6.25/redhat/linux-2.6-scsi-mpt-vmware-fix.patch.bz2 906
+RMD160 c04cffeec22b59f5a236ae98377125263e3deb5f files/2.6.25/redhat/linux-2.6-scsi-mpt-vmware-fix.patch.bz2 906
+SHA256 4e5557264836e9fd12d51d6d1631865ce5bb7e7a951d9f02d18e813aa17708d4 files/2.6.25/redhat/linux-2.6-scsi-mpt-vmware-fix.patch.bz2 906
 AUX linux-sabayon-2.6.23-amd64.config 73037 RMD160 e5619e1d7b18cc00642d248889a9cb3e81b7d22e SHA1 35eedefaec835cddacbdf4dfb5073a60d0d6f877 SHA256 9945ce34a5049cc4b66f85587cdf8ee0e00280a1ecca99c60ff10ded40d18527
 MD5 47be7d77f488bbb6eb3a55f9ae94cfa5 files/linux-sabayon-2.6.23-amd64.config 73037
 RMD160 e5619e1d7b18cc00642d248889a9cb3e81b7d22e files/linux-sabayon-2.6.23-amd64.config 73037
@@ -225,10 +241,10 @@ EBUILD linux-sabayon-2.6.24.ebuild 4242 RMD160 ec6ff166d3de1aacd7c19a4f557f99adf
 MD5 0dc1d96c1636aff8c33ab8252469d0be linux-sabayon-2.6.24.ebuild 4242
 RMD160 ec6ff166d3de1aacd7c19a4f557f99adf0498248 linux-sabayon-2.6.24.ebuild 4242
 SHA256 fb4ce60f0f5bef80baaae11bb909e959a3bebe8eb4bf9356b7d993b6d2835fa7 linux-sabayon-2.6.24.ebuild 4242
-EBUILD linux-sabayon-2.6.25.ebuild 4274 RMD160 9af88f695bd0328c091bf86fb8b078f390b74484 SHA1 01d8d08d1ab32ae7a94bf64f8a569ce28f7680ed SHA256 1ce68fdfad3697c6dc25579e528af940da7cb8d2ef31b6d496a04e2911ad3bab
-MD5 4cea08d87c17376c751794156e41ae6d linux-sabayon-2.6.25.ebuild 4274
-RMD160 9af88f695bd0328c091bf86fb8b078f390b74484 linux-sabayon-2.6.25.ebuild 4274
-SHA256 1ce68fdfad3697c6dc25579e528af940da7cb8d2ef31b6d496a04e2911ad3bab linux-sabayon-2.6.25.ebuild 4274
+EBUILD linux-sabayon-2.6.25.ebuild 4499 RMD160 66446b797e73396583a2fc53892c96419466b53b SHA1 2903464a333619b9497110c88c8796f1cc84cfbd SHA256 bdc74c5c1d8d387062d9eee1fb3d819c1a783be0f63fe8fabdb5990d0081ce9e
+MD5 aa6a3d460bb2f234286a51e1c1dbdd96 linux-sabayon-2.6.25.ebuild 4499
+RMD160 66446b797e73396583a2fc53892c96419466b53b linux-sabayon-2.6.25.ebuild 4499
+SHA256 bdc74c5c1d8d387062d9eee1fb3d819c1a783be0f63fe8fabdb5990d0081ce9e linux-sabayon-2.6.25.ebuild 4499
 MD5 abb2235fa6ae7560a0d31cedbd16a6ba files/digest-linux-sabayon-2.6.23-r1 798
 RMD160 600c332a9326ef6aaec782d213d1b3263c26deb6 files/digest-linux-sabayon-2.6.23-r1 798
 SHA256 3c4ee7989566a21d5fd60bc5c0e65d24104d6e07f5900dec2af38681e80981fb files/digest-linux-sabayon-2.6.23-r1 798

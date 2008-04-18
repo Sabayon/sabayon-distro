@@ -40,18 +40,27 @@ SUSPEND2_TARGET="2.6.25"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
-		${FILESDIR}/${PV}/genpatches/2705_alsa-hda-fujitsu.patch
-		${FILESDIR}/${PV}/genpatches/4105_dm-bbr.patch
 		${DISTDIR}/${FBCONDECOR_PATCH}
-		${FILESDIR}/${MY_P}-squashfs-3.3.patch
 		${FILESDIR}/${MY_P}-from-ext4dev-to-ext4.patch
 		${DISTDIR}/${UNIONFS_PATCH}
 		${FILESDIR}/${PV}/${P}-atl2.patch
 		${FILESDIR}/${PV}/${P}-tuxonice-3.0-rc6.patch.bz2
-		${FILESDIR}/${PV}/${P}-aufs.patch.bz2
+"
+# gentoo patches
+for patch in `ls ${FILESDIR}/${PV}/genpatches`; do
+	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/genpatches/${patch}"
+done
+# redhat patches
+for patch in `ls ${FILESDIR}/${PV}/redhat`; do
+	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/redhat/${patch}"
+done
 
-		"
+# bug fixes
+UNIPATCH_LIST="${UNIPATCH_LIST} "${FILESDIR}"/${PV}/${P}-squashfs-update.patch"
+
 # ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
+# ${FILESDIR}/${PV}/${P}-aufs.patch.bz2
+
 
 SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI}" 
 # ${SUSPEND2_URI}
