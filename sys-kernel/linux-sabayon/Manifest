@@ -241,10 +241,10 @@ EBUILD linux-sabayon-2.6.24.ebuild 4242 RMD160 ec6ff166d3de1aacd7c19a4f557f99adf
 MD5 0dc1d96c1636aff8c33ab8252469d0be linux-sabayon-2.6.24.ebuild 4242
 RMD160 ec6ff166d3de1aacd7c19a4f557f99adf0498248 linux-sabayon-2.6.24.ebuild 4242
 SHA256 fb4ce60f0f5bef80baaae11bb909e959a3bebe8eb4bf9356b7d993b6d2835fa7 linux-sabayon-2.6.24.ebuild 4242
-EBUILD linux-sabayon-2.6.25.ebuild 4499 RMD160 66446b797e73396583a2fc53892c96419466b53b SHA1 2903464a333619b9497110c88c8796f1cc84cfbd SHA256 bdc74c5c1d8d387062d9eee1fb3d819c1a783be0f63fe8fabdb5990d0081ce9e
-MD5 aa6a3d460bb2f234286a51e1c1dbdd96 linux-sabayon-2.6.25.ebuild 4499
-RMD160 66446b797e73396583a2fc53892c96419466b53b linux-sabayon-2.6.25.ebuild 4499
-SHA256 bdc74c5c1d8d387062d9eee1fb3d819c1a783be0f63fe8fabdb5990d0081ce9e linux-sabayon-2.6.25.ebuild 4499
+EBUILD linux-sabayon-2.6.25.ebuild 4508 RMD160 aea996feb191d836d4896ed3810907636f2cd417 SHA1 378071c4e6ee3b14ec89d7181d7569e0464f504e SHA256 c9d0725f7ec09d1569787a600451d543a4d4a960f2482ad6ffe80fedce23356d
+MD5 5f2757eefcaa1d568443370c95fe084a linux-sabayon-2.6.25.ebuild 4508
+RMD160 aea996feb191d836d4896ed3810907636f2cd417 linux-sabayon-2.6.25.ebuild 4508
+SHA256 c9d0725f7ec09d1569787a600451d543a4d4a960f2482ad6ffe80fedce23356d linux-sabayon-2.6.25.ebuild 4508
 MD5 abb2235fa6ae7560a0d31cedbd16a6ba files/digest-linux-sabayon-2.6.23-r1 798
 RMD160 600c332a9326ef6aaec782d213d1b3263c26deb6 files/digest-linux-sabayon-2.6.23-r1 798
 SHA256 3c4ee7989566a21d5fd60bc5c0e65d24104d6e07f5900dec2af38681e80981fb files/digest-linux-sabayon-2.6.23-r1 798

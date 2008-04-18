@@ -9,7 +9,7 @@ detect_version
 detect_arch
 
 UNIPATCH_STRICTORDER="yes"
-KEYWORDS="-*"
+KEYWORDS="~amd64 ~x86"
 HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
 	!only_sources? ( >=sys-kernel/genkernel-3.4.9 )
