@@ -27,24 +27,21 @@ EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
 SLOT="${PV}"
 S="${WORKDIR}/linux-${KV_FULL}"
 UNIONFS_PATCH="unionfs-2.3.2_for_${PV}-rc7.diff.gz"
-FBCONDECOR_PATCH="fbcondecor-0.9.4-${PV}-rc6.patch"
 
 ## INIT: Exported data
-SL_PATCHES_URI="
-		http://dev.gentoo.org/~spock/projects/fbcondecor/archive/${FBCONDECOR_PATCH}
-		http://download.filesystems.org/unionfs/unionfs-2.x/${UNIONFS_PATCH}
-"
+SL_PATCHES_URI="http://download.filesystems.org/unionfs/unionfs-2.x/${UNIONFS_PATCH}"
 
 SUSPEND2_VERSION="3.0-rc5"
 SUSPEND2_TARGET="2.6.25"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
-		${DISTDIR}/${FBCONDECOR_PATCH}
 		${FILESDIR}/${MY_P}-from-ext4dev-to-ext4.patch
 		${DISTDIR}/${UNIONFS_PATCH}
 		${FILESDIR}/${PV}/${P}-atl2.patch
 		${FILESDIR}/${PV}/${P}-tuxonice-3.0-rc6.patch.bz2
+		${FILESDIR}/${PV}/${P}-aufs-tmp.patch
+		
 "
 # gentoo patches
 for patch in `ls ${FILESDIR}/${PV}/genpatches`; do
@@ -54,9 +51,6 @@ done
 for patch in `ls ${FILESDIR}/${PV}/redhat`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/redhat/${patch}"
 done
-
-# bug fixes
-UNIPATCH_LIST="${UNIPATCH_LIST} "${FILESDIR}"/${PV}/${P}-squashfs-update.patch"
 
 # ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 # ${FILESDIR}/${PV}/${P}-aufs.patch.bz2
