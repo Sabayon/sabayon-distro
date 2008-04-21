@@ -1,0 +1,3321 @@
+diff -Nurp usr.orig/src/nv/conftest.sh usr/src/nv/conftest.sh
+--- usr.orig/src/nv/conftest.sh	2008-01-21 20:13:08.000000000 +0100
++++ usr/src/nv/conftest.sh	2008-04-21 14:00:59.000000000 +0200
+@@ -100,6 +100,32 @@ compile_test() {
+             fi
+         ;;
+ 
++        set_pages_uc)
++            #
++            # Determine if the set_pages_uc() function is present.
++            #
++            echo "#include <linux/autoconf.h>
++            #include <asm/cacheflush.h>
++            void conftest_set_pages_uc(void) {
++                set_pages_uc();
++            }" > conftest$$.c
++
++            $CC $CFLAGS -c conftest$$.c > /dev/null 2>&1
++            rm -f conftest$$.c
++
++            if [ -f conftest$$.o ]; then
++                rm -f conftest$$.o
++                echo "#undef NV_SET_PAGES_UC_PRESENT" >> conftest.h
++                return
++            else
++                echo "#ifdef NV_CHANGE_PAGE_ATTR_PRESENT" >> conftest.h
++                echo "#undef NV_CHANGE_PAGE_ATTR_PRESENT" >> conftest.h
++                echo "#endif"                             >> conftest.h
++                echo "#define NV_SET_PAGES_UC_PRESENT"    >> conftest.h
++                return
++            fi
++        ;;
++
+         change_page_attr)
+             #
+             # Determine if the change_page_attr() function is
+@@ -124,7 +150,9 @@ compile_test() {
+                 rm -f conftest$$.o
+                 return
+             else
++                echo "#ifndef NV_SET_PAGES_UC_PRESENT"     >> conftest.h
+                 echo "#define NV_CHANGE_PAGE_ATTR_PRESENT" >> conftest.h
++                echo "#endif"                              >> conftest.h
+                 return
+             fi
+         ;;
+@@ -501,6 +529,8 @@ compile_test() {
+                 return
+             fi
+ 
++            rm -f conftest$$.o
++
+             echo "#include <linux/autoconf.h>
+             #include <linux/interrupt.h>
+             irq_handler_t conftest_isr;
+diff -Nurp usr.orig/src/nv/Makefile.kbuild usr/src/nv/Makefile.kbuild
+--- usr.orig/src/nv/Makefile.kbuild	2008-04-21 13:13:34.000000000 +0200
++++ usr/src/nv/Makefile.kbuild	2008-04-21 14:00:59.000000000 +0200
+@@ -176,6 +176,7 @@ ifneq ($(PATCHLEVEL), 4)
+ 	vmap \
+ 	signal_struct \
+ 	agp_backend_acquire \
++	set_pages_uc \
+ 	change_page_attr \
+ 	pci_get_class \
+ 	sysctl_max_map_count \
+diff -Nurp usr.orig/src/nv/Makefile.kbuild.orig usr/src/nv/Makefile.kbuild.orig
+--- usr.orig/src/nv/Makefile.kbuild.orig	1970-01-01 01:00:00.000000000 +0100
++++ usr/src/nv/Makefile.kbuild.orig	2008-04-21 13:13:34.000000000 +0200
+@@ -0,0 +1,329 @@
++# This Makefile is automatically generated; do not edit
++# Generated on 'builder26' on Mon Jan 21 10:35:34 PST 2008
++
++# to use this file, rename or delete the default Makefile, then rename or
++# link this file to Makefile. then type 'make'
++
++#
++# KBUILD Makefile for the NVIDIA Linux kernel module.
++#
++# The motivation for replacing the original Makefile is the hope that this
++# version will simplify the build and installation process. In the past,
++# many architectural and cosmetic changes to the Linux kernel have made it
++# difficult to maintain compatibility or required duplication of logic.
++#
++# Linux 2.6 introduces numerous such changes, many of which impact modules.
++# Relying on KBUILD, some aspects of the build system otherwise difficult
++# to support (for example, module versioning) are abstracted away and dealt
++# with elsewhere, making life significantly easier here.
++#
++# The new approach currently has its own share of problems, some of which
++# are architectural difficulties with KBUILD, others minor annoyances. For
++# this reason, an improved version of the NVIDIA Makefile is available to
++# those experiencing difficulties.
++#
++# kbuild Makefile originally developed by:
++#
++# Alistair J Strachan (alistair@devzero.co.uk) (first pass, enhancements)
++# Christian Zander (zander@mail.minion.de) (enhancements)
++#
++
++all: install
++install: package-install
++
++#
++# The NVIDIA kernel module base name and static file names. KBUILD will go
++# ahead and append ".o" or ".ko" to form the final module name.
++#
++
++MODULE_NAME := nvidia
++VERSION_HEADER := nv_compiler.h
++
++#
++# List of object files to link into NVIDIA kernel module; make sure KBUILD
++# understands that we want a module.
++#
++
++RESMAN_CORE_OBJS := nv-kernel.o
++RESMAN_GLUE_OBJS := nv.o nv-vm.o os-agp.o os-interface.o os-registry.o
++
++$(MODULE_NAME)-objs := $(RESMAN_CORE_OBJS) $(RESMAN_GLUE_OBJS)
++
++#
++# The precompiled kernel module build process requires a separation of the
++# closed source and open source object files.
++#
++
++KERNEL_GLUE_NAME := nv-linux.o
++KERNEL_GLUE_OBJS := $(RESMAN_GLUE_OBJS) $(MODULE_NAME).mod.o
++
++#
++# A bug in KBUILD 2.4 means that leaving obj-m set in top-level context
++# will cause Rules.make to call pathdown.sh, which is wrong. So, we only
++# set this conditional of a kernel-level instance.
++#
++
++ifdef TOPDIR
++obj-m := $(MODULE_NAME).o
++endif
++
++#
++# Include local source directory in $(CC)'s include path and set disable any
++# warning types that are of little interest to us.
++#
++
++EXTRA_CFLAGS += -I$(src)
++EXTRA_CFLAGS += -Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts -Wparentheses  -Wno-multichar -Werror -mno-red-zone -MD $(DEFINES) $(INCLUDES)  -Wno-cast-qual -Wno-error
++
++#
++# We rely on these two definitions below; if they aren't set, we set them to
++# reasonable defaults (Linux 2.4's KBUILD, and top-level passes will not set
++# these).
++#
++
++src ?= .
++obj ?= .
++
++#
++# Determine location of the Linux kernel source tree. Allow users to override
++# the default (i.e. automatically determined) kernel source location with the
++# SYSSRC directive; this new directive replaces NVIDIA's SYSINCLUDE.
++#
++
++KERNEL_MODLIB := /lib/modules/$(shell uname -r)
++
++ifdef SYSSRC
++ KERNEL_SOURCES := $(SYSSRC)
++ KERNEL_HEADERS := $(KERNEL_SOURCES)/include
++else
++ KERNEL_UNAME := $(shell uname -r)
++ KERNEL_SOURCES := $(shell test -d $(KERNEL_MODLIB)/source && echo $(KERNEL_MODLIB)/source || echo $(KERNEL_MODLIB)/build)
++ KERNEL_HEADERS := $(KERNEL_SOURCES)/include
++endif
++
++KERNEL_OUTPUT := $(KERNEL_SOURCES)
++KBUILD_PARAMS :=
++
++ifdef SYSOUT
++ ifneq ($(SYSOUT), $(KERNEL_SOURCES))
++ KERNEL_OUTPUT := $(SYSOUT)
++ KBUILD_PARAMS := KBUILD_OUTPUT=$(KERNEL_OUTPUT)
++ endif
++else
++ ifeq ($(KERNEL_SOURCES), $(KERNEL_MODLIB)/source)
++ KERNEL_OUTPUT := $(KERNEL_MODLIB)/build
++ KBUILD_PARAMS := KBUILD_OUTPUT=$(KERNEL_OUTPUT)
++ endif
++endif
++
++CC ?= cc
++HOST_CC ?= $(CC)
++CONFTEST := /bin/sh $(src)/conftest.sh "$(CC)" "$(HOST_CC)" $(KERNEL_SOURCES) $(KERNEL_OUTPUT)
++
++KERNEL_UNAME ?= $(shell $(CONFTEST) get_uname)
++MODULE_ROOT := /lib/modules/$(KERNEL_UNAME)/kernel/drivers
++
++#
++# Sets any internal variables left unset by KBUILD (e.g. this happens during
++# a top-level run).
++#
++
++TOPDIR ?= $(KERNEL_SOURCES)
++PATCHLEVEL ?= $(shell $(CONFTEST) kernel_patch_level)
++
++#
++# Linux 2.4 uses the .o module extension. Linux 2.6, however, uses the .ko
++# module extension. Handle these gracefully.
++#
++
++ifeq ($(PATCHLEVEL), 4)
++ MODULE_OBJECT := $(MODULE_NAME).o
++else
++ MODULE_OBJECT := $(MODULE_NAME).ko
++endif
++
++#
++# NVIDIA specific CFLAGS and #define's. The remap_page_range check has become
++# necessary with the introduction of the five argument version to Linux 2.4
++# distribution kernels; this conflicting change cannot be detected at compile
++# time.
++#
++
++EXTRA_CFLAGS += -D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE -mcmodel=kernel -DNTRM -D_GNU_SOURCE -D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE -DNV_VERSION_STRING=\"71.86.04\" -DNV_UNIX -DNV_LINUX -DNV_INT64_OK -DNVCPU_X86_64 -DNV_64_BITS -UDEBUG -U_DEBUG -DNDEBUG
++
++ifeq ($(shell echo $(NVDEBUG)),1)
++ ifeq ($(shell test -z $(RMDEBUG) && echo yes),yes)
++ RMDEBUG=1
++ endif
++endif
++
++ifeq ($(shell echo $(RMDEBUG)),1)
++ EXTRA_CFLAGS += -DDEBUG -g 
++endif
++
++ifeq ($(shell echo $(NV_MAP_REGISTERS_EARLY)),1)
++CFLAGS += -DNV_MAP_REGISTERS_EARLY
++endif
++
++ifeq ($(shell echo $(NV_BUILD_NV_PAT_SUPPORT)),1)
++CFLAGS += -DNV_BUILD_NV_PAT_SUPPORT
++endif
++
++ifneq ($(PATCHLEVEL), 4)
++ COMPILE_TESTS = \
++	remap_page_range \
++	remap_pfn_range \
++	vmap \
++	signal_struct \
++	agp_backend_acquire \
++	change_page_attr \
++	pci_get_class \
++	sysctl_max_map_count \
++	pm_message_t \
++	irq_handler_t \
++	pci_choose_state \
++	vm_insert_page \
++	BREAKPOINT \
++	acpi_device_ops \
++	acquire_console_sem \
++	kmem_cache_create
++else
++ COMPILE_TESTS = \
++	remap_page_range \
++	vmap \
++	change_page_attr \
++	i2c_adapter
++endif
++
++#
++# Miscellaneous NVIDIA kernel module build support targets. They are needed
++# to satisfy KBUILD requirements and to support NVIDIA specifics.
++#
++
++$(obj)/$(RESMAN_CORE_OBJS):
++	cp $(src)/$(RESMAN_CORE_OBJS) $(obj)/$(RESMAN_CORE_OBJS)
++
++$(obj)/$(VERSION_HEADER):
++	@ echo \#define NV_COMPILER \"`$(CC) -v 2>&1 | tail -n 1`\" > $@
++
++$(obj)/conftest.h: compile-tests
++
++RESMAN_GLUE_TARGETS = $(addprefix $(obj)/,$(RESMAN_GLUE_OBJS))
++
++$(RESMAN_GLUE_TARGETS): $(obj)/conftest.h
++
++$(obj)/nv.o: $(obj)/$(VERSION_HEADER)
++
++#
++# More quirks for Linux 2.4 KBUILD, which doesn't link automatically.
++#
++
++ifeq ($(PATCHLEVEL), 4)
++$(obj)/$(MODULE_NAME).o: $($(MODULE_NAME)-objs)
++	$(LD) $(EXTRA_LDFLAGS) -r -o $@ $($(MODULE_NAME)-objs)
++endif
++
++#
++# KBUILD build parameters.
++#
++
++KBUILD_PARAMS += KBUILD_VERBOSE=1 -C $(KERNEL_SOURCES) M=$(PWD)
++
++#
++# NVIDIA sanity checks.
++#
++
++suser-sanity-check:
++	@if ! $(CONFTEST) suser_sanity_check; then exit 1; fi
++
++rmmod-sanity-check:
++	@if ! $(CONFTEST) rmmod_sanity_check; then exit 1; fi
++
++cc-version-check:
++	@if ! $(CONFTEST) cc_version_check full_output; then exit 1; fi
++
++rivafb-sanity-check:
++	@if ! $(CONFTEST) rivafb_sanity_check full_output; then exit 1; fi
++
++nvidiafb-sanity-check:
++	@if ! $(CONFTEST) nvidiafb_sanity_check full_output; then exit 1; fi
++
++xen-sanity-check:
++	@if ! $(CONFTEST) xen_sanity_check full_output; then exit 1; fi
++
++compile-tests:
++	@if ! $(CONFTEST) compile_tests $(COMPILE_TESTS); then exit 1; fi
++
++#
++# Build the NVIDIA kernel module using Linux KBUILD. This target is used by
++# the "package-install" target below.
++#
++
++module: cc-version-check xen-sanity-check rivafb-sanity-check nvidiafb-sanity-check
++	@if [ -z "$(PATCHLEVEL)" ]; then \
++	 echo "failed to determine PATCHLEVEL!"; \
++	 exit 1; \
++	fi; \
++	echo "NVIDIA: calling KBUILD..."; \
++	echo "make CC=$(CC) $(KBUILD_PARAMS) modules"; \
++	make "CC=$(CC)" $(KBUILD_PARAMS) modules; \
++	echo "NVIDIA: left KBUILD."; \
++	if ! [ -f $(MODULE_OBJECT) ]; then \
++	 echo "$(MODULE_OBJECT) failed to build!"; \
++	 exit 1; \
++	fi
++
++#
++# Build the NVIDIA kernel module with KBUILD. Verify that the user posesses
++# sufficient privileges. Rebuild the module dependency file.
++#
++
++module-install: suser-sanity-check module
++	@mkdir -p $(MODULE_ROOT)/video; \
++	install -m 0664 -o root -g root $(MODULE_OBJECT) $(MODULE_ROOT)/video; \
++	PATH="$(PATH):/bin:/sbin" depmod -ae;
++
++#
++# This target builds, then installs, then creates device nodes and inserts
++# the module, if successful.
++#
++
++package-install: module-install rmmod-sanity-check
++	PATH="$(PATH):/bin:/sbin" modprobe $(MODULE_NAME) && \
++	echo "$(MODULE_OBJECT) installed successfully.";
++
++#
++# Build an object file suitable for further processing by the installer and
++# inclusion as a precompiled kernel interface file.
++#
++
++$(KERNEL_GLUE_NAME): module
++	$(LD) $(EXTRA_LDFLAGS) -r -o $(KERNEL_GLUE_NAME) $(KERNEL_GLUE_OBJS)
++
++#
++# Support hack, KBUILD isn't prepared to clean up after external modules.
++#
++
++clean:
++	@ $(RM) -f $(RESMAN_GLUE_OBJS) $(KERNEL_GLUE_OBJS)
++	@ $(RM) -f build-in.o nv-linux.o *.d .*.{cmd,flags}
++	@ $(RM) -f $(MODULE_NAME).{o,ko,mod.{o,c}} $(VERSION_HEADER) *~
++	@ $(RM) -f conftest*.c conftest.h
++	@ $(RM) -rf .tmp_versions
++
++#
++# This target just prints the kernel module filename (for use by the
++# installer)
++#
++
++print-module-filename:
++	@ echo $(MODULE_OBJECT)
++
++#
++# Linux 2.4 KBUILD requires the inclusion of Rules.make; Linux 2.6's KBUILD
++# includes dependencies automatically.
++#
++
++ifeq ($(PATCHLEVEL), 4)
++include $(KERNEL_SOURCES)/Rules.make
++endif
+diff -Nurp usr.orig/src/nv/nv.c usr/src/nv/nv.c
+--- usr.orig/src/nv/nv.c	2008-01-21 20:13:08.000000000 +0100
++++ usr/src/nv/nv.c	2008-04-21 14:10:46.000000000 +0200
+@@ -97,10 +97,7 @@ unsigned int nv_remap_count;
+ unsigned int nv_remap_limit;
+ #endif
+ 
+-#if defined(NV_CHANGE_PAGE_ATTR_PRESENT)
+-int nv_use_cpa = 1;
+-#endif
+-
++int nv_update_memory_types = 1;
+ static void *nv_pte_t_cache = NULL;
+ 
+ // allow an easy way to convert all debug printfs related to events
+@@ -969,30 +966,26 @@ static void __nv_disable_pat_support()
+ #endif /* defined(NV_BUILD_NV_PAT_SUPPORT) */
+ }
+ 
+-
+ #if defined(NV_CHANGE_PAGE_ATTR_BUG_PRESENT)
+-
+-/* nv_verify_cpa_interface - determine if the change_page_attr bug is fixed
+- * in this kernel.
++/*
++ * nv_verify_cpa_interface() - determine if the change_page_attr() large page
++ * management accounting bug known to exist in early Linux/x86-64 kernels
++ * is present in this kernel.
+  *
+- * there's really not a good way to determine if change_page_attr is fixed.
+- * we can't really use cpa on 2.6 x86_64 kernels < 2.6.11, as if we run into
+- * the accounting bug, the kernel will throw a BUG. this isn't 100% accurate,
+- * as it doesn't throw a bug until we try to restore the caching attributes
+- * of the page. so if we can track down a 4M allocation, we can mark it
+- * uncached and see if the accounting was done correctly.
+- * 
+- * this is a little ugly, but the most accurate approach to determining if
+- * this kernel is good.
++ * There's really no good way to determine if change_page_attr() is working
++ * correctly. We can't reliably use change_page_attr() on Linux/x86-64 2.6
++ * kernels < 2.6.11: if we run into the accounting bug, the Linux kernel will
++ * trigger a BUG() if we attempt to restore the WB memory type of a page
++ * originally part of a large page.
+  *
+- * why do we even bother? some distributions have back-ported the cpa fix to
+- * kernels < 2.6.11. we want to use change_page_attr to avoid random corruption
+- * and hangs, but need to make sure it's safe to do so.
++ * So if we can successfully allocate such a page, change its memory type to
++ * UC and check if the accounting was done correctly, we can determine if
++ * the change_page_attr() interface can be used safely.
+  *
+- * return values:
+- *    0 - test passed, interface works
+- *    1 - test failed, status unclear
+- *   -1 - test failed, interface broken
++ * Return values:
++ *    0 - test passed, the change_page_attr() interface works
++ *    1 - test failed, the status is unclear
++ *   -1 - test failed, the change_page_attr() interface is broken
+  */
+ 
+ static inline pte_t *check_large_page(unsigned long vaddr)
+@@ -1000,7 +993,7 @@ static inline pte_t *check_large_page(un
+     pgd_t *pgd = NULL;
+     pmd_t *pmd = NULL;
+ 
+-    pgd = NV_PGD_OFFSET(vaddr, 1, &init_mm);
++    pgd = NV_PGD_OFFSET(vaddr, 1, NULL);
+     if (!NV_PGD_PRESENT(pgd))
+         return NULL;
+ 
+@@ -1110,35 +1103,42 @@ int nv_verify_cpa_interface(void)
+ 
+     return 1;
+ }
+-
+ #endif /* defined(NV_CHANGE_PAGE_ATTR_BUG_PRESENT) */
+ 
+-
+-// verify that the kernel's mapping matches the requested type 
+-// this is to protect against accidental cache aliasing problems
++/*
++ * nv_verify_page_mappings() - verify that the kernel mapping of the specified
++ * page matches the specified type. This is to help detect bugs in the Linux
++ * kernel's change_page_attr() interface, early.
++ *
++ * This function relies on the ability to perform kernel virtul address to PFN
++ * translations and therefore on 'init_mm'. Unfortunately, the latter is no
++ * longer exported in recent Linux/x86 2.6 kernels. The export was removed at
++ * roughtly the same time as the set_pages_{uc,wb}() change_page_attr()
++ * replacement interfaces were introduced; hopefully, it will be sufficient to
++ * check for their presence.
++ */
+ int nv_verify_page_mappings(
+     nv_pte_t *page_ptr,
+     unsigned int cachetype
+ )
+ {
+-    struct mm_struct *mm;
++#if defined(NV_CHANGE_PAGE_ATTR_PRESENT) || \
++    (defined(NV_SET_PAGES_UC_PRESENT) && !defined(NVCPU_X86))
++    unsigned long retval = -1;
++#if defined(NVCPU_X86) || defined(NVCPU_X86_64)
+     pgd_t *pgd = NULL;
+     pmd_t *pmd = NULL;
+     pte_t *pte = NULL;
+-    unsigned long retval = -1;
+     unsigned int flags, expected;
+     unsigned long address;
+     static int count = 0;
+ 
+-#if defined(NV_CHANGE_PAGE_ATTR_PRESENT)
+-    if (!nv_use_cpa)
++    if (!nv_update_memory_types)
+         return 0;
+-#endif
+ 
+     address = (unsigned long)__va(page_ptr->phys_addr);
+-    mm = &init_mm; // always a kernel page
+ 
+-    pgd = NV_PGD_OFFSET(address, 1, mm);
++    pgd = NV_PGD_OFFSET(address, 1, NULL);
+     if (!NV_PGD_PRESENT(pgd))
+     {
+         nv_printf(NV_DBG_ERRORS, "NVRM: pgd not present for addr 0x%lx\n", address);
+@@ -1204,7 +1204,11 @@ int nv_verify_page_mappings(
+     }
+ 
+ failed:
++#endif /* defined(NVCPU_X86) || defined(NVCPU_X86_64) */
+     return retval;
++#else
++    return 0;
++#endif
+ }
+ 
+ #if defined(NV_BUILD_NV_PAT_SUPPORT) && defined(CONFIG_HOTPLUG_CPU)
+@@ -1250,7 +1254,8 @@ static struct notifier_block nv_hotcpu_n
+ static int __init nvidia_init_module(void)
+ {
+     int rc;
+-    U032 i, count;
++    U032 i, count, data;
++    nv_state_t *nv = NV_STATE_PTR(&nv_ctl_device);
+ 
+ #if defined(VM_CHECKER)
+     nv_init_lock(vm_lock);
+@@ -1407,43 +1412,41 @@ static int __init nvidia_init_module(voi
+     /* create /proc/driver/nvidia */
+     nvos_proc_create();
+ 
+-#if defined(NV_CHANGE_PAGE_ATTR_PRESENT)
++    /*
++     * Give users an opportunity to disable the driver's use of
++     * the change_page_attr() and set_pages_{uc,wb}() kernel
++     * interfaces.
++     */
++    rc = rm_read_registry_dword(nv, "NVreg", "UpdateMemoryTypes", &data);
++    if ((rc == 0) && ((int)data != ~0))
+     {
+-        int data;
+-
+-        // allow the user to override us with a registry key
+-        rc = rm_read_registry_dword(NV_STATE_PTR(&nv_ctl_device), "NVreg", "UseCPA",  &data);
+-        if ((rc == 0) && (data != -1))
+-        {
+-            nv_use_cpa = data;
+-        }
++        nv_update_memory_types = data;
++    }
+ #if defined(NV_CHANGE_PAGE_ATTR_BUG_PRESENT)
+-        else
++    /*
++     * Unless we explicitely detect that the change_page_attr()
++     * inteface is fixed, disable usage of the interface on
++     * this kernel. Notify the user of this problem using the
++     * driver's /proc warnings interface (read by the installer
++     * and the bug report script).
++     */
++    else
++    {
++        rc = nv_verify_cpa_interface();
++        if (rc < 0)
+         {
+-            /*
+-             * Unless we explicitely detect that the change_page_attr()
+-             * inteface is fixed, disable usage of the interface on
+-             * this kernel. Notify the user of this problem using the
+-             * driver's /proc warnings interface (read by the installer
+-             * and the bug report script).
+-             */
+-            rc = nv_verify_cpa_interface();
+-            if (rc < 0)
+-            {
+-                nv_prints(NV_DBG_ERRORS, __cpgattr_warning);
+-                nvos_proc_add_warning_file("change_page_attr", __cpgattr_warning);
+-                nv_use_cpa = 0;
+-            }
+-            else if (rc != 0)
+-            {
+-                nv_prints(NV_DBG_ERRORS, __cpgattr_warning_2);
+-                nvos_proc_add_warning_file("change_page_attr", __cpgattr_warning_2);
+-                nv_use_cpa = 0;
+-            }
++            nv_prints(NV_DBG_ERRORS, __cpgattr_warning);
++            nvos_proc_add_warning_file("change_page_attr", __cpgattr_warning);
++            nv_update_memory_types = 0;
++        }
++        else if (rc != 0)
++        {
++            nv_prints(NV_DBG_ERRORS, __cpgattr_warning_2);
++            nvos_proc_add_warning_file("change_page_attr", __cpgattr_warning_2);
++            nv_update_memory_types = 0;
+         }
+-#endif
+     }
+-#endif
++#endif /* defined(NV_CHANGE_PAGE_ATTR_BUG_PRESENT) */
+ 
+ 
+ #if defined(DEBUG)
+@@ -3266,10 +3269,23 @@ _get_phys_address(
+     pte_t *pte = NULL;
+     unsigned long retval;
+ 
+-    mm = (kern) ? &init_mm : current->mm;
+-    if (!kern) down_read(&current->mm->mmap_sem);
++    if (!kern)
++    {
++        mm = current->mm;
++        down_read(&mm->mmap_sem);
++    }
++    else
++    {
++#if defined(NV_SET_PAGES_UC_PRESENT) && defined(NVCPU_X86)
++        /* nv_printf(NV_DBG_ERRORS,
++            "NVRM: can't translate KVA in nv_get_phys_address()!\n"); */
++        return 0;
++#else
++        mm = NULL;
++#endif
++    }
+ 
+-    pgd = NV_PGD_OFFSET(address, kern, mm);
++    pgd = NV_PGD_OFFSET(address, 1, NULL);
+     if (!NV_PGD_PRESENT(pgd))
+         goto failed;
+ 
+@@ -3288,11 +3304,13 @@ _get_phys_address(
+     retval &= ~_PAGE_NX;
+ #endif
+ 
+-    if (!kern) up_read(&current->mm->mmap_sem);
++    if (!kern)
++          up_read(&mm->mmap_sem);
+     return retval;
+ 
+ failed:
+-    if (!kern) up_read(&current->mm->mmap_sem);
++    if (!kern)
++          up_read(&mm->mmap_sem);
+     return 0;
+ }
+ 
+@@ -3305,7 +3323,7 @@ unsigned long NV_API_CALL nv_get_kern_ph
+     if (address < PAGE_OFFSET)
+     {
+         nv_printf(NV_DBG_WARNINGS,
+-            "NVRM: user address passed to get_kern_phys_address: 0x%lx\n",
++            "NVRM: user address passed to get_kern_phys_address: 0x%llx!\n",
+             address);
+         return 0;
+     }
+@@ -3322,12 +3340,12 @@ unsigned long NV_API_CALL nv_get_user_ph
+     unsigned long address
+ )
+ {
+-    // make sure this address is not a kernel pointer
++    /* make sure this address is not a kernel virtual address */
+ #if defined(DEBUG) && !defined(CONFIG_X86_4G)
+     if (address >= PAGE_OFFSET)
+     {
+         nv_printf(NV_DBG_WARNINGS,
+-            "NVRM: kernel address passed to get_user_phys_address: 0x%lx\n",
++            "NVRM: kernel address passed to get_user_phys_address: 0x%llx!\n",
+             address);
+         return 0;
+     }
+@@ -4085,13 +4103,10 @@ err_zero_dev:
+     return -1;
+ }
+ 
+-int NV_API_CALL nv_no_incoherent_mappings
+-(
+-    void
+-)
++int NV_API_CALL nv_no_incoherent_mappings(void)
+ {
+-#if defined(NV_CHANGE_PAGE_ATTR_PRESENT)
+-    return 1;
++#if defined(NV_CHANGE_PAGE_ATTR_PRESENT) || defined(NV_SET_PAGES_UC_PRESENT)
++    return (nv_update_memory_types);
+ #else
+     return 0;
+ #endif
+diff -Nurp usr.orig/src/nv/nv-linux.h usr/src/nv/nv-linux.h
+--- usr.orig/src/nv/nv-linux.h	2008-01-21 20:13:08.000000000 +0100
++++ usr/src/nv/nv-linux.h	2008-04-21 14:00:59.000000000 +0200
+@@ -764,9 +764,10 @@ typedef void irqreturn_t;
+ 
+ #define NV_PGD_OFFSET(address, kernel, mm)              \
+    ({                                                   \
++        struct mm_struct *__mm = (mm);                  \
+         pgd_t *__pgd;                                   \
+         if (!kernel)                                    \
+-            __pgd = pgd_offset(mm, address);            \
++            __pgd = pgd_offset(__mm, address);          \
+         else                                            \
+             __pgd = pgd_offset_k(address);              \
+         __pgd;                                          \
+@@ -1067,21 +1068,24 @@ typedef struct
+ #define NV_ATOMIC_DEC_AND_TEST(data)    atomic_dec_and_test(&(data))
+ #define NV_ATOMIC_READ(data)            atomic_read(&(data))
+ 
++extern int nv_update_memory_types;
++
+ /*
+- * a BUG() is triggered on early 2.6 x86_64 kernels. the underlying
+- * problem actually exists on many architectures and kernels, but
+- * these are the only kernels that check the condition and trigger
+- * a BUG(). note that this is a problem of the core kernel, not an
+- * nvidia bug (and can still be triggered by agpgart). let's avoid
+- * change_page_attr on those kernels.
++ * Using change_page_attr() on early Linux/x86-64 2.6 kernels may
++ * result in a BUG() being triggered. The underlying problem
++ * actually exists on multiple architectures and kernels, but only
++ * the above check for the condition and trigger a BUG().
++ *
++ * Note that this is a due to a bug in the Linux kernel, not an
++ * NVIDIA driver bug (it can also be triggered by AGPGART).
++ *
++ * We therefore need to determine at runtime if change_page_attr()
++ * can be used safely on these kernels.
+  */
+-#if defined(NV_CHANGE_PAGE_ATTR_PRESENT)
+-extern int nv_use_cpa;
+-
+-#if defined(NVCPU_X86_64) && !defined(KERNEL_2_4) && \
+-         (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 11))
+-#define NV_CHANGE_PAGE_ATTR_BUG_PRESENT 1
+-#endif
++#if defined(NV_CHANGE_PAGE_ATTR_PRESENT) && defined(NVCPU_X86_64) && \
++  !defined(KERNEL_2_4) && \
++  (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 11))
++#define NV_CHANGE_PAGE_ATTR_BUG_PRESENT
+ #endif
+ 
+ #if defined(NVCPU_X86) || defined(NVCPU_X86_64)
+@@ -1093,7 +1097,7 @@ extern int nv_use_cpa;
+  *
+  * We need to be careful to mask out _PAGE_NX when the host system
+  * doesn't support this feature or when it's disabled: the kernel
+- * may not do this in its implementation of the  change_page_attr()
++ * may not do this in its implementation of the change_page_attr()
+  * interface.
+  */
+ #ifndef X86_FEATURE_NX
+diff -Nurp usr.orig/src/nv/nv-linux.h.orig usr/src/nv/nv-linux.h.orig
+--- usr.orig/src/nv/nv-linux.h.orig	1970-01-01 01:00:00.000000000 +0100
++++ usr/src/nv/nv-linux.h.orig	2008-01-21 20:13:08.000000000 +0100
+@@ -0,0 +1,1136 @@
++/* _NVRM_COPYRIGHT_BEGIN_
++ *
++ * Copyright 2001 by NVIDIA Corporation.  All rights reserved.  All
++ * information contained herein is proprietary and confidential to NVIDIA
++ * Corporation.  Any use, reproduction, or disclosure without the written
++ * permission of NVIDIA Corporation is prohibited.
++ *
++ * _NVRM_COPYRIGHT_END_
++ */
++
++
++#ifndef _NV_LINUX_H_
++#define _NV_LINUX_H_
++
++#include "nv.h"
++
++#include <linux/autoconf.h>
++#include <linux/version.h>
++#include <linux/utsname.h>
++
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 4, 0)
++#  error This driver does not support pre-2.4 kernels!
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
++#  define KERNEL_2_4
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
++#  error This driver does not support 2.5 kernels!
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 7, 0)
++#  define KERNEL_2_6
++#else
++#  error This driver does not support development kernels!
++#endif
++
++#include "conftest.h"
++
++#if defined(KERNEL_2_4)
++#define NV_KMEM_CACHE_CREATE_PRESENT
++#define NV_KMEM_CACHE_CREATE_ARGUMENT_COUNT 6
++#define NV_IRQ_HANDLER_T_TAKES_PTREGS
++#endif
++
++#if defined (CONFIG_SMP) && !defined (__SMP__)
++#define __SMP__
++#endif
++
++#if defined (CONFIG_MODVERSIONS) && !defined (MODVERSIONS)
++#  define MODVERSIONS
++#endif
++
++#if defined(MODVERSIONS) && defined(KERNEL_2_4)
++#include <linux/modversions.h>
++#endif
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++
++#include <linux/init.h>             /* module_init, module_exit         */
++#include <linux/types.h>            /* pic_t, size_t, __u32, etc        */
++#include <linux/errno.h>            /* error codes                      */
++#include <linux/list.h>             /* circular linked list             */
++#include <linux/stddef.h>           /* NULL, offsetof                   */
++#include <linux/wait.h>             /* wait queues                      */
++#include <linux/string.h>           /* strchr(), strpbrk()              */
++
++#include <linux/slab.h>             /* kmalloc, kfree, etc              */
++#include <linux/vmalloc.h>          /* vmalloc, vfree, etc              */
++
++#include <linux/poll.h>             /* poll_wait                        */
++#include <linux/delay.h>            /* mdelay, udelay                   */
++
++#if !defined(KERNEL_2_4)
++#include <linux/sched.h>            /* suser(), capable() replacement   */
++#include <linux/moduleparam.h>      /* module_param()                   */
++#include <linux/smp_lock.h>         /* kernel_locked                    */
++#include <asm/tlbflush.h>           /* flush_tlb(), flush_tlb_all()     */
++#include <asm/kmap_types.h>         /* page table entry lookup          */
++#endif
++
++#include <linux/pci.h>              /* pci_find_class, etc              */
++#include <linux/interrupt.h>        /* tasklets, interrupt helpers      */
++#include <linux/timer.h>
++
++#include <asm/div64.h>              /* do_div()                         */
++#include <asm/system.h>             /* cli, sli, save_flags             */
++#include <asm/io.h>                 /* ioremap, virt_to_phys            */
++#include <asm/uaccess.h>            /* access_ok                        */
++#include <asm/page.h>               /* PAGE_OFFSET                      */
++#include <asm/pgtable.h>            /* pte bit definitions              */
++
++#if defined(NVCPU_X86_64) && !defined(KERNEL_2_4) && !defined(HAVE_COMPAT_IOCTL)
++#include <linux/syscalls.h>         /* sys_ioctl()                      */
++#include <linux/ioctl32.h>          /* register_ioctl32_conversion()    */
++#endif
++
++#if defined(NVCPU_X86_64) && defined(KERNEL_2_4)
++#include <asm/ioctl32.h>            /* sys_ioctl() (ioctl32)            */
++#endif
++
++#include <linux/spinlock.h>
++#include <asm/semaphore.h>
++#include <linux/highmem.h>
++
++#ifdef CONFIG_PROC_FS
++#include <linux/proc_fs.h>
++#endif
++
++#ifdef CONFIG_MTRR
++#include <asm/mtrr.h>
++#endif
++
++#ifdef CONFIG_KDB
++#include <linux/kdb.h>
++#include <asm/kdb.h>
++#endif
++
++#if defined(CONFIG_X86_REMOTE_DEBUG)
++#include <linux/gdb.h>
++#endif
++
++#if defined(CONFIG_KGDB)
++#include <linux/kgdb.h>
++#endif
++
++#if defined (CONFIG_AGP) || defined (CONFIG_AGP_MODULE)
++#define AGPGART
++#include <linux/agp_backend.h>
++#include <linux/agpgart.h>
++#endif
++
++#if defined(NVCPU_X86) || defined(NVCPU_X86_64)
++#define NV_BUILD_NV_PAT_SUPPORT 1
++#endif
++
++#if defined(NV_BUILD_NV_PAT_SUPPORT)
++#include "pat.h"
++#if defined(CONFIG_HOTPLUG_CPU)
++#include <linux/cpu.h>              /* CPU hotplug support              */
++#include <linux/notifier.h>         /* struct notifier_block, etc       */
++#endif
++#endif
++
++#if defined(NVCPU_X86)
++#ifndef write_cr4
++#define write_cr4(x) __asm__ ("movl %0,%%cr4" :: "r" (x));
++#endif
++
++#ifndef read_cr4
++#define read_cr4()                                  \
++ ({                                                 \
++      unsigned int __cr4;                           \
++      __asm__ ("movl %%cr4,%0" : "=r" (__cr4));     \
++      __cr4;                                        \
++  })
++#endif
++
++#ifndef wbinvd
++#define wbinvd() __asm__ __volatile__("wbinvd" ::: "memory");
++#endif
++#endif /* defined(NVCPU_X86) */
++
++#ifndef get_cpu
++#define get_cpu() smp_processor_id()
++#define put_cpu()
++#endif
++
++#if !defined(unregister_hotcpu_notifier)
++#define unregister_hotcpu_notifier unregister_cpu_notifier
++#endif
++#if !defined(register_hotcpu_notifier)
++#define register_hotcpu_notifier register_cpu_notifier
++#endif
++
++#if !defined (list_for_each)
++#define list_for_each(pos, head) \
++        for (pos = (head)->next; pos != (head); pos = (pos)->next)
++#endif
++
++#if !defined(pmd_large)
++#define pmd_large(_pmd) \
++    ((pmd_val(_pmd) & (_PAGE_PSE|_PAGE_PRESENT)) == (_PAGE_PSE|_PAGE_PRESENT))
++#endif
++
++#if !defined(page_count) && defined(KERNEL_2_4)
++#define page_count(page) (atomic_read(&(page)->count))
++#endif
++
++#define NV_GET_PAGE_COUNT(page_ptr) \
++    (unsigned int)page_count(NV_GET_PAGE_STRUCT(page_ptr->phys_addr))
++
++#ifdef EXPORT_NO_SYMBOLS
++/* don't clutter the kernel namespace with our symbols */
++EXPORT_NO_SYMBOLS;
++#endif
++
++#if !defined(DEBUG) && defined(__GFP_NOWARN)
++#define NV_GFP_KERNEL (GFP_KERNEL | __GFP_NOWARN)
++#define NV_GFP_ATOMIC (GFP_ATOMIC | __GFP_NOWARN)
++#else
++#define NV_GFP_KERNEL (GFP_KERNEL)
++#define NV_GFP_ATOMIC (GFP_ATOMIC)
++#endif
++
++#if defined(GFP_DMA32)
++/*
++ * GFP_DMA32 is similar to GFP_DMA, but instructs the Linux zone
++ * allocator to allocate memory from the first 4GB on platforms
++ * such as Linux/x86-64; the alternative is to use an IOMMU such
++ * as the one implemented with the K8 GART, if available.
++ */
++#define NV_GFP_DMA32 (NV_GFP_KERNEL | GFP_DMA32)
++#else
++#define NV_GFP_DMA32 (NV_GFP_KERNEL)
++#endif
++
++#define CACHE_FLUSH()  asm volatile("wbinvd":::"memory")
++
++#if !defined(IRQF_SHARED)
++#define IRQF_SHARED SA_SHIRQ
++#endif
++#if !defined(IRQF_DISABLED)
++#define IRQF_DISABLED SA_INTERRUPT
++#endif
++
++#define NV_MAX_RECURRING_WARNING_MESSAGES 10
++
++/* add support for iommu.
++ * on x86_64 platforms, this uses the gart to remap pages that are > 32-bits
++ * to < 32-bits.
++ */
++#if defined(NVCPU_X86_64) && !defined(GFP_DMA32)
++#define NV_SG_MAP_BUFFERS 1
++extern int nv_swiotlb;
++#define NV_REMAP_LIMIT_DEFAULT  (60 * 1024 * 1024)
++#endif
++
++/* add support for software i/o tlb support.
++ * normally, you'd expect this to be transparent, but unfortunately this is not
++ * the case. for starters, the sw io tlb is a pool of pre-allocated pages that
++ * are < 32-bits. when we ask to remap a page through this sw io tlb, we are
++ * returned one of these pages, which means we have 2 different pages, rather
++ * than 2 mappings to the same page. secondly, this pre-allocated pool is very
++ * tiny, and the kernel panics when it is exhausted. try to warn the user that
++ * they need to boost the size of their pool.
++ */
++#if defined(CONFIG_SWIOTLB) && !defined(GFP_DMA32)
++#define NV_SWIOTLB 1
++#endif
++
++/*
++ * early 2.6 kernels changed their swiotlb codepath, running into a
++ * latent bug that returns virtual addresses when it should return
++ * physical addresses. we try to gracefully account for that, by 
++ * comparing the returned address to what should be it's virtual
++ * equivalent. this should hopefully account for when the bug is 
++ * fixed in the core kernel.
++ */
++#if defined(NV_SWIOTLB) && !defined(KERNEL_2_4)
++#define NV_FIXUP_SWIOTLB_VIRT_ADDR_BUG(dma_addr) \
++    if ((dma_addr) == ((dma_addr) | PAGE_OFFSET)) \
++        (dma_addr) = __pa((dma_addr))
++#else
++#define NV_FIXUP_SWIOTLB_VIRT_ADDR_BUG(dma_addr)
++#endif
++
++#ifndef NVWATCH
++
++/* various memory tracking/debugging techniques
++ * disabled for retail builds, enabled for debug builds
++ */
++
++// allow an easy way to convert all debug printfs related to memory
++// management back and forth between 'info' and 'errors'
++#if defined(NV_DBG_MEM)
++#define NV_DBG_MEMINFO NV_DBG_ERRORS
++#else
++#define NV_DBG_MEMINFO NV_DBG_INFO
++#endif
++
++#ifdef DEBUG
++#define NV_ENABLE_MEM_TRACKING 1
++#endif
++
++#if defined(NV_ENABLE_MEM_TRACKING)
++#define NV_MEM_TRACKING_PAD_SIZE(size)   ((size) += sizeof(void *))
++#define NV_MEM_TRACKING_HIDE_SIZE(ptr, size)            \
++    if ((ptr) && *(ptr)) {                              \
++        U008 *__ptr;                                    \
++        *(unsigned long *) *(ptr) = (size);             \
++        __ptr = *(ptr); __ptr += sizeof(void *);        \
++        *(ptr) = (void *) __ptr;                        \
++    }
++#define NV_MEM_TRACKING_RETRIEVE_SIZE(ptr, size)        \
++    {                                                   \
++        U008 *__ptr = (ptr); __ptr -= sizeof(void *);   \
++        (ptr) = (void *) __ptr;                         \
++        size = *(unsigned long *) (ptr);                \
++    }
++#else
++#define NV_MEM_TRACKING_PAD_SIZE(size)
++#define NV_MEM_TRACKING_HIDE_SIZE(ptr, size)
++#define NV_MEM_TRACKING_RETRIEVE_SIZE(ptr, size)  ((size) = 0)
++#endif
++
++
++/* poor man's memory allocation tracker.
++ * main intention is just to see how much memory is being used to recognize
++ * when memory usage gets out of control or if memory leaks are happening
++ */
++
++/* keep track of memory usage */
++#if defined(NV_ENABLE_MEM_TRACKING)
++
++/* print out a running tally of memory allocation amounts, disabled by default */
++// #define POOR_MANS_MEM_CHECK 1
++
++
++/* slightly more advanced memory allocation tracker.
++ * track who's allocating memory and print out a list of currently allocated
++ * memory at key points in the driver
++ */
++
++#define MEMDBG_ALLOC(a,b) (a = kmalloc(b, NV_GFP_ATOMIC))
++#define MEMDBG_FREE(a)    (kfree(a))
++
++#include "nv-memdbg.h"
++
++#undef MEMDBG_ALLOC
++#undef MEMDBG_FREE
++
++/* print out list of memory allocations */
++/* default to enabled for now */
++#define LIST_MEM_CHECK 1
++
++/* decide which memory types to apply mem trackers to */
++#define VM_CHECKER 1
++#define KM_CHECKER 1
++
++#endif  /* NV_ENABLE_MEM_TRACKING */
++
++#if defined(VM_CHECKER)
++/* kernel virtual memory usage/allocation information */
++extern U032 vm_usage;
++extern struct mem_track_t *vm_list;
++extern spinlock_t vm_lock;
++
++#  if defined(POOR_MANS_MEM_CHECK)
++#    define VM_PRINT(str, args...)   printk(str, ##args)
++#  else
++#    define VM_PRINT(str, args...)
++#  endif
++#  if defined(LIST_MEM_CHECK)
++#    define VM_ADD_MEM(a,b,c,d)      nv_add_mem(&vm_list, a, b, c, d)
++#    define VM_FREE_MEM(a,b,c,d)     nv_free_mem(&vm_list, a, b, c, d)
++#  else
++#    define VM_ADD_MEM(a,b,c,d)
++#    define VM_FREE_MEM(a,b,c,d)
++#  endif
++#  define VM_ALLOC_RECORD(ptr, size, name)                                   \
++        if (ptr != NULL)                                                     \
++        {                                                                    \
++            nv_lock(vm_lock);                                                \
++            vm_usage += size;                                                \
++            VM_PRINT("NVRM: %s (0x%p: 0x%x): VM usage is now 0x%x bytes\n",  \
++                name, (void *)ptr, size, vm_usage);                          \
++            VM_ADD_MEM(ptr, size, __FILE__, __LINE__);                       \
++            nv_unlock(vm_lock);                                              \
++        }
++#  define VM_FREE_RECORD(ptr, size, name)                                    \
++        if (ptr != NULL)                                                     \
++        {                                                                    \
++            nv_lock(vm_lock);                                                \
++            vm_usage -= size;                                                \
++            VM_PRINT("NVRM: %s (0x%p: 0x%x): VM usage is now 0x%x bytes\n",  \
++                name, (void *)ptr, size, vm_usage);                          \
++            VM_FREE_MEM(ptr, size, __FILE__, __LINE__);                      \
++            nv_unlock(vm_lock);                                              \
++        }
++#else
++#  define VM_ALLOC_RECORD(a,b,c)
++#  define VM_FREE_RECORD(a,b,c)
++#endif
++
++#if defined(KM_CHECKER)
++/* kernel logical memory usage/allocation information */
++extern U032 km_usage;
++extern struct mem_track_t *km_list;
++extern spinlock_t km_lock;
++
++#  if defined(POOR_MANS_MEM_CHECK)
++#    define KM_PRINT(str, args...)   printk(str, ##args)
++#  else
++#    define KM_PRINT(str, args...)
++#  endif
++#  if defined(LIST_MEM_CHECK)
++#    define KM_ADD_MEM(a,b,c,d)      nv_add_mem(&km_list, a, b, c, d)
++#    define KM_FREE_MEM(a,b,c,d)     nv_free_mem(&km_list, a, b, c, d)
++#  else
++#    define KM_ADD_MEM(a,b,c,d)
++#    define KM_FREE_MEM(a,b,c,d)
++#  endif
++#  define KM_ALLOC_RECORD(ptr, size, name)                                   \
++        if (ptr != NULL)                                                     \
++        {                                                                    \
++            unsigned long __eflags;                                          \
++            nv_lock_irq(km_lock, __eflags);                                  \
++            km_usage += size;                                                \
++            KM_PRINT("NVRM: %s (0x%p: 0x%x): KM usage is now 0x%x bytes\n",  \
++                name, (void *)ptr, size, km_usage);                          \
++            KM_ADD_MEM(ptr, size, __FILE__, __LINE__);                       \
++            nv_unlock_irq(km_lock, __eflags);                                \
++        }
++#  define KM_FREE_RECORD(ptr, size, name)                                    \
++        if (ptr != NULL)                                                     \
++        {                                                                    \
++            unsigned long __eflags;                                          \
++            nv_lock_irq(km_lock, __eflags);                                  \
++            km_usage -= size;                                                \
++            KM_PRINT("NVRM: %s (0x%p: 0x%x): KM usage is now 0x%x bytes\n",  \
++                name, (void *)ptr, size, km_usage);                          \
++            KM_FREE_MEM(ptr, size, __FILE__, __LINE__);                      \
++            nv_unlock_irq(km_lock, __eflags);                                \
++        }
++#else
++#  define KM_ALLOC_RECORD(a,b,c)
++#  define KM_FREE_RECORD(a,b,c)
++#endif
++
++#define NV_VMALLOC(ptr, size, cached)                                   \
++    {                                                                   \
++        pgprot_t __prot = (cached) ? PAGE_KERNEL : PAGE_KERNEL_NOCACHE; \
++        (ptr) = __vmalloc(size, GFP_KERNEL, __prot);                    \
++        VM_ALLOC_RECORD(ptr, size, "vm_vmalloc");                       \
++    }
++
++#define NV_VFREE(ptr, size)                         \
++    {                                               \
++        VM_FREE_RECORD(ptr, size, "vm_vmalloc");    \
++        vfree((void *) (ptr));                      \
++    }
++
++#define NV_IOREMAP(ptr, physaddr, size) \
++    { \
++        (ptr) = ioremap(physaddr, size); \
++        VM_ALLOC_RECORD(ptr, size, "vm_ioremap"); \
++    }
++
++#define NV_IOREMAP_NOCACHE(ptr, physaddr, size) \
++    { \
++        (ptr) = ioremap_nocache(physaddr, size); \
++        VM_ALLOC_RECORD(ptr, size, "vm_ioremap_nocache"); \
++    }
++
++#define NV_IOUNMAP(ptr, size) \
++    { \
++        VM_FREE_RECORD(ptr, size, "vm_iounmap"); \
++        iounmap(ptr); \
++    }
++
++/* only use this because GFP_KERNEL may sleep..
++ * GFP_ATOMIC is ok, it won't sleep
++ */
++#define NV_KMALLOC(ptr, size) \
++    { \
++        (ptr) = kmalloc(size, NV_GFP_KERNEL); \
++        KM_ALLOC_RECORD(ptr, size, "km_alloc"); \
++    }
++
++#define NV_KMALLOC_ATOMIC(ptr, size) \
++    { \
++        (ptr) = kmalloc(size, NV_GFP_ATOMIC); \
++        KM_ALLOC_RECORD(ptr, size, "km_alloc_atomic"); \
++    }  
++
++
++#define NV_KFREE(ptr, size) \
++    { \
++        KM_FREE_RECORD(ptr, size, "km_free"); \
++        kfree((void *) (ptr)); \
++    }
++
++#define NV_GET_FREE_PAGES(ptr, order, gfp_mask)      \
++    {                                                \
++        (ptr) = __get_free_pages(gfp_mask, order);   \
++    }
++
++#define NV_FREE_PAGES(ptr, order)                    \
++    {                                                \
++        free_pages(ptr, order);                      \
++    }
++
++#if defined(NV_KMEM_CACHE_CREATE_PRESENT)
++#if (NV_KMEM_CACHE_CREATE_ARGUMENT_COUNT == 6)
++#define NV_KMEM_CACHE_CREATE(kmem_cache, name, type)            \
++    {                                                           \
++        kmem_cache = kmem_cache_create(name, sizeof(type),      \
++                        0, 0, NULL, NULL);                      \
++    }
++#elif (NV_KMEM_CACHE_CREATE_ARGUMENT_COUNT == 5)
++#define NV_KMEM_CACHE_CREATE(kmem_cache, name, type)            \
++    {                                                           \
++        kmem_cache = kmem_cache_create(name, sizeof(type),      \
++                        0, 0, NULL);                            \
++    }
++#else
++#error "NV_KMEM_CACHE_CREATE_ARGUMENT_COUNT value unrecognized!"
++#endif
++#define NV_KMEM_CACHE_DESTROY(kmem_cache)                       \
++    {                                                           \
++        kmem_cache_destroy(kmem_cache);                         \
++        kmem_cache = NULL;                                      \
++    }
++#else
++#error "NV_KMEM_CACHE_CREATE() undefined (kmem_cache_create() unavailable)!"
++#endif
++
++#define NV_KMEM_CACHE_ALLOC(ptr, kmem_cache, type)              \
++    {                                                           \
++        (ptr) = kmem_cache_alloc(kmem_cache, GFP_KERNEL);       \
++        KM_ALLOC_RECORD(ptr, sizeof(type), "km_cache_alloc");   \
++    }
++
++#define NV_KMEM_CACHE_FREE(ptr, type, kmem_cache)               \
++    {                                                           \
++        KM_FREE_RECORD(ptr, sizeof(type), "km_cache_free");     \
++        kmem_cache_free(kmem_cache, ptr);                       \
++    }
++
++#if defined(NV_SG_MAP_BUFFERS) /* Linux/x86-64, only */
++#if defined(NV_VMAP_PRESENT)
++#if (NV_VMAP_ARGUMENT_COUNT == 2)
++#define NV_VMAP(ptr, pages, count, cached)                              \
++    {                                                                   \
++        (ptr) = (unsigned long)vmap(pages, count);                      \
++        VM_ALLOC_RECORD((void *)ptr, (count) * PAGE_SIZE, "vm_vmap");   \
++    }
++#elif (NV_VMAP_ARGUMENT_COUNT == 4)
++#ifndef VM_MAP
++#define VM_MAP  0
++#endif
++#define NV_VMAP(ptr, pages, count, cached)                              \
++    {                                                                   \
++        pgprot_t __prot = (cached) ? PAGE_KERNEL : PAGE_KERNEL_NOCACHE; \
++        (ptr) = (unsigned long)vmap(pages, count, VM_MAP, __prot);      \
++        VM_ALLOC_RECORD((void *)ptr, (count) * PAGE_SIZE, "vm_vmap");   \
++    }
++#else
++#error "NV_VMAP_ARGUMENT_COUNT value unrecognized!"
++#endif
++#else
++#error "NV_VMAP() undefined (vmap() unavailable)!"
++#endif /* NV_VMAP_PRESENT */
++
++#define NV_VUNMAP(ptr, count)                                           \
++    {                                                                   \
++        VM_FREE_RECORD((void *)ptr, (count) * PAGE_SIZE, "vm_vmap");    \
++        vunmap((void *)(ptr));                                          \
++    }
++
++#endif /* NV_SG_MAP_BUFFERS */
++
++#endif /* !defined NVWATCH */
++
++static inline int nv_execute_on_all_cpus(void (*func)(void *info), void *info)
++{
++    int ret = 0;
++#if !defined(CONFIG_SMP)
++    func(info);
++#elif defined(KERNEL_2_4)
++#if defined(preempt_disable)
++    preempt_disable();
++#endif
++    ret = smp_call_function(func, info, 1, 1);
++    func(info);
++#if defined(preempt_enable)
++    preempt_enable();
++#endif
++#else
++    ret = on_each_cpu(func, info, 1, 1);
++#endif
++    return ret;
++}
++
++#define nv_init_lock(lock)              spin_lock_init(&lock)
++#define nv_lock(lock)                   spin_lock(&lock)
++#define nv_unlock(lock)                 spin_unlock(&lock)
++#define nv_lock_irq(lock,flags)         spin_lock_irqsave(&lock,flags)
++#define nv_unlock_irq(lock,flags)       spin_unlock_irqrestore(&lock,flags)
++#define nv_down(lock)                   down(&lock)
++#define nv_up(lock)                     up(&lock)
++
++#if defined (KERNEL_2_4)
++#  define NV_IS_SUSER()                 suser()
++#  define NV_PCI_DEVICE_NAME(dev)       ((dev)->name)
++#  define NV_NUM_CPUS()                 smp_num_cpus
++#  define NV_CLI()                      __cli()
++#  define NV_SAVE_FLAGS(eflags)         __save_flags(eflags)
++#  define NV_RESTORE_FLAGS(eflags)      __restore_flags(eflags)
++#  define NV_MAY_SLEEP()                (!in_interrupt())
++#  define NV_MODULE_PARAMETER(x)        MODULE_PARM(x, "i")
++#endif
++
++#if !defined(KERNEL_2_4)
++#  define NV_IS_SUSER()                 capable(CAP_SYS_ADMIN)
++#  define NV_PCI_DEVICE_NAME(dev)       ((dev)->pretty_name)
++#  define NV_NUM_CPUS()                 num_online_cpus()
++#  define NV_CLI()                      local_irq_disable()
++#  define NV_SAVE_FLAGS(eflags)         local_save_flags(eflags)
++#  define NV_RESTORE_FLAGS(eflags)      local_irq_restore(eflags)
++#  define NV_MAY_SLEEP()                (!in_interrupt() && !in_atomic())
++#  define NV_MODULE_PARAMETER(x)        module_param(x, int, 0)
++
++   // the following macro causes problems when used in the same module
++   // as module_param(); undef it so we don't accidentally mix the two
++#  undef  MODULE_PARM
++#endif
++
++#if defined(NV_SIGNAL_STRUCT_HAS_RLIM)
++/* per-process rlimit settings */
++#define NV_TASK_STRUCT_RLIM(current)  ((current)->signal->rlim)
++#else
++/* per-thread rlimit settings */
++#define NV_TASK_STRUCT_RLIM(current)  ((current)->rlim)
++#endif
++
++/* common defines */
++#define GET_MODULE_SYMBOL(mod,sym)    (const void *) inter_module_get(sym)
++#define PUT_MODULE_SYMBOL(sym)        inter_module_put((char *) sym)
++
++#define NV_GET_PAGE_STRUCT(phys_page) virt_to_page(__va(phys_page))
++#define NV_VMA_PGOFF(vma)             ((vma)->vm_pgoff)
++#define NV_VMA_SIZE(vma)              ((vma)->vm_end - (vma)->vm_start)
++#define NV_VMA_OFFSET(vma)            (((NvU64)(vma)->vm_pgoff) << PAGE_SHIFT)
++#define NV_VMA_PRIVATE(vma)           ((vma)->vm_private_data)
++#define NV_VMA_FILE(vma)              ((vma)->vm_file)
++
++#define NV_DEVICE_NUMBER(x)           minor((x)->i_rdev)
++#define NV_IS_CONTROL_DEVICE(x)       (minor((x)->i_rdev) == 255)
++
++#define NV_PCI_RESOURCE_START(dev, bar) pci_resource_start(dev, (bar))
++#define NV_PCI_RESOURCE_SIZE(dev, bar)  pci_resource_len(dev, (bar))
++#define NV_PCI_RESOURCE_FLAGS(dev, bar) pci_resource_flags(dev, (bar))
++#define NV_PCI_RESOURCE_VALID(dev, bar) \
++    (NV_PCI_RESOURCE_START(dev, bar) != 0 && NV_PCI_RESOURCE_SIZE(dev, bar) != 0)
++
++#define NV_PCI_BUS_NUMBER(dev)        (dev)->bus->number
++#define NV_PCI_DEVFN(dev)             (dev)->devfn
++#define NV_PCI_SLOT_NUMBER(dev)       PCI_SLOT(NV_PCI_DEVFN(dev))
++
++#if defined(NV_PCI_GET_CLASS_PRESENT)
++#define NV_PCI_DEV_PUT(dev)                    pci_dev_put(dev)
++#define NV_PCI_GET_DEVICE(vendor,device,from)  pci_get_device(vendor,device,from)
++#define NV_PCI_GET_SLOT(bus,devfn)                                       \
++   ({                                                                    \
++        struct pci_dev *__dev = NULL;                                    \
++        while ((__dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, __dev)))  \
++        {                                                                \
++            if (NV_PCI_BUS_NUMBER(__dev) == bus                          \
++                    && NV_PCI_DEVFN(__dev) == devfn) break;              \
++        }                                                                \
++        __dev;                                                           \
++    })
++#define NV_PCI_GET_CLASS(class,from)           pci_get_class(class,from)
++#else
++#define NV_PCI_DEV_PUT(dev)
++#define NV_PCI_GET_DEVICE(vendor,device,from)  pci_find_device(vendor,device,from)
++#define NV_PCI_GET_SLOT(bus,devfn)             pci_find_slot(bus,devfn)
++#define NV_PCI_GET_CLASS(class,from)           pci_find_class(class,from)
++#endif
++
++#define NV_PRINT_AT(nv_debug_level,at)                                                   \
++    {                                                                                    \
++        nv_printf(nv_debug_level,                                                        \
++            "NVRM: VM: %s: 0x%p, %d page(s), count = %d, flags = 0x%08x, 0x%p, 0x%p\n",  \
++            __FUNCTION__, at, at->num_pages, NV_ATOMIC_READ(at->usage_count),            \
++            at->flags, at->key_mapping, at->page_table);                                 \
++    }
++
++#define NV_PRINT_VMA(nv_debug_level,vma)                                            \
++    {                                                                               \
++        nv_printf(nv_debug_level,                                                   \
++            "NVRM: VM: %s: 0x%lx - 0x%lx, 0x%08x bytes @ 0x%016llx, 0x%p, 0x%p\n",  \
++            __FUNCTION__, vma->vm_start, vma->vm_end, NV_VMA_SIZE(vma),             \
++            NV_VMA_OFFSET(vma), NV_VMA_PRIVATE(vma), NV_VMA_FILE(vma));             \
++    }
++
++/*
++ * On Linux 2.6, we support both APM and ACPI power management. On Linux
++ * 2.4, we support APM, only. ACPI support has been back-ported to the
++ * Linux 2.4 kernel, but the Linux 2.4 driver model is not sufficient for
++ * full ACPI support: it may work with some systems, but not reliably
++ * enough for us to officially support this configuration.
++ *
++ * We support two Linux kernel power managment interfaces: the original
++ * pm_register()/pm_unregister() on Linux 2.4 and the device driver model
++ * backed PCI driver power management callbacks introduced with Linux
++ * 2.6.
++ *
++ * The code below determines which interface to support on this kernel
++ * version, if any; if built for Linux 2.6, it will also determine if the
++ * kernel comes with ACPI or APM power management support.
++ */
++#if !defined(KERNEL_2_4) && defined(CONFIG_PM)
++#define NV_PM_SUPPORT_DEVICE_DRIVER_MODEL
++#if (defined(CONFIG_APM) || defined(CONFIG_APM_MODULE)) && !defined(CONFIG_ACPI)
++#define NV_PM_SUPPORT_NEW_STYLE_APM
++#endif
++#endif
++
++/*
++ * On Linux 2.6 kernels >= 2.6.11, the PCI subsystem provides a new 
++ * interface that allows PCI drivers to determine the correct power state
++ * for a given system power state; our suspend/resume callbacks now use
++ * this interface and operate on PCI power state defines.
++ *
++ * Define these new PCI power state #define's here for compatibility with
++ * older Linux 2.6 kernels.
++ */
++#if !defined(KERNEL_2_4) && !defined(PCI_D0)
++#define PCI_D0 PM_SUSPEND_ON
++#define PCI_D3hot PM_SUSPEND_MEM
++#endif
++
++#if !defined(KERNEL_2_4) && !defined(NV_PM_MESSAGE_T_PRESENT)
++typedef u32 pm_message_t;
++#endif
++
++#if defined(KERNEL_2_4) && (defined(CONFIG_APM) || defined(CONFIG_APM_MODULE))
++#include <linux/pm.h>
++#define NV_PM_SUPPORT_OLD_STYLE_APM
++#endif
++
++#ifndef minor
++# define minor(x) MINOR(x)
++#endif
++
++#ifndef IRQ_RETVAL
++typedef void irqreturn_t;
++#define IRQ_RETVAL(a)
++#endif
++
++#ifndef PCI_CAP_ID_EXP
++#define PCI_CAP_ID_EXP 0x10
++#endif
++
++#if defined(NV_VM_INSERT_PAGE_PRESENT)
++#define NV_VM_INSERT_PAGE(vma, addr, page) \
++    vm_insert_page(vma, addr, page)
++#endif
++#if defined(NV_REMAP_PFN_RANGE_PRESENT)
++#define NV_REMAP_PAGE_RANGE(from, offset, x...) \
++    remap_pfn_range(vma, from, ((offset) >> PAGE_SHIFT), x)
++#elif defined(NV_REMAP_PAGE_RANGE_PRESENT)
++#if (NV_REMAP_PAGE_RANGE_ARGUMENT_COUNT == 5)
++#define NV_REMAP_PAGE_RANGE(x...) remap_page_range(vma, x)
++#elif (NV_REMAP_PAGE_RANGE_ARGUMENT_COUNT == 4)
++#define NV_REMAP_PAGE_RANGE(x...) remap_page_range(x)
++#else
++#error "NV_REMAP_PAGE_RANGE_ARGUMENT_COUNT value unrecognized!"
++#endif
++#else
++#error "NV_REMAP_PAGE_RANGE() undefined!"
++#endif
++
++
++#define NV_PGD_OFFSET(address, kernel, mm)              \
++   ({                                                   \
++        pgd_t *__pgd;                                   \
++        if (!kernel)                                    \
++            __pgd = pgd_offset(mm, address);            \
++        else                                            \
++            __pgd = pgd_offset_k(address);              \
++        __pgd;                                          \
++    })
++
++#define NV_PGD_PRESENT(pgd)                             \
++   ({                                                   \
++         if ((pgd != NULL) &&                           \
++             (pgd_bad(*pgd) || pgd_none(*pgd)))         \
++            /* static */ pgd = NULL;                    \
++         pgd != NULL;                                   \
++    })
++
++#if defined(pmd_offset_map)
++#define NV_PMD_OFFSET(address, pgd)                     \
++   ({                                                   \
++        pmd_t *__pmd;                                   \
++        __pmd = pmd_offset_map(pgd, address);           \
++   })
++#define NV_PMD_UNMAP(pmd) pmd_unmap(pmd);
++#else
++#if defined(PUD_SHIFT) /* 4-level pgtable */
++#define NV_PMD_OFFSET(address, pgd)                     \
++   ({                                                   \
++        pmd_t *__pmd = NULL;                            \
++        pud_t *__pud;                                   \
++        __pud = pud_offset(pgd, address);               \
++        if ((__pud != NULL) &&                          \
++            !(pud_bad(*__pud) || pud_none(*__pud)))     \
++            __pmd = pmd_offset(__pud, address);         \
++        __pmd;                                          \
++    })
++#else /* 3-level pgtable */
++#define NV_PMD_OFFSET(address, pgd)                     \
++   ({                                                   \
++        pmd_t *__pmd;                                   \
++        __pmd = pmd_offset(pgd, address);               \
++    })
++#endif
++#define NV_PMD_UNMAP(pmd)
++#endif
++
++#define NV_PMD_PRESENT(pmd)                             \
++   ({                                                   \
++        if ((pmd != NULL) &&                            \
++            (pmd_bad(*pmd) || pmd_none(*pmd)))          \
++        {                                               \
++            NV_PMD_UNMAP(pmd);                          \
++            pmd = NULL; /* mark invalid */              \
++        }                                               \
++        pmd != NULL;                                    \
++    })
++
++#if defined(pte_offset_atomic)
++#define NV_PTE_OFFSET(address, pmd)                     \
++   ({                                                   \
++        pte_t *__pte;                                   \
++        __pte = pte_offset_atomic(pmd, address);        \
++        NV_PMD_UNMAP(pmd); __pte;                       \
++    })
++#define NV_PTE_UNMAP(pte) pte_kunmap(pte);
++#elif defined(pte_offset)
++#define NV_PTE_OFFSET(address, pmd)                     \
++   ({                                                   \
++        pte_t *__pte;                                   \
++        __pte = pte_offset(pmd, address);               \
++        NV_PMD_UNMAP(pmd); __pte;                       \
++    })
++#define NV_PTE_UNMAP(pte)
++#else
++#define NV_PTE_OFFSET(address, pmd)                     \
++   ({                                                   \
++        pte_t *__pte;                                   \
++        __pte = pte_offset_map(pmd, address);           \
++        NV_PMD_UNMAP(pmd); __pte;                       \
++    })
++#define NV_PTE_UNMAP(pte) pte_unmap(pte);
++#endif
++
++#define NV_PTE_PRESENT(pte)                             \
++   ({                                                   \
++        if ((pte != NULL) && !pte_present(*pte))        \
++        {                                               \
++            NV_PTE_UNMAP(pte);                          \
++            pte = NULL; /* mark invalid */              \
++        }                                               \
++        pte != NULL;                                    \
++    })
++
++#define NV_PTE_VALUE(pte)                               \
++   ({                                                   \
++        unsigned long __pte_value = pte_val(*pte);      \
++        NV_PTE_UNMAP(pte);                              \
++        __pte_value;                                    \
++    })
++
++
++#define NV_PAGE_ALIGN(addr)             ( ((addr) + PAGE_SIZE - 1) / PAGE_SIZE)
++#define NV_MASK_OFFSET(addr)            ( (addr) & (PAGE_SIZE - 1) )
++
++#if defined(NVCPU_X86) || defined(NVCPU_X86_64)
++/* this isn't defined in some older kernel header files */
++#define NV_CPU_INTERRUPT_FLAGS_BIT (1<<9)
++#else
++#error define NV_CPU_INTERRUPT_FLAGS_BIT
++#endif
++
++static inline int NV_IRQL_IS_RAISED(void)
++    {
++        unsigned long int eflags;
++        NV_SAVE_FLAGS(eflags);
++        return !(eflags & NV_CPU_INTERRUPT_FLAGS_BIT);
++    }
++ 
++static inline int nv_calc_order(unsigned int size)
++    {
++        int order = 0;
++        while ( ((1 << order) * PAGE_SIZE) < (size))
++        {
++            order++;
++        }
++        return order;
++    }
++
++/* mark memory UC-, rather than UC (don't use _PAGE_PWT) */
++static inline pgprot_t pgprot_noncached_weak(pgprot_t old_prot)
++    {
++        pgprot_t new_prot = old_prot;
++        if (boot_cpu_data.x86 > 3)
++            new_prot = __pgprot(pgprot_val(old_prot) | _PAGE_PCD);
++        return new_prot;
++    }
++
++#if !defined (pgprot_noncached)
++static inline pgprot_t pgprot_noncached(pgprot_t old_prot)
++    {
++        pgprot_t new_prot = old_prot;
++        if (boot_cpu_data.x86 > 3)
++            new_prot = __pgprot(pgprot_val(old_prot) | _PAGE_PCD | _PAGE_PWT);
++        return new_prot;
++    }
++#endif
++
++#if defined(NV_BUILD_NV_PAT_SUPPORT) && !defined (pgprot_writecombined)
++static inline pgprot_t pgprot_writecombined(pgprot_t old_prot)
++    {
++        pgprot_t new_prot = old_prot;
++        if (boot_cpu_data.x86 > 3)
++        {
++            pgprot_val(old_prot) &= ~(_PAGE_PCD | _PAGE_PWT);
++            new_prot = __pgprot(pgprot_val(old_prot) | _PAGE_WRTCOMB);
++        }
++        return new_prot;
++    }
++#endif
++
++#if defined(KERNEL_2_4) && defined(NVCPU_X86) && !defined(pfn_to_page)
++#define pfn_to_page(pfn) (mem_map + (pfn))
++#endif
++
++/*
++ * An allocated bit of memory using NV_MEMORY_ALLOCATION_OFFSET
++ *   looks like this in the driver
++ */
++
++typedef struct nv_pte_t {
++    unsigned long   phys_addr;
++    unsigned long   virt_addr;
++    dma_addr_t      dma_addr;
++#ifdef NV_SG_MAP_BUFFERS
++    struct scatterlist sg_list;
++#endif
++#if defined(NV_SWIOTLB)
++    unsigned long   orig_phys_addr;
++    unsigned long   orig_virt_addr;
++#endif
++    unsigned int    page_count;
++} nv_pte_t;
++
++typedef struct nv_alloc_s {
++    struct nv_alloc_s *next;    
++    atomic_t       usage_count;
++    unsigned int   flags;
++    unsigned int   num_pages;
++    unsigned int   order;
++    unsigned int   size;
++    nv_pte_t     **page_table;          /* list of physical pages allocated */
++    void          *key_mapping;         /* mapping used as a key for finding this nv_alloc_t */
++                                        /*   may be the same as page_table                   */
++    void          *file;
++    unsigned int   pid;
++
++    unsigned int   class;
++    void          *priv_data;
++    nv_state_t    *nv;
++} nv_alloc_t;
++
++
++#define NV_ALLOC_TYPE_PCI      (1<<0)
++#define NV_ALLOC_TYPE_AGP      (1<<1)
++#define NV_ALLOC_TYPE_CONTIG   (1<<2)
++#define NV_ALLOC_TYPE_KERNEL   (1<<3)
++#define NV_ALLOC_TYPE_VMALLOC  (1<<4)
++#define NV_ALLOC_TYPE_VMAP     (1<<5)
++
++#define NV_ALLOC_MAPPING_SHIFT      16
++#define NV_ALLOC_MAPPING(flags)     (((flags)>>NV_ALLOC_MAPPING_SHIFT)&0xff)
++#define NV_ALLOC_ENC_MAPPING(flags) ((flags)<<NV_ALLOC_MAPPING_SHIFT)
++
++#define NV_ALLOC_MAPPING_CACHED(flags) (NV_ALLOC_MAPPING(flags) == NV_MEMORY_CACHED)
++
++#define NV_ALLOC_MAPPING_AGP(flags)     ((flags) & NV_ALLOC_TYPE_AGP)
++#define NV_ALLOC_MAPPING_CONTIG(flags)  ((flags) & NV_ALLOC_TYPE_CONTIG)
++#define NV_ALLOC_MAPPING_VMALLOC(flags) ((flags) & NV_ALLOC_TYPE_VMALLOC)
++#define NV_ALLOC_MAPPING_VMAP(flags)    ((flags) & NV_ALLOC_TYPE_VMAP)
++
++static inline U032 nv_alloc_init_flags(int cached, int agp, int contig, int kernel)
++{
++    U032 flags = NV_ALLOC_ENC_MAPPING(cached);
++    if (agp)    flags |= NV_ALLOC_TYPE_AGP;
++    else        flags |= NV_ALLOC_TYPE_PCI;
++    if (kernel) flags |= NV_ALLOC_TYPE_KERNEL; 
++#if defined(NV_SG_MAP_BUFFERS)
++    if (kernel && !contig) flags |= NV_ALLOC_TYPE_VMAP;
++#else
++    if (kernel && !contig) flags |= NV_ALLOC_TYPE_VMALLOC;
++#endif
++    if (contig && !agp) flags |= NV_ALLOC_TYPE_CONTIG;
++    return flags;
++}
++
++/* linux-specific version of old nv_state_t */
++/* this is a general os-specific state structure. the first element *must* be
++   the general state structure, for the generic unix-based code */
++typedef struct {
++    nv_state_t nv_state;
++    atomic_t usage_count;
++
++    struct pci_dev *dev;
++    void *agp_bridge;
++    nv_alloc_t *alloc_queue;
++
++    /* keep track of any pending bottom halfes */
++    struct tasklet_struct tasklet;
++
++    /* get a timer callback every second */
++    struct timer_list rc_timer;
++
++    /* per-device locking mechanism for access to core rm */
++    spinlock_t rm_lock;
++    int rm_lock_cpu;
++    int rm_lock_count;
++
++    /* lock for linux-specific data, not used by core rm */
++    struct semaphore ldata_lock;
++
++    /* lock for linux-specific alloc queue */
++    struct semaphore at_lock;
++} nv_linux_state_t;
++
++extern int nv_pat_enabled;
++
++/*
++ * file-private data
++ * hide a pointer to our data structures in a file-private ptr
++ * there are times we need to grab this data back from the file
++ * data structure..
++ */
++
++#define NV_EVENT_FIFO_SIZE 6
++
++typedef struct
++{
++    void *nvptr;
++    U032 num_events;
++    U032 put, get;
++    spinlock_t fp_lock;
++    wait_queue_head_t waitqueue;
++    nv_event_t *event_fifo;     // fifo for storing events
++} nv_file_private_t;
++
++#define FILE_PRIVATE(filep)     ((filep)->private_data)
++
++#define NV_GET_NVFP(filep)      ((nv_file_private_t *) FILE_PRIVATE(filep))
++
++/* for the card devices */
++#define NVL_FROM_FILEP(filep)   (NV_GET_NVFP(filep)->nvptr)
++
++#define NV_GET_NVL_FROM_NV_STATE(nv) \
++    ((nv_linux_state_t *) nv->os_state)
++
++#define NV_STATE_PTR(nvl)   (&((nvl)->nv_state))
++
++
++#define NV_ATOMIC_SET(data,val)         atomic_set(&(data), (val))
++#define NV_ATOMIC_INC(data)             atomic_inc(&(data))
++#define NV_ATOMIC_DEC(data)             atomic_dec(&(data))
++#define NV_ATOMIC_DEC_AND_TEST(data)    atomic_dec_and_test(&(data))
++#define NV_ATOMIC_READ(data)            atomic_read(&(data))
++
++/*
++ * a BUG() is triggered on early 2.6 x86_64 kernels. the underlying
++ * problem actually exists on many architectures and kernels, but
++ * these are the only kernels that check the condition and trigger
++ * a BUG(). note that this is a problem of the core kernel, not an
++ * nvidia bug (and can still be triggered by agpgart). let's avoid
++ * change_page_attr on those kernels.
++ */
++#if defined(NV_CHANGE_PAGE_ATTR_PRESENT)
++extern int nv_use_cpa;
++
++#if defined(NVCPU_X86_64) && !defined(KERNEL_2_4) && \
++         (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 11))
++#define NV_CHANGE_PAGE_ATTR_BUG_PRESENT 1
++#endif
++#endif
++
++#if defined(NVCPU_X86) || defined(NVCPU_X86_64)
++/*
++ * On Linux/x86-64 (and recent Linux/x86) kernels, the PAGE_KERNEL
++ * and PAGE_KERNEL_NOCACHE protection bit masks include _PAGE_NX
++ * to indicate that the no-execute protection page feature is used
++ * for the page in question.
++ *
++ * We need to be careful to mask out _PAGE_NX when the host system
++ * doesn't support this feature or when it's disabled: the kernel
++ * may not do this in its implementation of the  change_page_attr()
++ * interface.
++ */
++#ifndef X86_FEATURE_NX
++#define X86_FEATURE_NX (1*32+20)
++#endif
++#ifndef boot_cpu_has
++#define boot_cpu_has(x) test_bit(x, boot_cpu_data.x86_capability)
++#endif
++#ifndef MSR_EFER
++#define MSR_EFER 0xc0000080
++#endif
++#ifndef EFER_NX
++#define EFER_NX (1 << 11)
++#endif
++#ifndef _PAGE_NX
++#define _PAGE_NX ((NvU64)1 << 63)
++#endif
++extern NvU64 __nv_supported_pte_mask;
++#endif
++
++/*
++ * Basic support for kgdb assertions.
++ */
++#if defined(CONFIG_X86_REMOTE_DEBUG)
++#define NV_ASSERT(message, condition) KGDB_ASSERT(message, condition)
++#else
++#if defined(DEBUG)
++#define NV_ASSERT(message, condition) \
++if (!(condition)) { \
++    nv_printf(NV_DBG_ERRORS, "NVRM: ASSERT: %s\n", message); \
++    os_dbg_breakpoint(); \
++} else
++#else
++#define NV_ASSERT(message, condition)
++#endif /* DEBUG */
++#endif
++
++int nv_verify_page_mappings(nv_pte_t *, unsigned int);
++
++#endif  /* _NV_LINUX_H_ */
+diff -Nurp usr.orig/src/nv/nv-vm.c usr/src/nv/nv-vm.c
+--- usr.orig/src/nv/nv-vm.c	2008-01-21 20:13:08.000000000 +0100
++++ usr/src/nv/nv-vm.c	2008-04-21 14:00:59.000000000 +0200
+@@ -43,42 +43,40 @@ nv_vm_list_page_count(nv_pte_t **page_li
+ }
+ #endif
+ 
+-/*
+- * AMD Athlon processors expose a subtle bug in the Linux
+- * kernel, that may lead to AGP memory corruption. Recent
+- * kernel versions had a workaround for this problem, but
+- * 2.4.20 is the first kernel to address it properly. The
+- * page_attr API provides the means to solve the problem. 
+- */
+-
+ static inline void nv_set_page_attrib_uncached(nv_pte_t *page_ptr)
+ {
+-#if defined(NV_CHANGE_PAGE_ATTR_PRESENT)
+-    if (nv_use_cpa)
++    if (nv_update_memory_types)
+     {
+-        struct page *page = virt_to_page(__va(page_ptr->phys_addr));
++#if defined(NV_SET_PAGES_UC_PRESENT)
++        struct page *page = NV_GET_PAGE_STRUCT(page_ptr->phys_addr);
++        set_pages_uc(page, 1);
++#elif defined(NV_CHANGE_PAGE_ATTR_PRESENT)
++        struct page *page = NV_GET_PAGE_STRUCT(page_ptr->phys_addr);
+         pgprot_t prot = PAGE_KERNEL_NOCACHE;
+ #if defined(NVCPU_X86) || defined(NVCPU_X86_64)
+         pgprot_val(prot) &= __nv_supported_pte_mask;
+ #endif
+         change_page_attr(page, 1, prot);
+-    }
+ #endif
++    }
+ }
+ 
+ static inline void nv_set_page_attrib_cached(nv_pte_t *page_ptr)
+ {
+-#if defined(NV_CHANGE_PAGE_ATTR_PRESENT)
+-    if (nv_use_cpa)
++    if (nv_update_memory_types)
+     {
+-        struct page *page = virt_to_page(__va(page_ptr->phys_addr));
++#if defined(NV_SET_PAGES_UC_PRESENT)
++        struct page *page = NV_GET_PAGE_STRUCT(page_ptr->phys_addr);
++        set_pages_wb(page, 1);
++#elif defined(NV_CHANGE_PAGE_ATTR_PRESENT)
++        struct page *page = NV_GET_PAGE_STRUCT(page_ptr->phys_addr);
+         pgprot_t prot = PAGE_KERNEL;
+ #if defined(NVCPU_X86) || defined(NVCPU_X86_64)
+         pgprot_val(prot) &= __nv_supported_pte_mask;
+ #endif
+         change_page_attr(page, 1, prot);
++#endif
+     }
+-#endif /* NV_CHANGE_PAGE_ATTR_PRESENT */
+ }
+ 
+ static inline void nv_lock_page(nv_pte_t *page_ptr)
+@@ -360,8 +358,11 @@ static void nv_flush_caches(void)
+ #if defined(NV_CPA_NEEDS_FLUSHING)
+     nv_execute_on_all_cpus(cache_flush, NULL);
+ #endif
++#if (defined(NVCPU_X86) || defined(NVCPU_X86_64)) && \
++  defined(NV_CHANGE_PAGE_ATTR_PRESENT)
+     global_flush_tlb();
+ #endif
++#endif
+ }
+ 
+ /*
+diff -Nurp usr.orig/src/nv/os-interface.c usr/src/nv/os-interface.c
+--- usr.orig/src/nv/os-interface.c	2008-01-21 20:13:08.000000000 +0100
++++ usr/src/nv/os-interface.c	2008-04-21 14:00:59.000000000 +0200
+@@ -1109,6 +1109,18 @@ void* NV_API_CALL os_map_kernel_space(
+ {
+     void *vaddr;
+ 
++    if (start == 0)
++    {
++        if (mode != NV_MEMORY_CACHED)
++        {
++            nv_printf(NV_DBG_ERRORS,
++                "NVRM: os_map_kernel_space: won't map address 0x%0llx UC!\n", start);
++            return NULL;
++        }
++        else
++            return (void *)PAGE_OFFSET;
++    }
++
+     if (!NV_MAY_SLEEP())
+     {
+         nv_printf(NV_DBG_ERRORS,
+@@ -1131,6 +1143,9 @@ void NV_API_CALL os_unmap_kernel_space(
+     U032 size_bytes
+ )
+ {
++    if (addr == (void *)PAGE_OFFSET)
++        return;
++
+     NV_IOUNMAP(addr, size_bytes);
+ }
+ 
+diff -Nurp usr.orig/src/nv/os-interface.c.orig usr/src/nv/os-interface.c.orig
+--- usr.orig/src/nv/os-interface.c.orig	1970-01-01 01:00:00.000000000 +0100
++++ usr/src/nv/os-interface.c.orig	2008-01-21 20:13:08.000000000 +0100
+@@ -0,0 +1,1235 @@
++/* _NVRM_COPYRIGHT_BEGIN_
++ *
++ * Copyright 1999-2001 by NVIDIA Corporation.  All rights reserved.  All
++ * information contained herein is proprietary and confidential to NVIDIA
++ * Corporation.  Any use, reproduction, or disclosure without the written
++ * permission of NVIDIA Corporation is prohibited.
++ *
++ * _NVRM_COPYRIGHT_END_
++ */
++
++
++
++/******************* Operating System Interface Routines *******************\
++*                                                                           *
++* Module: interface.c                                                       *
++*   This is the OS interface module.  All operating system transactions     *
++*   pass through these routines.  No other operating system specific code   *
++*   or data should exist in the source.                                     *
++*                                                                           *
++\***************************************************************************/
++
++#define  __NO_VERSION__
++#include "nv-misc.h"
++
++#include "os-interface.h"
++#include "nv-linux.h"
++
++
++static volatile int os_block_on_smp_barrier;
++
++#ifdef CONFIG_SMP
++static void ipi_handler(void *info)
++{
++    while(os_block_on_smp_barrier != 0) { barrier(); }
++}
++#endif
++
++RM_STATUS NV_API_CALL os_raise_smp_barrier(void)
++{
++    int ret = 0;
++#if defined(CONFIG_SMP)
++#if defined(preempt_disable)
++    preempt_disable();
++#endif
++    os_block_on_smp_barrier = 1;
++    ret = smp_call_function(ipi_handler, NULL, 1, 0);
++#if defined(preempt_enable)
++    preempt_enable();
++#endif
++#endif
++    return (ret == 0) ? RM_OK : RM_ERROR;
++}
++
++RM_STATUS NV_API_CALL os_clear_smp_barrier(void)
++{
++    os_block_on_smp_barrier = 0;
++    return RM_OK;
++}
++
++//
++// Contents of opaque structure to implement a more feature rich
++// version of counting semaphores below
++//
++typedef struct os_sema_s
++{
++    struct semaphore wait;
++    spinlock_t       lock;
++    S032             count;
++} os_sema_t;
++
++//
++// os_alloc_sema - Allocate the global RM semaphore
++//
++//  ppSema - filled in with pointer to opaque structure to semaphore data type
++//
++RM_STATUS NV_API_CALL os_alloc_sema
++(
++    void **ppSema
++)
++{
++    RM_STATUS rmStatus;
++    os_sema_t *os_sema;
++
++    rmStatus = os_alloc_mem(ppSema, sizeof(os_sema_t));
++    if (rmStatus != RM_OK)
++        return rmStatus;
++
++    os_sema = (os_sema_t *)*ppSema;
++    sema_init(&os_sema->wait, 0);
++    spin_lock_init(&os_sema->lock);
++    os_sema->count = 1;
++
++    return RM_OK;
++}
++
++//
++// os_free_sema - Free resources associated with counting semaphore allocated
++//                via os_alloc_sema above.  Semaphore must be free
++//                (no waiting threads).
++//
++//  pSema - Pointer to opaque structure to semaphore data type
++//
++RM_STATUS NV_API_CALL os_free_sema
++(
++    void  *pSema
++)
++{
++    os_free_mem(pSema);
++
++    return RM_OK;
++}
++
++//
++// os_acquire_sema - Perform a P (acquire) operation on the given semaphore
++//                   If the semaphore is acquired (transitions to 1 to 0)
++//                   clear all device interrupt enables to protect API threads
++//                   from interrupt  handlers.
++//
++//  pSema - Pointer to opaque structure to semaphore data type
++//
++RM_STATUS NV_API_CALL os_acquire_sema
++(
++    void  *pSema
++)
++{
++    os_sema_t *os_sema = (os_sema_t *)pSema;
++    unsigned long old_irq;
++
++    spin_lock_irqsave(&os_sema->lock, old_irq);
++    if (os_sema->count <= 0)
++    {
++        os_sema->count--;
++        spin_unlock_irqrestore(&os_sema->lock, old_irq);
++        down(&os_sema->wait);
++    }
++    else
++    {
++        os_sema->count--;
++        rm_disable_interrupts();
++        spin_unlock_irqrestore(&os_sema->lock, old_irq);
++    }
++
++    return RM_OK;
++}
++
++//
++// os_cond_acquire_sema - Perform a P (acquire) operation on the given semaphore
++//                        only if the operation will not fail (sleep).
++//                        If the semaphore is acquired (transitions to 1 to 0)
++//                        clear all device interrupt enables to protect API
++//                        threads from interrupt handlers and return TRUE.
++//
++//  pSema - Pointer to opaque structure to semaphore data type
++//
++BOOL NV_API_CALL os_cond_acquire_sema
++(
++    void  *pSema
++)
++{
++    os_sema_t *os_sema = (os_sema_t *)pSema;
++    unsigned long old_irq;
++
++    spin_lock_irqsave(&os_sema->lock, old_irq);
++    if (os_sema->count <= 0)
++    {
++        spin_unlock_irqrestore(&os_sema->lock, old_irq);
++        return FALSE;
++    }
++    else
++    {
++        os_sema->count--;
++        rm_disable_interrupts();
++        spin_unlock_irqrestore(&os_sema->lock, old_irq);
++        return TRUE;
++    }
++
++    return FALSE;
++}
++
++//
++// os_release_sema - Perform a V (release) operation on the given semaphore,
++//                   waking up a single waiting client if at least one is
++//                   waiting. If the semaphore is freed (transitions
++//                   from 0 to 1) re-enable interrupts.
++//
++//  pSema - Pointer to opaque structure to semaphore data type
++//
++RM_STATUS NV_API_CALL os_release_sema
++(
++    void  *pSema
++)
++{
++    os_sema_t *os_sema = (os_sema_t *)pSema;
++    unsigned long old_irq;
++    BOOL doWakeup;
++
++    spin_lock_irqsave(&os_sema->lock, old_irq);
++    if (os_sema->count < 0)
++    {
++        doWakeup = TRUE;
++    }
++    else
++    {
++        doWakeup = FALSE;
++        rm_enable_interrupts();
++    }
++    os_sema->count++;
++    spin_unlock_irqrestore(&os_sema->lock, old_irq);
++
++    if (doWakeup)
++        up(&os_sema->wait);
++
++    return RM_OK;
++}
++
++//
++// os_is_acquired_sema - Return TRUE if semaphore is currently acquired.
++//                       Useful for assertions that a thread currently owns
++//                       the semaphore.
++//
++//  pOS   - OS object
++//  pSema - Pointer to opaque structure to semaphore data type
++//
++BOOL NV_API_CALL os_is_acquired_sema
++(
++    void  *pSema
++)
++{
++    os_sema_t *os_sema = (os_sema_t *)pSema;
++
++    return (os_sema->count < 1);
++}
++
++// return TRUE if the caller is the super-user
++BOOL NV_API_CALL os_is_administrator(
++    PHWINFO pDev
++)
++{
++    return NV_IS_SUSER();
++}
++
++U032 NV_API_CALL os_get_page_size(void)
++{
++    return PAGE_SIZE;
++}
++
++ULONG NV_API_CALL os_get_page_mask(void)
++{
++    return PAGE_MASK;
++}
++
++//
++// Some quick and dirty library functions.
++// This is an OS function because some operating systems supply their
++// own version of this function that they require you to use instead
++// of the C library function.  And some OS code developers may decide to
++// use the actual C library function instead of this code.  In this case,
++// just replace the code within osStringCopy with a call to the C library
++// function strcpy.
++//
++U008* NV_API_CALL os_string_copy(
++    U008 *dst,
++    const U008 *src
++)
++{
++    return strcpy(dst, src);
++}
++
++RM_STATUS NV_API_CALL os_strncpy_from_user(
++    U008 *dst,
++    const U008 *src,
++    U032 n
++)
++{
++    return strncpy_from_user(dst, src, n) ? RM_ERR_BAD_ADDRESS : RM_OK;
++}
++
++S032 NV_API_CALL os_string_compare(
++    const U008 *s1,
++    const U008 *s2
++)
++{
++    return strcmp(s1, s2);
++}
++
++U032 NV_API_CALL os_string_length(
++    const U008* str
++)
++{
++    return strlen(str);
++}
++
++U008* NV_API_CALL os_mem_copy(
++    U008 *dst,
++    const U008 *src,
++    U032 length
++)
++{
++    return memcpy(dst, src, length);
++}
++
++RM_STATUS NV_API_CALL os_memcpy_from_user(
++    void *dst,
++    const void* src,
++    U032 length
++)
++{
++    return copy_from_user(dst, src, length) ? RM_ERR_BAD_ADDRESS : RM_OK;
++}
++
++RM_STATUS NV_API_CALL os_memcpy_to_user(
++    void *dst,
++    const void* src,
++    U032 length
++)
++{
++    return copy_to_user(dst, src, length) ? RM_ERR_BAD_ADDRESS : RM_OK;
++}
++
++void* NV_API_CALL os_mem_set(
++    void* dst,
++    U008 c,
++    U032 length
++)
++{
++    return memset(dst, (int)c, length);
++}
++
++S032 NV_API_CALL os_mem_cmp(
++    const U008 *buf0,
++    const U008* buf1,
++    U032 length
++)
++{
++    return memcmp(buf0, buf1, length);
++}
++
++
++/*
++ * Operating System Memory Functions
++ *
++ * There are 2 interesting aspects of resource manager memory allocations
++ * that need special consideration on Linux:
++ *
++ * 1. They are typically very large, (e.g. single allocations of 164KB)
++ *
++ * 2. The resource manager assumes that it can safely allocate memory in
++ *    interrupt handlers.
++ *
++ * The first requires that we call vmalloc, the second kmalloc. We decide
++ * which one to use at run time, based on the size of the request and the
++ * context. Allocations larger than 128KB require vmalloc, in the context
++ * of an ISR they fail.
++ */
++
++#define KMALLOC_LIMIT 131072
++
++RM_STATUS NV_API_CALL os_alloc_mem(
++    void **address,
++    U032 size
++)
++{
++    NV_MEM_TRACKING_PAD_SIZE(size);
++
++    if (!NV_MAY_SLEEP()) {
++        if (size <= KMALLOC_LIMIT) {
++            /*
++             * The allocation request can be serviced with the Linux slab
++             * allocator; the likelyhood of failure is still fairly high,
++             * since kmalloc can't sleep.
++             */
++            NV_KMALLOC_ATOMIC(*address, size);
++        } else {
++            /*
++             * If the requested amount of memory exceeds kmalloc's limit,
++             * we can't fulfill the request, as vmalloc can not be called
++             * from an interrupt context (bottom-half, ISR).
++             */
++            *address = NULL;
++        }
++    } else {
++        if (size <= KMALLOC_LIMIT)
++        {
++            NV_KMALLOC(*address, size);
++
++            // kmalloc may fail for larger allocations if memory is fragmented
++            // in this case, vmalloc stands a better chance of making the 
++            // allocation, so give it a shot.
++            if (*address == NULL)
++            {
++                NV_VMALLOC(*address, size, 1);
++            }
++        }
++        else
++        {
++            NV_VMALLOC(*address, size, 1);
++        }
++    }
++
++    NV_MEM_TRACKING_HIDE_SIZE(address, size);
++
++    return *address ? RM_OK : RM_ERR_NO_FREE_MEM;
++}
++
++void NV_API_CALL os_free_mem(void *address)
++{
++    unsigned long va;
++    int size;
++
++    NV_MEM_TRACKING_RETRIEVE_SIZE(address, size);
++
++    va = (unsigned long) address;
++    if (va >= VMALLOC_START && va < VMALLOC_END)
++    {
++        NV_VFREE(address, size);
++    }
++    else
++    {
++        NV_KFREE(address, size);
++    }
++}
++
++
++/*****************************************************************************
++*
++*   Name: osGetCurrentTime
++*
++*****************************************************************************/
++
++RM_STATUS NV_API_CALL os_get_current_time(
++    U032 *seconds,
++    U032 *useconds
++)
++{
++    struct timeval tm;
++
++    do_gettimeofday(&tm);
++
++    *seconds = tm.tv_sec;
++    *useconds = tm.tv_usec;
++
++    return RM_OK;
++}
++
++//---------------------------------------------------------------------------
++//
++//  Misc services.
++//
++//---------------------------------------------------------------------------
++
++#define NV_MAX_ISR_UDELAY           20000
++#define NV_MAX_ISR_MDELAY           (NV_MAX_ISR_UDELAY / 1000)
++#define NV_MSECS_PER_JIFFIE         (1000 / HZ)
++#define NV_MSECS_TO_JIFFIES(msec)   ((msec) * HZ / 1000)
++#define NV_USECS_PER_JIFFIE         (1000000 / HZ)
++#define NV_USECS_TO_JIFFIES(usec)   ((usec) * HZ / 1000000)
++
++// #define NV_CHECK_DELAY_ACCURACY 1
++
++/*
++ * It is generally a bad idea to use udelay() to wait for more than
++ * a few milliseconds. Since the caller is most likely not aware of
++ * this, we use mdelay() for any full millisecond to be safe.
++ */
++
++RM_STATUS NV_API_CALL os_delay_us(U032 MicroSeconds)
++{
++    unsigned long mdelay_safe_msec;
++    unsigned long usec;
++
++#ifdef NV_CHECK_DELAY_ACCURACY
++    struct timeval tm1, tm2;
++
++    do_gettimeofday(&tm1);
++#endif
++
++    if (in_irq() && MicroSeconds > NV_MAX_ISR_UDELAY)
++        return RM_ERROR;
++    
++    mdelay_safe_msec = MicroSeconds / 1000;
++    if (mdelay_safe_msec)
++        mdelay(mdelay_safe_msec);
++
++    usec = MicroSeconds % 1000;
++    if (usec)
++        udelay(usec);
++
++#ifdef NV_CHECK_DELAY_ACCURACY
++    do_gettimeofday(&tm2);
++    nv_printf(NV_DBG_ERRORS, "NVRM: osDelayUs %d: 0x%x 0x%x\n",
++        MicroSeconds, tm2.tv_sec - tm1.tv_sec, tm2.tv_usec - tm1.tv_usec);
++#endif
++
++    return RM_OK;
++}
++
++#ifndef timercmp
++# define timercmp(a, b, CMP)                                                  \
++  (((a)->tv_sec == (b)->tv_sec) ?                                             \
++   ((a)->tv_usec CMP (b)->tv_usec) :                                          \
++   ((a)->tv_sec CMP (b)->tv_sec))
++#endif
++#ifndef timeradd
++# define timeradd(a, b, result)                                               \
++  do {                                                                        \
++    (result)->tv_sec = (a)->tv_sec + (b)->tv_sec;                             \
++    (result)->tv_usec = (a)->tv_usec + (b)->tv_usec;                          \
++    if ((result)->tv_usec >= 1000000)                                         \
++      {                                                                       \
++        ++(result)->tv_sec;                                                   \
++        (result)->tv_usec -= 1000000;                                         \
++      }                                                                       \
++  } while (0)
++#endif
++#ifndef timersub
++# define timersub(a, b, result)                                               \
++  do {                                                                        \
++    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;                             \
++    (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;                          \
++    if ((result)->tv_usec < 0) {                                              \
++      --(result)->tv_sec;                                                     \
++      (result)->tv_usec += 1000000;                                           \
++    }                                                                         \
++  } while (0)
++#endif
++
++/* 
++ * On Linux, a jiffie represents the time passed in between two timer
++ * interrupts. The number of jiffies per second (HZ) varies across the
++ * supported platforms. On i386, where HZ is 100, a timer interrupt is
++ * generated every 10ms; the resolution is a lot better on ia64, where
++ * HZ is 1024. NV_MSECS_TO_JIFFIES should be accurate independent of
++ * the actual value of HZ; any partial jiffies will be 'floor'ed, the
++ * remainder will be accounted for with mdelay().
++ */
++
++RM_STATUS NV_API_CALL os_delay(U032 MilliSeconds)
++{
++    unsigned long MicroSeconds;
++    unsigned long jiffies;
++    unsigned long mdelay_safe_msec;
++    struct timeval tm_end, tm_aux;
++#ifdef NV_CHECK_DELAY_ACCURACY
++    struct timeval tm_start;
++#endif
++
++    do_gettimeofday(&tm_aux);
++#ifdef NV_CHECK_DELAY_ACCURACY
++    tm_start = tm_aux;
++#endif
++
++    if (in_irq() && MilliSeconds > NV_MAX_ISR_MDELAY)
++        return RM_ERROR;
++
++    if (!NV_MAY_SLEEP()) 
++    {
++        mdelay(MilliSeconds);
++        return RM_OK;
++    }
++
++    MicroSeconds = MilliSeconds * 1000;
++    tm_end.tv_usec = MicroSeconds;
++    tm_end.tv_sec = 0;
++    timeradd(&tm_aux, &tm_end, &tm_end);
++
++    /* do we have a full jiffie to wait? */
++    jiffies = NV_USECS_TO_JIFFIES(MicroSeconds);
++
++    // if we have at least 1 full jiffy to wait, give up the cpu
++    // but first, make sure we haven't raised the irql level on
++    // this cpu (most likely holding a lock). I'm seeing cases
++    // where we give up the cpu with raised irql, and never get
++    // rescheduled (due to not responding to a later interrupt?)
++    if (jiffies) 
++    {
++        // make sure interrupts are enabled on the cpu
++        if (!NV_IRQL_IS_RAISED())
++        {
++            /* give up the cpu */
++            current->state = TASK_INTERRUPTIBLE;
++        } else {
++            nv_printf(NV_DBG_ERRORS, "NVRM: Trying to sleep during raised irql!!\n");
++            nv_printf(NV_DBG_ERRORS, "NVRM:   are we holding a lock?\n");
++            nv_printf(NV_DBG_ERRORS, "NVRM:   skipping os_delay\n");
++            os_dbg_breakpoint();
++            return RM_ERROR;
++        }
++        do
++        {
++            schedule_timeout(jiffies);
++            /* catch the remainder, if any */
++            do_gettimeofday(&tm_aux);
++            if (timercmp(&tm_aux, &tm_end, <))
++            {
++                timersub(&tm_end, &tm_aux, &tm_aux);    //  tm_aux = tm_end - tm_aux
++                MicroSeconds = tm_aux.tv_usec + tm_aux.tv_sec * 1000000;
++            } else
++                MicroSeconds = 0;
++        } while ((jiffies = NV_USECS_TO_JIFFIES(MicroSeconds)) != 0);
++    }
++
++    if (MicroSeconds > 1000)
++    {
++        mdelay_safe_msec = MicroSeconds / 1000;
++        mdelay(mdelay_safe_msec);
++        MicroSeconds %= 1000;
++    }
++    if (MicroSeconds)
++    {
++        udelay(MicroSeconds);
++    }
++#ifdef NV_CHECK_DELAY_ACCURACY
++    do_gettimeofday(&tm_aux);
++    timersub(&tm_aux, &tm_start, &tm_aux);
++    nv_printf(NV_DBG_ERRORS, "NVRM: osDelay %dmsec: %d.%06dsec\n",
++        MilliSeconds, tm_aux.tv_sec, tm_aux.tv_usec);
++#endif
++
++    return RM_OK;
++}
++
++/* return CPU frequency in MHz */
++
++U032 NV_API_CALL os_get_cpu_frequency(void)
++{
++    NvU64 tsc[2];
++    NvU64 tsc_d;
++
++    tsc[0] = nv_rdtsc();
++    mdelay(250);
++    tsc[1] = nv_rdtsc();
++
++    /* we timed 1/4th a second */
++    tsc_d = (tsc[1] - tsc[0]) * 4;
++
++    /* convert from Hz to MHz */
++    do_div(tsc_d, 1000000);
++
++    return (U032)tsc_d;
++}
++
++RM_STATUS NV_API_CALL os_get_current_process(U032 *pPid)
++{
++    *pPid = current->tgid;
++    return RM_OK;
++}
++
++RM_STATUS NV_API_CALL os_kill_process(
++    U032 pid,
++    U032 sig
++)
++{
++    return kill_proc(pid, sig, 1) ? RM_ERR_OPERATING_SYSTEM : RM_OK;
++}
++
++/*******************************************************************************/
++/*                                                                             */
++/* Debug and logging utilities follow                                          */
++/*                                                                             */
++/*******************************************************************************/
++
++
++// The current debug display level (default to maximum debug level)
++U032 cur_debuglevel = 0xffffffff;
++
++
++//
++// this is what actually outputs the data.
++//
++inline void NV_API_CALL out_string(const char *str)
++{
++#if defined(DEBUG)
++    static int was_newline = 0;
++
++    if (NV_NUM_CPUS() > 1 && was_newline)
++    {
++        printk("%d: %s", get_cpu(), str);
++        put_cpu();
++    }
++    else
++#endif
++        printk("%s", str);
++
++#if defined(DEBUG)
++    if (NV_NUM_CPUS() > 1)
++    {
++        int len, i;
++
++        len = strlen(str);
++        if (len > 5) i = 5;
++        else         i = len;
++        was_newline = 0;
++        while (i >= 0)
++        {
++            if (str[len - i] == '\n') was_newline = 1;
++            i--;
++        }
++    }
++#endif
++}    
++
++
++
++#define MAX_ERROR_STRING 512
++
++/*
++ * nv_printf() prints to the "error" log for the driver.
++ * Just like printf, adds no newlines or names
++ * Returns the number of characters written.
++ */
++
++static char nv_error_string[MAX_ERROR_STRING];
++
++int NV_API_CALL nv_printf(
++    U032 debuglevel,
++    const char *printf_format,
++    ...
++  )
++{
++    char *p = nv_error_string;
++    va_list arglist;
++    int chars_written = 0;
++
++    if (debuglevel >= ((cur_debuglevel>>4)&0x3))
++    {
++        va_start(arglist, printf_format);
++        chars_written = vsprintf(p, printf_format, arglist);
++        va_end(arglist);
++        out_string(p);
++    }
++
++    return chars_written;
++}
++
++void NV_API_CALL nv_prints(
++    U032 debuglevel,
++    const char *string
++)
++{
++    char *s = NULL, *p = (char *)string;
++    int l = 0, n = 0;
++
++    if (debuglevel >= ((cur_debuglevel>>4)&0x3))
++    {
++        while ((s = strchr(p, '\n')) != NULL)
++        {
++            sprintf(nv_error_string, "NVRM: ");
++            l = strlen(nv_error_string);
++            n = NV_MIN((s - p) + 2, (MAX_ERROR_STRING - l));
++            snprintf(nv_error_string + l, n, "%s", p);
++            nv_error_string[MAX_ERROR_STRING - 1] = '\0';
++            printk("%s", nv_error_string);
++            p = s + 1;
++        }
++    }
++}
++
++int NV_API_CALL nv_snprintf(char *buf, unsigned int size, const char *fmt, ...)
++{
++    va_list arglist;
++    int chars_written;
++
++    va_start(arglist, fmt);
++    chars_written = vsnprintf(buf, size, fmt, arglist);
++    va_end(arglist);
++    return chars_written;
++}
++
++void NV_API_CALL nv_os_log(int log_level, const char *fmt, void *ap)
++{
++    char    *sys_log_level;
++    int     l;
++
++    switch (log_level) {
++    case NV_DBG_INFO:
++        sys_log_level = KERN_INFO;
++        break;
++    case NV_DBG_SETUP:
++        sys_log_level = KERN_DEBUG;
++        break;
++    case NV_DBG_USERERRORS:
++        sys_log_level = KERN_NOTICE;
++        break;
++    case NV_DBG_WARNINGS:
++        sys_log_level = KERN_WARNING;
++        break;
++    case NV_DBG_ERRORS:
++    default:
++        sys_log_level = KERN_ERR;
++        break;
++    }
++
++    strcpy(nv_error_string, sys_log_level);
++    strcat(nv_error_string, "NVRM: ");
++    l = strlen(nv_error_string);
++    vsnprintf(nv_error_string + l, MAX_ERROR_STRING - l, fmt, ap);
++    nv_error_string[MAX_ERROR_STRING - 1] = 0;
++
++    printk("%s", nv_error_string);
++}
++
++BOOL NV_API_CALL os_pci_device_present(
++    U016 vendor,
++    U016 device
++)
++{
++    struct pci_dev *dev;
++
++    dev = NV_PCI_GET_DEVICE(vendor, device, NULL);
++    if (dev) {
++        NV_PCI_DEV_PUT(dev);
++        return 1;
++    }
++
++    return 0;
++}
++
++#define VERIFY_HANDLE(handle,ret) \
++    if (handle == NULL) { \
++        os_dbg_breakpoint(); \
++        return ret; \
++    }
++
++void* NV_API_CALL os_pci_init_handle(
++    U008 bus,
++    U008 slot,
++    U008 function,
++    U016 *vendor,
++    U016 *device
++)
++{
++    struct pci_dev *dev;
++    unsigned int devfn = PCI_DEVFN(slot, function);
++    dev = NV_PCI_GET_SLOT(bus, devfn);
++    if (dev) {
++        if (vendor) *vendor = dev->vendor;
++        if (device) *device = dev->device;
++        NV_PCI_DEV_PUT(dev); /* XXX Fix me! (hotplug) */
++    }
++    return (void *) dev;
++}
++
++U008 NV_API_CALL os_pci_read_byte(
++    void *handle,
++    U008 offset
++)
++{
++    U008 value;
++    VERIFY_HANDLE(handle,-1);
++    pci_read_config_byte( (struct pci_dev *) handle, offset, &value);
++    return value;
++}
++
++U016 NV_API_CALL os_pci_read_word(
++    void *handle,
++    U008 offset
++)
++{
++    U016 value;
++    VERIFY_HANDLE(handle,-1);
++    pci_read_config_word( (struct pci_dev *) handle, offset, &value);
++    return value;
++}
++
++U032 NV_API_CALL os_pci_read_dword(
++    void *handle,
++    U008 offset
++) 
++{
++    U032 value;
++    VERIFY_HANDLE(handle,-1);
++    pci_read_config_dword( (struct pci_dev *) handle, offset, (u32 *) &value);
++    return value;
++}
++
++void NV_API_CALL os_pci_write_byte(
++    void *handle,
++    U008 offset,
++    U008 value
++)
++{
++    VERIFY_HANDLE(handle,);
++    pci_write_config_byte( (struct pci_dev *) handle, offset, value);
++}
++
++void NV_API_CALL os_pci_write_word(
++    void *handle,
++    U008 offset,
++    U016 value
++)
++{
++    VERIFY_HANDLE(handle,);
++    pci_write_config_word( (struct pci_dev *) handle, offset, value);
++}
++
++void NV_API_CALL os_pci_write_dword(
++    void *handle,
++    U008 offset,
++    U032 value
++)
++{
++    VERIFY_HANDLE(handle,);
++    pci_write_config_dword( (struct pci_dev *) handle, offset, value);
++}
++
++
++void NV_API_CALL os_io_write_byte(
++    PHWINFO pdev,
++    U032 address,
++    U008 value
++)
++{
++    outb(value, address);
++}
++
++void NV_API_CALL os_io_write_word(
++    PHWINFO pdev,
++    U032 address,
++    U016 value
++)
++{
++    outw(value, address);
++}
++
++void NV_API_CALL os_io_write_dword(
++    PHWINFO pdev,
++    U032 address,
++    U032 value
++)
++{
++    outl(value, address);
++}
++
++U008 NV_API_CALL os_io_read_byte(
++    PHWINFO pdev,
++    U032 address
++)
++{
++    return inb(address);
++}
++
++U016 NV_API_CALL os_io_read_word(
++    PHWINFO pdev,
++    U032 address
++)
++{
++    return inw(address);
++}
++
++U032 NV_API_CALL os_io_read_dword(
++    PHWINFO pdev,
++    U032 address
++)
++{
++    return inl(address);
++}
++
++ULONG NV_API_CALL os_cli(ULONG flags)
++{
++    NV_SAVE_FLAGS(flags);
++    NV_CLI();
++    return flags;
++}
++
++ULONG NV_API_CALL os_sti(ULONG flags)
++{
++    NV_RESTORE_FLAGS(flags);
++    return flags;
++}
++
++
++#ifdef CONFIG_MTRR
++typedef struct wb_mem_t {
++    unsigned int start;
++    unsigned int size;
++    struct wb_mem_t *next;
++} wb_mem;
++
++static wb_mem *wb_list = NULL;
++
++int save_wb(unsigned int start, unsigned int size)
++{
++    struct wb_mem_t *ptr;
++
++    NV_KMALLOC(ptr, sizeof(struct wb_mem_t));
++    if (ptr == NULL)
++        return 0;
++
++    ptr->start = start;
++    ptr->size  = size;
++    ptr->next  = wb_list;
++    wb_list    = ptr;
++
++    return 1;
++}
++
++int del_wb(unsigned int start, unsigned int size)
++{
++    struct wb_mem_t *ptr;
++    struct wb_mem_t *prev;
++
++    prev = ptr = wb_list;
++
++    while (ptr != NULL) {
++        if (ptr->start == start && ptr->size == size) {
++            if (ptr == wb_list)
++                wb_list = ptr->next;
++            else
++                prev->next = ptr->next;
++
++            NV_KFREE(ptr, sizeof(struct wb_mem_t));
++            return 1;
++        }
++        prev = ptr;
++        ptr = prev->next;
++    }
++
++    return 0;
++}
++#endif
++
++/*
++ * Don't assume MTRR-specific, as we could add support for PATs to 
++ * achieve the same results on a PIII or higher
++ */
++
++RM_STATUS NV_API_CALL os_set_mem_range(
++    U032 start,
++    U032 size,
++    U032 mode
++)
++{
++#ifdef CONFIG_MTRR
++    int err;
++
++    /* for now, we only set memory to write-combined */
++    if (mode != NV_MEMORY_WRITECOMBINED)
++        return RM_ERROR;
++
++    err = mtrr_add(start, size, MTRR_TYPE_WRCOMB, 0x0);
++    if (err < 0)
++    {
++        nv_printf(NV_DBG_ERRORS, "NVRM: cannot write-combine 0x%08x, %dM\n",
++            start, size / (1024 * 1024));
++        return RM_ERROR;
++    }
++
++    save_wb(start, size);
++
++    return RM_OK;
++#endif
++    return RM_ERROR;
++}
++
++RM_STATUS NV_API_CALL os_unset_mem_range(
++    U032 start,
++    U032 size
++)
++{
++#ifdef CONFIG_MTRR
++    if (del_wb(start, size))
++    {
++        mtrr_del(-1, start, size);
++    }
++    return RM_OK;
++#endif
++    return RM_ERROR;
++}
++
++void* NV_API_CALL os_map_kernel_space_high(
++    U032 pfn,
++    U032 size_bytes
++)
++{
++    struct page *page = NULL;
++    if (!NV_MAY_SLEEP())
++    {
++        nv_printf(NV_DBG_ERRORS,
++            "NVRM: os_map_kernel_space_high: 0x%08x, invalid context!\n", pfn);
++        return NULL;
++    }
++    if ((size_bytes == PAGE_SIZE) && (page = pfn_to_page(pfn)) != NULL)
++        return kmap(page);
++    return NULL;
++}
++
++void NV_API_CALL os_unmap_kernel_space_high(
++    void *addr,
++    U032 pfn,
++    U032 size_bytes
++)
++{
++    struct page *page = NULL;
++    if ((page = pfn_to_page(pfn)) != NULL)
++        kunmap(page);
++}
++
++/*
++ * This needs to remap the AGP Aperture from IO space to kernel space,
++ * or at least return a pointer to a kernel space mapping of the Aperture
++ * should this also check for Write-Combining??
++ */
++
++void* NV_API_CALL os_map_kernel_space(
++    U032 start,
++    U032 size_bytes,
++    U032 mode
++)
++{
++    void *vaddr;
++
++    if (!NV_MAY_SLEEP())
++    {
++        nv_printf(NV_DBG_ERRORS,
++            "NVRM: os_map_kernel_space: 0x%08x, invalid context!\n", start);
++        os_dbg_breakpoint();
++        return NULL;
++    }
++
++    if (mode == NV_MEMORY_CACHED) {
++        NV_IOREMAP(vaddr, start, size_bytes);
++    } else {
++        NV_IOREMAP_NOCACHE(vaddr, start, size_bytes);
++    }
++
++    return vaddr;
++}
++
++void NV_API_CALL os_unmap_kernel_space(
++    void *addr,
++    U032 size_bytes
++)
++{
++    NV_IOUNMAP(addr, size_bytes);
++}
++
++// flush the cpu's cache, uni-processor version
++RM_STATUS NV_API_CALL os_flush_cpu_cache()
++{
++    CACHE_FLUSH();
++    return RM_OK;
++}
++
++// override initial debug level from registry
++void NV_API_CALL os_dbg_init(void)
++{
++    U032 new_debuglevel;
++    if (RM_OK == rm_read_registry_dword(NULL,
++                                     "NVreg",
++                                     "ResmanDebugLevel",
++                                     &new_debuglevel))
++    {
++        if (new_debuglevel != (U032)~0)
++            cur_debuglevel = new_debuglevel;
++    }
++}
++
++void NV_API_CALL os_dbg_set_level(U032 new_debuglevel)
++{
++    nv_printf(NV_DBG_SETUP, "NVRM: Changing debuglevel from 0x%x to 0x%x\n",
++        cur_debuglevel, new_debuglevel);
++    cur_debuglevel = new_debuglevel;
++}
++
++/* we used to have a global lock that we had to drop so incoming interrupts
++ * wouldn't hang the machine waiting for the lock. In the switch to finer
++ * grained locking, I've had to remove that code. We don't know which card has
++ * a lock or which threw the breakpoint. I should probably scan the list of
++ * nv_state_t's and drop any held locks before throwing this breakpoint.
++ */
++void NV_API_CALL os_dbg_breakpoint(void)
++{
++#ifdef DEBUG
++    out_string("Break\n");
++
++#if defined(CONFIG_X86_REMOTE_DEBUG)
++        __asm__ __volatile__ ("int $3");
++#elif defined(CONFIG_KGDB)
++        BREAKPOINT();
++#elif defined(CONFIG_KDB)
++    KDB_ENTER();
++#else
++    out_string("Skipping INT 3, we don't like kernel panics\n");
++#endif
++
++#endif /* DEBUG */
++}
++
++
++U032 NV_API_CALL os_get_cpu_count()
++{
++    return NV_NUM_CPUS();
++}
++
++void NV_API_CALL os_register_ioctl32_conversion(U032 cmd, U032 size)
++{
++#if defined(NVCPU_X86_64) && defined(CONFIG_IA32_EMULATION) && !defined(HAVE_COMPAT_IOCTL)
++    unsigned int request = _IOWR(NV_IOCTL_MAGIC, cmd, char[size]);
++    register_ioctl32_conversion(request, (void *)sys_ioctl);
++#endif
++}
++
++void NV_API_CALL os_unregister_ioctl32_conversion(U032 cmd, U032 size)
++{
++#if defined(NVCPU_X86_64) && defined(CONFIG_IA32_EMULATION) && !defined(HAVE_COMPAT_IOCTL)
++    unsigned int request = _IOWR(NV_IOCTL_MAGIC, cmd, char[size]);
++    unregister_ioctl32_conversion(request);
++#endif
++}
++
++BOOL NV_API_CALL os_pat_supported(void)
++{
++    return nv_pat_enabled;
++}
++
++RM_STATUS NV_API_CALL os_set_mlock_capability()
++{
++    /*
++     * The NVIDIA driver may require the ability to lock down user
++     * memory with the mlock(2) system call, which is normally only
++     * available to privileged processes. The code below enables
++     * mlock(2) for the current process and adjusts the lock limit
++     * to 'unlimited'.
++     *
++     * If you prefer to manually grant the necessary capability and 
++     * adjust the resource limit, disable the lines below.
++     */
++#if 1 /* enabled */
++    struct rlimit *rlim = NV_TASK_STRUCT_RLIM(current);
++    rlim[RLIMIT_MEMLOCK].rlim_cur = RLIM_INFINITY;
++    cap_raise(current->cap_effective, CAP_IPC_LOCK);
++    return RM_OK;
++#endif
++    return RM_ERROR;
++}
+diff -Nurp usr.orig/src/nv/os-registry.c usr/src/nv/os-registry.c
+--- usr.orig/src/nv/os-registry.c	2008-01-21 20:13:08.000000000 +0100
++++ usr/src/nv/os-registry.c	2008-04-21 14:12:08.000000000 +0200
+@@ -402,34 +402,36 @@ static int NVreg_RemapLimit = 0;
+ NV_MODULE_PARAMETER(NVreg_RemapLimit);
+ 
+ /*
+- * Option: UseCPA
++ * Option: UpdateMemoryTypes
+  *
+  * Description:
+  *
+- * Many kernels have a broken implementation of change_page_attr that leads
+- * to cache aliasing problems. x86_64 kernels between 2.6.0 and 2.6.10 will
+- * force a kernel BUG_ON() when this condition is encountered. For this
+- * reason, the NVIDIA driver is very careful about not using the CPA kernel
+- * interface on these kernels.
+- *
+- * Some distributions have backported this fix to kernel versions that fall
+- * within this version range. The NVIDIA driver attempts to automatically
+- * detect these fixes and reenable usage of the change_page_attr interface.
+- *
+- * Due to the serious nature of the problems that can arise from this, the
+- * NVIDIA driver implements a manual registry key to force usage of this API
+- * to be enabled or disabled. This registry key can be used to force usage
+- * of the API on a known fixed kernel if the NVIDIA driver fails to detect
+- * the kernel as fixed. This registry key can also be used to disable usage
+- * of the API on a bad kernel that is misdetected as a fixed kernel.
+- *
+- * The default value is '-1' (use NVIDIA driver default logic)
+- * A value of '0' will forcibly disable change_page_attr calls.
+- * A value of '1' will forcibly enable change_page_attr calls.
++ * Many kernels have broken implementations of the change_page_attr()
++ * kernel interface that may cause cache aliasing problems. Linux/x86-64
++ * kernels between 2.6.0 and 2.6.10 may prompt kernel BUG()s due to
++ * improper accounting in the interface's large page management code, for
++ * example. For this reason, the NVIDIA Linux driver is very careful about
++ * not using the change_page_attr() kernel interface on these kernels.
++ *
++ * Due to the serious nature of the problems that can arise from bugs in
++ * the change_page_attr(), set_pages_{uc,wb}() and other kernel interfaces
++ * used to modify memory types, the NVIDIA driver implements a manual
++ * registry key override to allow forcibly enabling or disabling use of
++ * these APIs.
++ *
++ * Possible values:
++ *
++ * ~0 = use the NVIDIA driver's default logic (default)
++ *  0 = enable use of change_page_attr(), etc.
++ *  1 = disable use of change_page_attr(), etc.
++ *
++ * By default, the NVIDIA driver will attempt to auto-detect if it can
++ * safely use the change_page_attr() and other kernel interfaces to modify
++ * the memory types of kernel mappings.
+  */
+ 
+-static int NVreg_UseCPA = -1;
+-NV_MODULE_PARAMETER(NVreg_UseCPA);
++static int NVreg_UpdateMemoryTypes = ~0;
++NV_MODULE_PARAMETER(NVreg_UpdateMemoryTypes);
+ 
+ // 1 - Force sourcing vbios from ROM
+ // 0 - business as usual
+@@ -485,7 +487,7 @@ nv_parm_t nv_parms[] = {
+     { "NVreg",  "DeviceFileMode",           &NVreg_DeviceFileMode,           1 },
+     { "NVreg",  "VbiosFromROM",             &NVreg_VbiosFromROM,             1 },
+     { "NVreg",  "RemapLimit",               &NVreg_RemapLimit,               1 },
+-    { "NVreg",  "UseCPA",                   &NVreg_UseCPA,                   1 },
++    { "NVreg",  "UpdateMemoryTypes",        &NVreg_UpdateMemoryTypes,        1 },
+     { "NVreg",  "RMEdgeIntrCheck",          &NVreg_RMEdgeIntrCheck,          1 },
+     {  NULL,     NULL,                      NULL,                            0 }
+ };
