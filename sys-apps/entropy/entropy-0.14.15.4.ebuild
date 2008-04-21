@@ -4,7 +4,7 @@
 NEED_PYTHON=2.4
 
 inherit eutils subversion distutils python multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk/"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
 
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -15,14 +15,13 @@ SRC_URI="http://initd.org/pub/software/pysqlite/releases/${PYSQLITE_VER:0:3}/${P
 
 LICENSE="GPL-2 pysqlite"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND="
 	dev-db/sqlite:3
-	sys-apps/diffutils
-	"
+	sys-apps/diffutils"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
@@ -62,7 +61,7 @@ src_install() {
 	#########
 
 	dodir /usr/$(get_libdir)/entropy/libraries
-	dodir /usr/sbin
+	dodir /usr/sbin/
 	
 	# copying libraries
 	cd ${S}/libraries
@@ -70,10 +69,10 @@ src_install() {
 	doins *.py
 	doins revision
 
-        # copy entropy (client) server
-        cd ${S}/server
-        exeinto /usr/sbin/
-        doexe entropy-system-daemon
+	# copy entropy (client) server
+	cd ${S}/server
+	exeinto /usr/sbin/
+	doexe entropy-system-daemon
 
 	# copy configuration
 	cd ${S}/conf
