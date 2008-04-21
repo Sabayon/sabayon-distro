@@ -24,6 +24,10 @@ DEPEND="
 	sys-apps/diffutils"
 RDEPEND="${DEPEND}"
 
+pkg_setup() {
+	enewgroup entropy || die "failed to create entropy group"
+}
+
 src_unpack() {
 
 	# prepare entropy stuff
@@ -111,7 +115,5 @@ src_install() {
 		cp ${S}/libraries/python/x86/libpython* "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/
 	fi
 	chmod 555 "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/libpython*
-
-	enewgroup entropy || die "failed to create entropy group"
 
 }
