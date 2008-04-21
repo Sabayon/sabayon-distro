@@ -40,7 +40,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/${UNIONFS_PATCH}
 		${FILESDIR}/${PV}/${P}-atl2.patch
 		${FILESDIR}/${PV}/${P}-tuxonice-3.0-rc6.patch.bz2
-		${FILESDIR}/${PV}/${P}-aufs-tmp.patch
+		${FILESDIR}/${PV}/${P}-aufs.patch
 		
 "
 # gentoo patches
