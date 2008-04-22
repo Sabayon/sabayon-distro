@@ -3,11 +3,8 @@
 # Distributed under the terms of the GNU General Public License v2 
 
 depend() {
-	
+	after x-setup
 	before xdm
-	after alsasound
-	before splash
-
 }
 
 start_acceleration_manager() {
@@ -193,33 +190,6 @@ start() {
 		done
 
 	fi 
-
-#===============================================================)
-# Restore audio volumes						)
-#===============================================================)
-
-   cmdline_mute_exists=$(cat /proc/cmdline | grep "sound=mute")
-   if [ -z "$cmdline_mute_exists" ] && [ ! -e "/etc/amixer_has_been_run" ]; then
-	/usr/bin/amixer -q set Master 70% unmute &> /dev/null
-	/usr/bin/amixer -q set PCM 70% unmute &> /dev/null
-	/usr/bin/amixer -q set Front 70% unmute &> /dev/null
-	/usr/bin/amixer -q set Surround 70% unmute &> /dev/null
-	/usr/bin/amixer -q set Center 70% unmute &> /dev/null 
-	/usr/bin/amixer -q set LFE 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "Analog Mix" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "Aux" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "Aux2" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "PCM Center" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "PCM Front" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "PCM LFE" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "PCM Side" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "PCM Surround" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set "Side" 70% unmute &> /dev/null
-	/usr/bin/amixer -q set 'Input Gain' 50% &> /dev/null
-	/usr/bin/amixer -q set FM 60% unmute &> /dev/null
-	alsactl store &> /dev/null
-   fi
-
 
 #===============================================================)
 # Power Managment:						)

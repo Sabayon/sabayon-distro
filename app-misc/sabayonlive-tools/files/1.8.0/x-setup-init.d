@@ -6,7 +6,6 @@
 depend() {
 	before hostname
 	before xdm
-	after internetkiosk
 }
 
 
