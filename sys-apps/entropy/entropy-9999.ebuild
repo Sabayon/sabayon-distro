@@ -9,7 +9,7 @@ ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk/"
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
 PYTHON_MODNAME="pysqlite2"
-PYSQLITE_VER="2.3.5"
+PYSQLITE_VER="2.4.1"
 PYSQLITE_DIRNAME="pysqlite"
 SRC_URI="http://initd.org/pub/software/pysqlite/releases/${PYSQLITE_VER:0:3}/${PYSQLITE_VER}/pysqlite-${PYSQLITE_VER}.tar.gz"
 
@@ -88,6 +88,8 @@ src_install() {
 	rm ${D}/etc/entropy/reagent.conf
 	rm ${D}/etc/entropy/activator.conf
 	rm ${D}/etc/entropy/server.conf.example
+
+	doenvd ${S}/misc/05entropy.envd 
 
 	#########
 	#
