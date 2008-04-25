@@ -14,6 +14,6 @@ LICENSE="LGPL-2"
 KEYWORDS="x86 amd64 ppc ppc64"
 IUSE=""
 
-DEPEND="|| ( kde-base/kwin kde-base/kdebase )"
+DEPEND="|| ( =kde-base/kwin-3.5* =kde-base/kdebase-3.5* )"
 
 need-kde 3.2
