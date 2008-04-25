@@ -1,0 +1,56 @@
+should be fixed upstream already
+
+http://bugs.gentoo.org/179734
+
+--- amarinth/plugins/fonts/fontsimpexp.cpp
++++ amarinth/plugins/fonts/gfontsimpexp.cpp
+@@ -34,7 +34,6 @@
+ 
+ #include <ft2build.h>
+ #include FT_FREETYPE_H
+-#include <freetype/internal/ftgloadr.h>
+ 
+ namespace Amanith {
+ 
+@@ -198,7 +197,8 @@
+ 	GGlyphMetrics tmpMetrics;
+ 	FT_Error error;
+ 	GInt32 i, j, k0, k1, numVert;
+-	FT_SubGlyphRec subGlyph;
++	FT_Matrix subGlyphMatrix;
++	FT_Int subGlyphArg1, subGlyphArg2;
+ 	GPoint2 p;
+ 	GReal x, y;
+ 	GVect<GReal, 2> v;
+@@ -223,19 +223,22 @@
+ 		GDynArray<GSubChar2D> subChars(Face->glyph->num_subglyphs);
+ 
+ 		for (i = 0; i < (GInt32)Face->glyph->num_subglyphs; i++) {
+-			subGlyph = Face->glyph->subglyphs[i];
+-			subChars[i].GlyphIndex = subGlyph.index;
+-			subChars[i].Flags = subGlyph.flags;
++			FT_Get_SubGlyph_Info(Face->glyph, i,
++						&subChars[i].GlyphIndex,
++						(FT_UInt*)&subChars[i].Flags,
++						&subGlyphArg1,
++						&subGlyphArg2,
++						&subGlyphMatrix);
+ 			// rotation and scale
+-			subChars[i].Transformation[G_X][G_X] = Fixed1616ToReal(subGlyph.transform.xx);
+-			subChars[i].Transformation[G_X][G_Y] = Fixed1616ToReal(subGlyph.transform.xy);
++			subChars[i].Transformation[G_X][G_X] = Fixed1616ToReal(subGlyphMatrix.xx);
++			subChars[i].Transformation[G_X][G_Y] = Fixed1616ToReal(subGlyphMatrix.xy);
+ 			// x position
+-			subChars[i].Transformation[G_X][G_Z] = subGlyph.arg1 * Scale;
++			subChars[i].Transformation[G_X][G_Z] = subGlyphArg1 * Scale;
+ 			// rotation and scale
+-			subChars[i].Transformation[G_Y][G_X] = Fixed1616ToReal(subGlyph.transform.yx);
+-			subChars[i].Transformation[G_Y][G_Y] = Fixed1616ToReal(subGlyph.transform.yy);
++			subChars[i].Transformation[G_Y][G_X] = Fixed1616ToReal(subGlyphMatrix.yx);
++			subChars[i].Transformation[G_Y][G_Y] = Fixed1616ToReal(subGlyphMatrix.yy);
+ 			// y position
+-			subChars[i].Transformation[G_Y][G_Z] = subGlyph.arg2 * Scale;
++			subChars[i].Transformation[G_Y][G_Z] = subGlyphArg2 * Scale;
+ 			// last row is an identity
+ 			subChars[i].Transformation[G_Z][G_X] = 0;
+ 			subChars[i].Transformation[G_Z][G_Y] = 0;

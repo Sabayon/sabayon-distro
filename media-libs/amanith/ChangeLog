@@ -1,0 +1,21 @@
+# ChangeLog for media-libs/amanith
+# Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
+
+* amanith-0.3-r2 (26 Apr 2008)
+  26 Apr 2008; Kliakhandler Kosta <public@kosta.tk>
+  +files/amanith-0.3-glew-update.patch, +amanith-0.3-r2.ebuild:
+  Fix build breaking due to changed glew API.
+	
+  11 Jun 2007; Mike Frysinger <vapier@gentoo.org>
+  +files/amanith-0.3-freetype.patch, amanith-0.3-r1.ebuild:
+  Fix building with newer freetype versions #179734 by Elliott Sales de Andrade.
+
+*amanith-0.3-r1 (11 Nov 2006)
+
+  11 Nov 2006; Mike Frysinger <vapier@gentoo.org> +amanith-0.3-r1.ebuild:
+  Fix example install #154700 by Cedric Pinson.
+
+*amanith-0.3 (18 Sep 2006)
+
+  18 Sep 2006; Mike Frysinger <vapier@gentoo.org> :
+  Initial import.  Ebuild submitted by me #115754.

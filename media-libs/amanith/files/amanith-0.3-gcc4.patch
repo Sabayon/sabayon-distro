@@ -1,0 +1,11 @@
+--- amanith/examples/opengl/vectorizer/drawer.h
++++ amanith/examples/opengl/vectorizer/drawer.h
+@@ -71,7 +71,7 @@
+ #endif
+ 	// destructor
+ 	~QGLWidgetTest();
+-	void QGLWidgetTest::timerEvent(QTimerEvent *e);
++	void timerEvent(QTimerEvent *e);
+ };
+ 
+ 
