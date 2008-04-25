@@ -32,7 +32,7 @@ DEPEND=">=media-libs/mesa-6.5.1-r1
 	svg? ( gnome-base/librsvg )
 	dbus? ( >=sys-apps/dbus-1.0 )
 	kde? (
-		|| ( kde-base/kdebase kde-base/kwin )
+		|| ( kde-base/kdebase:3.5 kde-base/kwin:3.5 )
 		dev-libs/dbus-qt3-old )"
 
 RDEPEND="${DEPEND}
