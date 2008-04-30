@@ -11,7 +11,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 IUSE=""
 
-DEPEND=">=x11-wm/compiz-0.6.0
+DEPEND=">=x11-wm/compiz-0.7.2
 	dev-libs/libxml2"
 
 src_install() {
