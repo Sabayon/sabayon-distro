@@ -4,7 +4,7 @@
 
 inherit eutils versionator
 
-DESCRIPTION="Desktop Acceleration Configuration Helpers - Supporting XGL/AIGLX with Beryl"
+DESCRIPTION="Desktop Acceleration Configuration Helpers - Supporting AIGLX and Compiz"
 HOMEPAGE="http://www.sabayonlinux.org/"
 SRC_URI=""
 LICENSE="GPL-2"
