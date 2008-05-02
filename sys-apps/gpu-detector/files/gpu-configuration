@@ -475,7 +475,13 @@ for videocard in videocards:
 			generate_generic_steps()
 			steps.append(('change_xorg_driver','vmware'))
 			print "VMware!"
-	
+
+		elif videocard.find('VirtualBox') != -1 or videocard.find('InnoTek') != -1:
+			generate_generic_steps()
+			if check_if_driver_is_available('vboxvideo'):
+				steps.append(('change_xorg_driver','vboxvideo'))
+			print "VirtualBox!"
+
 		elif i740.match(videocard.lower()):
 			generate_generic_steps()
 			steps.append(('change_xorg_driver','i740'))
