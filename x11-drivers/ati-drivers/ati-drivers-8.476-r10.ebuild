@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.476.ebuild,v 1.2 2008/03/21 15:08:23 drac Exp $
 
-IUSE="acpi debug"
+IUSE="acpi debug distribution"
 
 inherit eutils multilib linux-mod toolchain-funcs versionator
 
@@ -353,6 +353,16 @@ src_install() {
 		echo 'ATIEVENTSDOPTS=""' > "${T}"/atieventsd.conf
 		newconfd "${T}"/atieventsd.conf atieventsd
 	fi
+
+	# Sabayon specific stuff
+	if use distribution && ! use x86-fbsd; then
+	        insinto /lib/fglrx
+	        doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
+	        insinto /lib/fglrx
+	        doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
+	fi
+
+
 }
 
 src_install-libs() {
