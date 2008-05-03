@@ -26,7 +26,7 @@ K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
 SLOT="${PV}"
 S="${WORKDIR}/linux-${KV_FULL}"
-UNIONFS_PATCH="unionfs-2.3.2_for_${PV}-rc7.diff.gz"
+UNIONFS_PATCH="unionfs-2.3.3_for_${PV}.diff.gz"
 
 ## INIT: Exported data
 SL_PATCHES_URI="http://download.filesystems.org/unionfs/unionfs-2.x/${UNIONFS_PATCH}"
