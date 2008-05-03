@@ -60,8 +60,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/aufs.h linux-2.6.25-sabayon/fs/aufs
 +#endif /* __AUFS_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/aufs/branch.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/branch.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/branch.c	2008-04-21 03:33:15.000000000 +0200
-@@ -0,0 +1,945 @@
++++ linux-2.6.25-sabayon/fs/aufs/branch.c	2008-04-28 05:03:23.000000000 +0200
+@@ -0,0 +1,931 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -83,7 +83,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +/*
 + * branch management
 + *
-+ * $Id: branch.c,v 1.2 2008/04/21 01:33:15 sfjro Exp $
++ * $Id: branch.c,v 1.3 2008/04/28 03:03:23 sfjro Exp $
 + */
 +
 +#include <linux/iso_fs.h>
@@ -108,7 +108,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +		lockdep_on();
 +	}
 +	AuDebugOn(au_br_count(br) || atomic_read(&br->br_wh_running));
-+	sysaufs_br_put(br);
++	//AuDbg("free\n");
 +	kfree(br);
 +}
 +
@@ -272,7 +272,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +static struct au_branch *alloc_addbr(struct super_block *sb, int new_nbranch)
 +{
 +	struct au_branch **branchp, *add_branch;
-+	int sz, err;
++	int sz;
 +	void *p;
 +	struct dentry *root;
 +	struct inode *inode;
@@ -286,16 +286,11 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +	inode = root->d_inode;
 +	IiMustWriteLock(inode);
 +
-+	err = -ENOMEM;
 +	add_branch = kmalloc(sizeof(*add_branch), GFP_KERNEL);
 +	//if (LktrCond) {kfree(add_branch); add_branch = NULL;}
 +	if (unlikely(!add_branch))
 +		goto out;
-+	err = sysaufs_br_init(add_branch);
-+	if (unlikely(err))
-+		goto out_branch;
 +
-+	err = -ENOMEM;
 +	sz = sizeof(*branchp) * (new_nbranch - 1);
 +	if (unlikely(!sz))
 +		sz = sizeof(*branchp);
@@ -304,7 +299,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +			       GFP_KERNEL);
 +	//if (LktrCond) branchp = NULL;
 +	if (unlikely(!branchp))
-+		goto out_sabr;
++		goto out_br;
 +	au_sbi(sb)->si_branch = branchp;
 +
 +	sz = sizeof(*hdentryp) * (new_nbranch - 1);
@@ -315,7 +310,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +				GFP_KERNEL);
 +	//if (LktrCond) hdentryp = NULL;
 +	if (unlikely(!hdentryp))
-+		goto out_sabr;
++		goto out_br;
 +	au_di(root)->di_hdentry = hdentryp;
 +
 +	sz = sizeof(*hinodep) * (new_nbranch - 1);
@@ -326,17 +321,15 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +			       GFP_KERNEL);
 +	//if (LktrCond) hinodep = NULL; // unavailable test
 +	if (unlikely(!hinodep))
-+		goto out_sabr;
++		goto out_br;
 +	au_ii(inode)->ii_hinode = hinodep;
 +	return add_branch; /* success */
 +
-+ out_sabr:
-+	sysaufs_br_put(add_branch);
-+ out_branch:
++ out_br:
 +	kfree(add_branch);
 + out:
-+	AuTraceErr(err);
-+	return ERR_PTR(err);
++	AuTraceErr(-ENOMEM);
++	return ERR_PTR(-ENOMEM);
 +}
 +
 +/*
@@ -367,7 +360,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +{
 +	int err;
 +	struct dentry *root;
-+	struct inode *inode, *hidden_inode;
++	struct inode *inode, *h_inode;
 +	aufs_bindex_t bend, bindex;
 +
 +	LKTRTrace("%s, remo%d\n", add->path, remount);
@@ -434,22 +427,22 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +	if (bend < 0)
 +		return 0; /* success */
 +
-+	hidden_inode = au_h_dptr(root)->d_inode;
++	h_inode = au_h_dptr(root, 0)->d_inode;
 +	if (unlikely(au_opt_test(au_mntflags(sb), WARN_PERM)
-+		     && ((hidden_inode->i_mode & S_IALLUGO)
++		     && ((h_inode->i_mode & S_IALLUGO)
 +			 != (inode->i_mode & S_IALLUGO)
-+			 || hidden_inode->i_uid != inode->i_uid
-+			 || hidden_inode->i_gid != inode->i_gid)))
++			 || h_inode->i_uid != inode->i_uid
++			 || h_inode->i_gid != inode->i_gid)))
 +		AuWarn("uid/gid/perm %s %u/%u/0%o, %u/%u/0%o\n",
 +		       add->path,
 +		       inode->i_uid, inode->i_gid, (inode->i_mode & S_IALLUGO),
-+		       hidden_inode->i_uid, hidden_inode->i_gid,
-+		       (hidden_inode->i_mode & S_IALLUGO));
++		       h_inode->i_uid, h_inode->i_gid,
++		       (h_inode->i_mode & S_IALLUGO));
 +
 +	err = -EINVAL;
 +	for (bindex = 0; bindex <= bend; bindex++)
 +		if (unlikely(test_overlap(sb, add->nd.path.dentry,
-+					  au_h_dptr_i(root, bindex)))) {
++					  au_h_dptr(root, bindex)))) {
 +			AuErr("%s is overlapped\n", add->path);
 +			goto out;
 +		}
@@ -480,6 +473,15 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +
 +	br->br_xino = NULL;
 +	br->br_mnt = mntget(add->nd.path.mnt);
++	if (au_opt_test(au_mntflags(sb), XINO)) {
++		err = au_xino_br(sb, br, add->nd.path.dentry->d_inode->i_ino,
++				 au_sbr(sb, 0)->br_xino, /*do_test*/1);
++		if (unlikely(err)) {
++			AuDebugOn(br->br_xino);
++			goto out;
++		}
++	}
++
 +	atomic_set(&br->br_wh_running, 0);
 +	br->br_id = au_new_br_id(sb);
 +	br->br_perm = add->perm;
@@ -487,6 +489,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +	br->br_bytes = 0;
 +	br->br_xino_upper = AUFS_XINO_TRUNC_INIT;
 +	atomic_set(&br->br_xino_running, 0);
++	sysaufs_br_init(br);
 +	br->br_generation = au_sigen(sb);
 +	//smp_mb(); /* atomic_set */
 +
@@ -497,7 +500,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +
 +int au_br_add(struct super_block *sb, struct au_opt_add *add, int remount)
 +{
-+	//todo: reduce the number of auto-var?
 +	int err, amount;
 +	aufs_bindex_t bend, add_bindex;
 +	struct dentry *root, *dentry;
@@ -531,7 +533,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +	err = PTR_ERR(add_branch);
 +	if (IS_ERR(add_branch))
 +		goto out;
-+
 +	err = au_br_init(add_branch, sb, add);
 +	if (unlikely(err)) {
 +		kfree(add_branch);
@@ -576,20 +577,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +	maxb = dentry->d_sb->s_maxbytes;
 +	if (sb->s_maxbytes < maxb)
 +		sb->s_maxbytes = maxb;
-+
-+	if (au_opt_test(sbinfo->si_mntflags, XINO)) {
-+		struct file *base_file = au_sbr(sb, 0)->br_xino;
-+		if (!add_bindex)
-+			base_file = au_sbr(sb, 1)->br_xino;
-+		err = au_xino_br(sb, add_bindex, base_file, /*do_test*/1);
-+		if (unlikely(err)) {
-+			AuDebugOn(add_branch->br_xino);
-+			/* bad action? */
-+			AuIOErr("err %d, force noxino\n", err);
-+			err = -EIO;
-+			au_xino_clr(sb);
-+		}
-+	}
 +
 +	if (remount)
 +		sysaufs_brs_add(sb);
@@ -658,7 +645,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +			bend = au_dbend(d);
 +			if (bstart <= bindex
 +			    && bindex <= bend
-+			    && au_h_dptr_i(d, bindex)
++			    && au_h_dptr(d, bindex)
 +			    && (!S_ISDIR(d->d_inode->i_mode)
 +				|| bstart == bend)) {
 +				err = -EBUSY;
@@ -751,7 +738,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +
 +int au_br_del(struct super_block *sb, struct au_opt_del *del, int remount)
 +{
-+	//todo: reduce the number of auto-var?
 +	int err, do_wh, rerr, verbose;
 +	struct dentry *root;
 +	struct inode *inode, *hidden_dir;
@@ -827,7 +813,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +	dinfo = au_di(root);
 +	iinfo = au_ii(inode);
 +
-+	dput(au_h_dptr_i(root, bindex));
++	dput(au_h_dptr(root, bindex));
 +	au_hiput(iinfo->ii_hinode + bindex);
 +	br_id = br->br_id;
 +	free_branch(br);
@@ -1009,7 +995,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.c linux-2.6.25-sabayon/fs/au
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.h linux-2.6.25-sabayon/fs/aufs/branch.h
 --- linux-2.6.25-sabayon.orig/fs/aufs/branch.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/branch.h	2008-04-21 03:33:00.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/branch.h	2008-04-28 05:03:32.000000000 +0200
 @@ -0,0 +1,345 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -1032,7 +1018,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.h linux-2.6.25-sabayon/fs/au
 +/*
 + * branch filesystems and xino for them
 + *
-+ * $Id: branch.h,v 1.2 2008/04/21 01:33:00 sfjro Exp $
++ * $Id: branch.h,v 1.3 2008/04/28 03:03:32 sfjro Exp $
 + */
 +
 +#ifndef __AUFS_BRANCH_H__
@@ -1042,6 +1028,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.h linux-2.6.25-sabayon/fs/au
 +
 +#include <linux/fs.h>
 +#include <linux/mount.h>
++#include <linux/sysfs.h>
 +#include <linux/aufs_type.h>
 +#include "misc.h"
 +#include "super.h"
@@ -1073,7 +1060,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.h linux-2.6.25-sabayon/fs/au
 +};
 +
 +/* protected by superblock rwsem */
-+struct sysaufs_br;
 +struct au_branch {
 +	struct file		*br_xino;
 +	//struct au_xino_file		*br_xino;
@@ -1101,13 +1087,13 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.h linux-2.6.25-sabayon/fs/au
 +	/* mfs mode */
 +	u64			br_bytes;
 +
-+	au_gen_t		br_generation;
-+
-+#ifdef CONFIG_AUFS_SYSAUFS
-+	/* sysfs */
++#ifdef CONFIG_SYSFS
 +	/* an entry under sysfs per mount-point */
-+	struct sysaufs_br	*br_sabr;
++	char			br_name[8];
++	struct attribute	br_attr;
 +#endif
++
++	au_gen_t		br_generation;
 +};
 +
 +/* ---------------------------------------------------------------------- */
@@ -1181,7 +1167,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/branch.h linux-2.6.25-sabayon/fs/au
 +		  struct au_xino_entry *xinoe);
 +int au_xino_read(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
 +		 struct au_xino_entry *xinoe);
-+int au_xino_br(struct super_block *sb, aufs_bindex_t bindex,
++int au_xino_br(struct super_block *sb, struct au_branch *br, ino_t hino,
 +	       struct file *base_file, int do_test);
 +int au_xino_trunc(struct super_block *sb, aufs_bindex_t bindex);
 +
@@ -1935,8 +1921,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/br_xfs.c linux-2.6.25-sabayon/fs/au
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs/cpup.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/cpup.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/cpup.c	2008-04-21 03:33:31.000000000 +0200
-@@ -0,0 +1,1031 @@
++++ linux-2.6.25-sabayon/fs/aufs/cpup.c	2008-04-28 05:03:44.000000000 +0200
+@@ -0,0 +1,1039 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -1958,7 +1944,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +/*
 + * copy-up functions, see wbr_policy.c for copy-down
 + *
-+ * $Id: cpup.c,v 1.2 2008/04/21 01:33:31 sfjro Exp $
++ * $Id: cpup.c,v 1.3 2008/04/28 03:03:44 sfjro Exp $
 + */
 +
 +#include <linux/fs_stack.h>
@@ -2187,7 +2173,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +
 +	h = hidden;
 +	for (i = 0; i < 2; i++, h++) {
-+		h->dentry = au_h_dptr_i(dentry, h->bindex);
++		h->dentry = au_h_dptr(dentry, h->bindex);
 +		AuDebugOn(!h->dentry);
 +		h_inode = h->dentry->d_inode;
 +		AuDebugOn(!h_inode || !S_ISREG(h_inode->i_mode));
@@ -2292,10 +2278,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +		      aufs_bindex_t bsrc, loff_t len,
 +		      unsigned int flags, int dlgt)
 +{
-+	//todo: reduce them?
 +	int err, isdir, hinotify;
-+	struct dentry *h_src, *h_dst, *h_parent, *parent, *gparent;
-+	struct inode *h_inode, *h_dir, *dir;
++	struct dentry *h_src, *h_dst, *h_parent, *parent;
++	struct inode *h_inode, *h_dir;
 +	struct au_dtime dt;
 +	umode_t mode;
 +	struct super_block *sb;
@@ -2310,15 +2295,14 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +	AuDebugOn(bdst >= bsrc || au_test_ro(sb, bdst, NULL));
 +	/* bsrc branch can be ro/rw. */
 +
-+	h_src = au_h_dptr_i(dentry, bsrc);
++	h_src = au_h_dptr(dentry, bsrc);
 +	AuDebugOn(!h_src);
 +	h_inode = h_src->d_inode;
 +	AuDebugOn(!h_inode);
 +
 +	/* stop referencing while we are creating */
 +	parent = dget_parent(dentry);
-+	dir = parent->d_inode;
-+	h_dst = au_h_dptr_i(dentry, bdst);
++	h_dst = au_h_dptr(dentry, bdst);
 +	AuDebugOn(h_dst && h_dst->d_inode);
 +	h_parent = h_dst->d_parent; /* dir inode is locked */
 +	h_dir = h_parent->d_inode;
@@ -2329,6 +2313,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +	if (do_dt) {
 +		hgdir = NULL;
 +		if (unlikely(hinotify && !IS_ROOT(parent))) {
++			struct dentry *gparent;
 +			gparent = dget_parent(parent);
 +			hgdir = au_hi(gparent->d_inode, bdst);
 +			dput(gparent);
@@ -2355,8 +2340,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +		//if (LktrCond) {vfs_rmdir(h_dir, h_dst); err = -1;}
 +		if (!err) {
 +			/* setattr case: dir is not locked */
-+			if (0 && au_ibstart(dir) == bdst)
-+				au_cpup_attr_nlink(dir);
++			if (0 && au_ibstart(parent->d_inode) == bdst)
++				au_cpup_attr_nlink(parent->d_inode);
 +			au_cpup_attr_nlink(dentry->d_inode);
 +		}
 +		break;
@@ -2403,10 +2388,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +int au_cpup_single(struct dentry *dentry, aufs_bindex_t bdst,
 +		   aufs_bindex_t bsrc, loff_t len, unsigned int flags)
 +{
-+	//todo: reduce them?
 +	int err, rerr, isdir, dlgt, plink;
-+	struct dentry *h_src, *h_dst, *parent, *h_parent, *gparent;
-+	struct inode *dst_inode, *h_dir, *inode, *src_inode, *dir;
++	struct dentry *h_src, *h_dst, *parent, *h_parent;
++	struct inode *dst_inode, *h_dir, *inode;
 +	struct super_block *sb;
 +	aufs_bindex_t old_ibstart;
 +	struct au_dtime dt;
@@ -2419,17 +2403,16 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +		  flags);
 +	sb = dentry->d_sb;
 +	AuDebugOn(bsrc <= bdst);
-+	h_dst = au_h_dptr_i(dentry, bdst);
++	h_dst = au_h_dptr(dentry, bdst);
 +	AuDebugOn(!h_dst || h_dst->d_inode);
 +	h_parent = h_dst->d_parent; /* dir inode is locked */
 +	h_dir = h_parent->d_inode;
 +	IMustLock(h_dir);
-+	h_src = au_h_dptr_i(dentry, bsrc);
++	h_src = au_h_dptr(dentry, bsrc);
 +	AuDebugOn(!h_src || !h_src->d_inode);
 +	inode = dentry->d_inode;
 +	IiMustWriteLock(inode);
 +	parent = dget_parent(dentry);
-+	dir = parent->d_inode;
 +
 +	mnt_flags = au_mntflags(sb);
 +	dlgt = !!au_opt_test_dlgt(mnt_flags);
@@ -2479,9 +2462,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +		au_set_h_iptr(inode, bdst, igrab(dst_inode),
 +			      au_hi_flags(inode, isdir));
 +		mutex_unlock(&dst_inode->i_mutex);
-+		src_inode = h_src->d_inode;
 +		if (!isdir
-+		    && src_inode->i_nlink > 1
++		    && h_src->d_inode->i_nlink > 1
 +		    && plink)
 +			au_plink_append(sb, inode, h_dst, bdst);
 +		goto out; /* success */
@@ -2492,6 +2474,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +	hgdir = NULL;
 +	if (unlikely(au_opt_test(mnt_flags, UDBA_INOTIFY)
 +		     && !IS_ROOT(parent))) {
++		struct dentry *gparent;
 +		gparent = dget_parent(parent);
 +		hgdir = au_hi(gparent->d_inode, bdst);
 +		dput(gparent);
@@ -2541,7 +2524,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +		  AuDLNPair(dentry), dentry->d_inode->i_ino, bdst, bsrc, len,
 +		  flags);
 +
-+	h_dentry = au_h_dptr_i(dentry, bsrc);
++	h_dentry = au_h_dptr(dentry, bsrc);
 +	mode = h_dentry->d_inode->i_mode & S_IFMT;
 +	if ((mode != S_IFCHR && mode != S_IFBLK)
 +	    || capable(CAP_MKNOD))
@@ -2582,9 +2565,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +
 +	bend = au_dbend(dentry);
 +	for (bsrc = bdst + 1; bsrc <= bend; bsrc++)
-+		if (au_h_dptr_i(dentry, bsrc))
++		if (au_h_dptr(dentry, bsrc))
 +			break;
-+	AuDebugOn(!au_h_dptr_i(dentry, bsrc));
++	AuDebugOn(!au_h_dptr(dentry, bsrc));
 +
 +	err = au_lkup_neg(dentry, bdst);
 +	//err = -1;
@@ -2664,22 +2647,51 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +
 +/* ---------------------------------------------------------------------- */
 +
++static int au_do_cpup_wh(struct dentry *dentry, aufs_bindex_t bdst,
++			 struct dentry *wh_dentry, struct file *file,
++			 loff_t len)
++{
++	int err;
++	struct au_dinfo *dinfo;
++	aufs_bindex_t bstart;
++	struct dentry *h_d_bdst, *h_d_bstart;
++
++	AuTraceEnter();
++
++	dinfo = au_di(dentry);
++	bstart = dinfo->di_bstart;
++	h_d_bdst = dinfo->di_hdentry[0 + bdst].hd_dentry;
++	dinfo->di_bstart = bdst;
++	dinfo->di_hdentry[0 + bdst].hd_dentry = wh_dentry;
++	h_d_bstart = dinfo->di_hdentry[0 + bstart].hd_dentry;
++	if (file)
++		dinfo->di_hdentry[0 + bstart].hd_dentry
++			= au_h_fptr(file, au_fbstart(file))->f_dentry;
++	err = au_cpup_single(dentry, bdst, bstart, len, !AuCpup_DTIME);
++	//if (LktrCond) err = -1;
++	if (!err && file) {
++		err = au_reopen_nondir(file);
++		//err = -1;
++		dinfo->di_hdentry[0 + bstart].hd_dentry = h_d_bstart;
++	}
++	dinfo->di_hdentry[0 + bdst].hd_dentry = h_d_bdst;
++	dinfo->di_bstart = bstart;
++
++	AuTraceErr(err);
++	return err;
++}
++
 +/*
 + * copyup the deleted file for writing.
 + */
 +int au_cpup_wh(struct dentry *dentry, aufs_bindex_t bdst, loff_t len,
 +	       struct file *file)
 +{
-+	//todo: reduce them?
 +	int err, dlgt;
-+	struct dentry *parent, *h_parent, *wh_dentry, *h_dentry_bdst,
-+		*h_dentry_bstart, *gparent;
-+	struct inode *h_dir;
++	struct dentry *parent, *h_parent, *wh_dentry;
 +	struct super_block *sb;
 +	unsigned int mnt_flags;
 +	struct au_dtime dt;
-+	struct au_dinfo *dinfo;
-+	aufs_bindex_t bstart;
 +	struct vfsub_args vargs;
 +	struct au_hinode *hgdir;
 +	struct au_ndx ndx = {
@@ -2695,10 +2707,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +
 +	parent = dget_parent(dentry);
 +	IiMustAnyLock(parent->d_inode);
-+	h_parent = au_h_dptr_i(parent, bdst);
++	h_parent = au_h_dptr(parent, bdst);
 +	AuDebugOn(!h_parent);
-+	h_dir = h_parent->d_inode;
-+	AuDebugOn(!h_dir);
 +
 +	sb = parent->d_sb;
 +	mnt_flags = au_mntflags(sb);
@@ -2717,29 +2727,13 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +	hgdir = NULL;
 +	if (unlikely(au_opt_test(mnt_flags, UDBA_INOTIFY)
 +		     && !IS_ROOT(parent))) {
++		struct dentry *gparent;
 +		gparent = dget_parent(parent);
 +		hgdir = au_hi(gparent->d_inode, bdst);
 +		dput(gparent);
 +	}
 +	au_dtime_store(&dt, parent, h_parent, hgdir);
-+	dinfo = au_di(dentry);
-+	bstart = dinfo->di_bstart;
-+	h_dentry_bdst = dinfo->di_hdentry[0 + bdst].hd_dentry;
-+	dinfo->di_bstart = bdst;
-+	dinfo->di_hdentry[0 + bdst].hd_dentry = wh_dentry;
-+	h_dentry_bstart = dinfo->di_hdentry[0 + bstart].hd_dentry;
-+	if (file)
-+		dinfo->di_hdentry[0 + bstart].hd_dentry
-+			= au_h_fptr(file, au_fbstart(file))->f_dentry;
-+	err = au_cpup_single(dentry, bdst, bstart, len, !AuCpup_DTIME);
-+	//if (LktrCond) err = -1;
-+	if (!err && file) {
-+		err = au_reopen_nondir(file);
-+		//err = -1;
-+		dinfo->di_hdentry[0 + bstart].hd_dentry = h_dentry_bstart;
-+	}
-+	dinfo->di_hdentry[0 + bdst].hd_dentry = h_dentry_bdst;
-+	dinfo->di_bstart = bstart;
++	err = au_do_cpup_wh(dentry, bdst, wh_dentry, file, len);
 +	if (unlikely(err))
 +		goto out_wh;
 +
@@ -2747,7 +2741,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +	/* dget first to force sillyrename on nfs */
 +	dget(wh_dentry);
 +	vfsub_args_init(&vargs, NULL, dlgt, 0);
-+	err = vfsub_unlink(h_dir, wh_dentry, &vargs);
++	err = vfsub_unlink(h_parent->d_inode, wh_dentry, &vargs);
 +	//if (LktrCond) err = -1;
 +	if (unlikely(err)) {
 +		AuIOErr("failed remove copied-up tmp file %.*s(%d)\n",
@@ -2852,7 +2846,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +	while (1) {
 +		dput(parent);
 +		parent = dget_parent(dentry);
-+		h_parent = au_h_dptr_i(parent, bdst);
++		h_parent = au_h_dptr(parent, bdst);
 +		if (h_parent)
 +			goto out; /* success */
 +
@@ -2863,21 +2857,21 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +			parent = dget_parent(d);
 +			if (parent != locked) {
 +				di_read_lock_parent3(parent, !AuLock_IR);
-+				h_parent = au_h_dptr_i(parent, bdst);
++				h_parent = au_h_dptr(parent, bdst);
 +				di_read_unlock(parent, !AuLock_IR);
 +			} else
-+				h_parent = au_h_dptr_i(parent, bdst);
++				h_parent = au_h_dptr(parent, bdst);
 +		} while (!h_parent);
 +
 +		if (d != real_parent)
 +			di_write_lock_child3(d);
 +
 +		/* somebody else might create while we were sleeping */
-+		if (!au_h_dptr_i(d, bdst) || !au_h_dptr_i(d, bdst)->d_inode) {
++		if (!au_h_dptr(d, bdst) || !au_h_dptr(d, bdst)->d_inode) {
 +			struct inode *h_dir = h_parent->d_inode,
 +				*dir = parent->d_inode;
 +
-+			if (au_h_dptr_i(d, bdst))
++			if (au_h_dptr(d, bdst))
 +				au_update_dbstart(d);
 +			//AuDebugOn(au_dbstart(d) <= bdst);
 +			if (parent != locked)
@@ -3056,74 +3050,75 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.h linux-2.6.25-sabayon/fs/aufs
 +#endif /* __AUFS_CPUP_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/CVS/Entries linux-2.6.25-sabayon/fs/aufs/CVS/Entries
 --- linux-2.6.25-sabayon.orig/fs/aufs/CVS/Entries	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/CVS/Entries	2008-04-21 09:59:45.000000000 +0200
-@@ -0,0 +1,58 @@
-+/Makefile/1.2/Mon Apr 21 01:31:25 2008//
++++ linux-2.6.25-sabayon/fs/aufs/CVS/Entries	2008-05-03 18:09:39.000000000 +0200
+@@ -0,0 +1,59 @@
++/Makefile/1.3/Mon Apr 28 03:03:10 2008//
 +/aufs.h/1.2/Mon Apr 21 01:31:49 2008//
 +/br_fuse.c/1.2/Mon Apr 21 01:32:05 2008//
 +/br_nfs.c/1.2/Mon Apr 21 01:32:30 2008//
 +/br_xfs.c/1.2/Mon Apr 21 01:33:00 2008//
-+/branch.c/1.2/Mon Apr 21 01:33:15 2008//
-+/branch.h/1.2/Mon Apr 21 01:33:00 2008//
-+/cpup.c/1.2/Mon Apr 21 01:33:31 2008//
++/branch.c/1.3/Mon Apr 28 03:03:23 2008//
++/branch.h/1.3/Mon Apr 28 03:03:32 2008//
++/cpup.c/1.3/Mon Apr 28 03:03:44 2008//
 +/cpup.h/1.2/Mon Apr 21 01:33:43 2008//
 +/dcsub.c/1.2/Mon Apr 21 01:31:49 2008//
 +/dcsub.h/1.1/Fri Apr 18 12:18:29 2008//
 +/debug.c/1.2/Mon Apr 21 01:33:00 2008//
 +/debug.h/1.2/Mon Apr 21 02:00:37 2008//
-+/dentry.c/1.2/Mon Apr 21 01:34:03 2008//
-+/dentry.h/1.2/Mon Apr 21 01:33:00 2008//
-+/dinfo.c/1.2/Mon Apr 21 02:00:37 2008//
-+/dir.c/1.2/Mon Apr 21 01:34:26 2008//
++/dentry.c/1.3/Mon Apr 28 03:04:12 2008//
++/dentry.h/1.3/Mon Apr 28 03:04:12 2008//
++/dinfo.c/1.3/Mon Apr 28 03:04:23 2008//
++/dir.c/1.3/Mon Apr 28 03:04:12 2008//
 +/dir.h/1.2/Mon Apr 21 01:34:26 2008//
 +/dlgt.c/1.2/Mon Apr 21 02:00:37 2008//
-+/export.c/1.2/Mon Apr 21 01:34:44 2008//
-+/f_op.c/1.2/Mon Apr 21 01:34:58 2008//
-+/file.c/1.2/Mon Apr 21 01:35:14 2008//
++/export.c/1.3/Mon Apr 28 03:04:12 2008//
++/f_op.c/1.3/Mon Apr 28 03:04:12 2008//
++/file.c/1.3/Mon Apr 28 03:04:12 2008//
 +/file.h/1.2/Mon Apr 21 01:35:14 2008//
 +/finfo.c/1.2/Mon Apr 21 01:35:14 2008//
 +/hin_or_dlgt.c/1.2/Mon Apr 21 02:00:37 2008//
-+/hinode.h/1.2/Mon Apr 21 01:35:34 2008//
-+/hinotify.c/1.2/Mon Apr 21 01:35:48 2008//
-+/i_op.c/1.2/Mon Apr 21 01:44:56 2008//
-+/i_op_add.c/1.2/Mon Apr 21 01:45:16 2008//
-+/i_op_del.c/1.2/Mon Apr 21 01:45:29 2008//
-+/i_op_ren.c/1.2/Mon Apr 21 01:45:44 2008//
++/hinode.h/1.3/Mon Apr 28 03:08:37 2008//
++/hinotify.c/1.3/Mon Apr 28 03:02:50 2008//
++/i_op.c/1.3/Mon Apr 28 03:04:33 2008//
++/i_op_add.c/1.3/Mon Apr 28 03:04:54 2008//
++/i_op_del.c/1.3/Mon Apr 28 03:04:54 2008//
++/i_op_ren.c/1.3/Mon Apr 28 03:04:54 2008//
 +/iinfo.c/1.2/Mon Apr 21 01:32:05 2008//
-+/inode.c/1.2/Mon Apr 21 01:46:00 2008//
++/inode.c/1.3/Mon Apr 28 03:04:12 2008//
 +/inode.h/1.2/Mon Apr 21 01:32:05 2008//
-+/misc.c/1.2/Mon Apr 21 01:34:03 2008//
++/misc.c/1.3/Mon Apr 28 03:04:12 2008//
 +/misc.h/1.2/Mon Apr 21 01:33:00 2008//
-+/module.c/1.2/Mon Apr 21 01:33:00 2008//
++/module.c/1.3/Mon Apr 28 03:02:06 2008//
 +/module.h/1.2/Mon Apr 21 01:33:00 2008//
-+/opts.c/1.2/Mon Apr 21 01:46:17 2008//
++/opts.c/1.3/Mon Apr 28 03:04:12 2008//
 +/opts.h/1.2/Mon Apr 21 01:46:26 2008//
 +/plink.c/1.2/Mon Apr 21 01:45:16 2008//
 +/robr.c/1.1/Fri Apr 18 12:19:07 2008//
-+/sbinfo.c/1.1/Fri Apr 18 12:19:09 2008//
-+/super.c/1.2/Mon Apr 21 01:46:42 2008//
-+/super.h/1.2/Mon Apr 21 01:46:49 2008//
-+/sysaufs.c/1.3/Mon Apr 21 01:48:06 2008//
-+/sysaufs.h/1.3/Mon Apr 21 01:48:47 2008//
-+/sysrq.c/1.2/Mon Apr 21 01:33:00 2008//
-+/vdir.c/1.2/Mon Apr 21 01:34:26 2008//
++/sbinfo.c/1.2/Mon Apr 28 03:05:05 2008//
++/super.c/1.3/Mon Apr 28 03:05:16 2008//
++/super.h/1.3/Mon Apr 28 03:05:26 2008//
++/sysaufs.c/1.4/Mon Apr 28 03:05:39 2008//
++/sysaufs.h/1.4/Mon Apr 28 03:05:39 2008//
++/sysfs.c/1.1/Mon Apr 28 03:09:11 2008//
++/sysrq.c/1.3/Mon Apr 28 03:08:37 2008//
++/vdir.c/1.3/Mon Apr 28 03:05:48 2008//
 +/vfsub.c/1.2/Mon Apr 21 01:49:05 2008//
 +/vfsub.h/1.2/Mon Apr 21 01:49:22 2008//
-+/wbr_policy.c/1.2/Mon Apr 21 01:35:34 2008//
-+/whout.c/1.2/Mon Apr 21 01:49:40 2008//
++/wbr_policy.c/1.3/Mon Apr 28 03:04:12 2008//
++/whout.c/1.3/Mon Apr 28 03:04:54 2008//
 +/whout.h/1.2/Mon Apr 21 02:00:37 2008//
-+/wkq.c/1.2/Mon Apr 21 01:33:00 2008//
-+/wkq.h/1.2/Mon Apr 21 01:33:00 2008//
-+/xino.c/1.2/Mon Apr 21 01:34:03 2008//
++/wkq.c/1.3/Mon Apr 28 03:02:06 2008//
++/wkq.h/1.3/Mon Apr 28 03:18:21 2008//
++/xino.c/1.3/Mon Apr 28 03:06:01 2008//
 +D
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/CVS/Repository linux-2.6.25-sabayon/fs/aufs/CVS/Repository
 --- linux-2.6.25-sabayon.orig/fs/aufs/CVS/Repository	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/CVS/Repository	2008-04-21 09:59:43.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/CVS/Repository	2008-05-03 18:09:35.000000000 +0200
 @@ -0,0 +1 @@
 +aufs/fs/aufs25
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/CVS/Root linux-2.6.25-sabayon/fs/aufs/CVS/Root
 --- linux-2.6.25-sabayon.orig/fs/aufs/CVS/Root	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/CVS/Root	2008-04-21 09:59:43.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/CVS/Root	2008-05-03 18:09:35.000000000 +0200
 @@ -0,0 +1 @@
 +:pserver:anonymous@aufs.cvs.sourceforge.net:/cvsroot/aufs
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dcsub.c linux-2.6.25-sabayon/fs/aufs/dcsub.c
@@ -4139,8 +4134,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/debug.h linux-2.6.25-sabayon/fs/auf
 +#endif /* __AUFS_DEBUG_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/aufs/dentry.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/dentry.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/dentry.c	2008-04-21 03:34:03.000000000 +0200
-@@ -0,0 +1,997 @@
++++ linux-2.6.25-sabayon/fs/aufs/dentry.c	2008-04-28 05:04:12.000000000 +0200
+@@ -0,0 +1,998 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -4163,7 +4158,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 + * lookup and dentry operations
 + * todo: simplify the lookup
 + *
-+ * $Id: dentry.c,v 1.2 2008/04/21 01:34:03 sfjro Exp $
++ * $Id: dentry.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +//#include <linux/fs.h>
@@ -4392,7 +4387,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 +		struct dentry *h_parent, *h_dentry;
 +		struct inode *h_inode, *h_dir;
 +
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (h_dentry) {
 +			if (h_dentry->d_inode)
 +				npositive++;
@@ -4400,7 +4395,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 +				break;
 +			continue;
 +		}
-+		h_parent = au_h_dptr_i(parent, bindex);
++		h_parent = au_h_dptr(parent, bindex);
 +		if (!h_parent)
 +			continue;
 +		h_dir = h_parent->d_inode;
@@ -4507,7 +4502,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 +	parent = dget_parent(dentry);
 +	AuDebugOn(!parent || !parent->d_inode
 +		  || !S_ISDIR(parent->d_inode->i_mode));
-+	h_parent = au_h_dptr_i(parent, bindex);
++	h_parent = au_h_dptr(parent, bindex);
 +	AuDebugOn(!h_parent);
 +	h_dir = h_parent->d_inode;
 +	AuDebugOn(!h_dir || !S_ISDIR(h_dir->i_mode));
@@ -4592,7 +4587,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 +		if (!hd)
 +			continue;
 +		hdp = dget_parent(hd);
-+		if (hdp == au_h_dptr_i(parent, bindex)) {
++		if (hdp == au_h_dptr(parent, bindex)) {
 +			dput(hdp);
 +			continue;
 +		}
@@ -4699,13 +4694,11 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 +			  struct nameidata *nd, int do_udba)
 +{
 +	int err, plus, locked, unhashed, is_root, h_plus, valid;
-+	struct nameidata fake_nd, *p;
 +	aufs_bindex_t bindex, btail, bstart, ibs, ibe;
 +	struct super_block *sb;
 +	struct inode *first, *h_inode, *h_cached_inode;
 +	umode_t mode, h_mode;
 +	struct dentry *h_dentry;
-+	int (*reval)(struct dentry *, struct nameidata *);
 +	struct qstr *name;
 +
 +	LKTRTrace("%.*s, nd %d\n", AuDLNPair(dentry), !!nd);
@@ -4743,7 +4736,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 +		btail = au_dbtaildir(dentry);
 +	locked = au_lock_nd(dentry, nd);
 +	for (bindex = bstart; bindex <= btail; bindex++) {
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		int (*reval)(struct dentry *, struct nameidata *);
++
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (!h_dentry)
 +			continue;
 +
@@ -4774,6 +4769,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 +		if (h_dentry->d_op)
 +			reval = h_dentry->d_op->d_revalidate;
 +		if (unlikely(reval)) {
++			struct nameidata fake_nd, *p;
 +			//LKTRLabel(hidden reval);
 +			if (nd) {
 +				memcpy(&fake_nd, nd, sizeof(*nd));
@@ -5140,8 +5136,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.c linux-2.6.25-sabayon/fs/au
 +};
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.h linux-2.6.25-sabayon/fs/aufs/dentry.h
 --- linux-2.6.25-sabayon.orig/fs/aufs/dentry.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/dentry.h	2008-04-21 03:33:00.000000000 +0200
-@@ -0,0 +1,389 @@
++++ linux-2.6.25-sabayon/fs/aufs/dentry.h	2008-04-28 05:04:12.000000000 +0200
+@@ -0,0 +1,386 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -5162,8 +5158,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.h linux-2.6.25-sabayon/fs/au
 +
 +/*
 + * lookup and dentry operations
++ * todo: simplify the lookup
 + *
-+ * $Id: dentry.h,v 1.2 2008/04/21 01:33:00 sfjro Exp $
++ * $Id: dentry.h,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +#ifndef __AUFS_DENTRY_H__
@@ -5319,6 +5316,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.h linux-2.6.25-sabayon/fs/au
 +struct dentry *au_lkup_one_dlgt(const char *name, struct dentry *parent,
 +				int len, unsigned int flags);
 +#elif defined(CONFIG_AUFS_BR_NFS)
++//todo fix this
 +/* regardelss kernel version */
 +static inline
 +struct dentry *au_lkup_one_dlgt(const char *name, struct dentry *parent,
@@ -5363,7 +5361,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.h linux-2.6.25-sabayon/fs/au
 +void di_write_lock2_parent(struct dentry *d1, struct dentry *d2, int isdir);
 +void di_write_unlock2(struct dentry *d1, struct dentry *d2);
 +
-+struct dentry *au_h_dptr_i(struct dentry *dentry, aufs_bindex_t bindex);
++struct dentry *au_h_dptr(struct dentry *dentry, aufs_bindex_t bindex);
 +
 +aufs_bindex_t au_dbtail(struct dentry *dentry);
 +aufs_bindex_t au_dbtaildir(struct dentry *dentry);
@@ -5485,11 +5483,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.h linux-2.6.25-sabayon/fs/au
 +	return au_di(dentry)->di_bdiropq;
 +}
 +
-+static inline struct dentry *au_h_dptr(struct dentry *dentry)
-+{
-+	return au_h_dptr_i(dentry, au_dbstart(dentry));
-+}
-+
 +// hard/soft set
 +static inline void au_set_dbstart(struct dentry *dentry, aufs_bindex_t bindex)
 +{
@@ -5533,7 +5526,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dentry.h linux-2.6.25-sabayon/fs/au
 +#endif /* __AUFS_DENTRY_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dinfo.c linux-2.6.25-sabayon/fs/aufs/dinfo.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/dinfo.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/dinfo.c	2008-04-21 04:00:37.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/dinfo.c	2008-04-28 05:04:23.000000000 +0200
 @@ -0,0 +1,425 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -5556,7 +5549,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dinfo.c linux-2.6.25-sabayon/fs/auf
 +/*
 + * dentry private data
 + *
-+ * $Id: dinfo.c,v 1.2 2008/04/21 02:00:37 sfjro Exp $
++ * $Id: dinfo.c,v 1.3 2008/04/28 03:04:23 sfjro Exp $
 + */
 +
 +#include "aufs.h"
@@ -5772,7 +5765,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dinfo.c linux-2.6.25-sabayon/fs/auf
 +
 +/* ---------------------------------------------------------------------- */
 +
-+struct dentry *au_h_dptr_i(struct dentry *dentry, aufs_bindex_t bindex)
++struct dentry *au_h_dptr(struct dentry *dentry, aufs_bindex_t bindex)
 +{
 +	struct dentry *d;
 +
@@ -5909,16 +5902,16 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dinfo.c linux-2.6.25-sabayon/fs/auf
 +	aufs_bindex_t bindex,
 +		bstart = au_dbstart(dentry),
 +		bend = au_dbend(dentry);
-+	struct dentry *hidden_dentry;
++	struct dentry *h_dentry;
 +
 +	LKTRTrace("%.*s\n", AuDLNPair(dentry));
 +	DiMustWriteLock(dentry);
 +
 +	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_dentry = au_h_dptr_i(dentry, bindex);
-+		if (!hidden_dentry)
++		h_dentry = au_h_dptr(dentry, bindex);
++		if (!h_dentry)
 +			continue;
-+		if (hidden_dentry->d_inode) {
++		if (h_dentry->d_inode) {
 +			au_set_dbstart(dentry, bindex);
 +			return;
 +		}
@@ -5937,7 +5930,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dinfo.c linux-2.6.25-sabayon/fs/auf
 +
 +	DiMustWriteLock(dentry);
 +	for (bindex = bend; bindex <= bstart; bindex--) {
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (!h_dentry)
 +			continue;
 +		if (h_dentry->d_inode) {
@@ -5950,19 +5943,19 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dinfo.c linux-2.6.25-sabayon/fs/auf
 +	//au_set_dbend(dentry, -1);
 +}
 +
-+int au_find_dbindex(struct dentry *dentry, struct dentry *hidden_dentry)
++int au_find_dbindex(struct dentry *dentry, struct dentry *h_dentry)
 +{
 +	aufs_bindex_t bindex, bend;
 +
 +	bend = au_dbend(dentry);
 +	for (bindex = au_dbstart(dentry); bindex <= bend; bindex++)
-+		if (au_h_dptr_i(dentry, bindex) == hidden_dentry)
++		if (au_h_dptr(dentry, bindex) == h_dentry)
 +			return bindex;
 +	return -1;
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dir.c linux-2.6.25-sabayon/fs/aufs/dir.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/dir.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/dir.c	2008-04-21 03:34:26.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/dir.c	2008-04-28 05:04:12.000000000 +0200
 @@ -0,0 +1,573 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -5985,7 +5978,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dir.c linux-2.6.25-sabayon/fs/aufs/
 +/*
 + * directory operations
 + *
-+ * $Id: dir.c,v 1.2 2008/04/21 01:34:26 sfjro Exp $
++ * $Id: dir.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +#include <linux/fs_stack.h>
@@ -6016,7 +6009,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dir.c linux-2.6.25-sabayon/fs/aufs/
 +#endif
 +	au_set_fbend(file, btail);
 +	for (bindex = bstart; bindex <= btail; bindex++) {
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (!h_dentry)
 +			continue;
 +		h_file = au_h_fptr(file, bindex);
@@ -6063,7 +6056,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dir.c linux-2.6.25-sabayon/fs/aufs/
 +	btail = au_dbtaildir(dentry);
 +	au_set_fbend(file, btail);
 +	for (; !err && bindex <= btail; bindex++) {
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (!h_dentry)
 +			continue;
 +
@@ -6137,7 +6130,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dir.c linux-2.6.25-sabayon/fs/aufs/
 +
 +		if (au_test_ro(sb, bindex, inode))
 +			continue;
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (!h_dentry)
 +			continue;
 +		h_inode = h_dentry->d_inode;
@@ -6414,7 +6407,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dir.c linux-2.6.25-sabayon/fs/aufs/
 +	struct inode *h_inode;
 +
 +	LKTRTrace("%.*s\n", AuDLNPair(dentry));
-+	h_dentry = au_h_dptr_i(dentry, arg->bindex);
++	h_dentry = au_h_dptr(dentry, arg->bindex);
 +	AuDebugOn(!h_dentry);
 +	h_inode = h_dentry->d_inode;
 +	AuDebugOn(!h_inode || !S_ISDIR(h_inode->i_mode));
@@ -6481,7 +6474,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dir.c linux-2.6.25-sabayon/fs/aufs/
 +	btail = au_dbtaildir(dentry);
 +	for (bindex = bstart + 1; !err && bindex <= btail; bindex++) {
 +		struct dentry *h_dentry;
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (h_dentry && h_dentry->d_inode) {
 +			AuDebugOn(!S_ISDIR(h_dentry->d_inode->i_mode));
 +			arg.bindex = bindex;
@@ -6515,7 +6508,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dir.c linux-2.6.25-sabayon/fs/aufs/
 +	btail = au_dbtaildir(dentry);
 +	for (bindex = au_dbstart(dentry); !err && bindex <= btail; bindex++) {
 +		struct dentry *h_dentry;
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (h_dentry && h_dentry->d_inode) {
 +			AuDebugOn(!S_ISDIR(h_dentry->d_inode->i_mode));
 +			arg.bindex = bindex;
@@ -6806,7 +6799,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/dlgt.c linux-2.6.25-sabayon/fs/aufs
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/export.c linux-2.6.25-sabayon/fs/aufs/export.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/export.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/export.c	2008-04-21 03:34:44.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/export.c	2008-04-28 05:04:12.000000000 +0200
 @@ -0,0 +1,596 @@
 +/*
 + * Copyright (C) 2007-2008 Junjiro Okajima
@@ -6829,7 +6822,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/export.c linux-2.6.25-sabayon/fs/au
 +/*
 + * export via nfs
 + *
-+ * $Id: export.c,v 1.2 2008/04/21 01:34:44 sfjro Exp $
++ * $Id: export.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +#include <linux/exportfs.h>
@@ -6896,15 +6889,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/export.c linux-2.6.25-sabayon/fs/au
 +{
 +	return !!(dentry->d_flags & DCACHE_DISCONNECTED);
 +}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+#if 0
-+static struct dentry *au_fh_to_parent(struct super_block *sb, struct fid *fid,
-+				      int fh_len, int fh_type)
-+{
-+}
-+#endif
 +
 +/* ---------------------------------------------------------------------- */
 +
@@ -7170,6 +7154,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/export.c linux-2.6.25-sabayon/fs/au
 +	h_sb = h_mnt->mnt_sb;
 +	LKTRTrace("%s, h_decode_fh\n", au_sbtype(h_sb));
 +	/* in linux-2.6.24, it takes struct fid * as file handle */
++	//todo: call lower fh_to_dentry()? fh_to_parent()?
 +	h_parent = exportfs_decode_fh(h_mnt, (void *)(fh + Fh_tail),
 +				      fh_len - Fh_tail, fh[Fh_h_type],
 +				      h_acceptable, /*context*/NULL);
@@ -7195,7 +7180,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/export.c linux-2.6.25-sabayon/fs/au
 +
 +	root = sb->s_root;
 +	di_read_lock_parent(root, !AuLock_IR);
-+	h_root = au_h_dptr_i(root, bindex);
++	h_root = au_h_dptr(root, bindex);
 +	di_read_unlock(root, !AuLock_IR);
 +	p = au_build_path(sb, fh, path, h_mnt, h_root, h_parent);
 +	dput(h_parent);
@@ -7307,6 +7292,14 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/export.c linux-2.6.25-sabayon/fs/au
 +			      /*context*/NULL);
 +}
 +
++#if 0
++/* support subtreecheck option */
++static struct dentry *au_fh_to_parent(struct super_block *sb, struct fid *fid,
++				      int fh_len, int fh_type)
++{
++}
++#endif
++
 +/* ---------------------------------------------------------------------- */
 +
 +static int aufs_encode_fh(struct dentry *dentry, __u32 *fh, int *max_len,
@@ -7368,13 +7361,13 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/export.c linux-2.6.25-sabayon/fs/au
 +	encode_ino(fh + Fh_ino, inode->i_ino);
 +	dir = parent->d_inode;
 +	encode_ino(fh + Fh_dir_ino, dir->i_ino);
-+	h_inode = au_h_dptr(dentry)->d_inode;
++	h_inode = au_h_dptr(dentry, bindex)->d_inode;
 +	encode_ino(fh + Fh_h_ino, h_inode->i_ino);
 +	fh[Fh_h_igen] = h_inode->i_generation;
 +
 +	*max_len -= Fh_tail;
 +	//LKTRTrace("Fh_tail %d, max_len %d\n", Fh_tail, *max_len);
-+	h_parent = au_h_dptr_i(parent, bindex);
++	h_parent = au_h_dptr(parent, bindex);
 +	AuDebugOn(au_test_anon(h_parent));
 +	/* in linux-2.6.24, it takes struct fid * as file handle */
 +	fh[Fh_h_type] = exportfs_encode_fh(h_parent, (void *)(fh + Fh_tail),
@@ -7406,7 +7399,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/export.c linux-2.6.25-sabayon/fs/au
 +};
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs/file.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/file.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/file.c	2008-04-21 03:35:14.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/file.c	2008-04-28 05:04:12.000000000 +0200
 @@ -0,0 +1,829 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -7429,7 +7422,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs
 +/*
 + * handling file/dir, and address_space operation
 + *
-+ * $Id: file.c,v 1.2 2008/04/21 01:35:14 sfjro Exp $
++ * $Id: file.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +//#include <linux/fsnotify.h>
@@ -7492,7 +7485,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs
 +	LKTRTrace("%.*s, b%d, flags 0%o, f %d\n",
 +		  AuDLNPair(dentry), bindex, flags, !!file);
 +	AuDebugOn(!dentry);
-+	h_dentry = au_h_dptr_i(dentry, bindex);
++	h_dentry = au_h_dptr(dentry, bindex);
 +	AuDebugOn(!h_dentry);
 +	h_inode = h_dentry->d_inode;
 +	AuDebugOn(!h_inode);
@@ -7565,16 +7558,16 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs
 +	}
 +	err = 0;
 +
-+	h_parent = au_h_dptr_i(parent, bcpup);
++	h_parent = au_h_dptr(parent, bcpup);
 +	if (!h_parent) {
 +		err = au_cpup_dirs(dentry, bcpup, NULL);
 +		if (unlikely(err))
 +			goto out;
-+		h_parent = au_h_dptr_i(parent, bcpup);
++		h_parent = au_h_dptr(parent, bcpup);
 +	}
 +
 +	h_dir = h_parent->d_inode;
-+	h_dentry = au_h_dptr_i(dentry, bstart);
++	h_dentry = au_h_dptr(dentry, bstart);
 +	h_inode = h_dentry->d_inode;
 +	dir = parent->d_inode;
 +	//todo: meaningless lock if CONFIG_AUFS_DEBUG is disabled.
@@ -7587,7 +7580,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs
 +	au_hdir_lock(h_dir, dir, bcpup);
 +	//todo: test parent-gparent relationship
 +	mutex_lock_nested(&h_inode->i_mutex, AuLsc_I_CHILD);
-+	AuDebugOn(au_h_dptr_i(dentry, bcpup));
++	AuDebugOn(au_h_dptr(dentry, bcpup));
 +	err = au_sio_cpup_simple(dentry, bcpup, -1, AuCpup_DTIME);
 +	AuTraceErr(err);
 +	mutex_unlock(&h_inode->i_mutex);
@@ -7673,11 +7666,11 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs
 +
 +	dentry = file->f_dentry;
 +	LKTRTrace("%.*s\n", AuDLNPair(dentry));
++	bstart = au_dbstart(dentry);
 +	AuDebugOn(S_ISDIR(dentry->d_inode->i_mode)
-+		  || !au_h_dptr(dentry)->d_inode);
++		  || !au_h_dptr(dentry, bstart)->d_inode);
 +
 +	h_file_tmp = NULL;
-+	bstart = au_dbstart(dentry);
 +	if (au_fbstart(file) == bstart) {
 +		h_file = au_h_fptr(file, bstart);
 +		if (file->f_mode == h_file->f_mode)
@@ -7791,13 +7784,13 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs
 +		goto out_unlock;
 +	err = 0;
 +
-+	h_parent = au_h_dptr_i(parent, bcpup);
++	h_parent = au_h_dptr(parent, bcpup);
 +	if (!h_parent) {
 +		err = au_cpup_dirs(dentry, bcpup, NULL);
 +		//if (LktrCond) err = -1;
 +		if (unlikely(err))
 +			goto out_unlock;
-+		h_parent = au_h_dptr_i(parent, bcpup);
++		h_parent = au_h_dptr(parent, bcpup);
 +	}
 +
 +	//todo: meaningless lock if CONFIG_AUFS_DEBUG is disabled.
@@ -7837,7 +7830,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs
 +		AuTraceErr(err);
 +#endif
 +	} else {
-+		if (!au_h_dptr_i(dentry, bcpup))
++		if (!au_h_dptr(dentry, bcpup))
 +			err = au_sio_cpup_simple(dentry, bcpup, len,
 +						 AuCpup_DTIME);
 +		//if (LktrCond) err = -1;
@@ -7920,7 +7913,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/file.c linux-2.6.25-sabayon/fs/aufs
 +
 +		/* always superio. */
 +#if 1
-+		h_dir = au_h_dptr_i(parent, bstart)->d_inode;
++		h_dir = au_h_dptr(parent, bstart)->d_inode;
 +		au_hdir_lock(h_dir, dir, bstart);
 +		err = au_sio_cpup_simple(dentry, bstart, -1, AuCpup_DTIME);
 +		au_hdir_unlock(h_dir, dir, bstart);
@@ -8678,7 +8671,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/finfo.c linux-2.6.25-sabayon/fs/auf
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/f_op.c linux-2.6.25-sabayon/fs/aufs/f_op.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/f_op.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/f_op.c	2008-04-21 03:34:58.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/f_op.c	2008-04-28 05:04:12.000000000 +0200
 @@ -0,0 +1,661 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -8701,7 +8694,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/f_op.c linux-2.6.25-sabayon/fs/aufs
 +/*
 + * file and vm operations
 + *
-+ * $Id: f_op.c,v 1.2 2008/04/21 01:34:58 sfjro Exp $
++ * $Id: f_op.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +//#include <linux/fsnotify.h>
@@ -8771,7 +8764,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/f_op.c linux-2.6.25-sabayon/fs/aufs
 +	finfo->fi_h_vm_ops = NULL;
 +	sb = dentry->d_sb;
 +	bindex = au_dbstart(dentry);
-+	AuDebugOn(!au_h_dptr(dentry)->d_inode);
++	AuDebugOn(!au_h_dptr(dentry, bindex)->d_inode);
 +	/* O_TRUNC is processed already */
 +	BUG_ON(au_test_ro(sb, bindex, inode) && (flags & O_TRUNC));
 +
@@ -9032,7 +9025,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/f_op.c linux-2.6.25-sabayon/fs/aufs
 +
 +	AuTraceEnter();
 +	AuDebugOn(!vma || !vma->vm_file);
-+	//todo: non-robr mode, user vm_file as it.
++	//todo: non-robr mode, user vm_file as it is.
 +	wait_event(wq, (file = au_robr_safe_file(vma)));
 +	AuDebugOn(!au_test_aufs(file->f_dentry->d_sb));
 +	dentry = file->f_dentry;
@@ -9343,7 +9336,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/f_op.c linux-2.6.25-sabayon/fs/aufs
 +};
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hinode.h linux-2.6.25-sabayon/fs/aufs/hinode.h
 --- linux-2.6.25-sabayon.orig/fs/aufs/hinode.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/hinode.h	2008-04-21 03:35:34.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/hinode.h	2008-04-28 05:08:37.000000000 +0200
 @@ -0,0 +1,188 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -9366,7 +9359,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hinode.h linux-2.6.25-sabayon/fs/au
 +/*
 + * lower (branch filesystem) inode and setting inotify
 + *
-+ * $Id: hinode.h,v 1.2 2008/04/21 01:35:34 sfjro Exp $
++ * $Id: hinode.h,v 1.3 2008/04/28 03:08:37 sfjro Exp $
 + */
 +
 +#ifndef __AUFS_HINODE_H__
@@ -9517,7 +9510,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hinode.h linux-2.6.25-sabayon/fs/au
 +/* ---------------------------------------------------------------------- */
 +
 +/*
-+ * hgdir_lock, au_hdir_lock, au_hdir2_lock
++ * au_hdir_lock, au_hdir2_lock
 + */
 +#define AuLockFunc(name, lsc) \
 +static inline \
@@ -10247,8 +10240,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hin_or_dlgt.c linux-2.6.25-sabayon/
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hinotify.c linux-2.6.25-sabayon/fs/aufs/hinotify.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/hinotify.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/hinotify.c	2008-04-21 03:35:48.000000000 +0200
-@@ -0,0 +1,1114 @@
++++ linux-2.6.25-sabayon/fs/aufs/hinotify.c	2008-04-28 05:02:50.000000000 +0200
+@@ -0,0 +1,1118 @@
 +/*
 + * Copyright (C) 2006-2008 Junjiro Okajima
 + *
@@ -10270,7 +10263,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hinotify.c linux-2.6.25-sabayon/fs/
 +/*
 + * inotify handler
 + *
-+ * $Id: hinotify.c,v 1.2 2008/04/21 01:35:48 sfjro Exp $
++ * $Id: hinotify.c,v 1.3 2008/04/28 03:02:50 sfjro Exp $
 + */
 +
 +#include "aufs.h"
@@ -11170,7 +11163,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hinotify.c linux-2.6.25-sabayon/fs/
 +#endif
 +#endif
 +
-+	dir = hinotify->hin_aufs_inode;
++	dir = igrab(hinotify->hin_aufs_inode);
++	if (!dir)
++		return;
 +	isroot = (dir->i_ino == AUFS_ROOT_INO);
 +	len = 0;
 +	wh = 0;
@@ -11253,6 +11248,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hinotify.c linux-2.6.25-sabayon/fs/
 +		AuDebugOn(h_child_name || h_child_inode);
 +		if (unlikely(isroot)) {
 +			AuWarn("root branch was moved\n");
++			iput(dir);
 +			return;
 +		}
 +#if 0
@@ -11287,12 +11283,13 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/hinotify.c linux-2.6.25-sabayon/fs/
 +	lockdep_on();
 +	if (unlikely(!args)) {
 +		AuErr1("no memory\n");
++		iput(dir);
 +		return;
 +	}
 +	args->flags[PARENT] = flags[PARENT];
 +	args->flags[CHILD] = flags[CHILD];
 +	args->mask = mask;
-+	args->dir = igrab(dir);
++	args->dir = dir;
 +	args->h_dir = igrab(watch->inode);
 +	if (h_child_inode)
 +		igrab(h_child_inode);
@@ -11659,7 +11656,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/iinfo.c linux-2.6.25-sabayon/fs/auf
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/inode.c linux-2.6.25-sabayon/fs/aufs/inode.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/inode.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/inode.c	2008-04-21 03:46:00.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/inode.c	2008-04-28 05:04:12.000000000 +0200
 @@ -0,0 +1,425 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -11682,7 +11679,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/inode.c linux-2.6.25-sabayon/fs/auf
 +/*
 + * inode functions
 + *
-+ * $Id: inode.c,v 1.2 2008/04/21 01:46:00 sfjro Exp $
++ * $Id: inode.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +#include "aufs.h"
@@ -11790,7 +11787,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/inode.c linux-2.6.25-sabayon/fs/auf
 +		struct inode *hi;
 +		struct dentry *hd;
 +
-+		hd = au_h_dptr_i(dentry, bindex);
++		hd = au_h_dptr(dentry, bindex);
 +		if (!hd || !hd->d_inode)
 +			continue;
 +
@@ -11839,14 +11836,14 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/inode.c linux-2.6.25-sabayon/fs/auf
 +	LKTRTrace("i%lu, %.*s\n", inode->i_ino, AuDLNPair(dentry));
 +	AuDebugOn(!(inode->i_state & I_NEW));
 +	IiMustWriteLock(inode);
-+	h_dentry = au_h_dptr(dentry);
++	bstart = au_dbstart(dentry);
++	h_dentry = au_h_dptr(dentry, bstart);
 +	AuDebugOn(!h_dentry);
 +	h_inode = h_dentry->d_inode;
 +	AuDebugOn(!h_inode);
 +
 +	err = 0;
 +	isdir = 0;
-+	bstart = au_dbstart(dentry);
 +	mode = h_inode->i_mode;
 +	switch (mode & S_IFMT) {
 +	case S_IFREG:
@@ -11881,7 +11878,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/inode.c linux-2.6.25-sabayon/fs/auf
 +	iinfo->ii_bstart = bstart;
 +	iinfo->ii_bend = btail;
 +	for (bindex = bstart; bindex <= btail; bindex++) {
-+		h_dentry = au_h_dptr_i(dentry, bindex);
++		h_dentry = au_h_dptr(dentry, bindex);
 +		if (!h_dentry)
 +			continue;
 +		AuDebugOn(!h_dentry->d_inode);
@@ -11920,7 +11917,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/inode.c linux-2.6.25-sabayon/fs/auf
 +		goto out;
 +
 +	err = 0;
-+	h_dinode = au_h_dptr(dentry)->d_inode;
++	h_dinode = au_h_dptr(dentry, au_dbstart(dentry))->d_inode;
 +	mutex_lock_nested(&inode->i_mutex, AuLsc_I_CHILD);
 +	ii_write_lock_new(inode);
 +	bend = au_ibend(inode);
@@ -11958,12 +11955,12 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/inode.c linux-2.6.25-sabayon/fs/auf
 +
 +	LKTRTrace("%.*s\n", AuDLNPair(dentry));
 +	sb = dentry->d_sb;
-+	h_dentry = au_h_dptr(dentry);
++	bstart = au_dbstart(dentry);
++	h_dentry = au_h_dptr(dentry, bstart);
 +	AuDebugOn(!h_dentry);
 +	h_inode = h_dentry->d_inode;
 +	AuDebugOn(!h_inode);
 +
-+	bstart = au_dbstart(dentry);
 +	h_ino = h_inode->i_ino;
 +	err = au_xino_read(sb, bstart, h_ino, &xinoe);
 +	//err = -1;
@@ -12428,8 +12425,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/inode.h linux-2.6.25-sabayon/fs/auf
 +#endif /* __AUFS_INODE_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/aufs/i_op_add.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/i_op_add.c	2008-04-21 03:45:16.000000000 +0200
-@@ -0,0 +1,824 @@
++++ linux-2.6.25-sabayon/fs/aufs/i_op_add.c	2008-04-28 05:04:54.000000000 +0200
+@@ -0,0 +1,828 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -12451,7 +12448,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +/*
 + * inode operations (add entry)
 + *
-+ * $Id: i_op_add.c,v 1.2 2008/04/21 01:45:16 sfjro Exp $
++ * $Id: i_op_add.c,v 1.3 2008/04/28 03:04:54 sfjro Exp $
 + */
 +
 +#include "aufs.h"
@@ -12544,7 +12541,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +		  AuDLNPair(h_parent), AuDLNPair(dentry), bindex, isdir);
 +
 +	exist = !!dentry->d_inode;
-+	h_dentry = au_h_dptr_i(dentry, bindex);
++	h_dentry = au_h_dptr(dentry, bindex);
 +	h_inode = h_dentry->d_inode;
 +	if (!exist) {
 +		err = -EEXIST;
@@ -12644,11 +12641,12 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +		dput(gparent);
 +	}
 +	dir = parent->d_inode;
-+	h_parent = au_h_dptr_i(parent, bcpup);
++	h_parent = au_h_dptr(parent, bcpup);
 +	h_dir = h_parent->d_inode;
 +
 +	AuDbgSleep_UdbaRace();
 +	au_hdir_lock(h_dir, dir, bcpup);
++	//todo: revalidate the lower dentry?
 +
 +	ndx.nfsmnt = au_nfsmnt(sb, bcpup);
 +	ndx.flags = 0;
@@ -12725,6 +12723,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +	struct au_dtime dt;
 +	struct vfsub_args vargs;
 +	struct super_block *sb;
++	aufs_bindex_t bstart;
 +	struct au_wr_dir_args wr_dir_args = {
 +		.force_btgt	= -1,
 +		.flags		= AuWrDir_ADD_ENTRY
@@ -12743,7 +12742,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +	if (IS_ERR(wh_dentry))
 +		goto out;
 +
-+	h_dentry = au_h_dptr(dentry);
++	bstart = au_dbstart(dentry);
++	h_dentry = au_h_dptr(dentry, bstart);
 +	h_parent = h_dentry->d_parent; /* dir inode is locked */
 +	h_dir = h_parent->d_inode;
 +	IMustLock(h_dir);
@@ -12755,8 +12755,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +	case Creat:
 +		AuDebugOn(au_test_nfs(h_dir->i_sb) && !arg->u.c.nd);
 +		err = au_h_create(h_dir, h_dentry, arg->u.c.mode, dlgt,
-+				  arg->u.c.nd,
-+				  au_nfsmnt(sb, au_dbstart(dentry)));
++				  arg->u.c.nd, au_nfsmnt(sb, bstart));
 +		break;
 +	case Symlink:
 +		err = vfsub_symlink(h_dir, h_dentry, arg->u.s.symname,
@@ -12793,7 +12792,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +		d_drop(dentry);
 +	}
 +
-+	au_hdir_unlock(h_dir, dir, au_dbstart(dentry));
++	au_hdir_unlock(h_dir, dir, bstart);
 +	dput(wh_dentry);
 +
 + out:
@@ -12897,7 +12896,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +	}
 +	//todo: test parent-gparent relationship
 +
-+	hi = au_h_dptr(src_dentry)->d_inode;
++	AuDebugOn(au_dbstart(src_dentry) != a->bsrc);
++	hi = au_h_dptr(src_dentry, a->bsrc)->d_inode;
 +	mutex_lock_nested(&hi->i_mutex, AuLsc_I_CHILD);
 +	err = au_sio_cpup_simple(src_dentry, a->bdst, -1, AuCpup_DTIME);
 +	//err = -1;
@@ -12932,7 +12932,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +
 +	sb = src_dentry->d_sb;
 +	inode = src_dentry->d_inode;
-+	h_dentry = au_h_dptr(src_dentry);
++	AuDebugOn(au_dbstart(src_dentry) != a->bsrc);
++	h_dentry = au_h_dptr(src_dentry, a->bsrc);
 +	h_inode = h_dentry->d_inode;
 +	bstart = au_ibstart(inode);
 +	h_dst_inode = NULL;
@@ -13010,7 +13011,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +		goto out;
 +
 +	a.inode = src_dentry->d_inode;
-+	a.h_dentry = au_h_dptr(dentry);
++	a.bdst = au_dbstart(dentry);
++	a.h_dentry = au_h_dptr(dentry, a.bdst);
 +	h_parent = a.h_dentry->d_parent; /* dir inode is locked */
 +	a.h_dir = h_parent->d_inode;
 +	IMustLock(a.h_dir);
@@ -13021,8 +13023,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +
 +	//todo: minor optimize, their sb may be same while their bindex differs.
 +	a.bsrc = au_dbstart(src_dentry);
-+	a.bdst = au_dbstart(dentry);
-+	h_src_dentry = au_h_dptr(src_dentry);
++	h_src_dentry = au_h_dptr(src_dentry, a.bsrc);
 +	if (unlikely(!au_opt_test(mnt_flags, PLINK))) {
 +		/*
 +		 * copyup src_dentry to the branch we process,
@@ -13034,9 +13035,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +		    /* && h_src_dentry->d_sb != a.h_dentry->d_sb */)
 +			err = cpup_before_link(src_dentry, dir, &a);
 +		if (!err) {
-+			h_src_dentry = au_h_dptr(src_dentry);
-+			err = vfsub_link(h_src_dentry, a.h_dir,
-+					 a.h_dentry, a.dlgt);
++			h_src_dentry = au_h_dptr(src_dentry, a.bdst);
++			err = vfsub_link(h_src_dentry, a.h_dir, a.h_dentry,
++					 a.dlgt);
 +			//err = -1;
 +		}
 +	} else {
@@ -13044,9 +13045,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +		    /* && h_src_dentry->d_sb != a.h_dentry->d_sb */)
 +			err = cpup_or_link(src_dentry, &a);
 +		else {
-+			h_src_dentry = au_h_dptr(src_dentry);
-+			err = vfsub_link(h_src_dentry, a.h_dir,
-+					 a.h_dentry, a.dlgt);
++			h_src_dentry = au_h_dptr(src_dentry, a.bdst);
++			err = vfsub_link(h_src_dentry, a.h_dir, a.h_dentry,
++					 a.dlgt);
 +			//err = -1;
 +		}
 +	}
@@ -13067,7 +13068,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +		d_drop(a.h_dentry);
 +		//d_drop(h_src_dentry);
 +		//d_drop(src_dentry);
-+		a.inode->i_nlink++;
++		inc_nlink(a.inode);
 +		a.inode->i_ctime = dir->i_ctime;
 +	}
 +#endif
@@ -13080,7 +13081,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +	    /* || SB_NFS(h_src_dentry->d_sb) */) {
 +		dentry->d_inode = igrab(a.inode);
 +		d_instantiate(dentry, a.inode);
-+		a.inode->i_nlink++;
++		inc_nlink(a.inode);
 +		a.inode->i_ctime = dir->i_ctime;
 +	} else
 +		/* nfs case (< 2.6.15) */
@@ -13181,7 +13182,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +
 +	sb = dentry->d_sb;
 +	bindex = au_dbstart(dentry);
-+	h_dentry = au_h_dptr(dentry);
++	h_dentry = au_h_dptr(dentry, bindex);
 +	h_parent = h_dentry->d_parent; /* dir inode is locked */
 +	h_dir = h_parent->d_inode;
 +	IMustLock(h_dir);
@@ -13211,7 +13212,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +	err = epilog(dir, wh_dentry, dentry);
 +	//err = -1;
 +	if (!err) {
-+		dir->i_nlink++;
++		inc_nlink(dir);
 +		goto out_unlock; /* success */
 +	}
 +
@@ -13256,8 +13257,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_add.c linux-2.6.25-sabayon/fs/
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs/i_op.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/i_op.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/i_op.c	2008-04-21 03:44:56.000000000 +0200
-@@ -0,0 +1,841 @@
++++ linux-2.6.25-sabayon/fs/aufs/i_op.c	2008-04-28 05:04:33.000000000 +0200
+@@ -0,0 +1,845 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -13279,7 +13280,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +/*
 + * inode operations (except add/del/rename)
 + *
-+ * $Id: i_op.c,v 1.2 2008/04/21 01:44:56 sfjro Exp $
++ * $Id: i_op.c,v 1.3 2008/04/28 03:04:33 sfjro Exp $
 + */
 +
 +//#include <linux/fs.h>
@@ -13517,7 +13518,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +		/*
 +		 * stop 'race'-ing between hardlinks under different parents.
 +		 */
-+		h_inode = au_h_dptr(dentry)->d_inode;
++		h_inode = au_h_dptr(dentry, au_dbstart(dentry))->d_inode;
 +		AuDebugOn(!h_inode);
 +		if (h_inode->i_nlink == 1 || S_ISDIR(h_inode->i_mode))
 +			inode = au_new_inode(dentry);
@@ -13556,7 +13557,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +
 +/* ---------------------------------------------------------------------- */
 +
-+//todo: simplify
 +/*
 + * decide the branch and the parent dir where we will create a new entry.
 + * returns new bindex or an error.
@@ -13568,8 +13568,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +	int err;
 +	aufs_bindex_t bcpup, bstart, src_bstart;
 +	struct super_block *sb;
-+	struct dentry *parent, *src_parent = NULL, *h_parent;
-+	struct inode *dir, *src_dir = NULL;
++	struct dentry *parent, *src_parent;
 +	struct au_sbinfo *sbinfo;
 +	const int add_entry = au_ftest_wrdir(args->flags, ADD_ENTRY);
 +	const int lock_srcdir = au_ftest_wrdir(args->flags, LOCK_SRCDIR);
@@ -13578,6 +13577,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +		  AuDLNPair(dentry), src_dentry, args->force_btgt, args->flags);
 +	//AuDbgDentry(dentry);
 +
++	src_parent = NULL;
 +	sb = dentry->d_sb;
 +	sbinfo = au_sbi(sb);
 +	parent = dget_parent(dentry);
@@ -13622,22 +13622,20 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +	/* copyup the new parent into the branch we process */
 +	if (src_dentry) {
 +		src_parent = dget_parent(src_dentry);
-+		src_dir = src_parent->d_inode;
 +		if (lock_srcdir)
 +			di_write_lock_parent2(src_parent);
 +	}
 +
-+	dir = parent->d_inode;
 +	if (add_entry) {
 +		au_update_dbstart(dentry);
-+		IMustLock(dir);
++		IMustLock(parent->d_inode);
 +		DiMustWriteLock(parent);
-+		IiMustWriteLock(dir);
++		IiMustWriteLock(parent->d_inode);
 +	} else
 +		di_write_lock_parent(parent);
 +
 +	err = 0;
-+	if (!au_h_dptr_i(parent, bcpup)) {
++	if (!au_h_dptr(parent, bcpup)) {
 +		if (bstart < bcpup)
 +			err = au_cpdown_dirs(dentry, bcpup, src_parent);
 +		else
@@ -13645,12 +13643,17 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +	}
 +	//err = -1;
 +	if (!err && add_entry) {
-+		h_parent = au_h_dptr_i(parent, bcpup);
-+		AuDebugOn(!h_parent || !h_parent->d_inode);
-+		mutex_lock_nested(&h_parent->d_inode->i_mutex, AuLsc_I_PARENT);
++		struct dentry *h_parent;
++		struct inode *h_dir;
++
++		h_parent = au_h_dptr(parent, bcpup);
++		AuDebugOn(!h_parent);
++		h_dir = h_parent->d_inode;
++		AuDebugOn(!h_dir);
++		mutex_lock_nested(&h_dir->i_mutex, AuLsc_I_PARENT);
 +		err = au_lkup_neg(dentry, bcpup);
 +		//err = -1;
-+		mutex_unlock(&h_parent->d_inode->i_mutex);
++		mutex_unlock(&h_dir->i_mutex);
 +		if (bstart < bcpup && au_dbstart(dentry) < 0) {
 +			au_set_dbstart(dentry, 0);
 +			au_update_dbrange(dentry, /*do_put_zero*/0);
@@ -13737,12 +13740,13 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +		rargs->dir = rargs->parent->d_inode;
 +		di_read_lock_parent(rargs->parent, AuLock_IR);
 +	}
-+	rargs->h_dentry = au_h_dptr(dentry);
++	rargs->h_dentry = au_h_dptr(dentry, au_dbstart(dentry));
 +	rargs->h_inode = rargs->h_dentry->d_inode;
 +	AuDebugOn(!rargs->h_inode);
 +
 +	if (!rargs->did_cpup) {
 +		au_hi_lock(rargs->h_inode, rargs->isdir, inode, rargs->btgt);
++		//todo: revalidate the lower dentry?
 +		goto out; /* success */
 +	}
 +
@@ -13757,11 +13761,12 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +	hi_wh = NULL;
 +	rargs->h_dir = au_h_iptr(rargs->dir, rargs->btgt);
 +	au_hdir_lock(rargs->h_dir, rargs->dir, rargs->btgt);
++	//todo: revalidate the lower dentry?
 +	au_hi_lock(rargs->h_inode, rargs->isdir, inode, bstart);
 +	if (!d_unhashed(dentry)) {
 +		err = au_sio_cpup_simple(dentry, rargs->btgt, sz, AuCpup_DTIME);
 +		if (!err)
-+			rargs->h_dentry = au_h_dptr(dentry);
++			rargs->h_dentry = au_h_dptr(dentry, au_dbstart(dentry));
 +	} else {
 +		hi_wh = au_hi_wh(inode, rargs->btgt);
 +		if (!hi_wh) {
@@ -13774,7 +13779,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +#endif
 +		}
 +		if (!hi_wh)
-+			rargs->h_dentry = au_h_dptr(dentry);
++			rargs->h_dentry = au_h_dptr(dentry, au_dbstart(dentry));
 +		else
 +			rargs->h_dentry = hi_wh; /* do not dget here */
 +	}
@@ -13955,7 +13960,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +
 +	LKTRTrace("%.*s, b%d, %d\n", AuDLNPair(dentry), bindex, bufsiz);
 +
-+	h_dentry = au_h_dptr_i(dentry, bindex);
++	h_dentry = au_h_dptr(dentry, bindex);
 +	if (unlikely(!h_dentry->d_inode->i_op
 +		     || !h_dentry->d_inode->i_op->readlink))
 +		return -EINVAL;
@@ -14101,8 +14106,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op.c linux-2.6.25-sabayon/fs/aufs
 +};
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/aufs/i_op_del.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/i_op_del.c	2008-04-21 03:45:29.000000000 +0200
-@@ -0,0 +1,581 @@
++++ linux-2.6.25-sabayon/fs/aufs/i_op_del.c	2008-04-28 05:04:54.000000000 +0200
+@@ -0,0 +1,582 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -14124,7 +14129,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +/*
 + * inode operations (del entry)
 + *
-+ * $Id: i_op_del.c,v 1.2 2008/04/21 01:45:29 sfjro Exp $
++ * $Id: i_op_del.c,v 1.3 2008/04/28 03:04:54 sfjro Exp $
 + */
 +
 +#include "aufs.h"
@@ -14148,7 +14153,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +
 +	bstart = au_dbstart(dentry);
 +	LKTRTrace("bcpup %d, bstart %d\n", *bcpup, bstart);
-+	h_dentry = au_h_dptr(dentry);
++	h_dentry = au_h_dptr(dentry, bstart);
 +	if (*bcpup < 0) {
 +		*bcpup = bstart;
 +		if (au_test_ro(sb, bstart, dentry->d_inode)) {
@@ -14190,7 +14195,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +			au_set_h_dptr(dentry, new_bend, NULL);
 +			au_set_dbend(dentry, old_bend);
 +#if 0 // remove this?
-+		} else if (!au_h_dptr_i(dentry, new_bend)->d_inode) {
++		} else if (!au_h_dptr(dentry, new_bend)->d_inode) {
 +			LKTRTrace("negative\n");
 +			au_set_h_dptr(dentry, new_bend, NULL);
 +			au_set_dbend(dentry, old_bend);
@@ -14224,7 +14229,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +
 +	sb = dentry->d_sb;
 +	exist = !!dentry->d_inode;
-+	h_dentry = au_h_dptr_i(dentry, bindex);
++	h_dentry = au_h_dptr(dentry, bindex);
 +	h_inode = h_dentry->d_inode;
 +	if (exist) {
 +		err = -ENOENT;
@@ -14323,11 +14328,12 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +	}
 +	dir = parent->d_inode;
 +	IMustLock(dir);
-+	h_parent = au_h_dptr_i(parent, bcpup);
++	h_parent = au_h_dptr(parent, bcpup);
 +	h_dir = h_parent->d_inode;
 +
 +	AuDbgSleep_UdbaRace();
 +	au_hdir_lock(h_dir, dir, bcpup);
++	//todo: relidate the lower dentry?
 +
 +	if (!au_opt_test(mnt_flags, UDBA_NONE) && au_dbstart(dentry) == bcpup) {
 +		ndx.nfsmnt = au_nfsmnt(sb, bcpup);
@@ -14371,7 +14377,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +			   struct au_nhash *whlist, struct inode *dir)
 +{
 +	int rmdir_later, err;
-+	struct dentry *hidden_dentry;
++	struct dentry *h_dentry;
 +	struct inode *inode, *h_inode;
 +	struct super_block *sb;
 +
@@ -14392,8 +14398,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +	if (unlikely(err))
 +		goto out;
 +
-+	hidden_dentry = au_h_dptr_i(dentry, bindex);
-+	if (!au_test_nfs(hidden_dentry->d_sb)) {
++	h_dentry = au_h_dptr(dentry, bindex);
++	if (!au_test_nfs(h_dentry->d_sb)) {
 +		const int dirwh = au_sbi(sb)->si_dirwh;
 +		rmdir_later = (dirwh <= 1);
 +		if (!rmdir_later)
@@ -14403,12 +14409,12 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +			return rmdir_later;
 +	}
 +
-+	err = au_whtmp_rmdir(hidden_dentry, whlist, bindex, dir,
-+			     dentry->d_inode, /*noself*/1);
++	err = au_whtmp_rmdir(h_dentry, whlist, bindex, dir, dentry->d_inode,
++			     /*noself*/1);
 +	//err = -1;
 +	if (unlikely(err)) {
 +		AuIOErr("rmdir %.*s, b%d failed, %d. ignored\n",
-+			AuDLNPair(hidden_dentry), bindex, err);
++			AuDLNPair(h_dentry), bindex, err);
 +		err = 0;
 +	}
 +
@@ -14499,7 +14505,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +
 +	sb = dir->i_sb;
 +	dlgt = !!au_opt_test_dlgt(au_mntflags(sb));
-+	h_dentry = au_h_dptr(dentry);
++	AuDebugOn(au_dbstart(dentry) != bstart);
++	h_dentry = au_h_dptr(dentry, bstart);
 +	dget(h_dentry);
 +
 +	if (bindex == bstart) {
@@ -14511,15 +14518,14 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +	} else {
 +		/* dir inode is locked */
 +		AuDebugOn(!wh_dentry
-+			  || wh_dentry->d_parent != au_h_dptr_i(parent,
-+								bindex));
++			  || wh_dentry->d_parent != au_h_dptr(parent, bindex));
 +		h_dir = wh_dentry->d_parent->d_inode;
 +		IMustLock(h_dir);
 +		err = 0;
 +	}
 +
 +	if (!err) {
-+		inode->i_nlink--;
++		drop_nlink(inode);
 +#if 0 //todo: update plink
 +		if (unlikely(!inode->i_nlink
 +			     && au_plink_test(sb, inode)
@@ -14612,7 +14618,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +	if (IS_ERR(wh_dentry))
 +		goto out_args;
 +
-+	h_dentry = au_h_dptr(dentry);
++	AuDebugOn(au_dbstart(dentry) != bstart);
++	h_dentry = au_h_dptr(dentry, bstart);
 +	dget(h_dentry);
 +
 +	rmdir_later = 0;
@@ -14628,8 +14635,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +	} else {
 +		/* dir inode is locked */
 +		AuDebugOn(!wh_dentry
-+			  || wh_dentry->d_parent != au_h_dptr_i(parent,
-+								bindex));
++			  || wh_dentry->d_parent != au_h_dptr(parent, bindex));
 +		h_dir = wh_dentry->d_parent->d_inode;
 +		IMustLock(h_dir);
 +		err = 0;
@@ -14643,7 +14649,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +		if (unlikely(au_opt_test(mnt_flags, UDBA_INOTIFY)
 +			     && rmdir_later))
 +			au_reset_hinotify(inode, /*flags*/0);
-+		inode->i_nlink = 0;
++		clear_nlink(inode);
 +		au_set_dbdiropq(dentry, -1);
 +		epilog(dir, dentry, bindex);
 +
@@ -14686,8 +14692,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_del.c linux-2.6.25-sabayon/fs/
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/aufs/i_op_ren.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/i_op_ren.c	2008-04-21 03:45:44.000000000 +0200
-@@ -0,0 +1,824 @@
++++ linux-2.6.25-sabayon/fs/aufs/i_op_ren.c	2008-04-28 05:04:54.000000000 +0200
+@@ -0,0 +1,832 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -14710,7 +14716,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 + * inode operation (rename entry)
 + * todo: this is monster
 + *
-+ * $Id: i_op_ren.c,v 1.2 2008/04/21 01:45:44 sfjro Exp $
++ * $Id: i_op_ren.c,v 1.3 2008/04/28 03:04:54 sfjro Exp $
 + */
 +
 +#include "aufs.h"
@@ -14787,6 +14793,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	ndx.nfsmnt = au_nfsmnt(a->sb, a->btgt);
 +	if (unlikely(au_ftest_ren(a->flags, DLGT)))
 +		au_fset_ndx(ndx.flags, DLGT);
++
 +	/* create whiteout for src_dentry */
 +	if (au_ftest_ren(a->flags, WHSRC)) {
 +		wh_dentry[SRC] = au_wh_create(src_dir, src_dentry, a->btgt,
@@ -14800,6 +14807,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	/* lookup whiteout for dentry */
 +	if (au_ftest_ren(a->flags, WHDST)) {
 +		struct dentry *d;
++
 +		d = au_wh_lkup(a->h_parent[DST], &dentry->d_name, &ndx);
 +		//d = ERR_PTR(-1);
 +		err = PTR_ERR(d);
@@ -14822,7 +14830,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +		//err = -1;
 +		if (unlikely(err))
 +			goto out_whtmp;
-+		a->h_dentry[DST] = au_h_dptr_i(dentry, a->btgt);
++		a->h_dentry[DST] = au_h_dptr(dentry, a->btgt);
 +	}
 +
 +	/* cpup src */
@@ -14853,7 +14861,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +			     && au_ftest_ren(a->flags, ISDIR)))
 +			vfsub_ign_hinode(&vargs, IN_MOVE_SELF,
 +					 au_hi(src_dentry->d_inode, a->btgt));
-+		err = vfsub_rename(h_dir[SRC], au_h_dptr(src_dentry),
++		AuDebugOn(au_dbstart(src_dentry) != a->btgt);
++		err = vfsub_rename(h_dir[SRC], au_h_dptr(src_dentry, a->btgt),
 +				   h_dir[DST], a->h_dentry[DST], &vargs);
 +		//err = -1;
 +	} else {
@@ -14879,7 +14888,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +		struct dentry *diropq;
 +		struct inode *h_inode;
 +
-+		h_inode = au_h_dptr_i(src_dentry, a->btgt)->d_inode;
++		h_inode = au_h_dptr(src_dentry, a->btgt)->d_inode;
 +		au_hdir_lock(h_inode, src_dentry->d_inode, a->btgt);
 +		diropq = au_diropq_create(src_dentry, a->btgt,
 +					  au_ftest_ren(a->flags, DLGT));
@@ -14892,7 +14901,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	}
 +
 +	/* update target timestamps */
-+	h_src = au_h_dptr(src_dentry);
++	AuDebugOn(au_dbstart(src_dentry) != a->btgt);
++	h_src = au_h_dptr(src_dentry, a->btgt);
 +	au_update_fuse_h_inode(NULL, h_src); /*ignore*/
 +	//fsstack_copy_attr_atime(src_dentry->d_inode, h_src->d_inode);
 +	src_dentry->d_inode->i_ctime = h_src->d_inode->i_ctime;
@@ -14937,7 +14947,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	if (need_diropq) {
 +		struct inode *h_inode;
 +
-+		h_inode = au_h_dptr_i(src_dentry, a->btgt)->d_inode;
++		h_inode = au_h_dptr(src_dentry, a->btgt)->d_inode;
 +		//br_wh_read_lock(au_sbr(a->sb, a->btgt));
 +		/* i_lock simply since inotify is not set to h_inode. */
 +		mutex_lock_nested(&h_inode->i_mutex, AuLsc_I_PARENT);
@@ -14956,6 +14966,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	if (!bycpup) {
 +		struct dentry *d;
 +		struct qstr *name = &src_dentry->d_name;
++
 +		d = au_lkup_one(name->name, a->h_parent[SRC], name->len, &ndx);
 +		//d = ERR_PTR(-1);
 +		rerr = PTR_ERR(d);
@@ -14970,9 +14981,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +			     && au_ftest_ren(a->flags, ISDIR)))
 +			vfsub_ign_hinode(&vargs, IN_MOVE_SELF,
 +					 au_hi(src_dentry->d_inode, a->btgt));
-+		rerr = vfsub_rename
-+			(h_dir[DST], au_h_dptr_i(src_dentry, a->btgt),
-+			 h_dir[SRC], d, &vargs);
++		rerr = vfsub_rename(h_dir[DST], au_h_dptr(src_dentry, a->btgt),
++				    h_dir[SRC], d, &vargs);
 +		//rerr = -1;
 +		d_drop(d);
 +		dput(d);
@@ -14993,6 +15003,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	if (thargs) {
 +		struct dentry *d;
 +		struct qstr *name = &dentry->d_name;
++
 +		d = au_lkup_one(name->name, a->h_parent[DST], name->len, &ndx);
 +		//d = ERR_PTR(-1);
 +		rerr = PTR_ERR(d);
@@ -15038,7 +15049,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	bend = au_dbend(src_dentry);
 +	for (bindex = au_dbstart(src_dentry); bindex <= bend; bindex++) {
 +		struct dentry *hd;
-+		hd = au_h_dptr_i(src_dentry, bindex);
++
++		hd = au_h_dptr(src_dentry, bindex);
 +		if (hd)
 +			d_drop(hd);
 +	}
@@ -15046,7 +15058,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	bend = au_dbend(dentry);
 +	for (bindex = au_dbstart(dentry); bindex <= bend; bindex++) {
 +		struct dentry *hd;
-+		hd = au_h_dptr_i(dentry, bindex);
++
++		hd = au_h_dptr(dentry, bindex);
 +		if (hd)
 +			d_drop(hd);
 +	}
@@ -15315,11 +15328,11 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +		err = may_rename_dstdir(dentry, p->a.btgt, &p->a.whlist);
 +		au_set_dbstart(dentry, p->a.btgt);
 +	}
-+	p->a.h_dentry[DST] = au_h_dptr(dentry);
++	p->a.h_dentry[DST] = au_h_dptr(dentry, au_dbstart(dentry));
 +	if (unlikely(err))
 +		goto out_unlock;
 +	//todo: minor optimize, their sb may be same while their bindex differs.
-+	p->a.h_dentry[SRC] = au_h_dptr(src_dentry);
++	p->a.h_dentry[SRC] = au_h_dptr(src_dentry, au_dbstart(src_dentry));
 +	if (au_ftest_ren(p->a.flags, ISDIR)) {
 +		err = may_rename_srcdir(src_dentry, p->a.btgt);
 +		if (unlikely(err))
@@ -15348,14 +15361,15 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	hgdir[SRC] = NULL;
 +	hgdir[DST] = NULL;
 +	au_hgdirs(hgdir, &p->a);
-+	p->a.h_parent[SRC] = au_h_dptr_i(p->a.parent[SRC], p->a.btgt);
-+	p->a.h_parent[DST] = au_h_dptr_i(p->a.parent[DST], p->a.btgt);
++	p->a.h_parent[SRC] = au_h_dptr(p->a.parent[SRC], p->a.btgt);
++	p->a.h_parent[DST] = au_h_dptr(p->a.parent[DST], p->a.btgt);
 +	dirs[0] = src_dir;
 +	dirs[1] = dir;
 +
 +	AuDbgSleep_UdbaRace();
 +	p->a.h_trap = au_hdir_lock_rename(p->a.h_parent, dirs, p->a.btgt,
 +					  au_ftest_ren(p->a.flags, ISSAMEDIR));
++	//todo: revalidate the lower dentries?
 +
 +	if (!au_opt_test(p->a.mnt_flags, UDBA_NONE)) {
 +		struct au_ndx ndx = {
@@ -15410,7 +15424,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +
 +		au_cpup_attr_nlink(dir);
 +		if (inode[DST]) {
-+			inode[DST]->i_nlink = 0;
++			clear_nlink(inode[DST]);
 +			au_cpup_attr_timesizes(inode[DST]);
 +		}
 +	}
@@ -15433,7 +15447,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +	bend = au_dbend(src_dentry);
 +	for (bindex = p->a.btgt + 1; bindex <= bend; bindex++) {
 +		struct dentry *hd;
-+		hd = au_h_dptr_i(src_dentry, bindex);
++		hd = au_h_dptr(src_dentry, bindex);
 +		if (hd)
 +			au_set_h_dptr(src_dentry, bindex, NULL);
 +	}
@@ -15514,7 +15528,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/i_op_ren.c linux-2.6.25-sabayon/fs/
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/Kconfig linux-2.6.25-sabayon/fs/aufs/Kconfig
 --- linux-2.6.25-sabayon.orig/fs/aufs/Kconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/Kconfig	2008-04-21 10:05:02.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/Kconfig	2008-05-03 18:14:59.000000000 +0200
 @@ -0,0 +1,162 @@
 +config AUFS
 + tristate "Another unionfs"
@@ -15680,10 +15694,10 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/Kconfig linux-2.6.25-sabayon/fs/auf
 +endif
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/Makefile linux-2.6.25-sabayon/fs/aufs/Makefile
 --- linux-2.6.25-sabayon.orig/fs/aufs/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/Makefile	2008-04-21 03:31:25.000000000 +0200
-@@ -0,0 +1,88 @@
++++ linux-2.6.25-sabayon/fs/aufs/Makefile	2008-04-28 05:03:10.000000000 +0200
+@@ -0,0 +1,65 @@
 +# AUFS Makefile for the Linux 2.6.25 and later
-+# $Id: Makefile,v 1.2 2008/04/21 01:31:25 sfjro Exp $
++# $Id: Makefile,v 1.3 2008/04/28 03:03:10 sfjro Exp $
 +
 +# the environment variables are not inherited since 2.6.23
 +ifdef AUFS_EXTRA_CFLAGS
@@ -15701,52 +15715,29 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/Makefile linux-2.6.25-sabayon/fs/au
 +endif
 +
 +ifdef CONFIG_AUFS_WORKAROUND_FUSE
-+# it isn't defined in a header file
-+fuse_f = ${srctree}/fs/fuse/inode.c
-+ifeq ($(strip $(shell test -e ${fuse_f} && echo t)),t)
-+fuse = $(shell grep '\#.*define.*FUSE_SUPER_MAGIC' ${fuse_f} | \
-+	head -n 1 | \
-+	awk '{print $$3}')
-+EXTRA_CFLAGS += -DFUSE_SUPER_MAGIC=${fuse}
-+else
-+$(warning Ignoring FUSE_SUPER_MAGIC)
-+endif
++# defined in ${srctree}/fs/fuse/inode.c
++EXTRA_CFLAGS += -DFUSE_SUPER_MAGIC=0x65735546
 +endif
 +
 +ifdef CONFIG_XFS_FS
-+# it isn't defined in a header file
-+xfs_f=${srctree}/fs/xfs/xfs_sb.h
-+ifeq ($(strip $(shell test -e ${xfs_f} && echo t)),t)
-+xfs = $(shell grep '\#.*define.*XFS_SB_MAGIC' ${xfs_f} | \
-+	head -n 1 | \
-+	awk '{print $$3}')
-+EXTRA_CFLAGS += -DXFS_SB_MAGIC=${xfs}
-+else
-+$(warning Ignoring XFS_SB_MAGIC)
-+endif
++# defined in ${srctree}/fs/xfs/xfs_sb.h
++EXTRA_CFLAGS += -DXFS_SB_MAGIC=0x58465342
 +endif
 +
 +ifdef CONFIG_TMPFS
-+# it isn't defined in a header file
-+tmpfs_f=${srctree}/mm/shmem.c
-+ifeq ($(strip $(shell test -e ${tmpfs_f} && echo t)),t)
-+tmpfs = $(shell grep '\#.*define.*TMPFS_MAGIC' ${tmpfs_f} | \
-+	head -n 1 | \
-+	awk '{print $$3}')
-+EXTRA_CFLAGS += -DTMPFS_MAGIC=${tmpfs}
-+else
-+$(warning Ignoring TMPFS_MAGIC)
-+endif
++# defined in ${srctree}/mm/shmem.c
++EXTRA_CFLAGS += -DTMPFS_MAGIC=0x01021994
 +endif
 +
++-include $(dir $(lastword ${MAKEFILE_LIST}))priv.mk
 +#$(warning ${EXTRA_CFLAGS})
 +
 +########################################
 +
 +obj-$(CONFIG_AUFS) += aufs.o
-+aufs-y := module.o super.o sbinfo.o xino.o \
-+	branch.o cpup.o whout.o plink.o wkq.o dcsub.o vfsub.o wbr_policy.o \
-+	opts.o \
++aufs-y := module.o super.o sbinfo.o branch.o xino.o sysaufs.o opts.o \
++	wkq.o vfsub.o dcsub.o \
++	cpup.o whout.o plink.o wbr_policy.o \
 +	dentry.o dinfo.o \
 +	file.o f_op.o finfo.o \
 +	dir.o vdir.o \
@@ -15754,25 +15745,25 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/Makefile linux-2.6.25-sabayon/fs/au
 +	misc.o
 +
 +#xattr.o
++aufs-$(CONFIG_SYSFS) += sysfs.o
 +aufs-$(CONFIG_AUFS_BR_NFS) += br_nfs.o
 +aufs-$(CONFIG_AUFS_BR_XFS) += br_xfs.o
 +aufs-$(CONFIG_AUFS_WORKAROUND_FUSE) += br_fuse.o
 +
 +aufs-$(CONFIG_AUFS_DLGT) += dlgt.o
-+aufs-$(CONFIG_AUFS_SYSAUFS) += sysaufs.o
 +aufs-$(CONFIG_AUFS_HINOTIFY) += hinotify.o hin_or_dlgt.o
 +# dirty
 +ifndef CONFIG_AUFS_HINOTIFY
 +aufs-$(CONFIG_AUFS_DLGT) += hin_or_dlgt.o
 +endif
++
 +aufs-$(CONFIG_AUFS_EXPORT) += export.o
 +aufs-$(CONFIG_AUFS_ROBR) += robr.o
-+#aufs-$(CONFIG_DEBUGFS) += dbgfs.o
 +aufs-$(CONFIG_AUFS_DEBUG) += debug.o
 +aufs-$(CONFIG_AUFS_MAGIC_SYSRQ) += sysrq.o
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/misc.c linux-2.6.25-sabayon/fs/aufs/misc.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/misc.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/misc.c	2008-04-21 03:34:03.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/misc.c	2008-04-28 05:04:12.000000000 +0200
 @@ -0,0 +1,303 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -15793,7 +15784,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/misc.c linux-2.6.25-sabayon/fs/aufs
 + */
 +
 +/*
-+ * $Id: misc.c,v 1.2 2008/04/21 01:34:03 sfjro Exp $
++ * $Id: misc.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +//#include <linux/fs.h>
@@ -15886,7 +15877,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/misc.c linux-2.6.25-sabayon/fs/aufs
 +	fake_nd->path.mnt = NULL;
 +
 +	if (bindex <= au_dbend(nd->path.dentry))
-+		fake_nd->path.dentry = au_h_dptr_i(nd->path.dentry, bindex);
++		fake_nd->path.dentry = au_h_dptr(nd->path.dentry, bindex);
 +	if (fake_nd->path.dentry) {
 +		dget(fake_nd->path.dentry);
 +		fake_nd->path.mnt = au_sbr_mnt(sb, bindex);
@@ -16284,8 +16275,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/misc.h linux-2.6.25-sabayon/fs/aufs
 +#endif /* __AUFS_MISC_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/module.c linux-2.6.25-sabayon/fs/aufs/module.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/module.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/module.c	2008-04-21 03:33:00.000000000 +0200
-@@ -0,0 +1,239 @@
++++ linux-2.6.25-sabayon/fs/aufs/module.c	2008-04-28 05:02:06.000000000 +0200
+@@ -0,0 +1,243 @@
 +/*
 + * Copyright (C) 2007 Junjiro Okajima
 + *
@@ -16307,7 +16298,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/module.c linux-2.6.25-sabayon/fs/au
 +/*
 + * module global variables and operations
 + *
-+ * $Id: module.c,v 1.2 2008/04/21 01:33:00 sfjro Exp $
++ * $Id: module.c,v 1.3 2008/04/28 03:02:06 sfjro Exp $
 + */
 +
 +#include <linux/module.h>
@@ -16459,11 +16450,15 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/module.c linux-2.6.25-sabayon/fs/au
 +	CONFIG_AUFS_BRANCH_MAX_511 or smaller is recommended.
 +#endif
 +
-+#ifdef CONFIG_AUFS_SYSAUFS
++#ifdef CONFIG_AUFS_STAT
 +#ifndef CONFIG_SYSFS
-+#error CONFIG_AUFS_SYSAUFS requires CONFIG_SYSFS.
++#error CONFIG_AUFS_STAT requires CONFIG_SYSFS.
 +#endif
-+#endif /* CONFIG_AUFS_SYSAUFS */
++#endif /* CONFIG_AUFS_STAT */
++
++#ifdef CONFIG_AUFS_SYSAUFS
++#warning CONFIG_AUFS_SYSAUFS is unnecessary for linux-2.6.25 and later.
++#endif
 +
 +#ifdef CONFIG_AUFS_EXPORT
 +#if !defined(CONFIG_EXPORTFS) && !defined(CONFIG_EXPORTFS_MODULE)
@@ -16609,7 +16604,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/module.h linux-2.6.25-sabayon/fs/au
 +#endif /* __AUFS_MODULE_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/opts.c linux-2.6.25-sabayon/fs/aufs/opts.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/opts.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/opts.c	2008-04-21 03:46:17.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/opts.c	2008-04-28 05:04:12.000000000 +0200
 @@ -0,0 +1,1488 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -16632,7 +16627,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/opts.c linux-2.6.25-sabayon/fs/aufs
 +/*
 + * mount options/flags
 + *
-+ * $Id: opts.c,v 1.2 2008/04/21 01:46:17 sfjro Exp $
++ * $Id: opts.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +#include <linux/types.h> /* a distribution requires */
@@ -17367,7 +17362,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/opts.c linux-2.6.25-sabayon/fs/aufs
 +				break;
 +			}
 +			err = 0;
-+			u.del->h_root = dget(au_h_dptr_i(root, bindex));
++			u.del->h_root = dget(au_h_dptr(root, bindex));
 +			opt->type = token;
 +			aufs_read_unlock(root, !AuLock_IR);
 +			break;
@@ -17416,7 +17411,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/opts.c linux-2.6.25-sabayon/fs/aufs
 +			LKTRTrace("mod path %s, perm 0x%x, %s\n",
 +				  u.mod->path, u.mod->perm, args[1].from);
 +			err = 0;
-+			u.mod->h_root = dget(au_h_dptr_i(root, bindex));
++			u.mod->h_root = dget(au_h_dptr(root, bindex));
 +			opt->type = token;
 +			aufs_read_unlock(root, !AuLock_IR);
 +			break;
@@ -17455,7 +17450,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/opts.c linux-2.6.25-sabayon/fs/aufs
 +			aufs_read_lock(root, AuLock_FLUSH);
 +			bend = au_sbend(sb);
 +			for (bindex = 0; bindex <= bend; bindex++) {
-+				if (au_h_dptr_i(root, bindex) == nd.path.dentry) {
++				if (au_h_dptr(root, bindex) == nd.path.dentry) {
 +					u.xino_itrunc->bindex = bindex;
 +					break;
 +				}
@@ -17931,7 +17926,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/opts.c linux-2.6.25-sabayon/fs/aufs
 +
 +		au_hdir_lock(h_dir, dir, bindex);
 +		br_wh_write_lock(br);
-+		err = au_wh_init(au_h_dptr_i(root, bindex), br,
++		err = au_wh_init(au_h_dptr(root, bindex), br,
 +				 au_nfsmnt(sb, bindex), sb);
 +		br_wh_write_unlock(br);
 +		au_hdir_unlock(h_dir, dir, bindex);
@@ -18817,8 +18812,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/robr.c linux-2.6.25-sabayon/fs/aufs
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sbinfo.c linux-2.6.25-sabayon/fs/aufs/sbinfo.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/sbinfo.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/sbinfo.c	2008-04-18 14:19:09.000000000 +0200
-@@ -0,0 +1,124 @@
++++ linux-2.6.25-sabayon/fs/aufs/sbinfo.c	2008-04-28 05:05:05.000000000 +0200
+@@ -0,0 +1,225 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -18840,10 +18835,111 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sbinfo.c linux-2.6.25-sabayon/fs/au
 +/*
 + * superblock private data
 + *
-+ * $Id: sbinfo.c,v 1.1 2008/04/18 12:19:09 sfjro Exp $
++ * $Id: sbinfo.c,v 1.2 2008/04/28 03:05:05 sfjro Exp $
 + */
 +
 +#include "aufs.h"
++
++/*
++ * they are necessary regardless sysfs is disabled.
++ */
++void au_si_free(struct kobject *kobj)
++{
++	struct au_sbinfo *sbinfo;
++	struct super_block *sb;
++
++	LKTRTrace("kobj %p\n", kobj);
++	sbinfo = container_of(kobj, struct au_sbinfo, si_kobj);
++	LKTRTrace("sbinfo %p\n", sbinfo);
++	AuDebugOn(!list_empty(&sbinfo->si_plink));
++
++	sb = sbinfo->si_tmp_sb;
++	if (unlikely(!au_ftest_si(sbinfo, FAILED_INIT))) {
++		au_sbilist_lock();
++		au_sbilist_del(sbinfo);
++		au_sbilist_unlock();
++	}
++
++	si_write_lock(sb);
++	au_xino_clr(sb);
++	au_br_free(sbinfo);
++	kfree(sbinfo->si_branch);
++	si_write_unlock(sb);
++
++	//AuDbg("free\n");
++ 	kfree(sbinfo);
++}
++
++int au_si_alloc(struct super_block *sb)
++{
++	int err;
++	struct au_sbinfo *sbinfo;
++
++	AuTraceEnter();
++
++	err = -ENOMEM;
++	sbinfo = kmalloc(sizeof(*sbinfo), GFP_KERNEL);
++	//if (LktrCond) {kfree(sbinfo); sbinfo = NULL;}
++	if (unlikely(!sbinfo))
++		goto out;
++	sbinfo->si_branch = kzalloc(sizeof(*sbinfo->si_branch), GFP_KERNEL);
++	//if (LktrCond) {kfree(sbinfo->si_branch); sbinfo->si_branch = NULL;}
++	if (unlikely(!sbinfo->si_branch))
++		goto out_sbinfo;
++
++	memset(&sbinfo->si_kobj, 0, sizeof(sbinfo->si_kobj));
++	err = sysaufs_si_init(sbinfo);
++	if (unlikely(err))
++		goto out_br;
++
++	au_rw_init_wlock(&sbinfo->si_rwsem);
++	sbinfo->si_generation = 0;
++	//sbinfo->si_generation = INT_MAX - 2;
++	sbinfo->au_si_status = 0;
++	sbinfo->si_bend = -1;
++	sbinfo->si_last_br_id = 0;
++
++	sbinfo->si_wbr_copyup = AuWbrCopyup_Def;
++	sbinfo->si_wbr_create = AuWbrCreate_Def;
++	sbinfo->si_wbr_copyup_ops = au_wbr_copyup_ops + AuWbrCopyup_Def;
++	sbinfo->si_wbr_create_ops = au_wbr_create_ops + AuWbrCreate_Def;
++
++	sbinfo->si_mntflags = AuOpt_Def;
++
++	sbinfo->si_xread = NULL;
++	sbinfo->si_xwrite = NULL;
++	sbinfo->si_xib = NULL;
++	mutex_init(&sbinfo->si_xib_mtx);
++	sbinfo->si_xib_buf = NULL;
++	/* leave si_xib_last_pindex and si_xib_next_bit */
++
++	au_nwt_init(&sbinfo->si_nowait);
++
++	sbinfo->si_rdcache = AUFS_RDCACHE_DEF * HZ;
++	sbinfo->si_dirwh = AUFS_DIRWH_DEF;
++
++	spin_lock_init(&sbinfo->si_plink_lock);
++	INIT_LIST_HEAD(&sbinfo->si_plink);
++
++	/* leave other members for sysaufs and si_mnt. */
++
++	au_robr_lvma_init(sbinfo);
++	sb->s_fs_info = sbinfo;
++	//sysaufs_si_get(sb);
++
++	au_debug_sbinfo_init(sbinfo);
++	return 0; /* success */
++
++ out_br:
++	kfree(sbinfo->si_branch);
++ out_sbinfo:
++	kfree(sbinfo);
++ out:
++	AuTraceErr(err);
++	return err;
++}
++
++/* ---------------------------------------------------------------------- */
 +
 +struct au_branch *au_sbr(struct super_block *sb, aufs_bindex_t bindex)
 +{
@@ -18945,8 +19041,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sbinfo.c linux-2.6.25-sabayon/fs/au
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/aufs/super.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/super.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/super.c	2008-04-21 03:46:42.000000000 +0200
-@@ -0,0 +1,1012 @@
++++ linux-2.6.25-sabayon/fs/aufs/super.c	2008-04-28 05:05:16.000000000 +0200
+@@ -0,0 +1,919 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -18968,7 +19064,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +/*
 + * mount and super_block operations
 + *
-+ * $Id: super.c,v 1.2 2008/04/21 01:46:42 sfjro Exp $
++ * $Id: super.c,v 1.3 2008/04/28 03:05:16 sfjro Exp $
 + */
 +
 +#include <linux/module.h>
@@ -19064,7 +19160,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +	bend = au_sbend(sb);
 +	for (bindex = 0; !err && bindex <= bend; bindex++) {
 +		path.mnt = au_sbr_mnt(sb, bindex);
-+		path.dentry = au_h_dptr_i(root, bindex);
++		path.dentry = au_h_dptr(root, bindex);
 +		err = seq_path(seq, &path, au_esc_chars);
 +		if (err > 0)
 +			err = seq_printf
@@ -19231,7 +19327,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +	AuTraceEnter();
 +
 +	aufs_read_lock(dentry->d_sb->s_root, 0);
-+	err = vfsub_statfs(au_h_dptr(dentry->d_sb->s_root), buf,
++	err = vfsub_statfs(au_h_dptr(dentry->d_sb->s_root, 0), buf,
 +			   !!au_opt_test_dlgt(au_mntflags(dentry->d_sb)));
 +	//if (LktrCond) err = -1;
 +	aufs_read_unlock(dentry->d_sb->s_root, 0);
@@ -19333,31 +19429,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +	si_write_unlock(sb);
 +}
 +
-+static void free_sbinfo(struct super_block *sb, int err)
-+{
-+	struct au_sbinfo *sbinfo;
-+
-+	AuTraceEnter();
-+	sbinfo = au_sbi(sb);
-+	AuDebugOn(!sbinfo || !list_empty(&sbinfo->si_plink));
-+
-+	if (!err) {
-+		au_sbilist_lock();
-+		au_sbilist_del(sbinfo);
-+		si_write_lock(sb);
-+		sysaufs_sbi_del(sb);
-+		au_sbilist_unlock();
-+	} else
-+		si_write_lock(sb);
-+
-+	au_xino_clr(sb);
-+	au_br_free(sbinfo);
-+	kfree(sbinfo->si_branch);
-+	si_write_unlock(sb);
-+	sysaufs_sbi_put(sb);
-+	kfree(sbinfo);
-+}
-+
 +/* final actions when unmounting a file system */
 +static void aufs_put_super(struct super_block *sb)
 +{
@@ -19368,7 +19439,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +	sbinfo = au_sbi(sb);
 +	if (unlikely(!sbinfo))
 +		return;
-+	free_sbinfo(sb, /*err*/0);
++	/* very dirty */
++	sbinfo->si_tmp_sb = sb;
++	kobject_put(&sbinfo->si_kobj);
 +}
 +
 +/* ---------------------------------------------------------------------- */
@@ -19712,77 +19785,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +
 +/* ---------------------------------------------------------------------- */
 +
-+/*
-+ * at first mount time.
-+ */
-+
-+static int alloc_sbinfo(struct super_block *sb)
-+{
-+	int err;
-+	struct au_sbinfo *sbinfo;
-+
-+	AuTraceEnter();
-+
-+	err = -ENOMEM;
-+	sbinfo = kmalloc(sizeof(*sbinfo), GFP_KERNEL);
-+	//if (LktrCond) {kfree(sbinfo); sbinfo = NULL;}
-+	if (unlikely(!sbinfo))
-+		goto out;
-+	sbinfo->si_branch = kzalloc(sizeof(*sbinfo->si_branch), GFP_KERNEL);
-+	//if (LktrCond) {kfree(sbinfo->si_branch); sbinfo->si_branch = NULL;}
-+	if (unlikely(!sbinfo->si_branch))
-+		goto out_sbinfo;
-+	err = sysaufs_sbi_init(sbinfo);
-+	if (unlikely(err))
-+		goto out_branch;
-+
-+	au_rw_init_wlock(&sbinfo->si_rwsem);
-+	sbinfo->si_generation = 0;
-+	//sbinfo->si_generation = INT_MAX - 2;
-+	sbinfo->au_si_status = 0;
-+	sbinfo->si_bend = -1;
-+	sbinfo->si_last_br_id = 0;
-+
-+	sbinfo->si_wbr_copyup = AuWbrCopyup_Def;
-+	sbinfo->si_wbr_create = AuWbrCreate_Def;
-+	sbinfo->si_wbr_copyup_ops = au_wbr_copyup_ops + AuWbrCopyup_Def;
-+	sbinfo->si_wbr_create_ops = au_wbr_create_ops + AuWbrCreate_Def;
-+
-+	sbinfo->si_mntflags = AuOpt_Def;
-+
-+	sbinfo->si_xread = NULL;
-+	sbinfo->si_xwrite = NULL;
-+	sbinfo->si_xib = NULL;
-+	mutex_init(&sbinfo->si_xib_mtx);
-+	sbinfo->si_xib_buf = NULL;
-+	/* leave si_xib_last_pindex and si_xib_next_bit */
-+
-+	au_nwt_init(&sbinfo->si_nowait);
-+
-+	sbinfo->si_rdcache = AUFS_RDCACHE_DEF * HZ;
-+	sbinfo->si_dirwh = AUFS_DIRWH_DEF;
-+
-+	spin_lock_init(&sbinfo->si_plink_lock);
-+	INIT_LIST_HEAD(&sbinfo->si_plink);
-+
-+	/* leave other members for sysaufs, si_list and si_mnt. */
-+
-+	au_robr_lvma_init(sbinfo);
-+	sb->s_fs_info = sbinfo;
-+	//sysaufs_sbi_get(sb);
-+
-+	au_debug_sbinfo_init(sbinfo);
-+	return 0; /* success */
-+
-+ out_branch:
-+	kfree(sbinfo->si_branch);
-+ out_sbinfo:
-+	kfree(sbinfo);
-+ out:
-+	AuTraceErr(err);
-+	return err;
-+}
-+
 +static int alloc_root(struct super_block *sb)
 +{
 +	int err;
@@ -19849,7 +19851,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +		goto out;
 +	opts.max_opt = PAGE_SIZE / sizeof(*opts.opt);
 +
-+	err = alloc_sbinfo(sb);
++	err = au_si_alloc(sb);
 +	//if (LktrCond) {si_write_unlock(sb);free_sbinfo(sb);err=-1;}
 +	if (unlikely(err))
 +		goto out_opts;
@@ -19912,7 +19914,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +	dput(root);
 +	sb->s_root = NULL;
 + out_info:
-+	free_sbinfo(sb, /*err*/1);
++	au_fset_si(au_sbi(sb), FAILED_INIT);
++	kobject_put(&au_sbi(sb)->si_kobj);
 +	sb->s_fs_info = NULL;
 + out_opts:
 +	free_page((unsigned long)opts.opt);
@@ -19943,7 +19946,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +		au_sbilist_lock();
 +		au_sbilist_add(sbinfo);
 +		si_write_lock(sb);
-+		sysaufs_sbi_add(sb);
++		sysaufs_brs_add(sb);
 +		si_write_unlock(sb);
 +		au_sbilist_unlock();
 +	}
@@ -19961,8 +19964,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.c linux-2.6.25-sabayon/fs/auf
 +};
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.h linux-2.6.25-sabayon/fs/aufs/super.h
 --- linux-2.6.25-sabayon.orig/fs/aufs/super.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/super.h	2008-04-21 03:46:49.000000000 +0200
-@@ -0,0 +1,398 @@
++++ linux-2.6.25-sabayon/fs/aufs/super.h	2008-04-28 05:05:26.000000000 +0200
+@@ -0,0 +1,410 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -19984,7 +19987,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.h linux-2.6.25-sabayon/fs/auf
 +/*
 + * super_block operations
 + *
-+ * $Id: super.h,v 1.2 2008/04/21 01:46:49 sfjro Exp $
++ * $Id: super.h,v 1.3 2008/04/28 03:05:26 sfjro Exp $
 + */
 +
 +#ifndef __AUFS_SUPER_H__
@@ -19994,6 +19997,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.h linux-2.6.25-sabayon/fs/auf
 +
 +#include <linux/fs.h>
 +#include <linux/cramfs_fs.h>
++#include <linux/kobject.h>
 +#include <linux/magic.h>
 +#include <linux/aufs_type.h>
 +//#include "hinode.h"
@@ -20001,6 +20005,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.h linux-2.6.25-sabayon/fs/auf
 +//#include "opts.h"
 +#include "wkq.h"
 +
++//todo: move to branch.h
 +typedef ssize_t (*au_readf_t)(struct file *, char __user *, size_t, loff_t *);
 +typedef ssize_t (*au_writef_t)(struct file *, const char __user *, size_t,
 +			       loff_t *);
@@ -20032,13 +20037,13 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.h linux-2.6.25-sabayon/fs/auf
 + * if it is false, refreshing dirs at access time is unnecesary
 + */
 +#define AuSi_FAILED_REFRESH_DIRS	1
++#define AuSi_FAILED_INIT		(1 << 1)
 +#define au_ftest_si(sbinfo, name)	((sbinfo)->au_si_status & AuSi_##name)
 +#define au_fset_si(sbinfo, name) \
 +	{ (sbinfo)->au_si_status |= AuSi_##name; }
 +#define au_fclr_si(sbinfo, name) \
 +	{ (sbinfo)->au_si_status &= ~AuSi_##name; }
 +
-+struct sysaufs_sbinfo;
 +struct au_branch;
 +struct au_sbinfo {
 +	/* nowait tasks in the system-wide workqueue */
@@ -20102,21 +20107,29 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.h linux-2.6.25-sabayon/fs/auf
 +	spinlock_t		si_plink_lock;
 +	struct list_head	si_plink;
 +
-+	//todo: BR_NFS only
++	//todo: remove this
++	/* for export, async ops, xino and others */
 +	struct vfsmount		*si_mnt;	/* no get/put */
 +
-+#ifdef CONFIG_AUFS_SYSAUFS
-+	/* sysfs */
++	/*
++	 * sysfs and lifetime management.
++	 * this is not a small structure and it may be a waste of memory in case
++	 * of sysfs is disabled, particulary when many aufs-es are mounted.
++	 */
++	struct kobject		si_kobj;
++
++	//todo: remove this list.
 +	/* super_blocks list is not exported */
 +	struct list_head	si_list;
-+	struct sysaufs_sbinfo	*si_sa;
-+#endif
 +
 +#ifdef CONFIG_AUFS_ROBR
 +	/* locked vma list for mmap() */ // very dirty
 +	spinlock_t		si_lvma_lock;
 +	struct list_head	si_lvma;
 +#endif
++
++	/* dirty, necessary for unmounting */
++	struct super_block	*si_tmp_sb;
 +};
 +
 +/* ---------------------------------------------------------------------- */
@@ -20144,6 +20157,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.h linux-2.6.25-sabayon/fs/auf
 +struct inode *au_iget_locked(struct super_block *sb, ino_t ino);
 +
 +/* sbinfo.c */
++void au_si_free(struct kobject *kobj);
++int au_si_alloc(struct super_block *sb);
 +struct au_branch *au_sbr(struct super_block *sb, aufs_bindex_t bindex);
 +au_gen_t au_sigen_inc(struct super_block *sb);
 +int au_find_bindex(struct super_block *sb, struct au_branch *br);
@@ -20363,8 +20378,273 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/super.h linux-2.6.25-sabayon/fs/auf
 +#endif /* __AUFS_SUPER_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/aufs/sysaufs.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/sysaufs.c	2008-04-21 03:48:06.000000000 +0200
-@@ -0,0 +1,676 @@
++++ linux-2.6.25-sabayon/fs/aufs/sysaufs.c	2008-04-28 05:05:39.000000000 +0200
+@@ -0,0 +1,107 @@
++/*
++ * Copyright (C) 2007-2008 Junjiro Okajima
++ *
++ * This program, aufs is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++/*
++ * sysfs interface and lifetime management
++ * they are necessary regardless sysfs is disabled.
++ *
++ * $Id: sysaufs.c,v 1.4 2008/04/28 03:05:39 sfjro Exp $
++ */
++
++#include <linux/fs.h>
++#include <linux/module.h>
++#include <linux/sysfs.h>
++#include "aufs.h"
++
++/* ---------------------------------------------------------------------- */
++
++/* super_blocks list is not exported */
++DEFINE_MUTEX(au_sbilist_mtx);
++LIST_HEAD(au_sbilist);
++
++/* ---------------------------------------------------------------------- */
++
++static struct kset au_kset;
++
++#define AuSbiAttr(_name) { \
++	.attr   = { .name = __stringify(_name), .mode = 0444 },	\
++	.show   = sysaufs_sbi_##_name,				\
++}
++
++static struct au_sbi_attr au_sbi_attr_xino = AuSbiAttr(xino),
++	au_sbi_attr_mntpnt1 = AuSbiAttr(mntpnt1);
++
++struct attribute *au_sbi_attrs[] = {
++	&au_sbi_attr_xino.attr,
++	&au_sbi_attr_mntpnt1.attr,
++	NULL,
++};
++
++static struct sysfs_ops au_sbi_ops = {
++	.show   = sysaufs_sbi_show
++};
++
++static struct kobj_type au_sbi_ktype = {
++	.release	= au_si_free,
++	.sysfs_ops	= &au_sbi_ops,
++	.default_attrs	= au_sbi_attrs,
++};
++
++/* ---------------------------------------------------------------------- */
++
++int sysaufs_si_init(struct au_sbinfo *sbinfo)
++{
++	int err;
++
++	sbinfo->si_kobj.kset = &au_kset;
++	err = kobject_init_and_add(&sbinfo->si_kobj, &au_sbi_ktype,
++				   NULL/*&au_kset.kobj*/,
++				   SysaufsSb_PREFIX "%p", sbinfo);
++	AuTraceErr(err);
++	return err;
++}
++
++
++/* ---------------------------------------------------------------------- */
++
++void sysaufs_fin(void)
++{
++	AuDebugOn(!list_empty(&au_sbilist));
++	sysfs_remove_group(&au_kset.kobj, au_attr_group);
++	kset_unregister(&au_kset);
++}
++
++int __init sysaufs_init(void)
++{
++	int err;
++
++	sysaufs_brs_init();
++	au_kset.kobj.parent = fs_kobj;
++	kobject_set_name(&au_kset.kobj, AUFS_NAME);
++	au_kset.kobj.ktype = au_ktype;
++	err = kset_register(&au_kset);
++	if (unlikely(err))
++		goto out;
++	err = sysfs_create_group(&au_kset.kobj, au_attr_group);
++	if (unlikely(err))
++		kset_unregister(&au_kset);
++
++ out:
++	AuTraceErr(err);
++	return err;
++}
+diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.h linux-2.6.25-sabayon/fs/aufs/sysaufs.h
+--- linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.25-sabayon/fs/aufs/sysaufs.h	2008-04-28 05:05:39.000000000 +0200
+@@ -0,0 +1,150 @@
++/*
++ * Copyright (C) 2007-2008 Junjiro Okajima
++ *
++ * This program, aufs is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++/*
++ * sysfs interface and lifetime management
++ *
++ * $Id: sysaufs.h,v 1.4 2008/04/28 03:05:39 sfjro Exp $
++ */
++
++#ifndef __SYSAUFS_H__
++#define __SYSAUFS_H__
++
++#ifdef __KERNEL__
++
++#include <linux/fs.h>
++#include <linux/sysfs.h>
++#include "module.h"
++#include "super.h"
++
++/* entries under sysfs per super block */
++enum {
++	SysaufsSb_XINO,
++	SysaufsSb_MNTPNT1,
++#if 0
++	SysaufsSb_PLINK,
++	SysaufsSb_files,
++#endif
++	SysaufsSb_Last
++};
++
++#define SysaufsSb_PREFIX	"sbi_"	/* followed by %p */
++
++struct au_sbi_attr {
++	struct attribute attr;
++	int (*show)(struct seq_file *seq, struct super_block *sb);
++};
++
++/* ---------------------------------------------------------------------- */
++
++/* sysaufs.c */
++extern struct mutex au_sbilist_mtx;
++extern struct list_head au_sbilist;
++extern struct attribute *au_sbi_attrs[];
++int sysaufs_si_init(struct au_sbinfo *sbinfo);
++int __init sysaufs_init(void);
++void sysaufs_fin(void);
++
++/* ---------------------------------------------------------------------- */
++
++static inline void au_sbilist_lock(void)
++{
++	mutex_lock(&au_sbilist_mtx);
++}
++
++static inline void au_sbilist_unlock(void)
++{
++	mutex_unlock(&au_sbilist_mtx);
++}
++
++static inline void au_sbilist_del(struct au_sbinfo *sbinfo)
++{
++	list_del(&sbinfo->si_list);
++}
++
++static inline void au_sbilist_add(struct au_sbinfo *sbinfo)
++{
++	/* the order in this list is important */
++	list_add_tail(&sbinfo->si_list, &au_sbilist);
++}
++
++/* ---------------------------------------------------------------------- */
++
++struct au_branch;
++#ifdef CONFIG_SYSFS
++/* sysfs.c */
++extern struct attribute_group *au_attr_group;
++extern struct kobj_type *au_ktype;
++
++int sysaufs_sbi_xino(struct seq_file *seq, struct super_block *sb);
++int sysaufs_sbi_mntpnt1(struct seq_file *seq, struct super_block *sb);
++ssize_t sysaufs_sbi_show(struct kobject *kobj, struct attribute *attr,
++			 char *buf);
++
++void sysaufs_br_init(struct au_branch *br);
++void sysaufs_brs_add(struct super_block *sb);
++void sysaufs_brs_del(struct super_block *sb);
++
++#define sysaufs_brs_init()	do {} while (0)
++
++#else
++#define au_attr_group	NULL
++#define au_ktype	NULL
++
++static inline
++int sysaufs_sbi_xino(struct seq_file *seq, struct super_block *sb)
++{
++	return 0;
++}
++
++static inline
++int sysaufs_sbi_mntpnt1(struct seq_file *seq, struct super_block *sb)
++{
++	return 0;
++}
++
++static inline
++ssize_t sysaufs_sbi_show(struct kobject *kobj, struct attribute *attr,
++			 char *buf)
++{
++	return 0;
++}
++
++static inline void sysaufs_br_init(struct au_branch *br)
++{
++	/* empty */
++}
++
++static inline void sysaufs_brs_add(struct super_block *sb)
++{
++	/* nothing */
++}
++
++static inline void sysaufs_brs_del(struct super_block *sb)
++{
++	/* nothing */
++}
++
++static inline void sysaufs_brs_init(void)
++{
++	sysaufs_brs = 0;
++}
++#endif /* CONFIG_SYSFS */
++
++#endif /* __KERNEL__ */
++#endif /* __SYSAUFS_H__ */
+diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysfs.c linux-2.6.25-sabayon/fs/aufs/sysfs.c
+--- linux-2.6.25-sabayon.orig/fs/aufs/sysfs.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.25-sabayon/fs/aufs/sysfs.c	2008-04-28 05:09:11.000000000 +0200
+@@ -0,0 +1,501 @@
 +/*
 + * Copyright (C) 2007-2008 Junjiro Okajima
 + *
@@ -20386,7 +20666,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +/*
 + * sysfs interface
 + *
-+ * $Id: sysaufs.c,v 1.3 2008/04/21 01:48:06 sfjro Exp $
++ * $Id: sysfs.c,v 1.1 2008/04/28 03:09:11 sfjro Exp $
 + */
 +
 +#include <linux/fs.h>
@@ -20394,14 +20674,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +#include <linux/seq_file.h>
 +#include <linux/sysfs.h>
 +#include "aufs.h"
-+
-+/* ---------------------------------------------------------------------- */
-+
-+/* super_blocks list is not exported */
-+DEFINE_MUTEX(au_sbilist_mtx);
-+LIST_HEAD(au_sbilist);
-+
-+static struct kobject *au_kobj;
 +
 +#if 0
 +enum {
@@ -20413,7 +20685,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +};
 +#endif
 +
-+//todo: remove this
++//todo: CONFIG_AUFS_LOCAL
 +static ssize_t config_show(struct kobject *kobj, struct kobj_attribute *attr,
 +			   char *buf)
 +{
@@ -20436,7 +20708,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +#elif defined(CONFIG_AUFS_BRANCH_MAX_32767)
 +		conf_bool(BRANCH_MAX_32767)
 +#endif
-+		conf_bool(SYSAUFS)
 +#ifdef CONFIG_AUFS_HINOTIFY
 +		conf_bool(HINOTIFY)
 +#endif
@@ -20479,6 +20750,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +#ifdef CONFIG_AUFS_WORKAROUND_FUSE
 +		conf_bool(WORKAROUND_FUSE)
 +#endif
++#ifdef CONFIG_AUFS_STAT
++		conf_bool(STAT)
++#endif
 +#ifdef CONFIG_AUFS_DEBUG
 +		conf_bool(DEBUG)
 +#endif
@@ -20510,6 +20784,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +		return -EFBIG;
 +}
 +
++#ifdef CONFIG_AUFS_STAT
 +static ssize_t stat_show(struct kobject *kobj, struct kobj_attribute *attr,
 +			 char *buf)
 +{
@@ -20529,6 +20804,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +	else
 +		return -EFBIG;
 +}
++
++static struct kobj_attribute au_stat_attr = __ATTR_RO(stat);
++#endif
 +
 +static ssize_t sbi_show(struct kobject *kobj, struct kobj_attribute *attr,
 +			char *buf)
@@ -20577,12 +20855,13 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +#endif
 +
 +static struct kobj_attribute au_config_attr = __ATTR_RO(config),
-+	au_stat_attr = __ATTR_RO(stat),
 +	au_sbi_attr = __ATTR_RO(sbi);
 +
 +static struct attribute *au_attr[] = {
 +	&au_config_attr.attr,
++#ifdef CONFIG_AUFS_STAT
 +	&au_stat_attr.attr,
++#endif
 +	&au_sbi_attr.attr,
 +#ifdef CONFIG_AUFS_DEBUG
 +	&au_debug_attr.attr,
@@ -20590,16 +20869,55 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +	NULL,	/* need to NULL terminate the list of attributes */
 +};
 +
-+static struct attribute_group au_attr_group = {
++static struct attribute_group au_attr_group_body = {
 +	.attrs = au_attr
 +};
 +
++struct attribute_group *au_attr_group = &au_attr_group_body;
++
 +/* ---------------------------------------------------------------------- */
 +
-+typedef int (*sysaufs_sbi_sub_show_t)(struct seq_file *seq,
-+				      struct super_block *sb);
++static ssize_t au_attr_show(struct kobject *kobj, struct attribute *attr,
++			    char *buf)
++{
++	struct kobj_attribute *kattr;
++	ssize_t ret = -EIO;
 +
-+static int sysaufs_sbi_xino(struct seq_file *seq, struct super_block *sb)
++	kattr = container_of(attr, struct kobj_attribute, attr);
++	if (kattr->show)
++		ret = kattr->show(kobj, kattr, buf);
++	return ret;
++}
++
++#ifdef CONFIG_AUFS_DEBUG
++static ssize_t au_attr_store(struct kobject *kobj, struct attribute *attr,
++			     const char *buf, size_t count)
++{
++	struct kobj_attribute *kattr;
++	ssize_t ret = -EIO;
++
++	kattr = container_of(attr, struct kobj_attribute, attr);
++	if (kattr->store)
++		ret = kattr->store(kobj, kattr, buf, count);
++	return ret;
++}
++#endif
++
++static struct sysfs_ops sysaufs_ops = {
++	.show   = au_attr_show,
++#ifdef CONFIG_AUFS_DEBUG
++	.store  = au_attr_store
++#endif
++};
++
++static struct kobj_type au_ktype_body = {
++	.sysfs_ops = &sysaufs_ops
++};
++struct kobj_type *au_ktype = &au_ktype_body;
++
++/* ---------------------------------------------------------------------- */
++
++int sysaufs_sbi_xino(struct seq_file *seq, struct super_block *sb)
 +{
 +	int err, dlgt;
 +	struct au_sbinfo *sbinfo;
@@ -20653,7 +20971,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +}
 +
 +//todo: remove this
-+static int sysaufs_sbi_mntpnt1(struct seq_file *seq, struct super_block *sb)
++int sysaufs_sbi_mntpnt1(struct seq_file *seq, struct super_block *sb)
 +{
 +	struct path path;
 +
@@ -20667,6 +20985,11 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +	return 0;
 +}
 +
++/*
++ * the lifetime of branch is independent from the entry under sysfs.
++ * sysfs handles the lifetime of the entry, and never call ->show() after it is
++ * unlinked.
++ */
 +#define SysaufsBr_PREFIX "br"
 +static int sysaufs_sbi_br(struct seq_file *seq, struct super_block *sb,
 +			  aufs_bindex_t bindex)
@@ -20687,7 +21010,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +	di_read_lock_parent(root, !AuLock_IR);
 +	br = au_sbr(sb, bindex);
 +	path.mnt = br->br_mnt;
-+	path.dentry = au_h_dptr_i(root, bindex);
++	path.dentry = au_h_dptr(root, bindex);
 +	seq_path(seq, &path, au_esc_chars);
 +	di_read_unlock(root, !AuLock_IR);
 +	seq_printf(seq, "=%s\n", au_optstr_br_perm(br->br_perm));
@@ -20698,39 +21021,6 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +}
 +
 +/* ---------------------------------------------------------------------- */
-+
-+static struct sysaufs_sbi_entry {
-+	char *name;
-+	sysaufs_sbi_sub_show_t show;
-+} sysaufs_sbi_entry[SysaufsSb_Last] = {
-+	[SysaufsSb_XINO]	= {
-+		.name	= "xino",
-+		.show	= sysaufs_sbi_xino
-+	},
-+	[SysaufsSb_MNTPNT1]	= {
-+		.name	= "mntpnt1",
-+		.show	= sysaufs_sbi_mntpnt1
-+	}
-+};
-+
-+static struct super_block *find_sb_lock(struct kobject *kobj)
-+{
-+	struct super_block *sb;
-+	struct au_sbinfo *sbinfo;
-+
-+	AuTraceEnter();
-+	MtxMustLock(&au_sbilist_mtx);
-+
-+	sb = NULL;
-+	list_for_each_entry(sbinfo, &au_sbilist, si_list) {
-+		if (&sbinfo->si_sa->kset->kobj != kobj)
-+			continue;
-+		sb = sbinfo->si_mnt->mnt_sb;
-+		si_read_lock(sb, !AuLock_FLUSH);
-+		break;
-+	}
-+	return sb;
-+}
 +
 +static struct seq_file *au_seq(char *p, ssize_t len)
 +{
@@ -20751,22 +21041,21 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +}
 +
 +//todo: file size may exceed PAGE_SIZE
-+static ssize_t sysaufs_sbi_show(struct kobject *kobj, struct attribute *attr,
-+				char *buf)
++ssize_t sysaufs_sbi_show(struct kobject *kobj, struct attribute *attr,
++			 char *buf)
 +{
 +	ssize_t err;
++	struct au_sbinfo *sbinfo;
 +	struct super_block *sb;
 +	struct seq_file *seq;
 +	char *name;
-+	int i;
++	struct attribute **cattr;
 +
 +	LKTRTrace("%s/%s\n", kobject_name(kobj), attr->name);
 +
-+	err = -ENOENT;
-+	mutex_lock(&au_sbilist_mtx);
-+	sb = find_sb_lock(kobj);
-+	if (unlikely(!sb))
-+		goto out;
++	sbinfo = container_of(kobj, struct au_sbinfo, si_kobj);
++	sb = sbinfo->si_mnt->mnt_sb;
++	si_read_lock(sb, !AuLock_FLUSH);
 +
 +	seq = au_seq(buf, PAGE_SIZE);
 +	err = PTR_ERR(seq);
@@ -20774,11 +21063,14 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +		goto out;
 +
 +	name = (void *)attr->name;
-+	for (i = 0; i < SysaufsSb_Last; i++) {
-+		if (!strcmp(name, sysaufs_sbi_entry[i].name)) {
-+			err = sysaufs_sbi_entry[i].show(seq, sb);
++	cattr = au_sbi_attrs;
++	while (*cattr) {
++		if (!strcmp(name, (*cattr)->name)) {
++			err = container_of(*cattr, struct au_sbi_attr, attr)
++				->show(seq, sb);
 +			goto out_seq;
 +		}
++		cattr++;
 +	}
 +
 +	if (!strncmp(name, SysaufsBr_PREFIX, sizeof(SysaufsBr_PREFIX) - 1)) {
@@ -20798,448 +21090,66 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.c linux-2.6.25-sabayon/fs/a
 +	kfree(seq);
 + out:
 +	si_read_unlock(sb);
-+	mutex_unlock(&au_sbilist_mtx);
 +	AuTraceErr(err);
 +	return err;
 +}
 +
-+static struct sysfs_ops sysaufs_sbi_ops = {
-+	.show   = sysaufs_sbi_show
-+};
-+
-+static struct kobj_type sysaufs_sbi_ktype = {
-+	//.release	= dir_release,
-+	.sysfs_ops	= &sysaufs_sbi_ops
-+};
-+
 +/* ---------------------------------------------------------------------- */
 +
-+static void sysaufs_br_free(struct kref *ref)
++void sysaufs_br_init(struct au_branch *br)
 +{
-+	AuTraceEnter();
-+	//AuDbg("here\n");
-+	kfree(container_of(ref, struct sysaufs_br, ref));
-+}
-+
-+int sysaufs_br_init(struct au_branch *br)
-+{
-+	br->br_sabr = kcalloc(sizeof(*br->br_sabr), 1, GFP_KERNEL);
-+	if (br->br_sabr) {
-+		kref_init(&br->br_sabr->ref);
-+		return 0;
-+	}
-+	AuTraceErr(-ENOMEM);
-+	return -ENOMEM;
-+}
-+
-+void sysaufs_br_get(struct au_branch *br)
-+{
-+	kref_get(&br->br_sabr->ref);
-+}
-+
-+void sysaufs_br_put(struct au_branch *br)
-+{
-+	kref_put(&br->br_sabr->ref, sysaufs_br_free);
++	br->br_attr.name = br->br_name;
++	br->br_attr.mode = S_IRUGO;
++	br->br_attr.owner = THIS_MODULE;
 +}
 +
 +//todo: they may take a long time
++//todo: add a parameter bindex
 +void sysaufs_brs_del(struct super_block *sb)
 +{
++	struct au_sbinfo *sbinfo;
 +	aufs_bindex_t bindex, bend;
-+	struct sysaufs_sbinfo *sa;
-+	struct sysaufs_br *sabr;
-+	struct au_branch *br;
 +
 +	AuTraceEnter();
 +
-+	sa = au_sbi(sb)->si_sa;
-+	if (!sysaufs_brs || !sa->added)
++	if (!sysaufs_brs)
 +		return;
 +
++	sbinfo = au_sbi(sb);
 +	bend = au_sbend(sb);
-+	for (bindex = 0; bindex <= bend; bindex++) {
-+		br = au_sbr(sb, bindex);
-+		sabr = br->br_sabr;
-+		if (unlikely(!sabr->added))
-+			continue;
-+
-+		sabr->added = 0;
-+		sysfs_remove_file(&sa->kset->kobj, &sabr->attr);
-+		sysaufs_br_put(br);
-+		/* for older sysfs */
-+		module_put(THIS_MODULE);
-+	}
++	for (bindex = 0; bindex <= bend; bindex++)
++		sysfs_remove_file(&sbinfo->si_kobj,
++				  &au_sbr(sb, bindex)->br_attr);
 +}
 +
++//todo: add a parameter bindex
 +void sysaufs_brs_add(struct super_block *sb)
 +{
 +	int err;
++	struct kobject *kobj;
 +	aufs_bindex_t bindex, bend;
-+	struct sysaufs_br *sabr;
-+	struct sysaufs_sbinfo *sa;
 +	struct au_branch *br;
 +
 +	AuTraceEnter();
 +
-+	sa = au_sbi(sb)->si_sa;
-+	if (!sysaufs_brs || !sa->added)
++	if (!sysaufs_brs)
 +		return;
 +
++	kobj = &au_sbi(sb)->si_kobj;
 +	bend = au_sbend(sb);
 +	for (bindex = 0; bindex <= bend; bindex++) {
 +		br = au_sbr(sb, bindex);
-+		sysaufs_br_get(br);
-+		sabr = br->br_sabr;
-+		AuDebugOn(sabr->added);
-+		snprintf(sabr->name, sizeof(sabr->name),
++		snprintf(br->br_name, sizeof(br->br_name),
 +			 SysaufsBr_PREFIX "%d", bindex);
-+		sabr->attr.name = sabr->name;
-+		sabr->attr.mode = 0444;
-+		sabr->attr.owner = THIS_MODULE;
-+		/* for older sysfs */
-+		BUG_ON(!try_module_get(THIS_MODULE));
-+		err = sysfs_create_file(&sa->kset->kobj, &sabr->attr);
-+		if (!err)
-+			sabr->added = 1;
-+		else
-+			AuWarn("failed %s under sysfs(%d)\n", sabr->name, err);
-+	}
-+}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+static void sysaufs_sbi_free(struct kref *ref)
-+{
-+	AuTraceEnter();
-+	//AuDbg("here\n");
-+	kfree(container_of(ref, struct sysaufs_sbinfo, ref));
-+}
-+
-+int sysaufs_sbi_init(struct au_sbinfo *sbinfo)
-+{
-+	sbinfo->si_sa = kcalloc(sizeof(*sbinfo->si_sa), 1, GFP_KERNEL);
-+	if (sbinfo->si_sa) {
-+		kref_init(&sbinfo->si_sa->ref);
-+		return 0;
-+	}
-+	AuTraceErr(-ENOMEM);
-+	return -ENOMEM;
-+}
-+
-+void sysaufs_sbi_get(struct super_block *sb)
-+{
-+	kref_get(&au_sbi(sb)->si_sa->ref);
-+}
-+
-+void sysaufs_sbi_put(struct super_block *sb)
-+{
-+	kref_put(&au_sbi(sb)->si_sa->ref, sysaufs_sbi_free);
-+}
-+
-+void sysaufs_sbi_add(struct super_block *sb)
-+{
-+	int err, i;
-+	struct au_sbinfo *sbinfo = au_sbi(sb);
-+	struct sysaufs_sbinfo *sa = sbinfo->si_sa;
-+
-+	AuTraceEnter();
-+	MtxMustLock(&au_sbilist_mtx);
-+
-+	err = snprintf(sa->name, sizeof(sa->name), SysaufsSb_PREFIX "%p",
-+		       sbinfo);
-+	AuDebugOn(err > sizeof(sa->name));
-+	sa->kset = kset_create_and_add(sa->name, NULL, au_kobj);
-+	if (unlikely(!sa->kset))
-+		goto out;
-+	kobject_get(au_kobj);
-+	//kobj_set_kset_s(&sa->kset, sysaufs);
-+	sa->kset->kobj.parent = au_kobj;
-+	//sa->kset.kobj.ktype = &sysaufs_ktype;
-+#if 1
-+	if (sa->kset->kobj.ktype)
-+		sysaufs_sbi_ktype = *(sa->kset->kobj.ktype);
-+	sysaufs_sbi_ktype.sysfs_ops = &sysaufs_sbi_ops;
-+	sa->kset->kobj.ktype = &sysaufs_sbi_ktype;
-+#endif
-+
-+	for (i = 0; i < SysaufsSb_Last; i++) {
-+		sa->attr[i].name = sysaufs_sbi_entry[i].name;
-+		sa->attr[i].mode = S_IRUGO;
-+		sa->attr[i].owner = THIS_MODULE;
-+		/* for older sysfs */
-+		BUG_ON(!try_module_get(THIS_MODULE));
-+		err = sysfs_create_file(&sa->kset->kobj, sa->attr + i);
++		err = sysfs_create_file(kobj, &br->br_attr);
 +		if (unlikely(err))
-+			goto out_reg;
++			AuWarn("failed %s under sysfs(%d)\n", br->br_name, err);
 +	}
-+
-+	sa->added = 1;
-+	sysaufs_brs_add(sb);
-+	goto out; /* success */
-+
-+ out_reg:
-+	for (; i >= 0; i--) {
-+		sysfs_remove_file(&sa->kset->kobj, sa->attr + i);
-+		/* for older sysfs */
-+		module_put(THIS_MODULE);
-+	}
-+	kset_unregister(sa->kset);
-+	//out_put:
-+	kobject_put(au_kobj);
-+ out:
-+	if (!err)
-+		sysaufs_sbi_get(sb);
-+	else
-+		AuWarn("failed adding sysfs (%d)\n", err);
 +}
-+
-+void sysaufs_sbi_del(struct super_block *sb)
-+{
-+	struct au_sbinfo *sbinfo = au_sbi(sb);
-+	struct sysaufs_sbinfo *sa = sbinfo->si_sa;
-+	int i;
-+
-+	AuTraceEnter();
-+	MtxMustLock(&au_sbilist_mtx);
-+
-+	sysaufs_brs_del(sb);
-+	for (i = 0; i < SysaufsSb_Last; i++) {
-+		sysfs_remove_file(&sa->kset->kobj, sa->attr + i);
-+		/* for older sysfs */
-+		module_put(THIS_MODULE);
-+	}
-+	sa->added = 0;
-+	kset_unregister(sa->kset);
-+	kobject_put(au_kobj);
-+	sysaufs_sbi_put(sb);
-+}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+void sysaufs_fin(void)
-+{
-+	AuDebugOn(!list_empty(&au_sbilist));
-+	//sysfs_remove_group(au_kobj, &au_attr_group);
-+	kobject_put(au_kobj);
-+	kobject_put(fs_kobj);
-+}
-+
-+int __init sysaufs_init(void)
-+{
-+	int err;
-+
-+	err = -ENOMEM;
-+	kobject_get(fs_kobj);
-+	au_kobj = kobject_create_and_add(AUFS_NAME, fs_kobj);
-+	if (unlikely(!au_kobj))
-+		goto out;
-+	err = sysfs_create_group(au_kobj, &au_attr_group);
-+	if (unlikely(!au_kobj))
-+		sysaufs_fin();
-+
-+ out:
-+	AuTraceErr(err);
-+	return err;
-+}
-diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.h linux-2.6.25-sabayon/fs/aufs/sysaufs.h
---- linux-2.6.25-sabayon.orig/fs/aufs/sysaufs.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/sysaufs.h	2008-04-21 03:48:47.000000000 +0200
-@@ -0,0 +1,191 @@
-+/*
-+ * Copyright (C) 2007-2008 Junjiro Okajima
-+ *
-+ * This program, aufs is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+/*
-+ * sysfs interface
-+ *
-+ * $Id: sysaufs.h,v 1.3 2008/04/21 01:48:47 sfjro Exp $
-+ */
-+
-+#ifndef __SYSAUFS_H__
-+#define __SYSAUFS_H__
-+
-+#ifdef __KERNEL__
-+
-+#include <linux/fs.h>
-+#include <linux/sysfs.h>
-+#include "module.h"
-+#include "super.h"
-+
-+/* entries under sysfs per super block */
-+enum {
-+	SysaufsSb_XINO,
-+	SysaufsSb_MNTPNT1,
-+#if 0
-+	SysaufsSb_PLINK,
-+	SysaufsSb_files,
-+#endif
-+	SysaufsSb_Last
-+};
-+
-+#define SysaufsSb_PREFIX	"sbi_"	/* followed by %p */
-+#if BITS_PER_LONG == 32
-+#define SysaufsSb_NAMELEN	(sizeof(SysaufsSb_PREFIX) + 8)
-+#else
-+#define SysaufsSb_NAMELEN	(sizeof(SysaufsSb_PREFIX) + 16)
-+#endif
-+
-+struct sysaufs_sbinfo {
-+#ifdef CONFIG_AUFS_SYSAUFS
-+	char			name[SysaufsSb_NAMELEN];
-+	struct kset		*kset;
-+	struct attribute	attr[SysaufsSb_Last];
-+	struct kref		ref;
-+	int			added;
-+#endif
-+};
-+
-+/* 'brN' entry under sysfs per super block */
-+struct sysaufs_br {
-+#ifdef CONFIG_AUFS_SYSAUFS
-+	char			name[8];
-+	struct attribute	attr;
-+	struct kref		ref;
-+	int			added;
-+#endif
-+};
-+
-+/* ---------------------------------------------------------------------- */
-+
-+struct au_branch;
-+struct au_sbinfo;
-+#ifdef CONFIG_AUFS_SYSAUFS
-+extern struct mutex au_sbilist_mtx;
-+extern struct list_head au_sbilist;
-+
-+static inline void au_sbilist_lock(void)
-+{
-+	mutex_lock(&au_sbilist_mtx);
-+}
-+
-+static inline void au_sbilist_unlock(void)
-+{
-+	mutex_unlock(&au_sbilist_mtx);
-+}
-+
-+static inline void au_sbilist_del(struct au_sbinfo *sbinfo)
-+{
-+	list_del(&sbinfo->si_list);
-+}
-+
-+static inline void au_sbilist_add(struct au_sbinfo *sbinfo)
-+{
-+	/* the order in this list is important */
-+	list_add_tail(&sbinfo->si_list, &au_sbilist);
-+}
-+
-+int sysaufs_br_init(struct au_branch *br);
-+void sysaufs_br_get(struct au_branch *br);
-+void sysaufs_br_put(struct au_branch *br);
-+void sysaufs_brs_add(struct super_block *sb);
-+void sysaufs_brs_del(struct super_block *sb);
-+int sysaufs_sbi_init(struct au_sbinfo *sbinfo);
-+void sysaufs_sbi_get(struct super_block *sb);
-+void sysaufs_sbi_put(struct super_block *sb);
-+void sysaufs_sbi_add(struct super_block *sb);
-+void sysaufs_sbi_del(struct super_block *sb);
-+int __init sysaufs_init(void);
-+void sysaufs_fin(void);
-+
-+#else
-+
-+#define au_sbilist_lock()	do {} while (0)
-+#define au_sbilist_unlock()	do {} while (0)
-+
-+static inline void au_sbilist_del(struct au_sbinfo *sbinfo)
-+{
-+	/* empty */
-+}
-+
-+static inline void au_sbilist_add(struct au_sbinfo *sbinfo)
-+{
-+	/* empty */
-+}
-+
-+static inline int sysaufs_br_init(struct au_branch *br)
-+{
-+	return 0;
-+}
-+
-+static inline void sysaufs_br_get(struct au_branch *br)
-+{
-+	/* nothing */
-+}
-+
-+static inline void sysaufs_br_put(struct au_branch *br)
-+{
-+	/* nothing */
-+}
-+
-+static inline void sysaufs_brs_add(struct super_block *sb)
-+{
-+	/* nothing */
-+}
-+
-+static inline void sysaufs_brs_del(struct super_block *sb)
-+{
-+	/* nothing */
-+}
-+
-+static inline int sysaufs_sbi_init(struct au_sbinfo *sbinfo)
-+{
-+	return 0;
-+}
-+
-+static inline void sysaufs_sbi_get(struct super_block *sb)
-+{
-+	/* nothing */
-+}
-+
-+static inline void sysaufs_sbi_put(struct super_block *sb)
-+{
-+	/* nothing */
-+}
-+
-+static inline void sysaufs_sbi_add(struct super_block *sb)
-+{
-+	/* nothing */
-+}
-+
-+static inline void sysaufs_sbi_del(struct super_block *sb)
-+{
-+	/* nothing */
-+}
-+
-+static inline int sysaufs_init(void)
-+{
-+	sysaufs_brs = 0;
-+	return 0;
-+}
-+
-+#define sysaufs_fin()			do {} while (0)
-+
-+#endif /* CONFIG_AUFS_SYSAUFS */
-+
-+#endif /* __KERNEL__ */
-+#endif /* __SYSAUFS_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysrq.c linux-2.6.25-sabayon/fs/aufs/sysrq.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/sysrq.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/sysrq.c	2008-04-21 03:33:00.000000000 +0200
-@@ -0,0 +1,111 @@
++++ linux-2.6.25-sabayon/fs/aufs/sysrq.c	2008-04-28 05:08:37.000000000 +0200
+@@ -0,0 +1,112 @@
 +/*
 + * Copyright (C) 2008 Junjiro Okajima
 + *
@@ -21261,7 +21171,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysrq.c linux-2.6.25-sabayon/fs/auf
 +/*
 + * magic sysrq hanlder
 + *
-+ * $Id: sysrq.c,v 1.2 2008/04/21 01:33:00 sfjro Exp $
++ * $Id: sysrq.c,v 1.3 2008/04/28 03:08:37 sfjro Exp $
 + */
 +
 +#include <linux/fs.h>
@@ -21300,6 +21210,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysrq.c linux-2.6.25-sabayon/fs/auf
 +
 +/* ---------------------------------------------------------------------- */
 +
++/* module parameter */
 +static char *aufs_sysrq_key = "a";
 +module_param_named(sysrq, aufs_sysrq_key, charp, S_IRUGO);
 +MODULE_PARM_DESC(sysrq, "MagicSysRq key for " AUFS_NAME);
@@ -21351,16 +21262,10 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/sysrq.c linux-2.6.25-sabayon/fs/auf
 +	if (unlikely(err))
 +		AuErr("err %d (ignored)\n", err);
 +}
-diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/.tmp_versions/aufs.mod linux-2.6.25-sabayon/fs/aufs/.tmp_versions/aufs.mod
---- linux-2.6.25-sabayon.orig/fs/aufs/.tmp_versions/aufs.mod	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/.tmp_versions/aufs.mod	2008-04-21 10:03:00.000000000 +0200
-@@ -0,0 +1,2 @@
-+/home/fabio/tmpaufs/aufs/fs/aufs25/aufs.ko
-+/home/fabio/tmpaufs/aufs/fs/aufs25/module.o /home/fabio/tmpaufs/aufs/fs/aufs25/super.o /home/fabio/tmpaufs/aufs/fs/aufs25/sbinfo.o /home/fabio/tmpaufs/aufs/fs/aufs25/xino.o /home/fabio/tmpaufs/aufs/fs/aufs25/branch.o /home/fabio/tmpaufs/aufs/fs/aufs25/cpup.o /home/fabio/tmpaufs/aufs/fs/aufs25/whout.o /home/fabio/tmpaufs/aufs/fs/aufs25/plink.o /home/fabio/tmpaufs/aufs/fs/aufs25/wkq.o /home/fabio/tmpaufs/aufs/fs/aufs25/dcsub.o /home/fabio/tmpaufs/aufs/fs/aufs25/vfsub.o /home/fabio/tmpaufs/aufs/fs/aufs25/wbr_policy.o /home/fabio/tmpaufs/aufs/fs/aufs25/opts.o /home/fabio/tmpaufs/aufs/fs/aufs25/dentry.o /home/fabio/tmpaufs/aufs/fs/aufs25/dinfo.o /home/fabio/tmpaufs/aufs/fs/aufs25/file.o /home/fabio/tmpaufs/aufs/fs/aufs25/f_op.o /home/fabio/tmpaufs/aufs/fs/aufs25/finfo.o /home/fabio/tmpaufs/aufs/fs/aufs25/dir.o /home/fabio/tmpaufs/aufs/fs/aufs25/vdir.o /home/fabio/tmpaufs/aufs/fs/aufs25/inode.o /home/fabio/tmpaufs/aufs/fs/aufs25/i_op.o /home/fabio/tmpaufs/aufs/fs/aufs25/i_op_add.o /home/fabio/tmpaufs/aufs/fs/aufs25/i_op_del.o /home/fabio/tmpaufs/aufs/fs/aufs25/i_op_ren.o /home/fabio/tmpaufs/aufs/fs/aufs25/iinfo.o /home/fabio/tmpaufs/aufs/fs/aufs25/misc.o /home/fabio/tmpaufs/aufs/fs/aufs25/br_xfs.o /home/fabio/tmpaufs/aufs/fs/aufs25/br_fuse.o /home/fabio/tmpaufs/aufs/fs/aufs25/sysaufs.o /home/fabio/tmpaufs/aufs/fs/aufs25/hinotify.o /home/fabio/tmpaufs/aufs/fs/aufs25/hin_or_dlgt.o /home/fabio/tmpaufs/aufs/fs/aufs25/robr.o /home/fabio/tmpaufs/aufs/fs/aufs25/debug.o
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/vdir.c linux-2.6.25-sabayon/fs/aufs/vdir.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/vdir.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/vdir.c	2008-04-21 03:34:26.000000000 +0200
-@@ -0,0 +1,949 @@
++++ linux-2.6.25-sabayon/fs/aufs/vdir.c	2008-04-28 05:05:48.000000000 +0200
+@@ -0,0 +1,963 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -21382,7 +21287,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/vdir.c linux-2.6.25-sabayon/fs/aufs
 +/*
 + * virtual or vertical directory
 + *
-+ * $Id: vdir.c,v 1.2 2008/04/21 01:34:26 sfjro Exp $
++ * $Id: vdir.c,v 1.3 2008/04/28 03:05:48 sfjro Exp $
 + */
 +
 +#include "aufs.h"
@@ -21834,7 +21739,10 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/vdir.c linux-2.6.25-sabayon/fs/aufs
 +#define au_ftest_fillvdir(flags, name)	((flags) & AuFillVdir_##name)
 +#define au_fset_fillvdir(flags, name)	{ (flags) |= AuFillVdir_##name; }
 +#define au_fclr_fillvdir(flags, name)	{ (flags) &= ~AuFillVdir_##name; }
-+//todo: disalbe SHWH
++#ifndef CONFIG_AUFS_SHWH
++#undef AuFillVdir_SHWH
++#define AuFillVdir_SHWH		0
++#endif
 +
 +struct fillvdir_arg {
 +	struct file		*file;
@@ -21955,18 +21863,87 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/vdir.c linux-2.6.25-sabayon/fs/aufs
 +#endif
 +}
 +
-+//todo: split some functions
++static int au_do_read_vdir(struct fillvdir_arg *arg)
++{
++	int err, dlgt, shwh;
++	aufs_bindex_t bend, bindex, bstart;
++	struct super_block *sb;
++	unsigned int mnt_flags;
++	struct file *hf;
++	loff_t offset;
++
++	AuTraceEnter();
++
++	err = -ENOMEM;
++	bend = au_fbend(arg->file);
++	arg->delist = kmalloc(sizeof(*arg->delist) * (bend + 1), GFP_TEMPORARY);
++	if (unlikely(!arg->delist))
++		goto out;
++	arg->whlist = kmalloc(sizeof(*arg->whlist) * (bend + 1), GFP_TEMPORARY);
++	if (unlikely(!arg->whlist))
++		goto out_delist;
++	err = 0;
++	for (bindex = 0; bindex <= bend; bindex++) {
++		au_nhash_init(arg->delist + bindex);
++		au_nhash_init(arg->whlist + bindex);
++	}
++
++	sb = arg->file->f_dentry->d_sb;
++	mnt_flags = au_mntflags(sb);
++	dlgt = !!au_opt_test_dlgt(mnt_flags);
++	arg->flags = 0;
++	shwh = 0;
++	if (unlikely(au_opt_test(mnt_flags, SHWH))) {
++		shwh = 1;
++		au_fset_fillvdir(arg->flags, SHWH);
++	}
++	bstart = au_fbstart(arg->file);
++	for (bindex = bstart; !err && bindex <= bend; bindex++) {
++		hf = au_h_fptr(arg->file, bindex);
++		if (!hf)
++			continue;
++
++		offset = vfsub_llseek(hf, 0, SEEK_SET);
++		err = offset;
++		if (unlikely(offset))
++			break;
++		arg->bindex = bindex;
++		do {
++			arg->err = 0;
++			au_fclr_fillvdir(arg->flags, CALLED);
++			//smp_mb();
++			err = vfsub_readdir(hf, fillvdir, arg, dlgt);
++			if (err >= 0)
++				err = arg->err;
++		} while (!err && au_ftest_fillvdir(arg->flags, CALLED));
++	}
++
++	if (unlikely(!err && shwh))
++		err = au_handle_shwh(sb, arg->vdir, bstart, bend, arg->whlist,
++				     arg->delist);
++
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		free_dehlist(arg->delist + bindex);
++		au_nhash_fin(arg->whlist + bindex);
++	}
++	kfree(arg->whlist);
++
++ out_delist:
++	kfree(arg->delist);
++ out:
++	AuTraceErr(err);
++	return err;
++}
++
 +static int read_vdir(struct file *file, int may_read)
 +{
-+	int err, do_read, dlgt, shwh;
++	int err, do_read;
 +	struct dentry *dentry;
 +	struct inode *inode;
 +	struct au_vdir *vdir, *allocated;
 +	unsigned long expire;
 +	struct fillvdir_arg arg;
-+	aufs_bindex_t bindex, bend, bstart;
 +	struct super_block *sb;
-+	unsigned int mnt_flags;
 +
 +	dentry = file->f_dentry;
 +	LKTRTrace("%.*s, may %d\n", AuDLNPair(dentry), may_read);
@@ -22017,67 +21994,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/vdir.c linux-2.6.25-sabayon/fs/aufs
 +	if (!do_read)
 +		return 0; /* success */
 +
-+	err = -ENOMEM;
-+	bend = au_fbend(file);
-+	arg.delist = kmalloc(sizeof(*arg.delist) * (bend + 1), GFP_TEMPORARY);
-+	if (unlikely(!arg.delist))
-+		goto out_vdir;
-+	arg.whlist = kmalloc(sizeof(*arg.whlist) * (bend + 1), GFP_TEMPORARY);
-+	if (unlikely(!arg.whlist))
-+		goto out_delist;
-+	err = 0;
-+	for (bindex = 0; bindex <= bend; bindex++) {
-+		au_nhash_init(arg.delist + bindex);
-+		au_nhash_init(arg.whlist + bindex);
-+	}
-+
-+	mnt_flags = au_mntflags(sb);
-+	dlgt = !!au_opt_test_dlgt(mnt_flags);
 +	arg.file = file;
 +	arg.vdir = vdir;
-+	arg.flags = 0;
-+	shwh = 0;
-+	if (unlikely(au_opt_test(mnt_flags, SHWH))) {
-+		shwh = 1;
-+		au_fset_fillvdir(arg.flags, SHWH);
-+	}
-+	bstart = au_fbstart(file);
-+	for (bindex = bstart; !err && bindex <= bend; bindex++) {
-+		struct file *hf;
-+		loff_t offset;
-+
-+		hf = au_h_fptr(file, bindex);
-+		if (!hf)
-+			continue;
-+
-+		offset = vfsub_llseek(hf, 0, SEEK_SET);
-+		err = offset;
-+		if (unlikely(offset))
-+			break;
-+		arg.bindex = bindex;
-+		do {
-+			arg.err = 0;
-+			au_fclr_fillvdir(arg.flags, CALLED);
-+			//smp_mb();
-+			err = vfsub_readdir(hf, fillvdir, &arg, dlgt);
-+			if (err >= 0)
-+				err = arg.err;
-+		} while (!err && au_ftest_fillvdir(arg.flags, CALLED));
-+	}
-+
-+	if (unlikely(!err && shwh))
-+		err = au_handle_shwh(sb, vdir, bstart, bend, arg.whlist,
-+				     arg.delist);
-+
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		free_dehlist(arg.delist + bindex);
-+		au_nhash_fin(arg.whlist + bindex);
-+	}
-+	kfree(arg.whlist);
-+
-+ out_delist:
-+	kfree(arg.delist);
-+ out_vdir:
++	err = au_do_read_vdir(&arg);
 +	if (!err) {
 +		//file->f_pos = 0;
 +		vdir->vd_version = inode->i_version;
@@ -23464,8 +23383,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/vfsub.h linux-2.6.25-sabayon/fs/auf
 +#endif /* __AUFS_VFSUB_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/fs/aufs/wbr_policy.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/wbr_policy.c	2008-04-21 03:35:34.000000000 +0200
-@@ -0,0 +1,692 @@
++++ linux-2.6.25-sabayon/fs/aufs/wbr_policy.c	2008-04-28 05:04:12.000000000 +0200
+@@ -0,0 +1,693 @@
 +/*
 + * Copyright (C) 2007-2008 Junjiro Okajima
 + *
@@ -23487,7 +23406,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +/*
 + * policies for selecting one among multiple writable branches
 + *
-+ * $Id: wbr_policy.c,v 1.2 2008/04/21 01:35:34 sfjro Exp $
++ * $Id: wbr_policy.c,v 1.3 2008/04/28 03:04:12 sfjro Exp $
 + */
 +
 +#include <linux/statfs.h>
@@ -23539,14 +23458,15 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +{
 +	int err, parent_opq, whed, dlgt, do_opq, made_dir, diropq, rerr;
 +	struct au_cpdown_dir_args *args = arg;
-+	aufs_bindex_t bend, bopq;
++	aufs_bindex_t bend, bopq, bstart;
 +	struct dentry *h_dentry, *opq_dentry, *wh_dentry;
 +	struct inode *h_dir, *h_inode, *inode;
 +
 +	LKTRTrace("%.*s, b%d\n", AuDLNPair(dentry), bdst);
-+	AuDebugOn(au_dbstart(dentry) <= bdst
++	bstart = au_dbstart(dentry);
++	AuDebugOn(bstart <= bdst
 +		  && bdst <= au_dbend(dentry)
-+		  && au_h_dptr_i(dentry, bdst));
++		  && au_h_dptr(dentry, bdst));
 +	AuDebugOn(!h_parent);
 +	h_dir = h_parent->d_inode;
 +	AuDebugOn(!h_dir);
@@ -23555,7 +23475,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +	err = au_lkup_neg(dentry, bdst);
 +	if (unlikely(err < 0))
 +		goto out;
-+	h_dentry = au_h_dptr_i(dentry, bdst);
++	h_dentry = au_h_dptr(dentry, bdst);
 +	dlgt = !!au_opt_test_dlgt(au_mntflags(dentry->d_sb));
 +	err = vfsub_sio_mkdir(h_dir, h_dentry, S_IRWXU | S_IRUGO | S_IXUGO,
 +			      dlgt);
@@ -23584,7 +23504,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +		diropq = 1;
 +	}
 +
-+	err = au_cpdown_attr(h_dentry, au_h_dptr(dentry), dlgt);
++	err = au_cpdown_attr(h_dentry, au_h_dptr(dentry, bstart), dlgt);
 +	mutex_unlock(&h_inode->i_mutex);
 +	if (unlikely(err))
 +		goto out_opq;
@@ -23692,7 +23612,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +	err = -EROFS;
 +	parent = dget_parent(dentry);
 +	for (bindex = au_dbstart(parent); bindex < bstart; bindex++) {
-+		h_parent = au_h_dptr_i(parent, bindex);
++		h_parent = au_h_dptr(parent, bindex);
 +		if (!h_parent)
 +			continue;
 +		h_dir = h_parent->d_inode;
@@ -23999,7 +23919,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +
 +	if (unlikely(dirperm1)) {
 +		for (bindex = bstart; bindex <= bend; bindex++) {
-+			h_parent = au_h_dptr_i(parent, bindex);
++			h_parent = au_h_dptr(parent, bindex);
 +			if (!h_parent)
 +				continue;
 +			h_dir = h_parent->d_inode;
@@ -24020,7 +23940,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +			goto out_parent;
 +	}
 +	for (bindex = bstart; bindex <= bend; bindex++) {
-+		h_parent = au_h_dptr_i(parent, bindex);
++		h_parent = au_h_dptr(parent, bindex);
 +		if (!h_parent || !h_parent->d_inode)
 +			continue;
 +
@@ -24067,7 +23987,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +	parent = dget_parent(dentry);
 +	bstart = au_dbstart(parent);
 +	for (bindex = au_dbstart(dentry); bindex >= bstart; bindex--) {
-+		h_parent = au_h_dptr_i(parent, bindex);
++		h_parent = au_h_dptr(parent, bindex);
 +		if (!h_parent)
 +			continue;
 +		h_dir = h_parent->d_inode;
@@ -24160,7 +24080,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wbr_policy.c linux-2.6.25-sabayon/f
 +};
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/whout.c linux-2.6.25-sabayon/fs/aufs/whout.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/whout.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/whout.c	2008-04-21 03:49:40.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/whout.c	2008-04-28 05:04:54.000000000 +0200
 @@ -0,0 +1,1058 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -24183,7 +24103,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/whout.c linux-2.6.25-sabayon/fs/auf
 +/*
 + * whiteout for logical deletion and opaque directory
 + *
-+ * $Id: whout.c,v 1.2 2008/04/21 01:49:40 sfjro Exp $
++ * $Id: whout.c,v 1.3 2008/04/28 03:04:54 sfjro Exp $
 + */
 +
 +#include <linux/fs.h>
@@ -24397,7 +24317,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/whout.c linux-2.6.25-sabayon/fs/auf
 +	};
 +
 +	LKTRTrace("%.*s, b%d\n", AuDLNPair(dentry), bindex);
-+	h_dentry = au_h_dptr_i(dentry, bindex);
++	h_dentry = au_h_dptr(dentry, bindex);
 +	AuDebugOn(!h_dentry || !h_dentry->d_inode);
 +	h_parent = h_dentry->d_parent; /* dir inode is locked */
 +	h_dir = h_parent->d_inode;
@@ -24834,7 +24754,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/whout.c linux-2.6.25-sabayon/fs/auf
 +
 +	LKTRTrace("%.*s, bindex %d, flags 0x%x\n",
 +		  AuDLNPair(dentry), bindex, flags);
-+	h_dentry = au_h_dptr_i(dentry, bindex);
++	h_dentry = au_h_dptr(dentry, bindex);
 +	AuDebugOn(!h_dentry);
 +	h_dir = h_dentry->d_inode;
 +	AuDebugOn(!h_dir || !S_ISDIR(h_dir->i_mode));
@@ -24899,7 +24819,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/whout.c linux-2.6.25-sabayon/fs/auf
 +	LKTRTrace("%.*s, bindex %d, flags 0x%x\n",
 +		  AuDLNPair(dentry), bindex, flags);
 +
-+	h_dentry = au_h_dptr_i(dentry, bindex);
++	h_dentry = au_h_dptr(dentry, bindex);
 +	if (!au_test_h_perm_sio(h_dentry->d_inode, MAY_EXEC | MAY_WRITE,
 +				au_ftest_diropq(flags, DLGT)))
 +		diropq = do_diropq(dentry, bindex, flags);
@@ -25139,7 +25059,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/whout.c linux-2.6.25-sabayon/fs/auf
 +		if (au_ibstart(dir) == bindex) {
 +			au_cpup_attr_timesizes(dir);
 +			//au_cpup_attr_nlink(dir);
-+			dir->i_nlink--;
++			drop_nlink(dir);
 +		}
 +		return 0; /* success */
 +	}
@@ -25366,7 +25286,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/whout.h linux-2.6.25-sabayon/fs/auf
 +#endif /* __AUFS_WHOUT_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wkq.c linux-2.6.25-sabayon/fs/aufs/wkq.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/wkq.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/wkq.c	2008-04-21 03:33:00.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/wkq.c	2008-04-28 05:02:06.000000000 +0200
 @@ -0,0 +1,343 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -25389,7 +25309,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wkq.c linux-2.6.25-sabayon/fs/aufs/
 +/*
 + * workqueue for asynchronous/super-io/delegated operations
 + *
-+ * $Id: wkq.c,v 1.2 2008/04/21 01:33:00 sfjro Exp $
++ * $Id: wkq.c,v 1.3 2008/04/28 03:02:06 sfjro Exp $
 + */
 +
 +#include <linux/module.h>
@@ -25487,7 +25407,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wkq.c linux-2.6.25-sabayon/fs/aufs/
 +
 +static void update_busy(struct au_wkq *wkq, struct au_wkinfo *wkinfo)
 +{
-+#ifdef CONFIG_AUFS_SYSAUFS
++#ifdef CONFIG_AUFS_STAT
 +	unsigned int new, old;
 +
 +	do {
@@ -25713,7 +25633,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wkq.c linux-2.6.25-sabayon/fs/aufs/
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wkq.h linux-2.6.25-sabayon/fs/aufs/wkq.h
 --- linux-2.6.25-sabayon.orig/fs/aufs/wkq.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/wkq.h	2008-04-21 03:33:00.000000000 +0200
++++ linux-2.6.25-sabayon/fs/aufs/wkq.h	2008-04-28 05:18:21.000000000 +0200
 @@ -0,0 +1,160 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
@@ -25736,7 +25656,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wkq.h linux-2.6.25-sabayon/fs/aufs/
 +/*
 + * workqueue for asynchronous/super-io/delegated operations
 + *
-+ * $Id: wkq.h,v 1.2 2008/04/21 01:33:00 sfjro Exp $
++ * $Id: wkq.h,v 1.3 2008/04/28 03:18:21 sfjro Exp $
 + */
 +
 +#ifndef __AUFS_WKQ_H__
@@ -25757,7 +25677,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wkq.h linux-2.6.25-sabayon/fs/aufs/
 +
 +	/* accounting */
 +	atomic_t		busy;
-+	unsigned int		max_busy;
++	unsigned int		max_busy; // todo: STAT only
 +};
 +
 +/*
@@ -25877,8 +25797,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/wkq.h linux-2.6.25-sabayon/fs/aufs/
 +#endif /* __AUFS_WKQ_H__ */
 diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs/xino.c
 --- linux-2.6.25-sabayon.orig/fs/aufs/xino.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/fs/aufs/xino.c	2008-04-21 03:34:03.000000000 +0200
-@@ -0,0 +1,1220 @@
++++ linux-2.6.25-sabayon/fs/aufs/xino.c	2008-04-28 05:06:01.000000000 +0200
+@@ -0,0 +1,1244 @@
 +/*
 + * Copyright (C) 2005-2008 Junjiro Okajima
 + *
@@ -25900,7 +25820,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +/*
 + * external inode number translation table and bitmap
 + *
-+ * $Id: xino.c,v 1.2 2008/04/21 01:34:03 sfjro Exp $
++ * $Id: xino.c,v 1.3 2008/04/28 03:06:01 sfjro Exp $
 + */
 +
 +//#include <linux/fsnotify.h>
@@ -26096,6 +26016,28 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +
 +#define Au_LOFF_MAX	((loff_t)LLONG_MAX)
 +
++static int au_xino_do_write(au_writef_t write, struct file *file,
++			    ino_t h_ino, struct au_xino_entry *xinoe)
++{
++	loff_t pos;
++	ssize_t sz;
++
++	AuTraceEnter();
++
++	pos = h_ino;
++	if (unlikely(Au_LOFF_MAX / sizeof(*xinoe) - 1 < pos)) {
++		AuIOErr1("too large hi%lu\n", h_ino);
++		return -EFBIG;
++	}
++	pos *= sizeof(*xinoe);
++	sz = xino_fwrite(write, file, xinoe, sizeof(*xinoe), &pos);
++	if (sz == sizeof(*xinoe))
++		return 0; /* success */
++
++	AuIOErr("write failed (%ld)\n", (long)sz);
++	return -EIO;
++}
++
 +/*
 + * write @ino to the xinofile for the specified branch{@sb, @bindex}
 + * at the position of @_ino.
@@ -26104,10 +26046,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +int au_xino_write(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
 +		  struct au_xino_entry *xinoe)
 +{
-+	loff_t pos;
-+	ssize_t sz;
++	int err;
 +	struct file *file;
-+	struct au_sbinfo *sbinfo;
 +	struct au_branch *br;
 +	unsigned int mnt_flags;
 +
@@ -26115,30 +26055,23 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +	BUILD_BUG_ON(sizeof(long long) != sizeof(Au_LOFF_MAX)
 +		     || ((loff_t) - 1) > 0);
 +
-+	sbinfo = au_sbi(sb);
 +	mnt_flags = au_mntflags(sb);
 +	if (unlikely(!au_opt_test(mnt_flags, XINO)))
 +		return 0;
 +
-+	pos = h_ino;
-+	if (unlikely(Au_LOFF_MAX / sizeof(*xinoe) - 1 < pos)) {
-+		AuIOErr1("too large hi%lu\n", h_ino);
-+		return -EFBIG;
-+	}
-+	pos *= sizeof(*xinoe);
 +	br = au_sbr(sb, bindex);
 +	file = br->br_xino;
 +	AuDebugOn(!file);
-+	sz = xino_fwrite(sbinfo->si_xwrite, file, xinoe, sizeof(*xinoe), &pos);
-+	//if (LktrCond) sz = 1;
-+	if (sz == sizeof(*xinoe)) {
++
++	err = au_xino_do_write(au_sbi(sb)->si_xwrite, file, h_ino, xinoe);
++	if (!err) {
 +		if (unlikely(au_opt_test(mnt_flags, TRUNC_XINO)
 +			     && au_test_trunc_xino(br->br_mnt->mnt_sb)))
 +			xino_try_trunc(sb, br);
 +		return 0; /* success */
 +	}
 +
-+	AuIOErr("write failed (%ld)\n", (long)sz);
++	AuIOErr("write failed (%d)\n", err);
 +	return -EIO;
 +}
 +
@@ -26517,30 +26450,36 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 + * test whether another branch is on the same filesystem or not,
 + * if @do_test is true.
 + */
-+int au_xino_br(struct super_block *sb, aufs_bindex_t bindex,
++int au_xino_br(struct super_block *sb, struct au_branch *br, ino_t h_ino,
 +	       struct file *base_file, int do_test)
 +{
 +	int err, do_create;
-+	struct au_branch *br, *shared_br;
++	struct au_branch *shared_br;
 +	aufs_bindex_t bshared, bend;
-+	struct inode *inode, *h_inode, *dir;
++	struct inode *dir;
 +	struct au_xino_entry xinoe;
 +	struct dentry *parent;
 +	struct file *file;
 +
-+	LKTRTrace("b%d, base_file %p, do_test %d\n",
-+		  bindex, base_file, do_test);
++	LKTRTrace("base_file %p, do_test %d\n", base_file, do_test);
 +	SiMustWriteLock(sb);
 +	AuDebugOn(!au_opt_test(au_mntflags(sb), XINO));
-+	br = au_sbr(sb, bindex);
 +	AuDebugOn(br->br_xino);
 +
 +	do_create = 1;
 +	bshared = -1;
 +	shared_br = NULL;
 +	bend = au_sbend(sb);
-+	if (do_test)
-+		bshared = is_sb_shared(sb, bindex, bend);
++	if (do_test) {
++		aufs_bindex_t bindex;
++
++		struct super_block *tgt_sb = br->br_mnt->mnt_sb;
++		for (bindex = 0; bindex <= bend; bindex++)
++			if (unlikely(tgt_sb == au_sbr_sb(sb, bindex))) {
++				bshared = bindex;
++				break;
++			}
++	}
 +	if (unlikely(bshared >= 0)) {
 +		shared_br = au_sbr(sb, bshared);
 +		do_create = !shared_br->br_xino;
@@ -26563,12 +26502,11 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +		get_file(br->br_xino);
 +	}
 +
-+	inode = sb->s_root->d_inode;
-+	h_inode = au_h_iptr(inode, bindex);
-+	xinoe.ino = inode->i_ino;
++	xinoe.ino = AUFS_ROOT_INO;
 +	//xinoe.h_gen = h_inode->i_generation;
 +	//WARN_ON(xinoe.h_gen == AuXino_INVALID_HGEN);
-+	err = au_xino_write(sb, bindex, h_inode->i_ino, &xinoe);
++	err = au_xino_do_write(au_sbi(sb)->si_xwrite, br->br_xino, h_ino,
++			       &xinoe);
 +	//if (LktrCond) err = -1;
 +	if (!err)
 +		return 0; /* success */
@@ -27065,7 +27003,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +	bwr = -1;
 +	for (bindex = 0; bindex <= bend; bindex++)
 +		if (au_br_writable(au_sbr_perm(sb, bindex))
-+		    && !au_test_nfs(au_h_dptr_i(sb->s_root, bindex)->d_sb)) {
++		    && !au_test_nfs(au_h_dptr(sb->s_root, bindex)->d_sb)) {
 +			bwr = bindex;
 +			break;
 +		}
@@ -27078,7 +27016,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +		if (unlikely(!page))
 +			goto out;
 +		path.mnt = au_sbr_mnt(sb, bwr);
-+		path.dentry = au_h_dptr_i(sb->s_root, bwr);
++		path.dentry = au_h_dptr(sb->s_root, bwr);
 +		p = d_path(&path, page, PATH_MAX - sizeof(AUFS_XINO_FNAME));
 +		//if (LktrCond) p = ERR_PTR(-1);
 +		file = (void *)p;
@@ -27093,6 +27031,12 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +		file = au_xino_create(sb, AUFS_XINO_DEFPATH, /*silent*/0,
 +				      /*parent*/NULL);
 +		//if (LktrCond) {fput(file); file = ERR_PTR(-1);}
++		if (unlikely(au_test_nfs(file->f_dentry->d_sb))) {
++			AuErr("xino or noxino option is required "
++			      "since %s is NFS\n", AUFS_XINO_DEFPATH);
++			fput(file);
++			file = ERR_PTR(-EINVAL);
++		}
 +	}
 +
 + out:
@@ -27100,8 +27044,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/xino.c linux-2.6.25-sabayon/fs/aufs
 +	return file;
 +}
 diff -Nurp linux-2.6.25-sabayon.orig/fs/Kconfig linux-2.6.25-sabayon/fs/Kconfig
---- linux-2.6.25-sabayon.orig/fs/Kconfig	2008-04-21 10:04:08.000000000 +0200
-+++ linux-2.6.25-sabayon/fs/Kconfig	2008-04-21 10:08:13.000000000 +0200
+--- linux-2.6.25-sabayon.orig/fs/Kconfig	2008-05-03 18:14:38.000000000 +0200
++++ linux-2.6.25-sabayon/fs/Kconfig	2008-05-03 18:16:36.000000000 +0200
 @@ -1005,6 +1005,8 @@ endmenu
  
  menu "Layered filesystems"
@@ -27112,8 +27056,8 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/Kconfig linux-2.6.25-sabayon/fs/Kconfig
  	tristate "eCrypt filesystem layer support (EXPERIMENTAL)"
  	depends on EXPERIMENTAL && KEYS && CRYPTO && NET
 diff -Nurp linux-2.6.25-sabayon.orig/fs/Makefile linux-2.6.25-sabayon/fs/Makefile
---- linux-2.6.25-sabayon.orig/fs/Makefile	2008-04-21 10:04:08.000000000 +0200
-+++ linux-2.6.25-sabayon/fs/Makefile	2008-04-21 10:06:36.000000000 +0200
+--- linux-2.6.25-sabayon.orig/fs/Makefile	2008-05-03 18:14:38.000000000 +0200
++++ linux-2.6.25-sabayon/fs/Makefile	2008-05-03 18:16:17.000000000 +0200
 @@ -104,6 +104,7 @@ obj-$(CONFIG_JFFS2_FS)		+= jffs2/
  obj-$(CONFIG_AFFS_FS)		+= affs/
  obj-$(CONFIG_ROMFS_FS)		+= romfs/
@@ -27124,7 +27068,7 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/Makefile linux-2.6.25-sabayon/fs/Makefil
  obj-$(CONFIG_ADFS_FS)		+= adfs/
 diff -Nurp linux-2.6.25-sabayon.orig/include/linux/aufs_type.h linux-2.6.25-sabayon/include/linux/aufs_type.h
 --- linux-2.6.25-sabayon.orig/include/linux/aufs_type.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.25-sabayon/include/linux/aufs_type.h	2008-04-21 10:06:01.000000000 +0200
++++ linux-2.6.25-sabayon/include/linux/aufs_type.h	2008-05-03 18:17:18.000000000 +0200
 @@ -0,0 +1,111 @@
 +/*
 + * Copyright (C) 2005, 2006, 2007, 2008 Junjiro Okajima
@@ -27144,14 +27088,14 @@ diff -Nurp linux-2.6.25-sabayon.orig/include/linux/aufs_type.h linux-2.6.25-saba
 + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + */
 +
-+/* $Id: aufs_type.h,v 1.103 2008/04/21 01:59:57 sfjro Exp $ */
++/* $Id: aufs_type.h,v 1.104 2008/04/28 03:08:56 sfjro Exp $ */
 +
 +#include <linux/ioctl.h>
 +
 +#ifndef __AUFS_TYPE_H__
 +#define __AUFS_TYPE_H__
 +
-+#define AUFS_VERSION	"20080421"
++#define AUFS_VERSION	"20080428"
 +
 +/* move this to linux-2.6.19/include/magic.h */
 +#define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')

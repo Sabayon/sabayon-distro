@@ -41,7 +41,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/${P}-atl2.patch
 		${FILESDIR}/${PV}/${P}-tuxonice-3.0-rc6.patch.bz2
 		${FILESDIR}/${PV}/${P}-aufs.patch
-		
+		${FILESDIR}/${PV}/patch-2.6.25.1.bz2
 "
 # gentoo patches
 for patch in `ls ${FILESDIR}/${PV}/genpatches`; do
