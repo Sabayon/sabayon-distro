@@ -31,15 +31,15 @@ UNIONFS_PATCH="unionfs-2.3.3_for_${PV}.diff.gz"
 ## INIT: Exported data
 SL_PATCHES_URI="http://download.filesystems.org/unionfs/unionfs-2.x/${UNIONFS_PATCH}"
 
-SUSPEND2_VERSION="3.0-rc5"
+SUSPEND2_VERSION="3.0-rc7"
 SUSPEND2_TARGET="2.6.25"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
 		${FILESDIR}/${MY_P}-from-ext4dev-to-ext4.patch
+		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${DISTDIR}/${UNIONFS_PATCH}
 		${FILESDIR}/${PV}/${P}-atl2.patch
-		${FILESDIR}/${PV}/${P}-tuxonice-3.0-rc6.patch.bz2
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/patch-2.6.25.1.bz2
 "
@@ -52,12 +52,8 @@ for patch in `ls ${FILESDIR}/${PV}/redhat`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/redhat/${patch}"
 done
 
-# ${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
-# ${FILESDIR}/${PV}/${P}-aufs.patch.bz2
 
-
-SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI}" 
-# ${SUSPEND2_URI}
+SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI}"
 
 ## END: Exported data
 
