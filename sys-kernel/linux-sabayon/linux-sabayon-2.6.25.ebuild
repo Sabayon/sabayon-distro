@@ -38,11 +38,15 @@ SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
 		${FILESDIR}/${MY_P}-from-ext4dev-to-ext4.patch
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
-		${DISTDIR}/${UNIONFS_PATCH}
 		${FILESDIR}/${PV}/${P}-atl2.patch
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/patch-2.6.25.1.bz2
 "
+
+if use amd64; then
+	UNIPATCH_LIST="${UNIPATCH_LIST} ${DISTDIR}/${UNIONFS_PATCH}"
+fi
+
 # gentoo patches
 for patch in `ls ${FILESDIR}/${PV}/genpatches`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/genpatches/${patch}"
