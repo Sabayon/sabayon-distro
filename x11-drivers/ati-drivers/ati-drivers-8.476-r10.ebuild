@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.476.ebuild,v 1.2 2008/03/21 15:08:23 drac Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.476.ebuild,v 1.1 2008/04/26 10:50:46 lu_zero Exp $
 
 IUSE="acpi debug distribution"
 
@@ -20,7 +20,6 @@ RDEPEND="x11-base/xorg-server
 	!x11-apps/ati-drivers-extra
 	>=app-admin/eselect-1.0.9
 	app-admin/eselect-opengl
-	=virtual/libstdc++-3.3*
 	amd64? ( app-emulation/emul-linux-x86-xlibs )
 	acpi? (
 		x11-apps/xauth
@@ -151,9 +150,11 @@ src_unpack() {
 			"${S}/common/usr/share/doc/fglrx/examples/etc/acpi/ati-powermode.sh" \
 			|| die "Replacing 'finger' with 'who' failed."
 		# Adjust paths in the script from /usr/X11R6/bin/ to /opt/bin/ and
-		# add funktion to detect default state.
+		# add function to detect default state.
 		epatch "${FILESDIR}"/${PV}/ati-powermode-opt-path-2.patch
-		epatch "${FILESDIR}/${PN}"-2.6.25.patch
+		if kernel_is ge 2 6 25; then
+			epatch "${FILESDIR}/${PN}"-2.6.25.patch
+		fi
 	fi
 
 	pushd ${MODULE_DIR} >/dev/null
@@ -356,13 +357,11 @@ src_install() {
 
 	# Sabayon specific stuff
 	if use distribution && ! use x86-fbsd; then
-	        insinto /lib/fglrx
-	        doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
-	        insinto /lib/fglrx
-	        doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
+		insinto /lib/fglrx
+		doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
+		insinto /lib/fglrx
+		doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
 	fi
-
-
 }
 
 src_install-libs() {
