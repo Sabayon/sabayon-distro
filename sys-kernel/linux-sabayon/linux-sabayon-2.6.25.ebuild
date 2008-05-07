@@ -41,11 +41,8 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/${P}-atl2.patch
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/patch-2.6.25.1.bz2
+		${DISTDIR}/${UNIONFS_PATCH}
 "
-
-if use amd64; then
-	UNIPATCH_LIST="${UNIPATCH_LIST} ${DISTDIR}/${UNIONFS_PATCH}"
-fi
 
 # gentoo patches
 for patch in `ls ${FILESDIR}/${PV}/genpatches`; do

@@ -1963,9 +1963,9 @@ diff -Nurp linux-2.6.25-sabayon.orig/fs/aufs/cpup.c linux-2.6.25-sabayon/fs/aufs
 +	//IMustLock(!h_inode);
 +
 +	fsstack_copy_attr_times(inode, h_inode);
-+	spin_lock(&inode->i_lock);
++	//spin_lock(&inode->i_lock);
 +	fsstack_copy_inode_size(inode, h_inode);
-+	spin_unlock(&inode->i_lock);
++	//spin_unlock(&inode->i_lock);
 +}
 +
 +void au_cpup_attr_nlink(struct inode *inode)
