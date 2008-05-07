@@ -12,7 +12,7 @@ KEYWORDS="~amd64 ~ppc ~x86"
 IUSE=""
 RESTRICT="test"
 
-DEPEND="x11-plugins/compiz-fusion-plugins-main"
+DEPEND="~x11-plugins/compiz-fusion-plugins-main-$Â{PV}"
 
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"

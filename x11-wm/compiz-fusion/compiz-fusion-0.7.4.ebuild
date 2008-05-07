@@ -12,12 +12,12 @@ KEYWORDS="~amd64 ~ppc ~x86"
 IUSE="gnome kde"
 
 DEPEND="
-	>=x11-plugins/compiz-fusion-plugins-main-${PV}
-	>=x11-plugins/compiz-fusion-plugins-extra-${PV}
+	~x11-plugins/compiz-fusion-plugins-main-${PV}
+	~x11-plugins/compiz-fusion-plugins-extra-${PV}
 	>=x11-themes/emerald-themes-0.5.2
-	>=x11-apps/ccsm-${PV}
-	gnome? ( >=x11-libs/compizconfig-backend-gconf-${PV} )
-	kde? ( >=x11-libs/compizconfig-backend-kconfig-${PV} )"
+	~x11-apps/ccsm-${PV}
+	gnome? ( ~x11-libs/compizconfig-backend-gconf-${PV} )
+	kde? ( ~x11-libs/compizconfig-backend-kconfig-${PV} )"
 
 pkg_postinst() {
 	einfo "Upstream provides an unsupported-package, which is not part of this meta ebuild."

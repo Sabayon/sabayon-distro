@@ -12,10 +12,10 @@ KEYWORDS="~amd64 ~ppc ~x86"
 IUSE="jpeg"
 RESTRICT="test"
 
-DEPEND=">=x11-wm/compiz-${PV}
+DEPEND="~x11-wm/compiz-${PV}
 	jpeg? ( media-libs/jpeg )
 	>=gnome-base/librsvg-2.14.0
-	>=x11-libs/compiz-bcop-${PV}
+	~x11-libs/compiz-bcop-${PV}
 	>=sys-devel/gettext-0.15
 	>=dev-libs/libxml2-2.6.30"
 

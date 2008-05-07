@@ -16,6 +16,6 @@ RESTRICT="test"
 
 DEPEND=">=x11-libs/gtk+-2.8.0
 	>=x11-libs/libwnck-2.14.2
-	>=x11-wm/compiz-0.6.2"
+	~x11-wm/compiz-${PV}"
 
 DOCS="TODO README AUTHORS"

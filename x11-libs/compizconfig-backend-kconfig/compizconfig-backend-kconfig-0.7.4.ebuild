@@ -13,7 +13,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 IUSE=""
 
-DEPEND=">=x11-wm/compiz-${PV}
-	>=x11-libs/libcompizconfig-${PV}"
+DEPEND="~x11-wm/compiz-${PV}
+	~x11-libs/libcompizconfig-${PV}"
 
 need-kde 3.5

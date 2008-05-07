@@ -11,8 +11,8 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="test"
-DEPEND=">=x11-wm/compiz-${PV}
-	>=x11-libs/compiz-bcop-${PV}"
+DEPEND="~x11-wm/compiz-${PV}
+	~x11-libs/compiz-bcop-${PV}"
 
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"

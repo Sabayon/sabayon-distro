@@ -13,7 +13,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 IUSE=""
 
-DEPEND="dev-python/compizconfig-python
+DEPEND="~dev-python/compizconfig-python-${PV}
 	>=dev-python/pygtk-2.10"
 
 DOCS="AUTHORS PKG-INFO"
