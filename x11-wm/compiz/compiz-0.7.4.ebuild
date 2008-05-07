@@ -52,7 +52,6 @@ pkg_setup() {
 src_unpack() {
 	unpack "${A}"
 	cd "${S}"
-	epatch "${FILESDIR}/compiz-0.7.0-CVE-2007-3920.patch"
 	epatch "${FILESDIR}/compiz-0.7.0-configure.patch"
 	epatch "${FILESDIR}/compiz-0.7.0-compiz-core.patch"
 }
