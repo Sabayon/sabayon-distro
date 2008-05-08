@@ -42,7 +42,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/patch-2.6.25.2.bz2
 		${FILESDIR}/${PV}/${P}-at76.patch
-		${FILESDIR}/${PV}/${P}-wireless-pending.patch
+		${FILESDIR}/${PV}/${P}-wireless-pending.patch.bz2
 		${DISTDIR}/${UNIONFS_PATCH}
 "
 
