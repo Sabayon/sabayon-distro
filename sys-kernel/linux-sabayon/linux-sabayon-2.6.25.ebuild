@@ -41,6 +41,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/${P}-atl2.patch
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/patch-2.6.25.1.bz2
+		${FILESDIR}/${PV}/${P}-at76.patch
 		${DISTDIR}/${UNIONFS_PATCH}
 "
 
