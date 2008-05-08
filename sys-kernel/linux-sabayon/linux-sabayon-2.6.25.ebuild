@@ -42,8 +42,10 @@ UNIPATCH_LIST="
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/patch-2.6.25.2.bz2
 		${FILESDIR}/${PV}/${P}-at76.patch
+		${FILESDIR}/${PV}/${P}-wireless-pending.patch
 		${DISTDIR}/${UNIONFS_PATCH}
 "
+
 
 # gentoo patches
 for patch in `ls ${FILESDIR}/${PV}/genpatches`; do
