@@ -1,0 +1,62 @@
+--- a/common/lib/modules/fglrx/build_mod/firegl_public.c
++++ b/common/lib/modules/fglrx/build_mod/firegl_public.c
+@@ -263,7 +263,7 @@
+ const char BUILD_KERNEL_HAS_MODVERSIONS_CLEARED;
+ #endif
+
+-#ifdef __SMP__
++#if CONFIG_SMP
+ const unsigned long __ke_SMP_State = 1;
+ const char BUILD_KERNEL_HAS_SMP_SET;
+ #else
+@@ -2596,7 +2596,7 @@
+ {
+ /*Some kernel developer removed the export of symbol "flush_tlb_page" on 2.6.25 x86_64 SMP kernel.
+   Define a simple version here.*/
+-#if defined(__x86_64__) && defined(__SMP__) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,25))
++#if defined(__x86_64__) && CONFIG_SMP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,25))
+     on_each_cpu(KCL_flush_tlb_one, &va, 1, 1);
+ #else
+     flush_tlb_page(vma, va);
+@@ -2904,7 +2904,7 @@
+
+ /*****************************************************************************/
+
+-#ifdef __SMP__
++#if CONFIG_SMP
+ static atomic_t cpus_waiting;
+
+ static void deferred_flush(void* contextp)
+@@ -2920,11 +2920,11 @@
+        while (atomic_read(&cpus_waiting) > 0)
+                barrier();
+ }
+-#endif /* __SMP__ */
++#endif /* CONFIG_SMP */
+
+ int ATI_API_CALL __ke_flush_cache(void)
+ {
+-#ifdef __SMP__
++#if CONFIG_SMP
+     /* write back invalidate all other CPUs (exported by kernel) */
+        if (smp_call_function(deferred_flush, NULL, 1, 0) != 0)
+                panic("timed out waiting for the other CPUs!\n");
+@@ -2940,7 +2940,7 @@
+
+        while (atomic_read(&cpus_waiting) > 0)
+                barrier();
+-#else /* !__SMP__ */
++#else /* !CONFIG_SMP */
+ #if defined(__i386__) || defined(__x86_64__)
+        asm volatile ("wbinvd":::"memory");
+ #elif defined(__alpha__) || defined(__ia64__) || defined(__sparc__)
+@@ -2948,7 +2948,7 @@
+ #else
+ #error "Please define flush_cache for your architecture."
+ #endif
+-#endif /* !__SMP__ */
++#endif /* !CONFIG_SMP */
+
+     return 0;
+ }
+
