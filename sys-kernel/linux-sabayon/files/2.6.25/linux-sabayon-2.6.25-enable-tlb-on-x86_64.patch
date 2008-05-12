@@ -1,0 +1,11 @@
+diff -Nurp linux-2.6.25-sabayon.orig/arch/x86/kernel/smp_64.c linux-2.6.25-sabayon/arch/x86/kernel/smp_64.c
+--- linux-2.6.25-sabayon.orig/arch/x86/kernel/smp_64.c	2008-04-17 02:49:44.000000000 +0000
++++ linux-2.6.25-sabayon/arch/x86/kernel/smp_64.c	2008-05-12 15:14:10.000000000 +0000
+@@ -269,6 +269,7 @@ void flush_tlb_page(struct vm_area_struc
+ 
+ 	preempt_enable();
+ }
++EXPORT_SYMBOL(flush_tlb_page);
+ 
+ static void do_flush_tlb_all(void* info)
+ {

@@ -58,6 +58,9 @@ for patch in `ls ${FILESDIR}/${PV}/redhat`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/redhat/${patch}"
 done
 
+if use amd64; then
+	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/${P}-enable-tlb-on-x86_64.patch"
+fi
 
 SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI}"
 
