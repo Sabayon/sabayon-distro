@@ -1,0 +1,9 @@
+Ebuild originally added approx. Apr. 2008
+Added by Kliakhandler Kosta <Kliakhandler@Kosta.tk>
+
+The purpose was to rebrand the boot message from 'Gentoo ...'
+to openrc to display 'Sabayon ...'.
+This is accomplished by editing a certain defined variable in the ebuild.
+
+======
+15.5.08 - Bumping the version to be in sync with gentoo's. Same difference.
