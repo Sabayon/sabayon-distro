@@ -10,7 +10,7 @@ DESCRIPTION="KDE4 lv localization package"
 HOMEPAGE="http://www.kde.org/"
 LICENSE="GPL-2"
 
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 DEPEND=">=sys-devel/gettext-0.15"
 RDEPEND=""
 MY_LANG="lv"

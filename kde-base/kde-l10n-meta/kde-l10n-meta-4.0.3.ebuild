@@ -9,14 +9,17 @@ DESCRIPTION="KDE internationalization meta-package - merge this to pull in all k
 HOMEPAGE="http://www.kde.org/"
 LICENSE="GPL-2"
 
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 SRC_URI=""
 
-DEPEND=""
-LANGS="ar be bg ca csb de el en_GB eo es et eu fi fr ga gl hi hu it ja km ko lv
-mk nb nds ne nl nn pa pl pt pt_BR ru se sl sv th tr uk wa zh_CN zh_TW"
+DEPEND=">=sys-devel/gettext-0.15"
 RDEPEND="!kde-base/kde-l10n"
+
+
+LANGS="ar be bg ca cs csb da de el en_GB eo es et eu fa fi fr fy ga gl hi hu
+is it ja kk km ko lv mk nb nds ne nl nn pa pl pt pt_BR ru se sl sv th tr uk wa
+zh_CN zh_TW"
 for X in ${LANGS} ; do
         IUSE="${IUSE} linguas_${X}"
         RDEPEND="${RDEPEND} linguas_${X}? ( ~kde-base/kde-l10n-${X}-${PV} )"
