@@ -33,8 +33,8 @@ src_install() {
 
 	# copying portage bashrc
 	insinto /etc/portage
-	mv ${S}/conf/etc-portage-bashrc ${S}/conf/bashrc
-	doins ${S}/conf/bashrc
+	mv ${S}/conf/etc-portage-bashrc ${S}/conf/bashrc.entropy
+	doins ${S}/conf/bashrc.entropy
 
         # copy configuration
         cd ${S}/conf
