@@ -20,10 +20,11 @@ RDEPEND="
 	x11-libs/libXfixes
 	x11-libs/libXrender
 	x11-libs/libXtst
-	xcomposite? ( x11-libs/libXcomposite )"
+	xcomposite? ( x11-libs/libXcomposite )
+        kickoff? ( dev-libs/liblazy:0 dev-libs/libbeagle:0 )
+	"
 
-DEPEND="${RDEPEND}
-        kickoff? ( dev-libs/liblazy >=app-misc/beagle-0.2.11 )"
+DEPEND="${RDEPEND}"
 
 KMCOPYLIB="libkonq libkonq"
 KMEXTRACTONLY="libkonq
