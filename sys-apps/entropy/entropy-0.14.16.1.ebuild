@@ -20,6 +20,7 @@ IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND="
+	sys-devel/gettext
 	dev-db/sqlite:3
 	sys-apps/diffutils"
 RDEPEND="${DEPEND}"

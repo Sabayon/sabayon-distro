@@ -20,6 +20,7 @@ IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND="
+	sys-devel/gettext
 	dev-db/sqlite:3
 	sys-apps/diffutils
 	"
@@ -54,7 +55,8 @@ src_unpack() {
 }
 
 src_compile() {
-	einfo "nothing to compile"
+	cd "${S}/misc/po"
+	emake
 }
 
 src_install() {
@@ -118,5 +120,9 @@ src_install() {
 		cp ${S}/libraries/python/x86/libpython* "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/
 	fi
 	chmod 555 "${D}"/usr/$(get_libdir)/entropy/libraries/pysqlite2/libpython*
+
+	# install localization
+	cd "${S}/misc/po"
+	emake DESTDIR="${D}" install
 
 }
