@@ -48,14 +48,13 @@ src_install() {
 	insinto /usr/$(get_libdir)/entropy/client
 	doins *.py
 	doins entropy-system-test-client
-	doins equo
 
 	cd ${S}
 	dodir /usr/bin
 	echo '#!/bin/sh' > equo
 	echo 'if [ -f "/etc/profile" ]; then source /etc/profile; fi' >> equo
 	echo 'cd /usr/'$(get_libdir)'/entropy/client' >> equo
-	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/client/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python equo "$@"' >> equo
+	echo 'LD_LIBRARY_PATH="/usr/'$(get_libdir)'/entropy/client/lib/:/usr/'$(get_libdir)'/entropy/client/libraries/pysqlite2/" python equo.py "$@"' >> equo
 	exeinto /usr/bin
 	doexe equo
 
