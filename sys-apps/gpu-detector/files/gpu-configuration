@@ -358,6 +358,7 @@ radeon_9xx0_free = re.compile('.*ati.*technologies.*radeon.*9[0-2][0-9]0.*')
 radeon_9xx0_closed = re.compile('.*ati.*technologies.*radeon.*9[5-9][0-9]0.*')
 radeon_Xxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9]0.*')
 radeon_Xxxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9][0-9]0.*')
+radeon_m_XX_closed = re.compile('.*ati.*technologies.*m[0-9][0-9].*mobility.*')
 ati_firegl = re.compile('.*ati.*technologies.*firegl.*')
 
 for videocard in videocards:
@@ -528,13 +529,25 @@ for videocard in videocards:
 		
 		elif ati.match(videocard.lower()):
 			print "ATI Technologies"
-			if radeon_1x0.match(videocard.lower()) or radeon_2x0.match(videocard.lower()) or radeon_7xx0.match(videocard.lower()) or radeon_8xx0.match(videocard.lower()) or radeon_9xx0_free.match(videocard.lower()):
+			if radeon_1x0.match(videocard.lower()) or \
+                            radeon_2x0.match(videocard.lower()) or \
+                            radeon_7xx0.match(videocard.lower()) or \
+                            radeon_8xx0.match(videocard.lower()) or \
+                            radeon_9xx0_free.match(videocard.lower()):
 				generate_generic_steps()
 				# XXX disabled due to xorg-server bugs
 				#if (not noexa):
 			    	#	steps.append(('set_exa',))
 				steps.append(('change_xorg_driver','radeon'))
-			elif radeon_3x0.match(videocard.lower()) or radeon_4x0.match(videocard.lower()) or radeon_5x0.match(videocard.lower()) or radeon_6x0.match(videocard.lower()) or radeon_9xx0_closed.match(videocard.lower()) or radeon_Xxx0_closed.match(videocard.lower()) or radeon_Xxxx0_closed.match(videocard.lower()) or ati_firegl.match(videocard.lower()):
+			elif radeon_3x0.match(videocard.lower()) or \
+                            radeon_4x0.match(videocard.lower()) or \
+                            radeon_5x0.match(videocard.lower()) or \
+                            radeon_6x0.match(videocard.lower()) or \
+                            radeon_9xx0_closed.match(videocard.lower()) or \
+                            radeon_Xxx0_closed.match(videocard.lower()) or \
+                            radeon_Xxxx0_closed.match(videocard.lower()) or \
+                            ati_firegl.match(videocard.lower()) or \
+                            radeon_m_XX_closed.match(videocard.lower()):
 				if (not noopengl):
 					steps.append(('set_dri',True))
 					steps.append(('fix_possible_opengl_misconfiguration','ati'))

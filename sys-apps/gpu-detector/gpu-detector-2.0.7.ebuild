@@ -11,7 +11,8 @@ SLOT="0"
 KEYWORDS="x86 amd64 ppc"
 IUSE=""
 
-RDEPEND=">=app-misc/sabayonlive-tools-1.6.0
+RDEPEND=">=x11-base/xorg-x11-7.0
+	>=app-misc/sabayonlive-tools-1.6.0
 	dev-lang/python
 	"
 
