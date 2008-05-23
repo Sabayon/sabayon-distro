@@ -1,0 +1,11 @@
+--- a/src/evdev_axes.c
++++ b/src/evdev_axes.c
+@@ -683,7 +683,7 @@
+         return !Success;
+ 
+     for (i = 0; i < axes; i++) {
+-	xf86InitValuatorAxisStruct(device, i, 0, -1, 0, 0, 1);
++	xf86InitValuatorAxisStruct(device, i, -1, -1, 0, 0, 1);
+ 	xf86InitValuatorDefaults(device, i);
+     }
+ 
