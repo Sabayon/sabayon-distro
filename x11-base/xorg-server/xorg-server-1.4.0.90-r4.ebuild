@@ -178,7 +178,7 @@ DEPEND="${RDEPEND}
 	dmx? ( >=x11-proto/dmxproto-2.2.2 )
 	dri? ( >=x11-proto/xf86driproto-2.0.3
 		>=x11-libs/libdrm-2.3 )
-	xprint? ( >=x11-proto/printproto-1.0.3
+	xprint? ( =x11-proto/printproto-1.0.3
 		>=x11-apps/mkfontdir-1.0.3
 		>=x11-apps/mkfontscale-1.0.3
 		>=x11-apps/xplsprinters-1.0.1 )"
@@ -268,6 +268,10 @@ PDEPEND="
 		video_cards_tdfx? ( 3dfx? ( >=media-libs/glide-v3-3.10 ) )
 		video_cards_fglrx? ( >=x11-drivers/ati-drivers-8.433 )
 		video_cards_nvidia? ( >=x11-drivers/nvidia-drivers-71.86.01 )
+	xprint? ( >=x11-proto/printproto-1.0.3
+		>=x11-apps/mkfontdir-1.0.3
+		>=x11-apps/mkfontscale-1.0.3
+		>=x11-apps/xplsprinters-1.0.1 )
 	)"
 LICENSE="${LICENSE} MIT"
 

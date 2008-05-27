@@ -1,0 +1,13 @@
+x11-base/xorg-server
+
+
+Added by: ?? Date unknown.
+Purpose: ??
+
+======
+27.5.08 - Changed the depended upon version of printproto to =1.0.3 
+	during the build and >=1.0.3 after the build as a workaround to
+	make it build with USE="printproto". Done w/o a version bump.
+	Kliakhandler Kosta <Kliakhandler@Kosta.tk>
+
+
