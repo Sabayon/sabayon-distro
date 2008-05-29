@@ -2,18 +2,18 @@
 # Distributed under the terms of the GNU General Public License v2
 
 inherit eutils subversion multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk/spritz"
-DESCRIPTION="Official Sabayon Linux Package Manager Graphical Client (SVN release)"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}/spritz"
+DESCRIPTION="Official Sabayon Linux Package Manager Graphical Client (tagged release)"
 HOMEPAGE="http://www.sabayonlinux.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
 RDEPEND="
-	~sys-apps/entropy-9999
+	~sys-apps/entropy-${PV}
 	>=dev-python/pygtk-2.10
 	>=x11-libs/vte-0.12.2
 	x11-misc/xdg-utils
