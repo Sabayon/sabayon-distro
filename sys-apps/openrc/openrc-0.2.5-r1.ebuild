@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.2.2.ebuild,v 1.5 2008/04/19 20:40:51 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.2.5.ebuild,v 1.2 2008/05/31 07:04:58 vapier Exp $
 
 inherit eutils flag-o-matic multilib toolchain-funcs
 
@@ -127,6 +127,14 @@ pkg_preinst() {
 	mv "${D}"/etc/conf.d/net "${T}"/
 	[[ -e ${ROOT}/etc/conf.d/net ]] && cp "${ROOT}"/etc/conf.d/net "${T}"/
 
+	# upgrade timezone file ... do it before moving clock
+	if [[ -e ${ROOT}/etc/conf.d/clock && ! -e ${ROOT}/etc/timezone ]] ; then
+		(
+		source "${ROOT}"/etc/conf.d/clock
+		[[ -n ${TIMEZONE} ]] && echo "${TIMEZONE}" > "${ROOT}"/etc/timezone
+		)
+	fi
+
 	# /etc/conf.d/clock moved to /etc/conf.d/hwclock
 	local clock
 	use kernel_FreeBSD && clock="adjkerntz" || clock="hwclock"
@@ -149,16 +157,10 @@ pkg_preinst() {
 		elog "and delete /etc/conf.d/rc"
 	fi
 
-	# upgrade timezone file
-	if [[ -e ${ROOT}/etc/conf.d/clock && ! -e ${ROOT}/etc/timezone ]] ; then
-		(
-		source "${ROOT}"/etc/conf.d/clock
-		[[ -n ${TIMEZONE} ]] && echo "${TIMEZONE}" > "${ROOT}"/etc/timezone
-		)
-	fi
-
 	# force net init.d scripts into symlinks
-	for f in $(find "${ROOT}"/etc/init.d/ -name 'net.*') ; do
+	for f in "${ROOT}"/etc/init.d/net.* ; do
+		[[ -e ${f} ]] || continue # catch net.* not matching anything
+		[[ ${f} == *.net.lo ]] && continue # real file now
 		[[ ${f} == *.openrc.bak ]] && continue
 		if [[ ! -L ${f} ]] ; then
 			elog "Moved net service '${f##*/}' to '${f##*/}.openrc.bak' to force a symlink."
