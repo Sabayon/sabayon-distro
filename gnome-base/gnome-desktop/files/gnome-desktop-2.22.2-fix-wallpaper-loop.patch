@@ -1,0 +1,20 @@
+diff -Nurp gnome-desktop-2.22.2.orig/libgnome-desktop/gnome-bg.c gnome-desktop-2.22.2/libgnome-desktop/gnome-bg.c
+--- gnome-desktop-2.22.2.orig/libgnome-desktop/gnome-bg.c	2008-05-26 18:10:57.000000000 +0200
++++ gnome-desktop-2.22.2/libgnome-desktop/gnome-bg.c	2008-06-06 10:38:46.000000000 +0200
+@@ -242,7 +242,7 @@ gnome_bg_set_uri (GnomeBG     *bg,
+ 	
+ 	g_return_if_fail (bg != NULL);
+ 	
+-	if (g_path_is_absolute (uri))
++	if (uri && g_path_is_absolute (uri))
+ 		uri = free_me = g_filename_to_uri (uri, NULL, NULL);
+ 	
+ 	if (is_different (bg, uri)) {
+@@ -253,6 +253,7 @@ gnome_bg_set_uri (GnomeBG     *bg,
+ 		g_free (bg->uri);
+ 		
+ 		bg->uri = tmp;
++		bg->uri_mtime = get_mtime (bg->uri);
+ 		
+ 		clear_cache (bg);
+ 		
