@@ -1,10 +1,10 @@
 #!/bin/sh
 
-for X in `find -name kde-l10n-*4.0.3*.ebuild`; do
+for X in `find -name kde-l10n-*4.0.4*.ebuild`; do
         echo
         echo " ________ DOING "${X}" ________"
         echo
-        svn cp ${X} ${X/4.0.3/4.0.4}
+        svn cp ${X} ${X/4.0.4/4.0.5}
         ebuild ${X} manifest
 done
 
