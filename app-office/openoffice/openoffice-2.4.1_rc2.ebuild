@@ -250,7 +250,7 @@ src_unpack() {
 	echo "`use_enable debug crashdump`" >> ${CONFFILE}
 
 	# Original branding results in black splash screens for some, so forcing ours
-	echo "--with-intro-bitmaps=\\\"${S}/src/openintro_gentoo.bmp\\\"" >> ${CONFFILE}
+	echo "--with-intro-bitmaps=\\\"${FILESDIR}/openoffice-2.4.bmp\\\"" >> ${CONFFILE}
 
 	eautoreconf
 
