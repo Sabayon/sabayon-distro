@@ -6,7 +6,7 @@ inherit eutils distutils
 
 DESCRIPTION="Hardware-accelerated desktop objects for Beryl/Compiz"
 HOMEPAGE="http://www.screenlets.org"
-SRC_URI="http://code.launchpad.net/${PN}/trunk/{PV}/+download/${P}.tar.gz"
+SRC_URI="http://code.launchpad.net/${PN}/trunk/${PV}/+download/${P}.tar.gz"
 RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
