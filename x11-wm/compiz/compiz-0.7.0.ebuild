@@ -27,7 +27,7 @@ DEPEND=">=media-libs/mesa-6.5.1-r1
 	gnome-base/gconf
 	>=x11-libs/libwnck-2.18.3
 	dev-libs/libxslt
-	gnome? ( >=gnome-base/control-center-2.16.1 )
+	gnome? ( >=gnome-base/gnome-control-center-2.16.1 )
 	svg? ( gnome-base/librsvg )
 	dbus? ( >=sys-apps/dbus-1.0 )
 	kde? (
