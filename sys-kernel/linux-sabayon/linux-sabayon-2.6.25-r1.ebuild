@@ -51,11 +51,11 @@ UNIPATCH_LIST="
 
 
 # gentoo patches
-for patch in `ls ${FILESDIR}/${MY_PV}/genpatches`; do
+for patch in `/bin/ls ${FILESDIR}/${MY_PV}/genpatches`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${MY_PV}/genpatches/${patch}"
 done
 # redhat patches
-for patch in `ls ${FILESDIR}/${MY_PV}/redhat`; do
+for patch in `/bin/ls ${FILESDIR}/${MY_PV}/redhat`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${MY_PV}/redhat/${patch}"
 done
 
