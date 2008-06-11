@@ -243,11 +243,12 @@ src_install() {
 		# New Configuration Snippets
 		dodoc "${WORKDIR}/${P}-extras/"*.fdi
 		dobin "${WORKDIR}/${P}-extras/migrate-xorg-to-fdi.py"
-
-		# Automagic conversion!
-		elog "Migrating xorg.conf Core Keyboard configuration to HAL FDI file..."
-		"${WORKDIR}/${P}-extras/migrate-xorg-to-fdi.py" 2> /dev/null > "${D}/etc/hal/fdi/policy/10-x11-input.fdi"
 	fi
+
+	# Copy 10-x11-input.fdi to the right place
+	dodir /etc/hal/fdi/policy
+	insinto /etc/hal/fdi/policy
+	doins ${S}/fdi/policy/10osvendor/10-x11-input.fdi || die "cannot copy keyboard policy"
 
 	# We now create and keep /media here as both gnome-mount and pmount
 	# use these directories, to avoid collision.
