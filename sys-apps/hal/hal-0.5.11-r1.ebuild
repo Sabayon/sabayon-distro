@@ -1,22 +1,22 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.10.ebuild,v 1.8 2008/01/10 18:05:15 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.11-r1.ebuild,v 1.1 2008/05/29 02:26:11 compnerd Exp $
 
 inherit eutils linux-info autotools flag-o-matic
 
-PATCH_VERSION="0"
+PATCH_VERSION="1"
 
 DESCRIPTION="Hardware Abstraction Layer"
 HOMEPAGE="http://www.freedesktop.org/Software/hal"
-SRC_URI="http://hal.freedesktop.org/releases/${P/_/}.tar.gz
+SRC_URI="http://hal.freedesktop.org/releases/${P/_/}.tar.bz2
 		 http://dev.gentoo.org/~compnerd/files/${PN}/${P}-gentoo-patches-${PATCH_VERSION}.tar.bz2"
 
 LICENSE="|| ( GPL-2 AFL-2.0 )"
 SLOT="0"
-KEYWORDS="~amd64 ~hppa ~mips ~x86"
+KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~sparc ~x86"
 
 KERNEL_IUSE="kernel_linux kernel_FreeBSD"
-IUSE="acpi apm crypt debug dell disk-partition doc laptop selinux ${KERNEL_IUSE}"
+IUSE="X acpi apm crypt debug dell disk-partition doc laptop selinux ${KERNEL_IUSE}"
 
 RDEPEND=">=dev-libs/dbus-glib-0.61
 		 >=dev-libs/glib-2.14
@@ -31,18 +31,23 @@ RDEPEND=">=dev-libs/dbus-glib-0.61
 		 disk-partition? ( >=sys-apps/parted-1.8.0 )
 		 ia64? ( >=sys-apps/dmidecode-2.7 )
 		 kernel_linux?	(
-					>=sys-fs/udev-111
-					>=sys-apps/util-linux-2.13
-					>=sys-kernel/linux-headers-2.6.19
-					crypt?	( >=sys-fs/cryptsetup-1.0.5 )
-				)
+							>=sys-fs/udev-111
+							>=sys-apps/util-linux-2.13
+							>=sys-kernel/linux-headers-2.6.19
+							crypt?	(
+										||	(
+												>=sys-fs/cryptsetup-1.0.5
+												>=sys-fs/cryptsetup-luks-1.0.1
+											)
+									)
+						)
 		 kernel_FreeBSD? ( dev-libs/libvolume_id )
 		 x86? ( >=sys-apps/dmidecode-2.7 )
 		 selinux? ( sys-libs/libselinux sec-policy/selinux-hal )"
 DEPEND="${RDEPEND}
 		dev-util/pkgconfig
 		>=dev-util/intltool-0.35
-		>=dev-python/pyxf86config-0.3.34-r1
+		X? ( >=dev-python/pyxf86config-0.3.34-r1 )
 		doc?	(
 					app-doc/doxygen
 					app-text/docbook-sgml-utils
@@ -117,7 +122,7 @@ pkg_setup() {
 	fi
 }
 
-S="${WORKDIR}/${PF/_/}"
+S="${WORKDIR}/${PF/-r*/}"
 
 src_unpack() {
 	unpack ${A}
@@ -125,7 +130,7 @@ src_unpack() {
 
 	EPATCH_MULTI_MSG="Applying Gentoo Patchset ..." \
 	EPATCH_SUFFIX="patch" \
-	EPATCH_SOURCE="${WORKDIR}/hal-0.5.11-patches/" \
+	EPATCH_SOURCE="${WORKDIR}/${P}-patches/" \
 	EPATCH_FORCE="yes" \
 	epatch
 
@@ -201,7 +206,7 @@ src_compile() {
 		  --enable-sonypic \
 		  $(use_enable apm) \
 		  $(use_enable arm pmu) \
-		  $(use_enable arm omap) \
+		  $(use_with arm omap) \
 		  $(use_enable debug verbose-mode) \
 		  $(use_enable disk-partition parted) \
 		  $(use_enable doc docbook-docs) \
@@ -234,13 +239,15 @@ src_install() {
 	fi
 	newconfd "${WORKDIR}/0.5.10-hald.conf" hald
 
-	# New Configuration Snippets
-	dodoc "${WORKDIR}"/hal-0.5.10-extras/*.fdi
-	dobin "${WORKDIR}"/hal-0.5.10-extras/migrate-xorg-to-fdi.py
+	if use X ; then
+		# New Configuration Snippets
+		dodoc "${WORKDIR}/${P}-extras/"*.fdi
+		dobin "${WORKDIR}/${P}-extras/migrate-xorg-to-fdi.py"
 
-	# Authomagic conversion!
-	elog "Migrating xorg.conf Core Keyboard configuration to HAL FDI file..."
-	"${WORKDIR}/hal-0.5.10-extras/migrate-xorg-to-fdi.py" 2> /dev/null > "${D}/etc/hal/fdi/policy/10-x11-input.fdi"
+		# Automagic conversion!
+		elog "Migrating xorg.conf Core Keyboard configuration to HAL FDI file..."
+		"${WORKDIR}/${P}-extras/migrate-xorg-to-fdi.py" 2> /dev/null > "${D}/etc/hal/fdi/policy/10-x11-input.fdi"
+	fi
 
 	# We now create and keep /media here as both gnome-mount and pmount
 	# use these directories, to avoid collision.
@@ -272,26 +279,30 @@ pkg_postinst() {
 	elog "IF you have additional applications which consume ACPI events, you"
 	elog "should consider installing acpid to allow applications to share ACPI"
 	elog "events."
-	echo
-	elog "If you wish to use a non US layout, you may do so by executing:"
-	elog "setxkbmap <layout> or by utilizing your Desktop Environment's"
-	elog "Keyboard Layout Settings mechanism."
-	elog "Under GNOME, this is gnome-keyboard-properties, and under KDE"
-	elog "it is kxkb."
+	if use X ; then
+		echo
+		elog "If you wish to use a non US layout, you may do so by executing:"
+		elog "setxkbmap <layout> or by utilizing your Desktop Environment's"
+		elog "Keyboard Layout Settings mechanism."
+		elog "Under GNOME, this is gnome-keyboard-properties, and under KDE"
+		elog "it is kxkb."
+	fi
 	echo
 	elog "In order have suspend/hibernate function with HAL or apps that use HAL"
 	elog "(such as gnome-power-manager), you should build HAL with the laptop"
 	elog "useflag which will install pm-utils."
-	echo
-	elog "X Input Hotplugging (if you build xorg-server with the HAL useflag)"
-	elog "reads user specific configuration from /etc/hal/fdi/policy/."
-	if [[ $(cat "${ROOT}etc/hal/fdi/policy/10-x11-input.fdi" | wc -c) -gt 0 ]]
-	then
-		elog "We have converted your existing xorg.conf rules and the FDI is stored"
-		elog "at /etc/hal/fdi/policy/10-x11-input.fdi"
+	if use X ; then
+		echo
+		elog "X Input Hotplugging (if you build xorg-server with the HAL useflag)"
+		elog "reads user specific configuration from /etc/hal/fdi/policy/."
+		if [[ $(cat "${ROOT}etc/hal/fdi/policy/10-x11-input.fdi" | wc -c) -gt 0 ]]
+		then
+			elog "We have converted your existing xorg.conf rules and the FDI is stored"
+			elog "at /etc/hal/fdi/policy/10-x11-input.fdi"
+		fi
+		elog "You should remove the Input sections from your xorg.conf once you have"
+		elog "migrated the rules to a HAL fdi file."
 	fi
-	elog "You should remove the Input sections from your xorg.conf once you have"
-	elog "migrated the rules to a HAL fdi file."
 
 	ebeep 5
 	epause 5
