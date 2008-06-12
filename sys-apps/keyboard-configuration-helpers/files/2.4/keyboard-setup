@@ -10,8 +10,8 @@
 
 # We edit /etc/conf.d/keymaps
 
-import os
-import sys
+import os, sys, shutil
+from xml.dom import minidom
 
 # System functions
 
@@ -33,7 +33,7 @@ options = sys.argv[1:]
 if not options or "--help" in options or '-h' in options:
     print_help()
     if len(options) < 1:
-	print_error("not enough parameters")
+        print_error("not enough parameters")
     sys.exit(1)
 
 # Parse --with-root="/path/to/root"
@@ -43,21 +43,16 @@ DO_NOT_RESTART = False
 _options = []
 for param in options:
     if param.startswith("--do-not-restart"):
-	DO_NOT_RESTART = True
+        DO_NOT_RESTART = True
     elif param.startswith("--with-root="):
-	ROOT = param.split("=")[1]
-	if param.startswith('"') and param.endswith('"'):
-	    ROOT = ROOT.split('"')[1]
-	if param.startswith("'") and param.endswith("'"):
-	    ROOT = ROOT.split("'")[1]
+        ROOT = param.split("=")[1]
+        if param.startswith('"') and param.endswith('"'):
+            ROOT = ROOT.split('"')[1]
+        if param.startswith("'") and param.endswith("'"):
+            ROOT = ROOT.split("'")[1]
     else:
-	_options.append(param)
+        _options.append(param)
 options = _options
-
-if len(options) > 2:
-    print_help()
-    print_error("too many parameters")
-    sys.exit(1)
 
 # am I root ?
 if os.getuid() != 0:
@@ -73,9 +68,8 @@ validComponents = [ "system" , "xorg" , "gnome" , "kde", "xfce" ]
 shellKeymap = False
 # shell keymap test
 for root, dirs, files in os.walk(ROOT+"/usr/share/keymaps"):
-    for file in files:
-       if file == keyLocale+".map.gz":
-	   shellKeymap = True
+    if keyLocale+".map.gz" in files:
+        shellKeymap = True
 
 xorgKeymap = False
 # X.Org keymap test
@@ -84,9 +78,8 @@ if (keyLocale == "uk"):
 else:
     xorgKeyLocale = keyLocale
 for root, dirs, files in os.walk(ROOT+"/usr/share/X11/xkb/symbols"):
-    for file in files:
-       if file == xorgKeyLocale:
-	   xorgKeymap = True
+    if xorgKeyLocale in files:
+        xorgKeymap = True
 
 if (not shellKeymap):
     print_warning("shell keymap not available")
@@ -103,13 +96,12 @@ if os.getenv("DESKTOP_SESSION") is not None:
 if len(options) == 2:
     component = sys.argv[2]
     validComponent = False
-    for cmp in validComponents:
-	if component == cmp:
-	    validComponent = True
+    if component in validComponents:
+        validComponent = True
 
     if (not validComponent):
-	print_error("supplied parameters are invalid")
-	sys.exit(4)
+        print_error("supplied parameters are invalid")
+        sys.exit(4)
 
 
 # Engine functions
@@ -122,11 +114,11 @@ def configureSystemKeymap(keyLocale):
     f.close()
     output = []
     for line in confdKeymapsFile:
-	if line.startswith("KEYMAP="):
-	    line = 'KEYMAP="'+keyLocale+'"\n'
-	if line.startswith("keymap="):
-	    line = 'keymap="'+keyLocale+'"\n'
-	output.append(line)
+        if line.startswith("KEYMAP="):
+            line = 'KEYMAP="'+keyLocale+'"\n'
+        if line.startswith("keymap="):
+            line = 'keymap="'+keyLocale+'"\n'
+        output.append(line)
     f = open(confdKeymaps,"w")
     f.writelines(output)
     f.flush()
@@ -137,101 +129,155 @@ def configureSystemKeymap(keyLocale):
 # xorg.conf keymap config
 def configureXorgKeymap(xorgKeyLocale):
     print_info("Setting up X.Org keyboard mapping...")
+
+    # old way
     if os.path.isfile(xorgConf):
-	f = open(xorgConf,"r")
-	xorgConfContent = f.readlines()
-	f.close()
-	newXorgConf = []
-	xkbLayoutExists = False
-	for line in xorgConfContent:
-	    if line.find("XkbLayout") != -1:
-		xkbLayoutExists = True
-	if (not xkbLayoutExists):
-	    print_warning("XkbLayout entry not found")
-	    # create it
-	    trigger = False
-	    triggerKbd = False
-	    for line in xorgConfContent:
-		if (trigger):
-		    if line.find("Driver") != -1 and line.find("kbd") != -1:
-			triggerKbd = True
-		    if line.find("EndSection") != -1:
-			if (triggerKbd):
-			    # end of line, add the option here:
-			    line = "    Option      \"XkbLayout\"     \""+xorgKeyLocale+"\"\n\n"+line
-			    trigger = False
-			    triggerKbd = False
-			else:
-			    # false alarm
-			    trigger = False
-		if line.find("Section") != -1 and line.find("InputDevice") != -1:
-		    trigger = True
-		newXorgConf.append(line)
-	else:
-	    for line in xorgConfContent:
-		if line.find("Option") != -1 and line.find("XkbLayout") != -1:
-		    newLine = ""
-		    quoteCnt = 0
-		    for char in line:
-			if char == '"':
-			    quoteCnt += 1
-			    if quoteCnt == 3:
-				char = '"'+xorgKeyLocale+'"'
-				newLine += char+"\n"
-				break
-		        newLine += char
-		    line = newLine
-		
-		# write line
-		newXorgConf.append(line)
-		
-	# write newXorgConf to file
-	f = open(xorgConf,"w")
-	f.writelines(newXorgConf)
-	f.flush()
-	f.close()
+        f = open(xorgConf,"r")
+        xorgConfContent = f.readlines()
+        f.close()
+        newXorgConf = []
+        xkbLayoutExists = False
+        for line in xorgConfContent:
+            if line.find("XkbLayout") != -1:
+                xkbLayoutExists = True
+        if (not xkbLayoutExists):
+            print_warning("XkbLayout entry not found")
+            # create it
+            trigger = False
+            triggerKbd = False
+            for line in xorgConfContent:
+                if (trigger):
+                    if line.find("Driver") != -1 and line.find("kbd") != -1:
+                        triggerKbd = True
+                    if line.find("EndSection") != -1:
+                        if (triggerKbd):
+                            # end of line, add the option here:
+                            line = "    Option      \"XkbLayout\"     \""+xorgKeyLocale+"\"\n\n"+line
+                            trigger = False
+                            triggerKbd = False
+                        else:
+                            # false alarm
+                            trigger = False
+                if line.find("Section") != -1 and line.find("InputDevice") != -1:
+                    trigger = True
+                newXorgConf.append(line)
+        else:
+            for line in xorgConfContent:
+                if line.find("Option") != -1 and line.find("XkbLayout") != -1:
+                    newLine = ""
+                    quoteCnt = 0
+                    for char in line:
+                        if char == '"':
+                            quoteCnt += 1
+                            if quoteCnt == 3:
+                                char = '"'+xorgKeyLocale+'"'
+                                newLine += char+"\n"
+                                break
+                        newLine += char
+                    line = newLine
+
+                # write line
+                newXorgConf.append(line)
+
+        # write newXorgConf to file
+        f = open(xorgConf,"w")
+        f.writelines(newXorgConf)
+        f.flush()
+        f.close()
+
+    hal_keymap_file = "10-keymap.fdi"
+    hal_share_dir = "/usr/share/hal/fdi/policy/10osvendor"
+    hal_etc_dir = "/etc/hal/fdi/policy"
+    hal_keymap_default_path = os.path.join(hal_share_dir,hal_keymap_file)
+    hal_keymap_etc_path = os.path.join(hal_etc_dir,hal_keymap_file)
+    # new way
+    avail = True
+    if not os.access(hal_keymap_etc_path,os.R_OK):
+        avail = False
+        if os.path.isfile(hal_keymap_etc_path):
+            os.remove(hal_keymap_etc_path)
+        if os.path.isfile(hal_keymap_default_path) and os.access(hal_keymap_default_path, os.R_OK):
+            if not os.path.isdir(hal_etc_dir):
+                os.makedirs(hal_etc_dir)
+            shutil.copy2(hal_keymap_default_path,hal_keymap_etc_path)
+            avail = True
+    if avail and os.path.isfile(hal_keymap_etc_path):
+        xmldoc = minidom.parse(hal_keymap_etc_path)
+
+        deviceinfo = xmldoc.getElementsByTagName("deviceinfo")
+        if deviceinfo: deviceinfo = deviceinfo[0]
+        else: return
+
+        device = deviceinfo.getElementsByTagName("device")
+        if device: device = device[0]
+        else: return
+
+        do_write = False
+        matches = device.getElementsByTagName("match")
+        for match in matches:
+            if not (match.hasAttribute("key") and match.hasAttribute("contains")):
+                continue
+            if match.getAttribute("contains") != "input.keys":
+                continue
+            # found it
+            merges = match.getElementsByTagName("merge")
+            for merge in merges:
+                if not (merge.hasAttribute("key") and merge.hasAttribute("type")):
+                    continue
+                if merge.getAttribute("key") != "input.xkb.layout":
+                    continue
+                if merge.getAttribute("type") != "string":
+                    continue
+                merge.firstChild.data = xorgKeyLocale
+                do_write = True
+                break
+        if do_write:
+            f = open(hal_keymap_etc_path,"w")
+            xmldoc.writexml(f)
+            f.flush()
+            f.close()
 
 # KDE keymap config
 def configureKDEKeymap(keyLocale):
-	
-    def KDEKeymapHandler(dir,keyLocale):
-	put, get = os.popen4("find "+ROOT+"/"+dir+" -name kxkbrc")
-	kxkbrcFiles = get.readlines()
-	findError = False
-	if kxkbrcFiles != []:
-	    if kxkbrcFiles[0].find("find:") != -1:
-	        findError = True
-	    if (not findError):
-	        for file in kxkbrcFiles:
-		    file = file.strip()
-		    print_info("configuring KDE file "+file)
-		    # Open file and edit
-		    f = open(file,"r")
-		    kxkbFile = f.readlines()
-		    f.close()
-		    newKxkbFile = []
-		    # look for [Layout]
-		    layoutEntryExists = False
-		    for line in kxkbFile:
-		        if line.find("Layout=") != -1:
-			    layoutEntryExists = True
-		    if (not layoutEntryExists):
-		        # append the line
-		        for line in kxkbFile:
-			    newKxkbFile.append(line)
-		        newKxkbFile.append("Layout="+keyLocale+"\n")
-		    else:
-		        # change the line
-		        for line in kxkbFile:
-			    if line.find("Layout=") != -1:
-			        line = "Layout="+keyLocale+"\n"
-			    newKxkbFile.append(line)
 
-		    f = open(file,"w")
-		    f.writelines(newKxkbFile)
-	    else:
-	        print_warning("no kxkbrc file(s) in "+dir)
-	
+    def KDEKeymapHandler(dir,keyLocale):
+        put, get = os.popen4("find "+ROOT+"/"+dir+" -name kxkbrc")
+        kxkbrcFiles = get.readlines()
+        findError = False
+        if kxkbrcFiles != []:
+            if kxkbrcFiles[0].find("find:") != -1:
+                findError = True
+            if (not findError):
+                for file in kxkbrcFiles:
+                    file = file.strip()
+                    print_info("configuring KDE file "+file)
+                    # Open file and edit
+                    f = open(file,"r")
+                    kxkbFile = f.readlines()
+                    f.close()
+                    newKxkbFile = []
+                    # look for [Layout]
+                    layoutEntryExists = False
+                    for line in kxkbFile:
+                        if line.find("Layout=") != -1:
+                            layoutEntryExists = True
+                    if (not layoutEntryExists):
+                        # append the line
+                        for line in kxkbFile:
+                            newKxkbFile.append(line)
+                        newKxkbFile.append("Layout="+keyLocale+"\n")
+                    else:
+                        # change the line
+                        for line in kxkbFile:
+                            if line.find("Layout=") != -1:
+                                line = "Layout="+keyLocale+"\n"
+                            newKxkbFile.append(line)
+
+                    f = open(file,"w")
+                    f.writelines(newKxkbFile)
+            else:
+                print_warning("no kxkbrc file(s) in "+dir)
+
     print_info("Setting up KDE keyboard mapping...")
 
     # Fix for UK keymap
@@ -254,44 +300,44 @@ def configureKDEKeymap(keyLocale):
 def configureGNOMEKeymap(keyLocale):
 
     def GNOMEKeymapHandler(dir,keyLocale):
-	put, get = os.popen4("find "+ROOT+dir+"/.gconf/desktop/gnome/peripherals/keyboard/kbd/ -name %gconf.xml")
-	gconfXmls = get.readlines()
-	findError = False
-	if gconfXmls[0].find("find:") != -1:
-	    findError = True
-	if gconfXmls and not findError:
-	    for file in gconfXmls:
-		file = file.strip()
-		print_info("configuring GNOME file "+file)
-		f = open(file,"r")
-		XmlFile = f.readlines()
-		f.close()
-		newXmlFile = []
-		trigger = False
-		for line in XmlFile:
-		    if (trigger):
-			if line.find("<stringvalue>") != -1:
-			    newLine = ""
-			    for char in line:
-				if char == ">":
-				    char = ">"+keyLocale+"</stringvalue>"
-				    newLine += char+"\n"
-				    break
-				newLine += char
-			    trigger = False
-			    line = newLine
-		    if line.find("entry name=\"layouts\"") != -1:
-			# found !
-			trigger = True
-		    newXmlFile.append(line)
-		
-		# write newXmlFile
-		f = open(file,"w")
-		f.writelines(newXmlFile)
-		f.flush()
-		f.close()
-	else:
-	    print_warning("no GNOME keyboard configuration file(s) in "+dir)
+        put, get = os.popen4("find "+ROOT+dir+"/.gconf/desktop/gnome/peripherals/keyboard/kbd/ -name %gconf.xml")
+        gconfXmls = get.readlines()
+        findError = False
+        if gconfXmls[0].find("find:") != -1:
+            findError = True
+        if gconfXmls and not findError:
+            for file in gconfXmls:
+                file = file.strip()
+                print_info("configuring GNOME file "+file)
+                f = open(file,"r")
+                XmlFile = f.readlines()
+                f.close()
+                newXmlFile = []
+                trigger = False
+                for line in XmlFile:
+                    if (trigger):
+                        if line.find("<stringvalue>") != -1:
+                            newLine = ""
+                            for char in line:
+                                if char == ">":
+                                    char = ">"+keyLocale+"</stringvalue>"
+                                    newLine += char+"\n"
+                                    break
+                                newLine += char
+                            trigger = False
+                            line = newLine
+                    if line.find("entry name=\"layouts\"") != -1:
+                        # found !
+                        trigger = True
+                    newXmlFile.append(line)
+
+                # write newXmlFile
+                f = open(file,"w")
+                f.writelines(newXmlFile)
+                f.flush()
+                f.close()
+        else:
+            print_warning("no GNOME keyboard configuration file(s) in "+dir)
 
     print_info("Setting up GNOME keyboard mapping...")
     # Change keymap for /home
@@ -307,27 +353,27 @@ def configureGNOMEKeymap(keyLocale):
 def configureXFCEKeymap(keyLocale):
 
     def XFCEKeymapHandler(dir,keyLocale):
-	put, get = os.popen4("find "+ROOT+dir+"/.config/xfce4/xfkc/ -name xfkcrc")
-	xfce_confs = get.readlines()
-	findError = False
-	if xfce_confs[0].find("find:") != -1:
-	    findError = True
-	if xfce_confs and not findError:
-	    for file in xfce_confs:
-		file = file.strip()
-		print_info("configuring XFCE file "+file)
-		f = open(file,"r")
-		xfce_file = f.readlines()
-		f.close()
-		f = open(file,"w")
-		for line in xfce_file:
-			if line.startswith("layouts"):
-				line = "layouts=%s\n" % (keyLocale,)
-			f.write(line)
-		f.flush()
-		f.close()
-	else:
-	    print_warning("no XFCE keyboard configuration file(s) in "+dir)
+        put, get = os.popen4("find "+ROOT+dir+"/.config/xfce4/xfkc/ -name xfkcrc")
+        xfce_confs = get.readlines()
+        findError = False
+        if xfce_confs[0].find("find:") != -1:
+            findError = True
+        if xfce_confs and not findError:
+            for file in xfce_confs:
+                file = file.strip()
+                print_info("configuring XFCE file "+file)
+                f = open(file,"r")
+                xfce_file = f.readlines()
+                f.close()
+                f = open(file,"w")
+                for line in xfce_file:
+                        if line.startswith("layouts"):
+                                line = "layouts=%s\n" % (keyLocale,)
+                        f.write(line)
+                f.flush()
+                f.close()
+        else:
+            print_warning("no XFCE keyboard configuration file(s) in "+dir)
 
     print_info("Setting up XFCE keyboard mapping...")
     # Change keymap for /home
@@ -343,15 +389,15 @@ def configureXFCEKeymap(keyLocale):
 if len(options) == 2:
     component = sys.argv[2]
     if component == "system":
-	configureSystemKeymap(keyLocale)
+        configureSystemKeymap(keyLocale)
     if component == "xorg":
-	configureXorgKeymap(keyLocale)
+        configureXorgKeymap(keyLocale)
     if component == "gnome":
-	configureGNOMEKeymap(keyLocale)
+        configureGNOMEKeymap(keyLocale)
     if component == "kde":
-	configureKDEKeymap(keyLocale)
+        configureKDEKeymap(keyLocale)
     if component == "xfce":
-	configureXFCEKeymap(keyLocale)
+        configureXFCEKeymap(keyLocale)
 elif len(options) == 1:
     # Configure everything
     configureSystemKeymap(keyLocale)
