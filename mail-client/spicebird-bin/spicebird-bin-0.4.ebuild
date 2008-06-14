@@ -21,6 +21,12 @@ RDEPEND="x11-libs/libXrender
 	x86? (
 		>=x11-libs/gtk+-2.2
 		=virtual/libstdc++-3.3
+		media-libs/libart_lgpl
+		gnome-base/libbonoboui
+		gnome-base/orbit:2
+		gnome-base/libgnomeui
+		gnome-base/gnome-keyring
+
 	)
 	amd64? (
 		>=app-emulation/emul-linux-x86-baselibs-1.0
