@@ -1,11 +1,11 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-server/xorg-server-1.4.0.90-r3.ebuild,v 1.3 2008/04/10 06:37:00 dberkholz Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-server/xorg-server-1.4.2.ebuild,v 1.1 2008/06/11 19:26:31 dberkholz Exp $
 
 # Must be before x-modular eclass is inherited
-#SNAPSHOT="yes"
+SNAPSHOT="yes"
 
-inherit x-modular multilib eutils
+inherit x-modular multilib
 
 OPENGL_DIR="xorg-x11"
 
@@ -51,7 +51,6 @@ IUSE_INPUT_DEVICES="
 	input_devices_synaptics
 	input_devices_wacom"
 IUSE_VIDEO_CARDS="
-	video_cards_amd
 	video_cards_apm
 	video_cards_ark
 	video_cards_chips
@@ -60,6 +59,7 @@ IUSE_VIDEO_CARDS="
 	video_cards_dummy
 	video_cards_epson
 	video_cards_fbdev
+	video_cards_geode
 	video_cards_glint
 	video_cards_i128
 	video_cards_i740
@@ -217,7 +217,6 @@ PDEPEND="
 		input_devices_synaptics? ( x11-drivers/synaptics )
 		input_devices_wacom? ( x11-drivers/linuxwacom )
 
-		video_cards_amd? ( >=x11-drivers/xf86-video-amd-2.7.7.0 )
 		video_cards_apm? ( >=x11-drivers/xf86-video-apm-1.1.1 )
 		video_cards_ark? ( >=x11-drivers/xf86-video-ark-0.6.0 )
 		video_cards_chips? ( >=x11-drivers/xf86-video-chips-1.1.1 )
@@ -225,6 +224,7 @@ PDEPEND="
 		video_cards_cyrix? ( >=x11-drivers/xf86-video-cyrix-1.1.0 )
 		video_cards_dummy? ( >=x11-drivers/xf86-video-dummy-0.2.0 )
 		video_cards_fbdev? ( >=x11-drivers/xf86-video-fbdev-0.2.0 )
+		video_cards_geode? ( >=x11-drivers/xf86-video-geode-2.7.7.0 )
 		video_cards_glint? ( >=x11-drivers/xf86-video-glint-1.1.1 )
 		video_cards_i128? ( >=x11-drivers/xf86-video-i128-1.2.0 )
 		video_cards_i740? ( >=x11-drivers/xf86-video-i740-1.1.0 )
@@ -268,10 +268,6 @@ PDEPEND="
 		video_cards_tdfx? ( 3dfx? ( >=media-libs/glide-v3-3.10 ) )
 		video_cards_fglrx? ( >=x11-drivers/ati-drivers-8.433 )
 		video_cards_nvidia? ( >=x11-drivers/nvidia-drivers-71.86.01 )
-	xprint? ( >=x11-proto/printproto-1.0.3
-		>=x11-apps/mkfontdir-1.0.3
-		>=x11-apps/mkfontscale-1.0.3
-		>=x11-apps/xplsprinters-1.0.1 )
 	)"
 LICENSE="${LICENSE} MIT"
 
@@ -279,24 +275,7 @@ PATCHES="
 	${FILESDIR}/1.4-ia64.patch
 	${FILESDIR}/1.3.0.0-use-proc-instead-of-sys.patch
 	${FILESDIR}/1.4-fpic-libxf86config.patch
-	${FILESDIR}/1.4-document-new-font-catalogs.patch
-	${FILESDIR}/1.4-fix-dmx-build.patch
-	${FILESDIR}/1.4-fix-dmx-link.patch
-	${FILESDIR}/1.4-fix-xephyr-link.patch
-	${FILESDIR}/1.4-fix-xprint-build.patch
-	${FILESDIR}/1.4-fix-xprint-link.patch
 	${FILESDIR}/1.4-fix-kdrive-automake.patch
-	${FILESDIR}/1.4-dont-hang-openoffice.patch
-	${FILESDIR}/${PV}-clean-generated-files.patch
-	${FILESDIR}/1.4-0001-Fix-for-CVE-2007-5760-XFree86-Misc-extension-out-o.patch
-	${FILESDIR}/1.4-0002-Fix-for-CVE-2007-6428-TOG-cup-extension-memory-cor.patch
-	${FILESDIR}/1.4-0003-Fix-for-CVE-2007-6427-Xinput-extension-memory-corr.patch
-	${FILESDIR}/1.4-0004-Fix-for-CVE-2007-6429-MIT-SHM-and-EVI-extensions-i.patch
-	${FILESDIR}/1.4-0005-Fix-for-CVE-2008-0006-PCF-Font-parser-buffer-overf.patch
-	${FILESDIR}/1.4-0006-Fix-for-CVE-2007-5958-File-existence-disclosure.patch
-	${FILESDIR}/1.4-0007-CVE-2007-6429-Don-t-spuriously-reject-8bpp-shm-pix.patch
-	${FILESDIR}/1.4-0008-CVE-2007-6429-Always-test-for-size-offset-wrapping.patch
-	${FILESDIR}/1.4-0009-Don-t-break-grab-and-focus-state-for-a-window-when-r.patch
 	"
 
 pkg_setup() {
@@ -362,11 +341,7 @@ src_unpack() {
 	x-modular_unpack_source
 	x-modular_patch_source
 
-	# fix jerky mouse
 	epatch "${FILESDIR}"/mouse-int-to-float.diff
-
-	# fix autoconf 2.62
-	epatch "${FILESDIR}"/configure.ac.patch
 
 	# Clean up for ${PV}-clean-generated-files.patch
 	pushd hw/xprint >/dev/null
