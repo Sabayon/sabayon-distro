@@ -36,6 +36,7 @@ src_unpack() {
 	mkdir ${WORKDIR}/unpack
 	cd ${WORKDIR}/unpack
 	for myrpm in "`ls ${S}`"; do
+		einfo "unpacking "${myrpm}
 		rpm_unpack ${S}/${myrpm}
 	done
 }
