@@ -4,6 +4,7 @@
 
 depend() {
 	after x-setup
+	before hald
 	before xdm
 }
 
