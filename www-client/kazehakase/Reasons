@@ -1,0 +1,9 @@
+www-client/kazehakase
+
+Ebuild originally added Jun. 15, 2008
+Added by Fabio Erculiani <lxnay@sabayonlinux.org>
+
+The purpose is to fix (quick and dirty one) firefox-2* dependency broken upstream.
+
+======
+15.6.08 - pushed in!
