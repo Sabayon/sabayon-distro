@@ -186,10 +186,11 @@ def configureXorgKeymap(xorgKeyLocale):
         f.close()
 
     hal_keymap_file = "10-keymap.fdi"
+    hal_keymap_file_dest = "99-keymap.fdi"
     hal_share_dir = "/usr/share/hal/fdi/policy/10osvendor"
     hal_etc_dir = "/etc/hal/fdi/policy"
     hal_keymap_default_path = os.path.join(hal_share_dir,hal_keymap_file)
-    hal_keymap_etc_path = os.path.join(hal_etc_dir,hal_keymap_file)
+    hal_keymap_etc_path = os.path.join(hal_etc_dir,hal_keymap_file_dest)
     # new way
     avail = True
     if not os.access(hal_keymap_etc_path,os.R_OK):
