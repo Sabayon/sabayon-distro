@@ -11,7 +11,6 @@
 # We edit /etc/conf.d/keymaps
 
 import os, sys, shutil
-from xml.dom import minidom
 
 # System functions
 
@@ -203,40 +202,62 @@ def configureXorgKeymap(xorgKeyLocale):
             shutil.copy2(hal_keymap_default_path,hal_keymap_etc_path)
             avail = True
     if avail and os.path.isfile(hal_keymap_etc_path):
-        xmldoc = minidom.parse(hal_keymap_etc_path)
+        # can't use xml since Hal shit is broken LIKE A SHITTY SHIT
+        # it goes nuts due to scrambled element attributes
+        #updateHalKeyboardXml(hal_keymap_etc_path, xorgKeyLocale)
+        # do it the old way
+        f = open(hal_keymap_etc_path,"r")
+        content = [x.rstrip() for x in f.readlines()]
+        f.close()
+        newcontent = []
+        for line in content:
+            if line.find('<merge key="input.xkb.layout" type="string">') != -1:
+                line = '      <merge key="input.xkb.layout" type="string">%s</merge>' % (xorgKeyLocale,)
+            newcontent.append(line)
+        f = open(hal_keymap_etc_path,"w")
+        for line in newcontent:
+            f.write(line+"\n")
+        f.flush()
+        f.close()
 
-        deviceinfo = xmldoc.getElementsByTagName("deviceinfo")
-        if deviceinfo: deviceinfo = deviceinfo[0]
-        else: return
 
-        device = deviceinfo.getElementsByTagName("device")
-        if device: device = device[0]
-        else: return
+def updateHalKeyboardXml(hal_keymap_etc_path, mysetting):
+    from xml.dom import minidom
+    xmldoc = minidom.parse(hal_keymap_etc_path)
 
-        do_write = False
-        matches = device.getElementsByTagName("match")
-        for match in matches:
-            if not (match.hasAttribute("key") and match.hasAttribute("contains")):
+    deviceinfo = xmldoc.getElementsByTagName("deviceinfo")
+    if deviceinfo: deviceinfo = deviceinfo[0]
+    else: return
+
+    device = deviceinfo.getElementsByTagName("device")
+    if device: device = device[0]
+    else: return
+
+    do_write = False
+    matches = device.getElementsByTagName("match")
+    for match in matches:
+        if not (match.hasAttribute("key") and match.hasAttribute("contains")):
+            continue
+        if match.getAttribute("contains") != "input.keys":
+            continue
+        # found it
+        merges = match.getElementsByTagName("merge")
+        for merge in merges:
+            if not (merge.hasAttribute("key") and merge.hasAttribute("type")):
                 continue
-            if match.getAttribute("contains") != "input.keys":
+            if merge.getAttribute("key") != "input.xkb.layout":
                 continue
-            # found it
-            merges = match.getElementsByTagName("merge")
-            for merge in merges:
-                if not (merge.hasAttribute("key") and merge.hasAttribute("type")):
-                    continue
-                if merge.getAttribute("key") != "input.xkb.layout":
-                    continue
-                if merge.getAttribute("type") != "string":
-                    continue
-                merge.firstChild.data = xorgKeyLocale
-                do_write = True
-                break
-        if do_write:
-            f = open(hal_keymap_etc_path,"w")
-            xmldoc.writexml(f)
-            f.flush()
-            f.close()
+            if merge.getAttribute("type") != "string":
+                continue
+            merge.firstChild.data = mysetting
+            do_write = True
+            break
+    if do_write:
+        f = open(hal_keymap_etc_path,"w")
+        xmldoc.writexml(f)
+        f.flush()
+        f.close()
+
 
 # KDE keymap config
 def configureKDEKeymap(keyLocale):
