@@ -1,6 +1,6 @@
 diff -Naur a/gen_cmdline.sh b/gen_cmdline.sh
 --- a/gen_cmdline.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/gen_cmdline.sh	2008-06-16 19:02:44.000000000 +0200
++++ b/gen_cmdline.sh	2008-06-16 21:01:33.000000000 +0200
 @@ -227,6 +227,17 @@
  			echo
  			print_warning 1 "Please use --evms, as --evms2 is deprecated."
@@ -21,7 +21,7 @@ diff -Naur a/gen_cmdline.sh b/gen_cmdline.sh
  			print_info 2 "CMD_LVM: ${CMD_LVM}"
 diff -Naur a/gen_compile.sh b/gen_compile.sh
 --- a/gen_compile.sh	2008-06-05 18:47:56.000000000 +0200
-+++ b/gen_compile.sh	2008-06-16 19:06:02.000000000 +0200
++++ b/gen_compile.sh	2008-06-16 21:15:38.000000000 +0200
 @@ -355,6 +355,103 @@
  	fi
  }
@@ -104,7 +104,7 @@ diff -Naur a/gen_compile.sh b/gen_compile.sh
 +		cd "${UNIONFS_DIR}"
 +		print_info 1 'unionfs tools: >> Compiling...'
 +		#./bootstrap &> /dev/null
-+		./configure >> ${DEBUGFILE} 2>&1 || gen_die 'Configuring unionfs-utils failed!'
++		#./configure >> ${LOGFILE} 2>&1 || gen_die 'Configuring unionfs-utils failed!'
 +		sed -i Makefile -e 's|LDFLAGS = |LDFLAGS = -all-static|g'
 +		compile_generic '' utils
 +		print_info 1 'unionfs: >> Copying to cache...'
@@ -128,7 +128,7 @@ diff -Naur a/gen_compile.sh b/gen_compile.sh
  		gen_die "Could not find busybox source tarball: ${BUSYBOX_SRCTAR}!"
 diff -Naur a/gen_determineargs.sh b/gen_determineargs.sh
 --- a/gen_determineargs.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/gen_determineargs.sh	2008-06-16 19:02:44.000000000 +0200
++++ b/gen_determineargs.sh	2008-06-16 21:01:33.000000000 +0200
 @@ -108,6 +108,7 @@
  	set_config_with_override 1 OLDCONFIG            CMD_OLDCONFIG
  	set_config_with_override 1 LVM                  CMD_LVM
@@ -163,7 +163,7 @@ diff -Naur a/gen_determineargs.sh b/gen_determineargs.sh
  }
 diff -Naur a/generic/initrd.scripts b/generic/initrd.scripts
 --- a/generic/initrd.scripts	2008-06-05 18:47:56.000000000 +0200
-+++ b/generic/initrd.scripts	2008-06-16 19:02:44.000000000 +0200
++++ b/generic/initrd.scripts	2008-06-16 21:01:33.000000000 +0200
 @@ -210,6 +210,21 @@
  	fi
  }
@@ -251,7 +251,7 @@ diff -Naur a/generic/initrd.scripts b/generic/initrd.scripts
  	local device=$(ls -l "${REAL_RESUME}" | sed 's/\ */ /g' | cut -d \  -f 6-7 | sed 's/,\ */:/')
 diff -Naur a/generic/linuxrc b/generic/linuxrc
 --- a/generic/linuxrc	2008-06-05 18:47:56.000000000 +0200
-+++ b/generic/linuxrc	2008-06-16 19:13:57.000000000 +0200
++++ b/generic/linuxrc	2008-06-16 21:01:33.000000000 +0200
 @@ -81,6 +81,21 @@
  		looptype\=*)
  			LOOPTYPE=`parse_opt "${x}"`
@@ -448,7 +448,7 @@ diff -Naur a/generic/linuxrc b/generic/linuxrc
  # Execute script on the cdrom just before boot to update things if necessary
 diff -Naur a/gen_initramfs.sh b/gen_initramfs.sh
 --- a/gen_initramfs.sh	2008-06-05 18:47:56.000000000 +0200
-+++ b/gen_initramfs.sh	2008-06-16 19:15:03.000000000 +0200
++++ b/gen_initramfs.sh	2008-06-16 21:01:33.000000000 +0200
 @@ -72,6 +72,21 @@
  	rm -rf "${TEMP}/initramfs-blkid-temp" > /dev/null
  }
@@ -481,7 +481,7 @@ diff -Naur a/gen_initramfs.sh b/gen_initramfs.sh
  	append_data 'evms' "${EVMS}"
 diff -Naur a/gen_initrd.sh b/gen_initrd.sh
 --- a/gen_initrd.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/gen_initrd.sh	2008-06-16 19:02:44.000000000 +0200
++++ b/gen_initrd.sh	2008-06-16 21:01:33.000000000 +0200
 @@ -65,6 +65,24 @@
  		gen_die 'Could not extract busybox bincache!'
  	chmod +x "${TEMP}/initrd-temp/bin/busybox"
@@ -509,7 +509,7 @@ diff -Naur a/gen_initrd.sh b/gen_initrd.sh
  	then
 diff -Naur a/genkernel b/genkernel
 --- a/genkernel	2008-06-05 18:47:55.000000000 +0200
-+++ b/genkernel	2008-06-16 19:02:44.000000000 +0200
++++ b/genkernel	2008-06-16 21:01:33.000000000 +0200
 @@ -382,6 +382,8 @@
  	[ "${EVMS}" -eq '1' ] && print_info 1 'add "doevms" for evms support'
  	[ "${DMRAID}" -eq '1' ] && print_info 1 'add "dodmraid" for dmraid support'
@@ -521,7 +521,7 @@ diff -Naur a/genkernel b/genkernel
  [ "${BOOTRW}" != '' ] && mount -o remount,ro ${BOOTDIR}
 diff -Naur a/genkernel.conf b/genkernel.conf
 --- a/genkernel.conf	2008-06-05 18:47:55.000000000 +0200
-+++ b/genkernel.conf	2008-06-16 19:02:44.000000000 +0200
++++ b/genkernel.conf	2008-06-16 21:04:25.000000000 +0200
 @@ -59,6 +59,10 @@
  # should run "emerge evms" first.
  # EVMS="no"
@@ -541,7 +541,7 @@ diff -Naur a/genkernel.conf b/genkernel.conf
 +# (from http://www.am-utils.org/project-unionfs.html)
 +UNIONFS_VER="VERSION_UNIONFS"
 +UNIONFS_DIR="unionfs-${UNIONFS_VER}"
-+UNIONFS_SRCTAR="${GK_SHARE}/pkg/unionfs-${UNIONFS_VER}.tar.gz"
++UNIONFS_SRCTAR="${DISTDIR}/unionfs-${UNIONFS_VER}.tar.gz"
 +UNIONFS_BINCACHE="%%CACHE%%/unionfs-${UNIONFS_VER}-tools-%%ARCH%%.tar.bz2"
 +UNIONFS_MODULES_BINCACHE="%%CACHE%%/unionfs-${UNIONFS_VER}-modules-%%KV%%-%%ARCH%%.tar.bz2"
 +
@@ -550,7 +550,7 @@ diff -Naur a/genkernel.conf b/genkernel.conf
  E2FSPROGS_SRCTAR="${DISTDIR}/e2fsprogs-${E2FSPROGS_VER}.tar.gz"
 diff -Naur a/mips/config.sh b/mips/config.sh
 --- a/mips/config.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/mips/config.sh	2008-06-16 19:02:44.000000000 +0200
++++ b/mips/config.sh	2008-06-16 21:01:33.000000000 +0200
 @@ -12,6 +12,7 @@
  USECOLOR="yes"
  NOINITRDMODULES="yes"
