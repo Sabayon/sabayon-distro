@@ -1,0 +1,94 @@
+diff -Naur a/generic/initrd.scripts b/generic/initrd.scripts
+--- a/generic/initrd.scripts	2008-06-05 18:47:56.000000000 +0200
++++ b/generic/initrd.scripts	2008-06-16 15:46:15.000000000 +0200
+@@ -715,6 +715,12 @@
+ 				DEV_ERROR=1
+ 				continue
+ 			else
++				# First switch to splash verbose
++				splash 'verbose' > /dev/null &
++				if [ -f "/etc/bootmsg" ]
++				then
++					cat /etc/bootmsg
++				fi
+ 				# Handle keys
+ 				if [ -n "${LUKS_KEY}" ] 
+ 				then
+@@ -761,6 +767,7 @@
+ 							continue
+ 						else
+ 							good_msg "Removable device ${LUKS_KEYDEV} mounted." ${CRYPT_SILENT}
++							splash 'init'
+ 							sleep 2
+ 							# keyfile exists?
+ 							if [ ! -e "${mntkey}${LUKS_KEY}" ]; then
+@@ -781,6 +788,7 @@
+ 				if [ $? -eq 0 ]
+ 				then
+ 					good_msg "LUKS device ${LUKS_DEVICE} opened" ${CRYPT_SILENT}
++					splash 'init'
+ 					break
+ 				else
+ 					bad_msg "Failed to open LUKS device ${LUKS_DEVICE}" ${CRYPT_SILENT}
+diff -Naur a/gen_initramfs.sh b/gen_initramfs.sh
+--- a/gen_initramfs.sh	2008-06-05 18:47:56.000000000 +0200
++++ b/gen_initramfs.sh	2008-06-16 15:46:15.000000000 +0200
+@@ -416,13 +416,26 @@
+ 			rm -f ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
+ 			cp /bin/cryptsetup ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
+ 			chmod +x "${TEMP}/initramfs-aux-temp/sbin/cryptsetup"
++			if [ -f "/etc/bootmsg" ]
++			then
++				print_info 2 "Copying the ASCII art message."
++				rm -f "${TEMP}/initramfs-aux-temp/etc/bootmsg"
++				cp "/etc/bootmsg" "${TEMP}/initramfs-aux-temp/etc/bootmsg" ||
++					gen_die "Luks error: could not copy ASCII art message."
++			fi
+ 		elif is_static /sbin/cryptsetup
+ 		then
+ 			print_info 1 "Including LUKS support"
+ 			rm -f ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
+ 			cp /sbin/cryptsetup ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
+-		chmod +x "${TEMP}/initramfs-aux-temp/sbin/cryptsetup"
+-
++			chmod +x "${TEMP}/initramfs-aux-temp/sbin/cryptsetup"
++			if [ -f "/etc/bootmsg" ]
++			then
++				print_info 2 "Copying the ASCII art message."
++				rm -f "${TEMP}/initramfs-aux-temp/etc/bootmsg"
++				cp "/etc/bootmsg" "${TEMP}/initramfs-aux-temp/etc/bootmsg" ||
++					gen_die "Luks error: could not copy ASCII art message."
++			fi
+ 		else
+ 			print_info 1 "LUKS support requires static cryptsetup at /bin/cryptsetup or /sbin/cryptsetup"
+ 			print_info 1 "Not including LUKS support"
+diff -Naur a/gen_initrd.sh b/gen_initrd.sh
+--- a/gen_initrd.sh	2008-06-05 18:47:55.000000000 +0200
++++ b/gen_initrd.sh	2008-06-16 15:46:15.000000000 +0200
+@@ -171,12 +171,26 @@
+ 			rm -f ${TEMP}/initrd-temp/sbin/cryptsetup
+ 			cp /bin/cryptsetup ${TEMP}/initrd-temp/sbin/cryptsetup
+ 			chmod +x "${TEMP}/initrd-temp/sbin/cryptsetup"
++			if [ -f "/etc/bootmsg" ]
++			then
++				print_info 2 "Copying the ASCII art message."
++				rm -f "${TEMP}/initramfs-aux-temp/etc/bootmsg"
++				cp "/etc/bootmsg" "${TEMP}/initramfs-aux-temp/etc/bootmsg" ||
++					gen_die "Luks error: could not copy ASCII art message."
++			fi
+ 		elif is_static /sbin/cryptsetup
+ 		then
+ 			print_info 1 "Including LUKS support"
+ 			rm -f ${TEMP}/initrd-temp/sbin/cryptsetup
+ 			cp /sbin/cryptsetup ${TEMP}/initrd-temp/sbin/cryptsetup
+ 			chmod +x "${TEMP}/initrd-temp/sbin/cryptsetup"
++			if [ -f "/etc/bootmsg" ]
++			then
++				print_info 2 "Copying the ASCII art message."
++				rm -f "${TEMP}/initramfs-aux-temp/etc/bootmsg"
++				cp "/etc/bootmsg" "${TEMP}/initramfs-aux-temp/etc/bootmsg" ||
++					gen_die "Luks error: could not copy ASCII art message."
++			fi
+ 		else
+ 			print_info 1 "LUKS support requires static cryptsetup at /bin/cryptsetup or /sbin/cryptsetup"
+ 			print_info 1 "Not including LUKS support"

@@ -1,0 +1,115 @@
+diff -Naur b/generic/initrd.scripts c/generic/initrd.scripts
+--- b/generic/initrd.scripts	2008-06-16 19:18:27.000000000 +0200
++++ c/generic/initrd.scripts	2008-06-16 19:23:23.000000000 +0200
+@@ -225,6 +225,13 @@
+ 	fi
+ }
+ 
++aufs_setup_dir() {
++	mount -t aufs -o br=$OVERLAY:$2 none $1
++	if [ "$?" -eq '0' ]; then
++		good_msg "Addition of $2 to $OVERLAY merged into $1"
++	fi
++}
++
+ findnfsmount() {
+ 	if [ "${IP}" != '' ] || busybox udhcpc -n -T 15 -q -s /bin/udhcpc.scripts
+ 	then
+@@ -910,6 +917,20 @@
+ 	fi
+ }
+ 
++setup_aufs() {
++	if [ "${USE_AUFS_NORMAL}" -eq '1' ]
++	then
++		# Directory used for rw changes in union mount filesystem
++		UNION=/aufs
++		OVERLAY=/overlay
++		mkdir -p ${UNION}
++		mkdir -p ${OVERLAY}
++		mount -t tmpfs none ${OVERLAY}
++		good_msg "Loading aufs module (if module)"
++		modprobe aufs > /dev/null 2>&1
++	fi
++}
++
+ setup_unionfs() {
+ 	if [ "${USE_UNIONFS_NORMAL}" = '1' ]
+ 	then
+diff -Naur b/generic/linuxrc c/generic/linuxrc
+--- b/generic/linuxrc	2008-06-16 19:18:27.000000000 +0200
++++ c/generic/linuxrc	2008-06-16 19:28:51.000000000 +0200
+@@ -84,6 +84,9 @@
+ 		unionfs)
+ 			USE_UNIONFS_NORMAL=0
+ 		;;
++		aufs)
++			USE_AUFS_NORMAL=1
++		;;
+ 		unionfs\=*)
+             USE_UNIONFS_NORMAL=1
+             CMD_UNIONFS=`parse_opt "${x}"`
+@@ -267,8 +270,9 @@
+ # Set up unionfs
+ mkdir -p ${NEW_ROOT}
+ setup_unionfs
++setup_aufs
+ 
+-if [ "${USE_UNIONFS_NORMAL}" = '1' ]
++if [ "${USE_UNIONFS_NORMAL}" -eq '1' ] || [ "${USE_AUFS_NORMAL}" -eq '1' ]
+ then
+ 	CHROOT=${UNION}
+ else
+@@ -280,7 +284,7 @@
+ 
+ if [ "${CDROOT}" = '1' ]
+ then
+-	if [ ! "${USE_UNIONFS_NORMAL}" = '1' ]
++	if [ ! "${USE_UNIONFS_NORMAL}" -eq '1' ] && [ ! "${USE_AUFS_NORMAL}" -eq '1' ]
+ 	then
+ 		good_msg "Making tmpfs for ${NEW_ROOT}"
+ 		mount -t tmpfs tmpfs ${NEW_ROOT}
+@@ -554,6 +558,22 @@
+ 		mv /${UNION}/etc/fstab.new /${UNION}/etc/fstab
+ 	fi
+ 
++	if [ "${USE_AUFS_NORMAL}" -eq '1' ]
++	then
++		aufs_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
++
++		mkdir -p ${UNION}/mnt/livecd
++		if [ ! -e "${UNION}/mnt/cdrom" ]; then
++			mkdir ${UNION}/mnt/cdrom -p
++		fi
++		mount --bind ${NEW_ROOT}/${FS_LOCATION} ${UNION}/mnt/livecd
++		mount --bind ${NEW_ROOT}/mnt/cdrom ${UNION}/mnt/cdrom
++
++		# Make sure fstab notes livecd is mounted ro.  Makes system skip remount which fails on aufs $
++		sed -e 's|\(.*\s/\s*tmpfs\s*\)defaults\(.*\)|\1defaults,ro\2|' /${UNION}/etc/fstab > /${UNION}/etc/fstab.new
++		mv /${UNION}/etc/fstab.new /${UNION}/etc/fstab
++	fi
++
+ 	# Unpacking additional packages from NFS mount
+ 	# This is useful for adding kernel modules to /lib
+ 	# We do this now, so that additional packages can add whereever they want.
+@@ -571,7 +591,7 @@
+ 	fi
+ 
+ 	
+-	if [ "${USE_UNIONFS_NORMAL}" != '1' ]
++	if [ ! "${USE_UNIONFS_NORMAL}" -eq '1' ] && [ ! "${USE_AUFS_NORMAL}" -eq '1' ]
+ 	then
+ 		good_msg "Copying read-write image contents to tmpfs"
+ 		# Copy over stuff that should be writable
+@@ -645,6 +665,11 @@
+         union_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
+ 		mkdir -p ${UNION}/tmp/.initrd
+ 	fi
++	if [ "${USE_AUFS_NORMAL}" -eq '1' ]
++	then
++		aufs_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
++		mkdir -p ${UNION}/tmp/.initrd
++	fi
+ fi
+ 
+ # Execute script on the cdrom just before boot to update things if necessary
