@@ -1,0 +1,50 @@
+diff --git a/configure.ac b/configure.ac
+index 8a45698..d82e5f7 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -118,8 +118,7 @@ AC_SUBST(imagedir)
+ metadatadir=$datadir/compiz
+ AC_SUBST(metadatadir)
+ 
+-COMPIZ_REQUIRES="x11-xcb    \
+-		 xcomposite \
++COMPIZ_REQUIRES="xcomposite \
+ 		 xfixes	    \
+ 		 xdamage    \
+ 		 xrandr	    \
+diff --git a/include/compiz-core.h b/include/compiz-core.h
+index ade40c5..47cac9c 100644
+--- a/include/compiz-core.h
++++ b/include/compiz-core.h
+@@ -33,7 +33,7 @@
+ #include <stdio.h>
+ #include <sys/time.h>
+ 
+-#include <X11/Xlib-xcb.h>
++#include <X11/Xlib.h>
+ #include <X11/Xutil.h>
+ #include <X11/extensions/Xdamage.h>
+ #include <X11/extensions/Xcomposite.h>
+@@ -716,8 +716,6 @@ typedef void (*FiniPluginForDisplayProc) (CompPlugin  *plugin,
+ struct _CompDisplay {
+     CompObject object;
+ 
+-    xcb_connection_t *connection;
+-
+     Display    *display;
+     CompScreen *screens;
+ 
+diff --git a/include/compiz.h b/include/compiz.h
+diff --git a/src/display.c b/src/display.c
+index 57cd520..9d9a3e1 100644
+--- a/src/display.c
++++ b/src/display.c
+@@ -2064,8 +2064,6 @@ addDisplay (const char *name)
+ 	return FALSE;
+     }
+ 
+-    d->connection = XGetXCBConnection (dpy);
+-
+     if (!compInitDisplayOptionsFromMetadata (d,
+ 					     &coreMetadata,
+ 					     coreDisplayOptionInfo,
