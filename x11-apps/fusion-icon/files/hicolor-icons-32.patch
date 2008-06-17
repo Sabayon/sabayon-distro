@@ -1,0 +1,11 @@
+diff -Naur a/setup.py b/setup.py
+--- a/setup.py	2008-06-11 05:45:23.802780727 +0200
++++ b/setup.py	2008-06-11 05:46:16.309114805 +0200
+@@ -63,6 +63,7 @@
+ data_files = [
+ 	('share/icons/hicolor/22x22/apps',['images/22x22/fusion-icon.png']),
+ 	('share/icons/hicolor/24x24/apps',['images/24x24/fusion-icon.png']),
++	('share/icons/hicolor/32x32/apps',['images/32x32/fusion-icon.png']),
+ 	('share/icons/hicolor/48x48/apps',['images/48x48/fusion-icon.png']),
+ 	('share/icons/hicolor/scalable/apps',['images/scalable/fusion-icon.svg']),
+ 	('share/applications',['fusion-icon.desktop']),
