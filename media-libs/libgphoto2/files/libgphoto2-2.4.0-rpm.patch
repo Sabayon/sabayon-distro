@@ -1,0 +1,11 @@
+--- configure.old	2007-09-24 22:21:16.000000000 +0200
++++ configure	2007-09-24 22:21:27.000000000 +0200
+@@ -26609,7 +26609,7 @@
+ # whether libusb-devel is installed or not defines whether the RPM
+ # packages we're going to build will depend on libusb and libusb-devel
+ # RPM packages or not.
+- if rpm -q libusb-devel > /dev/null 2>&1; then
++ if false -q libusb-devel > /dev/null 2>&1; then
+   RPM_LIBUSB_DEVEL_TRUE=
+   RPM_LIBUSB_DEVEL_FALSE='#'
+ else
