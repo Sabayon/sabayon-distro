@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit distutils gnome2-utils
+inherit distutils
 
 DESCRIPTION="Compizconfig Settings Manager"
 HOMEPAGE="http://compiz-fusion.org"
@@ -25,8 +25,4 @@ src_compile() {
 
 src_install() {
 	distutils_src_install --prefix=/usr
-}
-
-pkg_postinst() {
-	use gtk && gnome2_icon_cache_update
 }
