@@ -1,0 +1,11 @@
+x11-apps/simple-ccsm
+
+Ebuild added Jun. 18, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+This ebuild has been added to provide the simple-ccsm package which is not
+provided by gentoo.
+
+======
+18.06.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - Welcome simple-ccsm :) 
