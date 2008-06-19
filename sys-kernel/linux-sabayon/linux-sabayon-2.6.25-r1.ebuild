@@ -16,7 +16,7 @@ HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
 	!only_sources? ( ~sys-kernel/genkernel-3.4.9 )
 	splash? ( x11-themes/sabayonlinux-artwork )
-	!=sys-kernel/sabayon-sources-${PVR}
+	!=sys-kernel/sabayon-sources-${PVR/-r0/}
 	"
 RDEPEND="grub? ( sys-boot/grub )"
 IUSE="splash dmraid grub no_sources only_sources"
@@ -25,7 +25,7 @@ DESCRIPTION="Official Sabayon Linux kernel images and sources"
 KV_FULL=${KV_FULL/linux/sabayon}
 K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
-SLOT="${PVR}"
+SLOT="${PVR/-r0/}"
 S="${WORKDIR}/linux-${KV_FULL}"
 UNIONFS_PATCH="unionfs-2.3.3_for_${MY_PV}.diff.gz"
 
@@ -86,7 +86,7 @@ src_compile() {
 		mkdir ${S}/temp
 	
 		einfo "Starting to compile kernel..."
-		cp ${FILESDIR}/${P}-${ARCH}.config ${WORKDIR}/config
+		cp ${FILESDIR}/${PF/-r0/}-${ARCH}.config ${WORKDIR}/config || die "cannot copy kernel config"
 	
 		if use grub; then
 			if [ -e "/boot/grub/grub.conf" ]; then
@@ -134,7 +134,7 @@ src_install() {
 			OLDARCH=${ARCH}
 			unset ARCH
 			make distclean || die "cannot run make distclean"
-			cp ${FILESDIR}/${P}-${OLDARCH}.config ${D}/usr/src/linux-${KV_FULL}/.config || die "cannot copy kernel configuration"
+			cp ${FILESDIR}/${PF/-r0/}-${OLDARCH}.config ${D}/usr/src/linux-${KV_FULL}/.config || die "cannot copy kernel configuration"
 			make prepare modules_prepare || die "cannot run make prepare modules_prepare"
 			ARCH=${OLDARCH}
 		fi
