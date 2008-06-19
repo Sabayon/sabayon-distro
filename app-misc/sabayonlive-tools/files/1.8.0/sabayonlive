@@ -98,6 +98,8 @@ start() {
 	rm -f /usr/share/autostart/kbluetooth.autostart.desktop
 	rm -f /usr/share/autostart/beagled.desktop
 	rm -f /usr/share/autostart/etp-applet.desktop
+        rm -f /etc/xdg/autostart/etp-applet.desktop
+        rm -f /etc/xdg/autostart/beagled-autostart.desktop
 
         # Remove broken entries in /etc/mtab
         sed -i '/.*newroot.*/d' /etc/mtab
@@ -239,12 +241,14 @@ start() {
 		echo -e "\E[33;36m * \E[0m\E[01;36m Autoscrambling root passwords for   S E C U R I T Y"
 		echo root:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
 		echo sabayonuser:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
+		echo
 
 	else 	
 
                 echo
       	      	echo -e "\t *\E[01;32m root password\E[0m : \E[01;33m root \E[0m"
               	echo -e "\t *\E[01;32m username\E[0m : \E[01;33m sabayonuser\E[0m |\E[01;32m password\E[0m : \E[01;33m sabayonuser\E[0m"
+		echo
 
 	fi
 
@@ -864,14 +868,17 @@ start() {
 
 	# Strict HARDWARE detection and configuration
 
-	pc_is_macbook=$(lshal | grep -i macbook)
-	if [ -n "$pc_is_macbook" ]; then
-		# launch pommed
-		if [ -e "/etc/init.d/pommed" ]; then
-			/etc/init.d/pommed start &> /dev/null
-			rc-update add pommed default &> /dev/null
-		fi
-	fi
+	# XXX disabled because:
+	# - can hang
+	# - hal is not started anymore at this point
+	#pc_is_macbook=$(lshal | grep -i macbook)
+	#if [ -n "$pc_is_macbook" ]; then
+	#	# launch pommed
+	#	if [ -e "/etc/init.d/pommed" ]; then
+	#		/etc/init.d/pommed start &> /dev/null
+	#		rc-update add pommed default &> /dev/null
+	#	fi
+	#fi
 
 	# Setup automatic DVD ejecting
 	python -c '
