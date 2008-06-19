@@ -43,10 +43,7 @@ UNIPATCH_LIST="
 		${FILESDIR}/${MY_PV}/${MY_P}-aufs.patch
 		${FILESDIR}/${MY_PV}/patch-2.6.25.7.bz2
 		${FILESDIR}/${MY_PV}/${MY_P}-at76.patch
-		${FILESDIR}/${MY_PV}/${MY_P}-wireless-pending.patch.bz2
 		${DISTDIR}/${UNIONFS_PATCH}
-		${FILESDIR}/${MY_PV}/${MY_P}-wireless-ath5k-eeepc.patch
-		${FILESDIR}/${MY_PV}/${MY_P}-wireless-ath5k-ar5424-2424-fixes.patch
 "
 
 
