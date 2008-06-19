@@ -41,7 +41,7 @@ UNIPATCH_LIST="
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${FILESDIR}/${MY_PV}/${MY_P}-atl2.patch
 		${FILESDIR}/${MY_PV}/${MY_P}-aufs.patch
-		${FILESDIR}/${MY_PV}/patch-2.6.25.5.bz2
+		${FILESDIR}/${MY_PV}/patch-2.6.25.7.bz2
 		${FILESDIR}/${MY_PV}/${MY_P}-at76.patch
 		${FILESDIR}/${MY_PV}/${MY_P}-wireless-pending.patch.bz2
 		${DISTDIR}/${UNIONFS_PATCH}
