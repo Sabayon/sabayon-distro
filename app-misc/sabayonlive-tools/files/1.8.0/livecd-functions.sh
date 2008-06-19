@@ -377,19 +377,16 @@ get_ifdesc() {
 show_ifmenu() {
 	local old_ifs="${IFS}"
 	local opts
-	IFS="
-"
+	IFS=""
 	for ifname in $(/sbin/ifconfig -a | grep "^[^ ]"); do
 		ifname="${ifname%% *}"
 		[[ ${ifname} == "lo" ]] && continue
-		opts="${opts} ${ifname} '$(get_ifdesc ${ifname})'"
+		opts="${opts} '${ifname}' '$(get_ifdesc ${ifname})'"
 	done
 	IFS="${old_ifs}"
 
-	if ! eval dialog --menu "Please select the interface that you wish to configure from the list below:" 0 0 0 $opts 2>iface
-	then
-		exit
-	fi
+	eval dialog --menu \"Please select the interface that you wish to configure from the list below:\" 0 0 0 $opts 2>iface
+	[[ "$?" == "1" ]] && exit
 
 	iface=$(< iface)
 }
