@@ -941,27 +941,6 @@ if mydev.startswith("/dev") and os.path.isfile(sh_file):
 
         fi
 
-	# Dirty workaround for kde4 apps in !=kde4 DEs
-	python -c '
-import os
-kde4_de_dir = "/usr/kde/4.0/share/applications/kde4"
-kde4_de_files = os.listdir(kde4_de_dir)
-for kde4file in kde4_de_files:
-	kde4file = kde4_de_dir+"/"+kde4file
-	f = open(kde4file,"r")
-	k4content = f.readlines()
-	f.close()
-	f = open(kde4file,"w")
-	for line in k4content:
-		if line.startswith("Exec="):
-			line = line.replace("Exec=","Exec=/usr/kde/3.9/bin/")
-		if line.startswith("Name="):
-			line = line.strip()
-			line += " KDE 4\n"
-		f.write(line)
-	f.flush()
-	f.close()
-'
 	# Add sudo to gparted exec=
 	sed -i 's/Exec=/Exec=sudo /' /home/sabayonuser/Desktop/gparted.desktop
 
