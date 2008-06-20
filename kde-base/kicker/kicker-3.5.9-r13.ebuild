@@ -11,7 +11,7 @@ SRC_URI="${SRC_URI}
 
 DESCRIPTION="Kicker is the KDE application starter panel, also capable of some useful applets and extensions."
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="kdehiddenvisibility kickoff pertty xcomposite"
+IUSE="kdehiddenvisibility kickoff xcomposite"
 
 RDEPEND="
 >=kde-base/libkonq-${PV}:${SLOT}
@@ -33,21 +33,6 @@ KMCOMPILEONLY="kdmlib/"
 
 PATCHES=""
 
-if use pertty;
-then
-        PATCHES="${PATCHES}
-                $FILESDIR/$KMNAME-3.5.6-$PN-execute_feedback.patch"
-
-        #
-        # Revert to old search + Kbutton patches if not using kickoff
-        # - cannot have both on at the same time (yet)
-        #
-        if ! use kickoff;
-        then
-        PATCHES="${PATCHES}
-                $FILESDIR/$KMNAME-3.5.5-$PN-kmenu-button-reload.patch"
-        fi
-fi
 
 src_unpack() {
         kde-meta_src_unpack
@@ -76,15 +61,6 @@ pkg_setup() {
                 ewarn "this emerge and disable 'kdehiddenvisibility' before you try"
                 ewarn "again."
                 echo ""
-        fi
-
-        if use pertty && ! built_with_use --missing false =kde-base/kdelibs-3.5* pertty; then
-                eerror "The pertty USE flag in this package enables special extensions"
-                eerror "and requires that kdelibs be patched to support these extensions."
-                eerror "Since it appears your version of kdelibs was not compiled with these"
-                eerror "extensions, you must either emerge kicker without pertty or"
-                eerror "re-emerge kdelibs with pertty enabled and then emerge kicker again."
-                die "Missing pertty USE flag on kde-base/kdelibs"
         fi
 }
 
