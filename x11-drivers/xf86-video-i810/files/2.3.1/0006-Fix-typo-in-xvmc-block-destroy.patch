@@ -1,0 +1,22 @@
+From 87ace420a34df7425641d089f71830e44fced098 Mon Sep 17 00:00:00 2001
+From: Shuang He <shuang.he@intel.com>
+Date: Mon, 26 May 2008 09:20:53 +0800
+Subject: [PATCH] Fix typo in xvmc block destroy
+
+
+diff --git a/src/xvmc/intel_xvmc.c b/src/xvmc/intel_xvmc.c
+index 1be8cc6..3c14f73 100644
+--- a/src/xvmc/intel_xvmc.c
++++ b/src/xvmc/intel_xvmc.c
+@@ -513,7 +513,7 @@ Status XvMCCreateBlocks(Display *display, XvMCContext *context,
+  */
+ Status XvMCDestroyBlocks(Display *display, XvMCBlockArray *block)
+ {
+-    if (!display || block)
++    if (!display || !block)
+         return BadValue;
+ 
+     if (block->blocks)
+-- 
+1.5.5.3
+

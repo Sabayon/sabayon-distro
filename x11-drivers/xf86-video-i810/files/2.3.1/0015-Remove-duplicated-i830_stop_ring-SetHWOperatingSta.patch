@@ -1,0 +1,24 @@
+From e0a2b1008f751ee8cddb0d7587514ea574821af6 Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Thu, 5 Jun 2008 13:39:08 -0700
+Subject: [PATCH] Remove duplicated i830_stop_ring()/SetHWOperatingState() in EnterVT().
+ (cherry picked from commit adb4f5a5e826e584ab212d23fc8d474c3e7bb8e8)
+
+
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index 16092dd..cf4586b 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -3323,9 +3323,6 @@ I830EnterVT(int scrnIndex, int flags)
+    }
+    i830DescribeOutputConfiguration(pScrn);
+ 
+-   i830_stop_ring(pScrn, TRUE);
+-   SetHWOperatingState(pScrn);
+-
+ #ifdef XF86DRI
+    if (pI830->directRenderingEnabled) {
+        /* HW status is fixed, we need to set it up before any drm
+-- 
+1.5.5.3
+

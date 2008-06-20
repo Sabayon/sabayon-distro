@@ -1,0 +1,13 @@
+x11-drivers/xf86-video-i810
+
+Ebuild added Jun. 20, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+This ebuild has been added to provide patches from Debian/Ubuntu,
+these patches will solve some problems with some video cards like i945GM.
+NOTE: The patches won't be applied unless the USE flag "ubuntu-patches"
+      is used, we don't want to force the user to apply them now would we?
+
+======
+20.06.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - xf86-video-i810: welcome :)

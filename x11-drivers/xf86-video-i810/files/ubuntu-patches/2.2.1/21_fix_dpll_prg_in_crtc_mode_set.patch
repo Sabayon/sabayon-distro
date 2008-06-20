@@ -1,0 +1,47 @@
+commit d767eabe534be7f7bdcbf00614a8901124ac911f
+Author: Hong Liu <hong.liu@intel.com>
+Date:   Thu Feb 28 13:51:18 2008 +0800
+
+    Fix DPLL programming in CRTC mode set
+    
+    The following patch fixes the display problem on internal development machines.
+    The code in commit 3c22ed633be2ac96eea7bc533839e956f1f31b84 (Jesse's force pipe
+    A enable patch) broke DPLL programming.  Moving the DPLL set back up in the
+    function solves the problem.
+    
+    Fix for internal bug #309.
+
+diff --git a/src/i830_display.c b/src/i830_display.c
+index 86992ac..712a40d 100644
+--- a/src/i830_display.c
++++ b/src/i830_display.c
+@@ -1281,6 +1281,14 @@ i830_crtc_mode_set(xf86CrtcPtr crtc, DisplayModePtr mode,
+ 	i830PrintPll("chosen", &clock);
+     }
+ 
++    if (dpll & DPLL_VCO_ENABLE)
++    {
++	OUTREG(fp_reg, fp);
++	OUTREG(dpll_reg, dpll & ~DPLL_VCO_ENABLE);
++	POSTING_READ(dpll_reg);
++	usleep(150);
++    }
++
+     /* The LVDS pin pair needs to be on before the DPLLs are enabled.
+      * This is an exception to the general rule that mode_set doesn't turn
+      * things on.
+@@ -1289,14 +1297,6 @@ i830_crtc_mode_set(xf86CrtcPtr crtc, DisplayModePtr mode,
+     {
+ 	CARD32 lvds = INREG(LVDS);
+ 
+-	if (dpll & DPLL_VCO_ENABLE)
+-	{
+-	    OUTREG(fp_reg, fp);
+-	    OUTREG(dpll_reg, dpll & ~DPLL_VCO_ENABLE);
+-	    POSTING_READ(dpll_reg);
+-	    usleep(150);
+-	}
+-
+ 	lvds |= LVDS_PORT_EN | LVDS_A0A2_CLKA_POWER_UP | LVDS_PIPEB_SELECT;
+ 	/* Set the B0-B3 data pairs corresponding to whether we're going to
+ 	 * set the DPLLs for dual-channel mode or not.

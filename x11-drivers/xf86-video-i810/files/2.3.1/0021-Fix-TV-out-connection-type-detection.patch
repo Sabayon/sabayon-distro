@@ -1,0 +1,27 @@
+From 7d9676c8cc309d42c49f82274f7dc43ab327bea3 Mon Sep 17 00:00:00 2001
+From: Robert Lowery <rglowery@exemail.com.au>
+Date: Tue, 20 May 2008 21:09:23 +1000
+Subject: [PATCH] Fix TV out connection type detection
+
+Make sure we wait for vblank when using the TV DAC to detect the connection
+type.
+
+Fixes FDO bug #14000.
+(cherry picked from commit 64a8f2433d7774d06119793b57cec6d3be6389c1)
+(cherry picked from commit e4e61e8c97c585993b4b69b86350b3987178a47e)
+
+diff --git a/src/i830_tv.c b/src/i830_tv.c
+index 6adb9f2..2fc6199 100644
+--- a/src/i830_tv.c
++++ b/src/i830_tv.c
+@@ -1303,6 +1303,7 @@ i830_tv_detect_type (xf86CrtcPtr    crtc,
+ 	tv_dac = INREG(TV_DAC);
+ 	OUTREG(TV_DAC, save_tv_dac);
+ 	OUTREG(TV_CTL, save_tv_ctl);
++	i830WaitForVblank(pScrn);
+     }
+     /*
+      *  A B C
+-- 
+1.5.5.3
+

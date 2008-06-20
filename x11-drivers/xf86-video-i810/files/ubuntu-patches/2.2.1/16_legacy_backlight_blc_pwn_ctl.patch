@@ -1,0 +1,33 @@
+From 1450acd046d47e1739a3ffbd146c73ad2974a935 Mon Sep 17 00:00:00 2001
+From: Jesse Barnes <jbarnes@hobbes.virtuousgeek.org>
+Date: Fri, 28  Mar  2008  20:23:02  +0000
+Subject: Use combo backlight control rather than pure legacy
+
+If the legacy bit is set, use both the BLC_PWM_CTL and LBB regs to control the
+backlight, rather than just LBB.  Looks like more platforms want that than what
+the current code does.  Note that kernel provided interfaces will always be
+used if available, so this shouldn't affect users with /sys/class/backlight
+interfaces at all.
+
+Fixes #14721.
+---
+diff --git a/src/i830_lvds.c b/src/i830_lvds.c
+index 28a51d9..33b4f26 100644
+--- a/src/i830_lvds.c
++++ b/src/i830_lvds.c
+@@ -133,11 +133,11 @@ i830_set_lvds_backlight_method(xf86OutputPtr output)
+     } else if (IS_I965GM(pI830) || IS_IGD_GM(pI830)) {
+ 	blc_pwm_ctl2 = INREG(BLC_PWM_CTL2);
+ 	if (blc_pwm_ctl2 & BLM_LEGACY_MODE2)
+-	    method = BCM_LEGACY;
++	    method = BCM_COMBO;
+     } else {
+ 	blc_pwm_ctl = INREG(BLC_PWM_CTL);
+ 	if (blc_pwm_ctl & BLM_LEGACY_MODE)
+-	    method = BCM_LEGACY;
++	    method = BCM_COMBO;
+     }
+ 
+     pI830->backlight_control_method = method;
+--
+cgit v0.7.2-37-g538c

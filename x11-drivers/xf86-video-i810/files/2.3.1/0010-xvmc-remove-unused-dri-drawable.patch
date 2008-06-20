@@ -1,0 +1,316 @@
+From ce674bd39c2fe2844b449fad6cfe83b4d18adad6 Mon Sep 17 00:00:00 2001
+From: Zhenyu Wang <zhenyu.z.wang@intel.com>
+Date: Tue, 3 Jun 2008 16:13:52 +0800
+Subject: [PATCH] xvmc: remove unused dri drawable
+ (cherry picked from commit 96955003557686469c7ae9f7d42620d2851e6fad)
+
+
+diff --git a/src/xvmc/Makefile.am b/src/xvmc/Makefile.am
+index f571743..f2dab22 100644
+--- a/src/xvmc/Makefile.am
++++ b/src/xvmc/Makefile.am
+@@ -19,9 +19,8 @@ libIntelXvMC_la_SOURCES = intel_xvmc.c \
+                          intel_batchbuffer.h \
+                          xf86dri.c \
+                          xf86dri.h \
+-                         xf86dristr.h \
+-                         driDrawable.c \
+-                         driDrawable.h
++                         xf86dristr.h
++
+ libIntelXvMC_la_CFLAGS = @XORG_CFLAGS@ @DRI_CFLAGS@ @XVMCLIB_CFLAGS@ -I$(top_srcdir)/src -DTRUE=1 -DFALSE=0
+ libIntelXvMC_la_LDFLAGS = -version-number 1:0:0
+ libIntelXvMC_la_LIBADD = @DRI_LIBS@
+diff --git a/src/xvmc/driDrawable.c b/src/xvmc/driDrawable.c
+deleted file mode 100644
+index 8386334..0000000
+--- a/src/xvmc/driDrawable.c
++++ /dev/null
+@@ -1,174 +0,0 @@
+-/*****************************************************************************
+- * driDrawable.c: Lean Version of DRI utilities.
+- *
+- * Copyright (c) 2005 Thomas Hellstrom. All rights reserved.
+- *
+- * Permission is hereby granted, free of charge, to any person obtaining a
+- * copy of this software and associated documentation files (the "Software"),
+- * to deal in the Software without restriction, including without limitation
+- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+- * and/or sell copies of the Software, and to permit persons to whom the
+- * Software is furnished to do so, subject to the following conditions:
+- *
+- * The above copyright notice and this permission notice shall be included in
+- * all copies or substantial portions of the Software.
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+- * AUTHOR(S) OR COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+- * DEALINGS IN THE SOFTWARE.
+- */
+-
+-
+-#include <X11/Xlibint.h>
+-#include <X11/Xutil.h>
+-#include "xf86drm.h"
+-#include "drm.h"
+-#include "xf86dri.h"
+-#include "drm_sarea.h"
+-#include "driDrawable.h"
+-
+-static unsigned
+-drawStamp(volatile drm_sarea_t * pSarea, int index)
+-{
+-    return pSarea->drawableTable[index].stamp;
+-}
+-
+-int
+-getDRIDrawableInfoLocked(void *drawHash, Display * display, int screen,
+-    Drawable draw, unsigned lockFlags, int drmFD, drm_context_t drmContext,
+-    drmAddress sarea, Bool updateInfo, drawableInfo ** info,
+-    unsigned long infoSize)
+-{
+-    drawableInfo *drawInfo;
+-    void *res;
+-    drm_drawable_t drmDraw = 0;
+-    volatile drm_sarea_t *pSarea = (drm_sarea_t *) sarea;
+-    drm_clip_rect_t *clipFront, *clipBack;
+-
+-    int ret;
+-
+-    if (drmHashLookup(drawHash, (unsigned long)draw, &res)) {
+-
+-	/*
+-	 * The drawable is unknown to us. Create it and put it in the
+-	 * hash table.
+-	 */
+-
+-	DRM_UNLOCK(drmFD, &pSarea->lock, drmContext);
+-	if (!uniDRICreateDrawable(display, screen, draw, &drmDraw)) {
+-	    DRM_LOCK(drmFD, &pSarea->lock, drmContext, lockFlags);
+-	    return 1;
+-	}
+-	DRM_LOCK(drmFD, &pSarea->lock, drmContext, lockFlags);
+-
+-	drawInfo = (drawableInfo *) malloc(infoSize);
+-	if (!drawInfo)
+-	    return 1;
+-
+-	drawInfo->drmDraw = drmDraw;
+-	drawInfo->stamp = 0;
+-	drawInfo->clipFront = 0;
+-	drawInfo->clipBack = 0;
+-
+-	drmHashInsert(drawHash, (unsigned long)draw, drawInfo);
+-
+-    } else {
+-	drawInfo = res;
+-    }
+-
+-    drawInfo->touched = FALSE;
+-    while (!drawInfo->clipFront
+-	|| drawInfo->stamp != drawStamp(pSarea, drawInfo->index)) {
+-
+-	/*
+-	 * The drawable has been touched since we last got info about it.
+-	 * obtain new info from the X server.
+-	 */
+-
+-	drawInfo->touched = TRUE;
+-
+-	if (updateInfo || !drawInfo->clipFront) {
+-	    DRM_UNLOCK(drmFD, &pSarea->lock, drmContext);
+-
+-	    ret = uniDRIGetDrawableInfo(display, screen, draw,
+-		&drawInfo->index, &drawInfo->stamp, &drawInfo->x,
+-		&drawInfo->y, &drawInfo->w, &drawInfo->h,
+-		&drawInfo->numClipFront, &clipFront,
+-		&drawInfo->backX, &drawInfo->backY,
+-		&drawInfo->numClipBack, &clipBack);
+-
+-	    DRM_LIGHT_LOCK(drmFD, &pSarea->lock, drmContext);
+-
+-	    /*
+-	     * Error. Probably the drawable is destroyed. Return error and old values.
+-	     */
+-
+-	    if (!ret) {
+-		free(drawInfo);
+-		drawInfo = NULL;
+-		drmHashDelete(drawHash, (unsigned long)draw);
+-
+-		DRM_UNLOCK(drmFD, &pSarea->lock, drmContext);
+-		uniDRIDestroyDrawable(display, screen, draw);
+-		DRM_LOCK(drmFD, &pSarea->lock, drmContext, lockFlags);
+-
+-		return 1;
+-	    }
+-
+-	    if (drawInfo->stamp != drawStamp(pSarea, drawInfo->index)) {
+-
+-		/*
+-		 * The info is already outdated. Sigh. Have another go.
+-		 */
+-
+-		XFree(clipFront);
+-		XFree(clipBack);
+-		continue;
+-	    }
+-
+-	    if (drawInfo->clipFront)
+-		XFree(drawInfo->clipFront);
+-	    drawInfo->clipFront = clipFront;
+-	    if (drawInfo->clipBack)
+-		XFree(drawInfo->clipBack);
+-	    drawInfo->clipBack = clipBack;
+-	} else {
+-	    if (!drawInfo->clipFront)
+-		drawInfo->clipFront = (drm_clip_rect_t *) ~ 0UL;
+-	    drawInfo->stamp = drawStamp(pSarea, drawInfo->index);
+-	}
+-    }
+-    *info = drawInfo;
+-    return 0;
+-}
+-
+-void
+-driDestroyHashContents(void *drawHash)
+-{
+-    unsigned long key;
+-    void *content;
+-    drawableInfo *drawInfo;
+-
+-    if (drmHashFirst(drawHash, &key, &content) < 1)
+-	return;
+-    drawInfo = (drawableInfo *) content;
+-    if (drawInfo->clipBack)
+-	XFree(drawInfo->clipBack);
+-    if (drawInfo->clipFront)
+-	XFree(drawInfo->clipFront);
+-    free(drawInfo);
+-    while (drmHashNext(drawHash, &key, &content) == 1) {
+-	drawInfo = (drawableInfo *) content;
+-	if (drawInfo->clipBack)
+-	    XFree(drawInfo->clipBack);
+-	if (drawInfo->clipFront)
+-	    XFree(drawInfo->clipFront);
+-	free(drawInfo);
+-    }
+-
+-    return;
+-}
+diff --git a/src/xvmc/driDrawable.h b/src/xvmc/driDrawable.h
+deleted file mode 100644
+index a758c7c..0000000
+--- a/src/xvmc/driDrawable.h
++++ /dev/null
+@@ -1,64 +0,0 @@
+-/*****************************************************************************
+- * driDrawable.h: Lean Version of DRI utilities.
+- *
+- * Copyright (c) 2005 Thomas Hellstrom. All rights reserved.
+- *
+- * Permission is hereby granted, free of charge, to any person obtaining a
+- * copy of this software and associated documentation files (the "Software"),
+- * to deal in the Software without restriction, including without limitation
+- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+- * and/or sell copies of the Software, and to permit persons to whom the
+- * Software is furnished to do so, subject to the following conditions:
+- *
+- * The above copyright notice and this permission notice shall be included in
+- * all copies or substantial portions of the Software.
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+- * AUTHOR(S) OR COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+- * DEALINGS IN THE SOFTWARE.
+- */
+-
+-#ifndef _DRIDRAWABLE_H
+-#define _DRIDRAWABLE_H
+-
+-typedef struct _drawableInfo
+-{
+-    drm_drawable_t drmDraw;
+-    unsigned stamp;
+-    unsigned index;
+-    drm_clip_rect_t *clipFront;
+-    drm_clip_rect_t *clipBack;
+-    int x;
+-    int y;
+-    int w;
+-    int h;
+-    int backX;
+-    int backY;
+-    int numClipFront;
+-    int numClipBack;
+-    Bool touched;
+-} drawableInfo;
+-
+-/*
+- * Get updated info about the drawable "draw". The drawableInfo record returned is malloced
+- * and administrated internally. Never free it unless you know exactly what you are doing.
+- * The drm hash table "drawHash" needs to be initialized externally.
+- */
+-
+-extern int
+-getDRIDrawableInfoLocked(void *drawHash, Display * display, int screen,
+-    Drawable draw, unsigned lockFlags, int drmFD, drm_context_t drmContext,
+-    drmAddress sarea, Bool updateInfo, drawableInfo ** info,
+-    unsigned long infoSize);
+-
+-/*
+- * Free all resources created by the above function. Typically done on exit.
+- */
+-
+-extern void driDestroyHashContents(void *drawHash);
+-
+-#endif
+diff --git a/src/xvmc/i915_xvmc.c b/src/xvmc/i915_xvmc.c
+index 20b2e61..f2d8ded 100644
+--- a/src/xvmc/i915_xvmc.c
++++ b/src/xvmc/i915_xvmc.c
+@@ -1608,9 +1608,6 @@ static void i915_release_resource(Display *display, XvMCContext *context)
+     pI915XvMC->ref--;
+     i915_xvmc_unmap_buffers(pI915XvMC);
+ 
+-    driDestroyHashContents(pI915XvMC->drawHash);
+-    drmHashDestroy(pI915XvMC->drawHash);
+-
+     free(pI915XvMC);
+     context->privData = NULL;
+ }
+@@ -1683,13 +1680,6 @@ static Status i915_xvmc_mc_create_context(Display *display, XvMCContext *context
+     pSAREA = (drm_sarea_t *)xvmc_driver->sarea_address;
+     pI915XvMC->sarea = (drmI830Sarea*)((char*)pSAREA + pI915XvMC->sarea_priv_offset);
+ 
+-    if (NULL == (pI915XvMC->drawHash = drmHashCreate())) {
+-	XVMC_ERR("Could not allocate drawable hash table.");
+-        free(pI915XvMC);
+-        context->privData = NULL;
+-        return BadAlloc;
+-    }
+-
+     if (i915_xvmc_map_buffers(pI915XvMC)) {
+         i915_xvmc_unmap_buffers(pI915XvMC);
+         free(pI915XvMC);
+diff --git a/src/xvmc/intel_xvmc.h b/src/xvmc/intel_xvmc.h
+index 5506683..bc863c4 100644
+--- a/src/xvmc/intel_xvmc.h
++++ b/src/xvmc/intel_xvmc.h
+@@ -53,7 +53,6 @@
+ #include <drm_sarea.h>
+ 
+ #include "xf86dri.h"
+-#include "driDrawable.h"
+ 
+ #include "intel_batchbuffer.h"
+ 
+-- 
+1.5.5.3
+

@@ -1,0 +1,43 @@
+diff -Nurp xserver-xorg-video-intel-2.2.1-patched/src/i830_quirks.c xserver-xorg-video-intel-2.2.1-working/src/i830_quirks.c
+--- xserver-xorg-video-intel-2.2.1-patched/src/i830_quirks.c	2008-04-04 13:27:20.000000000 -0700
++++ xserver-xorg-video-intel-2.2.1-working/src/i830_quirks.c	2008-04-04 13:59:55.000000000 -0700
+@@ -218,6 +218,8 @@ static i830_quirk i830_quirk_list[] = {
+ 
+     /* Dell Latitude X1 */
+     { PCI_CHIP_I915_GM, 0x1028, 0x01a3, quirk_ignore_tv },
++    /* Dell Latitude X1 / D630 (LP: #197740) */
++    { PCI_CHIP_I915_GM, 0x1028, 0x01f9, quirk_ignore_tv },
+     /* Dell XPS 1330 */
+     { PCI_CHIP_I965_GM, 0x1028, 0x0209, quirk_ignore_tv },
+     /* Dell Inspiron 1535 */
+@@ -242,13 +244,30 @@ static i830_quirk i830_quirk_list[] = {
+     /* Toshiba i830M laptop (fix bug 11148) */
+     { PCI_CHIP_I830_M, 0x1179, 0xff00, quirk_ivch_dvob },
+ 
++    /* Motion Computing M1200 reported on irc */
++    { PCI_CHIP_I830_M, 0x14c0, 0x0012, quirk_ivch_dvob },
++
+     /* Samsung Q35 has no TV output */
+     { PCI_CHIP_I945_GM, 0x144d, 0xc504, quirk_ignore_tv },
+     /* Samsung Q45 has no TV output */
+     { PCI_CHIP_I965_GM, 0x144d, 0xc510, quirk_ignore_tv },
+ 
++    /* HP Compaq 6730s has no TV output */
++    { PCI_CHIP_IGD_GM, 0x103c, 0x30e8, quirk_ignore_tv },
++
++    /* Dell Inspiron 510m needs pipe A force quirk */
++    { PCI_CHIP_I855_GM, 0x1028, 0x0164, quirk_pipea_force },
++
++    /* Thinkpad R31 needs pipe A force quirk */
++    { PCI_CHIP_I830_M, 0x1014, 0x0505, quirk_pipea_force },
++    /* Dell Latitude D500 needs pipe A force quirk */
++    { PCI_CHIP_I855_GM, 0x1028, 0x0152, quirk_pipea_force },
++    /* Dell Latitude X300 needs pipe A force quirk */
++    { PCI_CHIP_I855_GM, 0x1028, 0x014f, quirk_pipea_force },
+     /* Dell Inspiron 510m needs pipe A force quirk */
+     { PCI_CHIP_I855_GM, 0x1028, 0x0164, quirk_pipea_force },
++    /* Toshiba Protege R-205, S-209 needs pipe A force quirk */
++    { PCI_CHIP_I915_GM, 0x1179, 0x0001, quirk_pipea_force },
+ 
+     /* ThinkPad X40 needs pipe A force quirk */
+     { PCI_CHIP_I855_GM, 0x1014, 0x0557, quirk_pipea_force },

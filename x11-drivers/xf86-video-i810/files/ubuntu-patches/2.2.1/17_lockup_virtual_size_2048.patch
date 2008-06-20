@@ -1,0 +1,28 @@
+--- a/src/i830_driver.c	2008-03-29 14:15:58.000000000 +0000
++++ b/src/i830_driver.c	2008-03-29 14:17:05.000000000 +0000
+@@ -2477,6 +2477,12 @@
+       pScrn->videoRam &= ~3;
+    }
+ 
++   if (!IS_I965G(pI830) && pScrn->displayWidth > 2048) {
++      xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
++		 "Cannot support DRI with frame buffer width > 2048.\n");
++      pI830->directRenderingDisabled = TRUE;
++   }
++
+ #ifdef XF86DRI
+    /* Check for appropriate bpp and module support to initialize DRI. */
+    if (!I830CheckDRIAvailable(pScrn)) {
+@@ -2686,12 +2692,6 @@
+ 
+    I830UnmapMMIO(pScrn);
+ 
+-   if (!IS_I965G(pI830) && pScrn->displayWidth > 2048) {
+-      xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+-		 "Cannot support DRI with frame buffer width > 2048.\n");
+-      pI830->tiling = FALSE;
+-      pI830->directRenderingEnabled = FALSE;
+-   }
+ 
+ #ifdef HAS_MTRR_SUPPORT
+    {

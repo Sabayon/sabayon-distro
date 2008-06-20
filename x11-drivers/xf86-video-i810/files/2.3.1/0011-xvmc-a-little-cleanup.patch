@@ -1,0 +1,140 @@
+From 14dc93cb4dabdd83ee62a2a497c210aeb52f6c30 Mon Sep 17 00:00:00 2001
+From: Zhenyu Wang <zhenyu.z.wang@intel.com>
+Date: Thu, 12 Jun 2008 13:47:04 +0800
+Subject: [PATCH] xvmc: a little cleanup
+
+Also safe check context size to not exceed surface max.
+
+diff --git a/src/i830.h b/src/i830.h
+index 755c773..db930a0 100644
+--- a/src/i830.h
++++ b/src/i830.h
+@@ -660,6 +660,8 @@ typedef struct _I830Rec {
+ 
+ #define I830PTR(p) ((I830Ptr)((p)->driverPrivate))
+ 
++#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
++
+ #define I830_SELECT_FRONT	0
+ #define I830_SELECT_BACK	1
+ #define I830_SELECT_DEPTH	2
+diff --git a/src/i915_hwmc.c b/src/i915_hwmc.c
+index c3d3c75..50e1106 100644
+--- a/src/i915_hwmc.c
++++ b/src/i915_hwmc.c
+@@ -95,8 +95,6 @@ typedef struct _I915XvMC
+     PutImageFuncPtr savePutImage;
+ } I915XvMC, *I915XvMCPtr;
+ 
+-#define ARRARY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+-
+ /*
+ static int yv12_subpicture_index_list[2] =
+ {
+@@ -161,6 +159,22 @@ static XF86ImagePtr i915_subpicture_list[2] =
+ };
+ #endif
+ 
++/* Check context size not exceed surface type max */
++static void
++i915_check_context_size(XvMCContextPtr ctx)
++{
++    int i;
++
++    for (i = 0; i < ARRAY_SIZE(ppSI); i++) {
++	if (ctx->surface_type_id == ppSI[i]->surface_type_id) {
++	    if (ctx->width > ppSI[i]->max_width)
++		ctx->width = ppSI[i]->max_width;
++	    if (ctx->height > ppSI[i]->max_height)
++		ctx->height = ppSI[i]->max_height;
++	}
++    }
++}
++
+ /*
+  * Init and clean up the screen private parts of XvMC.
+  */
+@@ -430,6 +444,8 @@ static int i915_xvmc_create_context (ScrnInfoPtr pScrn, XvMCContextPtr pContext,
+         return BadAlloc;
+     }
+ 
++    i915_check_context_size(pContext);
++
+     *priv = xcalloc(1, sizeof(I915XvMCCreateContextRec));
+     contextRec = (I915XvMCCreateContextRec *)*priv;
+ 
+@@ -776,10 +792,9 @@ static int i915_xvmc_put_image(ScrnInfoPtr pScrn,
+     struct intel_xvmc_command *xvmc_cmd = (struct intel_xvmc_command *)buf;
+     int ret;
+ 
+-    if (pI830->XvMCEnabled) {
+-        if (FOURCC_XVMC == id) {
+-            switch (xvmc_cmd->command) {
+-            case INTEL_XVMC_COMMAND_DISPLAY:
++    if (FOURCC_XVMC == id) {
++	switch (xvmc_cmd->command) {
++	    case INTEL_XVMC_COMMAND_DISPLAY:
+ 		if ((xvmc_cmd->srfNo >= I915_XVMC_MAX_SURFACES) ||
+ 			!pXvMC->surfaces[xvmc_cmd->srfNo] ||
+ 			!pXvMC->sfprivs[xvmc_cmd->srfNo]) {
+@@ -793,10 +808,9 @@ static int i915_xvmc_put_image(ScrnInfoPtr pScrn,
+ 		id = xvmc_cmd->real_id;
+ 		pI830->IsXvMCSurface = 1;
+ 		break;
+-            default:
+-                return 0;
+-            }
+-        }
++	    default:
++		return 0;
++	}
+     }
+ 
+     ret = pXvMC->savePutImage(pScrn, src_x, src_y, drw_x, drw_y, src_w, src_h,
+@@ -850,7 +864,7 @@ static void i915_xvmc_fini(ScrnInfoPtr pScrn)
+ static XF86MCAdaptorRec pAdapt =
+ {
+     .name		= "Intel(R) Textured Video",
+-    .num_surfaces	= ARRARY_SIZE(ppSI),
++    .num_surfaces	= ARRAY_SIZE(ppSI),
+     .surfaces		= ppSI,
+ #if 0
+     .num_subpictures	= ARRARY_SIZE(i915_subpicture_list),
+diff --git a/src/i915_hwmc.h b/src/i915_hwmc.h
+index 0141fb2..7d90afc 100644
+--- a/src/i915_hwmc.h
++++ b/src/i915_hwmc.h
+@@ -32,7 +32,7 @@
+ #define STRIDE(w)               (((w) + 0x3ff) & ~0x3ff)
+ #define SIZE_Y420(w, h)         (h * STRIDE(w))
+ #define SIZE_UV420(w, h)        ((h >> 1) * STRIDE(w >> 1))
+-#define SIZE_YUV420(w, h)       (h * (STRIDE(w) + STRIDE(w >> 1)))
++#define SIZE_YUV420(w, h)       (SIZE_Y420(w,h) + SIZE_UV420(w,h) * 2)
+ #define SIZE_XX44(w, h)         (h * STRIDE(w))
+ 
+ #define I915_NUM_XVMC_ATTRIBUTES       0x02
+diff --git a/src/xvmc/i915_xvmc.c b/src/xvmc/i915_xvmc.c
+index f2d8ded..b1a17b4 100644
+--- a/src/xvmc/i915_xvmc.c
++++ b/src/xvmc/i915_xvmc.c
+@@ -1987,7 +1987,7 @@ static int i915_xvmc_mc_render_surface(Display *display, XvMCContext *context,
+ 		XVMC_ERR("Invalid Macroblock Parameters found.");
+                 break;
+             }
+-        } else {        /* Frame Picture */
++        } else {        /* Field Picture */
+             switch (mb->motion_type & 3) {
+             case XVMC_PREDICTION_FIELD: /* Field Based */
+                 i915_mc_mpeg_macroblock_1fbmv(context, mb);
+@@ -2005,7 +2005,7 @@ static int i915_xvmc_mc_render_surface(Display *display, XvMCContext *context,
+ 		XVMC_ERR("Invalid Macroblock Parameters found.");
+                 break;
+             }
+-        }       /* Field Picture */
++        }
+     }
+ 
+     intelFlushBatch(TRUE);
+-- 
+1.5.5.3
+

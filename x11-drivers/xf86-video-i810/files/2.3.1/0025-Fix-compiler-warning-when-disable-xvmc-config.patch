@@ -1,0 +1,26 @@
+From df0bbdc7cbb6ff357a81ed28d12e56c9c7d643f7 Mon Sep 17 00:00:00 2001
+From: Zhenyu Wang <zhenyu.z.wang@intel.com>
+Date: Thu, 12 Jun 2008 14:04:41 +0800
+Subject: [PATCH] Fix compiler warning when disable xvmc config
+
+
+diff --git a/src/i830_memory.c b/src/i830_memory.c
+index 9ceb254..ccbe7bd 100644
+--- a/src/i830_memory.c
++++ b/src/i830_memory.c
+@@ -2020,6 +2020,7 @@ I830CheckAvailableMemory(ScrnInfoPtr pScrn)
+     return maxPages * 4;
+ }
+ 
++#ifdef INTEL_XVMC
+ /*
+  * Allocate memory for MC compensation
+  */
+@@ -2041,3 +2042,4 @@ Bool i830_allocate_xvmc_buffer(ScrnInfoPtr pScrn, const char *name,
+ 
+     return TRUE;
+ }
++#endif
+-- 
+1.5.5.3
+

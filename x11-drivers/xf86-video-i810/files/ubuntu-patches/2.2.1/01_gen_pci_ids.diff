@@ -1,0 +1,14 @@
+Index: xserver-xorg-video-i810/src/Makefile.am
+===================================================================
+--- xserver-xorg-video-i810.orig/src/Makefile.am	2007-08-18 13:04:47.000000000 -0400
++++ xserver-xorg-video-i810/src/Makefile.am	2007-08-18 13:10:06.000000000 -0400
+@@ -196,3 +196,9 @@
+ 
+ uninstall-local:
+ 	(cd $(DESTDIR)$(intel_drv_ladir) && rm -f i810_drv.so)
++
++pcidatadir = $(datadir)/xserver-xorg/pci
++pcidata_DATA = intel.ids
++
++intel.ids : common.h
++	awk '/^#define PCI_CHIP/ {print $$3 }' $(srcdir)/common.h | sed 's/^0x/8086/' > intel.ids

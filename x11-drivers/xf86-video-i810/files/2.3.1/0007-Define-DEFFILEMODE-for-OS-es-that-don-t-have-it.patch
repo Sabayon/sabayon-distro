@@ -1,0 +1,25 @@
+From 5dd06d08015cf9c0721f34f7005ecd670025c334 Mon Sep 17 00:00:00 2001
+From: Alan Coopersmith <alan.coopersmith@sun.com>
+Date: Wed, 21 May 2008 14:56:27 -0700
+Subject: [PATCH] Define DEFFILEMODE for OS'es that don't have it
+ (cherry picked from commit 165c0865d849b7d280a3a119fe9ae0ad34637df0)
+
+
+diff --git a/src/bios_reader/bios_dumper.c b/src/bios_reader/bios_dumper.c
+index e2f3064..1353eda 100644
+--- a/src/bios_reader/bios_dumper.c
++++ b/src/bios_reader/bios_dumper.c
+@@ -36,6 +36,10 @@
+ #include <pciaccess.h>
+ #include <err.h>
+ 
++#ifndef DEFFILEMODE
++#define DEFFILEMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH) /* 0666*/
++#endif
++
+ static void usage(void)
+ {
+     fprintf(stderr, "usage: bios_dumper <filename>\n");
+-- 
+1.5.5.3
+

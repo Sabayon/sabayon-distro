@@ -1,0 +1,28 @@
+From 13ae79b415d944891cfdc2cd2d5397fec36a4e8e Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@redhat.com>
+Date: Fri, 7 Mar 2008 08:04:37 +1000
+Subject: [PATCH] fixup pciaccess version detect
+
+---
+ configure.ac |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 9e7c5b9..da44018 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -115,9 +115,9 @@ AC_CHECK_DECL(XSERVER_LIBPCIACCESS,
+ CFLAGS="$save_CFLAGS"
+ 
+ if test x$XSERVER_LIBPCIACCESS = xyes; then
+-	PKG_CHECK_MODULES([PCIACCESS], [pciaccess >= 0.10.0])
++	PKG_CHECK_MODULES([PCIACCESS], [pciaccess >= 0.10])
+ else
+-	PKG_CHECK_MODULES([PCIACCESS], [pciaccess >= 0.10.0],
++	PKG_CHECK_MODULES([PCIACCESS], [pciaccess >= 0.10],
+ 				       have_libpciaccess=yes,
+ 				       have_libpciaccess=no)
+ fi
+-- 
+1.5.4.3
+

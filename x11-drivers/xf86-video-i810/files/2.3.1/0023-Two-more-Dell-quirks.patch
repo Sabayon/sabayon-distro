@@ -1,0 +1,33 @@
+From 9d767d62fec724079178844915cd3feb9df93c7e Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@bryceharrington.org>
+Date: Tue, 10 Jun 2008 14:10:39 +0800
+Subject: [PATCH] Two more Dell quirks
+
+fd.o #16160
+(cherry picked from commit 231a302013981cc597ba09ee89b367c8ab56e8ba)
+
+diff --git a/src/i830_quirks.c b/src/i830_quirks.c
+index b1c1423..1bd8885 100644
+--- a/src/i830_quirks.c
++++ b/src/i830_quirks.c
+@@ -237,6 +237,8 @@ static i830_quirk i830_quirk_list[] = {
+     { PCI_CHIP_I965_GM, 0x1028, 0x0256, quirk_ignore_tv },
+     /* Dell Inspiron 1318 */
+     { PCI_CHIP_I965_GM, 0x1028, 0x0286, quirk_ignore_tv },
++    /* Dell Vostro A840 (LP: #235155) */
++    { PCI_CHIP_I965_GM, 0x1028, 0x0298, quirk_ignore_tv },
+ 
+     /* Lenovo Napa TV (use dmi)*/
+     { PCI_CHIP_I945_GM, 0x17aa, SUBSYS_ANY, quirk_lenovo_tv_dmi },
+@@ -272,6 +274,8 @@ static i830_quirk i830_quirk_list[] = {
+     { PCI_CHIP_I855_GM, 0x1028, 0x0139, quirk_pipea_force },
+     /* Dell Latitude D500 needs pipe A force quirk */
+     { PCI_CHIP_I855_GM, 0x1028, 0x0152, quirk_pipea_force },
++    /* Dell Latitude D505 needs pipe A force quirk (LP: #235643) */
++    { PCI_CHIP_I855_GM, 0x1028, 0x0163, quirk_pipea_force },
+     /* Dell Latitude X300 needs pipe A force quirk */
+     { PCI_CHIP_I855_GM, 0x1028, 0x014f, quirk_pipea_force },
+     /* Dell Inspiron 510m needs pipe A force quirk */
+-- 
+1.5.5.3
+

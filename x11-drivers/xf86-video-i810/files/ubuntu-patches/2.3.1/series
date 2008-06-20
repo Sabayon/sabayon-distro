@@ -1,0 +1,5 @@
+01_fix_compiz_video.diff
+01_gen_pci_ids.diff
+05_intel_exa_force_greedy.patch
+11_textured_video_option.patch
+19_check_exa_pitch_to_fix_rotate_crash.patch

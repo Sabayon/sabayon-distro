@@ -1,0 +1,33 @@
+From 7d267e27c152a4935ec5301d9fbbfd6eff8816d4 Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Thu, 5 Jun 2008 11:26:02 -0700
+Subject: [PATCH] Just remove the mprotect kludge.
+
+Besides not being #ifdef __linux__ed as requested, some linux kernels break
+in exciting new ways when you try to mprotect from PROT_NONE back to
+PROT_READ|PROT_WRITE.  Yes, there are bugs in the code we're calling in a
+bug-exploiting bug workaround.
+
+If you want this workaround for the original bug exposed when moving to
+libpciaccess, it's already in libpciaccess.
+(cherry picked from commit 65306cdd71dad71e4ca7229764f81a0880dd70bf)
+
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index f1efa7b..a237374 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -692,11 +692,6 @@ I830MapMem(ScrnInfoPtr pScrn)
+ 			       (void **) &pI830->FbBase);
+     if (err)
+ 	return FALSE;
+-    /* KLUDGE ALERT -- rewrite the PTEs to turn off the CD and WT bits */
+-#if HAVE_MPROTECT
+-    mprotect (pI830->FbBase, pI830->FbMapSize, PROT_NONE);
+-    mprotect (pI830->FbBase, pI830->FbMapSize, PROT_READ|PROT_WRITE);
+-#endif
+ #else
+    pI830->FbBase = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_FRAMEBUFFER,
+ 				 pI830->PciTag,
+-- 
+1.5.5.3
+

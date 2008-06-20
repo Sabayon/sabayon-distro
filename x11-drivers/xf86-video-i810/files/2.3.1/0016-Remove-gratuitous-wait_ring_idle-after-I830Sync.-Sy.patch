@@ -1,0 +1,30 @@
+From ae65ddbbc8064c33febc7608122828998ee15a2e Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Thu, 5 Jun 2008 13:57:54 -0700
+Subject: [PATCH] Remove gratuitous wait_ring_idle after I830Sync.  Syncing implies that.
+ (cherry picked from commit b61cb9283185eb5211e84eb7d8e68beea607c2eb)
+
+
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index cf4586b..c53d2c3 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -1851,7 +1851,6 @@ i830_stop_ring(ScrnInfoPtr pScrn, Bool flush)
+       if (temp & RING_VALID) {
+ 	 i830_refresh_ring(pScrn);
+ 	 I830Sync(pScrn);
+-	 i830_wait_ring_idle(pScrn);
+       }
+ 
+       OUTREG(LP_RING + RING_LEN, 0);
+@@ -3358,7 +3357,6 @@ I830EnterVT(int scrnIndex, int flags)
+ 
+ 	 i830_refresh_ring(pScrn);
+ 	 I830Sync(pScrn);
+-	 i830_wait_ring_idle(pScrn);
+ 
+ 	 sarea->texAge++;
+ 	 for(i = 0; i < I830_NR_TEX_REGIONS+1 ; i++)
+-- 
+1.5.5.3
+

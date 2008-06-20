@@ -1,0 +1,102 @@
+From a4e8b188d469c8092d4314be96a697fb4f780276 Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Thu, 5 Jun 2008 11:56:42 -0700
+Subject: [PATCH] Replace a couple of wait-for-ring-idles with a single function to do so.
+ (cherry picked from commit 7e51384c973a96366b02ea646392c43574674111)
+
+
+diff --git a/src/i830.h b/src/i830.h
+index db930a0..a7cdb8c 100644
+--- a/src/i830.h
++++ b/src/i830.h
+@@ -853,6 +853,14 @@ i830_get_transformed_coordinates_3d(int x, int y, PictTransformPtr transform,
+ 
+ void i830_enter_render(ScrnInfoPtr);
+ 
++static inline void
++i830_wait_ring_idle(ScrnInfoPtr pScrn)
++{
++   I830Ptr pI830 = I830PTR(pScrn);
++
++   I830WaitLpRing(pScrn, pI830->LpRing->mem->size - 8, 0);
++}
++
+ static inline int i830_fb_compression_supported(I830Ptr pI830)
+ {
+     if (!IS_MOBILE(pI830))
+diff --git a/src/i830_accel.c b/src/i830_accel.c
+index 953a73b..7784c62 100644
+--- a/src/i830_accel.c
++++ b/src/i830_accel.c
+@@ -201,7 +201,7 @@ I830Sync(ScrnInfoPtr pScrn)
+       ADVANCE_BATCH();
+    }
+ 
+-   I830WaitLpRing(pScrn, pI830->LpRing->mem->size - 8, 0);
++   i830_wait_ring_idle(pScrn);
+ 
+    pI830->LpRing->space = pI830->LpRing->mem->size - 8;
+    pI830->nextColorExpandBuf = 0;
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index a237374..16092dd 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -1851,7 +1851,7 @@ i830_stop_ring(ScrnInfoPtr pScrn, Bool flush)
+       if (temp & RING_VALID) {
+ 	 i830_refresh_ring(pScrn);
+ 	 I830Sync(pScrn);
+-	 DO_RING_IDLE();
++	 i830_wait_ring_idle(pScrn);
+       }
+ 
+       OUTREG(LP_RING + RING_LEN, 0);
+@@ -3358,10 +3358,10 @@ I830EnterVT(int scrnIndex, int flags)
+          int i;
+ 
+ 	 I830DRIResume(screenInfo.screens[scrnIndex]);
+-      
++
+ 	 i830_refresh_ring(pScrn);
+ 	 I830Sync(pScrn);
+-	 DO_RING_IDLE();
++	 i830_wait_ring_idle(pScrn);
+ 
+ 	 sarea->texAge++;
+ 	 for(i = 0; i < I830_NR_TEX_REGIONS+1 ; i++)
+diff --git a/src/i830_ring.h b/src/i830_ring.h
+index cf789eb..c2078fb 100644
+--- a/src/i830_ring.h
++++ b/src/i830_ring.h
+@@ -75,28 +75,13 @@ union intfloat {
+     pI830->ring_emitting = 0;						\
+ } while (0)
+ 
+-/*
+- * XXX Note: the head/tail masks are different for 810 and i830.
+- * If the i810 always sets the higher bits to 0, then this shouldn't be
+- * a problem.  Check this!
+- */
+-#define DO_RING_IDLE() do {						\
+-    int _head;								\
+-    int _tail;								\
+-    do {								\
+-	_head = INREG(LP_RING + RING_HEAD) & I830_HEAD_MASK;		\
+-	_tail = INREG(LP_RING + RING_TAIL) & I830_TAIL_MASK;		\
+-	DELAY(10);							\
+-    } while (_head != _tail);						\
+-} while (0)
+-
+ #define BEGIN_LP_RING(n)						\
+ do {									\
+     if (pI830->ring_emitting != 0)					\
+ 	FatalError("%s: BEGIN_LP_RING called without closing "		\
+ 		   "ADVANCE_LP_RING\n", __FUNCTION__);			\
+     if ((n) > 2 && (I810_DEBUG&DEBUG_ALWAYS_SYNC))			\
+-	DO_RING_IDLE();							\
++	i830_wait_ring_idle(pScrn);					\
+     pI830->ring_emitting = (n) * 4;					\
+     if ((n) & 1)							\
+ 	pI830->ring_emitting += 4;					\
+-- 
+1.5.5.3
+

@@ -1,0 +1,77 @@
+From d3df74ebb0b61cda347e5e4754f2fc8a4c3110b0 Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Tue, 10 Jun 2008 11:31:22 -0700
+Subject: [PATCH] Set up/restore PWRCTXA from enter/leavevt not server start/exit.
+
+This should improve behavior in the presence of VT switching, but also avoids
+a crash on X exit from writing the register after unmapping mmio.
+
+diff --git a/src/i830.h b/src/i830.h
+index a96fa5b..def693f 100644
+--- a/src/i830.h
++++ b/src/i830.h
+@@ -649,6 +649,7 @@ typedef struct _I830Rec {
+    uint32_t saveRENCLK_GATE_D2;
+    uint32_t saveDSPCLK_GATE_D;
+    uint32_t saveRAMCLK_GATE_D;
++   uint32_t savePWRCTXA;
+ 
+    enum last_3d *last_3d;
+ 
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index cff1fe8..563d167 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -2069,6 +2069,9 @@ SaveHWState(ScrnInfoPtr pScrn)
+       pI830->saveRAMCLK_GATE_D = INREG(RAMCLK_GATE_D);
+    }
+ 
++   if (IS_I965GM(pI830) || IS_IGD_GM(pI830))
++      pI830->savePWRCTXA = INREG(PWRCTXA);
++
+    if (IS_MOBILE(pI830) && !IS_I830(pI830))
+       pI830->saveLVDS = INREG(LVDS);
+    pI830->savePFIT_CONTROL = INREG(PFIT_CONTROL);
+@@ -2134,6 +2137,9 @@ RestoreHWState(ScrnInfoPtr pScrn)
+       OUTREG(RAMCLK_GATE_D, pI830->saveRAMCLK_GATE_D);
+    }
+ 
++   if (IS_I965GM(pI830) || IS_IGD_GM(pI830))
++      OUTREG(PWRCTXA, pI830->savePWRCTXA);
++
+    /*
+     * Pipe regs
+     * To restore the saved state, we first need to program the PLL regs,
+@@ -2846,9 +2852,6 @@ I830ScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
+        return FALSE;
+    }
+ 
+-   if (pI830->power_context)
+-       OUTREG(PWRCTXA, pI830->power_context->offset | PWRCTX_EN);
+-
+    I830UnmapMMIO(pScrn);
+ 
+    i830_fixup_mtrrs(pScrn);
+@@ -3304,6 +3307,9 @@ I830EnterVT(int scrnIndex, int flags)
+ 
+    i830_init_clock_gating(pScrn);
+ 
++   if (pI830->power_context)
++       OUTREG(PWRCTXA, pI830->power_context->offset | PWRCTX_EN);
++
+    /* Clear the framebuffer */
+    memset(pI830->FbBase + pScrn->fbOffset, 0,
+ 	  pScrn->virtualY * pScrn->displayWidth * pI830->cpp);
+@@ -3459,9 +3465,6 @@ I830CloseScreen(int scrnIndex, ScreenPtr pScreen)
+    }
+ #endif
+ 
+-   if (IS_I965GM(pI830) || IS_IGD_GM(pI830))
+-       OUTREG(PWRCTXA, 0);
+-
+    if (I830IsPrimary(pScrn)) {
+       xf86GARTCloseScreen(scrnIndex);
+ 
+-- 
+1.5.5.3
+

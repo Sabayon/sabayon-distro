@@ -1,0 +1,105 @@
+From 71befe0581bcc7d75ed982b543bbf575c2f48c37 Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Thu, 5 Jun 2008 14:09:45 -0700
+Subject: [PATCH] Move BIOS scratch register setup to EnterVT instead of PreInit.
+
+We want these to always be set when our driver's in control.  They are
+already appropriately save/restored at leave/entervt.
+(cherry picked from commit 8061e5ac27a5f61f940bccc940be922999cc1d3f)
+
+diff --git a/src/i830.h b/src/i830.h
+index a7cdb8c..ca7acc9 100644
+--- a/src/i830.h
++++ b/src/i830.h
+@@ -554,10 +554,6 @@ typedef struct _I830Rec {
+ 
+    Bool StolenOnly;
+ 
+-   Bool swfSaved;
+-   uint32_t saveSWF0;
+-   uint32_t saveSWF4;
+-
+    Bool checkDevices;
+ 
+    /* Driver phase/state information */
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index c53d2c3..862ddde 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -963,6 +963,19 @@ i830_init_clock_gating(ScrnInfoPtr pScrn)
+     }
+ }
+ 
++static void
++i830_init_bios_control(ScrnInfoPtr pScrn)
++{
++   I830Ptr pI830 = I830PTR(pScrn);
++
++   /* Set "extended desktop" */
++   OUTREG(SWF0, INREG(SWF0) | (1 << 21));
++
++   /* Set "driver loaded",  "OS unknown", "APM 1.2" */
++   OUTREG(SWF4, (INREG(SWF4) & ~((3 << 19) | (7 << 16))) |
++		(1 << 23) | (2 << 16));
++}
++
+ static int
+ I830LVDSPresent(ScrnInfoPtr pScrn)
+ {
+@@ -1021,10 +1034,6 @@ PreInitCleanup(ScrnInfoPtr pScrn)
+       if (pI830->entityPrivate)
+          pI830->entityPrivate->pScrn_2 = NULL;
+    }
+-   if (pI830->swfSaved) {
+-      OUTREG(SWF0, pI830->saveSWF0);
+-      OUTREG(SWF4, pI830->saveSWF4);
+-   }
+    if (pI830->MMIOBase)
+       I830UnmapMMIO(pScrn);
+    I830FreeRec(pScrn);
+@@ -1492,19 +1501,6 @@ I830PreInit(ScrnInfoPtr pScrn, int flags)
+ 
+    i830_init_clock_gating(pScrn);
+ 
+-#if 1
+-   pI830->saveSWF0 = INREG(SWF0);
+-   pI830->saveSWF4 = INREG(SWF4);
+-   pI830->swfSaved = TRUE;
+-
+-   /* Set "extended desktop" */
+-   OUTREG(SWF0, pI830->saveSWF0 | (1 << 21));
+-
+-   /* Set "driver loaded",  "OS unknown", "APM 1.2" */
+-   OUTREG(SWF4, (pI830->saveSWF4 & ~((3 << 19) | (7 << 16))) |
+-		(1 << 23) | (2 << 16));
+-#endif
+-
+    if (DEVICE_ID(pI830->PciInfo) == PCI_CHIP_E7221_G)
+       num_pipe = 1;
+    else
+@@ -1739,12 +1735,6 @@ I830PreInit(ScrnInfoPtr pScrn, int flags)
+       pI830->noAccel = TRUE;
+    }
+ 
+-   /* Don't need MMIO access anymore. */
+-   if (pI830->swfSaved) {
+-      OUTREG(SWF0, pI830->saveSWF0);
+-      OUTREG(SWF4, pI830->saveSWF4);
+-   }
+-
+    /* Set display resolution */
+    xf86SetDpi(pScrn, 0, 0);
+ 
+@@ -3309,6 +3299,9 @@ I830EnterVT(int scrnIndex, int flags)
+    i830_stop_ring(pScrn, FALSE);
+    SetHWOperatingState(pScrn);
+ 
++   /* Tell the BIOS that we're in control of mode setting now. */
++   i830_init_bios_control(pScrn);
++
+    /* Clear the framebuffer */
+    memset(pI830->FbBase + pScrn->fbOffset, 0,
+ 	  pScrn->virtualY * pScrn->displayWidth * pI830->cpp);
+-- 
+1.5.5.3
+

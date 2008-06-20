@@ -1,0 +1,90 @@
+From 34ce546153ce9dd0571ce0a5cec7a481641fbbdd Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Thu, 5 Jun 2008 14:37:26 -0700
+Subject: [PATCH] Initialize clock gating from EnterVT and save/restore it appropriately.
+
+
+diff --git a/src/i830.h b/src/i830.h
+index ca7acc9..a96fa5b 100644
+--- a/src/i830.h
++++ b/src/i830.h
+@@ -645,6 +645,10 @@ typedef struct _I830Rec {
+    uint32_t saveFBC_CONTROL2;
+    uint32_t saveFBC_CONTROL;
+    uint32_t saveFBC_FENCE_OFF;
++   uint32_t saveRENCLK_GATE_D1;
++   uint32_t saveRENCLK_GATE_D2;
++   uint32_t saveDSPCLK_GATE_D;
++   uint32_t saveRAMCLK_GATE_D;
+ 
+    enum last_3d *last_3d;
+ 
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index 862ddde..33c49e3 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -1499,8 +1499,6 @@ I830PreInit(ScrnInfoPtr pScrn, int flags)
+ 
+    i830TakeRegSnapshot(pScrn);
+ 
+-   i830_init_clock_gating(pScrn);
+-
+    if (DEVICE_ID(pI830->PciInfo) == PCI_CHIP_E7221_G)
+       num_pipe = 1;
+    else
+@@ -2063,6 +2061,14 @@ SaveHWState(ScrnInfoPtr pScrn)
+    pI830->saveSWF[15] = INREG(SWF31);
+    pI830->saveSWF[16] = INREG(SWF32);
+ 
++   pI830->saveDSPCLK_GATE_D = INREG(DSPCLK_GATE_D);
++   pI830->saveRENCLK_GATE_D1 = INREG(RENCLK_GATE_D1);
++
++   if (IS_I965G(pI830)) {
++      pI830->saveRENCLK_GATE_D2 = INREG(RENCLK_GATE_D2);
++      pI830->saveRAMCLK_GATE_D = INREG(RAMCLK_GATE_D);
++   }
++
+    if (IS_MOBILE(pI830) && !IS_I830(pI830))
+       pI830->saveLVDS = INREG(LVDS);
+    pI830->savePFIT_CONTROL = INREG(PFIT_CONTROL);
+@@ -2120,6 +2126,14 @@ RestoreHWState(ScrnInfoPtr pScrn)
+    if (!IS_I830(pI830) && !IS_845G(pI830))
+      OUTREG(PFIT_CONTROL, pI830->savePFIT_CONTROL);
+ 
++   OUTREG(DSPCLK_GATE_D, pI830->saveDSPCLK_GATE_D);
++   OUTREG(RENCLK_GATE_D1, pI830->saveRENCLK_GATE_D1);
++
++   if (IS_I965G(pI830)) {
++      OUTREG(RENCLK_GATE_D2, pI830->saveRENCLK_GATE_D2);
++      OUTREG(RAMCLK_GATE_D, pI830->saveRAMCLK_GATE_D);
++   }
++
+    /*
+     * Pipe regs
+     * To restore the saved state, we first need to program the PLL regs,
+@@ -3113,13 +3127,6 @@ I830ScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
+       xf86ShowUnusedOptions(pScrn->scrnIndex, pScrn->options);
+ 
+    if (IS_I965G(pI830)) {
+-      /* turn off clock gating */
+-#if 0
+-      OUTREG(0x6204, 0x70804000);
+-      OUTREG(0x6208, 0x00000001);
+-#else
+-      OUTREG(0x6204, 0x70000000);
+-#endif
+       /* Enable DAP stateless accesses.  
+        * Required for all i965 steppings.
+        */
+@@ -3302,6 +3309,8 @@ I830EnterVT(int scrnIndex, int flags)
+    /* Tell the BIOS that we're in control of mode setting now. */
+    i830_init_bios_control(pScrn);
+ 
++   i830_init_clock_gating(pScrn);
++
+    /* Clear the framebuffer */
+    memset(pI830->FbBase + pScrn->fbOffset, 0,
+ 	  pScrn->virtualY * pScrn->displayWidth * pI830->cpp);
+-- 
+1.5.5.3
+

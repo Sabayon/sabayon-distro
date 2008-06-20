@@ -1,0 +1,40 @@
+From 9a8d70fe3d1db2e2d34c79b7d0b271127a63e415 Mon Sep 17 00:00:00 2001
+From: Jesse Barnes <jbarnes@hobbes.lan>
+Date: Mon, 9 Jun 2008 08:52:59 -0700
+Subject: [PATCH] Fix TV programming:  add vblank wait after TV_CTL writes
+
+Fxies FDO bug #14000; we need to wait for vblank after writing TV_CTL or followi
+ng "DPMS on" calls may not actually enable the output.
+(cherry picked from commit 1142be53eb8d2ee8a9b60ace5d49f0ba27332275)
+
+diff --git a/src/i830_tv.c b/src/i830_tv.c
+index 2fc6199..cde929a 100644
+--- a/src/i830_tv.c
++++ b/src/i830_tv.c
+@@ -788,6 +788,7 @@ i830_tv_dpms(xf86OutputPtr output, int mode)
+ 	    OUTREG(TV_CTL, INREG(TV_CTL) & ~TV_ENC_ENABLE);
+ 	    break;
+     }
++    i830WaitForVblank(pScrn);
+ }
+ 
+ static void
+@@ -920,6 +921,7 @@ i830_tv_restore(xf86OutputPtr output)
+ 
+     OUTREG(TV_DAC, dev_priv->save_TV_DAC);
+     OUTREG(TV_CTL, dev_priv->save_TV_CTL);
++    i830WaitForVblank(pScrn);
+ }
+ 
+ static const tv_mode_t *
+@@ -1237,6 +1239,7 @@ i830_tv_mode_set(xf86OutputPtr output, DisplayModePtr mode,
+ 	OUTREG(TV_V_CHROMA_0 + (i<<2), tv_mode->filter_table[j++]);
+     OUTREG(TV_DAC, 0);
+     OUTREG(TV_CTL, tv_ctl);
++    i830WaitForVblank(pScrn);
+ }
+ 
+ static const DisplayModeRec reported_modes[] = {
+-- 
+1.5.5.3
+

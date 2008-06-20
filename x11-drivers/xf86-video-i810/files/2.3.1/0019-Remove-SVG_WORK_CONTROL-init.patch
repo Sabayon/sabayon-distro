@@ -1,0 +1,29 @@
+From e520316dd5f7bfdffadfa19b3046ba40ca367219 Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Thu, 5 Jun 2008 14:37:59 -0700
+Subject: [PATCH] Remove SVG_WORK_CONTROL init.
+
+The bit set is now reserved -- used to be a workaround for early revisions.
+(cherry picked from commit ad459b21b7de4a79552ac155803d5930432fb84b)
+
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index 33c49e3..cff1fe8 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -3126,13 +3126,6 @@ I830ScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
+    if (serverGeneration == 1)
+       xf86ShowUnusedOptions(pScrn->scrnIndex, pScrn->options);
+ 
+-   if (IS_I965G(pI830)) {
+-      /* Enable DAP stateless accesses.  
+-       * Required for all i965 steppings.
+-       */
+-      OUTREG(SVG_WORK_CTL, 0x00000010);
+-   }
+-
+    pI830->starting = FALSE;
+    pI830->closing = FALSE;
+    pI830->suspended = FALSE;
+-- 
+1.5.5.3
+

@@ -1,0 +1,206 @@
+From 88232a9b9af2c73460eec206c4971679af9dcb43 Mon Sep 17 00:00:00 2001
+From: Jesse Barnes <jbarnes@hobbes.lan>
+Date: Mon, 26 May 2008 09:34:34 -0700
+Subject: [PATCH] Fixup power saving registers
+
+Update clock gating disable bits to match docs and allocate a power context
+memory area so that newer chips can save state and power down the render unit.
+(cherry picked from commit 89bb53cc7a853d88fc34a0ca65ae2b6227a8dd24)
+
+diff --git a/src/i810_reg.h b/src/i810_reg.h
+index 834b948..5ca8ca9 100644
+--- a/src/i810_reg.h
++++ b/src/i810_reg.h
+@@ -460,6 +460,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  *   - new bits for i810
+  *   - new register hwstam (mask)
+  */
++#define PWRCTXA		     0x2088 /* 965GM+ only */
++#define   PWRCTX_EN	     (1<<0)
+ #define HWSTAM               0x2098 /* p290 */
+ #define IER                  0x20a0 /* p291 */
+ #define IIR                  0x20a4 /* p292 */
+@@ -1120,6 +1122,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+ #define RENCLK_GATE_D2		0x6208
+ #define RAMCLK_GATE_D		0x6210		/* CRL only */
++#define DEUC			0x6214          /* CRL only */
+ 
+ /*
+  * This is a PCI config space register to manipulate backlight brightness
+diff --git a/src/i830.h b/src/i830.h
+index 0ae8270..755c773 100644
+--- a/src/i830.h
++++ b/src/i830.h
+@@ -426,6 +426,8 @@ typedef struct _I830Rec {
+ 
+    i830_memory *logical_context;
+ 
++   i830_memory *power_context;
++
+ #ifdef XF86DRI
+    i830_memory *back_buffer;
+    i830_memory *third_buffer;
+@@ -768,6 +770,7 @@ void i830_free_memory(ScrnInfoPtr pScrn, i830_memory *mem);
+ extern long I830CheckAvailableMemory(ScrnInfoPtr pScrn);
+ Bool i830_allocate_2d_memory(ScrnInfoPtr pScrn);
+ Bool i830_allocate_texture_memory(ScrnInfoPtr pScrn);
++Bool i830_allocate_pwrctx(ScrnInfoPtr pScrn);
+ Bool i830_allocate_3d_memory(ScrnInfoPtr pScrn);
+ #ifdef INTEL_XVMC
+ Bool i830_allocate_xvmc_buffer(ScrnInfoPtr pScrn, const char *name,
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index 7a08522..f1efa7b 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -934,6 +934,40 @@ I830SetupOutputs(ScrnInfoPtr pScrn)
+    }
+ }
+ 
++static void
++i830_init_clock_gating(ScrnInfoPtr pScrn)
++{
++    I830Ptr pI830 = I830PTR(pScrn);
++
++    /* Disable clock gating reported to work incorrectly according to the specs.
++     */
++    if (IS_IGD_GM(pI830)) {
++	OUTREG(RENCLK_GATE_D1, 0);
++	OUTREG(RENCLK_GATE_D2, 0);
++	OUTREG(RAMCLK_GATE_D, 0);
++	OUTREG(DSPCLK_GATE_D, VRHUNIT_CLOCK_GATE_DISABLE |
++	       OVRUNIT_CLOCK_GATE_DISABLE |
++	       OVCUNIT_CLOCK_GATE_DISABLE);
++    } else if (IS_I965GM(pI830)) {
++	OUTREG(RENCLK_GATE_D1, I965_RCC_CLOCK_GATE_DISABLE);
++	OUTREG(RENCLK_GATE_D2, 0);
++	OUTREG(DSPCLK_GATE_D, 0);
++	OUTREG(RAMCLK_GATE_D, 0);
++	OUTREG16(DEUC, 0);
++    } else if (IS_I965G(pI830)) {
++	OUTREG(RENCLK_GATE_D1, I965_RCZ_CLOCK_GATE_DISABLE |
++	       I965_RCC_CLOCK_GATE_DISABLE |
++	       I965_RCPB_CLOCK_GATE_DISABLE |
++	       I965_ISC_CLOCK_GATE_DISABLE |
++	       I965_FBC_CLOCK_GATE_DISABLE);
++	OUTREG(RENCLK_GATE_D2, 0);
++    } else if (IS_I855(pI830) || IS_I865G(pI830)) {
++	OUTREG(RENCLK_GATE_D1, SV_CLOCK_GATE_DISABLE);
++    } else if (IS_I830(pI830)) {
++	OUTREG(DSPCLK_GATE_D, OVRUNIT_CLOCK_GATE_DISABLE);
++    }
++}
++
+ static int
+ I830LVDSPresent(ScrnInfoPtr pScrn)
+ {
+@@ -1461,6 +1495,8 @@ I830PreInit(ScrnInfoPtr pScrn, int flags)
+ 
+    i830TakeRegSnapshot(pScrn);
+ 
++   i830_init_clock_gating(pScrn);
++
+ #if 1
+    pI830->saveSWF0 = INREG(SWF0);
+    pI830->saveSWF4 = INREG(SWF4);
+@@ -1901,23 +1937,6 @@ SetHWOperatingState(ScrnInfoPtr pScrn)
+ 
+    DPRINTF(PFX, "SetHWOperatingState\n");
+ 
+-   /* Disable clock gating reported to work incorrectly according to the specs.
+-    */
+-   if (IS_IGD_GM(pI830)) {
+-      OUTREG(RENCLK_GATE_D1, 0);
+-      OUTREG(RENCLK_GATE_D2, 0);
+-      OUTREG(DSPCLK_GATE_D, VRHUNIT_CLOCK_GATE_DISABLE);
+-   } else if (IS_I965GM(pI830)) {
+-      OUTREG(RENCLK_GATE_D1, I965_RCC_CLOCK_GATE_DISABLE);
+-   } else if (IS_I965G(pI830)) {
+-      OUTREG(RENCLK_GATE_D1,
+-	     I965_RCC_CLOCK_GATE_DISABLE | I965_ISC_CLOCK_GATE_DISABLE);
+-   } else if (IS_I855(pI830) || IS_I865G(pI830)) {
+-      OUTREG(RENCLK_GATE_D1, SV_CLOCK_GATE_DISABLE);
+-   } else if (IS_I830(pI830)) {
+-      OUTREG(DSPCLK_GATE_D, OVRUNIT_CLOCK_GATE_DISABLE);
+-   }
+-
+    i830_start_ring(pScrn);
+    if (!pI830->SWCursor)
+       I830InitHWCursor(pScrn);
+@@ -2504,6 +2523,10 @@ i830_try_memory_allocation(ScrnInfoPtr pScrn)
+     if (!i830_allocate_2d_memory(pScrn))
+ 	goto failed;
+ 
++    if (IS_I965GM(pI830) || IS_IGD_GM(pI830))
++	if (!i830_allocate_pwrctx(pScrn))
++	    goto failed;
++
+     if (dri && !i830_allocate_3d_memory(pScrn))
+ 	goto failed;
+ 
+@@ -2825,6 +2848,9 @@ I830ScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
+        return FALSE;
+    }
+ 
++   if (pI830->power_context)
++       OUTREG(PWRCTXA, pI830->power_context->offset | PWRCTX_EN);
++
+    I830UnmapMMIO(pScrn);
+ 
+    i830_fixup_mtrrs(pScrn);
+@@ -3448,6 +3474,9 @@ I830CloseScreen(int scrnIndex, ScreenPtr pScreen)
+    }
+ #endif
+ 
++   if (IS_I965GM(pI830) || IS_IGD_GM(pI830))
++       OUTREG(PWRCTXA, 0);
++
+    if (I830IsPrimary(pScrn)) {
+       xf86GARTCloseScreen(scrnIndex);
+ 
+diff --git a/src/i830_memory.c b/src/i830_memory.c
+index 6835a6f..9ceb254 100644
+--- a/src/i830_memory.c
++++ b/src/i830_memory.c
+@@ -112,6 +112,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+ /* Our hardware status area is just a single page */
+ #define HWSTATUS_PAGE_SIZE GTT_PAGE_SIZE
++#define PWRCTX_SIZE GTT_PAGE_SIZE
+ 
+ static i830_memory *
+ i830_allocate_aperture(ScrnInfoPtr pScrn, const char *name,
+@@ -337,6 +338,7 @@ i830_reset_allocations(ScrnInfoPtr pScrn)
+     pI830->exa_965_state = NULL;
+     pI830->overlay_regs = NULL;
+     pI830->logical_context = NULL;
++    pI830->power_context = NULL;
+ #ifdef XF86DRI
+     pI830->back_buffer = NULL;
+     pI830->third_buffer = NULL;
+@@ -1654,6 +1656,22 @@ i830_allocate_hwstatus(ScrnInfoPtr pScrn)
+ }
+ 
+ Bool
++i830_allocate_pwrctx(ScrnInfoPtr pScrn)
++{
++    I830Ptr pI830 = I830PTR(pScrn);
++
++    pI830->power_context = i830_allocate_memory(pScrn, "power context",
++						PWRCTX_SIZE, GTT_PAGE_SIZE,
++						NEED_LIFETIME_FIXED);
++    if (!pI830->power_context) {
++	xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
++		"Failed to allocate power context.\n");
++	return FALSE;
++    }
++    return TRUE;
++}
++
++Bool
+ i830_allocate_3d_memory(ScrnInfoPtr pScrn)
+ {
+     I830Ptr pI830 = I830PTR(pScrn);
+-- 
+1.5.5.3
+

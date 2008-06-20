@@ -1,0 +1,31 @@
+From 0deedbcc98a831284f6e9db2510e88e90e01c286 Mon Sep 17 00:00:00 2001
+From: Eric Anholt <eric@anholt.net>
+Date: Mon, 24 Mar 2008 13:25:37 -0700
+Subject: [PATCH] Disable a bunch of clock gating disables on IGD_GM, which doesn't need them.
+
+Besides our driver having fallen through to the GM965 path for
+RENCLK_GATE_D1, the BIOS was turning some of these on.  It may be relevant
+for previous platforms as well to zero out the fields that should be zero
+in the other registers.
+(cherry picked from commit 552a1b824db31a234d7c5cb71057ed0e0ce64477)
+
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index 0db174b..7a08522 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -1903,7 +1903,11 @@ SetHWOperatingState(ScrnInfoPtr pScrn)
+ 
+    /* Disable clock gating reported to work incorrectly according to the specs.
+     */
+-   if (IS_I965GM(pI830)) {
++   if (IS_IGD_GM(pI830)) {
++      OUTREG(RENCLK_GATE_D1, 0);
++      OUTREG(RENCLK_GATE_D2, 0);
++      OUTREG(DSPCLK_GATE_D, VRHUNIT_CLOCK_GATE_DISABLE);
++   } else if (IS_I965GM(pI830)) {
+       OUTREG(RENCLK_GATE_D1, I965_RCC_CLOCK_GATE_DISABLE);
+    } else if (IS_I965G(pI830)) {
+       OUTREG(RENCLK_GATE_D1,
+-- 
+1.5.5.3
+
