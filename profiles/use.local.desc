@@ -1,0 +1,10 @@
+# Copyright 1999-2008 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+# This file contains descriptions of local USE flags, and the ebuilds which
+# contain them.
+
+# Keep it sorted.
+
+x11-drivers/xf86-video-i810:ubuntu-patches - Apply patches from ubuntu mainstream
