@@ -1,0 +1,30 @@
+Benoit Caccinolo <benoit.caccinolo@gmail.com>
+=============================================
+
+Here is a little patch to allow this type of command to post:
+>   twitter post hello world
+
+without the quotes in fact.
+
+This command is also valid:
+>   twitter post "hello world"
+
+in fact, you have the choice.
+
+Here is the little patch: http://groups.google.com/group/ruby-twitter-gem/web/simple_post.patch
+
+diff --git a/lib/twitter/command.rb b/lib/twitter/command.rb
+index f0b6999..8d76c07 100644
+--- a/lib/twitter/command.rb
++++ b/lib/twitter/command.rb
+@@ -53,8 +53,8 @@ EOF
+           puts %(\n  You didn't enter a message to post.\n\n  Usage: twitter post "You're fabulous message"\n)
+           exit(0)
+         end
+-        
+-        post = ARGV.shift
++
++        post = ARGV.join " "
+         print "\nSending twitter update"
+         finished = false
+         status = nil
