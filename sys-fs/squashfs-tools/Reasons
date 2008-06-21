@@ -1,0 +1,9 @@
+sys-fs/squashfs-tools
+
+Ebuild originally added Jun. 21, 2008
+Added by Fabio Erculiani <lxnay@sabayonlinux.org>
+
+Added a patch to fix mksquashfs hangs and segvs
+
+======
+21.6.08 - pushed in!
