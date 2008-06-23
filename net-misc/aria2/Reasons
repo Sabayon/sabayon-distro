@@ -1,0 +1,11 @@
+net-misc/aria2
+
+Ebuild added Jun. 23, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+Gentoo's ebuild is outdated.
+
+======
+23.06.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - net-misc/aria2: welcome :)
+           - bump to latest version released just 3 days ago.
