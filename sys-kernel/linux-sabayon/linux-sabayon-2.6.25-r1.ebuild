@@ -40,10 +40,10 @@ UNIPATCH_LIST="
 		${FILESDIR}/${MY_PV}/${MY_P}-from-ext4dev-to-ext4.patch
 		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 		${FILESDIR}/${MY_PV}/${MY_P}-atl2.patch
-		${FILESDIR}/${MY_PV}/${MY_P}-aufs.patch
-		${FILESDIR}/${MY_PV}/patch-2.6.25.7.bz2
+		${FILESDIR}/${MY_PV}/patch-2.6.25.9.bz2
 		${FILESDIR}/${MY_PV}/${MY_P}-at76.patch
 		${DISTDIR}/${UNIONFS_PATCH}
+		${FILESDIR}/${MY_PV}/${MY_P}-aufs.patch
 "
 
 
