@@ -25,7 +25,7 @@ DESCRIPTION="Official Sabayon Linux kernel images and sources"
 KV_FULL=${KV_FULL/linux/sabayon}
 K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
-SLOT="${PVR/-r1/}"
+SLOT="${PVR/-r0/}"
 S="${WORKDIR}/linux-${KV_FULL}"
 UNIONFS_PATCH="unionfs-2.3.3_for_${MY_PV}.diff.gz"
 
