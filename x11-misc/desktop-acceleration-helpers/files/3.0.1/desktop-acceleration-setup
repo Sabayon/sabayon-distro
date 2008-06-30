@@ -87,18 +87,13 @@ scan_and_remove_old_files() {
 
 add_compiz_manager_to_the_startup() {
 
-    if [ -e "/usr/share/autostart" ]; then
+    if [ -d "/usr/share/autostart" ]; then
         cp $compiz_manager_desktop_file /usr/share/autostart/ -p
-    #    # link that to the GNOME startup dir
-        if [ -e /usr/share/gnome/autostart ]; then
-          ln -sf /usr/share/autostart/$compiz_manager /usr/share/gnome/autostart/
-        fi
+    fi
+    if [ -d /etc/xdg/autostart ]; then
+        cp $compiz_manager_desktop_file /etc/xdg/autostart/ -p
     fi
 
-    #if [ ! -e "$xprofile_file" ]; then
-    #    touch $xprofile_file
-    #fi
-    #echo "export XLIB_SKIP_ARGB_VISUALS=1" >> $xprofile_file
 
     # if it's available, add compiz-settings too
 
@@ -120,9 +115,11 @@ add_compiz_manager_to_the_startup() {
 
 }
 
-remove_compiz_manager_from_the_startup() {
+remove_compiz_manager_from_startup() {
+
     rm -f /usr/share/gnome/autostart/$compiz_manager
     rm -f /usr/share/autostart/$compiz_manager
+    rm -f /etc/xdg/autostart/$compiz_manager
 
     # remove compiz variables in /etc/xprofile
     if [ -e "$xprofile_file" ]; then
@@ -273,7 +270,7 @@ if [ "$1" == "xgl" ]; then
         scan_and_remove_old_files
 
         # remove compiz-manager
-        remove_compiz_manager_from_the_startup
+        remove_compiz_manager_from_startup
 
 	# set No Acceleration in the config file
 	write_acceleration_method none
@@ -321,7 +318,7 @@ elif [ "$1" == "aiglx" ]; then
 	disable_aiglx_in_xorg_conf
 
         # remove compiz-manager
-        remove_compiz_manager_from_the_startup
+        remove_compiz_manager_from_startup
 
 	# set No Acceleration in the config file
 	write_acceleration_method none
@@ -372,7 +369,7 @@ elif [ "$1" == "nvidia" ]; then
 	disable_nvidia_in_xorg_conf
 
         # remove compiz-manager
-        remove_compiz_manager_from_the_startup
+        remove_compiz_manager_from_startup
 
 	# set No Acceleration in the config file
 	write_acceleration_method none

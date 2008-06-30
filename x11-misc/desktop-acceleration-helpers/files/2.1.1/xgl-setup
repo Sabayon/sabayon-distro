@@ -1,6 +1,0 @@
-#!/bin/bash
-# Copyright 2006 - SabayonLinux (Fabio Erculiani)
-# Application: xgl-setup - helper - enable/disable XGL
-
-# Wrapper script, run "/sbin/desktop-acceleration-setup xgl"
-/sbin/desktop-acceleration-setup xgl $1
