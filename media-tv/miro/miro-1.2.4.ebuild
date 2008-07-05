@@ -27,6 +27,7 @@ RDEPEND=">=dev-python/pygtk-2.10
 	>=dev-libs/boost-1.34.1-r1
 	dev-python/gnome-python-extras
 	dev-python/dbus-python
+	<net-libs/xulrunner-1.9
 	>=dev-python/pyrex-0.9.6.4
 	media-libs/xine-lib"
 DEPEND="${RDEPEND}
@@ -34,6 +35,19 @@ DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
 S="${WORKDIR}/${MY_P}/platform/gtk-x11"
+
+src_unpack() {
+	unpack ${A}
+	cd "${S}"
+
+	# Force <xulrunner-1.9
+	epatch ${FILESDIR}/setup.py.patch
+	
+	# Generate MozillaBrowser.c first, for patching
+	pyrexc platform/frontends/html/MozillaBrowser.pyx
+	mv platform/frontends/html/MozillaBrowser.c	platform/frontends/html/MozillaBrowser.c.orig
+	sed -f ${FILESDIR}/MozillaBrowser.sed platform/frontends/html/MozillaBrowser.c.orig > platform/frontends/html/MozillaBrowser.c
+}
 
 pkg_setup() {
 	confutils_require_built_with_any dev-python/gnome-python-extras xulrunner firefox seamonkey

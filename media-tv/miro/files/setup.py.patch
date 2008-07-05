@@ -1,0 +1,19 @@
+--- setup.py		2008-07-04 11:25:19.221881297 +0200
++++ setup.py.new	2008-07-04 11:24:58.355976656 +0200
+@@ -243,11 +243,11 @@
+     sys.exit("Package config error:\n%s" % (error,))
+ 
+ xulrunner19 = False
+-if re.search("^libxul", packages, re.MULTILINE):
+-    xulrunner19 = True
+-    xpcom = 'libxul'
+-    gtkmozembed = 'libxul'
+-elif re.search("^xulrunner-xpcom", packages, re.MULTILINE):
++#if re.search("^libxul", packages, re.MULTILINE):
++#    xulrunner19 = True
++#    xpcom = 'libxul'
++#    gtkmozembed = 'libxul'
++if re.search("^xulrunner-xpcom", packages, re.MULTILINE):
+     xpcom = 'xulrunner-xpcom'
+     gtkmozembed = 'xulrunner-gtkmozembed'
+ elif re.search("^mozilla-xpcom", packages, re.MULTILINE):
