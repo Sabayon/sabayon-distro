@@ -1,0 +1,11 @@
+dev-dotnet/gecko-sharp
+
+Ebuild added July. 5th, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+gecko-sharp works well with firefox-3 and xulrunner-1.9, Gentoo's ebuild
+specifically request firefox-2.
+
+======
+05.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - gecko-sharp: welcome :)
