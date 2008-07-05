@@ -8,7 +8,7 @@ import sys
 
 # Variables
 xorgfile = "/etc/X11/xorg.conf"
-lspci = '/sbin/lspci'
+lspci = '/usr/sbin/lspci'
 nvidia_settings = "/usr/share/applications/nvidia-settings.desktop"
 
 # cmdlines
