@@ -6,7 +6,7 @@ fi
 
 OLD=$1
 NEW=$2
-PACKAGES="sys-apps/entropy app-admin/equo app-admin/spritz sys-apps/entropy-server"
+PACKAGES="sys-apps/entropy app-admin/equo app-admin/spritz sys-apps/entropy-server app-admin/entropy-notification-applet"
 
 for package in ${PACKAGES}; do
 	name=$(echo ${package} | cut -d/ -f2)
