@@ -13,7 +13,6 @@ ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/${PN}/tags/${PV}"
 
 RDEPEND="
 	$(qt4_min_version 4.2)
-        || ( kde-base/kdesu:3.5 kde-base/kdebase:3.5 )
         x11-misc/desktop-acceleration-helpers
 	"
 
