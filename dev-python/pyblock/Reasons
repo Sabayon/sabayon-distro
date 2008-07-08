@@ -1,0 +1,10 @@
+dev-python/pyblock
+
+Ebuild originally added Jul. 07, 2008
+Added by Fabio Erculiani <lxnay@sabayonlinux.org>
+
+The purpose is starting to remove libraries from the Sabayon Linux Installer
+modularizing all the dependencies in favor of a future installer ebuild.
+
+======
+07.7.08 - pushed in!
