@@ -1,0 +1,9 @@
+sys-fs/dmraid
+
+Ebuild originally added Jul. 07, 2008
+Added by Fabio Erculiani <lxnay@sabayonlinux.org>
+
+The reason is because Gentoo ebuild doesn't install a shared library.
+
+======
+07.7.08 - pushed in!
