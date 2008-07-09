@@ -8,3 +8,6 @@ New ebuild, Closes bug #459
 ======
 05.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - galaxium: welcome :)
+09.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - Add a new USE flag to disable/enable webkit
+           - Add media-libs/swfdec to RDEPEND

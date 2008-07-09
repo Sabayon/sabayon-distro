@@ -11,7 +11,7 @@ SRC_URI="http://galaxium.googlecode.com/files/${PN}_${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE=""
+IUSE="webkit"
 
 DEPEND=">=dev-dotnet/mono-addins-0.3
 	>=dev-lang/mono-1.2.4
@@ -21,9 +21,10 @@ DEPEND=">=dev-dotnet/mono-addins-0.3
 	>=dev-dotnet/dbus-sharp-0.4.2
 	>=dev-dotnet/dbus-glib-sharp-0.3
 	>=media-libs/gstreamer-0.10
-	>=dev-dotnet/libanculus-sharp-0.3"
-	#>=dev-dotnet/webkit-sharp-0.2 # Not yet in portage
-RDEPEND="${DEPEND}"
+	>=dev-dotnet/libanculus-sharp-0.3
+	webkit? ( >=dev-dotnet/webkit-sharp-0.2 )"
+RDEPEND="${DEPEND}
+	media-libs/swfdec"
 
 src_unpack() {
 	unpack ${A}
@@ -32,7 +33,11 @@ src_unpack() {
 }
 
 src_compile() {
-	econf --disable-webkit --enable-gecko || die "configure failed"
+	econf \
+		--enable-gecko \
+		$(use_enable webkit) \
+			|| die "configure failed"
+
 	emake || die "make failed"
 }
 
