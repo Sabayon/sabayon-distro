@@ -1,0 +1,81 @@
+--- gdata.py-1.0.8/tests/atom/service_test.py	2007-07-21 00:25:54.000000000 +0300
++++ gdata.py-1.0.8/tests/atom/service_test.py	2008-03-28 08:40:16.044330089 +0200
+@@ -69,7 +69,7 @@
+     self.assertEquals(ssl, False)
+     self.assertEquals(host, 'www.google.com')
+     self.assertEquals(port, 80)
+-    self.assertEquals(path, 'http://www.google.com:80/service/subservice?name=value')
++    self.assertEquals(path, '/service/subservice?name=value')
+ 
+   def testParseHttpUrlWithPort(self):
+     as = atom.service.AtomService('code.google.com')
+@@ -81,7 +81,7 @@
+     self.assertEquals(host, 'www.google.com')
+     self.assertEquals(port, 12)
+     #self.assertEquals(path, '/service/subservice?name=value&newname=newvalue')
+-    self.assertEquals(path, 'http://www.google.com:12/service/subservice?name=value&newname=newvalue')
++    self.assertEquals(path, '/service/subservice?name=value&newname=newvalue')
+ 
+   def testParseHttpsUrl(self):
+     as = atom.service.AtomService('code.google.com')
+@@ -92,7 +92,7 @@
+     self.assertEquals(ssl, True)
+     self.assertEquals(host, 'www.google.com')
+     self.assertEquals(port, 443)
+-    self.assertEquals(path, 'https://www.google.com:443/service/subservice?name=value&newname=newvalue')
++    self.assertEquals(path, '/service/subservice?name=value&newname=newvalue')
+ 
+   def testParseHttpsUrlWithPort(self):
+     as = atom.service.AtomService('code.google.com')
+@@ -103,50 +103,8 @@
+     self.assertEquals(ssl, True)
+     self.assertEquals(host, 'www.google.com')
+     self.assertEquals(port, 13981)
+-    self.assertEquals(path, 'https://www.google.com:13981/service/subservice?name=value&newname=newvalue')
++    self.assertEquals(path, '/service/subservice?name=value&newname=newvalue')
+ 
+-  def testParseUrlWithFullProxyURL(self):
+-    as = atom.service.AtomService('code.google.com')
+-    as.proxy_url = 'https://proxy.example.com:8080'
+-    self.assert_(as.server == 'code.google.com')
+-    self.assert_(as.proxy_url == 'https://proxy.example.com:8080')
+-    (host, port, ssl, path) =  as._ProcessUrl(
+-        'http://www.google.com:13981/service/subservice?name=value&newname=newvalue')
+-    self.assertEquals(ssl, True)
+-    self.assertEquals(host, 'proxy.example.com')
+-    self.assertEquals(port, 8080)
+-    self.assertEquals(path, 'http://www.google.com:13981/service/subservice?name=value&newname=newvalue')
+-
+-  def testParseUrlWithHostOnlyProxyURL(self):
+-    as = atom.service.AtomService('code.google.com')
+-    as.proxy_url = 'http://proxy.example.com'
+-    self.assert_(as.server == 'code.google.com')
+-    self.assert_(as.proxy_url == 'http://proxy.example.com:80')
+-    (host, port, ssl, path) =  as._ProcessUrl(
+-        'https://www.google.com/service/subservice')
+-    self.assertEquals(ssl, False)
+-    self.assertEquals(host, 'proxy.example.com')
+-    self.assertEquals(port, 80)
+-    self.assertEquals(path, 'https://www.google.com:443/service/subservice')
+-
+-  def testSetProxyUrlToIllegalValues(self):
+-    as = atom.service.AtomService('code.google.com')
+-    try:
+-      as.proxy_url = 'proxy.example.com'
+-      self.fail('A URL with no protocol should trigger InvalidProxyUrl')
+-    except atom.service.InvalidProxyUrl:
+-      pass
+-    try:
+-      as.proxy_url = 'http://:80'
+-      self.fail('A URL with no server should trigger InvalidProxyUrl')
+-    except atom.service.InvalidProxyUrl:
+-      pass
+-    try:
+-      as.proxy_url = 'http://'
+-      self.fail('A URL with only the protocol should trigger InvalidProxyUrl')
+-    except atom.service.InvalidProxyUrl:
+-      pass
+-   
+   def testSetBasicAuth(self):
+     client = atom.service.AtomService()
+     client.UseBasicAuth('foo', 'bar')

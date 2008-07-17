@@ -1,0 +1,9 @@
+dev-python/gdata
+
+Ebuild originally added Jul. 17, 2008
+Added by Fabio Erculiani <lxnay@sabayonlinux.org>
+
+Portage one is outdated (1.0.8) and doesn't support youtube
+
+======
+17.7.08 - pushed in!
