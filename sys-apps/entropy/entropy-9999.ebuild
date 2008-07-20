@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 NEED_PYTHON=2.4
+EAPI=1
 
 inherit eutils subversion distutils python multilib
 ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk/"
