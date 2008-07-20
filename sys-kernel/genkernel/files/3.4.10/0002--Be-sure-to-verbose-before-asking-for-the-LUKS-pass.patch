@@ -1,0 +1,41 @@
+From bf146ac0ef0461fe1d8fadb7c0b992d5729a456f Mon Sep 17 00:00:00 2001
+From: Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+Date: Thu, 17 Jul 2008 23:24:40 +0200
+Subject: [PATCH] - Be sure to verbose before asking for the LUKS password.
+ - if /etc/bootmsg exists, display it (cat) before asking for the LUKS password.
+
+
+Signed-off-by: Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+---
+:100644 100644 7e42be9... 3b8b4cf... M	generic/initrd.scripts
+ generic/initrd.scripts |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/generic/initrd.scripts b/generic/initrd.scripts
+index 7e42be9..3b8b4cf 100644
+--- a/generic/initrd.scripts
++++ b/generic/initrd.scripts
+@@ -715,6 +715,12 @@ openLUKS() {
+ 				DEV_ERROR=1
+ 				continue
+ 			else
++				# First switch to splash verbose
++				splash 'verbose' > /dev/null &
++				if [ -f "/etc/bootmsg" ]
++				then
++					cat /etc/bootmsg
++				fi
+ 				# Handle keys
+ 				if [ -n "${LUKS_KEY}" ] 
+ 				then
+@@ -781,6 +787,7 @@ openLUKS() {
+ 				if [ $? -eq 0 ]
+ 				then
+ 					good_msg "LUKS device ${LUKS_DEVICE} opened" ${CRYPT_SILENT}
++					splash 'init'
+ 					break
+ 				else
+ 					bad_msg "Failed to open LUKS device ${LUKS_DEVICE}" ${CRYPT_SILENT}
+-- 
+1.5.6.2
+

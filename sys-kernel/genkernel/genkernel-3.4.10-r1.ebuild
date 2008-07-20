@@ -50,17 +50,10 @@ src_unpack() {
 	cd "${S}"
 	use selinux && sed -i 's/###//g' gen_compile.sh
 
-	# Add UnionFS support
-	epatch ${FILESDIR}/genkernel-3.4.10-unionfs-support.patch
-
-	# Add Sabayon Linux text
-	epatch ${FILESDIR}/genkernel-3.4.9-sabayon-linux.patch
-
-	# Aufs support
-	epatch "${FILESDIR}"/${PN}-3.4.10-aufs.patch
-
-	# misc
-	epatch "${FILESDIR}"/${PN}-3.4.10-verbose-splash.patch
+	# Add unionfs/aufs support.
+	for i in ${FILESDIR}/${PV}/*.patch; do
+		epatch ${i}
+	done
 }
 
 src_install() {

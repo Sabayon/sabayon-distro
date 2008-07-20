@@ -1,7 +1,22 @@
-diff -Naur b/generic/initrd.scripts c/generic/initrd.scripts
---- b/generic/initrd.scripts	2008-06-16 19:18:27.000000000 +0200
-+++ c/generic/initrd.scripts	2008-06-16 19:23:23.000000000 +0200
-@@ -225,6 +225,13 @@
+From b7334357607ee8f1eceeea045b36a8b53352410f Mon Sep 17 00:00:00 2001
+From: Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+Date: Thu, 17 Jul 2008 23:40:02 +0200
+Subject: [PATCH] Add aufs support back to initramfs
+
+
+Signed-off-by: Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+---
+:100644 100644 314999b... cf6f922... M	generic/initrd.scripts
+:100644 100644 dea1765... c17d013... M	generic/linuxrc
+ generic/initrd.scripts |   21 +++++++++++++++++++++
+ generic/linuxrc        |   31 ++++++++++++++++++++++++++++---
+ 2 files changed, 49 insertions(+), 3 deletions(-)
+
+diff --git a/generic/initrd.scripts b/generic/initrd.scripts
+index 314999b..cf6f922 100644
+--- a/generic/initrd.scripts
++++ b/generic/initrd.scripts
+@@ -225,6 +225,13 @@ union_insert_dir() {
  	fi
  }
  
@@ -15,7 +30,7 @@ diff -Naur b/generic/initrd.scripts c/generic/initrd.scripts
  findnfsmount() {
  	if [ "${IP}" != '' ] || busybox udhcpc -n -T 15 -q -s /bin/udhcpc.scripts
  	then
-@@ -910,6 +917,20 @@
+@@ -917,6 +924,20 @@ rundebugshell() {
  	fi
  }
  
@@ -36,10 +51,11 @@ diff -Naur b/generic/initrd.scripts c/generic/initrd.scripts
  setup_unionfs() {
  	if [ "${USE_UNIONFS_NORMAL}" = '1' ]
  	then
-diff -Naur b/generic/linuxrc c/generic/linuxrc
---- b/generic/linuxrc	2008-06-16 19:18:27.000000000 +0200
-+++ c/generic/linuxrc	2008-06-16 19:28:51.000000000 +0200
-@@ -84,6 +84,9 @@
+diff --git a/generic/linuxrc b/generic/linuxrc
+index dea1765..c17d013 100644
+--- a/generic/linuxrc
++++ b/generic/linuxrc
+@@ -84,6 +84,9 @@ do
  		unionfs)
  			USE_UNIONFS_NORMAL=0
  		;;
@@ -47,9 +63,9 @@ diff -Naur b/generic/linuxrc c/generic/linuxrc
 +			USE_AUFS_NORMAL=1
 +		;;
  		unionfs\=*)
-             USE_UNIONFS_NORMAL=1
-             CMD_UNIONFS=`parse_opt "${x}"`
-@@ -267,8 +270,9 @@
+ 			USE_UNIONFS_NORMAL=1
+ 			CMD_UNIONFS=`parse_opt "${x}"`
+@@ -267,8 +270,9 @@ fi
  # Set up unionfs
  mkdir -p ${NEW_ROOT}
  setup_unionfs
@@ -60,7 +76,7 @@ diff -Naur b/generic/linuxrc c/generic/linuxrc
  then
  	CHROOT=${UNION}
  else
-@@ -280,7 +284,7 @@
+@@ -280,7 +284,7 @@ rundebugshell
  
  if [ "${CDROOT}" = '1' ]
  then
@@ -69,7 +85,7 @@ diff -Naur b/generic/linuxrc c/generic/linuxrc
  	then
  		good_msg "Making tmpfs for ${NEW_ROOT}"
  		mount -t tmpfs tmpfs ${NEW_ROOT}
-@@ -554,6 +558,22 @@
+@@ -554,6 +558,22 @@ then
  		mv /${UNION}/etc/fstab.new /${UNION}/etc/fstab
  	fi
  
@@ -92,7 +108,7 @@ diff -Naur b/generic/linuxrc c/generic/linuxrc
  	# Unpacking additional packages from NFS mount
  	# This is useful for adding kernel modules to /lib
  	# We do this now, so that additional packages can add whereever they want.
-@@ -571,7 +591,7 @@
+@@ -571,7 +591,7 @@ then
  	fi
  
  	
@@ -101,8 +117,8 @@ diff -Naur b/generic/linuxrc c/generic/linuxrc
  	then
  		good_msg "Copying read-write image contents to tmpfs"
  		# Copy over stuff that should be writable
-@@ -645,6 +665,11 @@
-         union_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
+@@ -645,6 +665,11 @@ else
+ 		union_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
  		mkdir -p ${UNION}/tmp/.initrd
  	fi
 +	if [ "${USE_AUFS_NORMAL}" -eq '1' ]
@@ -113,3 +129,6 @@ diff -Naur b/generic/linuxrc c/generic/linuxrc
  fi
  
  # Execute script on the cdrom just before boot to update things if necessary
+-- 
+1.5.6.2
+

@@ -1,7 +1,38 @@
-diff -Naur a/gen_cmdline.sh b/gen_cmdline.sh
---- a/gen_cmdline.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/gen_cmdline.sh	2008-06-16 21:01:33.000000000 +0200
-@@ -227,6 +227,17 @@
+From f2672bbeba6417517f335f41c52be74d9ec6cf61 Mon Sep 17 00:00:00 2001
+From: Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+Date: Thu, 17 Jul 2008 23:35:37 +0200
+Subject: [PATCH] Add Unionfs support back to initramfs.
+
+
+Signed-off-by: Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+---
+:100755 100755 3084076... ac9c528... M	gen_cmdline.sh
+:100644 100644 80b9a2e... f1cb176... M	gen_compile.sh
+:100644 100644 f125f61... bd34557... M	gen_determineargs.sh
+:100644 100644 a9804ef... d478146... M	gen_initramfs.sh
+:100644 100644 7aae958... b7e3332... M	gen_initrd.sh
+:100644 100644 3b8b4cf... 314999b... M	generic/initrd.scripts
+:100644 100644 780b707... dea1765... M	generic/linuxrc
+:100755 100755 29db849... 3d7a4cf... M	genkernel
+:100755 100755 9b09ad1... 4dbe871... M	genkernel.conf
+:100644 100644 3a54c46... b8b1131... M	mips/config.sh
+ gen_cmdline.sh         |   11 ++++
+ gen_compile.sh         |   97 +++++++++++++++++++++++++++++++
+ gen_determineargs.sh   |    6 ++
+ gen_initramfs.sh       |   16 +++++
+ gen_initrd.sh          |   18 ++++++
+ generic/initrd.scripts |   71 +++++++++++++++++++++++
+ generic/linuxrc        |  149 ++++++++++++++++++++++++++++++++----------------
+ genkernel              |    2 +
+ genkernel.conf         |   12 ++++
+ mips/config.sh         |    1 +
+ 10 files changed, 334 insertions(+), 49 deletions(-)
+
+diff --git a/gen_cmdline.sh b/gen_cmdline.sh
+index 3084076..ac9c528 100755
+--- a/gen_cmdline.sh
++++ b/gen_cmdline.sh
+@@ -227,6 +227,17 @@ parse_cmdline() {
  			echo
  			print_warning 1 "Please use --evms, as --evms2 is deprecated."
  			;;
@@ -19,10 +50,11 @@ diff -Naur a/gen_cmdline.sh b/gen_cmdline.sh
  		--lvm)
  			CMD_LVM=1
  			print_info 2 "CMD_LVM: ${CMD_LVM}"
-diff -Naur a/gen_compile.sh b/gen_compile.sh
---- a/gen_compile.sh	2008-06-05 18:47:56.000000000 +0200
-+++ b/gen_compile.sh	2008-06-16 21:15:38.000000000 +0200
-@@ -355,6 +355,103 @@
+diff --git a/gen_compile.sh b/gen_compile.sh
+index 80b9a2e..f1cb176 100644
+--- a/gen_compile.sh
++++ b/gen_compile.sh
+@@ -355,6 +355,103 @@ compile_kernel() {
  	fi
  }
  
@@ -68,20 +100,20 @@ diff -Naur a/gen_compile.sh b/gen_compile.sh
 +			gen_die 'unionfs is only supported on 2.6 targets'
 +		fi
 +		print_info 1 'unionfs: >> Copying to cache...'
-+	
++
 +		mkdir -p ${TEMP}/unionfs/lib/modules/${KV}/kernel/fs/unionfs
-+		
++
 +		if [ -f unionfs.ko ]
-+		then 
++		then
 +			cp -f unionfs.ko ${TEMP}/unionfs/lib/modules/${KV}/kernel/fs/unionfs
 +		else
 +			cp -f unionfs.o ${TEMP}/unionfs/lib/modules/${KV}/kernel/fs/unionfs
-+ 		fi
-+	
++		fi
++
 +		cd ${TEMP}/unionfs
 +		/bin/tar -cjf "${UNIONFS_MODULES_BINCACHE}" . ||
 +			gen_die 'Could not create unionfs modules binary cache'
-+	
++
 +		cd "${TEMP}"
 +		rm -rf "${UNIONFS_DIR}" > /dev/null
 +		rm -rf unionfs > /dev/null
@@ -109,14 +141,14 @@ diff -Naur a/gen_compile.sh b/gen_compile.sh
 +		compile_generic '' utils
 +		print_info 1 'unionfs: >> Copying to cache...'
 +		strip uniondbg unionctl
-+		cp uniondbg ${TEMP}/unionfs/sbin/ || 
++		cp uniondbg ${TEMP}/unionfs/sbin/ ||
 +			gen_die 'Could not copy the uniondbg binary to the tmp directory'
 +		cp unionctl ${TEMP}/unionfs/sbin/ ||
 +			gen_die 'Could not copy the unionctl binary to the tmp directory'
 +		cd ${TEMP}/unionfs
 +		/bin/tar -cjf "${UNIONFS_BINCACHE}" . ||
 +			gen_die 'Could not create unionfs tools binary cache'
-+		
++
 +		cd "${TEMP}"
 +		rm -rf "${UNIONFS_DIR}" > /dev/null
 +		rm -rf unionfs > /dev/null
@@ -126,10 +158,11 @@ diff -Naur a/gen_compile.sh b/gen_compile.sh
  compile_busybox() {
  	[ -f "${BUSYBOX_SRCTAR}" ] ||
  		gen_die "Could not find busybox source tarball: ${BUSYBOX_SRCTAR}!"
-diff -Naur a/gen_determineargs.sh b/gen_determineargs.sh
---- a/gen_determineargs.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/gen_determineargs.sh	2008-06-16 21:01:33.000000000 +0200
-@@ -108,6 +108,7 @@
+diff --git a/gen_determineargs.sh b/gen_determineargs.sh
+index f125f61..bd34557 100644
+--- a/gen_determineargs.sh
++++ b/gen_determineargs.sh
+@@ -108,6 +108,7 @@ determine_real_args() {
  	set_config_with_override 1 OLDCONFIG            CMD_OLDCONFIG
  	set_config_with_override 1 LVM                  CMD_LVM
  	set_config_with_override 1 EVMS                 CMD_EVMS
@@ -137,7 +170,7 @@ diff -Naur a/gen_determineargs.sh b/gen_determineargs.sh
  	set_config_with_override 1 DMRAID               CMD_DMRAID
  	set_config_with_override 1 BUSYBOX              CMD_BUSYBOX              "yes"
  	set_config_with_override 1 DISKLABEL            CMD_DISKLABEL
-@@ -129,6 +130,8 @@
+@@ -129,6 +130,8 @@ determine_real_args() {
  	DEVICE_MAPPER_BINCACHE=`cache_replace "${DEVICE_MAPPER_BINCACHE}"`
  	LVM_BINCACHE=`cache_replace "${LVM_BINCACHE}"`
  	DMRAID_BINCACHE=`cache_replace "${DMRAID_BINCACHE}"`
@@ -146,7 +179,7 @@ diff -Naur a/gen_determineargs.sh b/gen_determineargs.sh
  	BLKID_BINCACHE=`cache_replace "${BLKID_BINCACHE}"`
    
  	DEFAULT_KERNEL_CONFIG=`arch_replace "${DEFAULT_KERNEL_CONFIG}"`
-@@ -137,6 +140,8 @@
+@@ -137,6 +140,8 @@ determine_real_args() {
  	DEVICE_MAPPER_BINCACHE=`arch_replace "${DEVICE_MAPPER_BINCACHE}"`
  	LVM_BINCACHE=`arch_replace "${LVM_BINCACHE}"`
  	DMRAID_BINCACHE=`arch_replace "${DMRAID_BINCACHE}"`
@@ -155,16 +188,80 @@ diff -Naur a/gen_determineargs.sh b/gen_determineargs.sh
  	BLKID_BINCACHE=`arch_replace "${BLKID_BINCACHE}"`
  	
  
-@@ -207,4 +212,5 @@
+@@ -207,4 +212,5 @@ determine_real_args() {
  	fi
  	
  	get_KV
 +	UNIONFS_MODULES_BINCACHE=`kv_replace "${UNIONFS_MODULES_BINCACHE}"`
  }
-diff -Naur a/generic/initrd.scripts b/generic/initrd.scripts
---- a/generic/initrd.scripts	2008-06-05 18:47:56.000000000 +0200
-+++ b/generic/initrd.scripts	2008-06-16 21:01:33.000000000 +0200
-@@ -210,6 +210,21 @@
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index a9804ef..d478146 100644
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -72,6 +72,21 @@ append_blkid(){
+ 	rm -rf "${TEMP}/initramfs-blkid-temp" > /dev/null
+ }
+ 
++append_unionfs_tools(){
++	if [ -d "${TEMP}/initramfs-unionfs-tools-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-unionfs-tools-temp/"
++	fi
++	print_info 1 'UNIONFS TOOLS: Adding support (compiling)...'
++	compile_unionfs_utils
++	mkdir -p "${TEMP}/initramfs-unionfs-tools-temp/bin/"
++	/bin/tar -jxpf "${UNIONFS_BINCACHE}" -C "${TEMP}/initramfs-unionfs-tools-temp" ||
++		gen_die "Could not extract unionfs tools binary cache!";
++	cd "${TEMP}/initramfs-unionfs-tools-temp/"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -r "${TEMP}/initramfs-unionfs-tools-temp/"
++}
++
+ #append_suspend(){
+ #	if [ -d "${TEMP}/initramfs-suspend-temp" ];
+ #	then
+@@ -476,6 +491,7 @@ create_initramfs() {
+ 	append_data 'base_layout'
+ 	append_data 'auxilary'
+ 	append_data 'busybox' "${BUSYBOX}"
++	append_data 'unionfs_tools' "${UNIONFS}"
+ 	append_data 'lvm' "${LVM}"
+ 	append_data 'dmraid' "${DMRAID}"
+ 	append_data 'evms' "${EVMS}"
+diff --git a/gen_initrd.sh b/gen_initrd.sh
+index 7aae958..b7e3332 100644
+--- a/gen_initrd.sh
++++ b/gen_initrd.sh
+@@ -65,6 +65,24 @@ create_base_initrd_sys() {
+ 		gen_die 'Could not extract busybox bincache!'
+ 	chmod +x "${TEMP}/initrd-temp/bin/busybox"
+ 
++	#unionfs modules
++	if [ "${UNIONFS}" -eq '1' ]
++	then
++		print_info 1 'UNIONFS MODULES: Adding support (compiling)...'
++		compile_unionfs_modules
++		/bin/tar -jxpf "${UNIONFS_MODULES_BINCACHE}" -C "${TEMP}/initrd-temp" ||
++			gen_die "Could not extract unionfs modules binary cache!";
++	fi
++
++	#unionfs utils
++	if [ "${UNIONFS}" -eq '1' ]
++	then
++		print_info 1 'UNIONFS TOOLS: Adding support (compiling)...'
++		compile_unionfs_utils
++		/bin/tar -jxpf "${UNIONFS_BINCACHE}" -C "${TEMP}/initrd-temp" ||
++			gen_die "Could not extract unionfs tools binary cache!";
++	fi
++
+ 	# DMRAID 
+ 	if [ "${DMRAID}" -eq '1' ]
+ 	then
+diff --git a/generic/initrd.scripts b/generic/initrd.scripts
+index 3b8b4cf..314999b 100644
+--- a/generic/initrd.scripts
++++ b/generic/initrd.scripts
+@@ -210,6 +210,21 @@ mount_sysfs() {
  	fi
  }
  
@@ -186,7 +283,7 @@ diff -Naur a/generic/initrd.scripts b/generic/initrd.scripts
  findnfsmount() {
  	if [ "${IP}" != '' ] || busybox udhcpc -n -T 15 -q -s /bin/udhcpc.scripts
  	then
-@@ -895,6 +910,62 @@
+@@ -902,6 +917,62 @@ rundebugshell() {
  	fi
  }
  
@@ -228,16 +325,16 @@ diff -Naur a/generic/initrd.scripts b/generic/initrd.scripts
 +				bad_msg "falling back to ramdisk based unionfs for safety"
 +				mount -t tmpfs tmpfs $MEMORY
 +			fi
-+		else 
++		else
 +			good_msg "Mounting ramdisk to $MEMORY for unionfs support..."
-+			mount -t tmpfs tmpfs $MEMORY 
-+		fi 
++			mount -t tmpfs tmpfs $MEMORY
++		fi
 +
-+		mkdir -p $CHANGES 
++		mkdir -p $CHANGES
 +		mount -t unionfs -o dirs=$CHANGES=rw unionfs ${UNION}
 +		ret=$?
 +		if [ "${ret}" -ne 0 ]
-+		then 
++		then
 +			bad_msg "Can't setup union ${UNION} in directory!"
 +			USE_UNIONFS_NORMAL=0
 +		fi
@@ -249,10 +346,11 @@ diff -Naur a/generic/initrd.scripts b/generic/initrd.scripts
  swsusp_resume() {
  	# determine swap resume partition
  	local device=$(ls -l "${REAL_RESUME}" | sed 's/\ */ /g' | cut -d \  -f 6-7 | sed 's/,\ */:/')
-diff -Naur a/generic/linuxrc b/generic/linuxrc
---- a/generic/linuxrc	2008-06-05 18:47:56.000000000 +0200
-+++ b/generic/linuxrc	2008-06-16 21:01:33.000000000 +0200
-@@ -81,6 +81,21 @@
+diff --git a/generic/linuxrc b/generic/linuxrc
+index 780b707..dea1765 100644
+--- a/generic/linuxrc
++++ b/generic/linuxrc
+@@ -81,6 +81,21 @@ do
  		looptype\=*)
  			LOOPTYPE=`parse_opt "${x}"`
  		;;
@@ -260,21 +358,21 @@ diff -Naur a/generic/linuxrc b/generic/linuxrc
 +			USE_UNIONFS_NORMAL=0
 +		;;
 +		unionfs\=*)
-+            USE_UNIONFS_NORMAL=1
-+            CMD_UNIONFS=`parse_opt "${x}"`
-+            echo ${CMD_UNIONFS}|grep , >/dev/null 2>&1
-+            if [ "$?" -eq '0' ]
++			USE_UNIONFS_NORMAL=1
++			CMD_UNIONFS=`parse_opt "${x}"`
++			echo ${CMD_UNIONFS}|grep , >/dev/null 2>&1
++			if [ "$?" -eq '0' ]
 +			then
-+                UID=`echo ${CMD_UNIONFS#*,}`
-+                UNIONFS=`echo ${CMD_UNIONFS%,*}`
++				UID=`echo ${CMD_UNIONFS#*,}`
++				UNIONFS=`echo ${CMD_UNIONFS%,*}`
 +			else
-+                UNIONFS=${CMD_UNIONFS}
++				UNIONFS=${CMD_UNIONFS}
 +			fi
 +		;;
  		# Start Volume manager options 
  		dolvm)
  			USE_LVM_NORMAL=1
-@@ -249,16 +264,27 @@
+@@ -249,16 +264,27 @@ then
  	fi
  fi
  
@@ -306,21 +404,21 @@ diff -Naur a/generic/linuxrc b/generic/linuxrc
  	
  	for i in dev mnt mnt/cdrom mnt/livecd mnt/key tmp tmp/.initrd mnt/gentoo sys
  	do
-@@ -512,6 +538,22 @@
+@@ -512,6 +538,22 @@ then
  		fi
  	fi
  
 +	if [ "${USE_UNIONFS_NORMAL}" = '1' ]
 +	then
-+        union_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
++		union_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
 +
-+        mkdir -p ${UNION}/mnt/livecd
-+        if [ ! -e "${UNION}/mnt/cdrom" ]; then
-+            mkdir ${UNION}/mnt/cdrom -p
-+        fi
-+        mount --bind ${NEW_ROOT}/${FS_LOCATION} ${UNION}/mnt/livecd
-+        mount --bind ${NEW_ROOT}/mnt/cdrom ${UNION}/mnt/cdrom
-+		
++		mkdir -p ${UNION}/mnt/livecd
++		if [ ! -e "${UNION}/mnt/cdrom" ]; then
++			mkdir ${UNION}/mnt/cdrom -p
++		fi
++		mount --bind ${NEW_ROOT}/${FS_LOCATION} ${UNION}/mnt/livecd
++		mount --bind ${NEW_ROOT}/mnt/cdrom ${UNION}/mnt/cdrom
++
 +		# Make sure fstab notes livecd is mounted ro.  Makes system skip remount which fails on unionfs dirs.
 +		sed -e 's|\(.*\s/\s*tmpfs\s*\)defaults\(.*\)|\1defaults,ro\2|' /${UNION}/etc/fstab > /${UNION}/etc/fstab.new
 +		mv /${UNION}/etc/fstab.new /${UNION}/etc/fstab
@@ -329,7 +427,7 @@ diff -Naur a/generic/linuxrc b/generic/linuxrc
  	# Unpacking additional packages from NFS mount
  	# This is useful for adding kernel modules to /lib
  	# We do this now, so that additional packages can add whereever they want.
-@@ -529,55 +571,58 @@
+@@ -529,55 +571,58 @@ then
  	fi
  
  	
@@ -433,84 +531,24 @@ diff -Naur a/generic/linuxrc b/generic/linuxrc
  
  	#UML=`cat /proc/cpuinfo|grep UML|sed -e 's|model name.*: ||'`
  	#if [ "${UML}" = 'UML' ]
-@@ -594,6 +639,12 @@
+@@ -594,6 +639,12 @@ then
  	then
  		sleep 10
  	fi
 +else
 +	if [ "${USE_UNIONFS_NORMAL}" = '1' ]
 +	then
-+        union_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
++		union_setup_dir ${UNION} ${NEW_ROOT}/${FS_LOCATION}
 +		mkdir -p ${UNION}/tmp/.initrd
 +	fi
  fi
  
  # Execute script on the cdrom just before boot to update things if necessary
-diff -Naur a/gen_initramfs.sh b/gen_initramfs.sh
---- a/gen_initramfs.sh	2008-06-05 18:47:56.000000000 +0200
-+++ b/gen_initramfs.sh	2008-06-16 21:01:33.000000000 +0200
-@@ -72,6 +72,21 @@
- 	rm -rf "${TEMP}/initramfs-blkid-temp" > /dev/null
- }
- 
-+append_unionfs_tools(){
-+	if [ -d "${TEMP}/initramfs-unionfs-tools-temp" ]
-+	then
-+		rm -r "${TEMP}/initramfs-unionfs-tools-temp/"
-+	fi
-+	print_info 1 'UNIONFS TOOLS: Adding support (compiling)...'
-+	compile_unionfs_utils
-+	mkdir -p "${TEMP}/initramfs-unionfs-tools-temp/bin/"
-+	/bin/tar -jxpf "${UNIONFS_BINCACHE}" -C "${TEMP}/initramfs-unionfs-tools-temp" ||
-+		gen_die "Could not extract unionfs tools binary cache!";
-+	cd "${TEMP}/initramfs-unionfs-tools-temp/"
-+	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
-+	rm -r "${TEMP}/initramfs-unionfs-tools-temp/"
-+}
-+
- #append_suspend(){
- #	if [ -d "${TEMP}/initramfs-suspend-temp" ];
- #	then
-@@ -463,6 +478,7 @@
- 	append_data 'base_layout'
- 	append_data 'auxilary'
- 	append_data 'busybox' "${BUSYBOX}"
-+	append_data 'unionfs_tools' "${UNIONFS}"
- 	append_data 'lvm' "${LVM}"
- 	append_data 'dmraid' "${DMRAID}"
- 	append_data 'evms' "${EVMS}"
-diff -Naur a/gen_initrd.sh b/gen_initrd.sh
---- a/gen_initrd.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/gen_initrd.sh	2008-06-16 21:01:33.000000000 +0200
-@@ -65,6 +65,24 @@
- 		gen_die 'Could not extract busybox bincache!'
- 	chmod +x "${TEMP}/initrd-temp/bin/busybox"
- 
-+	#unionfs modules
-+	if [ "${UNIONFS}" -eq '1' ]
-+	then
-+		print_info 1 'UNIONFS MODULES: Adding support (compiling)...'
-+		compile_unionfs_modules
-+		/bin/tar -jxpf "${UNIONFS_MODULES_BINCACHE}" -C "${TEMP}/initrd-temp" ||
-+			gen_die "Could not extract unionfs modules binary cache!";
-+	fi
-+	
-+	#unionfs utils
-+	if [ "${UNIONFS}" -eq '1' ]
-+	then
-+		print_info 1 'UNIONFS TOOLS: Adding support (compiling)...'
-+		compile_unionfs_utils
-+		/bin/tar -jxpf "${UNIONFS_BINCACHE}" -C "${TEMP}/initrd-temp" ||
-+			gen_die "Could not extract unionfs tools binary cache!";
-+	fi
-+
- 	# DMRAID 
- 	if [ "${DMRAID}" -eq '1' ]
- 	then
-diff -Naur a/genkernel b/genkernel
---- a/genkernel	2008-06-05 18:47:55.000000000 +0200
-+++ b/genkernel	2008-06-16 21:01:33.000000000 +0200
-@@ -382,6 +382,8 @@
+diff --git a/genkernel b/genkernel
+index 29db849..3d7a4cf 100755
+--- a/genkernel
++++ b/genkernel
+@@ -382,6 +382,8 @@ then
  	[ "${EVMS}" -eq '1' ] && print_info 1 'add "doevms" for evms support'
  	[ "${DMRAID}" -eq '1' ] && print_info 1 'add "dodmraid" for dmraid support'
  	[ "${DMRAID}" -eq '1' ] && print_info 1 '	or "dodmraid=<additional options>"'
@@ -519,10 +557,11 @@ diff -Naur a/genkernel b/genkernel
  fi
  
  [ "${BOOTRW}" != '' ] && mount -o remount,ro ${BOOTDIR}
-diff -Naur a/genkernel.conf b/genkernel.conf
---- a/genkernel.conf	2008-06-05 18:47:55.000000000 +0200
-+++ b/genkernel.conf	2008-06-16 21:04:25.000000000 +0200
-@@ -59,6 +59,10 @@
+diff --git a/genkernel.conf b/genkernel.conf
+index 9b09ad1..4dbe871 100755
+--- a/genkernel.conf
++++ b/genkernel.conf
+@@ -59,6 +59,10 @@ USECOLOR="yes"
  # should run "emerge evms" first.
  # EVMS="no"
  
@@ -533,7 +572,7 @@ diff -Naur a/genkernel.conf b/genkernel.conf
  # Add DMRAID support.
  # DMRAID="no"
  
-@@ -160,6 +164,14 @@
+@@ -160,6 +164,14 @@ DMRAID_DIR="dmraid/${DMRAID_VER}"
  DMRAID_SRCTAR="${DISTDIR}/dmraid-${DMRAID_VER}.tar.bz2"
  DMRAID_BINCACHE="%%CACHE%%/dmraid-${DMRAID_VER}-%%ARCH%%.tar.bz2"
  
@@ -548,10 +587,11 @@ diff -Naur a/genkernel.conf b/genkernel.conf
  E2FSPROGS_VER="VERSION_E2FSPROGS"
  E2FSPROGS_DIR="e2fsprogs-${E2FSPROGS_VER}"
  E2FSPROGS_SRCTAR="${DISTDIR}/e2fsprogs-${E2FSPROGS_VER}.tar.gz"
-diff -Naur a/mips/config.sh b/mips/config.sh
---- a/mips/config.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/mips/config.sh	2008-06-16 21:01:33.000000000 +0200
-@@ -12,6 +12,7 @@
+diff --git a/mips/config.sh b/mips/config.sh
+index 3a54c46..b8b1131 100644
+--- a/mips/config.sh
++++ b/mips/config.sh
+@@ -12,6 +12,7 @@ COMPRESS_INITRD="yes"
  USECOLOR="yes"
  NOINITRDMODULES="yes"
  BUSYBOX=1
@@ -559,3 +599,6 @@ diff -Naur a/mips/config.sh b/mips/config.sh
  DMRAID=0
  DISKLABEL=0
  
+-- 
+1.5.6.2
+

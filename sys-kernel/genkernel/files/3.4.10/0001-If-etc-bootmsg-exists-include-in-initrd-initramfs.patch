@@ -1,39 +1,22 @@
-diff -Naur a/generic/initrd.scripts b/generic/initrd.scripts
---- a/generic/initrd.scripts	2008-06-05 18:47:56.000000000 +0200
-+++ b/generic/initrd.scripts	2008-06-16 15:46:15.000000000 +0200
-@@ -715,6 +715,12 @@
- 				DEV_ERROR=1
- 				continue
- 			else
-+				# First switch to splash verbose
-+				splash 'verbose' > /dev/null &
-+				if [ -f "/etc/bootmsg" ]
-+				then
-+					cat /etc/bootmsg
-+				fi
- 				# Handle keys
- 				if [ -n "${LUKS_KEY}" ] 
- 				then
-@@ -761,6 +767,7 @@
- 							continue
- 						else
- 							good_msg "Removable device ${LUKS_KEYDEV} mounted." ${CRYPT_SILENT}
-+							splash 'init'
- 							sleep 2
- 							# keyfile exists?
- 							if [ ! -e "${mntkey}${LUKS_KEY}" ]; then
-@@ -781,6 +788,7 @@
- 				if [ $? -eq 0 ]
- 				then
- 					good_msg "LUKS device ${LUKS_DEVICE} opened" ${CRYPT_SILENT}
-+					splash 'init'
- 					break
- 				else
- 					bad_msg "Failed to open LUKS device ${LUKS_DEVICE}" ${CRYPT_SILENT}
-diff -Naur a/gen_initramfs.sh b/gen_initramfs.sh
---- a/gen_initramfs.sh	2008-06-05 18:47:56.000000000 +0200
-+++ b/gen_initramfs.sh	2008-06-16 15:46:15.000000000 +0200
-@@ -416,13 +416,26 @@
+From 8f34d201ac1171b0a5e84c8c19824394ebddc6ba Mon Sep 17 00:00:00 2001
+From: Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+Date: Thu, 17 Jul 2008 23:22:07 +0200
+Subject: [PATCH] If /etc/bootmsg exists, include in initrd/initramfs
+
+
+Signed-off-by: Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+---
+:100644 100644 23afc63... a9804ef... M	gen_initramfs.sh
+:100644 100644 6b20c8d... 7aae958... M	gen_initrd.sh
+ gen_initramfs.sh |   17 +++++++++++++++--
+ gen_initrd.sh    |   14 ++++++++++++++
+ 2 files changed, 29 insertions(+), 2 deletions(-)
+
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index 23afc63..a9804ef 100644
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -416,13 +416,26 @@ append_auxilary() {
  			rm -f ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
  			cp /bin/cryptsetup ${TEMP}/initramfs-aux-temp/sbin/cryptsetup
  			chmod +x "${TEMP}/initramfs-aux-temp/sbin/cryptsetup"
@@ -62,10 +45,11 @@ diff -Naur a/gen_initramfs.sh b/gen_initramfs.sh
  		else
  			print_info 1 "LUKS support requires static cryptsetup at /bin/cryptsetup or /sbin/cryptsetup"
  			print_info 1 "Not including LUKS support"
-diff -Naur a/gen_initrd.sh b/gen_initrd.sh
---- a/gen_initrd.sh	2008-06-05 18:47:55.000000000 +0200
-+++ b/gen_initrd.sh	2008-06-16 15:46:15.000000000 +0200
-@@ -171,12 +171,26 @@
+diff --git a/gen_initrd.sh b/gen_initrd.sh
+index 6b20c8d..7aae958 100644
+--- a/gen_initrd.sh
++++ b/gen_initrd.sh
+@@ -171,12 +171,26 @@ create_base_initrd_sys() {
  			rm -f ${TEMP}/initrd-temp/sbin/cryptsetup
  			cp /bin/cryptsetup ${TEMP}/initrd-temp/sbin/cryptsetup
  			chmod +x "${TEMP}/initrd-temp/sbin/cryptsetup"
@@ -92,3 +76,6 @@ diff -Naur a/gen_initrd.sh b/gen_initrd.sh
  		else
  			print_info 1 "LUKS support requires static cryptsetup at /bin/cryptsetup or /sbin/cryptsetup"
  			print_info 1 "Not including LUKS support"
+-- 
+1.5.6.2
+
