@@ -24,13 +24,13 @@ src_install() {
 
 	dodir /usr/$(get_libdir)/entropy/server
 
-        # copy configuration
-        cd ${S}/conf
-        dodir /etc/entropy
-        insinto /etc/entropy
-        doins activator.conf
-        doins reagent.conf
-        doins server.conf.example
+	# copy configuration
+	cd ${S}/conf
+	dodir /etc/entropy
+	insinto /etc/entropy
+	doins activator.conf
+	doins reagent.conf
+	doins server.conf.example
 
 	packages="reagent.py activator.py"
 	inspackages="reagent.py activator.py server_reagent.py server_activator.py entropy-system-daemon entropy-repository-daemon server_query.py"
