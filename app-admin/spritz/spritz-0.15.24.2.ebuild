@@ -21,12 +21,12 @@ DEPEND="sys-devel/gettext"
 
 pkg_setup ()
 {
-        if ! built_with_use x11-libs/vte python; then
-                echo
-                eerror "x11-libs/vte has not been built with python support."
-                eerror "Please re-emerge vte with the python use-flag enabled."
-                die "missing python flag for x11-libs/vte"
-        fi
+	if ! built_with_use x11-libs/vte python; then
+		echo
+		eerror "x11-libs/vte has not been built with python support."
+		eerror "Please re-emerge vte with the python use-flag enabled."
+		die "missing python flag for x11-libs/vte"
+	fi
 }
 
 src_unpack() {
