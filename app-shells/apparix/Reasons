@@ -1,0 +1,10 @@
+app-shells/apparix
+
+Ebuild added July 22, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+New ebuild, closes gentoo's bug #112740
+
+======
+22.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - apparix: welcome :)
