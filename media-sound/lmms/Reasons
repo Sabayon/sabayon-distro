@@ -1,0 +1,10 @@
+media-sound/lmms
+
+Ebuild added July 22, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+New ebuild, closes LP's Question #39173 and Gentoo's bug #100170
+
+======
+22.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - lmms: welcome :)
