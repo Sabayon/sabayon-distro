@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-inherit qt4
+inherit qt4 eutils
 
 DESCRIPTION="Pencil is an animation/drawing software package that lets you create traditional hand-drawn animation (cartoon) using both bitmap and vector
 graphics"
@@ -30,5 +30,9 @@ src_compile() {
 src_install() {
 	mv Pencil pencil
 	dobin pencil || die "dobin failed"
-	doicon icons/icon.png
+	mv icons/icon.png icons/pencil.png
+	doicon icons/pencil.png
+	make_desktop_entry "${PN}" "${PN}" "${PN}.png" "Graphics;2DGraphics;RasterGraphics;" || \
+		die "failed to make desktop entry."
 }
+
