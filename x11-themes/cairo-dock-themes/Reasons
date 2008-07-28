@@ -1,0 +1,11 @@
+x11-themes/cairo-dock-themes
+
+Ebuild added July 28, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+New ebuild, one of gnome-extra/cairo-dock dependencies
+Closes LP's Question #40141
+
+======
+28.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - cairo-dock-themes: welcome :)
