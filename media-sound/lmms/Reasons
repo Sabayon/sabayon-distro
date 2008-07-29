@@ -11,3 +11,4 @@ New ebuild, closes LP's Question #39173 and Gentoo's bug #100170
 22.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - r1: Disable vst USE flag because I couldn't find vst-headers
                  source, which is a required dependency.
+           - r2: Disable vst configure option.
