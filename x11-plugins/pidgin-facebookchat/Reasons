@@ -8,3 +8,5 @@ New ebuild for the cool pidgin facebook plugin.
 ======
 29.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - pidgin-facebookchat: welcome :)
+29.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - r1: Add facebook certificate file.

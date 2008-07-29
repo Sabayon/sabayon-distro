@@ -35,4 +35,6 @@ src_install() {
 		insinto /usr/share/pixmaps/pidgin/protocols/${size}
 		newins facebook${size}.png facebook.png
 	done
+	insinto /usr/share/purple/ca-certs
+	doins ${FILESDIR}/login.facebook.com.pem
 }
