@@ -1,0 +1,11 @@
+app-text/bibletime
+
+Ebuild added July 29, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+New ebuild, app-text/sword has been bumped to 1.5.11, this package was
+depending on 1.5.10* which excludes 1.5.11... fix it.
+
+======
+29.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - bibletime: welcome :)
