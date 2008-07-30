@@ -9,3 +9,7 @@ app-emulation/qemu-gui
 
 # Highly unstable
 ~net-im/skype-1.4.0.58
+
+# Awsome 3 from git
+=x11-wm/awesome-9999
+=x11-libs/xcb-util-9999

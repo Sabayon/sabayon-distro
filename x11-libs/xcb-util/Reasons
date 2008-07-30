@@ -1,0 +1,10 @@
+x11-libs/xcb-util
+
+Ebuild added July 30, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+New ebuild, Added as a dependency for x11-wm/awesome-9999
+
+======
+30.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - xcb-util: welcome :)
