@@ -1,0 +1,28 @@
+diff -Naur a/setup.py b/setup.py
+--- a/setup.py	2008-07-21 12:45:52.000000000 +0200
++++ b/setup.py	2008-08-01 16:39:00.039750000 +0200
+@@ -109,24 +109,5 @@
+             **info.SETUP
+         )
+ 
+-if not WINDOWS:
+-    # Update the mime types
+-    if ROOT and dist != None:
+-        
+-        #update the mimetypes database
+-        try: 
+-            subprocess.call(["update-mime-database", 
+-                os.path.join(sys.prefix,"share/mime/")])
+-            write('Updating the mime types database.\n')
+-        except:
+-            error('Failed to update the mime types database.\n')
+-
+-        #update the .desktop file database
+-        try:
+-            subprocess.call(["update-desktop-database"])
+-            write('Updating the .desktop file database.\n')
+-        except:
+-            error('Failed to update the .desktop file database.\n')
+-
+ write(  "\nInstallation finished! You can now run Phatch by typing 'phatch' \n"
+         "or through your applications menu.\n")
