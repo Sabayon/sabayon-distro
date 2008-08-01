@@ -47,9 +47,9 @@ src_compile() {
 		$(use_with sdl sdlsound) \
 		$(use_with jack) \
 		$(use_with debug) \
-#		$(use_with vst) \
-		--disable-vst \
+		--without-vst \
 		--enable-hqsinc || die "econf failed"
+#		$(use_with vst) \
 #	if use vst ; then
 #		emake -j1 || die "emake failed"
 #	else
