@@ -54,7 +54,7 @@ DEPEND="${RDEPEND}
 					app-text/xmlto
 					dev-libs/libxml2
 				)"
-PDEPEND="=app-misc/hal-info-20080310
+PDEPEND=">=app-misc/hal-info-20080310
 		 !gnome-extra/hal-device-manager
 		 laptop? ( >=sys-power/pm-utils-0.99.3 )"
 
