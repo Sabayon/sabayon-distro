@@ -8,3 +8,6 @@ New ebuild, Awesome 3
 ======
 30.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - awesome: welcome :)
+02.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - xcb-util 0.2.1 has been released yesterday, we can safely use it
+             instead of building directly from Git.

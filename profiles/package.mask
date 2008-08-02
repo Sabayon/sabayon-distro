@@ -10,6 +10,12 @@ app-emulation/qemu-gui
 # Highly unstable
 ~net-im/skype-1.4.0.58
 
-# Awsome 3 from git
-=x11-wm/awesome-9999
-=x11-libs/xcb-util-9999
+# Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+# Awsome 3 live from git.
+~x11-wm/awesome-9999
+
+# Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+# xcb-utils live from git.
+# NOTE: There's no need to unmask this package for awesome 3 anymore you can
+#       safely use >=xcb-util-0.2.1
+~x11-libs/xcb-util-9999

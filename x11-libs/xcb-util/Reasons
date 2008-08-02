@@ -8,3 +8,7 @@ New ebuild, Added as a dependency for x11-wm/awesome-9999
 ======
 30.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - xcb-util: welcome :)
+02.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - New version has been announced yesterday, for more information on
+             the release check the announcement on the mailing list.
+             http://lists.freedesktop.org/archives/xorg-announce/2008-August/000627.html
