@@ -20,6 +20,8 @@ DEPEND="dev-lang/python
 
 RDEPEND="${DEPEND}"
 
+RESTRICT="nomirror"
+
 src_unpack() {
 	unpack ${A}
 	cd ${S}
