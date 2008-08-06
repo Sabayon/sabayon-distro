@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 inherit eutils multilib
+EAPI=1
 
 DESCRIPTION="Spicebird Collaboration Suite"
 SRC_URI="http://www.spicebird.com/pub/spicebird/${PV}/spicebird-beta-${PV}.en-US.linux-i686.tar.bz2"
