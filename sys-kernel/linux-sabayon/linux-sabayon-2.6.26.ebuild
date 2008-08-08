@@ -8,15 +8,14 @@ inherit kernel-2
 detect_version
 detect_arch
 
-MY_PV="${PV}"
-MY_P="${P}"
 UNIPATCH_STRICTORDER="yes"
 KEYWORDS="~amd64 ~x86"
 HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
-	!only_sources? ( ~sys-kernel/genkernel-3.4.10 )
+	!only_sources? ( ~sys-kernel/genkernel-3.4.9 )
 	splash? ( x11-themes/sabayonlinux-artwork )
-	!=sys-kernel/sabayon-sources-${PVR/-r0/}
+	!=sys-kernel/sabayon-sources-${PVR}
+	~sys-kernel/genkernel-3.4.9
 	"
 RDEPEND="grub? ( sys-boot/grub )"
 IUSE="splash dmraid grub no_sources only_sources"
@@ -25,7 +24,7 @@ DESCRIPTION="Official Sabayon Linux kernel images and sources"
 KV_FULL=${KV_FULL/linux/sabayon}
 K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
-SLOT="${PVR/-r0/}"
+SLOT="${PV}"
 S="${WORKDIR}/linux-${KV_FULL}"
 UNIONFS_PATCH="unionfs-2.3.3_for_2.6.25.diff.gz"
 
@@ -37,18 +36,18 @@ SUSPEND2_TARGET="2.6.26"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
-		${FILESDIR}/${MY_PV}/${MY_P}-from-ext4dev-to-ext4.patch
-		${FILESDIR}/${MY_PV}/${MY_P}-at76.patch
-		${FILESDIR}/${MY_PV}/${MY_P}-aufs.patch
-		${FILESDIR}/${MY_PV}/${MY_P}-atl2.patch
-		${FILESDIR}/${MY_PV}/${MY_P}-tuxonice-3.0-rc7.patch.bz2
+		${FILESDIR}/${PV}/${P}-from-ext4dev-to-ext4.patch
+		${FILESDIR}/${PV}/${P}-at76.patch
+		${FILESDIR}/${PV}/${P}-aufs.patch
+		${FILESDIR}/${PV}/${P}-atl2.patch
+		${FILESDIR}/${PV}/${P}-tuxonice-3.0-rc7.patch.bz2
 "
 #		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
 #		${DISTDIR}/${UNIONFS_PATCH}
 
 # gentoo patches
-for patch in `/bin/ls ${FILESDIR}/${MY_PV}/genpatches`; do
-	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${MY_PV}/genpatches/${patch}"
+for patch in `/bin/ls ${FILESDIR}/${PV}/genpatches`; do
+	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/genpatches/${patch}"
 done
 
 SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI}"
