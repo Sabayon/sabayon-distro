@@ -32,8 +32,8 @@ UNIONFS_PATCH="unionfs-2.3.3_for_2.6.25.diff.gz"
 ## INIT: Exported data
 SL_PATCHES_URI="http://download.filesystems.org/unionfs/unionfs-2.x/${UNIONFS_PATCH}"
 
-SUSPEND2_VERSION="3.0-rc7"
-SUSPEND2_TARGET="2.6.25"
+SUSPEND2_VERSION="3.0-rc7a"
+SUSPEND2_TARGET="2.6.26"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
@@ -43,15 +43,15 @@ UNIPATCH_LIST="
 		${FILESDIR}/${MY_PV}/${MY_P}-atl2.patch
 		${FILESDIR}/${MY_PV}/${MY_P}-tuxonice-3.0-rc7.patch.bz2
 "
-#		${DISTDIR}/${UNIONFS_PATCH}
 #		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
+#		${DISTDIR}/${UNIONFS_PATCH}
 
 # gentoo patches
 for patch in `/bin/ls ${FILESDIR}/${MY_PV}/genpatches`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${MY_PV}/genpatches/${patch}"
 done
 
-SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI}" # ${SUSPEND2_URI}"
+SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI}"
 
 ## END: Exported data
 
@@ -92,7 +92,7 @@ src_compile() {
 		OLDARCH=${ARCH}
 		unset ARCH
 		cd ${S}
-		GK_ARGS=""
+		GK_ARGS="--disklabel"
 		use splash && GKARGS="${GKARGS} --splash=sabayon"
 		use dmraid && GKARGS="${GKARGS} --dmraid"
 		use grub && GKARGS="${GKARGS} --bootloader=grub"
