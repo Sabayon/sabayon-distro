@@ -137,6 +137,11 @@ src_unpack() {
 		"${ARCH_DIR}"/usr/X11R6/${PKG_LIBDIR}/libfglrx_gamma* \
 		|| die "bin rm failed"
 
+	if kernel_is ge 2 6 25; then
+		cd "$S"
+		epatch "${FILESDIR}/${PN}-2.6.26.patch"
+	fi 
+
 	if use debug; then
 		# Enable debug mode in the Source Code.
 		sed -i '/^#define DRM_DEBUG_CODE/s/0/1/' \
@@ -159,8 +164,6 @@ src_unpack() {
 		# add function to detect default state.
 		epatch "${FILESDIR}"/8.476/ati-powermode-opt-path-2.patch
 	fi
-
-	epatch "${FILESDIR}/${PN}-2.6.26.patch"
 
 	pushd ${MODULE_DIR} >/dev/null
 	ln -s "${ARCH_DIR}"/lib/modules/fglrx/build_mod/libfglrx_ip.a.GCC$(gcc-major-version) \
