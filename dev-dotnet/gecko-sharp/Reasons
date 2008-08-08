@@ -9,3 +9,6 @@ specifically request firefox-2.
 ======
 05.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - gecko-sharp: welcome :)
+08.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - New Version, hopefully closes Gentoo's bugs
+             #227205 and #229955
