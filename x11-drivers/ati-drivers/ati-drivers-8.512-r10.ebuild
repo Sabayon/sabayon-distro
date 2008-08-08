@@ -137,8 +137,8 @@ src_unpack() {
 		"${ARCH_DIR}"/usr/X11R6/${PKG_LIBDIR}/libfglrx_gamma* \
 		|| die "bin rm failed"
 
-	if kernel_is ge 2 6 25; then
-		cd "$S"
+	if kernel_is ge 2 6 26; then
+		cd "${S}"
 		epatch "${FILESDIR}/${PN}-2.6.26.patch"
 	fi 
 

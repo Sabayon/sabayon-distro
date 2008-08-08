@@ -1,9 +1,5 @@
-#This patch enables 2.6.26 support until AMD officially supports it.
-#It is originally by   Zilvina Valinskas <zilvinas@ilibox.com>
-#and adapted for AMD's 8-6 driver by Mario Limonciello <Mario_Limonciello@Dell.com>
-
---- a/common/lib/modules/fglrx/build_mod/firegl_public.c
-+++ b/common/lib/modules/fglrx/build_mod/firegl_public.c
+--- common/lib/modules/fglrx/build_mod/firegl_public.c	2008-07-21 14:32:08.000000000 -0400
++++ common/lib/modules/fglrx/build_mod/firegl_public.c	2008-07-21 14:31:48.000000000 -0400
 @@ -24,13 +24,13 @@
  // ============================================================
  #include <linux/version.h>
@@ -1590,8 +1586,9 @@
      if (plock == NULL)
      {
          __KE_ERROR("plock is NULL\n");
---- a/common/lib/modules/fglrx/build_mod/firegl_public.h
-+++ b/common/lib/modules/fglrx/build_mod/firegl_public.h
+
+--- common/lib/modules/fglrx/build_mod/firegl_public.h	2008-07-21 14:32:08.000000000 -0400
++++ common/lib/modules/fglrx/build_mod/firegl_public.h	2008-07-21 14:32:14.000000000 -0400
 @@ -78,7 +78,7 @@
      if (!pgd_present(*(pgd_p)))	\
      { \
@@ -1628,3 +1625,5 @@
          /* alternatively we could generate a NOPAGE_OOM "out of memory" */ \
      } \
  } while(0)
+ } while(0)
+
