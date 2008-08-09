@@ -122,12 +122,14 @@ src_install() {
 		kernel-2_src_install || die "sources install failed"
 		if ! use only_sources; then
 			cd ${D}/usr/src/linux-${KV_FULL} || die "cannot cd into sources directory"
+			cp Module.symvers Module.symvers.backup -p || die "cannot copy Module.symvers"
 			OLDARCH=${ARCH}
 			unset ARCH
 			make distclean || die "cannot run make distclean"
 			cp ${FILESDIR}/${PF/-r0/}-${OLDARCH}.config ${D}/usr/src/linux-${KV_FULL}/.config || die "cannot copy kernel configuration"
 			make prepare modules_prepare || die "cannot run make prepare modules_prepare"
 			ARCH=${OLDARCH}
+			cp Module.symvers.backup Module.symvers -p || die "cannot copy back Module.symvers"
 		fi
 	fi
 
