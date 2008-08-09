@@ -19,6 +19,7 @@ DEPEND="
 	"
 RDEPEND="grub? ( sys-boot/grub )"
 IUSE="splash dmraid grub no_sources only_sources"
+RESTRICT="nomirror"
 
 DESCRIPTION="Official Sabayon Linux kernel images and sources"
 KV_FULL=${KV_FULL/linux/sabayon}
@@ -26,7 +27,7 @@ K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
 SLOT="${PV}"
 S="${WORKDIR}/linux-${KV_FULL}"
-UNIONFS_PATCH="unionfs-2.3.3_for_2.6.25.diff.gz"
+UNIONFS_PATCH="unionfs-2.4_for_2.6.26.diff.gz"
 
 ## INIT: Exported data
 SL_PATCHES_URI="http://download.filesystems.org/unionfs/unionfs-2.x/${UNIONFS_PATCH}"
@@ -36,21 +37,21 @@ SUSPEND2_TARGET="2.6.26"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
+		${FILESDIR}/${PV}/patch-${PV}.2.bz2
 		${FILESDIR}/${PV}/${P}-from-ext4dev-to-ext4.patch
 		${FILESDIR}/${PV}/${P}-at76.patch
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/${P}-atl2.patch
-		${FILESDIR}/${PV}/${P}-tuxonice-3.0-rc7.patch.bz2
+		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
+		${DISTDIR}/${UNIONFS_PATCH}
 "
-#		${DISTDIR}/${SUSPEND2_SRC}.patch.bz2
-#		${DISTDIR}/${UNIONFS_PATCH}
 
 # gentoo patches
 for patch in `/bin/ls ${FILESDIR}/${PV}/genpatches`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/genpatches/${patch}"
 done
 
-SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI}"
+SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI} ${SUSPEND2_URI}"
 
 ## END: Exported data
 
