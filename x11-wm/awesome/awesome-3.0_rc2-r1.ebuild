@@ -4,11 +4,10 @@
 
 inherit cmake-utils eutils
 
-MY_P="${P/_/-}"
-
+MY_P=${P/_/-}
 DESCRIPTION="awesome is a floating and tiling window manager initialy based on a dwm code rewriting"
 HOMEPAGE="http://awesome.naquadah.org/"
-SRC_URI="http://awesome.naquadah.org/download/${MY_P}.tar.bz2"
+SRC_URI="http://awesome.naquadah.org/download/${MY_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -16,15 +15,15 @@ KEYWORDS="~amd64 ~x86"
 IUSE="dbus doc imlib luadoc"
 
 RDEPEND=">=dev-lang/lua-5.1
-	dev-libs/libev
 	>=dev-libs/glib-2
+	dev-libs/libev
 	x11-libs/cairo
-	x11-libs/pango
+	>=x11-libs/gtk+-2.2
 	>=x11-libs/libxcb-1.1
+	x11-libs/pango
 	>=x11-libs/xcb-util-0.2.1
 	dbus? ( sys-apps/dbus )
-	imlib? ( >=media-libs/imlib2-1 )
-	!imlib? ( >=x11-libs/gtk+-2.2 )"
+	imlib? ( media-libs/imlib2 )"
 
 DEPEND="${RDEPEND}
 	app-text/asciidoc
@@ -33,15 +32,16 @@ DEPEND="${RDEPEND}
 	dev-util/gperf
 	dev-util/pkgconfig
 	>=dev-util/cmake-2.4.7
+	x11-proto/xcb-proto
 	doc? (
 		app-doc/doxygen
 		media-gfx/graphviz
 	)
 	luadoc? ( dev-util/luadoc )"
 
-DOCS="AUTHORS BUGS README"
-
 S="${WORKDIR}/${MY_P}"
+
+DOCS="AUTHORS BUGS README"
 
 pkg_setup() {
 	if ! built_with_use --missing false x11-libs/cairo xcb; then
