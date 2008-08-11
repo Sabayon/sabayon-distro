@@ -36,6 +36,17 @@ DEPEND="${RDEPEND}
 
 CONFIGURE_OPTIONS="$(use_enable dri)"
 
+PATCHES=(
+"${FILESDIR}/${PV}/0001-Update-DSPARB-while-planes-are-still-off.patch"
+"${FILESDIR}/${PV}/0002-Reorder-visuals-reported-by-the-intel-driver.patch"
+"${FILESDIR}/${PV}/0003-Don-t-program-dsparb-on-new-Intel-chip.patch"
+"${FILESDIR}/${PV}/0004-Fix-SDVO-reg-definition.patch"
+"${FILESDIR}/${PV}/0005-Fix-up-the-HP-Pavilion-ze4944ea-quirk.patch"
+"${FILESDIR}/${PV}/0006-Fix-SDVO-HDMI-encoding-detect-16920.patch"
+"${FILESDIR}/${PV}/0007-Disable-display-clock-gating-for-4-series-chips.patch"
+"${FILESDIR}/${PV}/0008-Fix-possible-spurious-interrupts-in-hotplug-detect-o.patch"
+)
+
 pkg_setup() {
 	if use dri && ! built_with_use x11-base/xorg-server dri; then
 		die "Build x11-base/xorg-server with USE=dri."

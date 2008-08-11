@@ -1,0 +1,41 @@
+From 81bd24d8b1a3cdb8a539f4ca0c5f546e4c8070ed Mon Sep 17 00:00:00 2001
+From: Zhenyu Wang <zhenyu.z.wang@intel.com>
+Date: Mon, 11 Aug 2008 15:16:44 +0800
+Subject: [PATCH] Fix possible spurious interrupts in hotplug detect on 4 series chip
+ (cherry picked from commit d592eabc806b752053ade3c18e9dd8e0f39b45a3)
+
+
+diff --git a/src/i810_reg.h b/src/i810_reg.h
+index 515e73d..8690954 100644
+--- a/src/i810_reg.h
++++ b/src/i810_reg.h
+@@ -2813,4 +2813,6 @@ typedef enum {
+ #define DPFC_STATUS2		0x3214
+ #define DPFC_FENCE_YOFF		0x3218
+ 
++#define PEG_BAND_GAP_DATA	0x14d68
++
+ #endif /* _I810_REG_H */
+diff --git a/src/i830_hdmi.c b/src/i830_hdmi.c
+index 58d1c49..d56eec9 100644
+--- a/src/i830_hdmi.c
++++ b/src/i830_hdmi.c
+@@ -140,6 +140,15 @@ i830_hdmi_detect(xf86OutputPtr output)
+     I830Ptr pI830 = I830PTR(pScrn);
+     uint32_t temp, bit;
+ 
++    /* For G4X, PEG_BAND_GAP_DATA 3:0 must first be written 0xd.
++     * Failure to do so will result in spurious interrupts being
++     * generated on the port when a cable is not attached.
++     */
++    if (IS_G4X(pI830)) {
++	temp = INREG(PEG_BAND_GAP_DATA);
++	OUTREG(PEG_BAND_GAP_DATA, (temp & ~0xf) | 0xd);
++    }
++
+     temp = INREG(PORT_HOTPLUG_EN);
+ 
+     OUTREG(PORT_HOTPLUG_EN,
+-- 
+1.5.6.4
+

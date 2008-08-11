@@ -1,0 +1,81 @@
+From 2b0705993a151b24c82d7955eed1c9c17ee0d8bd Mon Sep 17 00:00:00 2001
+From: Zhenyu Wang <zhenyu.z.wang@intel.com>
+Date: Wed, 6 Aug 2008 16:19:29 +0800
+Subject: [PATCH] Fix SDVO HDMI encoding detect (#16920)
+
+Check return value of get supported encode command and current
+encoding mode, which could be DVI or HDMI.
+(cherry picked from commit f91134795b545c8baebf218975b261c76a0e5873)
+
+diff --git a/src/i830_sdvo.c b/src/i830_sdvo.c
+index 701aeaa..8f1b20b 100644
+--- a/src/i830_sdvo.c
++++ b/src/i830_sdvo.c
+@@ -79,6 +79,11 @@ struct i830_sdvo_priv {
+     Bool is_tv;
+ 
+     /**
++     * This is set if we treat the device as HDMI, instead of DVI.
++     */
++    Bool is_hdmi;
++
++    /**
+      * Returned SDTV resolutions allowed for the current format, if the
+      * device reported it.
+      */
+@@ -770,7 +775,7 @@ i830_sdvo_get_supp_encode(xf86OutputPtr output, struct i830_sdvo_encode *encode)
+ 
+     i830_sdvo_write_cmd(output, SDVO_CMD_GET_SUPP_ENCODE, NULL, 0);
+     status = i830_sdvo_read_response(output, encode, sizeof(*encode));
+-    if (status != SDVO_CMD_STATUS_SUCCESS) {
++    if (status != SDVO_CMD_STATUS_SUCCESS) { /* non-support means DVI */
+ 	memset(encode, 0, sizeof(*encode));
+ 	return FALSE;
+     }
+@@ -1034,7 +1039,7 @@ i830_sdvo_mode_set(xf86OutputPtr output, DisplayModePtr mode,
+ 			&in_out, sizeof(in_out));
+     status = i830_sdvo_read_response(output, NULL, 0);
+ 
+-    if (dev_priv->encode.hdmi_rev)
++    if (dev_priv->is_hdmi)
+ 	i830_sdvo_set_avi_infoframe(output, mode);
+ 
+     i830_sdvo_get_dtd_from_mode(&input_dtd, mode);
+@@ -1722,6 +1727,22 @@ i830_sdvo_select_ddc_bus(struct i830_sdvo_priv *dev_priv)
+     dev_priv->ddc_bus = 1 << num_bits;
+ }
+ 
++static Bool
++i830_sdvo_get_digital_encoding_mode(xf86OutputPtr output)
++{
++    I830OutputPrivatePtr    intel_output = output->driver_private;
++    struct i830_sdvo_priv   *dev_priv = intel_output->dev_priv;
++    uint8_t status;
++
++    i830_sdvo_set_target_output(output, dev_priv->controlled_output);
++
++    i830_sdvo_write_cmd(output, SDVO_CMD_GET_ENCODE, NULL, 0);
++    status = i830_sdvo_read_response(output, &dev_priv->is_hdmi, 1);
++    if (status != SDVO_CMD_STATUS_SUCCESS)
++	return FALSE;
++    return TRUE;
++}
++
+ Bool
+ i830_sdvo_init(ScrnInfoPtr pScrn, int output_device)
+ {
+@@ -1849,8 +1870,9 @@ i830_sdvo_init(ScrnInfoPtr pScrn, int output_device)
+         output->subpixel_order = SubPixelHorizontalRGB;
+ 	name_prefix="TMDS";
+ 
+-	i830_sdvo_get_supp_encode(output, &dev_priv->encode);
+-	if (dev_priv->encode.hdmi_rev != 0) {
++	if (i830_sdvo_get_supp_encode(output, &dev_priv->encode) &&
++		i830_sdvo_get_digital_encoding_mode(output) &&
++		dev_priv->is_hdmi) {
+ 	    /* enable hdmi encoding mode if supported */
+ 	    i830_sdvo_set_encode(output, SDVO_ENCODE_HDMI);
+ 	    i830_sdvo_set_colorimetry(output, SDVO_COLORIMETRY_RGB256);
+-- 
+1.5.6.4
+

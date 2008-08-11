@@ -13,3 +13,5 @@ NOTE: The patches won't be applied unless the USE flag "ubuntu-patches"
            - xf86-video-i810: welcome :)
 06.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - Adapt version 2.4.0 from gentoo's portage with ubuntu patches.
+11.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - Sync with gentoo's ebuild.

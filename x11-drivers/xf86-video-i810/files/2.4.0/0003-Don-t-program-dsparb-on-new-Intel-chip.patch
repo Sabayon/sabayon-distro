@@ -1,0 +1,70 @@
+From 01bbbd8c6c73229b5cb0c88e8eb2ac9b49a5dad8 Mon Sep 17 00:00:00 2001
+From: Zhenyu Wang <zhenyu.z.wang@intel.com>
+Date: Thu, 31 Jul 2008 13:13:45 +0800
+Subject: [PATCH] Don't program dsparb on new Intel chip
+
+On new chip, DSPARB is controlled by hardware only.
+
+diff --git a/src/common.h b/src/common.h
+index 57db6cb..f2ae502 100644
+--- a/src/common.h
++++ b/src/common.h
+@@ -374,6 +374,8 @@ extern int I810_DEBUG;
+ /* chipsets require status page in non stolen memory */
+ #define HWS_NEED_NONSTOLEN(pI810) (IS_GM45(pI810) || IS_G4X(pI810))
+ #define SUPPORTS_INTEGRATED_HDMI(pI810) (IS_GM45(pI810) || IS_G4X(pI810))
++/* dsparb controlled by hw only */
++#define DSPARB_HWCONTROL(pI810) (IS_G4X(pI810) || IS_GM45(pI810))
+ 
+ #define GTT_PAGE_SIZE			KB(4)
+ #define ROUND_TO(x, y)			(((x) + (y) - 1) / (y) * (y))
+diff --git a/src/i830_display.c b/src/i830_display.c
+index 2a267f1..e1dad03 100644
+--- a/src/i830_display.c
++++ b/src/i830_display.c
+@@ -1477,7 +1477,8 @@ i830_crtc_mode_set(xf86CrtcPtr crtc, DisplayModePtr mode,
+     /* Wait for the clocks to stabilize. */
+     usleep(150);
+ 
+-    i830_update_dsparb(pScrn);
++    if (!DSPARB_HWCONTROL(pI830))
++	i830_update_dsparb(pScrn);
+ 
+     OUTREG(htot_reg, (adjusted_mode->CrtcHDisplay - 1) |
+ 	((adjusted_mode->CrtcHTotal - 1) << 16));
+diff --git a/src/i830_driver.c b/src/i830_driver.c
+index 4bb9b81..f5aa114 100644
+--- a/src/i830_driver.c
++++ b/src/i830_driver.c
+@@ -2018,7 +2018,8 @@ SaveHWState(ScrnInfoPtr pScrn)
+    }
+ 
+    /* Save video mode information for native mode-setting. */
+-   pI830->saveDSPARB = INREG(DSPARB);
++   if (!DSPARB_HWCONTROL(pI830))
++       pI830->saveDSPARB = INREG(DSPARB);
+ 
+    pI830->saveDSPACNTR = INREG(DSPACNTR);
+    pI830->savePIPEACONF = INREG(PIPEACONF);
+@@ -2161,7 +2162,8 @@ RestoreHWState(ScrnInfoPtr pScrn)
+    if (!IS_I830(pI830) && !IS_845G(pI830))
+      OUTREG(PFIT_CONTROL, pI830->savePFIT_CONTROL);
+ 
+-   OUTREG(DSPARB, pI830->saveDSPARB);
++   if (!DSPARB_HWCONTROL(pI830))
++       OUTREG(DSPARB, pI830->saveDSPARB);
+ 
+    OUTREG(DSPCLK_GATE_D, pI830->saveDSPCLK_GATE_D);
+    OUTREG(RENCLK_GATE_D1, pI830->saveRENCLK_GATE_D1);
+@@ -2512,7 +2514,7 @@ I830BlockHandler(int i,
+      * (except for mode setting, where it may occur naturally).
+      * Check & ack the condition.
+      */
+-    if (pScrn->vtSema) {
++    if (pScrn->vtSema && !DSPARB_HWCONTROL(pI830)) {
+ 	if (xf86_config->crtc[0]->enabled &&
+ 		(INREG(PIPEASTAT) & FIFO_UNDERRUN)) {
+ 	    xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "underrun on pipe A!\n");
+-- 
+1.5.6.4
+
