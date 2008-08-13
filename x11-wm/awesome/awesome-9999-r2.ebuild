@@ -30,7 +30,7 @@ RDEPEND=">=dev-lang/lua-5.1
 DEPEND="${RDEPEND}
 	app-text/asciidoc
 	app-text/xmlto
-	dev-util/cmake
+	>=dev-util/cmake-2.6.0
 	dev-util/gperf
 	dev-util/pkgconfig
 	>=dev-util/cmake-2.4.7
