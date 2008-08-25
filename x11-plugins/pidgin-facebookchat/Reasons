@@ -15,3 +15,5 @@ New ebuild for the cool pidgin facebook plugin.
            - Add RESTRICT="nomirror" to force download from upstream url.
 09.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - New Version.
+25.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - New Version.
