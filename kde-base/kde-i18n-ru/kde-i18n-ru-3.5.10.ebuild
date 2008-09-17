@@ -30,8 +30,6 @@ src_unpack() {
 			-i "${WORKDIR}/${dir}/docs/common/Makefile.in" || die "Failed to fix ${lang}."
 	done
 
-	epatch "${FILESDIR}"/${P}-russian.patch
-
 }
 
 src_compile() {
