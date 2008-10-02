@@ -6,7 +6,7 @@ inherit kde
 
 DESCRIPTION="The Dark Light Window Decoration for KDE3"
 HOMEPAGE="http://www.kde-look.org/content/show.php?content=42545"
-SRC_URI="http://www.sabayonlinuxdev.com/distfiles/x11-themes/${PN}/${P}.tar.bz2"
+SRC_URI="http://www.sabayonlinux.org/distfiles/x11-themes/${PN}/${P}.tar.bz2"
 RESTRICT="nomirror"
 
 SLOT="0"
