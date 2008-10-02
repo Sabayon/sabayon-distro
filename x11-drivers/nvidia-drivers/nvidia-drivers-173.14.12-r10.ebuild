@@ -17,7 +17,7 @@ SRC_URI="x86? ( http://us.download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_P
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
-IUSE="acpi custom-cflags gtk multilib kernel_linux"
+IUSE="acpi custom-cflags gtk multilib kernel_linux distribution"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
@@ -300,6 +300,14 @@ src_install() {
 	# Helper Apps
 	dobin ${NV_EXEC}/nvidia-xconfig || die
 	dobin ${NV_EXEC}/nvidia-bug-report.sh || die
+
+        if use distribution; then
+                insinto /lib/nvidia
+                doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.o"
+                insinto /lib/nvidia
+                doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.mod.o"
+        fi
+
 }
 
 # Install nvidia library:
