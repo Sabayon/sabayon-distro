@@ -19,3 +19,7 @@ app-emulation/qemu-gui
 # NOTE: There's no need to unmask this package for awesome 3 anymore you can
 #       safely use >=xcb-util-0.2.1
 ~x11-libs/xcb-util-9999
+
+# Ian Whyman <v00d00@v00d00.net>
+# Mask newer versions for testing
+>x11-themes/sabayonlinux-artwork-3.5-r2
