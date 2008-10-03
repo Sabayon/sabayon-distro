@@ -22,4 +22,4 @@ app-emulation/qemu-gui
 
 # Ian Whyman <v00d00@v00d00.net>
 # Mask newer versions for testing
->x11-themes/sabayonlinux-artwork-3.5-r2
+>x11-themes/sabayonlinux-artwork-3.50-r2
