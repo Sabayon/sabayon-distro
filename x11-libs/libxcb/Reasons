@@ -1,0 +1,11 @@
+x11-libs/libxcb
+
+Ebuild added October 04, 2008
+Added by Fabio Erculiani <lxnay@sabayonlinux.org>
+
+New ebuild, Added as a dependency for x11-wm/awesome-9999
+
+======
+04.10.08 - Fabio Erculiani <lxnay@sabayonlinux.org>
+           - added LIBXCB_ALLOW_SLOPPY_LOCK to env to avoid having
+	     broken apps crashing
