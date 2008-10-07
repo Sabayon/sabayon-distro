@@ -1,0 +1,10 @@
+net-misc/aria2
+
+Ebuild added Oct. 07, 2008
+Added by Fabio Erculiani <lxnay@sabayonlinux.org>
+
+Fixing Gentoo bug #227215
+
+======
+07.10.08 - Fabio Erculiani <lxnay@sabayonlinux.org>
+	- fixing Gentoo bug #227215

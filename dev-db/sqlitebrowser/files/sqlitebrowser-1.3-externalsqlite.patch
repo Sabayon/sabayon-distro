@@ -1,0 +1,60 @@
+diff -ur sqlbrowser_util.c sqlbrowser_util.c
+--- sqlbrowser_util.c	2006-12-18 14:42:33.000000000 +0100
++++ sqlbrowser_util.c	2006-12-18 14:44:28.000000000 +0100
+@@ -1,10 +1,9 @@
+ #include "sqlbrowser_util.h"
+-#include "sqlite_source/sqlite3.h"
++#include <sqlite3.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-#include "sqlite_source/sqliteInt.h"
+ 
+ /*following routines extracted from shell.c for dump support*/
+ 
+@@ -193,8 +192,6 @@
+         char *zSep = i>0 ? ",": "";
+         if( azArg[i]==0 ){
+           fprintf(p->out,"%sNULL",zSep);
+-        }else if( sqlite3IsNumber(azArg[i], NULL, SQLITE_UTF8) ){
+-          fprintf(p->out,"%s%s",zSep, azArg[i]);
+         }else{
+           if( zSep[0] ) fprintf(p->out,"%s",zSep);
+           output_quoted_string(p->out, azArg[i]);
+diff -ur sqlbrowser_util.h sqlbrowser_util.h
+--- sqlbrowser_util.h	2006-12-18 14:46:34.000000000 +0100
++++ sqlbrowser_util.h	2006-12-18 14:45:58.000000000 +0100
+@@ -6,7 +6,7 @@
+ #endif
+ 
+ #include <ctype.h>
+-#include "sqlite_source/sqlite3.h"
++#include <sqlite3.h>
+ #include <stdio.h>
+ 
+ 
+diff -ur sqlitebrowser.pro sqlitebrowser.pro
+--- sqlitebrowser.pro	2006-12-18 14:42:33.000000000 +0100
++++ sqlitebrowser.pro	2006-12-18 14:43:57.000000000 +0100
+@@ -47,7 +47,7 @@
+   UI_DIR = .ui
+   MOC_DIR = .moc
+   OBJECTS_DIR = .obj
+-  LIBS += ./sqlite_source/libsqlite_source.a
++  LIBS += -lsqlite3
+ }
+ win32 {
+   RC_FILE = winapp.rc
+diff -ur sqlitedb.h sqlitedb.h
+--- sqlitedb.h	2006-12-18 14:46:34.000000000 +0100
++++ sqlitedb.h	2006-12-18 14:46:22.000000000 +0100
+@@ -7,7 +7,7 @@
+ #include <qvaluelist.h>
+ #include <qobject.h>
+ #include "sqllogform.h"
+-#include "sqlite_source/sqlite3.h"
++#include <sqlite3.h>
+ #include "sqlitebrowsertypes.h"
+ /*#include "sqlite_source/sqlxtra_util.h"
+ #include "sqlite_source/encode.h"
