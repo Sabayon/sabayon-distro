@@ -1,0 +1,15 @@
+--- modules/mod_facl.c	2007/04/18 15:31:28	1.6
++++ modules/mod_facl.c	2007/04/30 17:47:34	1.7
+@@ -826,10 +826,10 @@
+   "facl",
+ 
+   /* Module configuration directive handlers */
+-  NULL,
++  facl_conftab,
+ 
+   /* Module command handlers */
+-  facl_conftab,
++  NULL,
+ 
+   /* Module authentication handlers */
+   NULL,
