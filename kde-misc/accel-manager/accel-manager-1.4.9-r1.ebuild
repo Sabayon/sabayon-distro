@@ -12,8 +12,9 @@ IUSE=""
 ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/${PN}/tags/${PV}"
 
 RDEPEND="
-	$(qt4_min_version 4.2)
+	x11-libs/qt-core:4
         x11-misc/desktop-acceleration-helpers
+	x11-libs/gksu
 	"
 
 DEPEND="${RDEPEND}"

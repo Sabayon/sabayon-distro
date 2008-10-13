@@ -18,10 +18,11 @@ IUSE=""
 
 S="${WORKDIR}/trunk"
 
-DEPEND=">=x11-base/xorg-x11-7.1
-        >=x11-libs/qt-4.1.4-r2
-        || ( >=kde-base/kdesu-3.5.0 >=kde-base/kdebase-3.5.0 )
-	x11-misc/desktop-acceleration-helpers"
+DEPEND="
+        x11-libs/qt-core:4
+        x11-misc/desktop-acceleration-helpers
+        x11-libs/gksu
+"
 
 src_compile () {
 	ewarn "This is SVN release!"
