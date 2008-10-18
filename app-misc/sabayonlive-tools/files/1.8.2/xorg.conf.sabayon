@@ -84,7 +84,6 @@ Section "Device"
     #Option "BusType" "PCI"
     #Option "ColorTiling" "on"
     #Option "EnablePageFlip" "on"
-    Option "AccelMethod" "XAA"
     Option "UseEvents" "True"
 EndSection
 
