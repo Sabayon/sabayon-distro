@@ -7,7 +7,7 @@ DESCRIPTION="Sabayon Linux tool to configure networks using Network Manager"
 HOMEPAGE="http://www.sabayonlinux.org"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-*"
+KEYWORDS=""
 IUSE=""
 ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/${PN}/trunk"
 
