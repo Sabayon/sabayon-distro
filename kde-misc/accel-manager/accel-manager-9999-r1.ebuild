@@ -13,7 +13,7 @@ HOMEPAGE="http://www.sabayonlinux.org/"
 SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-*"
+KEYWORDS=""
 IUSE=""
 
 S="${WORKDIR}/trunk"
