@@ -1,0 +1,12 @@
+diff -Nurp linux-2.6.21-sabayon-r1.orig/fs/ext4/super.c linux-2.6.21-sabayon-r1/fs/ext4/super.c
+--- linux-2.6.21-sabayon-r1.orig/fs/ext4/super.c	2007-05-04 16:46:39.000000000 +0200
++++ linux-2.6.21-sabayon-r1/fs/ext4/super.c	2007-05-04 16:44:05.000000000 +0200
+@@ -2873,7 +2873,7 @@ static int ext4_get_sb(struct file_syste
+ 
+ static struct file_system_type ext4dev_fs_type = {
+ 	.owner		= THIS_MODULE,
+-	.name		= "ext4dev",
++	.name		= "ext4",
+ 	.get_sb		= ext4_get_sb,
+ 	.kill_sb	= kill_block_super,
+ 	.fs_flags	= FS_REQUIRES_DEV,
