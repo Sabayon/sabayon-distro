@@ -1,0 +1,112 @@
+--- bin/package-ooo 
++++ bin/package-ooo 
+@@ -33,6 +33,7 @@
+ {
+     cat <<EOT >$1
+ #!/bin/sh
++unset PYTHONPATH
+ $OOINSTBASE/program/soffice $2 "\$@"
+ EOT
+     chmod 755 $1
+--- distro-configs/CommonLinux.conf.in 
++++ distro-configs/CommonLinux.conf.in 
+@@ -2,8 +2,6 @@
+ --with-openldap
+ --with-build-version=\"Build @OOO_BUILDVERSION@\"
+ --without-fonts
+---with-system-freetype
+---with-system-gcc
+ --with-system-jpeg
+ --with-system-libxml
+ --with-system-mozilla
+@@ -14,7 +12,6 @@
+ --with-system-poppler
+ --with-unix-wrapper=ooffice@OOO_BINSUFFIX@
+ --enable-evolution2
+---enable-atkbridge
+ --with-alloc=system
+ --with-vba-package-format=builtin
+ @CAIRO_CONFIGURE_FLAG@
+--- distro-configs/Gentoo.conf.in 
++++ distro-configs/Gentoo.conf.in 
+@@ -16,7 +16,7 @@
+ --with-system-neon
+ --with-system-openssl
+ --with-system-vigra
+---with-system-xrender-headers
++--with-system-xrender
+ --without-myspell-dicts
+ --without-stlport
+ --with-vendor=\"Gentoo Foundation\"
+--- patches/dev300/apply 
++++ patches/dev300/apply 
+@@ -1425,7 +1425,9 @@
+ SectionOwner => aprosky
+ 
+ # system lucene classpath
+-gentoo-system-lucene.diff
++#gentoo-system-lucene.diff
++#No java build
++nojavanostax.diff
+ # Allow build to proceed with PaX enabled
+ gentoo-pax-fix.diff, aprosky
+ # support server-only versions of 64bit JDKs
+--- patches/dev300/svg-import-filter.diff
++++ patches/dev300/svg-import-filter.diff
+@@ -787,7 +787,7 @@
+ +			$(SLO)$/units.obj
+ +
+ +.IF "$(COMID)"=="gcc3"
+-+.IF "$(CCNUMVER)">="000400000000" 
+++.IF "$(CCNUMVER)">="000400000000" || "$(SYSTEM_BOOST)"=="YES"
+ +CFLAGS+=-DUSE_MODERN_SPIRIT
+ +.ENDIF
+  .ENDIF
+--- patches/dev300/scp2_extensions.diff 
++++ patches/dev300/scp2_extensions.diff 
+@@ -370,7 +370,7 @@
+ +/* ** SUN Template Pack (en-US)** */
+ +
+ +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_en_US
+-+Module gid_Module_Optional_Extensions_Sun_Template_Pack_en-US
+++Module gid_Module_Optional_Extensions_SUN_Template_Pack_en-US
+ +    PackageInfo = "packinfo_extensions.txt";
+ +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_en-US);
+ +    ParentID = gid_Module_Optional_Extensions;
+@@ -385,7 +385,7 @@
+ +/* ** SUN Template Pack (de)** */
+ +
+ +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_de
+-+Module gid_Module_Optional_Extensions_Sun_Template_Pack_de
+++Module gid_Module_Optional_Extensions_SUN_Template_Pack_de
+ +    PackageInfo = "packinfo_extensions.txt";
+ +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_de);
+ +    ParentID = gid_Module_Optional_Extensions;
+@@ -400,7 +400,7 @@
+ +/* ** SUN Template Pack (it)** */
+ +
+ +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_it
+-+Module gid_Module_Optional_Extensions_Sun_Template_Pack_it
+++Module gid_Module_Optional_Extensions_SUN_Template_Pack_it
+ +    PackageInfo = "packinfo_extensions.txt";
+ +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_it);
+ +    ParentID = gid_Module_Optional_Extensions;
+@@ -415,7 +415,7 @@
+ +/* ** SUN Template Pack (fr)** */
+ +
+ +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_fr
+-+Module gid_Module_Optional_Extensions_Sun_Template_Pack_fr
+++Module gid_Module_Optional_Extensions_SUN_Template_Pack_fr
+ +    PackageInfo = "packinfo_extensions.txt";
+ +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_fr);
+ +    ParentID = gid_Module_Optional_Extensions;
+@@ -430,7 +430,7 @@
+ +/* ** SUN Template Pack (es)** */
+ +
+ +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_es
+-+Module gid_Module_Optional_Extensions_Sun_Template_Pack_es
+++Module gid_Module_Optional_Extensions_SUN_Template_Pack_es
+ +    PackageInfo = "packinfo_extensions.txt";
+ +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_es);
+ +    ParentID = gid_Module_Optional_Extensions;
+
