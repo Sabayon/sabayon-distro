@@ -3,20 +3,21 @@
 
 EAPI=1
 inherit eutils subversion multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk/"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
+
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="amd64 x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND="
 	sys-devel/gettext
-	>=dev-lang/python-2.5[sqlite]
-	sys-apps/diffutils"
+	sys-apps/diffutils
+	>=dev-lang/python-2.5[sqlite]"
 RDEPEND="${DEPEND}"
 
 pkg_setup() {
