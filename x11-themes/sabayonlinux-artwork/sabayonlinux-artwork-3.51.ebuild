@@ -5,13 +5,13 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers, ksplash, and GTK/QT Themes."
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://zenana.v00d00.net/files/distfiles/${PN}-${PV}.tar.gz"
+SRC_URI="http://zenana.hyperfish.org/files/distfiles/${PN}-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64 ppc ppc64"
 IUSE="symlink"
 RESTRICT="nomirror"
-RDEPEND=">=x11-wm/compiz-fusion-0.7.8"
+RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 
@@ -113,15 +113,15 @@ src_install () {
 	# Compiz fusion stuff
 
         # Install Settings
-        if [ -d "/etc/skel/.config" ]; then
-                dodir /etc/skel/.config/compiz/compizconfig
-                insinto /etc/skel/.config/compiz/compizconfig
-                doins ${FILESDIR}/compiz-fusion-config/config
-                doins ${FILESDIR}/compiz-fusion-config/Default.ini
-	
-        fi
+        # if [ -d "/etc/skel/.config" ]; then
+        #         dodir /etc/skel/.config/compiz/compizconfig
+        #         insinto /etc/skel/.config/compiz/compizconfig
+        #         doins ${FILESDIR}/compiz-fusion-config/config
+        #         doins ${FILESDIR}/compiz-fusion-config/Default.ini
+	#
+        # fi
 
-        # hackish thing... (installing compiz settings)
+        # Install for existing users (hackish thing)
         addwrite /home
         for user in /home/*; do
                 if [ ! -e "$user/.config" ]; then
@@ -130,7 +130,14 @@ src_install () {
                                 mkdir $user/.config/compiz/compizconfig -p &> /dev/null
                                 cp ${FILESDIR}/compiz-fusion-config/Default.ini $user/.config/compiz/compizconfig/
                                 cp ${FILESDIR}/compiz-fusion-config/config $user/.config/compiz/compizconfig/
-                                chown $username $user/.config -R
+				chown $username $user/.config -R
+				# Fix Taskbar
+				cp ${FILESDIR}/ktaskbarrc $user/.kde/share/config/
+				chown $username $user/.kde/share/config/ktaskbarrc
+				# Fix Userimage
+				cp ${S}/misc/userface.png $user/.face.icon
+				cp ${S}/misc/userface.png /etc/.skel/.face.icon
+				chown $username $user/.face.icon
 	                        fi
                 fi
         done
@@ -138,7 +145,8 @@ src_install () {
 }
 
 pkg_postinst () {
-        ewarn "its alpha! ok?!"
+        ewarn "its Beta ok?!"
+	ewarn "Bugs? >> ian.whyman@sabayonlinux.org"
 	# Update ksplash cache
 	for i in `ls /home`
 	do

@@ -5,13 +5,13 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers, ksplash, and GTK/QT Themes."
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://zenana.v00d00.net/files/distfiles/${PN}-${PVR}.tar.gz"
+SRC_URI="http://zenana.hyperfish.org/files/distfiles/${PN}-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64 ppc ppc64"
 IUSE="symlink"
 RESTRICT="nomirror"
-RDEPEND=">=x11-wm/compiz-fusion-0.7.8"
+RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 
@@ -23,7 +23,7 @@ src_install () {
 
 	cd ${S}/background
 	insinto /usr/share/backgrounds
-	doins *.jpg *.png
+	doins *.png
 
 	cd ${S}/gtk
 	dodir /usr/share/theme
@@ -46,9 +46,10 @@ src_install () {
 	insinto /usr/share/gdm/themes/
 	doins -r ./*
 
+	#ksplash
 	cd ${S}/ksplash/Lines
-	dodir /usr/share/apps/ksplash/Themes/Lines
-	insinto /usr/share/apps/ksplash/Themes/Lines/
+	dodir /usr/kde/3.5/share/apps/ksplash/Themes/Lines
+	insinto /usr/kde/3.5/share/apps/ksplash/Themes/Lines
 	doins -r ./
 
 	# KDM theme
@@ -65,32 +66,16 @@ src_install () {
 	rm *.kth
 	doins -r ./
 
-
 	# Gensplash theme
 	cd ${S}/gensplash
         dodir /etc/splash/sabayon
         cp -r ${S}/gensplash/sabayon/* ${D}/etc/splash/sabayon
 
 	# Cursors
-	cd ${S}/mouse/PolarCursor/cursors/
-	dodir /usr/share/cursors/xorg-x11/PolarCursorTheme/cursors
-	insinto /usr/share/cursors/xorg-x11/PolarCursorTheme/cursors/
-	doins -r ./
-
 	cd ${S}/mouse/entis/cursors/
 	dodir /usr/share/cursors/xorg-x11/entis/cursors
 	insinto /usr/share/cursors/xorg-x11/entis/cursors/
 	doins -r ./
-
-	cd ${S}/mouse/Obsidian/cursors/
-	dodir /usr/share/cursors/xorg-x11/Obsidian/cursors
-	insinto /usr/share/cursors/xorg-x11/Obsidian/cursors/
-	doins -r ./
-	
-	dodir /usr/share/cursors/xorg-x11/default
-	exeinto /usr/share/cursors/xorg-x11/default
-	echo "Inherits=Obsidian" > index.theme
-	doexe ./index.theme		
 
 	# Compiz cube theme
 	cd ${S}/compiz
@@ -104,18 +89,7 @@ src_install () {
 	insinto /usr/share/emerald/themes/
 	doins -r ./
 
-	# Compiz fusion stuff
-
-        # Install Settings
-        if [ -d "/etc/skel/.config" ]; then
-                dodir /etc/skel/.config/compiz/compizconfig
-                insinto /etc/skel/.config/compiz/compizconfig
-                doins ${FILESDIR}/compiz-fusion-config/config
-                doins ${FILESDIR}/compiz-fusion-config/Default.ini
-	
-        fi
-
-        # hackish thing... (installing compiz settings)
+        # Install settings for existing users
         addwrite /home
         for user in /home/*; do
                 if [ ! -e "$user/.config" ]; then
@@ -124,15 +98,22 @@ src_install () {
                                 mkdir $user/.config/compiz/compizconfig -p &> /dev/null
                                 cp ${FILESDIR}/compiz-fusion-config/Default.ini $user/.config/compiz/compizconfig/
                                 cp ${FILESDIR}/compiz-fusion-config/config $user/.config/compiz/compizconfig/
-                                chown $username $user/.config -R
+				chown $username $user/.config -R
+				# Fix Taskbar
+				cp ${FILESDIR}/ktaskbarrc $user/.kde/share/config/
+				chown $username $user/.kde/share/config/ktaskbarrc
+				# Fix Userimage
+				cp ${S}/misc/userface.png $user/.face.icon
+				cp ${S}/misc/userface.png /etc/.skel/.face.icon
+			chown $username $user/.face.icon
 	                        fi
-                fi
-        done
-
+               fi
+      done
 }
 
-pkg_postinst() {
-        ewarn "its alpha! ok?!"
+pkg_postinst () {
+        ewarn "its Beta ok?!"
+	ewarn "Bugs? >> ian.whyman@sabayonlinux.org"
 	# Update ksplash cache
 	for i in `ls /home`
 	do
