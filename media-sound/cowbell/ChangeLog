@@ -1,0 +1,37 @@
+# ChangeLog for media-sound/cowbell
+# Copyright 1999-2008 Gentoo Foundation; Distributed under the GPL v2
+
+  02 Nov 2008; Ian Whyman <ian.whyman@sabayonlinux.org> cowbell-0.2.7.1-r1.ebuild
+  Include Configure.in patch #241578
+
+  26 Jan 2008; Samuli Suominen <drac@gentoo.org> cowbell-0.2.7.1.ebuild:
+  Stop running eautoreconf in src_compile wrt #207455.
+
+  25 Dec 2007; Christian Heim <phreak@gentoo.org> metadata.xml:
+  Removing metalgod from metadata.xml as per #99350.
+
+  22 Feb 2007; Piotr Jaroszyński <peper@gentoo.org> ChangeLog:
+  Transition to Manifest2.
+
+*cowbell-0.2.7.1 (10 May 2006)
+
+  10 May 2006; Luis Medinas <metalgod@gentoo.org> +cowbell-0.2.7.1.ebuild:
+  Version Bump from upstream.
+
+  27 Apr 2006; Marien Zwart <marienz@gentoo.org> Manifest:
+  Fixing SHA256 digest, pass four
+
+  20 Mar 2006; Luis Medinas <metalgod@gentoo.org> cowbell-0.2.6.2.ebuild:
+  Added ~amd64 keyword.
+
+*cowbell-0.2.6.2 (14 Mar 2006)
+
+  14 Mar 2006; Luis Medinas <metalgod@gentoo.org> +cowbell-0.2.6.2.ebuild:
+  Version Bump from upstream.
+
+*cowbell-0.2.6.1 (06 Mar 2006)
+
+  06 Mar 2006; Luis Medinas <metalgod@gentoo.org> +metadata.xml,
+  +cowbell-0.2.6.1.ebuild:
+  Initial commit. Thanks to all people involved in bug #99009.
+
