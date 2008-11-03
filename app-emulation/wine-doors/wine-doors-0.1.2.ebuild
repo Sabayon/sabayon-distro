@@ -14,7 +14,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 S=${WORKDIR}/${PN}-${MY_PV}
 
-DEPEND="
+RDEPEND="
+	app-emulation/wine
 	>=dev-lang/python-2.4.0
 	>=dev-python/pycairo-1.2.0
 	>=x11-libs/cairo-1.2.0
@@ -27,14 +28,12 @@ DEPEND="
 	app-arch/tar
 	dev-util/glade
 	dev-libs/libxml2
+	app-pda/orange
 	"
 
-pkg_setup() {
+DEPEND="${RDEPEND}"
 
-	if ! built_with_use dev-util/glade python ; then
-		error "${PN} needs dev-util/glade compiled with USE=\"python\""
-		die "wine-doors needs dev-util/glade compiled with Python support"
-	fi
+pkg_setup() {
 
 	if ! built_with_use dev-libs/libxml2 python ; then
 		error "${PN} needs dev-libs/libxml2 compiled with USE=\"python\""
@@ -53,7 +52,7 @@ src_compile() {
 
 src_install() {
 	cd ${S}
-        distutils_src_install --temp="${D}"
+	distutils_src_install --temp="${D}"
 	dodir /etc/wine-doors
 
 }
