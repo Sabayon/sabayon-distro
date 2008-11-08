@@ -370,6 +370,7 @@ radeon_9xx0_closed = re.compile('.*ati.*technologies.*radeon.*9[5-9][0-9]0.*')
 radeon_Xxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9]0.*')
 radeon_Xxxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9][0-9]0.*')
 radeon_m_XX_closed = re.compile('.*ati.*technologies.*m[0-9][0-9].*mobility.*')
+radeon_hd = re.compile('.*ati.*technologies.*radeon.* hd .*')
 ati_firegl = re.compile('.*ati.*technologies.*firegl.*')
 
 for videocard in videocards:
@@ -383,15 +384,15 @@ for videocard in videocards:
 	if forced_xdriver:
 		print "You have chosen to force X driver: "+forced_xdriver
 		if forced_xdriver == "fglrx":
-			if (not noopengl):
-				steps.append(('set_dri',True))
-				if check_if_proprietary_driver_system_is_healthy("fglrx"):
-					steps.append(('fix_possible_opengl_misconfiguration','ati'))
-					steps.append(('copy_ati_settings_on_desktop',))
-					steps.append(('opengl_activate','ati'))
-				else:
-					steps.append(('opengl_activate','xorg-x11'))
-					forced_xdriver = "radeon"
+			steps.append(('set_dri',True))
+			if noopengl or check_if_proprietary_driver_system_is_healthy("fglrx"):
+				steps.append(('opengl_activate','xorg-x11'))
+				forced_xdriver = "radeon"
+			else:
+				steps.append(('fix_possible_opengl_misconfiguration','ati'))
+				steps.append(('copy_ati_settings_on_desktop',))
+				steps.append(('opengl_activate','ati'))
+				
 		elif forced_xdriver == "nvidia":
 			generate_nvidia_steps()
 		elif forced_xdriver == "vesa":
@@ -558,7 +559,8 @@ for videocard in videocards:
                             radeon_Xxx0_closed.match(videocard.lower()) or \
                             radeon_Xxxx0_closed.match(videocard.lower()) or \
                             ati_firegl.match(videocard.lower()) or \
-                            radeon_m_XX_closed.match(videocard.lower()):
+                            radeon_m_XX_closed.match(videocard.lower()) or \
+			    radeon_hd.match(videocard.lower()):
 				if (not noopengl):
 					steps.append(('set_dri',True))
 					steps.append(('fix_possible_opengl_misconfiguration','ati'))
