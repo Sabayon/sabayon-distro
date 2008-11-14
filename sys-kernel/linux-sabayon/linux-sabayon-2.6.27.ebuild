@@ -35,7 +35,7 @@ SUSPEND2_TARGET="2.6.26"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
-		${FILESDIR}/${PV}/patch-${PV}.4.bz2
+		${FILESDIR}/${PV}/patch-${PV}.6.bz2
 		${FILESDIR}/${PV}/${P}-from-ext4dev-to-ext4.patch
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/${P}-tuxonice.patch.bz2
