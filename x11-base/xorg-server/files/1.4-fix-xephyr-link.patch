@@ -1,0 +1,25 @@
+diff --git a/configure.ac b/configure.ac
+index 62fdd78..7a37590 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1802,7 +1802,7 @@ if test "$KDRIVE" = yes; then
+        XSDL_INCS="`sdl-config --cflags` $XSERVER_CFLAGS"
+     fi
+ 
+-    PKG_CHECK_MODULES(XEPHYR, x11 xext xfont xau xdmcp, [xephyr="yes"], [xephyr="no"])
++    PKG_CHECK_MODULES(XEPHYR, x11 xext xfont xau xdmcp $PIXMAN, [xephyr="yes"], [xephyr="no"])
+     if test "x$XEPHYR" = xauto; then
+         XEPHYR=$xephyr
+     fi
+diff --git a/hw/kdrive/ephyr/Makefile.am b/hw/kdrive/ephyr/Makefile.am
+index cc3019f..1738d0f 100644
+--- a/hw/kdrive/ephyr/Makefile.am
++++ b/hw/kdrive/ephyr/Makefile.am
+@@ -28,6 +28,7 @@ Xephyr_LDADD = 						\
+ 	libxephyr-hostx.a			        \
+ 	../../../exa/libexa.la				\
+ 	@KDRIVE_LIBS@					\
++	@XSERVER_LIBS@					\
+         @XEPHYR_LIBS@
+ 
+ Xephyr_DEPENDENCIES =	\

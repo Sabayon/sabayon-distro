@@ -1,0 +1,22 @@
+diff --git a/hw/xprint/ddxInit.c b/hw/xprint/ddxInit.c
+index a465c4c..1e7652e 100644
+--- a/hw/xprint/ddxInit.c
++++ b/hw/xprint/ddxInit.c
+@@ -310,6 +310,17 @@ ChangeDeviceControl (
+     return BadMatch;
+ }
+ 
++int
++NewInputDeviceRequest(InputOption *options, DeviceIntPtr *pdev)
++{
++    return BadValue;
++}
++
++void
++DeleteInputDeviceRequest(DeviceIntPtr dev)
++{
++}
++
+ void
+ OpenInputDevice (
+     DeviceIntPtr dev,
