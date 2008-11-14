@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.493.ebuild,v 1.1 2008/05/24 15:19:20 lu_zero Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.542.ebuild,v 1.5 2008/10/28 02:13:16 mr_bones_ Exp $
 
 IUSE="acpi debug distribution"
 
@@ -9,7 +9,7 @@ inherit eutils multilib linux-mod toolchain-funcs versionator
 DESCRIPTION="Ati precompiled drivers for recent chipsets"
 HOMEPAGE="http://www.ati.com"
 ATI_URL="https://a248.e.akamai.net/f/674/9206/0/www2.ati.com/drivers/linux/"
-SRC_URI="${ATI_URL}/ati-driver-installer-8-5-x86.x86_64.run"
+SRC_URI="${ATI_URL}/ati-driver-installer-8-10-x86.x86_64.run"
 
 LICENSE="AMD GPL-2 QPL-1.0 as-is"
 KEYWORDS="~amd64 ~x86"
@@ -46,7 +46,8 @@ QA_EXECSTACK_amd64="usr/lib64/dri/fglrx_dri.so
 QA_TEXTRELS_x86="usr/lib/dri/fglrx_dri.so
 	usr/lib/xorg/modules/drivers/fglrx_drv.so
 	usr/lib/opengl/ati/lib/libGL.so.1.2
-	usr/lib/xorg/modules/glesx.so"
+	usr/lib/xorg/modules/glesx.so
+	usr/lib/xorg/modules/amdxmm.so"
 QA_TEXTRELS_amd64="
 	usr/lib64/opengl/ati/lib/libGL.so.1.2
 	usr/lib32/opengl/ati/lib/libGL.so.1.2
@@ -74,7 +75,11 @@ pkg_setup() {
 	fi
 
 	if kernel_is ge 2 6 25 && linux_chkconfig_present PREEMPT_RCU; then
-		die "${P} is not compatible RCU Preemption, please disable it"
+		die "${P} is not compatible with RCU Preemption (bug #223281), please disable it"
+	fi
+
+	if kernel_is ge 2 6 26 && ! linux_chkconfig_present UNUSED_SYMBOLS; then
+			ewarn "You have to Enable unused/obsolete exported symbols in Kernel hacking section of kernel config for fglrx to load"
 	fi
 
 	if kernel_is ge 2 6 24 && ! linux_chkconfig_present PCI_LEGACY; then
@@ -154,13 +159,17 @@ src_unpack() {
 			"${S}/common/usr/share/doc/fglrx/examples/etc/acpi/ati-powermode.sh" \
 			|| die "Replacing 'finger' with 'who' failed."
 		# Adjust paths in the script from /usr/X11R6/bin/ to /opt/bin/ and
-		# add function to detect default state.
-		epatch "${FILESDIR}"/8.476/ati-powermode-opt-path-2.patch
+		# add funktion to detect default state.
+		epatch "${FILESDIR}"/8.532/ati-powermode-opt-path-2.patch
 	fi
 
 	pushd ${MODULE_DIR} >/dev/null
 	ln -s "${ARCH_DIR}"/lib/modules/fglrx/build_mod/libfglrx_ip.a.GCC$(gcc-major-version) \
 		|| die "symlinking precompiled core failed"
+
+	if kernel_is 2 6 27; then
+		epatch "${FILESDIR}/${PV}/ati-drivers-2.6.27.patch"
+	fi
 
 	convert_to_m 2.6.x/Makefile || die "convert_to_m failed"
 
@@ -195,7 +204,7 @@ src_compile() {
 
 	# The -DUSE_GLU is needed to compile using nvidia headers
 	# according to a comment in ati-drivers-extra-8.33.6.ebuild.
-	"$(tc-getCC)" -o fgl_fglxgears ${CFLAGS} ${LDFLAGS} -DUSE_GLU \
+	"$(tc-getCC)" -o fgl_glxgears ${CFLAGS} ${LDFLAGS} -DUSE_GLU \
 		-I"${S}"/common/usr/include fgl_glxgears.c \
 		-lGL -lGLU -lX11 -lm || die "fgl_glxgears build failed"
 
@@ -274,7 +283,7 @@ src_install() {
 	exeinto /usr/$(get_libdir)/xorg/modules/linux
 	doexe "${BASE_DIR}"/usr/X11R6/${PKG_LIBDIR}/modules/linux/libfglrxdrm.so
 	exeinto /usr/$(get_libdir)/xorg/modules
-	doexe "${BASE_DIR}"/usr/X11R6/${PKG_LIBDIR}/modules/{esut.a,glesx.so}
+	doexe "${BASE_DIR}"/usr/X11R6/${PKG_LIBDIR}/modules/{esut.a,glesx.so,amdxmm.so}
 
 	# Arch-specific files.
 	# (s)bin.
@@ -338,7 +347,7 @@ src_install() {
 	fi
 
 	# Done with the "source" tree. Install tools we rebuilt:
-	dobin extra/fgl_glxgears/fgl_fglxgears
+	dobin extra/fgl_glxgears/fgl_glxgears
 	newdoc extra/fgl_glxgears/README README.fgl_glxgears
 
 	dolib extra/lib/fglrx_gamma/*so*
@@ -356,13 +365,14 @@ src_install() {
 		newconfd "${T}"/atieventsd.conf atieventsd
 	fi
 
-	# Sabayon specific stuff
-	if use distribution && ! use x86-fbsd; then
-		insinto /lib/fglrx
-		doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
-		insinto /lib/fglrx
-		doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
-	fi
+        # Sabayon specific stuff
+        if use distribution && ! use x86-fbsd; then
+                insinto /lib/fglrx
+                doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
+                insinto /lib/fglrx
+                doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
+        fi
+
 }
 
 src_install-libs() {
