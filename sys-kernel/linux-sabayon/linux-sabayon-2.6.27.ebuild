@@ -107,6 +107,7 @@ src_compile() {
 			--mountboot \
 			--lvm \
 			--luks \
+			--disklabel \
 			--module-prefix=${WORKDIR}/lib \
 			all || die "genkernel failed"
 		ARCH=${OLDARCH}
