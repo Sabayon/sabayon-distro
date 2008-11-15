@@ -1,0 +1,12 @@
+diff -Nurp genkernel-3.4.10.orig/generic/linuxrc genkernel-3.4.10/generic/linuxrc
+--- genkernel-3.4.10.orig/generic/linuxrc	2008-11-15 18:41:38.000000000 +0100
++++ genkernel-3.4.10/generic/linuxrc	2008-11-15 18:42:01.000000000 +0100
+@@ -149,7 +149,7 @@ do
+ 			export MLIST
+ 		;;
+ 		# Redirect output to a specific tty
+-		CONSOLE\=*\|console\=*)
++		CONSOLE\=*|console\=*)
+ 			CONSOLE=`parse_opt "${x}"`
+ 			exec >${CONSOLE} <${CONSOLE} 2>&1
+ 		;;
