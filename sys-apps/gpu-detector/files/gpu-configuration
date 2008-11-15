@@ -524,7 +524,12 @@ for videocard in videocards:
 	
 		elif i810.match(videocard): # non lower
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','i810'))
+			if check_if_driver_is_available('intel'):
+				steps.append(('change_xorg_driver','intel'))
+			elif check_if_driver_is_available('i810'):
+				steps.append(('change_xorg_driver','i810'))
+			else:
+				print "WARNING: i810 and intel drivers not found !! This could be a real problem"
 			# XXX disabled due to xorg-server bug
 			#if (not noexa):
 			#    steps.append(('set_exa',))
