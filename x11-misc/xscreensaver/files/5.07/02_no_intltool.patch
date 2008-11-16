@@ -1,0 +1,57 @@
+diff -ur xscreensaver-5.07_old/configure.in xscreensaver-5.07/configure.in
+--- xscreensaver-5.07_old/configure.in	2008-10-16 02:15:57.761938178 +0200
++++ xscreensaver-5.07/configure.in	2008-10-16 02:11:43.311971411 +0200
+@@ -1172,7 +1172,7 @@
+ #
+ ###############################################################################
+ 
+-AC_PROG_INTLTOOL
++# AC_PROG_INTLTOOL # http://bugs.gentoo.org/show_bug.cgi?id=240958
+ GETTEXT_PACKAGE=xscreensaver
+ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE",
+ 		   [This is the name of the gettext package to use.])
+diff -ur xscreensaver-5.07_old/driver/Makefile.in xscreensaver-5.07/driver/Makefile.in
+--- xscreensaver-5.07_old/driver/Makefile.in	2008-10-16 02:15:57.835271514 +0200
++++ xscreensaver-5.07/driver/Makefile.in	2008-10-16 03:16:51.678244563 +0200
+@@ -22,7 +22,7 @@
+ mansuffix	= 1
+ manNdir		= $(mandir)/man$(mansuffix)
+ 
+-INTLTOOL_MERGE	= @INTLTOOL_MERGE@
++#INTLTOOL_MERGE	= @INTLTOOL_MERGE@ # http://bugs.gentoo.org/show_bug.cgi?id=240958
+ 
+ GTK_DATADIR	= @GTK_DATADIR@
+ GTK_APPDIR	= $(GTK_DATADIR)/applications
+@@ -492,20 +492,19 @@
+ 
+ # screensaver-properties.desktop
+ # into /usr/share/applications/
+-install-gnome:: screensaver-properties.desktop
++install-gnome::
+ 	@if [ "$(GTK_DATADIR)" != "" ]; then				      \
+ 	   if [ ! -d "$(install_prefix)$(GTK_APPDIR)" ]; then		      \
+ 	     echo $(INSTALL_DIRS) "$(install_prefix)$(GTK_APPDIR)"	     ;\
+ 		  $(INSTALL_DIRS) "$(install_prefix)$(GTK_APPDIR)"	     ;\
+ 	   fi								     ;\
+ 	   name2=xscreensaver-properties.desktop			     ;\
+-	   echo $(INSTALL_DATA) screensaver-properties.desktop		      \
++	   echo $(INSTALL_DATA) screensaver-properties.desktop.in		      \
+ 		  $(install_prefix)$(GTK_APPDIR)/$$name2		     ;\
+-		$(INSTALL_DATA) screensaver-properties.desktop		      \
++		$(INSTALL_DATA) screensaver-properties.desktop.in		      \
+ 		  $(install_prefix)$(GTK_APPDIR)/$$name2		     ;\
+ 	 fi
+ 
+-
+ # xscreensaver.xpm
+ # into /usr/share/pixmaps/
+ install-gnome:: $(LOGO)
+@@ -764,7 +763,7 @@
+ XScreenSaver_Xm_ad.h: XScreenSaver-Xm.ad
+ 	$(SHELL) $(UTILS_SRC)/ad2c XScreenSaver-Xm.ad > XScreenSaver_Xm_ad.h
+ 
+-@INTLTOOL_DESKTOP_RULE@
++# @INTLTOOL_DESKTOP_RULE@ # http://bugs.gentoo.org/show_bug.cgi?id=240958
+ 
+ # The executables linked in this directory.
+ #

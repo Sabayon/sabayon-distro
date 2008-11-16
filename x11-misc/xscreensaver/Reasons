@@ -1,0 +1,11 @@
+x11-misc/xscreensaver
+
+Ebuild added Nov. 16, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+xscreensaver doesn't compile with intltool-0.40.5
+Ref: http://bugs.gentoo.org/show_bug.cgi?id=240958
+
+======
+16.11.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - added no_intltool patch to xscreensaver
