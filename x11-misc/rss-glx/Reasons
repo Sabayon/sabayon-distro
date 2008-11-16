@@ -1,0 +1,12 @@
+x11-misc/rss-glx
+
+Ebuild added Nov. 16, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+rss-glx doesn't compile with sys-devel/libtool-2.x
+Ref: http://bugs.gentoo.org/show_bug.cgi?id=220825
+
+======
+16.11.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - Convert all patches to patch configure.in and Makefile.am
+             to prevent eautoreconf from overwriting them.

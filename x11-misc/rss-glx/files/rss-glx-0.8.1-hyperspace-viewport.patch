@@ -1,0 +1,13 @@
+diff -ru rss-glx_0.8.0/reallyslick/cpp_src/hyperspace.cpp rss-glx_0.8.0.new/reallyslick/cpp_src/hyperspace.cpp
+--- rss-glx_0.8.0/reallyslick/cpp_src/hyperspace.cpp	2006-07-02 19:24:09.000000000 -0400
++++ rss-glx_0.8.0.new/reallyslick/cpp_src/hyperspace.cpp	2006-07-02 19:27:47.000000000 -0400
+@@ -556,6 +556,9 @@
+ 	glFogf(GL_FOG_MODE, GL_LINEAR);
+ 	glFogf(GL_FOG_START, depth * 0.7f);
+ 	glFogf(GL_FOG_END, depth);
++
++	// Fix viewport and projection matrix, which aren't set?
++	hack_reshape( XStuff);
+ }
+ 
+ 

@@ -1,0 +1,10 @@
+--- rss-glx_0.8.1/reallyslick/Implicit/impSurface.cpp.old	2008-09-11 01:37:05.789569659 +0200
++++ rss-glx_0.8.1/reallyslick/Implicit/impSurface.cpp	2008-09-11 01:33:24.660012397 +0200
+@@ -21,6 +21,7 @@
+ #include <Implicit/impSurface.h>
+ #include <math.h>
+ #include <iostream>
++#include <string.h>
+ 
+ 
+ impSurface::~impSurface(){
