@@ -2,15 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/gnome-extra/slab/slab-1.9999.ebuild,v 1.11 2006/07/02 20:24:08 vapier Exp $
 
-inherit eutils subversion mono gnome2
+inherit eutils mono gnome2
 
 DESCRIPTION="The new Desktop Menu from SuSE Linux Enterprise by Novell"
 HOMEPAGE="http://www.novell.com/products/desktop/preview.html"
 
-# Have to set SRC_URI blank or gnome2 eclass tries to fetch ${P}.tar.gz
-SRC_URI=""
-
-ESVN_REPO_URI="http://svn.gnome.org/svn/gnome-main-menu/branches/gnome-2-22"
+SRC_URI="http://www.sabayonlinux.org/distfiles/gnome-extra/${PN}/${PN}-${PV}.tar.bz2"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -36,7 +33,7 @@ DEPEND="${RDEPEND}
 	!gnome-extra/slab"
 
 src_unpack() {
-	subversion_src_unpack
+	gnome2_src_unpack
 	cd ${S}
 
 	gnome2_omf_fix
