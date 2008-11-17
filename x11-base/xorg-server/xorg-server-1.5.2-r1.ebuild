@@ -253,7 +253,7 @@ PDEPEND="
 		video_cards_xgi? ( >=x11-drivers/xf86-video-xgi-1.5.0 )
 
 		video_cards_tdfx? ( 3dfx? ( >=media-libs/glide-v3-3.10 ) )
-		video_cards_fglrx? ( >=x11-drivers/ati-drivers-8.542 )
+		video_cards_fglrx? ( >=x11-drivers/ati-drivers-8.552 )
 
 		!x11-drivers/xf86-video-impact
 		!x11-drivers/xf86-video-imstt
