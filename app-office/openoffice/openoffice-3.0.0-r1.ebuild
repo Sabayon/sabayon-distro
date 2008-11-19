@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.0.0.ebuild,v 1.14 2008/10/24 10:15:51 suka Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.0.0.ebuild,v 1.18 2008/11/18 15:56:04 tove Exp $
 
 WANT_AUTOCONF="2.5"
 WANT_AUTOMAKE="1.9"
@@ -8,7 +8,7 @@ EAPI="1"
 
 inherit autotools check-reqs db-use eutils fdo-mime flag-o-matic java-pkg-opt-2 kde-functions mono multilib toolchain-funcs
 
-IUSE="cups dbus debug eds gnome gstreamer gtk kde ldap mono nsplugin odk opengl pam templates"
+IUSE="binfilter cups dbus debug eds gnome gstreamer gtk kde ldap mono nsplugin odk opengl pam templates"
 
 MY_PV="3.0.0.3.5"
 PATCHLEVEL="OOO300"
@@ -56,7 +56,7 @@ HOMEPAGE="http://go-oo.org"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~ppc ~sparc x86"
+KEYWORDS="amd64 ppc ~sparc x86"
 
 COMMON_DEPEND="!app-office/openoffice-bin
 	x11-libs/libXaw
@@ -108,9 +108,9 @@ DEPEND="${COMMON_DEPEND}
 	x11-proto/xineramaproto
 	>=sys-apps/findutils-4.1.20-r1
 	dev-perl/Archive-Zip
-	dev-perl/Compress-Zlib
-	>=dev-perl/Compress-Raw-Zlib-2.002
-	dev-perl/IO-Compress-Base
+	virtual/perl-Compress-Zlib
+	>=virtual/perl-Compress-Raw-Zlib-2.002
+	virtual/perl-IO-Compress-Base
 	dev-util/pkgconfig
 	dev-util/intltool
 	>=dev-libs/boost-1.33.1
@@ -244,6 +244,7 @@ src_unpack() {
 	epatch "${FILESDIR}/gentoo-${PV}.diff"
 	epatch "${FILESDIR}/ooo-env_log.diff"
 	cp -f "${FILESDIR}/nojavanostax.diff" "${S}/patches/dev300" || die
+	cp -f "${FILESDIR}/hunspell-one-dir-nocrash.diff" "${S}/patches/dev300" || die
 
 	#Use flag checks
 	if use java ; then
@@ -264,7 +265,7 @@ src_unpack() {
 		echo "--without-system-mozilla" >> ${CONFFILE}
 	fi
 
-	echo "--disable-binfilter" >> ${CONFFILE}
+	echo "`use_enable binfilter`" >> ${CONFFILE}
 	echo "`use_enable cups`" >> ${CONFFILE}
 	echo "`use_enable dbus`" >> ${CONFFILE}
 	echo "`use_enable eds evolution2`" >> ${CONFFILE}
