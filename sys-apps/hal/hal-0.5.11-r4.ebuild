@@ -138,6 +138,9 @@ src_unpack() {
 	# Fix HAL mount when extra options specified
 	epatch "${FILESDIR}"/${PN}-0.5.10-fix-extra-options.patch
 
+	# Fix UDEV > 126 compat
+	# epatch "${FILESDIR}"/${P}-udev-compat.patch
+
 	eautoreconf
 }
 
