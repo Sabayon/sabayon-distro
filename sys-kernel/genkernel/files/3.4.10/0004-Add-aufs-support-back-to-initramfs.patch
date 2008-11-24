@@ -21,7 +21,7 @@ index 314999b..cf6f922 100644
  }
  
 +aufs_setup_dir() {
-+	mount -t aufs -o br=$OVERLAY:$2 none $1
++	mount -t aufs -o "br:$OVERLAY=rw:$2=ro" -- aufs $1
 +	if [ "$?" -eq '0' ]; then
 +		good_msg "Addition of $2 to $OVERLAY merged into $1"
 +	fi
