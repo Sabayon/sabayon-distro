@@ -35,7 +35,7 @@ SUSPEND2_TARGET="2.6.26"
 SUSPEND2_SRC="tuxonice-${SUSPEND2_VERSION}-for-${SUSPEND2_TARGET}"
 SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}.patch.bz2"
 UNIPATCH_LIST="
-		${FILESDIR}/${PV}/patch-${PV}.6.bz2
+		${FILESDIR}/${PV}/patch-${PV}.7.bz2
 		${FILESDIR}/${PV}/${P}-from-ext4dev-to-ext4.patch
 		${FILESDIR}/${PV}/${P}-aufs.patch
 		${FILESDIR}/${PV}/${P}-tuxonice.patch.bz2
@@ -52,7 +52,7 @@ done
 # The r8169 module needs the MII hardware support library.
 # Patch needed for 2.6.27-3
 # http://www.nabble.com/Patch-for-2.6.27-r3--needed-for-r8169-to-compile-td20633146.html
-UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/${P}-r8169-needs-MII.patch"
+UNIPATCH_LIST="${UNIPATCH_LIST}"
 
 SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI} ${SUSPEND2_URI}"
 
