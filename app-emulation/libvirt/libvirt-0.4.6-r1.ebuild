@@ -41,9 +41,7 @@ src_unpack() {
 
 	epatch "${FILESDIR}"/"${P}"-qemu-img-name.patch
 	epatch "${FILESDIR}"/"${P}"-parallel-build-fix.patch
-	if use amd64; then
-		epatch "${FILESDIR}"/"${P}"-numa-fix.patch
-	fi
+	epatch "${FILESDIR}"/"${P}"-numa-fix.patch
 	eautoreconf
 }
 
