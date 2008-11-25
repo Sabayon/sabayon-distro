@@ -1,0 +1,11 @@
+app-office/homebank
+
+Ebuild added Nov. 23, 2008
+Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+
+Use of Gtk deprecated methods cause build fail
+Ref: http://bugs.gentoo.org/show_bug.cgi?id=238971
+
+======
+23.11.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+           - Add GTK patch to removed deprecated calls.
