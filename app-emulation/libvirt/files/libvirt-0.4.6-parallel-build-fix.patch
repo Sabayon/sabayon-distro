@@ -1,0 +1,24 @@
+--- libvirt-0.4.6/python/Makefile.am.orig	2008-11-23 15:32:03.000000000 -0500
++++ libvirt-0.4.6/python/Makefile.am	2008-11-23 15:36:51.000000000 -0500
+@@ -47,8 +47,11 @@
+ 	   libvirt-py.h \
+ 	   libvirtclass.py
+ 
+-$(GENERATED): $(srcdir)/$(GENERATE) $(API_DESC)
++generated.stamp: $(srcdir)/$(GENERATE) $(API_DESC)
+ 	$(PYTHON) $(srcdir)/$(GENERATE) $(srcdir)
++	touch $@
++
++$(GENERATED): generated.stamp
+ 
+ libvirt.py: $(srcdir)/libvir.py libvirtclass.py
+ 	cat $(srcdir)/libvir.py libvirtclass.py > $@-t
+@@ -66,7 +69,7 @@
+ uninstall-local:
+ 	rm -f $(DESTDIR)$(pythondir)/libvirt.py
+ 
+-CLEANFILES= $(GENERATED) libvirt.py
++CLEANFILES= $(GENERATED) generated.stamp libvirt.py
+ 
+ else
+ all:

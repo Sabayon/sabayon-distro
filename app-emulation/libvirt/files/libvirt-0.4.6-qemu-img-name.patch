@@ -1,0 +1,18 @@
+--- libvirt-0.4.6/configure.in.orig	2008-11-20 22:44:26.000000000 -0500
++++ libvirt-0.4.6/configure.in	2008-11-20 23:06:29.000000000 -0500
+@@ -698,7 +698,14 @@
+     [Location or name of the showmount program])
+ fi
+ 
+-AC_PATH_PROG([QEMU_IMG], [qemu-img], [], [$PATH:/sbin:/usr/sbin:/bin:/usr/bin])
++AC_ARG_WITH([qemu-img-name], [AC_HELP_STRING([--with-qemu-img-name=[name of binary|qemu-img]], [Name of the qemu-img binary])])
++if test "x$with_qemu_img_name" == "x" ; then
++    QEMU_IMG_BIN="qemu-img"
++else
++    QEMU_IMG_BIN="$with_qemu_img_name"
++fi
++
++AC_PATH_PROG([QEMU_IMG], [$QEMU_IMG_BIN], [], [$PATH:/sbin:/usr/sbin:/bin:/usr/bin])
+ if test -n "$QEMU_IMG" ; then
+   AC_DEFINE_UNQUOTED([HAVE_QEMU_IMG], 1, [whether qemu-img is available for non-raw files])
+   AC_DEFINE_UNQUOTED([QEMU_IMG],["$QEMU_IMG"],

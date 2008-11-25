@@ -1,0 +1,11 @@
+--- libvirt-0.4.6.orig/src/qemu_conf.c	2008-09-22 13:12:12.000000000 +0000
++++ libvirt-0.4.6/src/qemu_conf.c	2008-11-25 16:34:06.000000000 +0000
+@@ -339,7 +339,7 @@ qemudCapsInitNUMA(virCapsPtr caps)
+         goto cleanup;
+ 
+     for (n = 0 ; n <= numa_max_node() ; n++) {
+-        if (numa_node_to_cpus(n, mask, MAX_CPUS_MASK_BYTES) < 0)
++        if (numa_node_to_cpus(n, mask) < 0)
+             goto cleanup;
+ 
+         for (ncpus = 0, i = 0 ; i < MAX_CPUS ; i++)
