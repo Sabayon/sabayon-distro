@@ -49,11 +49,6 @@ for patch in `/bin/ls ${FILESDIR}/${PV}/genpatches`; do
 	UNIPATCH_LIST="${UNIPATCH_LIST} ${FILESDIR}/${PV}/genpatches/${patch}"
 done
 
-# The r8169 module needs the MII hardware support library.
-# Patch needed for 2.6.27-3
-# http://www.nabble.com/Patch-for-2.6.27-r3--needed-for-r8169-to-compile-td20633146.html
-UNIPATCH_LIST="${UNIPATCH_LIST}"
-
 SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI} ${SUSPEND2_URI}"
 
 ## END: Exported data
