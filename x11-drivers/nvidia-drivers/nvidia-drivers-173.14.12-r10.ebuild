@@ -197,6 +197,9 @@ src_unpack() {
 	cd "${S}"
 	use x86-fbsd && cd doc
 
+	# 2.6.27 kernel support
+	epatch "${FILESDIR}/NVIDIA_173.14.12_2.6.27.patch"
+
 	# Use the correct defines to make gtkglext build work
 	epatch "${FILESDIR}"/NVIDIA_glx-defines.patch
 	# Use some more sensible gl headers and make way for new glext.h
