@@ -145,16 +145,7 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 		
 		# remove old garbage - copy over - create module
 		os.system("tar xjf %s -C / &> /dev/null" % (package_file,))
-		'''
-		os.system("""
-			rm /lib/modules/$(uname -r)/video/nvidia.ko -f
-			rm /lib/nvidia/* -rf
-	
-			tar xjf """+package_file+""" -C / &> /dev/null
-	
-			ld -m """+ld_arch+""" -r -o /lib/modules/$(uname -r)/video/nvidia.ko /lib/nvidia/nvidia.o /lib/nvidia/nvidia.mod.o
-		""")
-		'''
+
 		# try to check driver status now
 		rc = check_if_proprietary_driver_system_is_healthy("nvidia")
 		return rc
@@ -299,9 +290,12 @@ def generate_nvidia_steps():
 		steps.append(('change_xorg_driver','nvidia'))
 	else:
 		if (livecd):
-			print "latest NVIDIA drivers couldn't be loaded, trying 9x.xx.xx/7x.xx.xx drivers"
-			rc = deploy_nvidia_xxxxxx_drivers("9")
-			drv_string = "9x.xx.xx"
+			print "latest NVIDIA drivers couldn't be loaded, trying 173.xx.xx/9x.xx.xx/7x.xx.xx drivers"
+			rc = deploy_nvidia_xxxxxx_drivers("17")
+			drv_string = "17x.xx.xx"
+			if not rc:
+				rc = deploy_nvidia_xxxxxx_drivers("9")
+				drv_string = "9x.xx.xx"
 			if not rc:
 				drv_string = "7x.xx.xx"
 				rc = deploy_nvidia_xxxxxx_drivers("7")
