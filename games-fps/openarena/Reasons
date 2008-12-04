@@ -1,10 +1,7 @@
 games-fps/openarena
 
-Ebuild added August 10, 2008
-Added by Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
+4.12.08 -Ian Whyman <ian.whyman@sabayonlinux.org>
+           - bump to latest 0.8.1, Requested on IRC
 
-Bump to new version, Gentoo still has 0.7.7. Requested on IRC
-
-======
 10.09.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
-           - openarena: welcome :)
+           - openarena: welcome :) Added as requested on IRC
