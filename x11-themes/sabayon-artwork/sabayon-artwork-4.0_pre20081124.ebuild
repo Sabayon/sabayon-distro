@@ -5,7 +5,7 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers, ksplash, and GTK/QT Themes."
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://zenana.hyperfish.org/files/distfiles/${PN}-${PV}.tar.gz"
+SRC_URI="http://zenana.hyperfish.org/files/distfiles/${PN}/${PN}-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64 ppc ppc64"
@@ -112,8 +112,9 @@ src_install () {
 }
 
 pkg_postinst () {
-        ewarn "its Beta ok?!"
-	ewarn "Bugs? >> ian.whyman@sabayonlinux.org"
+        ewarn "This Is a PreAlpha Version"
+        ewarn "Please report bugs to"
+	ewarn "ian.whyman@sabayonlinux.org"
 	# Update ksplash cache
 	for i in `ls /home`
 	do

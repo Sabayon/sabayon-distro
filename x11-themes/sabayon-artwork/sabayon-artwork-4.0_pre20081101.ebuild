@@ -3,23 +3,17 @@
 
 inherit eutils versionator
 
-DARKBLENDVER="20081101"
-STARVER="20081124"
-
 DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers, ksplash, and GTK/QT Themes."
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://zenana.hyperfish.org/files/distfiles/${PN}/${PN}-${PV}.tar.gz
-    darkblend? ( http://zenana.hyperfish.org/files/distfiles/${PN}/${PN}-darkblend-${DARKBLENDVER}.tar.gz )
-    star? ( http://zenana.hyperfish.org/files/distfiles/${PN}/${PN}-star-${STARVER}.tar.gz )"
+SRC_URI="http://zenana.hyperfish.org/files/distfiles/${PN}/${PN}-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64"
-IUSE="darkblend star"
+KEYWORDS="x86 amd64 ppc ppc64"
+IUSE="symlink"
 RESTRICT="nomirror"
 RDEPEND=""
 
 S="${WORKDIR}/${PN}"
-
 
 src_install () {
 
@@ -111,29 +105,18 @@ src_install () {
 				# Fix Userimage
 				cp ${S}/misc/userface.png $user/.face.icon
 				cp ${S}/misc/userface.png /etc/.skel/.face.icon
-				chown $username $user/.face.icon
+			chown $username $user/.face.icon
 	                        fi
                fi
       done
 }
 
 pkg_postinst () {
+        ewarn "its Beta ok?!"
+	ewarn "Bugs? >> ian.whyman@sabayonlinux.org"
 	# Update ksplash cache
 	for i in `ls /home`
 	do
 	rm -r /home/$i/.kde3.5/share/apps/ksplash/cache/ 2> /dev/null
 	done
-
-	elog "It is reccomended you recompile your kernel to get"
-	elog "the new gensplash and to avoid any glitches"
-	elog " "
-	elog "To get the GRUB artwork install the latest GRUB"
-	elog " "
-	ewarn "This Is a Pre-Alpha Version, so things may be missing"
-	ewarn "Please report bugs to:"
-	if ! use star ; then
-		ewarn "ian.whyman@sabayonlinux.org"
-	  else
-		ewarn "star@sabayonlinux.org"
-	fi
 }

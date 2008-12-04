@@ -5,13 +5,15 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers, ksplash, and GTK/QT Themes."
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://zenana.hyperfish.org/files/distfiles/${PN}-${PV}.tar.gz"
+SRC_URI="http://zenana.hyperfish.org/files/distfiles/${PN}/${PN}-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64 ppc ppc64"
-IUSE="symlink"
+KEYWORDS="x86 amd64"
+IUSE=""
 RESTRICT="nomirror"
-RDEPEND=""
+RDEPEND="!x11-themes/sabayonlinux-artwork
+		 !x11-themes/sabayon-artwork
+		 !x11-themes/sabayon-artwork-darkblend"
 
 S="${WORKDIR}/${PN}"
 
@@ -68,8 +70,8 @@ src_install () {
 
 	# Gensplash theme
 	cd ${S}/gensplash
-        dodir /etc/splash/sabayon
-        cp -r ${S}/gensplash/sabayon/* ${D}/etc/splash/sabayon
+	dodir /etc/splash/sabayon
+	cp -r ${S}/gensplash/sabayon/* ${D}/etc/splash/sabayon
 
 	# Cursors
 	cd ${S}/mouse/entis/cursors/
@@ -89,15 +91,16 @@ src_install () {
 	insinto /usr/share/emerald/themes/
 	doins -r ./
 
-        # Install settings for existing users
-        addwrite /home
-        for user in /home/*; do
-                if [ ! -e "$user/.config" ]; then
-                        username=$(echo $user | cut -d/ -f3)
-                        if [ -n "`cat /etc/passwd | grep ^$username`" ]; then
-                                mkdir $user/.config/compiz/compizconfig -p &> /dev/null
-                                cp ${FILESDIR}/compiz-fusion-config/Default.ini $user/.config/compiz/compizconfig/
-                                cp ${FILESDIR}/compiz-fusion-config/config $user/.config/compiz/compizconfig/
+	# Install settings for existing users
+	addwrite /home
+	for user in /home/*; do
+		if [ ! -e "$user/.config" ]; then
+			username=$(echo $user | cut -d/ -f3)
+			if [ -n "`cat /etc/passwd | grep ^$username`" ]; then
+				# Install Compiz Settings
+				mkdir $user/.config/compiz/compizconfig -p &> /dev/null
+				cp ${FILESDIR}/compiz-fusion-config/Default.ini $user/.config/compiz/compizconfig/
+				cp ${FILESDIR}/compiz-fusion-config/config $user/.config/compiz/compizconfig/
 				chown $username $user/.config -R
 				# Fix Taskbar
 				cp ${FILESDIR}/ktaskbarrc $user/.kde/share/config/
@@ -105,19 +108,25 @@ src_install () {
 				# Fix Userimage
 				cp ${S}/misc/userface.png $user/.face.icon
 				cp ${S}/misc/userface.png /etc/.skel/.face.icon
-			chown $username $user/.face.icon
-	                        fi
-               fi
-      done
-}
+				chown $username $user/.face.icon
+			fi
+		fi
+	done
+}	
 
 pkg_postinst () {
-        ewarn "This Is a PreAlpha Version"
-        ewarn "Please report bugs to"
-	ewarn "ian.whyman@sabayonlinux.org"
 	# Update ksplash cache
 	for i in `ls /home`
 	do
 	rm -r /home/$i/.kde3.5/share/apps/ksplash/cache/ 2> /dev/null
 	done
+
+	elog "It is reccomended you recompile your kernel to get"
+	elog "the new gensplash and to avoid any glitches"
+	elog " "
+	elog "To get the GRUB artwork install the latest GRUB"
+	elog " "
+	ewarn "This Is a Pre-Alpha Version, so things may be missing"
+	ewarn "Please report bugs to:"
+	ewarn "star@sabayonlinux.org"
 }
