@@ -1,29 +1,25 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/nvidia-drivers-177.80.ebuild,v 1.1 2008/10/13 00:35:38 ricmm Exp $
 
 inherit eutils multilib versionator linux-mod flag-o-matic nvidia-driver
 
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
-X86_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86-${PV}"
 
 DESCRIPTION="NVIDIA X11 driver and GLX libraries"
 HOMEPAGE="http://www.nvidia.com/"
-SRC_URI="x86? ( http://us.download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKAGE}-pkg0.run )
-	 amd64? ( http://us.download.nvidia.com/XFree86/Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}-pkg2.run )
-	 x86-fbsd? ( http://us.download.nvidia.com/freebsd/${PV}/${X86_FBSD_NV_PACKAGE}.tar.gz )"
+SRC_URI="x86? ( ftp://download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKAGE}-pkg0.run )
+	 amd64? ( ftp://download.nvidia.com/XFree86/Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}-pkg2.run )"
 
 LICENSE="NVIDIA"
 SLOT="0"
-KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
+KEYWORDS="-* ~amd64 ~x86"
 IUSE="acpi custom-cflags gtk multilib kernel_linux distribution"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
 COMMON="x11-base/xorg-server
 	multilib? ( app-emulation/emul-linux-x86-xlibs )
-	kernel_FreeBSD? ( !media-video/nvidia-freebsd )
 	!app-emulation/emul-linux-x86-nvidia
 	!x11-drivers/nvidia-legacy-drivers"
 DEPEND="${COMMON}
@@ -92,9 +88,6 @@ if use x86; then
 elif use amd64; then
 	PKG_V="-pkg2"
 	NV_PACKAGE="${AMD64_NV_PACKAGE}"
-elif use x86-fbsd; then
-	PKG_V=""
-	NV_PACKAGE="${X86_FBSD_NV_PACKAGE}"
 fi
 
 S="${WORKDIR}/${NV_PACKAGE}${PKG_V}"
@@ -151,9 +144,6 @@ pkg_setup() {
 		paravirt_check
 	fi
 
-	# On BSD userland it wants real make command
-	use userland_BSD && MAKE="$(get_bmake)"
-
 	export _POSIX2_VERSION="199209"
 
 	# Since Nvidia ships 3 different series of drivers, we need to give the user
@@ -163,11 +153,7 @@ pkg_setup() {
 	nvidia-driver-check-warning
 
 	# set variables to where files are in the package structure
-	if use kernel_FreeBSD; then
-		NV_DOC="${S}/doc"
-		NV_EXEC="${S}/obj"
-		NV_SRC="${S}/src"
-	elif use kernel_linux; then
+	if use kernel_linux; then
 		NV_DOC="${S}/usr/share/doc"
 		NV_EXEC="${S}/usr/bin"
 		NV_SRC="${S}/usr/src/nv"
@@ -306,8 +292,6 @@ src_install() {
 		insinto /lib/nvidia
 		doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.mod.o"
 	fi
-
-
 }
 
 # Install nvidia library:
