@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import sys, os, urllib, urllib2
 
 class Callable:
