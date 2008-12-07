@@ -6,7 +6,7 @@ inherit distutils python
 
 DESCRIPTION="Alarm Clock is a personal alarm clock applet for the Gnome panel."
 HOMEPAGE="http://alarm-clock.54.pl/"
-SRC_URI="http://dp0154.debowypark.waw.pl/ac/downloads/${P}.tar.gz"
+SRC_URI="http://89.76.224.23/downloads/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
