@@ -15,7 +15,7 @@ KEYWORDS="x86 amd64"
 IUSE=""
 RDEPEND="
 	<x11-themes/sabayon-artwork-4.1
-	!app-misc/sabayonlinux-skel
+	!<=app-misc/sabayonlinux-skel-3.5-r6
 	"
 
 
