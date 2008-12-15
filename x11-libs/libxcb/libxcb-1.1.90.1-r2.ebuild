@@ -5,7 +5,7 @@
 # Must be before x-modular eclass is inherited
 #SNAPSHOT="yes"
 
-inherit x-modular
+inherit x-modular eutils
 
 DESCRIPTION="X C-language Bindings library"
 HOMEPAGE="http://xcb.freedesktop.org/"
@@ -25,6 +25,12 @@ DEPEND="${RDEPEND}
 CONFIGURE_OPTIONS="$(use_enable doc build-docs)
 	$(use_enable selinux xselinux)
 	--enable-xinput"
+
+src_unpack() {
+	unpack ${A}
+	cd ${S}
+	epatch "${FILESDIR}/${P}-xhost-fix.patch"
+}
 
 src_install() {
         x-modular_src_install
