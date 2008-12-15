@@ -1,0 +1,19 @@
+--- ddcxinfo-knoppix-0.6.orig/lrmi.c	2008-12-15 15:27:02.000000000 +0000
++++ ddcxinfo-knoppix-0.6/lrmi.c	2008-12-15 15:29:03.000000000 +0000
+@@ -15,6 +15,16 @@ This software has NO WARRANTY.  Use it a
+ #include <string.h>
+ #include <sys/io.h>
+ #include <asm/vm86.h>
++/* 2.6.26+ kernels don't define the legacy masks. */
++#if defined(__linux__) && !defined(TF_MASK)
++      #define TF_MASK X86_EFLAGS_TF
++      #define IF_MASK X86_EFLAGS_IF
++      #define NT_MASK X86_EFLAGS_NT
++      #define VIF_MASK X86_EFLAGS_VIF
++      #define VIP_MASK X86_EFLAGS_VIP
++      #define IOPL_MASK X86_EFLAGS_IOPL
++#endif
++
+ 
+ #ifdef USE_LIBC_VM86
+ #include <sys/vm86.h>
