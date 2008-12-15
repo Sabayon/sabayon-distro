@@ -8,7 +8,7 @@ DESCRIPTION="synaptics touchpad configuration tool"
 HOMEPAGE="http://qsynaptics.sourceforge.net/"
 SRC_URI="http://qsynaptics.sourceforge.net/${P}.tar.bz2"
 
-DEPEND=">=x11-libs/libsynaptics-0.14.6c"
+DEPEND="x11-drivers/xf86-input-synaptics"
 
 RDEPEND="${DEPEND}"
 
