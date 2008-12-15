@@ -52,6 +52,8 @@ src_install () {
 	if use kdm ; then
 		# KDM theme
 		cd ${S}/kdm
+		mv Sabayon-4.0 Sabayon
+		mv Sabayon-4.0-wide Sabayon-wide
 		insinto /usr/kde/3.5/share/apps/kdm/themes/
 		doins -r ./
 	fi
