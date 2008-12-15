@@ -720,7 +720,7 @@ start() {
 		mount -o loop /mnt/cdrom/games.squashfs /install-data/games-ro &> /dev/null
 		mkdir -p /install-data/games-changes &> /dev/null
 		mount -t tmpfs none /install-data/games-changes &> /dev/null
-		mount -t aufs -o br=/install-data/games-changes:/install-data/games-ro none /install-data/games
+		mount -t aufs -o "br:/install-data/games-changes=rw:/install-data/games-ro=ro" -- aufs /install-data/games
 
 		# copy warsow
 		cp /usr/share/applications/warsow-warsow.desktop /home/sabayonuser/Desktop/ &> /dev/null
