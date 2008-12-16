@@ -12,7 +12,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
-RDEPEND=""
+RDEPEND="media-sound/vorbis-tools"
 
 
 src_unpack() {
