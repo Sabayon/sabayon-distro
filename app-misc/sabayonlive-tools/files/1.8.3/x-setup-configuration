@@ -272,9 +272,9 @@ configure_input_devices() {
    fi
 
    # Detect VMware
-   if [ -n "$is_vmware" ]; then
-      sed -i '/Driver.*mouse/ s/mouse/vmmouse/' /etc/X11/xorg.conf
-   fi
+   #if [ -n "$is_vmware" ]; then
+   #   sed -i '/Driver.*mouse/ s/mouse/vmmouse/' /etc/X11/xorg.conf
+   #fi
 
 }
 
