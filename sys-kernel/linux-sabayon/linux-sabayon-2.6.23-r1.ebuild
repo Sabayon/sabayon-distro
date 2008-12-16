@@ -13,7 +13,8 @@ KEYWORDS="amd64 x86"
 HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
 	>=sys-kernel/genkernel-3.4.9_pre9
-	splash? ( x11-themes/sabayonlinux-artwork )
+	splash? ( || ( x11-themes/sabayonlinux-artwork
+		x11-themes/sabayon-artwork ) )
 	!=sys-kernel/sabayon-sources-${PVR}
 	"
 RDEPEND="grub? ( sys-boot/grub )"

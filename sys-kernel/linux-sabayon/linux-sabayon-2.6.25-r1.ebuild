@@ -15,7 +15,8 @@ KEYWORDS="~amd64 ~x86"
 HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
 	!only_sources? ( ~sys-kernel/genkernel-3.4.9 )
-	splash? ( x11-themes/sabayonlinux-artwork )
+	splash? ( || ( x11-themes/sabayonlinux-artwork
+		x11-themes/sabayon-artwork ) )
 	!=sys-kernel/sabayon-sources-${PVR/-r0/}
 	"
 RDEPEND="grub? ( sys-boot/grub )"

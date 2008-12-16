@@ -13,7 +13,8 @@ KEYWORDS="amd64 x86"
 HOMEPAGE="http://www.sabayonlinux.org"
 DEPEND="
 	!only_sources? ( <sys-kernel/genkernel-3.4.11 )
-	splash? ( x11-themes/sabayonlinux-artwork )
+	splash? ( || ( x11-themes/sabayonlinux-artwork
+		x11-themes/sabayon-artwork ) )
 	<sys-kernel/genkernel-3.4.11"
 RDEPEND="grub? ( sys-boot/grub )"
 IUSE="splash dmraid grub no_sources only_sources"
