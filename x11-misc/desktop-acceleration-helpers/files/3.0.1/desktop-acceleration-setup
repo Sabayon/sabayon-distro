@@ -6,10 +6,14 @@
 # - put the proper settings icon on the Desktop
 
 # Constants
-if [ -e "/usr/kde/3.4" ];then
-    kdmdir="/usr/kde/3.4/share/config/kdm/"
-elif [ -e "/usr/kde/3.5" ];then
+if [ -e "/usr/kde/3.5" ];then
     kdmdir="/usr/kde/3.5/share/config/kdm/"
+elif [ -e "/usr/kde/4.1" ];then
+    kdmdir="/usr/kde/4.1/share/config/kdm/"
+elif [ -e "/usr/kde/4.2" ];then
+    kdmdir="/usr/kde/4.2/share/config/kdm/"
+elif [ -e "/usr/kde/4.3" ];then
+    kdmdir="/usr/kde/4.3/share/config/kdm/"
 fi
 if [ -e "/sbin/lspci" ];then
     lspci="/sbin/lspci"
@@ -87,9 +91,11 @@ scan_and_remove_old_files() {
 
 add_compiz_manager_to_the_startup() {
 
-    if [ -d "/usr/share/autostart" ]; then
-        cp $compiz_manager_desktop_file /usr/share/autostart/ -p
-    fi
+    for kver in `ls /usr/kde/`; do
+        if [ -d "/usr/kde/${kver}/share/autostart" ]; then
+       	    cp $compiz_manager_desktop_file /usr/kde/${kver}/share/autostart/ -p
+        fi
+    done
     if [ -d /etc/xdg/autostart ]; then
         cp $compiz_manager_desktop_file /etc/xdg/autostart/ -p
     fi
@@ -120,6 +126,12 @@ remove_compiz_manager_from_startup() {
     rm -f /usr/share/gnome/autostart/$compiz_manager
     rm -f /usr/share/autostart/$compiz_manager
     rm -f /etc/xdg/autostart/$compiz_manager
+
+    for kver in `ls /usr/kde/`; do
+        if [ -f "/usr/kde/${kver}/share/autostart/${compiz_manager}" ]; then
+            rm -f "/usr/kde/${kver}/share/autostart/${compiz_manager}"
+        fi
+    done
 
     # remove compiz variables in /etc/xprofile
     if [ -e "$xprofile_file" ]; then
