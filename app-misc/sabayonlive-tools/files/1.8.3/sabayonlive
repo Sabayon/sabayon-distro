@@ -45,7 +45,7 @@ start_acceleration_manager() {
       cmdline_vesaonly_exist=$(cat /proc/cmdline | grep "vesaonly")
       if [ -z "$cmdline_nox_exist" ] && [ -z "$cmdline_installer_gui_exist" ] && [ -z "$cmdline_installer_text_exist" ] && [ -z "$cmdline_mediacenter_exist" ] && [ -z "$cmdline_game_exist" ] && [ -z "$cmdline_vesaonly_exist" ]; then
 	  # Start KDM restarter check
-	  start-stop-daemon --start --background --pidfile /var/run/accel-server.pid --make-pidfile --exec /usr/share/accel-manager/accel-server-handler
+	  livespawn /usr/share/accel-manager/accel-server-handler
           /usr/share/accel-manager/desktop-accel-selector &> /dev/null
       else
           killall ogg123 &> /dev/null

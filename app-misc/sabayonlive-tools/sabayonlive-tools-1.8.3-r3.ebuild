@@ -31,6 +31,7 @@ src_unpack() {
 	cp ${FILESDIR}/${PV}/opengl-activator . -p
 	cp ${FILESDIR}/${PV}/sabayonlive . -p
 	cp ${FILESDIR}/${PV}/vga-cmd-parser . -p
+	cp ${FILESDIR}/${PV}/livespawn . -p
 }
 
 src_install() {
@@ -49,6 +50,7 @@ src_install() {
 	dobin vga-cmd-parser
 	exeinto /usr/bin
 	doexe opengl-activator
+	doexe livespawn
 
 	insinto /etc/X11
 	doins xorg.conf.sabayon
