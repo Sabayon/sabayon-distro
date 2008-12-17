@@ -109,33 +109,33 @@ configure_video_settings() {
 
 	   if [ -z "$cmdline_vga_forced" ]; then
 
-		for word in `cat /proc/cmdline` ; do
-		case $word in
-		res=*)
-			resolution_toset=$(echo $word | cut -d "=" -f 2)
-			if [ "$resolution_toset" == "800x600" ]; then
-				sed -i '/Modes.*".*"/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
-			elif [ "$resolution_toset" == "640x480" ]; then
-				sed -i '/Modes.*".*"/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
-			else
-				sed -i '/Modes.*".*"/ s/.*/        Modes           "'$resolution_toset'" "1024x768" "800x600"/' /etc/X11/xorg.conf
-			fi
-			sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
-		;;
-		esac
-		done
+                for word in `cat /proc/cmdline` ; do
+                case $word in
+                res=*)
+                        resolution_toset=$(echo $word | cut -d "=" -f 2)
+                        if [ "$resolution_toset" == "800x600" ]; then
+                                sed -i '/Modes.*".*"/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
+                        elif [ "$resolution_toset" == "640x480" ]; then
+                                sed -i '/Modes.*".*"/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
+                        else
+                                sed -i '/Modes.*".*"/ s/.*/        Modes           "'$resolution_toset'" "1024x768" "800x600"/' /etc/X11/xorg.conf
+                        fi
+                        sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
+                ;;
+                esac
+                done
 
 	   else
 
-		resolution_toset=$(echo $cmdline_vga_forced | cut -d" " -f 1) # FIXME: skip depth for now
-		if [ "$resolution_toset" == "800x600" ]; then
-			sed -i '/Modes.*".*"/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
-		elif [ "$resolution_toset" == "640x480" ] || [ "$resolution_toset" == "640x400" ]; then
-			sed -i '/Modes.*".*"/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
-		else
-			sed -i '/Modes.*".*"/ s/.*/        Modes           "'$resolution_toset'" "1024x768" "800x600"/' /etc/X11/xorg.conf
-		fi
-		sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
+                resolution_toset=$(echo $cmdline_vga_forced | cut -d" " -f 1) # FIXME: skip depth for now
+                if [ "$resolution_toset" == "800x600" ]; then
+                        sed -i '/Modes.*".*"/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
+                elif [ "$resolution_toset" == "640x480" ] || [ "$resolution_toset" == "640x400" ]; then
+                        sed -i '/Modes.*".*"/ s/"1024x768"/"'$resolution_toset'"/' /etc/X11/xorg.conf
+                else
+                        sed -i '/Modes.*".*"/ s/.*/        Modes           "'$resolution_toset'" "1024x768" "800x600"/' /etc/X11/xorg.conf
+                fi
+                sed -i '/Modes/ s/#//' /etc/X11/xorg.conf
 
 	   fi
 
@@ -143,14 +143,14 @@ configure_video_settings() {
 
       # Check if refresh= is forced by cmdline
       if [ -n "$cmdline_refresh_exist" ];then
-	 # change VertRefresh in X.Org
+        # change VertRefresh in X.Org
          for word in `cat /proc/cmdline` ; do
             case $word in
                refresh=*)
-		  sed -i '/VertRefresh/ s/#//' /etc/X11/xorg.conf
-                  refresh_toset=$(echo $word | cut -d "=" -f 2)
-                  sed -i '/VertRefresh/ s/.*/    VertRefresh '$refresh_toset'/' /etc/X11/xorg.conf
-		  #echo -e "\E[33;36m * \E[0m\E[01;32m Setting VertRefresh to $refresh_toset Hz \E[0m"
+                    sed -i '/VertRefresh/ s/#//' /etc/X11/xorg.conf
+                    refresh_toset=$(echo $word | cut -d "=" -f 2)
+                    sed -i '/VertRefresh/ s/.*/    VertRefresh '$refresh_toset'/' /etc/X11/xorg.conf
+                    #echo -e "\E[33;36m * \E[0m\E[01;32m Setting VertRefresh to $refresh_toset Hz \E[0m"
                ;;
             esac
          done
@@ -178,23 +178,6 @@ configure_video_settings() {
       fi
 
    fi
-
-}
-
-configure_input_devices() {
-
-    # It's all managed by HAL, w00t!
-
-
-   # Detect Macintosh - Enabling Apple Key
-   #if [ -n "$is_mactel" ]; then
-   #     
-   #fi
-
-   # Detect VMware
-   #if [ -n "$is_vmware" ]; then
-   #   sed -i '/Driver.*mouse/ s/mouse/vmmouse/' /etc/X11/xorg.conf
-   #fi
 
 }
 
@@ -241,9 +224,6 @@ configure_input_devices() {
       else
          /sbin/gpu-configuration &> /dev/null
       fi
-
-      # Now we can configure X Input drivers
-      configure_input_devices
 
       # delete seed
       rm -f /etc/x-setup-configuration-running
