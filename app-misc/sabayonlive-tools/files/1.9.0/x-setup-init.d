@@ -4,6 +4,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 depend() {
+	after mtab
 	before hostname
 	before xdm
 }
