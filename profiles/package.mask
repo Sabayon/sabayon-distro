@@ -20,6 +20,3 @@ app-emulation/qemu-gui
 #       safely use >=xcb-util-0.2.1
 ~x11-libs/xcb-util-9999
 
-# Ian Whyman <v00d00@v00d00.net>
-# Mask newer versions for testing
->x11-themes/sabayonlinux-artwork-3.50-r2
