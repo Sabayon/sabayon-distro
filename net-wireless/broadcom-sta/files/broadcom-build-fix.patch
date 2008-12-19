@@ -1,0 +1,87 @@
+--- src.orig/wl/sys/wl_iw.c	2008-12-05 20:45:54.000000000 +0100
++++ src/wl/sys/wl_iw.c	2008-12-20 00:31:28.000000000 +0100
+@@ -943,12 +943,12 @@ wl_iw_get_scan(
+ 		iwe.cmd = SIOCGIWAP;
+ 		iwe.u.ap_addr.sa_family = ARPHRD_ETHER;
+ 		memcpy(iwe.u.ap_addr.sa_data, &bi->BSSID, ETHER_ADDR_LEN);
+-		event = iwe_stream_add_event(event, end, &iwe, IW_EV_ADDR_LEN);
++		event = iwe_stream_add_event(info, event, end, &iwe, IW_EV_ADDR_LEN);
+ 
+ 		iwe.u.data.length = dtoh32(bi->SSID_len);
+ 		iwe.cmd = SIOCGIWESSID;
+ 		iwe.u.data.flags = 1;
+-		event = iwe_stream_add_point(event, end, &iwe, bi->SSID);
++		event = iwe_stream_add_point(info, event, end, &iwe, bi->SSID);
+ 
+ 		if (dtoh16(bi->capability) & (DOT11_CAP_ESS | DOT11_CAP_IBSS)) {
+ 			iwe.cmd = SIOCGIWMODE;
+@@ -956,7 +956,7 @@ wl_iw_get_scan(
+ 				iwe.u.mode = IW_MODE_INFRA;
+ 			else
+ 				iwe.u.mode = IW_MODE_ADHOC;
+-			event = iwe_stream_add_event(event, end, &iwe, IW_EV_UINT_LEN);
++			event = iwe_stream_add_event(info, event, end, &iwe, IW_EV_UINT_LEN);
+ 		}
+ 
+ 		iwe.cmd = SIOCGIWFREQ;
+@@ -964,13 +964,13 @@ wl_iw_get_scan(
+ 			CHSPEC_CHANNEL(bi->chanspec) <= CH_MAX_2G_CHANNEL ?
+ 			WF_CHAN_FACTOR_2_4_G : WF_CHAN_FACTOR_5_G);
+ 		iwe.u.freq.e = 6;
+-		event = iwe_stream_add_event(event, end, &iwe, IW_EV_FREQ_LEN);
++		event = iwe_stream_add_event(info, event, end, &iwe, IW_EV_FREQ_LEN);
+ 
+ 		iwe.cmd = IWEVQUAL;
+ 		iwe.u.qual.qual = rssi_to_qual(dtoh16(bi->RSSI));
+ 		iwe.u.qual.level = 0x100 + dtoh16(bi->RSSI);
+ 		iwe.u.qual.noise = 0x100 + bi->phy_noise;
+-		event = iwe_stream_add_event(event, end, &iwe, IW_EV_QUAL_LEN);
++		event = iwe_stream_add_event(info, event, end, &iwe, IW_EV_QUAL_LEN);
+ 
+ #if WIRELESS_EXT > 17
+ 
+@@ -982,7 +982,7 @@ wl_iw_get_scan(
+ 			if ((ie = bcm_parse_tlvs(ptr, ptr_len, DOT11_MNG_RSN_ID))) {
+ 				iwe.cmd = IWEVGENIE;
+ 				iwe.u.data.length = ie->len + 2;
+-				event = iwe_stream_add_point(event, end, &iwe, (char *)ie);
++				event = iwe_stream_add_point(info, event, end, &iwe, (char *)ie);
+ 			}
+ 			ptr = ((uint8 *)bi) + sizeof(wl_bss_info_t);
+ 			while ((ie = bcm_parse_tlvs(ptr, ptr_len, DOT11_MNG_WPA_ID))) {
+@@ -990,7 +990,7 @@ wl_iw_get_scan(
+ 			    if (ie_is_wps_ie(((uint8 **)&ie), &ptr, &ptr_len)) {
+ 				iwe.cmd = IWEVGENIE;
+ 				iwe.u.data.length = ie->len + 2;
+-				event = iwe_stream_add_point(event, end, &iwe, (char *)ie);
++				event = iwe_stream_add_point(info, event, end, &iwe, (char *)ie);
+ 				break;
+ 			    }
+ 			}
+@@ -1001,7 +1001,7 @@ wl_iw_get_scan(
+ 				if (ie_is_wpa_ie(((uint8 **)&ie), &ptr, &ptr_len)) {
+ 					iwe.cmd = IWEVGENIE;
+ 					iwe.u.data.length = ie->len + 2;
+-					event = iwe_stream_add_point(event, end, &iwe, (char *)ie);
++					event = iwe_stream_add_point(info, event, end, &iwe, (char *)ie);
+ 					goto done;
+ 				}
+ 			}
+@@ -1015,7 +1015,7 @@ done:
+ 		else
+ 			iwe.u.data.flags = IW_ENCODE_DISABLED;
+ 		iwe.u.data.length = 0;
+-		event = iwe_stream_add_point(event, end, &iwe, (char *)event);
++		event = iwe_stream_add_point(info, event, end, &iwe, (char *)event);
+ 
+ 		if (bi->rateset.count) {
+ 			value = event + IW_EV_LCP_LEN;
+@@ -1024,7 +1024,7 @@ done:
+ 			iwe.u.bitrate.fixed = iwe.u.bitrate.disabled = 0;
+ 			for (j = 0; j < bi->rateset.count && j < IW_MAX_BITRATES; j++) {
+ 				iwe.u.bitrate.value = (bi->rateset.rates[j] & 0x7f) * 500000;
+-				value = iwe_stream_add_value(event, value, end, &iwe,
++				value = iwe_stream_add_value(info, event, value, end, &iwe,
+ 					IW_EV_PARAM_LEN);
+ 			}
+ 			event = value;
