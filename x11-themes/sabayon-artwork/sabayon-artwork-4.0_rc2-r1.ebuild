@@ -11,9 +11,11 @@ SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE="+gnome +kde +compiz +gdm +kdm"
 RESTRICT="nomirror"
-RDEPEND="!x11-themes/sabayonlinux-artwork
-		 !x11-themes/sabayon-artwork-star
-		 !x11-themes/sabayon-artwork-darkblend"
+RDEPEND="
+	!<x11-themes/sabayonlinux-artwork-4
+	!x11-themes/sabayon-artwork-star
+	!x11-themes/sabayon-artwork-darkblend
+	"
 
 S="${WORKDIR}/${PN}"
 
