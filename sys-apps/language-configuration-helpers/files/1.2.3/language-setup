@@ -1,4 +1,4 @@
-#!/bin/sh
+um#!/bin/sh
 # 2006 - SabayonLinux - Fabio Erculiani
 # Gentoo System Language configurator
 
@@ -38,15 +38,22 @@ fi
 
 # Variables and constants
 syslocale=$1
+
 if [ -n "$2" ]; then
     desktop_env=$2
 fi
 
 # locale test
-locale_exists=$(find $ROOT/usr/lib/locale -maxdepth 1 -name $syslocale)
+locale_exists=$(/usr/bin/locale -a | grep $syslocale)
 if [ -z "$locale_exists" ]; then
     echo "ERROR: locale not available, please check your glibc installation"
     exit 3
+fi
+
+utf_syslocale=$syslocale
+utf_syslocale_exists=$(/usr/bin/locale -a | grep $syslocale".utf8")
+if [ -n "$utf_syslocale_exists" ]; then
+    utf_syslocale=$syslocale".utf8"
 fi
 
 # functions
@@ -54,19 +61,19 @@ fi
 configure_system_locale() {
 
     if [ -e "$ROOT/etc/env.d/02locale" ]; then
-        sed -i '/LANG=/ s/LANG=.*/LANG="'$syslocale'"/' $ROOT/etc/env.d/02locale
-        sed -i '/LANGUAGE=/ s/LANGUAGE=.*/LANGUAGE="'$syslocale'"/' $ROOT/etc/env.d/02locale
-        sed -i '/LC_ALL=/ s/LC_ALL=.*/LC_ALL="'$syslocale'"/' $ROOT/etc/env.d/02locale
-        sed -i "s/LANG=.*/LANG='$syslocale'/" $ROOT/etc/profile.env
-        sed -i "s/LANGUAGE=.*/LANGUAGE='$syslocale'/" $ROOT/etc/profile.env
-        sed -i "s/LC_ALL=.*/LC_ALL='$syslocale'/" $ROOT/etc/profile.env
+        sed -i '/LANG=/ s/LANG=.*/LANG="'$utf_syslocale'"/' $ROOT/etc/env.d/02locale
+        sed -i '/LANGUAGE=/ s/LANGUAGE=.*/LANGUAGE="'$utf_syslocale'"/' $ROOT/etc/env.d/02locale
+        sed -i '/LC_ALL=/ s/LC_ALL=.*/LC_ALL="'$utf_syslocale'"/' $ROOT/etc/env.d/02locale
+        sed -i "s/LANG=.*/LANG='$utf_syslocale'/" $ROOT/etc/profile.env
+        sed -i "s/LANGUAGE=.*/LANGUAGE='$utf_syslocale'/" $ROOT/etc/profile.env
+        sed -i "s/LC_ALL=.*/LC_ALL='$utf_syslocale'/" $ROOT/etc/profile.env
     else
-        echo 'LANG="'$syslocale'"' >> $ROOT/etc/env.d/02locale
-        echo 'LANGUAGE="'$syslocale'"' >> $ROOT/etc/env.d/02locale
-        echo 'LC_ALL="'$syslocale'"' >> $ROOT/etc/env.d/02locale
-        echo "LANG='$syslocale'" >> $ROOT/etc/profile.env
-        echo "LANGUAGE='$syslocale'" >> $ROOT/etc/profile.env
-        echo "LC_ALL='$syslocale'" >> $ROOT/etc/profile.env
+        echo 'LANG="'$utf_syslocale'"' >> $ROOT/etc/env.d/02locale
+        echo 'LANGUAGE="'$utf_syslocale'"' >> $ROOT/etc/env.d/02locale
+        echo 'LC_ALL="'$utf_syslocale'"' >> $ROOT/etc/env.d/02locale
+        echo "LANG='$utf_syslocale'" >> $ROOT/etc/profile.env
+        echo "LANGUAGE='$utf_syslocale'" >> $ROOT/etc/profile.env
+        echo "LC_ALL='$utf_syslocale'" >> $ROOT/etc/profile.env
     fi
 
 }
@@ -88,6 +95,15 @@ configure_kde_locale() {
 	    sed -i '/Language=/ s/Language=.*/Language='$kdelocale'/' $file
         done
     fi
+    # Search for all kdeglobals in /root
+    kdeglobals_files=$(find $ROOT/root -name kdeglobals)
+    kdelocale=$(echo $syslocale | cut -d"_" -f 1 | cut -d"-" -f 1)
+    if [ -n "$kdeglobals_files" ]; then
+        for file in $kdeglobals_files
+        do
+	    sed -i '/Language=/ s/Language=.*/Language='$kdelocale'/' $file
+        done
+    fi
     # Search for all kdeglobals in /etc/skel
     kdeglobals_files=$(find $ROOT/etc/skel -name kdeglobals)
     if [ -n "$kdeglobals_files" ]; then
@@ -101,45 +117,14 @@ configure_kde_locale() {
 
 configure_mozilla_locale() {
 
-    moz_syslocale=$(echo $syslocale | sed 's/_/-/')
+    moz_syslocale=$(echo $syslocale | sed 's/_/-/' | cut -d"-" -f 1)
 
     # Mozilla 1.7.x, Seamonkey 1.x, Firefox 1.x and 2.x supported - users
-    moz_lang_files=$(find $ROOT/home -name prefs.js)
+    moz_lang_files=$(if [ -d "$ROOT/home" ]; then grep -r 'pref("general.useragent.locale' $ROOT/home/*/.mozilla | cut -d: -f1; fi)" "$(if [ -d "$ROOT/root/.mozilla" ]; then grep -r 'pref("general.useragent.locale' $ROOT/root/.mozilla | cut -d: -f1; fi)" "$(if [ -d "$ROOT/etc/skel/.mozilla" ]; then grep -r 'pref("general.useragent.locale' $ROOT/etc/skel/.mozilla/* | cut -d: -f1; fi)" "$(if [ -d "$ROOT/usr/lib/seamonkey/defaults" ]; then grep -r 'pref("general.useragent.locale' $ROOT/usr/lib/seamonkey/defaults/* | cut -d: -f1; fi)" "$(if [ -d "$ROOT/usr/lib/mozilla-thunderbird/defaults" ]; then grep -r 'pref("general.useragent.locale' $ROOT/usr/lib/mozilla-thunderbird/defaults/* | cut -d: -f1; fi)" "$(if [ -d "$ROOT/usr/lib/mozilla-firefox/defaults" ]; then grep -r 'pref("general.useragent.locale' $ROOT/usr/lib/mozilla-firefox/defaults/* | cut -d: -f1; fi)" "$(if [ -d "$ROOT/usr/lib/mozilla/defaults" ]; then grep -r 'pref("general.useragent.locale' $ROOT/usr/lib/mozilla/defaults/* | cut -d: -f1; fi)" "$(if [ -d "$ROOT/opt/mozilla/defaults" ]; then grep -r 'pref("general.useragent.locale' $ROOT/opt/mozilla/defaults/* | cut -d: -f1; fi)" "$(if [ -d "$ROOT/opt/thunderbird/defaults" ]; then grep -r 'pref("general.useragent.locale' $ROOT/opt/thunderbird/defaults/* | cut -d: -f1; fi)" "$(if [ -d "$ROOT/opt/firefox/defaults" ]; then grep -r 'pref("general.useragent.locale' $ROOT/opt/firefox/defaults/* | cut -d: -f1; fi)
     if [ -n "$moz_lang_files" ]; then
         for pref in $moz_lang_files
         do
-            moz_locale_setting=$(cat $pref | grep -i "general.useragent.locale")
-	    if [ -n "$moz_locale_setting" ]; then
-	        sed -i '/general.useragent.locale/ s/.*/user_pref("general.useragent.locale", "'$moz_syslocale'")/' $pref
-            else
-                echo 'user_pref("general.useragent.locale", "'$moz_syslocale'");' >> $pref
-	    fi
-        done
-    fi
-    # Mozilla 1.7.x, Seamonkey 1.x, Firefox 1.x and 2.x supported - root
-    moz_lang_files=$(find $ROOT/root -name prefs.js)
-    if [ -n "$moz_lang_files" ]; then
-        for pref in $moz_lang_files
-        do
-            moz_locale_setting=$(cat $pref | grep -i "general.useragent.locale")
-	    if [ -n "$moz_locale_setting" ]; then
-	        sed -i '/general.useragent.locale/ s/.*/user_pref("general.useragent.locale", "'$moz_syslocale'")/' $pref
-            else
-                echo 'user_pref("general.useragent.locale", "'$moz_syslocale'");' >> $pref
-	    fi
-        done
-    fi
-    # Mozilla 1.7.x, Seamonkey 1.x, Firefox 1.x and 2.x supported - /etc/skel
-    moz_lang_files=$(find $ROOT/etc/skel -name prefs.js)
-    if [ -n "$moz_lang_files" ]; then
-        for pref in $moz_lang_files
-        do
-            moz_locale_setting=$(cat $pref | grep -i "general.useragent.locale")
-	    if [ -n "$moz_locale_setting" ]; then
-	        sed -i '/general.useragent.locale/ s/.*/user_pref("general.useragent.locale", "'$moz_syslocale'")/' $pref
-            else
-                echo 'user_pref("general.useragent.locale", "'$moz_syslocale'");' >> $pref
-	    fi
+	    sed -i '/general.useragent.locale/ s/"general.useragent.locale", ".*"/"general.useragent.locale", "'$moz_syslocale'"/' $pref
         done
     fi
 
@@ -249,7 +234,6 @@ else
             configure_openoffice_locale
             echo -e "\t\t OK"
         ;;
-        
     esac
 
 fi
