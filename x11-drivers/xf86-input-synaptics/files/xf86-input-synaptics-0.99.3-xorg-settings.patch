@@ -1,0 +1,24 @@
+diff -Nurp xf86-input-synaptics-0.99.3.orig/fdi/11-x11-synaptics.fdi xf86-input-synaptics-0.99.3/fdi/11-x11-synaptics.fdi
+--- xf86-input-synaptics-0.99.3.orig/fdi/11-x11-synaptics.fdi	2008-12-29 22:52:37.000000000 +0100
++++ xf86-input-synaptics-0.99.3/fdi/11-x11-synaptics.fdi	2008-12-29 22:53:40.000000000 +0100
+@@ -9,15 +9,18 @@
+             <!-- Switch on shared memory, enables the driver to be configured at runtime -->
+         <!-- <merge key="input.x11_options.SHMConfig" type="string">true</merge> -->
+             <!-- Maximum movement of the finger for detecting a tap -->
+-        <!-- <merge key="input.x11_options.MaxTapMove" type="string">2000</merge> -->
++        <merge key="input.x11_options.MaxTapMove" type="string">2000</merge>
+             <!-- Enable vertical scrolling when dragging along the right edge -->
+-        <!-- <merge key="input.x11_options.VertEdgeScroll" type="string">true</merge> -->
++        <merge key="input.x11_options.VertEdgeScroll" type="string">true</merge>
+             <!-- Enable vertical scrolling when dragging with two fingers anywhere on the touchpad -->
+         <!-- <merge key="input.x11_options.VertTwoFingerScroll" type="string">true</merge> -->
+             <!-- Enable horizontal scrolling when dragging with two fingers anywhere on the touchpad -->
+         <!-- <merge key="input.x11_options.HorizTwoFingerScroll" type="string">true</merge> -->
+             <!-- If on, circular scrolling is used -->
+         <!-- <merge key="input.x11_options.CircularScrolling" type="string">true</merge> -->
++        <merge key="input.x11_options.TapButton1" type="string">1</merge>
++        <merge key="input.x11_options.TapButton2" type="string">2</merge>
++        <merge key="input.x11_options.TapButton3" type="string">3</merge>
+             <!-- For other possible options, check CONFIGURATION DETAILS in synaptics man page -->
+     </match>
+   </device>
