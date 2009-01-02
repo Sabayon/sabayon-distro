@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# setup
+myxinitrc="/usr/bin/sabayon-mce-session"
+myuser="sabayonmce"
+
+# spawn!
+su - ${myuser} -c "/usr/bin/sabayon-mce-startx ${myxinitrc} &> /dev/null" &

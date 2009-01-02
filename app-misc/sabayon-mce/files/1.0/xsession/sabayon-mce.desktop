@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Sabayon Media Center
+Comment=This session loads Sabayon in Media Center mode
+Exec=/usr/bin/sabayon-mce-session
+Icon=
+Type=Application
+

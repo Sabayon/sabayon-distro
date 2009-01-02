@@ -1,0 +1,127 @@
+#!/bin/sh
+
+# $Xorg: startx.cpp,v 1.3 2000/08/17 19:54:29 cpqbld Exp $
+#
+# This is just a sample implementation of a slightly less primitive
+# interface than xinit.  It looks for user .xinitrc and .xserverrc
+# files, then system xinitrc and xserverrc files, else lets xinit choose
+# its default.  The system xinitrc should probably do things like check
+# for .Xresources files and merge them in, startup up a window manager,
+# and pop a clock and serveral xterms.
+#
+# Site administrators are STRONGLY urged to write nicer versions.
+#
+# $XFree86: xc/programs/xinit/startx.cpp,v 3.16tsi Exp $
+
+
+userclientrc=$1
+sysclientrc=$1
+
+userserverrc=$HOME/.xserverrc
+sysserverrc=/etc/X11/xinit/xserverrc
+defaultclientargs=""
+defaultserverargs="-nolisten tcp -br"
+clientargs=""
+serverargs=""
+
+enable_xauth=1
+
+if [ -f $userclientrc ]; then
+    defaultclientargs=$userclientrc
+elif [ -f $sysclientrc ]; then
+    defaultclientargs=$sysclientrc
+fi
+
+if [ x"$display" != x ]; then
+    export DISPLAY=$display
+else
+    export DISPLAY=:0
+fi
+
+
+if [ -f $userserverrc ]; then
+    defaultserverargs=$userserverrc
+elif [ -f $sysserverrc ]; then
+    defaultserverargs=$sysserverrc
+fi
+
+if [ x"$enable_xauth" = x1 ] ; then
+    if [ x"$XAUTHORITY" = x ]; then
+        XAUTHORITY=$HOME/.Xauthority
+        export XAUTHORITY
+    fi
+
+    removelist=
+
+    # set up default Xauth info for this machine
+    case `uname` in
+    Linux*)
+        if [ -z "`hostname --version 2>&1 | grep GNU`" ]; then
+            hostname=`hostname -f`
+        else
+            hostname=`hostname`
+        fi
+        ;;
+    *)
+        hostname=`hostname`
+        ;;
+    esac
+
+    authdisplay=${display:-:0}
+
+    mcookie=`/usr/bin/mcookie`
+
+    dummy=0
+
+    # create a file with auth information for the server. ':0' is a dummy.
+    xserverauthfile=$HOME/.serverauth.$$
+    trap "rm -f $xserverauthfile" HUP INT QUIT ILL TRAP KILL BUS TERM
+    xauth -q -f $xserverauthfile << EOF
+add :$dummy . $mcookie
+EOF
+    serverargs=${serverargs}" -auth "${xserverauthfile}
+
+    # now add the same credentials to the client authority file
+    # if '$displayname' already exists do not overwrite it as another
+    # server man need it. Add them to the '$xserverauthfile' instead.
+    for displayname in $authdisplay $hostname$authdisplay; do
+        authcookie=`xauth list "$displayname" \
+        | sed -n "s/.*$displayname[[:space:]*].*[[:space:]*]//p"` 2>/dev/null;
+        if [ "z${authcookie}" = "z" ] ; then
+            xauth -q << EOF 
+add $displayname . $mcookie
+EOF
+        removelist="$displayname $removelist"
+        else
+            dummy=$(($dummy+1));
+            xauth -q -f $xserverauthfile << EOF
+add :$dummy . $authcookie
+EOF
+        fi
+    done
+fi
+
+cleanup() {
+
+    [ -n "$PID" ] && kill $PID > /dev/null 2>&1
+    if [ x"$enable_xauth" = x1 ] ; then
+        if [ x"$removelist" != x ]; then
+            xauth remove $removelist
+        fi
+        if [ x"$xserverauthfile" != x ]; then
+            rm -f $xserverauthfile
+        fi
+    fi
+
+}
+
+
+trap cleanup 0
+
+xinit $clientargs -- $serverargs -deferglyphs 16 &
+
+PID=$!
+
+wait $PID
+
+unset PID
