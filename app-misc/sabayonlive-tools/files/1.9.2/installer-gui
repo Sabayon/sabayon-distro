@@ -1,0 +1,44 @@
+#!/sbin/runscript
+# Copyright 2006 Sabayon Linux
+# Distributed under the terms of the GNU General Public License v2
+
+depend() {
+    before xdm      
+    after sabayonlive
+}
+
+start() {
+
+        cmdline_installer_exist=$(cat /proc/cmdline | grep "installer-gui")
+        if [ -z "$cmdline_installer_exist" ]; then
+		ebegin "Sabayon Linux GUI Installer service not enabled"
+                eend 0
+        else
+                ebegin "Sabayon Linux GUI Installer service"
+
+		# Configure the GUI Installation
+		
+		# Enable KDM autologin
+                sed -i 's/AutoLoginEnable=.*/AutoLoginEnable=true/' /usr/kde/3.5/share/config/kdm/kdmrc
+                sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' /usr/kde/3.5/share/config/kdm/kdmrc
+                sed -i 's/AutoLoginDelay=.*/AutoLoginDelay=0/' /usr/kde/3.5/share/config/kdm/kdmrc
+
+        	# Enable GDM autologin
+        	sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /etc/X11/gdm/custom.conf
+        	sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /etc/X11/gdm/custom.conf
+
+                # Change default wm to fluxbox
+                echo "[Desktop]" > /home/sabayonuser/.dmrc
+                echo "Session=fluxbox" >> /home/sabayonuser/.dmrc
+                chown sabayonuser /home/sabayonuser/.dmrc
+
+		# Configure Fluxbox
+                echo >> /home/sabayonuser/.fluxbox/init
+                echo "session.screen0.rootCommand: xhost + & display -backdrop -window root /usr/share/backgrounds/sabayonlinux.png & /opt/anaconda/anaconda" >> /home/sabayonuser/.fluxbox/init
+
+		eend 0
+	fi
+
+
+
+}
