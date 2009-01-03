@@ -1,7 +1,3 @@
 #!/bin/sh
-
-# We just don't care about local connections
-xhost +
-
 # Start Xbox Media Center
-/usr/bin/xbmc --standalone
+exec /usr/bin/xbmc --standalone
