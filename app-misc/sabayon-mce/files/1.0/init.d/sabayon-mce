@@ -49,5 +49,5 @@ start() {
 
 
 stop() {
-    killall X
+	eend 0
 }
