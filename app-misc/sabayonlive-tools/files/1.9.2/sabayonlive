@@ -931,8 +931,8 @@ if mydev.startswith("/dev") and os.path.isfile(sh_file):
 	sed -i 's/Exec=/Exec=sudo /' /home/sabayonuser/Desktop/gparted.desktop
 
         # setup GDM autologin for GDM based releases, doesn't harm the rest
-        sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /etc/X11/gdm/custom.conf
-        sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /etc/X11/gdm/custom.conf
+        sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /usr/share/gdm/defaults.conf
+        sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /usr/share/gdm/defaults.conf
 
 	# Start Accel Manager or Configure XGL/AIGLX
 	start_acceleration_manager

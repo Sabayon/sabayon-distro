@@ -24,8 +24,8 @@ start() {
                 sed -i 's/AutoLoginDelay=.*/AutoLoginDelay=0/' /usr/kde/3.5/share/config/kdm/kdmrc
 
         	# Enable GDM autologin
-        	sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /etc/X11/gdm/custom.conf
-        	sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /etc/X11/gdm/custom.conf
+        	sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /usr/share/gdm/defaults.conf
+        	sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /usr/share/gdm/defaults.conf
 
                 # Change default wm to fluxbox
                 echo "[Desktop]" > /home/sabayonuser/.dmrc
