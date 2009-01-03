@@ -6,6 +6,7 @@ XDM_CONFIG="/etc/conf.d/xdm"
 SABAYON_DM_EXEC="sabayon-mce-start"
 
 depend() {
+	after mtab
 	before xdm
 }
 
