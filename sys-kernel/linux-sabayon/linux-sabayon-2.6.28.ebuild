@@ -67,6 +67,7 @@ src_compile() {
 
 		# disable sandbox
 		export SANDBOX_ON=0
+		export LDFLAGS=""
 
 		# creating workdirs
 		mkdir -p ${WORKDIR}/boot/grub
