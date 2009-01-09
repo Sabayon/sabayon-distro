@@ -10,3 +10,5 @@ New ebuild
            - spicebird-bin: Welcome.
 06.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - SLOT dependency not safe with EAPI=0, switch to EAPI=1
+09.01.09 - Ian Whyman <ian.whyman@sbayonlinux.org>
+	   - Bump to 0.7, include native x86-64
