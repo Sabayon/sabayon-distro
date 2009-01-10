@@ -1,0 +1,11 @@
+media-video/manslide
+
+Ebuild added Jan. 10, 2009
+Added by Ian Whyman <ian.whyman@sabayonlinux.org>
+
+Readded to overlay as a valid source URI was located
+Resolves Bug #451
+
+======
+10.01.09 - Ian Whyman <ian.whyman@sabayonlinux.org>
+           -manslide : welcome back!
