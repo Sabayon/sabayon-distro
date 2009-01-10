@@ -8,7 +8,11 @@ to openrc to display 'Sabayon ...'.
 This is accomplished by editing a certain defined variable in the ebuild.
 
 ======
+10.01.09 - Fix 9999 patches, bump to 9999-r2, closes bug #546
+
 31.10.08 - Bumping the version to be in sync with gentoo's. Same differences. (Ian Whyman)
+
 15.5.08 - Bumping the version to be in sync with gentoo's. Same differences.
+
 31.5.08 - Added gentoo's new version (0.2.5) 
 	with the branding changed to sabayon (Kliakhandler Kosta)
