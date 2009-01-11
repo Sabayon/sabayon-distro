@@ -84,7 +84,7 @@ QA_WX_LOAD_amd64="usr/lib32/opengl/nvidia/lib/libGLcore.so.${PV}
 	usr/lib64/opengl/nvidia/extensions/libglx.so"
 
 if use x86; then
-	PKG_V="-pkg0"
+	PKG_V="-pkg1"
 	NV_PACKAGE="${X86_NV_PACKAGE}"
 elif use amd64; then
 	PKG_V="-pkg2"
