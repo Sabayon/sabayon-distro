@@ -35,6 +35,7 @@ S="${WORKDIR}/linux-${KV_FULL}"
 UNIPATCH_LIST="
 	${FILESDIR}/${PV}/${P}-tuxonice.patch.bz2
  	${FILESDIR}/${PV}/${P}-aufs.patch.bz2
+	${FILESDIR}/${PV}/${P}-ignore-mouse-interface-on-macbooks.patch.bz2
 "
 
 
