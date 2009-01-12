@@ -125,6 +125,7 @@ src_install() {
 		if ! use only_sources; then
 			cd ${D}/usr/src/linux-${KV_FULL} || die "cannot cd into sources directory"
 			cp Module.symvers Module.symvers.backup -p || die "cannot copy Module.symvers"
+			cp System.map System.map.backup -p || die "cannot copy System.map"
 			OLDARCH=${ARCH}
 			unset ARCH
 			make distclean || die "cannot run make distclean"
@@ -132,6 +133,7 @@ src_install() {
 			make prepare modules_prepare || die "cannot run make prepare modules_prepare"
 			ARCH=${OLDARCH}
 			cp Module.symvers.backup Module.symvers -p || die "cannot copy back Module.symvers"
+			cp System.map.backup System.map -p || die "cannot copy System.map"
 		fi
 	fi
 
