@@ -1,0 +1,197 @@
+diff --git a/Makefile.am b/Makefile.am
+index babc2f3..9b912a3 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -24,8 +24,8 @@ XINITDIR = $(libdir)/X11/xinit
+ bin_PROGRAMS = xinit
+ bin_SCRIPTS = startx
+ 
+-xinit_CFLAGS = $(XINIT_CFLAGS) -DXINITDIR=\"$(XINITDIR)\" -DBINDIR=\"$(bindir)\"
+-xinit_LDADD = $(XINIT_LIBS)
++xinit_CFLAGS = $(XINIT_CFLAGS) $(CK_CFLAGS) -DXINITDIR=\"$(XINITDIR)\" -DBINDIR=\"$(bindir)\"
++xinit_LDADD = $(XINIT_LIBS) $(CK_LIBS)
+ 
+ xinit_SOURCES =	\
+         xinit.c
+diff --git a/configure.ac b/configure.ac
+index 1aee1d2..5775db3 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -47,6 +47,7 @@ DEFAULT_XMODMAP=xmodmap
+ DEFAULT_TWM=twm
+ DEFAULT_XCLOCK=xclock
+ DEFAULT_XTERM=xterm
++DEFAULT_CK=yes
+ # You always want to specify the full path to the X server
+ DEFAULT_XSERVER=${bindir}/X
+ DEFAULT_XAUTH=xauth
+@@ -104,6 +105,20 @@ esac
+ AC_SUBST(XINIT_CFLAGS)
+ AC_SUBST(XINIT_LIBS)
+ 
++# Check for ConsoleKit
++AC_ARG_WITH(consolekit,
++	 AS_HELP_STRING([--with-consolekit], [Use ConsoleKit in xinit]),
++	[CK="$withval"],
++	[CK="$DEFAULT_CK"])
++if test "x$CK" != xno ; then
++	PKG_CHECK_MODULES(CK, ck-connector,
++		have_conkit=yes,
++		[have_conkit=no; echo no])
++	if test "x$have_conkit" = xyes ; then
++		AC_DEFINE(USE_CONKIT, 1, [Define if you have ConsoleKit])
++	fi
++fi
++
+ AC_PATH_PROGS(MCOOKIE, [mcookie], [$MCOOKIE],
+   [$PATH:/bin:/usr/bin:/usr/lib:/usr/libexec:/usr/local/bin])
+ if test "x$MCOOKIE" != x ; then
+diff --git a/startx.cpp b/startx.cpp
+index 42421ef..998c7f8 100644
+--- a/startx.cpp
++++ b/startx.cpp
+@@ -222,6 +222,12 @@ EOF
+     fi
+ done
+ 
++if [ x"$display" != x ]; then
++    export DISPLAY=$display
++else
++    export DISPLAY=:0
++fi
++
+ #if defined(__SCO__) || defined(__UNIXWARE__)
+ if [ "$REMOTE_SERVER" = "TRUE" ]; then
+         exec SHELL_CMD ${client}
+diff --git a/xinit.c b/xinit.c
+index 46dee54..c2c4527 100644
+--- a/xinit.c
++++ b/xinit.c
+@@ -39,6 +39,12 @@ in this Software without prior written authorization from The Open Group.
+ #include <ctype.h>
+ #include <stdint.h>
+ 
++#ifdef USE_CONKIT
++#include <ck-connector.h>
++#include <X11/Xatom.h>
++static CkConnector *ckc = NULL;
++#endif /* USE_CONKIT */
++
+ #ifdef X_POSIX_C_SOURCE
+ #define _POSIX_C_SOURCE X_POSIX_C_SOURCE
+ #include <signal.h>
+@@ -521,6 +527,39 @@ processTimeout(int timeout, char *string)
+ 	return( serverpid != pidfound );
+ }
+ 
++
++#ifdef USE_CONKIT
++static void
++register_new_session_with_console_kit (void)
++{
++	static char conkitbuf[256];
++	DBusError   error;
++
++	ckc = ck_connector_new ();
++	if (ckc == NULL) {
++		Error ("Cannot register with ConsoleKit: OOM creating CkConnector\n");
++		goto out;
++	}
++
++	dbus_error_init (&error);
++	if (!ck_connector_open_session (ckc, &error)) {
++		Error ("Cannot register with ConsoleKit: %s: %s\n", error.name, error.message);
++		goto out;
++	}
++
++	/* If we managed to register with ConsoleKit, put the
++	 * environment variable XDG_SESSION_COOKIE=cookie as second
++	 * element in newenviron. See set_environment() where we
++	 * earlier have made sure there is room...
++	 */
++	conkitbuf[sizeof (conkitbuf) - 1] = '\0';
++	snprintf (conkitbuf, sizeof (conkitbuf) - 1, "XDG_SESSION_COOKIE=%s", ck_connector_get_cookie (ckc));
++	newenviron[1] = conkitbuf;
++out:
++	;
++}
++#endif /* USE_CONKIT */
++
+ static int
+ startServer(char *server[])
+ {
+@@ -631,6 +670,12 @@ startServer(char *server[])
+ 		break;
+ 	}
+ 
++#ifdef USE_CONKIT
++	if (serverpid != -1 ) {
++		register_new_session_with_console_kit ();
++	}
++#endif /* USE_CONKIT */
++
+ 	return(serverpid);
+ }
+ 
+@@ -775,6 +820,13 @@ shutdown(void)
+ 				clientpid);
+ 	}
+ 
++#ifdef USE_CONKIT
++	if (ckc != NULL) {
++		ck_connector_unref (ckc);
++		ckc = NULL;
++	}
++#endif
++
+ 	if (serverpid < 0)
+ 		return;
+ 	errno = 0;
+@@ -811,6 +863,13 @@ shutdown(void)
+  * make a new copy of environment that has room for DISPLAY
+  */
+ 
++
++#ifdef USE_CONKIT
++#define NUM_EXTRA_ENV_VARS 4
++#else
++#define NUM_EXTRA_ENV_VARS 3
++#endif
++
+ static void 
+ set_environment(void)
+ {
+@@ -822,11 +881,11 @@ set_environment(void)
+     for (oldPtr = environ; *oldPtr; oldPtr++) ;
+ 
+     nenvvars = (oldPtr - environ);
+-    newenviron = (char **) malloc ((nenvvars + 3) * sizeof(char **));
++    newenviron = (char **) malloc ((nenvvars + NUM_EXTRA_ENV_VARS) * sizeof(char **));
+     if (!newenviron) {
+ 	fprintf (stderr,
+ 		 "%s:  unable to allocate %d pointers for environment\n",
+-		 program, nenvvars + 3);
++		 program, nenvvars + NUM_EXTRA_ENV_VARS);
+ 	exit (1);
+     }
+ 
+@@ -836,10 +895,18 @@ set_environment(void)
+     newPtr = newenviron;
+     *newPtr++ = displaybuf;
+ 
++#ifdef USE_CONKIT
++    *newPtr++ = "XDG_SESSION_COOKIE=";
++#endif
++
+     /* copy pointers to other variables */
+     for (oldPtr = environ; *oldPtr; oldPtr++) {
+ 	if (strncmp (*oldPtr, "DISPLAY=", 8) != 0
+-	 && strncmp (*oldPtr, "WINDOWPATH=", 11) != 0) {
++	 && strncmp (*oldPtr, "WINDOWPATH=", 11) != 0
++#ifdef USE_CONKIT
++	 && strncmp (*oldPtr, "XDG_SESSION_COOKIE=", 19) != 0
++#endif
++	 ) {
+ 	    *newPtr++ = *oldPtr;
+ 	}
+     }
