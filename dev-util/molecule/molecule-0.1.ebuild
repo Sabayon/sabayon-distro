@@ -37,4 +37,8 @@ src_install() {
 	mv molecule.py bin/molecule
 	doexe bin/molecule
 
+	dodir /etc/molecule
+	insinto /etc/molecule
+	doins -r examples
+
 }
