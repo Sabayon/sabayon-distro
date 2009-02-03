@@ -27,8 +27,8 @@ src_install() {
 
 
 	cd "${S}"
-	dodir /usr/$(get_libdir)/
-	insinto /usr/$(get_libdir)/
+	dodir /usr/$(get_libdir)/molecule
+	insinto /usr/$(get_libdir)/molecule
 	doins -r molecule
 
 	dodir /usr/bin
