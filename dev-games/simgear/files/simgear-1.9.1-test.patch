@@ -1,0 +1,22 @@
+--- simgear/math/SGMathTest.cxx.old	2008-09-19 14:41:31.000000000 +0200
++++ simgear/math/SGMathTest.cxx	2008-09-19 14:43:09.000000000 +0200
+@@ -200,7 +200,7 @@
+ GeodesyTest(void)
+ {
+   // We know that the values are on the order of 1
+-  double epsDeg = 10*SGLimits<double>::epsilon();
++  double epsDeg = SGLimits<double>::epsilon();
+   // For the altitude values we need to tolerate relative errors in the order
+   // of the radius
+   double epsM = 1e6*SGLimits<double>::epsilon();
+@@ -215,8 +215,8 @@
+   // Test the conversion routines to cartesian coordinates
+   cart0 = SGVec3<double>::fromGeod(geod0);
+   geod1 = SGGeod::fromCart(cart0);
+-  if (epsDeg < fabs(geod0.getLongitudeDeg() - geod1.getLongitudeDeg()) ||
+-      epsDeg < fabs(geod0.getLatitudeDeg() - geod1.getLatitudeDeg()) ||
++  if (epsDeg*30.0*2.0 < fabs(geod0.getLongitudeDeg() - geod1.getLongitudeDeg()) ||
++      epsDeg*20.0*2.0 < fabs(geod0.getLatitudeDeg() - geod1.getLatitudeDeg()) ||
+       epsM < fabs(geod0.getElevationM() - geod1.getElevationM()))
+     return false;
+ 

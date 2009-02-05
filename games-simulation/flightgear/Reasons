@@ -1,0 +1,11 @@
+games-simulation/flightgear
+
+Ebuild added January, 2009
+Added by Mitch Harder <mitch.harder@sabayonlinux.org>
+
+New ebuild, Added games-simulation/flightgear-1.9.1
+Flightgear has come out with some new releases that haven't
+made it into Gentoo portage.
+
+This ebuild can be depricated when >=games-simulation/flightgear-1.9.1
+makes it into Gentoo portage.

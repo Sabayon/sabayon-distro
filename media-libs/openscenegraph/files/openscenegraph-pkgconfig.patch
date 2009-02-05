@@ -1,0 +1,36 @@
+diff -r f3881ded613b -r 08d9d5601265 debian/openscenegraph.pc
+--- /dev/null  Thu Jan 01 00:00:00 1970 +0000
++++ openscenegraph.pc  Fri Jun 22 00:23:39 2007 +0200
+@@ -0,0 +1,14 @@
++# pkg-config source file
++
++prefix=/usr
++exec_prefix=${prefix}
++libdir=${exec_prefix}/lib
++includedir=${prefix}/include
++
++Name: openscenegraph
++Description: 3D scenegraph
++Version: 2.0.0
++Requires: openthreads
++Conflicts:
++Libs: -L${libdir} -losg -losgDB -losgFX -losgGA -losgParticle -losgSim -losgText -losgUtil -losgViewer
++Cflags: -I${includedir}
+diff -r f3881ded613b -r 08d9d5601265 debian/openthreads.pc
+--- /dev/null  Thu Jan 01 00:00:00 1970 +0000
++++ openthreads.pc  Fri Jun 22 00:23:39 2007 +0200
+@@ -0,0 +1,14 @@
++# pkg-config source file
++
++prefix=/usr
++exec_prefix=${prefix}
++libdir=${exec_prefix}/lib
++includedir=${prefix}/include
++
++Name: openthreads
++Description: Object-Oriented (OO) thread interface for C++ programmers
++Version: 2.0.0
++Requires:
++Conflicts:
++Libs: -L${libdir} -lOpenThreads
++Cflags: -I${includedir}
