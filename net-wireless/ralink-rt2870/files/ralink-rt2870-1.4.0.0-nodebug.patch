@@ -1,0 +1,12 @@
+diff -Naur 2008_0925_RT2870_Linux_STA_v1.4.0.0.orig/os/linux/config.mk 2008_0925_RT2870_Linux_STA_v1.4.0.0/os/linux/config.mk
+--- 2008_0925_RT2870_Linux_STA_v1.4.0.0.orig/os/linux/config.mk	2008-09-25 16:25:42.000000000 +0800
++++ 2008_0925_RT2870_Linux_STA_v1.4.0.0/os/linux/config.mk	2008-10-12 11:26:01.000000000 +0800
+@@ -54,7 +54,7 @@
+ # config for STA mode
+ 
+ ifeq ($(RT28xx_MODE),STA)
+-WFLAGS += -DCONFIG_STA_SUPPORT -DDBG 
++WFLAGS += -DCONFIG_STA_SUPPORT
+ 
+ ifeq ($(HAS_WPA_SUPPLICANT),y)
+ WFLAGS += -DWPA_SUPPLICANT_SUPPORT

@@ -1,0 +1,61 @@
+diff -Naur 2008_0925_RT2870_Linux_STA_v1.4.0.0.orig/include/rt2870.h 2008_0925_RT2870_Linux_STA_v1.4.0.0/include/rt2870.h
+--- 2008_0925_RT2870_Linux_STA_v1.4.0.0.orig/include/rt2870.h	2008-09-19 13:23:42.000000000 +0800
++++ 2008_0925_RT2870_Linux_STA_v1.4.0.0/include/rt2870.h	2008-10-12 11:28:14.000000000 +0800
+@@ -143,7 +143,7 @@
+ 	{USB_DEVICE(0x0789,0x0162)}, /* Logitec */		\
+ 	{USB_DEVICE(0x0789,0x0163)}, /* Logitec */		\
+ 	{USB_DEVICE(0x0789,0x0164)}, /* Logitec */		\
+-	{ }/* Terminating entry */                      \
++	{NULL}/* Terminating entry */                      \
+ }
+ 
+ #define	FREE_HTTX_RING(_p, _b, _t)			\
+diff -Naur 2008_0925_RT2870_Linux_STA_v1.4.0.0.orig/Makefile 2008_0925_RT2870_Linux_STA_v1.4.0.0/Makefile
+--- 2008_0925_RT2870_Linux_STA_v1.4.0.0.orig/Makefile	2008-09-18 15:55:04.000000000 +0800
++++ 2008_0925_RT2870_Linux_STA_v1.4.0.0/Makefile	2008-10-12 11:29:28.000000000 +0800
+@@ -130,27 +130,27 @@
+ ifneq (,$(findstring 2.4,$(LINUX_SRC)))
+ 	cp -f os/linux/Makefile.4 $(RT28xx_DIR)/os/linux/Makefile
+ 	make -C $(RT28xx_DIR)/os/linux/
+-ifeq ($(RT28xx_MODE),AP)
+-	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)ap.o /tftpboot
+-else	
+-ifeq ($(RT28xx_MODE),APSTA)
+-	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)apsta.o /tftpboot
+-else
+-	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)sta.o /tftpboot
+-endif	
+-endif	
++#ifeq ($(RT28xx_MODE),AP)
++#	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)ap.o /tftpboot
++#else	
++#ifeq ($(RT28xx_MODE),APSTA)
++#	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)apsta.o /tftpboot
++#else
++#	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)sta.o /tftpboot
++#endif	
++#endif	
+ else
+ 	cp -f os/linux/Makefile.6 $(RT28xx_DIR)/os/linux/Makefile
+ 	make  -C  $(LINUX_SRC) SUBDIRS=$(RT28xx_DIR)/os/linux modules
+-ifeq ($(RT28xx_MODE),AP)
+-	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)ap.ko /tftpboot
+-else	
+-ifeq ($(RT28xx_MODE),APSTA)
+-	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)apsta.ko /tftpboot
+-else
+-	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)sta.ko /tftpboot
+-endif	
+-endif
++#ifeq ($(RT28xx_MODE),AP)
++#	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)ap.ko /tftpboot
++#else	
++#ifeq ($(RT28xx_MODE),APSTA)
++#	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)apsta.ko /tftpboot
++#else
++#	cp -f $(RT28xx_DIR)/os/linux/rt$(CHIPSET)sta.ko /tftpboot
++#endif	
++#endif
+ endif
+ 
+ release:

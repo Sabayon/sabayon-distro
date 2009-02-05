@@ -1,0 +1,16 @@
+diff -Naur 2008_0925_RT2870_Linux_STA_v1.4.0.0.orig/os/linux/config.mk 2008_0925_RT2870_Linux_STA_v1.4.0.0/os/linux/config.mk
+--- 2008_0925_RT2870_Linux_STA_v1.4.0.0.orig/os/linux/config.mk	2008-09-25 16:25:42.000000000 +0800
++++ 2008_0925_RT2870_Linux_STA_v1.4.0.0/os/linux/config.mk	2008-10-12 11:24:36.000000000 +0800
+@@ -5,10 +5,10 @@
+ HAS_28xx_QA=n
+ 
+ # Support Wpa_Supplicant
+-HAS_WPA_SUPPLICANT=n
++HAS_WPA_SUPPLICANT=y
+ 
+ # Support Native WpaSupplicant for Network Maganger
+-HAS_NATIVE_WPA_SUPPLICANT_SUPPORT=n
++HAS_NATIVE_WPA_SUPPLICANT_SUPPORT=y
+ 
+ #Support Net interface block while Tx-Sw queue full
+ HAS_BLOCK_NET_IF=n
