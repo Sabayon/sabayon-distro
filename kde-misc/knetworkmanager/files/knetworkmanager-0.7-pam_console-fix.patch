@@ -1,0 +1,12 @@
+diff -Nurp knetworkmanager-0.7.0_p20090205.orig/knetworkmanager-0.7/knetworkmanager.conf knetworkmanager-0.7.0_p20090205/knetworkmanager-0.7/knetworkmanager.conf
+--- knetworkmanager-0.7.0_p20090205.orig/knetworkmanager-0.7/knetworkmanager.conf	2009-02-05 08:39:19.000000000 +0100
++++ knetworkmanager-0.7.0_p20090205/knetworkmanager-0.7/knetworkmanager.conf	2009-02-05 08:54:01.000000000 +0100
+@@ -14,7 +14,7 @@
+ 		<allow send_interface="org.freedesktop.NetworkManagerSettings"/>
+ 
+ 	</policy>
+-	<policy at_console="true">
++	<policy group="plugdev">
+ 		<allow own="org.freedesktop.NetworkManagerInfo"/>
+ 
+ 		<allow send_destination="org.freedesktop.NetworkManagerInfo"/>
