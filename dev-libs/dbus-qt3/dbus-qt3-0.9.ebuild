@@ -14,9 +14,10 @@ SLOT="0"
 KEYWORDS="alpha amd64 hppa ia64 ~mips ppc ppc64 sparc x86 ~x86-fbsd"
 IUSE="debug"
 
-RDEPEND=">=sys-apps/dbus-0.91"
-DEPEND="${RDEPEND}
+RDEPEND=">=sys-apps/dbus-0.91
 	=x11-libs/qt-3*"
+DEPEND="${RDEPEND}"
+
 S="${WORKDIR}/dbus-1-qt3-${PV}"
 
 src_compile() {
