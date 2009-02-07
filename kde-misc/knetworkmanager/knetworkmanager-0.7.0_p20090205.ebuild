@@ -15,7 +15,9 @@ KEYWORDS="~amd64 ~ppc ~x86"
 
 IUSE="cisco openvpn pptp dialup"
 
-DEPEND="net-misc/networkmanager
+DEPEND="
+	>=net-misc/networkmanager-0.7
+	dev-libs/dbus-qt3
 	=kde-base/kdelibs-3.5*
 	>=dev-libs/dbus-qt3-old-0.70
 	sys-apps/hal
