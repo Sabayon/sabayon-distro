@@ -70,5 +70,5 @@ src_install() {
 	set-kdedir
 	rm -rf "${D}/${KDEDIR}/etc"
 	insinto /etc/dbus-1/system.d/
-	doins knetworkmanager/knetworkmanager.conf
+	doins knetworkmanager-0.7/knetworkmanager.conf
 }
