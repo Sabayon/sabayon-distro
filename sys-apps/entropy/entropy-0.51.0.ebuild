@@ -7,6 +7,7 @@ ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
 
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
+REPO_CONFPATH="/etc/entropy/repositories.conf"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -77,4 +78,11 @@ src_install() {
 	cd "${S}/misc/po"
 	emake DESTDIR="${D}" install
 
+}
+
+pkg_postinst() {
+	# Copy config file over
+	if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
+		cp ${REPO_CONFPATH}.example ${REPO_CONFPATH} -p
+	fi
 }

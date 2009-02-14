@@ -76,3 +76,11 @@ src_install() {
 	emake DESTDIR="${D}" install
 
 }
+
+pkg_postinst() {
+        # Copy config file over
+        if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
+                cp ${REPO_CONFPATH}.example ${REPO_CONFPATH} -p
+        fi
+}
+
