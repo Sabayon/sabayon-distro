@@ -80,9 +80,20 @@ src_install() {
 
 }
 
+pkg_preinst() {
+	# backup user repositories.conf
+	if [ -f "${REPO_CONFPATH}" ]; then
+		cp -p "${REPO_CONFPATH}" "${REPO_CONFPATH}.backup"
+	fi
+}
+
 pkg_postinst() {
 	# Copy config file over
-	if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
-		cp ${REPO_CONFPATH}.example ${REPO_CONFPATH} -p
+	if [ -f "${REPO_CONFPATH}.backup" ]; then
+		cp ${REPO_CONFPATH}.backup ${REPO_CONFPATH} -p
+	else
+		if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
+			cp ${REPO_CONFPATH}.example ${REPO_CONFPATH} -p
+		fi
 	fi
 }
