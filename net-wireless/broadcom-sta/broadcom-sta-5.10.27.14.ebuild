@@ -5,8 +5,8 @@ inherit linux-mod
 
 DESCRIPTION="Broadcom's IEEE 802.11a/b/g/n hybrid Linux device driver."
 HOMEPAGE="http://www.broadcom.com/support/802.11/linux_sta.php"
-PKGNAME_AMD64="hybrid-portsrc-x86-64_5_10_27_11.tar.gz"
-PKGNAME_X86="hybrid-portsrc-x86-32_5_10_27_11.tar.gz"
+PKGNAME_AMD64="hybrid-portsrc-x86_64-v5_10_27_14.tar.gz"
+PKGNAME_X86="hybrid-portsrc-x86_32-v5_10_27_14.tar.gz"
 SRC_URI="http://www.broadcom.com/docs/linux_sta/${PKGNAME_AMD64} http://www.broadcom.com/docs/linux_sta/${PKGNAME_X86}"
 
 LICENSE="broadcom"
@@ -30,9 +30,6 @@ src_unpack() {
 	fi
 
 	cd ${S}
-	if kernel_is ge 2 6 27; then
-		epatch "${FILESDIR}/broadcom-build-fix.patch"
-	fi
 }
 
 src_compile() {
