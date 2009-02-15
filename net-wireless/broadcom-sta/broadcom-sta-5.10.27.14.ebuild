@@ -30,6 +30,7 @@ src_unpack() {
 	fi
 
 	cd ${S}
+	epatch "${FILESDIR}/${P}-hidden-essid.patch"
 }
 
 src_compile() {
