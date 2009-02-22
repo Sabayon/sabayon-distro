@@ -33,6 +33,7 @@ S="${WORKDIR}/linux-${KV_FULL}"
 # SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}"
 
 UNIPATCH_LIST="
+	${FILESDIR}/${PV}/patch-2.6.28.7.bz2
 	${FILESDIR}/${PV}/${P}-tuxonice.patch.bz2
  	${FILESDIR}/${PV}/${P}-aufs.patch.bz2
 	${FILESDIR}/${PV}/${P}-ignore-mouse-interface-on-macbooks.patch.bz2

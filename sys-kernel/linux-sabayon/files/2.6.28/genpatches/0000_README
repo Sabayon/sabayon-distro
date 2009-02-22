@@ -1,0 +1,109 @@
+README
+--------------------------------------------------------------------------
+This patchset is to be the 2.6 series of gentoo-sources.
+It is designed for cross-compatibility, fixes and stability, with performance
+and additional features/driver support being a second.
+
+Unless otherwise stated and marked as such, this kernel should be suitable for
+all environments.
+
+
+Patchset Numbering Scheme
+--------------------------------------------------------------------------
+
+FIXES
+1000-1400	linux-stable
+1400-1500	linux-stable queue
+1500-1700	security
+1700-1800	architecture-related
+1800-1900	mm/scheduling/misc
+1900-2000	filesystems
+2000-2100	networking core
+2100-2200	storage core
+2200-2300	power management (ACPI, APM)
+2300-2400	bus (USB, IEEE1394, PCI, PCMCIA, ...)
+2400-2500	network drivers
+2500-2600	storage drivers
+2600-2700	input
+2700-2900	media (graphics, sound, tv)
+2900-3000	other
+3000-4000	reserved
+
+FEATURES
+4000-4100	network
+4100-4200	storage
+4200-4300	graphics
+4300-4400	filesystem
+4400-4500	other
+
+Individual Patch Descriptions:
+--------------------------------------------------------------------------
+
+Patch:	1000_linux-2.6.28.1.patch
+From:	http://www.kernel.org
+Desc:	Linux 2.6.28.1
+
+Patch:	1001_linux-2.6.28.2.patch
+From:	http://www.kernel.org
+Desc:	Linux 2.6.28.2
+
+Patch:	1002_linux-2.6.28.3.patch
+From:	http://www.kernel.org
+Desc:	Linux 2.6.28.3
+
+Patch:	1003_linux-2.6.28.4.patch
+From:	http://www.kernel.org
+Desc:	Linux 2.6.28.4
+
+Patch:	1004_linux-2.6.28.5.patch
+From:	http://www.kernel.org
+Desc:	Linux 2.6.28.5
+
+Patch:	2305_uninline-pci-ioremap-bar.patch
+From:	http://bugs.gentoo.org/252488
+Desc:	Move some PCI code around to fix compilation on alpha
+
+Patch:	2400_iwl3945-adhoc-disconnect-fix.patch
+From:	http://bugs.gentoo.org/254586
+Desc:	Fix adhoc disconnect issue in iwl3945
+
+Patch:	2505_macpower-wrong-capacity.patch
+From:	http://bugs.gentoo.org/250789
+Desc:	Fix capacity reported by Macpower hard drive
+
+Patch:	2510_pata-hpt366-boot-hang.patch
+From:	http://bugs.gentoo.org/254793
+Desc:	Fix boot hang with pata_hpt366 driver
+
+Patch:	2600_Microsoft-kbd-rpt-descriptor-fix.patch
+From:	http://bugs.gentoo.org/256355
+Desc:	Report descriptor fixup for MS 1028 receiver changes
+
+Patch:	2705_i915-no-vblank-on-disabled-pipe.patch
+From:	http://bugs.gentoo.org/253813
+Desc:	Fix crash with GEM + compiz
+
+Patch:	2710_i915-set-vblank-flag-correctly.patch
+From;	http://bugs.gentoo.org/253813
+Desc:	Fix crash with GEM + compiz
+
+Patch:	2900_IT8720-chipset-support-and-type-values-fix.patch
+From:	http://bugs.gentoo.org/show_bug.cgi?id=245625
+Desc:	Patch to retrieve sensor information from the IT8720 chipset and type values fixes
+
+Patch:	4100_dm-bbr.patch
+From:	EVMS 2.5.2
+Desc:	Bad block relocation support for LiveCD users
+
+Patch:	4200_fbcondecor-0.9.4.patch
+From:	http://dev.gentoo.org/~spock
+Desc:	Bootsplash successor by Michal Januszewski
+
+Patch:	4300_squashfs-3.3.patch
+From:	http://squashfs.sourceforge.net/
+Desc:	driver to support squashfs filesystems.
+
+Patch:	4400_alpha-sysctl-uac.patch
+From:	Tavis Ormandy <taviso@gentoo.org> and http://bugs.gentoo.org/show_bug.cgi?id=217323
+Desc:	enable control of the unaligned access control policy from sysctl
+
