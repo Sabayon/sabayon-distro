@@ -8,49 +8,42 @@
  $OOINSTBASE/program/soffice $2 "\$@"
  EOT
      chmod 755 $1
---- distro-configs/CommonLinux.conf.in 
-+++ distro-configs/CommonLinux.conf.in 
-@@ -2,8 +2,6 @@
- --with-openldap
- --with-build-version=\"Build @OOO_BUILDVERSION@\"
- --without-fonts
----with-system-freetype
----with-system-gcc
- --with-system-jpeg
- --with-system-libxml
- --with-system-mozilla
-@@ -14,7 +12,6 @@
- --with-system-poppler
- --with-unix-wrapper=ooffice@OOO_BINSUFFIX@
- --enable-evolution2
----enable-atkbridge
- --with-alloc=system
- --with-vba-package-format=builtin
- @CAIRO_CONFIGURE_FLAG@
---- distro-configs/Gentoo.conf.in 
-+++ distro-configs/Gentoo.conf.in 
-@@ -16,7 +16,7 @@
- --with-system-neon
- --with-system-openssl
- --with-system-vigra
----with-system-xrender-headers
-+--with-system-xrender
- --without-myspell-dicts
- --without-stlport
- --with-vendor=\"Gentoo Foundation\"
 --- patches/dev300/apply 
 +++ patches/dev300/apply 
-@@ -1425,7 +1425,9 @@
+@@ -259,6 +259,9 @@
+ # (happened to me with DirectX SDK)
+ buildfix-directx-path.diff, i#93333, jholesov
+ 
++# workaround for building with KDE when both KDE 3.5 and 4.1 are present
++solenv.workaround-for-the-kde-mess.diff, i#95552, dtardon
++
+ [ CJK ]
+ #set default CJK font fontsize as 10.5pt
+ sw-default-cjk-fontsize.diff i#72010, jianhua
+@@ -1458,6 +1458,12 @@
+ [ GentooOnly ]
  SectionOwner => aprosky
  
- # system lucene classpath
--gentoo-system-lucene.diff
-+#gentoo-system-lucene.diff
-+#No java build
++# No java build
 +nojavanostax.diff
++# Fix freezes with dict|hyph-stuff in one dir
++hunspell-one-dir-nocrash.diff
++# Sandbox problem with wrong path
++fixsandbox.diff
  # Allow build to proceed with PaX enabled
  gentoo-pax-fix.diff, aprosky
  # support server-only versions of 64bit JDKs
+--- patches/dev300/scp2_build_extensions.diff.orig	2009-01-11 11:57:12.000000000 +0100
++++ patches/dev300/scp2_build_extensions.diff	2009-01-11 11:57:24.000000000 +0100
+@@ -4,7 +4,7 @@
+  cp    scp2\source\canvas          nmake    -    all    cp_canvas cp_langmacros cp_langtemplates NULL
+  cp    scp2\source\crashrep        nmake    -    all    cp_crashrep cp_langmacros cp_langtemplates NULL
+  cp    scp2\source\draw            nmake    -    all    cp_draw cp_langmacros cp_langtemplates NULL
+-+cp    scp2\source\extensions      nmake    -    all    cp_extensions cp_langmacros NULL
+++cp    scp2\source\extensions      nmake    -    all    cp_extensions cp_langmacros cp_langtemplates NULL
+  cp    scp2\source\gnome           nmake    -    all    cp_gnome cp_langmacros cp_langtemplates NULL
+  cp    scp2\source\graphicfilter   nmake    -    all    cp_graphicfilter cp_langmacros cp_langtemplates NULL
+  cp    scp2\source\impress         nmake    -    all    cp_impress cp_langmacros cp_langtemplates NULL
 --- patches/dev300/svg-import-filter.diff
 +++ patches/dev300/svg-import-filter.diff
 @@ -787,7 +787,7 @@
@@ -62,51 +55,22 @@
  +CFLAGS+=-DUSE_MODERN_SPIRIT
  +.ENDIF
   .ENDIF
---- patches/dev300/scp2_extensions.diff 
-+++ patches/dev300/scp2_extensions.diff 
-@@ -370,7 +370,7 @@
- +/* ** SUN Template Pack (en-US)** */
- +
- +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_en_US
--+Module gid_Module_Optional_Extensions_Sun_Template_Pack_en-US
-++Module gid_Module_Optional_Extensions_SUN_Template_Pack_en-US
- +    PackageInfo = "packinfo_extensions.txt";
- +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_en-US);
- +    ParentID = gid_Module_Optional_Extensions;
-@@ -385,7 +385,7 @@
- +/* ** SUN Template Pack (de)** */
- +
- +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_de
--+Module gid_Module_Optional_Extensions_Sun_Template_Pack_de
-++Module gid_Module_Optional_Extensions_SUN_Template_Pack_de
- +    PackageInfo = "packinfo_extensions.txt";
- +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_de);
- +    ParentID = gid_Module_Optional_Extensions;
-@@ -400,7 +400,7 @@
- +/* ** SUN Template Pack (it)** */
- +
- +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_it
--+Module gid_Module_Optional_Extensions_Sun_Template_Pack_it
-++Module gid_Module_Optional_Extensions_SUN_Template_Pack_it
- +    PackageInfo = "packinfo_extensions.txt";
- +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_it);
- +    ParentID = gid_Module_Optional_Extensions;
-@@ -415,7 +415,7 @@
- +/* ** SUN Template Pack (fr)** */
- +
- +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_fr
--+Module gid_Module_Optional_Extensions_Sun_Template_Pack_fr
-++Module gid_Module_Optional_Extensions_SUN_Template_Pack_fr
- +    PackageInfo = "packinfo_extensions.txt";
- +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_fr);
- +    ParentID = gid_Module_Optional_Extensions;
-@@ -430,7 +430,7 @@
- +/* ** SUN Template Pack (es)** */
- +
- +#ifdef WITH_EXTENSION_SUN_TEMPLATE_PACK_es
--+Module gid_Module_Optional_Extensions_Sun_Template_Pack_es
-++Module gid_Module_Optional_Extensions_SUN_Template_Pack_es
- +    PackageInfo = "packinfo_extensions.txt";
- +    MOD_NAME_DESC(MODULE_OPTIONAL_EXTENSIONS_TEMPLATE_PACK_es);
- +    ParentID = gid_Module_Optional_Extensions;
+--- bin/install-mono 
++++ bin/install-mono 
+@@ -32,13 +32,13 @@
+ # to be found in PKG_CONFIG_PATH, though
+ mkdir -p $OODESTDIR${LIBDIRBASE}/pkgconfig/
+ sed -e "s|@OOOINSTALLDIRNAME@|$OOOINSTALLDIRNAME|g" \
+-    $SRCDIR/mono-ooo.pc.in >${OODESTDIR}${LIBDIRBASE}/pkgconfig/mono-$OOOINSTALLDIRNAME.pc
++    $TOOLSDIR/src/mono-ooo.pc.in >${OODESTDIR}${LIBDIRBASE}/pkgconfig/mono-$OOOINSTALLDIRNAME.pc
+ 
+ # extra dlls config files
+ for dll in cli_uno_bridge.dll ; do
+     sed -e "s|@LIBDIRBASE@|$LIBDIRBASE|g" \
+ 	-e "s|@OOOINSTALLDIRNAME@|$OOOINSTALLDIRNAME|g" \
+-	$SRCDIR/$dll.config.in > $OOINSTDIR/ure/lib/$dll.config
++	$TOOLSDIR/src/$dll.config.in > $OOINSTDIR/ure/lib/$dll.config
+     if test -n "$OODESTDIR" ; then
+ 	file_list=`grep "^$OOINSTBASE/ure/lib/$dll$" $OODESTDIR/gid* | head -n 1 | cut -d: -f1`
+ 	echo "$OOINSTBASE/ure/lib/$dll.config" >>$file_list
 
