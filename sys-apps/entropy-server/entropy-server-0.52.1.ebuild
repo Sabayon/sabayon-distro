@@ -39,6 +39,10 @@ src_install() {
 	for package in ${inspackages}; do
 		doins ${package}
 	done
+	exeinto /usr/$(get_libdir)/entropy/server
+	for package in ${packages}; do
+		doexe ${package}
+	done
 
 	cd ${S}
 	for package in ${packages}; do
