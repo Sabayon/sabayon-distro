@@ -1,15 +1,14 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.2.5.ebuild,v 1.2 2008/05/31 07:04:58 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.4.3-r1.ebuild,v 1.1 2009/02/13 09:07:16 zzam Exp $
 
 inherit eutils flag-o-matic multilib toolchain-funcs
 
 if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/openrc.git"
-	EGIT_BRANCH="master"
-	inherit git
+	ESVN_REPO_URI="svn://roy.marples.name/openrc/trunk"
+	inherit subversion
 else
-	SRC_URI="http://roy.marples.name/${PN}/${P}.tar.bz2
+	SRC_URI="http://roy.marples.name/downloads/${PN}/${P}.tar.bz2
 		mirror://gentoo/${P}.tar.bz2
 		http://dev.gentoo.org/~cardoe/files/${P}.tar.bz2
 		http://dev.gentoo.org/~vapier/dist/${P}.tar.bz2"
@@ -21,16 +20,17 @@ HOMEPAGE="http://roy.marples.name/openrc"
 LICENSE="BSD-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~sparc-fbsd ~x86 ~x86-fbsd"
-IUSE="debug ncurses pam unicode kernel_linux kernel_FreeBSD"
+IUSE="debug elibc_glibc ncurses pam unicode kernel_linux kernel_FreeBSD"
 
 RDEPEND="virtual/init
-	kernel_linux? ( >=sys-apps/module-init-tools-3.2.2-r2 )
 	kernel_FreeBSD? ( sys-process/fuser-bsd )
 	elibc_glibc? ( >=sys-libs/glibc-2.5 )
 	ncurses? ( sys-libs/ncurses )
 	pam? ( virtual/pam )
 	>=sys-apps/baselayout-2.0.0
-	!<sys-fs/udev-118-r2"
+	kernel_linux? ( !<sys-apps/module-init-tools-3.2.2-r2 )
+	!<sys-fs/udev-133
+	!<sys-apps/sysvinit-2.86-r11"
 DEPEND="${RDEPEND}
 	virtual/os-headers"
 
@@ -57,12 +57,15 @@ pkg_setup() {
 
 src_unpack() {
 	if [[ ${PV} == "9999" ]] ; then
-		git_src_unpack
+		subversion_src_unpack
 	else
 		unpack ${A}
 	fi
 	cd "${S}"
-	epatch "${FILESDIR}"/9999/*.patch
+	epatch "${FILESDIR}"/0.4.2/0001-msg-style.patch
+	epatch "${FILESDIR}"/0.4.2/0002-useful-functions.patch
+	epatch "${FILESDIR}"/0.4.2/0003-KV.patch
+	epatch "${FILESDIR}"/openrc-0.4.3-fix-is_older_than.patch
 }
 
 src_compile() {
@@ -72,8 +75,8 @@ src_compile() {
 	fi
 
 	if [[ ${PV} == "9999" ]] ; then
-		local ver="git-$(git --git-dir=${EGIT_STORE_DIR}/${EGIT_PROJECT} rev-parse --verify ${EGIT_BRANCH} | cut -c1-8)"
-		sed -i "/^VERSION[[:space:]]*=/s:=.*:=${ver}:" Makefile
+		local ver="-svn-$(cd "${ESVN_STORE_DIR}/${ESVN_PROJECT}/${ESVN_REPO_URI##*/}"; LC_ALL=C svnversion)"
+		sed -i "/^SVNVER[[:space:]]*=/s:=.*:=${ver}:" src/rc/Makefile
 	fi
 
 	tc-export CC AR RANLIB
@@ -141,6 +144,9 @@ pkg_preinst() {
 	if [[ -e ${ROOT}/etc/conf.d/clock ]] ; then
 		mv "${ROOT}"/etc/conf.d/clock "${ROOT}"/etc/conf.d/${clock}
 	fi
+	if [[ -e ${ROOT}/etc/init.d/clock ]] ; then
+		rm -f "${ROOT}"/etc/init.d/clock
+	fi
 	if [[ -L ${ROOT}/etc/runlevels/boot/clock ]] ; then
 		rm -f "${ROOT}"/etc/runlevels/boot/clock
 		ln -snf /etc/init.d/${clock} "${ROOT}"/etc/runlevels/boot/${clock}
@@ -160,7 +166,7 @@ pkg_preinst() {
 	# force net init.d scripts into symlinks
 	for f in "${ROOT}"/etc/init.d/net.* ; do
 		[[ -e ${f} ]] || continue # catch net.* not matching anything
-		[[ ${f} == *.net.lo ]] && continue # real file now
+		[[ ${f} == */net.lo ]] && continue # real file now
 		[[ ${f} == *.openrc.bak ]] && continue
 		if [[ ! -L ${f} ]] ; then
 			elog "Moved net service '${f##*/}' to '${f##*/}.openrc.bak' to force a symlink."
@@ -172,6 +178,25 @@ pkg_preinst() {
 
 	# termencoding was added in 0.2.1 and needed in boot
 	has_version ">=sys-apps/openrc-0.2.1" || add_boot_init termencoding
+
+	# openrc-0.4.0 no longer loads the udev addon
+	enable_udev=0
+	if [[ ! -e "${ROOT}"/etc/runlevels/sysinit/udev ]] && \
+		[[ -e "${ROOT}"/etc/init.d/udev ]] && \
+		! has_version ">=sys-apps/openrc-0.4.0"
+	then
+		# make sure udev is in sysinit if it was enabled before
+		local rc_devices=$(
+			[[ -f /etc/rc.conf ]] && source /etc/rc.conf
+			[[ -f /etc/conf.d/rc ]] && source /etc/conf.d/rc
+			echo "${rc_devices:-${RC_DEVICES:-auto}}"
+		)
+		case ${rc_devices} in
+			udev|auto)
+				enable_udev=1
+				;;
+		esac
+	fi
 
 	# skip remaining migration if we already have openrc installed
 	has_version sys-apps/openrc && return 0
@@ -258,7 +283,26 @@ pkg_postinst() {
 	if [[ ! -e ${ROOT}/etc/runlevels ]] ; then
 		einfo "Copying across default runlevels"
 		cp -RPp "${ROOT}"/usr/share/${PN}/runlevels "${ROOT}"/etc
+	else
+		if [[ ! -e ${ROOT}/etc/runlevels/sysinit/devfs ]] ; then
+			mkdir -p "${ROOT}"/etc/runlevels/sysinit
+			cp -RPp "${ROOT}"/usr/share/${PN}/runlevels/sysinit/* \
+				"${ROOT}"/etc/runlevels/sysinit
+		fi
+		if [[ ! -e ${ROOT}/etc/runlevels/shutdown/mount-ro ]] ; then
+			mkdir -p "${ROOT}"/etc/runlevels/shutdown
+			cp -RPp "${ROOT}"/usr/share/${PN}/runlevels/shutdown/* \
+				"${ROOT}"/etc/runlevels/shutdown
+		fi
 	fi
+
+	if [[ "$enable_udev" = 1 ]]; then
+		elog "Auto adding udev init script to the sysinit runlevel"
+		ln -sf /etc/init.d/udev "${ROOT}"/etc/runlevels/sysinit/udev
+	fi
+
+	# update the dependency tree bug #224171
+	[[ "${ROOT}" = "/" ]] && "${ROOT}/${LIBDIR}"/rc/bin/rc-depend -u
 
 	if [[ -d ${ROOT}/etc/modules.autoload.d ]] ; then
 		ewarn "/etc/modules.autoload.d is no longer used.  Please convert"

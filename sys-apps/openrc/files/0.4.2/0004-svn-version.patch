@@ -1,0 +1,13 @@
+Index: openrc-0.4.2/src/rc/Makefile
+===================================================================
+--- openrc-0.4.2.orig/src/rc/Makefile
++++ openrc-0.4.2/src/rc/Makefile
+@@ -45,7 +45,7 @@ include ${MK}/${MKPAM}.mk
+ 
+ _SVNVER_SH=	ret=""; \
+ 		if type svnversion >/dev/null 2>&1; then \
+-			svnver="$$(svnversion)"; \
++			svnver="$$(LC_ALL=C svnversion)"; \
+ 			[ "$${svnver}" != exported ] && ret="-svn-$${svnver}"; \
+ 		fi; \
+ 		echo "$${ret}";
