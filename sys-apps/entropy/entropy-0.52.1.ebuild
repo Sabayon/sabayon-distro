@@ -3,20 +3,24 @@
 
 EAPI=1
 inherit eutils subversion multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/trunk/"
+ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
+
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
+REPO_CONFPATH="/etc/entropy/repositories.conf"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="amd64 x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND="
+	sys-apps/sandbox
 	sys-devel/gettext
+	sys-apps/diffutils
 	>=dev-lang/python-2.5[sqlite]
-	sys-apps/diffutils"
+	dev-db/sqlite[soundex]"
 RDEPEND="${DEPEND}"
 
 pkg_setup() {
@@ -58,6 +62,9 @@ src_install() {
 	cd ${S}/server
 	exeinto /usr/sbin/
 	doexe entropy-system-daemon
+	cd ${S}/libraries
+	exeinto /usr/sbin
+	doexe entropy.sh
 
 	# copy configuration
 	cd ${S}/conf
@@ -78,19 +85,19 @@ src_install() {
 }
 
 pkg_preinst() {
-        # backup user repositories.conf
-        if [ -f "${REPO_CONFPATH}" ]; then
-                cp -p "${REPO_CONFPATH}" "${REPO_CONFPATH}.backup"
-        fi
+	# backup user repositories.conf
+	if [ -f "${REPO_CONFPATH}" ]; then
+		cp -p "${REPO_CONFPATH}" "${REPO_CONFPATH}.backup"
+	fi
 }
 
 pkg_postinst() {
-        # Copy config file over
-        if [ -f "${REPO_CONFPATH}.backup" ]; then
-                cp ${REPO_CONFPATH}.backup ${REPO_CONFPATH} -p
-        else
-                if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
-                        cp ${REPO_CONFPATH}.example ${REPO_CONFPATH} -p
-                fi
-        fi
+	# Copy config file over
+	if [ -f "${REPO_CONFPATH}.backup" ]; then
+		cp ${REPO_CONFPATH}.backup ${REPO_CONFPATH} -p
+	else
+		if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
+			cp ${REPO_CONFPATH}.example ${REPO_CONFPATH} -p
+		fi
+	fi
 }

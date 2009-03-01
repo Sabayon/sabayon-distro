@@ -9,7 +9,7 @@ HOMEPAGE="http://www.sabayonlinux.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE=""
 S="${WORKDIR}"/trunk
 
@@ -42,11 +42,7 @@ src_install() {
 
 	cd ${S}
 	for package in ${packages}; do
-		echo '#!/bin/sh' > ${package/.py/}
-		echo 'cd /usr/'$(get_libdir)'/entropy/server' >> ${package/.py/}
-		echo 'python '${package}' "$@"' >> ${package/.py/}
-		exeinto /usr/sbin
-		doexe ${package/.py/}
+		dosym /usr/$(get_libdir)/entropy/server/${package} /usr/sbin/${package/.py/}
 	done
 
 }
