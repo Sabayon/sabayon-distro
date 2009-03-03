@@ -49,7 +49,8 @@ RDEPEND="ccache? ( dev-util/ccache )
 	x11-libs/libXrandr
 	x11-libs/libXrender
 	x11-proto/xineramaproto
-	media-libs/libsdl[alsa,X,-nojoystick]
+	|| ( media-libs/libsdl[alsa,X,-nojoystick]
+	media-libs/libsdl[alsa,X,joystick] )
 	"
 DEPEND="${RDEPEND}
 	dev-util/cmake
