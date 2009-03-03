@@ -1,0 +1,34 @@
+diff --git a/filter.c b/filter.c
+index 7527fe4..7483c83 100644
+--- a/filter.c
++++ b/filter.c
+@@ -12,6 +12,13 @@
+ #include <linux/ip.h>
+ #include "compat_skbuff.h"
+ #include <linux/netdevice.h>
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
++#   define NF_IP_LOCAL_OUT NF_INET_LOCAL_OUT
++#   define NF_IP_LOCAL_IN NF_INET_LOCAL_IN
++#   define NF_IP_POST_ROUTING NF_INET_POST_ROUTING
++#endif
++
+ /*
+  * All this makes sense only if NETFILTER support is configured in our kernel.
+  */
+diff --git a/vmnetInt.h b/vmnetInt.h
+index bf2dff9..483c457 100644
+--- a/vmnetInt.h
++++ b/vmnetInt.h
+@@ -78,8 +78,10 @@
+  */
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 65)
+ #   define SET_SK_DEAD(_sk, _val) (_sk)->dead = (_val)
+-#else
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)
+ #   define SET_SK_DEAD(_sk, _val) sock_valbool_flag(_sk, SOCK_DEAD, _val)
++#else
++#   define SET_SK_DEAD(_sk, _val) sock_set_flag(_sk, SOCK_DEAD)
+ #endif
+ 
+ 
