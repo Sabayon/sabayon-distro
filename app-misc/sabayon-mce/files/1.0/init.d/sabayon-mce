@@ -15,33 +15,34 @@ start() {
     # setup ${XDM_CONFIG} -> DISPLAYMANAGER to /usr/bin/sabayon-mce-start
     # if sabayonmce is set; if not, revert our change back to our saved setting, if available
     sabayonmce_avail=$(cat /proc/cmdline | grep sabayonmce)
-    if [ -f "${XDM_CONFIG}" ]; then
-        old_dm=$(cat ${XDM_CONFIG} | grep "^DISPLAYMANAGER=")
-    fi
-
-    if ! [ -f "${SABAYONMCE_DM_SETTING}" ]; then
-        echo ${old_dm} > ${SABAYONMCE_DM_SETTING}
-        old_dm_not_found=1
-    fi
+    sabayon_live=$(cat /proc/cmdline | grep cdroot)
 
     if [ -n "$sabayonmce_avail" ]; then
+
         ebegin "Sabayon Media Center mode enabled"
-        # update DISPLAYMANAGER in ${XDM_CONFIG}
-        if [ -f "${XDM_CONFIG}" ]; then
-            sed -i 's/^DISPLAYMANAGER=.*//' ${XDM_CONFIG}
+
+        # backup old setting
+        if [ ! -f "${SABAYONMCE_DM_SETTING}" ] && [ -f "${XDM_CONFIG}" ] && [ -z "${sabayon_live}" ]; then
+            old_dm=$(cat ${XDM_CONFIG} | grep "^DISPLAYMANAGER=")
+            echo ${old_dm} > ${SABAYONMCE_DM_SETTING}
         fi
+
+        # update DISPLAYMANAGER in ${XDM_CONFIG}
+        sed -i 's/^DISPLAYMANAGER=.*//g' ${XDM_CONFIG}
         echo "DISPLAYMANAGER=\"${SABAYON_DM_EXEC}\"" >> ${XDM_CONFIG}
+
     else
+
         ebegin "Sabayon Media Center mode disabled"
-        if [ -f "${SABAYONMCE_DM_SETTING}" ]; then
+
+        if [ -f "${SABAYONMCE_DM_SETTING}" ] && [ -f "${XDM_CONFIG}" ] && [ -z "${sabayon_live}" ]; then
             my_old_dm=$(cat ${SABAYONMCE_DM_SETTING})
-            if [ -n "${my_old_dm}" ]; then
-                if [ -f "${XDM_CONFIG}" ]; then
-                    sed -i 's/^DISPLAYMANAGER=.*//' ${XDM_CONFIG}
-                fi
+            if [ -n "${my_old_dm}" ] && [ -z "`cat ${XDM_CONFIG} | grep ${my_old_dm}`" ]; then
+                sed -i 's/^DISPLAYMANAGER=.*//g' ${XDM_CONFIG}
                 echo ${my_old_dm} >> ${XDM_CONFIG}
             fi
         fi
+
     fi
 
     eend 0
