@@ -1,0 +1,691 @@
+#!/sbin/runscript
+# Copyright 2004-2009 Fabio Erculiani
+# Distributed under the terms of the GNU General Public License v2 
+
+depend() {
+	after x-setup
+	before hald
+	before xdm
+}
+
+my_start_acceleration_manager() {
+
+	source /etc/profile
+	cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
+	cmdline_noaccelmanager_exist=$(cat /proc/cmdline | grep " noaccelmanager")
+	
+	# Configure AIGLX ?
+	if [ -n "$cmdline_aiglx_exist" ] && [ -z "$cmdline_xgl_exist" ]; then
+		#echo -en "\E[33;36m * \E[0m \E[01;32m Configuring the system for AIGLX... \E[0m"
+		/sbin/aiglx-setup enable &> /dev/null
+		#echo -e "Done"
+		killall ogg123 &> /dev/null
+		rm -rf /var/tmp/music.ogg &> /dev/null
+	fi
+	
+	# Start-up accel-manager - this must be always after gpu-configuration
+	if [ -z "$cmdline_noaccelmanager_exist" ] && [ -z "$cmdline_xgl_exist" ] && [ -z "$cmdline_aiglx_exist" ]; then
+		# ok, no xgl,aiglx and noaccelmanager parameters at boot. start the app
+		cmdline_nox_exist=$(cat /proc/cmdline | grep " nox")
+		cmdline_installer_gui_exist=$(cat /proc/cmdline | grep " installer-gui")
+		cmdline_installer_text_exist=$(cat /proc/cmdline | grep " installer-text")
+		cmdline_mediacenter_exist=$(cat /proc/cmdline | grep "mediacenter")
+		cmdline_game_exist=$(cat /proc/cmdline | grep " sabayon-game=")
+		cmdline_coldwar_exist=$(cat /proc/cmdline | grep " coldwar")
+		cmdline_vesaonly_exist=$(cat /proc/cmdline | grep "vesaonly")
+		if [ -z "$cmdline_nox_exist" ] && [ -z "$cmdline_installer_gui_exist" ] && [ -z "$cmdline_installer_text_exist" ] && [ -z "$cmdline_mediacenter_exist" ] && [ -z "$cmdline_game_exist" ] && [ -z "$cmdline_vesaonly_exist" ]; then
+			# Start KDM restarter check
+			livespawn /usr/share/accel-manager/accel-server-handler
+			/usr/share/accel-manager/desktop-accel-selector &> /dev/null
+		else
+			killall ogg123 &> /dev/null
+			rm -rf /var/tmp/music.ogg &> /dev/null
+		fi
+	else
+		/sbin/ldconfig &> /dev/null
+	fi
+	
+	if [ -n "$cmdline_noaccelmanager_exist" ]; then
+		killall ogg123 &> /dev/null
+		rm -rf /var/tmp/music.ogg &> /dev/null
+	fi
+
+}
+
+my_setup_autologin() {
+
+	# GDM - GNOME
+	sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /usr/share/gdm/defaults.conf
+	sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /usr/share/gdm/defaults.conf
+
+	# KDM - KDE
+	for kver in `ls /usr/kde`; do
+
+		kdm_file="/usr/kde/${kver}/share/config/kdm/kdmrc"
+		if [ ! -f "$kdm_file" ]; then
+			continue
+		fi
+
+		sed -i 's/AutoLoginEnable=.*/AutoLoginEnable=true/' $kdm_file
+		sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' $kdm_file
+		sed -i 's/AutoLoginDelay=.*/AutoLoginDelay=0/' $kdm_file
+
+		sed -i '/^#.*AutoLoginEnable=/ s/^#//' $kdm_file
+		sed -i '/^#.*AutoLoginUser=/ s/^#//' $kdm_file
+		sed -i '/^#.*AutoLoginDelay=/ s/^#//' $kdm_file
+
+	done
+
+
+}
+
+prepare_fluxbox_locked_autologin() {
+
+	# change default wm to fluxbox
+	echo "[Desktop]" > /home/sabayonuser/.dmrc
+	echo "Session=fluxbox" >> /home/sabayonuser/.dmrc
+	chown sabayonuser /home/sabayonuser/.dmrc
+	my_setup_autologin
+	# Change passwords for security
+	echo root:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
+	echo sabayonuser:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
+
+}
+
+my_setup_modules() {
+
+	cmdline_rmmod_exist=$(cat /proc/cmdline | grep rmmod=)
+	if [ -n "$cmdline_rmmod_exist" ];then
+
+		for word in `cat /proc/cmdline` ; do
+		case $word in
+			rmmod=*)
+				rmmod_toset=$(echo $word | cut -d "=" -f 2)
+				rmmod_comma_separated=$(echo $rmmod_toset | grep ",")
+				if [ -n "$rmmod_comma_separated" ]; then
+				   while [ "`echo $rmmod_toset | grep ','`" != "" ]; do 
+				      rmmod_toset=$(echo $rmmod_toset | sed 's/,/ /')
+				   done
+				   for word2 in $rmmod_toset; do
+				     rmmod $word2 &> /dev/null
+				     echo -e "\E[33;36m * \E[0m\E[01;32m Removing kernel module: "$word2 "\E[0m"
+				   done
+				else
+				   rmmod $rmmod_toset &> /dev/null
+				   echo -e "\E[33;36m * \E[0m\E[01;32m Removing kernel module: "$insmod_toset "\E[0m"
+				fi
+
+			;;
+			esac
+		done
+
+	fi
+
+	cmdline_insmod_exist=$(cat /proc/cmdline | grep insmod=)
+	if [ -n "$cmdline_insmod_exist" ];then
+
+		for word in `cat /proc/cmdline` ; do
+		case $word in
+			insmod=*)
+				insmod_toset=$(echo $word | cut -d "=" -f 2)
+				insmod_comma_separated=$(echo $insmod_toset | grep ",")
+				if [ -n "$insmod_comma_separated" ]; then
+				   while [ "`echo $insmod_toset | grep ','`" != "" ]; do 
+				      insmod_toset=$(echo $insmod_toset | sed 's/,/ /')
+				   done
+				   for word2 in $insmod_toset; do
+				     modprobe $word2 &> /dev/null
+				     echo -e "\E[33;36m * \E[0m\E[01;32m Loading kernel module: "$word2 "\E[0m"
+				   done
+				else
+				   modprobe $insmod_toset &> /dev/null
+				   echo -e "\E[33;36m * \E[0m\E[01;32m Loading kernel module: "$insmod_toset "\E[0m"
+				fi
+
+			;;
+			esac
+		done
+
+	fi
+
+}
+
+my_setup_desktop() {
+
+	# Copy sabayonuser directory
+	rm -rf /home/sabayonuser
+	cp /etc/skel /home/sabayonuser -Rp
+	chown sabayonuser:users /home/sabayonuser -R
+
+	# Disable memory eating services
+	rm -f /usr/share/autostart/skim.desktop
+	rm -f /usr/share/autostart/kerry.autostart.desktop
+	rm -f /usr/share/autostart/kbluetooth.autostart.desktop
+	rm -f /usr/share/autostart/beagled.desktop
+	rm -f /usr/share/autostart/etp-applet.desktop
+        rm -f /etc/xdg/autostart/etp-applet.desktop
+        rm -f /etc/xdg/autostart/beagled-autostart.desktop
+
+        # Remove broken entries in /etc/mtab
+        sed -i '/.*newroot.*/d' /etc/mtab
+
+	# Create /media for removable devices
+	if [ ! -d /media ]; then
+		mkdir /media
+		chmod 755 /media
+	fi
+
+	# Add sudo to gparted exec=
+	sed -i 's/Exec=/Exec=sudo /' /home/sabayonuser/Desktop/gparted.desktop
+
+	# create md devices
+	cd /dev && MAKEDEV md
+
+	# create /overlay, this way df -h won't bitch
+	mkdir /overlay
+
+}
+
+my_setup_realtech_nic() {
+
+	# Try to fix 8139cp and 8139too problems
+	is_8139_loaded=$(lsmod | grep 8139cp || lsmod | grep 8139too)
+	if [ -n "$is_8139_loaded" ]; then
+		# Yes it is
+		are_there_problems_with_8139cp=$(dmesg | grep -i 'Try the "8139too" driver instead')
+		are_there_problems_with_8139too=$(dmesg | grep -i 'Try the "8139cp" driver instead')
+		if [ -n "$are_there_problems_with_8139cp" ]; then
+			rmmod 8139cp
+			echo "blacklist 8139cp" >> /etc/modules.d/blacklist
+			modprobe 8139too
+		fi
+		if [ -n "$are_there_problems_with_8139too" ]; then
+			rmmod 8139too
+			echo "blacklist 8139too" >> /etc/modules.d/blacklist
+			modprobe 8139cp
+		fi
+	fi
+
+}
+
+my_setup_password() {
+
+	cmdline_autoscramble_exist=$(cat /proc/cmdline | grep autoscramble)
+	if [ -n "$cmdline_autoscramble_exist" ]; then
+		echo
+		echo -e "\E[33;36m * \E[0m\E[01;36m Autoscrambling root passwords for   S E C U R I T Y"
+		echo root:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
+		echo sabayonuser:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
+		echo
+	else
+		echo
+		echo -e "\t *\E[01;32m root password\E[0m : \E[01;33m root \E[0m"
+		echo -e "\t *\E[01;32m username\E[0m : \E[01;33m sabayonuser\E[0m |\E[01;32m password\E[0m : \E[01;33m sabayonuser\E[0m"
+		echo
+	fi
+
+}
+
+my_setup_session() {
+
+	cmdline_session_exist=$(cat /proc/cmdline | grep session=)
+	if [ -n "$cmdline_session_exist" ]; then
+		# Session exists, should be: kde,gnome,fluxbox
+                for word in `cat /proc/cmdline` ; do
+			case $word in
+				session=*)
+					my_sess=$(echo $word | cut -d "=" -f 2)
+					# change default DE to KDE
+					echo "[Desktop]" > /home/sabayonuser/.dmrc
+					echo "Session="$my_sess >> /home/sabayonuser/.dmrc
+					chown sabayonuser /home/sabayonuser/.dmrc
+					my_setup_autologin
+				;;
+			esac
+		done
+	fi
+
+}
+
+my_setup_xsistence() {
+
+	persistent_exists=$(cat /proc/cmdline | grep "xsistence")
+	if [ -z "$persistent_exists" ]; then
+		return 0
+	fi
+
+	xsistence_mb=$(cat /proc/cmdline | grep "xsistence_mb=")
+	if [ -n "$xsistence_mb" ];then
+		for word in `cat /proc/cmdline` ; do
+		case $word in
+			xsistence_mb=*)
+			xsistence_img_mb=$(echo $word | cut -d "=" -f 2)
+			;;
+		esac
+		done
+	else
+		xsistence_img_mb=28
+	fi
+
+	# Persistent Mode enabled
+	echo -e "\E[33;36m * \E[0m \E[01;32m Enabling XsistenCe Mode (logfile: /tmp/xsistence.log)... \E[0m"
+	echo -en "\E[33;36m * \E[0m \E[01;32m Please plug-in your USB Memory Stick now (10 seconds)... \E[0m"
+	sleep 10
+	echo -en "Waiting for devices..."
+	sleep 6
+	echo -e "Scanning."
+	sleep 1
+
+	do_break="0"
+	xsistence_found="0"
+
+	for file in /sys/block/*/device; do
+
+		if [ "$do_break" = "1" ]; then
+			break
+		fi
+
+		is_floppy=$(echo $file | grep "fd[0-99]")
+		is_sr=$(echo $file | grep "sr[0-99]")
+		if [ -n "$is_floppy" ] || [ -n "$is_sr" ]; then
+			continue
+		fi
+
+		# if it's not a floppy or an external recorder, scrub it
+		device=$(echo $file | cut -d/ -f4)
+		is_removable="0"
+		if [ -e /sys/block/$device/removable ]; then
+			is_removable=$(cat /sys/block/$device/removable)
+		fi
+		if [ "$is_removable" != "1" ]; then
+			continue
+		fi
+
+		# Counting partitions...
+		partitions_list=$(ls /dev/$device*)
+
+		for word in $partitions_list; do
+
+			# Mount them and verify the correct operation
+			mkdir -p /mnt/xsistence &> /dev/null
+			mount $word /mnt/xsistence &> /dev/null
+
+			if [ "$?" != "0" ]; then
+				echo "Tried to mount "$word" without luck" >> /tmp/xsistence.log
+				continue
+			fi
+			echo "Mounted "$word" for test" >> /tmp/xsistence.log
+
+			# Look for "xsistence-mode" file (case insensitive)
+			file_found=$(find /mnt/xsistence -maxdepth 1 -nowarn -iname xsistence-mode)
+			if [ -z "$file_found" ];then
+				echo "xsistence-mode not found on "$word >> /tmp/xsistence.log
+				umount /mnt/xsistence -f &> /dev/null
+				rmdir /mnt/xsistence /&> /dev/null
+				continue
+			fi
+			
+			# test r/w capabilities
+			touch /mnt/xsistence/.touch-test &> /dev/null
+			if [ "$?" != "0" ] || [ ! -f "/mnt/xsistence/.touch-test" ]; then
+				echo "No read-write capabilities for " $word >> /tmp/xsistence.log
+				umount /mnt/xsistence -f &> /dev/null
+				rmdir /mnt/xsistence /&> /dev/null
+				continue
+			fi
+
+			rm /mnt/xsistence/.touch-test
+			# Look for existing image
+			if [ -e /mnt/xsistence/sabayon-xsistence.ext3 ]; then
+
+				echo "/mnt/xsistence/sabayon-xsistence.ext3 on "$word " exists" >> /tmp/xsistence.log
+				
+				# found ! mount it
+				mount -o loop /mnt/xsistence/sabayon-xsistence.ext3 /home &> /dev/null
+				if [ "$?" = "0" ]; then
+					echo "/mnt/xsistence/sabayon-xsistence.ext3 mounted using "$word >> /tmp/xsistence.log
+					echo  -e "\t \t Found XsistenCe on "$word". Mounted and fully working."
+					do_break="1"
+					xsistence_found="1"
+					break
+				else
+					echo "/mnt/xsistence/sabayon-xsistence.ext3 cannot be mounted  using " $word >> /tmp/xsistence.log
+					umount /mnt/xsistence -f &> /dev/null
+					rmdir /mnt/xsistence /&> /dev/null
+					echo  -e "\t \t Found XsistenCe on "$word". But the image does not work."
+					continue
+				fi
+				
+			fi
+
+			echo "/mnt/xsistence/sabayon-xsistence.ext3 on "$word "does not exist" >> /tmp/xsistence.log
+			# create disk image and test available space
+			# need to find another way to get avaiable space
+			
+			# output
+			echo  -en "\t \t Trying to create the image on "$word" ..."
+			dd if=/dev/zero of=/mnt/xsistence/sabayon-xsistence.ext3 count=$xsistence_img_mb bs=1024000 &> /dev/null
+
+			lofine="0"
+			for lodev in "7 6 5 4 3 2"; do
+				loopdevice=${lodev}
+				losetup /dev/loop${lodev} /mnt/xsistence/sabayon-xsistence.ext3
+				if [ "$?" = "0" ]; then
+					lofine="1"
+					break
+				fi
+			done
+
+			if [ "$lofine" = "0" ]; then
+				echo -e "Sorry, no free loopback device"
+				echo "No free loopback device for "$word >> /tmp/xsistence.log
+				continue
+			fi
+
+			# loopback ok, formatting...
+			mkfs.ext3 /dev/loop$loopdevice &> /dev/null
+
+			if [ "$?" != "0" ]; then
+				echo -e "Sorry, unable to format" $xsistence_img_mb
+				echo "Cannot format the image on " $word  >> /tmp/xsistence.log
+				rm -rf /mnt/xsistence/sabayon-xsistence.ext3 &> /dev/null
+				continue
+			fi
+
+			echo "Image formatted and ready to get filled " $word "using loopback" $loopdevice >> /tmp/xsistence.log
+			mkdir /mnt/loopbacktemp
+			mount -o loop /mnt/xsistence/sabayon-xsistence.ext3 /mnt/loopbacktemp
+
+			if [ "$?" != "0" ]; then
+				echo -e "Sorry, cannot mount the image"
+				echo "Image not mounted" $word "using loopback" $loopdevice >> /tmp/xsistence.log
+				continue
+			fi
+
+			echo "Image formatted and ready to get filled " $word "using loopback" $loopdevice >> /tmp/xsistence.log
+			cp -Rap /home/* /mnt/loopbacktemp/
+			mount --move /mnt/loopbacktemp/ /home/
+
+			if [ "$?" != "0" ]; then
+				echo -e "Sorry, cannot move mount point"
+				echo "Cannot move mount point for" $word "and loopback" $loopdevice  >> /tmp/xsistence.log
+				continue
+			fi
+
+			echo -e "image created and mounted !"
+			echo "Image created and mounted using" $word "and loopback" $loopdevice >> /tmp/xsistence.log
+			do_break="1"
+			xsistence_found="1"
+			break
+
+		done
+	
+	done
+
+	if [ "$xsistence_found" = "0" ]; then
+		# Persistent Mode disabled
+		echo -e "\E[33;36m * \E[0m \E[01;32m XsistenCe is not enabled or no devices found. \E[0m"
+	fi
+
+}
+
+#my_setup_samba() {
+#	# Setup SAMBA Hostname
+#	smbhostname="sabayonlinux-"$RANDOM
+#	execute_cmd="sed -i \"s/netbios name = .*/netbios name = $smbhostname/\" /etc/samba/smb.conf"
+#	echo $execute_cmd | /bin/bash
+#	/etc/init.d/samba restart --nodeps &> /dev/null
+#}
+
+my_setup_keymap() {
+
+	# Check if KEYMAP is forced by cmdline
+	cmdline_keymap_exist=$(cat /proc/cmdline | grep -i "KEYMAP=")
+	cmdline_keymap_isolinux_exist=$(cat /proc/cmdline | grep -i "console-setup/layoutcode=")
+
+	if [ -n "$cmdline_keymap_isolinux_exist" ]; then
+		cmdline_keymap_exist="console-setup"
+	fi
+
+        if [ -n "$cmdline_keymap_exist" ];then
+
+		if [ "$cmdline_keymap_exist" == "console-setup" ]; then
+			# detect keymap
+			for word in `cat /proc/cmdline` ; do
+				case $word in
+					console-setup/layoutcode=*)
+					keymap_toset=$(echo $word | cut -d "=" -f 2)
+					;;
+				esac
+			done
+		else
+
+			# detect keymap
+			for word in `cat /proc/cmdline` ; do
+				case $word in
+					KEYMAP=*)
+					keymap_toset=$(echo $word | cut -d "=" -f 2)
+					;;
+					keymap=*)
+					keymap_toset=$(echo $word | cut -d "=" -f 2)
+					;;
+				esac
+			done
+
+		fi
+
+		if [ -n "$keymap_toset" ]; then
+			/sbin/keyboard-setup $keymap_toset &> /dev/null
+		fi
+	
+	fi
+
+}
+
+my_setup_rungame() {
+
+	echo -en "\E[33;36m * \E[0m \E[01;32m Starting $1...\E[0m"
+	prepare_fluxbox_locked_autologin
+	echo >> /home/sabayonuser/.fluxbox/init
+	echo "session.screen0.rootCommand: fbsetbg -l & /scripts/rungame.sh $1 && sudo halt -fp" >> /home/sabayonuser/.fluxbox/init
+	echo -e "\E[01;32mDone \E[0m"
+
+}
+
+my_setup_games() {
+
+	# Mount games squashfs if exists
+	if [ -e "/mnt/cdrom/games.squashfs" ]; then
+
+		mkdir -p /install-data/games-ro &> /dev/null
+		mount -o loop /mnt/cdrom/games.squashfs /install-data/games-ro &> /dev/null
+		mkdir -p /install-data/games-changes &> /dev/null
+		mount -t tmpfs none /install-data/games-changes &> /dev/null
+		mount -t aufs -o "br:/install-data/games-changes=rw:/install-data/games-ro=ro" -- aufs /install-data/games
+
+		# copy warsow
+		cp /usr/share/applications/warsow-warsow.desktop /home/sabayonuser/Desktop/ &> /dev/null
+		# copy sauerbraten
+		cp /usr/share/applications/sauerbraten_client-bin-sauerbraten.desktop /home/sabayonuser/Desktop/ &> /dev/null
+		# copy dangerdeep
+		cp /usr/share/applications/dangerdeep-dangerdeep.desktop /home/sabayonuser/Desktop/ &> /dev/null
+		# copy torcs
+		cp /usr/share/applications/torcs-torcs.desktop /home/sabayonuser/Desktop/ &> /dev/null
+		# copy nexuiz
+		cp /usr/share/applications/nexuiz-glx-nexuiz.desktop /home/sabayonuser/Desktop/ &> /dev/null
+		# copy savage
+		cp /usr/share/applications/savage-savage-bin.desktop /home/sabayonuser/Desktop/ &> /dev/null
+		# copy flightgear
+		cp /usr/share/applications/fgfs-flightgear.desktop /home/sabayonuser/Desktop/ &> /dev/null
+		# copy secondlife
+		cp /usr/share/applications/secondlife-bin-secondlife-bin.desktop /home/sabayonuser/Desktop &> /dev/null
+
+		chown sabayonuser /home/sabayonuser/Desktop/*.desktop
+
+		cmdline_warsow_exists=$(cat /proc/cmdline | grep sabayon-game=warsow)
+		if [ -n "$cmdline_warsow_exists" ]; then
+			my_setup_rungame /usr/games/bin/warsow
+		fi
+
+		cmdline_sauerbraten_exists=$(cat /proc/cmdline | grep sabayon-game=sauerbraten)
+		if [ -n "$cmdline_sauerbraten_exists" ]; then
+			my_setup_rungame /usr/games/bin/sauerbraten_client-bin
+		fi
+
+		cmdline_dangerdeep_exists=$(cat /proc/cmdline | grep sabayon-game=dangerdeep)
+		if [ -n "$cmdline_dangerdeep_exists" ]; then
+			my_setup_rungame /usr/games/bin/dangerdeep
+		fi
+
+		cmdline_torcs_exists=$(cat /proc/cmdline | grep sabayon-game=torcs)
+		if [ -n "$cmdline_torcs_exists" ]; then
+			my_setup_rungame /usr/games/bin/torcs
+		fi
+
+		cmdline_nexuiz_exists=$(cat /proc/cmdline | grep sabayon-game=nexuiz)
+		if [ -n "$cmdline_nexuiz_exists" ]; then
+			my_setup_rungame /usr/games/bin/nexuiz
+		fi
+
+		cmdline_savage_exists=$(cat /proc/cmdline | grep sabayon-game=savage)
+		if [ -n "$cmdline_savage_exists" ]; then
+			my_setup_rungame /usr/games/bin/savage
+		fi
+
+		cmdline_flightgear_exists=$(cat /proc/cmdline | grep sabayon-game=flightgear)
+		if [ -n "$cmdline_flightgear_exists" ]; then
+			my_setup_rungame /usr/games/bin/fgfs
+		fi
+
+		cmdline_secondlife_exists=$(cat /proc/cmdline | grep sabayon-game=secondlife)
+		if [ -n "$cmdline_secondlife_exists" ]; then
+			my_setup_rungame /usr/games/bin/secondlife-bin
+		fi
+
+	fi
+
+}
+
+my_setup_cd_eject() {
+
+	# Setup automatic DVD ejecting
+	sh_file="/etc/init.d/shutdown.sh"
+	cd_dev=$(mount | grep " /mnt/cdrom " | cut -d" " -f 1)
+	if [ -f "${sh_file}" ] && [ -n "`echo ${cd_dev} | grep /dev`" ]; then
+		# escape device string
+		cd_dev=$(echo $cd_dev | sed 's/\//\\\//'g)
+		# what a *blob*
+		echo "sed -i '/^\/sbin\/halt/ s/\/sbin\/halt/eject -mp "${cd_dev}" \&\& \/sbin\/halt/g' "${sh_file} | /bin/sh
+	fi
+
+}
+
+my_wait_opengl_config() {
+
+	echo -en "\E[33;36m * \E[0m \E[01;32m Waiting for OpenGL Configurator to finish... \E[0m"
+	while [ -e "/etc/x-setup-configuration-running" ]
+           do
+	      # waiting...
+	      sleep 1
+	   done
+	echo -e "Done"
+
+}
+
+my_setup_locale() {
+
+        cmdline_lang_exist=$(cat /proc/cmdline | grep -i "lang=")
+        cmdline_locale_exist=$(cat /proc/cmdline | grep -i "locale=")
+
+	if [ -n "$cmdline_locale_exist" ]; then
+		cmdline_lang_exist="locale-setup"
+	fi
+
+        if [ -n "$cmdline_lang_exist" ];then
+
+		if [ "$cmdline_lang_exist" == "locale-setup" ]; then
+			# detect keymap
+			for word in `cat /proc/cmdline` ; do
+				case $word in
+					locale=*)
+					lang_toset=$(echo $word | cut -d "=" -f 2)
+					;;
+				esac
+			done
+		else
+			for word in `cat /proc/cmdline` ; do
+				case $word in
+					LANG=*)
+					lang_toset=$(echo $word | cut -d "=" -f 2)
+					;;
+					lang=*)
+					lang_toset=$(echo $word | cut -d "=" -f 2)
+					;;
+				esac
+			done
+		fi
+		
+		# Setup Language
+		if [ -n "$lang_toset" ]; then
+			/sbin/language-setup $lang_toset &> /dev/null
+		fi
+
+        fi
+
+}
+
+start() {
+
+	my_setup_realtech_nic
+	my_setup_desktop
+	my_setup_modules
+	my_setup_password
+	my_setup_session
+	my_setup_xsistence
+	# my_setup_samba
+	my_setup_keymap
+	my_setup_games
+	my_setup_cd_eject
+	my_wait_opengl_config
+	# MOVED HERE TO AVOID RACE CONDITIONS ON WRITING /etc/profile.env variables
+	# Check if LANG is forced by cmdline
+	my_setup_locale
+	# setup autologin for all the supported Login managers
+	my_setup_autologin
+	# Start Accel Manager or Configure XGL/AIGLX
+	my_start_acceleration_manager
+
+}
+
+stop() {
+
+	persistent_exists=$(cat /proc/cmdline | grep "xsistence")
+	if [ -n "$persistent_exists" ]; then
+		sleep 5
+		sync
+		# umount every possible mounted filesystem (/home and /mnt/xsistence)
+		mnt_xsistence_img_mounted=$(cat /etc/mtab | grep "/mnt/xsistence/sabayon-xsistence.ext3")
+		if [ -n "$mnt_xsistence_img_mounted" ]; then
+			mozilla_cache=$(find /home/*/.mozilla -nowarn -name Cache)
+			for word in $mozilla_cache; do
+				rm -rf $word
+			done
+			sync
+			sleep 1
+			umount -l -r -d /mnt/xsistence/sabayon-xsistence.ext3
+		fi
+		mnt_xsistence_mounted=$(cat /etc/mtab | grep "/mnt/xsistence")
+		if [ -n "$mnt_xsistence_mounted" ]; then
+			umount -l -r /mnt/xsistence
+		fi
+		# redundant...
+		home_mounted=$(cat /etc/mtab | grep "/home ")
+		if [ -n "$home_mounted" ]; then
+			umount -l -r -d /home
+		fi
+
+	fi
+
+
+}
+
