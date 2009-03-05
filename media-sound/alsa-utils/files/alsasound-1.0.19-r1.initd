@@ -1,6 +1,6 @@
 #!/sbin/runscript
-# $Header: /var/cvsroot/gentoo-x86/media-sound/alsa-utils/files/alsasound.initd,v 1.9 2008/05/15 20:17:46 beandog Exp $
-# Copyright 2007 Gentoo Foundation
+# $Header: /var/cvsroot/gentoo-x86/media-sound/alsa-utils/files/alsasound-1.0.19-r1.initd,v 1.1 2009/02/21 16:18:28 chainsaw Exp $
+# Copyright 2007,2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 alsastatedir=/var/lib/alsa
@@ -23,21 +23,21 @@ load_modules() {
 		ewarn "Could not detect custom ALSA settings.  Loading all detected alsa drivers."
 		DRIVERS="$(modprobe -c | sed -n -e '/^alias pci:.* snd.*/ s/^alias pci:[^ ]* \(.*\)/\1/p' | sort | uniq)"
 		if [ -z "${DRIVERS}" ] ; then
-			eerror "Unable to find any ALSA drivers. Have you compiled alsa-drivers correctly?"
+			eerror "Unable to find any ALSA drivers. Have you configured your kernel correctly?"
 		fi
 	fi
 
 	if [ "${ENABLE_OSS_EMUL}" = "yes" ] ; then
-		DRIVERS="${DRIVERS} $(modprobe -l | sed -n -e '/snd.*oss/ s:\/.*\/\(.*\).ko:\1:p')"
+		DRIVERS="${DRIVERS} $(modprobe -l | sed -n -r -e '/snd.*oss/ s:^.*/.*/([^/]*).ko$:\1:p')"
 	fi
 
 	# We want to ensure snd-seq is loaded as it is needed for things like
 	# timidity even if we don't use a real sequencer.
-	DRIVERS="${DRIVERS} $(modprobe -l | sed -n -e '/snd.seq\./ s:\/.*\/\(.*\).ko:\1:p')"
+	DRIVERS="${DRIVERS} $(modprobe -l | sed -n -r -e '/snd.seq\./ s:^.*/.*/([^/]*).ko$:\1:p')"
 
 	# We want to ensure snd-ioctl32 is loaded as it is needed for 32bit
 	# compatibility
-	DRIVERS="${DRIVERS} $(modprobe -l | sed -n -e '/snd.ioctl32\./ s:\/.*\/\(.*\).ko:\1:p')"
+	DRIVERS="${DRIVERS} $(modprobe -l | sed -n -r -e '/snd.ioctl32\./ s:^.*/.*/([^/]*).ko$:\1:p')"
 
 	local DRIVER= DMOD=
 	for DRIVER in ${DRIVERS} ; do
@@ -215,12 +215,16 @@ stop() {
 	[ "${SAVE_ON_STOP}" = "yes" ] && save
 
 	if [ "${KILLPROC_ON_STOP}" = "yes" ] ; then
+		ewarn "You are using the unsupported KILLPROC_ON_STOP option."
+		ewarn "Consider unsetting it. Do not file bugs until you have done so."
 		ebegin "Killing processes using ALSA"
 		terminate
 		eend 0
 	fi
 	
 	if [ -f /proc/modules ] && [ "${UNLOAD_ON_STOP}" = "yes" ]; then
+		ewarn "You are using the unsupported UNLOAD_ON_STOP option."
+		ewarn "Consider unsetting it. Do not file bugs until you have done so."
 		local ver="26"
 		case "$(uname -r)" in
 			2.[01234].*) ver="24";;

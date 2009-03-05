@@ -23,19 +23,14 @@ SAVE_ON_STOP="yes"
 
 # LOAD_ON_START:
 # Do you want to load sound modules when alsasound starts?
+# Note: The Gentoo ALSA developers encourage you to build your sound 
+#       drivers into the kernel unless the device is hotpluggable or 
+#       you need to supply specific options (such as model= to HD-Audio).
 # no - Do not load modules
 # yes - Load modules
 LOAD_ON_START="yes"
 
-# UNLOAD_ON_STOP:
-# Do you want to unload sound modules when alsasound stops?
-# no - Do not unload modules
-# yes - Unload modules
-UNLOAD_ON_STOP="yes"
-
-# KILLPROC_ON_STOP
-# Do you want to kill any processes using ALSA when alsasound stops?
-# If you are using ALSA modules, leave as yes.
-# no - Do not terminate ALSA processes
-# yes - Kill running processes using ALSA
+# Deprecated options:
+# Upstream feels, and we wholehartedly agree, that this was a silly idea
+UNLOAD_ON_STOP="no"
 KILLPROC_ON_STOP="no"
