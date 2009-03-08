@@ -20,3 +20,13 @@ app-emulation/qemu-gui
 #       safely use >=xcb-util-0.2.1
 ~x11-libs/xcb-util-9999
 
+# Ian Whyman <ian.whyman@sabayonlinux.org>
+# Lots of issues:
+#  "The driver isn't breaking signal handling on further investigation. 
+#  There are programs quering the xserver which is looking at some property
+#  that the video card driver is supposed to give back. Unfortunately
+#  the request goes into the xserver and never comes back because the
+#  driver eats the request and doesn't respond."
+#
+# Gentoo #260441
+~x11-drivers/nvidia-drivers-180.35
