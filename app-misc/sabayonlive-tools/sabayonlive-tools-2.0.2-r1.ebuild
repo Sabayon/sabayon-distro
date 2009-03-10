@@ -22,7 +22,7 @@ DEPEND="${RDEPEND}"
 
 src_unpack() {
 	cd ${WORKDIR}
-	cp ${FILESDIR}/${PV}/livecd-functions.sh . -p
+	cp ${FILESDIR}/${PV}/*-functions.sh . -p
 	cp ${FILESDIR}/${PV}/net-setup . -p
 	cp ${FILESDIR}/${PV}/x-setup-init.d . -p
 	cp ${FILESDIR}/${PV}/installer-gui . -p
@@ -49,7 +49,7 @@ src_install() {
 
 	dosbin net-setup
 	into /
-	dosbin livecd-functions.sh
+	dosbin *-functions.sh
 	dosbin logscript.sh
 	dobin bashlogin
 	dobin vga-cmd-parser
