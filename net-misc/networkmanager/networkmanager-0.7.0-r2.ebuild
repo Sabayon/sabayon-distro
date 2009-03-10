@@ -64,6 +64,8 @@ src_unpack () {
 
 	# Fix up the dbus conf file to use plugdev group
 	epatch "${FILESDIR}/${P}-confchanges.patch"
+	# Add consolekit dependency on init.d
+	epatch "${FILESDIR}/${P}-initchanges.patch"
 
 	EPATCH_SOURCE="${WORKDIR}/backports-pachset1"
 	EPATCH_SUFFIX="patch"
