@@ -33,7 +33,7 @@ app-emulation/qemu-gui
 
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Sabayon-* 4.1 Mask for testing
->=x11-themes/sabayon-artwork-core-4.0.95
+>=x11-themes/sabayon-artwork-4.0.95
 >=x11-themes/sabayon-artwork-gnome-4.0.95
 >=x11-themes/sabayon-artwork-kde-4.0.95
 >=x11-themes/sabayon-skel-4.0.90
