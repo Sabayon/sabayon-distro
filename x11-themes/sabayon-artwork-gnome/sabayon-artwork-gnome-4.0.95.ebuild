@@ -22,6 +22,7 @@ RDEPEND="x11-themes/sabayon-artwork-core
 S="${WORKDIR}/${PN}"
 
 src_install () {
+
 	dodir /usr/share/themes
 	
 	# Gnome & GTK Theme
@@ -42,10 +43,10 @@ src_install () {
 	doins *.png
 
 	# Icons
-	cd ${S}/icons
-	dodir /usr/share/icons
-	insinto /usr/share/icons
-	doins -r ./*
+	# cd ${S}/icons
+	# dodir /usr/share/icons
+	# insinto /usr/share/icons
+	# doins -r ./*
 
 	# Panel Image
 	cd ${S}/background
