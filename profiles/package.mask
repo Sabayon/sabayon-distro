@@ -36,5 +36,5 @@ app-emulation/qemu-gui
 >=x11-themes/sabayon-artwork-4.0.95
 >=x11-themes/sabayon-artwork-gnome-4.0.95
 >=x11-themes/sabayon-artwork-kde-4.0.95
->=x11-themes/sabayon-skel-4.0.90
+>=app-misc/sabayon-skel-4.0.90
 

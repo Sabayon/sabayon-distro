@@ -5,14 +5,14 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux skel tree"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://www.sabayonlinux.org/distfiles/app-misc/${PN}/${PN}-4-r2.tar.bz2"
+SRC_URI="http://distfiles.hyperfish.org/app-misc/${PN}/${PN}-${PVR}.tar.bz2"
 RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
 RDEPEND="
-	x11-themes/sabayon-artwork-core
+	=x11-themes/sabayon-artwork-4*
 	!<=app-misc/sabayonlinux-skel-3.5-r6
 	"
 
