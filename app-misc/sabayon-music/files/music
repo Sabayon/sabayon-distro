@@ -49,12 +49,12 @@ start() {
 		ebegin "Starting music"
 			# get memory
 			memory_avail=$(echo $(free -m | grep "Mem") | cut -d" " -f 2)
-			if [ "$memory_avail" -gt "256" ]; then
+			if [ "$memory_avail" -gt "384" ]; then
 				# copy the image in ram
 				cp /usr/share/sounds/boot.ogg /var/tmp/music.ogg &> /dev/null
-				nice -20 ogg123 -p 5 -q /var/tmp/music.ogg &> /dev/null &
+				nice -n -15 ogg123 -p 30 -q /var/tmp/music.ogg &> /dev/null &
 			else
-				nice -20 ogg123 -p 5 -q /usr/share/sounds/boot.ogg &> /dev/null &
+				nice -n -15 ogg123 -p 30 -q /usr/share/sounds/boot.ogg &> /dev/null &
 			fi
 		sleep 5
 		eend 0
