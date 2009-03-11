@@ -11,7 +11,10 @@ SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
 RESTRICT="nomirror"
-RDEPEND=""
+RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
+	!x11-themes/sabayon-artwork-star
+	!x11-themes/sabayon-artwork-darkblend
+	"
 
 S="${WORKDIR}/${PN}"
 
@@ -34,14 +37,7 @@ src_install () {
 }
 
 pkg_postinst () {
-	elog "To update your inframfs use:"
-	elog "splash_geninitramfs --verbose --res RESxRES \\"
-	elog "--append /boot/initramfs-genkernel-YOURARCH-2.6.xx-sabayon theme"
-	elog " "
-	elog "To get the GRUB artwork install the latest GRUB"
-	elog " "
 	ewarn "This is a prelease - ${PV}"
 	ewarn "Please report bugs or glitches to"
-	ewarn "ian.whyman@sabayonlinux.org or"
-	ewarn "Thev00d00 on irc.freenode.net #sabayon"
+	ewarn "bugs.sabayonlinux.org"
 }
