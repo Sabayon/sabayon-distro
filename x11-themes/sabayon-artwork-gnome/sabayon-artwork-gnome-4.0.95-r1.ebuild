@@ -21,9 +21,18 @@ RDEPEND="x11-themes/sabayon-artwork-core
 
 S="${WORKDIR}/${PN}"
 
-src_install () {
+src_unpack() {
+
+	unpack ${A}
+	cd ${S}
+	cp "${FILESDIR}/gdm" "${S}/" -Rp
+
+}
+
+src_install() {
 
 	dodir /usr/share/themes
+	dodir /usr/share/gdm/themes
 	
 	# Gnome & GTK Theme
 	cd ${S}/gtk
@@ -52,6 +61,13 @@ src_install () {
 	cd ${S}/background
 	insinto /usr/share/backgrounds
 	doins *.png
+
+	# GDM theme
+	cd ${S}/gdm
+	insinto /usr/share/gdm/themes
+	doins -r ./*
+	
+
 }
 
 pkg_postinst () {

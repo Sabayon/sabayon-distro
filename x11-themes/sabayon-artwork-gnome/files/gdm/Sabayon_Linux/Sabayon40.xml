@@ -1,0 +1,294 @@
+<?xml version="1.0"?>
+<!DOCTYPE greeter SYSTEM "greeter.dtd">
+<greeter>
+  <item type="pixmap">
+    <normal file="/usr/share/backgrounds/gdm169.png"/>
+    <pos x="0" y="0" width="100%" height="100%"/>
+  </item>
+  
+  <!-- #Sabayon 4.0 Based on EVA2 -->
+  
+  <!-- 
+  This is the box in the botton left "command box" 
+  -->
+  
+  <!-- bottom bar -->
+  <item type="rect">
+    <normal color="#000000" alpha="1.0"/>
+    <pos y="100%" x="0" width="100%" height="42" anchor="sw"/>
+    <box xpadding="10" spacing="10" orientation="horizontal">
+      <!-- reboot -->
+      <item type="rect" id="reboot_button" button="true">
+        <show type="reboot" modes="console"/>
+        <pos y="50%" width="box" height="box" anchor="w"/>
+        <box xpadding="0" spacing="2" orientation="horizontal">
+          <item type="pixmap">
+            <normal file="icon-reboot.png"/>
+            <prelight file="icon-reboot-prelight.png"/>
+            <active file="icon-reboot-active.png"/>
+          </item>
+          <item type="label">
+            <normal font="Bitstream Vera Sans 11" color="#778899"/>
+            <prelight font="Bitstream Vera Sans 11" color="#ffffff"/>
+            <active font="Bitstream Vera Sans 11" color="#dc292b"/>
+            <pos y="50%" anchor="w"/>
+            <stock type="reboot"/>
+          </item>
+        </box>
+      </item>
+      <!-- halt -->
+      <item type="rect" id="halt_button" button="true">
+        <show type="halt" modes="console"/>
+        <pos y="50%" width="box" height="box" anchor="w"/>
+        <box xpadding="0" spacing="2" orientation="horizontal">
+          <item type="pixmap">
+            <normal file="icon-shutdown.png"/>
+            <prelight file="icon-shutdown-prelight.png"/>
+            <active file="icon-shutdown-active.png"/>
+          </item>
+          <item type="label">
+            <normal font="Bitstream Vera Sans 11" color="#778899"/>
+            <prelight font="Bitstream Vera Sans 11" color="#ffffff"/>
+            <active font="Bitstream Vera Sans 11" color="#dc292b"/>
+            <pos y="50%" anchor="w"/>
+            <stock type="halt"/>
+          </item>
+        </box>
+      </item>
+      <!-- quit / disconnect -->
+      <item type="rect" id="disconnect_button" button="true">
+        <normal/>
+        <show modes="flexi,remote"/>
+        <pos y="50%" width="box" height="box" anchor="w"/>
+        <box xpadding="0" spacing="2" orientation="horizontal">
+          <item type="pixmap">
+            <normal file="icon-shutdown.png"/>
+            <prelight file="icon-shutdown-prelight.png"/>
+            <active file="icon-shutdown-active.png"/>
+          </item>
+          <item type="label">
+            <normal font="Bitstream Vera Sans 11" color="#778899"/>
+            <prelight font="Bitstream Vera Sans 11" color="#ffffff"/>
+            <active font="Bitstream Vera Sans 11" color="#dc292b"/>
+            <pos y="50%" anchor="w"/>
+            <stock type="disconnect"/>
+            <show modes="remote"/>
+          </item>
+          <item type="label">
+            <normal font="Bitstream Vera Sans 11" color="#778899"/>
+            <prelight font="Bitstream Vera Sans 11" color="#ffffff"/>
+            <active font="Bitstream Vera Sans 11" color="#dc292b"/>
+            <pos y="50%" anchor="w"/>
+            <stock type="quit"/>
+            <show modes="flexi"/>
+          </item>
+        </box>
+      </item>
+    </box>
+  </item>
+  
+  
+  <!--
+  This is the center box "login box"
+  -->
+  
+  <!-- password box -->
+  <item type="rect">
+    <pos x="50%" y="50%" width="box" height="box" anchor="c"/>
+    <box xpadding="0" ypadding="0" spacing="5" orientation="vertical">
+      <item type="rect">
+        <pos x="0" y="0" width="box" height="box" expand="true"/>
+        <normal color="#ffffff" alpha="0.15"/>
+        <box xpadding="50" ypadding="15" spacing="10" orientation="vertical">
+          <item type="label" id="pam-prompt">
+            <pos x="0"/>
+            <normal font="Bitstream Vera Sans Bold 10" color="#ffffff"/>
+            <stock type="username-label"/>
+          </item>
+          <item type="rect">
+            <normal color="#523921"/>
+            <pos width="160" height="24"/>
+            <fixed>
+              <item type="entry" id="user-pw-entry">
+                <pos y="1" x="1" width="-2" height="-2" anchor="nw"/>
+              </item>
+            </fixed>
+          </item>
+          <!-- timer warning -->
+          <item type="label" id="timed-label">
+            <show type="timed"/>
+            <normal font="Bitstream Vera Sans Bold 11" color="#ffffff"/>
+            <stock type="timed-label"/>
+          </item>
+        </box>
+      </item>
+      <item type="rect">
+        <pos x="0" y="0" width="100%" height="box" expand="true"/>
+        <normal color="#ffffff" alpha="0.15"/>
+        <box xpadding="10" ypadding="8" spacing="10" orientation="horizontal" homogeneous="true">
+          <!-- language -->
+          <item type="rect" id="language_button" button="true">
+            <pos x="50%" y="50%" width="box" height="box" anchor="c"/>
+            <box xpadding="0" spacing="2" orientation="horizontal">
+              <item type="pixmap">
+                <pos width="24" height="24"/>
+                <normal file="icon-language.png"/>
+                <prelight file="icon-language-prelight.png"/>
+                <active file="icon-language-active.png"/>
+              </item>
+              <item type="label">
+                <normal font="Bitstream Vera Sans 9" color="#D3D3D3"/>
+                <prelight font="Bitstream Vera Sans 9" color="#ffffff"/>
+                <active font="Bitstream Vera Sans 9" color="#4d4d4d"/>
+                <pos y="50%" anchor="w"/>
+                <stock type="language"/>
+              </item>
+            </box>
+          </item>
+          <!-- session -->
+          <item type="rect" id="session_button" button="true">
+            <pos x="50%" y="50%" width="box" height="box" anchor="c"/>
+            <box xpadding="0" spacing="2" orientation="horizontal">
+              <item type="pixmap">
+                <pos width="24" height="24"/>
+                <normal file="icon-session.png"/>
+                <prelight file="icon-session-prelight.png"/>
+                <active file="icon-session-active.png"/>
+              </item>
+              <item type="label">
+                <normal font="Bitstream Vera Sans 9" color="#D3D3D3"/>
+                <prelight font="Bitstream Vera Sans 9" color="#ffffff"/>
+                <active font="Bitstream Vera Sans 9" color="#4d4d4d"/>
+                <pos y="50%" anchor="w"/>
+                <stock type="session"/>
+              </item>
+            </box>
+          </item>
+        </box>
+      </item>
+    </box>
+  </item>
+
+  <!--
+  This is the "date box"
+  -->
+  
+  <!-- hostname and clock -->
+  <item type="rect">
+    <pos x="100%" y="100%" width="box" height="42" anchor="se"/>
+    <box xpadding="10" spacing="10" orientation="horizontal">
+      <item type="label">
+        <pos x="100%" y="50%" anchor="e"/>
+        <normal font="Bitstream Vera Sans Bold 11" color="#ffffff"/>
+        <text>%h //</text>
+      </item>
+      <item type="label" id="clock">
+        <pos x="100%" y="50%" anchor="e"/>
+        <normal font="Bitstream Vera Sans 11" color="#ffffff"/>
+        <text>%c</text>
+      </item>
+    </box>
+  </item>   
+
+  
+  <!-- 
+  caps lock warning 
+  -->
+  
+  <item type="rect" id="caps-lock-warning">
+    <normal color="#bfe3ff" alpha="0.0"/>
+    <pos anchor="c" x="50%" y="72%" width="box" height="box"/>
+    <box orientation="vertical" min-width="400" xpadding="10" ypadding="5" spacing="10">
+      <item type="label">
+        <normal color="#bfe3ff" font="Arial Black 12"/>
+        <pos x="50%" anchor="n"/>
+        <text>You've got capslock on!</text>
+        <text xml:lang="ca">Teniu capslock activat!</text>
+        <text xml:lang="da">Caps lock-tasten er sl&#xE5;et til!</text>
+        <text xml:lang="es">Tiene activado el bloqueo de may&#xFA;sculas.</text>
+        <text xml:lang="et">Sul on caplock peal!</text>
+        <text xml:lang="fi">Sinulla on caps lock p&#xE4;&#xE4;ll&#xE4;!</text>
+        <text xml:lang="fr">Vous avez la touche Verr. Maj. activ&#xE9;&#xA0;!</text>
+        <text xml:lang="ko">Caps Lock&#xC774; &#xCF1C;&#xC838; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;!</text>
+        <text xml:lang="lt">J&#x16B;s&#x173; Caps Lock yra &#x12F;jungtas!</text>
+        <text xml:lang="ms">Anda mempunyai capslock dihidupkan!</text>
+        <text xml:lang="nl">Caps-lock staat aan!</text>
+        <text xml:lang="no">Du har capslock p&#xE5;!</text>
+        <text xml:lang="pl">W&#x142;&#x105;czony jest klawisz Caps Lock!</text>
+        <text xml:lang="pt">Tem o capslock ligado!</text>
+        <text xml:lang="sk">M&#xE1;te zapnut&#xFD; CAPS LOCK.</text>
+        <text xml:lang="sl">Vklju&#x10D;ene imate velike &#x10D;rke!</text>
+        <text xml:lang="sv">Du har CapsLock p&#xE5;!</text>
+        <text xml:lang="vi">B&#x1EA1;n &#x111;ang b&#x1EAD;t CapsLock!</text>
+        <text xml:lang="zh_TW">&#x8ACB;&#x7559;&#x610F;&#x4E0D;&#x8981;&#x6309;&#x4E0B; capslock&#xFF01;</text>
+      </item>
+    </box>
+  </item>
+    
+  <!-- 
+  timed login info 
+  -->
+  
+  <item type="rect" id="timed-rect">
+    <show type="timed"/>
+    <normal color="#bfe3ff" alpha="0.0"/>
+    <pos anchor="c" x="50%" y="75%" width="box" height="box"/>
+    <box orientation="vertical" min-width="400" xpadding="10" ypadding="5" spacing="0">
+      <item type="label" id="timed-label">
+        <normal color="#bfe3ff" font="Arial Black 12"/>
+        <pos x="50%" anchor="n"/>
+        <text>User %s will login in %d seconds</text>
+        <text xml:lang="az">%s istifad&#x259;&#xE7;isi %d saniy&#x259; i&#xE7;ind&#x259; sistem&#x259; gir&#x259;c&#x259;kdir</text>
+        <text xml:lang="ca">L'usuari %s entrar&#xE0; en %d segons</text>
+        <text xml:lang="cs">U&#x17E;ivatel %s bude p&#x159;ihl&#xE1;&#x161;en za %d vte&#x159;in</text>
+        <text xml:lang="da">Brugeren %s logger p&#xE5; om %d sekunder</text>
+        <text xml:lang="de">Benutzer %s wird in %d Sekunden angemeldet</text>
+        <text xml:lang="es">El usuario %s acceder&#xE1; en %d segundos</text>
+        <text xml:lang="et">Kasutaja %s logitakse sisse %d sekundi p&#xE4;rast</text>
+        <text xml:lang="eu">%s erabiltzaileak %d segundo barru hasiko du saioa</text>
+        <text xml:lang="fi">k&#xE4;ytt&#xE4;j&#xE4; %s kirjautuu %d sekunnin kuluttua</text>
+        <text xml:lang="fr">L'utilisateur %s se connectera dans %d secondes</text>
+        <text xml:lang="gl">A/O usuaria/o %s conectar&#xE1; en %d segundos</text>
+        <text xml:lang="hu">%s felhaszn&#xE1;l&#xF3; bel&#xE9;ptet&#xE9;se %d m&#xE1;sodperc m&#xFA;lva</text>
+        <text xml:lang="it">L'utente %s effettuer&#xE0; il login fra %d secondi</text>
+        <text xml:lang="ja">&#x30E6;&#x30FC;&#x30B6;%s&#x306F;%d&#x79D2;&#x5F8C;&#x306B;&#x30ED;&#x30B0;&#x30A4;&#x30F3;</text>
+        <text xml:lang="ko">&#xC0AC;&#xC6A9;&#xC790; %s&#xB294; %d &#xCD08; &#xC774;&#xB0B4;&#xC5D0; &#xB85C;&#xADF8;&#xC778; &#xD558;&#xC5EC;&#xC57C; &#xD569;&#xB2C8;&#xB2E4;</text>
+        <text xml:lang="lt">Vartotojas %s bus prijungtas per %d sek.</text>
+        <text xml:lang="lv">Lietot&#x101;js %s ielogosies %d sekund&#x113;s</text>
+        <text xml:lang="ms">Pengguna %s akan logmasuk dalam %d saat</text>
+        <text xml:lang="nl">Gebruiker %s wordt aangemeld over %d seconden</text>
+        <text xml:lang="nn">Brukar %s vil logge inn om %d sekund</text>
+        <text xml:lang="no">Bruker %s vil logge p&#xE5; om %d sekunder</text>
+        <text xml:lang="pl">U&#x17C;ytkownik %s zostanie zalogowany w ci&#x105;gu %d sekund</text>
+        <text xml:lang="pt">Utilizador %s iniciar&#xE1; sess&#xE3;o em %d segundos</text>
+        <text xml:lang="pt_BR">O usu&#xE1;rio %s efetuar&#xE1; login em %d segundos</text>
+        <text xml:lang="ro">Utilizatorul %s va fi logat &#xEE;n %d secunde</text>
+        <text xml:lang="sk">Pou&#x17E;&#xED;vate&#x13E; %s bude automaticky prihl&#xE1;sen&#xFD; za %d sek&#xFA;nd</text>
+        <text xml:lang="sl">Uporabnik %s se bo prijavil v %d sekundah</text>
+        <text xml:lang="sv">Anv&#xE4;ndaren %s kommer att logga in om %d sekunder</text>
+        <text xml:lang="tr">%s kullan&#x131;c&#x131;s&#x131; %d saniye i&#xE7;inde giri&#x15F; yapacak</text>
+        <text xml:lang="vi">Ng&#x1B0;&#x1EDD;i d&#xF9;ng %s s&#x1EBD; &#x111;&#x103;ng nh&#x1EAD;p trong v&#xF2;ng %d gi&#xE2;y</text>
+        <text xml:lang="zh_CN">&#x7528;&#x6237; %s &#x5C06;&#x5728; %d &#x79D2;&#x540E;&#x767B;&#x5F55;</text>
+        <text xml:lang="zh_TW">&#x4F7F;&#x7528;&#x8005; %s &#x5C07;&#x6703;&#x5728; %d &#x5167;&#x767B;&#x5165;</text>
+      </item>
+    </box>
+  </item>      
+  
+  <!-- 
+  login error message 
+  -->
+  
+  <item type="rect" id="pam-mess">
+    <normal color="#ffffff" alpha="0.0"/>
+    <pos anchor="c" x="50%" y="78%" width="box" height="box"/>
+    <box orientation="vertical" min-width="400" xpadding="10" ypadding="5" spacing="0">
+      <item type="label" id="pam-error">
+        <pos anchor="n" x="50%"/>
+        <normal color="#ffffff" font="Arial Black 12"/>
+        <text/>
+      </item>
+    </box>
+  </item>
+
+</greeter>
+
