@@ -2,7 +2,7 @@
 <!DOCTYPE greeter SYSTEM "greeter.dtd">
 <greeter>
   <item type="pixmap">
-    <normal file="/usr/share/backgrounds/gdm169.png"/>
+    <normal file="/usr/share/backgrounds/sabayonlinux.png"/>
     <pos x="0" y="0" width="100%" height="100%"/>
   </item>
   
