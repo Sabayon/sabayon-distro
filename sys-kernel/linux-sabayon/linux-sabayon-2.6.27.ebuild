@@ -67,7 +67,9 @@ src_compile() {
 	if ! use only_sources; then
 
 		# disable sandbox
+		export LDFLAGS=""
 		export SANDBOX_ON=0
+		export COLLISION_IGNORE="${COLLISION_IGNORE} /lib/firmware"
 
 		# creating workdirs
 		mkdir -p ${WORKDIR}/boot/grub
