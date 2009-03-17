@@ -3,8 +3,10 @@
 sabayon_setup_autologin() {
 
         # GDM - GNOME
-        sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /usr/share/gdm/defaults.conf
-        sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /usr/share/gdm/defaults.conf
+	if [ -f "/usr/share/gdm/defaults.conf" ]; then
+	        sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /usr/share/gdm/defaults.conf
+        	sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /usr/share/gdm/defaults.conf
+	fi
 
         # KDM - KDE
         for kver in `ls /usr/kde`; do
