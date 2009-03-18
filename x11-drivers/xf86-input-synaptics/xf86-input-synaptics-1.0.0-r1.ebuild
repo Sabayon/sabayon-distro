@@ -61,6 +61,9 @@ src_install() {
 	if use hal ; then
 		insinto /usr/share/hal/fdi/policy/10osvendor
 		doins "${S}"/fdi/11-x11-synaptics.fdi
+		insinto /etc/hald/fdi/policy
+		doins "${S}"/fdi/11-x11-synaptics.fdi
+		
 	fi
 }
 
