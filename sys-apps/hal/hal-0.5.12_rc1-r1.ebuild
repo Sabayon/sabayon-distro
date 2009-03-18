@@ -248,6 +248,7 @@ src_install() {
 	insinto /etc/hal/fdi/policy
 	doins ${S}/fdi/policy/10osvendor/10-x11-input.fdi || die "cannot copy keyboard policy"
 	doins ${S}/fdi/policy/10osvendor/10-keymap.fdi || die "cannot copy keymap policy"
+	doins ${S}/fdi/policy/10osvendor/11-x11-synaptics.fdi || die "cannot copy keyboard policy"
 
 	# We now create and keep /media here as both gnome-mount and pmount
 	# use these directories, to avoid collision.
