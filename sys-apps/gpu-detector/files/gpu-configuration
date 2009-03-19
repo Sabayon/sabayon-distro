@@ -636,7 +636,9 @@ for videocard in videocards:
 # Generate xorg.conf
 xorg_conf_structure = xorg_conf_structure.replace('__device_section__','\n\n'.join(device_sections))
 xorg_conf_structure = xorg_conf_structure.replace('__screen_section__','\n\n'.join(screen_sections))
-xorg_conf_structure = xorg_conf_structure.replace('__screen_layout_section__','\n'.join(screen_layout_sections))
+xorg_conf_structure = xorg_conf_structure.replace('__screen_layout_section__','\n    '.join(screen_layout_sections))
+if forced_monitor_modes:
+	xorg_conf_structure = xorg_conf_structure.replace('#Modes','Modes')
 if dryrun:
 	print xorg_conf_structure
 else:
