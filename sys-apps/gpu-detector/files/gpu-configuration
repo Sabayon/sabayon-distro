@@ -11,6 +11,81 @@ xorgfile = "/etc/X11/xorg.conf"
 lspci = '/usr/sbin/lspci'
 nvidia_settings = "/usr/share/applications/nvidia-settings.desktop"
 
+device_id_prefix = "SabayonVga"
+screen_layout_sections = []
+device_sections = []
+xorg_conf_structure = """
+Section "Module"
+    SubSection  "extmod"
+       Option    "omit xfree86-dga"
+    EndSubSection
+    Load    "i2c"
+    Load    "ddc"
+    Load    "vbe"
+    Load    "dri"
+    Load    "synaptics"
+EndSection
+
+Section "ServerFlags"
+     Option    "AllowMouseOpenFail"    "true"
+EndSection
+
+Section "Monitor"
+    Identifier    "Generic Monitor"
+    VertRefresh    43 - 60
+    HorizSync      28 - 80
+EndSection
+
+__device_section__
+
+__screen_section__
+
+Section "DRI"
+    Mode 0666
+EndSection
+
+Section "ServerLayout"
+    Identifier   "Main Layout"
+    __screen_layout_section__
+EndSection
+
+Section "Extensions"
+   #Option "Composite" "Enable"
+EndSection
+"""
+
+screen_sections = []
+screen_section = """
+Section "Screen"
+
+    Identifier    "Screen __screen_id__"
+    Device        "%s__screen_id__"
+    Monitor       "Generic Monitor"
+    #Option       "AddARGBGLXVisuals" "true"
+
+    DefaultDepth 24
+
+    SubSection "Display"
+        Depth		8
+        ViewPort	0 0
+        #Modes		"1024x768" "800x600" "640x480"
+    EndSubsection
+
+    SubSection "Display"
+        Depth           16
+        ViewPort        0 0
+        #Modes		"1024x768" "800x600" "640x480"
+    EndSubsection
+
+    SubSection "Display"
+        Depth           24
+        ViewPort        0 0
+        #Modes		"1024x768" "800x600" "640x480"
+    EndSubsection
+
+EndSection
+""" % (device_id_prefix,)
+
 # cmdlines
 options = sys.argv[1:]
 dryrun = False
@@ -153,68 +228,32 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 		print "I was about to run deploy_nvidia_xxxxxx_drivers, ver: %s" % (ver,)
 		return False
 
-def change_xorg_driver(xdriver):
-	if (not dryrun):
-		print "change X driver to "+xdriver
-		f = open(xorgfile,"r")
-		xorgconf = f.readlines()
-		f.close()
-		device = False
-		f = open(xorgfile,"w")
-		for line in xorgconf:
-			if (line.lower().find("section") != -1) and (line.lower().find("\"device\"") != -1):
-				device = True
-			if (line.lower().find("endsection") != -1):
-				device = False
-			if (device):
-				if (line.lower().find("driver") != -1):
-					# change line
-					line = '    Driver    "'+xdriver+'"\n'
-			f.write(line)
-		f.flush()
-		f.close()
-	else:
-		print "I was about to change X driver to "+xdriver
+def set_xorg_device(xdriver, cardnum, total_cards, bus_id):
+	bus_id_mark = '#'
+	if total_cards > 1:
+		bus_id_mark = ''
 
-def set_exa(exa = True):
-	if (not dryrun):
-		print "Enabling EXA"
-		f = open(xorgfile,"r")
-		xorgconf = f.readlines()
-		f.close()
-		device = False
-		f = open(xorgfile,"w")
-		for line in xorgconf:
-			if (line.lower().find("section") != -1) and (line.lower().find("\"device\"") != -1):
-				device = True
-			if (line.lower().find("endsection") != -1):
-				device = False
-			if (line.lower().find("accelmethod") != -1):
-				# skip line
-				continue
-			if (device) and (exa):
-				if (line.lower().find("driver") != -1):
-					# change line
-					line += '    Option "AccelMethod"  "EXA"\n'
-			f.write(line)
-		f.flush()
-		f.close()
-	else:
-		print "I was about to enable EXA"
+	device_sections.append("""
+Section "Device"
 
-def set_dri(status = True):
-	if (not dryrun):
-		if (status):
-			# enable
-			os.system('sed -i \'/"dri"/ s/#//\' '+xorgfile)
-		else:
-			# disable
-			os.system('sed -i \'/Load.*"dri"/ s/Load/#Load/\' '+xorgfile)
-	else:
-		print "I was about to set DRI to "+str(status)
+    Identifier  "%s%s"
+    Driver      "%s"
+    %sOption      "BusID"    "%s"
+    #Option "RenderAccel" "on"
+    #Option "XAANoOffscreenPixmaps"
+    #Option "BusType" "PCI"
+    #Option "ColorTiling" "on"
+    #Option "EnablePageFlip" "on"
+    Option "UseEvents" "True"
 
-def enable_forced_modes():
-	os.system('sed -i \'/Modes/ s/#//\' '+xorgfile)
+EndSection
+	""" % (device_id_prefix,cardnum,xdriver,bus_id_mark,bus_id,)
+	)
+
+	my_screen_section = screen_section.replace('__screen_id__',str(cardnum))
+	screen_sections.append(my_screen_section)
+	screen_layout_sections.append('Screen %s    "Screen %s"' % (cardnum,cardnum,))
+
 
 def opengl_activate(profile):
 	if (not dryrun):
@@ -281,13 +320,14 @@ def copy_ati_settings_on_desktop():
 		if os.path.isdir("/etc/skel/Desktop"):
 			shutil.copy2(ati_settings,"/etc/skel/Desktop/"+os.path.basename(ati_settings))
 
-def generate_nvidia_steps():
+
+def generate_nvidia_steps(cardnumber, total_cards, bus_id):
 	if check_if_proprietary_driver_system_is_healthy("nvidia"):
 		if (not noopengl):
 			steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
 			steps.append(('copy_nvidia_settings_on_desktop',))
 			steps.append(('opengl_activate','nvidia'))
-		steps.append(('change_xorg_driver','nvidia'))
+		steps.append(('set_xorg_device','nvidia',cardnumber,total_cards,bus_id,))
 	else:
 		if (livecd):
 			print "latest NVIDIA drivers couldn't be loaded, trying 173.xx.xx/9x.xx.xx/7x.xx.xx drivers"
@@ -304,11 +344,13 @@ def generate_nvidia_steps():
 				steps.append(('opengl_activate','xorg-x11'))
 				steps.append(('opengl_activate','nvidia'))
 				os.makedirs("/lib/nvidia/legacy")
+
 				f = open("/lib/nvidia/legacy/running","w")
 				f.write("NVIDIA %s\n" % (drv_string,))
 				f.flush()
 				f.close()
-				steps.append(('change_xorg_driver','nvidia'))
+
+				steps.append(('set_xorg_device','nvidia',cardnumber,total_cards,bus_id,))
 				steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
 				steps.append(('copy_nvidia_settings_on_desktop',))
 			else:
@@ -316,18 +358,19 @@ def generate_nvidia_steps():
 				print "NVIDIA drivers %s failed to load too... sorry, switching to nv driver" % (drv_string,)
 				if (not noopengl):
 					steps.append(('opengl_activate','xorg-x11'))
-				steps.append(('change_xorg_driver','nv'))
+				steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
 		else:
 			print "latest NVIDIA drivers couldn't be loaded, switchting to nv driver"
 			if (not noopengl):
 				steps.append(('opengl_activate','xorg-x11'))
-			steps.append(('change_xorg_driver','nv'))
+			steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
 
 def generate_generic_steps():
-	if (not noopengl):
-		steps.append(('set_dri',True))
-		steps.append(('remove_proprietary_opengl',))
-		steps.append(('opengl_activate','xorg-x11'))
+	if noopengl:
+		return
+	steps.append(('remove_proprietary_opengl',))
+	steps.append(('opengl_activate','xorg-x11',))
+
 
 ### APPLICATION
 
@@ -335,7 +378,7 @@ def generate_generic_steps():
 videocards = lspci_output.split("\n")
 
 # Run the program
-cardnumber = 0
+cardnumber = -1
 
 import re
 # Intel
@@ -367,18 +410,24 @@ radeon_m_XX_closed = re.compile('.*ati.*technologies.*m[0-9][0-9].*mobility.*')
 radeon_hd = re.compile('.*ati.*technologies.*radeon.* hd .*')
 ati_firegl = re.compile('.*ati.*technologies.*firegl.*')
 
+
+total_cards = len(videocards)
+forced_monitor_modes = False
 for videocard in videocards:
 
 	# setup card number
 	cardnumber += 1
 	print "Card Number: "+str(cardnumber)
-	
+	try:
+		bus_id = "PCI:%s" % (videocard.split()[0].split(".",1)[0],)
+	except (IndexError,ValueError,TypeError,):
+		bus_id = None
+
 	steps = []
 	
 	if forced_xdriver:
 		print "You have chosen to force X driver: "+forced_xdriver
 		if forced_xdriver == "fglrx":
-			steps.append(('set_dri',True))
 			if noopengl or check_if_proprietary_driver_system_is_healthy("fglrx"):
 				steps.append(('opengl_activate','xorg-x11'))
 				forced_xdriver = "radeon"
@@ -388,40 +437,39 @@ for videocard in videocards:
 				steps.append(('opengl_activate','ati'))
 				
 		elif forced_xdriver == "nvidia":
-			generate_nvidia_steps()
+			generate_nvidia_steps(cardnumber,total_cards,bus_id)
 		elif forced_xdriver == "vesa":
-			steps.append(('enable_forced_modes',))
+			forced_monitor_modes = True
 		elif forced_xdriver == "sisusb":
-			steps.append(('set_dri',True))
 			steps.append(('remove_proprietary_opengl',))
 		else:
 			generate_generic_steps()
-		steps.append(('change_xorg_driver',forced_xdriver))
+		steps.append(('set_xorg_device',forced_xdriver,cardnumber,total_cards,bus_id,))
 	else:
 
 		if os.path.isfile('/sys/module/sisusbvga'):
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','sisusb'))
+			steps.append(('set_xorg_device','sisusb',cardnumber,total_cards,bus_id,))
 			print "SiS USB!"
 
 		elif videocard.lower().find('neomagic') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','neomagic'))
+			steps.append(('set_xorg_device','neomagic',cardnumber,total_cards,bus_id,))
 			print "Neomagic!"
 	
 		elif videocard.lower().find('mach64') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','ati'))
+			steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
 			print "Mach64!"
 	
 		elif videocard.lower().find('savage') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','savage'))
+			steps.append(('set_xorg_device','savage',cardnumber,total_cards,bus_id,))
 			print "Savage!"
 	
 		elif videocard.lower().find('virge') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','s3virge'))
+			steps.append(('set_xorg_device','s3virge',cardnumber,total_cards,bus_id,))
 			print "Virge!"
 	
 		elif videocard.lower().find('cyrix') != -1:
@@ -430,112 +478,109 @@ for videocard in videocards:
 	
 		elif videocard.lower().find('i128') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','i128'))
+			steps.append(('set_xorg_device','i128',cardnumber,total_cards,bus_id,))
 			print "i128!"
 	
 		elif videocard.lower().find('rendition') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','rendition'))
+			steps.append(('set_xorg_device','rendition',cardnumber,total_cards,bus_id,))
 			print "Rendition!"
 	
 		elif videocard.lower().find('tseng') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','tseng'))
+			steps.append(('set_xorg_device','tseng',cardnumber,total_cards,bus_id,))
 			print "Tseng!"
 	
 		elif videocard.lower().find('3dfx interactive') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','tdfx'))
+			steps.append(('set_xorg_device','tdfx',cardnumber,total_cards,bus_id,))
 			print "3Dfx!"
 	
 		elif videocard.lower().find('trident') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','trident'))
+			steps.append(('set_xorg_device','trident',cardnumber,total_cards,bus_id,))
 			print "Trident!"
 	
 		elif videocard.lower().find('rage 128') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','r128'))
+			steps.append(('set_xorg_device','r128',cardnumber,total_cards,bus_id,))
 			print "Rage128!"
 	
 		elif videocard.find('Matrox') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','mga'))
+			steps.append(('set_xorg_device','mga',cardnumber,total_cards,bus_id,))
 			print "Matrox!"
 	
 		elif videocard.find('Cirrus') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','cirrus'))
+			steps.append(('set_xorg_device','cirrus',cardnumber,total_cards,bus_id,))
 			print "Cirrus!"
 		
 		elif videocard.find(' SiS ') != -1 or videocard.find('Silicon Integrated Systems') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','sis'))
+			steps.append(('set_xorg_device','sis',cardnumber,total_cards,bus_id,))
 			print "SiS!"
 	
 		elif videocard.lower().find('xgi') != -1 and videocard.find('Volari') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','sis'))
+			steps.append(('set_xorg_device','sis',cardnumber,total_cards,bus_id,))
 			print "XGI Volari!"
 	
 		elif videocard.find('VMWare') != -1 or videocard.find('VMware') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','vmware'))
+			steps.append(('set_xorg_device','vmware',cardnumber,total_cards,bus_id,))
 			print "VMware!"
 
 		elif videocard.find('VirtualBox') != -1 or videocard.find('InnoTek') != -1:
 			generate_generic_steps()
 			if check_if_driver_is_available('vboxvideo'):
-				steps.append(('change_xorg_driver','vboxvideo'))
+				steps.append(('set_xorg_device','vboxvideo',cardnumber,total_cards,bus_id,))
 			print "VirtualBox!"
 
 		elif i740.match(videocard.lower()):
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','i740'))
+			steps.append(('set_xorg_device','i740',cardnumber,total_cards,bus_id,))
 			print "i740!"
 	
 		elif s3virge.match(videocard):
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','s3virge'))
+			steps.append(('set_xorg_device','s3virge',cardnumber,total_cards,bus_id,))
 			print "S3Virge!"
 	
 		elif via.match(videocard):
 			generate_generic_steps()
 			if unichrome.match(videocard.lower()):
 				if check_if_driver_is_available('openchrome'):
-					steps.append(('change_xorg_driver','openchrome'))
+					steps.append(('set_xorg_device','openchrome',cardnumber,total_cards,bus_id,))
 				else:
-					steps.append(('change_xorg_driver','via'))
+					steps.append(('set_xorg_device','via',cardnumber,total_cards,bus_id,))
 				print "UniChrome!"
 			else:
-				steps.append(('change_xorg_driver','via'))
+				steps.append(('set_xorg_device','via',cardnumber,total_cards,bus_id,))
 				print "VIA Tech!"
 	
 		elif silicon_motion.match(videocard.lower()):
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','siliconmotion'))
+			steps.append(('set_xorg_device','siliconmotion',cardnumber,total_cards,bus_id,))
 			print "Silicon Motion!"
 	
 		elif i810.match(videocard): # non lower
 			generate_generic_steps()
 			if check_if_driver_is_available('intel'):
-				steps.append(('change_xorg_driver','intel'))
+				steps.append(('set_xorg_device','intel',cardnumber,total_cards,bus_id,))
 			elif check_if_driver_is_available('i810'):
-				steps.append(('change_xorg_driver','i810'))
+				steps.append(('set_xorg_device','i810',cardnumber,total_cards,bus_id,))
 			else:
 				print "WARNING: i810 and intel drivers not found !! This could be a real problem"
-			# XXX disabled due to xorg-server bug
-			#if (not noexa):
-			#    steps.append(('set_exa',))
 			print "Intel >= 810!"
 	
 		elif videocard.lower().find('riva tnt') != -1:
 			generate_generic_steps()
-			steps.append(('change_xorg_driver','nv'))
+			steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
 			print "Riva TNT!"
 	
 		elif nvidia.match(videocard.lower()):
-			generate_nvidia_steps()
+			generate_nvidia_steps(cardnumber,total_cards,bus_id)
 			print "NVIDIA!"
 		
 		elif ati.match(videocard.lower()):
@@ -546,10 +591,7 @@ for videocard in videocards:
                             radeon_8xx0.match(videocard.lower()) or \
                             radeon_9xx0_free.match(videocard.lower()):
 				generate_generic_steps()
-				# XXX disabled due to xorg-server bugs
-				#if (not noexa):
-			    	#	steps.append(('set_exa',))
-				steps.append(('change_xorg_driver','radeon'))
+				steps.append(('set_xorg_device','radeon',cardnumber,total_cards,bus_id,))
 			elif radeon_3x0.match(videocard.lower()) or \
                             radeon_4x0.match(videocard.lower()) or \
                             radeon_5x0.match(videocard.lower()) or \
@@ -561,11 +603,10 @@ for videocard in videocards:
                             radeon_m_XX_closed.match(videocard.lower()) or \
 			    radeon_hd.match(videocard.lower()):
 				if (not noopengl):
-					steps.append(('set_dri',True))
 					steps.append(('fix_possible_opengl_misconfiguration','ati'))
 					steps.append(('copy_ati_settings_on_desktop',))
 					steps.append(('opengl_activate','ati'))
-				steps.append(('change_xorg_driver','fglrx'))
+				steps.append(('set_xorg_device','fglrx',cardnumber,total_cards,bus_id,))
 			else:
 				print "ATTENTION !!!"
 				print "ATTENTION !!!"
@@ -573,22 +614,33 @@ for videocard in videocards:
 				print "--> ATI Card undetected: "+videocard
 				print "SETTING OPEN SOURCE DRIVERS"
 				generate_generic_steps()
-				steps.append(('change_xorg_driver','radeon'))
-				# XXX disabled due to xorg-servers bugs
-				#if (not noexa):
-				#	steps.append(('set_exa',))
+				steps.append(('set_xorg_device','radeon',cardnumber,total_cards,bus_id,))
 		else:
+			steps.append(('set_xorg_device','vesa',cardnumber,total_cards,bus_id,))
 			print "ATTENTION !!!"
 			print "ATTENTION !!!"
 			print "ATTENTION !!!"
 			print "--> Video Card undetected: "+videocard
 			print "SETTING TO VESA"
-			print "Please report this output to Sabayon Linux developers or mail to LXNAY <at> SABAYONLINUX <dot> ORG"
+			print "Please report this output to Sabayon Linux developers or mail to LXNAY <at> SABAYON <dot> ORG"
 	
-	# now run those steps
+	# now create the file
 	for step in steps:
 		if len(step) == 1:
 			eval(step[0])()
 		else:
-			param = step[1:][0]
-			eval(step[0])(param)
+			param = step[1:]
+			eval(step[0])(*param)
+
+
+# Generate xorg.conf
+xorg_conf_structure = xorg_conf_structure.replace('__device_section__','\n\n'.join(device_sections))
+xorg_conf_structure = xorg_conf_structure.replace('__screen_section__','\n\n'.join(screen_sections))
+xorg_conf_structure = xorg_conf_structure.replace('__screen_layout_section__','\n'.join(screen_layout_sections))
+if dryrun:
+	print xorg_conf_structure
+else:
+	f = open(xorgfile,"w")
+	f.write(xorg_conf_structure)
+	f.flush()
+	f.close()
