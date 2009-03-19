@@ -239,7 +239,7 @@ Section "Device"
 
     Identifier  "%s%s"
     Driver      "%s"
-    %sOption      "BusID"    "%s"
+    %sBusID    "%s"
     #Option "RenderAccel" "on"
     #Option "XAANoOffscreenPixmaps"
     #Option "BusType" "PCI"
