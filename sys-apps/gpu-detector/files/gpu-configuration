@@ -8,6 +8,7 @@ import sys
 
 # Variables
 xorgfile = "/etc/X11/xorg.conf"
+xorgfile_backup = "/etc/X11/xorg.conf.sabayon"
 lspci = '/usr/sbin/lspci'
 nvidia_settings = "/usr/share/applications/nvidia-settings.desktop"
 
@@ -643,6 +644,9 @@ if dryrun:
 	print xorg_conf_structure
 else:
 	f = open(xorgfile,"w")
+	g = open(xorgfile_backup,"w")
 	f.write(xorg_conf_structure)
 	f.flush()
 	f.close()
+	g.flush()
+	g.close()
