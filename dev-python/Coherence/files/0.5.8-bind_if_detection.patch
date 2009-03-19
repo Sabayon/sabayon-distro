@@ -1,0 +1,11 @@
+--- coherence/upnp/core/utils.py.old	2008-05-31 12:18:33.000000000 +0200
++++ coherence/upnp/core/utils.py	2008-11-09 14:09:56.000000000 +0100
+@@ -116,7 +116,7 @@
+                 tmp = route.readline()
+                 l = tmp.split('\t')
+                 if (len(l) > 2):
+-                    if l[2] != '00000000': #default gateway...
++                    if l[1] == '00000000': #default route
+                         route.close()
+                         return get_ip_address(l[0])
+     except IOerror, msg:
