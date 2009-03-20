@@ -38,6 +38,6 @@ src_install () {
 
 pkg_postinst () {
     fdo-mime_desktop_database_update
-	ewarn "Please report to"
+	ewarn "Please bugs report to"
 	ewarn "bugs.sabayonlinux.org"
 }
