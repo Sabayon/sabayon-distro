@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+
+Exec=xdg-open http://www.gentoo.org/doc/en/index.xml
+Icon=sabayon-weblink
+
+Name=Gentoo Documentation
+

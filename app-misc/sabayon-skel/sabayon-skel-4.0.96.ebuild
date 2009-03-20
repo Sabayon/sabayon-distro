@@ -24,4 +24,9 @@ src_install () {
 	cp ${WORKDIR}/skel ${D}/etc -Ra
 	chown root:root ${D}/etc/skel -R
 
+   #Sabayon Menu
+   dodir /usr/share/sabayon
+   cp ${FILESDIR}/${PV}/img /${D}/usr/share/sabayon -R
 }
+
+

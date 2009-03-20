@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+
+Exec=xdg-open http://bugs.sabayonlinux.org/
+Icon=sabayon-weblink
+
+Name=Report Bugs
+

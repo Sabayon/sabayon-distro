@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+
+Exec=xdg-open http://www.sabayonlinux.org/packages
+Icon=sabayon-weblink
+
+Name=Sabayon Packages
+
