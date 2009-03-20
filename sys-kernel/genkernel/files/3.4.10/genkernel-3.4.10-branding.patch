@@ -1,0 +1,62 @@
+diff -Nurp genkernel-3.4.10.orig/gen_bootloader_grub.awk genkernel-3.4.10/gen_bootloader_grub.awk
+--- genkernel-3.4.10.orig/gen_bootloader_grub.awk	2008-06-05 18:47:56.000000000 +0200
++++ genkernel-3.4.10/gen_bootloader_grub.awk	2009-03-20 11:04:14.000000000 +0100
+@@ -67,7 +67,7 @@ if(state == "1")
+ 	if(have_k == "1" && ((match($0, /^title=/) || match($0, /^title */)) || NR == LIMIT))
+ 	{
+ 		state = "2";
+-		print extraA "title=Gentoo Linux (" KV ")\n";
++		print extraA "title=Sabayon Linux (" KV ")\n";
+ 		print extraB my_kernel;
+ 		if(extraC)
+ 			print "\n" extraC;
+diff -Nurp genkernel-3.4.10.orig/gen_bootloader.sh genkernel-3.4.10/gen_bootloader.sh
+--- genkernel-3.4.10.orig/gen_bootloader.sh	2008-06-05 18:47:55.000000000 +0200
++++ genkernel-3.4.10/gen_bootloader.sh	2009-03-20 11:04:31.000000000 +0100
+@@ -54,7 +54,7 @@ EOF
+ 
+ 			# Add grub configuration to grub.conf	
+ 			echo "# Genkernel generated entry, see GRUB documentation for details" >> ${GRUB_CONF}
+-			echo "title=Gentoo Linux ($KV)" >> ${GRUB_CONF}
++			echo "title=Sabayon Linux ($KV)" >> ${GRUB_CONF}
+ 			echo -e "\troot (${GRUB_BOOT_DISK},${GRUB_BOOT_PARTITION})" >> ${GRUB_CONF}
+ 			if [ "${BUILD_INITRD}" -eq '0' ]
+ 			then
+diff -Nurp genkernel-3.4.10.orig/gen_cmdline.sh genkernel-3.4.10/gen_cmdline.sh
+--- genkernel-3.4.10.orig/gen_cmdline.sh	2009-03-20 11:02:38.000000000 +0100
++++ genkernel-3.4.10/gen_cmdline.sh	2009-03-20 11:05:11.000000000 +0100
+@@ -1,7 +1,7 @@
+ #!/bin/bash
+ 
+ longusage() {
+-  echo "Gentoo Linux Genkernel ${GK_V}"
++  echo "Gentoo/Sabayon Linux Genkernel ${GK_V}"
+   echo "Usage: "
+   echo "  genkernel [options] action"
+   echo
+@@ -130,7 +130,7 @@ longusage() {
+ }
+ 
+ usage() {
+-  echo "Gentoo Linux Genkernel ${GK_V}"
++  echo "Gentoo/Sabayon Linux Genkernel ${GK_V}"
+   echo "Usage: "
+   echo "	genkernel [options] all"
+   echo
+diff -Nurp genkernel-3.4.10.orig/netboot/linuxrc.x genkernel-3.4.10/netboot/linuxrc.x
+--- genkernel-3.4.10.orig/netboot/linuxrc.x	2008-06-05 18:47:55.000000000 +0200
++++ genkernel-3.4.10/netboot/linuxrc.x	2009-03-20 11:03:53.000000000 +0100
+@@ -240,10 +240,10 @@ SubGenius() {
+ GenMotd() {
+ 	echo -e ""										> /etc/motd
+ 	echo -e ""										>> /etc/motd
+-	echo -e "Gentoo Linux; http://www.gentoo.org/"						>> /etc/motd
+-	echo -e " Copyright 2001-${CPYYEAR} Gentoo Foundation; Distributed under the GPL"	>> /etc/motd
++	echo -e "Sabayon Linux; http://www.gentoo.org/"						>> /etc/motd
++	echo -e " Copyright 2004-${CPYYEAR} Sabayon Linux; Distributed under the GPL"		>> /etc/motd
+ 	echo -e ""										>> /etc/motd
+-	echo -e " Gentoo/${MYARCH} Netboot for ${MACHTYPE} Systems"				>> /etc/motd
++	echo -e " Sabayon/${MYARCH} Netboot for ${MACHTYPE} Systems"				>> /etc/motd
+ 	echo -e " ${BUILDDATE}"									>> /etc/motd
+ 	echo -e ""										>> /etc/motd
+ 

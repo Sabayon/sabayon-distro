@@ -1,0 +1,12 @@
+diff -Nurp genkernel-3.4.10.orig/generic/initrd.scripts genkernel-3.4.10/generic/initrd.scripts
+--- genkernel-3.4.10.orig/generic/initrd.scripts	2009-03-20 11:02:38.000000000 +0100
++++ genkernel-3.4.10/generic/initrd.scripts	2009-03-20 11:15:45.000000000 +0100
+@@ -862,6 +862,8 @@ sdelay() {
+ 	if [ -n "${SDELAY}" ]
+ 	then
+ 		sleep ${SDELAY}
++	elif grep cdroot /proc/cmdline > /dev/null 2>&1; then
++		sleep 3
+ 	else
+ 		sleep 1
+ 	fi
