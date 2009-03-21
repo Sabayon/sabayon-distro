@@ -1,0 +1,12 @@
+# ChangeLog for net-wireless/broadcom-sta
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-wireless/broadcom-sta/ChangeLog,v 1.1 2009/03/10 17:27:12 matsuu Exp $
+
+*broadcom-sta-5.10.79.10 (10 Mar 2009)
+
+  10 Mar 2009; MATSUU Takuto <matsuu@gentoo.org>
+  +files/broadcom-sta-5.10.79.10-hidden-essid.patch,
+  +files/broadcom-sta-5.10.79.10-linux-2.6.29.patch, +metadata.xml,
+  +broadcom-sta-5.10.79.10.ebuild:
+  Initial import, bug #248450.
+

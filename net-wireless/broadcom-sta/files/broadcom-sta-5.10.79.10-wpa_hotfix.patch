@@ -1,0 +1,12 @@
+diff -Nurp src.orig/wl/sys/wl_iw.c src/wl/sys/wl_iw.c
+--- src.orig/wl/sys/wl_iw.c	2009-03-21 13:07:16.304982684 +0100
++++ src/wl/sys/wl_iw.c	2009-03-21 13:10:17.151998410 +0100
+@@ -2415,7 +2415,7 @@ wl_iw_event(struct net_device *dev, wl_e
+ 
+ 			cmd = IWEVPMKIDCAND;
+ 			pmkcandlist = data;
+-			count = pmkcandlist->npmkid_cand;
++			count = ntoh32(pmkcandlist->npmkid_cand);
+ 			wrqu.data.length = sizeof(struct iw_pmkid_cand);
+ 			pmkidcand = pmkcandlist->pmkid_cand;
+ 			while (count) {
