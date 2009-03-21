@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Type=Application
 
-Exec=xdg-open hhttp://forum.sabayonlinux.org/
+Exec=xdg-open http://forum.sabayonlinux.org/
 Icon=sabayon-weblink
 
 Name=Sabayon Help Forum
