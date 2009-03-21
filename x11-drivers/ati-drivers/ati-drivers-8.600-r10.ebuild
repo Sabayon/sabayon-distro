@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.573-r1.ebuild,v 1.1 2009/02/05 04:26:22 je_fro Exp $
 
-IUSE="acpi debug"
+IUSE="acpi debug distribution"
 
 inherit eutils multilib linux-mod toolchain-funcs versionator
 
