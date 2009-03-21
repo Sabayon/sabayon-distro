@@ -38,7 +38,7 @@ src_install () {
 
 pkg_postinst () {
 	#Manual install otherwise it wont be set up correctly
-	xdg-desktop-menu install /usr/share/sabayon/xdg/sabayon-sabayon.directory *.desktop
+	xdg-desktop-menu install /usr/share/sabayon/xdg/sabayon-sabayon.directory /usr/share/sabayon/xdg/*.desktop
 
 	fdo-mime_desktop_database_update
 	ewarn "Please bugs report to"
