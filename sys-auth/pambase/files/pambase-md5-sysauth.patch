@@ -1,0 +1,12 @@
+diff -Nurp pambase-20081028.orig/system-auth.in pambase-20081028/system-auth.in
+--- pambase-20081028.orig/system-auth.in	2008-10-28 22:55:20.000000000 +0100
++++ pambase-20081028/system-auth.in	2009-03-21 21:25:55.104994536 +0100
+@@ -14,7 +14,7 @@ password	required	pam_cracklib.so difok=
+ #if HAVE_PASSWDQC
+ password	required	pam_passwdqc.so min=8,8,8,8,8 retry=3
+ #endif
+-password	required	pam_unix.so try_first_pass AUTHTOK nullok UNIX_EXTENDED_ENCRYPTION DEBUG
++password	required	pam_unix.so try_first_pass AUTHTOK nullok md5 UNIX_EXTENDED_ENCRYPTION DEBUG
+  
+ #if HAVE_LIMITS
+ session		required	pam_limits.so DEBUG

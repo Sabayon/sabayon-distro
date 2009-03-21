@@ -1,0 +1,38 @@
+--- grub-0.97.orig/docs/grub.texi	2008-07-17 11:07:25.000000000 +0100
++++ grub-0.97/docs/grub.texi	2008-07-17 10:57:41.000000000 +0100
+@@ -2707,6 +2707,7 @@
+ * testload::                    Load a file for testing a filesystem
+ * testvbe::                     Test VESA BIOS EXTENSION
+ * uppermem::                    Set the upper memory size
++* uuid::                        Set GRUB's root device using UUID
+ * vbeprobe::                    Probe VESA BIOS EXTENSION
+ @end menu
+ 
+@@ -3266,6 +3267,27 @@
+ also be used for debugging purposes to lie to an OS.
+ @end deffn
+ 
++@node uuid
++@subsection uuid
++
++@deffn Command uuid [UUID]
++Set the current @dfn{root device} to the device with the universally 
++unique identifier @var{UUID}, then attempt to mount it.  This is 
++equivalent to the @ref{root} command, but allows one to select a 
++filesystem by UUID rather than by device.
++
++The command recognises ext2, ext3, fat, hfs, jfs, ntfs, ocfs, reiserfs 
++and xfs filesystems.
++
++@strong{Note:} grub detects and recognises fat UUIDs in lower case 
++whereas examining /dev/disk/by-uuid on Linux will report fat UUIDs 
++in upper case.
++
++By not specifying @var{UUID}, the command will scan partitions on 
++attached devices and will display the device, partition type and 
++UUID for each recognised filesystem.
++@end deffn
++
+ 
+ @node vbeprobe
+ @subsection vbeprobe
