@@ -63,7 +63,11 @@ src_install() {
 }
 
 pkg_postinst () {
-	ewarn "This is a prelease - ${PVR}"
-	ewarn "Please report bugs or glitches to"
-	ewarn "bugs.sabayonlinux.org"
+	gtk-update-icon-cache
+	ewarn "Please run gtk-update-icon-cache and then restart"
+	ewarn "any gtk apps to see the icon theme changes"
+	ewarn " " 
+	einfo "This is a prelease - ${PVR}"
+	einfo "Please report bugs or glitches to"
+	einfo "bugs.sabayonlinux.org"
 }
