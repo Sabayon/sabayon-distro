@@ -5,7 +5,7 @@ inherit eutils versionator fdo-mime
 
 DESCRIPTION="Sabayon Linux skel tree"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.hyperfish.org/app-misc/${PN}/${PN}-${PVR}.tar.bz2"
+SRC_URI="http://distfiles.hyperfish.org/app-misc/${PN}/${PN}-${PV}.tar.bz2"
 RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
@@ -28,8 +28,8 @@ src_install () {
         cp ${FILESDIR}/${PV}/xdg/*.directory ${D}/usr/share/desktop-directories/  
         dodir /usr/share/sabayon
         cp -a ${FILESDIR}/${PV}/* ${D}/usr/share/sabayon/
-        rm ${D}/usr/share/sabayon/xdg/sabayon-sabayon.directory
-        domenu ${D}/usr/share/sabayon/xdg/*
+        #rm ${D}/usr/share/sabayon/xdg/sabayon-sabayon.directory
+        #domenu ${D}/usr/share/sabayon/xdg/*
         doicon ${FILESDIR}/${PV}/img/sabayon-weblink.png
    
    
@@ -37,7 +37,10 @@ src_install () {
 }
 
 pkg_postinst () {
-    fdo-mime_desktop_database_update
+	#Manual install otherwise it wont be set up correctly
+	xdg-desktop-menu install /usr/share/sabayon/xdg/sabayon-sabayon.directory *.desktop
+
+	fdo-mime_desktop_database_update
 	ewarn "Please bugs report to"
 	ewarn "bugs.sabayonlinux.org"
 }
