@@ -7,7 +7,7 @@
 #      we never updated any of the source code (it still all wants menu.lst),
 #      and there is no indication that upstream is making the transition.
 
-inherit mount-boot eutils flag-o-matic toolchain-funcs autotools
+inherit mount-boot eutils flag-o-matic toolchain-funcs autotools multilib
 
 PATCHVER="1.8" # Should match the revision ideally
 DESCRIPTION="GNU GRUB Legacy boot loader"
@@ -69,6 +69,10 @@ src_unpack() {
 
 src_compile() {
 	filter-flags -fPIE #168834
+
+	# Fix libvolume_id build (UUID)
+	export CPPFLAGS="${CPPFLAGS} -I/usr/include -I/usr/$(get_libdir)/gcc/${CHOST}/$(gcc-fullversion)/include"
+	echo $CPPFLAGS
 
 	use amd64 && multilib_toolchain_setup x86
 
