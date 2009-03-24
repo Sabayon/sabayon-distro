@@ -1,0 +1,11 @@
+--- src/net/sf/freecol/common/logging/DefaultHandler.java
++++ src/net/sf/freecol/common/logging/DefaultHandler.java
+@@ -22,7 +22,7 @@
+ 
+     public static final String REVISION = "$Revision: 1.1 $";
+ 
+-    private static final String fileName = new String("FreeCol.log");
++    private static final String fileName = new String(System.getProperty("user.home") + "/.freecol/FreeCol.log");
+ 
+     private FileWriter fileWriter;
+ 
