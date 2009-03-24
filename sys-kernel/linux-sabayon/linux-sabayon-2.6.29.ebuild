@@ -119,6 +119,8 @@ src_compile() {
 
 src_install() {
 
+	export COLLISION_IGNORE="${COLLISION_IGNORE} /lib/firmware"
+
 	if ! use no_sources || use only_sources; then
 		kernel-2_src_install || die "sources install failed"
 		if ! use only_sources; then
