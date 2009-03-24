@@ -231,7 +231,9 @@ setup_boot_dir() {
 	grub_config=${dir}/grub.conf.install
 	[[ -e ${grub_config} ]] || grub_config=${dir}/grub.conf
 	if [[ -e ${grub_config} ]] ; then
-		egrep -v '^[[:space:]]*(#|$|default|fallback|initrd|password|splashimage|timeout|title)' "${grub_config}" | \
+		egrep \
+			-v '^[[:space:]]*(#|$|default|fallback|initrd|password|splashimage|timeout|title)' \
+			"${grub_config}" | \
 		/sbin/grub --batch \
 			--device-map="${dir}"/device.map \
 			> /dev/null
