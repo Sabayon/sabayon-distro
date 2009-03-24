@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 DEPEND="
 	>=net-misc/networkmanager-0.7.0
-	kde-base/libplasma kde-base/solid[networkmanager]
+	>=kde-base/plasma-workspace-4.2.1 kde-base/solid[networkmanager]
 	"
 
 S="${WORKDIR}/plasma-widget-network-manager-0.0+svn${SVN_REV}"
