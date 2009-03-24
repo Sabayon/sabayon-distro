@@ -363,9 +363,9 @@ src_install() {
     # Sabayon-specific stuff
     if use distribution && ! use x86-fbsd; then
        insinto /lib/fglrx
-       doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
+       doins "${WORKDIR}/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
        insinto /lib/fglrx
-       doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
+       doins "${WORKDIR}/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
     fi
 
 }
