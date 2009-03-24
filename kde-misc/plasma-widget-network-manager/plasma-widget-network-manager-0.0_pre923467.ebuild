@@ -13,7 +13,7 @@ SRC_URI="http://archive.ubuntu.com/ubuntu/pool/main/p/plasma-widget-network-mana
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 DEPEND="
 	>=net-misc/networkmanager-0.7.0
