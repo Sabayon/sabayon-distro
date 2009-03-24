@@ -18,7 +18,7 @@ IUSE=""
 
 RESTRICT="mirror"
 
-DEPEND=">=virtual/linux-sources-2.6.22"
+DEPEND="virtual/modutils"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}"
