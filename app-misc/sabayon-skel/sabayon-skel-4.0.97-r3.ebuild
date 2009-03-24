@@ -11,10 +11,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
-RDEPEND="
-	=x11-themes/sabayon-artwork-4*
-	!<=app-misc/sabayonlinux-skel-3.5-r6
-	"
+RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6"
 
 
 src_install () {
@@ -23,14 +20,14 @@ src_install () {
 	dodir /etc
 	cp ${WORKDIR}/skel ${D}/etc -Ra
 	
-        #Sabayon Menu 
-        dodir /usr/share/desktop-directories
-        cp ${FILESDIR}/${PV}/xdg/*.directory ${D}/usr/share/desktop-directories/  
-        dodir /usr/share/sabayon
-        cp -a ${FILESDIR}/${PV}/* ${D}/usr/share/sabayon/
-        #rm ${D}/usr/share/sabayon/xdg/sabayon-sabayon.directory
-        #domenu ${D}/usr/share/sabayon/xdg/*
-        doicon ${FILESDIR}/${PV}/img/sabayon-weblink.png
+    # Sabayon Menu 
+    dodir /usr/share/desktop-directories
+    cp ${FILESDIR}/${PV}/xdg/*.directory ${D}/usr/share/desktop-directories/
+    dodir /usr/share/sabayon
+    cp -a ${FILESDIR}/${PV}/* ${D}/usr/share/sabayon/
+    #rm ${D}/usr/share/sabayon/xdg/sabayon-sabayon.directory
+    # domenu ${D}/usr/share/sabayon/xdg/*
+    doicon ${FILESDIR}/${PV}/img/sabayon-weblink.png
 
 	# Hotfixes by lxnay
 	rm "${D}/etc/skel/.kde4.2/share/config/phonondevicesrc"
