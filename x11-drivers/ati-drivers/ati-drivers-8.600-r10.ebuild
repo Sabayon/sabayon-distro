@@ -123,7 +123,13 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-	epatch "${FILESDIR}"/8.600/ati-drivers-xen-8.600.patch || die "epatch failed"
+
+	if kernel_is ge 2 6 29; then
+		cd "${S}/lib/modules/fglrx/build_mod"
+		epatch "${FILESDIR}"/${PV}/${P}-acpica-2.6.29.patch
+		cd "${S}"
+	fi
+	epatch "${FILESDIR}"/${PV}/${PN}-xen-8.600.patch
 
 	# These are the userspace utilities that we also have source for.
 	# We rebuild these later.
