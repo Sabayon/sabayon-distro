@@ -22,3 +22,11 @@ DEPEND="
 
 S="${WORKDIR}/plasma-widget-network-manager-0.0+svn${SVN_REV}"
 LDFLAGS=""
+
+
+src_unpack() {
+	kde4-base_src_unpack
+	cd ${S}
+	# Fix dbus policy
+	sed -i 's/at_console=".*"/group="plugdev"/' NetworkManager-kde4.conf
+}
