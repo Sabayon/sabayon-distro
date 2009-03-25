@@ -30,3 +30,13 @@ src_unpack() {
 	# Fix dbus policy
 	sed -i 's/at_console=".*"/group="plugdev"/' NetworkManager-kde4.conf
 }
+
+src_install() {
+
+	kde4-base_src_install
+	dodir /etc/dbus-1/system.d
+	cd ${S}
+	insinto /etc/dbus-1/system.d
+	doins NetworkManager-kde4.conf
+
+}
