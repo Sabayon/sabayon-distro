@@ -1,0 +1,4 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+Portage version is outdated and doesn't compile.
+Portage version contains dependency qt-sql[mysql] which seems
+not needed.
