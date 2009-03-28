@@ -1,0 +1,4 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+Gentoo ebuild has media-sound/alsa-utils as dependency,
+which causes more harm than good on reverse dependencies
+(package removals)

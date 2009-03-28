@@ -1,0 +1,603 @@
+# ChangeLog for media-sound/pulseaudio
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-sound/pulseaudio/ChangeLog,v 1.120 2009/02/24 11:16:21 flameeyes Exp $
+
+  23 Feb 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.7.ebuild, pulseaudio-0.9.9.ebuild,
+  pulseaudio-0.9.10.ebuild, pulseaudio-0.9.10-r1.ebuild,
+  pulseaudio-0.9.11.ebuild, pulseaudio-0.9.11-r1.ebuild,
+  pulseaudio-0.9.11-r2.ebuild, pulseaudio-0.9.12.ebuild,
+  pulseaudio-0.9.12-r1.ebuild, pulseaudio-0.9.13.ebuild,
+  pulseaudio-0.9.14.ebuild:
+  Update HOMEPAGE, closes bug #260056, thanks to Sebastian Günther.
+
+  23 Feb 2009; Joseph Jezak <josejx@gentoo.org> pulseaudio-0.9.10-r1.ebuild,
+  pulseaudio-0.9.14.ebuild:
+  Marked ~ppc for bug #200076.
+
+  25 Jan 2009; Raúl Porcel <armin76@gentoo.org>
+  pulseaudio-0.9.10-r1.ebuild, pulseaudio-0.9.14.ebuild:
+  Add ~arm/~sh
+
+  14 Jan 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.14.ebuild:
+  Remove 0.9.13-exclusive workarounds. Thanks to Rafał Mużyło in bug
+  #254803.
+
+*pulseaudio-0.9.14 (14 Jan 2009)
+
+  14 Jan 2009; Diego E. Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.14.ebuild:
+  Version bump.
+
+  02 Jan 2009; Peter Alfredsen <loki_val@gentoo.org>
+  pulseaudio-0.9.7.ebuild, pulseaudio-0.9.9.ebuild,
+  pulseaudio-0.9.10.ebuild, pulseaudio-0.9.10-r1.ebuild,
+  pulseaudio-0.9.11.ebuild, pulseaudio-0.9.11-r1.ebuild,
+  pulseaudio-0.9.11-r2.ebuild, pulseaudio-0.9.12.ebuild,
+  pulseaudio-0.9.12-r1.ebuild, pulseaudio-0.9.13.ebuild:
+  Fix bug 253298, typo in ebuild. Thanks to goffrie@gmail.com.
+
+  21 Oct 2008; Petteri Räty <betelgeuse@gentoo.org>
+  pulseaudio-0.9.12.ebuild, pulseaudio-0.9.12-r1.ebuild,
+  pulseaudio-0.9.13.ebuild:
+  Add DEPEND on >=sys-devel/autoconf-2.62 to fix bug #237569.
+
+*pulseaudio-0.9.13 (09 Oct 2008)
+
+  09 Oct 2008; Diego Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.13.ebuild:
+  Version bump, add an init.d fix for 0.9.13 (fixed in .14).
+
+*pulseaudio-0.9.12-r1 (09 Oct 2008)
+
+  09 Oct 2008; Diego Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.12-r1.ebuild:
+  Update to EAPI=2 and USE deps.
+
+  28 Sep 2008; Alexis Ballier <aballier@gentoo.org>
+  pulseaudio-0.9.12.ebuild:
+  Fix unifdef call to be [options] file rather than file [options] as
+  documented in the man page and allow freebsd unifdef too.
+
+*pulseaudio-0.9.12 (12 Sep 2008)
+
+  12 Sep 2008; Petteri Räty <betelgeuse@gentoo.org>
+  -pulseaudio-0.9.10-r51.ebuild, +pulseaudio-0.9.12.ebuild:
+  Version bump.
+
+*pulseaudio-0.9.11-r2 (03 Aug 2008)
+
+  03 Aug 2008; Patrick McLean <chutzpah@gentoo.org>
+  +files/pulseaudio.init.d-4, +pulseaudio-0.9.11-r2.ebuild:
+  Make sure that the ebuild creates system.pa, modify the init script to use
+  system.pa rather than default.pa and add a "needs" on consolekit if
+  module-console-kit is requested in system.pa (bug #233789).
+
+  03 Aug 2008; Petteri Räty <betelgeuse@gentoo.org>
+  pulseaudio-0.9.11-r1.ebuild:
+  Add a message telling people to install alsa-plugins with pulseaudio
+  support if not installed already. Fixes bug #233193.
+
+*pulseaudio-0.9.11-r1 (03 Aug 2008)
+
+  03 Aug 2008; Petteri Räty <betelgeuse@gentoo.org>
+  +pulseaudio-0.9.11-r1.ebuild:
+  speex support is not optional so remove the speex use flag. Fixes bug
+  #233774.
+
+*pulseaudio-0.9.11 (03 Aug 2008)
+
+  03 Aug 2008; Patrick McLean <chutzpah@gentoo.org>
+  -pulseaudio-0.9.10-r50.ebuild, +pulseaudio-0.9.11.ebuild:
+  Version bump (bug #232991), add "speex" USE flag. This versiom has
+  flameeyes' dymanic initscript dependencies, so it deps on openrc. Clean up
+  a bit.
+
+*pulseaudio-0.9.10-r51 (18 Apr 2008)
+*pulseaudio-0.9.10-r1 (18 Apr 2008)
+
+  18 Apr 2008; Diego Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.10-r1.ebuild, +pulseaudio-0.9.10-r51.ebuild:
+  Revision bump to remove .la files, also avoid building tests during make
+  all.
+
+  03 Apr 2008; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.10-caps.patch, pulseaudio-0.9.10.ebuild,
+  pulseaudio-0.9.10-r50.ebuild:
+  Fix building with libtool 2.2 (bug #215843) and with caps (bug #215656).
+
+*pulseaudio-0.9.10-r50 (31 Mar 2008)
+*pulseaudio-0.9.10 (31 Mar 2008)
+
+  31 Mar 2008; Diego Pettenò <flameeyes@gentoo.org>
+  -files/pulseaudio-0.9.9+ltdl-2.2.patch, -pulseaudio-0.9.9-r1.ebuild,
+  -pulseaudio-0.9.9-r2.ebuild, -pulseaudio-0.9.9-r3.ebuild,
+  -pulseaudio-0.9.9-r53.ebuild, +pulseaudio-0.9.10.ebuild,
+  +pulseaudio-0.9.10-r50.ebuild:
+  Bump to latest version, remove old versions and unneeded patches.
+
+  09 Mar 2008; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio-0.9.9+ltdl-2.2.patch:
+  Fix path so that it build with both 2.2 and 1.5. Closes bug #212800.
+
+*pulseaudio-0.9.9-r53 (08 Mar 2008)
+*pulseaudio-0.9.9-r3 (08 Mar 2008)
+
+  08 Mar 2008; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.9+ltdl-2.2.patch, +pulseaudio-0.9.9-r3.ebuild,
+  +pulseaudio-0.9.9-r53.ebuild:
+  Add new revisions that work with libtool 2.2. Note that from now on I'll
+  keep the experimental revisions with a value 50+x in line with the old-style
+  ones.
+
+  11 Feb 2008; Olivier Crête <tester@gentoo.org> pulseaudio-0.9.9.ebuild:
+  Stable on amd64 per security bug #207214
+
+  26 Jan 2008; Diego Pettenò <flameeyes@gentoo.org>
+  -pulseaudio-0.9.8-r6.ebuild, -pulseaudio-0.9.8-r7.ebuild:
+  Remove old versions.
+
+  26 Jan 2008; Tobias Scherbaum <dertobi123@gentoo.org>
+  pulseaudio-0.9.9.ebuild:
+  ppc stable, bug #207214
+
+  26 Jan 2008; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.9.ebuild:
+  Stable for HPPA (bug #207214).
+
+  25 Jan 2008; Raúl Porcel <armin76@gentoo.org> pulseaudio-0.9.9.ebuild:
+  alpha/ia64/sparc stable wrt security #207214
+
+  25 Jan 2008; Markus Rothe <corsair@gentoo.org> pulseaudio-0.9.9.ebuild:
+  Stable on ppc64; bug #207214
+
+  25 Jan 2008; Christian Faulhammer <opfer@gentoo.org>
+  pulseaudio-0.9.9.ebuild:
+  stable x86, security bug 207214
+
+*pulseaudio-0.9.9-r2 (24 Jan 2008)
+*pulseaudio-0.9.9-r1 (24 Jan 2008)
+*pulseaudio-0.9.9 (24 Jan 2008)
+
+  24 Jan 2008; Diego Pettenò <flameeyes@gentoo.org>
+  -files/pulseaudio-0.9.5-CVE-2007-1804.patch,
+  -files/pulseaudio-0.9.5-esdcompat.patch,
+  -files/pulseaudio-0.9.5-fbsd.patch, -files/pulseaudio-0.9.5-noshm.patch,
+  metadata.xml, -pulseaudio-0.9.5-r6.ebuild, -pulseaudio-0.9.8-r4.ebuild,
+  -pulseaudio-0.9.8-r5.ebuild, +pulseaudio-0.9.9.ebuild,
+  +pulseaudio-0.9.9-r1.ebuild, +pulseaudio-0.9.9-r2.ebuild:
+  Version bump. This fixes the CVE-2008-0008 security issue reported as bug
+  #207214. Version -r1 also implements the request in bug #204754 (glib USE
+  flag, thanks to Matthijs Kooijman). All three revision also fixes bug
+  #204748 (broken default.pa with hal USE flag unset).
+
+  08 Jan 2008; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.8-r6.ebuild,
+  pulseaudio-0.9.8-r7.ebuild:
+  Marked ~hppa (bug #200076).
+
+  06 Jan 2008; Markus Rothe <corsair@gentoo.org> pulseaudio-0.9.8-r6.ebuild,
+  pulseaudio-0.9.8-r7.ebuild:
+  Added ~ppc64; bug #200076
+
+  31 Dec 2007; Brent Baude <ranger@gentoo.org> pulseaudio-0.9.7.ebuild:
+  Marking pulseaudio-0.9.7 ppc64 for bug 197126
+
+  31 Dec 2007; Raúl Porcel <armin76@gentoo.org> pulseaudio-0.9.8-r6.ebuild,
+  pulseaudio-0.9.8-r7.ebuild:
+  Add ~alpha/~ia64/~sparc/~x86 wrt #200076
+
+  29 Dec 2007; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.8-r4.ebuild:
+  Marked ~hppa (bug #200076, comment #6).
+
+*pulseaudio-0.9.8-r7 (29 Dec 2007)
+*pulseaudio-0.9.8-r6 (29 Dec 2007)
+
+  29 Dec 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.8-r6.ebuild, +pulseaudio-0.9.8-r7.ebuild:
+  Add new revisions with an asyncns USE flag to use libasyncns.
+
+  29 Dec 2007; Diego Pettenò <flameeyes@gentoo.org>
+  -files/pulseaudio-0.9.6-build.patch, -pulseaudio-0.9.6-r1.ebuild,
+  -pulseaudio-0.9.8-r2.ebuild, -pulseaudio-0.9.8-r3.ebuild:
+  Cleanup old versions.
+
+*pulseaudio-0.9.8-r5 (29 Dec 2007)
+*pulseaudio-0.9.8-r4 (29 Dec 2007)
+
+  29 Dec 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.8-create-directory.patch,
+  +pulseaudio-0.9.8-r4.ebuild, +pulseaudio-0.9.8-r5.ebuild:
+  Apply patch from upstream SVN revision 2078. Thanks to Petteri Räty for
+  reporting.
+
+  22 Dec 2007; Tobias Scherbaum <dertobi123@gentoo.org>
+  pulseaudio-0.9.7.ebuild:
+  ppc stable, bug #197126
+
+  22 Dec 2007; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.8-r3.ebuild:
+  Marked ~hppa (bug #200076).
+
+  21 Dec 2007; Raúl Porcel <armin76@gentoo.org> pulseaudio-0.9.7.ebuild:
+  alpha/ia64/sparc stable wrt #197126
+
+  17 Dec 2007; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.7.ebuild:
+  Stable for HPPA (bug #197126).
+
+*pulseaudio-0.9.8-r3 (06 Dec 2007)
+*pulseaudio-0.9.8-r2 (06 Dec 2007)
+
+  06 Dec 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.8-esoundpath.patch, -pulseaudio-0.9.8.ebuild,
+  -pulseaudio-0.9.8-r1.ebuild, +pulseaudio-0.9.8-r2.ebuild,
+  +pulseaudio-0.9.8-r3.ebuild:
+  Allow selection for global or per-user ESD socket directory. Fixes bug #199507.
+
+  27 Nov 2007; Markus Meier <maekke@gentoo.org> pulseaudio-0.9.7.ebuild:
+  x86 stable, bug #197126
+
+  23 Nov 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.8-bt-nohal.patch, pulseaudio-0.9.8.ebuild,
+  pulseaudio-0.9.8-r1.ebuild:
+  Fix build when HAL is disabled but Bluetooth support is enabled.
+
+  23 Nov 2007; Samuli Suominen <drac@gentoo.org> pulseaudio-0.9.7.ebuild:
+  amd64 stable wrt #197126, thanks to Angelo Arrifano for testing
+
+*pulseaudio-0.9.8 (23 Nov 2007)
+
+  23 Nov 2007; Diego Pettenò <flameeyes@gentoo.org> ChangeLog,
+  +pulseaudio-0.9.8.ebuild:
+  Version bump, remove old experimental init.d version (now 0.9.8-r1). Add
+  better documentation of the USE flags. The new version supports bluetooth
+  and policykit USE flags now.
+
+  17 Nov 2007; nixnut <nixnut@gentoo.org> pulseaudio-0.9.6-r1.ebuild:
+  Stable on ppc wrt bug 197126
+
+  14 Nov 2007; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.6-r1.ebuild, -pulseaudio-0.9.6-r2.ebuild,
+  pulseaudio-0.9.7.ebuild, pulseaudio-0.9.7-r1.ebuild:
+  Remove the experimental 0.9.6 ebuild (use 0.9.7-r1 instead). As per upstream
+  reports, require libtool 1.5.24 or later.
+
+  10 Nov 2007; Raúl Porcel <armin76@gentoo.org> pulseaudio-0.9.6-r1.ebuild:
+  alpha/ia64/sparc stable thanks to Tobias Klausmann and Alex Maclean for
+  testing, bug #197126
+
+  07 Nov 2007; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio.init.d-2, files/pulseaudio.init.d-3:
+  Init scripts nitpicking: need localmount to properly resume from single user
+  runlevel.
+
+  01 Nov 2007; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.7.ebuild, pulseaudio-0.9.7-r1.ebuild:
+  Fix order in use_enable, thanks to 'galtgendo'.
+
+*pulseaudio-0.9.7-r1 (31 Oct 2007)
+*pulseaudio-0.9.7 (31 Oct 2007)
+
+  31 Oct 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.7-module-loading.patch, +pulseaudio-0.9.7.ebuild,
+  +pulseaudio-0.9.7-r1.ebuild:
+  Version bump, both for baselayout 1 and baselayout 2 init script variants.
+
+  30 Oct 2007; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.6-r1.ebuild:
+  Stable for HPPA (bug #197126).
+
+  27 Oct 2007; Jurek Bartuszek <jurek@gentoo.org>
+  pulseaudio-0.9.6-r1.ebuild:
+  x86 stable (bug #197126)
+
+  26 Oct 2007; Diego Pettenò <flameeyes@gentoo.org>
+  -pulseaudio-0.9.5-r4.ebuild, -pulseaudio-0.9.6.ebuild:
+  Remove old versions.
+
+*pulseaudio-0.9.6-r2 (26 Oct 2007)
+
+  26 Oct 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio.init.d-3, +pulseaudio-0.9.6-r2.ebuild:
+  Add a new revision with an experimental init script with dynamic
+  dependencies. With this script, disabling HAL or Avahi support on the
+  configuration file will not require them to be started even if PulseAudio
+  was built with their support enabled. Similarly ALSA is no more a
+  requirement if no ALSA sink or source is defined and no autodetect modules
+  are loaded.
+
+  10 Sep 2007; Joseph Jezak <josejx@gentoo.org> pulseaudio-0.9.6-r1.ebuild:
+  Marked ~ppc/~ppc64 for bug #181234.
+
+  22 Jul 2007; Samuli Suominen <drac@gentoo.org> pulseaudio-0.9.5-r4.ebuild,
+  pulseaudio-0.9.5-r6.ebuild, pulseaudio-0.9.6.ebuild:
+  Remove virtual/x11 references.
+
+*pulseaudio-0.9.6-r1 (02 Jul 2007)
+
+  02 Jul 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.6-r1.ebuild:
+  Revision bump: now use realtime group rather than pulse-rt, and link the
+  realtime guide, so that users can set it up.
+
+  02 Jun 2007; Raúl Porcel <armin76@gentoo.org> pulseaudio-0.9.5-r6.ebuild,
+  pulseaudio-0.9.6.ebuild:
+  Add ~alpha/~ia64 wrt #180117 and alpha/ia64 stable wrt security #180203
+
+  02 Jun 2007; Markus Rothe <corsair@gentoo.org> pulseaudio-0.9.5-r6.ebuild:
+  Stable on ppc64; bug #180203
+
+  01 Jun 2007; Peter Weller <welp@gentoo.org> pulseaudio-0.9.5-r6.ebuild:
+  Stable on amd64 wrt security bug 180203
+
+  31 May 2007; René Nussbaumer <killerfox@gentoo.org>
+  pulseaudio-0.9.5-r6.ebuild:
+  Stable on ppc. See bug #180203.
+
+  31 May 2007; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.6.ebuild:
+  Marked ~hppa (bug #180117).
+
+  30 May 2007; Andrej Kacian <ticho@gentoo.org> pulseaudio-0.9.5-r6.ebuild:
+  Stable on x86, security bug #180203.
+
+  30 May 2007; René Nussbaumer <killerfox@gentoo.org>
+  pulseaudio-0.9.5-r6.ebuild:
+  Stable on hppa. See Bug #180203.
+
+  30 May 2007; Gustavo Zacarias <gustavoz@gentoo.org>
+  pulseaudio-0.9.5-r6.ebuild:
+  Stable on sparc wrt security #180203
+
+*pulseaudio-0.9.5-r6 (30 May 2007)
+
+  30 May 2007; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio-0.9.5-CVE-2007-1804.patch, -pulseaudio-0.9.5-r5.ebuild,
+  +pulseaudio-0.9.5-r6.ebuild:
+  New revision bump, completed patch.
+
+  29 May 2007; Andrej Kacian <ticho@gentoo.org> pulseaudio-0.9.6.ebuild:
+  Added ~x86, bug #180117.
+
+  29 May 2007; Gustavo Zacarias <gustavoz@gentoo.org>
+  pulseaudio-0.9.6.ebuild:
+  Keyworded ~sparc wrt #180117
+
+*pulseaudio-0.9.5-r5 (29 May 2007)
+
+  29 May 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.5-CVE-2007-1804.patch, +pulseaudio-0.9.5-r5.ebuild:
+  Revision bump to add a patch for bug #180203 (CVE-2007-1804).
+
+*pulseaudio-0.9.6 (28 May 2007)
+
+  28 May 2007; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.6-build.patch, +pulseaudio-0.9.6.ebuild:
+  Version bump, the new version requires libatomic_ops so all the keywords but
+  ~amd64 and ~x86-fbsd are dropped.
+
+  26 Feb 2007; Matthias Schwarzott <zzam@gentoo.org>
+  pulseaudio-0.9.5-r4.ebuild:
+  Corrected name of init-script in elog-message.
+
+  21 Dec 2006; Bryan Østergaard <kloeri@gentoo.org>
+  pulseaudio-0.9.5-r4.ebuild:
+  Stable on Alpha + IA64.
+
+  25 Nov 2006; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.5-r4.ebuild:
+  Add runtime dependency over alsa-utils for the init.d script, thanks to
+  Andrzej in bug #155707.
+
+  15 Nov 2006; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.5-r4.ebuild:
+  Stable for HPPA (bug #154742).
+
+  13 Nov 2006; Joseph Jezak <josejx@gentoo.org> pulseaudio-0.9.5-r4.ebuild:
+  Marked ppc stable.
+
+  11 Nov 2006; Michael Cummings <mcummings@gentoo.org>
+  pulseaudio-0.9.5-r4.ebuild:
+  Marking amd64 stable, dep for mpd
+
+  25 Oct 2006; Joshua Jackson <tsunam@gentoo.org>
+  pulseaudio-0.9.5-r4.ebuild:
+  Stable x86; bug #150540
+
+  22 Oct 2006; Markus Rothe <corsair@gentoo.org> pulseaudio-0.9.5-r4.ebuild:
+  Stable on ppc64; bug #150540
+
+  21 Oct 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -pulseaudio-0.9.5-r3.ebuild:
+  Remove old revision.
+
+  20 Oct 2006; Gustavo Zacarias <gustavoz@gentoo.org>
+  pulseaudio-0.9.5-r4.ebuild:
+  Stable on sparc wrt #150540
+
+  14 Oct 2006; Aron Griffis <agriffis@gentoo.org>
+  pulseaudio-0.9.5-r3.ebuild, pulseaudio-0.9.5-r4.ebuild:
+  Mark 0.9.5-r4 0.9.5-r3 ~ia64
+
+  14 Oct 2006; Bryan Østergaard <kloeri@gentoo.org>
+  pulseaudio-0.9.5-r4.ebuild:
+  Add ~alpha keyword.
+
+*pulseaudio-0.9.5-r4 (02 Oct 2006)
+
+  02 Oct 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.5-r4.ebuild:
+  Use pulse-rt as default realtime group, as the current SVN version does, and
+  create it. Thanks to Mark Lee for reporting in bug #146625.
+
+  23 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.5-r3.ebuild:
+  Add runtime dependency over sys-devel/libtool for libltdl.so.
+
+  21 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.5-r3.ebuild:
+  Force -j1 in install, the package don't play safe with it.
+
+  17 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio.init.d-2:
+  Pass the pidfile to start-stop-daemon when stopping pulseaudio.
+
+  17 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.5-r3.ebuild:
+  Let avahi useflag enable zeroconf support in the default configuration file,
+  too.
+
+  07 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.5-noshm.patch, pulseaudio-0.9.5-r3.ebuild:
+  Add patch from upstream to not fail if SHM is not available.
+
+*pulseaudio-0.9.5-r3 (06 Sep 2006)
+
+  06 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -pulseaudio-0.9.5-r2.ebuild, +pulseaudio-0.9.5-r3.ebuild:
+  Depend on avahi-daemon service, not avahi. Thanks to Tony Vroon for reporting.
+
+*pulseaudio-0.9.5-r2 (05 Sep 2006)
+
+  05 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio.init.d-2, -pulseaudio-0.9.5-r1.ebuild,
+  +pulseaudio-0.9.5-r2.ebuild:
+  The services previously in 'use' section are actually needed, make sure that
+  restarting alsasound make pulseaudio restart.
+
+*pulseaudio-0.9.5-r1 (02 Sep 2006)
+
+  02 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -files/pulseaudio-0.9.2-esdcompat.patch,
+  -files/pulseaudio-0.9.4-r1170.patch,
+  +files/pulseaudio-0.9.5-esdcompat.patch, -pulseaudio-0.9.4.ebuild,
+  -pulseaudio-0.9.4-r1.ebuild, -pulseaudio-0.9.5.ebuild,
+  +pulseaudio-0.9.5-r1.ebuild:
+  Remove old version, replace the esdcompat patch with the right one, thanks
+  to Florian Scandella for noticing in bug #145843.
+
+  02 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.5-fbsd.patch, pulseaudio-0.9.5.ebuild:
+  Add patch to build on FreeBSD, and re add ~x86-fbsd keyword.
+
+  02 Sep 2006; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.5.ebuild:
+  Remove ~x86-fbsd keyword until it builds.
+
+*pulseaudio-0.9.5 (31 Aug 2006)
+
+  31 Aug 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.5.ebuild:
+  Version bump, and workaround detection modules for hal/non-hal
+  configurations in default configuration.
+
+  17 Aug 2006; Jeroen Roovers <jer@gentoo.org> pulseaudio-0.9.4-r1.ebuild:
+  Marked ~hppa (bug #143510).
+
+  11 Aug 2006; Markus Rothe <corsair@gentoo.org> pulseaudio-0.9.4-r1.ebuild:
+  Added ~ppc64; bug #141727
+
+  11 Aug 2006; Gustavo Zacarias <gustavoz@gentoo.org>
+  pulseaudio-0.9.4-r1.ebuild:
+  To ~sparc wrt #143510
+
+*pulseaudio-0.9.4-r1 (30 Jul 2006)
+
+  30 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.4-r1170.patch, +pulseaudio-0.9.4-r1.ebuild:
+  Add patch from upstream to fix using capabilities.
+
+  29 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio.init.d-2, files/pulseaudio.conf.d,
+  pulseaudio-0.9.4.ebuild:
+  Create /var/run/pulse directory during install, thanks to Florian Steinel
+  for reporting.
+
+  27 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -pulseaudio-0.9.3.ebuild, pulseaudio-0.9.4.ebuild:
+  Require avahi 0.6.12 to complete the fix of 0.9.4 version. Remove old version.
+
+*pulseaudio-0.9.4 (27 Jul 2006)
+
+  27 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +pulseaudio-0.9.4.ebuild:
+  Version bump.
+
+  22 Jul 2006; Zaheer Abbas Merali <zaheem@gentoo.org>
+  pulseaudio-0.9.3.ebuild:
+  keyword ~x86
+
+  22 Jul 2006; Luca Barbato <lu_zero@gentoo.org> pulseaudio-0.9.3.ebuild:
+  Marked ~ppc + typo fix
+
+  21 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  -files/pulseaudio-0.9.2-fbsd.patch,
+  -files/pulseaudio-0.9.2-moduledetect.patch, -files/pulseaudio.init.d,
+  -pulseaudio-0.9.2.ebuild:
+  Remove old version and related files.
+
+*pulseaudio-0.9.3 (21 Jul 2006)
+
+  21 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio.init.d-2, +pulseaudio-0.9.3.ebuild:
+  Version bump and new init script to use the new system-wide mode (compatible
+  with our 0.9.2).
+
+  19 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio.init.d, pulseaudio-0.9.2.ebuild:
+  Add support for esd wrapper when using system-wide mode, by enabling
+  anonymous authentication for esound protocol and relying once again on
+  filesystem access for being able to use it.
+
+  19 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio-0.9.2-esdcompat.patch:
+  Fix esdcompat patch that was incomplete.
+
+  19 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.2-esdcompat.patch, pulseaudio-0.9.2.ebuild:
+  Add patch to fix esdcompat script on BSD userlands.
+
+  19 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.2.ebuild:
+  Add dependency on eselect-esd and relative call to put the esd symlink in
+  place.
+
+  18 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio.conf.d, files/pulseaudio.init.d, pulseaudio-0.9.2.ebuild:
+  Split pulseaudio access in pulse-access group, as suggested by upstream, use
+  a different script to initialise system-wide pulseaudio, so that the default
+  is the same as in other distributions and in vanilla, allowing users to set
+  the system-wide mode if they want, disable module loading at runtime for
+  systemwide setup, and explain everythign in a postinst message.
+
+  18 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.2-moduledetect.patch, pulseaudio-0.9.2.ebuild:
+  Add patch to allow module-detect to work on FreeBSD.
+
+  17 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio.conf.d, files/pulseaudio.init.d, pulseaudio-0.9.2.ebuild:
+  Improve support for system-wide pulseaudio daemon, let it work with users in
+  audio group.
+
+  16 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio-0.9.2-fbsd.patch:
+  Improve FreeBSD patch a bit thanks to suggestion of the author Lennart
+  Poettering.
+
+  16 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  pulseaudio-0.9.2.ebuild:
+  Add ~x86-fbsd keyword.
+
+  16 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  files/pulseaudio.conf.d, files/pulseaudio.init.d:
+  Little change to init.d scripts.
+
+  16 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio-0.9.2-fbsd.patch, files/pulseaudio.conf.d,
+  files/pulseaudio.init.d, pulseaudio-0.9.2.ebuild:
+  Add patch to build on FreeBSD, change init script so that it doesn't
+  daemonise and properly fails when initialisation fails.
+
+*pulseaudio-0.9.2 (11 Jul 2006)
+
+  11 Jul 2006; Diego Pettenò <flameeyes@gentoo.org>
+  +files/pulseaudio.conf.d, +files/pulseaudio.init.d, +metadata.xml,
+  +pulseaudio-0.9.2.ebuild:
+  Add pulseaudio ebuild, thanks to Tom Schneider, Ed Catmur, Florian Steinel,
+  Disaster and Gonzalo Aguilar Delgado in bug #74039.
+
