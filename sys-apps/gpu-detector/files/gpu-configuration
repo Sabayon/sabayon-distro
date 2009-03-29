@@ -191,8 +191,6 @@ def check_if_proprietary_driver_system_is_healthy(kernelmod): #FIXME attenzione 
 
 def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 	if (not dryrun):
-		from entropy import EquoInterface
-		Equo = EquoInterface()
 		# are they available ? we're on livecd...
 		if not os.path.isdir("/install-data/drivers"):
 			print "No /install-data/drivers available"
@@ -206,7 +204,13 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 		if not os.path.isfile(package_file):
 			print package_file+" does not exist???"
 			return False
-		
+
+		try:
+			from entropy.client.interfaces import Client as EquoInterface			
+		except ImportError:
+			from entropy import EquoInterface
+		Equo = EquoInterface()
+
 		# prepare system
 		idpackage, result = Equo.clientDbconn.atomMatch('x11-drivers/nvidia-drivers')
 		if idpackage != -1:
@@ -218,7 +222,11 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 					except OSError:
 						pass
 			del content
-		
+
+		if hasattr(Equo,'destroy'):
+			Equo.destroy()
+		del Equo
+
 		# remove old garbage - copy over - create module
 		os.system("tar xjf %s -C / &> /dev/null" % (package_file,))
 
