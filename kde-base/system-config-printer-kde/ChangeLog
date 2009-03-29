@@ -1,0 +1,80 @@
+# ChangeLog for kde-base/system-config-printer-kde
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  15 Mar 2009; Alexey Shvetsov <alexxy@gentoo.org>
+  -system-config-printer-kde-4.2.65.ebuild:
+  Version removed.
+
+  10 Mar 2009; Maciej Mrozowski (reavertm) <reavertm@poczta.fm>
+  system-config-printer-kde-4.2.1.ebuild,
+  system-config-printer-kde-4.2.65.ebuild,
+  system-config-printer-kde-9999.ebuild:
+  Ensure exec bit is set for system-config-printer-kde
+
+  10 Mar 2009; Maciej Mrozowski (reavertm) <reavertm@poczta.fm>
+  system-config-printer-kde-4.2.1.ebuild,
+  system-config-printer-kde-4.2.65.ebuild,
+  system-config-printer-kde-9999.ebuild:
+  Updated system-config-printer-kde - fixed live: sandbox issue - synced
+  ebuilds
+
+  08 Mar 2009; Maciej Mrozowski (reavertm) <reavertm@poczta.fm>
+  system-config-printer-kde-4.2.1.ebuild,
+  system-config-printer-kde-4.2.65.ebuild,
+  system-config-printer-kde-9999.ebuild:
+  Preliminary system-config-printer-kde with minimal deps
+
+*system-config-printer-kde-4.2.65 (06 Mar 2009)
+
+  06 Mar 2009; Maciej Mrozowski (reavertm) <reavertm@poczta.fm>
+  +system-config-printer-kde-4.2.65.ebuild:
+  Version bump
+
+  13 Feb 2009; Maciej Mrozowski (reavertm) <reavertm@poczta.fm>
+  -system-config-printer-kde-4.2.61.ebuild:
+  Version removed.
+
+*system-config-printer-kde-4.2.61 (01 Feb 2009)
+
+  01 Feb 2009; Maciej Mrozowski (reavertm) <reavertm@poczta.fm>
+  +system-config-printer-kde-4.2.61.ebuild:
+  Version bump.
+
+  28 Jan 2009; Alexey Shvetsov <alexxy@gentoo.org>
+  -system-config-printer-kde-4.1.96.ebuild:
+  Version removed.
+
+*system-config-printer-kde-4.2.0 (22 Jan 2009)
+
+  22 Jan 2009; Alexey Shvetsov <alexxy@gentoo.org>
+  +system-config-printer-kde-4.2.0.ebuild:
+  Version bump
+
+  13 Jan 2009; Alexey Shvetsov <alexxy@gentoo.org>
+  -system-config-printer-kde-4.1.87.ebuild:
+  Version removed.
+
+  13 Jan 2009; Alexey Shvetsov <alexxy@gentoo.org>
+  -system-config-printer-kde-4.1.85.ebuild:
+  Version removed.
+
+*system-config-printer-kde-4.1.96 (08 Jan 2009)
+
+  08 Jan 2009; Alexey Shvetsov <alexxy@gentoo.ru>
+  +system-config-printer-kde-4.1.96.ebuild:
+  Version bump
+
+*system-config-printer-kde-4.1.87 (02 Jan 2009)
+
+  02 Jan 2009; Alexey Shvetsov <alexxy@gentoo.ru>
+  +system-config-printer-kde-4.1.87.ebuild:
+  Version bump
+
+*system-config-printer-kde-4.1.85 (21 Dec 2008)
+
+  21 Dec 2008; Theo Chatzimichos <tampakrap@gmail.com> +metadata.xml,
+  +system-config-printer-kde-4.1.85.ebuild:
+  Added sth that's supposed to be KDE printer manager... - package masked
+  due to missing depedencies
+
