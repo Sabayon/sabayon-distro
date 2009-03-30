@@ -18,7 +18,7 @@ IUSE=""
 
 DEPEND="
 	>=dev-python/PyQt4-4.4.4-r1[dbus]
-	dev-python/pycups
+	>=dev-python/pycups-1.9.45
 	>=kde-base/pykde4-${PV}:${SLOT}[kdeprefix=]
 "
 RDEPEND="${DEPEND}
