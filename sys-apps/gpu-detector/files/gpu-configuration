@@ -658,3 +658,4 @@ else:
 	f.close()
 	g.flush()
 	g.close()
+raise SystemExit(0)
