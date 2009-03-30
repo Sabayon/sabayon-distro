@@ -1,0 +1,18 @@
+diff -Nurp openrc-0.4.3.orig/conf.d/hwclock openrc-0.4.3/conf.d/hwclock
+--- openrc-0.4.3.orig/conf.d/hwclock	2009-02-11 07:55:19.000000000 +0100
++++ openrc-0.4.3/conf.d/hwclock	2009-03-30 20:48:17.829902961 +0200
+@@ -2,12 +2,12 @@
+ # Greenwich Mean Time).  If your clock is set to the local time, then 
+ # set CLOCK to "local".  Note that if you dual boot with Windows, then 
+ # you should set it to "local".
+-clock="UTC"
++clock="local"
+ 
+ # If you want to set the Hardware Clock to the current System Time 
+ # during shutdown, then say "YES" here.
+ # You normally don't need to do this if you run a ntp daemon.
+-clock_systohc="NO"
++clock_systohc="YES"
+ 
+ # If you wish to pass any other arguments to hwclock during bootup,
+ # you may do so here. Alpha users may wish to use --arc or --srm here.

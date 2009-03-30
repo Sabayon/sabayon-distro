@@ -69,6 +69,8 @@ src_unpack() {
 
 	# Sabayon patches
 	epatch "${FILESDIR}"/${P}-disable_warnings_until_migrated.patch
+	epatch "${FILESDIR}"/${P}-enable_rc_logger.patch
+	epatch "${FILESDIR}"/${P}-tweak_hwclock_options.patch
 }
 
 src_compile() {
@@ -104,6 +106,10 @@ src_install() {
 
 	# Cater to the norm
 	(use x86 || use amd64) && sed -i -e '/^windowkeys=/s:NO:YES:' "${D}"/etc/conf.d/keymaps
+
+	# Sabayon hack, remove conf.d/hostname since it's always created by the installer
+	rm ${D}/etc/conf.d/hostname || die "cannot remove hostname config"
+
 }
 
 add_boot_init() {

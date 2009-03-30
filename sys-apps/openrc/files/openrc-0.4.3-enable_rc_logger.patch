@@ -1,0 +1,12 @@
+diff -Nurp openrc-0.4.3.orig/etc/rc.conf.in openrc-0.4.3/etc/rc.conf.in
+--- openrc-0.4.3.orig/etc/rc.conf.in	2009-02-11 07:55:19.000000000 +0100
++++ openrc-0.4.3/etc/rc.conf.in	2009-03-30 20:46:48.868987356 +0200
+@@ -38,7 +38,7 @@ rc_depend_strict="YES"
+ # /var/log/rc.log
+ # NOTE: Linux systems require the devfs service to be started before
+ # logging can take place and as such cannot log the sysinit runlevel.
+-rc_logger="NO"
++rc_logger="YES"
+ 
+ # By default we filter the environment for our running scripts. To allow other
+ # variables through, add them here. Use a * to allow all variables through.
