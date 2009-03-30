@@ -1,0 +1,16 @@
+diff -Nurp openrc-0.4.3.orig/sh/rc-functions.sh.in openrc-0.4.3/sh/rc-functions.sh.in
+--- openrc-0.4.3.orig/sh/rc-functions.sh.in	2009-03-30 14:29:42.716993242 +0200
++++ openrc-0.4.3/sh/rc-functions.sh.in	2009-03-30 14:30:44.986879057 +0200
+@@ -18,10 +18,10 @@ _addon_warn()
+ import_addon()
+ {
+ 	if [ -e "${RC_LIBDIR}/addons/$1.sh" ]; then
+-		_addon_warn
++		# _addon_warn
+ 		. "${RC_LIBDIR}/addons/$1.sh"
+ 	elif [ -e /@LIB@/rcscripts/addons/"$1".sh ]; then
+-		_addon_warn
++		# _addon_warn
+ 		. /@LIB@/rcscripts/addons/"$1".sh
+ 	else
+ 		return 1
