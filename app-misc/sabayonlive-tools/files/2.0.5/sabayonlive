@@ -8,74 +8,21 @@ depend() {
 	before xdm
 }
 
-my_start_acceleration_manager() {
+my_start_compiz() {
 
 	source /etc/profile
 	cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
-	cmdline_noaccelmanager_exist=$(cat /proc/cmdline | grep " noaccelmanager")
 	
 	# Configure AIGLX ?
 	if [ -n "$cmdline_aiglx_exist" ] && [ -z "$cmdline_xgl_exist" ]; then
 		#echo -en "\E[33;36m * \E[0m \E[01;32m Configuring the system for AIGLX... \E[0m"
 		/sbin/aiglx-setup enable &> /dev/null
 		#echo -e "Done"
-		killall ogg123 &> /dev/null
-		rm -rf /var/tmp/music.ogg &> /dev/null
+		#killall ogg123 &> /dev/null
+		#rm -rf /var/tmp/music.ogg &> /dev/null
 	fi
 	
-	# Start-up accel-manager - this must be always after gpu-configuration
-	if [ -z "$cmdline_noaccelmanager_exist" ] && [ -z "$cmdline_xgl_exist" ] && [ -z "$cmdline_aiglx_exist" ]; then
-		# ok, no xgl,aiglx and noaccelmanager parameters at boot. start the app
-		cmdline_nox_exist=$(cat /proc/cmdline | grep " nox")
-		cmdline_installer_gui_exist=$(cat /proc/cmdline | grep " installer-gui")
-		cmdline_installer_text_exist=$(cat /proc/cmdline | grep " installer-text")
-		cmdline_mediacenter_exist=$(cat /proc/cmdline | grep "mediacenter")
-		cmdline_game_exist=$(cat /proc/cmdline | grep " sabayon-game=")
-		cmdline_coldwar_exist=$(cat /proc/cmdline | grep " coldwar")
-		cmdline_vesaonly_exist=$(cat /proc/cmdline | grep "vesaonly")
-		if [ -z "$cmdline_nox_exist" ] && [ -z "$cmdline_installer_gui_exist" ] && [ -z "$cmdline_installer_text_exist" ] && [ -z "$cmdline_mediacenter_exist" ] && [ -z "$cmdline_game_exist" ] && [ -z "$cmdline_vesaonly_exist" ]; then
-			# Start KDM restarter check
-			livespawn /usr/share/accel-manager/accel-server-handler
-			/usr/share/accel-manager/desktop-accel-selector &> /dev/null
-		else
-			killall ogg123 &> /dev/null
-			rm -rf /var/tmp/music.ogg &> /dev/null
-		fi
-	else
-		/sbin/ldconfig &> /dev/null
-	fi
-	
-	if [ -n "$cmdline_noaccelmanager_exist" ]; then
-		killall ogg123 &> /dev/null
-		rm -rf /var/tmp/music.ogg &> /dev/null
-	fi
-
-}
-
-my_setup_autologin() {
-
-	# GDM - GNOME
-	sed -i 's/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/' /usr/share/gdm/defaults.conf
-	sed -i 's/^AutomaticLogin=.*/AutomaticLogin=sabayonuser/' /usr/share/gdm/defaults.conf
-
-	# KDM - KDE
-	for kver in `ls /usr/kde`; do
-
-		kdm_file="/usr/kde/${kver}/share/config/kdm/kdmrc"
-		if [ ! -f "$kdm_file" ]; then
-			continue
-		fi
-
-		sed -i 's/AutoLoginEnable=.*/AutoLoginEnable=true/' $kdm_file
-		sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' $kdm_file
-		sed -i 's/AutoLoginDelay=.*/AutoLoginDelay=0/' $kdm_file
-
-		sed -i '/^#.*AutoLoginEnable=/ s/^#//' $kdm_file
-		sed -i '/^#.*AutoLoginUser=/ s/^#//' $kdm_file
-		sed -i '/^#.*AutoLoginDelay=/ s/^#//' $kdm_file
-
-	done
-
+	/sbin/ldconfig &> /dev/null
 
 }
 
@@ -158,13 +105,11 @@ my_setup_desktop() {
 	chown sabayonuser:users /home/sabayonuser -R
 
 	# Disable memory eating services
-	rm -f /usr/share/autostart/skim.desktop
-	rm -f /usr/share/autostart/kerry.autostart.desktop
-	rm -f /usr/share/autostart/kbluetooth.autostart.desktop
-	rm -f /usr/share/autostart/beagled.desktop
-	rm -f /usr/share/autostart/etp-applet.desktop
-        rm -f /etc/xdg/autostart/etp-applet.desktop
-        rm -f /etc/xdg/autostart/beagled-autostart.desktop
+	rm -f /etc/xdg/autostart/hplip-systray.desktop
+	rm -f /etc/xdg/autostart/beagle-search-autostart.desktop
+	rm -f /etc/xdg/autostart/trackerd.desktop
+	rm -f /etc/xdg/autostart/etp-applet.desktop
+	rm -f /etc/xdg/autostart/beagled-autostart.desktop
 
         # Remove broken entries in /etc/mtab
         sed -i '/.*newroot.*/d' /etc/mtab
@@ -667,6 +612,9 @@ my_setup_xsistence_stop() {
 
 start() {
 
+	source /sbin/sabayon-functions.sh
+
+	sabayon_setup_md_devices
 	my_setup_realtech_nic
 	my_setup_desktop
 	my_setup_modules
@@ -681,9 +629,9 @@ start() {
 	# Check if LANG is forced by cmdline
 	my_setup_locale
 	# setup autologin for all the supported Login managers
-	my_setup_autologin
+	sabayon_setup_autologin
 	# Start Accel Manager or Configure XGL/AIGLX
-	my_start_acceleration_manager
+	my_start_compiz
 
 }
 

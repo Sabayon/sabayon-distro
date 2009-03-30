@@ -28,7 +28,6 @@ src_unpack() {
 	cp ${FILESDIR}/${PV}/installer-gui . -p
 	cp ${FILESDIR}/${PV}/installer-text . -p
 	cp ${FILESDIR}/${PV}/x-setup-configuration . -p
-	cp ${FILESDIR}/${PV}/xorg.conf.sabayon . -p
 	cp ${FILESDIR}/${PV}/bashlogin . -p
 	cp ${FILESDIR}/${PV}/opengl-activator . -p
 	cp ${FILESDIR}/${PV}/sabayonlive . -p
@@ -58,8 +57,8 @@ src_install() {
 	doexe livespawn
 	doexe sabutil
 
-	insinto /etc/X11
-	doins xorg.conf.sabayon
+	#insinto /etc/X11
+	#doins xorg.conf.sabayon
 
 	newinitd sabayonlive sabayonlive
 	newinitd installer-gui installer-gui
