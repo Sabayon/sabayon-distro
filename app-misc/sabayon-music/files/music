@@ -56,7 +56,6 @@ start() {
 			else
 				nice -n -15 ogg123 -p 30 -q /usr/share/sounds/boot.ogg &> /dev/null &
 			fi
-		sleep 5
 		eend 0
 	else
 		ebegin "Ok... music disabled"
