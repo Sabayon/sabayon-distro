@@ -1,8 +1,11 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils subversion
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
+inherit eutils
+
+EGIT_TREE="${PV}"
+EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
+inherit git
 
 DESCRIPTION="Official Sabayon Linux Package Manager Server Interface (tagged release)"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -15,10 +18,6 @@ S="${WORKDIR}"/trunk
 
 DEPEND="~sys-apps/entropy-${PV}"
 RDEPEND="${DEPEND}"
-
-src_compile() {
-	einfo "nothing to compile"
-}
 
 src_install() {
 
@@ -39,14 +38,14 @@ src_install() {
 	for package in ${inspackages}; do
 		doins ${package}
 	done
+	exeinto /usr/$(get_libdir)/entropy/server
+	for package in ${packages}; do
+		doexe ${package}
+	done
 
 	cd ${S}
 	for package in ${packages}; do
-		echo '#!/bin/sh' > ${package/.py/}
-		echo 'cd /usr/'$(get_libdir)'/entropy/server' >> ${package/.py/}
-		echo 'python '${package}' "$@"' >> ${package/.py/}
-		exeinto /usr/sbin
-		doexe ${package/.py/}
+		dosym /usr/$(get_libdir)/entropy/server/${package} /usr/sbin/${package/.py/}
 	done
 
 }

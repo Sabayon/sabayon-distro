@@ -2,11 +2,15 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=1
-inherit eutils subversion multilib
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
+inherit eutils multilib
+
+EGIT_TREE="${PV}"
+EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
+inherit git
 
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
+REPO_CONFPATH="/etc/entropy/repositories.conf"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -15,6 +19,7 @@ IUSE=""
 S="${WORKDIR}"/trunk
 
 DEPEND="
+	sys-apps/sandbox
 	sys-devel/gettext
 	sys-apps/diffutils
 	>=dev-lang/python-2.5[sqlite]
@@ -27,10 +32,7 @@ pkg_setup() {
 
 src_unpack() {
 	# prepare entropy stuff
-	subversion_src_unpack
-	# setting svn revision
-	#cd ${ESVN_STORE_DIR}/${PN}/trunk
-	#SVNREV=$(svnversion)
+	git_src_unpack
 	echo "${PV}" > ${S}/libraries/revision
 }
 
@@ -60,6 +62,9 @@ src_install() {
 	cd ${S}/server
 	exeinto /usr/sbin/
 	doexe entropy-system-daemon
+	cd ${S}/libraries
+	exeinto /usr/sbin
+	doexe entropy.sh
 
 	# copy configuration
 	cd ${S}/conf
@@ -77,4 +82,22 @@ src_install() {
 	cd "${S}/misc/po"
 	emake DESTDIR="${D}" install
 
+}
+
+pkg_preinst() {
+	# backup user repositories.conf
+	if [ -f "${REPO_CONFPATH}" ]; then
+		cp -p "${REPO_CONFPATH}" "${REPO_CONFPATH}.backup"
+	fi
+}
+
+pkg_postinst() {
+	# Copy config file over
+	if [ -f "${REPO_CONFPATH}.backup" ]; then
+		cp ${REPO_CONFPATH}.backup ${REPO_CONFPATH} -p
+	else
+		if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
+			cp ${REPO_CONFPATH}.example ${REPO_CONFPATH} -p
+		fi
+	fi
 }

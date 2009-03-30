@@ -1,8 +1,10 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils subversion multilib fdo-mime
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}/spritz"
+inherit eutils multilib fdo-mime
+EGIT_TREE="${PV}"
+EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
+inherit git
 DESCRIPTION="Official Sabayon Linux Package Manager Graphical Client (tagged release)"
 HOMEPAGE="http://www.sabayonlinux.org"
 
@@ -10,31 +12,16 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
-S="${WORKDIR}"/trunk
 
 RDEPEND="~sys-apps/entropy-${PV}
 	>=dev-python/pygtk-2.12.1-r2
-	>=x11-libs/vte-0.12.2
+	>=x11-libs/vte-0.12.2[python]
 	x11-misc/xdg-utils
 	"
 DEPEND="sys-devel/gettext"
 
-pkg_setup ()
-{
-	if ! built_with_use x11-libs/vte python; then
-		echo
-		eerror "x11-libs/vte has not been built with python support."
-		eerror "Please re-emerge vte with the python use-flag enabled."
-		die "missing python flag for x11-libs/vte"
-	fi
-}
-
-src_unpack() {
-	# prepare spritz stuff
-	subversion_src_unpack
-}
-
 src_install() {
+	cd "${S}/${PN}"
 	emake DESTDIR="${D}" install || die "make install failed"
 }
 

@@ -1,10 +1,12 @@
 # Copyright 2004-2008 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils subversion
-ESVN_REPO_URI="http://svn.sabayonlinux.org/projects/entropy/tags/${PV}"
+inherit eutils
+EGIT_TREE="${PV}"
+EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
+inherit git
 
-DESCRIPTION="Official Sabayon Linux Package Manager Client (tagged release)"
+DESCRIPTION="Official Sabayon Linux Package Manager Client"
 HOMEPAGE="http://www.sabayonlinux.org"
 
 LICENSE="GPL-2"
