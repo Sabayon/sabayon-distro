@@ -46,6 +46,8 @@ pkg_postinst() {
         # copy hostname file over
         if [ -f "${HOSTNAME_CONF}.backup" ]; then
                 cp ${HOSTNAME_CONF}.sabayon_backup ${HOSTNAME_CONF} -p
+	elif [ -f "${HOSTNAME_CONF}.example" ]; then
+		cp ${HOSTNAME_CONF}.example ${HOSTNAME_CONF} -p
         fi
 }
 
@@ -124,7 +126,7 @@ src_install() {
 	(use x86 || use amd64) && sed -i -e '/^windowkeys=/s:NO:YES:' "${D}"/etc/conf.d/keymaps
 
 	# Sabayon hack, remove conf.d/hostname since it's always created by the installer
-	rm ${D}/etc/conf.d/hostname || die "cannot remove hostname config"
+	mv ${D}/etc/conf.d/hostname ${D}/etc/conf.d/hostname.example || die "cannot move hostname config"
 
 }
 
