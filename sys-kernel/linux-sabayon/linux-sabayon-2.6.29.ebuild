@@ -33,6 +33,7 @@ S="${WORKDIR}/linux-${KV_FULL}"
 # SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}"
 
 UNIPATCH_LIST="
+	${FILESDIR}/${PV}/${P}-temp_revert_napi_complete_fix.patch
  	${FILESDIR}/${PV}/${P}-aufs.patch.bz2
 	${FILESDIR}/${PV}/current-tuxonice-for-head.patch-20090313-v1.bz2
 "
