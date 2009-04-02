@@ -24,6 +24,7 @@ Section "Module"
     Load    "ddc"
     Load    "vbe"
     Load    "dri"
+    Load    "glx"
     Load    "synaptics"
 EndSection
 
