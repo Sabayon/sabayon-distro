@@ -5,6 +5,7 @@ EAPI=1
 inherit eutils multilib
 
 EGIT_TREE="${PV}"
+EGIT_BRANCH="stable"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
 inherit git
 

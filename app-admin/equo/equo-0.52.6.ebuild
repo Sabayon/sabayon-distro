@@ -4,6 +4,7 @@
 inherit eutils
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
+EGIT_BRANCH="stable"
 inherit git
 
 DESCRIPTION="Official Sabayon Linux Package Manager Client"

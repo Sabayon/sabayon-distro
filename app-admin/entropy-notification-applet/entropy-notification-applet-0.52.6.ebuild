@@ -3,6 +3,7 @@
 
 inherit eutils multilib fdo-mime
 EGIT_TREE="${PV}"
+EGIT_BRANCH="stable"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
 inherit git
 DESCRIPTION="Entropy's Updates Notification Applet (GTK)"
