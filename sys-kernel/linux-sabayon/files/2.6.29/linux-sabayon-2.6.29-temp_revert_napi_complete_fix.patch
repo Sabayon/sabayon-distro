@@ -1,7 +1,8 @@
-diff -Nurp linux-2.6.29-sabayon.orig/net/core/dev.c linux-2.6.29-sabayon/net/core/dev.c
---- linux-2.6.29-sabayon.orig/net/core/dev.c	2009-03-23 23:12:14.000000000 +0000
-+++ linux-2.6.29-sabayon/net/core/dev.c	2009-04-01 08:46:07.000000000 +0000
-@@ -2588,9 +2588,9 @@ static int process_backlog(struct napi_s
+kdiff --git a/net/core/dev.c b/net/core/dev.c
+index 052dd47..63ec4bf 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -2627,18 +2627,15 @@ static int process_backlog(struct napi_struct *napi, int quota)
  		local_irq_disable();
  		skb = __skb_dequeue(&queue->input_pkt_queue);
  		if (!skb) {
@@ -13,11 +14,13 @@ diff -Nurp linux-2.6.29-sabayon.orig/net/core/dev.c linux-2.6.29-sabayon/net/cor
  		}
  		local_irq_enable();
  
-@@ -2599,7 +2599,6 @@ static int process_backlog(struct napi_s
+-		napi_gro_receive(napi, skb);
++		netif_receive_skb(skb);
+ 	} while (++work < quota && jiffies == start_time);
  
- 	napi_gro_flush(napi);
- 
+-	napi_gro_flush(napi);
+-
 -out:
  	return work;
  }
- 
+

@@ -1,0 +1,61 @@
+Added-By: Gordon Malm <gengor@gentoo.org>
+
+---
+From: Theodore Ts'o <tytso@mit.edu>
+Date: Tue, 24 Feb 2009 13:21:14 +0000 (-0500)
+Subject: ext4: Automatically allocate delay allocated blocks on close
+X-Git-Url: http://git.kernel.org/?p=linux%2Fkernel%2Fgit%2Ftytso%2Fext4.git;a=commitdiff_plain;h=6645f8c3bc3cdaa7de4aaa3d34d40c2e8e5f09ae
+
+ext4: Automatically allocate delay allocated blocks on close
+
+When closing a file that had been previously truncated, force any
+delay allocated blocks that to be allocated so that if the filesystem
+is mounted with data=ordered, the data blocks will be pushed out to
+disk along with the journal commit.  Many application programs expect
+this, so we do this to avoid zero length files if the system crashes
+unexpectedly.
+
+Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
+---
+
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index ea51c89..234c731 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -269,6 +269,7 @@ static inline __u32 ext4_mask_flags(umode_t mode, __u32 flags)
+ #define EXT4_STATE_NEW			0x00000002 /* inode is newly created */
+ #define EXT4_STATE_XATTR		0x00000004 /* has in-inode xattrs */
+ #define EXT4_STATE_NO_EXPAND		0x00000008 /* No space for expansion */
++#define EXT4_STATE_DA_ALLOC_CLOSE	0x00000010 /* Alloc DA blks on close */
+ 
+ /* Used to pass group descriptor data when online resize is done */
+ struct ext4_new_group_input {
+diff --git a/fs/ext4/file.c b/fs/ext4/file.c
+index f731cb5..06df827 100644
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -33,6 +33,10 @@
+  */
+ static int ext4_release_file(struct inode *inode, struct file *filp)
+ {
++	if (EXT4_I(inode)->i_state & EXT4_STATE_DA_ALLOC_CLOSE) {
++		ext4_alloc_da_blocks(inode);
++		EXT4_I(inode)->i_state &= ~EXT4_STATE_DA_ALLOC_CLOSE;
++	}
+ 	/* if we are the last writer on the inode, drop the block reservation */
+ 	if ((filp->f_mode & FMODE_WRITE) &&
+ 			(atomic_read(&inode->i_writecount) == 1))
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index ead57ab..666caa9 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3871,6 +3871,9 @@ void ext4_truncate(struct inode *inode)
+ 	if (!ext4_can_truncate(inode))
+ 		return;
+ 
++	if (inode->i_size == 0)
++		ei->i_state |= EXT4_STATE_DA_ALLOC_CLOSE;
++
+ 	if (EXT4_I(inode)->i_flags & EXT4_EXTENTS_FL) {
+ 		ext4_ext_truncate(inode);
+ 		return;
