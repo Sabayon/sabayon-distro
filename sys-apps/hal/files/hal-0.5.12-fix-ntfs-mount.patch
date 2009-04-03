@@ -1,0 +1,11 @@
+diff -Nurp hal-0.5.12rc1.orig/fdi/policy/10osvendor/20-storage-methods.fdi hal-0.5.12rc1/fdi/policy/10osvendor/20-storage-methods.fdi
+--- hal-0.5.12rc1.orig/fdi/policy/10osvendor/20-storage-methods.fdi	2009-04-03 18:18:18.000000000 +0200
++++ hal-0.5.12rc1/fdi/policy/10osvendor/20-storage-methods.fdi	2009-04-03 18:19:49.000000000 +0200
+@@ -224,6 +224,7 @@
+ 	  <append key="volume.mount.valid_options" type="strlist">gid=</append>
+ 	  <append key="volume.mount.valid_options" type="strlist">umask=</append>
+ 	  <append key="volume.mount.valid_options" type="strlist">utf8</append>
++	  <append key="volume.mount.valid_options" type="strlist">locale=</append>
+ 	</match>
+ 	<match key="/org/freedesktop/Hal/devices/computer:system.kernel.name" string="FreeBSD">
+ 	  <append key="volume.mount.valid_options" type="strlist">-u=</append>
