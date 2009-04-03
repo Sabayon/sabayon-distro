@@ -293,7 +293,7 @@ pkg_preinst() {
 pkg_postinst() {
 
         # copy hostname file over
-        if [ -f "${HOSTNAME_CONF}.backup" ]; then
+        if [ -f "${HOSTNAME_CONF}.sabayon_backup" ]; then
                 cp ${HOSTNAME_CONF}.sabayon_backup ${HOSTNAME_CONF} -p
 	elif [ -f "${HOSTNAME_CONF}.example" ]; then
 		cp ${HOSTNAME_CONF}.example ${HOSTNAME_CONF} -p
