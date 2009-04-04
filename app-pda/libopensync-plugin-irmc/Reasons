@@ -1,0 +1,3 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+Fix DEPEND to include net-wireless/bluez dependency
+once this will be done upstream, this ebuild can go
