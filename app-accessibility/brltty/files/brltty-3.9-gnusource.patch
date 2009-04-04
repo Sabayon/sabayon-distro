@@ -1,0 +1,17 @@
+2008-09-17  Stepan Kasal  <skasal@redhat.com>
+
+	* configure.ac: Add -D_GNU_SOURCE to get struct ucred from
+	socket.h.
+
+diff -up brltty-3.10/configure.ac.gnusource brltty-3.10/configure.ac
+--- brltty-3.10/configure.ac.gnusource	2008-07-17 00:19:54.000000000 +0200
++++ brltty-3.10/configure.ac	2008-09-17 12:44:28.000000000 +0200
+@@ -779,7 +779,7 @@ AC_CACHE_CHECK([for system-dependent com
+ case "${host_os}"
+ in
+    linux*|gnu*|kfreebsd*)
+-      brltty_cv_prog_cc_sysflags="-D_POSIX_C_SOURCE=2 -D_BSD_SOURCE -D_XOPEN_SOURCE=500 -D_XOPEN_SOURCE_EXTENDED"
++      brltty_cv_prog_cc_sysflags="-D_POSIX_C_SOURCE=2 -D_BSD_SOURCE -D_XOPEN_SOURCE=500 -D_XOPEN_SOURCE_EXTENDED -D_GNU_SOURCE"
+       ;;
+    solaris*)
+       brltty_cv_prog_cc_sysflags="-D_XOPEN_SOURCE=500 -D__EXTENSIONS__"

@@ -1,0 +1,26 @@
+diff -Naur brltty-3.10-orig/common.mk brltty-3.10/common.mk
+--- brltty-3.10-orig/common.mk	2008-07-16 16:19:54.000000000 -0600
++++ brltty-3.10/common.mk	2008-09-22 21:53:19.000000000 -0600
+@@ -73,8 +73,9 @@
+ install-apihdr-directory:
+ 	$(INSTALL_DIRECTORY) $(INSTALL_APIHDR_DIRECTORY)
+ 
++INSTALL_API_SOCKET_DIRECTORY = $(INSTALL_ROOT)$(API_SOCKET_DIRECTORY)
+ install-apisoc-directory:
+-	-$(INSTALL_DIRECTORY) -m 1777 $(API_SOCKET_DIRECTORY)
++	-$(INSTALL_DIRECTORY) -m 1777 $(INSTALL_API_SOCKET_DIRECTORY)
+ 
+ clean::
+ 	-rm -f *.$O *.auto.h *.auto.c core implib.a
+diff -Naur brltty-3.10-orig/configure.ac brltty-3.10/configure.ac
+--- brltty-3.10-orig/configure.ac	2008-09-22 21:36:40.000000000 -0600
++++ brltty-3.10/configure.ac	2008-09-22 21:52:11.000000000 -0600
+@@ -535,7 +535,7 @@
+       api_dynamic_library="api-dynamic-library"
+       install_api_libraries="install-api-libraries"
+       uninstall_api_libraries="uninstall-api-libraries"
+-      api_socket_path="${localstatedir}/lib/BrlAPI"
++      api_socket_path="${localstatedir}/BrlAPI"
+ 
+       case "${host_os}"
+       in
