@@ -1,0 +1,5 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+This ebuild was brought here for two reasons:
+- Portage has 4.32 (this is 4.34)
+- Portage ebuild didn't patch bluez dbus conf
+  which uses at_console instead of group="plugdev"
