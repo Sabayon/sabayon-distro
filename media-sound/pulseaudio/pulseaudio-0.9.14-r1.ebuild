@@ -33,7 +33,7 @@ RDEPEND="X? ( x11-libs/libX11 x11-libs/libSM x11-libs/libXau x11-libs/libXdmcp )
 	)
 	app-admin/eselect-esd
 	bluetooth? (
-		>=net-wireless/bluez-libs-3
+		|| ( net-wireless/bluez >=net-wireless/bluez-libs-3 )
 		>=sys-apps/dbus-1.0.0
 	)
 	policykit? ( sys-auth/policykit )
@@ -59,7 +59,7 @@ DEPEND="${RDEPEND}
 # bluez-utils dep is for the bluetooth init.d script
 RDEPEND="${RDEPEND}
 	gnome-extra/gnome-audio
-	bluetooth? ( >=net-wireless/bluez-utils-3 )"
+	bluetooth? ( || ( net-wireless/bluez >=net-wireless/bluez-utils-3 ) )"
 
 pkg_setup() {
 	enewgroup audio 18 # Just make sure it exists
