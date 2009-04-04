@@ -170,7 +170,7 @@ src_install() {
 		"${D}"/usr/share/doc/grub-static-${PF/grub-}
 
 	insinto /usr/share/grub
-	doins "${FILESDIR}"/${PF}.xpm.gz
+	cp "${FILESDIR}"/${PF}.xpm.gz ${D}/usr/share/grub/splash.xpm.gz
 
 }
 
