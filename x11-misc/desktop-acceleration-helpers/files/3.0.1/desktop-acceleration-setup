@@ -5,16 +5,6 @@
 # TODO:
 # - put the proper settings icon on the Desktop
 
-# Constants
-if [ -e "/usr/kde/3.5" ];then
-    kdmdir="/usr/kde/3.5/share/config/kdm/"
-elif [ -e "/usr/kde/4.1" ];then
-    kdmdir="/usr/kde/4.1/share/config/kdm/"
-elif [ -e "/usr/kde/4.2" ];then
-    kdmdir="/usr/kde/4.2/share/config/kdm/"
-elif [ -e "/usr/kde/4.3" ];then
-    kdmdir="/usr/kde/4.3/share/config/kdm/"
-fi
 if [ -e "/sbin/lspci" ];then
     lspci="/sbin/lspci"
 else
@@ -41,28 +31,6 @@ write_acceleration_method() {
         echo "Acceleration=$1" > $desktop_acceleration_helpers_config_file
     else
         sed -i 's/Acceleration=.*/Acceleration='$1'/' $desktop_acceleration_helpers_config_file
-    fi
-}
-
-configure_kdm() {
-    if [ "$1" == "xgl" ]; then
-        # Changing KDM configuration
-	if [ -n "$xgl_nvidia" ]; then
-	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:fbo /' $kdmdir/kdmrc
-        elif [ -n "$xgl_ati" ]; then
-	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv:pbuffer /' $kdmdir/kdmrc
-	else
-	   sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/Xgl -ac -accel glx:pbuffer -accel xv /' $kdmdir/kdmrc
-	fi
-    elif [ "$1" == "none" ]; then
-        # Changing KDM configuration
-        sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
-    elif [ "$1" == "aiglx" ]; then
-        # Changing KDM configuration
-        sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
-    elif [ "$1" == "nvidia" ]; then
-        # Changing KDM configuration- is actually no different from none or aiglx, but adds consistency
-        sed -i 's/ServerCmd=.*/ServerCmd=\/usr\/bin\/X/' $kdmdir/kdmrc
     fi
 }
 
@@ -221,7 +189,7 @@ fi
 
 if [ "$show_help" == 1 ]; then
    echo
-   echo "desktop-acceleration-setup - SabayonLinux - Copyright 2007"
+   echo "desktop-acceleration-setup - SabayonLinux - Copyright 2007-2009"
    echo
    echo "This helper enable/disable AIGLX/XGL Subsystem fueled by Compiz."
    echo "   Usage:"
@@ -248,55 +216,10 @@ if [ ! -e "$desktop_acceleration_helpers_config_file" ]; then
     echo "Acceleration=none" > $desktop_acceleration_helpers_config_file
 fi
 
-if [ "$1" == "xgl" ]; then
-
-    if [ "$2" == "enable" ]; then
-        echo -en "Enabling XGL system wide..."
-
-	# Configure kdmrc
-	configure_kdm xgl
-
-        # remove old stuff
-        scan_and_remove_old_files
-
-	# Compiz Manager startup file - create file $compiz_manager_desktop_file
-	create_compiz_manager_desktop_file
-
-	# Add Beryl to the startup
-	add_compiz_manager_to_the_startup
-
-	# remove junk
-	rm -f $compiz_manager_desktop_file
-
-	# set XGL in the config file
-	write_acceleration_method xgl
-
-        echo -e "Done"
-    else
-        echo -en "Disabling XGL system wide (reverting to X.Org)..."
-
-        # Changing KDM configuration
-        configure_kdm none
-
-        # remove old stuff
-        scan_and_remove_old_files
-
-        # remove compiz-manager
-        remove_compiz_manager_from_startup
-
-	# set No Acceleration in the config file
-	write_acceleration_method none
-
-        echo -e "Done"
-    fi
-
-elif [ "$1" == "aiglx" ]; then
+if [ "$1" == "aiglx" ]; then
 
    if [ "$2" == "enable" ]; then
         echo "Enabling AIGLX system wide..."
-
-        # Changing KDM configuration
-        configure_kdm aiglx
 
         # remove old stuff
         scan_and_remove_old_files
@@ -320,9 +243,6 @@ elif [ "$1" == "aiglx" ]; then
    else
         echo "Disabling AIGLX system wide..."
 
-        # Changing KDM configuration
-        configure_kdm none
-
         # remove old stuff
         scan_and_remove_old_files
 
@@ -342,9 +262,6 @@ elif [ "$1" == "nvidia" ]; then
 
    if [ "$2" == "enable" ]; then
         echo "Enabling NVidia system wide..."
-
-        # Changing KDM configuration
-        configure_kdm nvidia
 
         # remove old stuff
         scan_and_remove_old_files
@@ -370,9 +287,6 @@ elif [ "$1" == "nvidia" ]; then
         echo -e "Done"
    else
         echo "Disabling NVidia system wide..."
-
-        # Changing KDM configuration
-        configure_kdm none
 
         # remove old stuff
         scan_and_remove_old_files

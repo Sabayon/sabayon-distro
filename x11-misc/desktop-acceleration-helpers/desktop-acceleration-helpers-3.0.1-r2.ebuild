@@ -28,10 +28,3 @@ src_install () {
 	doins ${FILESDIR}/${PV}/desktop-acceleration-helpers.conf
 
 }
-
-pkg_preinst() {
-	ewarn "If you are using an ATI video card:"
-	ewarn "Please upgrade your drivers to >=ati-drivers-8.42.3 !!!"
-	ewarn "With this package we are dropping XGL support"
-	sleep 5
-}
