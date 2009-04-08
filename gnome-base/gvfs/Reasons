@@ -1,0 +1,3 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+- added here with the aim to fix the "no mount object for mounted volume" bug
+through a Red Hat patch.
