@@ -157,6 +157,14 @@ src_install() {
 }
 
 pkg_postinst() {
+
+	fstab_file="${ROOT}/etc/fstab"
+	einfo "Removing extents option for ext4 drives from ${fstab_file}"
+	# Remove "extents" from /etc/fstab
+	if [ -f "${fstab_file}" ]; then
+		sed -i '/ext4/ s/extents//g' ${fstab_file}
+	fi
+
 	kernel-2_pkg_postinst
 	einfo "Please report kernel bugs at:"
 	einfo "http://bugs.sabayonlinux.org"
