@@ -3,5 +3,4 @@
 cat /etc/motd 2>/dev/null
 cd /root
 [[ -e .bash_profile ]] && source .bash_profile
-kbdrate -s -r 25
 exec -l /bin/bash -i

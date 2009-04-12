@@ -632,6 +632,8 @@ start() {
 	sabayon_setup_autologin
 	# Start Accel Manager or Configure XGL/AIGLX
 	my_start_compiz
+	sabayon_setup_motd
+	sabayon_setup_vt_autologin
 
 }
 

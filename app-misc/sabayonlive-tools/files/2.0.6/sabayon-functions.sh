@@ -29,6 +29,16 @@ sabayon_setup_autologin() {
 
 }
 
+sabayon_setup_motd() {
+	echo -e "\n\tWelcome to `cat /etc/sabayon-edition`\n\t`uname -p`\n\t`uname -o` `uname -r`\n" > /etc/motd
+}
+
+sabayon_setup_vt_autologin() {
+	source /sbin/livecd-functions.sh
+	export CDBOOT=1
+	livecd_fix_inittab
+}
+
 sabayon_setup_md_devices() {
 	for i in 0 1 2 3 4 5 6 7 8 9 10; do
 		mknod /dev/md$i b 9 $i &> /dev/null
