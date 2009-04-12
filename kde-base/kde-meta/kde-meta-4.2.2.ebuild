@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-base/kde-meta/kde-meta-4.2.1.ebuild,v 1.1 2009/03/04 21:03:47 alexxy Exp $
+# $Header: /var/cvsroot/gentoo-x86/kde-base/kde-meta/kde-meta-4.2.2.ebuild,v 1.1 2009/04/11 22:43:25 alexxy Exp $
 
 EAPI="2"
 
@@ -8,7 +8,7 @@ DESCRIPTION="KDE - merge this to pull in all non-developer, split kde-base/* pac
 HOMEPAGE="http://www.kde.org/"
 LICENSE="GPL-2"
 
-KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~x86"
 SLOT="4.2"
 IUSE="accessibility +mysql nls"
 
@@ -27,7 +27,10 @@ RDEPEND="
 	>=kde-base/kdetoys-meta-${PV}:${SLOT}
 	>=kde-base/kdeutils-meta-${PV}:${SLOT}
 	accessibility? ( >=kde-base/kdeaccessibility-meta-${PV}:${SLOT} )
-	mysql? ( >=kde-base/kdepim-meta-${PV}:${SLOT} )
+	mysql? (
+		>=kde-base/kdepim-meta-${PV}:${SLOT}
+		>=kde-base/kdewebdev-meta-${PV}:${SLOT}
+	)
 	nls? ( >=kde-base/kde-l10n-meta-${PV}:${SLOT} )
 "
 # make kdepim-meta optional since it requires long hated mysql which people tend
