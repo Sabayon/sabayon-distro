@@ -11,10 +11,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
-RDEPEND="
-	=x11-themes/sabayon-artwork-4*
-	!<=app-misc/sabayonlinux-skel-3.5-r6
-	"
+RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6"
 
 
 src_install () {
