@@ -262,43 +262,52 @@ def updateHalKeyboardXml(hal_keymap_etc_path, mysetting):
 # KDE keymap config
 def configureKDEKeymap(keyLocale):
 
-    def KDEKeymapHandler(dir,keyLocale):
-        put, get = os.popen4("find "+ROOT+"/"+dir+" -name kxkbrc")
-        kxkbrcFiles = get.readlines()
-        findError = False
-        if kxkbrcFiles != []:
-            if kxkbrcFiles[0].find("find:") != -1:
-                findError = True
-            if (not findError):
-                for file in kxkbrcFiles:
-                    file = file.strip()
-                    print_info("configuring KDE file "+file)
-                    # Open file and edit
-                    f = open(file,"r")
-                    kxkbFile = f.readlines()
-                    f.close()
-                    newKxkbFile = []
-                    # look for [Layout]
-                    layoutEntryExists = False
-                    for line in kxkbFile:
-                        if line.find("Layout=") != -1:
-                            layoutEntryExists = True
-                    if (not layoutEntryExists):
-                        # append the line
-                        for line in kxkbFile:
-                            newKxkbFile.append(line)
-                        newKxkbFile.append("Layout="+keyLocale+"\n")
-                    else:
-                        # change the line
-                        for line in kxkbFile:
-                            if line.find("Layout=") != -1:
-                                line = "Layout="+keyLocale+"\n"
-                            newKxkbFile.append(line)
+    def KDEKeymapHandler(xdir, keyLocale):
 
-                    f = open(file,"w")
-                    f.writelines(newKxkbFile)
-            else:
-                print_warning("no kxkbrc file(s) in "+dir)
+        put, get = os.popen4("find "+ROOT+"/"+xdir+" -name kxkbrc")
+        kxkbrcFiles = get.readlines()
+        if not kxkbrcFiles:
+            return
+        if kxkbrcFiles[0].find("find:") != -1:
+            print_warning("no kxkbrc file(s) in "+xdir)
+            return
+
+        for file in kxkbrcFiles:
+            file = file.strip()
+            print_info("configuring KDE file "+file)
+            # Open file and edit
+            fstat = os.stat(file)
+            uid, gid = fstat.st_uid, fstat.st_gid
+            f = open(file,"r")
+            kxkbFile = f.readlines()
+            f.close()
+            f = open(file+".sltmp","w")
+            layout_exists = False
+            display_names_exists = False
+            layout_list_exists = False
+            for line in kxkbFile:
+                if line.startswith("Layout="):
+                    layout_exists = True
+                    line = "Layout=%s\n" % (keyLocale,)
+                elif line.startswith("DisplayNames="):
+                    display_names_exists = True
+                    line = "DisplayNames=%s\n" % (keyLocale,)
+                elif line.startswith("LayoutList="):
+                    layout_list_exists = True
+                    line = "LayoutList=%s\n" % (keyLocale,)
+                f.write(line)
+
+            if not layout_exists:
+                f.write("Layout=%s\n" % (keyLocale,))
+            if not display_names_exists:
+                f.write("DisplayNames=%s\n" % (keyLocale,))
+            if not layout_list_exists:
+                f.write("LayoutList=%s\n" % (keyLocale,))
+
+            f.flush()
+            f.close()
+            os.rename(file+".sltmp",file)
+            os.chown(file, uid, gid)
 
     print_info("Setting up KDE keyboard mapping...")
 
