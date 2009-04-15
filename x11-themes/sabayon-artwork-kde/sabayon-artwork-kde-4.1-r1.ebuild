@@ -1,11 +1,12 @@
 # Copyright 2004-2008 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils versionator
+EAPI=2
+inherit eutils kde4-base 
 
 DESCRIPTION="Sabayon Linux Official KDE artwork"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-4.0.97.tar.bz2"
+SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-${PVR}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
@@ -21,6 +22,14 @@ RDEPEND="
 	"
 
 S="${WORKDIR}/${PN}"
+
+src_configure() {
+	einfo "nothing to configure"
+}
+
+src_compile() {
+	einfo "nothing to compile"
+}
 
 src_install() {
 
@@ -49,15 +58,16 @@ src_install() {
 	doins -r ./
 
 	## KDE 4
-	dodir /usr/kde/4.2/share/apps/kdm/themes
+	dodir ${KDEDIR}/share/apps/kdm/themes
 	cd ${S}/kdm4
-	insinto /usr/kde/4.2/share/apps/kdm/themes
+	insinto ${KDEDIR}/share/apps/kdm/themes
 	doins -r ./
 
-}
+	# splash
+	dodir ${KDEDIR}/share/apps/ksplash/Themes
+	cd ${S}/ksplash4
+	insinto ${KDEDIR}/share/apps/ksplash/Themes
+	doins -r ./
+	rm ${D}/usr/kde/4.2/share/apps/ksplash/Themes/Sabayon/Theme.rc~ -f
 
-pkg_postinst () {
-	einfo "This is a prelease - ${PVR}"
-	einfo "Please report bugs or glitches to"
-	einfo "bugs.sabayonlinux.org"
 }
