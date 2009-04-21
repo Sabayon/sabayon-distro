@@ -1,0 +1,3 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+Added a patch that fixes QGraphicsProxyWidget events: dragEnterEvent,
+dragLeaveEvent, dragMoveEvent, dropEvent
