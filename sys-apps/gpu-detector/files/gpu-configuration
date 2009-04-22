@@ -165,6 +165,23 @@ def remove_proprietary_opengl():
 	else:
 		print "I was about to remove proprietary OpenGL libraries"
 
+def remove_tar_members_from_sys(tarpath):
+	import tarfile
+	tar = tarfile.open(tarpath)
+	for el in sorted(tar.getnames(), reverse = True):
+		el = "/%s" % (el,)
+		if os.path.isfile(el):
+			try:
+				os.remove(el)
+			except OSError:
+				pass
+		if os.path.isdir(el):
+			try:
+				os.rmdir(el)
+			except OSError:
+				pass
+	tar.close()
+
 def check_if_driver_is_available(xdriver):
 	if os.path.isfile('/usr/lib/xorg/modules/drivers/'+xdriver+'_drv.so'):
 		print "check_if_driver_is_available for "+xdriver+": available"
@@ -233,6 +250,8 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 
 		# try to check driver status now
 		rc = check_if_proprietary_driver_system_is_healthy("nvidia")
+		if not rc:
+			remove_tar_members_from_sys(package_file)
 		return rc
 	else:
 		print "I was about to run deploy_nvidia_xxxxxx_drivers, ver: %s" % (ver,)
