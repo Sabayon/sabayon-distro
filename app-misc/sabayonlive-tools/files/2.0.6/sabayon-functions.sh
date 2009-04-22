@@ -20,9 +20,17 @@ sabayon_setup_autologin() {
                 sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' $kdm_file
                 sed -i 's/AutoLoginDelay=.*/AutoLoginDelay=0/' $kdm_file
 
+                sed -i 's/AllowRootLogin=.*/AllowRootLogin=true/' $kdm_file
+                sed -i 's/AllowNullPasswd=.*/AllowNullPasswd=true/' $kdm_file
+                sed -i 's/AllowShutdown=.*/AllowShutdown=All/' $kdm_file
+
                 sed -i '/^#.*AutoLoginEnable=/ s/^#//' $kdm_file
                 sed -i '/^#.*AutoLoginUser=/ s/^#//' $kdm_file
                 sed -i '/^#.*AutoLoginDelay=/ s/^#//' $kdm_file
+
+                sed -i '/^#AllowRootLogin=/ s/^#//' $kdm_file
+                sed -i '/^#AllowNullPasswd=/ s/^#//' $kdm_file
+                sed -i '/^#AllowShutdown=/ s/^#//' $kdm_file
 
         done
 
