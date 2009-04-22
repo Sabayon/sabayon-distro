@@ -9,7 +9,7 @@ diff -Nurp kdm-4.2.2.orig/kdm/config.def kdm-4.2.2/kdm/config.def
 +Default: true
  User: core
 -Instance: #:*/!
-+Instance: true
++Instance: :*/true
  Merge: xdm
  Comment:
   Restart instead of resetting the local &X-Server; after session exit.
