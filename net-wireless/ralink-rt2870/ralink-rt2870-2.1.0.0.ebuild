@@ -8,9 +8,9 @@ DESCRIPTION="Driver for the RaLink RT2870 USB wireless chipsets"
 HOMEPAGE="http://www.ralinktech.com/ralink/Home/Support/Linux.html"
 LICENSE="GPL-2"
 
-RESTRICT="mirror"
+RESTRICT="nomirror"
 
-MY_P="2008_0925_RT2870_Linux_STA_v${PV}"
+MY_P="2009_0302_RT2870_Linux_STA_v${PV}"
 
 SRC_URI="http://www.ralinktech.com.tw/data/drivers/${MY_P}.tar.bz2"
 
@@ -31,10 +31,6 @@ ERROR_WIRELESS_EXT="${P} requires support for Wireless LAN drivers (non-hamradio
 
 src_compile() {
 	cd "${S}"
-	epatch ${FILESDIR}/${P}-fixes.patch
-	epatch ${FILESDIR}/${P}-wpa.patch
-	use debug || epatch ${FILESDIR}/${P}-nodebug.patch
-	epatch ${FILESDIR}/${P}-cve-2009-0282.patch
 	if kernel_is 2 6; then
 		cp os/linux/Makefile.6 os/linux/Makefile
 	elif kernel_is 2 4; then
@@ -42,9 +38,11 @@ src_compile() {
 	else
 		die "Your kernel version is not supported!"
 	fi
-
-	emake || die "Compilation failed!"
-#	linux-mod_src_compile
+	myarch=${ARCH}
+	unset ARCH
+	emake || die "make failed"
+	ARCH=${myarch}
+	#linux-mod_src_compile
 }
 
 src_install() {
