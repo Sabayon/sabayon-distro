@@ -8,10 +8,10 @@ DESCRIPTION="Driver for the RaLink RT2860 wireless chipset"
 HOMEPAGE="http://www.ralinktech.com/"
 LICENSE="GPL-2"
 
-MY_RELDATE="2008_0918"
-MY_P="${MY_RELDATE}_RT2860_Linux_STA_v${PV}"
+MY_RELDATE="2009_0420"
+MY_P="${MY_RELDATE}_RT2860_Linux_STA_V${PV}"
 
-SRC_URI="http://www.ralinktech.com.tw/data/drivers/${MY_P}.tar.bz2"
+SRC_URI="http://www.ralinktech.com.tw/data/drivers/${MY_P}.tar.gz"
 
 KEYWORDS="-* ~amd64 ~x86"
 IUSE="networkmanager"
@@ -20,7 +20,7 @@ SLOT="0"
 DEPEND=""
 RDEPEND="net-wireless/wireless-tools"
 
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/DPO_RT2860_LinuxSTA_V${PV}"
 
 MODULE_NAMES="rt2860sta(wireless:${S}/os/linux)"
 BUILD_PARAMS="-j1 -C \${KERNEL_DIR} M=\"${S}/os/linux\" PLATFORM=PC CHIPSET=2860 \
