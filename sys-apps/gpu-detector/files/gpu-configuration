@@ -400,6 +400,8 @@ def generate_generic_steps():
 	steps.append(('remove_proprietary_opengl',))
 	steps.append(('opengl_activate','xorg-x11',))
 
+def drop_kernel_mod(kmod):
+	return os.system("modprobe -r %s &> /dev/null" % (kmod,))
 
 ### APPLICATION
 
@@ -457,15 +459,16 @@ for videocard in videocards:
 	if forced_xdriver:
 		print "You have chosen to force X driver: "+forced_xdriver
 		if forced_xdriver == "fglrx":
-			if noopengl or check_if_proprietary_driver_system_is_healthy("fglrx"):
+			if noopengl or check_if_proprietary_driver_system_is_healthy("fglrx") or noproprietary:
 				steps.append(('opengl_activate','xorg-x11'))
-				forced_xdriver = "radeon"
+				forced_xdriver = "ati"
+				steps.append(('drop_kernel_mod','fglrx',)
 			else:
 				steps.append(('fix_possible_opengl_misconfiguration','ati'))
 				steps.append(('copy_ati_settings_on_desktop',))
 				steps.append(('opengl_activate','ati'))
 				
-		elif forced_xdriver == "nvidia":
+		elif forced_xdriver == "nvidia" and (not noproprietary):
 			generate_nvidia_steps(cardnumber,total_cards,bus_id)
 		elif forced_xdriver == "vesa":
 			forced_monitor_modes = True
@@ -609,7 +612,10 @@ for videocard in videocards:
 			print "Riva TNT!"
 	
 		elif nvidia.match(videocard.lower()):
-			generate_nvidia_steps(cardnumber,total_cards,bus_id)
+			if noproprietary:
+				steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
+			else:
+				generate_nvidia_steps(cardnumber,total_cards,bus_id)
 			print "NVIDIA!"
 		
 		elif ati.match(videocard.lower()):
@@ -620,7 +626,7 @@ for videocard in videocards:
                             radeon_8xx0.match(videocard.lower()) or \
                             radeon_9xx0_free.match(videocard.lower()):
 				generate_generic_steps()
-				steps.append(('set_xorg_device','radeon',cardnumber,total_cards,bus_id,))
+				steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
 			elif radeon_3x0.match(videocard.lower()) or \
                             radeon_4x0.match(videocard.lower()) or \
                             radeon_5x0.match(videocard.lower()) or \
@@ -631,11 +637,21 @@ for videocard in videocards:
                             ati_firegl.match(videocard.lower()) or \
                             radeon_m_XX_closed.match(videocard.lower()) or \
 			    radeon_hd.match(videocard.lower()):
-				if (not noopengl):
-					steps.append(('fix_possible_opengl_misconfiguration','ati'))
-					steps.append(('copy_ati_settings_on_desktop',))
-					steps.append(('opengl_activate','ati'))
-				steps.append(('set_xorg_device','fglrx',cardnumber,total_cards,bus_id,))
+				if noproprietary:
+					if radeon_hd.match(videocard.lower()):
+						if check_if_driver_is_available('radeonhd'):
+							steps.append(('set_xorg_device','radeonhd',cardnumber,total_cards,bus_id,))
+						else:
+							steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
+					else:
+						steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
+					steps.append(('drop_kernel_mod','fglrx',)
+				else:
+					if not noopengl:
+						steps.append(('fix_possible_opengl_misconfiguration','ati'))
+						steps.append(('copy_ati_settings_on_desktop',))
+						steps.append(('opengl_activate','ati'))
+					steps.append(('set_xorg_device','fglrx',cardnumber,total_cards,bus_id,))
 			else:
 				print "ATTENTION !!!"
 				print "ATTENTION !!!"
@@ -643,7 +659,7 @@ for videocard in videocards:
 				print "--> ATI Card undetected: "+videocard
 				print "SETTING OPEN SOURCE DRIVERS"
 				generate_generic_steps()
-				steps.append(('set_xorg_device','radeon',cardnumber,total_cards,bus_id,))
+				steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
 		else:
 			steps.append(('set_xorg_device','vesa',cardnumber,total_cards,bus_id,))
 			print "ATTENTION !!!"
