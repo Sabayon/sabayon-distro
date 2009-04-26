@@ -8,3 +8,6 @@ eminent is a library that provides lua functions to awesome 3
 ======
 30.07.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>
            - eminent: welcome :)
+           
+26.04.09 - Ian Whyman <ian.whyman@sabayonlinux.org>
+           - Update to match new upsteam URLs
