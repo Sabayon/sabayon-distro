@@ -96,7 +96,7 @@ COMMON_DEPEND="!app-office/openoffice-bin
 	>=sys-libs/db-4.3
 	>=app-text/libwpd-0.8.8
 	>=media-libs/vigra-1.4
-	>=app-text/poppler-0.8.0"
+	>=virtual/poppler-0.8.0"
 
 RDEPEND="java? ( >=virtual/jre-1.5 )
 	${COMMON_DEPEND}"
