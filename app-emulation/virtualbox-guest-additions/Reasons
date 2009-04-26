@@ -1,0 +1,3 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+virtualbox-guest-additions-2.2.0-r1 is here because Portage's ebuild
+has an error inside udev policy file.
