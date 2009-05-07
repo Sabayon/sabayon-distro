@@ -1,0 +1,47 @@
+Index: xdg-utils-1.0.2/scripts/xdg-mime
+===================================================================
+--- xdg-utils-1.0.2.orig/scripts/xdg-mime
++++ xdg-utils-1.0.2/scripts/xdg-mime
+@@ -840,17 +840,11 @@ DEBUG 3 "xdg_user_dir: $xdg_user_dir"
+ DEBUG 3 "xdg_global_dir: $xdg_global_dir"
+ 
+ # Find KDE3 mimelnk directory
+-kde_user_dir=
++kde_user_dir=${KDEHOME:-${HOME}/.kde}/share/mimelnk/
+ kde_global_dir=
+-kde_global_dirs=`kde-config --path mime 2> /dev/null`
+-DEBUG 3 "kde_global_dirs: $kde_global_dirs"
+-first=
+-for x in `echo $kde_global_dirs | sed 's/:/ /g'` ; do
+-    if [ -z "$first" ] ; then
+-        first=false
+-        kde_user_dir="$x"
+-    elif [ -w $x ] ; then
+-        kde_global_dir="$x"
++for x in `echo $KDEDIRS | tr ':' ' '` ; do
++    if [ -w $x/share/mimelnk ] ; then
++        kde_global_dir="$x/share/mimelnk"
+     fi
+ done
+ DEBUG 3 "kde_user_dir: $kde_user_dir"
+Index: xdg-utils-1.0.2/scripts/xdg-desktop-menu
+===================================================================
+--- xdg-utils-1.0.2.orig/scripts/xdg-desktop-menu
++++ xdg-utils-1.0.2/scripts/xdg-desktop-menu
+@@ -1178,9 +1178,13 @@ for x in `echo $xdg_system_dirs | sed 's
+     fi
+ done
+ 
+-kde_user_dir="$HOME/.kde/share/applnk"
+-kde_global_dir="/usr/share/applnk"
+-[ -w $kde_global_dir ] || kde_global_dir=
++kde_user_dir=${KDEHOME:-${HOME}/.kde}/share/mimelnk/
++kde_global_dir=
++for x in `echo $KDEDIRS | tr ':' ' '` ; do
++    if [ -w $x/share/applnk ] ; then
++        kde_global_dir="$x/share/applnk"
++    fi
++done
+ 
+ gnome_user_dir="$HOME/.gnome/apps"
+ gnome_global_dir="/usr/share/gnome/apps"
