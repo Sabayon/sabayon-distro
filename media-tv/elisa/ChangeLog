@@ -1,6 +1,13 @@
-# ChangeLog for media-video/elisa
-# Copyright 1999-2008 Gentoo Foundation; Distributed under the GPL v2
+# ChangeLog for media-tv/elisa
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
+
+*elisa-0.5.37 (09 May 2009)
+
+  09 May 2009; Ian Whyman <ian.whyman@sabayonlinux.org> -elisa-0.3.4.ebuild,
+  -elisa-0.3.5.ebuild, -elisa-0.5.23.ebuild, -elisa-0.5.27.ebuild,
+  +elisa-0.5.37.ebuild:
+  Bump to latest 0.5.37, Cleanup of older versions
 
   05 Mar 2008; Daniel Gryniewicz <dang@gentoo.org> ++, ++:
   Bump to 0.3.4 This is Elisa 0.3.4, fourth release of the 0.3 branch.
