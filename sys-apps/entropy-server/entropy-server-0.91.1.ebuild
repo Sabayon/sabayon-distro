@@ -1,7 +1,7 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils
+inherit eutils python
 
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
@@ -22,3 +22,8 @@ RDEPEND="${DEPEND}"
 src_install() {
 	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) entropy-server-install || die "make install failed"
 }
+
+pkg_postrm() {
+        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/server
+}
+

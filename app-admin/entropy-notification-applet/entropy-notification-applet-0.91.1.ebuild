@@ -1,7 +1,7 @@
 # Copyright 2004-2008 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils multilib fdo-mime
+inherit eutils multilib fdo-mime python
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
 inherit git
@@ -29,4 +29,8 @@ src_install() {
 pkg_postinst() {
 	fdo-mime_mime_database_update
 	fdo-mime_desktop_database_update
+}
+
+pkg_postrm() {
+        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/${PN}
 }

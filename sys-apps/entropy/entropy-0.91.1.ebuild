@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=1
-inherit eutils multilib
+inherit eutils multilib python
 
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
@@ -59,4 +59,8 @@ pkg_postinst() {
 		rm -rf ${ENTROPY_CACHEDIR}/*
 	fi
 	
+}
+
+pkg_postrm() {
+	python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy
 }
