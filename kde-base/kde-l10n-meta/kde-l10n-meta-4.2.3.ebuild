@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+SLOT="${PV/.3}"
 EAPI="2"
-inherit kde4-base
 
 DESCRIPTION="KDE internationalization meta-package - merge this to pull in all kde-l10n packages"
 HOMEPAGE="http://www.kde.org/"
@@ -25,15 +25,3 @@ for X in ${LANGS} ; do
         RDEPEND="${RDEPEND} linguas_${X}? ( ~kde-base/kde-l10n-${X}-${PV} )"
 done
 
-src_unpack() {
-	einfo "nothing to unpack"
-}
-
-
-src_compile() {
-	einfo "nothing to compile"
-}
-
-src_install() {
-	einfo "nothing to install"
-}
