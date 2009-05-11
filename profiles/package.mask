@@ -35,7 +35,7 @@ app-emulation/qemu-gui
 # Mask Devel Artwork packages
 >x11-themes/sabayon-artwork-4.1
 >x11-themes/sabayon-artwork-core-4.1
->x11-themes/sabayon-artwork-gnome4.1
->x11-themes/sabayon-artwork-kde4.1
+>x11-themes/sabayon-artwork-gnome-4.1
+>x11-themes/sabayon-artwork-kde-4.1
 >app-misc/sabayon-skel-4.1
 >x11-themes/sabayonlinux-skel-4.1
