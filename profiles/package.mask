@@ -30,3 +30,12 @@ app-emulation/qemu-gui
 #
 # Gentoo #260441
 ~x11-drivers/nvidia-drivers-180.35
+
+# Thev00d00
+# Mask Devel Artwork packages
+>x11-themes/sabayon-artwork-4.1
+>x11-themes/sabayon-artwork-core-4.1
+>x11-themes/sabayon-artwork-gnome4.1
+>x11-themes/sabayon-artwork-kde4.1
+>app-misc/sabayon-skel-4.1
+>x11-themes/sabayonlinux-skel-4.1
