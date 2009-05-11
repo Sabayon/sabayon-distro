@@ -1,6 +1,7 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=2
 inherit eutils multilib fdo-mime
 EGIT_TREE="${PV}"
 EGIT_BRANCH="stable"

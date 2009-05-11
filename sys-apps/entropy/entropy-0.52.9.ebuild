@@ -1,7 +1,7 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=1
+EAPI=2
 inherit eutils multilib
 
 EGIT_TREE="${PV}"

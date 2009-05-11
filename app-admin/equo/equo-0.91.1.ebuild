@@ -1,6 +1,7 @@
 # Copyright 2004-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=2
 inherit eutils multilib python
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
