@@ -1,0 +1,11 @@
+diff -Nurp ParaView-3.4.0.orig/Utilities/hdf5/H5Zdeflate.c ParaView-3.4.0/Utilities/hdf5/H5Zdeflate.c
+--- ParaView-3.4.0.orig/Utilities/hdf5/H5Zdeflate.c	2007-01-15 15:44:26.000000000 +0000
++++ ParaView-3.4.0/Utilities/hdf5/H5Zdeflate.c	2009-05-17 21:36:09.000000000 +0000
+@@ -17,6 +17,7 @@
+  *              Friday, August 27, 1999
+  */
+ 
++#include <zlib.h>
+ #define H5Z_PACKAGE    /*suppress error about including H5Zpkg    */
+ 
+ 
