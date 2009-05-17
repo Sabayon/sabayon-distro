@@ -72,7 +72,7 @@ done
 
 # feel free to add your arch, every non-x86
 # arch doesn't install any x86-only stuff.
-KEYWORDS="~amd64 x86"
+KEYWORDS="~x86"
 
 DESCRIPTION="EPSON Image Scan! for Linux (including sane-epkowa backend and firmware)"
 HOMEPAGE="http://www.avasys.jp/english/linux_e/dl_scan.html"
