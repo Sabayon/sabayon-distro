@@ -36,7 +36,7 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/spritz
+        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/spritz
 	gnome2_gconf_savelist
 	gnome2_gconf_uninstall
 }
