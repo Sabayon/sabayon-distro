@@ -38,7 +38,10 @@ RDEPEND="virtual/libc
 	x11-libs/libXrandr
 	x11-libs/libXt
 	app-cdr/lightscribe
-	amd64? ( app-emulation/emul-linux-x86-baselibs )
+	amd64? (
+		app-emulation/emul-linux-x86-baselibs 
+		app-emulation/emul-linux-x86-xlibs
+	)
 	"
 
 src_unpack() {

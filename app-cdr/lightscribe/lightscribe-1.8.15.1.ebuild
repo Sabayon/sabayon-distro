@@ -16,7 +16,7 @@ DEPEND=""
 RDEPEND="virtual/libc
 	=virtual/libstdc++-3*
 	sys-devel/gcc
-	amd64? ( app-emulation/emul-linux-x86-baselibs )"
+	amd64? ( app-emulation/emul-linux-x86-baselibs app-emulation/emul-linux-x86-compat )"
 
 src_unpack() {
 	rpm_src_unpack
