@@ -7,7 +7,7 @@ inherit rpm multilib
 DESCRIPTION="LightScribe System Software by LaCie"
 HOMEPAGE="http://www.lacie.com/products/product.htm?pid=10803"
 SRC_URI="http://www.lacie.com/download/drivers/${P}-linux-2.6-intel.rpm"
-LICENSE="LightScribe-LSS LightScribe-LPSDK"
+LICENSE="LightScribe"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
@@ -33,7 +33,14 @@ src_install() {
 	dodir     /etc
 	insinto   /etc
 	doins    ./etc/lightscribe.rc
-	dodir     /usr/$(get_libdir)
+	dodir     /usr/$(get_libdir)/lightscribe
+	insinto   /usr/$(get_libdir)/lightscribe
+	doins     -r ./usr/lib/lightscribe/*
+	exeinto   /usr/$(get_libdir)/lightscribe
+	doexe     ./usr/lib/lightscribe/elcu.sh
+	dodir     /usr/$(get_libdir)/lightscribe/updates
+	exeinto   /usr/$(get_libdir)/lightscribe/updates
+	doexe     ./usr/lib/lightscribe/updates/fallback.sh
 	dolib.so ./usr/lib/liblightscribe.so.1
 	dosym     liblightscribe.so.1 /usr/$(get_libdir)/liblightscribe.so
 	dodir     /usr/$(get_libdir)/lightscribe/res

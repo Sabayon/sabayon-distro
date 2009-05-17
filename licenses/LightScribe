@@ -1,0 +1,88 @@
+LIGHTSCRIBE SOFTWARE LICENSE AGREEMENT
+
+USE OF THE HP SOFTWARE IDENTIFIED ABOVE (THE “SOFTWARE”) INCLUDING, WITHOUT LIMITATION, ANY DOCUMENTATION, AND ANY OTHER SOFTWARE PRODUCTS BUNDLED WITH OR EMBEDDED IN THE SOFTWARE (COLLECTIVELY, THE “ANCILLARY SOFTWARE”), IS SUBJECT TO THE LICENSE TERMS SET FORTH BELOW AND THE APPLICABLE “AS-IS WARRANTY STATEMENT” PROVIDED AS A SEPARATE DOCUMENT. YOU SHOULD READ ALL THE TERMS OF THIS AGREEMENT CAREFULLY.  YOU WILL BE ASKED TO REVIEW AND EITHER ACCEPT OR NOT ACCEPT ALL OF THE TERMS OF THIS AGREEMENT. 
+
+HP HAS IDENTIFIED ANCILLARY SOFTWARE BY EITHER NOTING THE RELEVANT PARTY’S OWNERSHIP WITHIN EACH ANCILLARY SOFTWARE PROGRAM FILE AND/OR BY PROVIDING INFORMATION IN THE “RELEASE_NOTES.TXT” FILE THAT IS PROVIDED AS PART OF THE DOWNLOAD OF THE SOFTWARE. YOUR USE OF ANY ANCILLARY SOFTWARE shall be governed by That party's license agreement (“ancillary software license”) and not by this Agreement EXCEPT THAT THE DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITIES PROVISIONS CONTAINED IN THE “AS-IS WARRANTY STATEMENT” FOR THE SOFTWARE SHALL CONTINUE TO APPLY TO SUCH ANCILLARY SOFTWARE. THE LICENSES FOR THE ANCILLARY SOFTWARE ARE INCLUDED IN such ancillary software AND/OR SET FORTH IN THE “ANCILLARY.TXT” FILE THAT IS PROVIDED AS PART OF THE DOWNLOAD OF THE SOFTWARE. IF YOU CHOOSE TO ACCEPT THIS AGREEMENT WITHOUT REVIEWING SUCH ANCILLARY SOFTWARE LICENSES OR OTHER TERMS, YOU WILL BE DEEMED TO HAVE ACCEPTED SUCH ANCILLARY SOFTWARE LICENSES OR OTHER TERMS. 
+
+IF YOU (“CUSTOMER”) AGREE TO BE BOUND BY AND COMPLY WITH ALL THE TERMS OF THIS AGREEMENT (INCLUDING THE “AS-IS WARRANTY STATEMENT” AS WELL AS ANY TERMS OR CONDITIONS CONTAINED IN ANY OTHER LICENSE AGREEMENT THAT IS IDENTIFIED IN THE SOFTWARE OR REFERENCED IN THE “ANCILLARY.TXT” FILE), YOU MUST CLICK THE BUTTON OR, IF A BOX IS PROVIDED IN LIEU OF A BUTTON PLACE A CHECK IN THE APPLICABLE BOX, INDICATING THAT YOU AGREE TO THE TERMS AND CONDITIONS OF THIS AGREEMENT.  IF YOU DO NOT AGREE TO BE BOUND BY ALL THE TERMS OF THIS AGREEMENT- (INCLUDING THE “AS-IS WARRANTY STATEMENT” AS WELL AS ANY TERMS OR CONDITIONS CONTAINED IN ANY OTHER LICENSE AGREEMENT THAT IS IDENTIFIED OR REFERENCED IN THE IN THE SOFTWARE “ANCILLARY.TXT” FILE), HP IS UNWILLING TO GRANT YOU ANY RIGHTS TO USE THE SOFTWARE, AND YOU MUST STOP INSTALLING THE SOFTWARE AND INDICATE YOUR REJECTION OF THIS AGREEMENT BY NOT CLICKING THE BUTTON, OR IF A BOX IS PROVIDED IN LIEU OF A BUTTON BY NOT PLACING A CHECK IN THE APPLICABLE BOX. NOTWITHSTANDING THE FOREGOING, INSTALLING OR OTHERWISE USING THE SOFTWARE INDICATES YOUR ACCEPTANCE OF THESE LICENSE TERMS. IF YOU ARE AGREEING TO THE TERMS OF THIS AGREEMENT (INCLUDING THOSE TERMS AND CONDITIONS REFERRED TO IN THE SOFTWARE OR IN THE “ANCILLARY.TXT” FILE) ON BEHALF OF YOUR EMPLOYER OR PRINCIPAL, THE LICENSE GRANTED AND THE APPLICABLE RESTRICTIONS AND LIMITATIONS APPLY TO YOUR EMPLOYER OR PRINCIPAL AS WELL AS TO YOU AS AN AGENT OF YOUR EMPLOYER OR PRINCIPAL. SHOULD YOU CEASE WORKING FOR YOUR EMPLOYER OR PRINCIPAL, YOUR EMPLOYER OR PRINCIPAL MAY CONTINUE TO OPERATE UNDER THIS AGREEMENT.
+
+LICENSE TERMS
+
+Subject to any rights, limitations and obligations set forth in the license terms for the Ancillary software whether or not included in the Files.txt or ANCILLARY.TXT files:
+
+
+
+LICENSE GRANT
+
+HP grants Customer a worldwide, non-exclusive license to use the software on any one computer. Customer may not network the software or otherwise use it on more than one computer. Customer may make copies or adaptations of the software (a) for archival purposes or (b) when copying or adaptation is an essential step in the use of the software with a computer so long as the copies and adaptations are used in no other manner
+
+
+1.	GENERAL TERMS FOR THE SOFTWARE
+
+a)	Software is owned and copyrighted by HP or by third party suppliers. Customer's license to Use the Software confers no title or ownership and is not a sale of any rights in the Software. Third party suppliers are intended beneficiaries under this Agreement and may protect their rights in the Software directly against the Customer.
+
+b)	Customer has no right to rent, lease, time share, or otherwise transfer the rights to the Software without the written consent of the owner of the Software. Customer may not copy the Software onto any public or distributed network.
+
+c)	Customer must reproduce all copyright notices and other proprietary legends in or on the original Software on all permitted copies or adaptations. You may not remove from the Software, or alter, any of the trademarks, trade names, logos, patent or copyright notices or markings, or add any other notices or markings to the Software. 
+
+d)	HP shall have no obligation to provide support for the Software. This license does not entitle you to receive upgrades, updates or technical support. HP reserves the right to require additional licenses and fees for Use of the Software on a different computer or device, or on the class or series of equipment.
+
+e)	Customer will not modify, disassemble, decompile, decrypt, or otherwise attempt to access or determine the source code of the Software (including any products not specifically enumerated in the files.txt or ancillary.txt files) without HP's prior written consent. Where Customer has other rights under statute, Customer will provide HP with reasonably detailed information regarding any intended disassembly or decompilation. Customer will not decrypt the Software unless necessary for legitimate use of the Software. 
+
+f)	HP may terminate Customer's license to Use the Software upon notice for failure to comply with any applicable Software license terms or at any time for any reason whatsoever. Immediately upon termination, all copies of the Software will be destroyed or returned to HP. Customer shall remove, destroy or return to HP all copies of the Software that are merged into adaptations, except for individual pieces of data in Customer's database. With HP's prior written consent, one copy of the Software may be retained subsequent to termination for archival purposes.
+
+g)	The Software may be only compatible with certain hardware platforms and/or operating systems. Customer acknowledges and agrees that Customer has the sole responsibility to independently obtain and independently license and/or acquire the system requirements.
+
+h)	HP, or its designee(s), shall, during regular business hours at Customer’s offices and in such a manner that does not interfere with Customer’s normal business activities, have the right to inspect and audit, or have an inspection and audit, of the number of copies of Software Used by Customer, the computers on which the Software, if any, is installed and the number of users Using any such Software.  HP’s audit rights shall not terminate or expire until three (3) years after termination or expiration of this Agreement.
+
+i)	In the following provision regarding Software licenses to the U.S. Government, the term "Customer" means HP's direct licensee and the end-user.
+
+1)	If Software is licensed for use in the performance of a U.S government prime contract or subcontract, Customer agrees that Software has been developed entirely at private expense. Customer agrees that Software, and any derivatives or modifications, is adequately marked when the Restricted Rights Legend below is affixed to the Software or to its storage media and is perceptible directly or with the aid of a machine or device. Customer agrees to conspicuously put the following legend on the Software media with Customer's name and address added below the notice:
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication or disclosure is subject to HP standard commercial license terms and for non-DOD Departments and Agencies of the U.S. Government, the restrictions as set forth in FAR 52.227-19(c)(1-2)(Jun 1987).
+
+Hewlett-Packard Company
+3000 Hanover Street
+Palo Alto, CA 94304 U.S.A.
+
+Copyright (c)  2005 Hewlett-Packard Development Company.
+
+2)	Customer further agrees that Software is delivered and licensed as "Commercial computer software" as defined in DFARS 252.227-7014(Jun 1995) or as a "commercial item" as defined in FAR 2.101(a), or as "Restricted computer software" as defined in FAR 52.227-19 (Jun 1987) (or any equivalent agency regulation or contract clause), whichever is applicable. The Customer agrees that it has only those rights provided for such Software by the applicable FAR or DFARS clause or the HP standard software agreement for the product involved.
+
+
+2.	GENERAL
+
+a)	Customer may not assign or transfer this Agreement or any rights or obligations hereunder without prior written consent of HP. Any such attempted assignment or transfer will be null and void.  HP may terminate this Agreement in the event of any such attempted assignment or transfer.
+
+b)	Customer may not export or re-export this software or any copy or adaptation in violation of any applicable laws or regulations. Without limiting the generality of the foregoing, hardware, software, technology or services provided under this license agreement may not be exported, reexported, transferred or downloaded to or within (or to a national resident of) countries under U.S. economic embargo including the following countries: Afghanistan (Taliban-controlled areas), Cuba, Iran, Iraq, Libya, North Korea, Sudan and Syria.  This list is subject to change.
+
+Hardware, software, technology or services may not be exported, reexported, transferred or downloaded to persons or entities listed on the U.S. Department of Commerce Denied Persons List, Entity List of proliferation concern or on any U.S. Treasury Department Designated Nationals exclusion list, or to parties directly or indirectly involved in the development or production of nuclear, chemical, biological weapons or in missile technology programs as specified in the U.S. Export Administration Regulations (15 CFR 744).   
+
+By accepting this license agreement you confirm that you are not located in (or a national resident of) any country under U.S. economic embargo, not identified on any U.S. Department of Commerce Denied Persons List, Entity List or Treasury Department Designated Nationals exclusion list, and not directly or indirectly involved in the development or production of nuclear, chemical, biological weapons or in missile technology programs as specified in the U.S. Export Administration Regulations.
+
+c)	This Agreement shall be construed in accordance with the laws of the State of California, without regard to conflict of laws principles. The United Nations Convention on Contracts for the International Sale of Goods is specifically disclaimed. 
+
+d)	If any term or provision herein is determined to be illegal or unenforceable, the validity or enforceability of the remainder of the terms or provisions herein will remain in full force and effect. Failure or delay in enforcing any right or provision of this Agreement shall not be deemed a waiver of such right or provision with respect to any subsequent breach. Provisions herein, which by their nature extend beyond the termination of any license of Software, will remain in effect until fulfilled. 
+
+e)	Customer acknowledges that obtaining and maintaining accurate Customer information, including but not limited to name and requested contact information, ("Account Information") is critical to the successful management of each Software license, which may include, but may not be limited to, managing updates and providing support (as applicable and under separate agreement) and investigating property right infringements. Customer agrees and warrants that Customer has provided and will maintain true, full and correct Account Information at all times during the term of this license and promptly provide such information to HP, upon HP’s request. Customer agrees that Customer will not provide false, misleading, or inadequate Account Information.
+
+f)	This Agreement, including all Ancillary Software terms and conditions downloaded in or with the Software, is the final, complete and exclusive agreement between the parties relating to the Software, and supersedes any previous communications, representations or agreements between the parties, whether oral or written, regarding transactions hereunder. Customer's additional or different terms and conditions will not apply. These license terms may not be changed except by an amendment signed by an authorized representative of each party.
+
+AS-IS WARRANTY STATEMENT 
+
+1.	DISCLAIMER.
+
+TO THE EXTENT ALLOWED BY LOCAL LAW, THIS SOFTWARE IS PROVIDED TO YOU “AS IS” WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, WHETHER ORAL OR WRITTEN, EXPRESS OR IMPLIED.  HP SPECIFICALLY DISCLAIMS ANY IMPLIED WARRANTIES OR CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, NON-INFRINGEMENT, TITLE, ACCURACY OF INFORMATIONAL CONTENT, AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE RESULTS AND PERFORMANCE OF THE SOFTWARE IS ASSUMED BY YOU. NO ORAL OR WRITTEN INFORMATION OR ADVICE GIVEN BY HP OR HP’S AUTHORIZED REPRESENTATIVES SHALL CREATE A WARRANTY OR AMEND THIS “AS IS” WARRANTY. Some jurisdictions do not allow exclusions of implied warranties or conditions, so the above exclusion may not apply to you to the extent prohibited by such local laws.  You may have other rights that vary from country to country, state to state, or province to province. 
+
+2.	LIMITATION OF LIABILITY.
+
+EXCEPT TO THE EXTENT PROHIBITED BY LOCAL LAW, IN NO EVENT WILL HP OR ITS SUBSIDIARIES, AFFILIATES, DIRECTORS, OFFICERS, EMPLOYEES, AGENTS OR SUPPLIERS BE LIABLE FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL, PUNITIVE, OR OTHER DAMAGES (INCLUDING LOST PROFIT, LOST DATA, OR DOWNTIME COSTS), ARISING OUT OF THE USE, INABILITY TO USE, OR THE RESULTS OF USE OF THE SOFTWARE, WHETHER BASED IN WARRANTY, CONTRACT, TORT OR OTHER LEGAL THEORY, AND WHETHER OR NOT HP WAS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. the software is not specifically designed, manufactured or intended for use in the planning, construction, maintenance, or direct operation of a nuclear facility, AIRCRAFT NAVIGATION OR AIRCRAFT COMMUNICATION SYSTEMS, AIR TRAFFIC CONTROL, DIRECT LIFE SUPPORT MACHINES, OR WEAPONS SYSTEMS. Customer is solely liable if the software is used for these applications. Customer will indemnify and hold HP harmless from all loss, damage, expense or liability in connection with such use. Your use of the Software is entirely at your own risk.  Should the Software prove defective, you assume the entire cost of all service, repair or correction. Some jurisdictions do not allow the exclusion or limitation of liability for incidental or consequential damages, so the above limitation may not apply to you to the extent prohibited by such local laws.
+
+NOTE.   EXCEPT TO THE EXTENT ALLOWED BY LOCAL LAW, THESE WARRANTY TERMS DO NOT EXCLUDE, RESTRICT OR MODIFY, AND ARE IN ADDITION TO, THE MANDATORY STATUTORY RIGHTS APPLICABLE TO THE LICENSE OF THE SOFTWARE TO YOU; PROVIDED, HOWEVER, THAT THE CONVENTION ON CONTRACTS FOR THE INTERNATIONAL SALE OF GOODS IS SPECIFICALLY DISCLAIMED AND SHALL NOT GOVERN OR APPLY TO THE SOFTWARE PROVIDED IN CONNECTION WITH THIS WARRANTY STATEMENT.
+
+IF YOU AGREE TO BE BOUND BY AND COMPLY WITH ALL THE TERMS OF THIS LIMITED WARRANTY STATEMENT, YOU MUST CLICK THE BUTTON OR PLACE A CHECK IN THE APPLICABLE BOX INDICATING THAT YOU AGREE TO THE TERMS AND CONDITIONS OF THIS AGREEMENT. IF YOU DO NOT AGREE TO BE BOUND BY ALL THE TERMS OF THIS LIMITED WARRANTY STATEMENT, HP IS UNWILLING TO GRANT YOU ANY RIGHTS TO USE THE SOFTWARE, AND YOU MUST STOP INSTALLING THE SOFTWARE AND INDICATE YOUR REJECTION OF THIS LIMITED WARRANTY STATEMENT BY NOT CLICKING THE BUTTON OR PLACING A CHECK IN THE APPLICABLE BOX. NOTWITHSTANDING THE FOREGOING, INSTALLING OR OTHERWISE USING THE SOFTWARE INDICATES YOUR ACCEPTANCE OF THIS LIMITED WARRANTY STATEMENT.
+
+
+
