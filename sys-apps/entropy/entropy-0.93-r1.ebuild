@@ -31,6 +31,12 @@ pkg_setup() {
 	enewgroup entropy || die "failed to create entropy group"
 }
 
+src_unpack() {
+	git_src_unpack
+	cd ${S}
+	epatch "${FILESDIR}/${P}-fix-protect-mask.patch"
+}
+
 src_install() {
 	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) entropy-install || die "make install failed"
 	echo "${PV}" > revision
