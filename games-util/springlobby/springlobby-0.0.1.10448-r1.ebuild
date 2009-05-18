@@ -13,7 +13,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 RESTRICT="nomirror"
-IUSE="bittorrent sound debug"
+IUSE="bittorrent sound"
 
 RDEPEND="
 	>=x11-libs/wxGTK-2.6.3[X]
@@ -26,7 +26,8 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 src_configure() {
-	econf "$(use_enable bittorrent torrent-system)" "$(use_enable sound)" || die "econf failed"
+	econf "$(use_enable bittorrent torrent-system)" \
+		"$(use_enable sound)" || die "econf failed"
 }
 
 src_compile() {
@@ -41,7 +42,8 @@ src_install() {
 
 	emake install DESTDIR="${D}" || die "make install failed"
 	insinto /usr/share/pixmaps
-	doins "${S}/src/images/springlobby.svg" || die "springlobby icon install failed"
+	doins "${S}/src/images/springlobby.svg" \
+		|| die "springlobby icon install failed"
 
 	prepgamesdirs
 	echo 'XDG_DATA_DIRS="/usr/share/games"' >> 90springlobby
