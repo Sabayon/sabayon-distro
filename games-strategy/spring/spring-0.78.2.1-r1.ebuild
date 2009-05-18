@@ -16,7 +16,7 @@ SRC_URI="http://spring.clan-sy.com/dl/${MY_P}_src.tar.lzma"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="python java"
+IUSE=""
 RESTRICT="nomirror"
 
 RDEPEND="
@@ -29,8 +29,7 @@ RDEPEND="
 	sys-libs/zlib
 	virtual/glu
 	virtual/opengl
-	python? ( >=dev-lang/python-2.5 )
-	java? ( virtual/jdk )
+	dev-lang/python
 "
 
 DEPEND="${RDEPEND}
