@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/app-cdr/k3b/k3b-1.0.5-r3.ebuild,v 1.7 2009/03/10 20:02:18 beandog Exp $
 
+EAPI="2"
 inherit kde eutils multilib
 
 MY_P=${P/_/}
@@ -17,20 +18,21 @@ KEYWORDS="amd64 ppc ppc64 x86 ~x86-fbsd"
 IUSE="alsa css dvd dvdr encode ffmpeg flac hal mp3 musepack musicbrainz
 	sndfile vcd vorbis emovix"
 
-DEPEND="hal? ( dev-libs/dbus-qt3-old sys-apps/hal )
-	media-libs/libsamplerate
-	media-libs/taglib
-	>=media-sound/cdparanoia-3.9.8
-	sndfile? ( media-libs/libsndfile )
-	ffmpeg? ( >=media-video/ffmpeg-0.4.9_p20080326 )
-	flac? ( media-libs/flac )
+DEPEND="!<app-cdr/k3b-1.0.5-r4
+	alsa? ( media-libs/alsa-lib )
+	flac? ( media-libs/flac[cxx] )
+	dvd? ( media-libs/libdvdread )
 	mp3? ( media-libs/libmad )
 	musepack? ( media-libs/libmpcdec )
+	media-libs/libsamplerate
+	sndfile? ( media-libs/libsndfile )
 	vorbis? ( media-libs/libvorbis )
 	musicbrainz? ( =media-libs/musicbrainz-2* )
+	media-libs/taglib
+	>=media-sound/cdparanoia-3.9.8
 	encode? ( media-sound/lame )
-	alsa? ( media-libs/alsa-lib )
-	dvd? ( media-libs/libdvdread )"
+	ffmpeg? ( >=media-video/ffmpeg-0.4.9_p20080326 )
+	hal? ( sys-apps/hal )"
 
 RDEPEND="${DEPEND}
 	virtual/cdrtools
@@ -39,7 +41,7 @@ RDEPEND="${DEPEND}
 	dvdr? ( >=app-cdr/dvd+rw-tools-7.0 )
 	css? ( media-libs/libdvdcss )
 	encode? ( media-sound/sox
-				media-video/transcode )
+				media-video/transcode[dvd] )
 	vcd? ( media-video/vcdimager )
 	emovix? ( media-video/emovix )"
 
@@ -63,29 +65,6 @@ for X in ${LANGS}; do
 	IUSE="${IUSE} linguas_${X}"
 done
 
-pkg_setup() {
-	if use hal && has_version '<sys-apps/dbus-0.91' && ! built_with_use sys-apps/dbus qt3; then
-		eerror "You are trying to compile ${CATEGORY}/${PF} with the \"hal\" USE flag enabled,"
-		eerror "but sys-apps/dbus is not built with Qt3 support."
-		die "Please, rebuild sys-apps/dbus with the \"qt3\" USE flag."
-	fi
-	if use encode && ! built_with_use media-video/transcode dvd; then
-		eerror "You are trying to compile ${CATEGORY}/${PF} with the \"encode\""
-		eerror "USE flag enabled, however media-video/transcode was not built"
-		eerror "with libdvdread support. Also keep in mind that enabling"
-		eerror "the dvd USE flag will cause k3b to use libdvdread as well."
-		die "Please, rebuild media-video/transcode with the \"dvd\" USE flag."
-	fi
-
-	if use flac && ! built_with_use --missing true media-libs/flac cxx; then
-		eerror "To build ${PN} with flac support you need the C++ bindings for flac."
-		eerror "Please enable the cxx USE flag for media-libs/flac"
-		die "Missing FLAC C++ bindings."
-	fi
-
-	kde_pkg_setup
-}
-
 src_unpack() {
 	kde_src_unpack
 
@@ -99,7 +78,7 @@ src_unpack() {
 	rm -f "${S}/configure"
 }
 
-src_compile() {
+src_configure() {
 
 	# XXX
 	# kde.eclass adds extra configure arguments which are
@@ -132,7 +111,7 @@ src_compile() {
 			$(use_with alsa)"
 
 	# Build process of K3b
-	kde_src_compile configure make
+	kde_src_configure configure
 
 	# Build process of K3b-i18n
 	if [ -d "${WORKDIR}/${I18N}" ]; then
@@ -144,7 +123,7 @@ src_compile() {
 			$(use_enable debug)"
 
 		KDE_S="${WORKDIR}/${I18N}" \
-		kde_src_compile configure make
+		kde_src_configure configure
 	fi
 }
 
