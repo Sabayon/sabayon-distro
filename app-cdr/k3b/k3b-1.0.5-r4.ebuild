@@ -48,9 +48,11 @@ DEPEND="${DEPEND}
 
 need-kde 3.5
 
-PATCHES=(	"${FILESDIR}/k3b-1.0.5-desktop-entry.diff"
-		"${FILESDIR}/k3b-1.0.5-ffmpeg-0.4.9_p20080326-API.patch"
-		"${FILESDIR}/k3b-1.0.5-ffmpeg-0.4.9_p20081014-API.patch"	)
+PATCHES=(	"${FILESDIR}/${P}-desktop-entry.diff"
+		"${FILESDIR}/${P}-ffmpeg-0.4.9_p20080326-API.patch"
+		"${FILESDIR}/${P}-ffmpeg-0.4.9_p20081014-API.patch"
+		"${FILESDIR}/${P}-transcode-1.1.patch"
+	)
 
 I18N="${PN}-i18n-${PV}"
 
