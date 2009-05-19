@@ -13,7 +13,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 RESTRICT="nomirror"
-IUSE="bittorrent sound"
+IUSE="bittorrent +sound"
 
 RDEPEND="
 	>=x11-libs/wxGTK-2.6.3[X]
