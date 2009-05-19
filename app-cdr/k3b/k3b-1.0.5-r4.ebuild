@@ -88,26 +88,26 @@ src_configure() {
 	# econf automatically sets --prefix=/usr, which is going
 	# to be overridden by "kde_src_configure configure" code
 
-	local myconf="	--with-external-libsamplerate	\
-			--without-resmgr		\
-			--without-cdrecord-suid-root	\
-			--without-k3bsetup		\
-			--with-qt-dir=${QTDIR}		\
-			--enable-mt			\
-			--with-qt-libraries=${QTDIR}/$(get_libdir) \
-			--disable-dependency-tracking	\
-			--without-arts			\
-			$(use_enable debug)		\
-			$(use_with hal)			\
-			$(use_with encode lame)		\
-			$(use_with ffmpeg)		\
-			$(use_with flac)		\
-			$(use_with vorbis oggvorbis)	\
-			$(use_with sndfile)		\
-			$(use_with mp3 libmad)		\
-			$(use_with musepack)		\
-			$(use_with musicbrainz)		\
-			$(use_with dvd libdvdread)	\
+	local myconf="	--with-external-libsamplerate
+			--without-resmgr
+			--without-cdrecord-suid-root
+			--without-k3bsetup
+			--with-qt-dir=${QTDIR}
+			--enable-mt
+			--with-qt-libraries=${QTDIR}/$(get_libdir)
+			--disable-dependency-tracking
+			--without-arts
+			$(use_enable debug)
+			$(use_with hal)
+			$(use_with encode lame)
+			$(use_with ffmpeg)
+			$(use_with flac)
+			$(use_with vorbis oggvorbis)
+			$(use_with sndfile)
+			$(use_with mp3 libmad)
+			$(use_with musepack)
+			$(use_with musicbrainz)
+			$(use_with dvd libdvdread)
 			$(use_with alsa)"
 
 	# Build process of K3b
@@ -116,10 +116,10 @@ src_configure() {
 	# Build process of K3b-i18n
 	if [ -d "${WORKDIR}/${I18N}" ]; then
 
-		local myconf="--with-qt-dir=${QTDIR}			\
-			--with-qt-libraries=${QTDIR}/$(get_libdir) 	\
-			--disable-dependency-tracking			\
-			--without-arts					\
+		local myconf="--with-qt-dir=${QTDIR}
+			--with-qt-libraries=${QTDIR}/$(get_libdir)
+			--disable-dependency-tracking
+			--without-arts
 			$(use_enable debug)"
 
 		KDE_S="${WORKDIR}/${I18N}" \
@@ -129,7 +129,7 @@ src_configure() {
 
 src_install() {
 	kde_src_install
-	dodoc FAQ KNOWNBUGS PERMISSIONS
+	dodoc FAQ KNOWNBUGS PERMISSIONS || die "dodoc failed"
 
 	if [ -d "${WORKDIR}/${I18N}" ]; then
 		KDE_S="${WORKDIR}/${I18N}" \
