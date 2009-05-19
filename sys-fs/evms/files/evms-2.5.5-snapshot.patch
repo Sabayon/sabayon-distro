@@ -1,0 +1,31 @@
+--- evms-2.5.5/engine/dm-targets.c.orig	2005-11-07 15:46:41.000000000 +0000
++++ evms-2.5.5/engine/dm-targets.c	2007-09-08 23:54:23.000000000 +0100
+@@ -921,14 +921,14 @@
+  *
+  * Generate an ASCII constructor string for a snapshot target.
+  * A snapshot string has the form:
+- *   <org_major>:<org_minor> <snap_major>:<snap_minor> <p|n> <chunk_size> <org_parent_major>:<org_parent_minor>
++ *   <org_major>:<org_minor> <snap_major>:<snap_minor> <p|n> <chunk_size>
+  **/
+ static int snapshot_build_params(dm_target_t *target)
+ {
+ 	dm_target_snapshot_t *snapshot = target->data.snapshot;
+ 	char *format = (dm_get_version() == 3) ?
+-			"%x:%x %x:%x %c %u %x:%x" :
+-			"%u:%u %u:%u %c %u %u:%u";
++			"%x:%x %x:%x %c %u" :
++			"%u:%u %u:%u %c %u" ;
+ 	int rc = ENOMEM;
+ 
+ 	LOG_PROC_ENTRY();
+@@ -938,9 +938,7 @@
+ 		snprintf(target->params, 50, format,
+ 			 snapshot->origin.major, snapshot->origin.minor,
+ 			 snapshot->snapshot.major, snapshot->snapshot.minor,
+-			 (snapshot->persistent) ? 'p' : 'n', snapshot->chunk_size,
+-			 snapshot->origin_parent.major,
+-			 snapshot->origin_parent.minor);
++			 (snapshot->persistent) ? 'p' : 'n', snapshot->chunk_size);
+ 		rc = 0;
+ 	}
+ 

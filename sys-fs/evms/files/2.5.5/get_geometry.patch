@@ -1,0 +1,37 @@
+This patch fixes a segmentation fault that can occur in the Local Disk Manager
+when the queries for getting the geometry of the disk return a value of zero
+for either the number of heads or the number of sectors per track.
+
+--- evms-2.5.5/plugins/disk/localdskmgr.c	2006-02-24 13:53:21.000000000 -0600
++++ evms-2.5.5-fix/plugins/disk/localdskmgr.c	2006-09-01 11:41:56.681089000 -0500
+@@ -1552,16 +1552,25 @@
+ 
+ 	LOG_ENTRY();
+ 
+-	/* Set defaults */
+-	disk->geometry.heads = 255;
+-	disk->geometry.sectors_per_track = 63;
+-
+ 	rc = get_partition_table_geometry(disk);
+ 
+ 	if (rc != 0) {
+-		get_kernel_geometry(disk);
++		rc = get_kernel_geometry(disk);
++	}
++
++	/* Set defaults if no valid geometry was found. */
++	if (disk->geometry.heads == 0) {
++		LOG_DEBUG("Disk %s: Heads is zero - setting to 255.\n",
++			  disk->name);
++		disk->geometry.heads = 255;
++	}
++	if (disk->geometry.sectors_per_track == 0) {
++		LOG_DEBUG("Disk %s: Sectors-per-track is zero - "
++			  "setting to 63.\n", disk->name);
++		disk->geometry.sectors_per_track = 63;
+ 	}
+ 
++	/* Calculate number of cylinders based on other geometry fields. */
+ 	disk->geometry.cylinders = disk->size /
+ 				   (disk->geometry.heads *
+ 				    disk->geometry.sectors_per_track *

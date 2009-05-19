@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+
+<pkgmetadata>
+  <herd>base-system</herd>
+  <maintainer>
+    <email>dev-zero@gentoo.org</email>
+    <name>Tiziano Müller</name>
+  </maintainer>
+  <longdescription>
+    evms is a volume management system written by IBM, it's open source
+  </longdescription>
+  <use>
+	  <flag name='hb'>Enable support for heartbeat-1</flag>
+	  <flag name='hb2'>Enable support for heartbeat-2</flag>
+  </use>
+</pkgmetadata>

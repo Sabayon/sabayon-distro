@@ -1,0 +1,34 @@
+This is the second attempt to fix remove spare for active degraded raid5 array.
+
+This patch should be applied on top of raid5_remove_spare_fix.patch
+
+--- evms-2.5.5a/plugins/md/raid5_mgr.c	2006-05-10 15:16:31.199339328 -0500
++++ evms-2.5.5b/plugins/md/raid5_mgr.c	2006-05-10 15:18:17.993104208 -0500
+@@ -4338,7 +4338,9 @@
+ 		 * least one spare is available.
+ 		 */
+ 		if (count &&
+-		    (conf->active_disks < conf->raid_disks)) {
++		    (volume->flags & MD_DEGRADED) &&
++		    (volume->spare_disks == 1) &&
++		    (!(volume->region->flags & SOFLAG_ACTIVE)) ) {
+ 
+ 			MESSAGE(_("At least one spare object must be left for recovering degraded array %s.\n"),
+ 				volume->region->name);
+@@ -5684,10 +5686,13 @@
+ 			LOG_EXIT_INT(rc);
+ 			return rc;
+ 		}
+-		if (vol->flags & MD_DEGRADED) {
+-			LOG_ERROR("Array %s is running in degrade mode.  "
+-				  "At least one spare must be left for the array to recover.\n",
++		if ((vol->flags & MD_DEGRADED) && 
++		    (!(vol->region->flags & SOFLAG_ACTIVE)) ) {
++			MESSAGE(_("Array %s is running in degrade mode.  "
++				  "At least one spare must be left for the array to recover.\n"),
+ 				  vol->region->name);
++			LOG_EXIT_INT(EINVAL);
++			return EINVAL;
+ 		}
+ 		break;
+ 

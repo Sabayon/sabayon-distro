@@ -1,0 +1,22 @@
+--- plugins/ocfs2/ocfs2.c.orig	2006-09-12 18:45:36.000000000 +1000
++++ plugins/ocfs2/ocfs2.c	2006-09-12 18:46:46.000000000 +1000
+@@ -636,6 +636,7 @@ static int fsim_test_version(void)
+ 	int status;
+ 	int bytes_read;
+ 	int rc;
++	float ver_num;
+ 
+ 	LOG_ENTRY();
+ 
+@@ -672,8 +673,9 @@ static int fsim_test_version(void)
+ 	LOG_DEBUG("Reading output from process %d on fd %d.\n", pidm, fds2[0]);
+ 	bytes_read = read(fds2[0], buffer, 1024);
+ 	if (bytes_read > 0) {
+-		ver = strstr(buffer, "1.1");
+-		if (!ver) {
++		ver = strstr(buffer, "1.");
++		ver_num = atof(ver);
++		if(ver_num < 1.1) {
+ 			rc = EINVAL;
+ 		} else {
+ 			oc2_version = 2;

@@ -1,0 +1,33 @@
+This patch fixes a bug in the NTFS unmkfs.  The offsets for the superblocks
+were calculated incorrectly by using the filesystem size rather than using
+the volume size.  The result is that sometimes the superblocks didn't get
+wiped out, leaving the NTFS file system still on the volume.
+
+--- evms-2.5.5/plugins/ntfs/utils.c	2006-02-24 10:36:54.000000000 -0600
++++ evms-2.5.5-fix/plugins/ntfs/utils.c	2006-05-04 16:47:26.243120000 -0500
+@@ -313,7 +313,6 @@
+ int clear_ntfs_boot_sectors(logical_volume_t * ev)
+ {
+ 	int rc = 0;
+-	private_data_t * pd = (private_data_t *) ev->private_data;
+ 	int fd;
+ 	void * block;
+ 	int32_t bytes_written;
+@@ -346,7 +345,7 @@
+ 	}
+ 
+ 	/* Wipe out the NT4+ backup boot sector. */
+-	bytes_written = EngFncs->write_volume(ev, fd, block, NTFS_BLOCK_SIZE, (pd->fs_size << EVMS_VSECTOR_SIZE_SHIFT) - NTFS_BLOCK_SIZE);
++	bytes_written = EngFncs->write_volume(ev, fd, block, NTFS_BLOCK_SIZE, (ev->vol_size << EVMS_VSECTOR_SIZE_SHIFT) - NTFS_BLOCK_SIZE);
+ 	if (bytes_written != NTFS_BLOCK_SIZE) {
+ 		LOG_WARNING("Failed to clear the primary boot sector on volume %s.  "
+ 			    "Only %d bytes were written.\n",
+@@ -355,7 +354,7 @@
+ 	}
+ 
+ 	/* Wipe out the NT3.51- backup boot sector. */
+-	bytes_written = EngFncs->write_volume(ev, fd, block, NTFS_BLOCK_SIZE, (pd->fs_size << (EVMS_VSECTOR_SIZE_SHIFT - 1)));
++	bytes_written = EngFncs->write_volume(ev, fd, block, NTFS_BLOCK_SIZE, (ev->vol_size << (EVMS_VSECTOR_SIZE_SHIFT - 1)));
+ 	if (bytes_written != NTFS_BLOCK_SIZE) {
+ 		LOG_WARNING("Failed to clear the primary boot sector on volume %s.  "
+ 			    "Only %d bytes were written.\n",

@@ -1,0 +1,29 @@
+EVMS registers the base name for the top working object of a volume if the
+object has its own device. However, EVMS engine fails to unregister such
+names when discarding volumes. This prevents some operation on volumes.
+
+The problem magnifies in cluster environments because rediscovery of
+CSM containers would fail to add volumes (discarded moments ago) back to
+the object tree, and the volumes would get deleted when committing changes.
+
+Rediscovery can be triggered by an operation as simple as changing the
+attributes of a CSM container.
+
+I added code to unregister the base name, and tested on my cluster. 
+
+"Changju Gao" <CGAO@novell.com>
+
+--- evms-2.5.5/engine/internalAPI.c	2005-10-10 09:44:41.000000000 -0500
++++ evms-2.5.5-fix/engine/internalAPI.c	2006-11-01 17:11:42.113699000 -0600
+@@ -2722,6 +2722,11 @@
+ 	if (rc == 0) {
+ 		engine_unregister_name(vol->name);
+ 
++		if( vol->object->feature_header != NULL )
++		{
++			engine_unregister_name(vol->name+EVMS_DEV_NODE_PATH_LEN);
++		}
++
+ 		/*
+ 		 * Clear out the volume pointer on this object and on all the child
+ 		 * objects in the tree.

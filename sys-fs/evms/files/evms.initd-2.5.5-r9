@@ -1,0 +1,23 @@
+#!/sbin/runscript
+# Copyright 1999-2007 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/evms/files/evms.initd-2.5.5-r9,v 1.2 2008/02/01 13:02:23 flameeyes Exp $
+
+depend() {
+	if [ -e /lib/librc.so ]; then
+		# on baselayout-1 this causes
+		# a dependency loop with checkroot (before *)
+		before checkfs fsck
+		after modules
+	fi
+}
+
+start() {
+	if [ ! -e /lib/librc.so ]; then
+		eerror "The ${SVCNAME} init script is written for baselayout-2"
+		eerror "Please do not use it with baselayout-1"
+		return 1
+	fi
+
+	start_addon evms
+}
