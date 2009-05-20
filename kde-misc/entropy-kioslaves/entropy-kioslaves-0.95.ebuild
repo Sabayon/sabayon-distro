@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-RDEPEND="~app-admin/spritz-${PV}"
+RDEPEND="~app-admin/sulfur-${PV}"
 
 src_prepare() {
 	einfo "nothing to prepare"
@@ -31,7 +31,7 @@ src_compile() {
 src_install() {
 	dodir /${KDEDIR}/share/kde4/services/
 	insinto /${KDEDIR}/share/kde4/services/
-	doins "${S}/spritz/misc/entropy.protocol"
+	doins "${S}/sulfur/misc/entropy.protocol"
 }
 
 pkg_postinst() {
