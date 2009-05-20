@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="
-	~app-admin/spritz-${PV}
+	~app-admin/sulfur-${PV}
 	dev-python/notify-python
 	>=dev-python/gnome-python-extras-2.19
 	dev-python/dbus-python
