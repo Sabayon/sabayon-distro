@@ -1,7 +1,7 @@
 # Copyright 1999-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils versionator
+inherit eutils mount-boot sabayon-artwork
 
 DESCRIPTION="Sabayon Core Artwork, contains Gensplash, Wallpapers and Mouse themes"
 HOMEPAGE="http://www.sabayonlinux.org/"
@@ -15,9 +15,16 @@ RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
 	!<x11-themes/sabayon-artwork-4
 	!x11-themes/sabayon-artwork-star
 	!x11-themes/sabayon-artwork-darkblend
+	sys-apps/findutils
 	"
 
 S="${WORKDIR}/${PN}"
+
+src_unpack() {
+	unpack "${A}"
+	cd ${S}
+	epatch "${FILESDIR}/${P}-splash-fix.patch"
+}
 
 src_install () {
 	# Gensplash theme
@@ -35,9 +42,17 @@ src_install () {
 	cd ${S}/background
 	insinto /usr/share/backgrounds
 	doins *.png
+
 }
 
 pkg_postinst () {
+
+	# mount boot first
+	mount-boot_mount_boot_partition
+
+	# Update Sabayon initramfs images
+	update_sabayon_kernel_initramfs_splash
+
 	ewarn "This is a prelease - ${PV}"
 	ewarn "Please report bugs or glitches to"
 	ewarn "bugs.sabayonlinux.org"

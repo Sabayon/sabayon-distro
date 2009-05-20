@@ -1,0 +1,68 @@
+From a09e3a6e73801e4c6fa7c2c0abe6553c706852b2 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayonlinux.org>
+Date: Wed, 20 May 2009 17:46:20 +0200
+Subject: [PATCH] entropy.client.interfaces.package: fix symlinked directories update
+
+This patch needs testing. Symlinked directories were not updated
+correctly when link information got changed.
+---
+ libraries/entropy/client/interfaces/package.py |   34 +++++++++++++++++++++---
+ 1 files changed, 30 insertions(+), 4 deletions(-)
+
+diff --git a/libraries/entropy/client/interfaces/package.py b/libraries/entropy/client/interfaces/package.py
+index 2f10335..15893da 100644
+--- a/libraries/entropy/client/interfaces/package.py
++++ b/libraries/entropy/client/interfaces/package.py
+@@ -1174,12 +1174,37 @@ class Package:
+                     os.remove(rootdir)
+ 
+                 # if our directory is a symlink instead, then copy the symlink
+-                if os.path.islink(imagepathDir) and not os.path.isdir(rootdir):
+-                    # for security we skip live items that are dirs
++                if os.path.islink(imagepathDir):
++
++                    # if our live system features a directory instead of
++                    # a symlink, we should consider removing the directory
++                    if (not os.path.islink(rootdir)) and os.path.isdir(rootdir):
++                        self.Entropy.clientLog.log(
++                            ETP_LOGPRI_INFO,
++                            ETP_LOGLEVEL_NORMAL,
++                            "WARNING!!! %s is a directory when it should be a symlink !! Removing in 20 seconds..." % (rootdir,)
++                        )
++                        mytxt = darkred(_("%s is a directory when should be a symlink !! Removing in 20 seconds...") % (rootdir,))
++                        self.Entropy.updateProgress(
++                            red("QA: ")+mytxt,
++                            importance = 1,
++                            type = "warning",
++                            header = red(" !!! ")
++                        )
++                        self.entropyTools.ebeep(20)
++                        shutil.rmtree(rootdir, True)
++                        os.rmdir(rootdir)
++
+                     tolink = os.readlink(imagepathDir)
++                    live_tolink = None
+                     if os.path.islink(rootdir):
+-                        os.remove(rootdir)
+-                    os.symlink(tolink,rootdir)
++                        live_tolink = os.readlink(rootdir)
++                    if tolink != live_tolink:
++                        if os.path.lexists(rootdir):
++                            # at this point, it must be a file
++                            os.remove(rootdir)
++                        os.symlink(tolink, rootdir)
++
+                 elif (not os.path.isdir(rootdir)) and (not os.access(rootdir,os.R_OK)):
+                     try:
+                         # we should really force a simple mkdir first of all
+@@ -1187,6 +1212,7 @@ class Package:
+                     except OSError:
+                         os.makedirs(rootdir)
+ 
++
+                 if not os.path.islink(rootdir) and os.access(rootdir,os.W_OK):
+                     # symlink doesn't need permissions, also until os.walk ends they might be broken
+                     # XXX also, added os.access() check because there might be directories/files unwritable
+-- 
+1.6.2.1
+

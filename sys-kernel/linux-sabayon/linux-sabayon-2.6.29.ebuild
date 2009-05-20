@@ -4,7 +4,7 @@
 ETYPE="sources"
 K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
-inherit kernel-2
+inherit kernel-2 sabayon-artwork
 detect_version
 detect_arch
 
@@ -164,6 +164,9 @@ pkg_postinst() {
 	if [ -f "${fstab_file}" ]; then
 		sed -i '/ext4/ s/extents//g' ${fstab_file}
 	fi
+
+	# Update kernel initramfs to match user customizations
+	update_sabayon_kernel_initramfs_splash
 
 	kernel-2_pkg_postinst
 	einfo "Please report kernel bugs at:"
