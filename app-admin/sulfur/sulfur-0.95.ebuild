@@ -18,14 +18,15 @@ RDEPEND="~sys-apps/entropy-${PV}
 	>=dev-python/pygtk-2.12.1-r2
 	>=x11-libs/vte-0.12.2[python]
 	x11-misc/xdg-utils
+	!app-admin/spritz
 	"
 DEPEND="sys-devel/gettext"
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) spritz-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) sulfur-install || die "make install failed"
 	dodir /etc/gconf/schemas
 	insinto /etc/gconf/schemas
-	doins "${S}/spritz/misc/entropy-handler.schemas"
+	doins "${S}/sulfur/misc/entropy-handler.schemas"
 }
 
 pkg_postinst() {
@@ -36,7 +37,7 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/spritz
+        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/sulfur
 	gnome2_gconf_savelist
 	gnome2_gconf_uninstall
 }
