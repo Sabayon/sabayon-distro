@@ -10,6 +10,7 @@ PACKAGES="sys-apps/entropy sys-apps/entropy-client-services app-admin/equo app-a
 
 for package in ${PACKAGES}; do
 	name=$(echo ${package} | cut -d/ -f2)
-	svn cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
+	cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
+	git add ${package}/${name}-${NEW}.ebuild
 	ebuild ${package}/${name}-${NEW}.ebuild manifest
 done
