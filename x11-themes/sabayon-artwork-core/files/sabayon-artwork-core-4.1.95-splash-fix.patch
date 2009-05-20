@@ -1,0 +1,12 @@
+diff -Nurp sabayon-artwork-core.orig/gensplash/sabayon/1024x768.cfg sabayon-artwork-core/gensplash/sabayon/1024x768.cfg
+--- sabayon-artwork-core.orig/gensplash/sabayon/1024x768.cfg	2009-03-06 04:29:09.000000000 +0100
++++ sabayon-artwork-core/gensplash/sabayon/1024x768.cfg	2009-05-20 12:36:33.931319272 +0200
+@@ -4,7 +4,7 @@
+ # Theme design and graphics by
+ # Ian Whyman <ian.whyman@sabayonlinux.org>
+ #
+-text_font=/etc/splash/sabayon//etc/splash/sabayon/luxisri.ttf
++text_font=/etc/splash/sabayon/luxisri.ttf
+ 
+ bgcolor=0
+ 
