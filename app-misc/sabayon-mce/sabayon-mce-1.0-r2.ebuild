@@ -11,7 +11,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
-RDEPEND="media-video/xbmc"
+RDEPEND="|| ( media-tv/xbmc media-video/xbmc )"
 S="${WORKDIR}"
 
 src_unpack() {
