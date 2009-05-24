@@ -1,0 +1,284 @@
+#!/usr/bin/python2
+# -*- coding: utf-8 -*-
+"""
+    Kernel grub.conf configuration script
+
+    Copyright (C) 2009 Fabio Erculiani
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+"""
+import os
+import sys
+import subprocess
+import shutil
+BOOT_MOUNT = False
+NO_SYS_ROOT_BOOT_DIR = "/boot"
+if os.path.ismount(NO_SYS_ROOT_BOOT_DIR):
+    BOOT_MOUNT = True
+SYS_ROOT = os.getenv("ROOT","")
+GRUB_CONF = SYS_ROOT+"/boot/grub/grub.conf"
+FSTAB_CONF = SYS_ROOT+"/etc/fstab"
+DISTRO_NAME = "Sabayon Linux"
+
+def get_kernel_grub_line(kernel):
+    return "title=%s (%s)\n" % (DISTRO_NAME, os.path.basename(kernel),)
+
+def configure_boot_grub(kernel, initramfs):
+
+    grub_dir = os.path.dirname(GRUB_CONF)
+    if not os.path.isdir(grub_dir):
+        os.makedirs(grub_dir)
+
+    if os.access(GRUB_CONF, os.R_OK | os.F_OK):
+
+        # open in append
+        grub = open(GRUB_CONF,"aw")
+        shutil.copy2(GRUB_CONF, GRUB_CONF+".add")
+        # get boot dev
+        boot_dev = get_grub_boot_dev()
+        # test if entry has been already added
+        grubtest = open(GRUB_CONF,"r")
+        content = grubtest.readlines()
+        content = [unicode(x,'raw_unicode_escape') for x in content]
+        for line in content:
+
+            if line.find(get_kernel_grub_line(kernel)) != -1:
+                grubtest.close()
+                return
+
+            # also check if we have the same kernel listed
+            if (line.find("kernel") != 1) and \
+                (line.find(os.path.basename(kernel)) != -1) and not \
+                line.strip().startswith("#"):
+
+                grubtest.close()
+                return
+    else:
+
+        # create
+        boot_dev = get_grub_boot_dev()
+        grub = open(GRUB_CONF,"w")
+        # write header - guess (hd0,0)... since it is weird
+        # having a running system without a bootloader, at least, grub.
+        grub.write("default=0\ntimeout=10\n")
+
+    cmdline = ''
+    if os.access("/proc/cmdline", os.R_OK):
+        cmdline_f = open("/proc/cmdline","r")
+        cmdline = " "+cmdline_f.readline().strip()
+        cmdline_f.close()
+
+    grub.write(get_kernel_grub_line(kernel))
+    grub.write("\troot "+boot_dev+"\n")
+    grub.write("\tkernel "+kernel+cmdline+"\n")
+    if initramfs:
+        grub.write("\tinitrd "+initramfs+"\n")
+    grub.write("\tsavedefault\n")
+    grub.write("\n")
+    grub.flush()
+    grub.close()
+
+def remove_boot_grub(kernel, initramfs):
+
+    grub_dir = os.path.dirname(GRUB_CONF)
+    if not os.path.isdir(grub_dir):
+        os.makedirs(grub_dir)
+
+    if os.path.isdir(grub_dir) and os.access(GRUB_CONF, os.R_OK | os.F_OK):
+
+        shutil.copy2(GRUB_CONF, GRUB_CONF+".remove")
+        grub_f = open(GRUB_CONF,"r")
+        grub_conf = grub_f.readlines()
+        grub_f.close()
+
+        content = [unicode(x,'raw_unicode_escape') for x in grub_conf]
+        if not isinstance(kernel, unicode):
+            kernel = unicode(kernel,'raw_unicode_escape')
+        if not isinstance(initramfs, unicode):
+            initramfs = unicode(initramfs,'raw_unicode_escape')
+
+        new_conf = []
+        skip = False
+        for line in content:
+
+            kernel_grub_line = get_kernel_grub_line(kernel)
+            if (line.find(kernel_grub_line) != -1):
+                skip = True
+                continue
+
+            if line.strip().startswith("title"):
+                skip = False
+
+            if not skip or line.strip().startswith("#"):
+                new_conf.append(line)
+
+        grub_tmp_f = open(GRUB_CONF+".tmp","w")
+        for line in new_conf:
+            try:
+                grub_tmp_f.write(line)
+            except UnicodeEncodeError:
+                grub_tmp_f.write(line.encode('utf-8'))
+        grub_tmp_f.flush()
+        grub_tmp_f.close()
+        os.rename(GRUB_CONF+".tmp", GRUB_CONF)
+
+def boot_device_translation(boot_dev):
+
+    found_in_grub_conf = False
+    if os.access(GRUB_CONF, os.R_OK | os.F_OK):
+
+        f_grub = open(GRUB_CONF, "r")
+        stored_boot_dev = [x.strip() for x in f_grub.readlines() if \
+            x.strip().startswith("#boot=")]
+        f_grub.close()
+        if stored_boot_dev:
+            stored_boot_dev = stored_boot_dev[0]
+            boot_dev = "/dev/" + stored_boot_dev[len("#boot="):]
+            found_in_grub_conf = True
+
+    if boot_dev.startswith("/dev/md") and not found_in_grub_conf:
+
+        boot_dev = os.path.realpath(boot_dev)
+        md_dev = os.path.basename(boot_dev)
+
+        if os.access("/proc/mdstat", os.R_OK | os.F_OK):
+
+            f_mdstat = open("/proc/mdstat","r")
+            stored_boot_dev = [x.split() for x in f_mdstat.readlines() if \
+                x.startswith(md_dev)]
+            f_mdstat.close()
+
+            if stored_boot_dev:
+                stored_boot_dev = stored_boot_dev[0]
+                for elem in stored_boot_dev:
+                    if elem.endswith("[0]"):
+                        boot_dev = "/dev/" + elem[:-len("[0]")]
+                        break
+
+    return boot_dev
+
+def get_grub_boot_dev():
+
+    grub_avail = subprocess.call("which grub &> /dev/null", shell = True)
+    if grub_avail != 0:
+        print "** Cannot find grub. Cannot properly configure kernel"
+        return "(hd0,0)"
+
+    # load currently mounted partitions
+    if not os.access(FSTAB_CONF, os.R_OK | os.F_OK):
+        print "** Cannot find %s. Cannot properly configure kernel" % (
+            FSTAB_CONF,)
+        return "(hd0,0)"
+
+    f_fstab = open(FSTAB_CONF, "r")
+    mount_data = [x.split() for x in f_fstab.readlines()]
+    f_fstab.close()
+    mount_data = dict(((x[1], x[0],) for x in mount_data if \
+        x[0].startswith('/')))
+    boot_dev = mount_data.get(NO_SYS_ROOT_BOOT_DIR, mount_data.get("/"))
+    if boot_dev == None:
+        print "** Cannot determine boot device. Cannot properly configure" \
+            " kernel"
+        return "(hd0,0)"
+
+    # translate boot device, if needed
+    boot_dev = boot_device_translation(boot_dev)
+
+    # load grub map file
+    map_file = "grub.map"
+    subprocess.call('echo "quit" | grub --no-floppy --no-config-file ' \
+        '--no-curses --batch --device-map=grub.map &> /dev/null', shell = True)
+    if not os.access(map_file, os.R_OK | os.F_OK):
+        print "** Cannot find grub. Cannot properly configure kernel"
+        return "(hd0,0)"
+
+    f_map = open(map_file)
+    map_data = [x.split() for x in f_map.readlines()]
+    f_map.close()
+    os.remove(map_file)
+    map_data = dict(((y, x) for x, y in map_data))
+
+    map_data_devs = map_data.keys()
+    grub_dev = None
+    linux_dev = None
+    for dev in map_data_devs:
+        if boot_dev.startswith(dev):
+            grub_dev = map_data.get(dev)
+            linux_dev = dev
+            break
+
+    if grub_dev == None:
+        print "** Cannot match grub device. Cannot properly configure kernel"
+        return "(hd0,0)"
+
+    device_number = boot_dev.replace(linux_dev,'')
+    try:
+        device_number = int(device_number)
+    except ValueError:
+        print "** Cannot get device number. Cannot properly configure kernel"
+        return "(hd0,0)"
+
+    device_number -= 1
+    grub_boot_dev = grub_dev.replace(')',',%s)' % (device_number,))
+    return grub_boot_dev
+
+def print_help():
+    print "%s %s %s %s" % (sys.argv[0], "[add/remove]",
+        "<kernel>", "<initramfs or 'none'>",)
+
+def add_kernel(kernel, initramfs):
+
+    boot_len = len(NO_SYS_ROOT_BOOT_DIR)
+    if BOOT_MOUNT:
+        kernel = kernel[boot_len:]
+        if initramfs:
+            initramfs = initramfs[boot_len:]
+
+    # configure GRUB
+    print "** Configuring GRUB bootloader. Adding the new kernel ..."
+    configure_boot_grub(kernel, initramfs)
+
+def remove_kernel(kernel, initramfs):
+
+    boot_len = len(NO_SYS_ROOT_BOOT_DIR)
+    if BOOT_MOUNT:
+        kernel = kernel[boot_len:]
+        if initramfs:
+            initramfs = initramfs[boot_len:]
+
+    # configure GRUB
+    print "** Configuring GRUB bootloader. Removing the selected kernel ..."
+    remove_boot_grub(kernel, initramfs)
+
+
+
+if __name__ == "__main__":
+
+    args = sys.argv[1:]
+    if len(args) < 3:
+        print_help()
+        raise SystemExit(1)
+
+    cmd = args[0]
+    if cmd not in ("add", "remove",):
+        print_help()
+        raise SystemExit(1)
+
+    kernel = args[1]
+    initramfs = args[2]
+
+    if initramfs == "none":
+        initramfs = ''
+
+    if cmd == "add":
+        print "** Adding kernel '%s' and initramfs '%s'" % (kernel, initramfs,)
+        add_kernel(kernel, initramfs)
+    elif cmd == "remove":
+        print "** Removing kernel '%s' and initramfs '%s'" % (kernel,
+            initramfs,)
+        remove_kernel(kernel, initramfs)
+    raise SystemExit(0)
