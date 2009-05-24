@@ -17,6 +17,7 @@ IUSE=""
 RDEPEND="~sys-apps/entropy-${PV}
 	>=dev-python/pygtk-2.12.1-r2
 	>=x11-libs/vte-0.12.2[python]
+	>=dev-util/glade-3.6.0[python]
 	x11-misc/xdg-utils
 	!<app-admin/spritz-0.95
 	"
