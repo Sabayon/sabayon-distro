@@ -449,5 +449,5 @@ pkg_postinst() {
 }
 
 pkg_prerm() {
-	/usr/bin/eselect opengl set xorg-x11
+	/usr/bin/eselect opengl set --use-old xorg-x11
 }
