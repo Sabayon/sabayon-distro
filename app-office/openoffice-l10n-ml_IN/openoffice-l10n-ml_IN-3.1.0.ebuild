@@ -7,7 +7,7 @@ MY_LANG=${PN/openoffice-l10n-/}
 MY_LANG=${MY_LANG/_/-}
 MY_PV="${PV/_/}"
 MY_DATE="20080930"
-OOO_INSTDIR="/usr/$(get_libdir)/openoffice/basis-link"
+OOO_INSTDIR="/usr/$(get_libdir)/openoffice/"
 DESCRIPTION="OpenOffice.org ${MY_LANG} localisation"
 HOMEPAGE="http://go-oo.org"
 LICENSE="LGPL-2"
@@ -44,9 +44,9 @@ src_compile() {
 
 src_install() {
 	dodir ${OOO_INSTDIR}
-	MY_SRC="${WORKDIR}/unpack/opt/openoffice.org/basis3.0/*"
+	MY_SRC="${WORKDIR}/unpack/opt/openoffice.org/*"
 	MY_SRC2="${WORKDIR}/unpack/opt/openoffice.org3/*"
-	cp -R ${MY_SRC} ${D}/${OOO_INSTDIR}/
-	cp -R ${MY_SRC2} ${D}/${OOO_INSTDIR}/
+	cp -R ${MY_SRC} ${D}/${OOO_INSTDIR}/ || die "cannot copy"
+	cp -R ${MY_SRC2} ${D}/${OOO_INSTDIR}/basis${PV:0:3}/ || die "cannot copy"
 	chown root:root ${D}/${OOO_INSTDIR} -R
 }
