@@ -30,6 +30,6 @@ src_install() {
 }
 
 pkg_postrm() {
-        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/services
+        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/services
 }
 
