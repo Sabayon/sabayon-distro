@@ -31,8 +31,12 @@ pkg_setup() {
 	enewgroup entropy || die "failed to create entropy group"
 }
 
+src_compile() {
+	emake -j1 || die "make failed"
+}
+
 src_install() {
-	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) entropy-install || die "make install failed"
+	emake -j1 DESTDIR="${D}" LIBDIR=usr/$(get_libdir) entropy-install || die "make install failed"
 	echo "${PV}" > revision
 	insinto /usr/$(get_libdir)/entropy/libraries
 	doins revision

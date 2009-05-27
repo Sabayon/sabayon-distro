@@ -23,6 +23,10 @@ RDEPEND="
 	sys-apps/entropy-client-services
 "
 
+src_compile() {
+	emake -j1 || die "make failed"
+}
+
 src_install() {
 	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) notification-applet-install || die "make install failed"
 }

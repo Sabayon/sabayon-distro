@@ -23,6 +23,10 @@ RDEPEND="~sys-apps/entropy-${PV}
 	"
 DEPEND="sys-devel/gettext"
 
+src_compile() {
+	emake -j1 || die "make failed"
+}
+
 src_install() {
 	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) sulfur-install || die "make install failed"
 	dodir /etc/gconf/schemas

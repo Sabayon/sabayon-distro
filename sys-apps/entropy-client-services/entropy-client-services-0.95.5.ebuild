@@ -25,6 +25,10 @@ DEPEND="~sys-apps/entropy-${PV}
 "
 RDEPEND="${DEPEND}"
 
+src_compile() {
+	emake -j1 || die "make failed"
+}
+
 src_install() {
 	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) updates-daemon-install || die "make install failed"
 }
