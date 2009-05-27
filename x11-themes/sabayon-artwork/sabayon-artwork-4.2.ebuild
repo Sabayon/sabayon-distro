@@ -11,5 +11,5 @@ IUSE=""
 RDEPEND="
 	~x11-themes/sabayon-artwork-core-${PV}
 	>=x11-themes/sabayon-artwork-gnome-4.1.95
-	~x11-themes/sabayon-artwork-kde-${PV}
+	>=x11-themes/sabayon-artwork-kde-4.1
 	"
