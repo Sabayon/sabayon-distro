@@ -1,5 +1,5 @@
  
-# Copyright 1999-2008 Sabayon Linux
+# Copyright 1999-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 # Ian Whyman <ian.whyman@sabayonlinux.org> (v0.1)
 
@@ -20,8 +20,7 @@ IUSE="kde kdeprefix"
 DEPEND="x11-libs/qt-gui:4[dbus]
 	>=kde-base/kwin-4.1.0
 	x11-libs/qt-gui:4[dbus]
-	x86? ( kde? ( >=kde-base/kwin-4.1.0 x11-libs/qt-gui:4[dbus] ) )"
-# kde-4 support needs methods from qt-gui-4.4
+	kde? ( >=kde-base/kwin-4.1.0 x11-libs/qt-gui:4[dbus] )"
 
 S="${WORKDIR}/${MY_PV}"
 DOCS="ChangeLog README TODO"
