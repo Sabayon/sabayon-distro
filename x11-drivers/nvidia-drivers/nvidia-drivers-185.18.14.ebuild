@@ -17,7 +17,7 @@ SRC_URI="x86? ( ftp://download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKA
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
-IUSE="acpi custom-cflags gtk multilib kernel_linux"
+IUSE="acpi custom-cflags gtk distribution multilib kernel_linux"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
@@ -340,7 +340,15 @@ src_install() {
 		newdoc "${NV_DOC}/README.txt" README
 		dodoc "${NV_DOC}/NVIDIA_Changelog"
 	fi
-
+    
+    # Distribution
+    if use distribution; then
+        insinto /lib/nvidia
+        doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.o"
+        insinto /lib/nvidia
+        doins "${WORKDIR}/${NV_PACKAGE}${PKG_V}/usr/src/nv/nvidia.mod.o"
+    fi
+    
 	# Helper Apps
 	dobin ${NV_EXEC}/nvidia-xconfig || die
 	dobin ${NV_EXEC}/nvidia-bug-report.sh || die
