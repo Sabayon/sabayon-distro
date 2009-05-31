@@ -37,5 +37,5 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/${PN}
+        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/${PN}
 }
