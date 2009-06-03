@@ -1,4 +1,4 @@
-# Copyright 2007 Sabayon Linux
+# Copyright 2004-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
 ETYPE="sources"
@@ -27,27 +27,22 @@ SLOT="${PV}"
 S="${WORKDIR}/linux-${KV_FULL}"
 
 ## INIT: Exported data
-# SL_PATCHES_URI=""
-# SUSPEND2_TARGET="${PV}"
-# SUSPEND2_SRC="current-tuxonice-for-${SUSPEND2_TARGET}.patch.bz2"
-# SUSPEND2_URI="http://www.tuxonice.net/downloads/all/${SUSPEND2_SRC}"
 
 UNIPATCH_LIST="
-	${FILESDIR}/${PV}/patch-2.6.29.4.bz2
- 	${FILESDIR}/${PV}/${P}-aufs.patch.bz2
-	${FILESDIR}/${PV}/current-tuxonice-for-head.patch-20090313-v1.bz2
+	"${FILESDIR}"/${PV}/patch-2.6.29.4.bz2
+ 	"${FILESDIR}"/${PV}/${P}-aufs.patch.bz2
+	"${FILESDIR}"/${PV}/current-tuxonice-for-head.patch-20090313-v1.bz2
+	"${FILESDIR}"/${PV}/genpatches/1916_ext4-automatically-allocate-delay-allocated-blocks-on-close.patch
+	"${FILESDIR}"/${PV}/genpatches/1917_ext4-add-EXT4_IOC_ALLOC_DA_BLKS-ioctl.patch
+	"${FILESDIR}"/${PV}/genpatches/4100_dm-bbr.patch
+	"${FILESDIR}"/${PV}/genpatches/1915_ext4-automatically-allocate-delay-allocated-blocks-on-rename.patch
+	"${FILESDIR}"/${PV}/genpatches/4200_fbcondecor-0.9.4.patch
+	"${FILESDIR}"/${PV}/genpatches/4400_alpha-sysctl-uac.patch
+	"${FILESDIR}"/${PV}/mactel/1-bcm5974-headers.patch
+	"${FILESDIR}"/${PV}/mactel/2-bcm5974-quad-finger-tapping.patch
+	"${FILESDIR}"/${PV}/mactel/3-bcm5974-macbook5-support.patch
 "
 
-
-# gentoo patches
-for patch in `find ${FILESDIR}/${PV}/genpatches -iname "*.patch*" | sort -n`; do
-	UNIPATCH_LIST="${UNIPATCH_LIST} ${patch}"
-done
-
-# mactel patches
-for patch in `find ${FILESDIR}/${PV}/mactel -iname "*.patch*" | sort -n`; do
-	UNIPATCH_LIST="${UNIPATCH_LIST} ${patch}"
-done
 
 SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI} ${SUSPEND2_URI}"
 
@@ -68,7 +63,6 @@ src_compile() {
 	# disable sandbox
 	export SANDBOX_ON=0
 	export LDFLAGS=""
-	export COLLISION_IGNORE="${COLLISION_IGNORE} /lib/firmware"
 
 	# creating workdirs
 	mkdir ${WORKDIR}/lib
@@ -111,8 +105,6 @@ src_compile() {
 }
 
 src_install() {
-
-	export COLLISION_IGNORE="${COLLISION_IGNORE} /lib/firmware"
 
 	kernel-2_src_install || die "sources install failed"
 
