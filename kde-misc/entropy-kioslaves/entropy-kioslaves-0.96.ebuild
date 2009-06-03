@@ -1,14 +1,13 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
-inherit eutils kde4-base
+EAPI="2"
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
-inherit git
+inherit eutils kde4-base git
+
 DESCRIPTION="Official Sabayon Linux Entropy Package Manager KDE4 kioslaves (tagged release)"
 HOMEPAGE="http://www.sabayonlinux.org"
-
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
@@ -29,8 +28,8 @@ src_compile() {
 }
 
 src_install() {
-	dodir /${KDEDIR}/share/kde4/services/
-	insinto /${KDEDIR}/share/kde4/services/
+	dodir "/${KDEDIR}/share/kde4/services/"
+	insinto "/${KDEDIR}/share/kde4/services/"
 	doins "${S}/sulfur/misc/entropy.protocol"
 }
 

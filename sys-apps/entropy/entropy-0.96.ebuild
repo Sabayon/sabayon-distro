@@ -1,18 +1,15 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
-inherit eutils multilib python
-
+EAPI="2"
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
-inherit git
+inherit eutils python git
 
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
 REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
 ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
-
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 x86"
@@ -36,9 +33,9 @@ src_compile() {
 }
 
 src_install() {
-	emake -j1 DESTDIR="${D}" LIBDIR=usr/$(get_libdir) entropy-install || die "make install failed"
+	emake -j1 DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" entropy-install || die "make install failed"
 	echo "${PV}" > revision
-	insinto /usr/$(get_libdir)/entropy/libraries
+	insinto "/usr/$(get_libdir)/entropy/libraries"
 	doins revision
 }
 
@@ -62,9 +59,9 @@ pkg_postinst() {
 		einfo "Purging current Entropy cache"
 		rm -rf ${ENTROPY_CACHEDIR}/*
 	fi
-	
+	python_mod_compile "/usr/$(get_libdir)/entropy/entropy"
 }
 
 pkg_postrm() {
-	python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy
+	python_mod_cleanup "/usr/$(get_libdir)/entropy"
 }

@@ -4,7 +4,7 @@
 EAPI=2
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
-inherit eutils multilib fdo-mime python git
+inherit eutils fdo-mime python git
 
 DESCRIPTION="Entropy's Updates Notification Applet (GTK)"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -27,14 +27,15 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) notification-applet-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" -j1 notification-applet-install || die "make install failed"
 }
 
 pkg_postinst() {
 	fdo-mime_mime_database_update
 	fdo-mime_desktop_database_update
+	python_mod_compile "/usr/$(get_libdir)/entropy/${PN}"
 }
 
 pkg_postrm() {
-        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/${PN}
+        python_mod_cleanup "/usr/$(get_libdir)/entropy/${PN}"
 }
