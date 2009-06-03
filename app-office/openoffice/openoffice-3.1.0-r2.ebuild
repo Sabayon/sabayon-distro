@@ -9,7 +9,7 @@ inherit bash-completion check-reqs db-use eutils fdo-mime flag-o-matic java-pkg-
 
 IUSE="binfilter cups dbus debug eds gnome gstreamer gtk kde ldap mono nsplugin odk opengl pam templates"
 
-MY_PV=3.1.0.2
+MY_PV=3.1.0.6
 PATCHLEVEL=OOO310
 SRC=OOo_${PV}_src
 MST=ooo310-m11
