@@ -1,18 +1,17 @@
 # Copyright 2004-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
-inherit eutils multilib python
+EAPI="2"
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
-inherit git
+inherit eutils multilib python git
 
 DESCRIPTION="Official Sabayon Linux Package Manager Client"
 HOMEPAGE="http://www.sabayonlinux.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND="~sys-apps/entropy-${PV}"
@@ -23,10 +22,14 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) equo-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" equo-install || die "make install failed"
+}
+
+pkg_postinst() {
+	python_mod_compile "/usr/$(get_libdir)/entropy/client"
 }
 
 pkg_postrm() {
-        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/client
+        python_mod_cleanup "/usr/$(get_libdir)/entropy/client"
 }
 

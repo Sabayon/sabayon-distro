@@ -1,27 +1,21 @@
 # Copyright 2004-2007 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
-inherit eutils multilib python
-
+EAPI="2"
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
-inherit git
+inherit eutils python git
 
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayonlinux.org"
-REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
-ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
-
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="~sys-apps/entropy-${PV}
-	dev-python/dbus-python
-	dev-libs/dbus-glib
+DEPEND="dev-python/dbus-python
 	dev-python/pygobject
+	~sys-apps/entropy-${PV}
 "
 RDEPEND="${DEPEND}"
 
@@ -30,10 +24,14 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR=usr/$(get_libdir) updates-daemon-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" updates-daemon-install || die "make install failed"
+}
+
+pkg_postinst() {
+	python_mod_compile "/usr/$(get_libdir)/entropy/services"
 }
 
 pkg_postrm() {
-        python_mod_cleanup ${ROOT}/usr/$(get_libdir)/entropy/services
+        python_mod_cleanup "/usr/$(get_libdir)/entropy/services"
 }
 
