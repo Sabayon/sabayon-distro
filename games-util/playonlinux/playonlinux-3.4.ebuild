@@ -16,8 +16,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86"
 # ~amd64 will not work with no-multilib amd64 profiles.
-# when ebuild will be in portage, playonlinux must be added as masked 
-package
+# when ebuild will be in portage, playonlinux must be added as masked package
 # for no-multilib amd64 profiles.
 IUSE=""
 
