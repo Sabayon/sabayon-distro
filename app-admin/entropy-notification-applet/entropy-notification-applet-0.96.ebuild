@@ -2,20 +2,19 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=2
-inherit eutils multilib fdo-mime python
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/entropy.git"
-inherit git
+inherit eutils multilib fdo-mime python git
+
 DESCRIPTION="Entropy's Updates Notification Applet (GTK)"
 HOMEPAGE="http://www.sabayonlinux.org"
-
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="
-	~app-admin/sulfur-${PV}
+	=app-admin/sulfur-${PV}
 	dev-python/notify-python
 	>=dev-python/gnome-python-extras-2.19
 	dev-python/dbus-python
