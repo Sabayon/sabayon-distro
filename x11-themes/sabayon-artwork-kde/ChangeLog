@@ -1,0 +1,12 @@
+# ChangeLog for x11-themes/sabayon-artwork-kde
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*sabayon-artwork-kde-4.1.99 (03 Jun 2009)
+
+  03 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  +sabayon-artwork-kde-4.1.99.ebuild:
+  Updated to 4.1.99, this version is basically complete, added deps for
+  Qtcurve and QtCurve GTK, included a dep for gtk-engines-qt, as it provides
+  a handy control panel applet.
+
