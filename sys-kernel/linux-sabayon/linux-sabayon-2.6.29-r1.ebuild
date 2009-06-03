@@ -14,6 +14,7 @@ IUSE="splash dmraid grub"
 UNIPATCH_STRICTORDER="yes"
 KEYWORDS="amd64 x86"
 HOMEPAGE="http://www.sabayonlinux.org"
+SRC_URI=""
 
 DEPEND="<sys-kernel/genkernel-3.4.11
 	splash? ( x11-themes/sabayon-artwork-core )"
@@ -25,8 +26,6 @@ K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
 SLOT="${PV}"
 S="${WORKDIR}/linux-${KV_FULL}"
-
-## INIT: Exported data
 
 UNIPATCH_LIST="
 	"${FILESDIR}"/${PV}/patch-2.6.29.4.bz2
@@ -44,9 +43,6 @@ UNIPATCH_LIST="
 "
 
 
-SRC_URI="${KERNEL_URI} ${SL_PATCHES_URI} ${SUSPEND2_URI} ${SUSPEND2_URI}"
-
-## END: Exported data
 
 src_unpack() {
 
