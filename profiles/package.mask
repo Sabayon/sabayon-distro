@@ -39,3 +39,6 @@ app-emulation/qemu-gui
 >=x11-themes/sabayon-artwork-kde-4.1.9
 >=app-misc/sabayon-skel-4.1.9
 >=x11-themes/sabayonlinux-skel-4.1.9
+
+# EXPERIMENTAL
+=sys-apps/entropy-0.96
