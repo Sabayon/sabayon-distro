@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-SLOT="${PV/.3}"
+SLOT="${PV/.4}"
 EAPI="2"
 
 DESCRIPTION="KDE internationalization meta-package - merge this to pull in all kde-l10n packages"
