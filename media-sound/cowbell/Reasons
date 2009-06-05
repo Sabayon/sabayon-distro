@@ -1,6 +1,0 @@
-media-sound/cowbell
-
-02 Nov 2008; Ian Whyman <ian.whyman@sabayonlinux.org> cowbell-0.2.7.1-r1.ebuild
-Include Configure.in patch #241578
-
-(We cant have broken cowbell can we?! lol)

@@ -1,2 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-Gentoo ebuild in the header didn't compile due to a wrong check against openal using built_with_use

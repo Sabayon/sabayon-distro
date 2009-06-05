@@ -1,9 +1,0 @@
-# Copyright 1999-2007 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-p2p/btg/files/btgd-confd,v 1.2 2007/11/28 13:34:15 angelos Exp $
-
-# User that runs btgd
-BTG_USER="p2p"
-
-# Full path to daemon.ini (default /home/p2p/.btg/daemon.ini)
-BTG_CONFIG_FILE="/home/p2p/.btg/daemon.ini"

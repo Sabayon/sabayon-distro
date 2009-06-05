@@ -1,5 +1,0 @@
-# /etc/conf.d/xrdp
-
-# logfile locations for xrdp and sesman
-XRDP_LOGFILE="/var/log/xrdp/xrdp.log"
-SESMAN_LOGFILE="/var/log/xrdp/sesman.log"
