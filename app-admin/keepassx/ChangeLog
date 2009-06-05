@@ -1,8 +1,0 @@
-# ChangeLog for app-admin/keepassx
-# Copyright 1999-2006 Gentoo Foundation; Distributed under the GPL v2
-# $Header: $
-
-  13 Sep 2006; Christian Faulhammer (Opfer) <gentoo@faulhammer.org>
-  ChangeLog:
-  A password manager in Qt, from bug 119907, thanks to all contributors testers
-
