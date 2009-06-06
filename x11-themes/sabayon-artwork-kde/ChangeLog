@@ -2,6 +2,13 @@
 # Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+*sabayon-artwork-kde-4.1.99-r1 (06 Jun 2009)
+
+  06 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  +sabayon-artwork-kde-4.1.99-r1.ebuild:
+  fix Ksplash/KDM backgrounds, both now use standard PNGs instead of
+  individual SVGs
+
 *sabayon-artwork-kde-4.1.99 (03 Jun 2009)
 
   03 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
