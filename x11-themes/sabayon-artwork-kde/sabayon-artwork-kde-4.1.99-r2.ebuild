@@ -6,7 +6,7 @@ inherit eutils kde4-base
 
 DESCRIPTION="Sabayon Linux Official KDE artwork"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-${PVR}.tar.lzma"
+SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-4.1.99-r1.tar.lzma"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
@@ -25,6 +25,11 @@ RDEPEND="
 	# by providing a control centre app for changing GTK settings.
 
 S="${WORKDIR}/${PN}"
+
+src_prepare() {
+	cd ${S}/kdm4/Glassified
+	epatch ${FILESDIR}/${PVR}/fixbackgroundlocation.patch
+}
 
 src_configure() {
 	einfo "nothing to configure"

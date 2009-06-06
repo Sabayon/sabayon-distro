@@ -2,6 +2,15 @@
 # Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+*sabayon-artwork-kde-4.1.99-r2 (06 Jun 2009)
+
+  06 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  +files/4.1.99-r2/fixbackgroundlocation.patch,
+  -sabayon-artwork-kde-4.1.99-r1.ebuild,
+  +sabayon-artwork-kde-4.1.99-r2.ebuild:
+  Fix background location to use sabayonlinux.png, which I forgot to fix in
+  tarball
+
 *sabayon-artwork-kde-4.1.99-r1 (06 Jun 2009)
 
   06 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
