@@ -274,6 +274,7 @@ Section "Device"
     #Option "ColorTiling" "on"
     #Option "EnablePageFlip" "on"
     Option "UseEvents" "True"
+    Option "LogoPath" "/usr/share/backgrounds/sabayonlinux-nvidia.png"
 
 EndSection
 	""" % (device_id_prefix,cardnum,xdriver,bus_id_mark,bus_id,)
