@@ -6,7 +6,7 @@ EAPI="2"
 KDE_MINIMAL="4.2"
 inherit kde4-base
 
-SVN_REV="930811"
+SVN_REV="976478"
 DESCRIPTION="KDE plasma applet for controlling network connections managed by NetworkManager."
 HOMEPAGE="http://websvn.kde.org/trunk/playground/base/plasma/applets/networkmanager/"
 SRC_URI="http://archive.ubuntu.com/ubuntu/pool/main/p/plasma-widget-network-manager/plasma-widget-network-manager_0.0+svn${SVN_REV}.orig.tar.gz"
