@@ -110,6 +110,7 @@ my_setup_desktop() {
 	rm -f /etc/xdg/autostart/trackerd.desktop
 	rm -f /etc/xdg/autostart/etp-applet.desktop
 	rm -f /etc/xdg/autostart/beagled-autostart.desktop
+	rm -f /usr/share/autostart/etp-applet.desktop
 
         # Remove broken entries in /etc/mtab
         sed -i '/.*newroot.*/d' /etc/mtab

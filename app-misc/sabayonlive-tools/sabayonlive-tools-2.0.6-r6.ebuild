@@ -9,7 +9,7 @@ HOMEPAGE="http://www.sabayonlinux.org"
 SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
-IUSE="opengl"
+IUSE=""
 
 RDEPEND="dev-util/dialog
 	sys-apps/pciutils
@@ -42,10 +42,8 @@ src_install() {
 
 	cd ${WORKDIR}
 
-	if use opengl; then
-		dosbin x-setup-configuration
-		newinitd x-setup-init.d x-setup
-	fi
+	dosbin x-setup-configuration
+	newinitd x-setup-init.d x-setup
 
 	dosbin net-setup
 	into /
