@@ -33,9 +33,9 @@ src_install() {
 pkg_postinst() {
 	fdo-mime_mime_database_update
 	fdo-mime_desktop_database_update
-	python_mod_compile "/usr/$(get_libdir)/entropy/${PN}"
+	python_mod_compile "/usr/$(get_libdir)/entropy/sulfur/applet"
 }
 
 pkg_postrm() {
-        python_mod_cleanup "/usr/$(get_libdir)/entropy/${PN}"
+        python_mod_cleanup "/usr/$(get_libdir)/entropy/sulfur/applet"
 }
