@@ -14,7 +14,7 @@ IUSE="splash dmraid grub"
 UNIPATCH_STRICTORDER="yes"
 KEYWORDS="amd64 x86"
 HOMEPAGE="http://www.sabayonlinux.org"
-SRC_URI=""
+SRC_URI="${KERNEL_URI}"
 
 DEPEND="<sys-kernel/genkernel-3.4.11
 	splash? ( x11-themes/sabayon-artwork-core )"
