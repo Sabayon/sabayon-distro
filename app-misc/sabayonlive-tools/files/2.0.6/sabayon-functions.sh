@@ -9,30 +9,34 @@ sabayon_setup_autologin() {
 	fi
 
         # KDM - KDE
-        for kver in `ls /usr/kde`; do
+	if [ -d "/usr/kde" ]; then
 
-                kdm_file="/usr/kde/${kver}/share/config/kdm/kdmrc"
-                if [ ! -f "$kdm_file" ]; then
-                        continue
-                fi
+            for kver in `ls /usr/kde`; do
 
-                sed -i 's/AutoLoginEnable=.*/AutoLoginEnable=true/' $kdm_file
-                sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' $kdm_file
-                sed -i 's/AutoLoginDelay=.*/AutoLoginDelay=0/' $kdm_file
+                    kdm_file="/usr/kde/${kver}/share/config/kdm/kdmrc"
+                    if [ ! -f "$kdm_file" ]; then
+                            continue
+                    fi
 
-                sed -i 's/AllowRootLogin=.*/AllowRootLogin=true/' $kdm_file
-                sed -i 's/AllowNullPasswd=.*/AllowNullPasswd=true/' $kdm_file
-                sed -i 's/AllowShutdown=.*/AllowShutdown=All/' $kdm_file
+                    sed -i 's/AutoLoginEnable=.*/AutoLoginEnable=true/' $kdm_file
+                    sed -i 's/AutoLoginUser=.*/AutoLoginUser=sabayonuser/' $kdm_file
+                    sed -i 's/AutoLoginDelay=.*/AutoLoginDelay=0/' $kdm_file
 
-                sed -i '/^#.*AutoLoginEnable=/ s/^#//' $kdm_file
-                sed -i '/^#.*AutoLoginUser=/ s/^#//' $kdm_file
-                sed -i '/^#.*AutoLoginDelay=/ s/^#//' $kdm_file
+                    sed -i 's/AllowRootLogin=.*/AllowRootLogin=true/' $kdm_file
+                    sed -i 's/AllowNullPasswd=.*/AllowNullPasswd=true/' $kdm_file
+                    sed -i 's/AllowShutdown=.*/AllowShutdown=All/' $kdm_file
 
-                sed -i '/^#AllowRootLogin=/ s/^#//' $kdm_file
-                sed -i '/^#AllowNullPasswd=/ s/^#//' $kdm_file
-                sed -i '/^#AllowShutdown=/ s/^#//' $kdm_file
+                    sed -i '/^#.*AutoLoginEnable=/ s/^#//' $kdm_file
+                    sed -i '/^#.*AutoLoginUser=/ s/^#//' $kdm_file
+                    sed -i '/^#.*AutoLoginDelay=/ s/^#//' $kdm_file
 
-        done
+                    sed -i '/^#AllowRootLogin=/ s/^#//' $kdm_file
+                    sed -i '/^#AllowNullPasswd=/ s/^#//' $kdm_file
+                    sed -i '/^#AllowShutdown=/ s/^#//' $kdm_file
+
+            done
+
+        fi
 
 
 }
