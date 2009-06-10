@@ -16,6 +16,7 @@ IUSE=""
 RDEPEND="
 	=app-admin/sulfur-${PV}
 	dev-python/notify-python
+	>=sys-apps/dbus-1.2.6
 	dev-python/dbus-python
 	x11-misc/xdg-utils
 	sys-apps/entropy-client-services
