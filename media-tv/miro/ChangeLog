@@ -1,0 +1,9 @@
+# ChangeLog for media-tv/miro
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*miro-2.0.4 (10 Jun 2009)
+
+  10 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org> +miro-2.0.4.ebuild:
+  Inital commit, Sabayon bug #704, ebuild based on Gentoo #131527
+
