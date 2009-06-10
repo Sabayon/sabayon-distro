@@ -3,10 +3,13 @@
 
 inherit eutils multilib distutils confutils fdo-mime versionator
 
-MY_P="${P/m/M}"
+NIGHTLYDATE="20090609"
+
+MY_PN="${PN/m/M}"
+MY_P="${MY_PN}-${NIGHTLYDATE}"
 DESCRIPTION="The free open-source video platform."
 HOMEPAGE="http://www.getmiro.com/"
-SRC_URI="http://ftp.osuosl.org/pub/pculture.org/miro/src/${MY_P}.tar.gz"
+SRC_URI="http://pculture.org/nightlies/${MY_P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
