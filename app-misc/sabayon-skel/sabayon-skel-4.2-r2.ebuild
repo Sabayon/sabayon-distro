@@ -11,9 +11,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
-RDEPEND="
-	!<=app-misc/sabayonlinux-skel-3.5-r6
-	>=x11-misc/xdg-utils-1.0.2-r3"
+RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6"
 
 src_install () {
 
@@ -34,10 +32,12 @@ src_install () {
 
 pkg_postinst () {
 
-	#Manual install otherwise it wont be set up correctly
-	xdg-desktop-menu install \
-		/usr/share/sabayon/xdg/sabayon-sabayon.directory \
-		/usr/share/sabayon/xdg/*.desktop
+	if [ -x "/usr/bin/xdg-desktop-menu" ]; then
+		# Manual install otherwise it wont be set up correctly
+		xdg-desktop-menu install \
+			/usr/share/sabayon/xdg/sabayon-sabayon.directory \
+			/usr/share/sabayon/xdg/*.desktop
+	fi
 
 	fdo-mime_desktop_database_update
 	ewarn "Please bugs report to bugs.sabayonlinux.org"
@@ -46,5 +46,7 @@ pkg_postinst () {
 
 
 pkg_prerm() {
-	xdg-desktop-menu uninstall /usr/share/sabayon/xdg/sabayon-sabayon.directory /usr/share/sabayon/xdg/*.desktop
+	if [ -x "/usr/bin/xdg-desktop-menu" ]; then
+		xdg-desktop-menu uninstall /usr/share/sabayon/xdg/sabayon-sabayon.directory /usr/share/sabayon/xdg/*.desktop
+	fi
 }
