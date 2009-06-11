@@ -223,11 +223,8 @@ def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
 			print package_file+" does not exist???"
 			return False
 
-		try:
-			from entropy.client.interfaces import Client as EquoInterface			
-		except ImportError:
-			from entropy import EquoInterface
-		Equo = EquoInterface()
+		from entropy.client.interfaces import Client
+		Equo = Client()
 
 		# prepare system
 		idpackage, result = Equo.clientDbconn.atomMatch('x11-drivers/nvidia-drivers')
@@ -321,15 +318,18 @@ def copy_nvidia_settings_on_desktop():
 		homes = [x for x in homes if os.path.isdir("/home/"+x+"/Desktop")]
 		for home in homes:
 			try:
-				user = home
-				group = "users"
-				shutil.copy2(nvidia_settings,"/home/"+home+"/Desktop/"+os.path.basename(nvidia_settings))
-				shutil.copystat(nvidia_settings,"/home/"+home+"/Desktop/"+os.path.basename(nvidia_settings))
-				os.chown("/home/"+home+"/Desktop/"+os.path.basename(nvidia_settings),user,group)
+				full_home = os.path.join("/home", home)
+				st = os.stat(full_home)
+				dest_path = "/home/" + home + "/Desktop/" + os.path.basename(nvidia_settings)
+				shutil.copy2(nvidia_settings, dest_path)
+				os.chmod(dest_path, 0755)
+				os.chown(dest_path, st.st_uid, st.st_gid)
 			except:
 				pass
 		if os.path.isdir("/etc/skel/Desktop"):
-			shutil.copy2(nvidia_settings,"/etc/skel/Desktop/"+os.path.basename(nvidia_settings))
+			dest_path = "/etc/skel/Desktop/"+os.path.basename(nvidia_settings)
+			shutil.copy2(nvidia_settings, dest_path)
+			os.chmod(dest_path, 0755)
 
 def copy_ati_settings_on_desktop():
 	desktop_files = commands.getoutput('equo query files ati-drivers --quiet | grep ".desktop"').split("\n")
@@ -340,15 +340,18 @@ def copy_ati_settings_on_desktop():
 		homes = [x for x in homes if os.path.isdir("/home/"+x+"/Desktop")]
 		for home in homes:
 			try:
-				user = home
-				group = "users"
-				shutil.copy2(ati_settings,"/home/"+home+"/Desktop/"+os.path.basename(ati_settings))
-				shutil.copystat(ati_settings,"/home/"+home+"/Desktop/"+os.path.basename(ati_settings))
-				os.chown("/home/"+home+"/Desktop/"+os.path.basename(ati_settings),user,group)
+				full_home = os.path.join("/home", home)
+				st = os.stat(full_home)
+				dest_path = "/home/"+home+"/Desktop/"+os.path.basename(ati_settings)
+				shutil.copy2(ati_settings, dest_path)
+				os.chmod(dest_path, 0755)
+				os.chown(dest_path, st.st_uid, st.st_gid)
 			except:
 				pass
 		if os.path.isdir("/etc/skel/Desktop"):
-			shutil.copy2(ati_settings,"/etc/skel/Desktop/"+os.path.basename(ati_settings))
+			dest_path = "/etc/skel/Desktop/"+os.path.basename(ati_settings)
+			shutil.copy2(nvidia_settings, dest_path)
+			os.chmod(dest_path, 0755)
 
 
 def generate_nvidia_steps(cardnumber, total_cards, bus_id):
