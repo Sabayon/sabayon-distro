@@ -15,8 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="
-	sys-apps/sandbox
+DEPEND="sys-apps/sandbox
 	sys-devel/gettext
 	sys-apps/diffutils
 	|| ( dev-lang/python:2.5[sqlite] dev-lang/python:2.6[sqlite] )
@@ -37,6 +36,7 @@ src_install() {
 	echo "${PV}" > revision
 	insinto "/usr/$(get_libdir)/entropy/libraries"
 	doins revision
+	newinitd "${S}/services/entropy_client" entropy_client
 }
 
 pkg_preinst() {
