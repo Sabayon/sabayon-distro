@@ -60,6 +60,8 @@ pkg_postinst() {
 		rm -rf ${ENTROPY_CACHEDIR}/*
 	fi
 	python_mod_compile "/usr/$(get_libdir)/entropy/entropy"
+	# add entropy_client service
+	rc-update add entropy_client default
 }
 
 pkg_postrm() {
