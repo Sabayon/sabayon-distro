@@ -47,6 +47,10 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
+
+	# make sure than old entropy pyc files don't interfere (this is a workaround)
+	find /usr/$(get_libdir)/entropy -name "*.pyc" | xargs rm &> /dev/null
+
 	# Copy config file over
 	if [ -f "${REPO_CONFPATH}.backup" ]; then
 		cp ${REPO_CONFPATH}.backup ${REPO_CONFPATH} -p
@@ -59,9 +63,12 @@ pkg_postinst() {
 		einfo "Purging current Entropy cache"
 		rm -rf ${ENTROPY_CACHEDIR}/*
 	fi
+
 	python_mod_compile "/usr/$(get_libdir)/entropy/entropy"
 	# add entropy_client service
-	rc-update add entropy_client default
+	rc-update add entropy_client default &> /dev/null
+
+
 }
 
 pkg_postrm() {
