@@ -1,0 +1,36 @@
+diff -Nurp PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/invoke.py PyQt-x11-gpl-4.5/pyuic/uic/port_v3/invoke.py
+--- PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/invoke.py	2009-06-05 10:50:39.000000000 +0200
++++ PyQt-x11-gpl-4.5/pyuic/uic/port_v3/invoke.py	2009-06-15 11:48:38.669751531 +0200
+@@ -11,16 +11,16 @@ def invoke(driver):
+     try:
+         exit_status = driver.invoke()
+ 
+-    except IOError as e:
++    except IOError, e:
+         driver.on_IOError(e)
+ 
+-    except SyntaxError as e:
++    except SyntaxError, e:
+         driver.on_SyntaxError(e)
+ 
+-    except NoSuchWidgetError as e:
++    except NoSuchWidgetError, e:
+         driver.on_NoSuchWidgetError(e)
+ 
+-    except Exception as e:
++    except Exception, e:
+         driver.on_Exception(e)
+ 
+     return exit_status
+diff -Nurp PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/load_plugin.py PyQt-x11-gpl-4.5/pyuic/uic/port_v3/load_plugin.py
+--- PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/load_plugin.py	2009-06-05 10:50:39.000000000 +0200
++++ PyQt-x11-gpl-4.5/pyuic/uic/port_v3/load_plugin.py	2009-06-15 11:48:52.198928024 +0200
+@@ -11,7 +11,7 @@ def load_plugin(plugin, plugin_globals, 
+         exec(plugin.read(), plugin_globals, plugin_locals)
+     except ImportError:
+         return False
+-    except Exception as e:
++    except Exception, e:
+         raise WidgetPluginError("%s: %s" % (e.__class__, str(e)))
+ 
+     return True

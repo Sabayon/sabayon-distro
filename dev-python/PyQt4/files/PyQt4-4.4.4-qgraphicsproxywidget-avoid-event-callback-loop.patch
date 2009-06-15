@@ -1,0 +1,16 @@
+diff -Nurp PyQt-x11-gpl-4.4.4.orig/sip/QtGui/qgraphicsproxywidget.sip PyQt-x11-gpl-4.4.4/sip/QtGui/qgraphicsproxywidget.sip
+--- PyQt-x11-gpl-4.4.4.orig/sip/QtGui/qgraphicsproxywidget.sip	2008-11-08 12:55:56.000000000 +0100
++++ PyQt-x11-gpl-4.4.4/sip/QtGui/qgraphicsproxywidget.sip	2009-04-21 21:59:09.938689971 +0200
+@@ -87,6 +87,12 @@ protected:
+     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
++
++    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
++    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
++    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
++    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
++
+     virtual void wheelEvent(QGraphicsSceneWheelEvent *event);
+     virtual void keyPressEvent(QKeyEvent *event);
+     virtual void keyReleaseEvent(QKeyEvent *event);

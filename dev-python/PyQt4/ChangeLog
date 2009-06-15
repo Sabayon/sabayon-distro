@@ -1,0 +1,261 @@
+# ChangeLog for dev-python/PyQt4
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-python/PyQt4/ChangeLog,v 1.63 2009/06/09 20:45:17 hwoarang Exp $
+
+  09 Jun 2009; Markos Chandras <hwoarang@gentoo.org> PyQt4-4.4.4-r2.ebuild,
+  PyQt4-4.4.4-r4.ebuild, PyQt4-4.4.4-r5.ebuild:
+  Add correct sip dependencies, fixes bug 273430
+
+*PyQt4-4.5 (09 Jun 2009)
+
+  09 Jun 2009; Markos Chandras <hwoarang@gentoo.org> +PyQt4-4.5.ebuild:
+  Version bump
+
+  05 Jun 2009; Ben de Groot <yngwin@gentoo.org> PyQt4-4.4.4-r5.ebuild:
+  Specify !kde for qt-phonon dep
+
+  03 Jun 2009; Ben de Groot <yngwin@gentoo.org> PyQt4-4.4.4-r5.ebuild,
+  metadata.xml:
+  Add kde useflag, for selecting media-sound/phonon, bug 270188
+
+  02 Jun 2009; Ben de Groot <yngwin@gentoo.org> PyQt4-4.4.4-r5.ebuild:
+  QtDesigner is triggered by USE=X, so hide sed behind X useflag. Thanks
+  to Davide Pesavento for alerting.
+
+  01 Jun 2009; Markos Chandras <hwoarang@gentoo.org>
+  +files/fix_license_check.patch:
+  Add missing patch. Fixes bug 272126
+
+*PyQt4-4.4.4-r5 (01 Jun 2009)
+
+  01 Jun 2009; Markos Chandras <hwoarang@gentoo.org> +PyQt4-4.4.4-r5.ebuild,
+  files/configure.py.patch, metadata.xml:
+  Fixed automagic dependency issue. ( bug 236341 ). Fixed rpath issues ( bug
+  235819 , bug 271870 ). Thanks to Davide Pesavento <davidepesa@gmail.com>
+  for the ebuilds and the rpath patch.
+
+  20 May 2009; Ben de Groot <yngwin@gentoo.org> -PyQt4-4.4-r1.ebuild,
+  -PyQt4-4.4.4-r1.ebuild, -PyQt4-4.4.4-r3.ebuild, PyQt4-4.4.4-r4.ebuild:
+  Turn on default useflags for all Qt modules. Remove old. Move src_unpack
+  content to src_prepare, where it belongs.
+
+  15 May 2009; Alexis Ballier <aballier@gentoo.org> PyQt4-4.4.4-r4.ebuild:
+  keyword ~x86-fbsd, bug #269880
+
+*PyQt4-4.4.4-r4 (26 Apr 2009)
+
+  26 Apr 2009; Markos Chandras <hwoarang@gentoo.org>
+  +files/PyQt4-4.4.4-qgraphicsproxywidget-avoid-event-callback-loop.patch,
+  +PyQt4-4.4.4-r4.ebuild:
+  Adding qt-xmlpatterns as dependency. Add patch for QGraphicsProxyWidget (
+  thanks to Fabio Erculiani <lxnay@sabayonlinux.org> for providing the patch
+  ). Fixes bug #267012
+
+*PyQt4-4.4.4-r3 (07 Apr 2009)
+
+  07 Apr 2009; Markos Chandras <hwoarang@gentoo.org>
+  +files/configure.py.patch, +PyQt4-4.4.4-r3.ebuild:
+  Fixed bug #204877 ( thanks to Davide Pesavento <davidepesa@gmail.com> )
+
+  27 Mar 2009; Jeroen Roovers <jer@gentoo.org> PyQt4-4.4.4-r2.ebuild:
+  Stable for HPPA (bug #261652).
+
+  24 Mar 2009; Brent Baude <ranger@gentoo.org> PyQt4-4.4.4-r2.ebuild:
+  stable ppc64, bug 261652
+
+  22 Mar 2009; Markus Meier <maekke@gentoo.org> PyQt4-4.4.4-r2.ebuild:
+  amd64 stable, bug #261652
+
+  20 Mar 2009; Raúl Porcel <armin76@gentoo.org> PyQt4-4.4.4-r2.ebuild:
+  alpha/ia64/sparc/x86 stable wrt #261652
+
+  20 Mar 2009; Brent Baude <ranger@gentoo.org> PyQt4-4.4.4-r2.ebuild:
+  stable ppc, bug 261652
+
+  20 Mar 2009; Markos Chandras <hwoarang@gentoo.org> -PyQt4-4.3.1.ebuild,
+  -PyQt4-4.3.3.ebuild:
+  Dropping old packages due to qt-4.3 removal
+
+  18 Feb 2009; Jeroen Roovers <jer@gentoo.org> PyQt4-4.4.4-r1.ebuild:
+  Stable for HPPA (bug #248083).
+
+  06 Feb 2009; Raúl Porcel <armin76@gentoo.org> PyQt4-4.4.4-r1.ebuild:
+  ia64/sparc stable wrt #248038
+
+  04 Feb 2009; Brent Baude <ranger@gentoo.org> PyQt4-4.4.4-r1.ebuild:
+  Marking PyQt4-4.4.4-r1 ppc64 stable for bug 248038
+
+  31 Jan 2009; Tobias Klausmann <klausman@gentoo.org> PyQt4-4.4.4-r1.ebuild:
+  Stable on alpha, bug #248038
+
+*PyQt4-4.4.4-r2 (25 Jan 2009)
+
+  25 Jan 2009; Ben de Groot <yngwin@gentoo.org> +PyQt4-4.4.4-r2.ebuild:
+  Add dbus-python dep, thanks to Maciej Mrozowski. Remove no longer needed
+  zlib useflag check.
+
+  18 Jan 2009; Markus Meier <maekke@gentoo.org> PyQt4-4.4.4-r1.ebuild:
+  amd64/x86 stable, bug #248038
+
+  17 Jan 2009; nixnut <nixnut@gentoo.org> PyQt4-4.4.4-r1.ebuild:
+  ppc stable #248038
+
+  09 Jan 2009; Patrick Lauer <patrick@gentoo.org> -PyQt4-4.4.3.ebuild,
+  -PyQt4-4.4.4.ebuild:
+  Removing old
+
+*PyQt4-4.4.4-r1 (23 Nov 2008)
+
+  23 Nov 2008; Patrick Lauer <patrick@gentoo.org> +PyQt4-4.4.4-r1.ebuild:
+  Adding webkit useflag. Fixes pykde failing to build because of ordering
+  issues.
+
+*PyQt4-4.4.4 (21 Nov 2008)
+
+  21 Nov 2008; Ben de Groot <yngwin@gentoo.org> -PyQt4-4.4.2.ebuild,
+  PyQt4-4.4.3.ebuild, +PyQt4-4.4.4.ebuild:
+  Drop ~x86-fbsd, as qt-core isn't keyworded for that arch yet.
+  Version bump, with updated deps. Remove hardmasked 4.4.2 version.
+
+  07 Oct 2008; Jeroen Roovers <jer@gentoo.org> PyQt4-4.3.3.ebuild:
+  Stable for HPPA too.
+
+*PyQt4-4.4.3 (06 Sep 2008)
+
+  06 Sep 2008; Ben de Groot <yngwin@gentoo.org> +PyQt4-4.4.3.ebuild:
+  Version bump. Fixes bug 234559.
+
+  06 Aug 2008; Jesus Rivero <neurogeek@gentoo.org> metadata.xml:
+  add GLEP 56 USE flag desc from use.local.desc
+
+*PyQt4-4.4-r1 (31 Jul 2008)
+
+  31 Jul 2008; Jesus Rivero <neurogeek@gentoo.org>
+  +files/PyQt4-4.4_compile.patch, -PyQt4-4.4.ebuild, +PyQt4-4.4-r1.ebuild:
+  Fixes bugs #233369 and #222435, thanks to Remy Bosch for the patch.
+  Removed old version
+
+  25 May 2008; Ingmar Vanhassel <ingmar@gentoo.org> PyQt4-4.4.2.ebuild:
+  dev-python/PyQt4-4.4.2 needs Qt-4.4.0, fix dependencies, mask package.
+
+*PyQt4-4.4.2 (24 May 2008)
+
+  24 May 2008; Ben de Groot <yngwin@gentoo.org> +PyQt4-4.4.2.ebuild:
+  Version bump. Updated homepage URL. Added split qt deps from bug 222709.
+
+*PyQt4-4.4 (14 May 2008)
+
+  14 May 2008; Ali Polatel <hawking@gentoo.org> PyQt4-4.3.1.ebuild,
+  PyQt4-4.3.3.ebuild, +PyQt4-4.4.ebuild:
+  Version bump. Change SRC_URI of old ebuilds to mirror://gentoo because
+  upstream doesn't have it anymore.
+
+  13 May 2008; Ali Polatel <hawking@gentoo.org> PyQt4-4.3.1.ebuild,
+  PyQt4-4.3.3.ebuild:
+  Changed HOMEPAGE. Thanks to Elias Probst, #220653
+
+  12 May 2008; Markus Rothe <corsair@gentoo.org> PyQt4-4.3.3.ebuild:
+  Stable on ppc64
+
+  07 Apr 2008; Alexis Ballier <aballier@gentoo.org> PyQt4-4.3.3.ebuild:
+  keyword ~x86-fbsd
+
+  02 Mar 2008; Wulf C. Krueger <philantrop@gentoo.org> PyQt4-4.3.1.ebuild:
+  Marked stable on amd64 as per bug 201474.
+
+  21 Feb 2008; Raúl Porcel <armin76@gentoo.org> PyQt4-4.3.3.ebuild:
+  alpha/ia64/sparc stable
+
+  15 Feb 2008; nixnut <nixnut@gentoo.org> PyQt4-4.3.1.ebuild:
+  Stable on ppc wrt bug 201474
+
+  09 Feb 2008; Markus Ullmann <jokey@gentoo.org> PyQt4-4.3.3.ebuild:
+  Stable on x86
+
+  28 Dec 2007; Caleb Tennis <caleb@gentoo.org> PyQt4-4.3.1.ebuild,
+  PyQt4-4.3.3.ebuild:
+  Explicitly depend on Qt 4.3 for these versions
+
+*PyQt4-4.3.3 (26 Dec 2007)
+
+  26 Dec 2007; Caleb Tennis <caleb@gentoo.org> +PyQt4-4.3.3.ebuild:
+  version bump
+
+  28 Nov 2007; Caleb Tennis <caleb@gentoo.org> -PyQt4-4.2.ebuild,
+  -PyQt4-4.3.ebuild:
+  Remove old versions
+
+  09 Nov 2007; Jeroen Roovers <jer@gentoo.org> PyQt4-4.3.1.ebuild:
+  Marked ~hppa (bug #198456). Fixed quoting issues.
+
+  07 Nov 2007; Raúl Porcel <armin76@gentoo.org> PyQt4-4.3.1.ebuild:
+  Add ~alpha/~ia64/~sparc
+
+  20 Oct 2007; Markus Rothe <corsair@gentoo.org> PyQt4-4.3.1.ebuild:
+  Added ~ppc64; bug #196474
+
+*PyQt4-4.3.1 (02 Oct 2007)
+
+  02 Oct 2007; Caleb Tennis <caleb@gentoo.org> +PyQt4-4.3.1.ebuild:
+  version bump
+
+  22 Aug 2007; Robert Buchholz <rbu@gentoo.org> PyQt4-4.3.ebuild:
+  Added ~ppc (bug #188998)
+
+  21 Aug 2007; Caleb Tennis <caleb@gentoo.org> PyQt4-4.3.ebuild:
+  add a check for zlib, per bug #188389
+
+*PyQt4-4.3 (09 Aug 2007)
+
+  09 Aug 2007; Caleb Tennis <caleb@gentoo.org> +PyQt4-4.3.ebuild:
+  Version bump
+
+  24 Jun 2007; Tiziano Müller <dev-zero@gentoo.org> PyQt4-4.2.ebuild:
+  Fixed $ROOT abuse (bug #167271) and some cleanup
+
+  30 May 2007; Caleb Tennis <caleb@gentoo.org> -PyQt4-4.0.ebuild,
+  -PyQt4-4.1.1.ebuild:
+  remove old versions
+
+  30 May 2007; Caleb Tennis <caleb@gentoo.org> PyQt4-4.2.ebuild:
+  Fix doc install per bug #160675
+
+  10 May 2007; Caleb Tennis <caleb@gentoo.org> PyQt4-4.2.ebuild:
+  fix from bug #177973
+
+*PyQt4-4.2 (10 May 2007)
+
+  10 May 2007; Caleb Tennis <caleb@gentoo.org> +PyQt4-4.2.ebuild:
+  version bump
+
+*PyQt4-4.1.1 (20 Dec 2006)
+
+  20 Dec 2006; Markus Ullmann <jokey@gentoo.org> -PyQt4-4.1.ebuild,
+  +PyQt4-4.1.1.ebuild:
+  Version bump
+
+  15 Nov 2006; Caleb Tennis <caleb@gentoo.org> -PyQt4-4.0_beta1.ebuild:
+  remove old version
+
+*PyQt4-4.1 (14 Nov 2006)
+
+  14 Nov 2006; Caleb Tennis <caleb@gentoo.org> +PyQt4-4.1.ebuild:
+  version bump
+
+  22 Oct 2006; Thomas Cort <tcort@gentoo.org> PyQt4-4.0.ebuild:
+  Added ~amd64 keyword wrt Bug #137948.
+
+  11 Jul 2006; Caleb Tennis <caleb@gentoo.org> PyQt4-4.0.ebuild:
+  Fix a few minor issues with ebuild
+
+*PyQt4-4.0 (26 Jun 2006)
+
+  26 Jun 2006; Caleb Tennis <caleb@gentoo.org> +PyQt4-4.0.ebuild:
+  adding the release version
+
+*PyQt4-4.0_beta1 (05 May 2006)
+
+  05 May 2006; Caleb Tennis <caleb@gentoo.org> +metadata.xml,
+  +PyQt4-4.0_beta1.ebuild:
+  initial import, from bug #121554
+

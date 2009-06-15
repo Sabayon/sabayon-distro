@@ -1,0 +1,14 @@
+Index: configure.py
+===================================================================
+--- configure.py
++++ configure.py
+@@ -1469,7 +1469,8 @@ def check_license():
+     # Common checks.
+     if qt_edition and ltype != "internal":
+         if qt_edition != "free" and ltype == "GPL":
+-            sipconfig.error("This version of PyQt and the %s edition of Qt have incompatible licenses." % qt_edition)
++	    if qt_edition != "Desktop":
++	            sipconfig.error("This version of PyQt and the %s edition of Qt have incompatible licenses." % qt_edition)
+ 
+     # Confirm the license if not already done.
+     if not opts.license_confirmed:
