@@ -1,6 +1,6 @@
 diff -Nurp PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/invoke.py PyQt-x11-gpl-4.5/pyuic/uic/port_v3/invoke.py
---- PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/invoke.py	2009-06-05 10:50:39.000000000 +0200
-+++ PyQt-x11-gpl-4.5/pyuic/uic/port_v3/invoke.py	2009-06-15 11:48:38.669751531 +0200
+--- PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/invoke.py	2009-06-15 12:14:22.853997598 +0200
++++ PyQt-x11-gpl-4.5/pyuic/uic/port_v3/invoke.py	2009-06-15 12:14:38.671746852 +0200
 @@ -11,16 +11,16 @@ def invoke(driver):
      try:
          exit_status = driver.invoke()
@@ -23,8 +23,8 @@ diff -Nurp PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/invoke.py PyQt-x11-gpl-4.5/py
  
      return exit_status
 diff -Nurp PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/load_plugin.py PyQt-x11-gpl-4.5/pyuic/uic/port_v3/load_plugin.py
---- PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/load_plugin.py	2009-06-05 10:50:39.000000000 +0200
-+++ PyQt-x11-gpl-4.5/pyuic/uic/port_v3/load_plugin.py	2009-06-15 11:48:52.198928024 +0200
+--- PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/load_plugin.py	2009-06-15 12:14:22.860042936 +0200
++++ PyQt-x11-gpl-4.5/pyuic/uic/port_v3/load_plugin.py	2009-06-15 12:14:38.694838102 +0200
 @@ -11,7 +11,7 @@ def load_plugin(plugin, plugin_globals, 
          exec(plugin.read(), plugin_globals, plugin_locals)
      except ImportError:
@@ -34,3 +34,14 @@ diff -Nurp PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/load_plugin.py PyQt-x11-gpl-4
          raise WidgetPluginError("%s: %s" % (e.__class__, str(e)))
  
      return True
+diff -Nurp PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/proxy_base.py PyQt-x11-gpl-4.5/pyuic/uic/port_v3/proxy_base.py
+--- PyQt-x11-gpl-4.5.orig/pyuic/uic/port_v3/proxy_base.py	2009-06-05 10:50:39.000000000 +0200
++++ PyQt-x11-gpl-4.5/pyuic/uic/port_v3/proxy_base.py	2009-06-15 12:20:26.991868939 +0200
+@@ -1,5 +1,5 @@
+ from PyQt4.uic.Compiler.proxy_type import ProxyType
+ 
+ 
+-class ProxyBase(metaclass=ProxyType):
+-    pass
++class ProxyBase():
++    __metaclass__ = ProxyType
