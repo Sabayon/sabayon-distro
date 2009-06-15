@@ -23,6 +23,5 @@ src_install() {
     emake DESTDIR="${D}" install || die "install failed"
 
     dodoc FAQ NEWS README || die
-    dohtml EXTENDING.html ctags.html
 }
 
