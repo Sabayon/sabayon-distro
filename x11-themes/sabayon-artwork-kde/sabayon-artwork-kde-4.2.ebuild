@@ -14,21 +14,19 @@ IUSE=""
 RESTRICT="nomirror"
 RDEPEND="
 	x11-themes/sabayon-artwork-core
-	x11-themes/qtcurve-qt4[kde]
-	x11-themes/gtk-engines-qtcurve[mozilla,firefox3]
 	!<=x11-themes/sabayonlinux-artwork-4
 	!x11-themes/sabayon-artwork-star
 	!x11-themes/sabayon-artwork-darkblend
-	x11-themes/gtk-engines-qt
 	"
-	# We dont need gtk-engines-qt specifically, but helps GTK integration 
-	# by providing a control centre app for changing GTK settings.
+PDEPEND="x11-themes/qtcurve-qt4[kde]
+	x11-themes/gtk-engines-qtcurve[mozilla,firefox3]
+	x11-themes/gtk-engines-qt"
 
 S="${WORKDIR}/${PN}"
 
 src_prepare() {
 	cd ${S}/kdm4/Glassified
-	epatch ${FILESDIR}/${PVR}/fixbackgroundlocation.patch
+	epatch ${FILESDIR}/4.1.99-r2/fixbackgroundlocation.patch
 }
 
 src_configure() {
