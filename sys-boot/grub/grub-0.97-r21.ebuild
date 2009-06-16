@@ -195,27 +195,6 @@ setup_boot_dir() {
 		ln -snf grub.conf "${dir}"/menu.lst
 	fi
 
-	if [[ -e ${dir}/stage2 ]] ; then
-		mv "${dir}"/stage2{,.old}
-		ewarn "*** IMPORTANT NOTE: you must run grub and install"
-		ewarn "the new version's stage1 to your MBR.  Until you do,"
-		ewarn "stage1 and stage2 will still be the old version, but"
-		ewarn "later stages will be the new version, which could"
-		ewarn "cause problems such as an unbootable system."
-		ewarn "This means you must use either grub-install or perform"
-		ewarn "root/setup manually! For more help, see the handbook:"
-		ewarn "http://www.gentoo.org/doc/en/handbook/handbook-${ARCH}.xml?part=1&chap=10#grub-install-auto"
-		ebeep
-	fi
-
-	einfo "Copying files from /lib/grub, /usr/lib/grub and /usr/share/grub to ${dir}"
-	for x in \
-		"${ROOT}"/lib*/grub/*/* \
-		"${ROOT}"/usr/lib*/grub/*/* \
-		"${ROOT}"/usr/share/grub/* ; do
-		[[ -f ${x} ]] && cp -p "${x}" "${dir}"/
-	done
-
 	if [[ ! -e ${dir}/grub.conf ]] ; then
 		s="${ROOT}/usr/share/doc/${PF}/grub.conf.gentoo"
 		[[ -e "${s}" ]] && cat "${s}" >${dir}/grub.conf
@@ -223,11 +202,6 @@ setup_boot_dir() {
 		[[ -e "${s}.bz2" ]] && bzcat "${s}.bz2" >${dir}/grub.conf
 	fi
 
-	# the grub default commands silently piss themselves if
-	# the default file does not exist ahead of time
-	if [[ ! -e ${dir}/default ]] ; then
-		grub-set-default --root-directory="${boot_dir}" default
-	fi
 	einfo "Grub has been installed to ${boot_dir} successfully."
 }
 
