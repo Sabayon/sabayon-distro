@@ -1,0 +1,4 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+- custom splash
+- custom UUID support patches
+- remove some code on pkg_postinst which causes segfaults

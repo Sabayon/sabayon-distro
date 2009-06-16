@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/grub-0.97-r8.ebuild,v 1.1 2008/11/06 01:28:56 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/grub-0.97-r9.ebuild,v 1.4 2009/05/15 21:11:24 maekke Exp $
 
 # XXX: we need to review menu.lst vs grub.conf handling.  We've been converting
 #      all systems to grub.conf (and symlinking menu.lst to grub.conf), but
@@ -9,7 +9,7 @@
 
 inherit mount-boot eutils flag-o-matic toolchain-funcs autotools multilib
 
-PATCHVER="1.8" # Should match the revision ideally
+PATCHVER="1.9" # Should match the revision ideally
 DESCRIPTION="GNU GRUB Legacy boot loader"
 HOMEPAGE="http://www.gnu.org/software/grub/"
 SRC_URI="mirror://gentoo/${P}.tar.gz
@@ -18,7 +18,7 @@ SRC_URI="mirror://gentoo/${P}.tar.gz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~x86-fbsd"
+KEYWORDS="amd64 x86 ~x86-fbsd"
 IUSE="custom-cflags ncurses netboot static"
 
 DEPEND="ncurses? (
@@ -58,8 +58,6 @@ src_unpack() {
 	if [[ -n ${PATCHVER} ]] ; then
 		EPATCH_SUFFIX="patch"
 		epatch "${WORKDIR}"/patch
-		# add ext4 patch
-		epatch "${FILESDIR}/${P}-ext4.patch"
 		# UUID support
 		epatch "${FILESDIR}/${P}-uuid.patch"
 		epatch "${FILESDIR}/${P}-uuid_doc.patch"
@@ -72,7 +70,6 @@ src_compile() {
 
 	# Fix libvolume_id build (UUID)
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include -I/usr/$(get_libdir)/gcc/${CHOST}/$(gcc-fullversion)/include"
-	echo $CPPFLAGS
 
 	use amd64 && multilib_toolchain_setup x86
 
@@ -159,8 +156,8 @@ src_install() {
 		doexe nbgrub pxegrub stage2/stage2.netboot || die "netboot install"
 	fi
 
- 	dodoc AUTHORS BUGS ChangeLog NEWS README THANKS TODO
- 	newdoc docs/menu.lst grub.conf.sample
+	dodoc AUTHORS BUGS ChangeLog NEWS README THANKS TODO
+	newdoc docs/menu.lst grub.conf.sample
 	dodoc "${FILESDIR}"/grub.conf.gentoo
 	prepalldocs
 
@@ -170,7 +167,7 @@ src_install() {
 		"${D}"/usr/share/doc/grub-static-${PF/grub-}
 
 	insinto /usr/share/grub
-	cp "${FILESDIR}"/${PF}.xpm.gz ${D}/usr/share/grub/splash.xpm.gz
+	doins "${FILESDIR}"/splash.xpm.gz
 
 }
 
@@ -178,7 +175,7 @@ setup_boot_dir() {
 	local boot_dir=$1
 	local dir=${boot_dir}
 
-	[[ ! -e ${dir} ]] && die "${dir} does not exist!"
+	mkdir -p "${dir}"
 	[[ ! -L ${dir}/boot ]] && ln -s . "${dir}/boot"
 	dir="${dir}/grub"
 	if [[ ! -e ${dir} ]] ; then
@@ -224,19 +221,6 @@ setup_boot_dir() {
 		[[ -e "${s}" ]] && cat "${s}" >${dir}/grub.conf
 		[[ -e "${s}.gz" ]] && zcat "${s}.gz" >${dir}/grub.conf
 		[[ -e "${s}.bz2" ]] && bzcat "${s}.bz2" >${dir}/grub.conf
-	fi
-
-	# Per bug 218599, we support grub.conf.install for users that want to run a
-	# specific set of Grub setup commands rather than the default ones.
-	grub_config=${dir}/grub.conf.install
-	[[ -e ${grub_config} ]] || grub_config=${dir}/grub.conf
-	if [[ -e ${grub_config} ]] ; then
-		egrep \
-			-v '^[[:space:]]*(#|$|default|fallback|initrd|password|splashimage|timeout|title)' \
-			"${grub_config}" | \
-		/sbin/grub --batch \
-			--device-map="${dir}"/device.map \
-			> /dev/null
 	fi
 
 	# the grub default commands silently piss themselves if
