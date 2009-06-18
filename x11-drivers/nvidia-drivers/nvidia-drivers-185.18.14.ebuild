@@ -161,10 +161,10 @@ mtrr_check() {
 
 paravirt_check() {
 	ebegin "Checking for Paravirtualized guest support"
-	linux_chkconfig_present PARAVIRT
+	linux_chkconfig_present PARAVIRT_GUEST
 
 	if [[ $? -eq 0 ]]; then
-		eerror "Please disable PARAVIRT in your kernel config, found at:"
+		eerror "Please disable PARAVIRT_GUEST in your kernel config, found at:"
 		eerror
 		eerror "  Processor type and features"
 		eerror "    [*] Paravirtualized guest support"
@@ -172,7 +172,7 @@ paravirt_check() {
 		eerror "or XEN support"
 		eerror
 		eerror "and recompile your kernel .."
-		die "PARAVIRT support detected!"
+		die "PARAVIRT_GUEST support detected!"
 	fi
 }
 
@@ -247,11 +247,6 @@ src_unpack() {
 	epatch "${FILESDIR}"/NVIDIA_glx-defines.patch
 	# Use some more sensible gl headers and make way for new glext.h
 	epatch "${FILESDIR}"/NVIDIA_glx-glheader.patch
-
-	# allow on board sensors to work with lm_sensors
-	if use kernel_linux; then
-		epatch "${FILESDIR}"/NVIDIA_i2c-hwmon.patch
-	fi
 
 	if use kernel_linux; then
 		# Quiet down warnings the user does not need to see
