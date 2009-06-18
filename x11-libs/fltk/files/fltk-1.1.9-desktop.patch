@@ -1,0 +1,14 @@
+--- fltk-1.1.9.orig/fluid/fluid.desktop	2009-01-08 17:53:51.000000000 +0000
++++ fltk-1.1.9/fluid/fluid.desktop	2009-01-09 18:46:27.000000000 +0000
+@@ -2,9 +2,9 @@
+ Name=FLUID
+ Comment=FLTK GUI Designer
+ TryExec=fluid
+-Exec=cd %D && fluid %F
++Exec=fluid %F
+ Icon=fluid
+ Terminal=false
+ Type=Application
+-MimeType=application/x-fluid
++MimeType=application/x-fluid;
+ Categories=Development;GUIDesigner;
