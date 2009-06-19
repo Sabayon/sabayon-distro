@@ -1,8 +1,19 @@
-diff --git a/utils/strutils.cc b/utils/strutils.cc
-index ef10988..c4ed1fb 100644
---- a/utils/strutils.cc
-+++ b/utils/strutils.cc
-@@ -315,7 +315,7 @@ WvString url_decode(WvStringParm str, bool no_space)
+diff -Nurp wvstreams-4.5.orig/ipstreams/wvaddr.cc wvstreams-4.5/ipstreams/wvaddr.cc
+--- wvstreams-4.5.orig/ipstreams/wvaddr.cc	2008-07-14 21:11:35.000000000 +0200
++++ wvstreams-4.5/ipstreams/wvaddr.cc	2009-06-19 16:39:37.757382441 +0200
+@@ -538,7 +538,7 @@ WvIPNet::WvIPNet(const WvIPNet &_net)
+ // If the netmask is not specified, it will default to all 1's.
+ void WvIPNet::string_init(const char string[])
+ {
+-    char *maskptr;
++    const char *maskptr;
+     int bits;
+     uint32_t imask;
+ 
+diff -Nurp wvstreams-4.5.orig/utils/strutils.cc wvstreams-4.5/utils/strutils.cc
+--- wvstreams-4.5.orig/utils/strutils.cc	2008-10-21 21:39:21.000000000 +0200
++++ wvstreams-4.5/utils/strutils.cc	2009-06-19 16:36:48.959741828 +0200
+@@ -315,7 +315,7 @@ WvString url_decode(WvStringParm str, bo
   
      const char *iptr;
      char *optr;
@@ -11,7 +22,7 @@ index ef10988..c4ed1fb 100644
      static const char hex[] = "0123456789ABCDEF";
      WvString in, intmp(str), out;
  
-@@ -967,7 +967,7 @@ WvString afterstr(WvStringParm line, WvStringParm a)
+@@ -967,7 +967,7 @@ WvString afterstr(WvStringParm line, WvS
      if (!line || !a)
  	return WvString::null;
  
@@ -20,7 +31,7 @@ index ef10988..c4ed1fb 100644
      if (loc == 0)
  	return "";
  
-@@ -984,8 +984,8 @@ WvString beforestr(WvStringParm line, WvStringParm a)
+@@ -984,8 +984,8 @@ WvString beforestr(WvStringParm line, Wv
  	return WvString::null;
  
      WvString ret = line;
@@ -31,3 +42,15 @@ index ef10988..c4ed1fb 100644
  
      if (loc == 0)
  	return line;
+diff -Nurp wvstreams-4.5.orig/utils/verstring.cc wvstreams-4.5/utils/verstring.cc
+--- wvstreams-4.5.orig/utils/verstring.cc	2008-07-14 21:11:35.000000000 +0200
++++ wvstreams-4.5/utils/verstring.cc	2009-06-19 16:37:02.021698602 +0200
+@@ -147,7 +147,7 @@ bool is_new_ver(unsigned int ver)
+ 
+ bool is_new_verstr(const char *str)
+ {
+-    char *p = strchr(str, '.');
++    const char *p = strchr(str, '.');
+     if (p && strchr(p+1, '.'))
+         return true;
+ 
