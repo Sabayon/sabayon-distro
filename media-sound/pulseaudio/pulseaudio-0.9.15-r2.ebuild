@@ -78,6 +78,8 @@ src_unpack() {
 	unpack ${A}
 	cd "${S}"
 
+	epatch "${FILESDIR}"/${P}-alsa-monitor-device-reservation.patch
+
 	elibtoolize
 }
 

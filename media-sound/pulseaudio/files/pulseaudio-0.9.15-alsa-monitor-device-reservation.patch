@@ -1,0 +1,207 @@
+From 561c0af8518dd8a2bac07284d306b0970c304f9f Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 5 Jun 2009 19:05:42 +0200
+Subject: [PATCH] alsa: monitor device reservation status and resume automatically when device becomes unused
+
+---
+ src/modules/alsa/alsa-sink.c   |   65 ++++++++++++++++++++++++++++++++++++++--
+ src/modules/alsa/alsa-source.c |   65 ++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 124 insertions(+), 6 deletions(-)
+
+diff --git a/src/modules/alsa/alsa-sink.c b/src/modules/alsa/alsa-sink.c
+index b1adc52..98ebac3 100644
+--- a/src/modules/alsa/alsa-sink.c
++++ b/src/modules/alsa/alsa-sink.c
+@@ -116,6 +116,8 @@ struct userdata {
+ 
+     pa_reserve_wrapper *reserve;
+     pa_hook_slot *reserve_slot;
++    pa_reserve_monitor_wrapper *monitor;
++    pa_hook_slot *monitor_slot;
+ };
+ 
+ static void userdata_free(struct userdata *u);
+@@ -185,6 +187,57 @@ static int reserve_init(struct userdata *u, const char *dname) {
+     return 0;
+ }
+ 
++static pa_hook_result_t monitor_cb(pa_reserve_monitor_wrapper *w, void* busy, struct userdata *u) {
++    pa_bool_t b;
++
++    pa_assert(w);
++    pa_assert(u);
++
++    b = PA_PTR_TO_UINT(busy) && !u->reserve;
++
++    pa_sink_suspend(u->sink, b, PA_SUSPEND_APPLICATION);
++    return PA_HOOK_OK;
++}
++
++static void monitor_done(struct userdata *u) {
++    pa_assert(u);
++
++    if (u->monitor_slot) {
++        pa_hook_slot_free(u->monitor_slot);
++        u->monitor_slot = NULL;
++    }
++
++    if (u->monitor) {
++        pa_reserve_monitor_wrapper_unref(u->monitor);
++        u->monitor = NULL;
++    }
++}
++
++static int reserve_monitor_init(struct userdata *u, const char *dname) {
++    char *rname;
++
++    pa_assert(u);
++    pa_assert(dname);
++
++    if (pa_in_system_mode())
++        return 0;
++
++    /* We are resuming, try to lock the device */
++    if (!(rname = pa_alsa_get_reserve_name(dname)))
++        return 0;
++
++    u->monitor = pa_reserve_monitor_wrapper_get(u->core, rname);
++    pa_xfree(rname);
++
++    if (!(u->monitor))
++        return -1;
++
++    pa_assert(!u->monitor_slot);
++    u->monitor_slot = pa_hook_connect(pa_reserve_monitor_wrapper_hook(u->monitor), PA_HOOK_NORMAL, (pa_hook_cb_t) monitor_cb, u);
++
++    return 0;
++}
++
+ static void fix_min_sleep_wakeup(struct userdata *u) {
+     size_t max_use, max_use_2;
+ 
+@@ -1580,9 +1633,14 @@ pa_sink *pa_alsa_sink_new(pa_module *m, pa_modargs *ma, const char*driver, pa_ca
+             pa_rtclock_usec(),
+             TRUE);
+ 
+-    if (reserve_init(u, pa_modargs_get_value(
+-                             ma, "device_id",
+-                             pa_modargs_get_value(ma, "device", DEFAULT_DEVICE))) < 0)
++    dev_id = pa_modargs_get_value(
++            ma, "device_id",
++            pa_modargs_get_value(ma, "device", DEFAULT_DEVICE));
++
++    if (reserve_init(u, dev_id) < 0)
++        goto fail;
++
++    if (reserve_monitor_init(u, dev_id) < 0)
+         goto fail;
+ 
+     b = use_mmap;
+@@ -1828,6 +1886,7 @@ static void userdata_free(struct userdata *u) {
+         pa_smoother_free(u->smoother);
+ 
+     reserve_done(u);
++    monitor_done(u);
+ 
+     pa_xfree(u->device_name);
+     pa_xfree(u);
+diff --git a/src/modules/alsa/alsa-source.c b/src/modules/alsa/alsa-source.c
+index 68f697d..277b110 100644
+--- a/src/modules/alsa/alsa-source.c
++++ b/src/modules/alsa/alsa-source.c
+@@ -114,6 +114,8 @@ struct userdata {
+ 
+     pa_reserve_wrapper *reserve;
+     pa_hook_slot *reserve_slot;
++    pa_reserve_monitor_wrapper *monitor;
++    pa_hook_slot *monitor_slot;
+ };
+ 
+ static void userdata_free(struct userdata *u);
+@@ -183,6 +185,57 @@ static int reserve_init(struct userdata *u, const char *dname) {
+     return 0;
+ }
+ 
++static pa_hook_result_t monitor_cb(pa_reserve_monitor_wrapper *w, void* busy, struct userdata *u) {
++    pa_bool_t b;
++
++    pa_assert(w);
++    pa_assert(u);
++
++    b = PA_PTR_TO_UINT(busy) && !u->reserve;
++
++    pa_source_suspend(u->source, b, PA_SUSPEND_APPLICATION);
++    return PA_HOOK_OK;
++}
++
++static void monitor_done(struct userdata *u) {
++    pa_assert(u);
++
++    if (u->monitor_slot) {
++        pa_hook_slot_free(u->monitor_slot);
++        u->monitor_slot = NULL;
++    }
++
++    if (u->monitor) {
++        pa_reserve_monitor_wrapper_unref(u->monitor);
++        u->monitor = NULL;
++    }
++}
++
++static int reserve_monitor_init(struct userdata *u, const char *dname) {
++    char *rname;
++
++    pa_assert(u);
++    pa_assert(dname);
++
++    if (pa_in_system_mode())
++        return 0;
++
++    /* We are resuming, try to lock the device */
++    if (!(rname = pa_alsa_get_reserve_name(dname)))
++        return 0;
++
++    u->monitor = pa_reserve_monitor_wrapper_get(u->core, rname);
++    pa_xfree(rname);
++
++    if (!(u->monitor))
++        return -1;
++
++    pa_assert(!u->monitor_slot);
++    u->monitor_slot = pa_hook_connect(pa_reserve_monitor_wrapper_hook(u->monitor), PA_HOOK_NORMAL, (pa_hook_cb_t) monitor_cb, u);
++
++    return 0;
++}
++
+ static void fix_min_sleep_wakeup(struct userdata *u) {
+     size_t max_use, max_use_2;
+     pa_assert(u);
+@@ -1438,9 +1491,14 @@ pa_source *pa_alsa_source_new(pa_module *m, pa_modargs *ma, const char*driver, p
+             pa_rtclock_usec(),
+             FALSE);
+ 
+-    if (reserve_init(u, pa_modargs_get_value(
+-                             ma, "device_id",
+-                             pa_modargs_get_value(ma, "device", DEFAULT_DEVICE))) < 0)
++    dev_id = pa_modargs_get_value(
++            ma, "device_id",
++            pa_modargs_get_value(ma, "device", DEFAULT_DEVICE));
++
++    if (reserve_init(u, dev_id) < 0)
++        goto fail;
++
++    if (reserve_monitor_init(u, dev_id) < 0)
+         goto fail;
+ 
+     b = use_mmap;
+@@ -1676,6 +1734,7 @@ static void userdata_free(struct userdata *u) {
+         pa_smoother_free(u->smoother);
+ 
+     reserve_done(u);
++    monitor_done(u);
+ 
+     pa_xfree(u->device_name);
+     pa_xfree(u);
+-- 
+1.6.2.4
+
