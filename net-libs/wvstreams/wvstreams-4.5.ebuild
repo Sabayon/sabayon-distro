@@ -58,7 +58,7 @@ src_prepare() {
 	epatch "${FILESDIR}/${P}-dbus-configure-fix.patch"
 	epatch "${FILESDIR}/${P}-qt-fixup.patch"
 
-	#epatch "${FILESDIR}/${P}-const-correctness.patch"
+	epatch "${FILESDIR}/${P}-const-correctness.patch"
 	eautoreconf || die "eautoreconf failed"
 }
 
