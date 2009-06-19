@@ -46,7 +46,7 @@ RDEPEND="X? ( x11-libs/libX11 x11-libs/libSM x11-libs/libICE )
 	asyncns? ( net-libs/libasyncns )
 	>=media-libs/audiofile-0.2.6-r1
 	>=media-libs/speex-1.2_beta
-	>=media-libs/libsndfile-1.0.20
+	>=media-libs/libsndfile-1.0.10
 	>=dev-libs/liboil-0.3.6
 	sys-libs/gdbm
 	>=sys-devel/libtool-2.2.4" # it's a valid RDEPEND, libltdl.so is used
@@ -77,8 +77,6 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-
-	epatch "${FILESDIR}"/${P}-git-updates.patch
 
 	elibtoolize
 }
