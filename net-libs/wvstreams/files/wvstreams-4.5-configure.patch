@@ -1,0 +1,16 @@
+diff -NrU5 wvstreams-4.5.orig/configure.ac wvstreams-4.5/configure.ac
+--- wvstreams-4.5.orig/configure.ac	2008-12-07 18:17:16.000000000 +0100
++++ wvstreams-4.5/configure.ac	2008-12-07 18:30:39.000000000 +0100
+@@ -481,11 +481,11 @@
+         LIBS="$LIBS_save"
+     ])
+     with_qt=$wv_cv_with_qt
+     if test "$with_qt" != no; then
+         WV_APPEND(CPPFLAGS, -I$with_qt/include -I$with_qt/include/qt3)
+-        if [ "$wv_qtdir" != "/usr" ]; then
++        if test "$wv_qtdir" != "/usr" ; then
+                 # never explicitly include /usr/lib
+ 	        WV_APPEND(LDFLAGS, -L$with_qt/lib)
+ 	fi
+         WV_APPEND(LIBS_QT, -lqt-mt)
+     fi

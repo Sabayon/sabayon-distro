@@ -1,0 +1,32 @@
+diff -NrU5 wvstreams-4.5.orig/configure.ac wvstreams-4.5/configure.ac
+--- wvstreams-4.5.orig/configure.ac	2008-12-07 18:38:13.000000000 +0100
++++ wvstreams-4.5/configure.ac	2008-12-07 21:15:08.000000000 +0100
+@@ -61,10 +61,11 @@
+ AC_ARG_WITH(openssl, AC_HELP_STRING([--with-openssl], [OpenSSL >= 0.9.7 (required)]))
+ AC_ARG_WITH(pam, AC_HELP_STRING([--with-pam], [PAM]))
+ AC_ARG_WITH(tcl, AC_HELP_STRING([--with-tcl], [Tcl]))
+ AC_ARG_WITH(qt, AC_HELP_STRING([--with-qt], [Qt]))
+ AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [zlib (required)]))
++AC_ARG_WITH(valgrind, AC_HELP_STRING([--with-valgrind], [Valgrind]))
+ 
+ AC_ARG_VAR(MOC, [Qt meta object compiler])
+ AC_ARG_VAR(WEAVER_BUILD_INFO, [Extra version info])
+ 
+ # avoid autoconf's default values, but keep those the user might have given
+@@ -491,12 +492,14 @@
+     fi
+     AC_PATH_PROG(MOC, moc, [moc not found], $with_qt/bin)
+ fi
+ 
+ # valgrind
+-AC_CHECK_PROG(VALGRIND, valgrind, valgrind)
+-AC_CHECK_HEADERS(valgrind/memcheck.h)
++if test "$with_valgrind" != "no"; then
++    AC_CHECK_PROG(VALGRIND, valgrind, valgrind)
++    AC_CHECK_HEADERS(valgrind/memcheck.h)
++fi
+ 
+ # zlib
+ if test "$with_zlib" != "no"; then
+     AC_CHECK_HEADERS(zlib.h,, [with_zlib=no])
+     AC_CHECK_LIB(z, compress,, [with_zlib=no])
