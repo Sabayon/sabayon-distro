@@ -1,0 +1,13 @@
+diff -Naur a/common/lib/modules/fglrx/build_mod/kcl_pci.c b/common/lib/modules/fglrx/build_mod/kcl_pci.c
+--- a/common/lib/modules/fglrx/build_mod/kcl_pci.c	2009-05-31 12:05:01.115508741 -0500
++++ b/common/lib/modules/fglrx/build_mod/kcl_pci.c	2009-05-31 12:06:15.871506492 -0500
+@@ -310,3 +310,8 @@
+ }
+ #endif //__x86_64__
+ 
++#undef pci_enable_msi
++int pci_enable_msi(struct pci_dev *pdev)
++{
++return pci_enable_msi_block(pdev, 1);
++}
+

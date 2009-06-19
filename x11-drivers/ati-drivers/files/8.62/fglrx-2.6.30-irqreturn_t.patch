@@ -1,0 +1,17 @@
+diff -Naur a/common/lib/modules/fglrx/build_mod/drm_os_linux.h b/common/lib/modules/fglrx/build_mod/drm_os_linux.h
+--- a/common/lib/modules/fglrx/build_mod/drm_os_linux.h	2009-05-27 19:24:11.944421623 -0500
++++ b/common/lib/modules/fglrx/build_mod/drm_os_linux.h	2009-05-27 19:28:12.424780164 -0500
+@@ -42,10 +42,12 @@
+ #define DRM_IRQ_ARGS		int irq, void *arg, struct pt_regs *regs
+ /** backwards compatibility with old irq return values */
+ #ifndef IRQ_HANDLED
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
+ typedef void irqreturn_t;
+ #define IRQ_HANDLED   /* nothing */
+ #define IRQ_NONE      /* nothing */
+ #endif
++#endif
+ 
+ /** AGP types */
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,70)
+
