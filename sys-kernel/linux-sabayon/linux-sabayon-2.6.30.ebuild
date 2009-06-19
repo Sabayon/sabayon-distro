@@ -31,7 +31,8 @@ SLOT="${PV}"
 S="${WORKDIR}/linux-${KV_FULL}"
 
 # patches
-UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
+UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}
+	       ${FILESDIR}/${PV}/hotfixes/ext4-updates.patch.bz2"
 
 src_unpack() {
 
