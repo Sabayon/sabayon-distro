@@ -1,0 +1,10 @@
+# ChangeLog for net-libs/xulrunner
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*xulrunner-1.9.0.11-r10 (20 Jun 2009)
+
+  20 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  +xulrunner-1.9.0.11-r10.ebuild:
+  Inital commit, allows for Sabayon branding
+
