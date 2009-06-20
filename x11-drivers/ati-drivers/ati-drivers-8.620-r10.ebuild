@@ -148,6 +148,7 @@ src_unpack() {
 				epatch "${FILESDIR}"/${PV}/fglrx-2.6.30-irqreturn_t.patch
 				epatch "${FILESDIR}"/${PV}/fglrx-rt-compat.patch
 				epatch "${FILESDIR}"/${PV}/fglrx-missing-pci_enable_msi.patch
+				epatch "${FILESDIR}"/${PV}/flush_tlb_page-94.patch
 	fi
 	if use acpi; then
 		sed -i \
@@ -364,14 +365,13 @@ src_install() {
 		newconfd "${T}"/atieventsd.conf atieventsd
 	fi
 
-        # Sabayon-specific stuff
-        if use distribution && ! use x86-fbsd; then
-                insinto /lib/fglrx
-                doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
-                insinto /lib/fglrx
-                doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
-        fi
-
+    # Sabayon-specific stuff
+    if use distribution && ! use x86-fbsd; then
+        insinto /lib/fglrx
+        doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.o"
+        insinto /lib/fglrx
+        doins "${WORKDIR}/common/lib/modules/fglrx/build_mod/2.6.x/fglrx.mod.o"
+    fi
 }
 
 src_install-libs() {
