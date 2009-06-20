@@ -1,0 +1,28 @@
+# ChangeLog for www-client/mozilla-firefox
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*mozilla-firefox-9999-r1 (20 Jun 2009)
+*mozilla-firefox-3.0.11-r10 (20 Jun 2009)
+
+  20 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  +files/3.0.11/firefox.1, +files/9999/gentoo-default-prefs.js,
+  +files/9999/patches/001-firefox_gentoo_install_dirs.patch,
+  +files/9999/icon/mozilla-firefox-1.5-unbranded.desktop,
+  +files/9999/patches/100-bz386904_config_rules_install_dist_files.patch,
+  +files/3.0.11/icon/mozilla-firefox-1.5.desktop,
+  +files/3.0.11/gentoo-default-prefs.js,
+  +files/3.0.11/icon/iceweasel.desktop,
+  +files/3.0.11/mozilla-filepicker.patch,
+  +files/9999/icon/iceweasel.desktop,
+  +files/9999/patches/112-bz466923_att350251_password_prompt_branding_fallba
+  ck.patch, +files/3.0.11/icon/mozilla-firefox-1.5-unbranded.desktop,
+  +files/9999/patches/126-bzXXX_deb469020_lockPref_everywhere.patch,
+  +files/9999/icon/mozilla-firefox-1.5.desktop,
+  +files/9999/patches/134-bzXXX_plugin_for_mimetype_pref.patch,
+  +mozilla-firefox-3.0.11-r10.ebuild, +mozilla-firefox-9999-r1.ebuild,
+  +metadata.xml:
+  9999 ebuild pulled from devnull overlay, 3.0.11 pulled form main tree,
+  added a filesdir prefix to tidy things up, gave 3.0.11-r10 a dep on same
+  revision of xulrunner
+
