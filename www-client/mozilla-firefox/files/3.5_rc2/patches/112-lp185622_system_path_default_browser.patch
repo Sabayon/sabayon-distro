@@ -1,0 +1,140 @@
+---
+ browser/components/shell/src/nsGNOMEShellService.cpp |   34 +++++++++++++++++--
+ browser/components/shell/src/nsGNOMEShellService.h   |    1 
+ 2 files changed, 33 insertions(+), 2 deletions(-)
+
+Index: mozilla/browser/components/shell/src/nsGNOMEShellService.cpp
+===================================================================
+--- mozilla.orig/browser/components/shell/src/nsGNOMEShellService.cpp
++++ mozilla/browser/components/shell/src/nsGNOMEShellService.cpp
+@@ -64,16 +64,18 @@
+ #include <glib.h>
+ #include <glib-object.h>
+ #include <gtk/gtkversion.h>
+ #include <gdk/gdk.h>
+ #include <gdk-pixbuf/gdk-pixbuf.h>
+ #include <limits.h>
+ #include <stdlib.h>
+ 
++#define SYSTEM_PATH_BUILD 1
++
+ struct ProtocolAssociation
+ {
+   const char *name;
+   PRBool essential;
+ };
+ 
+ struct MimeTypeAssociation
+ {
+@@ -129,25 +131,42 @@
+   nsCOMPtr<nsILocalFile> appPath;
+   rv = dirSvc->Get(NS_XPCOM_CURRENT_PROCESS_DIR, NS_GET_IID(nsILocalFile),
+                    getter_AddRefs(appPath));
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
+   rv = appPath->AppendNative(NS_LITERAL_CSTRING(MOZ_APP_NAME));
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
++  nsCOMPtr<nsIStringBundleService> bundleService =
++    do_GetService(NS_STRINGBUNDLE_CONTRACTID);
++  NS_ENSURE_TRUE(bundleService, NS_ERROR_OUT_OF_MEMORY);
++
++  nsCOMPtr<nsIStringBundle> brandBundle;
++  bundleService->CreateBundle(BRAND_PROPERTIES, getter_AddRefs(brandBundle));
++  NS_ENSURE_TRUE(brandBundle, NS_ERROR_FAILURE);
++
++  nsString brandShortName;
++  rv = brandBundle->GetStringFromName(NS_LITERAL_STRING("brandShortName").get(),
++                                      getter_Copies(brandShortName));
++
++  if (brandShortName.Equals(NS_LITERAL_STRING("Web Browser"))) {
++    mSystemAppPath.Assign (NS_LITERAL_CSTRING("/usr/bin/" "abrowser"));
++  } else {
++    mSystemAppPath.Assign (NS_LITERAL_CSTRING("/usr/bin/" MOZ_APP_NAME));
++  }
++
+   return appPath->GetNativePath(mAppPath);
+ }
+ 
+ NS_IMPL_ISUPPORTS1(nsGNOMEShellService, nsIShellService)
+ 
+ PRBool
+ nsGNOMEShellService::KeyMatchesAppName(const char *aKeyValue) const
+ {
+-
+   gchar *commandPath;
+   if (mUseLocaleFilenames) {
+     gchar *nativePath = g_filename_from_utf8(aKeyValue, -1, NULL, NULL, NULL);
+     if (!nativePath) {
+       NS_ERROR("Error converting path to filesystem encoding");
+       return PR_FALSE;
+     }
+ 
+@@ -155,19 +174,25 @@
+     g_free(nativePath);
+   } else {
+     commandPath = g_find_program_in_path(aKeyValue);
+   }
+ 
+   if (!commandPath)
+     return PR_FALSE;
+ 
++#ifdef SYSTEM_PATH_BUILD
++  PRBool matches = mSystemAppPath.Equals(commandPath);
++  g_free(commandPath);
++  return matches;
++#else
+   PRBool matches = mAppPath.Equals(commandPath);
+   g_free(commandPath);
+   return matches;
++#endif
+ }
+ 
+ NS_IMETHODIMP
+ nsGNOMEShellService::IsDefaultBrowser(PRBool aStartupCheck,
+                                       PRBool* aIsDefaultBrowser)
+ {
+   *aIsDefaultBrowser = PR_FALSE;
+   if (aStartupCheck)
+@@ -213,18 +238,23 @@
+ #ifdef DEBUG
+   if (aForAllUsers)
+     NS_WARNING("Setting the default browser for all users is not yet supported");
+ #endif
+ 
+   nsCOMPtr<nsIGConfService> gconf = do_GetService(NS_GCONFSERVICE_CONTRACTID);
+ 
+   nsCAutoString schemeList;
++
++#ifdef SYSTEM_PATH_BUILD
++  nsCAutoString appKeyValue(mSystemAppPath);
++#else
+   nsCAutoString appKeyValue(mAppPath);
+-  appKeyValue.Append(" \"%s\"");
++#endif
++  appKeyValue.Append(" %s");
+   unsigned int i;
+ 
+   for (i = 0; i < NS_ARRAY_LENGTH(appProtocols); ++i) {
+     schemeList.Append(nsDependentCString(appProtocols[i].name));
+     schemeList.Append(',');
+ 
+     if (appProtocols[i].essential || aClaimAllTypes) {
+       gconf->SetAppForProtocol(nsDependentCString(appProtocols[i].name),
+Index: mozilla/browser/components/shell/src/nsGNOMEShellService.h
+===================================================================
+--- mozilla.orig/browser/components/shell/src/nsGNOMEShellService.h
++++ mozilla/browser/components/shell/src/nsGNOMEShellService.h
+@@ -53,11 +53,12 @@
+ private:
+   ~nsGNOMEShellService() {}
+ 
+   NS_HIDDEN_(PRBool) KeyMatchesAppName(const char *aKeyValue) const;
+ 
+   PRPackedBool mCheckedThisSession;
+   PRPackedBool mUseLocaleFilenames;
+   nsCString    mAppPath;
++  nsCString    mSystemAppPath;
+ };
+ 
+ #endif // nsgnomeshellservice_h____

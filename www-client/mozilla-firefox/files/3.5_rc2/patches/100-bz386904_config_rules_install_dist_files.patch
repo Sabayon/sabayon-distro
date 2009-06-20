@@ -1,0 +1,88 @@
+This is from: 
+    https://bugzilla.mozilla.org/show_bug.cgi?id=386904
+    https://bugzilla.mozilla.org/attachment.cgi?id=270967
+
+
+ -- Summary:
+
+This patch implements DIST_FILES install:: target as well as
+DIST_CHROME_FILES install target.
+
+ -- Evaluation:
+
+DIST_FILES is now used in browser/app/Makefile.in to install
+application.ini; however, DEST_FILES is only implemented for
+libs::, but not for install::.
+
+In consequence, make install'ed installs of firefox now break
+with missing application.ini file.
+
+When writing this fix, it became obvious that DIST_CHROME_FILES
+install: target is missing too ... though it doesn't cause any
+problems because its not really used.
+
+---
+ config/rules.mk |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+Index: mozilla/config/rules.mk
+===================================================================
+--- mozilla.orig/config/rules.mk	2007-08-18 15:15:17.000000000 +0000
++++ mozilla/config/rules.mk	2007-08-18 15:15:36.000000000 +0000
+@@ -1699,28 +1699,56 @@
+ 	@$(EXIT_ON_ERROR) \
+ 	for f in $(DIST_FILES); do \
+ 	  dest=$(FINAL_TARGET)/`basename $$f`; \
+ 	  $(RM) -f $$dest; \
+ 	  $(PYTHON) $(MOZILLA_DIR)/config/Preprocessor.py \
+ 	    $(XULAPP_DEFINES) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) \
+ 	    $(srcdir)/$$f > $$dest; \
+ 	done
++
++install:: $(DIST_FILES)
++ifndef XPI_NAME
++ifndef NO_INSTALL
++	@$(EXIT_ON_ERROR) \
++	for f in $(DIST_FILES); do \
++	  dest=$(DESTDIR)$(mozappdir)/`basename $$f`; \
++	  $(RM) -f $$dest; \
++	  $(PYTHON) $(MOZILLA_DIR)/config/Preprocessor.py \
++	    $(XULAPP_DEFINES) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) \
++	    $(srcdir)/$$f > $$dest; \
++	done
++endif
++endif
+ endif
+ 
+ ifneq ($(DIST_CHROME_FILES),)
+ libs:: $(DIST_CHROME_FILES)
+ 	@$(EXIT_ON_ERROR) \
+ 	for f in $(DIST_CHROME_FILES); do \
+ 	  dest=$(FINAL_TARGET)/chrome/`basename $$f`; \
+ 	  $(RM) -f $$dest; \
+ 	  $(PYTHON) $(MOZILLA_DIR)/config/Preprocessor.py \
+ 	    $(XULAPP_DEFINES) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) \
+ 	    $(srcdir)/$$f > $$dest; \
+ 	done
++
++install:: $(DIST_CHROME_FILES)
++ifndef XPI_NAME
++ifndef NO_INSTALL
++	@$(EXIT_ON_ERROR) \
++	for f in $(DIST_CHROME_FILES); do \
++	  dest=$(DESTDIR)$(mozappdir)/chrome/`basename $$f`; \
++	  $(RM) -f $$dest; \
++	  $(PYTHON) $(MOZILLA_DIR)/config/Preprocessor.py \
++	    $(XULAPP_DEFINES) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) \
++	    $(srcdir)/$$f > $$dest; \
++	done
++endif
++endif
+ endif
+ 
+ ifneq ($(XPI_PKGNAME),)
+ libs realchrome::
+ ifdef STRIP_XPI
+ ifndef MOZ_DEBUG
+ 	@echo "Stripping $(XPI_PKGNAME) package directory..."
+ 	@echo $(FINAL_TARGET)
