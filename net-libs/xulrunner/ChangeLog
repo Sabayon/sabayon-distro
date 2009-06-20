@@ -2,6 +2,22 @@
 # Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+*xulrunner-1.9.1_rc2-r10 (20 Jun 2009)
+
+  20 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  +files/1.9.1_rc2/001-xul_gentoo_install_dirs.patch,
+  +files/1.9.1_rc2/064_firefox-nsplugins-v3.patch,
+  +files/1.9.1_rc2/065-bzXXX_pc_honour_system_nspr_nss-gentoo_fixed.patch,
+  +files/1.9.1_rc2/102-dont_install_so_in_dev.patch,
+  +files/1.9.1_rc2/104-protect_tests_by_ifdefs.patch,
+  +files/1.9.1_rc2/108-bzXXX_no_zlib_export_if_native.patch,
+  +files/1.9.1_rc2/112-bz466923_att350251_password_prompt_branding_fallback.
+  patch, +xulrunner-1.9.1_rc2-r10.ebuild,
+  +files/1.9.1_rc2/118-bz467766_att351173-dont-reset-user-prefs-on-upgrade.p
+  atch, +files/1.9.1_rc2/136-fix_ftbfs_with_cairo_fb.patch,
+  +files/xulrunner.conf:
+  Add 1.9.1-rc2 with sabayon branding
+
 *xulrunner-1.9.0.11-r10 (20 Jun 2009)
 
   20 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
