@@ -1,5 +1,6 @@
-# Copyright 1999-2009 Sabayon Linux
+# Copyright 1999-2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
 EAPI="2"
 inherit eutils mount-boot sabayon-artwork
@@ -12,17 +13,16 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="nomirror"
-RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
-        sys-apps/findutils
-        "
+RDEPEND="sys-apps/findutils
+        !x11-themes/sabayon-artwork-core"
 
 S="${WORKDIR}/${PN}"
 
 src_install () {
 	# Gensplash theme
 	cd ${S}/gensplash
-	dodir /etc/splash/sabayon-core
-	cp -r ${S}/gensplash/sabayon/* ${D}/etc/splash/sabayon-core
+	dodir /etc/splash/sabayon
+	cp -r ${S}/gensplash/sabayon/* ${D}/etc/splash/sabayon
 }
 
 pkg_postinst () {
@@ -34,12 +34,12 @@ pkg_postinst () {
 	
 	ewarn "Please report bugs or glitches to"
 	ewarn "bugs.sabayonlinux.org"
-		
+	einfo ""
 	einfo "If you see your old splash for a few seconds at boot please run:"
-	einfo "\# splash_geninitramfs --res NxN --append /path/to/initramfsimage sabayon-core"
+	einfo "\# splash_geninitramfs --res NxN --append /path/to/initramfsimage sabayon"
 	einfo "where NxN is your resolution and /path/to/initramfs is your intramfs directory"
 	einfo "to update your initramfs"
-	
-	einfo "To use this theme you will need to change the \"theme\" option in your"
-	einfo "grub.conf to \"sabayon-core\""
+	einfo ""
+	einfo "You may also have to change the \"theme\" option in your grub.conf to \"sabayon\""
+	einfo ""
 }
