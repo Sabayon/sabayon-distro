@@ -26,20 +26,20 @@ src_install () {
 }
 
 pkg_postinst () {
-	ewarn "Please report bugs or glitches to"
-	ewarn "bugs.sabayonlinux.org"
-		
-	einfo "If you see your old splash for a few seconds at boot please run:"
-	einfo "# splash_geninitramfs --res NxN --append /path/to/initramfsimage sabayon-core"
-	einfo "where NxN is your resolution and /path/to/initramfs is your intramfs directory"
-	einfo "to update your initramfs"
-	
-	einfo "To use this theme you will need to change the \"theme\" option in your"
-	einfo "grub.conf to \"sabayon-core\""
-	
 	# mount boot first
 	mount-boot_mount_boot_partition
 
 	# Update Sabayon initramfs images
 	update_sabayon_kernel_initramfs_splash
+	
+	ewarn "Please report bugs or glitches to"
+	ewarn "bugs.sabayonlinux.org"
+		
+	einfo "If you see your old splash for a few seconds at boot please run:"
+	einfo "\# splash_geninitramfs --res NxN --append /path/to/initramfsimage sabayon-core"
+	einfo "where NxN is your resolution and /path/to/initramfs is your intramfs directory"
+	einfo "to update your initramfs"
+	
+	einfo "To use this theme you will need to change the \"theme\" option in your"
+	einfo "grub.conf to \"sabayon-core\""
 }
