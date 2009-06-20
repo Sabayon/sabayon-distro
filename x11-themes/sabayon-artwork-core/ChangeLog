@@ -2,6 +2,10 @@
 # Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+  20 Jun 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  sabayon-artwork-core-4.2.ebuild:
+  Add block for CoreCD, as both packages provide a sabayon fbsplash
+
   25 May 2009; Ian Whyman <ian.whyman@sabayonlinux.org> Manifest:
   Bumped to 4.2
 

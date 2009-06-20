@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
-
+EAPI="2"
 inherit eutils mount-boot sabayon-artwork
 
 DESCRIPTION="Sabayon Core Artwork, contains Gensplash, Wallpapers and Mouse themes"
@@ -15,6 +15,7 @@ RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
 	!<x11-themes/sabayon-artwork-4
 	!x11-themes/sabayon-artwork-star
 	!x11-themes/sabayon-artwork-darkblend
+	!x11-themes/sabayon-artwork-corecd
 	sys-apps/findutils
 	"
 
@@ -40,11 +41,9 @@ src_install () {
 	cd ${S}/background
 	insinto /usr/share/backgrounds
 	doins *.png
-
 }
 
 pkg_postinst () {
-
 	# mount boot first
 	mount-boot_mount_boot_partition
 
