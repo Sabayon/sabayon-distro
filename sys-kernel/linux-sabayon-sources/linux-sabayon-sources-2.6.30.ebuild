@@ -38,3 +38,14 @@ src_unpack() {
 	sed -i -e "s:^\(EXTRAVERSION =\).*:\1 ${EXTRAVERSION}:" Makefile
 
 }
+
+src_install() {
+	kernel-2_src_install
+	cd ${D}/usr/src/${KV_FULL}
+	local oldarch=${ARCH}
+	cp ${FILESDIR}/${P/-sources}-${ARCH}.config .config || die "cannot copy kernel config"
+	unset ARCH
+	make modules_prepare || die "failed to run modules_prepare"
+	rm .config
+	ARCH=${oldarch}
+}
