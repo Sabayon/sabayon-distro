@@ -1,0 +1,28 @@
+From fe82a1fe634a2e0ceb030de90309d26044c7b75e Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Thu, 1 Nov 2007 15:06:17 -0400
+Subject: [PATCH] Enable builtin font FPE.
+
+---
+ dix/dixfonts.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
+
+diff --git a/dix/dixfonts.c b/dix/dixfonts.c
+index c21b3ec..c951b05 100644
+--- a/dix/dixfonts.c
++++ b/dix/dixfonts.c
+@@ -1890,11 +1890,8 @@ InitFonts (void)
+     } else 
+ #endif
+     {
+-#ifdef BUILTIN_FONTS
+         BuiltinRegisterFpeFunctions();
+-#else
+ 	FontFileRegisterFpeFunctions();
+-#endif
+ #ifndef NOFONTSERVERACCESS
+ 	fs_register_fpe_functions();
+ #endif
+-- 
+1.5.3.4
+

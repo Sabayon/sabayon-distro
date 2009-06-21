@@ -1,0 +1,30 @@
+#!/sbin/runscript
+# Copyright 1999-2004 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-server/files/xprint.init,v 1.1 2006/03/24 18:45:00 spyderous Exp $
+
+opts="${opts} get_xpserverlist lsprinters"
+
+depend() {
+	use cupsd
+}
+
+start() {
+	ebegin "Starting xprint"
+	/usr/lib/misc/xprint start > /dev/null
+	eend $?
+}
+
+get_xpserverlist() {
+	/usr/lib/misc/xprint get_xpserverlist
+}
+
+lsprinters() {
+	/usr/lib/misc/xprint lsprinters
+}
+
+stop() {
+	ebegin "Stopping xprint"
+	/usr/lib/misc/xprint stop > /dev/null
+	eend $?
+}

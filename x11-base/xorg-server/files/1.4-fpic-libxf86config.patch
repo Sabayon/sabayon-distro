@@ -1,0 +1,13 @@
+diff --git a/hw/xfree86/parser/Makefile.am b/hw/xfree86/parser/Makefile.am
+index 849ee8b..1b49d48 100644
+--- a/hw/xfree86/parser/Makefile.am
++++ b/hw/xfree86/parser/Makefile.am
+@@ -25,7 +25,7 @@ libxf86config_a_SOURCES = \
+ 	DRI.c \
+ 	Extensions.c
+ 
+-AM_CFLAGS = $(DIX_CFLAGS) $(XORG_CFLAGS)
++AM_CFLAGS = $(DIX_CFLAGS) $(XORG_CFLAGS) -fPIC
+ 
+ EXTRA_DIST = \
+ 	Configint.h \
