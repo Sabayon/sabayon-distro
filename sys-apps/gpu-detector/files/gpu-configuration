@@ -124,13 +124,10 @@ for option in options:
 	elif option == "--noexa":
 		noexa = True
 
-if (not lspci_output):
-	lspci_output = commands.getoutput(lspci+' -nn | grep VGA')
-else:
-	lspci_output = commands.getoutput('echo '+lspci_output+' | grep VGA')
+if not lspci_output:
+	lspci_output = commands.getoutput(lspci+' -mm -nn | grep VGA')
 
 # parse cmdline
-# FIXME: add support for no-dri?
 f = open("/proc/cmdline","r")
 cmdline = f.readline().split()
 f.close()
@@ -428,6 +425,142 @@ unichrome = re.compile('.*via.*tech.*chrome.*')
 # nVidia
 nvidia = re.compile('.*nvidia corporation.*')
 # ATi
+
+# modinfo /lib/modules/$(uname -r)/video/fglrx.ko | grep alias | grep pci \
+#   | cut -d":" -f 3 | cut -d"*" -f 1 | sed 's/.*1002d//' | sed 's/^0000//' \
+#   | sed 's/sv$//'
+# XXX hardcoded for now
+fglrx_supported = """
+95CF
+95CE
+95CD
+9446
+9456
+9444
+949C
+949E
+949F
+9511
+958D
+958C
+95CC
+9447
+944F
+940A
+940B
+940F
+946B
+946A
+947B
+947A
+94A3
+9489
+959B
+9595
+958F
+945B
+945A
+944B
+944A
+94A1
+94A0
+9488
+9480
+9491
+9555
+9552
+9553
+9509
+9508
+9506
+9504
+9593
+9591
+95C2
+95C4
+958B
+9583
+9581
+94C8
+94CB
+94C9
+9462
+9460
+9440
+944E
+9442
+9452
+944C
+9450
+94B5
+94B1
+94B3
+9495
+9490
+9498
+948F
+9487
+954F
+954E
+9542
+9541
+9540
+9517
+9519
+9515
+9500
+9507
+9501
+9505
+9597
+9596
+9599
+9598
+9590
+9589
+9588
+9580
+9587
+9586
+958E
+958A
+95C6
+95C9
+95C7
+95C5
+95C0
+94CC
+94C6
+94C5
+94C4
+94C3
+94C1
+94C7
+94C0
+9443
+9441
+9451
+9513
+950F
+9405
+9403
+9402
+9401
+9400
+9714
+9713
+9712
+9711
+9710
+9616
+9615
+9614
+9613
+9612
+9611
+9610
+""".split("\n")
+
 ati = re.compile('.*ati.*technologies.*')
 radeon_1x0 = re.compile('.*ati.*technologies.*r(v)?(s)?1[0-9][0-9].*')
 radeon_2x0 = re.compile('.*ati.*technologies.*r(v)?(s)?2[0-9][0-9].*')
@@ -459,7 +592,6 @@ for videocard in videocards:
 		bus_id = None
 
 	steps = []
-	
 	if forced_xdriver:
 		print "You have chosen to force X driver: "+forced_xdriver
 		if forced_xdriver == "fglrx":
@@ -624,23 +756,11 @@ for videocard in videocards:
 		
 		elif ati.match(videocard.lower()):
 			print "ATI Technologies"
-			if radeon_1x0.match(videocard.lower()) or \
-                            radeon_2x0.match(videocard.lower()) or \
-                            radeon_7xx0.match(videocard.lower()) or \
-                            radeon_8xx0.match(videocard.lower()) or \
-                            radeon_9xx0_free.match(videocard.lower()):
-				generate_generic_steps()
-				steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
-			elif radeon_3x0.match(videocard.lower()) or \
-                            radeon_4x0.match(videocard.lower()) or \
-                            radeon_5x0.match(videocard.lower()) or \
-                            radeon_6x0.match(videocard.lower()) or \
-                            radeon_9xx0_closed.match(videocard.lower()) or \
-                            radeon_Xxx0_closed.match(videocard.lower()) or \
-                            radeon_Xxxx0_closed.match(videocard.lower()) or \
-                            ati_firegl.match(videocard.lower()) or \
-                            radeon_m_XX_closed.match(videocard.lower()) or \
-			    radeon_hd.match(videocard.lower()):
+			videocard_split = [x.strip() for x in videocard.strip().split('"') if x.strip()]
+			videocard_ati_id = videocard_split[-1]
+			fglrx_ids_list = ["Device [%s]" % (x,) for x in fglrx_supported]
+			if videocard_ati_id in fglrx_ids_list: # fglrx supported
+				print "fglrx driver SUPPORTS this card"
 				if noproprietary:
 					if radeon_hd.match(videocard.lower()):
 						if check_if_driver_is_available('radeonhd'):
@@ -657,13 +777,12 @@ for videocard in videocards:
 						steps.append(('opengl_activate','ati'))
 					steps.append(('set_xorg_device','fglrx',cardnumber,total_cards,bus_id,))
 			else:
-				print "ATTENTION !!!"
-				print "ATTENTION !!!"
-				print "ATTENTION !!!"
-				print "--> ATI Card undetected: "+videocard
-				print "SETTING OPEN SOURCE DRIVERS"
+				# video card not supported by fglrx
+				print "NOT supported by fglrx"
 				generate_generic_steps()
 				steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
+				steps.append(('drop_kernel_mod','fglrx',))
+
 		else:
 			steps.append(('set_xorg_device','vesa',cardnumber,total_cards,bus_id,))
 			print "ATTENTION !!!"
@@ -688,9 +807,7 @@ xorg_conf_structure = xorg_conf_structure.replace('__screen_section__','\n\n'.jo
 xorg_conf_structure = xorg_conf_structure.replace('__screen_layout_section__','\n    '.join(screen_layout_sections))
 if forced_monitor_modes:
 	xorg_conf_structure = xorg_conf_structure.replace('#Modes','Modes')
-if dryrun:
-	print xorg_conf_structure
-else:
+if not dryrun:
 	f = open(xorgfile,"w")
 	g = open(xorgfile_backup,"w")
 	f.write(xorg_conf_structure)
