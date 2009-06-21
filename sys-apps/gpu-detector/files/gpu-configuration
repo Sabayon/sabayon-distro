@@ -425,158 +425,10 @@ unichrome = re.compile('.*via.*tech.*chrome.*')
 # nVidia
 nvidia = re.compile('.*nvidia corporation.*')
 # ATi
-
-# modinfo /lib/modules/$(uname -r)/video/fglrx.ko | grep alias | grep pci \
-#   | cut -d":" -f 3 | cut -d"*" -f 1 | sed 's/.*1002d//' | sed 's/^0000//' \
-#   | sed 's/sv$//'
-# XXX hardcoded for now
-fglrx_supported = """
-95CF
-95CE
-95CD
-9446
-9456
-9444
-949C
-949E
-949F
-9511
-958D
-958C
-95CC
-9447
-944F
-940A
-940B
-940F
-946B
-946A
-947B
-947A
-94A3
-9489
-959B
-9595
-958F
-945B
-945A
-944B
-944A
-94A1
-94A0
-9488
-9480
-9491
-9555
-9552
-9553
-9509
-9508
-9506
-9504
-9593
-9591
-95C2
-95C4
-958B
-9583
-9581
-94C8
-94CB
-94C9
-9462
-9460
-9440
-944E
-9442
-9452
-944C
-9450
-94B5
-94B1
-94B3
-9495
-9490
-9498
-948F
-9487
-954F
-954E
-9542
-9541
-9540
-9517
-9519
-9515
-9500
-9507
-9501
-9505
-9597
-9596
-9599
-9598
-9590
-9589
-9588
-9580
-9587
-9586
-958E
-958A
-95C6
-95C9
-95C7
-95C5
-95C0
-94CC
-94C6
-94C5
-94C4
-94C3
-94C1
-94C7
-94C0
-9443
-9441
-9451
-9513
-950F
-9405
-9403
-9402
-9401
-9400
-9714
-9713
-9712
-9711
-9710
-9616
-9615
-9614
-9613
-9612
-9611
-9610
-""".split("\n")
-
 ati = re.compile('.*ati.*technologies.*')
-radeon_1x0 = re.compile('.*ati.*technologies.*r(v)?(s)?1[0-9][0-9].*')
-radeon_2x0 = re.compile('.*ati.*technologies.*r(v)?(s)?2[0-9][0-9].*')
-radeon_3x0 = re.compile('.*ati.*technologies.*r(v)?(s)?3[0-9][0-9].*')
-radeon_4x0 = re.compile('.*ati.*technologies.*r(v)?(s)?4[0-9][0-9].*')
-radeon_5x0 = re.compile('.*ati.*technologies.*r(v)?(s)?5[0-9][0-9].*')
-radeon_6x0 = re.compile('.*ati.*technologies.*r(v)?(s)?6[0-9][0-9].*')
-radeon_7xx0 = re.compile('.*ati.*technologies.*radeon.*7[0-9][0-9]0.*')
-radeon_8xx0 = re.compile('.*ati.*technologies.*radeon.*8[0-9][0-9]0.*')
-radeon_9xx0_free = re.compile('.*ati.*technologies.*radeon.*9[0-2][0-9]0.*')
-radeon_9xx0_closed = re.compile('.*ati.*technologies.*radeon.*9[5-9][0-9]0.*')
-radeon_Xxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9]0.*')
-radeon_Xxxx0_closed = re.compile('.*ati.*technologies.*radeon.*x[0-9][0-9][0-9]0.*')
-radeon_m_XX_closed = re.compile('.*ati.*technologies.*m[0-9][0-9].*mobility.*')
 radeon_hd = re.compile('.*ati.*technologies.*radeon.* hd .*')
-ati_firegl = re.compile('.*ati.*technologies.*firegl.*')
+# do not split into multiple lines
+fglrx_supported = commands.getoutput("""/sbin/modinfo fglrx | grep alias | grep pci | cut -d':' -f 3 | cut -d'*' -f 1 | sed 's/.*1002d//' | sed 's/^0000//' | sed 's/sv$//'""").split()
 
 
 total_cards = len(videocards)
@@ -758,6 +610,8 @@ for videocard in videocards:
 			print "ATI Technologies"
 			videocard_split = [x.strip() for x in videocard.strip().split('"') if x.strip()]
 			videocard_ati_id = videocard_split[-1]
+			print "total supported ATI cards: %s" % (len(fglrx_supported),)
+			print "supported list:", fglrx_supported
 			fglrx_ids_list = ["Device [%s]" % (x,) for x in fglrx_supported]
 			if videocard_ati_id in fglrx_ids_list: # fglrx supported
 				print "fglrx driver SUPPORTS this card"
