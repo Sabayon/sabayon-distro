@@ -134,14 +134,9 @@ set_new_implementation() {
 		local libdir
 		for libdir in $(list_libdirs); do
 			[[ ${ROOT} != / ]] && libdir=${libdir//${ROOT}}
-			# Special case handling of lib32 because it can be a symlink to
-			# emul libs
-			# Kill this special case once amd64's 2004.3 crap is gone =) --eradicator
-			if [[ ${libdir} = "lib32" ]] ; then
-				[[ -d ${PREFIX}/${libdir}/opengl ]] || continue
-			else
-				[[ -d ${PREFIX}/${libdir}/opengl && ! -h ${PREFIX}/${libdir} ]] || continue
-			fi
+
+			# First make sure we have an opengl directory and this is a real lib dir, not a symlink
+			[[ -d ${PREFIX}/${libdir}/opengl && ! -h ${PREFIX}/${libdir} ]] || continue
 
 			# Fallback on xorg-x11 if we don't have this implementation for this libdir.
 			local gl_local
@@ -168,7 +163,7 @@ set_new_implementation() {
 				mkdir -p "${DST_PREFIX}/${libdir}/${moduledir}/extensions" || echo "Failed to create ${DST_PREFIX}/${libdir}/${moduledir}/extensions"
 				pushd "${DST_PREFIX}/${libdir}/${moduledir}/extensions" &> /dev/null
 					# First remove old symlinks
-					for file in libglx.so libglx.a; do
+					for file in lib{wfb,glx,dri}.{a,so,la}; do
 						if [[ -h ${file} ]] ; then
 							rm -f "${file}" || echo "Failed to delete ${DST_PREFIX}/${libdir}/${moduledir}/extensions/${file}"
 						fi
