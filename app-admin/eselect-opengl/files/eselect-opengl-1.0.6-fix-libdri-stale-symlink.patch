@@ -1,0 +1,12 @@
+diff -Nurp work.orig/opengl.eselect work/opengl.eselect
+--- work.orig/opengl.eselect	2009-06-22 13:24:50.000000000 +0200
++++ work/opengl.eselect	2009-06-22 13:25:29.000000000 +0200
+@@ -150,7 +150,7 @@ set_new_implementation() {
+ 				mkdir -p "${DST_PREFIX}/${libdir}/${moduledir}/extensions" || die "Failed to create ${DST_PREFIX}/${libdir}/${moduledir}/extensions"
+ 				pushd "${DST_PREFIX}/${libdir}/${moduledir}/extensions" &> /dev/null
+ 					# First remove old symlinks
+-					for file in lib{wfb,glx}.{a,so,la}; do
++					for file in lib{wfb,glx,dri}.{a,so,la}; do
+ 						if [[ -e ${file} ]] ; then
+ 							rm -f "${file}" || die -q "Failed to delete ${DST_PREFIX}/${libdir}/${moduledir}/extensions/${file}"
+ 						fi
