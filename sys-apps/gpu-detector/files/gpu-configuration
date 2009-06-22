@@ -609,10 +609,13 @@ for videocard in videocards:
 		elif ati.match(videocard.lower()):
 			print "ATI Technologies"
 			videocard_split = [x.strip() for x in videocard.strip().split('"') if x.strip()]
-			videocard_ati_id = videocard_split[-1]
+			try:
+				videocard_ati_id = videocard_split[-4].split()[-1].lower()
+			except IndexError:
+				videocard_ati_id = 'NOT_VALID'
 			print "total supported ATI cards: %s" % (len(fglrx_supported),)
 			print "supported list:", fglrx_supported
-			fglrx_ids_list = ["Device [%s]" % (x,) for x in fglrx_supported]
+			fglrx_ids_list = ["[%s]" % (x.lower(),) for x in fglrx_supported]
 			if videocard_ati_id in fglrx_ids_list: # fglrx supported
 				print "fglrx driver SUPPORTS this card"
 				if noproprietary:
