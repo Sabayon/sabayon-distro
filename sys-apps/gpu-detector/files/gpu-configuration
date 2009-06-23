@@ -105,6 +105,24 @@ if current_arch == "x86_64":
 	ld_arch = "elf_x86_64"
 else:
 	ld_arch = "elf_i386"
+
+fglrx_supported = commands.getoutput("""/sbin/modinfo fglrx | grep alias | grep pci | cut -d':' -f 3 | cut -d'*' -f 1 | sed 's/.*1002d//' | sed 's/^0000//' | sed 's/sv$//'""").lower().split()
+
+nvidia_71xx_supported = ['0020', '0028', '0029', '002c', '002d', '00a0',
+    '0100', '0101', '0103', '0150', '0151', '0152', '0153']
+nvidia_96xx_supported = ['0110', '0111', '0112', '0113', '0170', '0171',
+    '0172', '0173', '0174', '0175', '0176', '0177', '0178', '0179', '017a',
+    '017c', '017d', '0181', '0182', '0183', '0185', '0188', '018a', '018b',
+    '018c', '01a0', '01f0', '0200', '0201', '0202', '0203', '0250', '0251',
+    '0253', '0258', '0259', '025b', '0280', '0281', '0282', '0286', '0288',
+    '0289', '028c']
+nvidia_173xx_supported = ['00fa', '00fb', '00fc', '00fd', '00fe', '0301',
+    '0302', '0308', '0309', '0311', '0312', '0314', '031a', '031b', '031c',
+    '0320', '0321', '0322', '0323', '0324', '0325', '0326', '0327', '0328',
+    '032a', '032b', '032c', '032d', '0330', '0331', '0332', '0333', '0334',
+    '0338', '033f', '0341', '0342', '0343', '0344', '0347', '0348', '034c', 
+    '034e']
+
 lspci_output = ''
 for option in options:
 	if option == "--dry-run":
@@ -186,7 +204,7 @@ def check_if_driver_is_available(xdriver):
 	print "check_if_driver_is_available for "+xdriver+": not available"
 	return False
 
-def check_if_proprietary_driver_system_is_healthy(kernelmod): #FIXME attenzione a dove usi questa
+def check_if_proprietary_driver_system_is_healthy(kernelmod):
 	rc = os.system('modprobe '+kernelmod+' &> /dev/null')
 	if (rc == 0):
 		if kernelmod == "nvidia":
@@ -204,7 +222,7 @@ def check_if_proprietary_driver_system_is_healthy(kernelmod): #FIXME attenzione 
 	else:
 		return False
 
-def deploy_nvidia_xxxxxx_drivers(ver): # reduce os.system usage
+def deploy_nvidia_xxxxxx_drivers(ver):
 	if (not dryrun):
 		# are they available ? we're on livecd...
 		if not os.path.isdir("/install-data/drivers"):
@@ -351,49 +369,67 @@ def copy_ati_settings_on_desktop():
 			os.chmod(dest_path, 0755)
 
 
-def generate_nvidia_steps(cardnumber, total_cards, bus_id):
+def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
+
+	comp_id, card_id = extract_pci_ids(videocard)
+	print "NVIDIA company_id:", comp_id, "card_id:", card_id
+	drv_string = ''
+	done_legacy = False
+	if card_id in nvidia_173xx_supported:
+		print "NVIDIA 173.xx driver selected"
+		drv_string = "17x.xx.xx"
+		if livecd:
+			rc = deploy_nvidia_xxxxxx_drivers("17")
+			if rc:
+				print "NVIDIA 17x.xx deployed correctly"
+				done_legacy = True
+	elif card_id in nvidia_96xx_supported:
+		print "NVIDIA 96.xx driver selected"
+		drv_string = "9x.xx.xx"
+		if livecd:
+			rc = deploy_nvidia_xxxxxx_drivers("9")
+			if rc:
+				print "NVIDIA 96.xx deployed correctly"
+				done_legacy = True
+	elif card_id in nvidia_71xx_supported:
+		print "NVIDIA 7x.xx driver selected"
+		drv_string = "7x.xx.xx"
+		if livecd:
+			rc = deploy_nvidia_xxxxxx_drivers("7")
+			if rc:
+				print "NVIDIA 7x.xx deployed correctly"
+				done_legacy = True
+	else:
+		print "latest and greatest NVIDIA driver selected or unsupported"
+
 	if check_if_proprietary_driver_system_is_healthy("nvidia"):
-		if (not noopengl):
+
+		print "NVIDIA proprietary driver %s is loaded" % (drv_string,)
+		if done_legacy:
+			# then activate nvidia opengl subsystem after resetting it
+			steps.append(('opengl_activate','xorg-x11'))
+			steps.append(('opengl_activate','nvidia'))
+			os.makedirs("/lib/nvidia/legacy")
+
+			f = open("/lib/nvidia/legacy/running","w")
+			f.write("NVIDIA %s\n" % (drv_string,))
+			f.flush()
+			f.close()
+
+			steps.append(('set_xorg_device','nvidia',cardnumber,total_cards,bus_id,))
+			steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
+			steps.append(('copy_nvidia_settings_on_desktop',))
+
+		else:
+
 			steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
 			steps.append(('copy_nvidia_settings_on_desktop',))
 			steps.append(('opengl_activate','nvidia'))
-		steps.append(('set_xorg_device','nvidia',cardnumber,total_cards,bus_id,))
+			steps.append(('set_xorg_device','nvidia',cardnumber,total_cards,bus_id,))
 	else:
-		if (livecd):
-			print "latest NVIDIA drivers couldn't be loaded, trying 173.xx.xx/9x.xx.xx/7x.xx.xx drivers"
-			rc = deploy_nvidia_xxxxxx_drivers("17")
-			drv_string = "17x.xx.xx"
-			if not rc:
-				rc = deploy_nvidia_xxxxxx_drivers("9")
-				drv_string = "9x.xx.xx"
-			if not rc:
-				drv_string = "7x.xx.xx"
-				rc = deploy_nvidia_xxxxxx_drivers("7")
-			if rc:
-				# then activate nvidia opengl subsystem after resetting it
-				steps.append(('opengl_activate','xorg-x11'))
-				steps.append(('opengl_activate','nvidia'))
-				os.makedirs("/lib/nvidia/legacy")
-
-				f = open("/lib/nvidia/legacy/running","w")
-				f.write("NVIDIA %s\n" % (drv_string,))
-				f.flush()
-				f.close()
-
-				steps.append(('set_xorg_device','nvidia',cardnumber,total_cards,bus_id,))
-				steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
-				steps.append(('copy_nvidia_settings_on_desktop',))
-			else:
-				# it's a no-go!
-				print "NVIDIA drivers %s failed to load too... sorry, switching to nv driver" % (drv_string,)
-				if (not noopengl):
-					steps.append(('opengl_activate','xorg-x11'))
-				steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
-		else:
-			print "latest NVIDIA drivers couldn't be loaded, switchting to nv driver"
-			if (not noopengl):
-				steps.append(('opengl_activate','xorg-x11'))
-			steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
+		print "NVIDIA drivers couldn't be loaded, switchting to nv driver"
+		steps.append(('opengl_activate','xorg-x11'))
+		steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
 
 def generate_generic_steps():
 	if noopengl:
@@ -403,6 +439,20 @@ def generate_generic_steps():
 
 def drop_kernel_mod(kmod):
 	return os.system("modprobe -r %s &> /dev/null" % (kmod,))
+
+def extract_pci_ids(videocard_str):
+	videocard_split = [x.strip() for x in videocard_str.strip().split('"') \
+		if x.strip()]
+	try:
+		card_id = videocard_split[-4].split()[-1].lower().strip("[]")
+	except IndexError:
+		card_id = None
+	try:
+		company_id = videocard_split[-5].split()[-1].lower().strip("[]")
+	except IndexError:
+		company_id = None
+
+	return company_id, card_id
 
 ### APPLICATION
 
@@ -427,8 +477,6 @@ nvidia = re.compile('.*nvidia corporation.*')
 # ATi
 ati = re.compile('.*ati.*technologies.*')
 radeon_hd = re.compile('.*ati.*technologies.*radeon.* hd .*')
-# do not split into multiple lines
-fglrx_supported = commands.getoutput("""/sbin/modinfo fglrx | grep alias | grep pci | cut -d':' -f 3 | cut -d'*' -f 1 | sed 's/.*1002d//' | sed 's/^0000//' | sed 's/sv$//'""").split()
 
 
 total_cards = len(videocards)
@@ -457,7 +505,7 @@ for videocard in videocards:
 				steps.append(('opengl_activate','ati'))
 				
 		elif forced_xdriver == "nvidia" and (not noproprietary):
-			generate_nvidia_steps(cardnumber,total_cards,bus_id)
+			generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id)
 		elif forced_xdriver == "vesa":
 			forced_monitor_modes = True
 		elif forced_xdriver == "sisusb":
@@ -603,20 +651,15 @@ for videocard in videocards:
 			if noproprietary:
 				steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
 			else:
-				generate_nvidia_steps(cardnumber,total_cards,bus_id)
+				generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id)
 			print "NVIDIA!"
 		
 		elif ati.match(videocard.lower()):
 			print "ATI Technologies"
-			videocard_split = [x.strip() for x in videocard.strip().split('"') if x.strip()]
-			try:
-				videocard_ati_id = videocard_split[-4].split()[-1].lower()
-			except IndexError:
-				videocard_ati_id = 'NOT_VALID'
+			company_id, card_id = extract_pci_ids(videocard)
 			print "total supported ATI cards: %s" % (len(fglrx_supported),)
 			print "supported list:", fglrx_supported
-			fglrx_ids_list = ["[%s]" % (x.lower(),) for x in fglrx_supported]
-			if videocard_ati_id in fglrx_ids_list: # fglrx supported
+			if card_id in fglrx_supported: # fglrx supported
 				print "fglrx driver SUPPORTS this card"
 				if noproprietary:
 					if radeon_hd.match(videocard.lower()):
