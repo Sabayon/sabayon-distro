@@ -24,6 +24,15 @@ GRUB_CONF = SYS_ROOT+"/boot/grub/grub.conf"
 FSTAB_CONF = SYS_ROOT+"/etc/fstab"
 DISTRO_NAME = "Sabayon Linux"
 
+def getstatusoutput(cmd):
+    """Return (status, output) of executing cmd in a shell."""
+    pipe = os.popen('{ ' + cmd + '; } 2>&1', 'r')
+    text = pipe.read()
+    sts = pipe.close()
+    if sts is None: sts = 0
+    if text[-1:] == '\n': text = text[:-1]
+    return sts, text
+
 def get_kernel_grub_line(kernel):
     return "title=%s (%s)\n" % (DISTRO_NAME, os.path.basename(kernel),)
 
@@ -161,6 +170,19 @@ def boot_device_translation(boot_dev):
 
     return boot_dev
 
+def resolve_device(device):
+    if device.startswith("/dev/"):
+        return device
+    if device.startswith("UUID=") or device.startswith("LABEL="):
+        print "resolving UUID/LABEL to device", device
+        rc, outstring = getstatusoutput("blkid -lt %s" % (device,))
+        if rc != 0:
+            print "cannot resolve UUID/LABEL for", device
+            return None # argh!
+        device = outstring.split(":")[0]
+        print "UUID/LABEL resolved to", device
+    return device
+
 def get_grub_boot_dev():
 
     grub_avail = subprocess.call("which grub &> /dev/null", shell = True)
@@ -177,9 +199,16 @@ def get_grub_boot_dev():
     f_fstab = open(FSTAB_CONF, "r")
     mount_data = [x.split() for x in f_fstab.readlines()]
     f_fstab.close()
-    mount_data = dict(((x[1], x[0],) for x in mount_data if \
-        x[0].startswith('/')))
-    boot_dev = mount_data.get(NO_SYS_ROOT_BOOT_DIR, mount_data.get("/"))
+    # filter out bogus devices
+    mount_data = [x for x in mount_data if x[0].startswith("/") or \
+        x[0].startswith("UUID=") or x[0].startswith('LABEL=')]
+    mount_hash = {}
+    for item in mount_data:
+        solved_dev = resolve_device(item[0])
+        if not solved_dev:
+            continue
+        mount_hash[item[1]] = solved_dev
+    boot_dev = mount_hash.get(NO_SYS_ROOT_BOOT_DIR, mount_hash.get("/"))
     if boot_dev == None:
         print "** Cannot determine boot device. Cannot properly configure" \
             " kernel"
