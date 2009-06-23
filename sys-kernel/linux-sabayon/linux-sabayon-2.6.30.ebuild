@@ -6,7 +6,7 @@ K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
 K_SABPATCHES_VER="1"
 K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.bz2"
-inherit kernel-2 sabayon-artwork mount-boot
+inherit kernel-2 sabayon-artwork mount-boot linux-mod
 detect_version
 detect_arch
 
@@ -111,6 +111,17 @@ src_install() {
 
 }
 
+pkg_setup() {
+	# do not run linux-mod-pkg_setup
+	einfo "Preparing to build the kernel and its modules"
+}
+
+pkg_preinst() {
+	mount-boot_mount_boot_partition
+	linux-mod_pkg_preinst
+	UPDATE_MODULEDB=false
+}
+
 pkg_postinst() {
 
 	fstab_file="${ROOT}/etc/fstab"
@@ -136,6 +147,8 @@ pkg_postinst() {
 	fi
 
 	kernel-2_pkg_postinst
+	linux-mod_pkg_postinst
+
 	einfo "Please report kernel bugs at:"
 	einfo "http://bugs.sabayonlinux.org"
 
@@ -159,5 +172,7 @@ pkg_postrm() {
 			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
 			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
 	fi
+
+	linux-mod_pkg_postrm
 
 }
