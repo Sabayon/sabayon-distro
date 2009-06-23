@@ -130,7 +130,7 @@ src_unpack() {
 
         if kernel_is ge 2 6 29; then
                 cd "${S}/common/lib/modules/fglrx/build_mod"
-                epatch "${FILESDIR}"/8.600/${PN}-8.600-acpica-2.6.29.patch
+                epatch "${FILESDIR}"/${PV}/${P}-acpica-2.6.29.patch
                 cd "${S}"
         fi
 
