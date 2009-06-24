@@ -106,7 +106,7 @@ if current_arch == "x86_64":
 else:
 	ld_arch = "elf_i386"
 
-fglrx_supported = commands.getoutput("""/sbin/modinfo fglrx | grep alias | grep pci | cut -d':' -f 3 | cut -d'*' -f 1 | sed 's/.*1002d//' | sed 's/^0000//' | sed 's/sv$//'""").lower().split()
+fglrx_supported = sorted(commands.getoutput("""/sbin/modinfo fglrx | grep alias | grep pci | cut -d':' -f 3 | cut -d'*' -f 1 | sed 's/.*1002d//' | sed 's/^0000//' | sed 's/sv$//'""").lower().split())
 
 nvidia_71xx_supported = ['0020', '0028', '0029', '002c', '002d', '00a0',
     '0100', '0101', '0103', '0150', '0151', '0152', '0153']
@@ -444,11 +444,11 @@ def extract_pci_ids(videocard_str):
 	videocard_split = [x.strip() for x in videocard_str.strip().split('"') \
 		if x.strip()]
 	try:
-		card_id = videocard_split[-4].split()[-1].lower().strip("[]")
+		card_id = videocard_split[3].split()[-1].lower().strip("[]")
 	except IndexError:
 		card_id = None
 	try:
-		company_id = videocard_split[-5].split()[-1].lower().strip("[]")
+		company_id = videocard_split[2].split()[-1].lower().strip("[]")
 	except IndexError:
 		company_id = None
 
@@ -655,8 +655,8 @@ for videocard in videocards:
 			print "NVIDIA!"
 		
 		elif ati.match(videocard.lower()):
-			print "ATI Technologies"
 			company_id, card_id = extract_pci_ids(videocard)
+			print "ATI Technologies", company_id, card_id
 			print "total supported ATI cards: %s" % (len(fglrx_supported),)
 			print "supported list:", fglrx_supported
 			if card_id in fglrx_supported: # fglrx supported
