@@ -1,11 +1,8 @@
 #!/bin/bash
-# Copyright 2007 - SabayonLinux (Fabio Erculiani)
+# Copyright 2009 - SabayonLinux (Fabio Erculiani)
 # Desktop Acceleration Helpers
 
-# TODO:
-# - put the proper settings icon on the Desktop
-
-if [ -e "/sbin/lspci" ];then
+if [ -x "/sbin/lspci" ];then
     lspci="/sbin/lspci"
 else
     lspci="/usr/sbin/lspci"
@@ -18,10 +15,7 @@ ccsm_settings="ccsm.desktop"
 compiz_manager_desktop_file=$compiz_tmpdir$compiz_manager
 compiz_settings_desktop_file="/usr/share/applications/"$compiz_settings
 ccsm_settings_desktop_file="/usr/share/applications/"$ccsm_settings
-xorg_conf="/etc/X11/xorg.conf"
 desktop_acceleration_helpers_config_file="/etc/desktop-acceleration-helpers.conf"
-xgl_nvidia=$($lspci | grep ' VGA ' | grep -i nvidia)
-xgl_ati=$($lspci | grep ' VGA ' | grep ATI)
 
 
 # Functions
@@ -124,76 +118,21 @@ remove_compiz_manager_from_startup() {
     fi
 }
 
-enable_aiglx_in_xorg_conf() {
-    # Enable AIGLX Stuff
-    sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
-    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
-    sed -i '/"Composite"/ s/#//g' $xorg_conf
-    sed -i 's/"Composite".*".*"/"Composite" "Enable"/' $xorg_conf
-
-    # check if Option Compisite is in xorg.conf
-    option_composite=$(cat $xorg_conf | grep -i "Option.*Composite")
-    if [ -z "$option_composite" ]; then
-        # add it
-        echo '' >> $xorg_conf
-        echo 'Section "Extensions"' >> $xorg_conf
-        echo '   Option "Composite" "Enable"' >> $xorg_conf
-        echo 'EndSection' >> $xorg_conf
-        echo '' >> $xorg_conf
-    fi
-
-}
-
-disable_aiglx_in_xorg_conf() {
-    # Disable AIGLX Option
-    sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
-    sed -i '/"AddARGBGLXVisuals"/ s/Option/#Option/' $xorg_conf
-    sed -i '/"Composite"/ s/#//' $xorg_conf
-    sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
-    # for security sake
-    sed -i '/"RenderAccel"/ s/#//' $xorg_conf
-    sed -i '/"RenderAccel"/ s/Option/#Option/' $xorg_conf
-    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
-    sed -i '/"XAANoOffscreenPixmaps"/ s/Option/#Option/' $xorg_conf
-}
-
-enable_nvidia_in_xorg_conf() {
-    # Enable nvidia stuff, no AIGLX option
-    opengl_nvidia=$(eselect opengl show | grep nvidia)
-    if [ -n "$opengl_nvidia" ]; then
-        sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
-        sed -i '/"RenderAccel"/ s/#//' $xorg_conf
-    fi
-    sed -i '/"Composite"/ s/#//g' $xorg_conf
-}
-
-disable_nvidia_in_xorg_conf() {
-    # Disable nvidia
-    sed -i '/"AddARGBGLXVisuals"/ s/#//' $xorg_conf
-    sed -i '/"AddARGBGLXVisuals"/ s/Option/#Option/' $xorg_conf
-    sed -i '/"Composite"/ s/#//' $xorg_conf
-    sed -i '/"Composite"/ s/Option/#Option/' $xorg_conf
-    sed -i '/"RenderAccel"/ s/#//' $xorg_conf
-    sed -i '/"RenderAccel"/ s/Option/#Option/' $xorg_conf
-    sed -i '/"XAANoOffscreenPixmaps"/ s/#//' $xorg_conf
-    sed -i '/"XAANoOffscreenPixmaps"/ s/Option/#Option/' $xorg_conf
-}
-
 show_help=0
 if [ -z "$2" ] || [ "$1" == "--help" ]; then
     show_help=1
 fi
-if [ "$1" != "aiglx" ] && [ "$1" != "xgl" ] && [ "$1" != "nvidia" ] && [ "$2" != "enable" ] && [ "$2" != "disable" ]; then
+if [ "$1" != "aiglx" ] && [ "$2" != "enable" ] && [ "$2" != "disable" ]; then
     show_help=1
 fi
 
 if [ "$show_help" == 1 ]; then
    echo
-   echo "desktop-acceleration-setup - SabayonLinux - Copyright 2007-2009"
+   echo "desktop-acceleration-setup - Sabayon Linux - Copyright 2007-2009"
    echo
-   echo "This helper enable/disable AIGLX/XGL Subsystem fueled by Compiz."
+   echo "This helper enable/disable AIGLX Subsystem fueled by Compiz."
    echo "   Usage:"
-   echo "   # desktop-acceleration-setup aiglx/xgl enable/disable"
+   echo "   # desktop-acceleration-setup aiglx enable/disable"
    echo
    exit 1
 fi
@@ -224,9 +163,6 @@ if [ "$1" == "aiglx" ]; then
         # remove old stuff
         scan_and_remove_old_files
 
-	# Enable AIGLX
-	enable_aiglx_in_xorg_conf
-
 	# Beryl Manager startup file - create file $compiz_manager_desktop_file
 	create_compiz_manager_desktop_file
 
@@ -245,54 +181,6 @@ if [ "$1" == "aiglx" ]; then
 
         # remove old stuff
         scan_and_remove_old_files
-
-	# Disable AIGLX
-	disable_aiglx_in_xorg_conf
-
-        # remove compiz-manager
-        remove_compiz_manager_from_startup
-
-	# set No Acceleration in the config file
-	write_acceleration_method none
-
-        echo -e "Done"
-   fi
-
-elif [ "$1" == "nvidia" ]; then
-
-   if [ "$2" == "enable" ]; then
-        echo "Enabling NVidia system wide..."
-
-        # remove old stuff
-        scan_and_remove_old_files
-
-	# Enable NVidia
-	enable_nvidia_in_xorg_conf
-
-	# Compiz startup file - create file $compiz_manager_desktop_file
-	create_compiz_manager_desktop_file
-
-	# Add Beryl to the startup
-	add_compiz_manager_to_the_startup
-
-	# remove junk
-	if [ -e "$compiz_manager_desktop_file" ]; then
-	    rm -f $compiz_manager_desktop_file
-	fi
-
-
-	# set NVidia in the config file
-	write_acceleration_method nvidia
-
-        echo -e "Done"
-   else
-        echo "Disabling NVidia system wide..."
-
-        # remove old stuff
-        scan_and_remove_old_files
-
-	# Disable NVidia
-	disable_nvidia_in_xorg_conf
 
         # remove compiz-manager
         remove_compiz_manager_from_startup
