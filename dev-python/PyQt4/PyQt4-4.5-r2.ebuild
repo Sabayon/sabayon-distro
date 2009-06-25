@@ -16,23 +16,24 @@ SRC_URI="http://www.riverbankcomputing.com/static/Downloads/${PN}/${MY_P}.tar.gz
 SLOT="0"
 LICENSE="|| ( GPL-2 GPL-3 )"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="X assistant +dbus debug doc examples kde opengl phonon sql svg webkit xmlpatterns"
+IUSE="X assistant +dbus debug doc examples kde opengl phonon +qt3support sql svg webkit xmlpatterns"
 
 DEPEND=">=dev-python/sip-4.8
 	>=x11-libs/qt-core-${QTVER}:4
 	>=x11-libs/qt-script-${QTVER}:4
 	>=x11-libs/qt-test-${QTVER}:4
-	X? ( >=x11-libs/qt-gui-${QTVER}:4[dbus?] )
+	X? ( >=x11-libs/qt-gui-${QTVER}:4[dbus?,qt3support?] )
 	assistant? ( >=x11-libs/qt-assistant-${QTVER}:4 )
 	dbus? (
 		>=dev-python/dbus-python-0.80
 		>=x11-libs/qt-dbus-${QTVER}:4
 	)
-	opengl? ( >=x11-libs/qt-opengl-${QTVER}:4 )
+	opengl? ( >=x11-libs/qt-opengl-${QTVER}:4[qt3support?] )
 	phonon? (
 		!kde? ( || ( >=x11-libs/qt-phonon-${QTVER}:4 media-sound/phonon ) )
 		kde? ( media-sound/phonon )
 	)
+	qt3support? ( >=x11-libs/qt-qt3support-${QTVER}:4 )
 	sql? ( >=x11-libs/qt-sql-${QTVER}:4 )
 	svg? ( >=x11-libs/qt-svg-${QTVER}:4 )
 	webkit? ( >=x11-libs/qt-webkit-${QTVER}:4 )
