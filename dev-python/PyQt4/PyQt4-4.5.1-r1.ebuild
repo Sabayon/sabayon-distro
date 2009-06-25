@@ -45,7 +45,6 @@ S="${WORKDIR}/${MY_P}"
 PATCHES=(
 	"${FILESDIR}/configure.py.patch"
 	"${FILESDIR}/fix_license_check.patch"
-	"${FILESDIR}/${P}-python2.5-support.patch"
 	"${FILESDIR}/${P}-qgraphicslinearlayout-fix.patch"
 )
 
@@ -59,6 +58,14 @@ src_prepare() {
 			"${S}"/configure.py || die
 	fi
 	qt4_src_prepare
+
+	# Remove this code after removing Python 2 from the tree.
+	python_version
+	if [[ "${PYVER:0:1}" == "3" ]]; then
+		rm -fr pyuic/uic/port_v2
+	else
+		rm -fr pyuic/uic/port_v3
+	fi
 }
 
 src_configure() {
