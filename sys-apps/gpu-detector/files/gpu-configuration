@@ -120,8 +120,12 @@ nvidia_173xx_supported = ['00fa', '00fb', '00fc', '00fd', '00fe', '0301',
     '0302', '0308', '0309', '0311', '0312', '0314', '031a', '031b', '031c',
     '0320', '0321', '0322', '0323', '0324', '0325', '0326', '0327', '0328',
     '032a', '032b', '032c', '032d', '0330', '0331', '0332', '0333', '0334',
-    '0338', '033f', '0341', '0342', '0343', '0344', '0347', '0348', '034c', 
+    '0338', '033f', '0341', '0342', '0343', '0344', '0347', '0348', '034c',
     '034e']
+savage_supported = ['8a20', '8a21', '8a22', '9102', '8c10', '8c11', '8c12',
+    '8c13', '8c22', '8c24', '8c26', '8c2a', '8c2b', '8c2c', '8c2d', '8c2e',
+    '8c2f', '8a25', '8a26', '8d01', '8d02', '8d03', '8d04']
+unichrome_supported = ['3108', '3118', '3157', '3343', '3344', '7205']
 
 lspci_output = ''
 for option in options:
@@ -143,7 +147,7 @@ for option in options:
 		noexa = True
 
 if not lspci_output:
-	lspci_output = commands.getoutput(lspci+' -mm -nn | grep VGA')
+	lspci_output = commands.getoutput(lspci+' -mm -n')
 
 # parse cmdline
 f = open("/proc/cmdline","r")
@@ -298,20 +302,21 @@ EndSection
 
 
 def opengl_activate(profile):
+	current = opengl_show()
+	default_profile = "xorg-x11"
 	if (not dryrun):
 		if (livecd):
-			os.system("opengl-activator "+profile+" &> /dev/null")
+			if (profile != default_profile) or (profile == default_profile and current != default_profile):
+				os.system("opengl-activator "+profile+" &> /dev/null")
 		else:
 			os.system("eselect opengl set "+profile+" &> /dev/null")
 	else:
 		print "I was about to set opengl subsystem to: "+profile
 
 def opengl_show():
-	if (livecd):
-		profile = commands.getoutput("opengl-activator show").split("\n")[0].strip()
-	else:
-		profile = commands.getoutput("eselect opengl show").split("\n")[0].strip()
-	return profile
+	if livecd:
+		return commands.getoutput("opengl-activator show").split("\n")[0].strip()
+	return commands.getoutput("eselect opengl show").split("\n")[0].strip()
 
 def fix_possible_opengl_misconfiguration(profile):
 	# get current subsystem
@@ -372,7 +377,6 @@ def copy_ati_settings_on_desktop():
 def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
 
 	comp_id, card_id = extract_pci_ids(videocard)
-	print "NVIDIA company_id:", comp_id, "card_id:", card_id
 	drv_string = ''
 	done_legacy = False
 	if card_id in nvidia_173xx_supported:
@@ -454,30 +458,23 @@ def extract_pci_ids(videocard_str):
 
 	return company_id, card_id
 
+def extract_vga_cards(lspci_list):
+    cards = []
+    for item in lspci_list:
+        try:
+            class_type = item.split()[1].strip('"')
+            if class_type == "0300":
+                cards.append(item)
+        except IndexError:
+            continue
+    return cards
+
 ### APPLICATION
 
 # Create videocards list
-videocards = lspci_output.split("\n")
-
+videocards = extract_vga_cards(lspci_output.split("\n"))
 # Run the program
 cardnumber = -1
-
-import re
-# Intel
-i740 = re.compile('.*intel.*74[0-9].*')
-i810 = re.compile('.*Intel.*Corp.*')
-# misc
-silicon_motion = re.compile('.*silicon.*motion.*')
-s3virge = re.compile('.*S3.*Virge.*')
-# VIA
-via = re.compile('.*VIA.*Tech.*')
-unichrome = re.compile('.*via.*tech.*chrome.*')
-# nVidia
-nvidia = re.compile('.*nvidia corporation.*')
-# ATi
-ati = re.compile('.*ati.*technologies.*')
-radeon_hd = re.compile('.*ati.*technologies.*radeon.* hd .*')
-
 
 total_cards = len(videocards)
 forced_monitor_modes = False
@@ -515,109 +512,91 @@ for videocard in videocards:
 		steps.append(('set_xorg_device',forced_xdriver,cardnumber,total_cards,bus_id,))
 	else:
 
+		company_id, card_id = extract_pci_ids(videocard)
+		print "[%s] company_id: %s | card_id: %s" % (cardnumber, company_id, card_id,)
+
 		if os.path.isfile('/sys/module/sisusbvga'):
 			generate_generic_steps()
 			steps.append(('set_xorg_device','sisusb',cardnumber,total_cards,bus_id,))
 			print "SiS USB!"
 
-		elif videocard.lower().find('neomagic') != -1:
+		elif company_id == "10c8":
 			generate_generic_steps()
 			steps.append(('set_xorg_device','neomagic',cardnumber,total_cards,bus_id,))
 			print "Neomagic!"
 	
-		elif videocard.lower().find('mach64') != -1:
-			generate_generic_steps()
-			steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
-			print "Mach64!"
-	
-		elif videocard.lower().find('savage') != -1:
-			generate_generic_steps()
-			steps.append(('set_xorg_device','savage',cardnumber,total_cards,bus_id,))
-			print "Savage!"
-	
-		elif videocard.lower().find('virge') != -1:
-			generate_generic_steps()
-			steps.append(('set_xorg_device','s3virge',cardnumber,total_cards,bus_id,))
-			print "Virge!"
-	
-		elif videocard.lower().find('cyrix') != -1:
+		elif company_id == "1078": # Cyrix
 			generate_generic_steps()
 			print "Cyrix!"
 	
-		elif videocard.lower().find('i128') != -1:
+		elif company_id == "105d": # Number 9
 			generate_generic_steps()
 			steps.append(('set_xorg_device','i128',cardnumber,total_cards,bus_id,))
 			print "i128!"
 	
-		elif videocard.lower().find('rendition') != -1:
+		elif company_id == "1163": # Rendition
 			generate_generic_steps()
 			steps.append(('set_xorg_device','rendition',cardnumber,total_cards,bus_id,))
 			print "Rendition!"
 	
-		elif videocard.lower().find('tseng') != -1:
+		elif company_id == "100c": # Tseng!
 			generate_generic_steps()
 			steps.append(('set_xorg_device','tseng',cardnumber,total_cards,bus_id,))
 			print "Tseng!"
 	
-		elif videocard.lower().find('3dfx interactive') != -1:
+		elif company_id == "121a": # 3dfx
 			generate_generic_steps()
 			steps.append(('set_xorg_device','tdfx',cardnumber,total_cards,bus_id,))
 			print "3Dfx!"
 	
-		elif videocard.lower().find('trident') != -1:
+		elif company_id == "1023": # Trident
 			generate_generic_steps()
 			steps.append(('set_xorg_device','trident',cardnumber,total_cards,bus_id,))
 			print "Trident!"
 	
-		elif videocard.lower().find('rage 128') != -1:
-			generate_generic_steps()
-			steps.append(('set_xorg_device','r128',cardnumber,total_cards,bus_id,))
-			print "Rage128!"
-	
-		elif videocard.find('Matrox') != -1:
+		elif company_id == "102b": # Matrox
 			generate_generic_steps()
 			steps.append(('set_xorg_device','mga',cardnumber,total_cards,bus_id,))
 			print "Matrox!"
 	
-		elif videocard.find('Cirrus') != -1:
+		elif company_id == "1013": # Cirrus
 			generate_generic_steps()
 			steps.append(('set_xorg_device','cirrus',cardnumber,total_cards,bus_id,))
 			print "Cirrus!"
 		
-		elif videocard.find(' SiS ') != -1 or videocard.find('Silicon Integrated Systems') != -1:
+		elif company_id == "1039": # SiS
 			generate_generic_steps()
 			steps.append(('set_xorg_device','sis',cardnumber,total_cards,bus_id,))
 			print "SiS!"
 	
-		elif videocard.lower().find('xgi') != -1 and videocard.find('Volari') != -1:
+		elif company_id == "18ca": # XGI
 			generate_generic_steps()
 			steps.append(('set_xorg_device','sis',cardnumber,total_cards,bus_id,))
 			print "XGI Volari!"
 	
-		elif videocard.find('VMWare') != -1 or videocard.find('VMware') != -1:
+		elif company_id in ["15ad", "fffe"]: # VMware
 			generate_generic_steps()
 			steps.append(('set_xorg_device','vmware',cardnumber,total_cards,bus_id,))
 			print "VMware!"
 
-		elif videocard.find('VirtualBox') != -1 or videocard.find('InnoTek') != -1:
+		elif company_id == "80ee": # VirtualBox, InnoTek
 			generate_generic_steps()
 			if check_if_driver_is_available('vboxvideo'):
 				steps.append(('set_xorg_device','vboxvideo',cardnumber,total_cards,bus_id,))
 			print "VirtualBox!"
 
-		elif i740.match(videocard.lower()):
+		elif company_id == "5333":
 			generate_generic_steps()
-			steps.append(('set_xorg_device','i740',cardnumber,total_cards,bus_id,))
-			print "i740!"
+			if card_id in savage_supported:
+				steps.append(('set_xorg_device','savage',cardnumber,total_cards,bus_id,))
+				print "Savage!"
+			else:
+				steps.append(('set_xorg_device','s3virge',cardnumber,total_cards,bus_id,))
+				print "S3Virge!"
 	
-		elif s3virge.match(videocard):
+		elif company_id == "1106": # Via Tech.
 			generate_generic_steps()
-			steps.append(('set_xorg_device','s3virge',cardnumber,total_cards,bus_id,))
-			print "S3Virge!"
-	
-		elif via.match(videocard):
-			generate_generic_steps()
-			if unichrome.match(videocard.lower()):
+			if card_id in unichrome_supported:
 				if check_if_driver_is_available('openchrome'):
 					steps.append(('set_xorg_device','openchrome',cardnumber,total_cards,bus_id,))
 				else:
@@ -627,48 +606,35 @@ for videocard in videocards:
 				steps.append(('set_xorg_device','via',cardnumber,total_cards,bus_id,))
 				print "VIA Tech!"
 	
-		elif silicon_motion.match(videocard.lower()):
+		elif company_id == "126f": # Silicon Motion
 			generate_generic_steps()
 			steps.append(('set_xorg_device','siliconmotion',cardnumber,total_cards,bus_id,))
 			print "Silicon Motion!"
 	
-		elif i810.match(videocard): # non lower
-			generate_generic_steps()
-			if check_if_driver_is_available('intel'):
-				steps.append(('set_xorg_device','intel',cardnumber,total_cards,bus_id,))
-			elif check_if_driver_is_available('i810'):
-				steps.append(('set_xorg_device','i810',cardnumber,total_cards,bus_id,))
+		elif company_id == "8086":
+			if card_id == "7800": # i740
+				generate_generic_steps()
+				steps.append(('set_xorg_device','i740',cardnumber,total_cards,bus_id,))
 			else:
-				print "WARNING: i810 and intel drivers not found !! This could be a real problem"
-			print "Intel >= 810!"
+				generate_generic_steps()
+				steps.append(('set_xorg_device','intel',cardnumber,total_cards,bus_id,))
+				print "Intel >= 810!"
 	
-		elif videocard.lower().find('riva tnt') != -1:
-			generate_generic_steps()
-			steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
-			print "Riva TNT!"
-	
-		elif nvidia.match(videocard.lower()):
+		elif company_id == "10de": # NVIDIA
 			if noproprietary:
 				steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
 			else:
 				generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id)
 			print "NVIDIA!"
 		
-		elif ati.match(videocard.lower()):
-			company_id, card_id = extract_pci_ids(videocard)
-			print "ATI Technologies", company_id, card_id
+		elif company_id == "1002":
+			print "ATI/AMD!"
 			print "total supported ATI cards: %s" % (len(fglrx_supported),)
 			print "supported list:", fglrx_supported
 			if card_id in fglrx_supported: # fglrx supported
 				print "fglrx driver SUPPORTS this card"
 				if noproprietary:
-					if radeon_hd.match(videocard.lower()):
-						if check_if_driver_is_available('radeonhd'):
-							steps.append(('set_xorg_device','radeonhd',cardnumber,total_cards,bus_id,))
-						else:
-							steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
-					else:
-						steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
+					steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
 					steps.append(('drop_kernel_mod','fglrx',))
 				else:
 					if not noopengl:
@@ -680,6 +646,7 @@ for videocard in videocards:
 				# video card not supported by fglrx
 				print "NOT supported by fglrx"
 				generate_generic_steps()
+				# This works for Mach64, Rage128, Radeon and in future RadeonHD driver
 				steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
 				steps.append(('drop_kernel_mod','fglrx',))
 
