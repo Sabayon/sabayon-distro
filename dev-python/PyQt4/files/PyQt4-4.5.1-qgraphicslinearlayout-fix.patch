@@ -6,7 +6,7 @@ diff -Nurp PyQt-x11-gpl-4.5.orig/sip/QtGui/qgraphicslinearlayout.sip PyQt-x11-gp
              PyObject *itmo = sipGetPyObject(itm, sipType_QGraphicsLayoutItem);
          
 -            if (itmo)
-+            if (itmo && ! itm->ParentItem())
++            if (itmo && ! itm->parentItem())
                  sipTransferBack(itmo);
          }
  %End
