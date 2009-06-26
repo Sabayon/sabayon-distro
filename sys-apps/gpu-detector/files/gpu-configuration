@@ -13,6 +13,7 @@ lspci = '/usr/sbin/lspci'
 nvidia_settings = "/usr/share/applications/nvidia-settings.desktop"
 
 device_id_prefix = "SabayonVga"
+argb_visual_prefix = "--argbvisuals--"
 screen_layout_sections = []
 device_sections = []
 xorg_conf_structure = """
@@ -63,7 +64,7 @@ Section "Screen"
     Identifier    "Screen __screen_id__"
     Device        "%s__screen_id__"
     Monitor       "Generic Monitor"
-    #Option       "AddARGBGLXVisuals" "true"
+    %sOption       "AddARGBGLXVisuals" "true"
 
     DefaultDepth 24
 
@@ -86,7 +87,7 @@ Section "Screen"
     EndSubsection
 
 EndSection
-""" % (device_id_prefix,)
+""" % (device_id_prefix, argb_visual_prefix,)
 
 # cmdlines
 options = sys.argv[1:]
@@ -297,6 +298,13 @@ EndSection
 	)
 
 	my_screen_section = screen_section.replace('__screen_id__',str(cardnum))
+	# setup Option AddARGBVisuals
+	# especially needed for legacy nvidia drivers, but works
+	# on all of them
+	if xdriver == "nvidia":
+		my_screen_section = my_screen_section.replace(argb_visual_prefix,'')
+	else:
+		my_screen_section = my_screen_section.replace(argb_visual_prefix,'#')
 	screen_sections.append(my_screen_section)
 	screen_layout_sections.append('Screen %s    "Screen %s"' % (cardnum,cardnum,))
 
