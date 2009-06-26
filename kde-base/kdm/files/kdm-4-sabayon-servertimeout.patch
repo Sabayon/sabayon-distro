@@ -1,0 +1,12 @@
+diff -Nurp kdm-4.2.4.orig/kdm/config.def kdm-4.2.4/kdm/config.def
+--- kdm-4.2.4.orig/kdm/config.def	2009-06-26 16:05:09.975905369 +0200
++++ kdm-4.2.4/kdm/config.def	2009-06-26 17:13:30.902899731 +0200
+@@ -1332,7 +1332,7 @@ Description:
+ 
+ Key: ServerTimeout
+ Type: int
+-Default: 15
++Default: 35
+ User: core
+ Instance: #:*/
+ Comment:

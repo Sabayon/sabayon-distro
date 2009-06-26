@@ -57,6 +57,7 @@ src_unpack() {
        epatch "${FILESDIR}/${PN}-4-sabayon-background.patch"
        epatch "${FILESDIR}/${PN}-4-sabayon-bootmanager.patch"
        epatch "${FILESDIR}/${PN}-4-sabayon-terminate-server.patch"
+       epatch "${FILESDIR}/${PN}-4-sabayon-servertimeout.patch"
 }
 
 
