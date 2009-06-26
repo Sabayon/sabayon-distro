@@ -37,6 +37,6 @@ src_install () {
 pkg_postinst() {
 
 	# create new user sabayonmce
-	enewuser sabayonmce -1 /bin/sh /var/sabayonmce users,lp,wheel,uucp,audio,cdrom,video,games,cdrw,usb,plugdev,scanner
+	enewuser sabayonmce -1 /bin/sh /var/sabayonmce users,lp,wheel,uucp,audio,cdrom,video,games,cdrw,usb,plugdev,scanner,polkituser
 
 }
