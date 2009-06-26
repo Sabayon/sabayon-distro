@@ -1,0 +1,138 @@
+diff --git a/libraries/entropy/client/interfaces/methods.py b/libraries/entropy/client/interfaces/methods.py
+index 7f08029..7765537 100644
+--- a/libraries/entropy/client/interfaces/methods.py
++++ b/libraries/entropy/client/interfaces/methods.py
+@@ -21,6 +21,7 @@
+ '''
+ from __future__ import with_statement
+ import os
++import stat
+ import sys
+ import shutil
+ import time
+@@ -1384,6 +1385,7 @@ class MiscMixin:
+                 tarinfo = tar.gettarinfo(path, arcname)
+ 
+                 if stat.S_ISREG(exist.st_mode):
++                    tarinfo.mode = stat.S_IMODE(exist.st_mode)
+                     tarinfo.type = tarfile.REGTYPE
+                     f = open(path)
+                     try:
+diff --git a/libraries/entropy/client/interfaces/package.py b/libraries/entropy/client/interfaces/package.py
+index a87eeac..4000913 100644
+--- a/libraries/entropy/client/interfaces/package.py
++++ b/libraries/entropy/client/interfaces/package.py
+@@ -276,8 +276,7 @@ class Package:
+                         "EOFError on " + self.infoDict['pkgpath']
+                     )
+                     rc = 1
+-                except (UnicodeEncodeError, UnicodeDecodeError,
+-                    self.dumpTools.pickle.PicklingError,):
++                except:
+                     # this will make devs to actually catch the
+                     # right exception and prepare a fix
+                     self.Entropy.clientLog.log(
+diff --git a/libraries/entropy/tools.py b/libraries/entropy/tools.py
+index 3dd6c4c..6b08899 100644
+--- a/libraries/entropy/tools.py
++++ b/libraries/entropy/tools.py
+@@ -2032,60 +2032,68 @@ def uncompress_tar_bz2(filepath, extractPath = None, catchEmpty = False):
+     except EOFError:
+         return -1
+ 
++    def fix_uid_gid(tarinfo, epath):
++        # workaround for buggy tar files
++        uname = tarinfo.uname
++        gname = tarinfo.gname
++        ugdata_valid = False
++        try:
++            int(gname)
++            int(uname)
++        except ValueError:
++            ugdata_valid = True
++        try:
++            if ugdata_valid: # FIXME: will be removed in 2011
++                # get uid/gid
++                # if not found, returns -1 that won't change anything
++                uid, gid = get_uid_from_user(uname), \
++                    get_gid_from_group(gname)
++                os.lchown(epath, uid, gid)
++        except OSError:
++            pass
++
++    def mycmp(a,b):
++        return cmp(a[0].name, b[0].name)
++
+     try:
+ 
+         encoded_path = extractPath.encode('utf-8')
+         def mymf(tarinfo):
++            epath = os.path.join(encoded_path, tarinfo.name)
+             if tarinfo.isdir():
+                 # Extract directory with a safe mode, so that
+                 # all files below can be extracted as well.
+                 try:
+-                    os.makedirs(os.path.join(encoded_path, tarinfo.name), 0777)
++                    os.makedirs(epath, 0777)
+                 except EnvironmentError:
+                     pass
+-                return tarinfo
++                return tarinfo, epath
+ 
+             tar.extract(tarinfo, encoded_path)
+-            del tar.members[:]
+-            return tarinfo
+ 
+-        def mycmp(a,b):
+-            return cmp(a.name,b.name)
++            del tar.members[:]
++            return tarinfo, epath
+ 
+         entries = sorted(map(mymf, tar), mycmp, reverse = True)
+ 
+         # Set correct owner, mtime and filemode on directories.
+-        def mymf2(tarinfo):
+-            epath = os.path.join(encoded_path, tarinfo.name)
++        def mymf2(tardata):
++            tarinfo, epath = tardata
+             try:
+-                tar.chown(tarinfo, epath)
+-
+-                # this is mandatory on uid/gid that don't exist
+-                # and in this strict order !!
+-                uname = tarinfo.uname
+-                gname = tarinfo.gname
+-                ugdata_valid = False
+-                try:
+-                    int(gname)
+-                    int(uname)
+-                except ValueError:
+-                    ugdata_valid = True
+-
+-                try:
+-                    if ugdata_valid: # FIXME: will be removed in 2011
+-                        # get uid/gid
+-                        # if not found, returns -1 that won't change anything
+-                        uid, gid = get_uid_from_user(uname), \
+-                            get_gid_from_group(gname)
+-                        os.lchown(epath, uid, gid)
+-                except OSError:
+-                    pass
+ 
++                tar.chown(tarinfo, epath)
++                fix_uid_gid(tarinfo, epath)
+                 tar.utime(tarinfo, epath)
+-                tar.chmod(tarinfo, epath)
++                mode = tarinfo.mode
++                # xorg-server /usr/bin/X symlink of /usr/bin/Xorg
++                # which is setuid. Symlinks don't need chmod. PERIOD!
++                if not os.path.islink(epath):
++                    tar.chmod(tarinfo, epath)
++
+             except tarfile.ExtractError:
+                 if tar.errorlevel > 1:
+                     raise
++
+         done = map(mymf2, entries)
+         del done
+ 
