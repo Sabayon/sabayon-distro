@@ -27,6 +27,11 @@ pkg_setup() {
 	enewgroup entropy || die "failed to create entropy group"
 }
 
+src_prepare() {
+	cd ${S}
+	epatch "${FILESDIR}/${P}-fix-setuid-setgid-support.patch"
+}
+
 src_compile() {
 	emake -j1 || die "make failed"
 }
