@@ -10,15 +10,17 @@ depend() {
 
 my_start_compiz() {
 
-	source /etc/profile
 	cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
-	
 	# Configure AIGLX ?
 	if [ -n "$cmdline_aiglx_exist" ] && [ -z "$cmdline_xgl_exist" ]; then
 		/sbin/aiglx-setup enable &> /dev/null
 	fi
 	
-	/sbin/ldconfig &> /dev/null
+	doldconfig=$(cat /proc/cmdline | grep "doldconfig")
+	if [ -n "$doldconfig" ]; then
+		source /etc/profile
+		/sbin/ldconfig &> /dev/null
+	fi
 
 }
 
