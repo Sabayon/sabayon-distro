@@ -1,33 +1,48 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/genkernel/genkernel-3.4.9.ebuild,v 1.2 2008/01/14 19:43:54 wolf31o2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/genkernel/genkernel-3.4.10.904.ebuild,v 1.2 2009/05/31 20:34:12 agaffney Exp $
 
-inherit bash-completion eutils
+# genkernel-9999        -> latest SVN
+# genkernel-9999.REV    -> use SVN REV
+# genkernel-VERSION     -> normal genkernel release
 
 VERSION_BUSYBOX='1.7.4'
 VERSION_DMAP='1.02.22'
 VERSION_DMRAID='1.0.0.rc14'
-VERSION_E2FSPROGS='1.39'
+VERSION_E2FSPROGS='1.40.9'
 VERSION_LVM='2.02.28'
-VERSION_UNIONFS='1.5pre-cvs200701042308'
+VERSION_FUSE='2.7.4'
+VERSION_UNIONFS_FUSE='0.22'
 
-MY_HOME="http://dev.gentoo.org/~wolf31o2"
+MY_HOME="http://wolf31o2.org"
 RH_HOME="ftp://sources.redhat.com/pub"
 DM_HOME="http://people.redhat.com/~heinzm/sw/dmraid/src"
 BB_HOME="http://www.busybox.net/downloads"
-UF_HOME="ftp://ftp.fsl.cs.sunysb.edu/pub/unionfs/unionfs-1.x/snapshots"
 
-SRC_URI="mirror://gentoo/${P}.tar.bz2
-		${MY_HOME}/sources/genkernel/${P}.tar.bz2
-		${DM_HOME}/dmraid-${VERSION_DMRAID}.tar.bz2
+COMMON_URI="${DM_HOME}/dmraid-${VERSION_DMRAID}.tar.bz2
 		${DM_HOME}/old/dmraid-${VERSION_DMRAID}.tar.bz2
 		${RH_HOME}/lvm2/LVM2.${VERSION_LVM}.tgz
 		${RH_HOME}/lvm2/old/LVM2.${VERSION_LVM}.tgz
 		${RH_HOME}/dm/device-mapper.${VERSION_DMAP}.tgz
 		${RH_HOME}/dm/old/device-mapper.${VERSION_DMAP}.tgz
 		${BB_HOME}/busybox-${VERSION_BUSYBOX}.tar.bz2
-		${UF_HOME}/unionfs-${VERSION_UNIONFS}.tar.gz
-		mirror://sourceforge/e2fsprogs/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz"
+		mirror://sourceforge/e2fsprogs/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz
+		mirror://sourceforge/fuse/fuse-${VERSION_FUSE}.tar.gz
+		http://podgorny.cz/unionfs-fuse/releases/unionfs-fuse-${VERSION_UNIONFS_FUSE}.tar.bz2"
+
+if [[ ${PV} == 9999* ]]
+then
+	[[ ${PV} == 9999.* ]] && ESVN_UPDATE_CMD="svn up -r ${PV/9999./}"
+	EGIT_REPO_URI="git://git.wolf31o2.org/projs/genkernel.git"
+	inherit git bash-completion eutils
+	S="${WORKDIR}"
+	SRC_URI="${COMMON_URI}"
+else
+	inherit bash-completion eutils
+	SRC_URI="mirror://gentoo/${P}.tar.bz2
+		${MY_HOME}/sources/genkernel/${P}.tar.bz2
+		${COMMON_URI}"
+fi
 
 DESCRIPTION="Gentoo automatic kernel building scripts"
 HOMEPAGE="http://www.gentoo.org"
@@ -37,8 +52,9 @@ SLOT="0"
 RESTRICT=""
 # Please don't touch individual KEYWORDS.  Since this is maintained/tested by
 # Release Engineering, it's easier for us to deal with all arches at once.
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
-#KEYWORDS="alpha amd64 arm hppa ia64 mips ppc ppc64 s390 sparc x86"
+#KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sparc x86"
+#KEYWORDS=""
 IUSE="ibm selinux"
 
 DEPEND="sys-fs/e2fsprogs
@@ -46,14 +62,18 @@ DEPEND="sys-fs/e2fsprogs
 RDEPEND="${DEPEND} app-arch/cpio"
 
 src_unpack() {
-	unpack ${P}.tar.bz2
-	cd "${S}"
-	use selinux && sed -i 's/###//g' gen_compile.sh
+	if [[ ${PV} == 9999* ]] ; then
+		git_src_unpack
+	else
+		unpack ${P}.tar.bz2
+	fi
+	use selinux && sed -i 's/###//g' "${S}"/gen_compile.sh
 
 	# Add unionfs/aufs support.
-	for i in ${FILESDIR}/${PV}/*.patch; do
+	for i in ${FILESDIR}/3.4.11/*.patch; do
 		epatch ${i}
 	done
+
 }
 
 src_install() {
@@ -63,7 +83,8 @@ src_install() {
 		-e "s:VERSION_E2FSPROGS:$VERSION_E2FSPROGS:" \
 		-e "s:VERSION_LVM:$VERSION_LVM:" \
 		-e "s:VERSION_BUSYBOX:$VERSION_BUSYBOX:" \
-		-e "s:VERSION_UNIONFS:$VERSION_UNIONFS:" \
+		-e "s:VERSION_FUSE:$VERSION_FUSE:" \
+		-e "s:VERSION_UNIONFS_FUSE:$VERSION_UNIONFS_FUSE:" \
 		"${S}"/genkernel.conf > "${T}"/genkernel.conf \
 		|| die "Could not adjust versions"
 	insinto /etc
@@ -79,7 +100,7 @@ src_install() {
 	insinto /usr/share/genkernel
 	doins -r "${S}"/* || die "doins"
 	use ibm && cp "${S}"/ppc64/kernel-2.6-pSeries "${S}"/ppc64/kernel-2.6 || \
-		cp "${S}"/ppc64/kernel-2.6.g5 "${S}"/ppc64/kernel-2.6
+		cp "${S}"/arch/ppc64/kernel-2.6.g5 "${S}"/arch/ppc64/kernel-2.6
 
 	# Copy files to /var/cache/genkernel/src
 	elog "Copying files to /var/cache/genkernel/src..."
@@ -88,9 +109,10 @@ src_install() {
 		"${DISTDIR}"/dmraid-${VERSION_DMRAID}.tar.bz2 \
 		"${DISTDIR}"/LVM2.${VERSION_LVM}.tgz \
 		"${DISTDIR}"/device-mapper.${VERSION_DMAP}.tgz \
-		"${DISTDIR}"/unionfs-${VERSION_UNIONFS}.tar.gz \
 		"${DISTDIR}"/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz \
 		"${DISTDIR}"/busybox-${VERSION_BUSYBOX}.tar.bz2 \
+		"${DISTDIR}"/fuse-${VERSION_FUSE}.tar.gz \
+		"${DISTDIR}"/unionfs-fuse-${VERSION_UNIONFS_FUSE}.tar.bz2 \
 		"${D}"/var/cache/genkernel/src || die "Copying distfiles..."
 
 	dobashcompletion "${FILESDIR}"/genkernel.bash
