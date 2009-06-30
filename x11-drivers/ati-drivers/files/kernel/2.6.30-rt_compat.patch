@@ -1,0 +1,26 @@
+--- a/common/lib/modules/fglrx/build_mod/firegl_public.c
++++ b/common/lib/modules/fglrx/build_mod/firegl_public.c
+@@ -1352,7 +1352,11 @@
+    int process_terminated = 1;
+   
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)  
++#if !defined(CONFIG_PREEMPT_RT)
+    rcu_read_lock();
++#else
++   preempt_disable();
++#endif
+ #else   
+    read_lock(&tasklist_lock);
+ #endif   
+@@ -1373,7 +1377,11 @@
+       }
+    }   
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)  
++#if !defined(CONFIG_PREEMPT_RT)
+    rcu_read_unlock();
++#else
++   preempt_disable();
++#endif
+ #else   
+    read_unlock(&tasklist_lock);
+ #endif   
