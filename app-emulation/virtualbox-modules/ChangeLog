@@ -1,0 +1,10 @@
+# ChangeLog for app-emulation/virtualbox-modules
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*virtualbox-modules-3.0.0 (02 Jul 2009)
+
+  02 Jul 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  +virtualbox-modules-3.0.0.ebuild:
+  Add Version 3.0.0, can be removed after this is added to portage
+
