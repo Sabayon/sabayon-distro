@@ -2,11 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit distutils python
+inherit eutils gnome2
 
 DESCRIPTION="Alarm Clock is a personal alarm clock applet for the Gnome panel."
 HOMEPAGE="http://alarm-clock.54.pl/"
-SRC_URI="http://89.76.224.23/downloads/${P}.tar.bz2"
+SRC_URI="http://www.alarm-clock.pl/downloads/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -18,16 +18,8 @@ RDEPEND=">=dev-python/pygtk-2
 	dev-python/gst-python"
 
 src_unpack() {
-	distutils_src_unpack
+	gnome2_src_unpack
+	cd ${S}
 
-	# Make sure setup.py is executable.
-	/bin/chmod a+x setup.py
-}
-
-src_compile() {
-	./setup.py build
-}
-
-src_install() {
-	./setup.py install --root=${D}
+	gnome2_omf_fix
 }
