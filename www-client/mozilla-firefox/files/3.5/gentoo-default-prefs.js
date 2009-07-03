@@ -8,6 +8,5 @@ pref("browser.tabs.tabMinWidth",           15);
 pref("browser.backspace_action",           0);
 pref("browser.urlbar.hideGoButton",        true);
 pref("accessibility.typeaheadfind",        true);
-pref("browser.startup.homepage",           "http://www.sabayonlinux.org/");
 pref("browser.shell.checkDefaultBrowser",  false); 
 pref("browser.EULA.override",              true); 

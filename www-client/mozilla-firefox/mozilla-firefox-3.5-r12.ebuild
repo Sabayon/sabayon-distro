@@ -1,34 +1,36 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.0.1.ebuild,v 1.7 2008/09/03 08:47:51 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.5-r2.ebuild,v 1.1 2009/07/02 16:06:25 nirbheek Exp $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension
-PATCH="${P}-patches-0.1"
 
-LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en-GB en-US eo es-AR es-CL
-es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is it ja ka kk
-kn ko ku lt lv mk ml mr nb-NO nl nn-NO oc or pa-IN pl pt-BR pt-PT ro ru si sk sl
-sq sr sv-SE ta-LK ta te th uk vi zh-CN zh-TW"
-NOSHORTLANGS="en-GB es-AR pt-BR zh-CN"
+LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
+es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is it ja
+ka kk kn ko ku lt lv mk ml mn mr nb-NO nl nn-NO oc or pa-IN pl pt-BR pt-PT rm ro
+ru si sk sl sq sr sv-SE ta-LK ta te th tr uk vi zh-CN zh-TW"
+NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
 XUL_PV="1.9.1"
-MY_PV="${PV/_beta/b}" # Handle betas
-MY_PV="${PV/_/}" # Handle rc1, rc2 etc
-MAJ_PV="${PV/_*/}"
+MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
+MY_PV="${PV/_beta/b}" # Handle betas for SRC_URI
+MY_PV="${PV/_/}" # Handle rcs for SRC_URI
+MY_PV="${MY_PV/1.9.1/3.5}" # Why is this here?
+PATCH="${PN}-${MAJ_PV}-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist debug iceweasel java mozdevelop qt-experimental restrict-javascript"
+IUSE="bindist iceweasel java mozdevelop restrict-javascript" # qt-experimental
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2
-	iceweasel? ( mirror://gentoo/iceweasel-icons-3.0.tar.bz2 )"
+	iceweasel? ( mirror://gentoo/iceweasel-icons-3.0.tar.bz2 )
+	mirror://gentoo/${PATCH}.tar.bz2"
 
 for X in ${LANGS} ; do
 	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
@@ -46,20 +48,22 @@ for X in ${LANGS} ; do
 	fi
 done
 
-RDEPEND="
-	qt-experimental? (
-		x11-libs/qt-gui
-		x11-libs/qt-core )
+# Not working.
+#	qt-experimental? (
+#		x11-libs/qt-gui
+#		x11-libs/qt-core )
+#	=net-libs/xulrunner-${XUL_PV}*[java=,qt-experimental=]
 
+RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.7.3
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 
-	=net-libs/xulrunner-${XUL_PV}_${PVR/*_/}*[debug=,java=,qt-experimental=]
+	>=net-libs/xulrunner-${XUL_PV}-r10[java=]
 
-	x11-libs/cairo[X]
+	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
 
 DEPEND="${RDEPEND}
@@ -104,6 +108,10 @@ pkg_setup(){
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
+
+	elog
+	elog "libgnomebreakpad now works with firefox so you can debug crashes using bug-buddy"
+	elog "If you don't have bug-buddy installed, ignore the gtk-warning at startup"
 }
 
 src_unpack() {
@@ -129,7 +137,7 @@ src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${FILESDIR}"/"${PV}"/patches
+	epatch "${WORKDIR}"
 
 	if use iceweasel; then
 		sed -i -e "s|Minefield|Iceweasel|" browser/locales/en-US/chrome/branding/brand.* \
@@ -196,29 +204,21 @@ src_configure() {
 	#mozconfig_use_extension mozdevelop venkman
 
 	# IUSE qt-experimental
-	if use qt-experimental; then
-		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
-		ewarn "Usage is at your own risk"
-		ewarn "Known to be broken. DO NOT file bugs."
-		mozconfig_annotate '' --disable-system-cairo
-		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
-	else
+#	if use qt-experimental; then
+#		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
+#		ewarn "Usage is at your own risk"
+#		ewarn "Known to be broken. DO NOT file bugs."
+#		mozconfig_annotate '' --disable-system-cairo
+#		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
+#	else
 		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
-	fi
+#	fi
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	if ! use bindist && ! use iceweasel; then
 		mozconfig_annotate '' --enable-official-branding
-	fi
-
-	# Debug
-	if use debug; then
-		mozconfig_annotate 'debug' --disable-optimize
-		mozconfig_annotate 'debug' --enable-debug=-ggdb
-		mozconfig_annotate 'debug' --enable-debug-modules=all
-		mozconfig_annotate 'debug' --enable-debugger-info-modules
 	fi
 
 	# Finalize and report settings
@@ -285,14 +285,11 @@ src_install() {
 	# Create /usr/bin/firefox
 	cat <<EOF >"${D}"/usr/bin/firefox
 #!/bin/sh
-export LD_LIBRARY_PATH="${MOZILLA_FIVE_HOME}"
+export LD_LIBRARY_PATH="${MOZILLA_FIVE_HOME}\${LD_LIBRARY_PATH+":\${LD_LIBRARY_PATH}"}"
 exec "${MOZILLA_FIVE_HOME}"/firefox "\$@"
 EOF
+
 	fperms 0755 /usr/bin/firefox
-	
-    # Add vendor
-    echo "pref(\"general.useragent.vendor\",\"Sabayon\");" \
-        >> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
 
 	# Plugins dir
 	ln -s "${D}"/usr/$(get_libdir)/{nsbrowser,mozilla-firefox}/plugins
@@ -300,7 +297,7 @@ EOF
 
 pkg_postinst() {
 	ewarn "All the packages built against ${PN} won't compile,"
-	ewarn "if after installing firefox 3.0 you get some blockers,"
+	ewarn "if after installing firefox 3.5 you get some blockers,"
 	ewarn "please add 'xulrunner' to your USE-flags."
 	elog
 
