@@ -65,7 +65,7 @@ src_prepare() {
 	epatch "${WORKDIR}"
 
 	# bug 276018 upstreamed, remove in 1.9.2
-	epatch "${FILESDIR}/067-force-bundled-ply.patch"
+	epatch "${FILESDIR}/${PV}/067-force-bundled-ply.patch"
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
@@ -84,7 +84,7 @@ src_prepare() {
 	eautoreconf
 
 	# We need to re-patch this because autoreconf overwrites it
-#	epatch "${FILESDIR}"/patch/000_flex-configure-LANG.patch
+#	epatch "${FILESDIR}/${PV}"/patch/000_flex-configure-LANG.patch
 }
 
 src_configure() {
