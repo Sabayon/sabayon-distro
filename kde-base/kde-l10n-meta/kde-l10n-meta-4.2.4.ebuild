@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-SLOT="${PV/.4}"
 EAPI="2"
+inherit kde4-base
 
 DESCRIPTION="KDE internationalization meta-package - merge this to pull in all kde-l10n packages"
 HOMEPAGE="http://www.kde.org/"
@@ -24,4 +24,20 @@ for X in ${LANGS} ; do
         IUSE="${IUSE} linguas_${X}"
         RDEPEND="${RDEPEND} linguas_${X}? ( ~kde-base/kde-l10n-${X}-${PV} )"
 done
+
+src_prepare() {
+	einfo "nothing to prepare"
+}
+
+src_configure() {
+	einfo "nothing to configure"
+}
+
+src_compile() {
+	einfo "nothing to compile"
+}
+
+src_install() {
+	einfo "this is a meta-package, nothing to install"
+}
 
