@@ -23,6 +23,10 @@ src_install () {
 	cd ${S}/gensplash
 	dodir /etc/splash/sabayon
 	cp -r ${S}/gensplash/sabayon/* ${D}/etc/splash/sabayon
+	
+	# Grub
+	dodir /boot/grub
+	cp "${FILESDIR}"/grub-${PV}.xpm.gz "${D}"/boot/grub/grub-core.xpm.gz
 }
 
 pkg_postinst () {
