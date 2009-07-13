@@ -69,8 +69,7 @@ src_prepare() {
 		epatch "${FILESDIR}/${PN}-2.2.0-enable-opengl.patch"
 
 		# unset useless/problematic mesa checks in configure
-		epatch 
-"${FILESDIR}/xf86-video-virtualbox-3.0.0-mesa-check.patch"
+		epatch "${FILESDIR}/xf86-video-virtualbox-3.0.0-mesa-check.patch"
 }
 
 src_configure() {
