@@ -53,4 +53,4 @@ x11-drivers/ati-drivers
 
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Mask Unstable Miro versions
->=media-tv/miro-2.0.5
+>media-tv/miro-2.0.5
