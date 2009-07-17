@@ -49,4 +49,4 @@ app-emulation/qemu-gui
 
 # Fabio Erculiani <lxnay@sabayonlinux.org>
 # Switching over to Portage tree drivers
-x11-drivers/ati-drivers
+=x11-drivers/ati-drivers-9.6-r1
