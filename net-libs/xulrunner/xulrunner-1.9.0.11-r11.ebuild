@@ -51,6 +51,9 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"/patch
+	
+	# Bad mozilla-js.pc, causes stuff like bug 275318
+	epatch "${FILESDIR}/066-fix-includedir-mozilla-js.patch"
 
 	eautoreconf || die "failed  running eautoreconf"
 
