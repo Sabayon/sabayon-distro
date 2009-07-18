@@ -49,7 +49,9 @@ RDEPEND="!!app-emulation/virtualbox-ose
 	x11-libs/libSM
 	x11-libs/libICE
 	x11-libs/libXdmcp
-	x86? ( sys-libs/libstdc++-v3 )"
+	x86? ( sys-libs/libstdc++-v3 )
+	native-qt? ( x11-libs/qt-core
+		x11-libs/qt-gui )"
 
 S=${WORKDIR}
 
@@ -160,7 +162,7 @@ src_install() {
 	# Use Local Qt, Enable this is QGTKStyle or local themes are needed or not working.
 	if use native-qt4 ; then
 		for i in libQtCore libQtNetwork libQtGui ; do
-			einfo "fixing ${i}"
+			einfo "Using native ${i}"
 			mv "${D}"/opt/VirtualBox/${i}VBox.so.4 "${D}"/opt/VirtualBox/${i}VBox.so.4.original
 			dosym ${ROOT}/usr/lib/qt4/${i}.so.4 /opt/VirtualBox/${i}VBox.so.4
 		done
