@@ -264,6 +264,7 @@ src_unpack() {
 	
 	# Fix on 2.6.31 kernels, until is fixed upstream
 	if use kernel_linux && kernel_is ge 2 6 31; then
+		cd "${NV_SRC}"
 		epatch "${FILESDIR}"/drm_agp_memory-2.6.31.patch
 	fi
 }
