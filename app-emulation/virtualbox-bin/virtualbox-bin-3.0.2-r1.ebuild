@@ -162,7 +162,7 @@ src_install() {
 		for i in libQtCore libQtNetwork libQtGui ; do
 			einfo "fixing ${i}"
 			mv "${D}"/opt/VirtualBox/${i}VBox.so.4 "${D}"/opt/VirtualBox/${i}VBox.so.4.original
-			dosym /opt/VirtualBox/${i}VBox.so.4 ${ROOT}/usr/lib/qt4/${i}.so.4
+			dosym ${ROOT}/usr/lib/qt4/${i}.so.4 /opt/VirtualBox/${i}VBox.so.4
 		done
 	fi
 }
