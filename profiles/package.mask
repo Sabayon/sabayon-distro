@@ -40,16 +40,13 @@ app-emulation/qemu-gui
 >=app-misc/sabayon-skel-4.1.9
 >=x11-themes/sabayonlinux-skel-4.1.9
 
-# EXPERIMENTAL
-=sys-apps/entropy-0.96
-
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Breaks many apps, see: #575
 =x11-libs/libxcb-1.1.93-r1
 
 # Fabio Erculiani <lxnay@sabayonlinux.org>
 # Switching over to Portage tree drivers
-x11-drivers/ati-drivers
+=x11-drivers/ati-drivers-9.6-r1
 
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Mask Unstable Miro versions
