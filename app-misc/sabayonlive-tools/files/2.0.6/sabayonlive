@@ -62,8 +62,9 @@ my_setup_desktop() {
 	fi
 
 	# Add sudo to gparted exec=
-	if [ -e /home/sabayonuser/Desktop/gparted.desktop ]; then
-		sed -i 's/Exec=/Exec=sudo /' /home/sabayonuser/Desktop/gparted.desktop
+	gparted_file="/home/sabayonuser/Desktop/gparted.desktop"
+	if [ -f "${gparted_file}" ]; then
+		sed -i 's/Exec=/Exec=sudo /' "${gparted_file}"
 	fi
 
 	# create md devices
