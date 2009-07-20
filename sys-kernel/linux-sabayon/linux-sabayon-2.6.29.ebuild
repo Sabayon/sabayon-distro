@@ -4,7 +4,7 @@
 ETYPE="sources"
 K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
-inherit kernel-2 sabayon-artwork
+inherit kernel-2 sabayon-artwork mount-boot
 detect_version
 detect_arch
 
@@ -15,7 +15,7 @@ DEPEND="
 	!only_sources? ( <sys-kernel/genkernel-3.4.11 )
 	splash? ( || ( x11-themes/sabayonlinux-artwork x11-themes/sabayon-artwork ) )
 	<sys-kernel/genkernel-3.4.11"
-RDEPEND="grub? ( sys-boot/grub )"
+RDEPEND="grub? ( ~sys-boot/grub-0.97 sys-boot/grub-handler )"
 IUSE="splash dmraid grub no_sources only_sources"
 RESTRICT="nomirror"
 
@@ -81,12 +81,6 @@ src_compile() {
 		einfo "Starting to compile kernel..."
 		cp ${FILESDIR}/${PF/-r0/}-${ARCH}.config ${WORKDIR}/config || die "cannot copy kernel config"
 	
-		if use grub; then
-			if [ -e "/boot/grub/grub.conf" ]; then
-				cp /boot/grub/grub.conf ${WORKDIR}/boot/grub -p
-			fi
-		fi
-
 		# do some cleanup
 		rm -rf "${WORKDIR}"/lib
 		rm -rf "${WORKDIR}"/cache
@@ -97,7 +91,6 @@ src_compile() {
 		GK_ARGS="--disklabel"
 		use splash && GKARGS="${GKARGS} --splash=sabayon"
 		use dmraid && GKARGS="${GKARGS} --dmraid"
-		use grub && GKARGS="${GKARGS} --bootloader=grub"
 		export DEFAULT_KERNEL_SOURCE="${S}"
 		export CMD_KERNEL_DIR="${S}"
 		DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
@@ -148,12 +141,6 @@ src_install() {
 		rm ${D}/lib/modules/${KV_FULL}/build
 		ln -s /usr/src/linux-${KV_FULL} ${D}/lib/modules/${KV_FULL}/source
 		ln -s /usr/src/linux-${KV_FULL} ${D}/lib/modules/${KV_FULL}/build
-		if use grub; then
-			if [ -e "${WORKDIR}/boot/grub.conf" ]; then
-				insinto /boot/grub/
-				doins ${WORKDIR}/boot/grub.conf
-			fi
-		fi
 	fi
 }
 
@@ -169,7 +156,35 @@ pkg_postinst() {
 	# Update kernel initramfs to match user customizations
 	update_sabayon_kernel_initramfs_splash
 
+	# Add kernel to grub.conf
+	if use grub; then
+		if use amd64; then
+			local kern_arch="x86_64"
+		else
+			local kern_arch="x86"
+		fi
+		/usr/sbin/grub-handler add \
+			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
+			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
+	fi
+
 	kernel-2_pkg_postinst
 	einfo "Please report kernel bugs at:"
 	einfo "http://bugs.sabayonlinux.org"
+}
+
+pkg_postrm() {
+
+	# Add kernel to grub.conf
+	if use grub; then
+		if use amd64; then
+			local kern_arch="x86_64"
+		else
+			local kern_arch="x86"
+		fi
+		/usr/sbin/grub-handler remove \
+			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
+			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
+	fi
+
 }
