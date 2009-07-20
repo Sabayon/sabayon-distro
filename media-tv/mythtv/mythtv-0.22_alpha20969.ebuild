@@ -114,7 +114,7 @@ src_configure() {
 	if use mmx || use amd64; then
 		myconf="${myconf} --enable-mmx"
 	else
-		myconf="${myconf} --disable-mmx"
+		myconf="${myconf} --disable-mmx --enable-disable-mmx-for-debugging"
 	fi
 
 	if use perl && use python; then
