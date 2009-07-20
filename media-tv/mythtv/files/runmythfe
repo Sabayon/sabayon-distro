@@ -1,6 +1,0 @@
-#!/bin/sh
-
-if ! pgrep mythfrontend >& /dev/null ; then
-	echo >> /var/log/mythtv/mythfrontend.log
-	DISPLAY=":0.0" mythfrontend -l /var/log/mythtv/mythfrontend.log -v important,general
-fi
