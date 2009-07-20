@@ -153,6 +153,7 @@ src_configure() {
 
 	# let MythTV come up with our CFLAGS. Upstream will support this
 	CFLAGS=""
+	use x86 && CFLAGS="${CFLAGS} -fomit-frame-pointer"
 	CXXFLAGS=""
 	einfo "Running ./configure ${myconf}"
 	chmod +x configure
