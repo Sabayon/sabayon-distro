@@ -1,0 +1,17 @@
+--- acx-20080112.orig/wlan_compat.h     2008-01-12 20:10:57.000000000 +0000
++++ acx-20080112/wlan_compat.h  2009-07-21 17:35:39.000000000 +0000
+@@ -217,13 +217,6 @@
+ /*=============================================================*/
+ #define WLAN_PACKED    __attribute__ ((packed))
+
+-/* Interrupt handler backwards compatibility stuff */
+-#ifndef IRQ_NONE
+-#define IRQ_NONE
+-#define IRQ_HANDLED
+-typedef void irqreturn_t;
+-#endif
+-
+ #ifndef ARPHRD_IEEE80211_PRISM
+ #define ARPHRD_IEEE80211_PRISM 802
+ #endif
+
