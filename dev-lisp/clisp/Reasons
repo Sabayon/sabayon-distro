@@ -1,0 +1,2 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+Fix compilation with GCC 4.4, Gentoo bug #267784

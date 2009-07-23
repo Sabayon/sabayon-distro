@@ -1,0 +1,12 @@
+--- clisp-2.47/src/time.d.old	2008-07-22 19:10:25.000000000 +0200
++++ clisp-2.47/src/time.d	2009-04-28 14:58:24.000000000 +0200
+@@ -302,7 +302,7 @@
+  #ifdef TIME_WIN32
+   return L2_to_I(tp->dwHighDateTime,tp->dwLowDateTime);
+  #endif
+-#elif TIME_METHOD = 1
++#elif TIME_METHOD == 1
+   return UL_to_I(*tp);
+ #else
+ #error internal_time_to_I: invalid TIME_METHOD
+
