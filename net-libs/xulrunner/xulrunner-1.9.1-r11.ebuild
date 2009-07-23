@@ -9,9 +9,9 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 
 MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
-MY_PV="${MY_PV/1.9.1/3.5}"
+MY_PV="${MY_PV/1.9.1/3.5.1}"
 MAJ_PV="${PV/_*/}"
-PATCH="${PN}-${MAJ_PV}-patches-0.1"
+PATCH="${PN}-${MAJ_PV}-patches-0.2"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -63,9 +63,6 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
-
-	# bug 276018 upstreamed, remove in 1.9.2
-	epatch "${FILESDIR}/${PV}/067-force-bundled-ply.patch"
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
