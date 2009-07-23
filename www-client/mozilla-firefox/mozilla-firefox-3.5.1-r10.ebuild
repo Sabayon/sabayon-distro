@@ -16,8 +16,8 @@ XUL_PV="1.9.1"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 MY_PV="${PV/_beta/b}" # Handle betas for SRC_URI
 MY_PV="${PV/_/}" # Handle rcs for SRC_URI
-MY_PV="${MY_PV/1.9.1/3.5}" # Why is this here?
-PATCH="${PN}-${MAJ_PV}-patches-0.1"
+MY_PV="${MY_PV/1.9.1/3.5.1}" # Why is this here?
+PATCH="${PN}-3.5-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -61,7 +61,7 @@ RDEPEND="
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 
-	>=net-libs/xulrunner-${XUL_PV}-r10[java=]
+	>=net-libs/xulrunner-${XUL_PV}-r11[java=]
 
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
@@ -69,7 +69,7 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
-PDEPEND="restrict-javascript? ( x11-plugins/noscript )"
+PDEPEND="restrict-javascript? ( >=x11-plugins/noscript-1.8.7 )"
 
 S="${WORKDIR}/mozilla-${XUL_PV}"
 
@@ -299,6 +299,8 @@ pkg_postinst() {
 	ewarn "All the packages built against ${PN} won't compile,"
 	ewarn "if after installing firefox 3.5 you get some blockers,"
 	ewarn "please add 'xulrunner' to your USE-flags."
+	ewarn "any package that fails to build warrants a bug report."
+
 	elog
 
 	# Update mimedb for the new .desktop file
