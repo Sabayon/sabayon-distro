@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.4.3-r1.ebuild,v 1.1 2009/02/13 09:07:16 zzam Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.4.3-r3.ebuild,v 1.3 2009/07/11 15:12:25 robbat2 Exp $
 
 inherit eutils flag-o-matic multilib toolchain-funcs
 
@@ -16,7 +16,6 @@ fi
 
 DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
 HOMEPAGE="http://roy.marples.name/openrc"
-HOSTNAME_CONF="/etc/conf.d/hostname"
 
 LICENSE="BSD-2"
 SLOT="0"
@@ -36,10 +35,9 @@ DEPEND="${RDEPEND}
 	virtual/os-headers"
 
 pkg_setup() {
-	LIBDIR="lib"
-	[ "${SYMLINK_LIB}" = "yes" ] && LIBDIR=$(get_abi_LIBDIR "${DEFAULT_ABI}")
+	unset LIBDIR #266688
 
-	MAKE_ARGS="${MAKE_ARGS} LIBNAME=${LIBDIR}"
+	MAKE_ARGS="${MAKE_ARGS} LIBNAME=$(get_libdir)"
 
 	local brand="Unknown"
 	if use kernel_linux ; then
@@ -63,15 +61,9 @@ src_unpack() {
 		unpack ${A}
 	fi
 	cd "${S}"
-	epatch "${FILESDIR}"/0.4.2/0001-msg-style.patch
-	epatch "${FILESDIR}"/0.4.2/0002-useful-functions.patch
-	epatch "${FILESDIR}"/0.4.2/0003-KV.patch
-	epatch "${FILESDIR}"/openrc-0.4.3-fix-is_older_than.patch
-
-	# Sabayon patches
-	epatch "${FILESDIR}"/${P}-disable_warnings_until_migrated.patch
-	epatch "${FILESDIR}"/${P}-enable_rc_logger.patch
-	epatch "${FILESDIR}"/${P}-tweak_hwclock_options.patch
+	sed -i 's:0444:0644:' mk/sys.mk
+	epatch "${FILESDIR}"/0.4.2/*
+	epatch "${FILESDIR}"/0.4.3/*
 }
 
 src_compile() {
@@ -86,17 +78,21 @@ src_compile() {
 	fi
 
 	tc-export CC AR RANLIB
-	echo emake ${MAKE_ARGS}
 	emake ${MAKE_ARGS} || die "emake ${MAKE_ARGS} failed"
 }
 
 src_install() {
-	emake ${MAKE_ARGS} DESTDIR="${D}" install || die "make install failed"
+	emake ${MAKE_ARGS} DESTDIR="${D}" install || die
+
+	# move the shared libs back to /usr so ldscript can install
+	# more of a minimal set of files
+	# disabled for now due to #270646
+	#mv "${D}"/$(get_libdir)/lib{einfo,rc}* "${D}"/usr/$(get_libdir)/ || die
+	#gen_usr_ldscript -a einfo rc
 	gen_usr_ldscript libeinfo.so
 	gen_usr_ldscript librc.so
 
-	keepdir /"${LIBDIR}"/rc/init.d
-	keepdir /"${LIBDIR}"/rc/tmp
+	keepdir /$(get_libdir)/rc/{init.d,tmp}
 
 	# Backup our default runlevels
 	dodir /usr/share/"${PN}"
@@ -107,10 +103,6 @@ src_install() {
 
 	# Cater to the norm
 	(use x86 || use amd64) && sed -i -e '/^windowkeys=/s:NO:YES:' "${D}"/etc/conf.d/keymaps
-
-	# Sabayon hack, remove conf.d/hostname since it's always created by the installer
-	mv ${D}/etc/conf.d/hostname ${D}/etc/conf.d/hostname.example || die "cannot move hostname config"
-
 }
 
 add_boot_init() {
@@ -133,14 +125,7 @@ add_boot_init_mit_config() {
 }
 
 pkg_preinst() {
-
-	# backup user hostname setting
-        if [ -f "${HOSTNAME_CONF}" ]; then
-                cp -p "${HOSTNAME_CONF}" "${HOSTNAME_CONF}.sabayon_backup"
-        fi
-
-
-	local f
+	local f LIBDIR=$(get_libdir)
 
 	# default net script is just comments, so no point in biting people
 	# in the ass by accident
@@ -291,14 +276,7 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-
-        # copy hostname file over
-        if [ -f "${HOSTNAME_CONF}.sabayon_backup" ]; then
-                cp ${HOSTNAME_CONF}.sabayon_backup ${HOSTNAME_CONF} -p
-	elif [ -f "${HOSTNAME_CONF}.example" ]; then
-		cp ${HOSTNAME_CONF}.example ${HOSTNAME_CONF} -p
-        fi
-
+	local LIBDIR=$(get_libdir)
 
 	# Remove old baselayout links
 	rm -f "${ROOT}"/etc/runlevels/boot/{check{fs,root},rmnologin}
