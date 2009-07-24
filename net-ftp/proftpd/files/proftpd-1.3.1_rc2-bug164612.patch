@@ -1,0 +1,23 @@
+--- modules/mod_lang.c	2007/01/19 21:59:44	1.4
++++ modules/mod_lang.c	2007/01/19 23:01:25	1.5
+@@ -262,10 +262,19 @@
+ 
+ static int lang_init(void) {
+   if (setlocale(LC_ALL, "") == NULL) {
+-    pr_log_pri(PR_LOG_NOTICE, "unable to set locale: %s", strerror(errno));
++    pr_log_pri(PR_LOG_NOTICE, "unable to set LC_ALL: %s", strerror(errno));
+     return -1;
+   }
+ 
++  /* Preserve the POSIX/portable handling of number formatting; local
++   * formatting of decimal points, for example, can cause problems with
++   * numbers in SQL queries.
++   */
++  if (setlocale(LC_NUMERIC, "C") == NULL) {
++    pr_log_pri(PR_LOG_NOTICE, "unable to set LC_NUMERIC: %s",
++      strerror(errno));
++  }
++
+   lang_pool = make_sub_pool(permanent_pool);
+   pr_pool_tag(lang_pool, MOD_LANG_VERSION);
+ 
