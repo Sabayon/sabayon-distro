@@ -1,6 +1,6 @@
 diff -Nurp genkernel-3.4.10.904.orig/defaults/initrd.scripts genkernel-3.4.10.904/defaults/initrd.scripts
---- genkernel-3.4.10.904.orig/defaults/initrd.scripts	2009-04-24 02:14:54.000000000 +0200
-+++ genkernel-3.4.10.904/defaults/initrd.scripts	2009-06-27 11:53:46.788104752 +0200
+--- genkernel-3.4.10.905.orig/defaults/initrd.scripts
++++ genkernel-3.4.10.905/defaults/initrd.scripts
 @@ -794,6 +794,8 @@ sdelay() {
  	if [ -n "${SDELAY}" ]
  	then
@@ -11,8 +11,8 @@ diff -Nurp genkernel-3.4.10.904.orig/defaults/initrd.scripts genkernel-3.4.10.90
  		sleep 1
  	fi
 diff -Nurp genkernel-3.4.10.904.orig/defaults/initrd.scripts.orig genkernel-3.4.10.904/defaults/initrd.scripts.orig
---- genkernel-3.4.10.904.orig/defaults/initrd.scripts.orig	1970-01-01 01:00:00.000000000 +0100
-+++ genkernel-3.4.10.904/defaults/initrd.scripts.orig	2009-04-24 02:14:54.000000000 +0200
+--- genkernel-3.4.10.905.orig/defaults/initrd.scripts.orig
++++ genkernel-3.4.10.905/defaults/initrd.scripts.orig
 @@ -0,0 +1,989 @@
 +#!/bin/ash
 +
