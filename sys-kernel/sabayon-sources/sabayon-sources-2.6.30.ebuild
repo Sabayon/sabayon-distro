@@ -4,6 +4,7 @@
 HOMEPAGE="http://www.sabayon.org"
 DESCRIPTION="Sabayon Linux kernel sources meta-package (makes wolfden happy)"
 IUSE=""
+KEYWORDS="~amd64 ~x86"
 SRC_URI=""
 SLOT="${PV}"
 DEPEND=""
