@@ -113,9 +113,8 @@ DEPEND="${COMMON_DEPEND}
 	x11-proto/xineramaproto
 	>=sys-apps/findutils-4.1.20-r1
 	dev-perl/Archive-Zip
-	virtual/perl-Compress-Zlib
-	>=virtual/perl-Compress-Raw-Zlib-2.002
-	virtual/perl-IO-Compress-Base
+	( || ( virtual/perl-IO-Compress-Base virtual/perl-Compress-Zlib >=virtual/perl-Compress-Raw-Zlib-2.002 )
+		virtual/perl-IO-Compress )
 	dev-util/pkgconfig
 	dev-util/intltool
 	>=dev-libs/boost-1.33.1
