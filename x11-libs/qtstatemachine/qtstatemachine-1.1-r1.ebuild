@@ -3,7 +3,7 @@
 # $
 
 EAPI="2"
-inherit eutils base multilib
+inherit eutils cmake-utils
 
 DESCRIPTION="Qt State Machine Framework"
 SLOT="4"
@@ -22,34 +22,17 @@ DEPEND="${RDEPEND}"
 S="${WORKDIR}/${P}-opensource"
 
 src_prepare() {
-
+	# Add some bugfix patches
 	epatch "${FILESDIR}/"qstatemachines*.patch_*
-
-}
-
-src_configure() {
-
-	# build system is utterly broken
-	echo "yes" | ./configure -library || die "configure failed"
-
-}
-
-src_compile() {
-	qmake -makefile -nocache || die "qmake failed"
-	emake || "make failed"
-}
-
-src_install() {
-
-	# build system is broken
-	dolib.so lib/*
-
 }
 
 pkg_postinst() {
+
 	ewarn "This package is VERY EXPERIMENTAL."
-	ewarn "Its build system is utterly broken."
+	ewarn "Its build system is utterly broken (see CMake patch)."
 	ewarn "No examples are installed because of the issue above"
 	ewarn "...and your cat will be eaten by a black hole!"
-	ewarn "plop!"
+	einfo "Say thanks to Vincenzo Di Massa for the hard"
+	einfo "patching work."
+
 }
