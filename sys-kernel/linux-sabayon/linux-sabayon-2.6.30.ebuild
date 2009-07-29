@@ -119,6 +119,19 @@ pkg_preinst() {
 	mount-boot_mount_boot_partition
 	linux-mod_pkg_preinst
 	UPDATE_MODULEDB=false
+
+	# Workaround kernel issue with colliding
+	# firmwares across different kernel versions
+	for fwfile in `find "${D}/lib/firmware" -type f`; do
+
+		sysfile="/lib/firmware/$(basename ${fwfile})"
+		if [ -f "${sysfile}" ]; then
+			ewarn "Removing duplicated: ${sysfile}"
+			rm ${sysfile} || die "failed to remove ${sysfile}"
+		fi
+
+	done
+
 }
 
 pkg_postinst() {
