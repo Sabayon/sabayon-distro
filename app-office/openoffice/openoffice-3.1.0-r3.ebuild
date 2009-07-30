@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.1.0.ebuild,v 1.2 2009/05/19 11:26:36 suka Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.1.0-r1.ebuild,v 1.2 2009/07/27 09:06:16 suka Exp $
 
 WANT_AUTOMAKE="1.9"
 EAPI="2"
@@ -64,9 +64,9 @@ COMMON_DEPEND="!app-office/openoffice-bin
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	>=dev-lang/perl-5.0
+	>=dev-libs/glib-2.18
 	dbus? ( >=dev-libs/dbus-glib-0.71 )
 	gnome? ( >=x11-libs/gtk+-2.10
-		>=gnome-base/gnome-vfs-2.6
 		>=gnome-base/gconf-2.0
 		>=x11-libs/cairo-1.0.2 )
 	gtk? ( >=x11-libs/gtk+-2.10
@@ -76,12 +76,14 @@ COMMON_DEPEND="!app-office/openoffice-bin
 			>=media-libs/gst-plugins-base-0.10 )
 	kde? ( kde-base/kdelibs:3.5 )
 	java? ( >=dev-java/bsh-2.0_beta4
-		>=dev-db/hsqldb-1.8.0.9 )
+		>=dev-db/hsqldb-1.8.0.9
+		dev-java/lucene:2.3
+		dev-java/lucene-analyzers:2.3
+		dev-java/rhino:1.5 )
 	mono? ( || ( >dev-lang/mono-2.4-r1 <dev-lang/mono-2.4 ) )
 	nsplugin? ( || ( net-libs/xulrunner:1.8 net-libs/xulrunner:1.9 =www-client/seamonkey-1* )
 		>=dev-libs/nspr-4.6.6
-		>=dev-libs/nss-3.11-r1
-		!>=www-client/mozilla-firefox-3.0.99 )
+		>=dev-libs/nss-3.11-r1 )
 	opengl? ( virtual/opengl
 		virtual/glu )
 	>=net-misc/neon-0.24.7
@@ -98,6 +100,7 @@ COMMON_DEPEND="!app-office/openoffice-bin
 	>=dev-libs/icu-4.0
 	>=sys-libs/db-4.3
 	>=app-text/libwpd-0.8.8
+	>=dev-libs/redland-1.0.8
 	>=media-libs/vigra-1.4
 	>=virtual/poppler-0.8.0"
 
@@ -113,8 +116,8 @@ DEPEND="${COMMON_DEPEND}
 	x11-proto/xineramaproto
 	>=sys-apps/findutils-4.1.20-r1
 	dev-perl/Archive-Zip
-	( || ( virtual/perl-IO-Compress-Base virtual/perl-Compress-Zlib >=virtual/perl-Compress-Raw-Zlib-2.002 )
-		virtual/perl-IO-Compress )
+	virtual/perl-IO-Compress
+	>=virtual/perl-Compress-Raw-Zlib-2.002
 	dev-util/pkgconfig
 	dev-util/intltool
 	>=dev-libs/boost-1.33.1
@@ -204,6 +207,10 @@ src_unpack() {
 
 	unpack ooo-build-${MY_PV}.tar.gz
 
+}
+
+src_prepare() {
+
 	# Hackish workaround for overlong path problem, see bug #130837
 	mv "${S_OLD}" "${S}" || die
 
@@ -213,6 +220,9 @@ src_unpack() {
 	epatch "${FILESDIR}/ooo-env_log.diff"
 	cp -f "${FILESDIR}/base64.diff" "${S}/patches/hotfixes" || die
 	cp -f "${FILESDIR}/buildfix-gcc44.diff" "${S}/patches/hotfixes" || die
+	cp -f "${FILESDIR}/solenv.workaround-for-the-kde-mess.diff" "${S}/patches/hotfixes" || die
+	cp -f "${FILESDIR}/xulrunner-1.9.1.diff" "${S}/patches/hotfixes" || die
+
 	
 	#Use flag checks
 	if use java ; then
@@ -222,8 +232,13 @@ src_unpack() {
 		echo "--with-jvm-path=/usr/$(get_libdir)/" >> ${CONFFILE}
 		echo "--with-system-beanshell" >> ${CONFFILE}
 		echo "--with-system-hsqldb" >> ${CONFFILE}
+		echo "--with-system-lucene" >> ${CONFFILE}
+		echo "--with-system-rhino" >> ${CONFFILE}
 		echo "--with-beanshell-jar=$(java-pkg_getjar bsh bsh.jar)" >> ${CONFFILE}
 		echo "--with-hsqldb-jar=$(java-pkg_getjar hsqldb hsqldb.jar)" >> ${CONFFILE}
+		echo "--with-lucene-core-jar=$(java-pkg_getjar lucene-2.3 lucene-core.jar)" >> ${CONFFILE}
+		echo "--with-lucene-analyzers-jar=$(java-pkg_getjar lucene-analyzers-2.3 lucene-analyzers.jar)" >> ${CONFFILE}
+		echo "--with-rhino-jar=$(java-pkg_getjar rhino-1.5 js.jar)" >> ${CONFFILE}
 	fi
 
 	if use nsplugin ; then
@@ -239,7 +254,8 @@ src_unpack() {
 	echo $(use_enable dbus) >> ${CONFFILE}
 	echo $(use_enable eds evolution2) >> ${CONFFILE}
 	echo $(use_enable gnome gconf) >> ${CONFFILE}
-	echo $(use_enable gnome gnome-vfs) >> ${CONFFILE}
+	echo $(use_enable gnome gio) >> ${CONFFILE}
+	echo "--disable-gnome-vfs" >> ${CONFFILE}
 	echo $(use_enable gnome lockdown) >> ${CONFFILE}
 	echo $(use_enable gstreamer) >> ${CONFFILE}
 	echo $(use_enable gtk systray) >> ${CONFFILE}
@@ -258,6 +274,10 @@ src_unpack() {
 	echo "--without-writer2latex" >> ${CONFFILE}
 
 	# Use splash screen without Sun logo
+
+	# Upstream this
+	echo "--with-system-redland" >> ${CONFFILE}
+
     echo "--with-intro-bitmaps=\\\"${FILESDIR}/intro-3.1.bmp\\\"" >> ${CONFFILE}
     echo "--with-about-bitmaps=\\\"${FILESDIR}/about-3.1.bmp\\\"" >> ${CONFFILE}
     
@@ -275,14 +295,14 @@ src_configure() {
 	filter-flags "-funroll-loops"
 	filter-flags "-fprefetch-loop-arrays"
 	filter-flags "-fno-default-inline"
-	filter-flags "-fstack-protector"
-	filter-flags "-fstack-protector-all"
 	filter-flags "-ftracer"
 	filter-flags "-fforce-addr"
 
 	filter-flags "-O[s2-9]"
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
+		filter-flags "-fstack-protector"
+		filter-flags "-fstack-protector-all"
 		replace-flags "-fomit-frame-pointer" "-momit-leaf-frame-pointer"
 	fi
 
@@ -306,6 +326,7 @@ src_configure() {
 		--without-binsuffix \
 		--with-installed-ooo-dirname="openoffice" \
 		--with-tag="${MST}" \
+		--with-drink="True Blood" \
 		${GTKFLAG} \
 		$(use_enable mono) \
 		$(use_enable kde) \
