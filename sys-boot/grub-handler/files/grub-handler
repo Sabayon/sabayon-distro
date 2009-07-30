@@ -137,7 +137,6 @@ def remove_boot_grub(kernel, initramfs):
 
 def boot_device_translation(boot_dev):
 
-    found_in_grub_conf = False
     if os.access(GRUB_CONF, os.R_OK | os.F_OK):
 
         f_grub = open(GRUB_CONF, "r")
@@ -147,9 +146,8 @@ def boot_device_translation(boot_dev):
         if stored_boot_dev:
             stored_boot_dev = stored_boot_dev[0]
             boot_dev = "/dev/" + stored_boot_dev[len("#boot="):]
-            found_in_grub_conf = True
 
-    if boot_dev.startswith("/dev/md") and not found_in_grub_conf:
+    if boot_dev.startswith("/dev/md"):
 
         boot_dev = os.path.realpath(boot_dev)
         md_dev = os.path.basename(boot_dev)
