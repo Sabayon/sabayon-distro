@@ -1,5 +1,5 @@
---- a/src/NetworkManager.conf
-+++ b/src/NetworkManager.conf
+--- src/NetworkManager.conf.orig	2006-10-28 04:43:50.426682976 +0100
++++ src/NetworkManager.conf	2006-10-28 04:44:36.883620448 +0100
 @@ -8,14 +8,14 @@
                  <allow send_destination="org.freedesktop.NetworkManager"/>
                  <allow send_interface="org.freedesktop.NetworkManager"/>
