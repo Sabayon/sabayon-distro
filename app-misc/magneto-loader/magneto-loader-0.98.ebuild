@@ -14,7 +14,7 @@ SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/entropy-${PV}.tar.bz2"
 RESTRICT="mirror"
 S="${WORKDIR}/entropy-${PV}"
 
-DEPEND="~sys-apps/entropy-core-${PV}"
+DEPEND="~sys-apps/magneto-core-${PV}"
 RDEPEND="${DEPEND}"
 
 src_compile() {
