@@ -1,0 +1,264 @@
+From 32322188acdf60d7edd60b1eb8a9cbbe6f59a390 Mon Sep 17 00:00:00 2001
+From: Dan Williams <dcbw@redhat.com>
+Date: Wed, 13 May 2009 15:16:29 +0000
+Subject: wifi: handle unsolicited supplicant scans
+
+With supplicant patches, this allows NM to figure out when the supplicant
+is performing an unsolicited scan, and thus to not run periodic_update()
+when the supplicant is scanning.
+
+This fixes some of the causes of "roaming to none", especially in hidden
+SSID networks.  In those cases, after NM had requested a broadcast scan,
+the hidden SSID AP would likely not show up in the scan results, leading
+to the supplicant performing a specific SSID scan that NetworkManager
+was unaware of.  While that specific SSID scan was going on, NM could
+run periodic_update() and pull the wrong frequency off the card,
+leading to the "roaming to none" message when the associated AP with
+the wrong frequency could not be found in the scan list.
+---
+diff --git a/src/nm-device-wifi.c b/src/nm-device-wifi.c
+index 7806c91..f3d0acc 100644
+--- a/src/nm-device-wifi.c
++++ b/src/nm-device-wifi.c
+@@ -152,7 +152,6 @@ struct _NMDeviceWifiPrivate {
+ 	gboolean          enabled; /* rfkilled or not */
+ 	guint             state_to_disconnected_id;
+ 	
+-	gboolean          scanning;
+ 	glong             scheduled_scan_time;
+ 	guint8            scan_interval; /* seconds */
+ 	guint             pending_scan_id;
+@@ -461,7 +460,6 @@ nm_device_wifi_init (NMDeviceWifi * self)
+ 	NMDeviceWifiPrivate *priv = NM_DEVICE_WIFI_GET_PRIVATE (self);
+ 
+ 	priv->dispose_has_run = FALSE;
+-	priv->scanning = FALSE;
+ 	priv->ap_list = NULL;
+ 	priv->we_version = 0;
+ 
+@@ -966,7 +964,7 @@ nm_device_wifi_periodic_update (gpointer data)
+ 	if (state != NM_DEVICE_STATE_ACTIVATED)
+ 		goto out;
+ 
+-	if (priv->scanning)
++	if (nm_supplicant_interface_get_scanning (priv->supplicant.iface))
+ 		goto out;
+ 
+ 	periodic_update (self);
+@@ -2362,6 +2360,7 @@ supplicant_iface_connection_state_cb_handler (gpointer user_data)
+ 	NMDeviceWifi *self = task->self;
+ 	NMDeviceWifiPrivate *priv = NM_DEVICE_WIFI_GET_PRIVATE (self);
+ 	NMDevice *dev = NM_DEVICE (self);
++	gboolean scanning;
+ 
+ 	if (!nm_device_get_act_request (dev)) {
+ 		/* The device is not activating or already activated; do nothing. */
+@@ -2373,7 +2372,7 @@ supplicant_iface_connection_state_cb_handler (gpointer user_data)
+ 	         nm_supplicant_interface_connection_state_to_string (task->old_state),
+ 	         nm_supplicant_interface_connection_state_to_string (task->new_state));
+ 
+-	priv->scanning = (task->new_state == NM_SUPPLICANT_INTERFACE_CON_STATE_SCANNING);
++	scanning = nm_supplicant_interface_get_scanning (priv->supplicant.iface);
+ 
+ 	if (task->new_state == NM_SUPPLICANT_INTERFACE_CON_STATE_COMPLETED) {
+ 		remove_supplicant_interface_error_handler (self);
+@@ -2399,7 +2398,7 @@ supplicant_iface_connection_state_cb_handler (gpointer user_data)
+ 			 * while to scan.
+ 			 */
+ 			if (!priv->link_timeout_id) {
+-				priv->link_timeout_id = g_timeout_add_seconds (priv->scanning ? 30 : 15,
++				priv->link_timeout_id = g_timeout_add_seconds (scanning ? 30 : 15,
+ 				                                               link_timeout_cb, self);
+ 			}
+ 		}
+diff --git a/src/supplicant-manager/nm-supplicant-interface.c b/src/supplicant-manager/nm-supplicant-interface.c
+index 8e3fd6f..32bbdfa 100644
+--- a/src/supplicant-manager/nm-supplicant-interface.c
++++ b/src/supplicant-manager/nm-supplicant-interface.c
+@@ -92,6 +92,7 @@ enum {
+ 	PROP_DEVICE,
+ 	PROP_STATE,
+ 	PROP_CONNECTION_STATE,
++	PROP_SCANNING,
+ 	LAST_PROP
+ };
+ 
+@@ -110,6 +111,7 @@ typedef struct
+ 	NMCallStore *         other_pcalls;
+ 
+ 	guint32               con_state;
++	gboolean              scanning;
+ 
+ 	DBusGProxy *          iface_proxy;
+ 	DBusGProxy *          net_proxy;
+@@ -243,12 +245,6 @@ nm_supplicant_interface_set_property (GObject *      object,
+ 			/* Construct-only */
+ 			priv->dev = g_strdup (g_value_get_string (value));
+ 			break;
+-		case PROP_STATE:
+-			/* warn on setting read-only property */
+-			break;
+-		case PROP_CONNECTION_STATE:
+-			/* warn on setting read-only property */
+-			break;
+ 		default:
+ 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+ 			break;
+@@ -276,6 +272,9 @@ nm_supplicant_interface_get_property (GObject *     object,
+ 		case PROP_CONNECTION_STATE:
+ 			g_value_set_uint (value, priv->con_state);
+ 			break;
++		case PROP_SCANNING:
++			g_value_set_boolean (value, priv->scanning);
++			break;
+ 		default:
+ 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+ 			break;
+@@ -395,6 +394,14 @@ nm_supplicant_interface_class_init (NMSupplicantInterfaceClass *klass)
+ 	                                                    NM_SUPPLICANT_INTERFACE_STATE_INIT,
+ 	                                                    G_PARAM_READABLE));
+ 
++	g_object_class_install_property (object_class,
++	                                 PROP_SCANNING,
++	                                 g_param_spec_boolean ("scanning",
++	                                                    "Scanning",
++	                                                    "Scanning",
++	                                                    FALSE,
++	                                                    G_PARAM_READABLE));
++
+ 	/* Signals */
+ 	nm_supplicant_interface_signals[STATE] =
+ 		g_signal_new ("state",
+@@ -601,23 +608,22 @@ wpas_state_string_to_enum (const char * str_state)
+ {
+ 	guint32 enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_DISCONNECTED;
+ 
+-	if (!strcmp (str_state, "DISCONNECTED")) {
++	if (!strcmp (str_state, "DISCONNECTED"))
+ 		enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_DISCONNECTED;
+-	} else if (!strcmp (str_state, "INACTIVE")) {
++	else if (!strcmp (str_state, "INACTIVE"))
+ 		enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_INACTIVE;
+-	} else if (!strcmp (str_state, "SCANNING")) {
++	else if (!strcmp (str_state, "SCANNING"))
+ 		enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_SCANNING;
+-	} else if (!strcmp (str_state, "ASSOCIATING")) {
++	else if (!strcmp (str_state, "ASSOCIATING"))
+ 		enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_ASSOCIATING;
+-	} else if (!strcmp (str_state, "ASSOCIATED")) {
++	else if (!strcmp (str_state, "ASSOCIATED"))
+ 		enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_ASSOCIATED;
+-	} else if (!strcmp (str_state, "4WAY_HANDSHAKE")) {
++	else if (!strcmp (str_state, "4WAY_HANDSHAKE"))
+ 		enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_4WAY_HANDSHAKE;
+-	} else if (!strcmp (str_state, "GROUP_HANDSHAKE")) {
++	else if (!strcmp (str_state, "GROUP_HANDSHAKE"))
+ 		enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_GROUP_HANDSHAKE;
+-	} else if (!strcmp (str_state, "COMPLETED")) {
++	else if (!strcmp (str_state, "COMPLETED"))
+ 		enum_state = NM_SUPPLICANT_INTERFACE_CON_STATE_COMPLETED;
+-	}
+ 
+ 	return enum_state;
+ }
+@@ -682,6 +688,68 @@ wpas_iface_get_state (NMSupplicantInterface *self)
+ }
+ 
+ static void
++iface_scanning_cb (DBusGProxy *proxy, DBusGProxyCall *call_id, gpointer user_data)
++{
++	NMSupplicantInfo *info = (NMSupplicantInfo *) user_data;
++	NMSupplicantInterfacePrivate *priv = NM_SUPPLICANT_INTERFACE_GET_PRIVATE (info->interface);
++	gboolean scanning = FALSE;
++
++	if (dbus_g_proxy_end_call (proxy, call_id, NULL,
++	                            G_TYPE_BOOLEAN, &scanning,
++	                            G_TYPE_INVALID)) {
++		if (scanning != priv->scanning) {
++			priv->scanning = scanning;
++			g_object_notify (G_OBJECT (info->interface), "scanning");
++		}
++	}
++}
++
++static void
++wpas_iface_get_scanning (NMSupplicantInterface *self)
++{
++	NMSupplicantInterfacePrivate *priv = NM_SUPPLICANT_INTERFACE_GET_PRIVATE (self);
++	NMSupplicantInfo *info;
++	DBusGProxyCall *call;
++
++	info = nm_supplicant_info_new (self, priv->iface_proxy, priv->other_pcalls);
++	call = dbus_g_proxy_begin_call (priv->iface_proxy, "scanning",
++	                                iface_scanning_cb,
++	                                info,
++	                                nm_supplicant_info_destroy,
++	                                G_TYPE_INVALID);
++	nm_supplicant_info_set_call (info, call);
++}
++
++static void
++wpas_iface_handle_scanning (DBusGProxy *proxy,
++                            gboolean scanning,
++                            gpointer user_data)
++{
++	NMSupplicantInterface *self = NM_SUPPLICANT_INTERFACE (user_data);
++	NMSupplicantInterfacePrivate *priv = NM_SUPPLICANT_INTERFACE_GET_PRIVATE (self);
++
++	if (scanning != priv->scanning) {
++		priv->scanning = scanning;
++		g_object_notify (G_OBJECT (self), "scanning");
++	}
++}
++
++gboolean
++nm_supplicant_interface_get_scanning (NMSupplicantInterface *self)
++{
++	NMSupplicantInterfacePrivate *priv;
++
++	g_return_val_if_fail (self != NULL, FALSE);
++
++	priv = NM_SUPPLICANT_INTERFACE_GET_PRIVATE (self);
++	if (priv->scanning)
++		return TRUE;
++	if (priv->con_state == NM_SUPPLICANT_INTERFACE_CON_STATE_SCANNING)
++		return TRUE;
++	return FALSE;
++}
++
++static void
+ nm_supplicant_interface_add_cb (DBusGProxy *proxy, DBusGProxyCall *call_id, gpointer user_data)
+ {
+ 	NMSupplicantInfo *info = (NMSupplicantInfo *) user_data;
+@@ -732,8 +800,16 @@ nm_supplicant_interface_add_cb (DBusGProxy *proxy, DBusGProxyCall *call_id, gpoi
+ 		                             info->interface,
+ 		                             NULL);
+ 
++		dbus_g_proxy_add_signal (priv->iface_proxy, "Scanning", G_TYPE_BOOLEAN, G_TYPE_INVALID);
++
++		dbus_g_proxy_connect_signal (priv->iface_proxy, "Scanning",
++		                             G_CALLBACK (wpas_iface_handle_scanning),
++		                             info->interface,
++		                             NULL);
++
+ 		/* Interface added to the supplicant; get its initial state. */
+ 		wpas_iface_get_state (info->interface);
++		wpas_iface_get_scanning (info->interface);
+ 	}
+ }
+ 
+diff --git a/src/supplicant-manager/nm-supplicant-interface.h b/src/supplicant-manager/nm-supplicant-interface.h
+index 742aeb1..bee5436 100644
+--- a/src/supplicant-manager/nm-supplicant-interface.h
++++ b/src/supplicant-manager/nm-supplicant-interface.h
+@@ -138,6 +138,8 @@ const char *nm_supplicant_interface_state_to_string (guint32 state);
+ 
+ const char *nm_supplicant_interface_connection_state_to_string (guint32 state);
+ 
++gboolean nm_supplicant_interface_get_scanning (NMSupplicantInterface *self);
++
+ G_END_DECLS
+ 
+ #endif	/* NM_SUPPLICANT_INTERFACE_H */
+--
+cgit v0.8.2
