@@ -164,10 +164,12 @@ pkg_postinst() {
 	einfo "Please report kernel bugs at:"
 	einfo "http://bugs.sabayonlinux.org"
 
-	ewarn "Sabayon Linux kernel source code is now located into"
+	ewarn "The Sabayon Linux kernel source code is now located at"
 	ewarn "=sys-kernel/linux-sabayon-sources-${PVR}."
-	ewarn "If you want to build your own modules and make them"
-	ewarn "working with this kernel, you must install it."
+	ewarn "Sabayon Linux recommends that portage users install"
+	ewarn "sys-kernel/linux-sabayon-sources-${PVR} if you want"
+	ewarn "to build any packages that install kernel modules"
+	ewarn "(such as ati-drivers, nvidia-drivers, virtualbox, etc...)."
 
 }
 
