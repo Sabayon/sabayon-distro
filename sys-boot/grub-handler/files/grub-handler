@@ -198,8 +198,10 @@ def get_grub_boot_dev():
     mount_data = [x.split() for x in f_fstab.readlines()]
     f_fstab.close()
     # filter out bogus devices
+    mount_data = [x for x in mount_data if x]
     mount_data = [x for x in mount_data if x[0].startswith("/") or \
         x[0].startswith("UUID=") or x[0].startswith('LABEL=')]
+    
     mount_hash = {}
     for item in mount_data:
         solved_dev = resolve_device(item[0])
