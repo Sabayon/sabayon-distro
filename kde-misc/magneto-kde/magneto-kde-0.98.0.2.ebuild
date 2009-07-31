@@ -4,7 +4,7 @@
 EAPI="2"
 inherit eutils python
 
-DESCRIPTION="Official Sabayon Linux Entropy Notification Applet (GTK version)"
+DESCRIPTION="Official Sabayon Linux Entropy Notification Applet (KDE/Qt version)"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-2"
 SLOT="0"
