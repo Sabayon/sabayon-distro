@@ -3,6 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.7.1-r6.ebuild,v 1.2 2009/07/12 14:43:32 rbu Exp $
 
 EAPI="2"
+WANT_AUTOMAKE="1.9"
 inherit eutils autotools
 
 PATCH_VERSION="1b"
@@ -49,7 +50,7 @@ DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	dev-util/intltool
 	net-dialup/ppp
-	doc? ( >=dev-util/gtk-doc-1.8 )"
+	>=dev-util/gtk-doc-1.8"
 
 PDEPEND=">=net-misc/modemmanager-0.2"
 
@@ -79,7 +80,10 @@ src_prepare() {
 		epatch ${patch}
 	done
 
-	./autogen.sh
+	cd "${S}"
+	gtkdocize || die "failed to run gtkdocize"
+	eautoreconf
+	intltoolize --force || die "failed to run intltoolize"
 	eautoreconf
 
 }
@@ -89,6 +93,7 @@ src_configure() {
 		--localstatedir=/var
 		--with-distro=gentoo
 		--with-dbus-sys-dir=/etc/dbus-1/system.d
+		--with-tests=no
 		$(use_enable doc gtk-doc)
 		$(use_with doc docs)
 		$(use_with resolvconf)"
@@ -116,6 +121,12 @@ src_configure() {
 	fi
 
 	econf ${ECONF}
+
+	# XXX: lame hack to fix build system when building
+	# with --with-tests=no, this ebuild is going to die
+	# soon so, we don't care
+	sed -i 's/tests//' src/supplicant-manager/Makefile
+
 }
 
 src_install() {
