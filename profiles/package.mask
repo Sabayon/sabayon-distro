@@ -51,3 +51,8 @@ app-emulation/qemu-gui
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Mask Unstable Miro versions
 >media-tv/miro-2.0.5
+
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+# Mask imlib2 version used on Branch 5
+# by E17 stuff
+=media-libs/imlib2-9999
