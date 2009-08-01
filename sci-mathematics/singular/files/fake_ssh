@@ -1,0 +1,5 @@
+#!/bin/bash
+# strip hostname -n from command line
+runme="$(echo $@ | sed -e 's:.* -n \(.*\):\1:')"
+# do what -n should have done
+${runme} < /dev/null
