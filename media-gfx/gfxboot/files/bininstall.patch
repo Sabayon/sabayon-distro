@@ -1,0 +1,13 @@
+--- Makefile.old	2006-09-14 16:02:58.000000000 +0600
++++ Makefile	2007-03-28 19:10:21.000000000 +0600
+@@ -40,8 +40,8 @@
+ 	as --32 -ahlsn=jpeg.lst -o $@ $<
+ 
+ install: all
+-	install -d -m 755 $(DESTDIR)/usr/sbin $(DESTDIR)/usr/share/gfxboot
+-	install -m 755 mkbootmsg mkblfont help2txt $(DESTDIR)/usr/sbin
++	install -d -m 755 $(DESTDIR)/usr/bin $(DESTDIR)/usr/share/gfxboot
++	install -m 755 mkbootmsg mkblfont help2txt $(DESTDIR)/usr/bin
+ 	cp -a themes $(DESTDIR)/usr/share/gfxboot
+ 	cp -a bin $(DESTDIR)/usr/share/gfxboot
+ 
