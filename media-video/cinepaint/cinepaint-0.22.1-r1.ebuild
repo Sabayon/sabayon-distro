@@ -51,7 +51,7 @@ src_unpack() {
 src_compile(){
 
 	# Filter --as-needed in LDFLAGS
-	filter-ldflags --as-needed
+	filter-ldflags "--as-needed"
 
 	econf $(use_enable gutenprint print) --enable-gtk2 || die "econf failed"
 	emake || die "emake failed"
