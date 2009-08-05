@@ -5,7 +5,7 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official GNOME artwork"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-4.1.95.tar.lzma"
+SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.lzma"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
@@ -36,7 +36,8 @@ src_install() {
 	cd ${S}/metacity
 	insinto /usr/share/themes
 	doins -r ./*
-
+	
+	# **Deprecated**
 	# GNOME splash
 	cd ${S}/gnome-splash
 	dodir /usr/share/pixmaps/splash
@@ -67,7 +68,6 @@ pkg_postinst () {
 	ewarn "Please run gtk-update-icon-cache and then restart"
 	ewarn "any gtk apps to see the icon theme changes"
 	ewarn " " 
-	einfo "This is a prelease - ${PVR}"
 	einfo "Please report bugs or glitches to"
 	einfo "bugs.sabayonlinux.org"
 }
