@@ -1,0 +1,13 @@
+Index: cinepaint-0.22-1/plug-ins/icc_examin/icc_examin/makefile.in
+===================================================================
+--- cinepaint-0.22-1.orig/plug-ins/icc_examin/icc_examin/makefile.in
++++ cinepaint-0.22-1/plug-ins/icc_examin/icc_examin/makefile.in
+@@ -242,7 +242,7 @@ $(CINEPAINT):	$(BASE) $(CINEPAINT_OBJECT
+ 	echo Verknuepfen $@ ...
+ 	$(CXX) $(CXXFLAGS_) `$(CP_FLAGS)` -o $@ \
+ 	$(CINEPAINT_OBJECTS) $(OBJECTS) \
+-	`$(CP_LIBS)` $(LDLIBS) $(LINK_LIB_PATH) $(LINK_SRC_PATH)
++	`$(CP_LIBS)` $(LDLIBS) $(LINK_LIB_PATH)
+ 	$(REZ)
+ 
+ 
