@@ -233,7 +233,7 @@ src_install() {
 	done
 
 	use xulrunner && prefs=preferences || prefs=pref
-	cp "${FILESDIR}"/"${PV}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/${prefs}/all-gentoo.js
+	cp "${FILESDIR}"/firefox-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/${prefs}/all-gentoo.js
 
 	local LANG=${linguas%% *}
 	if [[ -n ${LANG} && ${LANG} != "en" ]]; then

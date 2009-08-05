@@ -76,7 +76,7 @@ src_unpack() {
 	cd "${S}" || die "cd failed"
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${FILESDIR}"/${PV}/patches
+	epatch "${FILESDIR}"/9999-patches
 
 	if use iceweasel; then
 		sed -i -e "s|Minefield|Iceweasel|" browser/locales/en-US/chrome/branding/brand.* \
@@ -205,20 +205,20 @@ src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 	rm "${D}"/usr/bin/firefox
 
-	cp "${FILESDIR}"/"${PV}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
+	cp "${FILESDIR}"/firefox-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
 
 	# Install icon and .desktop for menu entry
 	if use iceweasel; then
 		newicon "${S}"/browser/base/branding/icon48.png iceweasel-icon.png
-		newmenu "${FILESDIR}"/"${PV}"/icon/iceweasel.desktop \
+		newmenu "${FILESDIR}"/icon/iceweasel.desktop \
 			mozilla-firefox-3.6a1pre.desktop
 	elif ! use bindist; then
 		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
-		newmenu "${FILESDIR}"/"${PV}"/icon/mozilla-firefox-1.5.desktop \
+		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
 			mozilla-firefox-3.6a1pre.desktop
 	else
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
-		newmenu "${FILESDIR}"/"${PV}"/icon/mozilla-firefox-1.5-unbranded.desktop \
+		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
 			mozilla-firefox-3.6a1pre.desktop
 		sed -i -e "s/Bon Echo/Shiretoko/" "${D}"/usr/share/applications/mozilla-firefox-3.6a1pre.desktop
 	fi

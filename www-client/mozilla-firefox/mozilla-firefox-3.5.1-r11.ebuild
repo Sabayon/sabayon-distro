@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: 
+# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.5.1-r2.ebuild,v 1.2 2009/08/03 13:34:40 nirbheek Exp $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
@@ -12,11 +12,11 @@ ka kk kn ko ku lt lv mk ml mn mr nb-NO nl nn-NO oc or pa-IN pl pt-BR pt-PT rm ro
 ru si sk sl sq sr sv-SE ta-LK ta te th tr uk vi zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
-XUL_PV="1.9.1"
+XUL_PV="1.9.1.1"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
+DESKTOP_PV="3.5"
 MY_PV="${PV/_beta/b}" # Handle betas for SRC_URI
 MY_PV="${PV/_/}" # Handle rcs for SRC_URI
-MY_PV="${MY_PV/1.9.1/3.5.1}" # Why is this here?
 PATCH="${PN}-3.5-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
@@ -25,7 +25,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist iceweasel java mozdevelop restrict-javascript" # qt-experimental
+IUSE="+alsa bindist iceweasel java mozdevelop restrict-javascript" # qt-experimental
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2
@@ -61,17 +61,18 @@ RDEPEND="
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 
-	>=net-libs/xulrunner-${XUL_PV}-r11[java=]
+	alsa? ( media-libs/alsa-lib )
 
+	>=net-libs/xulrunner-${XUL_PV}[java=]
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
-PDEPEND="restrict-javascript? ( >=x11-plugins/noscript-1.8.7 )"
+PDEPEND="restrict-javascript? ( >=www-plugins/noscript-1.8.7 )"
 
-S="${WORKDIR}/mozilla-${XUL_PV}"
+S="${WORKDIR}/mozilla-1.9.1"
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -108,10 +109,6 @@ pkg_setup(){
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
-
-	elog
-	elog "libgnomebreakpad now works with firefox so you can debug crashes using bug-buddy"
-	elog "If you don't have bug-buddy installed, ignore the gtk-warning at startup"
 }
 
 src_unpack() {
@@ -197,6 +194,8 @@ src_configure() {
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${XUL_PV}
+	mozconfig_use_enable alsa ogg
+	mozconfig_use_enable alsa wave
 
 	# IUSE mozdevelop
 	mozconfig_use_enable mozdevelop jsd
@@ -245,6 +244,8 @@ src_compile() {
 }
 
 src_install() {
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+
 	emake DESTDIR="${D}" install || die "emake install failed"
 	rm "${D}"/usr/bin/firefox
 
@@ -253,33 +254,26 @@ src_install() {
 		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
 	done
 
-	cp "${FILESDIR}"/"${PV}"/gentoo-default-prefs.js \
-		"${D}"${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js
-
-	local LANG=${linguas%% *}
-	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
-		elog "Setting default locale to ${LANG}"
-		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
-			${MOZILLA_FIVE_HOME}/defaults/preferences/firefox.js \
-			${MOZILLA_FIVE_HOME}/defaults/preferences/firefox-l10n.js || \
-			die "sed failed to change locale"
-	fi
-
 	# Install icon and .desktop for menu entry
 	if use iceweasel; then
 		newicon "${S}"/browser/base/branding/icon48.png iceweasel-icon.png
-		newmenu "${FILESDIR}"/"${PV}"/icon/iceweasel.desktop \
-			${PN}-${MAJ_PV}.desktop
+		newmenu "${FILESDIR}"/icon/iceweasel.desktop \
+			${PN}-${DESKTOP_PV}.desktop
 	elif ! use bindist; then
 		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
-		newmenu "${FILESDIR}"/"${PV}"/icon/mozilla-firefox-1.5.desktop \
-			${PN}-${MAJ_PV}.desktop
+		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
+			${PN}-${DESKTOP_PV}.desktop
 	else
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
-		newmenu "${FILESDIR}"/"${PV}"/icon/mozilla-firefox-1.5-unbranded.desktop \
-			${PN}-${MAJ_PV}.desktop
+		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
+			${PN}-${DESKTOP_PV}.desktop
 		sed -e "s/Bon Echo/Minefield/" \
-			-i "${D}"/usr/share/applications/${PN}-${MAJ_PV}.desktop
+			-i "${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop
+	fi
+
+	# Add StartupNotify=true bug 237317
+	if use startup-notification; then
+		echo "StartupNotify=true" >> "${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop
 	fi
 
 	# Create /usr/bin/firefox
@@ -291,16 +285,17 @@ EOF
 
 	fperms 0755 /usr/bin/firefox
 
+	#Enable very specific settings not inherited from xulrunner
+	cp "${FILESDIR}"/firefox-default-prefs.js \
+		"${D}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || die "failed to cp xulrunner-default-prefs.js"
+
 	# Plugins dir
 	ln -s "${D}"/usr/$(get_libdir)/{nsbrowser,mozilla-firefox}/plugins
 }
 
 pkg_postinst() {
 	ewarn "All the packages built against ${PN} won't compile,"
-	ewarn "if after installing firefox 3.5 you get some blockers,"
-	ewarn "please add 'xulrunner' to your USE-flags."
 	ewarn "any package that fails to build warrants a bug report."
-
 	elog
 
 	# Update mimedb for the new .desktop file
