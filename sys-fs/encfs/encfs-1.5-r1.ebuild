@@ -27,6 +27,8 @@ src_unpack() {
 	cd "${S}"
 	# bug 245782 - sys-fs/encfs-1.5 fails to build with --as-needed
 	epatch "${FILESDIR}"/${P}-boost-system-and-as-needed.patch
+	# glibc 2.10 fixes
+	epatch "${FILESDIR}"/${P}-glibc2.10.patch
 	eautomake
 }
 
