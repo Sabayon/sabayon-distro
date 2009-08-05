@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: 
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.1.1-r2.ebuild,v 1.1 2009/08/02 18:48:04 darkside Exp $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
@@ -9,19 +9,19 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 
 MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
-MY_PV="${MY_PV/1.9.1/3.5.1}"
+MY_PV="${MY_PV/1.9.1.1/3.5.1}"
 MAJ_PV="${PV/_*/}"
 PATCH="${PN}-${MAJ_PV}-patches-0.2"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2
-	mirror://gentoo/${PATCH}.tar.bz2"
+	http://dev.gentooexperimental.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="debug python" # qt-experimental
+IUSE="debug python +alsa" # qt-experimental
 
 #	qt-experimental? (
 #		x11-libs/qt-gui
@@ -29,16 +29,14 @@ IUSE="debug python" # qt-experimental
 
 # nspr-4.8 due to BMO #499144
 RDEPEND="java? ( >=virtual/jre-1.4 )
-	python? ( >=dev-lang/python-2.3 )
-
+	python? ( >=dev-lang/python-2.3[threads] )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
-	media-libs/alsa-lib
+	alsa? ( media-libs/alsa-lib )
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
-
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
 
@@ -46,7 +44,7 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
 	dev-util/pkgconfig"
 
-S="${WORKDIR}/mozilla-${MAJ_PV}"
+S="${WORKDIR}/mozilla-1.9.1"
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -67,21 +65,25 @@ src_prepare() {
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+
 	# Gentoo install dirs
 	sed -e "s/@PV@/${MAJ_PV}/" -i "${S}/config/autoconf.mk.in" \
 		|| die "\${MAJ_PV} sed failed!"
 
-	# enable gnomebreakpad by default
-	sed -i -e 's/GNOME_DISABLE_CRASH_DIALOG=1/GNOME_DISABLE_CRASH_DIALOG=0/g' \
-		"${S}/build/unix/run-mozilla.sh"
+	# Enable gnomebreakpad
+	if use debug; then
+		sed -i -e 's/GNOME_DISABLE_CRASH_DIALOG=1/GNOME_DISABLE_CRASH_DIALOG=0/g' \
+			"${S}/build/unix/run-mozilla.sh"
+	fi
 
 	eautoreconf
 
 	cd js/src
 	eautoreconf
 
-	# We need to re-patch this because autoreconf overwrites it
-#	epatch "${FILESDIR}/${PV}"/patch/000_flex-configure-LANG.patch
+	# Patch in support to reset all LANG variables to C
+	# Do NOT add to patchset as it must be applied after eautoreconf
+	epatch "${FILESDIR}/000_flex-configure-LANG.patch"
 }
 
 src_configure() {
@@ -99,6 +101,7 @@ src_configure() {
 		MEXTENSIONS="${MEXTENSIONS},python/xpcom"
 	fi
 
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
@@ -145,6 +148,10 @@ src_configure() {
 	mozconfig_annotate '' --enable-xpctools
 	mozconfig_annotate '' --with-default-mozilla-five-home="${MOZLIBDIR}"
 
+	# Disable/Enable audio support based on USE
+	mozconfig_use_enable alsa ogg
+	mozconfig_use_enable alsa wave
+
 	#disable java
 	if ! use java ; then
 		mozconfig_annotate '-java' --disable-javaxpcom
@@ -171,6 +178,9 @@ src_configure() {
 	#
 	####################################
 
+	# Disable no-print-directory
+	MAKEOPTS=${MAKEOPTS/--no-print-directory/}
+
 	CPPFLAGS="${CPPFLAGS} -DARON_WAS_HERE" \
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	econf || die
@@ -188,19 +198,22 @@ src_install() {
 
 	rm "${D}"/usr/bin/xulrunner
 
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+
 	dodir /usr/bin
-	dosym "${MOZLIBDIR}/xulrunner" "${ROOT}/usr/bin/xulrunner-${MAJ_PV}"
+	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_PV}"
 
 	# Install python modules
-	dosym "${MOZLIBDIR}/python/xpcom" "${ROOT}/$(python_get_sitedir)/xpcom"
+	dosym "${MOZLIBDIR}/python/xpcom" "/$(python_get_sitedir)/xpcom"
 
 	# env.d file for ld search path
 	dodir /etc/env.d
 	echo "LDPATH=${MOZLIBDIR}" > "${D}"/etc/env.d/08xulrunner || die "env.d failed"
 
-	# Add vendor
-	echo "pref(\"general.useragent.vendor\",\"Sabayon\");" \
-		>> "${D}/${MOZLIBDIR}/defaults/pref/vendor.js"
+	# Add our defaults to xulrunner and out of firefox
+	cp "${FILESDIR}"/xulrunner-default-prefs.js \
+		"${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || die "failed to cp xulrunner-default-prefs.js"
 
 	if use java ; then
 		java-pkg_regjar "${D}/${MOZLIBDIR}/javaxpcom.jar"
@@ -210,6 +223,9 @@ src_install() {
 }
 
 pkg_postinst() {
+
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+
 	if use python; then
 		python_need_rebuild
 		python_mod_optimize "${MOZLIBDIR}/python"
@@ -218,9 +234,17 @@ pkg_postinst() {
 	ewarn "If firefox fails to start with \"failed to load xpcom\", run revdep-rebuild"
 	ewarn "If that does not fix the problem, rebuild dev-libs/nss"
 	ewarn "Try dev-util/lafilefixer if you get build failures related to .la files"
+
+	einfo
+	einfo "All prefs can be overridden by the user. The preferences are to make"
+	einfo "use of xulrunner out of the box on an average system without the user"
+	einfo "having to go threw and enable the basics."
 }
 
 pkg_postrm() {
+
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+
 	if use python; then
 		python_mod_cleanup "${MOZLIBDIR}/python"
 	fi
