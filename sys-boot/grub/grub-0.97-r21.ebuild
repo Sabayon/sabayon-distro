@@ -166,6 +166,8 @@ src_install() {
 		"${D}"/usr/share/doc/${PF} \
 		"${D}"/usr/share/doc/grub-static-${PF/grub-}
 
+	insinto /boot/grub
+	doins "${FILESDIR}"/splash.xpm.gz
 	insinto /usr/share/grub
 	doins "${FILESDIR}"/splash.xpm.gz
 
