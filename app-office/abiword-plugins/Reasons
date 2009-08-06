@@ -1,0 +1,2 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+fix compilation with glibc 2.10 and API updates

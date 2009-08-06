@@ -1,0 +1,30 @@
+diff -Nurp abiword-plugins-2.6.8.orig/wp/impexp/xhtml/xp/ie_imp_MHT.cpp abiword-plugins-2.6.8/wp/impexp/xhtml/xp/ie_imp_MHT.cpp
+--- abiword-plugins-2.6.8.orig/wp/impexp/xhtml/xp/ie_imp_MHT.cpp	2007-06-19 11:42:33.000000000 +0000
++++ abiword-plugins-2.6.8/wp/impexp/xhtml/xp/ie_imp_MHT.cpp	2009-08-06 19:35:52.000000000 +0000
+@@ -235,7 +235,7 @@ UT_Error IE_Imp_MHT::importFile (const c
+ 				}
+ 			else if (m_document->isHTML4 ())
+ 				{
+-					import_status = importHTML4 (szFilename);
++					import_status = importHTML4 (const_cast<char *>(szFilename));
+ 				}
+ 			else import_status = UT_ERROR;
+ 		}
+@@ -323,7 +323,7 @@ UT_Error IE_Imp_MHT::importXHTML (const 
+ 
+ 	setReader (&wrapper);
+ 
+-	return IE_Imp_XHTML::importFile (szFilename);
++	return IE_Imp_XHTML::importFile (szFilename, sizeof(szFilename));
+ }
+ 
+ UT_Error IE_Imp_MHT::importHTML4 (const char * szFilename)
+@@ -351,7 +351,7 @@ UT_Error IE_Imp_MHT::importHTML4 (const 
+ 	UT_HTML parser;
+ 	setParser (&parser);
+ 
+-	e = IE_Imp_XHTML::importFile (szFilename);
++	e = IE_Imp_XHTML::importFile (szFilename, sizeof(szFilename));
+ 
+ 	setParser (0);
+ 	setReader (0);
