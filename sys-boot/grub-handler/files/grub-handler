@@ -248,7 +248,8 @@ def get_grub_boot_dev():
     try:
         device_number = int(device_number)
     except ValueError:
-        print "** Cannot get device number. Cannot properly configure kernel"
+        print "** Cannot get device number for '%s' => '%s' | '%s'. Cannot properly configure kernel" % (
+	    device_number, boot_dev, linux_dev,)
         return "(hd0,0)"
 
     device_number -= 1
