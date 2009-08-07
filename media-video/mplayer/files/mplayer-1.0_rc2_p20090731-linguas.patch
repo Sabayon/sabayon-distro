@@ -1,0 +1,14 @@
+diff -ur mplayer-1.0_rc2_p20090731.orig/configure mplayer-1.0_rc2_p20090731/configure
+--- mplayer-1.0_rc2_p20090731.orig/configure	2009-07-31 23:22:31.000000000 +0300
++++ mplayer-1.0_rc2_p20090731/configure	2009-08-03 10:02:18.000000000 +0300
+@@ -2838,8 +2838,9 @@
+ test -z "$language_man" && language_man=en
+ 
+ for lang in $language_msg ; do
+-  test -f "help/help_mp-${lang}.h" && language_msg=$lang && break
++  test -f "help/help_mp-${lang}.h" && language_msg_tmp=$lang && break
+ done
++language_msg=$language_msg_tmp
+ test -z "$language_msg" && language_msg=en
+ _mp_help="help/help_mp-${language_msg}.h"
+ echores "messages: $language_msg - man pages: $language_man - documentation: $language_doc"
