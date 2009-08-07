@@ -214,7 +214,6 @@ src_unpack() {
 	epatch "${FILESDIR}/ooo-env_log.diff"
 	cp -f "${FILESDIR}/base64.diff" "${S}/patches/hotfixes" || die
 	cp -f "${FILESDIR}/buildfix-gcc44.diff" "${S}/patches/hotfixes" || die
-	cp -f "${FILESDIR}/ooo_getline.diff" "${S}/patches/hotfixes" || die
 	
 	#Use flag checks
 	if use java ; then
