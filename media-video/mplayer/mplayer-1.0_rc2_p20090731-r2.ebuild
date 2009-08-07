@@ -144,7 +144,7 @@ DEPEND="${RDEPEND}
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~hppa ~x86-fbsd"
+KEYWORDS="~x86 ~amd64 ~hppa ~x86-fbsd"
 
 pkg_setup() {
 	if use gmplayer; then
