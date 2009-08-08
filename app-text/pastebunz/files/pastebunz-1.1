@@ -158,7 +158,7 @@ f_obj = sys.stdin
 f_obj_diff = False
 for arg in sys.argv[1:]:
     if os.access(arg, os.F_OK | os.R_OK):
-        f_obj = open(arg, "r")
+        f_obj = open(arg, "rb")
         f_obj_diff = True
         break
 
