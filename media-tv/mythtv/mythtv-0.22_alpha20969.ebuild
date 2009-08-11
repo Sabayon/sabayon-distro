@@ -56,6 +56,8 @@ DEPEND="${RDEPEND}
 
 MYTHTV_GROUPS="video,audio,tty,uucp"
 
+S="${WORKDIR}/${MYTHTV_REPO}"
+
 pkg_setup() {
 	einfo "This ebuild now uses a heavily stripped down version of your CFLAGS"
 
