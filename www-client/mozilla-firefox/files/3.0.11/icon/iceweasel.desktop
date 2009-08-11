@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Iceweasel
-Comment=Web Browser
-Exec=/usr/bin/firefox %U
-Icon=iceweasel-icon
-Terminal=false
-Type=Application
-MimeType=text/html;text/xml;application/xhtml+xml;application/vnd.mozilla.xul+xml;text/mml;
-Categories=Network;WebBrowser;

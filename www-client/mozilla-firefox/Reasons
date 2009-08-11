@@ -1,10 +1,2 @@
-www-client/mozilla-firefox
-
-05.07.2009 - Ian Whyman <ian.whyman@sabayonlinux.org>
-Updated default prefs to hide missing plugin notification (bug #767), changed 
-inital startup homepages.
-
-04.07.2009 - Ian Whyman <ian.whyman@sabayonlinux.org>
-This ebuild provides offical sabayon branding by switching the vendor string
-and homepage. Other changes include moving files from $FILESDIR to 
-$FILESDIR/$PV for clarity.
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+- provide our own Firefox settings
