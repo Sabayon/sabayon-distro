@@ -8,7 +8,16 @@
 #    LIVECD_CONSOLE_PARITY   -- console parity specified
 #    LIVECD_CONSOLE_DATABITS -- console databits specified
 
-[[ ${RC_GOT_FUNCTIONS} != "yes" ]] && [[ -e /etc/init.d/functions.sh ]] && source /etc/init.d/functions.sh
+[[ ${RC_GOT_FUNCTIONS} != "yes" ]] && \
+	[[ -e /etc/init.d/functions.sh ]] && \
+	source /etc/init.d/functions.sh
+
+# emulating einfo since it's not always available from functions.sh
+# FIXME: fix functions.sh
+einfo() {
+	[[ -x "/lib/rc/bin/einfo" ]] && /lib/rc/bin/einfo "${1}"\
+		|| echo "* ${1}"
+}
 
 livecd_parse_opt() {
 	case "$1" in
