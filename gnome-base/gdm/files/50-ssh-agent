@@ -2,7 +2,7 @@
 
 # add ssh-agent if found
 
-sshagent="`gdmwhich ssh-agent`"
+sshagent="`which ssh-agent`"
 if [ -n "$sshagent" ] && [ -x "$sshagent" ] && [ -z "$SSH_AUTH_SOCK" ]; then
 	command="$sshagent -- $command"
 elif [ -z "$sshagent" ] ; then
