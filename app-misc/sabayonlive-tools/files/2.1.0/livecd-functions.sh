@@ -599,16 +599,10 @@ livecd_fix_inittab() {
 
 	# The rest...
 	else
-		if [ "${LIVECD_CONSOLE}" = "tty0" -o "${LIVECD_CONSOLE}" = "" ]
-		then
-			for x in 1 2 3 4 5 6
-			do
-				echo "c${x}:12345:respawn:/sbin/agetty -nl /bin/bashlogin 38400 tty${x} linux" >> /etc/inittab
-			done
-		else
-			einfo "Adding ${LIVECD_CONSOLE} console to inittab"
-			echo "s0:12345:respawn:/sbin/agetty -nl /bin/bashlogin ${LIVECD_CONSOLE_BAUD} ${LIVECD_CONSOLE} vt100" >> /etc/inittab
-		fi
+		for x in 1 2 3 4 5 6
+		do
+			echo "c${x}:12345:respawn:/sbin/agetty -nl /bin/bashlogin 38400 tty${x} linux" >> /etc/inittab
+		done
 	fi
 
 	# EFI-based machines should automatically hook up their console lines
