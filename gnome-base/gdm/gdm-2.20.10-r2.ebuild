@@ -119,6 +119,10 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-sabayon-customizations-1.patch"
 	epatch "${FILESDIR}/${PN}-sabayon-customizations-2.patch"
 
+	# Fix DESKTOP_SESSION variable when autologin is enabled
+	# and ${HOME}/.dmrc is empty
+	epatch "${FILESDIR}/gdm-2.20.10-fix-DESKTOP_SESSION-when-dmrc-is-empty-and-autologin.patch"
+
 }
 
 src_install() {
