@@ -28,7 +28,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${P}-spm-devnull.patch"
+	epatch "${FILESDIR}/"${P}*.patch
 }
 
 src_compile() {
