@@ -1,0 +1,33 @@
+diff -Nurp entropy-0.98.2.4.orig/libraries/entropy/spm.py entropy-0.98.2.4/libraries/entropy/spm.py
+--- entropy-0.98.2.4.orig/libraries/entropy/spm.py	2009-08-08 16:44:25.000000000 +0200
++++ entropy-0.98.2.4/libraries/entropy/spm.py	2009-08-13 12:43:38.952346895 +0200
+@@ -1605,9 +1605,9 @@ class PortagePlugin(SpmPlugin):
+         # vartree = portage.vartree(root=myroot)
+ 
+         oldsystderr = sys.stderr
+-        f = open("/dev/null","w")
++        dev_null = open("/dev/null","w")
+         if not etpUi['debug']:
+-            sys.stderr = f
++            sys.stderr = dev_null
+ 
+         ### SETUP ENVIRONMENT
+         # if mute, supress portage output
+@@ -1615,7 +1615,7 @@ class PortagePlugin(SpmPlugin):
+         if etpUi['mute']:
+             domute = True
+             oldsysstdout = sys.stdout
+-            sys.stdout = f
++            sys.stdout = dev_null
+ 
+         mypath = etpConst['systemroot']+"/"
+ 
+@@ -1712,7 +1712,7 @@ class PortagePlugin(SpmPlugin):
+             sys.stdout = oldsysstdout
+ 
+         sys.stderr = oldsystderr
+-        f.close()
++        dev_null.close()
+ 
+         if portage_tmpdir_created:
+             shutil.rmtree(portage_tmpdir,True)
