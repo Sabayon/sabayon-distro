@@ -1,0 +1,16 @@
+--- src/wl/sys/wl_linux.c.orig	2009-04-23 21:16:26.637443671 +0400
++++ src/wl/sys/wl_linux.c	2009-04-23 21:17:58.842687327 +0400
+@@ -56,9 +56,13 @@
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
+ #include <net/lib80211.h>
+ #endif
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 30)
++#include <linux/ieee80211.h>
++#else
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 14)
+ #include <net/ieee80211.h>
+ #endif
++#endif
+ 
+ #include <asm/system.h>
+ #include <asm/io.h>

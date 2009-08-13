@@ -1,0 +1,20 @@
+diff -Naur broadcom-sta-5.10.79.10.orig/src/wl/sys/wl_iw.c broadcom-sta-5.10.79.10/src/wl/sys/wl_iw.c
+--- broadcom-sta-5.10.79.10.orig/src/wl/sys/wl_iw.c	2009-02-10 06:43:18.000000000 +0900
++++ broadcom-sta-5.10.79.10/src/wl/sys/wl_iw.c	2009-04-08 00:58:26.000000000 +0900
+@@ -1094,7 +1094,6 @@
+ 	ssid.SSID_len = dtoh32(ssid.SSID_len);
+ 
+ 	memcpy(extra, ssid.SSID, ssid.SSID_len);
+-	extra[ssid.SSID_len] = '\0';
+ 
+ 	dwrq->length = ssid.SSID_len;
+ 
+@@ -2390,7 +2389,7 @@
+ 
+ 			cmd = IWEVPMKIDCAND;
+ 			pmkcandlist = data;
+-			count = pmkcandlist->npmkid_cand;
++			count = ntoh32(pmkcandlist->npmkid_cand);
+ 			wrqu.data.length = sizeof(struct iw_pmkid_cand);
+ 			pmkidcand = pmkcandlist->pmkid_cand;
+ 			while (count) {

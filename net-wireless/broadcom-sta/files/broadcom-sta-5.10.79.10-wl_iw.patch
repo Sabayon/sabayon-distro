@@ -1,0 +1,12 @@
+diff -Naur broadcom-sta-5.10.79.10.orig/src/wl/sys/wl_iw.c broadcom-sta-5.10.79.10/src/wl/sys/wl_iw.c
+--- broadcom-sta-5.10.79.10.orig/src/wl/sys/wl_iw.c	2009-02-10 06:43:18.000000000 +0900
++++ broadcom-sta-5.10.79.10/src/wl/sys/wl_iw.c	2009-03-25 08:37:56.000000000 +0900
+@@ -2390,7 +2390,7 @@
+ 
+ 			cmd = IWEVPMKIDCAND;
+ 			pmkcandlist = data;
+-			count = pmkcandlist->npmkid_cand;
++			count = ntoh32(pmkcandlist->npmkid_cand);
+ 			wrqu.data.length = sizeof(struct iw_pmkid_cand);
+ 			pmkidcand = pmkcandlist->pmkid_cand;
+ 			while (count) {

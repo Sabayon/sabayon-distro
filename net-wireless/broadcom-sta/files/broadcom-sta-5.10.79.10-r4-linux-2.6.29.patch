@@ -1,0 +1,177 @@
+diff -Naur hybrid-portsrc-x86_32-v5_10_79_10.orig/src/wl/sys/wl_iw.c hybrid-portsrc-x86_32-v5_10_79_10/src/wl/sys/wl_iw.c
+--- hybrid-portsrc-x86_32-v5_10_79_10.orig/src/wl/sys/wl_iw.c	2009-02-10 06:43:18.000000000 +0900
++++ hybrid-portsrc-x86_32-v5_10_79_10/src/wl/sys/wl_iw.c	2009-05-08 00:18:36.000000000 +0900
+@@ -610,7 +610,11 @@
+ 	char *extra
+ )
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wl_iw_t *iw = netdev_priv(dev);
++#else
+ 	wl_iw_t *iw = dev->priv;
++#endif
+ 	struct sockaddr *addr = (struct sockaddr *) extra;
+ 	int i;
+ 
+@@ -635,7 +639,11 @@
+ 	char *extra
+ )
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wl_iw_t *iw = netdev_priv(dev);
++#else
+ 	wl_iw_t *iw = dev->priv;
++#endif
+ 	struct sockaddr *addr = (struct sockaddr *) extra;
+ 	struct iw_quality *qual = (struct iw_quality *) &addr[iw->spy_num];
+ 	int i;
+@@ -1111,7 +1119,11 @@
+ 	char *extra
+ )
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wl_iw_t *iw = netdev_priv(dev);
++#else
+ 	wl_iw_t *iw = dev->priv;
++#endif
+ 
+ 	WL_TRACE(("%s: SIOCSIWNICKN\n", dev->name));
+ 
+@@ -1135,7 +1147,11 @@
+ 	char *extra
+ )
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wl_iw_t *iw = netdev_priv(dev);
++#else
+ 	wl_iw_t *iw = dev->priv;
++#endif
+ 
+ 	WL_TRACE(("%s: SIOCGIWNICKN\n", dev->name));
+ 
+@@ -1795,7 +1811,11 @@
+ 	int paramid;
+ 	int paramval;
+ 	int val = 0;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wl_iw_t *iw = netdev_priv(dev);
++#else
+ 	wl_iw_t *iw = dev->priv;
++#endif
+ 
+ 	WL_TRACE(("%s: SIOCSIWAUTH\n", dev->name));
+ 
+@@ -1926,7 +1946,11 @@
+ 	int paramid;
+ 	int paramval = 0;
+ 	int val;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wl_iw_t *iw = netdev_priv(dev);
++#else
+ 	wl_iw_t *iw = dev->priv;
++#endif
+ 
+ 	WL_TRACE(("%s: SIOCGIWAUTH\n", dev->name));
+ 
+diff -Naur hybrid-portsrc-x86_32-v5_10_79_10.orig/src/wl/sys/wl_linux.c hybrid-portsrc-x86_32-v5_10_79_10/src/wl/sys/wl_linux.c
+--- hybrid-portsrc-x86_32-v5_10_79_10.orig/src/wl/sys/wl_linux.c	2009-02-10 06:43:32.000000000 +0900
++++ hybrid-portsrc-x86_32-v5_10_79_10/src/wl/sys/wl_linux.c	2009-05-08 00:21:50.000000000 +0900
+@@ -53,6 +53,9 @@
+ #include <linux/pci_ids.h>
+ #define WLC_MAXBSSCFG		1	
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++#include <net/lib80211.h>
++#endif
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 14)
+ #include <net/ieee80211.h>
+ #endif
+@@ -149,7 +152,11 @@
+ 	bool		resched;	
+ 	uint32		pci_psstate[16];	
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 14)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	struct lib80211_crypto_ops *tkipmodops;
++#else
+ 	struct ieee80211_crypto_ops *tkipmodops;	
++#endif
+ 	struct ieee80211_tkip_data  *tkip_ucast_data;
+ 	struct ieee80211_tkip_data  *tkip_bcast_data;
+ #endif
+@@ -201,7 +208,11 @@
+ 
+ static int wl_found = 0;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++#define	WL_DEV_IF(dev)		((wl_if_t*)netdev_priv(dev))
++#else
+ #define	WL_DEV_IF(dev)		((wl_if_t*)(dev)->priv)			
++#endif
+ #define	WL_INFO(dev)		((wl_info_t*)(WL_DEV_IF(dev)->wl))	
+ 
+ #define WL_LOCK(wl)	spin_lock_bh(&(wl)->lock)
+@@ -363,6 +374,9 @@
+ 	dev = wlif->dev;
+ 	wl->dev = dev;
+ 	wl_if_setup(dev);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wlif = netdev_priv(dev);
++#endif
+ 
+ 	dev->base_addr = regs;
+ 
+@@ -436,10 +450,20 @@
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 14)
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wl->tkipmodops = lib80211_get_crypto_ops("TKIP");
++#else
+ 	wl->tkipmodops = ieee80211_get_crypto_ops("TKIP");
++#endif
+ 	if (wl->tkipmodops == NULL) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++		request_module("lib80211");
++		request_module("lib80211_crypt_tkip");
++		wl->tkipmodops = lib80211_get_crypto_ops("TKIP");
++#else
+ 		request_module("ieee80211_crypt_tkip");
+ 		wl->tkipmodops = ieee80211_get_crypto_ops("TKIP");
++#endif
+ 	}
+ #endif 
+ #ifdef CONFIG_WIRELESS_EXT
+@@ -744,7 +768,11 @@
+ 	}
+ 
+ 	if (wl->monitor) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++		wl_free_if(wl, (wl_if_t *)netdev_priv(wl->monitor));
++#else
+ 		wl_free_if(wl, (wl_if_t *)(wl->monitor->priv));
++#endif
+ 		wl->monitor = NULL;
+ 	}
+ 
+@@ -912,7 +940,10 @@
+ 	strncpy(dev->name, name, IFNAMSIZ);
+ #else
+ 
+-	dev = alloc_netdev(0, name, ether_setup);
++	dev = alloc_netdev(sizeof(wl_if_t), name, ether_setup);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)
++	wlif = netdev_priv(dev);
++#endif
+ 	if (!dev) {
+ 		MFREE(wl->osh, wlif, sizeof(wl_if_t));
+ 		WL_ERROR(("wl%d: wl_alloc_if: out of memory, alloc_netdev\n",
+@@ -926,7 +957,9 @@
+ 	wlif->wl = wl;
+ 	wlif->wlcif = wlcif;
+ 	wlif->subunit = subunit;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 29)
+ 	dev->priv = wlif;
++#endif
+ 
+ 	if (iftype != WL_IFTYPE_MON && wl->dev && netif_queue_stopped(wl->dev))
+ 		netif_stop_queue(dev);

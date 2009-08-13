@@ -1,0 +1,12 @@
+diff -Naur hybrid-portsrc-x86_32-v5_10_79_10.orig/src/wl/sys/wl_linux.c hybrid-portsrc-x86_32-v5_10_79_10/src/wl/sys/wl_linux.c
+--- hybrid-portsrc-x86_32-v5_10_79_10.orig/src/wl/sys/wl_linux.c	2009-02-10 06:43:32.000000000 +0900
++++ hybrid-portsrc-x86_32-v5_10_79_10/src/wl/sys/wl_linux.c	2009-05-08 00:23:57.000000000 +0900
+@@ -243,7 +243,7 @@
+ static void wl_free_if(wl_info_t *wl, wl_if_t *wlif);
+ static void wl_get_driver_info(struct net_device *dev, struct ethtool_drvinfo *info);
+ 
+-MODULE_LICENSE("");
++MODULE_LICENSE("MIXED/Proprietary");
+ 
+ static struct pci_device_id wl_id_table[] = {
+ 	{ PCI_VENDOR_ID_BROADCOM, 0x4311, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },

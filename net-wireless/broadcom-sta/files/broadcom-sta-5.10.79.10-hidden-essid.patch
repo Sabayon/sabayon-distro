@@ -1,0 +1,11 @@
+diff -Naur ori/src/wl/sys/wl_iw.c edit/src/wl/sys/wl_iw.c
+--- ori/src/wl/sys/wl_iw.c	2009-02-09 22:43:18.000000000 +0100
++++ edit/src/wl/sys/wl_iw.c	2009-03-06 19:00:55.271406043 +0100
+@@ -580,6 +580,7 @@
+ 	range->enc_capa |= IW_ENC_CAPA_CIPHER_TKIP;
+ 	range->enc_capa |= IW_ENC_CAPA_CIPHER_CCMP;
+ 	range->enc_capa |= IW_ENC_CAPA_WPA2;
++	range->scan_capa = IW_SCAN_CAPA_ESSID;
+ #endif 
+ 
+ 	return 0;
