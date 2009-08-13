@@ -17,6 +17,7 @@ RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
 	!x11-themes/sabayon-artwork-darkblend
 	!x11-themes/sabayon-artwork-corecd
 	sys-apps/findutils
+	!<sys-boot/grub-0.97-r22
 	"
 
 S="${WORKDIR}/${PN}"
@@ -37,6 +38,11 @@ src_install () {
 	cd ${S}/background
 	insinto /usr/share/backgrounds
 	doins *.png
+
+	dodir /boot/grub
+	insinto /boot/grub
+	doins "${FILESDIR}/5.0/splash.xpm.gz"
+
 }
 
 pkg_postinst () {
