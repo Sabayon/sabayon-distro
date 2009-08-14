@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="1"
+EAPI="2"
 inherit games eutils cmake-utils fdo-mime flag-o-matic
 
 MY_VER=${PV/_p/b}
