@@ -32,6 +32,7 @@ start() {
             if [ -e "/sbin/aiglx-setup" ]; then
                 /sbin/aiglx-setup disable &> /dev/null
             fi
+
             /usr/sbin/x-setup-configuration &> /dev/null
             lspci | grep ' VGA ' > /etc/gpu-detector.conf
         fi

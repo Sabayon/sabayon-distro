@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# get livecd functions
+source /sbin/livecd-functions.sh
+
+# Variables
+cmdline_onlyvesa_exist=$(cat /proc/cmdline | grep "onlyvesa")
+cmdline_opengl_exists=$(cat /proc/cmdline | grep "opengl=")
+cmdline_legacy_exist=$(cat /proc/cmdline | grep "legacy")
+cmdline_resolution_forced=$(cat /proc/cmdline | grep "res=")
+cmdline_vga_forced=$(vga-cmd-parser)
+cmdline_refresh_exist=$(cat /proc/cmdline | grep "refresh=")
+cmdline_hsync_exist=$(cat /proc/cmdline | grep "hsync=")
+cmdline_noddc_exist=$(cat /proc/cmdline | grep "noddc")
+cmdline_cdroot_exist=$(cat /proc/cmdline | grep " cdroot")
+alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i "alps")
+synaptics_touchpad_exist=$(cat /proc/bus/input/devices | grep -i "synaptics")
+
+
 runtime_linking_proprietary_drivers() {
 
     if [ -d "/lib/nvidia" ] || [ -d "/lib/fglrx" ]; then
@@ -136,22 +153,6 @@ configure_video_settings() {
 # create seed
 rm -f /etc/x-setup-configuration-running
 touch /etc/x-setup-configuration-running
-
-# get livecd functions
-source /sbin/livecd-functions.sh
-
-# Variables
-cmdline_onlyvesa_exist=$(cat /proc/cmdline | grep "onlyvesa")
-cmdline_opengl_exists=$(cat /proc/cmdline | grep "opengl=")
-cmdline_legacy_exist=$(cat /proc/cmdline | grep "legacy")
-cmdline_resolution_forced=$(cat /proc/cmdline | grep "res=")
-cmdline_vga_forced=$(vga-cmd-parser)
-cmdline_refresh_exist=$(cat /proc/cmdline | grep "refresh=")
-cmdline_hsync_exist=$(cat /proc/cmdline | grep "hsync=")
-cmdline_noddc_exist=$(cat /proc/cmdline | grep "noddc")
-cmdline_cdroot_exist=$(cat /proc/cmdline | grep " cdroot")
-alps_touchpad_exist=$(cat /proc/bus/input/devices | grep -i "alps")
-synaptics_touchpad_exist=$(cat /proc/bus/input/devices | grep -i "synaptics")
 
 # Prepare Video Cards Proprietary Drivers
 if [ -n "$cmdline_cdroot_exist" ]; then
