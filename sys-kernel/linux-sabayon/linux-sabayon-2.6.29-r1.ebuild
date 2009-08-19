@@ -41,6 +41,7 @@ UNIPATCH_LIST="
 	"${FILESDIR}"/${PV}/mactel/2-bcm5974-quad-finger-tapping.patch
 	"${FILESDIR}"/${PV}/mactel/3-bcm5974-macbook5-support.patch
 	"${FILESDIR}"/${PV}/${P}-acpi-issues-bug-13002.patch.bz2
+	"${FILESDIR}"/${PV}/${P}-local_privs_escalation.patch
 "
 
 

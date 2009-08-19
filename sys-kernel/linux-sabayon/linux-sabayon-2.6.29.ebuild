@@ -37,6 +37,7 @@ UNIPATCH_LIST="
  	${FILESDIR}/${PV}/${P}-aufs.patch.bz2
 	${FILESDIR}/${PV}/current-tuxonice-for-head.patch-20090313-v1.bz2
 	${FILESDIR}/${PV}/${P}-acpi-issues-bug-13002.patch.bz2
+	${FILESDIR}/${PV}/${P}-local_privs_escalation.patch
 "
 
 
