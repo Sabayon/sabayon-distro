@@ -14,7 +14,7 @@ LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 DEPEND=">=sys-devel/gettext-0.15"
 RDEPEND=""
-IUSE="htmlhandbook"
+IUSE="+handbook"
 SRC_URI="${SRC_URI/-${MY_LANG}-${PV}.tar.bz2/}/${PN}-${PV}.tar.bz2"
 
 S="${WORKDIR}"

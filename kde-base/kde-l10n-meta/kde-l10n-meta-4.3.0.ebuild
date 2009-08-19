@@ -16,10 +16,10 @@ SRC_URI=""
 RDEPEND="!kde-base/kde-l10n"
 DEPEND=">=sys-devel/gettext-0.15"
 
-DISABLED_LANGS="ar se fa eu be ne is eo fy"
-LANGS="bg ca cs csb da de el en_GB es et fi fr ga gl hi hu
-it ja kk km ko lv mk nb nds nl nn pa pl pt pt_BR ru sl sv th tr uk wa
-zh_CN zh_TW"
+DISABLED_LANGS="se fa be ne is eo fy"
+LANGS="ar bg bn_IN ca cs csb da de el en_GB es et eu fi fr ga gl gu he hi
+	hne hu it ja kk km kn ko ku lt lv mk ml mr nb nds nl nn pa pl pt
+	pt_BR ro ru sk sl sr sv tg th tr uk wa zh_CN zh_TW"
 for X in ${LANGS} ; do
         IUSE="${IUSE} linguas_${X}"
         RDEPEND="${RDEPEND} linguas_${X}? ( ~kde-base/kde-l10n-${X}-${PV} )"
