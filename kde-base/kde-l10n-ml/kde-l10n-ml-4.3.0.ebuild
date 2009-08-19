@@ -17,20 +17,25 @@ RDEPEND=""
 IUSE="+handbook"
 SRC_URI="${SRC_URI/-${MY_LANG}-${PV}.tar.bz2/}/${PN}-${PV}.tar.bz2"
 
-S="${WORKDIR}"
-
 src_unpack() {
-	unpack ${A}
+	unpack "${A}"
 	cd "${S}"
 	DIR="${PN}-${PV}"
-	if [[ ! -d "${DIR}" ]]; then
-		die "Cannot find ${DIR}"
+	if [[ -d "${DIR}" ]]; then
+		echo "add_subdirectory( ${DIR} )" >> "${S}"/CMakeLists.txt
 	fi
-	echo "add_subdirectory( ${DIR} )" >> "${S}"/CMakeLists.txt
-	if ! use htmlhandbook; then
-		sed -i -e "/docs/ s:^:#DONOTWANT:" ${DIR}/CMakeLists.txt \
-			|| die "Disabling docs for ${MY_LANG} failed."
-	fi
+}
+
+src_prepare() {
+	# override kde4-base_src_prepare which
+	# fails at enable_selected_doc_linguas
+	base_src_prepare
+}
+
+src_configure() {
+	mycmakeargs="${mycmakeargs}
+		$(cmake-utils_use_build handbook docs)"
+	kde4-base_src_configure
 }
 
 
