@@ -22,6 +22,10 @@ RDEPEND="
 	~sys-apps/entropy-${PV}"
 DEPEND="sys-devel/gettext"
 
+src_prepare() {
+	epatch "${FILESDIR}/${P}-package-hotfix.patch"
+}
+
 src_compile() {
 	emake -j1 || die "make failed"
 }
