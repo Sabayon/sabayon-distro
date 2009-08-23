@@ -18,7 +18,7 @@ RDEPEND="
 	!x11-themes/sabayon-artwork-star
 	!x11-themes/sabayon-artwork-darkblend
 	"
-PDEPEND="x11-themes/qtcurve-qt4[kde]
+PDEPEND="x11-themes/qtcurve-qt4
 	x11-themes/gtk-engines-qtcurve
 	x11-themes/gtk-engines-qt"
 
