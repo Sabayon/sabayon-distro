@@ -11,13 +11,11 @@ SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
 RESTRICT="nomirror"
-RDEPEND="x11-themes/sabayon-artwork-core
+RDEPEND="=x11-themes/sabayon-artwork-core-${PV}
 	 x11-themes/gtk-engines
 	 x11-themes/gtk-engines-murrine
 	!x11-themes/murrine
-	!<=x11-themes/sabayonlinux-artwork-4
-	!x11-themes/sabayon-artwork-star
-	!x11-themes/sabayon-artwork-darkblend"
+	!<=x11-themes/sabayonlinux-artwork-4"
 
 S="${WORKDIR}/${PN}"
 

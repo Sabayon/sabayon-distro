@@ -12,8 +12,7 @@ KEYWORDS="x86 amd64"
 IUSE=""
 RESTRICT="nomirror"
 RDEPEND="!x11-themes/sabayonlinux-artwork
-		 !x11-themes/sabayon-artwork-star
-		 !x11-themes/sabayon-artwork-darkblend"
+		=x11-themes/sabayon-artwork-core-${PV}"
 
 S="${WORKDIR}/${PN}"
 

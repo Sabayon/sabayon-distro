@@ -13,10 +13,8 @@ KEYWORDS="x86 amd64"
 IUSE=""
 RESTRICT="nomirror"
 RDEPEND="
-	x11-themes/sabayon-artwork-core
+	=x11-themes/sabayon-artwork-core-${PV}
 	!<=x11-themes/sabayonlinux-artwork-4
-	!x11-themes/sabayon-artwork-star
-	!x11-themes/sabayon-artwork-darkblend
 	"
 PDEPEND="x11-themes/qtcurve-qt4
 	x11-themes/gtk-engines-qtcurve

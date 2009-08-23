@@ -13,9 +13,6 @@ IUSE=""
 RESTRICT="nomirror"
 RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
 	!<x11-themes/sabayon-artwork-4
-	!x11-themes/sabayon-artwork-star
-	!x11-themes/sabayon-artwork-darkblend
-	!x11-themes/sabayon-artwork-corecd
 	sys-apps/findutils
 	!<sys-boot/grub-0.97-r22
 	"
