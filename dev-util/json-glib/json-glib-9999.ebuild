@@ -3,8 +3,8 @@
 # $Header: $
 
 EAPI="2"
-ESVN_REPO_URI="http://svn.gnome.org/svn/json-glib/trunk"
-inherit subversion autotools
+EGIT_REPO_URI="git://git.gnome.org/json-glib"
+inherit git autotools
 
 DESCRIPTION="A library providing serialization and deserialization support for the JavaScript Object Notation (JSON) format."
 HOMEPAGE="http://live.gnome.org/JsonGlib"
