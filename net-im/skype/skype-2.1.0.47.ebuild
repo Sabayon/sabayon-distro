@@ -4,7 +4,7 @@
 
 EAPI=2
 
-inherit eutils qt4 pax-utils
+inherit eutils qt4
 
 DESCRIPTION="A P2P-VoiceIP client."
 HOMEPAGE="http://www.skype.com/"
@@ -53,8 +53,6 @@ QA_EXECSTACK="opt/skype/skype"
 use qt-static && S="${WORKDIR}/${PN}_static-${PV}"
 
 src_install() {
-	# remove mprotect() restrictions for PaX usage - see Bug 100507
-	pax-mark m "${S}"/skype
 
 	exeinto /opt/${PN}
 	doexe skype
