@@ -13,20 +13,17 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 
-IUSE="doc"
+IUSE=""
 
 DEPEND=">=dev-libs/glib-2.15
-	doc? ( dev-util/gtk-doc )"
+	dev-util/gtk-doc"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
 
-	# fix issue in buildsystem
-	if use doc; then
-		gtkdocize || die "failed to run gtkdocize"	
-	else
-		echo "EXTRA_DIST =" > "${S}/gtk-doc.make"
-	fi
+	# fix issue in buildsystem, atm we have to
+	# force gtk-doc
+	gtkdocize || die "failed to run gtkdocize"	
 
 	eautoreconf
 	elibtoolize
@@ -35,7 +32,7 @@ src_prepare() {
 }
 
 src_configure() {
-	econf $(use_enable doc gtk-doc) || die "econf failed"
+	econf --enable-gtk-doc || die "econf failed"
 }
 
 src_install() {
