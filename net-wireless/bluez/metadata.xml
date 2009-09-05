@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>mobile</herd>
+	<herd>pda</herd>
+	<maintainer>
+		<email>dev-zero@gentoo.org</email>
+	</maintainer>
+	<maintainer>
+		<email>betelgeuse@gentoo.org</email>
+	</maintainer>
+	<use>
+		<flag name='old-daemons'>Install old daemons like hidd and sdpd that are
+			deprecated by the new Service framework</flag>
+		<flag name='test-programs'>Install l2test and rctest</flag>
+	</use>
+</pkgmetadata>
