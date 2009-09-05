@@ -1,3 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-dev-libs/soprano-2.2.2 is a bit broken (OR conditional
-when using sesame2 was not implemented)
