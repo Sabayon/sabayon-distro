@@ -1,0 +1,25 @@
+--- patches/dev300/apply 
++++ patches/dev300/apply 
+@@ -452,10 +452,6 @@
+ 
+ # avoid error messages about missing directories with templates
+ sfx2-check-existing-template-dirs.diff, i#100518, pmladek
+-
+-[ FedoraLinuxOnlyFixes ]
+-# fix for new SQLLEN in unixodbc. Update internal headers.
+-new-SQLLEN.diff, i#104088
+ 
+ [ LinuxOnly ]
+ # fix that allows OOo to work with a standard (unpatched) libjpeg,
+--- patches/dev300kde4-configure.diff 
++++ patches/dev300/kde4-configure.diff 
+@@ -104,7 +104,7 @@
+ +MOC4="moc"
+ +if test "$test_kde4" = "yes" -a "$ENABLE_KDE4" = "TRUE" ; then
+ +   qt_incdirs="$QTINC $QTDIR /usr/include/qt4 /usr/include $x_includes"
+-+   qt_libdirs="$QTLIB /usr/lib $x_libraries"
+++   qt_libdirs="$QTLIB /usr/lib /usr/lib/qt4 $x_libraries"
+ +   
+ +   kde_incdirs="/usr/include $x_includes"
+ +   kde_libdirs="/usr/lib $x_libraries"
+
