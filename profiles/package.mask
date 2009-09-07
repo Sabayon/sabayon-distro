@@ -31,17 +31,16 @@ app-emulation/qemu-gui
 # Gentoo #260441
 ~x11-drivers/nvidia-drivers-180.35
 
-# Thev00d00
+# Ian Whyman <ian.whyman@sabayonlinux.org
 # Modified by Mitch Harder <mitch.harder@sabayonlinux.org>
 # to unmask version 4.2 artwork.
+# Modified by Fabio Erculiani to unmask 5.0 artwork.
 #
 # Mask Devel Artwork packages
->=x11-themes/sabayon-artwork-4.2.9
->=x11-themes/sabayon-artwork-core-4.2.9
->=x11-themes/sabayon-artwork-gnome-4.2.9
->=x11-themes/sabayon-artwork-kde-4.2.9
->=app-misc/sabayon-skel-4.2.9
->=x11-themes/sabayonlinux-skel-4.2.9
+>=x11-themes/sabayon-artwork-5.1
+>=x11-themes/sabayon-artwork-core-5.1
+>=x11-themes/sabayon-artwork-gnome-5.1
+>=x11-themes/sabayon-artwork-kde-5.1
 
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Breaks many apps, see: #575

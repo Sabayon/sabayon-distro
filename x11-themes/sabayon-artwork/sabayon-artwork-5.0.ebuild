@@ -6,7 +6,7 @@ HOMEPAGE="http://www.sabayonlinux.org/"
 SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 RDEPEND="
 	~x11-themes/sabayon-artwork-core-${PV}

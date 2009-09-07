@@ -5,10 +5,10 @@ inherit eutils mount-boot sabayon-artwork
 
 DESCRIPTION="Sabayon Core Artwork, contains Gensplash, Wallpapers and Mouse themes"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.lzma"
+SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="nomirror"
 RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
