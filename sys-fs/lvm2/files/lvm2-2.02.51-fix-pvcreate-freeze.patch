@@ -1,0 +1,45 @@
+--- LVM2/lib/filters/filter.c	2009/07/09 22:34:02	1.48
++++ LVM2/lib/filters/filter.c	2009/08/19 15:34:46	1.49
+@@ -38,6 +38,7 @@
+ } device_info_t;
+ 
+ static int _md_major = -1;
++static int _blkext_major = -1;
+ static int _device_mapper_major = -1;
+ 
+ int md_major(void)
+@@ -45,6 +46,11 @@
+ 	return _md_major;
+ }
+ 
++int blkext_major(void)
++{
++	return _blkext_major;
++}
++
+ /*
+  * Devices are only checked for partition tables if their minor number
+  * is a multiple of the number corresponding to their type below
+@@ -197,6 +203,10 @@
+ 		if (!strncmp("md", line + i, 2) && isspace(*(line + i + 2)))
+ 			_md_major = line_maj;
+ 
++		/* Look for blkext device */
++		if (!strncmp("blkext", line + i, 6) && isspace(*(line + i + 6)))
++			_blkext_major = line_maj;
++
+ 		/* Look for device-mapper device */
+ 		/* FIXME Cope with multiple majors */
+ 		if (!strncmp("device-mapper", line + i, 13) && isspace(*(line + i + 13)))
+--- LVM2/lib/filters/filter.h	2007/08/20 20:55:25	1.15
++++ LVM2/lib/filters/filter.h	2009/08/19 15:34:46	1.16
+@@ -36,6 +36,7 @@
+ void lvm_type_filter_destroy(struct dev_filter *f);
+ 
+ int md_major(void);
++int blkext_major(void);
+ int max_partitions(int major);
+ 
+ #endif
+
+
