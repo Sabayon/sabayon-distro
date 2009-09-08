@@ -32,8 +32,6 @@ RDEPEND="
 		!<=kde-base/step-4.2.98:${SLOT}[kdeprefix]
 	)
 "
-src_unpack() {
-	unpack "${P}.tar.bz2"
-	cd ${S}
-	unpack "${PN}-sabayon${SLREV}.tar.bz2"
+src_prepare() {
+	cp -r ../${PN}-sabayon/* ../${P}
 }
