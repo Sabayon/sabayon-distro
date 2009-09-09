@@ -1,7 +1,0 @@
-diff -Nurp skel.orig/.kde4.2/share/config/ksplashrc skel/.kde4.2/share/config/ksplashrc
---- skel.orig/.kde4.2/share/config/ksplashrc	1970-01-01 01:00:00.000000000 +0100
-+++ skel/.kde4.2/share/config/ksplashrc	2009-04-15 15:43:16.366564242 +0200
-@@ -0,0 +1,3 @@
-+[KSplash]
-+Engine=KSplashX
-+Theme=Sabayon
