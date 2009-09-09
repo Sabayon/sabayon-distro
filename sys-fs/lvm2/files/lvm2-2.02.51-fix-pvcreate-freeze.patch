@@ -1,3 +1,26 @@
+--- LVM2/lib/device/dev-md.c	2009/08/01 17:14:52	1.18
++++ LVM2/lib/device/dev-md.c	2009/08/19 15:34:43	1.19
+@@ -137,13 +137,15 @@
+ 	if (!sysfs_dir || !*sysfs_dir)
+ 		return ret;
+ 
+-check_md_major:
+-	if (MAJOR(dev) != md_major()) {
+-		if (get_primary_dev(sysfs_dir, blkdev, &dev))
+-			goto check_md_major;
+-		return ret;
++	if (MAJOR(dev) == blkext_major()) {
++		/* lookup parent MD device from blkext partition */
++		if (!get_primary_dev(sysfs_dir, blkdev, &dev))
++			return ret;
+ 	}
+ 
++	if (MAJOR(dev) != md_major())
++		return ret;
++
+ 	ret = dm_snprintf(path, size, "%s/dev/block/%d:%d/md/%s", sysfs_dir,
+ 			  (int)MAJOR(dev), (int)MINOR(dev), attribute);
+ 	if (ret < 0) {
 --- LVM2/lib/filters/filter.c	2009/07/09 22:34:02	1.48
 +++ LVM2/lib/filters/filter.c	2009/08/19 15:34:46	1.49
 @@ -38,6 +38,7 @@
