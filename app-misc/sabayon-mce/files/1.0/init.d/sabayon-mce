@@ -1,6 +1,7 @@
 #!/sbin/runscript
 # Copyright 2009 Sabayon Linux
 
+MCE_PID="/var/sabayonmce/.mcepid"
 SABAYONMCE_DM_SETTING="/etc/sabayonmce.dm_settings"
 SABAYONMCE_SETFILE="/etc/.sabayonmce.configured"
 XDM_CONFIG="/etc/conf.d/xdm"
@@ -12,6 +13,9 @@ depend() {
 }
 
 start() {
+
+    # remove old pid file if exists
+    rm -f ${MCE_PID}
 
     # setup ${XDM_CONFIG} -> DISPLAYMANAGER to /usr/bin/sabayon-mce-start
     # if sabayonmce is set; if not, revert our change back to our saved setting, if available
@@ -58,5 +62,7 @@ start() {
 
 
 stop() {
+	# remove pid file if exists
+	rm -f ${MCE_PID}
 	eend 0
 }

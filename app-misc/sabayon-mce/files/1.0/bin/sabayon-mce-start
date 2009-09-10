@@ -3,6 +3,12 @@
 # setup
 myxinitrc="/usr/bin/sabayon-mce-session"
 myuser="sabayonmce"
+mcepid="/var/sabayonmce/.mcepid"
+
+# Kill previous instance running since
+# /etc/init.d/xdm does not support PIDFILE for
+# custom DISPLAYMANAGER
+[[ -f "$mcepid" ]] && kill $(cat $mcepid) &> /dev/null
 
 # spawn!
 su - ${myuser} -c "/usr/bin/sabayon-mce-startx ${myxinitrc} &> /dev/null" &

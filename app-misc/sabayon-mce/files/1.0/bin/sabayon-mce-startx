@@ -17,7 +17,8 @@
 userclientrc="$1"
 sysclientrc="$1"
 
-userserverrc=$HOME/.xserverrc
+pidfilepath="$HOME/.mcepid"
+userserverrc="$HOME/.xserverrc"
 sysserverrc=/etc/X11/xinit/xserverrc
 defaultclientargs=""
 defaultserverargs="-nolisten tcp -br"
@@ -161,6 +162,9 @@ trap cleanup 0
 xinit $clientargs -- $serverargs -deferglyphs 16 &
 
 PID=$!
+
+# Write pid to pid file
+echo $PID > $pidfilepath
 
 wait $PID
 
