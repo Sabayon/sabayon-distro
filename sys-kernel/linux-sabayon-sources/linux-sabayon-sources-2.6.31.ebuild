@@ -4,7 +4,7 @@
 ETYPE="sources"
 K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
-K_SABPATCHES_VER="1"
+K_SABPATCHES_VER="2"
 K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.bz2"
 inherit kernel-2
 detect_version
