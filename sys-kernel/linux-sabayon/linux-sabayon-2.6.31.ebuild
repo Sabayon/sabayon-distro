@@ -110,7 +110,7 @@ src_install() {
 	# firmwares across different kernel versions
 	for fwfile in `find "${D}/lib/firmware" -type f`; do
 
-		sysfile="${ROOT}lib/firmware/$(basename ${fwfile})"
+		sysfile="${ROOT}/${fwfile/${D}}"
 		if [ -f "${sysfile}" ]; then
 			ewarn "Removing duplicated: ${sysfile}"
 			rm ${sysfile} || die "failed to remove ${sysfile}"
