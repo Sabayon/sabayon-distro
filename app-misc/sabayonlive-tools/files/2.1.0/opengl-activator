@@ -92,9 +92,7 @@ setup_lib_symlinks() {
 	pushd "${libdir}" &> /dev/null
 		# First remove old symlinks
 		for file in libGL{,core}.{a,so,la} ; do
-			if [[ -h ${file} ]] ; then
-				rm -f "${file}" || echo -q "Failed to delete ${file}"
-			fi
+			rm -f "${file}" || echo -q "Failed to delete ${file}"
 		done
 
 		# Note that we don't do .so*, just .so on purpose.  The
@@ -163,10 +161,8 @@ set_new_implementation() {
 				mkdir -p "${DST_PREFIX}/${libdir}/${moduledir}/extensions" || echo "Failed to create ${DST_PREFIX}/${libdir}/${moduledir}/extensions"
 				pushd "${DST_PREFIX}/${libdir}/${moduledir}/extensions" &> /dev/null
 					# First remove old symlinks
-					for file in lib{wfb,glx,dri}.{a,so,la}; do
-						if [[ -h ${file} ]] ; then
-							rm -f "${file}" || echo "Failed to delete ${DST_PREFIX}/${libdir}/${moduledir}/extensions/${file}"
-						fi
+					for file in lib{wfb,glx,dri,dri2}.{a,so,la}; do
+						rm -f "${file}" || echo "Failed to delete ${DST_PREFIX}/${libdir}/${moduledir}/extensions/${file}"
 					done
 
 					for file in ${PREFIX}/${libdir}/opengl/${gl_local}/extensions/*.{so,a,la}; do
@@ -237,14 +233,22 @@ set_new_implementation() {
 		sed -i '/LDPATH=.*/d' ${ENV_FILE}
 		echo "LDPATH=\"${ldpath}\"" >> ${ENV_FILE}
 		oldldpath=$(cat /etc/profile.env|grep LDPATH | cut -d"'" -f2)
+
 		sed -i '/export LDPATH=.*/d' /etc/profile.env
-		echo "export LDPATH='"${ldpath}":"${oldldpath}"'" >> /etc/profile.env
-		echo "export LD_LIBRARY_PATH='"${ldpath}"'" >> /etc/profile.env
+		sed -i '/setenv LDPATH=.*/d' /etc/csh.env
+		sed -i '/export LD_LIBRARY_PATH=.*/d' /etc/profile.env
+		sed -i '/setenv LD_LIBRARY_PATH=.*/d' /etc/csh.env
+		sed -i "s/OPENGL_PROFILE=.*/OPENGL_PROFILE='${gl_implem}'/"  /etc/profile.env
+		sed -i "s/OPENGL_PROFILE=.*/OPENGL_PROFILE='${gl_implem}'/"  /etc/csh.env
 		sed -i '/LD_LIBRARY_PATH=.*/d' ${ENV_FILE}
+		sed -i "s/OPENGL_PROFILE=.*/OPENGL_PROFILE=\"${gl_implem}\"/"  ${ENV_FILE}
+
+		echo "export LDPATH='"${ldpath}":"${oldldpath}"'" >> /etc/profile.env
+		echo "setenv LDPATH='"${ldpath}":"${oldldpath}"'" >> /etc/csh.env
+		echo "export LD_LIBRARY_PATH='"${ldpath}"'" >> /etc/profile.env
+		echo "setenv LD_LIBRARY_PATH='"${ldpath}"'" >> /etc/csh.env
 		echo 'LD_LIBRARY_PATH="'${ldpath}'"' >> ${ENV_FILE}
 
-		sed -i "s/OPENGL_PROFILE=.*/OPENGL_PROFILE=\"${gl_implem}\"/"  ${ENV_FILE}
-		sed -i "s/OPENGL_PROFILE=.*/OPENGL_PROFILE='${gl_implem}'/"  /etc/profile.env
 
 		source /etc/profile &> /dev/null
 	echo " done"
@@ -275,11 +279,12 @@ do_set() {
 		set-implementation)
 			if [[ -n ${new} ]] ; then
 				set_new_implementation ${new}
+                                rc=$?
 				sed -i "s/opengl\/xorg-x11\//opengl\/${new}\//" /etc/ld.so.conf
 				sed -i "s/opengl\/ati\//opengl\/${new}\//" /etc/ld.so.conf
 				sed -i "s/opengl\/nvidia\//opengl\/${new}\//" /etc/ld.so.conf
-				#nice -20 ldconfig -X &> /dev/null
-				return $?
+				ldconfig -X &> /dev/null
+				return ${rc}
 			else
 				echo "Please specify an implementation to set"
 			fi

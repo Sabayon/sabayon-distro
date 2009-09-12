@@ -8,7 +8,7 @@ depend() {
 	before xdm
 }
 
-my_start_compiz() {
+my_setup_threed() {
 
 	cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
 	# Configure AIGLX ?
@@ -16,12 +16,6 @@ my_start_compiz() {
 		/sbin/aiglx-setup enable &> /dev/null
 	fi
 	
-	doldconfig=$(cat /proc/cmdline | grep "doldconfig")
-	if [ -n "$doldconfig" ]; then
-		source /etc/profile
-		/sbin/ldconfig &> /dev/null
-	fi
-
 }
 
 prepare_fluxbox_locked_autologin() {
@@ -481,7 +475,7 @@ start() {
 	# setup autologin for all the supported Login managers
 	sabayon_setup_autologin
 	# Start Accel Manager or Configure XGL/AIGLX
-	my_start_compiz
+	my_setup_threed
 	sabayon_setup_motd
 	sabayon_setup_vt_autologin
 
