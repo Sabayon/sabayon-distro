@@ -105,6 +105,7 @@ src_install() {
 	dosym "../../../usr/src/linux-${KV_FULL}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
 	dosym "../../../usr/src/linux-${KV_FULL}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
 
+	addwrite "/lib/firmware"
 	# Workaround kernel issue with colliding
 	# firmwares across different kernel versions
 	for fwfile in `find "${D}/lib/firmware" -type f`; do
