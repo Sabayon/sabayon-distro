@@ -44,7 +44,6 @@ src_unpack() {
 }
 
 src_compile() {
-
 	# disable sandbox
 	export SANDBOX_ON=0
 	export LDFLAGS=""
@@ -86,11 +85,9 @@ src_compile() {
 		--module-prefix=${WORKDIR}/lib \
 		all || die "genkernel failed"
 	ARCH=${OLDARCH}
-
 }
 
 src_install() {
-
 	dodir "/usr/src/linux-${KV_FULL}"
 	insinto "/usr/src/linux-${KV_FULL}"
 
@@ -108,6 +105,17 @@ src_install() {
 	dosym "../../../usr/src/linux-${KV_FULL}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
 	dosym "../../../usr/src/linux-${KV_FULL}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
 
+	# Workaround kernel issue with colliding
+	# firmwares across different kernel versions
+	for fwfile in `find "${D}/lib/firmware" -type f`; do
+
+		sysfile="${ROOT}lib/firmware/$(basename ${fwfile})"
+		if [ -f "${sysfile}" ]; then
+			ewarn "Removing duplicated: ${sysfile}"
+			rm ${sysfile} || die "failed to remove ${sysfile}"
+		fi
+
+	done
 }
 
 pkg_setup() {
@@ -119,23 +127,9 @@ pkg_preinst() {
 	mount-boot_mount_boot_partition
 	linux-mod_pkg_preinst
 	UPDATE_MODULEDB=false
-
-	# Workaround kernel issue with colliding
-	# firmwares across different kernel versions
-	for fwfile in `find "${D}/lib/firmware" -type f`; do
-
-		sysfile="/lib/firmware/$(basename ${fwfile})"
-		if [ -f "${sysfile}" ]; then
-			ewarn "Removing duplicated: ${sysfile}"
-			rm ${sysfile} || die "failed to remove ${sysfile}"
-		fi
-
-	done
-
 }
 
 pkg_postinst() {
-
 	fstab_file="${ROOT}/etc/fstab"
 	einfo "Removing extents option for ext4 drives from ${fstab_file}"
 	# Remove "extents" from /etc/fstab
@@ -170,11 +164,9 @@ pkg_postinst() {
 	ewarn "sys-kernel/linux-sabayon-sources-${PVR} if you want"
 	ewarn "to build any packages that install kernel modules"
 	ewarn "(such as ati-drivers, nvidia-drivers, virtualbox, etc...)."
-
 }
 
 pkg_postrm() {
-
 	# Add kernel to grub.conf
 	if use grub; then
 		if use amd64; then
@@ -188,5 +180,4 @@ pkg_postrm() {
 	fi
 
 	linux-mod_pkg_postrm
-
 }
