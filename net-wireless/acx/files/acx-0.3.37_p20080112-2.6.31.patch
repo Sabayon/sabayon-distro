@@ -1,0 +1,40 @@
+diff -Nurp acx-20080112.orig/pci.c acx-20080112/pci.c
+--- acx-20080112.orig/pci.c	2009-09-12 17:46:24.259751708 +0200
++++ acx-20080112/pci.c	2009-09-12 17:48:35.886480448 +0200
+@@ -1480,6 +1480,17 @@ IO_ACX111[] =
+ static void
+ dummy_netdev_init(struct net_device *ndev) {}
+ 
++static const struct net_device_ops acxpci_netdev_ops = {
++	.ndo_open		= acxpci_e_open,
++	.ndo_stop		= acxpci_e_close,
++	.ndo_start_xmit		= acx_i_start_xmit,
++	.ndo_get_stats		= acx_e_get_stats,
++	.ndo_set_multicast_list = acxpci_i_set_multicast_list,
++	.ndo_tx_timeout		= acxpci_i_tx_timeout,
++	.ndo_change_mtu		= acx_e_change_mtu,
++};
++
++
+ #ifdef CONFIG_PCI
+ static int __devinit
+ acxpci_e_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+@@ -1591,17 +1602,11 @@ acxpci_e_probe(struct pci_dev *pdev, con
+ 	}
+ 
+ 	ether_setup(ndev);
+-	ndev->open = &acxpci_e_open;
+-	ndev->stop = &acxpci_e_close;
+-	ndev->hard_start_xmit = &acx_i_start_xmit;
+-	ndev->get_stats = &acx_e_get_stats;
++	ndev->netdev_ops = &acxpci_netdev_ops;
+ #if IW_HANDLER_VERSION <= 5
+ 	ndev->get_wireless_stats = &acx_e_get_wireless_stats;
+ #endif
+ 	ndev->wireless_handlers = (struct iw_handler_def *)&acx_ioctl_handler_def;
+-	ndev->set_multicast_list = &acxpci_i_set_multicast_list;
+-	ndev->tx_timeout = &acxpci_i_tx_timeout;
+-	ndev->change_mtu = &acx_e_change_mtu;
+ 	ndev->watchdog_timeo = 4 * HZ;
+ 	ndev->irq = pdev->irq;
+ 	ndev->base_addr = pci_resource_start(pdev, 0);

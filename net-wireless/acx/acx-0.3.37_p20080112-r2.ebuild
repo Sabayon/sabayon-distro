@@ -43,6 +43,7 @@ src_unpack() {
 	epatch "${FILESDIR}/${P}.patch"
 	epatch "${FILESDIR}/${P}-2.6.27.patch"
 	epatch "${FILESDIR}/${P}-2.6.30.patch"
+	epatch "${FILESDIR}/${P}-2.6.31.patch"
 }
 
 src_install() {
