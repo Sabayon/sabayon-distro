@@ -31,7 +31,8 @@ KV_PATCH=$(get_version_component_range 3 ${OKV})
 
 KERNEL_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/linux-${OKV}.tar.bz2"
 
-inherit kernel-2 sabayon-artwork mount-boot linux-mod
+KERN_INITRAMFS_SEARCH_NAME="initramfs-genkernel*openvz"
+inherit kernel-2 sabayon-artwork mount-boot linux-mod linux-info
 detect_version
 detect_arch
 
@@ -163,6 +164,8 @@ src_install() {
 }
 
 pkg_setup() {
+	linux-info_pkg_setup
+
 	# do not run linux-mod-pkg_setup
 	einfo "Preparing to build the kernel and its modules"
 }
