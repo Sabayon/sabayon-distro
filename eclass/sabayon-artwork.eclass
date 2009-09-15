@@ -4,6 +4,17 @@
 
 inherit eutils
 
+# @ECLASS-VARIABLE: KERN_INITRAMFS_SEARCH_NAME
+# @DESCRIPTION:
+# Argument used by `find` to search inside ${ROOT}boot Linux
+# Kernel initramfs files to patch
+KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*sabayon}"
+
+# @ECLASS-VARIABLE: GFX_SPLASH_NAME
+# @DESCRIPTION:
+# Default splash theme name to use
+GFX_SPLASH_NAME="${GFX_SPLASH_NAME:-sabayon}"
+
 # @FUNCTION: update_kernel_initramfs_splash
 # @USAGE: update_kernel_initramfs_splash [splash_theme] [splash_file]
 # @RETURN: 1, if something went wrong
@@ -30,9 +41,9 @@ update_kernel_initramfs_splash() {
 # Fabio Erculiani
 update_sabayon_kernel_initramfs_splash() {
 
-        for bootfile in `find ${ROOT}boot -name initramfs-genkernel*sabayon`; do
+        for bootfile in `find ${ROOT}boot -name "${KERN_INITRAMFS_SEARCH_NAME}"`; do
                 einfo "Updating boot splash for ${bootfile}"
-                update_kernel_initramfs_splash sabayon "${bootfile}"
+                update_kernel_initramfs_splash "${GFX_SPLASH_NAME}" "${bootfile}"
         done
 
 }
