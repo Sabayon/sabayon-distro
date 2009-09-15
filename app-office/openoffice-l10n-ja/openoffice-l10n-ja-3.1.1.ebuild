@@ -13,7 +13,7 @@ HOMEPAGE="http://go-oo.org"
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-SRC_URI="mirror://openoffice-extended/${PV}rc2/OOo_${PV}rc2_20090820_LinuxIntel_langpack_${MY_LANG}.tar.gz"
+SRC_URI="mirror://openoffice-extended/${PV}rc2/OOo_${PV}rc2_20090820_LinuxX86-64_langpack_${MY_LANG}.tar.gz"
 
 RDEPEND="~app-office/openoffice-${PV}
 	>=media-fonts/kochi-substitute-20030809-r3"
