@@ -32,7 +32,7 @@ KV_PATCH=$(get_version_component_range 3 ${OKV})
 KERNEL_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/linux-${OKV}.tar.bz2"
 
 KERN_INITRAMFS_SEARCH_NAME="initramfs-genkernel*openvz"
-inherit kernel-2 sabayon-artwork mount-boot linux-mod linux-info
+inherit kernel-2 sabayon-artwork mount-boot linux-mod
 detect_version
 detect_arch
 
@@ -72,6 +72,8 @@ DEPEND="${DEPEND}
 RDEPEND="grub? ( sys-boot/grub sys-boot/grub-handler )"
 
 KV_FULL=${KV_FULL/linux/openvz}
+MY_KERNEL_DIR="/usr/src/linux-${KV_FULL}"
+KV_OUT_DIR="${MY_KERNEL_DIR}"
 K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/openvz}
 S="${WORKDIR}/linux-${KV_FULL}"
@@ -132,8 +134,8 @@ src_compile() {
 }
 
 src_install() {
-	dodir "/usr/src/linux-${KV_FULL}"
-	insinto "/usr/src/linux-${KV_FULL}"
+	dodir "${MY_KERNEL_DIR}"
+	insinto "${MY_KERNEL_DIR}"
 
 	cp "${FILESDIR}/${PF/-r0/}-${OLDARCH}.config" .config
 	doins ".config" || die "cannot copy kernel config"
@@ -146,8 +148,8 @@ src_install() {
 	rm "${D}/lib/modules/${KV_FULL}/source"
 	rm "${D}/lib/modules/${KV_FULL}/build"
 
-	dosym "../../../usr/src/linux-${KV_FULL}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
-	dosym "../../../usr/src/linux-${KV_FULL}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
+	dosym "../../..${MY_KERNEL_DIR}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
+	dosym "../../..${MY_KERNEL_DIR}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
 
 	addwrite "/lib/firmware"
 	# Workaround kernel issue with colliding
@@ -164,8 +166,6 @@ src_install() {
 }
 
 pkg_setup() {
-	linux-info_pkg_setup
-
 	# do not run linux-mod-pkg_setup
 	einfo "Preparing to build the kernel and its modules"
 }

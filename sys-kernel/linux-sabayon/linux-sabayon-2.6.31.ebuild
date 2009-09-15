@@ -25,6 +25,8 @@ DEPEND="${DEPEND}
 RDEPEND="grub? ( sys-boot/grub sys-boot/grub-handler )"
 
 KV_FULL=${KV_FULL/linux/sabayon}
+MY_KERNEL_DIR="/usr/src/linux-${KV_FULL}"
+KV_OUT_DIR="${MY_KERNEL_DIR}"
 K_NOSETEXTRAVERSION="1"
 EXTRAVERSION=${EXTRAVERSION/linux/sabayon}
 SLOT="${PV}"
@@ -88,8 +90,8 @@ src_compile() {
 }
 
 src_install() {
-	dodir "/usr/src/linux-${KV_FULL}"
-	insinto "/usr/src/linux-${KV_FULL}"
+	dodir "${MY_KERNEL_DIR}"
+	insinto "${MY_KERNEL_DIR}"
 
 	cp "${FILESDIR}/${PF/-r0/}-${OLDARCH}.config" .config
 	doins ".config" || die "cannot copy kernel config"
@@ -102,8 +104,8 @@ src_install() {
 	rm "${D}/lib/modules/${KV_FULL}/source"
 	rm "${D}/lib/modules/${KV_FULL}/build"
 
-	dosym "../../../usr/src/linux-${KV_FULL}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
-	dosym "../../../usr/src/linux-${KV_FULL}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
+	dosym "../../..${MY_KERNEL_DIR}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
+	dosym "../../..${MY_KERNEL_DIR}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
 
 	addwrite "/lib/firmware"
 	# Workaround kernel issue with colliding
