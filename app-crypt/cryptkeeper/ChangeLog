@@ -1,0 +1,12 @@
+# ChangeLog for app-crypt/cryptkeeper
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  16 Sep 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  +cryptkeeper-0.9.4.ebuild, +metadata.xml:
+  Clean and addition to SL overlay
+
+*cryptkeeper-0.9.4 (26 NOV 2008)
+
+  26 NOV 2008; Frederico Freire Boaventura:
+  first release of this ebuild
