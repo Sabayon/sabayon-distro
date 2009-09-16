@@ -1,0 +1,35 @@
+--- panel.rc.old	2009-09-16 21:13:59.631561824 +0100
++++ panel.rc	2009-09-16 20:46:57.766541275 +0100
+@@ -9,15 +9,15 @@
+ 
+  fg[NORMAL]		= "#ffffff"
+  fg[SELECTED]	= "#333333"
+- fg[ACTIVE]      = "#ff0000"
++ fg[ACTIVE]      = "#333333"
+  fg[PRELIGHT]	= "#000000"
+- fg[INSENSITIVE]   = "#ff0000"
+-	
+-	text[NORMAL]      = "#ffffff"
+-	text[PRELIGHT]    = "#222222"
+-	text[SELECTED]    = "#222222"
+-	text[ACTIVE]      = "#ffffff"
+-	text[INSENSITIVE] = "#d0d0d0"
++ fg[INSENSITIVE]   = "#222222"
++
++  text[NORMAL]      = "#ffffff"
++  text[PRELIGHT]    = "#222222"
++  text[SELECTED]    = "#222222"
++  text[ACTIVE]      = "#ffffff"
++  text[INSENSITIVE] = "#d0d0d0"
+ }
+ 
+ widget "*PanelWidget*"		  style "theme-panel"
+@@ -32,7 +32,7 @@
+ class "*Panel*"		          style "theme-panel"
+ widget_class "*notif*"		  style "theme-panel"
+ widget_class "*Notif*"		  style "theme-panel"
+-widget_class "*Tray*"		  style "theme-panel" 
++widget_class "*Tray*"		  style "theme-panel"
+ widget_class "*tray*"		  style "theme-panel"
+ widget_class "*computertemp*"	  style "theme-panel"
+ widget_class "*Applet*Tomboy*"	  style "theme-panel"

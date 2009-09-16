@@ -19,6 +19,12 @@ RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
 
 S="${WORKDIR}/${PN}"
 
+src_unpack() {
+	unpack ${A}
+	cd ${S}/gtk/Saburreza/gtk-2.0
+	epatch "${FILESDIR}/fix-saburreza-panelrc.patch"
+}
+
 src_install() {
 
 	dodir /usr/share/themes
