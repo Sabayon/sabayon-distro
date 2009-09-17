@@ -16,7 +16,7 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND=">=dev-libs/glib-2.15
-	dev-util/gtk-doc"
+	>=dev-util/gtk-doc-1.11"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
