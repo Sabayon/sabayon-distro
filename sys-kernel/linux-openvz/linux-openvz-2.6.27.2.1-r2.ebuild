@@ -66,6 +66,12 @@ http://wiki.openvz.org/Download/kernel/${CKV}/${CKV}-${OVZ_KV}"
 ############################################
 # binary part
 
+# Sabayon patches
+UNIPATCH_LIST="${UNIPATCH_LIST}
+${FILESDIR}/sabayon/4200_fbcondecor-0.9.4.patch
+${FILESDIR}/sabayon/4300_squashfs-3.4.patch
+"
+
 DEPEND="${DEPEND}
 	<sys-kernel/genkernel-3.4.11
 	splash? ( x11-themes/sabayon-artwork-core )"
