@@ -217,6 +217,10 @@ pkg_postinst() {
 	elog "sys-kernel/openvz-sources-${PVR} if you want"
 	elog "to build any packages that install kernel modules"
 	elog "(such as ati-drivers, nvidia-drivers, virtualbox, etc...)."
+
+	elog "You can find OpenVZ templates at:"
+	elog "http://wiki.openvz.org/Download/template/precreated"	
+
 }
 
 pkg_postrm() {
