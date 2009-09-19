@@ -20,6 +20,7 @@ HOMEPAGE="http://www.sabayon.org"
 SRC_URI="${KERNEL_URI}
 	http://distfiles.sabayonlinux.org/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
 DEPEND="${DEPEND}
+	app-arch/lzma-utils
 	<sys-kernel/genkernel-3.4.11
 	splash? ( x11-themes/sabayon-artwork-core )"
 RDEPEND="grub? ( sys-boot/grub sys-boot/grub-handler )"
