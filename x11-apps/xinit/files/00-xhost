@@ -1,3 +1,0 @@
-#!/bin/sh
-# This makes hostname changes bullet-proof. We can consider safe to allow any local user to connect to the X server
-xhost +
