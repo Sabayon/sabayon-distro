@@ -14,7 +14,7 @@ DESCRIPTION="Official Sabayon Linux Server optimized kernel image"
 RESTRICT="mirror"
 IUSE="splash dmraid grub"
 UNIPATCH_STRICTORDER="yes"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 HOMEPAGE="http://www.sabayon.org"
 
 SRC_URI="${KERNEL_URI}
