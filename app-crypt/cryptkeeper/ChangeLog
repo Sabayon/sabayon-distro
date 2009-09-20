@@ -2,6 +2,13 @@
 # Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+*cryptkeeper-0.9.4-r1 (20 Sep 2009)
+
+  20 Sep 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
+  -cryptkeeper-0.9.4.ebuild, +cryptkeeper-0.9.4-r1.ebuild,
+  +files/cryptkeeper-0.9.4-gcc4.4.patch:
+  Added GCC 4.4 Patch
+
   16 Sep 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
   +cryptkeeper-0.9.4.ebuild, +metadata.xml:
   Clean and addition to SL overlay

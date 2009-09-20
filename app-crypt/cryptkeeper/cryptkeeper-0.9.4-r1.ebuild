@@ -19,12 +19,18 @@ DEPEND=">=sys-fs/fuse-2.6.3
 	nls? ( >=sys-devel/gettext-0.14.1 )"
 RDEPEND="${DEPEND}"
 
+src_unpack() {
+	unpack ${A}
+	cd "${S}"/src
+	epatch "${FILESDIR}/${P}-gcc4.4.patch"
+}
+
 src_compile() {
-	econf `use_enable nls` || die "econf failed"
+	econf $(use_enable nls ) || die "econf failed"
 	emake || die "emake failed"
 }
 
 src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
-	dodoc ChangeLog README
+	dodoc ChangeLog TODO
 }
