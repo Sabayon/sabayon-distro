@@ -460,7 +460,6 @@ start() {
 
 	source /sbin/sabayon-functions.sh
 
-	sabayon_setup_md_devices
 	my_setup_realtech_nic
 	my_setup_desktop
 	my_setup_password
