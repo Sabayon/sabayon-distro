@@ -1,2 +1,3 @@
 # Fabio Erculiani <lxnay@sabayonlinux.org>
-Add our 00-xhost env file to fix hostname changes bug
+- Add our 00-xhost env file to fix hostname changes bug
+- Provide SANE implementation of xdm init script (removing xdm-setup bullshit)

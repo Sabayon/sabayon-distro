@@ -39,7 +39,7 @@
 
 # Start X Font Server before X
 depend() {
-	need localmount xdm-setup
+	need localmount
 
 	# this should start as early as possible
 	# we can't do 'before *' as that breaks it
@@ -126,12 +126,11 @@ vtstatic() {
 start() {
 	local EXE= NAME= PIDFILE=
 	setup_dm
-	
-	if [ -f /etc/init.d/.noxdm ] ; then
-		einfo "Skipping ${EXE}, /etc/init.d/.noxdm found"
-		rm /etc/init.d/.noxdm
-		return 1
-	fi
+
+        if get_bootparam "nox" ; then
+		einfo "Skipping ${EXE}, nox option was passed"
+		return 0
+        fi
 	
 	ebegin "Setting up ${EXE##*/}"
 	#save the prefered DM
