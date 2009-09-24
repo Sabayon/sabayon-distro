@@ -99,6 +99,11 @@ src_install() {
 	doins Module.symvers || die "cannot copy Module.symvers"
 	doins System.map || die "cannot copy System.map"
 
+	# Include include/linux/version.h to make Portage happy
+	dodir "${MY_KERNEL_DIR}/include/linux"
+	insinto "${MY_KERNEL_DIR}/include/linux"
+	doins "${S}/include/linux/version.h" || die "cannot copy version.h"
+
 	insinto "/boot"
 	doins "${WORKDIR}"/boot/*
 	cp -Rp "${WORKDIR}"/lib/* "${D}/"

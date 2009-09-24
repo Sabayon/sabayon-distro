@@ -39,12 +39,22 @@ src_unpack() {
 }
 
 src_install() {
+
+	local version_h_name="usr/src/linux-${KV_FULL}/include/linux"
+	local version_h="${ROOT}${version_h_name}"
+	if [ -f "${version_h}" ]; then
+		einfo "Discarding previously installed version.h to avoid collisions"
+		addwrite "/${version_h_name}"
+		rm -f "${version_h}"
+	fi
+
 	kernel-2_src_install
-	cd ${D}/usr/src/${KV_FULL}
+	cd "${D}/usr/src/linux-${KV_FULL}"
 	local oldarch=${ARCH}
 	cp ${FILESDIR}/${P/-sources}-${ARCH}.config .config || die "cannot copy kernel config"
 	unset ARCH
 	make modules_prepare || die "failed to run modules_prepare"
 	rm .config
 	ARCH=${oldarch}
+
 }
