@@ -149,7 +149,7 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	fstab_file="${ROOT}/etc/fstab"
+	fstab_file="${ROOT}etc/fstab"
 	einfo "Removing extents option for ext4 drives from ${fstab_file}"
 	# Remove "extents" from /etc/fstab
 	if [ -f "${fstab_file}" ]; then
