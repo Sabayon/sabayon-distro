@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.1.1.ebuild,v 1.4 2009/09/04 12:23:32 suka Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.1.1.ebuild,v 1.9 2009/09/24 08:27:55 suka Exp $
 
 WANT_AUTOMAKE="1.9"
 EAPI="2"
@@ -11,7 +11,7 @@ inherit bash-completion check-reqs db-use eutils fdo-mime flag-o-matic java-pkg-
 
 IUSE="binfilter cups dbus debug eds gnome gstreamer gtk kde ldap mono nsplugin odk opengl pam templates"
 
-MY_PV=3.1.1.1
+MY_PV=3.1.1.2
 PATCHLEVEL=OOO310
 SRC=OOo_${PV}_src
 MST=ooo310-m19
@@ -61,7 +61,7 @@ HOMEPAGE="http://go-oo.org"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="~amd64 ~ppc x86"
 
 COMMON_DEPEND="!app-office/openoffice-bin
 	x11-libs/libXaw
@@ -225,6 +225,7 @@ src_prepare() {
 	epatch "${FILESDIR}/gentoo-pythonpath.diff"
 	epatch "${FILESDIR}/ooo-env_log.diff"
 	cp -f "${FILESDIR}/base64.diff" "${S}/patches/hotfixes" || die
+	cp -f "${FILESDIR}/boost-undefined-references.diff" "${S}/patches/hotfixes" || die
 	cp -f "${FILESDIR}/xulrunner-1.9.1.diff" "${S}/patches/hotfixes" || die
 
 	#Use flag checks
@@ -289,7 +290,7 @@ src_prepare() {
 
 src_configure() {
 
-	use kde && export KDEDIR="${KDEDIR}"
+	use kde && export KDE4DIR="${KDEDIR}"
 
 	# Use multiprocessing by default now, it gets tested by upstream
 	export JOBS=$(echo "${MAKEOPTS}" | sed -e "s/.*-j\([0-9]\+\).*/\1/")
