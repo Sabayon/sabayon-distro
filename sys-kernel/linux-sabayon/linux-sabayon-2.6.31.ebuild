@@ -102,10 +102,12 @@ src_install() {
 	# NOTE: this is a workaround caused by linux-info.eclass not
 	# being ported to EAPI=2 yet
         local version_h_name="usr/src/linux-${KV_FULL}/include/linux"
-        local version_h="${ROOT}${version_h_name}"
-        einfo "Discarding previously installed version.h to avoid collisions"
-        addwrite "${version_h}"
-        rm -f "${version_h}"
+        local version_h="${ROOT}${version_h_name}/version.h"
+	if [ -f "${version_h}" ]; then
+	        einfo "Discarding previously installed version.h to avoid collisions"
+        	addwrite "${version_h}"
+        	rm -f "${version_h}"
+	fi
 
 	# Include include/linux/version.h to make Portage happy
 	dodir "${MY_KERNEL_DIR}/include/linux"
