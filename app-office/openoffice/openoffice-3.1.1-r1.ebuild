@@ -226,7 +226,6 @@ src_prepare() {
 	epatch "${FILESDIR}/ooo-env_log.diff"
 	cp -f "${FILESDIR}/base64.diff" "${S}/patches/hotfixes" || die
 	cp -f "${FILESDIR}/boost-undefined-references.diff" "${S}/patches/hotfixes" || die
-	cp -f "${FILESDIR}/xulrunner-1.9.1.diff" "${S}/patches/hotfixes" || die
 
 	#Use flag checks
 	if use java ; then
@@ -290,8 +289,7 @@ src_prepare() {
 
 src_configure() {
 
-	# FIXME: temp disable this since kde-configure2.patch doesn't work
-	use kde && export KDEDIR="${KDEDIR}"
+	use kde && export KDE4DIR="${KDEDIR}"
 
 	# Use multiprocessing by default now, it gets tested by upstream
 	export JOBS=$(echo "${MAKEOPTS}" | sed -e "s/.*-j\([0-9]\+\).*/\1/")
