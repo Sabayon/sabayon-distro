@@ -291,7 +291,7 @@ src_prepare() {
 src_configure() {
 
 	# FIXME: temp disable this since kde-configure2.patch doesn't work
-	# use kde && export KDE4DIR="${KDEDIR}"
+	use kde && export KDEDIR="${KDEDIR}"
 
 	# Use multiprocessing by default now, it gets tested by upstream
 	export JOBS=$(echo "${MAKEOPTS}" | sed -e "s/.*-j\([0-9]\+\).*/\1/")
