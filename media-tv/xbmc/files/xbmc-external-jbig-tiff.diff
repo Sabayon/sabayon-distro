@@ -1,0 +1,22 @@
+--- xbmc/lib/cximage-6.0/Makefile.in
++++ xbmc/lib/cximage-6.0/Makefile.in
+@@ -12,8 +12,8 @@ ifeq ($(findstring osx,$(ARCH)), osx)
+ 	export ARCH
+ 	CFLAGS+=-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
+ 	CXXFLAGS+=-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
+-	DIRS+=jasper jpeg
+-	SLIBS+=jasper/jasper.a jpeg/jpeg.a
++	DIRS+=jasper jpeg jbig tiff
++	SLIBS+=jasper/jasper.a jpeg/jpeg.a jbig/jbig.a tiff/tiff.a
+ else
+ 	DIRS+=zlib
+ 	SLIBS+=zlib/libz.a
+@@ -29,7 +29,7 @@ ifeq ($(findstring osx,$(ARCH)), osx)
+ 	../../../tools/Mach5/wrapper.rb $@;mv output.so $@
+ 	chmod +x $@
+ else 
+-	$(CXX) -shared -o $(SLIB) -Wl,--whole-archive -lpng -ljasper -ljpeg \
++	$(CXX) -shared -o $(SLIB) -Wl,--whole-archive -lpng -ljasper -ljpeg -ljbig -ltiff \
+ 		$(SLIBS) -Wl,--no-whole-archive \
+ 		`cat ../../cores/DllLoader/exports/wrapper.def` \
+ 		../../cores/DllLoader/exports/wrapper.o

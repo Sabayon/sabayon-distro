@@ -1,0 +1,244 @@
+https://bugs.gentoo.org/285328
+http://xbmc.org/trac/ticket/7103
+
+--- xbmc/cores/VideoRenderers/OverlayRendererGL.cpp
++++ xbmc/cores/VideoRenderers/OverlayRendererGL.cpp
+@@ -340,8 +340,8 @@
+   m_x      = (float)0.0f;
+   m_y      = (float)0.0f;
+ 
+-  ass_image_t* images = o->m_libass->RenderImage((int)m_width, (int)m_height, pts);
+-  ass_image_t* img;
++  ASS_Image* images = o->m_libass->RenderImage((int)m_width, (int)m_height, pts);
++  ASS_Image* img;
+ 
+   m_texture = ~(GLuint)0;
+ 
+--- xbmc/cores/dvdplayer/DVDOverlayRenderer.cpp
++++ xbmc/cores/dvdplayer/DVDOverlayRenderer.cpp
+@@ -71,7 +71,7 @@
+   height = pPicture->height;
+   width = pPicture->width;
+ 
+-  ass_image_t* img = pOverlay->m_libass->RenderImage(width, height, pts);
++  ASS_Image* img = pOverlay->m_libass->RenderImage(width, height, pts);
+ 
+   while(img)
+   {
+--- xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitlesLibass.cpp
++++ xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitlesLibass.cpp
+@@ -166,7 +166,7 @@
+   return m_references;
+ }
+ 
+-ass_image_t* CDVDSubtitlesLibass::RenderImage(int imageWidth, int imageHeight, double pts)
++ASS_Image* CDVDSubtitlesLibass::RenderImage(int imageWidth, int imageHeight, double pts)
+ {
+   if(!m_renderer || !m_track)
+   {
+@@ -178,7 +178,7 @@
+   return m_dll.ass_render_frame(m_renderer, m_track, DVD_TIME_TO_MSEC(pts), NULL);
+ }
+ 
+-ass_event_t* CDVDSubtitlesLibass::GetEvents()
++ASS_Event* CDVDSubtitlesLibass::GetEvents()
+ {
+   if(!m_track)
+   {
+--- xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitleParserSSA.cpp
++++ xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitleParserSSA.cpp
+@@ -44,12 +44,12 @@
+     return false;
+ 
+   //Creating the overlays by going through the list of ass_events
+-  ass_event_t* assEvent = m_libass->GetEvents();
++  ASS_Event* assEvent = m_libass->GetEvents();
+   int numEvents = m_libass->GetNrOfEvents();
+ 
+   for(int i=0; i < numEvents; i++)
+   {
+-    ass_event_t* curEvent =  (assEvent+i);
++    ASS_Event* curEvent =  (assEvent+i);
+     if (curEvent)
+     {
+       CDVDOverlaySSA* overlay = new CDVDOverlaySSA(m_libass);
+--- xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h
++++ xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h
+@@ -38,25 +38,25 @@
+ {
+ public:
+   virtual ~DllLibassInterface() {}
+-  virtual void ass_set_extract_fonts(ass_library_t* priv, int extract)=0;
+-  virtual void ass_set_fonts_dir(ass_library_t* priv, const char* fonts_dir)=0;
+-  virtual ass_library_t* ass_library_init(void)=0;
+-  virtual ass_renderer_t* ass_renderer_init(ass_library_t* library)=0;
+-  virtual void ass_set_frame_size(ass_renderer_t* priv, int w, int h)=0;
+-  virtual void ass_set_margins(ass_renderer_t* priv, int t, int b, int l, int r)=0;
+-  virtual void ass_set_use_margins(ass_renderer_t* priv, int use)=0;
+-  virtual void ass_set_font_scale(ass_renderer_t* priv, double font_scale)=0;
+-  virtual ass_image_t* ass_render_frame(ass_renderer_t *priv, ass_track_t* track, long long now, int* detect_change)=0;
+-  virtual ass_track_t* ass_new_track(ass_library_t*)=0;
+-  virtual ass_track_t* ass_read_file(ass_library_t* library, char* fname, char* codepage)=0;
+-  virtual void ass_free_track(ass_track_t* track)=0;
+-  virtual void ass_set_fonts(ass_renderer_t *priv, const char *default_font, const char *default_family, int fc, const char *config, int update) = 0;
+-  virtual void ass_set_style_overrides(ass_library_t* priv, char** list)=0;
+-  virtual void ass_library_done(ass_library_t* library)=0;
+-  virtual void ass_renderer_done(ass_renderer_t* renderer)=0;
+-  virtual void ass_process_chunk(ass_track_t* track, char *data, int size, long long timecode, long long duration)=0;
+-  virtual void ass_process_codec_private(ass_track_t* track, char *data, int size)=0;
+-  virtual void ass_set_message_cb(ass_library_t *priv
++  virtual void ass_set_extract_fonts(ASS_Library* priv, int extract)=0;
++  virtual void ass_set_fonts_dir(ASS_Library* priv, const char* fonts_dir)=0;
++  virtual ASS_Library* ass_library_init(void)=0;
++  virtual ASS_Renderer* ass_renderer_init(ASS_Library* library)=0;
++  virtual void ass_set_frame_size(ASS_Renderer* priv, int w, int h)=0;
++  virtual void ass_set_margins(ASS_Renderer* priv, int t, int b, int l, int r)=0;
++  virtual void ass_set_use_margins(ASS_Renderer* priv, int use)=0;
++  virtual void ass_set_font_scale(ASS_Renderer* priv, double font_scale)=0;
++  virtual ASS_Image* ass_render_frame(ASS_Renderer *priv, ASS_Track* track, long long now, int* detect_change)=0;
++  virtual ASS_Track* ass_new_track(ASS_Library*)=0;
++  virtual ASS_Track* ass_read_file(ASS_Library* library, char* fname, char* codepage)=0;
++  virtual void ass_free_track(ASS_Track* track)=0;
++  virtual void ass_set_fonts(ASS_Renderer *priv, const char *default_font, const char *default_family, int fc, const char *config, int update) = 0;
++  virtual void ass_set_style_overrides(ASS_Library* priv, char** list)=0;
++  virtual void ass_library_done(ASS_Library* library)=0;
++  virtual void ass_renderer_done(ASS_Renderer* renderer)=0;
++  virtual void ass_process_chunk(ASS_Track* track, char *data, int size, long long timecode, long long duration)=0;
++  virtual void ass_process_codec_private(ASS_Track* track, char *data, int size)=0;
++  virtual void ass_set_message_cb(ASS_Library *priv
+                                 , void (*msg_cb)(int level, const char *fmt, va_list args, void *data)
+                                 , void *data)=0;
+ };
+@@ -67,43 +67,43 @@
+ {
+ public:
+     virtual ~DllLibass() {}
+-    virtual void ass_set_extract_fonts(ass_library_t* priv, int extract)
++    virtual void ass_set_extract_fonts(ASS_Library* priv, int extract)
+         { return ::ass_set_extract_fonts(priv, extract); }
+-    virtual void ass_set_fonts_dir(ass_library_t* priv, const char* fonts_dir)
++    virtual void ass_set_fonts_dir(ASS_Library* priv, const char* fonts_dir)
+         { return ::ass_set_fonts_dir(priv, fonts_dir); }
+-    virtual ass_library_t* ass_library_init(void)
++    virtual ASS_Library* ass_library_init(void)
+         { return ::ass_library_init(); }
+-    virtual ass_renderer_t* ass_renderer_init(ass_library_t* library)
++    virtual ASS_Renderer* ass_renderer_init(ASS_Library* library)
+         { return ::ass_renderer_init(library); }
+-    virtual void ass_set_frame_size(ass_renderer_t* priv, int w, int h)
++    virtual void ass_set_frame_size(ASS_Renderer* priv, int w, int h)
+         { return ::ass_set_frame_size(priv, w, h); }
+-    virtual void ass_set_margins(ass_renderer_t* priv, int t, int b, int l, int r)
++    virtual void ass_set_margins(ASS_Renderer* priv, int t, int b, int l, int r)
+         { return ::ass_set_margins(priv, t, b, l, r); }
+-    virtual void ass_set_use_margins(ass_renderer_t* priv, int use)
++    virtual void ass_set_use_margins(ASS_Renderer* priv, int use)
+         { return ::ass_set_use_margins(priv, use); }
+-    virtual void ass_set_font_scale(ass_renderer_t* priv, double font_scale)
++    virtual void ass_set_font_scale(ASS_Renderer* priv, double font_scale)
+         { return ::ass_set_font_scale(priv, font_scale); }
+-    virtual ass_image_t* ass_render_frame(ass_renderer_t *priv, ass_track_t* track, long long now, int* detect_change)
++    virtual ASS_Image* ass_render_frame(ASS_Renderer *priv, ASS_Track* track, long long now, int* detect_change)
+         { return ::ass_render_frame(priv, track, now, detect_change); }
+-    virtual ass_track_t* ass_new_track(ass_library_t* library)
++    virtual ASS_Track* ass_new_track(ASS_Library* library)
+         { return ::ass_new_track(library); }
+-    virtual ass_track_t* ass_read_file(ass_library_t* library, char* fname, char* codepage)
++    virtual ASS_Track* ass_read_file(ASS_Library* library, char* fname, char* codepage)
+         { return ::ass_read_file(library, fname, codepage); }
+-    virtual void ass_free_track(ass_track_t* track)
++    virtual void ass_free_track(ASS_Track* track)
+         { return ::ass_free_track(track); }
+-    virtual void ass_set_fonts(ass_renderer_t *priv, const char *default_font, const char *default_family, int fc, const char *config, int update)
++    virtual void ass_set_fonts(ASS_Renderer *priv, const char *default_font, const char *default_family, int fc, const char *config, int update)
+         { return ::ass_set_fonts(priv, default_font, default_family, fc, config, update); }
+-    virtual void ass_set_style_overrides(ass_library_t* priv, char** list)
++    virtual void ass_set_style_overrides(ASS_Library* priv, char** list)
+         { return ::ass_set_style_overrides(priv, list); }
+-    virtual void ass_library_done(ass_library_t* library)
++    virtual void ass_library_done(ASS_Library* library)
+         { return ::ass_library_done(library); }
+-    virtual void ass_renderer_done(ass_renderer_t* renderer)
++    virtual void ass_renderer_done(ASS_Renderer* renderer)
+         { return ::ass_renderer_done(renderer); }
+-    virtual void ass_process_chunk(ass_track_t* track, char *data, int size, long long timecode, long long duration)
++    virtual void ass_process_chunk(ASS_Track* track, char *data, int size, long long timecode, long long duration)
+         { return ::ass_process_chunk(track, data, size, timecode, duration); }
+-    virtual void ass_process_codec_private(ass_track_t* track, char *data, int size)
++    virtual void ass_process_codec_private(ASS_Track* track, char *data, int size)
+         { return ::ass_process_codec_private(track, data, size); }
+-    virtual void ass_set_message_cb(ass_library_t *priv
++    virtual void ass_set_message_cb(ASS_Library *priv
+                                    , void (*msg_cb)(int level, const char *fmt, va_list args, void *data)
+                                    , void *data)
+         { return ::ass_set_message_cb(priv, msg_cb, data); }
+@@ -122,25 +122,25 @@
+ class DllLibass : public DllDynamic, DllLibassInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibass, DLL_PATH_LIBASS)
+-  DEFINE_METHOD2(void, ass_set_extract_fonts, (ass_library_t * p1, int p2))
+-  DEFINE_METHOD2(void, ass_set_fonts_dir, (ass_library_t * p1, const char * p2))
+-  DEFINE_METHOD0(ass_library_t *, ass_library_init)
+-  DEFINE_METHOD1(ass_renderer_t *, ass_renderer_init, (ass_library_t * p1))
+-  DEFINE_METHOD3(void, ass_set_frame_size, (ass_renderer_t * p1, int p2, int p3))
+-  DEFINE_METHOD5(void, ass_set_margins, (ass_renderer_t * p1, int p2, int p3, int p4, int p5))
+-  DEFINE_METHOD2(void, ass_set_use_margins, (ass_renderer_t * p1, int p2))
+-  DEFINE_METHOD2(void, ass_set_font_scale, (ass_renderer_t * p1, double p2))
+-  DEFINE_METHOD4(ass_image_t *, ass_render_frame, (ass_renderer_t * p1, ass_track_t * p2, long long p3, int * p4))
+-  DEFINE_METHOD1(ass_track_t *, ass_new_track, (ass_library_t * p1))
+-  DEFINE_METHOD3(ass_track_t *, ass_read_file, (ass_library_t * p1, char * p2, char * p3))
+-  DEFINE_METHOD1(void, ass_free_track, (ass_track_t * p1))
+-  DEFINE_METHOD6(void, ass_set_fonts, (ass_renderer_t* p1, const char* p2, const char* p3, int p4, const char* p5, int p6))
+-  DEFINE_METHOD2(void, ass_set_style_overrides, (ass_library_t* p1, char** p2))
+-  DEFINE_METHOD1(void, ass_library_done, (ass_library_t* p1))
+-  DEFINE_METHOD1(void, ass_renderer_done, (ass_renderer_t* p1))
+-  DEFINE_METHOD5(void, ass_process_chunk, (ass_track_t* p1, char* p2, int p3, long long p4, long long p5))
+-  DEFINE_METHOD3(void, ass_process_codec_private, (ass_track_t* p1, char* p2, int p3))
+-  DEFINE_METHOD3(void, ass_set_message_cb, (ass_library_t* p1, void (*p2)(int level, const char *fmt, va_list args, void *data), void* p3))
++  DEFINE_METHOD2(void, ass_set_extract_fonts, (ASS_Library * p1, int p2))
++  DEFINE_METHOD2(void, ass_set_fonts_dir, (ASS_Library * p1, const char * p2))
++  DEFINE_METHOD0(ASS_Library *, ass_library_init)
++  DEFINE_METHOD1(ASS_Renderer *, ass_renderer_init, (ASS_Library * p1))
++  DEFINE_METHOD3(void, ass_set_frame_size, (ASS_Renderer * p1, int p2, int p3))
++  DEFINE_METHOD5(void, ass_set_margins, (ASS_Renderer * p1, int p2, int p3, int p4, int p5))
++  DEFINE_METHOD2(void, ass_set_use_margins, (ASS_Renderer * p1, int p2))
++  DEFINE_METHOD2(void, ass_set_font_scale, (ASS_Renderer * p1, double p2))
++  DEFINE_METHOD4(ASS_Image *, ass_render_frame, (ASS_Renderer * p1, ASS_Track * p2, long long p3, int * p4))
++  DEFINE_METHOD1(ASS_Track *, ass_new_track, (ASS_Library * p1))
++  DEFINE_METHOD3(ASS_Track *, ass_read_file, (ASS_Library * p1, char * p2, char * p3))
++  DEFINE_METHOD1(void, ass_free_track, (ASS_Track * p1))
++  DEFINE_METHOD6(void, ass_set_fonts, (ASS_Renderer* p1, const char* p2, const char* p3, int p4, const char* p5, int p6))
++  DEFINE_METHOD2(void, ass_set_style_overrides, (ASS_Library* p1, char** p2))
++  DEFINE_METHOD1(void, ass_library_done, (ASS_Library* p1))
++  DEFINE_METHOD1(void, ass_renderer_done, (ASS_Renderer* p1))
++  DEFINE_METHOD5(void, ass_process_chunk, (ASS_Track* p1, char* p2, int p3, long long p4, long long p5))
++  DEFINE_METHOD3(void, ass_process_codec_private, (ASS_Track* p1, char* p2, int p3))
++  DEFINE_METHOD3(void, ass_set_message_cb, (ASS_Library* p1, void (*p2)(int level, const char *fmt, va_list args, void *data), void* p3))
+   BEGIN_METHOD_RESOLVE()
+     RESOLVE_METHOD(ass_set_extract_fonts)
+     RESOLVE_METHOD(ass_set_fonts_dir)
+--- xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitlesLibass.h
++++ xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitlesLibass.h
+@@ -31,8 +31,8 @@
+   CDVDSubtitlesLibass();
+   ~CDVDSubtitlesLibass();
+ 
+-  ass_image_t* RenderImage(int imageWidth, int imageHeight, double pts);
+-  ass_event_t* GetEvents();
++  ASS_Image* RenderImage(int imageWidth, int imageHeight, double pts);
++  ASS_Event* GetEvents();
+ 
+   int GetNrOfEvents();
+ 
+@@ -47,8 +47,8 @@
+ private:
+   DllLibass m_dll;
+   long m_references;
+-  ass_library_t* m_library;
+-  ass_track_t* m_track;
+-  ass_renderer_t* m_renderer;
++  ASS_Library* m_library;
++  ASS_Track* m_track;
++  ASS_Renderer* m_renderer;
+ };
+ 
