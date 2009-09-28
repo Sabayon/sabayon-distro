@@ -21,7 +21,7 @@ pidfilepath="$HOME/.mcepid"
 userserverrc="$HOME/.xserverrc"
 sysserverrc=/etc/X11/xinit/xserverrc
 defaultclientargs=""
-defaultserverargs="-nolisten tcp -br"
+defaultserverargs="-nolisten tcp -br vt07"
 clientargs=""
 serverargs=""
 

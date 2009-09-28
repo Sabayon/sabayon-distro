@@ -10,5 +10,10 @@ mcepid="/var/sabayonmce/.mcepid"
 # custom DISPLAYMANAGER
 [[ -f "$mcepid" ]] && kill $(cat $mcepid) &> /dev/null
 
+# make sure all the instances are killed
+killall X &> /dev/null
+# wait for process to be killed
+[[ "${?}" = "0" ]] && sleep 3
+
 # spawn!
-su - ${myuser} -c "/usr/bin/sabayon-mce-startx ${myxinitrc} &> /dev/null" &
+su - ${myuser} -c "source /etc/profile && /usr/bin/sabayon-mce-startx ${myxinitrc} &> /dev/null" &
