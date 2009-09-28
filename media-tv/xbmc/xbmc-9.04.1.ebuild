@@ -36,6 +36,7 @@ RDEPEND="opengl? ( virtual/opengl )
 	app-arch/unzip
 	app-arch/zip
 	app-i18n/enca
+	dev-db/sqlite:3
 	>=dev-lang/python-2.4
 	dev-libs/boost
 	dev-libs/fribidi
@@ -50,6 +51,7 @@ RDEPEND="opengl? ( virtual/opengl )
 	media-libs/glew
 	media-libs/jasper
 	media-libs/libmad
+	media-libs/libpng
 	media-libs/libogg
 	media-libs/libsamplerate
 	media-libs/libsdl[alsa,audio,video,X]
@@ -58,6 +60,7 @@ RDEPEND="opengl? ( virtual/opengl )
 	media-libs/sdl-image[gif,jpeg,png]
 	media-libs/sdl-mixer
 	media-libs/sdl-sound
+	media-libs/tiff
 	net-misc/curl
 	sys-apps/dbus
 	sys-apps/hal
