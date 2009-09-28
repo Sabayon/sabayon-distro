@@ -61,6 +61,7 @@ RDEPEND="opengl? ( virtual/opengl )
 	media-libs/sdl-mixer
 	media-libs/sdl-sound
 	media-libs/tiff
+	media-sound/pulseaudio
 	net-misc/curl
 	sys-apps/dbus
 	sys-apps/hal
