@@ -1,17 +1,36 @@
 --- xbmc/lib/cximage-6.0/Makefile.in
 +++ xbmc/lib/cximage-6.0/Makefile.in
-@@ -12,8 +12,8 @@ ifeq ($(findstring osx,$(ARCH)), osx)
+@@ -4,16 +4,16 @@ SO=ImageLib-$(ARCH).so
+ ARCHIVE=$(SO:.so=.a)
+ SYSDIR=../../../system
+ SLIB=$(SYSDIR)/$(SO)
+-DIRS=CxImage raw jbig tiff
+-SLIBS=CxImage/cximage.a raw/raw.a jbig/jbig.a tiff/tiff.a
++DIRS=CxImage raw
++SLIBS=CxImage/cximage.a raw/raw.a
+ 
+ ifeq ($(findstring osx,$(ARCH)), osx)
+ 	export MACOSX_DEPLOYMENT_TARGET=10.4
  	export ARCH
  	CFLAGS+=-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
  	CXXFLAGS+=-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
 -	DIRS+=jasper jpeg
 -	SLIBS+=jasper/jasper.a jpeg/jpeg.a
-+	DIRS+=jasper jpeg jbig tiff
-+	SLIBS+=jasper/jasper.a jpeg/jpeg.a jbig/jbig.a tiff/tiff.a
++	DIRS+=jasper
++	SLIBS+=jasper/jasper.a
  else
  	DIRS+=zlib
  	SLIBS+=zlib/libz.a
-@@ -29,7 +29,7 @@ ifeq ($(findstring osx,$(ARCH)), osx)
+@@ -23,13 +23,14 @@ endif
+ 
+ $(SLIB): $(SLIBS)
+ ifeq ($(findstring osx,$(ARCH)), osx)
+-	$(CXX) -bundle -flat_namespace -undefined suppress -shared -fPIC -lpng -L/opt/local/lib \
++	$(CXX) -bundle -flat_namespace -undefined suppress -shared -fPIC -lpng -ljpeg -ljbig -ltiff \
++		-L/opt/local/lib \
+ 		-mmacosx-version-min=10.4 -o $@ \
+-		CxImage/*.o jasper/*/*.o jbig/*.o jpeg/*.o raw/*.o tiff/*.o
++		CxImage/*.o jasper/*/*.o raw/*.o
  	../../../tools/Mach5/wrapper.rb $@;mv output.so $@
  	chmod +x $@
  else 
