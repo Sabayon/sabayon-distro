@@ -13,7 +13,7 @@ RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~ppc ~x86"
-IUSE="daap doc dvd hal ipod flash lirc upnp weather"
+IUSE="css daap doc dvd hal ipod flash lirc upnp weather"
 
 MAKEOPTS="-j1"
 
@@ -40,8 +40,8 @@ RDEPEND=">=dev-lang/python-2.5
 	dev-python/pysqlite
 	dev-python/pycairo
 	dev-python/simplejson
+	css? (	media-libs/libdvdcss )
 	dvd? (
-		media-libs/libdvdcss
 		>=media-plugins/gst-plugins-ffmpeg-0.10
 		>=media-libs/gst-plugins-bad-0.10
 		>=media-libs/gst-plugins-ugly-0.10
