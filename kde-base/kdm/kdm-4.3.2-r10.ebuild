@@ -1,15 +1,15 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-base/kdm/kdm-4.2.1.ebuild,v 1.3 2009/03/08 13:39:58 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/kde-base/kdm/kdm-4.3.2.ebuild,v 1.2 2009/10/06 21:00:55 alexxy Exp $
 
 EAPI="2"
 
 KMNAME="kdebase-workspace"
-inherit kde4-meta
+inherit kde4-meta flag-o-matic
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
-IUSE="consolekit debug doc kerberos pam"
+KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~x86"
+IUSE="consolekit debug +handbook kerberos pam"
 
 DEPEND="
 	x11-libs/libXau
@@ -24,12 +24,12 @@ DEPEND="
 		>=kde-base/kcheckpass-${PV}:${SLOT}[kdeprefix=]
 		virtual/pam
 	)
-	x11-themes/sabayon-artwork-kde
 "
 RDEPEND="${DEPEND}
 	>=kde-base/kdepasswd-${PV}:${SLOT}[kdeprefix=]
 	>=x11-apps/xinit-1.0.5-r2
 	x11-apps/xmessage
+	x11-themes/sabayon-artwork-kde
 "
 
 KMEXTRACTONLY="
@@ -39,25 +39,42 @@ KMEXTRA="
 	libs/kdm/
 "
 
-PATCHES=( "${FILESDIR}/kdebase-4.0.2-pam-optional.patch" )
+PATCHES=(
+	"${FILESDIR}/kdebase-4.0.2-pam-optional.patch"
+	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
+	"${FILESDIR}/${PN}-4.3.1-set-grub-default.patch"
+	"${FILESDIR}/${PN}-4.3.1-sabayon-theme.patch"
+	"${FILESDIR}/${PN}-4-sabayon-background.patch"
+	"${FILESDIR}/${PN}-4-sabayon-bootmanager.patch"
+	"${FILESDIR}/${PN}-4-sabayon-terminate-server.patch"
+	"${FILESDIR}/${PN}-4-sabayon-servertimeout.patch"
+)
 
 src_configure() {
+	# genkdmconf breaks with -O3
+	# last checked in 4.2.95
+	replace-flags -O3 -O2
+
 	mycmakeargs="${mycmakeargs}
-		$(use kerberos && echo "-DKDE4_KRB5AUTH=ON" || echo "-DKDE4_KRB5AUTH=OFF")
-		$(cmake-utils_use_with pam PAM)
+		$(cmake-utils_use kerberos KDE4_KRB5AUTH)
+		$(cmake-utils_use_with pam)
 		$(cmake-utils_use_with consolekit CkConnector)"
 
 	kde4-meta_src_configure
 }
 
 src_unpack() {
-	kde4-meta_src_unpack
-	cd ${S}
-	epatch "${FILESDIR}/${PN}-4-sabayon-theme.patch"
-	epatch "${FILESDIR}/${PN}-4-sabayon-background.patch"
-	epatch "${FILESDIR}/${PN}-4-sabayon-bootmanager.patch"
-	epatch "${FILESDIR}/${PN}-4-sabayon-terminate-server.patch"
+       kde4-meta_src_unpack
+       cd ${S}
+       epatch "${FILESDIR}/${PN}-4.3.1-sabayon-theme.patch"
+       epatch "${FILESDIR}/${PN}-4-sabayon-background.patch"
+       epatch "${FILESDIR}/${PN}-4-sabayon-bootmanager.patch"
+       epatch "${FILESDIR}/${PN}-4-sabayon-terminate-server.patch"
+       epatch "${FILESDIR}/${PN}-4-sabayon-servertimeout.patch"
+       epatch "${FILESDIR}/${PN}-4.3.1-xinitrc.d.patch"
 }
+
+
 
 src_install() {
 	export GENKDMCONF_FLAGS="--no-old --no-backup"
