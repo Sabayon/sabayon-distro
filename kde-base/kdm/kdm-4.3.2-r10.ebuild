@@ -41,13 +41,13 @@ KMEXTRA="
 
 PATCHES=(
 	"${FILESDIR}/kdebase-4.0.2-pam-optional.patch"
-	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
 	"${FILESDIR}/${PN}-4.3.1-set-grub-default.patch"
 	"${FILESDIR}/${PN}-4.3.1-sabayon-theme.patch"
 	"${FILESDIR}/${PN}-4-sabayon-background.patch"
 	"${FILESDIR}/${PN}-4-sabayon-bootmanager.patch"
 	"${FILESDIR}/${PN}-4-sabayon-terminate-server.patch"
 	"${FILESDIR}/${PN}-4-sabayon-servertimeout.patch"
+	"${FILESDIR}/${PN}-4.3.1-xinitrc.d.patch"
 )
 
 src_configure() {
@@ -62,19 +62,6 @@ src_configure() {
 
 	kde4-meta_src_configure
 }
-
-src_unpack() {
-       kde4-meta_src_unpack
-       cd ${S}
-       epatch "${FILESDIR}/${PN}-4.3.1-sabayon-theme.patch"
-       epatch "${FILESDIR}/${PN}-4-sabayon-background.patch"
-       epatch "${FILESDIR}/${PN}-4-sabayon-bootmanager.patch"
-       epatch "${FILESDIR}/${PN}-4-sabayon-terminate-server.patch"
-       epatch "${FILESDIR}/${PN}-4-sabayon-servertimeout.patch"
-       epatch "${FILESDIR}/${PN}-4.3.1-xinitrc.d.patch"
-}
-
-
 
 src_install() {
 	export GENKDMCONF_FLAGS="--no-old --no-backup"
