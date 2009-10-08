@@ -1,12 +1,12 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: 
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/virtualbox-bin/virtualbox-bin-3.0.6.ebuild,v 1.1 2009/09/10 20:05:23 patrick Exp $
 
 EAPI=2
 
 inherit eutils fdo-mime pax-utils
 
-MY_PV=${PV}-49928
+MY_PV=${PV}-53138
 MY_P=VirtualBox-${MY_PV}-Linux
 
 DESCRIPTION="Family of powerful x86 virtualization products for enterprise as well as home use"
@@ -18,8 +18,8 @@ SRC_URI="amd64? ( http://download.virtualbox.org/virtualbox/${PV}/${MY_P}_amd64.
 LICENSE="PUEL"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+additions +chm headless sdk vboxwebsrv native-qt4"
-RESTRICT="strip"
+IUSE="+additions +chm headless sdk vboxwebsrv +system-qt4"
+RESTRICT="mirror"
 
 RDEPEND="!!app-emulation/virtualbox-ose
 	!app-emulation/virtualbox-ose-additions
@@ -49,13 +49,100 @@ RDEPEND="!!app-emulation/virtualbox-ose
 	x11-libs/libSM
 	x11-libs/libICE
 	x11-libs/libXdmcp
-	x86? ( sys-libs/libstdc++-v3 )
-	native-qt? ( x11-libs/qt-core
-		x11-libs/qt-gui )"
+	native-qt? ( x11-libs/qt-core x11-libs/qt-gui )
+	x86? ( ~virtual/libstdc++-3.3 )"
 
 S=${WORKDIR}
 
 QA_TEXTRELS_amd64="opt/VirtualBox/VBoxVMM.so"
+QA_TEXTRELS_x86="opt/VirtualBox/VBoxGuestPropSvc.so
+	opt/VirtualBox/VBoxSDL.so
+	opt/VirtualBox/VBoxPython2_4.so
+	opt/VirtualBox/VBoxPython2_6.so
+	opt/VirtualBox/VBoxDbg.so
+	opt/VirtualBox/VBoxSharedFolders.so
+	opt/VirtualBox/VBoxDD2.so
+	opt/VirtualBox/VBoxOGLrenderspu.so
+	opt/VirtualBox/VBoxPython.so
+	opt/VirtualBox/VBoxPython2_3.so
+	opt/VirtualBox/VBoxDD.so
+	opt/VirtualBox/VBoxVRDP.so
+	opt/VirtualBox/VBoxDDU.so
+	opt/VirtualBox/VBoxREM64.so
+	opt/VirtualBox/VBoxSharedClipboard.so
+	opt/VirtualBox/VBoxHeadless.so
+	opt/VirtualBox/VBoxRT.so
+	opt/VirtualBox/VRDPAuth.so
+	opt/VirtualBox/VBoxREM.so
+	opt/VirtualBox/VBoxSettings.so
+	opt/VirtualBox/VBoxKeyboard.so
+	opt/VirtualBox/VBoxSharedCrOpenGL.so
+	opt/VirtualBox/VBoxVMM.so
+	opt/VirtualBox/VirtualBox.so
+	opt/VirtualBox/VBoxOGLhosterrorspu.so
+	opt/VirtualBox/components/VBoxC.so
+	opt/VirtualBox/components/VBoxSVCM.so
+	opt/VirtualBox/VBoxREM32.so
+	opt/VirtualBox/VBoxPython2_5.so
+	opt/VirtualBox/VBoxXPCOMC.so
+	opt/VirtualBox/VBoxOGLhostcrutil.so
+	opt/VirtualBox/VBoxNetDHCP.so"
+QA_PRESTRIPPED="opt/VirtualBox/VBoxDD.so
+	opt/VirtualBox/VBoxDD2.so
+	opt/VirtualBox/VBoxDDU.so
+	opt/VirtualBox/VBoxDbg.so
+	opt/VirtualBox/VBoxGuestPropSvc.so
+	opt/VirtualBox/VBoxHeadless
+	opt/VirtualBox/VBoxHeadless.so
+	opt/VirtualBox/VBoxKeyboard.so
+	opt/VirtualBox/VBoxManage
+	opt/VirtualBox/VBoxNetAdpCtl
+	opt/VirtualBox/VBoxNetDHCP
+	opt/VirtualBox/VBoxNetDHCP.so
+	opt/VirtualBox/VBoxOGLhostcrutil.so
+	opt/VirtualBox/VBoxOGLhosterrorspu.so
+	opt/VirtualBox/VBoxOGLrenderspu.so
+	opt/VirtualBox/VBoxPython.so
+	opt/VirtualBox/VBoxPython2_3.so
+	opt/VirtualBox/VBoxPython2_4.so
+	opt/VirtualBox/VBoxPython2_5.so
+	opt/VirtualBox/VBoxPython2_6.so
+	opt/VirtualBox/VBoxREM.so
+	opt/VirtualBox/VBoxREM32.so
+	opt/VirtualBox/VBoxREM64.so
+	opt/VirtualBox/VBoxRT.so
+	opt/VirtualBox/VBoxSDL
+	opt/VirtualBox/VBoxSDL.so
+	opt/VirtualBox/VBoxSVC
+	opt/VirtualBox/VBoxSettings.so
+	opt/VirtualBox/VBoxSharedClipboard.so
+	opt/VirtualBox/VBoxSharedCrOpenGL.so
+	opt/VirtualBox/VBoxSharedFolders.so
+	opt/VirtualBox/VBoxTestOGL
+	opt/VirtualBox/VBoxTunctl
+	opt/VirtualBox/VBoxVMM.so
+	opt/VirtualBox/VBoxVRDP.so
+	opt/VirtualBox/VBoxXPCOM.so
+	opt/VirtualBox/VBoxXPCOMC.so
+	opt/VirtualBox/VBoxXPCOMIPCD
+	opt/VirtualBox/VRDPAuth.so
+	opt/VirtualBox/VirtualBox
+	opt/VirtualBox/VirtualBox.so
+	opt/VirtualBox/accessible/libqtaccessiblewidgets.so
+	opt/VirtualBox/components/VBoxC.so
+	opt/VirtualBox/components/VBoxSVCM.so
+	opt/VirtualBox/components/VBoxXPCOMIPCC.so
+	opt/VirtualBox/kchmviewer
+	opt/VirtualBox/libQtCoreVBox.so.4
+	opt/VirtualBox/libQtGuiVBox.so.4
+	opt/VirtualBox/libQtNetworkVBox.so.4
+	opt/VirtualBox/vboxwebsrv"
+
+pkg_setup() {
+	# We cannot mirror VirtualBox PUEL licensed files see:
+	# http://www.virtualbox.org/wiki/Licensing_FAQ
+	check_license
+}
 
 src_unpack() {
 	unpack_makeself ${MY_P}_${ARCH}.run
@@ -108,7 +195,7 @@ src_install() {
 		vboxdrv.sh VBox.sh VBox.png vboxnet.sh additions VirtualBox.desktop \
 		VirtualBox.tar.bz2 LICENSE VBoxSysInfo.sh rdesktop* vboxwebsrv \
 		webtest kchmviewer VirtualBox.chm vbox-create-usb-node.sh \
-		90-vbox-usb.fdi uninstall.sh vboxshell.py
+		90-vbox-usb.fdi uninstall.sh vboxshell.py vboxdrv-pardus.py
 
 	if use headless ; then
 		rm -rf VBoxSDL VirtualBox VBoxKeyboard.so
@@ -122,6 +209,16 @@ src_install() {
 	dosym /opt/VirtualBox/VBoxRT.so /opt/VirtualBox/components/VBoxRT.so
 	dosym /opt/VirtualBox/VBoxDDU.so /opt/VirtualBox/components/VBoxDDU.so
 	dosym /opt/VirtualBox/VBoxXPCOM.so /opt/VirtualBox/components/VBoxXPCOM.so
+
+	# Use Native Qt4, enables proper system Qt4 theme to be used.
+	if use system-qt4 ; then
+		for i in libQtCore libQtNetwork libQtGui ; do
+			einfo "Using native ${i}"
+			mv "${D}"/opt/VirtualBox/${i}VBox.so.4 "${D}"/opt/VirtualBox/${i}VBox.so.4.original
+			dosym ${ROOT}/usr/lib/qt4/${i}.so.4 /opt/VirtualBox/${i}VBox.so.4
+		done
+	fi
+
 
 	local each
 	for each in VBox{Manage,SVC,XPCOMIPCD,Tunctl,NetAdpCtl,NetDHCP,TestOGL}; do
@@ -158,15 +255,6 @@ src_install() {
 	dosym /opt/VirtualBox/VBox.sh /opt/bin/VBoxVRDP
 	dosym /opt/VirtualBox/VBox.sh /opt/bin/VBoxHeadless
 	dosym /opt/VirtualBox/VBoxTunctl /opt/bin/VBoxTunctl
-	
-	# Use Local Qt, Enable this is QGTKStyle or local themes are needed or not working.
-	if use native-qt4 ; then
-		for i in libQtCore libQtNetwork libQtGui ; do
-			einfo "Using native ${i}"
-			mv "${D}"/opt/VirtualBox/${i}VBox.so.4 "${D}"/opt/VirtualBox/${i}VBox.so.4.original
-			dosym ${ROOT}/usr/lib/qt4/${i}.so.4 /opt/VirtualBox/${i}VBox.so.4
-		done
-	fi
 }
 
 pkg_postinst() {
@@ -185,4 +273,3 @@ pkg_postinst() {
 pkg_postrm() {
 	fdo-mime_desktop_database_update
 }
-
