@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="2"
+KDE_MINIMAL="4.2"
 inherit eutils kde4-base
 
 DESCRIPTION="Official Sabayon Linux Entropy Package Manager KDE4 kioslaves (tagged release)"
