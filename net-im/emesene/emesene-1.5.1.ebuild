@@ -19,6 +19,7 @@ DEPEND=">=dev-lang/python-2.6.2
 
 RDEPEND="${DEPEND}"
 
+RESTRICT="mirror"
 src_install() {
 	rm -f GPL PSF LGPL
 	insinto /usr/share/emesene
