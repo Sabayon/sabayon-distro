@@ -44,7 +44,7 @@ pkg_postinst () {
 
 	# Workaround for buggy mime dir stuff stored in $HOME, sigh!
 	# >=x11-misc/shared-mime-info-0.70 breaks
-	find "${ROOT}"home -samefile ".local/share/mime" -type d | xargs rm -rf
+	find "${ROOT}"home/*/.local/share -name "mime" -type d | xargs rm -rf
 
 	fdo-mime_desktop_database_update
 	ewarn "Please bugs report to bugs.sabayonlinux.org"
