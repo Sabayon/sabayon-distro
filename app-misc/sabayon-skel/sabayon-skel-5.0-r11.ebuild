@@ -14,7 +14,8 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
-RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6"
+RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6
+	sys-apps/findutils"
 
 src_install () {
 
@@ -40,6 +41,10 @@ pkg_postinst () {
 			/usr/share/sabayon/xdg/sabayon-sabayon.directory \
 			/usr/share/sabayon/xdg/*.desktop
 	fi
+
+	# Workaround for buggy mime dir stuff stored in $HOME, sigh!
+	# >=x11-misc/shared-mime-info-0.70 breaks
+	find "${ROOT}"home -samefile ".local/share/mime" -type d | xargs rm -rf
 
 	fdo-mime_desktop_database_update
 	ewarn "Please bugs report to bugs.sabayonlinux.org"
