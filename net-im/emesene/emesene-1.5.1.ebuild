@@ -1,4 +1,4 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -13,22 +13,22 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND=">=dev-lang/python-2.4.3
+DEPEND=">=dev-lang/python-2.6.2
 	>=x11-libs/gtk+-2.8.20
 	>=dev-python/pygtk-2.8.6"
 
 RDEPEND="${DEPEND}"
 
 src_install() {
-	rm GPL PSF LGPL
+	rm -f GPL PSF LGPL
 	insinto /usr/share/emesene
-	doins -r *
+	doins -r * || die "doins failed"
 
-	fperms a+x /usr/share/emesene/emesene
-	dosym /usr/share/emesene/emesene /usr/bin/emesene
+	fperms a+x /usr/share/emesene/emesene || die "fperms failed"
+	dosym /usr/share/emesene/emesene /usr/bin/emesene || die "dosym failed"
 
-	doman misc/emesene.1
-	dodoc docs/*
+	doman misc/emesene.1 || die "doman failed"
+	dodoc docs/* || die "dodoc failed"
 
 	doicon misc/*.png misc/*.svg
 
