@@ -1,3 +1,5 @@
-#!/bin/sh
-# This makes hostname changes bullet-proof. We can consider safe to allow any local user to connect to the X server
-xhost +
+# This file is sourced by Xsession(5), not executed.
+
+[ -x /usr/bin/xhost ] && [ -x /usr/bin/id ] &&
+    xhost +si:localuser:`id -un` > /dev/null 2>&1
+

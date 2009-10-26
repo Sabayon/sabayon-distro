@@ -1,7 +1,7 @@
 #!/sbin/runscript
 # Copyright 1999-2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2
-# $Header: /var/cvsroot/gentoo-x86/x11-apps/xinit/files/xdm.initd-3,v 1.2 2009/09/15 00:27:45 williamh Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-apps/xinit/files/xdm.initd-3,v 1.7 2009/10/07 16:59:42 williamh Exp $
 
 # This is here to serve as a note to myself, and future developers.
 #
@@ -56,12 +56,18 @@ depend() {
 
 setup_dm() {
 	local MY_XDM="$(echo "${DISPLAYMANAGER}" | tr '[:upper:]' '[:lower:]')"
+	local MY_CUSTOM_PIDFILE="$(echo "${CUSTOM_DISPLAYMANAGER_PIDFILE}" | tr '[:upper:]' '[:lower:]')"
+	MY_CUSTOM_PIDFILE="${MY_CUSTOM_PIDFILE:-/var/run/$(basename ${MY_XDM}).pid}"
 
 	# Load our root path from profile.env
 	# Needed for kdm
 	PATH="${PATH}:$(. /etc/profile.env; echo "${ROOTPATH}")"
 
 	case "${MY_XDM}" in
+		xdm)
+			EXE=/usr/bin/xdm
+			PIDFILE=/var/run/xdm.pid
+			;;
 		kdm|kde|kde2|kde3)
 			EXE="$(which kdm)"
 			# kdm takes too long to create a pidfile for baselayout-2
@@ -90,13 +96,9 @@ setup_dm() {
 			PIDFILE=/var/run/gpe-dm.pid
 			;;
 		*)
-			EXE=
-			# Fix #65586, where MY_XDM is empty so EXE=somedir
-			[ -x "/usr/bin/${MY_XDM}" ] && [ -f "/usr/bin/${MY_XDM}" ] \
-				&& EXE="/usr/bin/${MY_XDM}"
-			if [ -z "${EXE}" ] ; then
-				EXE=/usr/bin/xdm
-				PIDFILE=/var/run/xdm.pid
+			if [ -x "${MY_XDM}" ] && [ -f "${MY_XDM}" ]; then
+				EXE="${MY_XDM}"
+				PIDFILE="${MY_CUSTOM_PIDFILE}"
 			fi
 			;;
 	esac
@@ -127,9 +129,9 @@ start() {
 	local EXE= NAME= PIDFILE=
 	setup_dm
 	
-	if [ -f /.noxdm ] ; then
-		einfo "Skipping ${EXE}, /.noxdm found"
-		rm /.noxdm
+	if [ -f /etc/.noxdm ]; then
+		einfo "Skipping ${EXE}, /etc/.noxdm found"
+		rm /etc/.noxdm
 		return 0
 	fi
 	

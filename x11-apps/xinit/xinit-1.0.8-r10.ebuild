@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-apps/xinit/xinit-1.0.8-r7.ebuild,v 1.1 2009/09/17 16:30:22 williamh Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-apps/xinit/xinit-1.0.8-r10.ebuild,v 1.7 2009/10/18 14:14:53 ranger Exp $
 
 EAPI="2"
 
@@ -13,25 +13,33 @@ inherit x-modular pam
 DESCRIPTION="X Window System initializer"
 
 LICENSE="${LICENSE} GPL-2"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
-IUSE="hal minimal pam"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
+IUSE="consolekit minimal pam"
 
-RDEPEND="x11-apps/xauth
+RDEPEND="
+	x11-apps/xauth
 	x11-libs/libX11
-	hal? ( sys-auth/consolekit sys-apps/dbus[X] )"
+	consolekit? (
+		sys-auth/consolekit
+		sys-apps/dbus[X]
+	)
+"
 DEPEND="${RDEPEND}"
-PDEPEND="!minimal? ( x11-wm/twm
-				x11-apps/xclock
-				x11-apps/xrdb
-				x11-apps/xsm
-				x11-terms/xterm )"
+PDEPEND="!minimal? (
+		x11-apps/xclock
+		x11-apps/xrdb
+		x11-apps/xsm
+		x11-terms/xterm
+		x11-wm/twm
+	)
+"
 
 PATCHES=( "${FILESDIR}"/nolisten-tcp-and-black-background.patch
 	"${FILESDIR}"/gentoo-startx-customization-1.0.8.patch
 	"${FILESDIR}"/xinit-1.0.4-console-kit.patch )
 
 pkg_setup() {
-	CONFIGURE_OPTIONS="$(use_with hal consolekit)"
+	CONFIGURE_OPTIONS="$(use_with consolekit)"
 }
 
 src_prepare() {
@@ -70,4 +78,7 @@ pkg_postinst() {
 	ewarn "Here's an example of setting it for the whole system:"
 	ewarn "    echo XSESSION=\"Gnome\" > /etc/env.d/90xsession"
 	ewarn "    env-update && source /etc/profile"
+	ewarn
+	ewarn "If you use the nox boot option to prevent x from starting on boot,"
+	ewarn "you should now use gentoo=nox."
 }

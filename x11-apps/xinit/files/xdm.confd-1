@@ -9,4 +9,16 @@ CHECKVT=7
 # NOTE: If this is set in /etc/rc.conf, that setting will override this one.
 # KDE-specific note: kdm-3.5 and kdm-4.0 are just examples. You will find all 
 # possible versions by looking at the directories in /usr/kde/.
+# NOTE (2): If you want to use your custom DISPLAYMANAGER, you can specify a
+# full path to an executable.
+# 
 DISPLAYMANAGER="xdm"
+
+# If you specify a custom DISPLAYMANAGER value (one unsupported)
+# you can also specify a custom pidfile that your application is
+# supposed to use and that will be handled by start-stop-daemon
+# to properly start/restart/stop it.
+# If you don't specify any value and use an unsupported DISPLAYMANAGER
+# CUSTOM_DISPLAYMANAGER_PIDFILE will be placed into
+# /var/run/<DISPLAYMANAGER name>.pid
+# CUSTOM_DISPLAYMANAGER_PIDFILE=""
