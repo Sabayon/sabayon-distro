@@ -1,11 +1,11 @@
 #!/sbin/runscript
 # Copyright 2009 Sabayon Linux
 
-MCE_PID="/var/sabayonmce/.mcepid"
 SABAYONMCE_DM_SETTING="/etc/sabayonmce.dm_settings"
 SABAYONMCE_SETFILE="/etc/.sabayonmce.configured"
 XDM_CONFIG="/etc/conf.d/xdm"
 SABAYON_DM_EXEC="sabayon-mce-start"
+MCE_PID="/var/run/${SABAYON_DM_EXEC}.pid"
 
 depend() {
 	after mtab

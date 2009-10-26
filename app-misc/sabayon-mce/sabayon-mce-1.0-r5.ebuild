@@ -13,7 +13,8 @@ SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
 
-RDEPEND="media-tv/xbmc"
+RDEPEND="media-tv/xbmc
+	>=x11-apps/xinit-1.0.8-r10"
 DEPEND=""
 
 S="${WORKDIR}"
