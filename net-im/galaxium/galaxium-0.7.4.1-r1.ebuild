@@ -6,12 +6,14 @@ inherit mono autotools
 
 DESCRIPTION="An instant messenger application designed for the GNOME desktop"
 HOMEPAGE="http://code.google.com/p/galaxium/"
-SRC_URI="http://galaxium.googlecode.com/files/${PN}_${PV}.tar.gz"
+SRC_URI="http://v00d00.net/files/distfiles/${CATEGORY}/${PN}-0.7.4.1+svn1634.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="webkit"
+
+S="${WORKDIR}/${PN}"
 
 DEPEND=">=dev-dotnet/mono-addins-0.3
 	>=dev-lang/mono-1.2.4
