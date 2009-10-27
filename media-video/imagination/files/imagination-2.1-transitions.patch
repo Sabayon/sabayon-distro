@@ -1,0 +1,11 @@
+--- src/support.c	2009-10-07 08:10:04.000000000 +0200
++++ src/support.new.c	2009-10-14 16:16:38.288080473 +0200
+@@ -20,7 +20,7 @@
+ #include "support.h"
+ #include <glib/gstdio.h>
+ 
+-#define PLUGINS_INSTALLED 0
++#define PLUGINS_INSTALLED 1
+ 
+ static gboolean img_plugin_is_loaded(img_window_struct *, GModule *);
+ 
