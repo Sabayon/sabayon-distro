@@ -1,0 +1,28 @@
+--- Makefile.orig	2009-01-04 20:17:22.000000000 +0100
++++ Makefile	2009-01-04 21:01:55.000000000 +0100
+@@ -18,9 +18,10 @@
+ #   You should have received a copy of the GNU General Public License
+ #   along with Meritous.  If not, see <http://www.gnu.org/licenses/>.
+ #
+-LDFLAGS = `sdl-config --libs` -lSDL_image -lSDL_mixer -lz
+-CCFLAGS = -O2 -Wall `sdl-config --cflags` -g
++CFLAGS ?= -O2 -Wall -g
++CFLAGS += `sdl-config --cflags`
+ #
++LIBS = -lSDL_image -lSDL_mixer `sdl-config --libs` -lz 
+ OBJS = 	src/levelblit.o \
+ 		src/mapgen.o \
+ 		src/demon.o \
+@@ -35,10 +36,10 @@
+ default:	meritous
+ 
+ %.o:		%.c
+-		gcc -c -o $@ $? ${CCFLAGS}
++		gcc -c -o $@ $? ${CFLAGS}
+ 
+ meritous:	${OBJS}
+-		gcc -o $@ $+ ${LDFLAGS}
++		gcc ${LDFLAGS} $+ ${LIBS} -o $@ 
+ 
+ clean:		
+ 		rm ${OBJS}
