@@ -34,7 +34,10 @@ SLOT="${PV}"
 S="${WORKDIR}/linux-${KV_FULL}"
 
 # patches
-UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
+UNIPATCH_LIST="
+	${DISTFILES}/${K_SABPATCHES_PKG}
+	${FILESDIR}/${PV}/cfq-iosched-IO-latency.patch
+"
 
 src_unpack() {
 

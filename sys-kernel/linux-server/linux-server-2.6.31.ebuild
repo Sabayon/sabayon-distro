@@ -36,6 +36,11 @@ KERN_INITRAMFS_SEARCH_NAME="initramfs-genkernel-${ARCH}-*-server-*"
 
 # patches
 UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
+# patches
+UNIPATCH_LIST="
+	${DISTFILES}/${K_SABPATCHES_PKG}
+	${FILESDIR}/${PV}/cfq-iosched-IO-latency.patch
+"
 
 src_unpack() {
 
