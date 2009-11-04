@@ -1,0 +1,47 @@
+Index: coregrind/m_debuginfo/readelf.c
+===================================================================
+--- coregrind/m_debuginfo/readelf.c	(revision 10923)
++++ coregrind/m_debuginfo/readelf.c	(working copy)
+@@ -979,21 +979,29 @@
+    Char *objdirptr;
+    Char *debugpath;
+    Addr addr = 0;
++   UInt si;
+   
+    if ((objdirptr = VG_(strrchr)(objdir, '/')) != NULL)
+       *objdirptr = '\0';
+-
+    debugpath = ML_(dinfo_zalloc)(
+                   "di.fdf.2",
+                   VG_(strlen)(objdir) + VG_(strlen)(debugname) + 32);
+    
+    VG_(sprintf)(debugpath, "%s/%s", objdir, debugname);
++   TRACE_SYMTAB("    trying debugpath %s\n",  debugpath);
+ 
+    if ((addr = open_debug_file(debugpath, crc, size)) == 0) {
+       VG_(sprintf)(debugpath, "%s/.debug/%s", objdir, debugname);
++      TRACE_SYMTAB("    trying debugpath %s\n",  debugpath);
+       if ((addr = open_debug_file(debugpath, crc, size)) == 0) {
+          VG_(sprintf)(debugpath, "/usr/lib/debug%s/%s", objdir, debugname);
+-         addr = open_debug_file(debugpath, crc, size);
++         TRACE_SYMTAB("    trying debugpath %s\n",  debugpath);
++         if ((addr = open_debug_file(debugpath, crc, size)) == 0) {
++            si = sizeof(void*)*8;
++            VG_(sprintf)(debugpath, "/usr/lib/debug%s%u/%s", objdir, si, debugname);
++            TRACE_SYMTAB("    trying debugpath %s\n",  debugpath);
++            addr = open_debug_file(debugpath, crc, size);
++         }
+       }
+    }
+ 
+@@ -1001,6 +1009,10 @@
+       TRACE_SYMTAB("\n");
+       TRACE_SYMTAB("------ Found a debuginfo file: %s\n", debugpath);
+    }
++   else
++   {
++      TRACE_SYMTAB("------ No debuginfo file found\n");
++   }
+ 
+    ML_(dinfo_free)(debugpath);
+    ML_(dinfo_free)(objdir);
