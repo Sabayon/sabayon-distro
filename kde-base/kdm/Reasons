@@ -1,3 +1,2 @@
 # Fabio Erculiani <lxnay@sabayonlinux.org>
-kdm-3.5: It's here because I patched kdm init scripts to make them launch dbus-session and make GNOME happy
 kdm-4.x: added sabayon-artwork-kde dependency, updated kdmrc
