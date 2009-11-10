@@ -44,14 +44,19 @@ RDEPEND="opengl? ( virtual/opengl )
 	dev-libs/libpcre
 	dev-libs/lzo
 	>=dev-python/pysqlite-2
+	media-libs/a52dec
 	media-libs/alsa-lib
 	media-libs/faac
+	media-libs/flac
 	media-libs/fontconfig
 	media-libs/freetype
 	media-libs/glew
 	media-libs/jasper
+	media-libs/libdca
 	media-libs/libmad
 	media-libs/libpng
+	media-libs/libmms
+	media-libs/libmpeg2
 	media-libs/libogg
 	media-libs/libsamplerate
 	media-libs/libsdl[alsa,audio,video,X]
@@ -61,7 +66,10 @@ RDEPEND="opengl? ( virtual/opengl )
 	media-libs/sdl-mixer
 	media-libs/sdl-sound
 	media-libs/tiff
+	media-libs/jbigkit
+	media-sound/wavpack
 	media-sound/pulseaudio
+	media-video/ffmpeg
 	net-misc/curl
 	sys-apps/dbus
 	sys-apps/hal
