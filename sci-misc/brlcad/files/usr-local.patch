@@ -1,0 +1,11 @@
+--- old/configure.ac	2007-12-25 03:42:38.000000000 -0600
++++ new/configure.ac	2007-12-25 03:43:12.000000000 -0600
+@@ -647,7 +647,7 @@
+ ###
+ 
+ dnl automatically scan /usr/local (e.g. BSD uses /usr/local for ports)
+-BC_SEARCH_DIRECTORY([/usr/local])
++#BC_SEARCH_DIRECTORY([/usr/local])
+ 
+ dnl find tclConfig.sh, add --with-tcl option, don't cache result for AC_CONFIG_SUBDIRS
+ SC_PATH_TCLCONFIG
