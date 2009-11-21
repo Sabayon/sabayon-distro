@@ -11,6 +11,17 @@
  
  [ LinuxOnly ]
  # fix that allows OOo to work with a standard (unpatched) libjpeg,
+--- patches/dev300/kde4-configure2.diff
++++ patches/dev300/kde4-configure2.diff
+@@ -7,7 +7,7 @@
+ -   qt_incdirs="$QTINC $QTDIR /usr/include/qt4 /usr/include $x_includes"
+ -   qt_libdirs="$QTLIB /usr/lib $x_libraries"
+ +   qt_incdirs="$QT4INC $QT4DIR $QTINC $QTDIR /usr/include/qt4 /usr/include $x_includes"
+-+   qt_libdirs="$QT4LIB $QTLIB /usr/lib $x_libraries"
+++   qt_libdirs="$QT4LIB $QTLIB /usr/lib/qt4 /usr/lib $x_libraries"
+     
+     kde_incdirs="/usr/include $x_includes"
+     kde_libdirs="/usr/lib $x_libraries"
 --- patches/dev300/system-db-check.diff 
 +++ patches/dev300/system-db-check.diff 
 @@ -12,14 +12,16 @@
