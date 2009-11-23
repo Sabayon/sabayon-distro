@@ -1,14 +1,18 @@
 app-cdr/dvd95
 
-Ebuild added March, 2009
-Added by Mitch Harder <mitch.harder@sabayonlinux.org>
+23 November 2009
+Ian Whyman <ian.whyman@sabayonlinux.org>
+Bump to dvd95-1.5_p3. Fixes Gentoo #293041
+
+20 March 2009
+Mitch Harder <mitch.harder@sabayonlinux.org>
 
 New ebuild, added app-cdr/dvd95-1.5_p0 at the request of Wolfden.
 This ebuild will provide functionality similar to K9copy, but is
 gtk based, and has no KDE deps.
 
 This application is in Gentoo's repository; however, Gentoo has fallen
-behind on maintaining this ebuild, and is two versions behind.
 
+behind on maintaining this ebuild, and is two versions behind.
 This ebuild can be depricated if current ebuilds are picked up in 
 Gentoo portage.
