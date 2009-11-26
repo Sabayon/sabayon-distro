@@ -57,7 +57,8 @@ src_install() {
 	cp ${FILESDIR}/${P/-sources}-${ARCH}.config .config || die "cannot copy kernel config"
 	unset ARCH
 	make modules_prepare || die "failed to run modules_prepare"
-	rm .config
+	rm .config || die "cannot remove .config"
+	rm Makefile || die "cannot remove Makefile"
 	ARCH=${oldarch}
 
 }

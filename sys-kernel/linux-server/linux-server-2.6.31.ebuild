@@ -102,6 +102,7 @@ src_install() {
 
 	cp "${FILESDIR}/${PF/-r0/}-${OLDARCH}.config" .config
 	doins ".config" || die "cannot copy kernel config"
+	doins Makefile || die "cannot copy Makefile"
 	doins Module.symvers || die "cannot copy Module.symvers"
 	doins System.map || die "cannot copy System.map"
 
