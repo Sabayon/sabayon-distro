@@ -1,4 +1,0 @@
-#!/bin/sh
-
-QTDIR=/usr/qt/3
-/usr/bin/mythfilldatabase --no-delete --quiet
