@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-tv/mythtv/mythtv-0.22_alpha20959.ebuild,v 1.1 2009/07/19 23:59:47 cardoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-tv/mythtv/mythtv-0.23_alpha22857.ebuild,v 1.1 2009/11/19 06:51:28 cardoe Exp $
 
 EAPI=2
 inherit flag-o-matic multilib eutils qt4 mythtv toolchain-funcs python
@@ -9,10 +9,10 @@ DESCRIPTION="Homebrew PVR project"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 
-IUSE_VIDEO_CARDS="video_cards_nvidia"
-IUSE="alsa altivec autostart debug directv dvb dvd \
-fftw ieee1394 jack lcd lirc mmx perl python \
-tiff xvmc ${IUSE_VIDEO_CARDS}"
+IUSE_VIDEO_CARDS="video_cards_nvidia video_cards_via"
+IUSE="alsa altivec autostart +css debug directv dvb faad \
+fftw ieee1394 jack lcd lirc mmx perl pulseaudio python \
+tiff vdpau xvmc ${IUSE_VIDEO_CARDS}"
 
 RDEPEND=">=media-libs/freetype-2.0
 	>=media-sound/lame-3.93.1
@@ -22,11 +22,11 @@ RDEPEND=">=media-libs/freetype-2.0
 	x11-libs/libXv
 	x11-libs/libXrandr
 	x11-libs/libXxf86vm
-	x11-libs/qt-core:4[qt3support]
-	x11-libs/qt-gui:4[qt3support,tiff?]
-	x11-libs/qt-sql:4[qt3support,mysql]
-	x11-libs/qt-opengl:4[qt3support]
-	x11-libs/qt-webkit:4
+	>=x11-libs/qt-core-4.4:4[qt3support]
+	>=x11-libs/qt-gui-4.4:4[qt3support,tiff?]
+	>=x11-libs/qt-sql-4.4:4[qt3support,mysql]
+	>=x11-libs/qt-opengl-4.4:4[qt3support]
+	>=x11-libs/qt-webkit-4.4:4
 	virtual/mysql
 	virtual/opengl
 	virtual/glu
@@ -35,9 +35,10 @@ RDEPEND=">=media-libs/freetype-2.0
 	autostart? ( net-dialup/mingetty
 				x11-wm/evilwm
 				x11-apps/xset )
+	css? ( media-libs/libdvdcss )
 	directv? ( virtual/perl-Time-HiRes )
 	dvb? ( media-libs/libdvb media-tv/linuxtv-dvb-headers )
-	dvd? ( media-libs/libdvdcss )
+	faad? ( media-libs/faad2 )
 	fftw? ( sci-libs/fftw:3.0 )
 	ieee1394? (	>=sys-libs/libraw1394-1.2.0
 			>=sys-libs/libavc1394-0.5.3
@@ -46,17 +47,20 @@ RDEPEND=">=media-libs/freetype-2.0
 	lcd? ( app-misc/lcdproc )
 	lirc? ( app-misc/lirc )
 	perl? ( dev-perl/DBD-mysql )
+	pulseaudio? ( >=media-sound/pulseaudio-0.9.7 )
 	python? ( dev-python/mysql-python )
+	vdpau? ( x11-libs/libvdpau )
 	xvmc? ( x11-libs/libXvMC )"
 
 DEPEND="${RDEPEND}
 	x11-proto/xineramaproto
 	x11-proto/xf86vidmodeproto
-	x11-apps/xinit"
+	x11-apps/xinit
+	!<media-plugins/mythcontrols-0.22
+	!<x11-themes/mythtv-themes-0.22
+	!<x11-themes/mythtv-themes-extra-0.22"
 
 MYTHTV_GROUPS="video,audio,tty,uucp"
-
-S="${WORKDIR}/${MYTHTV_REPO}"
 
 pkg_setup() {
 	einfo "This ebuild now uses a heavily stripped down version of your CFLAGS"
@@ -67,22 +71,27 @@ pkg_setup() {
 		elog "the NVIDIA 4, 5, 6 & 7 series cards."
 	fi
 
+	# puts the SVN branch name into an environment variable that the build
+	# system reads and embeds into the binaries for version info
+	export URL=${MYTHTV_REPO}
+
 	enewuser mythtv -1 /bin/bash /home/mythtv ${MYTHTV_GROUPS}
 	usermod -a -G ${MYTHTV_GROUPS} mythtv
 }
 
 src_prepare() {
-	# upstream wants the revision number in their version.cpp
-	# since the subversion.eclass strips out the .svn directory
-	# svnversion in MythTV's build doesn't work
-	sed -e "s:\`(svnversion 2>\/dev\/null) || echo Unknown\`:${MYTHTV_REV}:" \
-		-i "${S}"/version.pro || die "svnversion sed failed"
+	# puts the SVN revision into a special file that the build system
+	# reads and embeds into the binaries for version info
+	echo "SOURCE_VERSION=${MYTHTV_REV}" > "${S}/VERSION"
 
 	# Perl bits need to go into vender_perl and not site_perl
 	sed -e "s:pure_install:pure_install INSTALLDIRS=vendor:" \
 		-i "${S}"/bindings/perl/perl.pro
 
 	epatch "${FILESDIR}/${PN}-0.21-ldconfig-sanxbox-fix.patch"
+
+	# fix for bug #292421 & #279944
+	epatch "${FILESDIR}/${PN}-0.22-x86-no-fpic.patch"
 }
 
 src_configure() {
@@ -91,12 +100,18 @@ src_configure() {
 		--libdir-name=$(get_libdir)"
 	use alsa || myconf="${myconf} --disable-audio-alsa"
 	use altivec || myconf="${myconf} --disable-altivec"
+	use faad && myconf="${myconf} --enable-libfaad"
 	use fftw && myconf="${myconf} --enable-libfftw3"
 	use jack || myconf="${myconf} --disable-audio-jack"
+	use vdpau && myconf="${myconf} --enable-vdpau"
 
-	#from bug #220857
-	use xvmc && myconf="${myconf} --enable-xvmc --enable-xvmcw \
-		--disable-xvmc-vld"
+	#from bug #220857 and fixed for bug #292481
+	use xvmc && myconf="${myconf} --enable-xvmc --enable-xvmcw"
+	if use video_cards_via && use xvmc; then
+		myconf="${myconf} --enable-xvmc-vld";
+	else
+		myconf="${myconf} --disable-xvmc-vld";
+	fi
 
 	# according to the Ubuntu guys, this works better being always on
 	myconf="${myconf} --enable-glx-procaddrarb"
@@ -138,9 +153,9 @@ src_configure() {
 	## CFLAG cleaning so it compiles
 	MARCH=$(get-flag "march")
 	MTUNE=$(get-flag "mtune")
-	strip-flags
-	filter-flags "-march=*" "-mtune=*" "-mcpu=*"
-	filter-flags "-O" "-O?"
+	#strip-flags
+	#filter-flags "-march=*" "-mtune=*" "-mcpu=*"
+	#filter-flags "-O" "-O?"
 
 	if [[ -n "${MARCH}" ]]; then
 		myconf="${myconf} --cpu=${MARCH}"
@@ -154,12 +169,10 @@ src_configure() {
 	hasq ccache ${FEATURES} || myconf="${myconf} --disable-ccache"
 
 	# let MythTV come up with our CFLAGS. Upstream will support this
-	CFLAGS=""
-	use x86 && CFLAGS="${CFLAGS} -fomit-frame-pointer"
-	CXXFLAGS=""
+	unset CFLAGS
+	unset CXXFLAGS
 	einfo "Running ./configure ${myconf}"
-	chmod +x configure
-	./configure ${myconf} || die "configure died"
+	sh ./configure ${myconf} || die "configure died"
 }
 
 src_compile() {
@@ -193,7 +206,7 @@ src_compile() {
 src_install() {
 
 	einstall INSTALL_ROOT="${D}" || die "install failed"
-	dodoc AUTHORS FAQ UPGRADING  README
+	dodoc AUTHORS FAQ UPGRADING README
 
 	insinto /usr/share/mythtv/database
 	doins database/*
@@ -208,9 +221,9 @@ src_install() {
 	dohtml docs/*.html
 
 	keepdir /etc/mythtv
-	chown -R mythtv "${D}"/etc/mythtv
+	fowners -R mythtv "${D}"/etc/mythtv
 	keepdir /var/log/mythtv
-	chown -R mythtv "${D}"/var/log/mythtv
+	fowners -R mythtv "${D}"/var/log/mythtv
 
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/mythtv.logrotate.d mythtv
@@ -219,6 +232,17 @@ src_install() {
 	doins -r contrib/*
 
 	dobin "${FILESDIR}"/runmythfe
+
+	# add icon from MythTV's website (scaled to 32x32)
+	# for desktop entry
+	insinto /usr/share/pixmaps
+	doins "${FILESDIR}"/mythtv.png
+
+	# create desktop entry for mythfrontend
+	make_desktop_entry /usr/bin/mythfrontend "MythFrontend" mythtv.png \
+		"AudioVideo;TV;;" "/etc/mythtv/"
+	make_desktop_entry /usr/bin/mythtv-setup "MythTV Setup" mythtv.png \
+		"AudioVideo;TV;;" "/etc/mythtv/"
 
 	if use autostart; then
 		dodir /etc/env.d/
@@ -244,9 +268,15 @@ src_install() {
 	newdoc contrib/channel_changers/red_eye/README README.red_eye
 
 	if use directv; then
-		dobin contrib/channel_changers/d10control.pl || die "failed to install d10control"
+		dobin contrib/channel_changers/d10control/d10control.pl || die "failed to install d10control"
 		newdoc contrib/channel_changers/d10control/README README.d10control
 	fi
+
+	# correct permissions so the scripts are actually usable
+	fperms 755 /usr/share/mythtv/contrib/*/*.pl
+	fperms 755 /usr/share/mythtv/mythconverg_backup.pl
+	fperms 755 /usr/share/mythtv/mythconverg_restore.pl
+
 }
 
 pkg_preinst() {
@@ -254,12 +284,7 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	python_version
-	python_mod_optimize /usr/$(get_libdir)/python${PYVER}/site-packages/MythTV
-
-	elog "Want mythfrontend to start automatically?"
-	elog "Set USE=autostart. Details can be found at:"
-	elog "http://dev.gentoo.org/~cardoe/mythtv/autostart.html"
+	use python && python_mod_optimize $(python_get_sitedir)/MythTV
 
 	elog
 	elog "To always have MythBackend running and available run the following:"
@@ -276,6 +301,10 @@ pkg_postinst() {
 		ewarn "'eselect xvmc set nvidia' for example"
 	fi
 
+	elog "Want mythfrontend to start automatically?"
+	elog "Set USE=autostart. Details can be found at:"
+	elog "http://dev.gentoo.org/~cardoe/mythtv/autostart.html"
+
 	if use autostart; then
 		elog
 		elog "Please add the following to your /etc/inittab file at the end of"
@@ -283,11 +312,19 @@ pkg_postinst() {
 		elog "c8:2345:respawn:/sbin/mingetty --autologin mythtv tty8"
 	fi
 
+	elog
+	ewarn "Beware when you change ANY packages on your system that it may"
+	ewarn "break some or all of the MythTV components. MythTV's build system"
+	ewarn "is very fragile and only supports automagic dependencies."
+	ewarn "i.e. It depends on libraries and components it finds at build time"
+	ewarn "We try to mitigate this with RDEPENDs but be prepared to run"
+	ewarn "revdep-rebuild as necessary."
+
 }
 
 pkg_postrm()
 {
-	python_mod_cleanup /usr/$(get_libdir)/python*/site-packages/MythTV
+	use python && python_mod_cleanup $(python_get_sitedir)/MythTV
 }
 
 pkg_info() {

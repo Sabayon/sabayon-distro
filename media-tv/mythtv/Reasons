@@ -1,0 +1,2 @@
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+Fix long standing MMX compilation bug on x86
