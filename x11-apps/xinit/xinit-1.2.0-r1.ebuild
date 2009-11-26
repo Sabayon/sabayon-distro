@@ -51,6 +51,7 @@ src_install() {
 	doexe "${FILESDIR}/00-xhost"
 }
 
+CONFD_XDM="${ROOT}/etc/conf.d/xdm"
 pkg_preinst() {
         # backup user /etc/conf.d/xdm
         if [ -f "${CONFD_XDM}" ]; then
