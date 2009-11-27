@@ -68,6 +68,8 @@ pkg_postinst() {
 	# add entropy_client service
 	rc-update add entropy_client default &> /dev/null
 
+	# force python 2.6 at least
+	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3 --ignore 2.7
 
 }
 
