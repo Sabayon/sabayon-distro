@@ -6,7 +6,7 @@ EAPI=2
 
 inherit eutils fdo-mime pax-utils
 
-MY_PV=${PV}-53138
+MY_PV=${PV}-55467
 MY_P=VirtualBox-${MY_PV}-Linux
 
 DESCRIPTION="Family of powerful x86 virtualization products for enterprise as well as home use"
