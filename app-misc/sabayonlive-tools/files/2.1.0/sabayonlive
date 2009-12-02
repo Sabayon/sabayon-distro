@@ -8,16 +8,6 @@ depend() {
 	before xdm
 }
 
-my_setup_threed() {
-
-	cmdline_aiglx_exist=$(cat /proc/cmdline | grep " aiglx")
-	# Configure AIGLX ?
-	if [ -n "$cmdline_aiglx_exist" ] && [ -z "$cmdline_xgl_exist" ]; then
-		/sbin/aiglx-setup enable &> /dev/null
-	fi
-	
-}
-
 prepare_fluxbox_locked_autologin() {
 
 	# change default wm to fluxbox
@@ -61,33 +51,8 @@ my_setup_desktop() {
 		sed -i 's/Exec=/Exec=sudo /' "${gparted_file}"
 	fi
 
-	# create md devices
-	cd /dev && MAKEDEV md
-
 	# create /overlay, this way df -h won't bitch
 	mkdir /overlay
-
-}
-
-my_setup_realtech_nic() {
-
-	# Try to fix 8139cp and 8139too problems
-	is_8139_loaded=$(lsmod | grep 8139cp || lsmod | grep 8139too)
-	if [ -n "$is_8139_loaded" ]; then
-		# Yes it is
-		are_there_problems_with_8139cp=$(dmesg | grep -i 'Try the "8139too" driver instead')
-		are_there_problems_with_8139too=$(dmesg | grep -i 'Try the "8139cp" driver instead')
-		if [ -n "$are_there_problems_with_8139cp" ]; then
-			rmmod 8139cp
-			echo "blacklist 8139cp" >> /etc/modules.d/blacklist
-			modprobe 8139too
-		fi
-		if [ -n "$are_there_problems_with_8139too" ]; then
-			rmmod 8139too
-			echo "blacklist 8139too" >> /etc/modules.d/blacklist
-			modprobe 8139cp
-		fi
-	fi
 
 }
 
@@ -99,11 +64,6 @@ my_setup_password() {
 		echo -e "\E[33;36m * \E[0m\E[01;36m Autoscrambling root passwords for   S E C U R I T Y"
 		echo root:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
 		echo sabayonuser:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
-		echo
-	else
-		echo
-		echo -e "\t *\E[01;32m root password\E[0m : \E[01;33m root \E[0m"
-		echo -e "\t *\E[01;32m username\E[0m : \E[01;33m sabayonuser\E[0m |\E[01;32m password\E[0m : \E[01;33m sabayonuser\E[0m"
 		echo
 	fi
 
@@ -460,7 +420,6 @@ start() {
 
 	source /sbin/sabayon-functions.sh
 
-	my_setup_realtech_nic
 	my_setup_desktop
 	my_setup_password
 	my_setup_session
@@ -473,8 +432,6 @@ start() {
 	my_setup_locale
 	# setup autologin for all the supported Login managers
 	sabayon_setup_autologin
-	# Start Accel Manager or Configure XGL/AIGLX
-	my_setup_threed
 	sabayon_setup_motd
 	sabayon_setup_vt_autologin
 
