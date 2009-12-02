@@ -29,10 +29,6 @@ start() {
 
         lspci_vga=$(lspci | grep ' VGA ')
         if [ "$lspci_vga" != "`cat /etc/gpu-detector.conf`" ] || [ ! -f /etc/X11/xorg.conf ]; then
-            if [ -e "/sbin/aiglx-setup" ]; then
-                /sbin/aiglx-setup disable &> /dev/null
-            fi
-
             /usr/sbin/x-setup-configuration &> /dev/null
             lspci | grep ' VGA ' > /etc/gpu-detector.conf
         fi

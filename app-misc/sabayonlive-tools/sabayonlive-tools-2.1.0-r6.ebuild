@@ -16,7 +16,6 @@ RDEPEND="dev-util/dialog
 	sys-apps/gawk
 	app-admin/eselect-opengl
 	!app-misc/livecd-tools
-	x11-misc/desktop-acceleration-helpers
 	"
 DEPEND="${RDEPEND}"
 
