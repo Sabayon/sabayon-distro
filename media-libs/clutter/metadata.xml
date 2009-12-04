@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>gnome</herd>
+<use>
+	<flag name="gtk">Use gdk-pixbuf from <pkg>x11-libs/gtk+</pkg> as image rendering backend</flag>
+	<flag name="introspection">Use <pkg>dev-libs/gobject-introspection</pkg> for
+		introspection</flag>
+	<flag name="opengl">Use <pkg>virtual/opengl</pkg> as the backend for
+		rendering (default)</flag>
+	<flag name="sdl">Use <pkg>media-libs/libsdl</pkg> as the backend for
+		rendering. You need to do "-opengl sdl" to enable this</flag>
+</use>
+</pkgmetadata>
