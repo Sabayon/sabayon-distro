@@ -5,15 +5,14 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Extra Artwork, Including Compiz/Emerald Themes and misc others"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.lzma"
+SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="nomirror"
 RDEPEND="!x11-themes/sabayonlinux-artwork
-		 !x11-themes/sabayon-artwork-star
-		 !x11-themes/sabayon-artwork-darkblend"
+	~x11-themes/sabayon-artwork-core-${PV}"
 
 S="${WORKDIR}/${PN}"
 
@@ -22,7 +21,7 @@ src_install () {
 	cd ${S}/compiz
 	dodir /usr/share/compiz
 	insinto /usr/share/compiz/
-	doins *.png
+	doins *.jpg
 
 	# Emerald theme
 	cd ${S}/emerald

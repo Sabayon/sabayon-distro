@@ -5,13 +5,13 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official GNOME artwork"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.lzma"
+SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="nomirror"
-RDEPEND="=x11-themes/sabayon-artwork-core-${PV}
+RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
 	 x11-themes/gtk-engines
 	 x11-themes/gtk-engines-murrine
 	!x11-themes/murrine

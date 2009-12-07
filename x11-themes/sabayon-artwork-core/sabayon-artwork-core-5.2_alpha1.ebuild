@@ -5,17 +5,14 @@ inherit eutils mount-boot sabayon-artwork
 
 DESCRIPTION="Sabayon Core Artwork, contains Gensplash, Wallpapers and Mouse themes"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.lzma"
+SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="nomirror"
 RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
 	!<x11-themes/sabayon-artwork-4
-	!x11-themes/sabayon-artwork-star
-	!x11-themes/sabayon-artwork-darkblend
-	!x11-themes/sabayon-artwork-corecd
 	sys-apps/findutils
 	!<sys-boot/grub-0.97-r22
 	"
@@ -37,8 +34,9 @@ src_install () {
 	# Wallpaper
 	cd ${S}/background
 	insinto /usr/share/backgrounds
-	doins *.png
+	doins *.png *.jpg
 
+	# Grub
 	dodir /boot/grub
 	insinto /boot/grub
 	doins "${FILESDIR}/5.0/splash.xpm.gz"
