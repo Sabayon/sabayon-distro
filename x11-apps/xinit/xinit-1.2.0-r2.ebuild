@@ -44,7 +44,7 @@ src_install() {
 	doexe "${FILESDIR}"/xserverrc || die
 	newinitd "${FILESDIR}"/xdm.initd-4 xdm || die
 	newinitd "${FILESDIR}"/xdm-setup.initd-1 xdm-setup || die
-	newconfd "${FILESDIR}"/xdm.confd-2 xdm || die
+	newconfd "${FILESDIR}"/xdm.confd-2 xdm.example || die
 	newpamd "${FILESDIR}"/xserver.pamd xserver
 	dodir /etc/X11/xinit/xinitrc.d
 	exeinto /etc/X11/xinit/xinitrc.d/

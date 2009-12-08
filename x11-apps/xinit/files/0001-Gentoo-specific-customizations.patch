@@ -1,14 +1,14 @@
-From bba43805362a62c835ce2af34bc1087d9c442b19 Mon Sep 17 00:00:00 2001
+From 57ce122fe4092fa3bffbd61b04ab69ef32426920 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Cardona?= <remi@gentoo.org>
-Date: Tue, 17 Nov 2009 09:12:02 +0100
+Date: Sat, 28 Nov 2009 22:14:17 +0100
 Subject: [PATCH] Gentoo-specific customizations
 
 ---
- xinitrc.cpp |   28 ++++++++++++++++------------
- 1 files changed, 16 insertions(+), 12 deletions(-)
+ xinitrc.cpp |   29 +++++++++++++++++------------
+ 1 files changed, 17 insertions(+), 12 deletions(-)
 
 diff --git a/xinitrc.cpp b/xinitrc.cpp
-index 379b1f3..5b517ea 100644
+index 379b1f3..b6186df 100644
 --- a/xinitrc.cpp
 +++ b/xinitrc.cpp
 @@ -2,8 +2,8 @@ XCOMM!SHELL_CMD
@@ -22,7 +22,7 @@ index 379b1f3..5b517ea 100644
  
  XCOMM merge in defaults and keymaps
  
-@@ -84,19 +84,23 @@ fi
+@@ -84,19 +84,24 @@ fi
  XCOMM This is the fallback case if nothing else is executed above
  #endif /* !defined(__SCO__)  && !defined(__UNIXWARE__) */
  
@@ -30,7 +30,6 @@ index 379b1f3..5b517ea 100644
 +if [ -n "`/etc/X11/chooser.sh`" ]; then
 +	command="`/etc/X11/chooser.sh`"
 +else
-+	command=XTERM -geometry 80x66+0+0 -name login
 +	failsafe="yes"
 +fi
  
@@ -54,8 +53,10 @@ index 379b1f3..5b517ea 100644
 +	XCLOCK -geometry 50x50-1+1 &
 +	XTERM -geometry 80x50+494+51 &
 +	XTERM -geometry 80x20+494-0 &
++	exec XTERM -geometry 80x66+0+0 -name login
++else
++	exec $command
 +fi
-+exec $command
 -- 
-1.6.5.2
+1.6.5.3
 
