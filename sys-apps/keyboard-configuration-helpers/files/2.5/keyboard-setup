@@ -233,6 +233,8 @@ def configureKDEKeymap():
 
         for file in kxkbrcFiles:
             file = file.strip()
+            if not os.path.isfile(file):
+                continue
             print_info("configuring KDE file "+file)
             # Open file and edit
             fstat = os.stat(file)
