@@ -1,0 +1,12 @@
+--- patches/dev300/apply 
++++ patches/dev300/apply 
+@@ -101,7 +101,7 @@
+ # openmamba
+ openmamba: LinuxCommon, GlobalDesktopFiles
+ #Gentoo
+-GentooBase : LinuxCommon, GentooOnly, NotDebian, Lockdown, CairoFonts, BerkeleyDB43, IntegrateExtensions
++GentooBase : LinuxCommon, GentooOnly, NotDebian, Lockdown, BerkeleyDB43, IntegrateExtensions
+ GentooUnstable: GentooBase, GentooExperimental, MySQL
+ Gentoo : GentooBase
+ Gentoo64: GentooBase
+

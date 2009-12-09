@@ -1,17 +1,17 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.1.1.ebuild,v 1.9 2009/09/24 08:27:55 suka Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.1.1.ebuild,v 1.25 2009/11/28 20:54:32 suka Exp $
 
 WANT_AUTOMAKE="1.9"
 EAPI="2"
 KDE_REQUIRED="optional"
-WANT_CMAKE="false"
+CMAKE_REQUIRED="false"
 
 inherit bash-completion check-reqs db-use eutils fdo-mime flag-o-matic java-pkg-opt-2 kde4-base mono multilib toolchain-funcs
 
 IUSE="binfilter cups dbus debug eds gnome gstreamer gtk kde ldap mono nsplugin odk opengl pam templates"
 
-MY_PV=3.1.1.2
+MY_PV=3.1.1.5
 PATCHLEVEL=OOO310
 SRC=OOo_${PV}_src
 MST=ooo310-m19
@@ -61,7 +61,10 @@ HOMEPAGE="http://go-oo.org"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc x86"
+KEYWORDS="amd64 ppc x86 ~sparc"
+
+# Temp to smooth upgrade to split artwork
+PDEPEND="x11-themes/sabayon-artwork-ooo"
 
 COMMON_DEPEND="!app-office/openoffice-bin
 	x11-libs/libXaw
@@ -84,7 +87,7 @@ COMMON_DEPEND="!app-office/openoffice-bin
 		dev-java/lucene-analyzers:2.3
 		dev-java/rhino:1.5 )
 	mono? ( || ( >dev-lang/mono-2.4-r1 <dev-lang/mono-2.4 ) )
-	nsplugin? ( || ( net-libs/xulrunner:1.8 net-libs/xulrunner:1.9 =www-client/seamonkey-1* )
+	nsplugin? ( || ( net-libs/xulrunner:1.9 net-libs/xulrunner:1.8 =www-client/seamonkey-1* )
 		>=dev-libs/nspr-4.6.6
 		>=dev-libs/nss-3.11-r1 )
 	opengl? ( virtual/opengl
@@ -108,6 +111,7 @@ COMMON_DEPEND="!app-office/openoffice-bin
 	>=virtual/poppler-0.8.0"
 
 RDEPEND="java? ( >=virtual/jre-1.5 )
+	${SPELL_DIRS_DEPEND}
 	${COMMON_DEPEND}"
 
 DEPEND="${COMMON_DEPEND}
@@ -119,8 +123,6 @@ DEPEND="${COMMON_DEPEND}
 	x11-proto/xineramaproto
 	>=sys-apps/findutils-4.1.20-r1
 	dev-perl/Archive-Zip
-	virtual/perl-IO-Compress
-	>=virtual/perl-Compress-Raw-Zlib-2.002
 	dev-util/pkgconfig
 	dev-util/intltool
 	>=dev-libs/boost-1.33.1
@@ -148,10 +150,7 @@ pkg_setup() {
 	ewarn " build when it comes to CFLAGS.  A number of flags have already "
 	ewarn " been filtered out.  If you experience difficulty merging this  "
 	ewarn " package and use agressive CFLAGS, lower the CFLAGS and try to  "
-	ewarn " merge again. Also note that building OOo takes a lot of time and "
-	ewarn " hardware ressources: 4-6 GB free diskspace and 256 MB RAM are "
-	ewarn " the minimum requirements. If you have less, use openoffice-bin "
-	ewarn " instead. "
+	ewarn " merge again. "
 	ewarn
 	ewarn " Also if you experience a build break, please make sure to retry "
 	ewarn " with MAKEOPTS="-j1" before filing a bug. "
@@ -159,7 +158,7 @@ pkg_setup() {
 
 	# Check if we have enough RAM and free diskspace to build this beast
 	CHECKREQS_MEMORY="512"
-	use debug && CHECKREQS_DISK_BUILD="8192" || CHECKREQS_DISK_BUILD="6144"
+	use debug && CHECKREQS_DISK_BUILD="12288" || CHECKREQS_DISK_BUILD="6144"
 	check_reqs
 
 	export LINGUAS_OOO="en-US"
@@ -224,6 +223,8 @@ src_prepare() {
 	epatch "${FILESDIR}/gentoo-${PV}.diff"
 	epatch "${FILESDIR}/gentoo-pythonpath.diff"
 	epatch "${FILESDIR}/ooo-env_log.diff"
+	epatch "${FILESDIR}/Gentoo_ODK_install.patch"
+	use !gtk && use !gnome && epatch "${FILESDIR}/nocairofonts.diff"
 	cp -f "${FILESDIR}/base64.diff" "${S}/patches/hotfixes" || die
 	cp -f "${FILESDIR}/boost-undefined-references.diff" "${S}/patches/hotfixes" || die
 
@@ -276,15 +277,14 @@ src_prepare() {
 
 	echo "--without-writer2latex" >> ${CONFFILE}
 
+	# Use splash screen without Sun logo
+	echo "--with-intro-bitmaps=\\\"${S}/build/${MST}/ooo_custom_images/nologo/introabout/intro.bmp\\\"" >> ${CONFFILE}
+
 	# Upstream this
 	echo "--with-system-redland" >> ${CONFFILE}
 
-    echo "--with-intro-bitmaps=\\\"${FILESDIR}/intro-3.1.bmp\\\"" >> ${CONFFILE}
-    echo "--with-about-bitmaps=\\\"${FILESDIR}/about-3.1.bmp\\\"" >> ${CONFFILE}
-    
-    # Swap Vendor to Sabayon
+	# Swap vendor to Sabayon
 	sed -i '/--with-vendor=/ s/Gentoo Foundation/Sabayon Linux/' "${CONFFILE}"
-        
 }
 
 src_configure() {
@@ -376,6 +376,10 @@ src_install() {
 	dobashcompletion "${D}"/etc/bash_completion.d/ooffice.sh ooffice
 	rm -rf "${D}"/etc/bash_completion.d/ || die "rm failed"
 
+	# Remove splashes, provided by x11-themes/sabayon-artwork-ooo
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro-3.1.bmp || die "intro rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro-3.1.bmp || die "intro rm failed"
+
 }
 
 pkg_postinst() {
@@ -384,16 +388,10 @@ pkg_postinst() {
 	fdo-mime_mime_database_update
 	BASH_COMPLETION_NAME=ooffice && bash-completion_pkg_postinst
 
-	[[ -x /sbin/chpax ]] && [[ -e /usr/$(get_libdir)/openoffice/program/soffice.bin ]] && chpax -zm /usr/$(get_libdir)/openoffice/program/soffice.bin
+	( [[ -x /sbin/chpax ]] || [[ -x /sbin/paxctl ]] ) && [[ -e /usr/$(get_libdir)/openoffice/program/soffice.bin ]] && scanelf -Xzm /usr/$(get_libdir)/openoffice/program/soffice.bin
 
 	# Add available & useful jars to openoffice classpath
 	use java && /usr/$(get_libdir)/openoffice/${BASIS}/program/java-set-classpath $(java-config --classpath=jdbc-mysql 2>/dev/null) >/dev/null
-
-	elog
-	elog " Spell checking is provided through our own myspell-ebuilds, "
-	elog " if you want to use it, please install the correct myspell package "
-	elog " according to your language needs. "
-	elog
 
 	elog " Some aditional functionality can be installed via Extension Manager: "
 	elog " *) PDF Import "
