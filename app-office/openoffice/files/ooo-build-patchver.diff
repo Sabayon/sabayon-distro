@@ -1,0 +1,17 @@
+diff -Nrup ooo-build-3.1.1.4.old/patches/apply.pl.in ooo-build-3.1.1.4/patches/apply.pl.in
+--- ooo-build-3.1.1.4.old/patches/apply.pl.in	2009-08-05 12:20:53.000000000 +0000
++++ ooo-build-3.1.1.4/patches/apply.pl.in	2009-11-21 19:55:48.000000000 +0000
+@@ -920,8 +920,11 @@ sub is_old_patch_version()
+ 
+     open ($Patch, "@GNUPATCH@ --version|") || die "Can't run patch: $!";
+     $ver_line = <$Patch>;
+-    $ver_line =~ m/\s+(\d+)\.(\d+)\.(\d+)/ || die "Can't get patch version\n";
+-    if ($1 >= 2 && $2 >= 5 && $3 >= 9) {
++    $ver_line =~ m/\s+(\d+)\.(\d+)\.(\d+)/ ||
++            $ver_line =~ m/\s+(\d+)\.(\d+)/ ||
++            $ver_line =~ m/\s+(\d+)/ ||
++            die "Can't get patch version\n";
++    if ($1 > 2 || ($1 == 2 && ($2 > 5 || ($2 == 5 && $3 >= 9)))) {
+ 	$is_old = 0;
+     }
+     

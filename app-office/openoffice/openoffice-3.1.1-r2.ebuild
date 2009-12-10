@@ -223,6 +223,7 @@ src_prepare() {
 	epatch "${FILESDIR}/gentoo-${PV}.diff"
 	epatch "${FILESDIR}/gentoo-pythonpath.diff"
 	epatch "${FILESDIR}/ooo-env_log.diff"
+	epatch "${FILESDIR}/ooo-build-patchver.diff"
 	epatch "${FILESDIR}/Gentoo_ODK_install.patch"
 	use !gtk && use !gnome && epatch "${FILESDIR}/nocairofonts.diff"
 	cp -f "${FILESDIR}/base64.diff" "${S}/patches/hotfixes" || die
