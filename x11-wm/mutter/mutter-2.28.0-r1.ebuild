@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit gnome2
+inherit eutils gnome2
 
 DESCRIPTION="Upcoming GNOME 3 window manager (derived from metacity)"
 HOMEPAGE="http://blogs.gnome.org/metacity/"
@@ -47,6 +47,12 @@ DEPEND="${RDEPEND}
 	x11-proto/xproto"
 
 DOCS="AUTHORS ChangeLog HACKING MAINTAINERS NEWS README *.txt doc/*.txt"
+
+src_prepare() {
+	epatch "${FILESDIR}/${P}-remove-uninitialized-variables.diff"
+	elibtoolize
+	gnome2_omf_fix
+}
 
 pkg_setup() {
 	G2CONF="${G2CONF}
