@@ -2,17 +2,6 @@
 # Distributed under the terms of the GNU General Public License v2
 # $
 
-inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
-
-# from kernel-2 eclass
-detect_version
-detect_arch
-
-# export all the available functions here
-EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_install pkg_preinst pkg_postinst pkg_postrm
-
-DESCRIPTION="Sabayon Linux kernel functions and phases"
-
 # @ECLASS-VARIABLE: K_SABPATCHES_VER
 # @DESCRIPTION:
 # The version of the sabayon patches tarball(s) to apply.
@@ -23,6 +12,19 @@ DESCRIPTION="Sabayon Linux kernel functions and phases"
 # The kernel name used by the ebuild, it should be the ending ${PN} part
 # for example, of linux-sabayon it is "sabayon", for linux-server it is "server"
 K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-sabayon}"
+
+KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
+
+inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
+
+# from kernel-2 eclass
+detect_version
+detect_arch
+
+# export all the available functions here
+EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_install pkg_preinst pkg_postinst pkg_postrm
+
+DESCRIPTION="Sabayon Linux kernel functions and phases"
 
 ## kernel-2 eclass settings
 K_NOSETEXTRAVERSION="1"
