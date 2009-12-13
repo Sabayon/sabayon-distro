@@ -1,0 +1,202 @@
+diff -Naur chromium-4.0.212.0_p26343.orig/base/message_pump_libevent.cc chromium-4.0.212.0_p26343/base/message_pump_libevent.cc
+--- chromium-4.0.212.0_p26343.orig/base/message_pump_libevent.cc	2009-09-17 17:06:50.000000000 +0200
++++ chromium-4.0.212.0_p26343/base/message_pump_libevent.cc	2009-09-17 17:11:01.000000000 +0200
+@@ -12,7 +12,11 @@
+ #include "base/scoped_nsautorelease_pool.h"
+ #include "base/scoped_ptr.h"
+ #include "base/time.h"
++#if defined(USE_SYSTEM_LIBEVENT)
++#include <event.h>
++#else
+ #include "third_party/libevent/event.h"
++#endif
+ 
+ // Lifecycle of struct event
+ // Libevent uses two main data structures:
+diff -Naur chromium-4.0.212.0_p26343.orig/chrome/browser/debugger/devtools_remote_listen_socket.cc chromium-4.0.212.0_p26343/chrome/browser/debugger/devtools_remote_listen_socket.cc
+--- chromium-4.0.212.0_p26343.orig/chrome/browser/debugger/devtools_remote_listen_socket.cc	2009-09-17 17:06:51.000000000 +0200
++++ chromium-4.0.212.0_p26343/chrome/browser/debugger/devtools_remote_listen_socket.cc	2009-09-17 17:10:49.000000000 +0200
+@@ -18,8 +18,12 @@
+ #include "base/message_loop.h"
+ #include "base/message_pump_libevent.h"
+ #include "net/base/net_errors.h"
++#if defined(USE_SYSTEM_LIBEVENT)
++#include <event.h>
++#else
+ #include "third_party/libevent/event.h"
+ #endif
++#endif
+ 
+ #include "base/eintr_wrapper.h"
+ #include "base/platform_thread.h"
+diff -Naur chromium-4.0.212.0_p26343.orig/net/base/listen_socket.cc chromium-4.0.212.0_p26343/net/base/listen_socket.cc
+--- chromium-4.0.212.0_p26343.orig/net/base/listen_socket.cc	2009-09-17 17:06:23.000000000 +0200
++++ chromium-4.0.212.0_p26343/net/base/listen_socket.cc	2009-09-17 17:10:12.000000000 +0200
+@@ -13,8 +13,12 @@
+ #include <sys/socket.h>
+ #include <arpa/inet.h>
+ #include "net/base/net_errors.h"
++#if defined(USE_SYSTEM_LIBEVENT)
++#include <event.h>
++#else
+ #include "third_party/libevent/event.h"
+ #endif
++#endif
+ 
+ #include "base/eintr_wrapper.h"
+ #include "net/base/net_util.h"
+diff -Naur chromium-4.0.212.0_p26343.orig/net/base/telnet_server.cc chromium-4.0.212.0_p26343/net/base/telnet_server.cc
+--- chromium-4.0.212.0_p26343.orig/net/base/telnet_server.cc	2009-09-17 17:06:23.000000000 +0200
++++ chromium-4.0.212.0_p26343/net/base/telnet_server.cc	2009-09-17 17:10:06.000000000 +0200
+@@ -13,7 +13,11 @@
+ #include <sys/socket.h>
+ #include "base/message_loop.h"
+ #include "net/base/net_errors.h"
++#if defined(USE_SYSTEM_LIBEVENT)
++#include <event.h>
++#else
+ #include "third_party/libevent/event.h"
++#endif
+ #include "base/message_pump_libevent.h"
+ #endif
+ 
+diff -Naur chromium-4.0.212.0_p26343.orig/net/socket/tcp_client_socket_libevent.cc chromium-4.0.212.0_p26343/net/socket/tcp_client_socket_libevent.cc
+--- chromium-4.0.212.0_p26343.orig/net/socket/tcp_client_socket_libevent.cc	2009-09-17 17:06:23.000000000 +0200
++++ chromium-4.0.212.0_p26343/net/socket/tcp_client_socket_libevent.cc	2009-09-17 17:09:49.000000000 +0200
+@@ -15,8 +15,11 @@
+ #include "base/trace_event.h"
+ #include "net/base/io_buffer.h"
+ #include "net/base/net_errors.h"
++#if defined(USE_SYSTEM_LIBEVENT)
++#include <event.h>
++#else
+ #include "third_party/libevent/event.h"
+-
++#endif
+ 
+ namespace net {
+ 
+diff -Naur chromium-4.0.212.0_p26343.orig/third_party/libevent/libevent.gyp chromium-4.0.212.0_p26343/third_party/libevent/libevent.gyp
+--- chromium-4.0.212.0_p26343.orig/third_party/libevent/libevent.gyp	2009-12-02 17:36:16.000000000 +0100
++++ chromium-4.0.212.0_p26343/third_party/libevent/libevent.gyp	2009-12-02 17:46:03.000000000 +0100
+@@ -3,54 +3,78 @@
+ # found in the LICENSE file.
+ 
+ {
+-  'targets': [
+-    {
+-      'target_name': 'libevent',
+-      'product_name': 'event',
+-      'type': '<(library)',
+-      'sources': [
+-        'buffer.c',
+-        'evbuffer.c',
+-        'evdns.c',
+-        'event.c',
+-        'event_tagging.c',
+-        'evrpc.c',
+-        'evutil.c',
+-        'http.c',
+-        'log.c',
+-        'poll.c',
+-        'select.c',
+-        'signal.c',
+-        'strlcpy.c',
++  'variables': {
++    'use_system_libevent%': 0,
++  },
++  'conditions': [
++    ['use_system_libevent==0', {
++      'targets': [
++        {
++          'target_name': 'libevent',
++          'product_name': 'event',
++          'type': '<(library)',
++          'sources': [
++            'buffer.c',
++            'evbuffer.c',
++            'evdns.c',
++            'event.c',
++            'event_tagging.c',
++            'evrpc.c',
++            'evutil.c',
++            'http.c',
++            'log.c',
++            'poll.c',
++            'select.c',
++            'signal.c',
++            'strlcpy.c',
++          ],
++          'defines': [
++            'HAVE_CONFIG_H',
++          ],
++          'include_dirs': [
++            '.',   # libevent includes some of its own headers with #include <...>
++                   # instead of #include "..."
++          ],
++          'conditions': [
++            # libevent has platform-specific implementation files.  Since its
++            # native build uses autoconf, platform-specific config.h files are
++            # provided and live in platform-specific directories.
++            [ 'OS == "linux"', {
++              'sources': [ 'epoll.c', 'epoll_sub.c' ],
++              'include_dirs': [ 'linux' ],
++              'link_settings': {
++                'libraries': [
++                  # We need rt for clock_gettime().
++                  # TODO(port) Maybe on FreeBSD as well?
++                  '-lrt',
++                ],
++              },
++            }],
++            [ 'OS == "mac" or OS == "freebsd"', {
++              'sources': [ 'kqueue.c' ],
++              'include_dirs': [ 'mac' ]
++            }],
++          ],
++        },
+       ],
+-      'defines': [
+-        'HAVE_CONFIG_H',
+-      ],
+-      'include_dirs': [
+-        '.',   # libevent includes some of its own headers with #include <...>
+-               # instead of #include "..."
+-      ],
+-      'conditions': [
+-        # libevent has platform-specific implementation files.  Since its
+-        # native build uses autoconf, platform-specific config.h files are
+-        # provided and live in platform-specific directories.
+-        [ 'OS == "linux"', {
+-          'sources': [ 'epoll.c', 'epoll_sub.c' ],
+-          'include_dirs': [ 'linux' ],
++    }, {
++      'targets': [
++        {
++          'target_name': 'libevent',
++          'type': 'settings',
++          'direct_dependent_settings': {
++            'defines': [
++              'USE_SYSTEM_LIBEVENT',
++            ],
++          },
+           'link_settings': {
+             'libraries': [
+-              # We need rt for clock_gettime().
+-              # TODO(port) Maybe on FreeBSD as well?
+-              '-lrt',
++              '-levent',
+             ],
+           },
+-        }],
+-        [ 'OS == "mac" or OS == "freebsd"', {
+-          'sources': [ 'kqueue.c' ],
+-          'include_dirs': [ 'mac' ]
+-        }],
++        }
+       ],
+-    },
++    }],
+   ],
+ }
+ 

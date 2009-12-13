@@ -1,0 +1,11 @@
+--- chromium-4.0.266.0/webkit/glue/webkit_glue.cc
++++ chromium-4.0.266.0/webkit/glue/webkit_glue.cc.new
+@@ -454,7 +454,7 @@ void BuildUserAgent(bool mimic_chrome1, 
+   StringAppendF(
+       result,
+       "Mozilla/5.0 (%s; %c; %s; %s) AppleWebKit/%d.%d"
+-      " (KHTML, like Gecko) %s Safari/%d.%d",
++      " (KHTML, like Gecko) Sabayon %s Safari/%d.%d",
+       mimic_windows ? "Windows" : kUserAgentPlatform,
+       kUserAgentSecurity,
+       ((mimic_windows ? "Windows " : "") + BuildOSCpuInfo()).c_str(),
