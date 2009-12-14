@@ -8,7 +8,7 @@ PATCHLEVEL=${PV##*_p}
 
 DESCRIPTION="Driver for the ACX100 and ACX111 wireless chipset (CardBus, PCI, USB)"
 HOMEPAGE="http://acx100.sourceforge.net/"
-SRC_URI="http://downloads.sourceforge.net/acx100/${PN}-${PATCHLEVEL}-2.tar.bz2"
+SRC_URI="http://downloads.sourceforge.net/acx100/${PN}-${PATCHLEVEL}.tar.bz2"
 
 LICENSE="GPL-2 as-is"
 SLOT="0"
@@ -40,10 +40,10 @@ src_unpack() {
 		sed -i '/^#define ACX_DEBUG/s/2/0/' acx_config.h || die "Failed to disable debug support"
 	fi
 
-	epatch "${FILESDIR}/${P}.patch"
-	epatch "${FILESDIR}/${P}-2.6.27.patch"
-	epatch "${FILESDIR}/${P}-2.6.30.patch"
-	epatch "${FILESDIR}/${P}-2.6.31.patch"
+	# Apply various fixes to make module compile with 2.6.31+ kernels
+	# thanks to Mepis
+	epatch "${FILESDIR}"/2.6.31+-mepis/*
+
 }
 
 src_install() {
