@@ -1,9 +1,4 @@
-# Added by Kliakhandler Kosta <Kliakhandler@Kosta.tk>
-
-1)
-The purpose was to rebrand the boot message from 'Gentoo ...'
-to openrc to display 'Sabayon ...'.
-
-2)
-disabled warnings about deprecated addons until all ebuilds
-will be moved over
+# Fabio Erculiani <lxnay@sabayonlinux.org>
+- rebrand boot string
+- disable deprecated addons warnings
+- do not let /etc/conf.d/keymaps to be overwritten, provide .example files
