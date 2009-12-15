@@ -68,6 +68,8 @@ src_unpack() {
 	sed -i "/^DIR/s:/openrc:/${PF}:" doc/Makefile #241342
 	sed -i '/^CFLAGS+=.*_CC_FLAGS_SH/d' mk/cc.mk #289264
 	epatch "${FILESDIR}"/openrc-9999-msg-style.patch
+	# Sabayon custom config
+	epatch "${FILESDIR}/${PN}-sabayon-config.patch"
 }
 
 src_compile() {
