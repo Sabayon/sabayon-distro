@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.1.3.ebuild,v 1.2 2009/09/13 11:58:05 nirbheek Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.1.5.ebuild,v 1.2 2009/11/11 00:45:41 anarchy Exp $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
@@ -9,9 +9,9 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 
 MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
-MY_PV="${MY_PV/1.9.1.3/3.5.3}"
+MY_PV="${MY_PV/1.9.1.6/3.5.6}"
 MAJ_PV="1.9.1" # from mozilla-* branch name
-PATCH="${PN}-1.9.1.2-patches-0.3"
+PATCH="${PN}-1.9.1.5-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -21,24 +21,25 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug python" # qt-experimental
+IUSE="+alsa debug python sqlite" # qt-experimental
 
 #	qt-experimental? (
 #		x11-libs/qt-gui
 #		x11-libs/qt-core )
 
 # nspr-4.8 due to BMO #499144
-# Disable sqlite temporarily  	>=dev-db/sqlite-3.6.7
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
+	sqlite? ( >=dev-db/sqlite-3.6.16 )
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
 	>=x11-libs/cairo-1.8.8[X]
-	x11-libs/pango[X]"
+	x11-libs/pango[X]
+	x11-libs/libXt"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
@@ -46,14 +47,17 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 
 S="${WORKDIR}/mozilla-${MAJ_PV}"
 
-# Needed by src_compile() and src_install().
-# Would do in pkg_setup but that loses the export attribute, they
-# become pure shell variables.
-export BUILD_OFFICIAL=1
-export MOZILLA_OFFICIAL=1
-
 pkg_setup() {
 	java-pkg-opt-2_pkg_setup
+
+	if use sqlite ; then
+		elog "You are enabling system sqlite. Do not file a bug with gentoo if you have"
+		elog "issues that arise from enabling system sqlite. All bugs will be considered"
+		elog "invalid. All patches are welcomed to fix any issues that might be found with"
+		elog "system sqlite. If you are starting with a fresh profile you can enable sqlite"
+		elog "without any major issues."
+		epause 10
+	fi
 }
 
 src_prepare() {
@@ -83,6 +87,7 @@ src_prepare() {
 
 	# Patch in support to reset all LANG variables to C
 	# Do NOT add to patchset as it must be applied after eautoreconf
+	cd "${S}"
 	epatch "${FILESDIR}/000_flex-configure-LANG.patch"
 }
 
@@ -127,11 +132,16 @@ src_configure() {
 	# Use system libraries
 	mozconfig_annotate '' --enable-system-cairo
 	mozconfig_annotate '' --enable-system-hunspell
-	# mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
+
+	if use sqlite ; then
+		mozconfig_annotate 'sqlite' --enable-system-sqlite
+	else
+		mozconfig_annotate '-sqlite' --disable-system-sqlite
+	fi
 
 	# IUSE qt-experimental
 #	if use qt-experimental ; then
@@ -235,6 +245,10 @@ pkg_postinst() {
 	einfo "All prefs can be overridden by the user. The preferences are to make"
 	einfo "use of xulrunner out of the box on an average system without the user"
 	einfo "having to go through and enable the basics."
+
+	einfo
+	ewarn "Please remember to rebuild your browser(s) after update to prevent an xpcom error."
+	ewarn "This bump is needed in order to bring icecat to the tree to replace iceweasel useflag."
 }
 
 pkg_postrm() {
