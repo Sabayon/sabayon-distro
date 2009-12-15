@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.5.4.ebuild,v 1.5 2009/10/30 18:11:51 jer Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.5.5.ebuild,v 1.1 2009/11/07 01:42:52 anarchy Exp $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
@@ -12,7 +12,7 @@ ka kk kn ko ku lt lv mk ml mn mr nb-NO nl nn-NO oc or pa-IN pl pt-BR pt-PT rm ro
 ru si sk sl sq sr sv-SE ta-LK ta te th tr uk vi zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
-XUL_PV="1.9.1.4"
+XUL_PV="1.9.1.5"
 MAJ_XUL_PV="1.9.1"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.5"
@@ -23,7 +23,7 @@ PATCH="${PN}-3.5.2-patches-0.1"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa bindist java mozdevelop restrict-javascript -sqlite iceweasel" # qt-experimental
@@ -141,6 +141,7 @@ src_prepare() {
 	eautoreconf
 
 	# We need to re-patch this because autoreconf overwrites it
+	cd "${S}"
 	epatch "${FILESDIR}/000_flex-configure-LANG.patch"
 }
 
