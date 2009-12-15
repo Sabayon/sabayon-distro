@@ -1,18 +1,22 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-8.660.ebuild,v 1.3 2009/09/07 12:50:17 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-9.11.ebuild,v 1.1 2009/11/19 19:09:36 lu_zero Exp $
 
 EAPI="2"
 
 inherit eutils multilib linux-mod toolchain-funcs versionator
 
-AMD_PV="8.660"
 DESCRIPTION="Ati precompiled drivers for r600 (HD Series) and newer chipsets"
 HOMEPAGE="http://www.ati.com"
 # 8.ble will be used for beta releases.
-SRC_URI="https://launchpad.net/ubuntu/karmic/+source/fglrx-installer/2:${AMD_PV}-0ubuntu1/+files/fglrx-installer_${AMD_PV}.orig.tar.gz"
-FOLDER_PREFIX=""
-
+if [[ $(get_major_version) > 8 ]]; then
+	ATI_URL="https://a248.e.akamai.net/f/674/9206/0/www2.ati.com/drivers/linux/"
+	SRC_URI="${ATI_URL}/ati-driver-installer-${PV/./-}-x86.x86_64.run"
+	FOLDER_PREFIX="common/"
+else
+	SRC_URI="https://launchpad.net/ubuntu/karmic/+source/fglrx-installer/2:${PV}-0ubuntu1/+files/fglrx-installer_${PV}.orig.tar.gz"
+	FOLDER_PREFIX=""
+fi
 IUSE="debug +modules multilib"
 
 LICENSE="AMD GPL-2 QPL-1.0 as-is"
@@ -20,6 +24,7 @@ KEYWORDS="~amd64 ~x86"
 SLOT="1"
 
 RDEPEND="
+	!>=x11-base/xorg-server-1.7.0
 	!x11-drivers/ati-drivers:0
 	!x11-apps/ati-drivers-extra
 	>=app-admin/eselect-opengl-1.0.7
@@ -204,13 +209,30 @@ pkg_setup() {
 	einfo
 }
 
+src_unpack() {
+	if [[ $(get_major_version) > 8 ]]; then
+		# Switching to a standard way to extract the files since otherwise no signature file
+		# would be created
+		local src="${DISTDIR}/${A}"
+		sh "${src}" --extract "${S}"  2&>1 /dev/null
+	else
+		unpack ${A}
+	fi
+}
+
 src_prepare() {
+
+	# 2.6.32 Linux kernel support
+	if use kernel_linux && kernel_is gt 2 6 31; then
+		epatch "${FILESDIR}/${PN}-2.6.32.patch"
+	fi
+
 	epatch "${FILESDIR}"/ati-drivers-xen.patch
 
 	# All kernel options for prepare are ment to be in here
 	if use modules; then
 		# version patches
-		# epatch "${FILESDIR}"/kernel/${AMD_PV}-*.patch
+		# epatch "${FILESDIR}"/kernel/${PV}-*.patch
 		if use debug; then
 			sed -i '/^#define DRM_DEBUG_CODE/s/0/1/' \
 				"${MODULE_DIR}/firegl_public.c" \
@@ -398,7 +420,7 @@ src_install() {
 	insinto /usr/share
 	doins -r ${FOLDER_PREFIX}usr/share/ati || die
 	insinto /usr/share/pixmaps
-	doins ${FOLDER_PREFIX}usr/share/icons/ccc_{large,small}.xpm || die
+	doins ${FOLDER_PREFIX}usr/share/icons/ccc_large.xpm || die
 	make_desktop_entry amdcccle 'ATI Catalyst Control Center' \
 		ccc_large System
 
