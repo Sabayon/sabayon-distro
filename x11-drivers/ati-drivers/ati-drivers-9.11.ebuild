@@ -101,12 +101,6 @@ _check_kernel_config() {
 		die "CONFIG_PREEMT_RCU enabled"
 	fi
 
-	# kernel hook checking up latest allowed version
-	if kernel_is ge 2 6 32; then
-		eerror "Kernels newer then 2.6.31 are not supported by this driver"
-		die "Downgrade your kernel"
-	fi
-
 	if ! linux_chkconfig_present MTRR; then
 		ewarn "You don't have MTRR support enabled in the kernel."
 		ewarn "Direct rendering will not work."
