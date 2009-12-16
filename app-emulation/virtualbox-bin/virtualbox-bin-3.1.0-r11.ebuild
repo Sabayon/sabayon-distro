@@ -212,7 +212,7 @@ src_install() {
 
 	# Use Native Qt4, enables proper system Qt4 theme to be used.
 	if use system-qt4 ; then
-		for i in libQtCore libQtNetwork libQtGui ; do
+		for i in libQtCore libQtNetwork libQtGui libQtOpenGL ; do
 			einfo "Using native ${i}"
 			mv "${D}"/opt/VirtualBox/${i}VBox.so.4 "${D}"/opt/VirtualBox/${i}VBox.so.4.original
 			dosym ${ROOT}/usr/lib/qt4/${i}.so.4 /opt/VirtualBox/${i}VBox.so.4
