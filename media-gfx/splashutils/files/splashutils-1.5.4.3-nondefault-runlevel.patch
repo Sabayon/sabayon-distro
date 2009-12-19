@@ -1,0 +1,24 @@
+commit 6f9aa3a3bc11e539613facf3caba5dcdb43c0117
+Author: Michał Januszewski <spock@gentoo.org>
+Date:   Sun Nov 22 20:56:47 2009 +0100
+
+    gentoo: make sure the splash daemon works when boot goes through a named runlevel other than default
+
+diff --git a/gentoo/splash.c b/gentoo/splash.c
+index d831d0c..4b9a5b9 100644
+--- a/gentoo/splash.c
++++ b/gentoo/splash.c
+@@ -777,10 +777,12 @@ int rc_plugin_hook(RC_HOOK hook, const char *name)
+ 			hook != RC_HOOK_RUNLEVEL_START_OUT)
+ 			goto exit;
+ 	} else {
++		int pid;
++
+ 		/* We're starting/stopping a runlevel. Check whether we're
+ 		 * actually booting/rebooting. */
+ 		if (rc_runlevel_starting() && strcmp(runlev, bootlevel) &&
+-			strcmp(runlev, defaultlevel) && strcmp(runlev, RC_LEVEL_SYSINIT))
++			strcmp(runlev, RC_LEVEL_SYSINIT) && fbsplash_check_daemon(&pid))
+ 			goto exit;
+ 
+ 		if (rc_runlevel_stopping() && strcmp(runlev, bootlevel) &&

@@ -1,0 +1,55 @@
+diff --git a/gentoo/splash.c b/gentoo/splash.c
+index b6fa774..726315f 100644
+--- a/gentoo/splash.c
++++ b/gentoo/splash.c
+@@ -134,6 +134,19 @@ static void get_list(RC_STRINGLIST *list, const char *file)
+ 	}
+ }
+ 
++static void fix_rc_variable(char *s)
++{
++	do {
++		char *t = strstr(s, "\\$");
++
++		if (t) {
++			memmove(t, t+1, strlen(t));
++		} else {
++			break;
++		}
++	} while(1);
++}
++
+ /*
+  * Get splash settings from /etc/conf.d/splash
+  */
+@@ -189,21 +202,27 @@ static int splash_config_gentoo(fbspl_cfg_t *cfg, fbspl_type_t type)
+ 	switch(type) {
+ 	case fbspl_reboot:
+ 		t = rc_config_value(confd, "SPLASH_REBOOT_MESSAGE");
+-		if (t)
++		if (t) {
++			fix_rc_variable(t);
+ 			fbsplash_acc_message_set(t);
++		}
+ 		break;
+ 
+ 	case fbspl_shutdown:
+ 		t = rc_config_value(confd, "SPLASH_SHUTDOWN_MESSAGE");
+-		if (t)
++		if (t) {
++			fix_rc_variable(t);
+ 			fbsplash_acc_message_set(t);
++		}
+ 		break;
+ 
+ 	case fbspl_bootup:
+ 	default:
+ 		t = rc_config_value(confd, "SPLASH_BOOT_MESSAGE");
+-		if (t)
++		if (t) {
++			fix_rc_variable(t);
+ 			fbsplash_acc_message_set(t);
++		}
+ 		break;
+ 	}
+ 

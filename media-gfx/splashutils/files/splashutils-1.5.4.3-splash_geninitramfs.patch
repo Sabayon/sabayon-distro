@@ -1,0 +1,13 @@
+diff --git a/core/scripts/splash_geninitramfs.in b/core/scripts/splash_geninitramfs.in
+index 9d75d21..ff9b75b 100644
+--- a/core/scripts/splash_geninitramfs.in
++++ b/core/scripts/splash_geninitramfs.in
+@@ -149,7 +149,7 @@ if [ "$mode" == "a" ]; then
+ fi
+ 
+ printv "o Creating directory structure.."
+-mkdir -p ${imgdir}/{dev,dev/fb,dev/misc,dev/vc,$themedir,lib/splash/proc,root,sbin,lib/splash/sys}
++mkdir -p ${imgdir}/{dev,dev/fb,dev/misc,dev/vc,$themedir,@libdir@/splash/proc,root,sbin,@libdir@/splash/sys}
+ 
+ if [ $EUID == 0 ]; then
+ 	[[ ! -e "${imgdir}/dev/null" ]] 	&& mknod "${imgdir}/dev/null" c 1 3
