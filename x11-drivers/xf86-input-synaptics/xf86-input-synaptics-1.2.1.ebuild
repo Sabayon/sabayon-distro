@@ -21,7 +21,7 @@ DEPEND="${RDEPEND}
 
 src_unpack() {
 	x-modular_src_unpack
-	epatch "${FILESDIR}/${PN}-1.1.3-xorg-settings.patch"
+	epatch "${FILESDIR}/${PN}-1.2.1-xorg-settings.patch"
 }
 
 src_install() {
