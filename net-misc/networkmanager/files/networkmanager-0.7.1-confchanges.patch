@@ -1,0 +1,16 @@
+diff --exclude-from=/home/dang/.scripts/diffrc -up -ruN NetworkManager-0.7.1.orig/src/NetworkManager.conf NetworkManager-0.7.1/src/NetworkManager.conf
+--- NetworkManager-0.7.1.orig/src/NetworkManager.conf	2009-03-03 11:55:47.000000000 -0500
++++ NetworkManager-0.7.1/src/NetworkManager.conf	2009-05-01 20:04:33.000000000 -0400
+@@ -15,6 +15,12 @@
+                 <deny send_destination="org.freedesktop.NetworkManager"
+                       send_interface="org.freedesktop.NetworkManager.PPP"/>
+         </policy>
++        <policy group="plugdev">
++                <allow send_destination="org.freedesktop.NetworkManager"/>
++
++                <deny send_destination="org.freedesktop.NetworkManager"
++                      send_interface="org.freedesktop.NetworkManager.PPP"/>
++        </policy>
+         <policy context="default">
+                 <deny own="org.freedesktop.NetworkManager"/>
+                 <deny send_destination="org.freedesktop.NetworkManager"/>

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# these are the args passed by NetworkManager
+MY_DEV_NAME="$1"
+MY_NM_ACTION="$2"
+
+# test if netmount service exists
+rc-service -e netmount || exit 0
+
+# restart network mounts service in any case, networking setup is changed
+# FIXME, remove: just restart myself, do not restart
+# services that depend on me
+/etc/init.d/netmount restart --nodeps

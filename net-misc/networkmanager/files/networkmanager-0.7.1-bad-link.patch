@@ -1,0 +1,15 @@
+diff --exclude-from=/home/dang/.scripts/diffrc -up -ruN NetworkManager-0.7.1.orig/src/ppp-manager/Makefile.am NetworkManager-0.7.1/src/ppp-manager/Makefile.am
+--- NetworkManager-0.7.1.orig/src/ppp-manager/Makefile.am	2009-03-03 11:55:47.000000000 -0500
++++ NetworkManager-0.7.1/src/ppp-manager/Makefile.am	2009-04-24 11:32:58.000000000 -0400
+@@ -47,9 +47,9 @@ nm_pppd_plugin_la_CPPFLAGS = \
+ nm_pppd_plugin_la_LDFLAGS = -module -avoid-version
+ 
+ nm_pppd_plugin_la_LIBADD = \
++	$(top_builddir)/libnm-util/libnm-util.la \
+ 	$(DBUS_LIBS) \
+-	$(GLIB_LIBS) \
+-	$(top_builddir)/libnm-util/libnm-util.la
++	$(GLIB_LIBS)
+ 
+ BUILT_SOURCES = nm-ppp-manager-glue.h
+ 
