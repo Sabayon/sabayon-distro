@@ -75,7 +75,7 @@ class MultipartPostHandler(urllib2.BaseHandler):
 class PastieInterface:
 
     def __init__(self):
-        self.url = 'http://www.sabayonlinux.org/pastebin/send'
+        self.url = 'http://www.sabayon.org/pastebin/send'
         self.opener = urllib2.build_opener(MultipartPostHandler)
         self.generated = False
         self.params = {}
