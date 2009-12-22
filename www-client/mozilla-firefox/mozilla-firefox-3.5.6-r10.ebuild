@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.5.5.ebuild,v 1.1 2009/11/07 01:42:52 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.5.6.ebuild,v 1.3 2009/12/20 14:43:06 ranger Exp $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
@@ -12,21 +12,21 @@ ka kk kn ko ku lt lv mk ml mn mr nb-NO nl nn-NO oc or pa-IN pl pt-BR pt-PT rm ro
 ru si sk sl sq sr sv-SE ta-LK ta te th tr uk vi zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
-XUL_PV="1.9.1.5"
+XUL_PV="1.9.1.6"
 MAJ_XUL_PV="1.9.1"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.5"
 MY_PV="${PV/_beta/b}" # Handle betas for SRC_URI
 MY_PV="${PV/_/}" # Handle rcs for SRC_URI
-PATCH="${PN}-3.5.2-patches-0.1"
+PATCH="${PN}-3.5.5-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java mozdevelop restrict-javascript -sqlite iceweasel" # qt-experimental
+IUSE="+alsa bindist java mozdevelop sqlite iceweasel" # qt-experimental
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
@@ -59,7 +59,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.7.3
 	>=app-text/hunspell-1.2
-	sqlite? ( >=dev-db/sqlite-3.6.10 )
+	sqlite? ( >=dev-db/sqlite-3.6.20-r1[fts3] )
 	alsa? ( media-libs/alsa-lib )
 	~net-libs/xulrunner-${XUL_PV}[java=,sqlite=]
 	>=x11-libs/cairo-1.8.8[X]
@@ -68,15 +68,7 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
-PDEPEND="restrict-javascript? ( >=www-plugins/noscript-1.9.6.6 )"
-
 S="${WORKDIR}/mozilla-1.9.1"
-
-# Needed by src_compile() and src_install().
-# Would do in pkg_setup but that loses the export attribute, they
-# become pure shell variables.
-export BUILD_OFFICIAL=1
-export MOZILLA_OFFICIAL=1
 
 linguas() {
 	local LANG SLANG
@@ -131,6 +123,7 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="136-fix_ftbfs_with_cairo_fb.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
@@ -261,6 +254,14 @@ src_install() {
 	# Plugins dir
 	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
 		|| die "failed to symlink"
+
+	# very ugly hack to make firefox not sigbus on sparc
+	if use sparc ; then
+		sed -i \
+			-e 's/Firefox/FirefoxGentoo/g' \
+			"${D}/${MOZILLA_FIVE_HOME}/application.ini" \
+			|| die "sparc sed failed"
+	fi
 }
 
 pkg_postinst() {
