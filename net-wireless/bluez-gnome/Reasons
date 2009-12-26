@@ -1,0 +1,2 @@
+# Fabio Erculiani <lxnay@sabayon.org>
+Fix libGL issues when on system there's nvidia-drivers in use
