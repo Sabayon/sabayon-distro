@@ -70,6 +70,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/openrc-9999-msg-style.patch
 	# Sabayon custom config
 	epatch "${FILESDIR}/${PN}-sabayon-config.patch"
+	epatch "${FILESDIR}"/${P}-disable_warns_until_migrated.patch
 }
 
 src_compile() {
