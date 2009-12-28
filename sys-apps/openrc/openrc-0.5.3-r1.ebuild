@@ -133,6 +133,11 @@ src_install() {
 	# Support for logfile rotation
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/openrc.logrotate openrc
+
+	# Move /etc/conf.d/keymaps to .example
+	mv "${D}"/etc/conf.d/keymaps "${D}"/etc/conf.d/keymaps.example || \
+		die "cannot move keymaps"
+
 }
 
 add_boot_init() {
