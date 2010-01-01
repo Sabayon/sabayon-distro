@@ -12,15 +12,10 @@ SLOT="0"
 KEYWORDS="x86 amd64"
 IUSE=""
 RESTRICT="nomirror"
-RDEPEND="
-	x11-themes/sabayon-artwork-core
+RDEPEND="x11-themes/sabayon-artwork-core
 	!<=x11-themes/sabayonlinux-artwork-4
-	!x11-themes/sabayon-artwork-star
-	!x11-themes/sabayon-artwork-darkblend
-	"
-PDEPEND="x11-themes/qtcurve-qt4[kde]
-	x11-themes/gtk-engines-qtcurve[mozilla,firefox3]
-	x11-themes/gtk-engines-qt"
+	x11-themes/qtcurve-qt4
+	x11-themes/gtk-engines-qtcurve"
 
 S="${WORKDIR}/${PN}"
 
@@ -38,9 +33,7 @@ src_compile() {
 }
 
 src_install() {
-
 	# KDE 3.5
-
 	# KDM theme
 	cd ${S}/kdm3.5
 	mv Sabayon-4.0 Sabayon
@@ -64,7 +57,6 @@ src_install() {
 	doins -r ./
 
 	#KDE 4
-
 	# KDM
 	dodir ${KDEDIR}/share/apps/kdm/themes
 	cd ${S}/kdm4
@@ -77,5 +69,4 @@ src_install() {
 	insinto ${KDEDIR}/share/apps/ksplash/Themes
 	doins -r ./
 	rm ${D}/usr/kde/4.2/share/apps/ksplash/Themes/Sabayon/Theme.rc~ -f
-
 }

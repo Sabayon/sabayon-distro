@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=2
-inherit eutils kde4-base 
+inherit eutils kde4-base
 
 DESCRIPTION="Sabayon Linux Official KDE artwork"
 HOMEPAGE="http://www.sabayonlinux.org/"
@@ -12,13 +12,11 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="nomirror"
-RDEPEND="
-	~x11-themes/sabayon-artwork-core-${PV}
+RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
 	!<=x11-themes/sabayonlinux-artwork-4
-	"
-PDEPEND="x11-themes/qtcurve-qt4
+	x11-themes/qtcurve-qt4
 	x11-themes/gtk-engines-qtcurve
-	x11-themes/gtk-engines-qt"
+	kde-misc/kcm_gtk"
 
 S="${WORKDIR}/${PN}"
 
@@ -42,5 +40,4 @@ src_install() {
 	cd ${S}/ksplash
 	insinto ${KDEDIR}/share/apps/ksplash/Themes
 	doins -r ./
-	rm ${D}/usr/kde/4.2/share/apps/ksplash/Themes/Sabayon/Theme.rc~ -f
 }
