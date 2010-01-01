@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-base/kdm/kdm-4.3.2.ebuild,v 1.2 2009/10/06 21:00:55 alexxy Exp $
+# $Header: /var/cvsroot/gentoo-x86/kde-base/kdm/kdm-4.3.4.ebuild,v 1.1 2009/12/01 10:33:05 wired Exp $
 
 EAPI="2"
 
@@ -8,7 +8,7 @@ KMNAME="kdebase-workspace"
 inherit kde4-meta flag-o-matic
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~x86"
+KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 IUSE="consolekit debug +handbook kerberos pam"
 
 DEPEND="
@@ -21,12 +21,12 @@ DEPEND="
 	)
 	kerberos? ( virtual/krb5 )
 	pam? (
-		>=kde-base/kcheckpass-${PV}:${SLOT}[kdeprefix=]
+		$(add_kdebase_dep kcheckpass)
 		virtual/pam
 	)
 "
 RDEPEND="${DEPEND}
-	>=kde-base/kdepasswd-${PV}:${SLOT}[kdeprefix=]
+	$(add_kdebase_dep kdepasswd)
 	>=x11-apps/xinit-1.0.5-r2
 	x11-apps/xmessage
 	x11-themes/sabayon-artwork-kde
@@ -41,7 +41,6 @@ KMEXTRA="
 
 PATCHES=(
 	"${FILESDIR}/kdebase-4.0.2-pam-optional.patch"
-	"${FILESDIR}/${PN}-4.3.1-set-grub-default.patch"
 	"${FILESDIR}/${PN}-4.3.1-sabayon-theme.patch"
 	"${FILESDIR}/${PN}-4-sabayon-background.patch"
 	"${FILESDIR}/${PN}-4-sabayon-bootmanager.patch"
