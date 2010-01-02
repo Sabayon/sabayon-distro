@@ -1,0 +1,2 @@
+# Fabio Erculiani <lxnay@sabayon.org>
+Fix USE="vdpau?" dependency to not point to nvidia-drivers
