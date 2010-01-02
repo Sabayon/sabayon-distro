@@ -1,0 +1,2 @@
+# Fabio Erculiani <lxnay@sabayon.org>
+fix USE="vdpau" dependency
