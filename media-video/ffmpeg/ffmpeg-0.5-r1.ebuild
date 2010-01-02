@@ -126,9 +126,7 @@ src_configure() {
 	fi
 
 	# This has changed since 0.5, please recheck for next version
-	if use video_cards_nvidia; then
-		use vdpau && myconf="${myconf} --enable-vdpau"
-	fi
+	use vdpau && myconf="${myconf} --enable-vdpau"
 
 	# CPU features
 	for i in mmx ssse3 altivec ; do
