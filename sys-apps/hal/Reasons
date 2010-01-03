@@ -7,6 +7,7 @@ Ebuild added to fix/add the following issues:
 Enable plugdev support
 NTFS-3G support
 Fix HAL mount when extra options specified
+Fix Gentoo bug #299483
 
 ======
 02.08.08 - Wael Nasreddine <wael.nasreddine@sabayonlinux.org>

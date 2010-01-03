@@ -1,29 +1,33 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.11-r3.ebuild,v 1.2 2008/09/21 12:54:29 nixnut Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.14.ebuild,v 1.2 2009/12/13 18:46:24 nirbheek Exp $
 
-inherit eutils linux-info autotools flag-o-matic
+EAPI="2"
 
-PATCH_VERSION="3"
+inherit eutils linux-info autotools flag-o-matic multilib
 
+PATCH_VERSION="1"
+
+MY_P=${P/_/}
+S=${WORKDIR}/${MY_P}
+PATCHNAME="${MY_P}-gentoo-patches-${PATCH_VERSION}"
 DESCRIPTION="Hardware Abstraction Layer"
-HOMEPAGE="http://www.freedesktop.org/Software/hal"
-SRC_URI="http://hal.freedesktop.org/releases/${P/_/}.tar.bz2
-		 http://dev.gentoo.org/~compnerd/files/${PN}/${P}-gentoo-patches-${PATCH_VERSION}.tar.bz2"
+HOMEPAGE="http://www.freedesktop.org/wiki/Software/hal"
+SRC_URI="http://hal.freedesktop.org/releases/${MY_P}.tar.bz2
+	 http://dev.gentoo.org/~dang/files/${PATCHNAME}.tar.bz2"
 
 LICENSE="|| ( GPL-2 AFL-2.0 )"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 -x86-fbsd"
 
 KERNEL_IUSE="kernel_linux kernel_FreeBSD"
-IUSE="X acpi apm crypt debug dell disk-partition doc laptop selinux ${KERNEL_IUSE}"
+IUSE="X acpi apm crypt consolekit debug dell disk-partition doc laptop policykit selinux ${KERNEL_IUSE}"
 
 RDEPEND=">=dev-libs/dbus-glib-0.61
 		 >=dev-libs/glib-2.14
 		 >=dev-libs/expat-1.95.8
-		 >=dev-libs/libusb-0.1.10a
+		 =virtual/libusb-0*
 		 >=sys-apps/pciutils-2.2.7-r1
-		 >=dev-util/gperf-3.0.3
 		   sys-apps/usbutils
 		   virtual/eject
 		 amd64? ( >=sys-apps/dmidecode-2.7 )
@@ -31,27 +35,38 @@ RDEPEND=">=dev-libs/dbus-glib-0.61
 		 disk-partition? ( >=sys-apps/parted-1.8.0 )
 		 ia64? ( >=sys-apps/dmidecode-2.7 )
 		 kernel_linux?	(
-							>=sys-fs/udev-117
-							>=sys-apps/util-linux-2.13
-							>=sys-kernel/linux-headers-2.6.19
-							crypt?  ( >=sys-fs/cryptsetup-1.0.5 )
+							>=sys-fs/udev-125
+							>=sys-apps/util-linux-2.16
+							>=sys-kernel/linux-headers-2.6.22
+							crypt?	( >=sys-fs/cryptsetup-1.0.5 )
 						)
 		 kernel_FreeBSD? ( >=dev-libs/libvolume_id-0.77 )
 		 x86? ( >=sys-apps/dmidecode-2.7 )
-		 selinux? ( sys-libs/libselinux sec-policy/selinux-hal )"
+		 selinux? ( sys-libs/libselinux sec-policy/selinux-hal )
+		 consolekit?	(
+		 					|| (
+									<sys-auth/consolekit-0.4[policykit=]
+		 							>=sys-auth/consolekit-0.4
+								)
+					)
+		 policykit?	(
+		 					sys-auth/consolekit[policykit]
+							sys-auth/policykit[pam]
+		 			)"
 DEPEND="${RDEPEND}
 		dev-util/pkgconfig
+		 >=dev-util/gperf-3.0.3
 		>=dev-util/intltool-0.35
-		X? ( >=dev-python/pyxf86config-0.3.34-r1 )
 		doc?	(
 					app-text/xmlto
 					dev-libs/libxml2
 					dev-util/gtk-doc
 					app-text/docbook-sgml-utils
-				)"
-PDEPEND=">=app-misc/hal-info-20080310
-		 !gnome-extra/hal-device-manager
-		 laptop? ( >=sys-power/pm-utils-0.99.3 )"
+				)
+		sys-apps/sed"
+PDEPEND=">=app-misc/hal-info-20081219
+	!gnome-extra/hal-device-manager
+	laptop? ( >=sys-power/pm-utils-0.99.3 )"
 
 ## HAL Daemon drops privledges so we need group access to read disks
 HALDAEMON_GROUPS_LINUX="haldaemon,plugdev,disk,cdrom,cdrw,floppy,usb"
@@ -95,15 +110,15 @@ pkg_setup() {
 	# http://bugs.gentoo.org/show_bug.cgi?id=191605
 
 	# Create groups for hotplugging and HAL
-	enewgroup haldaemon || die "Problem adding haldaemon group"
-	enewgroup plugdev || die "Problem adding plugdev group"
+	enewgroup haldaemon
+	enewgroup plugdev
 
 	# HAL drops priviledges by default now ...
 	# ... so we must make sure it can read disk/cdrom info (ie. be in ${HALDAEMON_GROUPS} groups)
 	if use kernel_linux; then
-		enewuser haldaemon -1 "-1" /dev/null ${HALDAEMON_GROUPS_LINUX} || die "Problem adding haldaemon user"
+		enewuser haldaemon -1 "-1" /dev/null ${HALDAEMON_GROUPS_LINUX}
 	elif use kernel_FreeBSD; then
-		enewuser haldaemon -1 "-1" /dev/null ${HALDAEMON_GROUPS_FREEBSD} || die "Problem addding haldaemon user"
+		enewuser haldaemon -1 "-1" /dev/null ${HALDAEMON_GROUPS_FREEBSD}
 	fi
 
 	# Make sure that the haldaemon user is in the ${HALDAEMON_GROUPS}
@@ -117,37 +132,35 @@ pkg_setup() {
 	fi
 }
 
-S="${WORKDIR}/${PF/-r*/}"
-
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
-
-	EPATCH_MULTI_MSG="Applying Gentoo Patchset ..." \
-	EPATCH_SUFFIX="patch" \
-	EPATCH_SOURCE="${WORKDIR}/${P}-patches/" \
-	EPATCH_FORCE="yes" \
-	epatch
+src_prepare() {
+	# Only apply one of the policy patches.  Bug #267042
+	if use policykit ; then
+		rm "${WORKDIR}/${PATCHNAME}/patches/0001-plugdev-dbus-policy.patch"
+	else
+		rm "${WORKDIR}/${PATCHNAME}/patches/0002-policykit-dbus-policy.patch"
+	fi
 
 	# Enable plugdev support
 	epatch "${FILESDIR}/96_plugdev_allow_send.patch"
 
 	# NTFS-3G support
-	epatch "${FILESDIR}"/${PN}-0.5.10-sabayonlinux-ntfs-3g.default.patch
+	epatch "${FILESDIR}"/hal-0.5.12-ntfs3g-support.patch
+	epatch "${FILESDIR}"/hal-0.5.12-fix-ntfs-mount.patch
 
-	# Fix HAL mount when extra options specified
-	epatch "${FILESDIR}"/${PN}-0.5.10-fix-extra-options.patch
-
-	# Fix UDEV > 126 compat
-	# epatch "${FILESDIR}"/${P}-udev-compat.patch
+	EPATCH_MULTI_MSG="Applying Gentoo Patchset ..." \
+	EPATCH_SUFFIX="patch" \
+	EPATCH_SOURCE="${WORKDIR}/${PATCHNAME}/patches/" \
+	EPATCH_FORCE="yes" \
+	epatch
 
 	eautoreconf
 }
 
-src_compile() {
+src_configure() {
 	local acpi="$(use_enable acpi)"
 	local backend=
 	local hardware=
+	local consolekit="$(use_enable consolekit console-kit)"
 
 	append-flags -rdynamic
 
@@ -176,7 +189,11 @@ src_compile() {
 		fi
 
 		hardware="--with-cpufreq --with-usb-csr --with-keymaps"
-		use arm && hardware="$hardware --with-omap"
+		use arm && hardware="$hardware --with-omap --enable-pmu"
+		use ppc && hardware="$hardware --enable-pmu"
+		if use x86 || use amd64; then
+			hardware="$hardware --with-macbook --with-macbookpro"
+		fi
 
 		if use dell ; then
 			hardware="$hardware --with-dell-backlight"
@@ -193,55 +210,67 @@ src_compile() {
 		hardware="$hardware --disable-sonypic"
 	fi
 
+	# Policykit support depends on consolekit support.  Therefore, force on
+	# consolekit, even if it's USE flag is off, if policykit support is on.
+	# This enables packages to USE-depend on hal[policykit?]
+	if use policykit ; then
+		consolekit="--enable-console-kit"
+	fi
+
 	econf --with-backend=${backend} \
 		  --with-os-type=gentoo \
 		  --with-pid-file=/var/run/hald.pid \
 		  --with-hwdata=/usr/share/misc \
 		  --with-socket-dir=/var/run/hald \
+		  --with-udev-prefix=/etc \
 		  --enable-umount-helper \
 		  --enable-man-pages \
-		  --disable-policy-kit \
-		  --disable-console-kit \
 		  --disable-acl-management \
 		  --enable-pci \
 		  $(use_enable apm) \
-		  $(use_enable arm pmu) \
 		  $(use_enable debug verbose-mode) \
 		  $(use_enable disk-partition parted) \
 		  $(use_enable doc docbook-docs) \
 		  $(use_enable doc gtk-doc) \
+		  $(use_enable policykit policy-kit) \
+		  ${consolekit} \
 		  --docdir=/usr/share/doc/${PF} \
 		  --localstatedir=/var \
 		  ${acpi} ${hardware} \
 	|| die "configure failed"
-
-	emake || die "make failed"
 }
 
 src_install() {
-	make DESTDIR="${D}" install || die
-	dodoc AUTHORS ChangeLog NEWS README
+	emake DESTDIR="${D}" install || die
+	dodoc AUTHORS ChangeLog NEWS README || die "docs failed"
 
 	# hal umount for unclean unmounts
-	exeinto /lib/udev/
-	newexe "${FILESDIR}/hal-unmount.dev" hal_unmount
+	exeinto /$(get_libdir)/udev/
+	newexe "${FILESDIR}/hal-unmount.dev" hal_unmount || die "udev helper failed"
 
 	# initscript
-	newinitd "${FILESDIR}/0.5.10-hald.rc" hald
+	cp "${FILESDIR}/0.5.10-hald.rc" .
+	if use consolekit; then
+		sed -i 's/need dbus/need dbus consolekit/' "0.5.10-hald.rc" || \
+			die "sed failed"
+	fi
+	newinitd "0.5.10-hald.rc" hald || die "init script failed"
 
 	# configuration
-	cp "${FILESDIR}/0.5.10-hald.conf" "${WORKDIR}/"
+	cp "${FILESDIR}/0.5.10-hald.conf" "${WORKDIR}/" || \
+		die "failed to copy hald.conf"
 
 	if use debug; then
 		sed -e 's:HALD_VERBOSE="no":HALD_VERBOSE="yes":' \
-			-i "${WORKDIR}/0.5.10-hald.conf"
+			-i "${WORKDIR}/0.5.10-hald.conf" || die "failed to change verbose"
 	fi
-	newconfd "${WORKDIR}/0.5.10-hald.conf" hald
+	newconfd "${WORKDIR}/0.5.10-hald.conf" hald || \
+		die "failed to install hald.conf"
 
 	if use X ; then
 		# New Configuration Snippets
-		dodoc "${WORKDIR}/${PN}-config-examples/"*.fdi || die
-		dobin "${WORKDIR}/${PN}-config-examples/migrate-xorg-to-fdi.py" || die
+		dodoc "${WORKDIR}/${PATCHNAME}/config-examples/"*.fdi || \
+			die "dodoc X examples failed"
 	fi
 
 	# Copy 10-x11-input.fdi to the right place
@@ -258,12 +287,17 @@ src_install() {
 	# or else hal bombs.
 	keepdir /etc/hal/fdi/{information,policy,preprobe}
 
-	# HAL stores it's fdi cache in /var/lib/cache/hald
-	keepdir /var/lib/cache/hald
+	# HAL stores it's fdi cache in /var/cache/hald
+	keepdir /var/cache/hald
 
 	# HAL keeps its unix socket here
 	keepdir /var/run/hald
 	keepdir /var/lib/hal
+
+	# Remove policy that blocks mounting internal devices
+	# We in Sabayon, HATE IT
+	rm ${D}/usr/share/hal/fdi/policy/10osvendor/99-storage-policy-fixed-drives.fdi || die "Cannot rm the bastard"
+
 }
 
 pkg_postinst() {
@@ -275,7 +309,9 @@ pkg_postinst() {
 	elog "scripts, this should be done like this :"
 	elog "\`rc-update add hald default\`"
 	echo
-	elog "Looking for automounting support? Add yourself to the plugdev group"
+	elog "Access to hal is not protected by either policykit or the plugdev group."
+	elog "If you have problems discovering/configuring hardware, try adding"
+	elog "yourself to plugdev."
 	echo
 	elog "IF you have additional applications which consume ACPI events, you"
 	elog "should consider installing acpid to allow applications to share ACPI"
@@ -296,11 +332,7 @@ pkg_postinst() {
 		echo
 		elog "X Input Hotplugging (if you build xorg-server with the HAL useflag)"
 		elog "reads user specific configuration from /etc/hal/fdi/policy/."
-		if [[ $(cat "${ROOT}etc/hal/fdi/policy/10-x11-input.fdi" | wc -c) -gt 0 ]]
-		then
-			elog "We have converted your existing xorg.conf rules and the FDI is stored"
-			elog "at /etc/hal/fdi/policy/10-x11-input.fdi"
-		fi
+		echo
 		elog "You should remove the Input sections from your xorg.conf once you have"
 		elog "migrated the rules to a HAL fdi file."
 	fi
