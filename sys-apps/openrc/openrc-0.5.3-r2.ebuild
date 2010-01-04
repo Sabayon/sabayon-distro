@@ -71,6 +71,7 @@ src_unpack() {
 	# Sabayon custom config
 	epatch "${FILESDIR}/${PN}-sabayon-config.patch"
 	epatch "${FILESDIR}"/${P}-disable_warns_until_migrated.patch
+	epatch "${FILESDIR}/${PN}-netmount-fix.patch"
 }
 
 src_compile() {
