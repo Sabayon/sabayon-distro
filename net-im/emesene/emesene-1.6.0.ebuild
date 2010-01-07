@@ -33,7 +33,6 @@ src_install() {
 	dosym /usr/share/emesene/emesene /usr/bin/emesene || die "dosym failed"
 
 	doman misc/emesene.1 || die "doman failed"
-	dodoc docs/* || die "dodoc failed"
 
 	doicon misc/*.png misc/*.svg
 
