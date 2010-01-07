@@ -4,9 +4,12 @@
 
 inherit eutils python
 
+MY_PV="1.6"
+MY_P="${PN}-${MY_PV}"
+
 DESCRIPTION="Platform independent MSN Messenger client written in Python+GTK"
 HOMEPAGE="http://www.emesene.org"
-SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/${PN}/${MY_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -19,7 +22,8 @@ DEPEND=">=dev-lang/python-2.6.2
 
 RDEPEND="${DEPEND}"
 
-RESTRICT="mirror"
+S="${WORKDIR}/${MY_P}"
+
 src_install() {
 	rm -f GPL PSF LGPL
 	insinto /usr/share/emesene
