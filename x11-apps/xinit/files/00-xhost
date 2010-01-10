@@ -1,5 +1,6 @@
 # This file is sourced by Xsession(5), not executed.
 
-[ -x /usr/bin/xhost ] && [ -x /usr/bin/id ] &&
+if [ -x /usr/bin/xhost ] && [ -x /usr/bin/id ]; then
     xhost +si:localuser:`id -un` > /dev/null 2>&1
-
+    xhost +si:localuser:root > /dev/null 2>&1
+fi
