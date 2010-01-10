@@ -1,0 +1,30 @@
+diff -uNr t1/boxee-0.9.14.6992-sources/Makefile.in t2/boxee-0.9.14.6992-sources/Makefile.in
+--- t1/boxee-0.9.14.6992-sources/Makefile.in	2009-06-07 09:27:32.000000000 -0500
++++ t2/boxee-0.9.14.6992-sources/Makefile.in	2009-12-07 13:13:21.368177259 -0600
+@@ -120,7 +120,7 @@
+
+ CLEAN_FILES=Boxee xbmc.bin xbmc-xrandr
+
+-all : Boxee externals xbmc-xrandr $(BOXEE_MEDIA)/Textures.xpr
++all : Boxee externals xbmc-xrandr $(BOXEE_MEDIA)/Textures.xpr xbmc.bin
+
+ give_me_my_mouse_back: give_me_my_mouse_back.c
+ 	gcc -g -o give_me_my_mouse_back give_me_my_mouse_back.c -I/opt/local/include -lSDL
+@@ -431,7 +431,9 @@
+ else
+ install: install-datas install-web
+ 	@echo "Copying Boxee binary to $(prefix)/share/boxee/Boxee"
++	@mkdir -p $(prefix)/share/boxee
+ 	@cp -f xbmc.bin $(prefix)/share/boxee/Boxee
++	@cp -f xbmc.bin $(prefix)/share/xbmc/
+ 	@mkdir -p $(prefix)/bin
+ 	@cp tools/Linux/xbmc.sh $(prefix)/bin/xbmc
+ 	@cp tools/Linux/xbmc-standalone.sh $(prefix)/bin/xbmc-standalone
+@@ -448,6 +450,7 @@
+
+ install-datas:
+ 	@echo "Creating target directories in $(prefix)/share/xbmc"
++	@ln -s UserData userdata
+ 	@find language media screensavers scripts skin sounds userdata visualisations system -type d -not -iregex ".*svn.*" -exec mkdir -p $(prefix)/share/xbmc/"{}" \; -printf " -- %f                           \r"
+ 	@echo "Copying system files to $(prefix)/share/xbmc"
+ 	@# Arch independent files

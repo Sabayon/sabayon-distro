@@ -1,0 +1,19 @@
+diff -uNr t1/boxee-0.9.14.6992-sources/configure.in t2/boxee-0.9.14.6992-sources/configure.in
+--- t1/boxee-0.9.14.6992-sources/configure.in	2009-06-03 12:42:41.000000000 -0500
++++ t2/boxee-0.9.14.6992-sources/configure.in	2009-12-07 13:13:06.224176625 -0600
+@@ -1443,13 +1445,15 @@
+
+ XB_CONFIG_MODULE([xbmc/lib/libBoxee/tinyxpath], [
+   if test "$host_vendor" = "apple" ; then
++    make -f Makefile.configure ;
+     CXXFLAGS="-fPIC -fno-common -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4" \
+     ./configure
+   else
++    make -f Makefile.configure ;
+     CXXFLAGS=-fPIC \
+     ./configure
+   fi
+-])
++], [0])
+
+ AC_OUTPUT
