@@ -6,10 +6,10 @@ EAPI="2"
 
 inherit eutils autotools
 
-SRC_URI="http://dl.boxee.tv/${P}-sources.tar.bz2
-		 http://distfiles.sabayon.org/${CATEGORY}/xmbc-linux-tools-git20100110.tar.gz"
+SRC_URI="http://dl.boxee.tv/${P}-source.tar.bz2
+	 http://distfiles.sabayon.org/${CATEGORY}/xmbc-linux-tools-git20100110.tar.gz"
 KEYWORDS=""
-S=${WORKDIR}/${P}-sources
+S=${WORKDIR}/${P}-source
 
 DESCRIPTION="Cross-platform media center software based on XBMC"
 HOMEPAGE="http://boxee.tv/"
@@ -89,14 +89,9 @@ src_unpack() {
 }
 
 src_prepare() {
-	for patch in `ls ${FILESDIR}/${P}-*.patch`; do
+	for patch in `ls ${FILESDIR}/${PN}*.patch ${FILESDIR}/xbmc*.patch`; do
 		epatch $patch
 	done
-
-	# Amd64 fixes here
-	if use amd64; then
-		epatch ${FILESDIR}/boxee-x86_64-filecurl.patch
-	fi
 
 	# Use upstream XMBC's working linux tools
 	cp -R ${WORKDIR}/Linux ${S}/tools || die "XMBC Linux Tools copy Failed"
