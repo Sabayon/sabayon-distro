@@ -85,7 +85,6 @@ src_unpack() {
 	# Fix case sensitivity
 	mv media/Fonts/{a,A}rial.ttf || die
 	mv media/{S,s}plash.png || die
-	#mv lib/libPython/Python/{i,I}nclude || die
 }
 
 src_prepare() {
@@ -148,8 +147,6 @@ src_configure() {
 
 	# Run libPython configure first
 	cd xbmc/lib/libPython/Python
-	einfo "Python Configure"
-	ls
 	econf || die "python econf failed"
 	cd ${S}
 
