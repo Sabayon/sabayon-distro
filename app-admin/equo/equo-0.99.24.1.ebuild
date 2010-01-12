@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="2"
-inherit eutils python
+inherit eutils multilib python bash-completion
 
-DESCRIPTION="Official Sabayon Linux Entropy Notification Applet (GTK version)"
+DESCRIPTION="Official Sabayon Linux Package Manager Client"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-2"
 SLOT="0"
@@ -14,10 +14,7 @@ SRC_URI="http://distfiles.sabayonlinux.org/sys-apps/entropy-${PV}.tar.bz2"
 RESTRICT="mirror"
 S="${WORKDIR}/entropy-${PV}"
 
-DEPEND="~app-misc/magneto-loader-${PV}
-        dev-python/notify-python
-	dev-python/pygtk
-"
+DEPEND="~sys-apps/entropy-${PV}"
 RDEPEND="${DEPEND}"
 
 src_compile() {
@@ -25,14 +22,16 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" magneto-gtk-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" equo-install || die "make install failed"
+	dobashcompletion "${S}/misc/equo-completion.bash" equo
 }
 
 pkg_postinst() {
-	python_mod_compile "/usr/$(get_libdir)/entropy/magneto/magneto/gtk"
+	python_mod_compile "/usr/$(get_libdir)/entropy/client"
+	bash-completion_pkg_postinst
 }
 
 pkg_postrm() {
-        python_mod_cleanup "/usr/$(get_libdir)/entropy/magneto/magneto/gtk"
+        python_mod_cleanup "/usr/$(get_libdir)/entropy/client"
 }
 
