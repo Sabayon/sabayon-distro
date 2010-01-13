@@ -1,0 +1,9 @@
+diff -Nurp fster-0.1.orig/CMakeLists.txt fster-0.1/CMakeLists.txt
+--- fster-0.1.orig/CMakeLists.txt	2010-01-12 19:50:52.688372065 +0100
++++ fster-0.1/CMakeLists.txt	2010-01-12 19:52:18.408352037 +0100
+@@ -17,5 +17,4 @@ IF (NOT CMAKE_INSTALL_PREFIX)
+   SET(CMAKE_INSTALL_PREFIX "/usr/local/")
+ ENDIF (NOT CMAKE_INSTALL_PREFIX)
+ 
+-INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/etc/fster)")
+ INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/fster/plugins)")
