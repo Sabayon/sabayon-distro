@@ -1,19 +1,15 @@
 # Copyright 1999-2009 Sabayon Foundation
 # Distributed under the terms of the GNU General Public License v2
 #
-
 EAPI="2"
 
-inherit eutils autotools
+inherit eutils autotools multilib python
 
 SRC_URI="http://dl.boxee.tv/${P}-source.tar.bz2
 	 http://distfiles.sabayon.org/${CATEGORY}/xmbc-linux-tools-git20100110.tar.gz"
 KEYWORDS=""
-S=${WORKDIR}/${P}-source
-
 DESCRIPTION="Cross-platform media center software based on XBMC"
 HOMEPAGE="http://boxee.tv/"
-
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="+aac +alsa altivec avahi +css debug joystick midi +opengl profile +pulseaudio sse sse2 +vdpau +xrandr"
@@ -76,7 +72,10 @@ RDEPEND="opengl? ( virtual/opengl )
 DEPEND="${RDEPEND}
 	x11-proto/xineramaproto
 	dev-util/cmake
-	x86? ( dev-lang/nasm )"
+	x86? ( dev-lang/nasm )
+	>=app-emulation/emul-linux-x86-baselibs-20091231"
+
+S=${WORKDIR}/${P}-source
 
 src_unpack() {
 	unpack ${A}
@@ -88,6 +87,7 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Fix the broken stuff
 	for patch in `ls ${FILESDIR}/${PN}*.patch ${FILESDIR}/xbmc*.patch`; do
 		epatch $patch
 	done
@@ -95,17 +95,11 @@ src_prepare() {
 	# Use upstream XMBC's working linux tools
 	cp -R ${WORKDIR}/Linux ${S}/tools || die "XMBC Linux Tools copy Failed"
 
-	# Fix goom
-	cd xbmc/visualizations/Goom/goom2k4-0
-	cp ../Makefile.in . # Move files into right dirs
-	rm Makefile.am
-	# Gah @ .in vs .am
-	for d in gtk-gui-devel sdl-goom src xmms-goom; do
-		mv $d/Makefile.am $d/Makefile.in
-		einfo "moving $d"
-	done
-	eautoconf
-	cd ${S}
+	# *Awesome* sed voodoo
+	# Fix Curl
+	sed -i \
+	-e 's:\(g_curlInterface.easy_setopt.*, \)\(NULL\):\1(void*)\2:g' \
+		xbmc/FileSystem/FileCurl.cpp || die
 
 	sed -i \
 		-e 's: ftell64: dll_ftell64:' \
@@ -116,7 +110,7 @@ src_prepare() {
 
 	# some dirs ship generated autotools, some dont
 	local d
-	for d in . xbmc/cores/dvdplayer/Codecs/libbdnav ; do
+	for d in . xbmc/cores/dvdplayer/Codecs/libbdnav xbmc/lib/libass; do
 		[[ -d ${d} ]] || continue
 		[[ -e ${d}/configure ]] && continue
 		pushd ${d} >/dev/null
@@ -146,14 +140,16 @@ src_configure() {
 	export HELP2MAN=$(type -P help2man || echo true)
 
 	# Run libPython configure first
-	cd xbmc/lib/libPython/Python
-	econf || die "python econf failed"
-	cd ${S}
+	#cd xbmc/lib/libPython/Python
+	#econf --prefix=/opt/boxee/xbmc/lib/libPython/Python|| die "python econf failed"
+	#cd ${S}
 
 	econf \
+		--prefix=/opt/boxee \
 		--disable-ccache \
 		--disable-optimizations \
 		--enable-external-libraries \
+		--enable-goom \
 		$(use_enable avahi) \
 		$(use_enable css dvdcss) \
 		$(use_enable debug) \
