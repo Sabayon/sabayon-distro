@@ -7,12 +7,12 @@ inherit eutils autotools multilib python
 
 SRC_URI="http://dl.boxee.tv/${P}-source.tar.bz2
 	 http://distfiles.sabayon.org/${CATEGORY}/xmbc-linux-tools-git20100110.tar.gz"
-KEYWORDS=""
+KEYWORDS="~x86 ~amd64"
 DESCRIPTION="Cross-platform media center software based on XBMC"
 HOMEPAGE="http://boxee.tv/"
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+aac +alsa altivec avahi +css debug joystick midi +opengl profile +pulseaudio sse sse2 +vdpau +xrandr"
+IUSE="+aac +alsa altivec +avahi +css debug joystick midi +opengl +pulseaudio +vdpau +xrandr"
 
 RDEPEND="opengl? ( virtual/opengl )
 	app-arch/bzip2
@@ -81,6 +81,7 @@ S=${WORKDIR}/${P}-source
 MY_PREFIX=/opt/${PN}/
 use x86 && MY_ARCH=i486
 use amd64 && MY_ARCH=x86_64
+PYTHON_INC="$(python_get_includedir)"
 
 src_unpack() {
 	unpack ${A}
@@ -100,8 +101,7 @@ src_prepare() {
 	# Use upstream XMBC's working linux tools
 	cp --no-dereference --preserve=all -R -v ${WORKDIR}/Linux ${S}/tools || die "XMBC Linux Tools copy Failed"
 
-	# *Awesome* sed voodoo
-	# Fix Curl
+	# *Awesome* sed voodoo to fix Curl
 	sed -i \
 	-e 's:\(g_curlInterface.easy_setopt.*, \)\(NULL\):\1(void*)\2:g' \
 		xbmc/FileSystem/FileCurl.cpp || die
@@ -136,6 +136,19 @@ src_prepare() {
 
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
+
+	# Prevent Mac OSX files being installed
+	rm -rf system/python/lib-osx/
+	rm system/players/dvdplayer/*-osx*
+
+	# Use system Python
+	cd xbmc/lib/libPython
+	sed -i s#INCLUDES=#"INCLUDES=-I$PYTHON_INC "# Makefile || die "Setting system python failed"
+	cd ${S}
+
+	# change from xbmc to boxee
+	sed -i 's/xbmc/boxee/g' ${S}/tools/Linux/xbmc.desktop || die "Desktop sed failed"
+	sed -i 's/XBMC/Boxee/g' ${S}/tools/Linux/xbmc.desktop || die "Desktop sed failed"
 }
 
 src_configure() {
@@ -143,12 +156,6 @@ src_configure() {
 	export ac_cv_path_LATEX=no
 	# Avoid help2man
 	export HELP2MAN=$(type -P help2man || echo true)
-	# Set path to system Python
-	cd xbmc/lib/libPython
-	PYTHON_INC="$(python_get_includedir)"
-	einfo $PYTHON_INC
-	sed -i s#INCLUDES=#"INCLUDES=-I$PYTHON_INC "# Makefile || die "Setting system python failed"
-	cd ${S}
 
 	econf \
 		--prefix=${MY_PREFIX} \
@@ -163,16 +170,20 @@ src_configure() {
 		$(use_enable joystick) \
 		$(use_enable midi mid) \
 		$(use_enable opengl gl) \
-		$(use_enable profile profiling) \
+		--disable-profiling \
 		$(use_enable pulseaudio pulse) \
 		$(use_enable vdpau) \
 		$(use_enable xrandr)
 }
 
-src_install() {
-	# src_install is lifted from #191801
-	cd ${S}
+src_compile() {
+	emake
+	emake skins
+	emake give_me_my_mouse_back
+}
 
+src_install() {
+	# src_install is based on #191801.. thanks guys!
 	insinto ${MY_PREFIX}/language
 	doins -r language/*
 
@@ -183,13 +194,12 @@ src_install() {
 	doins -r media/boxee_screen_saver
 
 	insinto ${MY_PREFIX}/media/Fonts
-	doins media/Fonts/boxee*
+	doins media/Fonts/*.ttf
 
 	insinto ${MY_PREFIX}/screensavers
 	doins screensavers/*.xbs
 
 	insinto ${MY_PREFIX}
-	doins -r plugins
 	rm -f scripts/Lyrics/resources/skins/Boxee/720p
 	rm -f scripts/Lyrics/resources/skins/Default/720p
 	doins -r scripts
@@ -197,13 +207,12 @@ src_install() {
 	dosym PAL ${MY_PREFIX}/scripts/Lyrics/resources/skins/Default/720p
 
 	insinto ${MY_PREFIX}/skin
-	doins -r skin/Boxee*
+	doins -r skin/boxee*
 
 	exeinto ${MY_PREFIX}/system
 	doexe system/*-${MY_ARCH}-linux.so
 	insinto ${MY_PREFIX}/system
 	doins -r system/scrapers
-	doins system/rtorrent.rc.linux
 
 	for player in system/players/* ; do
 		exeinto ${MY_PREFIX}/system/players/$(basename ${player})
@@ -212,29 +221,6 @@ src_install() {
 
 	exeinto ${MY_PREFIX}/system/python
 	doexe system/python/*-${MY_ARCH}-linux.so
-
-	rm -rf xbmc/lib/libPython/Python/Lib/test
-	exeinto ${MY_PREFIX}/system/python/lib
-	doexe xbmc/lib/libPython/Python/build/lib.linux-${HOSTTYPE}-2.4/*.so
-
-	insinto ${MY_PREFIX}/system/python/lib
-	for base in "${S}/system/python/lib" "${S}/xbmc/lib/libPython/Python/Lib" ; do
-		for del in $(find ${base} -name plat-\*) ; do
-			if [[ "`basename ${del}`" != "plat-linux2" ]] ; then
-				rm -rf ${del}
-			fi
-		done
-		for suffix in pyo py ; do
-			for file in $(find ${base} -iname \*.${suffix}) ; do
-				dir=$(dirname ${file} | sed -e "s#^${base}/*##g")
-				if [[ "${dir}" != "${last_dir}" ]] ; then
-					last_dir="${dir}"
-					insinto "${MY_PREFIX}/system/python/lib/${dir}"
-				fi
-				doins ${file}
-			done
-		done
-	done
 
 	insinto ${MY_PREFIX}/UserData
 	cp -f UserData/sources.xml.in.diff.linux UserData/sources.xml
@@ -250,10 +236,7 @@ src_install() {
 	insinto ${MY_PREFIX}/visualisations
 	doins	visualisations/Goom.vis \
 			visualisations/Waveform.vis \
-			visualisations/opengl_spectrum.vis \
-			visualisations/projectM.vis
-	doins -r	visualisations/projectM \
-				visualisations/projectM.presets
+			visualisations/opengl_spectrum.vis
 
 	exeinto ${MY_PREFIX}/bin
 	doexe bin-linux/boxee-rtorrent
@@ -268,8 +251,12 @@ src_install() {
 	dodir /opt/bin
 	dosym ${MY_PREFIX}/run-boxee-desktop /opt/bin/boxee
 
+	# fix desktop files
+	mv ${S}/tools/Linux/xbmc.desktop tools/Linux/boxee.desktop
 	insinto /usr/share/applications
 	doins tools/Linux/boxee.desktop
+	# Fix icon
+	cp media/icon.png tools/Linux/boxee.png
 	insinto /usr/share/pixmaps
 	doins tools/Linux/boxee.png
 
