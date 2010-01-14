@@ -77,7 +77,10 @@ DEPEND="${RDEPEND}
 	>=app-emulation/emul-linux-x86-baselibs-20091231"
 
 S=${WORKDIR}/${P}-source
-MY_PREFIX=/opt/${PN}
+
+MY_PREFIX=/opt/${PN}/
+use x86 && MY_ARCH=i486
+use amd64 && MY_ARCH=x86_64
 
 src_unpack() {
 	unpack ${A}
@@ -95,7 +98,7 @@ src_prepare() {
 	done
 
 	# Use upstream XMBC's working linux tools
-	cp -R ${WORKDIR}/Linux ${S}/tools || die "XMBC Linux Tools copy Failed"
+	cp --no-dereference --preserve=all -R -v ${WORKDIR}/Linux ${S}/tools || die "XMBC Linux Tools copy Failed"
 
 	# *Awesome* sed voodoo
 	# Fix Curl
@@ -168,15 +171,15 @@ src_configure() {
 
 src_install() {
 	# src_install is lifted from #191801
-	cd "${S}"
+	cd ${S}
 
 	insinto ${MY_PREFIX}/language
 	doins -r language/*
 
 	insinto ${MY_PREFIX}/media
 	doins	media/defaultrss.png \
-			media/downloadrss.png \
-			media/weather.rar
+		media/downloadrss.png \
+		media/weather.rar
 	doins -r media/boxee_screen_saver
 
 	insinto ${MY_PREFIX}/media/Fonts
@@ -186,7 +189,7 @@ src_install() {
 	doins screensavers/*.xbs
 
 	insinto ${MY_PREFIX}
-	#doins -r plugins
+	doins -r plugins
 	rm -f scripts/Lyrics/resources/skins/Boxee/720p
 	rm -f scripts/Lyrics/resources/skins/Default/720p
 	doins -r scripts
@@ -197,29 +200,18 @@ src_install() {
 	doins -r skin/Boxee*
 
 	exeinto ${MY_PREFIX}/system
-	doexe system/*-${my_arch}-linux.so
+	doexe system/*-${MY_ARCH}-linux.so
 	insinto ${MY_PREFIX}/system
 	doins -r system/scrapers
 	doins system/rtorrent.rc.linux
 
 	for player in system/players/* ; do
 		exeinto ${MY_PREFIX}/system/players/$(basename ${player})
-		doexe ${player}/*-${my_arch}-linux.so
+		doexe ${player}/*-${MY_ARCH}-linux.so
 	done
 
-	# FIXME: flashplayer is closed and builds don't exist for x86_64!
-	exeinto ${MY_PREFIX}/system/players/flashplayer
-	doexe	system/players/flashplayer/*linux* \
-			system/players/flashplayer/bxoverride.so
-	insinto ${MY_PREFIX}/system/players/flashplayer
-	doins -r system/players/flashplayer/boxeejs
-	dodir xulrunner
-	dosym /opt/xulrunner ${MY_PREFIX}/system/players/flashplayer/xulrunner/bin
-	exeinto /opt/xulrunner/plugins
-	doexe system/players/flashplayer/xulrunner-i486-linux/bin/plugins/libflashplayer.so
-	
 	exeinto ${MY_PREFIX}/system/python
-	doexe system/python/*-${my_arch}-linux.so
+	doexe system/python/*-${MY_ARCH}-linux.so
 
 	rm -rf xbmc/lib/libPython/Python/Lib/test
 	exeinto ${MY_PREFIX}/system/python/lib
@@ -228,7 +220,7 @@ src_install() {
 	insinto ${MY_PREFIX}/system/python/lib
 	for base in "${S}/system/python/lib" "${S}/xbmc/lib/libPython/Python/Lib" ; do
 		for del in $(find ${base} -name plat-\*) ; do
-			if [[ "`basename ${del}`" != "plat-linux2" ]] ; then 
+			if [[ "`basename ${del}`" != "plat-linux2" ]] ; then
 				rm -rf ${del}
 			fi
 		done
@@ -243,14 +235,6 @@ src_install() {
 			done
 		done
 	done
-
-	# FIXME: Don't exist for x86_64!
-	if use amd64 ; then
-		ewarn "cdrip libraries do not exist for x86_64!"
-	else
-		exeinto ${MY_PREFIX}/system/cdrip
-		doexe system/cdrip/*-${my_arch}-linux.so
-	fi
 
 	insinto ${MY_PREFIX}/UserData
 	cp -f UserData/sources.xml.in.diff.linux UserData/sources.xml
@@ -291,9 +275,4 @@ src_install() {
 
 	dodir /etc/env.d
 	echo "CONFIG_PROTECT=\"${MY_PREFIX}/UserData\"" > "${D}/etc/env.d/95boxee"
-}
-
-
-pkg_postinst() {
-	elog "Visit http://xbmc.org/wiki/?title=XBMC_Online_Manual"
 }
