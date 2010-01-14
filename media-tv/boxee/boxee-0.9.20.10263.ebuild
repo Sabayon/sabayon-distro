@@ -68,7 +68,8 @@ RDEPEND="opengl? ( virtual/opengl )
 	vdpau? ( || ( x11-libs/libvdpau <x11-drivers/nvidia-drivers-185.18.36-r1 ) )
 	x11-libs/libXinerama
 	xrandr? ( x11-libs/libXrandr )
-	x11-libs/libXrender"
+	x11-libs/libXrender
+	dev-lang/python"
 DEPEND="${RDEPEND}
 	x11-proto/xineramaproto
 	dev-util/cmake
@@ -76,6 +77,7 @@ DEPEND="${RDEPEND}
 	>=app-emulation/emul-linux-x86-baselibs-20091231"
 
 S=${WORKDIR}/${P}-source
+MY_PREFIX=/opt/${PN}
 
 src_unpack() {
 	unpack ${A}
@@ -138,14 +140,15 @@ src_configure() {
 	export ac_cv_path_LATEX=no
 	# Avoid help2man
 	export HELP2MAN=$(type -P help2man || echo true)
-
-	# Run libPython configure first
-	#cd xbmc/lib/libPython/Python
-	#econf --prefix=/opt/boxee/xbmc/lib/libPython/Python|| die "python econf failed"
-	#cd ${S}
+	# Set path to system Python
+	cd xbmc/lib/libPython
+	PYTHON_INC="$(python_get_includedir)"
+	einfo $PYTHON_INC
+	sed -i s#INCLUDES=#"INCLUDES=-I$PYTHON_INC "# Makefile || die "Setting system python failed"
+	cd ${S}
 
 	econf \
-		--prefix=/opt/boxee \
+		--prefix=${MY_PREFIX} \
 		--disable-ccache \
 		--disable-optimizations \
 		--enable-external-libraries \
@@ -164,18 +167,132 @@ src_configure() {
 }
 
 src_install() {
-	einstall || die "Install failed!"
+	# src_install is lifted from #191801
+	cd "${S}"
 
-	insinto /usr/share/xbmc/web/styles/
-	doins -r "${S}"/web/*/styles/*/ || die
+	insinto ${MY_PREFIX}/language
+	doins -r language/*
+
+	insinto ${MY_PREFIX}/media
+	doins	media/defaultrss.png \
+			media/downloadrss.png \
+			media/weather.rar
+	doins -r media/boxee_screen_saver
+
+	insinto ${MY_PREFIX}/media/Fonts
+	doins media/Fonts/boxee*
+
+	insinto ${MY_PREFIX}/screensavers
+	doins screensavers/*.xbs
+
+	insinto ${MY_PREFIX}
+	#doins -r plugins
+	rm -f scripts/Lyrics/resources/skins/Boxee/720p
+	rm -f scripts/Lyrics/resources/skins/Default/720p
+	doins -r scripts
+	dosym PAL ${MY_PREFIX}/scripts/Lyrics/resources/skins/Boxee/720p
+	dosym PAL ${MY_PREFIX}/scripts/Lyrics/resources/skins/Default/720p
+
+	insinto ${MY_PREFIX}/skin
+	doins -r skin/Boxee*
+
+	exeinto ${MY_PREFIX}/system
+	doexe system/*-${my_arch}-linux.so
+	insinto ${MY_PREFIX}/system
+	doins -r system/scrapers
+	doins system/rtorrent.rc.linux
+
+	for player in system/players/* ; do
+		exeinto ${MY_PREFIX}/system/players/$(basename ${player})
+		doexe ${player}/*-${my_arch}-linux.so
+	done
+
+	# FIXME: flashplayer is closed and builds don't exist for x86_64!
+	exeinto ${MY_PREFIX}/system/players/flashplayer
+	doexe	system/players/flashplayer/*linux* \
+			system/players/flashplayer/bxoverride.so
+	insinto ${MY_PREFIX}/system/players/flashplayer
+	doins -r system/players/flashplayer/boxeejs
+	dodir xulrunner
+	dosym /opt/xulrunner ${MY_PREFIX}/system/players/flashplayer/xulrunner/bin
+	exeinto /opt/xulrunner/plugins
+	doexe system/players/flashplayer/xulrunner-i486-linux/bin/plugins/libflashplayer.so
+	
+	exeinto ${MY_PREFIX}/system/python
+	doexe system/python/*-${my_arch}-linux.so
+
+	rm -rf xbmc/lib/libPython/Python/Lib/test
+	exeinto ${MY_PREFIX}/system/python/lib
+	doexe xbmc/lib/libPython/Python/build/lib.linux-${HOSTTYPE}-2.4/*.so
+
+	insinto ${MY_PREFIX}/system/python/lib
+	for base in "${S}/system/python/lib" "${S}/xbmc/lib/libPython/Python/Lib" ; do
+		for del in $(find ${base} -name plat-\*) ; do
+			if [[ "`basename ${del}`" != "plat-linux2" ]] ; then 
+				rm -rf ${del}
+			fi
+		done
+		for suffix in pyo py ; do
+			for file in $(find ${base} -iname \*.${suffix}) ; do
+				dir=$(dirname ${file} | sed -e "s#^${base}/*##g")
+				if [[ "${dir}" != "${last_dir}" ]] ; then
+					last_dir="${dir}"
+					insinto "${MY_PREFIX}/system/python/lib/${dir}"
+				fi
+				doins ${file}
+			done
+		done
+	done
+
+	# FIXME: Don't exist for x86_64!
+	if use amd64 ; then
+		ewarn "cdrip libraries do not exist for x86_64!"
+	else
+		exeinto ${MY_PREFIX}/system/cdrip
+		doexe system/cdrip/*-${my_arch}-linux.so
+	fi
+
+	insinto ${MY_PREFIX}/UserData
+	cp -f UserData/sources.xml.in.diff.linux UserData/sources.xml
+	cp -f UserData/advancedsettings.xml.in UserData/advancedsettings.xml
+	doins UserData/*.xml
+	dosym UserData ${MY_PREFIX}/userdata
+
+	insinto ${MY_PREFIX}/system
+	doins system/*.xml
+	doins system/asound.conf
+	doins -r system/scrapers
+
+	insinto ${MY_PREFIX}/visualisations
+	doins	visualisations/Goom.vis \
+			visualisations/Waveform.vis \
+			visualisations/opengl_spectrum.vis \
+			visualisations/projectM.vis
+	doins -r	visualisations/projectM \
+				visualisations/projectM.presets
+
+	exeinto ${MY_PREFIX}/bin
+	doexe bin-linux/boxee-rtorrent
+
+	mv run-boxee-desktop.in run-boxee-desktop
+	exeinto ${MY_PREFIX}
+	doexe Boxee
+	doexe run-boxee-desktop
+	doexe give_me_my_mouse_back
+	doexe xbmc-xrandr
+
+	dodir /opt/bin
+	dosym ${MY_PREFIX}/run-boxee-desktop /opt/bin/boxee
 
 	insinto /usr/share/applications
-	doins tools/Linux/xbmc.desktop
-	doicon tools/Linux/xbmc.png
+	doins tools/Linux/boxee.desktop
+	insinto /usr/share/pixmaps
+	doins tools/Linux/boxee.png
 
-	dodoc README.linux known_issues.txt
-	rm "${D}"/usr/share/xbmc/{README.linux,LICENSE.GPL,*.txt}
+	dodir /etc/env.d
+	echo "CONFIG_PROTECT=\"${MY_PREFIX}/UserData\"" > "${D}/etc/env.d/95boxee"
 }
+
 
 pkg_postinst() {
 	elog "Visit http://xbmc.org/wiki/?title=XBMC_Online_Manual"
