@@ -5,8 +5,11 @@ EAPI="2"
 
 inherit eutils autotools multilib python
 
+FLASHLIBVER=6684
+
 SRC_URI="http://dl.boxee.tv/${P}-source.tar.bz2
-	 http://distfiles.sabayon.org/${CATEGORY}/xmbc-linux-tools-git20100110.tar.gz"
+	 http://distfiles.sabayon.org/${CATEGORY}/xmbc-linux-tools-git20100110.tar.gz
+	 http://dl.boxee.tv/flashlib-shared-${FLASHLIBVER}.tar.gz"
 KEYWORDS="~x86 ~amd64"
 DESCRIPTION="Cross-platform media center software based on XBMC"
 HOMEPAGE="http://boxee.tv/"
@@ -87,6 +90,13 @@ src_unpack() {
 	unpack ${A}
 	cd "${S}"
 
+	einfo "Repacking Project Mayhem Webserver"
+	cd web
+	rm Project_Mayhem_III_webserver_v1.0.zip || die 'rm failed'
+	cd Project\ Mayhem\ III/
+	zip -r -9 -o ../Project_Mayhem_III_webserver_v1.0.zip ./* || die 'zip failed'
+
+	cd "${S}"
 	# Fix case sensitivity
 	mv media/Fonts/{a,A}rial.ttf || die
 	mv media/{S,s}plash.png || die
@@ -139,7 +149,6 @@ src_prepare() {
 
 	# Prevent Mac OSX files being installed
 	rm -rf system/python/lib-osx/
-	rm system/players/dvdplayer/*-osx*
 
 	# Use system Python
 	cd xbmc/lib/libPython
@@ -149,6 +158,15 @@ src_prepare() {
 	# change from xbmc to boxee
 	sed -i 's/xbmc/boxee/g' ${S}/tools/Linux/xbmc.desktop || die "Desktop sed failed"
 	sed -i 's/XBMC/Boxee/g' ${S}/tools/Linux/xbmc.desktop || die "Desktop sed failed"
+	sed -i 's#boxee.png#/usr/share/pixmaps/boxee.png#g' \
+					${S}/tools/Linux/xbmc.desktop || die "Desktop sed failed"
+
+	# Create flashlib Makefile
+	use amd64 && pic="-fPIC"
+	cd "${WORKDIR}/flashlib-shared"
+	epatch "${FILESDIR}/flashlib-Makefile.patch" || die "Patch failed"
+	sed -e "s#@ARCH@#${MY_ARCH}#g" -i Makefile || die "sed failed."
+	sed -e "s#@PIC@#${pic}#g" -i Makefile || die "sed failed."
 }
 
 src_configure() {
@@ -177,6 +195,11 @@ src_configure() {
 }
 
 src_compile() {
+	cd "${WORKDIR}/flashlib-shared"
+	emake || die "Make flashlib failed!"
+	cp "${WORKDIR}/flashlib-shared/FlashLib-*-linux.so" "${S}/system/players/flashplayer"
+
+	cd ${S}
 	emake
 	emake skins
 	emake give_me_my_mouse_back
@@ -188,9 +211,11 @@ src_install() {
 	doins -r language/*
 
 	insinto ${MY_PREFIX}/media
+	mv media/splash.png media/Splash.png
 	doins	media/defaultrss.png \
 		media/downloadrss.png \
-		media/weather.rar
+		media/weather.rar \
+		media/*.png
 	doins -r media/boxee_screen_saver
 
 	insinto ${MY_PREFIX}/media/Fonts
@@ -213,6 +238,7 @@ src_install() {
 	doexe system/*-${MY_ARCH}-linux.so
 	insinto ${MY_PREFIX}/system
 	doins -r system/scrapers
+	doins -r system/keymaps
 
 	for player in system/players/* ; do
 		exeinto ${MY_PREFIX}/system/players/$(basename ${player})
@@ -226,6 +252,7 @@ src_install() {
 	cp -f UserData/sources.xml.in.diff.linux UserData/sources.xml
 	cp -f UserData/advancedsettings.xml.in UserData/advancedsettings.xml
 	doins UserData/*.xml
+	doins
 	dosym UserData ${MY_PREFIX}/userdata
 
 	insinto ${MY_PREFIX}/system
@@ -262,4 +289,14 @@ src_install() {
 
 	dodir /etc/env.d
 	echo "CONFIG_PROTECT=\"${MY_PREFIX}/UserData\"" > "${D}/etc/env.d/95boxee"
+
+	# Evil closed source non 64bit flash player
+	exeinto ${MY_PREFIX}/system/players/flashplayer
+	doexe system/players/flashplayer/*linux* system/players/flashplayer/bxoverride.so
+	insinto ${MY_PREFIX}/system/players/flashplayer
+	doins -r system/players/flashplayer/boxeejs
+	dodir xulrunner
+	dosym /opt/xulrunner ${MY_PREFIX}/system/players/flashplayer/xulrunner/bin
+	exeinto /opt/xulrunner/plugins
+	doexe system/players/flashplayer/xulrunner-i486-linux/bin/plugins/libflashplayer.so
 }
