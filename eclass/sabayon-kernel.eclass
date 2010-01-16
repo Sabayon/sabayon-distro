@@ -13,6 +13,8 @@
 # for example, of linux-sabayon it is "sabayon", for linux-server it is "server"
 K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-sabayon}"
 
+K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
+
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
 inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
@@ -40,17 +42,22 @@ S="${WORKDIR}/linux-${KV_FULL}"
 SLOT="${PV}"
 EXTRAVERSION=${EXTRAVERSION/linux/${K_SABKERNEL_NAME}}
 
-IUSE="splash dmraid grub"
 HOMEPAGE="http://www.sabayon.org"
 SRC_URI="${KERNEL_URI}
 	http://distfiles.sabayonlinux.org/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
 
-DEPEND="${DEPEND}
-	app-arch/xz-utils
-	<sys-kernel/genkernel-3.4.11
-	splash? ( x11-themes/sabayon-artwork-core )"
-RDEPEND="grub? ( sys-boot/grub sys-boot/grub-handler )"
-
+if [ -n "${K_ONLY_SOURCES}" ]; then
+	IUSE="${IUSE}"
+	DEPEND="${DEPEND}"
+	RDEPEND="${RDEPEND}"
+else
+	IUSE="splash dmraid grub"
+	DEPEND="${DEPEND}
+		app-arch/xz-utils
+		<sys-kernel/genkernel-3.4.11
+		splash? ( x11-themes/sabayon-artwork-core )"
+	RDEPEND="grub? ( sys-boot/grub sys-boot/grub-handler )"
+fi
 
 sabayon-kernel_pkg_setup() {
 	# do not run linux-mod-pkg_setup
@@ -150,10 +157,10 @@ sabayon-kernel_src_install() {
 	# firmwares across different kernel versions
 	for fwfile in `find "${D}/lib/firmware" -type f`; do
 
-		sysfile="${ROOT}/${fwfile/${D}}"
+		sysfile="${ROOT}${fwfile/${D}}"
 		if [ -f "${sysfile}" ]; then
 			ewarn "Removing duplicated: ${sysfile}"
-			rm ${sysfile} || die "failed to remove ${sysfile}"
+			rm -f "${sysfile}"
 		fi
 
 	done
