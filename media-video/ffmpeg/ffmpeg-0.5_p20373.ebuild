@@ -52,7 +52,7 @@ RDEPEND="sdl? ( >=media-libs/libsdl-1.2.10 )
 	speex? ( >=media-libs/speex-1.2_beta3 )
 	jack? ( media-sound/jack-audio-connection-kit )
 	X? ( x11-libs/libX11 x11-libs/libXext )
-	vdpau? ( >=x11-drivers/nvidia-drivers-180.29 )"
+	vdpau? ( >=x11-libs/libvdpau-0.3 )"
 
 DEPEND="${RDEPEND}
 	>=sys-devel/make-3.81
