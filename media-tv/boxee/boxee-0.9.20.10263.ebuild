@@ -123,6 +123,14 @@ src_prepare() {
 		-e '1i#include <stdlib.h>\n#include <string.h>\n' \
 		xbmc/lib/libid3tag/libid3tag/metadata.c || die
 
+	# Add Destdir support
+	sed -i 's#$(prefix)#$(DESTDIR)$(prefix)#g' ${S}/Makefile.in \
+		|| die "Makefile sed failed"
+
+	# Use system Python
+	sed -i s#INCLUDES=#"INCLUDES=-I$PYTHON_INC "# xbmc/lib/libPython/Makefile \
+		|| die "Setting system python failed"
+
 	# some dirs ship generated autotools, some dont
 	local d
 	for d in . xbmc/cores/dvdplayer/Codecs/libbdnav xbmc/lib/libass; do
@@ -150,11 +158,6 @@ src_prepare() {
 	# Prevent Mac OSX files being installed
 	rm -rf system/python/lib-osx/
 
-	# Use system Python
-	cd xbmc/lib/libPython
-	sed -i s#INCLUDES=#"INCLUDES=-I$PYTHON_INC "# Makefile || die "Setting system python failed"
-	cd ${S}
-
 	# change from xbmc to boxee
 	sed -i 's/xbmc/boxee/g' ${S}/tools/Linux/xbmc.desktop || die "Desktop sed failed"
 	sed -i 's/XBMC/Boxee/g' ${S}/tools/Linux/xbmc.desktop || die "Desktop sed failed"
@@ -162,11 +165,11 @@ src_prepare() {
 					${S}/tools/Linux/xbmc.desktop || die "Desktop sed failed"
 
 	# Create flashlib Makefile
-	use amd64 && pic="-fPIC"
+	use amd64 && PIC="-fPIC"
 	cd "${WORKDIR}/flashlib-shared"
 	epatch "${FILESDIR}/flashlib-Makefile.patch" || die "Patch failed"
 	sed -e "s#@ARCH@#${MY_ARCH}#g" -i Makefile || die "sed failed."
-	sed -e "s#@PIC@#${pic}#g" -i Makefile || die "sed failed."
+	sed -e "s#@PIC@#${PIC}#g" -i Makefile || die "sed failed."
 }
 
 src_configure() {
@@ -197,7 +200,7 @@ src_configure() {
 src_compile() {
 	cd "${WORKDIR}/flashlib-shared"
 	emake || die "Make flashlib failed!"
-	cp "${WORKDIR}/flashlib-shared/FlashLib-*-linux.so" "${S}/system/players/flashplayer"
+	cp "${WORKDIR}/flashlib-shared/FlashLib-${MY_ARCH}-linux.so" "${S}/system/players/flashplayer"
 
 	cd ${S}
 	emake
@@ -206,97 +209,27 @@ src_compile() {
 }
 
 src_install() {
-	# src_install is based on #191801.. thanks guys!
-	insinto ${MY_PREFIX}/language
-	doins -r language/*
-
-	insinto ${MY_PREFIX}/media
-	mv media/splash.png media/Splash.png
-	doins	media/defaultrss.png \
-		media/downloadrss.png \
-		media/weather.rar \
-		media/*.png
-	doins -r media/boxee_screen_saver
-
-	insinto ${MY_PREFIX}/media/Fonts
-	doins media/Fonts/*.ttf
-
-	insinto ${MY_PREFIX}/screensavers
-	doins screensavers/*.xbs
-
-	insinto ${MY_PREFIX}
-	rm -f scripts/Lyrics/resources/skins/Boxee/720p
-	rm -f scripts/Lyrics/resources/skins/Default/720p
-	doins -r scripts
-	dosym PAL ${MY_PREFIX}/scripts/Lyrics/resources/skins/Boxee/720p
-	dosym PAL ${MY_PREFIX}/scripts/Lyrics/resources/skins/Default/720p
-
-	insinto ${MY_PREFIX}/skin
-	doins -r skin/boxee*
-
-	exeinto ${MY_PREFIX}/system
-	doexe system/*-${MY_ARCH}-linux.so
-	insinto ${MY_PREFIX}/system
-	doins -r system/scrapers
-	doins -r system/keymaps
-
-	for player in system/players/* ; do
-		exeinto ${MY_PREFIX}/system/players/$(basename ${player})
-		doexe ${player}/*-${MY_ARCH}-linux.so
-	done
-
-	exeinto ${MY_PREFIX}/system/python
-	doexe system/python/*-${MY_ARCH}-linux.so
-
-	insinto ${MY_PREFIX}/UserData
-	cp -f UserData/sources.xml.in.diff.linux UserData/sources.xml
-	cp -f UserData/advancedsettings.xml.in UserData/advancedsettings.xml
-	doins UserData/*.xml
-	doins
-	dosym UserData ${MY_PREFIX}/userdata
-
-	insinto ${MY_PREFIX}/system
-	doins system/*.xml
-	doins system/asound.conf
-	doins -r system/scrapers
-
-	insinto ${MY_PREFIX}/visualisations
-	doins	visualisations/Goom.vis \
-			visualisations/Waveform.vis \
-			visualisations/opengl_spectrum.vis
-
-	exeinto ${MY_PREFIX}/bin
-	doexe bin-linux/boxee-rtorrent
-
-	mv run-boxee-desktop.in run-boxee-desktop
-	exeinto ${MY_PREFIX}
-	doexe Boxee
-	doexe run-boxee-desktop
-	doexe give_me_my_mouse_back
-	doexe xbmc-xrandr
-
-	dodir /opt/bin
-	dosym ${MY_PREFIX}/run-boxee-desktop /opt/bin/boxee
+	emake DESTDIR="${D}" install || die "Make install failed"
 
 	# fix desktop files
-	mv ${S}/tools/Linux/xbmc.desktop tools/Linux/boxee.desktop
-	insinto /usr/share/applications
-	doins tools/Linux/boxee.desktop
-	# Fix icon
-	cp media/icon.png tools/Linux/boxee.png
-	insinto /usr/share/pixmaps
-	doins tools/Linux/boxee.png
+ 	mv ${S}/tools/Linux/xbmc.desktop tools/Linux/boxee.desktop
+ 	insinto /usr/share/applications
+ 	doins tools/Linux/boxee.desktop
+ 	# Fix icon
+ 	cp media/icon.png tools/Linux/boxee.png
+ 	insinto /usr/share/pixmaps
+ 	doins tools/Linux/boxee.png
 
-	dodir /etc/env.d
-	echo "CONFIG_PROTECT=\"${MY_PREFIX}/UserData\"" > "${D}/etc/env.d/95boxee"
+ 	dodir /etc/env.d
+ 	echo "CONFIG_PROTECT=\"${MY_PREFIX}/UserData\"" > "${D}/etc/env.d/95boxee"
 
-	# Evil closed source non 64bit flash player
-	exeinto ${MY_PREFIX}/system/players/flashplayer
-	doexe system/players/flashplayer/*linux* system/players/flashplayer/bxoverride.so
-	insinto ${MY_PREFIX}/system/players/flashplayer
-	doins -r system/players/flashplayer/boxeejs
-	dodir xulrunner
-	dosym /opt/xulrunner ${MY_PREFIX}/system/players/flashplayer/xulrunner/bin
-	exeinto /opt/xulrunner/plugins
-	doexe system/players/flashplayer/xulrunner-i486-linux/bin/plugins/libflashplayer.so
+ 	# Evil closed source non 64bit flash player
+ 	exeinto ${MY_PREFIX}/system/players/flashplayer
+ 	doexe system/players/flashplayer/*linux* system/players/flashplayer/bxoverride.so
+ 	insinto ${MY_PREFIX}/system/players/flashplayer
+ 	doins -r system/players/flashplayer/boxeejs
+ 	dodir xulrunner
+ 	dosym /usr/bin/xulrunner ${MY_PREFIX}/system/players/flashplayer/xulrunner/bin
+# 	exeinto /opt/xulrunner/plugins
+# 	doexe system/players/flashplayer/xulrunner-i486-linux/bin/plugins/libflashplayer.so
 }
