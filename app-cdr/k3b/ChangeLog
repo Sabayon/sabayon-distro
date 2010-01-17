@@ -1,8 +1,0 @@
-# ChangeLog for app-cdr/k3b
-# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
-# $Header: $
-
-  05 May 2009; Ian Whyman <ian.whyman@sabayonlinux.org>
-  +k3b-1.65.0_alpha1.ebuild:
-  Inital commit, welcome k3b! Based a 9999 ebuild from kde-testing
-
