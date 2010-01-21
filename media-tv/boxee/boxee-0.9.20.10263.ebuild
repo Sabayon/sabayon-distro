@@ -10,7 +10,7 @@ FLASHLIBVER=6684
 SRC_URI="http://dl.boxee.tv/${P}-source.tar.bz2
 	 http://distfiles.sabayon.org/${CATEGORY}/xmbc-linux-tools-git20100110.tar.gz
 	 http://dl.boxee.tv/flashlib-shared-${FLASHLIBVER}.tar.gz"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS=""
 DESCRIPTION="Cross-platform media center software based on XBMC"
 HOMEPAGE="http://boxee.tv/"
 LICENSE="GPL-2"
