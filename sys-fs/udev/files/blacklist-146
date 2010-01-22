@@ -27,3 +27,5 @@ blacklist eth1394
 # hplip and cups 1.4+ use raw USB devices, so it requires usblp not be loaded
 blacklist usblp
 
+# make broadcom-sta happy
+blacklist ssb
