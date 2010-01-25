@@ -8,8 +8,8 @@
 # SURVIVOR_VERSION: A survivor version to be used
 #                   for rebuilding the manifests
 
-DEL_VERSION="4.3.1"
-SURVIVOR_VERSION="4.3.4"
+DEL_VERSION="4.3.90"
+SURVIVOR_VERSION="4.3.95"
 
 # Remove/Delete the old versions.
 for X in `find -name kde-l10n-*${DEL_VERSION}*.ebuild`; do
