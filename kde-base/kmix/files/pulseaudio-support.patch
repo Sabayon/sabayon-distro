@@ -1,0 +1,2863 @@
+diff --git a/kmix/CMakeLists.txt b/kmix/CMakeLists.txt
+index 4880470..d7929da 100644
+--- a/kmix/CMakeLists.txt
++++ b/kmix/CMakeLists.txt
+@@ -18,6 +18,7 @@ set(kmix_KDEINIT_SRCS ${kmix_adaptor_SRCS}
+    viewdockareapopup.cpp 
+    viewsliders.cpp 
+    mixdevicewidget.cpp 
++   mdwmoveaction.cpp 
+    mdwslider.cpp 
+    mdwenum.cpp 
+    kmixerwidget.cpp 
+diff --git a/kmix/KMixApp.cpp b/kmix/KMixApp.cpp
+index a5cf1d5..43ec696 100644
+--- a/kmix/KMixApp.cpp
++++ b/kmix/KMixApp.cpp
+@@ -51,7 +51,8 @@ KMixApp::newInstance()
+         // There are 3 cases for a new instance
+ 
+ 	//kDebug(67100) <<  "KMixApp::newInstance() isRestored()=" << isRestored() << "_keepVisibility=" << _keepVisibility;
+-	if ( m_kmix )
++	static bool first = true;
++	if ( !first )
+ 	{	// There already exists an instance/window
+  
+                 /* !!! @bug : _keepVisibilty has the wrong value here.
+@@ -74,7 +75,11 @@ KMixApp::newInstance()
+                         // starts it again, the KMix main window will be shown.
+ 			// If KMix is restored by SM or the --keepvisibilty is used, KMix will NOT
+ 			// explicitly be shown.
+-			m_kmix->show();
++			if ( !m_kmix ) {
++				m_kmix->show();
++			} else {
++				kWarning(67100) << "KMixApp::newInstance() Window has not finished constructing yet so ignoring the show() request.";
++			}
+ 		}
+ 		else {
+                         // CASE 2: If KMix is running, AND  ( session gets restored OR keepvisibilty command line switch )
+@@ -92,6 +97,11 @@ KMixApp::newInstance()
+ 	{
+                 // CASE 3: KMix was not running yet => instanciate a new one
+ 		//kDebug(67100) <<  "KMixApp::newInstance() Instanciate: _keepVisibility=" << _keepVisibility ;
++		first = false;	// NB See https://qa.mandriva.com/show_bug.cgi?id=56893#c3
++				// It is important to track this via a separate variable and not
++				// based on m_kmix to handle this race condition.
++				// Specific protection for the activation-prior-to-full-construction
++				// case exists above in the 'already running case'
+ 		m_kmix = new KMixWindow(_keepVisibility);
+ 		//connect(this, SIGNAL(stopUpdatesOnVisibility()), m_kmix, SLOT(stopVisibilityUpdates()));
+ 		if ( isSessionRestored() && KMainWindow::canBeRestored(0) )
+diff --git a/kmix/dialogviewconfiguration.cpp b/kmix/dialogviewconfiguration.cpp
+index c035037..e586186 100644
+--- a/kmix/dialogviewconfiguration.cpp
++++ b/kmix/dialogviewconfiguration.cpp
+@@ -264,10 +264,10 @@ void DialogViewConfiguration::createPage()
+ 
+             //qDebug()  << "add DialogViewConfigurationItem: " << mdName << " visible=" << mdw->isVisible() << "splitted=" << splitted;
+             if ( mdw->isVisible() ) {
+-              new DialogViewConfigurationItem(_qlw, md->id(), mdw->isVisible(), mdName, splitted, mdw->iconName());
++              new DialogViewConfigurationItem(_qlw, md->id(), mdw->isVisible(), mdName, splitted, mdw->mixDevice()->iconName());
+             }
+             else {
+-              new DialogViewConfigurationItem(_qlwInactive, md->id(), mdw->isVisible(), mdName, splitted, mdw->iconName());
++              new DialogViewConfigurationItem(_qlwInactive, md->id(), mdw->isVisible(), mdName, splitted, mdw->mixDevice()->iconName());
+             }
+ 
+ /*
+diff --git a/kmix/kmix-platforms.cpp b/kmix/kmix-platforms.cpp
+index f7b8c9a..5f61989 100644
+--- a/kmix/kmix-platforms.cpp
++++ b/kmix/kmix-platforms.cpp
+@@ -129,6 +129,10 @@ MixerFactory g_mixerFactories[] = {
+     { IRIX_getMixer, IRIX_getDriverName },
+ #endif
+ 
++#if defined(PULSE_MIXER)
++    { PULSE_getMixer, PULSE_getDriverName },
++#endif
++
+ #if defined(ALSA_MIXER)
+     { ALSA_getMixer, ALSA_getDriverName },
+ #endif
+@@ -145,10 +149,6 @@ MixerFactory g_mixerFactories[] = {
+     { HPUX_getMixer, HPUX_getDriverName },
+ #endif
+ 
+-#if defined(PULSE_MIXER)
+-    { PULSE_getMixer, PULSE_getDriverName },
+-#endif
+-
+     { 0, 0 }
+ };
+ 
+diff --git a/kmix/kmix.cpp b/kmix/kmix.cpp
+index 30cc5d4..37a9066 100644
+--- a/kmix/kmix.cpp
++++ b/kmix/kmix.cpp
+@@ -49,6 +49,7 @@
+ #include <ktoggleaction.h>
+ 
+ // KMix
++#include "guiprofile.h"
+ #include "mixertoolbox.h"
+ #include "kmix.h"
+ #include "kmixdevicemanager.h"
+@@ -399,11 +400,30 @@ void KMixWindow::recreateGUIwithoutSavingView()
+  */
+ void KMixWindow::recreateGUI(bool saveConfig)
+ {
++   // Find out which of the tabs is currently selected for restoration
++   int current_tab = -1;
++   if (m_wsMixers)
++      current_tab = m_wsMixers->currentIndex();
++
++   // NOTE (coling) This is a bug but I don't have time to find the source.
++   // When returning from "Configure Mixers..." we MUST save, but the
++   // flag comes through as false, presumably due to the rebuildGUI() signal
++   // being tied to the recreateGUIwithoutSavingView() slot.
++   // This should really be fixed :s
++   Q_UNUSED(saveConfig);
+    saveViewConfig();  // save the state before recreating
++
++   // Before clearing the mixer widgets, we must increase the refcount on the guiprof to save it deleting the ViewBase object.
++   if ( Mixer::mixers().count() > 0 )
++      for (int i=0; i<Mixer::mixers().count(); ++i)
++         MixerToolBox::instance()->selectProfile((Mixer::mixers())[i])->increaseRefcount();
+    clearMixerWidgets();
++
+    if ( Mixer::mixers().count() > 0 ) {
+       for (int i=0; i<Mixer::mixers().count(); ++i) {
+          Mixer *mixer = (Mixer::mixers())[i];
++         // We've increased the refcount before clearing, so remember and decrease it again.
++         MixerToolBox::instance()->selectProfile(mixer)->decreaseRefcount();
+          addMixerWidget(mixer->id());
+       }
+       bool dockingSucceded = updateDocking();
+@@ -415,6 +435,39 @@ void KMixWindow::recreateGUI(bool saveConfig)
+        updateDocking();  // -<- removes the DockIcon
+        hide();
+    }
++
++   if (current_tab >= 0) {
++      m_wsMixers->setCurrentIndex(current_tab);
++   }
++}
++
++
++/**
++* Create or recreate the Mixer GUI elements
++*/
++void KMixWindow::redrawMixer( const QString& mixer_ID )
++{
++    for ( int i=0; i<m_wsMixers->count() ; ++i )
++    {
++        QWidget *w = m_wsMixers->widget(i);
++        if ( w->inherits("KMixerWidget") )
++        {
++            KMixerWidget* kmw = (KMixerWidget*)w;
++            if ( kmw->mixer()->id() == mixer_ID )
++            {
++                kDebug(67100) << "KMixWindow::redrawMixer() " << mixer_ID << " is being redrawn";
++                kmw->loadConfig( KGlobal::config().data() );
++
++                // Is the below needed? It is done on startup so copied it here...
++                kmw->setTicks( m_showTicks );
++                kmw->setLabels( m_showLabels );
++
++                return;
++            }
++        }
++    }
++
++    kWarning(67100) << "KMixWindow::redrawMixer() Requested to redraw " << mixer_ID << " but I cannot find it :s";
+ }
+ 
+ 
+diff --git a/kmix/kmix.h b/kmix/kmix.h
+index 7fca083..81774ea 100644
+--- a/kmix/kmix.h
++++ b/kmix/kmix.h
+@@ -87,6 +87,7 @@ KMixWindow : public KXmlGuiWindow
+    virtual void applyPrefs( KMixPrefDlg *prefDlg );
+    void recreateGUI(bool saveView);
+    void recreateGUIwithoutSavingView();
++   void redrawMixer( const QString& mixer_ID );
+       
+       
+    //void stopVisibilityUpdates();
+diff --git a/kmix/kmixerwidget.cpp b/kmix/kmixerwidget.cpp
+index b7fdb2a..def1bae 100644
+--- a/kmix/kmixerwidget.cpp
++++ b/kmix/kmixerwidget.cpp
+@@ -92,6 +92,7 @@ void KMixerWidget::createLayout(ViewBase::ViewFlags vflags)
+    // delete old objects
+    if( m_balanceSlider ) {
+       delete m_balanceSlider;
++      m_balanceSlider = 0;
+    }
+    if( m_topLayout ) {
+       delete m_topLayout;
+@@ -182,6 +183,7 @@ bool KMixerWidget::possiblyAddView(ViewBase* vbase)
+       connect( vbase, SIGNAL(toggleMenuBar()), parentWidget(), SLOT(toggleMenuBar()) );
+       // *this will be deleted on rebuildGUI(), so lets queue the signal
+       connect( vbase, SIGNAL(rebuildGUI())   , parentWidget(), SLOT(recreateGUIwithoutSavingView()), Qt::QueuedConnection );
++      connect( vbase, SIGNAL(redrawMixer(const QString&)), parentWidget(), SLOT(redrawMixer(const QString&)), Qt::QueuedConnection );
+       return true;
+    }
+ }
+diff --git a/kmix/kmixerwidget.h b/kmix/kmixerwidget.h
+index ad51965..6d71fa1 100644
+--- a/kmix/kmixerwidget.h
++++ b/kmix/kmixerwidget.h
+@@ -62,6 +62,7 @@ class KMixerWidget : public QWidget
+   signals:
+    void toggleMenuBar();
+    void rebuildGUI();
++   void redrawMixer( const QString& mixer_ID );
+     
+   public slots:
+    void setTicks( bool on );
+diff --git a/kmix/kmixprefdlg.h b/kmix/kmixprefdlg.h
+index 36aa942..64872cd 100644
+--- a/kmix/kmixprefdlg.h
++++ b/kmix/kmixprefdlg.h
+@@ -25,7 +25,6 @@
+ #include <kdialog.h>
+ 
+ class KMixPrefWidget;
+-class KMixApp;
+ class QCheckBox;
+ class QRadioButton;
+ 
+@@ -49,7 +48,6 @@ KMixPrefDlg : public KDialog
+ 
+   private:
+    QFrame *m_generalTab;
+-   KMixApp *m_mixApp;
+    KMixPrefWidget *m_mixPrefTab;
+ 
+    QCheckBox *m_dockingChk;
+diff --git a/kmix/main.cpp b/kmix/main.cpp
+index fee99e4..b585c13 100644
+--- a/kmix/main.cpp
++++ b/kmix/main.cpp
+@@ -51,6 +51,7 @@ extern "C" KDE_EXPORT int kdemain(int argc, char *argv[])
+    aboutData.addCredit(ki18n("Lennart Augustsson"), ki18n("*BSD fixes"), "augustss@cs.chalmers.se");
+    aboutData.addCredit(ki18n("Nick Lopez")        , ki18n("ALSA port"), "kimo_sabe@usa.net");
+    aboutData.addCredit(ki18n("Nadeem Hasan")      , ki18n("Mute and volume preview, other fixes"), "nhasan@kde.org");
++   aboutData.addCredit(ki18n("Colin Guthrie")     , ki18n("PulseAudio support"), "cguthrie@mandriva.org");
+ 
+    KCmdLineArgs::init( argc, argv, &aboutData );
+ 
+diff --git a/kmix/mdwmoveaction.cpp b/kmix/mdwmoveaction.cpp
+new file mode 100644
+index 0000000..8aaa3b5
+--- /dev/null
++++ b/kmix/mdwmoveaction.cpp
+@@ -0,0 +1,48 @@
++/*
++ * KMix -- KDE's full featured mini mixer
++ *
++ *
++ * Copyright (C) 1996-2004 Christian Esken <esken@kde.org>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Library General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Library General Public License for more details.
++ *
++ * You should have received a copy of the GNU Library General Public
++ * License along with this program; if not, write to the Free
++ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
++ */
++
++
++//KMix
++#include "mdwmoveaction.h"
++#include "mixdevice.h"
++
++// Qt
++#include <QString>
++
++MDWMoveAction::MDWMoveAction(MixDevice* md, QObject *parent)
++ : KAction(parent), m_mixDevice(md)
++{
++   Q_ASSERT(md);
++
++   setText(m_mixDevice->readableName());
++   setIcon(KIcon(m_mixDevice->iconName()));
++   connect(this, SIGNAL(triggered(bool) ), SLOT(triggered(bool)));
++}
++
++MDWMoveAction::~MDWMoveAction()
++{
++}
++
++void MDWMoveAction::triggered(bool checked)
++{
++    Q_UNUSED(checked);
++    emit moveRequest(m_mixDevice->id());
++}
+diff --git a/kmix/mdwmoveaction.h b/kmix/mdwmoveaction.h
+new file mode 100644
+index 0000000..8e1b428
+--- /dev/null
++++ b/kmix/mdwmoveaction.h
+@@ -0,0 +1,46 @@
++//-*-C++-*-
++/*
++ * KMix -- KDE's full featured mini mixer
++ *
++ * Copyright Christian Esken <esken@kde.org>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Library General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Library General Public License for more details.
++ *
++ * You should have received a copy of the GNU Library General Public
++ * License along with this program; if not, write to the Free
++ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
++ */
++#ifndef MDWMoveAction_h
++#define MDWMoveAction_h
++
++#include <KAction>
++
++class MixDevice;
++
++class MDWMoveAction : public KAction
++{
++    Q_OBJECT
++
++    public:
++        MDWMoveAction(MixDevice* md, QObject *parent);
++        ~MDWMoveAction();
++
++    signals:
++        void moveRequest(QString id);
++
++    protected slots:
++        void triggered(bool checked);
++
++   private:
++        MixDevice *m_mixDevice;
++};
++
++#endif
+diff --git a/kmix/mdwslider.cpp b/kmix/mdwslider.cpp
+index c41b0c5..3514429 100644
+--- a/kmix/mdwslider.cpp
++++ b/kmix/mdwslider.cpp
+@@ -48,6 +48,7 @@
+ #include "kledbutton.h"
+ #include "ksmallslider.h"
+ #include "verticaltext.h"
++#include "mdwmoveaction.h"
+ 
+ static const int MIN_SLIDER_SIZE = 50;
+ 
+@@ -68,32 +69,39 @@ MDWSlider::MDWSlider(MixDevice* md,
+     MixDeviceWidget(md,small,orientation,parent,mw),
+             m_linked(true), m_defaultLabelSpacer(0), m_iconLabelSimple(0), m_qcb(0), m_muteText(0),
+             m_playbackSpacer(0), _layout(0), m_extraCaptureLabel( 0 ), m_label( 0 ),
+-            m_captureLED( 0 ), m_captureText(0), m_captureSpacer(0)
++            m_captureLED( 0 ), m_captureText(0), m_captureSpacer(0), m_moveMenu(0)
+ {
++    _mdwMoveActions = new KActionCollection( this );
++
+    // create actions (on _mdwActions, see MixDeviceWidget)
+ 
+-   KToggleAction *action = _mdwActions->add<KToggleAction>( "stereo" );
+-   action->setText( i18n("&Split Channels") );
+-   connect(action, SIGNAL(triggered(bool) ), SLOT(toggleStereoLinked()));
+-   action = _mdwActions->add<KToggleAction>( "hide" );
++   KToggleAction *taction = _mdwActions->add<KToggleAction>( "stereo" );
++   taction->setText( i18n("&Split Channels") );
++   connect(taction, SIGNAL(triggered(bool) ), SLOT(toggleStereoLinked()));
++   KAction *action = _mdwActions->add<KAction>( "hide" );
+    action->setText( i18n("&Hide") );
+    connect(action, SIGNAL(triggered(bool) ), SLOT(setDisabled()));
+ 
+    if( m_mixdevice->playbackVolume().hasSwitch() ) {
+-      KToggleAction *a = _mdwActions->add<KToggleAction>( "mute" );
+-      a->setText( i18n("&Muted") );
+-      connect( a, SIGNAL(toggled(bool)), SLOT(toggleMuted()) );
++      taction = _mdwActions->add<KToggleAction>( "mute" );
++      taction->setText( i18n("&Muted") );
++      connect(taction, SIGNAL(toggled(bool)), SLOT(toggleMuted()));
+    }
+ 
+    if( m_mixdevice->captureVolume().hasSwitch() ) {
+-      KToggleAction *a = _mdwActions->add<KToggleAction>( "recsrc" );
+-      a->setText( i18n("Set &Record Source") );
+-      connect( a, SIGNAL(toggled(bool)), SLOT( toggleRecsrc()) );
++      taction = _mdwActions->add<KToggleAction>( "recsrc" );
++      taction->setText( i18n("Set &Record Source") );
++      connect(taction, SIGNAL(toggled(bool)), SLOT( toggleRecsrc()));
++   }
++
++   if( m_mixdevice->isMovable() ) {
++       m_moveMenu = new KMenu( i18n("Mo&ve"), this);
++       connect(m_moveMenu, SIGNAL(aboutToShow()), SLOT( showMoveMenu()));
+    }
+ 
+-   KAction *c = _mdwActions->addAction( "keys" );
+-   c->setText( i18n("C&onfigure Shortcuts...") );
+-   connect(c, SIGNAL(triggered(bool) ), SLOT(defineKeys()));
++   action = _mdwActions->addAction( "keys" );
++   action->setText( i18n("C&onfigure Shortcuts...") );
++   connect(action, SIGNAL(triggered(bool) ), SLOT(defineKeys()));
+ 
+    // create widgets
+    createWidgets( showMuteLED, showCaptureLED );
+@@ -349,7 +357,7 @@ void MDWSlider::createWidgetsTopPart(QBoxLayout *layout, bool showMuteLED)
+    m_iconLabelSimple = 0L;
+    if ( showMuteLED ) {
+         //kDebug(67100) << ">>> MixDevice " << m_mixdevice->readableName() << " icon calculation:";
+-       setIcon( m_mixdevice->type() );
++       setIcon( m_mixdevice->iconName() );
+        m_iconLayout->addWidget( m_iconLabelSimple );
+        QString muteTip( m_mixdevice->readableName() );
+        m_iconLabelSimple->setToolTip( muteTip );
+@@ -512,70 +520,13 @@ void MDWSlider::addSliders( QBoxLayout *volLayout, char type, bool addLabel)
+     } // for all channels of this device
+ }
+ 
+-
+-QPixmap MDWSlider::icon( int icontype )
+-{
+-   QPixmap miniDevPM;
+-
+-   switch (icontype) {
+-      case MixDevice::AUDIO:
+-         miniDevPM = _iconName = "mixer-pcm"; break;
+-      case MixDevice::BASS:
+-      case MixDevice::SURROUND_LFE:  // "LFE" SHOULD have an own icon
+-          miniDevPM = _iconName ="mixer-lfe"; break;
+-      case MixDevice::CD:
+-          miniDevPM = _iconName ="mixer-cd"; break;
+-      case MixDevice::EXTERNAL:
+-         miniDevPM = _iconName = "mixer-line"; break;
+-      case MixDevice::MICROPHONE:
+-          miniDevPM = _iconName ="mixer-microphone";break;
+-      case MixDevice::MIDI:
+-          miniDevPM = _iconName ="mixer-midi"; break;
+-      case MixDevice::RECMONITOR:
+-          miniDevPM = _iconName ="mixer-capture"; break;
+-      case MixDevice::TREBLE:
+-          miniDevPM = _iconName ="mixer-pcm-default"; break;
+-      case MixDevice::UNKNOWN:
+-          miniDevPM = _iconName ="mixer-front"; break;
+-      case MixDevice::VOLUME:
+-          miniDevPM = _iconName ="mixer-master"; break;
+-      case MixDevice::VIDEO:
+-          miniDevPM = _iconName ="mixer-video"; break;
+-      case MixDevice::SURROUND:
+-      case MixDevice::SURROUND_BACK:
+-          miniDevPM = _iconName = "mixer-surround"; break;
+-      case MixDevice::SURROUND_CENTERFRONT:
+-      case MixDevice::SURROUND_CENTERBACK:
+-          miniDevPM = _iconName ="mixer-surround-center"; break;
+-      case MixDevice::HEADPHONE:
+-         miniDevPM = _iconName = "mixer-headset"; break;
+-      case MixDevice::DIGITAL:
+-          miniDevPM = _iconName = "mixer-digital"; break;
+-      case MixDevice::AC97:
+-          miniDevPM = _iconName = "mixer-ac97"; break;
+-      case MixDevice::SPEAKER:
+-          miniDevPM = _iconName = "mixer-pc-speaker"; break;
+-      case MixDevice::MICROPHONE_BOOST:
+-          miniDevPM = _iconName = "mixer-microphone-boost"; break;
+-      case MixDevice::MICROPHONE_FRONT_BOOST:
+-          miniDevPM = _iconName = "mixer-microphone-front-boost"; break;
+-      case MixDevice::MICROPHONE_FRONT:
+-          miniDevPM = _iconName = "mixer-microphone-front"; break;
+-      default:
+-          miniDevPM = _iconName ="mixer-front"; break;
+-   }
+-
+-   miniDevPM = loadIcon(_iconName);
+-   return miniDevPM;
+-}
+-
+ QPixmap MDWSlider::loadIcon( QString& filename )
+ {
+     return  KIconLoader::global()->loadIcon( filename, KIconLoader::Small, KIconLoader::SizeSmallMedium );
+ }
+ 
+ void
+-MDWSlider::setIcon( int icontype )
++MDWSlider::setIcon( QString filename )
+ {
+    if( !m_iconLabelSimple )
+    {
+@@ -583,7 +534,7 @@ MDWSlider::setIcon( int icontype )
+          installEventFilter( m_iconLabelSimple );
+    }
+ 
+-   QPixmap miniDevPM = icon( icontype );
++   QPixmap miniDevPM = loadIcon( filename );
+    if ( !miniDevPM.isNull() )
+    {
+       if ( m_small )
+@@ -608,6 +559,10 @@ MDWSlider::setIcon( int icontype )
+    layout()->activate();
+ }
+ 
++QString MDWSlider::iconName()
++{
++    return m_mixdevice->iconName();
++}
+ 
+ void
+ MDWSlider::toggleStereoLinked()
+@@ -924,6 +879,11 @@ void MDWSlider::decreaseVolume()
+ }
+ 
+ 
++void MDWSlider::moveStream(QString destId)
++{
++    m_mixdevice->mixer()->moveStream(m_mixdevice->id(), destId);
++}
++
+ /**
+    This is called whenever there are volume updates pending from the hardware for this MDW.
+    At the moment it is called regulary via a QTimer (implicitely).
+@@ -1030,6 +990,14 @@ void MDWSlider::showContextMenu()
+    if ( a )
+       menu->addAction( a );
+    
++   if (m_moveMenu) {
++       MixSet *ms = m_mixdevice->getMoveDestinationMixSet();
++       Q_ASSERT(ms);
++
++       m_moveMenu->setEnabled((ms->count() > 1));
++       menu->addMenu( m_moveMenu );
++   }
++
+    QAction *b = _mdwActions->action( "keys" );
+    if ( b ) {
+ //       QAction sep( _mdwPopupActions );
+@@ -1043,6 +1011,23 @@ void MDWSlider::showContextMenu()
+ }
+ 
+ 
++void MDWSlider::showMoveMenu()
++{
++    MixSet *ms = m_mixdevice->getMoveDestinationMixSet();
++    Q_ASSERT(ms);
++
++    _mdwMoveActions->clear();
++    m_moveMenu->clear();
++
++    for (int i = 0; i < ms->count(); ++i) {
++        MixDevice* md = (*ms)[i];
++        KAction *a = new MDWMoveAction(md, _mdwMoveActions);
++        _mdwMoveActions->addAction( QString("moveto") + md->id(), a);
++        connect(a, SIGNAL(moveRequest(QString) ), SLOT(moveStream(QString)));
++        m_moveMenu->addAction( a );
++    }
++}
++
+ /**
+  * An event filter for the various QWidgets. We watch for Mouse press Events, so
+  * that we can popup the context menu.
+diff --git a/kmix/mdwslider.h b/kmix/mdwslider.h
+index 49088ff..5a2f43b 100644
+--- a/kmix/mdwslider.h
++++ b/kmix/mdwslider.h
+@@ -37,6 +37,7 @@ class QLabel;
+ class KLed;
+ class KLedButton;
+ class KAction;
++class KMenu;
+ #include <kshortcut.h>
+ 
+ class MixDevice;
+@@ -57,7 +58,7 @@ public:
+ 	       bool showMuteLED, bool showRecordLED,
+ 	       bool small, Qt::Orientation,
+ 	       QWidget* parent = 0, ViewBase* mw = 0);
+-    ~MDWSlider() {}
++    ~MDWSlider() { }
+ 
+     void addActionToPopup( KAction *action );
+ 
+@@ -71,7 +72,7 @@ public:
+     void setMutedColors( QColor high, QColor low, QColor back );
+     
+     bool eventFilter( QObject* obj, QEvent* e );
+-    const QString& iconName() const { return _iconName; }
++    QString iconName();
+     // Layout
+     QSizePolicy sizePolicy() const;
+     int playbackExtentHint() const;
+@@ -88,6 +89,7 @@ public slots:
+     void setDisabled();
+     void setDisabled( bool value );
+     void update();
++    void showMoveMenu();
+     virtual void showContextMenu();
+ 
+ 
+@@ -105,10 +107,11 @@ private slots:
+     void increaseVolume();
+     void decreaseVolume();
+ 
++    void moveStream( QString destId );
++
+ private:
+     KShortcut dummyShortcut;
+-    QPixmap icon( int icontype );
+-    void setIcon( int icontype );
++    void setIcon( QString iconname );
+     QPixmap loadIcon( QString& filename );
+     void createWidgets( bool showMuteLED, bool showCaptureLED );
+     void createWidgetsTopPart(QBoxLayout *, bool showMuteLED);
+@@ -144,6 +147,8 @@ private:
+     QLabel* m_captureText;
+     QWidget *m_captureSpacer;
+ //    static KShortcut dummyShortcut;
++    KActionCollection*   _mdwMoveActions;
++    KMenu *m_moveMenu;
+ 
+     QList<QWidget *> m_slidersPlayback;
+     QList<QWidget *> m_slidersCapture;
+diff --git a/kmix/mixdevice.cpp b/kmix/mixdevice.cpp
+index 54459c9..8c91198 100644
+--- a/kmix/mixdevice.cpp
++++ b/kmix/mixdevice.cpp
+@@ -25,6 +25,57 @@
+ #include "mixdevice.h"
+ #include "volume.h"
+ 
++static const QString channelTypeToIconName( MixDevice::ChannelType type )
++{
++    switch (type) {
++        case MixDevice::AUDIO:
++            return "mixer-pcm";
++        case MixDevice::BASS:
++        case MixDevice::SURROUND_LFE:  // "LFE" SHOULD have an own icon
++            return "mixer-lfe";
++        case MixDevice::CD:
++            return "mixer-cd";
++        case MixDevice::EXTERNAL:
++            return "mixer-line";
++        case MixDevice::MICROPHONE:
++            return "mixer-microphone";
++        case MixDevice::MIDI:
++            return "mixer-midi";
++        case MixDevice::RECMONITOR:
++            return "mixer-capture";
++        case MixDevice::TREBLE:
++            return "mixer-pcm-default";
++        case MixDevice::UNKNOWN:
++            return "mixer-front";
++        case MixDevice::VOLUME:
++            return "mixer-master";
++        case MixDevice::VIDEO:
++            return "mixer-video";
++        case MixDevice::SURROUND:
++        case MixDevice::SURROUND_BACK:
++            return "mixer-surround";
++        case MixDevice::SURROUND_CENTERFRONT:
++        case MixDevice::SURROUND_CENTERBACK:
++            return "mixer-surround-center";
++        case MixDevice::HEADPHONE:
++            return "mixer-headset";
++        case MixDevice::DIGITAL:
++            return "mixer-digital";
++        case MixDevice::AC97:
++            return "mixer-ac97";
++        case MixDevice::SPEAKER:
++            return "mixer-pc-speaker";
++        case MixDevice::MICROPHONE_BOOST:
++            return "mixer-microphone-boost";
++        case MixDevice::MICROPHONE_FRONT_BOOST:
++            return "mixer-microphone-front-boost";
++        case MixDevice::MICROPHONE_FRONT:
++            return "mixer-microphone-front";
++    }
++    return "mixer-front";
++}
++
++
+ /**
+  * Constructs a MixDevice. A MixDevice represents one channel or control of
+  * the mixer hardware. A MixDevice has a type (e.g. PCM), a descriptive name
+@@ -35,13 +86,30 @@
+  * Hints: Meaning of "category" has changed. In future the MixDevice might contain two
+  * Volume objects, one for Output (Playback volume) and one for Input (Record volume).
+  */
+-MixDevice::MixDevice(  Mixer* mixer, const QString& id, const QString& name, ChannelType type ) :
+-    _mixer(mixer), _type( type ), _id( id )
++MixDevice::MixDevice(  Mixer* mixer, const QString& id, const QString& name, ChannelType type )
++{
++    init(mixer, id, name, channelTypeToIconName(type), false, 0);
++}
++
++MixDevice::MixDevice(  Mixer* mixer, const QString& id, const QString& name, const QString& iconName, bool doNotRestore, MixSet* moveDestinationMixSet )
+ {
++    init(mixer, id, name, iconName, doNotRestore, moveDestinationMixSet);
++}
++
++void MixDevice::init(  Mixer* mixer, const QString& id, const QString& name, const QString& iconName, bool doNotRestore, MixSet* moveDestinationMixSet )
++{
++    _mixer = mixer;
++    _id = id;
+     if( name.isEmpty() )
+         _name = i18n("unknown");
+     else
+         _name = name;
++    if ( iconName.isEmpty() )
++        _iconName = "mixer-front";
++    else
++        _iconName = iconName;
++    _doNotRestore = doNotRestore;
++    _moveDestinationMixSet = moveDestinationMixSet;
+     if ( _id.contains(' ') ) {
+         // The key is used in the config file. It MUST NOT contain spaces
+         kError(67100) << "MixDevice::setId(\"" << id << "\") . Invalid key - it might not contain spaces" << endl;
+@@ -116,6 +184,7 @@ bool MixDevice::operator==(const MixDevice& other) const
+    return ( _id == other._id );
+ }
+ 
++
+ /**
+  * This methhod is currently only called on "kmixctrl --restore"
+  *
+@@ -125,13 +194,17 @@ bool MixDevice::operator==(const MixDevice& other) const
+  */
+ void MixDevice::read( KConfig *config, const QString& grp )
+ {
+-    QString devgrp;
+-    devgrp.sprintf( "%s.Dev%s", grp.toAscii().data(), _id.toAscii().data() );
+-    KConfigGroup cg = config->group( devgrp );
+-    //kDebug(67100) << "MixDevice::read() of group devgrp=" << devgrp;
++    if (_doNotRestore) {
++        kDebug(67100) << "MixDevice::read(): This MixDevice does not permit volume restoration (i.e. because it is handled lower down in the audio stack). Ignoring.";
++    } else {
++        QString devgrp;
++        devgrp.sprintf( "%s.Dev%s", grp.toAscii().data(), _id.toAscii().data() );
++        KConfigGroup cg = config->group( devgrp );
++        //kDebug(67100) << "MixDevice::read() of group devgrp=" << devgrp;
+ 
+-    readPlaybackOrCapture(cg, "volumeL"       , "volumeR"       , false);
+-    readPlaybackOrCapture(cg, "volumeLCapture", "volumeRCapture", true );
++        readPlaybackOrCapture(cg, "volumeL"       , "volumeR"       , false);
++        readPlaybackOrCapture(cg, "volumeLCapture", "volumeRCapture", true );
++    }
+ }
+ 
+ void MixDevice::readPlaybackOrCapture(const KConfigGroup& config, const char* nameLeftVolume, const char* nameRightVolume, bool capture)
+@@ -180,13 +253,17 @@ void MixDevice::readPlaybackOrCapture(const KConfigGroup& config, const char* na
+  */
+ void MixDevice::write( KConfig *config, const QString& grp )
+ {
+-   QString devgrp;
+-   devgrp.sprintf( "%s.Dev%s", grp.toAscii().data(), _id.toAscii().data() );
+-   KConfigGroup cg = config->group(devgrp);
+-   // kDebug(67100) << "MixDevice::write() of group devgrp=" << devgrp;
++    if (_doNotRestore) {
++        kDebug(67100) << "MixDevice::write(): This MixDevice does not permit volume saving (i.e. because it is handled lower down in the audio stack). Ignoring.";
++    } else {
++        QString devgrp;
++        devgrp.sprintf( "%s.Dev%s", grp.toAscii().data(), _id.toAscii().data() );
++        KConfigGroup cg = config->group(devgrp);
++        // kDebug(67100) << "MixDevice::write() of group devgrp=" << devgrp;
+ 
+-    writePlaybackOrCapture(cg, "volumeL"       , "volumeR"       , false);
+-    writePlaybackOrCapture(cg, "volumeLCapture", "volumeRCapture", true );
++        writePlaybackOrCapture(cg, "volumeL"       , "volumeR"       , false);
++        writePlaybackOrCapture(cg, "volumeLCapture", "volumeRCapture", true );
++    }
+ }
+ 
+ void MixDevice::writePlaybackOrCapture(KConfigGroup& config, const char* nameLeftVolume, const char* nameRightVolume, bool capture)
+diff --git a/kmix/mixdevice.h b/kmix/mixdevice.h
+index 7b2c93b..f54e03a 100644
+--- a/kmix/mixdevice.h
++++ b/kmix/mixdevice.h
+@@ -23,6 +23,7 @@
+ 
+ //KMix
+ class Mixer;
++class MixSet;
+ #include "volume.h"
+ 
+ // KDE
+@@ -99,9 +100,12 @@ public:
+     *  @par name is the readable name. This one is presented to the user in the GUI
+     *  @par type The control type. It is only used to find an appropriate icon
+     */
+-   MixDevice( Mixer* mixer, const QString& id, const QString& name, ChannelType type = UNKNOWN );
++   MixDevice( Mixer* mixer, const QString& id, const QString& name, ChannelType type );
++   MixDevice( Mixer* mixer, const QString& id, const QString& name, const QString& iconName = "", bool doNotRestore = false, MixSet* moveDestinationMixSet = 0 );
+    ~MixDevice();
+ 
++   const QString& iconName() const { return _iconName; }
++
+    void addPlaybackVolume(Volume &playbackVol);
+    void addCaptureVolume (Volume &captureVol);
+    void addEnums (QList<QString*>& ref_enumList);
+@@ -134,6 +138,8 @@ public:
+ 
+    bool isEnum()                   { return ( ! _enumValues.empty() ); }
+ 
++   bool isMovable()                { return (0 != _moveDestinationMixSet); }
++   MixSet *getMoveDestinationMixSet() { return _moveDestinationMixSet; }
+ 
+    Volume& playbackVolume();
+    Volume& captureVolume();
+@@ -145,8 +151,6 @@ public:
+    virtual void read( KConfig *config, const QString& grp );
+    virtual void write( KConfig *config, const QString& grp );
+ 
+-   ChannelType type() { return _type; }
+-
+ private:
+    Mixer *_mixer;
+    Volume _playbackVolume;
+@@ -154,11 +158,14 @@ private:
+    int _enumCurrentId;
+    QList<QString> _enumValues; // A MixDevice, that is an ENUM, has these _enumValues
+ 
+-   ChannelType _type;
++   bool _doNotRestore;
++   MixSet *_moveDestinationMixSet;
++   QString _iconName;
+ 
+    QString _name;   // Channel name
+    QString _id;     // Primary key, used as part in config file keys
+ 
++   void init( Mixer* mixer, const QString& id, const QString& name, const QString& iconName, bool doNotRestore, MixSet* moveDestinationMixSet );
+    void readPlaybackOrCapture(const KConfigGroup& config, const char* nameLeftVolume, const char* nameRightVolume, bool capture);
+    void writePlaybackOrCapture(KConfigGroup& config, const char* nameLeftVolume, const char* nameRightVolume, bool capture);
+ 
+diff --git a/kmix/mixdevicewidget.cpp b/kmix/mixdevicewidget.cpp
+index 00feefd..56a024a 100644
+--- a/kmix/mixdevicewidget.cpp
++++ b/kmix/mixdevicewidget.cpp
+@@ -110,7 +110,6 @@ void MixDeviceWidget::setColors( QColor , QColor , QColor ) { /* is virtual */ }
+ void MixDeviceWidget::setIcons( bool ) { /* is virtual */ }
+ void MixDeviceWidget::setLabeled( bool ) { /* is virtual */ }
+ void MixDeviceWidget::setMutedColors( QColor , QColor , QColor ) { /* is virtual */ }
+-const QString& MixDeviceWidget::iconName() const { return _iconName; /* is virtual */}
+ 
+ 
+ 
+diff --git a/kmix/mixdevicewidget.h b/kmix/mixdevicewidget.h
+index a056c54..518ec8d 100644
+--- a/kmix/mixdevicewidget.h
++++ b/kmix/mixdevicewidget.h
+@@ -63,7 +63,6 @@ public:
+     virtual void setStereoLinked( bool ) {}
+     virtual void setLabeled( bool );
+     virtual void setTicks( bool ) {}
+-    const QString& iconName() const;
+ 
+ 
+ public slots:
+@@ -86,7 +85,6 @@ protected:
+       Qt::Orientation      _orientation;
+       bool                 m_small;
+       KShortcutsDialog*    m_shortcutsDialog;
+-      QString _iconName;
+ 
+ private:
+       void mousePressEvent( QMouseEvent *e );
+diff --git a/kmix/mixer.cpp b/kmix/mixer.cpp
+index 82bfba4..7a1a9ce 100644
+--- a/kmix/mixer.cpp
++++ b/kmix/mixer.cpp
+@@ -62,7 +62,7 @@ QList<Mixer *>& Mixer::mixers()
+ }
+ 
+ Mixer::Mixer( QString& ref_driverName, int device )
+-    : m_balance(0), _mixerBackend(0L)
++    : m_balance(0), _mixerBackend(0L), m_dynamic(false)
+ {
+    (void)new KMixAdaptor(this);
+ 
+@@ -145,11 +145,13 @@ bool Mixer::openIfValid() {
+             kDebug() << "Mixer::open() detected master: " << recommendedMaster->id();
+         }
+         else {
+-            kError(67100) << "Mixer::open() no master detected." << endl;
++            if ( !m_dynamic )
++                kError(67100) << "Mixer::open() no master detected." << endl;
+             QString noMaster = "---no-master-detected---";
+             setLocalMasterMD(noMaster); // no master
+         }
+         connect( _mixerBackend, SIGNAL(controlChanged()), SLOT(controlChangedForwarder()) );
++        connect( _mixerBackend, SIGNAL(controlsReconfigured(const QString&)), SLOT(controlsReconfiguredForwarder(const QString&)) );
+         
+         m_dbusName = "/Mixer" + QString::number(_mixerBackend->m_devnum);
+         QDBusConnection::sessionBus().registerObject(m_dbusName, this);
+@@ -163,6 +165,11 @@ void Mixer::controlChangedForwarder()
+     emit controlChanged();
+ }
+ 
++void Mixer::controlsReconfiguredForwarder( const QString& mixer_ID )
++{
++    emit controlsReconfigured(mixer_ID);
++}
++
+ /**
+  * Closes the mixer.
+  * Also, stops the polling timer.
+@@ -677,4 +684,20 @@ bool Mixer::isAvailableDevice( const QString& mixdeviceID )
+   return getMixdeviceById( mixdeviceID );
+ }
+ 
++void Mixer::setDynamic ( bool dynamic )
++{
++    m_dynamic = dynamic;
++}
++
++bool Mixer::dynamic()
++{
++    return m_dynamic;
++}
++
++bool Mixer::moveStream( const QString id, const QString& destId )
++{
++    // We should really check that id is within our md's....
++    return _mixerBackend->moveStream( id, destId );
++}
++
+ #include "mixer.moc"
+diff --git a/kmix/mixer.h b/kmix/mixer.h
+index e0cdf4d..221e284 100644
+--- a/kmix/mixer.h
++++ b/kmix/mixer.h
+@@ -155,6 +155,12 @@ class Mixer : public QObject
+ 
+       virtual bool isAvailableDevice( const QString& mixdeviceID );
+ 
++      /// Says if we are dynamic (e.g. widgets can come and go)
++      virtual void setDynamic( bool dynamic = true );
++      virtual bool dynamic();
++
++      virtual bool moveStream( const QString id, const QString& destId );
++
+       void commitVolumeChange( MixDevice* md );
+ 
+    public slots:
+@@ -166,6 +172,7 @@ class Mixer : public QObject
+    signals:
+       void newBalance( Volume& );
+       void controlChanged(void);
++      void controlsReconfigured( const QString& mixer_ID );
+ 
+    protected:
+       int m_balance; // from -100 (just left) to 100 (just right)
+@@ -173,6 +180,7 @@ class Mixer : public QObject
+ 
+    private slots:
+       void controlChangedForwarder();
++      void controlsReconfiguredForwarder( const QString& mixer_ID );
+ 
+    public:
+       static QList<Mixer *>& mixers();
+@@ -186,6 +194,7 @@ class Mixer : public QObject
+       static QString _globalMasterCardDevice;
+       
+       QString m_dbusName;
++      bool m_dynamic;
+ };
+ 
+ #endif
+diff --git a/kmix/mixer_alsa9.cpp b/kmix/mixer_alsa9.cpp
+index 5f12bdc..1799535 100644
+--- a/kmix/mixer_alsa9.cpp
++++ b/kmix/mixer_alsa9.cpp
+@@ -420,10 +420,10 @@ Volume* Mixer_ALSA::addVolume(snd_mixer_elem_t *elem, bool capture)
+     }
+ 
+ 
+-    // Chek if this control has at least one volume control
++    // Check if this control has at least one volume control
+     bool hasVolume = (chn != Volume::MNONE);
+ 
+-    // Chek if a appropriate switch is present (appropriate means, based o nthe "capture" parameer)
++    // Check if a appropriate switch is present (appropriate means, based o nthe "capture" parameer)
+     bool hasCommonSwitch = snd_mixer_selem_has_common_switch ( elem );
+ 
+     bool hasSwitch = hasCommonSwitch |
+diff --git a/kmix/mixer_backend.cpp b/kmix/mixer_backend.cpp
+index 22d3792..24aa32f 100644
+--- a/kmix/mixer_backend.cpp
++++ b/kmix/mixer_backend.cpp
+@@ -139,8 +139,10 @@ MixDevice* Mixer_Backend::recommendedMaster() {
+       return m_mixDevices.at(0);  // Backend has NOT set a recommended master. Evil backend => lets help out.
+    } //first device (if exists)
+    else {
+-      // This should never ever happen, as KMix doe NOT accept soundcards without controls
+-      kError(67100) << "Mixer_Backend::recommendedMaster(): returning invalid master. This is a bug in KMix. Please file a bug report stating how you produced this." << endl;
++      if ( !_mixer->dynamic()) {
++         // This should never ever happen, as KMix doe NOT accept soundcards without controls
++         kError(67100) << "Mixer_Backend::recommendedMaster(): returning invalid master. This is a bug in KMix. Please file a bug report stating how you produced this." << endl;
++      }
+       return (MixDevice*)0;
+    }
+ }
+@@ -165,6 +167,15 @@ unsigned int Mixer_Backend::enumIdHW(const QString& ) {
+   return 0;
+ }
+ 
++/**
++ * Move the stream to a new destination
++ */
++bool Mixer_Backend::moveStream( const QString& id, const QString& destId ) {
++  Q_UNUSED(id);
++  Q_UNUSED(destId);
++  return false;
++}
++
+ void Mixer_Backend::errormsg(int mixer_error)
+ {
+   QString l_s_errText;
+diff --git a/kmix/mixer_backend.h b/kmix/mixer_backend.h
+index 26e9557..63e8332 100644
+--- a/kmix/mixer_backend.h
++++ b/kmix/mixer_backend.h
+@@ -60,7 +60,7 @@ protected:
+    * The implementation calls open(), checks the return code and whether the number of
+    * supported channels is > 0. The device remains opened if it is valid, otherwise a close() is done.
+    */
+-  bool openIfValid();
++  virtual bool openIfValid();
+ 
+   /** @return true, if the Mixer is open (and thus can be operated) */
+   bool isOpen();
+@@ -81,6 +81,8 @@ protected:
+   virtual void setRecsrcHW( const QString& id, bool on) = 0;
+   //virtual bool isRecsrcHW( const QString& id ) = 0;
+ 
++  virtual bool moveStream( const QString& id, const QString& destId );
++
+   /// Overwrite in the backend if the backend can see changes without polling
+   virtual bool needsPolling() { return true; }
+ 
+@@ -131,6 +133,7 @@ protected:
+ 
+ signals:
+   void controlChanged( void );
++  void controlsReconfigured( const QString& mixer_ID );
+ 
+ protected slots:
+   virtual void readSetFromHW();
+diff --git a/kmix/mixer_pulse.cpp b/kmix/mixer_pulse.cpp
+index 694b9a9..10ea8a3 100644
+--- a/kmix/mixer_pulse.cpp
++++ b/kmix/mixer_pulse.cpp
+@@ -20,12 +20,710 @@
+  */
+ 
+ #include <cstdlib>
++#include <QEventLoop>
++#include <QTimer>
+ 
+ #include "mixer_pulse.h"
+ #include "mixer.h"
+ 
++#include <pulse/glib-mainloop.h>
++#include <pulse/ext-stream-restore.h>
++
++
++#define KMIXPA_PLAYBACK     0
++#define KMIXPA_CAPTURE      1
++#define KMIXPA_APP_PLAYBACK 2
++#define KMIXPA_APP_CAPTURE  3
++#define KMIXPA_WIDGET_MAX KMIXPA_APP_CAPTURE
++
++static unsigned int refcount = 0;
+ static pa_context *context = NULL;
+ static pa_glib_mainloop *mainloop = NULL;
++static QEventLoop *s_connectionEventloop = NULL;
++static enum { UNKNOWN, ACTIVE, INACTIVE } s_pulseActive = UNKNOWN;
++static int s_OutstandingRequests = 0;
++
++QMap<int,Mixer_PULSE*> s_Mixers;
++
++typedef QMap<int,devinfo> devmap;
++static devmap outputDevices;
++static devmap captureDevices;
++static QMap<int,QString> clients;
++static devmap outputStreams;
++static devmap captureStreams;
++static devmap outputRoles;
++
++static void dec_outstanding() {
++    if (s_OutstandingRequests <= 0)
++        return;
++
++    if (--s_OutstandingRequests <= 0)
++    {
++        s_pulseActive = ACTIVE;
++        if (s_connectionEventloop) {
++            s_connectionEventloop->exit(0);
++            s_connectionEventloop = NULL;
++
++            // If we have no devices then we consider PA to be 'INACTIVE'
++            if (outputDevices.isEmpty() && captureDevices.isEmpty())
++                s_pulseActive = INACTIVE;
++            else
++                s_pulseActive = ACTIVE;
++        }
++    }
++}
++
++static void translateMasksAndMaps(devinfo& dev)
++{
++    dev.chanMask = Volume::MNONE;
++    dev.chanIDs.clear();
++
++    if (dev.channel_map.channels != dev.volume.channels) {
++        kError() << "Hiddeous Channel mixup map says " << dev.channel_map.channels << ", volume says: " << dev.volume.channels;
++        return;
++    }
++    if (1 == dev.channel_map.channels && PA_CHANNEL_POSITION_MONO == dev.channel_map.map[0]) {
++        // We just use the left channel to represent this.
++        dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MLEFT);
++        dev.chanIDs[0] = Volume::LEFT;
++    } else {
++        for (uint8_t i = 0; i < dev.channel_map.channels; ++i) {
++            switch (dev.channel_map.map[i]) {
++                case PA_CHANNEL_POSITION_MONO:
++                    kWarning(67100) << "Channel Map contains a MONO element but has >1 channel - we can't handle this.";
++                    return;
++
++                case PA_CHANNEL_POSITION_FRONT_LEFT:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MLEFT);
++                    dev.chanIDs[i] = Volume::LEFT;
++                    break;
++                case PA_CHANNEL_POSITION_FRONT_RIGHT:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MRIGHT);
++                    dev.chanIDs[i] = Volume::RIGHT;
++                    break;
++                case PA_CHANNEL_POSITION_FRONT_CENTER:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MCENTER);
++                    dev.chanIDs[i] = Volume::CENTER;
++                    break;
++                case PA_CHANNEL_POSITION_REAR_CENTER:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MREARCENTER);
++                    dev.chanIDs[i] = Volume::REARCENTER;
++                    break;
++                case PA_CHANNEL_POSITION_REAR_LEFT:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MSURROUNDLEFT);
++                    dev.chanIDs[i] = Volume::SURROUNDLEFT;
++                    break;
++                case PA_CHANNEL_POSITION_REAR_RIGHT:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MSURROUNDRIGHT);
++                    dev.chanIDs[i] = Volume::SURROUNDRIGHT;
++                    break;
++                case PA_CHANNEL_POSITION_LFE:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MWOOFER);
++                    dev.chanIDs[i] = Volume::WOOFER;
++                    break;
++                case PA_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MREARSIDELEFT);
++                    dev.chanIDs[i] = Volume::REARSIDELEFT;
++                    break;
++                case PA_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER:
++                    dev.chanMask = (Volume::ChannelMask)( dev.chanMask | Volume::MREARSIDERIGHT);
++                    dev.chanIDs[i] = Volume::REARSIDERIGHT;
++                    break;
++                default:
++                    kWarning(67100) << "Channel Map contains a pa_channel_position we cannot handle " << dev.channel_map.map[i];
++                    break;
++            }
++        }
++    }
++}
++
++static QString getIconNameFromProplist(pa_proplist *l) {
++    const char *t;
++
++    if ((t = pa_proplist_gets(l, PA_PROP_MEDIA_ICON_NAME)))
++        return t;
++
++    if ((t = pa_proplist_gets(l, PA_PROP_WINDOW_ICON_NAME)))
++        return t;
++
++    if ((t = pa_proplist_gets(l, PA_PROP_APPLICATION_ICON_NAME)))
++        return t;
++
++    if ((t = pa_proplist_gets(l, PA_PROP_MEDIA_ROLE))) {
++
++        if (strcmp(t, "video") == 0 || strcmp(t, "phone") == 0)
++            return t;
++
++        if (strcmp(t, "music") == 0)
++            return "audio";
++
++        if (strcmp(t, "game") == 0)
++            return "applications-games";
++
++        if (strcmp(t, "event") == 0)
++            return "dialog-information";
++    }
++
++    return "";
++}
++
++static void sink_cb(pa_context *c, const pa_sink_info *i, int eol, void *) {
++
++    Q_ASSERT(c == context);
++
++    if (eol < 0) {
++        if (pa_context_errno(c) == PA_ERR_NOENTITY)
++            return;
++
++        kWarning(67100) << "Sink callback failure";
++        return;
++    }
++
++    if (eol > 0) {
++        dec_outstanding();
++        if (s_Mixers.contains(KMIXPA_PLAYBACK))
++            s_Mixers[KMIXPA_PLAYBACK]->triggerUpdate();
++        return;
++    }
++
++    devinfo s;
++    s.index = s.device_index = i->index;
++    s.restore.name = i->name;
++    s.restore.device = "";
++    s.name = QString(i->name).replace(' ', '_');
++    s.description = i->description;
++    s.icon_name = pa_proplist_gets(i->proplist, PA_PROP_DEVICE_ICON_NAME);
++    s.volume = i->volume;
++    s.channel_map = i->channel_map;
++    s.mute = !!i->mute;
++
++    translateMasksAndMaps(s);
++
++    bool is_new = !outputDevices.contains(s.index);
++    outputDevices[s.index] = s;
++    kDebug(67100) << "Got some info about sink: " << s.description;
++
++    if (is_new && s_Mixers.contains(KMIXPA_PLAYBACK))
++        s_Mixers[KMIXPA_PLAYBACK]->addWidget(s.index);
++}
++
++static void source_cb(pa_context *c, const pa_source_info *i, int eol, void *) {
++
++    Q_ASSERT(c == context);
++
++    if (eol < 0) {
++        if (pa_context_errno(c) == PA_ERR_NOENTITY)
++            return;
++
++        kWarning(67100) << "Source callback failure";
++        return;
++    }
++
++    if (eol > 0) {
++        dec_outstanding();
++        if (s_Mixers.contains(KMIXPA_CAPTURE))
++            s_Mixers[KMIXPA_CAPTURE]->triggerUpdate();
++        return;
++    }
++
++    // Do something....
++    if (PA_INVALID_INDEX != i->monitor_of_sink)
++    {
++        kDebug(67100) << "Ignoring Monitor Source: " << i->description;
++        return;
++    }
++
++    devinfo s;
++    s.index = s.device_index = i->index;
++    s.restore.name = i->name;
++    s.restore.device = "";
++    s.name = QString(i->name).replace(' ', '_');
++    s.description = i->description;
++    s.icon_name = pa_proplist_gets(i->proplist, PA_PROP_DEVICE_ICON_NAME);
++    s.volume = i->volume;
++    s.channel_map = i->channel_map;
++    s.mute = !!i->mute;
++
++    translateMasksAndMaps(s);
++
++    bool is_new = !captureDevices.contains(s.index);
++    captureDevices[s.index] = s;
++    kDebug(67100) << "Got some info about source: " << s.description;
++
++    if (is_new && s_Mixers.contains(KMIXPA_CAPTURE))
++        s_Mixers[KMIXPA_CAPTURE]->addWidget(s.index);
++}
++
++static void client_cb(pa_context *c, const pa_client_info *i, int eol, void *) {
++
++    Q_ASSERT(c == context);
++
++    if (eol < 0) {
++        if (pa_context_errno(c) == PA_ERR_NOENTITY)
++            return;
++
++        kWarning(67100) << "Client callback failure";
++        return;
++    }
++
++    if (eol > 0) {
++        dec_outstanding();
++        return;
++    }
++
++    clients[i->index] = i->name;
++    kDebug(67100) << "Got some info about client: " << i->name;
++}
++
++static void sink_input_cb(pa_context *c, const pa_sink_input_info *i, int eol, void *) {
++
++    Q_ASSERT(c == context);
++
++    if (eol < 0) {
++        if (pa_context_errno(c) == PA_ERR_NOENTITY)
++            return;
++
++        kWarning(67100) << "Sink Input callback failure";
++        return;
++    }
++
++    if (eol > 0) {
++        dec_outstanding();
++        if (s_Mixers.contains(KMIXPA_APP_PLAYBACK))
++            s_Mixers[KMIXPA_APP_PLAYBACK]->triggerUpdate();
++        return;
++    }
++
++    const char *t;
++    if ((t = pa_proplist_gets(i->proplist, "module-stream-restore.id"))) {
++        if (strcmp(t, "sink-input-by-media-role:event") == 0) {
++            kWarning(67100) << "Ignoring sink-input due to it being designated as an event and thus handled by the Event slider";
++            return;
++        }
++    }
++
++    QString prefix = QString("%1: ").arg(i18n("Unknown Application"));
++    if (clients.contains(i->client))
++        prefix = QString("%1: ").arg(clients[i->client]);
++
++    devinfo s;
++    s.index = i->index;
++    s.device_index = i->sink;
++    s.restore.name = i->name;
++    s.restore.device = "";
++    s.description = prefix + i->name;
++    s.name = QString("stream:") + QString(s.description).replace(' ', '_');
++    s.icon_name = getIconNameFromProplist(i->proplist);
++    s.volume = i->volume;
++    s.channel_map = i->channel_map;
++    s.mute = !!i->mute;
++
++    translateMasksAndMaps(s);
++
++    bool is_new = !outputStreams.contains(s.index);
++    outputStreams[s.index] = s;
++    kDebug(67100) << "Got some info about sink input (playback stream): " << s.description;
++
++    if (is_new && s_Mixers.contains(KMIXPA_APP_PLAYBACK))
++        s_Mixers[KMIXPA_APP_PLAYBACK]->addWidget(s.index);
++}
++
++static void source_output_cb(pa_context *c, const pa_source_output_info *i, int eol, void *) {
++
++    Q_ASSERT(c == context);
++
++    if (eol < 0) {
++        if (pa_context_errno(c) == PA_ERR_NOENTITY)
++            return;
++
++        kWarning(67100) << "Source Output callback failure";
++        return;
++    }
++
++    if (eol > 0) {
++        dec_outstanding();
++        if (s_Mixers.contains(KMIXPA_APP_CAPTURE))
++            s_Mixers[KMIXPA_APP_CAPTURE]->triggerUpdate();
++        return;
++    }
++
++    /* NB Until Source Outputs support volumes, we just use the volume of the source itself */
++    if (!captureDevices.contains(i->source)) {
++        kWarning(67100) << "Source Output refers to a Source we don't have any info for :s";
++        return;
++    }
++
++    QString prefix = QString("%1: ").arg(i18n("Unknown Application"));
++    if (clients.contains(i->client))
++        prefix = QString("%1: ").arg(clients[i->client]);
++
++    devinfo s;
++    s.index = i->index;
++    s.device_index = i->source;
++    s.restore.name = i->name;
++    s.restore.device = "";
++    s.description = prefix + i->name;
++    s.name = QString("stream:") + QString(s.description).replace(' ', '_');
++    s.icon_name = getIconNameFromProplist(i->proplist);
++    //s.volume = i->volume;
++    s.volume = captureDevices[i->source].volume;
++    s.channel_map = i->channel_map;
++    //s.mute = !!i->mute;
++    s.mute = captureDevices[i->source].mute;
++
++    translateMasksAndMaps(s);
++
++    bool is_new = !captureStreams.contains(s.index);
++    captureStreams[s.index] = s;
++    kDebug(67100) << "Got some info about source output (capture stream): " << s.description;
++
++    if (is_new && s_Mixers.contains(KMIXPA_APP_CAPTURE))
++        s_Mixers[KMIXPA_APP_CAPTURE]->addWidget(s.index);
++}
++
++
++static devinfo create_role_devinfo(const char* name, const char* device, const pa_volume_t vol, int mute) {
++
++    // Fake a Mono Device/Volume
++    pa_cvolume volume;
++    volume.channels = 1;
++    volume.values[0] = vol;
++    pa_channel_map channel_map;
++    channel_map.channels = 1;
++    channel_map.map[0] = PA_CHANNEL_POSITION_MONO;
++
++    devinfo s;
++    s.index = s.device_index = PA_INVALID_INDEX;
++    s.restore.name = name;
++    s.restore.device = device;
++    s.description = i18n("Event Sounds");
++    s.name = QString("restore:") + name;
++    s.icon_name = "dialog-information";
++    s.volume = volume;
++    s.channel_map = channel_map;
++    s.mute = !!mute;
++
++    translateMasksAndMaps(s);
++    return s;
++}
++
++
++void ext_stream_restore_read_cb(pa_context *c, const pa_ext_stream_restore_info *i, int eol, void *) {
++
++    Q_ASSERT(c == context);
++
++    if (eol < 0) {
++        dec_outstanding();
++        kWarning(67100) << "Failed to initialize stream_restore extension: " << pa_strerror(pa_context_errno(context));
++        return;
++    }
++
++    if (eol > 0) {
++        dec_outstanding();
++        // Special case: ensure that our media events exists.
++        // On first login by a new users, this wont be in our database so we should create it.
++        if (!outputRoles.contains(PA_INVALID_INDEX)) {
++            devinfo s = create_role_devinfo("sink-input-by-media-role:event", NULL, PA_VOLUME_NORM, 0);
++            outputRoles[s.index] = s;
++            kDebug(67100) << "Initialising restore rule for new user: " << s.description;
++        }
++
++        if (s_Mixers.contains(KMIXPA_APP_PLAYBACK))
++            s_Mixers[KMIXPA_APP_PLAYBACK]->triggerUpdate();
++        return;
++    }
++
++    // We only want to know about Sound Events for now...
++    if (strcmp(i->name, "sink-input-by-media-role:event") != 0)
++        return;
++
++    devinfo s = create_role_devinfo(i->name, i->device, pa_cvolume_max(&i->volume), i->mute);
++    outputRoles[s.index] = s;
++    kDebug(67100) << "Got some info about restore rule: " << s.description;
++}
++
++static void ext_stream_restore_subscribe_cb(pa_context *c, void *) {
++
++    Q_ASSERT(c == context);
++
++    pa_operation *o;
++    if (!(o = pa_ext_stream_restore_read(c, ext_stream_restore_read_cb, NULL))) {
++        kWarning(67100) << "pa_ext_stream_restore_read() failed";
++        return;
++    }
++
++    pa_operation_unref(o);
++}
++
++
++static void subscribe_cb(pa_context *c, pa_subscription_event_type_t t, uint32_t index, void *) {
++
++    Q_ASSERT(c == context);
++
++    switch (t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK) {
++        case PA_SUBSCRIPTION_EVENT_SINK:
++            if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
++                if (s_Mixers.contains(KMIXPA_PLAYBACK))
++                    s_Mixers[KMIXPA_PLAYBACK]->removeWidget(index);
++            } else {
++                pa_operation *o;
++                if (!(o = pa_context_get_sink_info_by_index(c, index, sink_cb, NULL))) {
++                    kWarning(67100) << "pa_context_get_sink_info_by_index() failed";
++                    return;
++                }
++                pa_operation_unref(o);
++            }
++            break;
++
++        case PA_SUBSCRIPTION_EVENT_SOURCE:
++            if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
++                if (s_Mixers.contains(KMIXPA_CAPTURE))
++                    s_Mixers[KMIXPA_CAPTURE]->removeWidget(index);
++            } else {
++                pa_operation *o;
++                if (!(o = pa_context_get_source_info_by_index(c, index, source_cb, NULL))) {
++                    kWarning(67100) << "pa_context_get_source_info_by_index() failed";
++                    return;
++                }
++                pa_operation_unref(o);
++            }
++            break;
++
++        case PA_SUBSCRIPTION_EVENT_SINK_INPUT:
++            if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
++                if (s_Mixers.contains(KMIXPA_APP_PLAYBACK))
++                    s_Mixers[KMIXPA_APP_PLAYBACK]->removeWidget(index);
++            } else {
++                pa_operation *o;
++                if (!(o = pa_context_get_sink_input_info(c, index, sink_input_cb, NULL))) {
++                    kWarning(67100) << "pa_context_get_sink_input_info() failed";
++                    return;
++                }
++                pa_operation_unref(o);
++            }
++            break;
++
++        case PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
++            if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
++                if (s_Mixers.contains(KMIXPA_APP_CAPTURE))
++                    s_Mixers[KMIXPA_APP_CAPTURE]->removeWidget(index);
++            } else {
++                pa_operation *o;
++                if (!(o = pa_context_get_source_output_info(c, index, source_output_cb, NULL))) {
++                    kWarning(67100) << "pa_context_get_sink_input_info() failed";
++                    return;
++                }
++                pa_operation_unref(o);
++            }
++            break;
++
++        case PA_SUBSCRIPTION_EVENT_CLIENT:
++            if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE) {
++                clients.remove(index);
++            } else {
++                pa_operation *o;
++                if (!(o = pa_context_get_client_info(c, index, client_cb, NULL))) {
++                    kWarning(67100) << "pa_context_get_client_info() failed";
++                    return;
++                }
++                pa_operation_unref(o);
++            }
++            break;
++
++    }
++}
++
++
++static void context_state_callback(pa_context *c, void *)
++{
++    Q_ASSERT(c == context);
++
++    switch (pa_context_get_state(c)) {
++        case PA_CONTEXT_UNCONNECTED:
++        case PA_CONTEXT_CONNECTING:
++        case PA_CONTEXT_AUTHORIZING:
++        case PA_CONTEXT_SETTING_NAME:
++            break;
++
++        case PA_CONTEXT_READY:
++            // Attempt to load things up
++            pa_operation *o;
++
++            pa_context_set_subscribe_callback(c, subscribe_cb, NULL);
++
++            if (!(o = pa_context_subscribe(c, (pa_subscription_mask_t)
++                                           (PA_SUBSCRIPTION_MASK_SINK|
++                                            PA_SUBSCRIPTION_MASK_SOURCE|
++                                            PA_SUBSCRIPTION_MASK_CLIENT|
++                                            PA_SUBSCRIPTION_MASK_SINK_INPUT|
++                                            PA_SUBSCRIPTION_MASK_SOURCE_OUTPUT), NULL, NULL))) {
++                kWarning(67100) << "pa_context_subscribe() failed";
++                return;
++            }
++            pa_operation_unref(o);
++
++            if (!(o = pa_context_get_sink_info_list(c, sink_cb, NULL))) {
++                kWarning(67100) << "pa_context_get_sink_info_list() failed";
++                return;
++            }
++            pa_operation_unref(o);
++            s_OutstandingRequests++;
++
++            if (!(o = pa_context_get_source_info_list(c, source_cb, NULL))) {
++                kWarning(67100) << "pa_context_get_source_info_list() failed";
++                return;
++            }
++            pa_operation_unref(o);
++            s_OutstandingRequests++;
++
++
++            if (!(o = pa_context_get_client_info_list(c, client_cb, NULL))) {
++                kWarning(67100) << "pa_context_client_info_list() failed";
++                return;
++            }
++            pa_operation_unref(o);
++            s_OutstandingRequests++;
++
++            if (!(o = pa_context_get_sink_input_info_list(c, sink_input_cb, NULL))) {
++                kWarning(67100) << "pa_context_get_sink_input_info_list() failed";
++                return;
++            }
++            pa_operation_unref(o);
++            s_OutstandingRequests++;
++
++            if (!(o = pa_context_get_source_output_info_list(c, source_output_cb, NULL))) {
++                kWarning(67100) << "pa_context_get_source_output_info_list() failed";
++                return;
++            }
++            pa_operation_unref(o);
++            s_OutstandingRequests++;
++
++            /* These calls are not always supported */
++            if ((o = pa_ext_stream_restore_read(c, ext_stream_restore_read_cb, NULL))) {
++                pa_operation_unref(o);
++                s_OutstandingRequests++;
++
++                pa_ext_stream_restore_set_subscribe_cb(c, ext_stream_restore_subscribe_cb, NULL);
++
++                if ((o = pa_ext_stream_restore_subscribe(c, 1, NULL, NULL)))
++                    pa_operation_unref(o);
++            } else
++                kWarning(67100) << "Failed to initialize stream_restore extension: " << pa_strerror(pa_context_errno(context));
++
++            break;
++
++        case PA_CONTEXT_FAILED:
++            s_pulseActive = INACTIVE;
++            if (s_connectionEventloop) {
++                s_connectionEventloop->exit(0);
++                s_connectionEventloop = NULL;
++            }
++            break;
++
++        case PA_CONTEXT_TERMINATED:
++        default:
++            s_pulseActive = INACTIVE;
++            /// @todo Deal with reconnection...
++            break;
++    }
++}
++
++static void setVolumeFromPulse(Volume& volume, const devinfo& dev)
++{
++    chanIDMap::const_iterator iter;
++    for (iter = dev.chanIDs.begin(); iter != dev.chanIDs.end(); ++iter)
++    {
++        //kDebug(67100) <<  "Setting volume for channel " << iter.value() << " to " << (long)dev.volume.values[iter.key()] << " (" << ((100*(long)dev.volume.values[iter.key()]) / PA_VOLUME_NORM) << "%)";
++        volume.setVolume(iter.value(), (long)dev.volume.values[iter.key()]);
++    }
++}
++
++static pa_cvolume genVolumeForPulse(const devinfo& dev, Volume& volume)
++{
++    pa_cvolume cvol = dev.volume;
++
++    chanIDMap::const_iterator iter;
++    for (iter = dev.chanIDs.begin(); iter != dev.chanIDs.end(); ++iter)
++    {
++        cvol.values[iter.key()] = (uint32_t)volume.getVolume(iter.value());
++        //kDebug(67100) <<  "Setting volume for channel " << iter.value() << " to " << cvol.values[iter.key()] << " (" << ((100*cvol.values[iter.key()]) / PA_VOLUME_NORM) << "%)";
++    }
++    return cvol;
++}
++
++static devmap* get_widget_map(int type)
++{
++    Q_ASSERT(type >= 0 && type <= KMIXPA_WIDGET_MAX);
++
++    if (KMIXPA_PLAYBACK == type)
++        return &outputDevices;
++    else if (KMIXPA_CAPTURE == type)
++        return &captureDevices;
++    else if (KMIXPA_APP_PLAYBACK == type)
++        return &outputStreams;
++    else if (KMIXPA_APP_CAPTURE == type)
++        return &captureStreams;
++
++    Q_ASSERT(0);
++    return NULL;
++}
++
++void Mixer_PULSE::addWidget(int index)
++{
++    devmap* map = get_widget_map(m_devnum);
++
++    if (!map->contains(index)) {
++        kWarning(67100) <<  "New " << m_devnum << " widget notified for index " << index << " but I cannot find it in my list :s";
++        return;
++    }
++    addDevice((*map)[index]);
++    emit controlsReconfigured(_mixer->id());
++}
++
++void Mixer_PULSE::removeWidget(int index)
++{
++    devmap* map = get_widget_map(m_devnum);
++
++    if (!map->contains(index)) {
++        //kWarning(67100) <<  "Removing " << m_devnum << " widget notified for index " << index << " but I cannot find it in my list :s";
++        // Sometimes we ignore things (e.g. event sounds) so don't be too noisy here.
++        return;
++    }
++
++    QString id = (*map)[index].name;
++    map->remove(index);
++
++    // We need to find the MixDevice that goes with this widget and remove it.
++    MixSet::iterator iter;
++    for (iter = m_mixDevices.begin(); iter != m_mixDevices.end(); ++iter)
++    {
++        if ((*iter)->id() == id)
++        {
++            delete *iter;
++            m_mixDevices.erase(iter);
++            emit controlsReconfigured(_mixer->id());
++            return;
++        }
++    }
++}
++
++void Mixer_PULSE::addDevice(devinfo& dev)
++{
++    if (dev.chanMask != Volume::MNONE) {
++        MixSet *ms = 0;
++        if (m_devnum == KMIXPA_APP_PLAYBACK && s_Mixers.contains(KMIXPA_PLAYBACK))
++            ms = s_Mixers[KMIXPA_PLAYBACK]->getMixSet();
++        else if (m_devnum == KMIXPA_APP_CAPTURE && s_Mixers.contains(KMIXPA_CAPTURE))
++            ms = s_Mixers[KMIXPA_CAPTURE]->getMixSet();
++
++        Volume v(dev.chanMask, PA_VOLUME_NORM, PA_VOLUME_MUTED, true, false);
++        setVolumeFromPulse(v, dev);
++        MixDevice* md = new MixDevice( _mixer, dev.name, dev.description, dev.icon_name, true, ms);
++        md->addPlaybackVolume(v);
++        md->setMuted(dev.mute);
++        m_mixDevices.append(md);
++    }
++}
+ 
+ Mixer_Backend* PULSE_getMixer( Mixer *mixer, int devnum )
+ {
+@@ -39,203 +737,325 @@ Mixer_PULSE::Mixer_PULSE(Mixer *mixer, int devnum) : Mixer_Backend(mixer, devnum
+ {
+    if ( devnum == -1 )
+       m_devnum = 0;
++
++   QString pulseenv = qgetenv("KMIX_PULSEAUDIO_DISABLE");
++   if (pulseenv.toInt())
++       s_pulseActive = INACTIVE;
++
++   ++refcount;
++   if (INACTIVE != s_pulseActive && 1 == refcount)
++   {
++       mainloop = pa_glib_mainloop_new(g_main_context_default());
++       g_assert(mainloop);
++
++       pa_mainloop_api *api = pa_glib_mainloop_get_api(mainloop);
++       g_assert(api);
++
++       context = pa_context_new(api, "KMix KDE 4");
++       g_assert(context);
++
++       // We create a simple event loop to allow the glib loop
++       // to iterate until we've connected or not to the server.
++       s_connectionEventloop = new QEventLoop;
++
++       kDebug(67100) <<  "Attempting connection to PulseAudio sound daemon";
++       // (cg) Convert to PA_CONTEXT_NOFLAGS when PulseAudio 0.9.19 is required
++       if (pa_context_connect(context, NULL, static_cast<pa_context_flags_t>(0), 0) >= 0) {
++           pa_context_set_state_callback(context, &context_state_callback, s_connectionEventloop);
++           // Now we block until we connect or otherwise...
++           s_connectionEventloop->exec();
++       }
++       kDebug(67100) <<  "PulseAudio status: " << (s_pulseActive==UNKNOWN ? "Unknown (bug)" : (s_pulseActive==ACTIVE ? "Active" : "Inactive"));
++   }
++
++   s_Mixers[m_devnum] = this;
+ }
+ 
+ Mixer_PULSE::~Mixer_PULSE()
+ {
+-   close();
++    s_Mixers.remove(m_devnum);
++
++    if (refcount > 0)
++    {
++        --refcount;
++        if (0 == refcount)
++        {
++            if (context) {
++                pa_context_unref(context);
++                context = NULL;
++            }
++
++            if (mainloop) {
++                pa_glib_mainloop_free(mainloop);
++                mainloop = NULL;
++            }
++        }
++    }
+ }
+ 
+ int Mixer_PULSE::open()
+ {
+-    kDebug(67100) <<  "Trying Pulse sink";
+-    mainloop = pa_glib_mainloop_new(g_main_context_default());
+-    g_assert(mainloop);
+-    pa_mainloop_api *api = pa_glib_mainloop_get_api(mainloop);
+-    g_assert(api);
+-
+-    context = pa_context_new(api, "KMix KDE 4");
+-    g_assert(context);
+-      //return Mixer::ERR_OPEN;
+- 
+-/* 
+-      //
+-      // Mixer is open. Now define all of the mix devices.
+-      //
+-
+-         for ( int idx = 0; idx < numDevs; idx++ )
+-         {
+-            Volume vol( 2, AUDIO_MAX_GAIN );
+-            QString id;
+-            id.setNum(idx);
+-            MixDevice* md = new MixDevice( _mixer, id,
+-               QString(MixerDevNames[idx]), MixerChannelTypes[idx]);
+-            md->addPlaybackVolume(vol);
+-            md->setRecSource( isRecsrcHW( idx ) );
+-            m_mixDevices.append( md );
+-         }
+-*/
++    //kDebug(67100) <<  "Trying Pulse sink";
+ 
+-    m_mixerName = "PULSE Audio Mixer";
++    if (ACTIVE == s_pulseActive && m_devnum <= KMIXPA_APP_CAPTURE)
++    {
++        // Make sure the GUI layers know we are dynamic so as to always paint us
++        _mixer->setDynamic();
+ 
+-    m_isOpen = true;
++        devmap::iterator iter;
++        if (KMIXPA_PLAYBACK == m_devnum)
++        {
++            m_mixerName = i18n("Playback Devices");
++            for (iter = outputDevices.begin(); iter != outputDevices.end(); ++iter)
++                addDevice(*iter);
++        }
++        else if (KMIXPA_CAPTURE == m_devnum)
++        {
++            m_mixerName = i18n("Capture Devices");
++            for (iter = captureDevices.begin(); iter != captureDevices.end(); ++iter)
++                addDevice(*iter);
++        }
++        else if (KMIXPA_APP_PLAYBACK == m_devnum)
++        {
++            m_mixerName = i18n("Playback Streams");
++            for (iter = outputRoles.begin(); iter != outputRoles.end(); ++iter)
++                addDevice(*iter);
++            for (iter = outputStreams.begin(); iter != outputStreams.end(); ++iter)
++                addDevice(*iter);
++        }
++        else if (KMIXPA_APP_CAPTURE == m_devnum)
++        {
++            m_mixerName = i18n("Capture Streams");
++            for (iter = captureStreams.begin(); iter != captureStreams.end(); ++iter)
++                addDevice(*iter);
++        }
+ 
++        kDebug(67100) <<  "Using PulseAudio for mixer: " << m_mixerName;
++        m_isOpen = true;
++    }
++ 
+     return 0;
+ }
+ 
++bool Mixer_PULSE::openIfValid() {
++    if (ACTIVE != s_pulseActive || m_devnum < 0 || m_devnum > KMIXPA_WIDGET_MAX)
++        return false;
++
++    bool valid = false;
++    if ( open() == 0) {
++        valid = true;
++        // The initial state must be read manually
++        QTimer::singleShot( 50, this, SLOT( readSetFromHW() ) );
++    } // cold be opened
++    else {
++        close();
++    }
++    return valid;
++}
++
+ int Mixer_PULSE::close()
+ {
+-    if (context)
+-    {
+-        pa_context_unref(context);
+-        context = NULL;
+-    }
+-    if (mainloop)
+-    {
+-        pa_glib_mainloop_free(mainloop);
+-        mainloop = NULL;
+-    }
+     return 1;
+ }
+ 
+ int Mixer_PULSE::readVolumeFromHW( const QString& id, MixDevice *md )
+ {
+-/*   audio_info_t audioinfo;
+-   uint_t devMask = MixerSunPortMasks[devnum];
+-
+-   Volume& volume = md->playbackVolume();
+-   int devnum = id2num(id);
+-   //
+-   // Read the current audio information from the driver
+-   //
+-   if ( ioctl( fd, AUDIO_GETINFO, &audioinfo ) < 0 )
+-   {
+-      return( Mixer::ERR_READ );
+-   }
+-   else
+-   {
+-      //
+-      // Extract the appropriate fields based on the requested device
+-      //
+-      switch ( devnum )
+-      {
+-         case MIXERDEV_MASTER_VOLUME :
+-            volume.setSwitchActivated( audioinfo.output_muted );
+-            GainBalanceToVolume( audioinfo.play.gain,
+-                                 audioinfo.play.balance,
+-                                 volume );
++    devmap *map = get_widget_map(m_devnum);
++ 
++    devmap::iterator iter;
++    for (iter = map->begin(); iter != map->end(); ++iter)
++    {
++        if (iter->name == id)
++        {
++            setVolumeFromPulse(md->playbackVolume(), *iter);
++            md->setMuted(iter->mute);
+             break;
++        }
++    }
+ 
+-         case MIXERDEV_RECORD_MONITOR :
+-            md->setMuted(false);
+-            volume.setAllVolumes( audioinfo.monitor_gain );
+-            break;
++    return 0;
++}
+ 
+-         case MIXERDEV_INTERNAL_SPEAKER :
+-         case MIXERDEV_HEADPHONE :
+-         case MIXERDEV_LINE_OUT :
+-            md->setMuted( (audioinfo.play.port & devMask) ? false : true );
+-            GainBalanceToVolume( audioinfo.play.gain,
+-                                 audioinfo.play.balance,
+-                                 volume );
+-            break;
++int Mixer_PULSE::writeVolumeToHW( const QString& id, MixDevice *md )
++{
++    devmap::iterator iter;
++    if (KMIXPA_PLAYBACK == m_devnum)
++    {
++        for (iter = outputDevices.begin(); iter != outputDevices.end(); ++iter)
++        {
++            if (iter->name == id)
++            {
++                pa_operation *o;
+ 
+-         case MIXERDEV_MICROPHONE :
+-         case MIXERDEV_LINE_IN :
+-         case MIXERDEV_CD :
+-            md->setMuted( (audioinfo.record.port & devMask) ? false : true );
+-            GainBalanceToVolume( audioinfo.record.gain,
+-                                 audioinfo.record.balance,
+-                                 volume );
+-            break;
++                pa_cvolume volume = genVolumeForPulse(*iter, md->playbackVolume());
++                if (!(o = pa_context_set_sink_volume_by_index(context, iter->index, &volume, NULL, NULL))) {
++                    kWarning(67100) <<  "pa_context_set_sink_volume_by_index() failed";
++                    return Mixer::ERR_READ;
++                }
++                pa_operation_unref(o);
++
++                if (!(o = pa_context_set_sink_mute_by_index(context, iter->index, (md->isMuted() ? 1 : 0), NULL, NULL))) {
++                    kWarning(67100) <<  "pa_context_set_sink_mute_by_index() failed";
++                    return Mixer::ERR_READ;
++                }
++                pa_operation_unref(o);
++
++                return 0;
++            }
++        }
++    }
++    else if (KMIXPA_CAPTURE == m_devnum)
++    {
++        for (iter = captureDevices.begin(); iter != captureDevices.end(); ++iter)
++        {
++            if (iter->name == id)
++            {
++                pa_operation *o;
++
++                pa_cvolume volume = genVolumeForPulse(*iter, md->playbackVolume());
++                if (!(o = pa_context_set_source_volume_by_index(context, iter->index, &volume, NULL, NULL))) {
++                    kWarning(67100) <<  "pa_context_set_source_volume_by_index() failed";
++                    return Mixer::ERR_READ;
++                }
++                pa_operation_unref(o);
+ 
+-         default :
+-            return Mixer::ERR_READ;
+-      }
+-      return 0;
+-   }*/
+-   return 0;
++                if (!(o = pa_context_set_source_mute_by_index(context, iter->index, (md->isMuted() ? 1 : 0), NULL, NULL))) {
++                    kWarning(67100) <<  "pa_context_set_source_mute_by_index() failed";
++                    return Mixer::ERR_READ;
++                }
++                pa_operation_unref(o);
++
++                return 0;
++            }
++        }
++    }
++    else if (KMIXPA_APP_PLAYBACK == m_devnum)
++    {
++        if (id.startsWith("stream:"))
++        {
++            for (iter = outputStreams.begin(); iter != outputStreams.end(); ++iter)
++            {
++                if (iter->name == id)
++                {
++                    pa_operation *o;
++
++                    pa_cvolume volume = genVolumeForPulse(*iter, md->playbackVolume());
++                    if (!(o = pa_context_set_sink_input_volume(context, iter->index, &volume, NULL, NULL))) {
++                        kWarning(67100) <<  "pa_context_set_sink_input_volume() failed";
++                        return Mixer::ERR_READ;
++                    }
++                    pa_operation_unref(o);
++
++                    if (!(o = pa_context_set_sink_input_mute(context, iter->index, (md->isMuted() ? 1 : 0), NULL, NULL))) {
++                        kWarning(67100) <<  "pa_context_set_sink_input_mute() failed";
++                        return Mixer::ERR_READ;
++                    }
++                    pa_operation_unref(o);
++
++                    return 0;
++                }
++            }
++        }
++        else if (id.startsWith("restore:"))
++        {
++            for (iter = outputRoles.begin(); iter != outputRoles.end(); ++iter)
++            {
++                if (iter->name == id)
++                {
++                    pa_ext_stream_restore_info info;
++                    info.name = iter->restore.name.toAscii().constData();
++                    info.channel_map = iter->channel_map;
++                    info.volume = genVolumeForPulse(*iter, md->playbackVolume());
++                    info.device = iter->restore.device.isEmpty() ? NULL : iter->restore.device.toAscii().constData();
++                    info.mute = (md->isMuted() ? 1 : 0);
++
++                    pa_operation* o;
++                    if (!(o = pa_ext_stream_restore_write(context, PA_UPDATE_REPLACE, &info, 1, TRUE, NULL, NULL))) {
++                        kWarning(67100) <<  "pa_ext_stream_restore_write() failed" << info.channel_map.channels << info.volume.channels << info.name;
++                        return Mixer::ERR_READ;
++                    }
++                    pa_operation_unref(o);
++
++                    return 0;
++                }
++            }
++        }
++    }
++    else if (KMIXPA_APP_CAPTURE == m_devnum)
++    {
++        for (iter = captureStreams.begin(); iter != captureStreams.end(); ++iter)
++        {
++            if (iter->name == id)
++            {
++                pa_operation *o;
++
++                // NB Note that this is different from APP_PLAYBACK in that we set the volume on the source itself.
++                pa_cvolume volume = genVolumeForPulse(*iter, md->playbackVolume());
++                if (!(o = pa_context_set_source_volume_by_index(context, iter->device_index, &volume, NULL, NULL))) {
++                    kWarning(67100) <<  "pa_context_set_source_volume_by_index() failed";
++                    return Mixer::ERR_READ;
++                }
++                pa_operation_unref(o);
++
++                if (!(o = pa_context_set_source_mute_by_index(context, iter->device_index, (md->isMuted() ? 1 : 0), NULL, NULL))) {
++                    kWarning(67100) <<  "pa_context_set_source_mute_by_index() failed";
++                    return Mixer::ERR_READ;
++                }
++                pa_operation_unref(o);
++
++                return 0;
++            }
++        }
++    }
++
++    return 0;
+ }
+ 
+-int Mixer_PULSE::writeVolumeToHW( const QString& id, MixDevice *md )
+-{
+-/*   uint_t gain;
+-   uchar_t balance;
+-   uchar_t mute;
+-
+-   Volume& volume = md->playbackVolume();
+-   int devnum = id2num(id);
+-   //
+-   // Convert the Volume(left vol, right vol) to the Gain/Balance Sun uses
+-   //
+-   VolumeToGainBalance( volume, gain, balance );
+-   mute = md->isMuted() ? 1 : 0;
+-
+-   //
+-   // Read the current audio settings from the hardware
+-   //
+-   audio_info_t audioinfo;
+-   if ( ioctl( fd, AUDIO_GETINFO, &audioinfo ) < 0 )
+-   {
+-      return( Mixer::ERR_READ );
+-   }
++/**
++* Move the stream to a new destination
++*/
++bool Mixer_PULSE::moveStream( const QString& id, const QString& destId ) {
++    Q_ASSERT(KMIXPA_APP_PLAYBACK == m_devnum || KMIXPA_APP_CAPTURE == m_devnum);
+ 
+-   //
+-   // Now, based on the devnum that we are writing to, update the appropriate
+-   // volume field and twiddle the appropriate bitmask to enable/mute the
+-   // device as necessary.
+-   //
+-   switch ( devnum )
+-   {
+-      case MIXERDEV_MASTER_VOLUME :
+-         audioinfo.play.gain = gain;
+-         audioinfo.play.balance = balance;
+-         audioinfo.output_muted = mute;
+-         break;
+-
+-      case MIXERDEV_RECORD_MONITOR :
+-         audioinfo.monitor_gain = gain;
+-         // no mute or balance for record monitor
+-         break;
+-
+-      case MIXERDEV_INTERNAL_SPEAKER :
+-      case MIXERDEV_HEADPHONE :
+-      case MIXERDEV_LINE_OUT :
+-         audioinfo.play.gain = gain;
+-         audioinfo.play.balance = balance;
+-         if ( mute )
+-            audioinfo.play.port &= ~MixerSunPortMasks[devnum];
+-         else
+-            audioinfo.play.port |= MixerSunPortMasks[devnum];
+-         break;
+-
+-      case MIXERDEV_MICROPHONE :
+-      case MIXERDEV_LINE_IN :
+-      case MIXERDEV_CD :
+-         audioinfo.record.gain = gain;
+-         audioinfo.record.balance = balance;
+-         if ( mute )
+-            audioinfo.record.port &= ~MixerSunPortMasks[devnum];
+-         else
+-            audioinfo.record.port |= MixerSunPortMasks[devnum];
+-         break;
+-
+-      default :
+-         return Mixer::ERR_READ;
+-   }
++    kDebug(67100) <<  "Mixer_PULSE::moveStream(): Move Stream Requested - Stream: " << id << ", Destination: " << destId;
+ 
+-   //
+-   // Now that we've updated the audioinfo struct, write it back to the hardware
+-   //
+-   if ( ioctl( fd, AUDIO_SETINFO, &audioinfo ) < 0 )
+-   {
+-      return( Mixer::ERR_WRITE );
+-   }
+-   else
+-   {
+-      return 0;
+-   }*/
+-   return 0;
++    // Lookup the stream index.
++    uint32_t stream_index = PA_INVALID_INDEX;
++    devmap::iterator iter;
++    devmap *map = get_widget_map(m_devnum);
++    for (iter = map->begin(); iter != map->end(); ++iter) {
++        if (iter->name == id) {
++            stream_index = iter->index;
++            break;
++        }
++    }
++
++    if (PA_INVALID_INDEX == stream_index) {
++        kError(67100) <<  "Mixer_PULSE::moveStream(): Cannot find stream index";
++        return false;
++    }
++
++    pa_operation* o;
++    if (KMIXPA_APP_PLAYBACK == m_devnum) {
++        if (!(o = pa_context_move_sink_input_by_name(context, stream_index, destId.toAscii().constData(), NULL, NULL))) {
++            kWarning(67100) <<  "pa_context_move_sink_input_by_name() failed";
++            return false;
++        }
++    } else {
++        if (!(o = pa_context_move_source_output_by_name(context, stream_index, destId.toAscii().constData(), NULL, NULL))) {
++            kWarning(67100) <<  "pa_context_move_source_output_by_name() failed";
++            return false;
++        }
++    }
++  
++    pa_operation_unref(o);
++    return true;
++}
++
++void Mixer_PULSE::triggerUpdate()
++{
++    readSetFromHWforceUpdate();
++    readSetFromHW();
+ }
+ 
+ void Mixer_PULSE::setRecsrcHW( const QString& /*id*/, bool /* on */ )
+@@ -243,19 +1063,8 @@ void Mixer_PULSE::setRecsrcHW( const QString& /*id*/, bool /* on */ )
+    return;
+ }
+ 
+-bool Mixer_PULSE::isRecsrcHW( const QString& id )
++bool Mixer_PULSE::isRecsrcHW( const QString& /*id*/ )
+ {
+-/*   int devnum = id2num(id);
+-   switch ( devnum )
+-   {
+-      case MIXERDEV_MICROPHONE :
+-      case MIXERDEV_LINE_IN :
+-      case MIXERDEV_CD :
+-         return true;
+-
+-      default :
+-         return false;
+-   }*/
+    return false;
+ }
+ 
+diff --git a/kmix/mixer_pulse.h b/kmix/mixer_pulse.h
+index 6dcd68b..e1e23e8 100644
+--- a/kmix/mixer_pulse.h
++++ b/kmix/mixer_pulse.h
+@@ -24,30 +24,60 @@
+ 
+ #include <QString>
+ 
++#include "mixer_backend.h"
+ #include <pulse/pulseaudio.h>
+-#include <pulse/glib-mainloop.h>
+-#include <pulse/ext-stream-restore.h>
+ 
+-#include "mixer_backend.h"
++typedef QMap<uint8_t,Volume::ChannelID> chanIDMap;
++typedef struct {
++    int index;
++    int device_index;
++    QString name;
++    QString description;
++    QString icon_name;
++    pa_cvolume volume;
++    pa_channel_map channel_map;
++    bool mute;
++
++    struct {
++        QString name;
++        QString device;
++    } restore;
++
++    Volume::ChannelMask chanMask;
++    chanIDMap chanIDs;
++} devinfo;
+ 
+ class Mixer_PULSE : public Mixer_Backend
+ {
+-public:
+-  Mixer_PULSE(Mixer *mixer, int devnum);
+-  virtual ~Mixer_PULSE();
++    public:
++        Mixer_PULSE(Mixer *mixer, int devnum);
++        virtual ~Mixer_PULSE();
++
++        virtual int readVolumeFromHW( const QString& id, MixDevice *md  );
++        virtual int writeVolumeToHW ( const QString& id, MixDevice *md  );
++        void setRecsrcHW              ( const QString& id, bool on );
++        bool isRecsrcHW               ( const QString& id );
++
++        virtual bool moveStream( const QString& id, const QString& destId );
++
++        virtual QString getDriverName();
++        virtual bool needsPolling() { return false; }
++
++        void triggerUpdate();
++        void addWidget(int index);
++        void removeWidget(int index);
++        MixSet *getMixSet() { return &m_mixDevices; }
+ 
+-  virtual int readVolumeFromHW( const QString& id, MixDevice *md  );
+-  virtual int writeVolumeToHW ( const QString& id, MixDevice *md  );
+-  void setRecsrcHW              ( const QString& id, bool on );
+-  bool isRecsrcHW               ( const QString& id );
++    protected:
++        virtual int open();
++        virtual bool openIfValid();
++        virtual int close();
+ 
+-  virtual QString getDriverName();
++        int fd;
+ 
+-protected:
+-  virtual int open();
+-  virtual int close();
++    private:
++        void addDevice(devinfo& dev);
+ 
+-  int fd;
+ };
+ 
+ #endif 
+diff --git a/kmix/mixertoolbox.cpp b/kmix/mixertoolbox.cpp
+index f424916..873082f 100644
+--- a/kmix/mixertoolbox.cpp
++++ b/kmix/mixertoolbox.cpp
+@@ -37,7 +37,7 @@
+ 
+ 
+ MixerToolBox* MixerToolBox::s_instance      = 0;
+-GUIProfile*   MixerToolBox::s_fallbackProfile = 0;
++QMap<Mixer*,GUIProfile*> MixerToolBox::s_fallbackProfiles;
+ QRegExp MixerToolBox::s_ignoreMixerExpression("Modem");
+ //KLocale* MixerToolBox::s_whatsthisLocale = 0;
+ 
+@@ -112,7 +112,8 @@ void MixerToolBox::initMixer(bool multiDriverMode, QString& ref_hwInfoString)
+    for( int drv=0; drv<drvNum; drv++ )
+    {
+       QString driverName = Mixer::driverName(drv);
+-   
++      kDebug(67100) << "Looking for mixers with the : " << driverName << " driver";
++
+       if ( autodetectionFinished ) {
+          // inner loop indicates that we are finished => sane exit from outer loop
+          break;
+@@ -136,31 +137,33 @@ void MixerToolBox::initMixer(bool multiDriverMode, QString& ref_hwInfoString)
+                 autodetectionFinished = true; // highest device number of driver and a Mixer => finished
+         }
+       
+-         // append driverName (used drivers)
+-         if ( mixerAccepted && !drvInfoAppended )
+-         {
+-            drvInfoAppended = true;
+-            QString driverName = Mixer::driverName(drv);
+-            if (  Mixer::mixers().count() > 1) {
+-               driverInfoUsed += " + ";
+-            }
+-            driverInfoUsed += driverName;
+-         }
+-      
+-         // Check whether there are mixers in different drivers, so that the user can be warned
+-         if (mixerAccepted && !multipleDriversActive)
++         if ( mixerAccepted )
+          {
+-            if ( driverWithMixer == -1 )
++            kDebug(67100) << "Success! Found a mixer with the : " << driverName << " driver";
++            // append driverName (used drivers)
++            if ( !drvInfoAppended )
+             {
+-               // Aha, this is the very first detected device
+-               driverWithMixer = drv;
++               drvInfoAppended = true;
++               if (  Mixer::mixers().count() > 1)
++                  driverInfoUsed += " + ";
++               driverInfoUsed += driverName;
+             }
+-            else if ( driverWithMixer != drv )
++
++            // Check whether there are mixers in different drivers, so that the user can be warned
++            if ( !multipleDriversActive )
+             {
+-                // Got him: There are mixers in different drivers
+-                multipleDriversActive = true;
+-            }
+-         } //  !multipleDriversActive
++               if ( driverWithMixer == -1 )
++               {
++                  // Aha, this is the very first detected device
++                  driverWithMixer = drv;
++               }
++               else if ( driverWithMixer != drv )
++               {
++                   // Got him: There are mixers in different drivers
++                   multipleDriversActive = true;
++               }
++            } //  !multipleDriversActive
++         } // mixerAccepted
+       
+       } // loop over sound card devices of current driver
+ 
+@@ -357,9 +360,13 @@ GUIProfile* MixerToolBox::selectProfile(Mixer* mixer)
+    
+    QString userProfileDir = KStandardDirs::locateLocal("appdata", "profiles/" );
+ 
++   QString mixerNameSpacesToUnderscores = mixer->baseName();
++   mixerNameSpacesToUnderscores.replace(" ","_");
++
+    // (1) User profile Directory
+    QDir dir(userProfileDir);
+    dir.setFilter(QDir::Files);
++   dir.setNameFilters(QStringList(mixer->getDriverName() + "." + mixerNameSpacesToUnderscores + "*.xml"));
+    QFileInfoList fileList = dir.entryInfoList();
+ 
+    QString fileNamePrefix = "profiles/" + mixer->getDriverName() + ".";
+@@ -369,39 +376,34 @@ GUIProfile* MixerToolBox::selectProfile(Mixer* mixer)
+    QString fileNameFQ;
+    fileNameFQ = KStandardDirs::locate("appdata", fileName );
+ kDebug() << fileName << "; fnfq1=" << fileNameFQ;
+-   QFileInfo qfi1(fileNameFQ);
+-   fileList.insert(0, qfi1);
++   if (!fileNameFQ.isEmpty())
++       fileList.insert(0, QFileInfo(fileNameFQ));
+ 
+    // (3) Soundcard specific profile (usually from system Directory)
+-   QString mixerNameSpacesToUnderscores = mixer->baseName();
+-   mixerNameSpacesToUnderscores.replace(" ","_");
+    fileName = fileNamePrefix + mixerNameSpacesToUnderscores + ".xml";
+    fileNameFQ = KStandardDirs::locate("appdata", fileName );
+ kDebug() << fileName << "; fnfq2=" << fileNameFQ;
+-   QFileInfo qfi2(fileNameFQ);
+-   fileList.insert(0, qfi2);  
++   if (!fileNameFQ.isEmpty())
++      fileList.insert(0, QFileInfo(fileNameFQ));
+ 
+ 
+ 
+ 	for (int i = 0; i < fileList.size(); ++i) {
+ 		QFileInfo fileInfo = fileList.at(i);
+-		kDebug() << i << ": Check user profile " << fileInfo.fileName() ;
+-		if ( QDir::match( "*.xml", fileInfo.fileName() ) ) {
+-			QString fileNameAbs = fileInfo.absoluteFilePath();
+-			QString fileNameRelToProfile = "profiles/" + fileInfo.fileName();
+-			kDebug() << i << ": Try user profile " << fileNameAbs;
+-			GUIProfile* guiprofTemp = new GUIProfile();
+-			if ( guiprofTemp->readProfile(fileNameAbs, fileNameRelToProfile) ) {
+-				matchValueTemp = guiprofTemp->match(mixer);
+-				if ( matchValueTemp < matchValueBest ) {
+-					delete guiprofTemp;
+-					guiprofTemp = 0;
+-					matchValueTemp = 0;
+-				}
+-				else {
+-					guiprofBest = guiprofTemp;
+-					matchValueBest = matchValueTemp;
+-				}
++		QString fileNameAbs = fileInfo.absoluteFilePath();
++		QString fileNameRelToProfile = "profiles/" + fileInfo.fileName();
++		kDebug() << i << ": Try user profile " << fileNameAbs;
++		GUIProfile* guiprofTemp = new GUIProfile();
++		if ( guiprofTemp->readProfile(fileNameAbs, fileNameRelToProfile) ) {
++			matchValueTemp = guiprofTemp->match(mixer);
++			if ( matchValueTemp < matchValueBest ) {
++				delete guiprofTemp;
++				guiprofTemp = 0;
++				matchValueTemp = 0;
++			}
++			else {
++				guiprofBest = guiprofTemp;
++				matchValueBest = matchValueTemp;
+ 			}
+ 		}
+ 	}
+@@ -411,33 +413,40 @@ kDebug() << fileName << "; fnfq2=" << fileNameFQ;
+       // Still no profile found. This should usually not happen. This means one of the following things:
+       // a) The KMix installation is not OK
+       // b) The user has a defective profile in ~/.kde/share/apps/kmix/profiles/
+-      // c) It is a Backend that ships no default profile (currently this is only Mixer_SUN)
+-      if ( s_fallbackProfile == 0 ) {
+-         s_fallbackProfile = new GUIProfile();
+-
+-         ProfProduct* prd = new ProfProduct();
+-         prd->vendor         = mixer->getDriverName();
+-         prd->productName    = mixer->readableName();
+-         prd->productRelease = "1.0";
+-         s_fallbackProfile->_products.insert(prd);
+-
+-         ProfControl* ctl = new ProfControl();
+-         ctl->id          = ".*";
+-         ctl->regexp      = ".*";   // make sure id matches the regexp
+-         ctl->subcontrols = ".*";
+-         ctl->show        = "simple";
+-         s_fallbackProfile->_controls.push_back(ctl);
+-
+-         s_fallbackProfile->_soundcardDriver = mixer->getDriverName();
+-         s_fallbackProfile->_soundcardName   = mixer->readableName();
+-
+-         s_fallbackProfile->finalizeProfile();
+-      }
+-      guiprofBest = s_fallbackProfile;
++      // c) It is a Backend that ships no default profile (currently this is only Mixer_SUN and Mixer_PULSE)
++      guiprofBest = fallbackProfile(mixer);
+    }
+ //    kDebug(67100) << "New Best    =" << matchValueBest << " pointer=" << guiprofBest << "\n";
+ 
+    return guiprofBest;
+ }
+ 
++
++GUIProfile* MixerToolBox::fallbackProfile(Mixer *mixer)
++{
++   if ( ! s_fallbackProfiles.contains(mixer) ) {
++      GUIProfile *fallback = new GUIProfile();
++
++      ProfProduct* prd = new ProfProduct();
++      prd->vendor         = mixer->getDriverName();
++      prd->productName    = mixer->readableName();
++      prd->productRelease = "1.0";
++      fallback->_products.insert(prd);
++
++      ProfControl* ctl = new ProfControl();
++      ctl->id          = ".*";
++      ctl->regexp      = ".*";   // make sure id matches the regexp
++      ctl->subcontrols = ".*";
++      ctl->show        = "simple";
++      fallback->_controls.push_back(ctl);
++
++      fallback->_soundcardDriver = mixer->getDriverName();
++      fallback->_soundcardName   = mixer->readableName();
++
++      fallback->finalizeProfile();
++      s_fallbackProfiles[mixer] = fallback;
++   }
++   return s_fallbackProfiles[mixer];
++}
++
+ #include "mixertoolbox.moc"
+diff --git a/kmix/mixertoolbox.h b/kmix/mixertoolbox.h
+index 2af5118..fa19645 100644
+--- a/kmix/mixertoolbox.h
++++ b/kmix/mixertoolbox.h
+@@ -53,6 +53,7 @@ class MixerToolBox : public QObject
+       
+       Mixer* find( const QString& mixer_id);
+       GUIProfile* selectProfile(Mixer*);
++      GUIProfile* fallbackProfile(Mixer*);
+       //static KLocale* whatsthisControlLocale();
+       
+    signals:
+@@ -60,7 +61,7 @@ class MixerToolBox : public QObject
+ 
+    private:
+       static MixerToolBox* s_instance;
+-      static GUIProfile*   s_fallbackProfile;
++      static QMap<Mixer*,GUIProfile*> s_fallbackProfiles;
+       QMap<QString,int> s_mixerNums;
+       static QRegExp s_ignoreMixerExpression;
+       
+diff --git a/kmix/viewbase.cpp b/kmix/viewbase.cpp
+index b53ecd4..06962f2 100644
+--- a/kmix/viewbase.cpp
++++ b/kmix/viewbase.cpp
+@@ -39,6 +39,7 @@
+ #include "kmixtoolbox.h"
+ #include "mixdevicewidget.h"
+ #include "mixer.h"
++#include "mixertoolbox.h"
+ 
+ 
+ ViewBase::ViewBase(QWidget* parent, const char* id, Mixer* mixer, Qt::WFlags f, ViewBase::ViewFlags vflags, GUIProfile *guiprof, KActionCollection *actionColletion)
+@@ -76,6 +77,7 @@ ViewBase::ViewBase(QWidget* parent, const char* id, Mixer* mixer, Qt::WFlags f,
+    action->setText(i18n("&Channels"));
+    connect(action, SIGNAL(triggered(bool) ), SLOT(configureView()));
+    connect ( _mixer, SIGNAL(controlChanged()), this, SLOT(refreshVolumeLevels()) );
++   connect ( _mixer, SIGNAL(controlsReconfigured(const QString&)), this, SLOT(controlsReconfigured(const QString&)) );
+ }
+ 
+ ViewBase::~ViewBase() {
+@@ -101,7 +103,7 @@ QString ViewBase::id() const {
+ 
+ bool ViewBase::isValid() const
+ {
+-   return (_mixSet->count() > 0 );
++   return ( _mixSet->count() > 0 || _mixer->dynamic() );
+ }
+ 
+ void ViewBase::setIcons (bool on) { KMixToolBox::setIcons (_mdws, on ); }
+@@ -122,8 +124,8 @@ void ViewBase::createDeviceWidgets()
+     {
+         MixDevice *mixDevice;
+         mixDevice = (*_mixSet)[i];
+-	QWidget* mdw = add(mixDevice);
+-	_mdws.append(mdw);
++        QWidget* mdw = add(mixDevice);
++        _mdws.append(mdw);
+     }
+     // allow view to "polish" itself
+     constructionFinished();
+@@ -203,16 +205,78 @@ void ViewBase::showContextMenu()
+     _popMenu->popup( pos );
+ }
+ 
++void ViewBase::controlsReconfigured( const QString& mixer_ID )
++{
++    if ( _mixer->id() == mixer_ID )
++    {
++        kDebug(67100) << "ViewBase::controlsReconfigured() " << mixer_ID << " is being redrawn (mixset contains: " << _mixSet->count() << ")";
++        setMixSet();
++        kDebug(67100) << "ViewBase::controlsReconfigured() " << mixer_ID << ": Recreating widgets (mixset contains: " << _mixSet->count() << ")";
++        createDeviceWidgets();
++
++        // We've done the low level stuff our selves but let elements
++        // above know what has happened so they can reload config etc.
++        emit redrawMixer(mixer_ID);
++    }
++}
+ 
+ void ViewBase::refreshVolumeLevels()
+ {
+     // is virtual
+ }
+ 
+-Mixer* ViewBase::getMixer() {
++Mixer* ViewBase::getMixer()
++{
+     return _mixer;
+ }
+ 
++void ViewBase::setMixSet()
++{
++    if ( _mixer->dynamic()) {
++
++        // Check the guiprofile... if it is not the fallback GUIProfile, then
++        // make sure that we add a specific entry for any devices not present.
++        if ( 0 != _guiprof && MixerToolBox::instance()->fallbackProfile(_mixer) != _guiprof ) {
++            kDebug(67100) << "Dynamic mixer " << _mixer->id() << " is NOT using Fallback GUIProfile. Checking to see if new controls are present";
++
++            QList<QString> new_mix_devices;
++            MixSet ms = _mixer->getMixSet();
++            for (int i=0; i < ms.count(); ++i)
++                new_mix_devices.append(ms[i]->id());
++            std::vector<ProfControl*>::const_iterator itEnd = _guiprof->_controls.end();
++            for ( std::vector<ProfControl*>::const_iterator it = _guiprof->_controls.begin(); it != itEnd; ++it)
++                new_mix_devices.removeAll((*it)->id);
++
++            if ( new_mix_devices.count() > 0 ) {
++                kDebug(67100) << "Found " << new_mix_devices.count() << " new controls. Adding to GUIProfile";
++                while ( new_mix_devices.count() > 0 ) {
++                    ProfControl* ctl = new ProfControl();
++                    ctl->id = new_mix_devices.takeAt(0);
++                    ctl->subcontrols = ".*";
++                    ctl->tab = _guiprof->_tabs[0]->name; // Use the first tab... not ideal but should work most of the time;
++                    ctl->show = "simple";
++                    _guiprof->_controls.push_back(ctl);
++                }
++                QString profileName;
++                profileName =  _mixer->id() + "." + id();
++                _guiprof->writeProfile(profileName);
++            }
++        }
++
++        // We need to delete the current MixDeviceWidgets so we can redraw them
++        while (!_mdws.isEmpty()) {
++            QWidget* mdw = _mdws.last();
++            _mdws.pop_back();
++            delete mdw;
++        }
++
++        // Clean up our _mixSet so we can reapply our GUIProfile
++        _mixSet->clear();
++    }
++    _setMixSet();
++}
++
++
+ /**
+  * Open the View configuration dialog. The user can select which channels he wants
+  * to see and which not.
+diff --git a/kmix/viewbase.h b/kmix/viewbase.h
+index 0470f18..e3a6f9d 100644
+--- a/kmix/viewbase.h
++++ b/kmix/viewbase.h
+@@ -83,7 +83,7 @@ public:
+      */
+     virtual void createDeviceWidgets();
+ 
+-    virtual void setMixSet() = 0;
++    void setMixSet();
+     
+     Mixer* getMixer();
+ 
+@@ -118,6 +118,7 @@ public:
+ 
+ signals:
+     void rebuildGUI();
++    void redrawMixer( const QString& mixer_ID );
+ 
+ 
+ protected:
+@@ -129,7 +130,11 @@ protected:
+     ViewFlags _vflags;
+     GUIProfile* _guiprof;
+    KActionCollection *_localActionColletion;
++
++    virtual void _setMixSet() = 0;
++
+ public slots:
++   virtual void controlsReconfigured( const QString& mixer_ID );
+    virtual void refreshVolumeLevels();
+    virtual void configureView(); 
+    void toggleMenuBarSlot();
+diff --git a/kmix/viewdockareapopup.cpp b/kmix/viewdockareapopup.cpp
+index 57ac597..9f9f7fd 100644
+--- a/kmix/viewdockareapopup.cpp
++++ b/kmix/viewdockareapopup.cpp
+@@ -81,9 +81,18 @@ void ViewDockAreaPopup::showContextMenu()
+ }
+ 
+ 
+-void ViewDockAreaPopup::setMixSet()
++void ViewDockAreaPopup::_setMixSet()
+ {
+    // kDebug(67100) << "ViewDockAreaPopup::setMixSet()\n";
++
++   if ( _mixer->dynamic() ) {
++      // Our _layoutMDW now should only contain spacer widgets from the QSpacerItems's in add() below.
++      // We need to trash those too otherwise all sliders gradually migrate away from the edge :p
++      QLayoutItem *li;
++      while ( ( li = _layoutMDW->takeAt(0) ) )
++         delete li;
++   }
++
+    MixDevice *dockMD = Mixer::getGlobalMasterMD();
+    if ( dockMD == 0 ) {
+       // If we have no dock device yet, we will take the first available mixer device
+diff --git a/kmix/viewdockareapopup.h b/kmix/viewdockareapopup.h
+index f289dd6..65323cf 100644
+--- a/kmix/viewdockareapopup.h
++++ b/kmix/viewdockareapopup.h
+@@ -43,7 +43,6 @@ public:
+     ~ViewDockAreaPopup();
+     MixDevice* dockDevice();
+ 
+-    virtual void setMixSet();
+     virtual QWidget* add(MixDevice *mdw);
+     virtual void constructionFinished();
+     virtual void refreshVolumeLevels();
+@@ -58,6 +57,7 @@ protected:
+     QPushButton     *_showPanelBox;
+ 
+     void wheelEvent ( QWheelEvent * e );
++    virtual void _setMixSet();
+ 
+ private:
+     QGridLayout* _layoutMDW;
+diff --git a/kmix/viewsliders.cpp b/kmix/viewsliders.cpp
+index fa2246c..a43ceef 100644
+--- a/kmix/viewsliders.cpp
++++ b/kmix/viewsliders.cpp
+@@ -119,10 +119,20 @@ QWidget* ViewSliders::add(MixDevice *md)
+ }
+ 
+ 
+-void ViewSliders::setMixSet()
++void ViewSliders::_setMixSet()
+ {
+-    const MixSet& mixset = _mixer->getMixSet();
+-
++   const MixSet& mixset = _mixer->getMixSet();
++
++   if ( _mixer->dynamic() ) {
++      // We will be recreating our sliders, so make sure we trash all the separators too.
++      qDeleteAll(_separators);
++      _separators.clear();
++      // Our _layoutSliders now should only contain spacer widgets from the addSpacing() calls in add() above.
++      // We need to trash those too otherwise all sliders gradually migrate away from the edge :p
++      QLayoutItem *li;
++      while ( ( li = _layoutSliders->takeAt(0) ) )
++         delete li;
++   }
+ 
+    // This method iterates the controls from the Profile
+    // Each control is checked, whether it is also contained in the mixset, and
+@@ -135,7 +145,7 @@ void ViewSliders::setMixSet()
+       if ( control->tab == id() ) {
+          // The TabName of the control matches this View name (!! attention: Better use some ID, due to i18n() )
+          bool isUsed = false;
+-   
++
+          QRegExp idRegexp(control->id);
+          //kDebug(67100) << "ViewSliders::setMixSet(): Check GUIProfile id==" << control->id << "\n";
+          // The following for-loop could be simplified by using a std::find_if
+diff --git a/kmix/viewsliders.h b/kmix/viewsliders.h
+index 1695595..9f7ce32 100644
+--- a/kmix/viewsliders.h
++++ b/kmix/viewsliders.h
+@@ -36,7 +36,6 @@ public:
+     ViewSliders(QWidget* parent, const char* name, Mixer* mixer, ViewBase::ViewFlags vflags, GUIProfile *guiprof, KActionCollection *actColl);
+     ~ViewSliders();
+ 
+-    virtual void setMixSet();
+     virtual QWidget* add(MixDevice *mdw);
+     virtual void constructionFinished();
+     virtual void configurationUpdate();
+@@ -44,6 +43,9 @@ public:
+ public slots:
+     virtual void refreshVolumeLevels();
+ 
++protected:
++    virtual void _setMixSet();
++
+ private:
+     QBoxLayout* _layoutMDW;
+     QLayout* _layoutSliders;

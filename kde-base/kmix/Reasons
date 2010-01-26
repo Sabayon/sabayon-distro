@@ -1,0 +1,4 @@
+kde-base/kmix
+
+26.01.10 Ian Whyman <ian.whyman@sabayon.org>
+Add patch to actually add pulseaudio support to kmix
