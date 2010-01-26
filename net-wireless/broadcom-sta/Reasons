@@ -1,0 +1,2 @@
+# Fabio Erculiani <lxnay@sabayon.org>
+remove check_license, causes interactivity problems with old portage
