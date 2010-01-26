@@ -1,0 +1,60 @@
+diff -ur boxee-sources-0.9.20.10408/Makefile.in boxee-sources-0.9.20.10408.2/Makefile.in
+--- boxee-sources-0.9.20.10408/Makefile.in	2009-12-20 09:36:00.000000000 +0000
++++ boxee-sources-0.9.20.10408.2/Makefile.in	2010-01-25 22:25:12.045786637 +0000
+@@ -462,18 +462,20 @@
+ 	# TODO: add osx install
+ else
+ install:
+-	@echo "Copying XBMC binary to $(prefix)/share/xbmc/xbmc.bin"
+-	@install -D xbmc.bin $(prefix)/share/xbmc/xbmc.bin
+-	@install -D xbmc-xrandr $(prefix)/share/xbmc/xbmc-xrandr
+-	@install -D tools/Linux/xbmc.sh $(prefix)/bin/xbmc
+-	@install -D tools/Linux/xbmc-standalone.sh $(prefix)/bin/xbmc-standalone
+-	@install -D -m 0644 tools/Linux/FEH.py $(prefix)/share/xbmc/FEH.py
++	@echo "Copying Boxee binary to $(prefix)/share/boxee"
++	@install -D Boxee $(prefix)/share/boxee
++	@install -D xbmc-xrandr $(prefix)/share/xbmc-xrandr
++	@install -D run-boxee-desktop.in $(prefix)/bin/boxee
++	@install -D run-boxee.in $(prefix)/bin/boxee-standalone
++	@install -D -m 0644 tools/Linux/FEH.py $(prefix)/share/FEH.py
+ 	@install -D -m 0644 tools/Linux/xbmc-xsession.desktop $(prefix)/share/xsessions/XBMC.desktop
++	@install -D boxee-set-initial-resolution $(prefix)/share/boxee-set-initial-resolution
++	@install -D give_me_my_mouse_back $(prefix)/share/give_me_my_mouse_back
+ 	@echo "Copying support and legal files..."
+ 	@for FILE in `ls README.linux LICENSE.GPL *.txt`; do \
+-		install -D -m 0644 "$$FILE" $(prefix)/share/xbmc/; done
++		install -D -m 0644 "$$FILE" $(prefix)/share/; done
+ 	@echo "Done!"
+-	@echo "You can run XBMC with the command 'xbmc'"
++	@echo "You can run Boxee with the command 'boxee'"
+ 	@$(MAKE) install-datas
+ 	@$(MAKE) install-web
+ endif
+@@ -481,11 +483,11 @@
+ install-datas:
+ 	@echo "Copying system files to $(prefix)/share/xbmc"
+ 	@# Arch independent files
+-	@find language media scripts sounds userdata visualisations system -regextype posix-extended -type f -not -iregex ".*svn.*|.*\.so|.*\.dll|.*\.pyd|.*python/.*\.zlib|.*\.vis" -exec install -D -m 0644 "{}" $(prefix)/share/xbmc/"{}" \; -printf " -- %-75.75f\r"
++	@find language media scripts sounds UserData visualisations system -regextype posix-extended -type f -not -iregex ".*svn.*|.*\.so|.*\.dll|.*\.pyd|.*python/.*\.zlib|.*\.vis" -exec install -D -m 0644 "{}" $(prefix)/share/"{}" \; -printf " -- %-75.75f\r"
+ 	@# Arch dependent files
+-	@find system screensavers visualisations -regextype posix-extended -type f -not -iregex ".*svn.*|.*win32\.vis|.*osx\.vis" -iregex ".*$(ARCH).*|.*\.vis|.*\.xbs" -exec install -D "{}" $(prefix)/share/xbmc/"{}" \; -printf " -- %-75.75f\r"
++	@find system screensavers visualisations -regextype posix-extended -type f -not -iregex ".*svn.*|.*win32\.vis|.*osx\.vis" -iregex ".*$(ARCH).*|.*\.vis|.*\.xbs" -exec install -D "{}" $(prefix)/share/"{}" \; -printf " -- %-75.75f\r"
+ 	@# Skins
+-	@find skin -regextype posix-extended -type f -not -iregex ".*svn.*|.*\.png|.*\.gif" -exec install -D -m 0644 '{}' $(prefix)/share/xbmc/'{}' \; -printf " -- %-75.75f\r"
++	@find skin -regextype posix-extended -type f -not -iregex ".*svn.*|.*\.png|.*\.gif" -exec install -D -m 0644 '{}' $(prefix)/share/'{}' \; -printf " -- %-75.75f\r"
+ 
+ install-livedatas:
+ 	@echo "Install Live CD datas in $(prefix) ..."
+@@ -495,9 +497,9 @@
+ 	@install -D tools/XBMCLive/setAlsaVolumes $(prefix)/bin
+ 
+ install-web:
+-	@mkdir -p $(prefix)/share/xbmc/web
+-	@cp -r web/Project_Mayhem_III/* $(prefix)/share/xbmc/web
+-	@find $(prefix)/share/xbmc/web -depth -name .svn -exec rm -rf {} \;
++	@mkdir -p $(prefix)/share/web
++	@cp -r web/Project_Mayhem_III/* $(prefix)/share/web
++	@find $(prefix)/share/web -depth -name .svn -exec rm -rf {} \;
+ 
+ uninstall:
+ 	@echo "Removing XBMC..."
