@@ -10,6 +10,11 @@ inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Standard kernel sources"
 RESTRICT="mirror"
+IUSE="sources_standalone"
+
+DEPEND="${DEPEND}
+	sources_standalone? ( !=sys-kernel/linux-sabayon-${PVR} )
+	!sources_standalone? ( =sys-kernel/linux-sabayon-${PVR} )"
 
 src_compile() {
 	kernel-2_src_compile
@@ -31,9 +36,12 @@ src_install() {
 	local oldarch=${ARCH}
 	cp ${FILESDIR}/${P}-${ARCH}.config .config || die "cannot copy kernel config"
 	unset ARCH
-	make modules_prepare || die "failed to run modules_prepare"
-	rm .config || die "cannot remove .config"
-	rm Makefile || die "cannot remove Makefile"
+	if ! use sources_standalone; then
+		make modules_prepare || die "failed to run modules_prepare"
+		rm .config || die "cannot remove .config"
+		rm Makefile || die "cannot remove Makefile"
+		rm include/linux/version.h || die "cannot remove include/linux/version.h"
+	fi
 	ARCH=${oldarch}
 
 }
