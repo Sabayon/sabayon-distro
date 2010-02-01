@@ -99,6 +99,10 @@ src_prepare() {
 		epatch $patch
 	done
 
+	# Run autoconf
+	eautoconf
+	eautoreconf
+
 	# sed voodoo to fix Curl
 	sed -i \
 	-e 's:\(g_curlInterface.easy_setopt.*, \)\(NULL\):\1(void*)\2:g' \
@@ -122,17 +126,6 @@ src_prepare() {
 	sed -i s#INCLUDES=#"INCLUDES=-I$PYTHON_INC "# xbmc/lib/libPython/Makefile \
 		|| die "Setting system python failed"
 
-	# some dirs ship generated autotools, some dont
-	local d
-	for d in . xbmc/cores/dvdplayer/Codecs/libbdnav xbmc/lib/libass; do
-		[[ -d ${d} ]] || continue
-		[[ -e ${d}/configure ]] && continue
-		pushd ${d} >/dev/null
-		einfo "Generating autotools in ${d}"
-		eautoreconf
-		popd >/dev/null
-	done
-
 	# Avoid lsb-release dependency
 	sed -i \
 		-e 's:/usr/bin/lsb_release -d:cat /etc/gentoo-release:' \
@@ -151,7 +144,6 @@ src_prepare() {
 
 	# Fix script paths
 	for f in run-boxee-desktop.in run-boxee.in; do
-		sed -i 's#BOXEE_HOME=/opt/boxee#BOXEE_HOME=/opt/boxee/share#g' ${f} || die 'Sed Failed'
 		sed -i 's#BOXEE_PROC=Boxee#BOXEE_PROC=boxee#g' ${f} || die 'Sed Failed'
 	done
 }
@@ -186,9 +178,9 @@ src_compile() {
 	emake skins
 	emake give_me_my_mouse_back
 
-        # Clean up Flashplayer cruft
-        rm -rf ./share/system/players/flashplayer/*osx*
-        rm -rf ./share/system/players/flashplayer/*win32*
+	# Clean up Flashplayer cruft
+	rm -rf ./xmbc/system/players/flashplayer/*osx*
+	rm -rf ./xmbc/system/players/flashplayer/*win32*
 }
 
 src_install() {
@@ -200,13 +192,13 @@ src_install() {
 
 	dodir /opt/bin
 	for i in boxee boxee-standalone; do
-		dosym /opt/boxee/bin/$i /opt/bin/$i
+		dosym /opt/boxee/$i /opt/bin/$i
 	done
 
 	# Link flashplayer
-	dodir ${MY_PREFIX}/share/system/players/flashplayer/xulrunner-x86_64-linux/bin/plugins
+	dodir ${MY_PREFIX}/share/system/players/flashplayer/xulrunner-${MY_ARCH}-linux/bin/plugins
 	dosym /opt/netscape/plugins/libflashplayer.so \
-		${MY_PREFIX}/share/system/players/flashplayer/xulrunner-x86_64-linux/bin/plugins/libflashplayer.so
+		${MY_PREFIX}/share/system/players/flashplayer/xulrunner-${MY_ARCH}-linux/bin/plugins/libflashplayer.so
 }
 
 pkg_postinst() {
