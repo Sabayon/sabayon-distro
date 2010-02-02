@@ -5,7 +5,7 @@ EAPI="2"
 inherit eutils python
 
 DESCRIPTION="Official Sabayon Linux Package Manager library"
-HOMEPAGE="http://www.sabayonlinux.org"
+HOMEPAGE="http://www.sabayon.org"
 REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
 ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
 LICENSE="GPL-2"
