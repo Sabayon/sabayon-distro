@@ -49,7 +49,9 @@ RDEPEND="!!app-emulation/virtualbox-ose
 	x11-libs/libSM
 	x11-libs/libICE
 	x11-libs/libXdmcp
-	native-qt? ( x11-libs/qt-core x11-libs/qt-gui )
+	native-qt? ( x11-libs/qt-core
+		x11-libs/qt-gui
+		x11-libs/qt-opengl )
 	x86? ( ~virtual/libstdc++-3.3 )"
 
 S=${WORKDIR}
@@ -214,7 +216,7 @@ src_install() {
 	if use system-qt4 ; then
 		for i in libQtCore libQtNetwork libQtGui libQtOpenGL ; do
 			einfo "Using native ${i}"
-			mv "${D}"/opt/VirtualBox/${i}VBox.so.4 "${D}"/opt/VirtualBox/${i}VBox.so.4.original
+			rm "${D}"/opt/VirtualBox/${i}VBox.so.4
 			dosym ${ROOT}/usr/lib/qt4/${i}.so.4 /opt/VirtualBox/${i}VBox.so.4
 		done
 	fi
