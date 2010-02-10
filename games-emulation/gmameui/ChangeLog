@@ -1,0 +1,11 @@
+# ChangeLog for games-emulation/gmameui
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*gmameui-0.2.12 (19 Jan 2010)
+
+  19 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> +gmameui-0.2.12.ebuild,
+  +files/gmameui-datadir.patch:
+  Initial ebuild. Based on one from Gentoo bug #213622. NLS doesn't seem to
+  work, though.
+
