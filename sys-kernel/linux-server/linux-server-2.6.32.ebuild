@@ -2,8 +2,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
 ETYPE="sources"
-K_WANT_GENPATCHES=""
-K_GENPATCHES_VER=""
 K_SABPATCHES_VER="2"
 K_SABKERNEL_NAME="server"
 inherit sabayon-kernel

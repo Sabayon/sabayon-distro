@@ -64,18 +64,6 @@ ${FILESDIR}/sabayon/4200_fbcondecor-0.9.4.patch
 ${FILESDIR}/sabayon/4300_squashfs-3.4.patch
 "
 
-DEPEND="${DEPEND}
-	<sys-kernel/genkernel-3.4.11
-	splash? ( x11-themes/sabayon-artwork-core )"
-RDEPEND="grub? ( sys-boot/grub sys-boot/grub-handler )"
-
-KV_FULL=${KV_FULL/linux/openvz}
-MY_KERNEL_DIR="/usr/src/linux-${KV_FULL}"
-KV_OUT_DIR="${MY_KERNEL_DIR}"
-K_NOSETEXTRAVERSION="1"
-EXTRAVERSION=${EXTRAVERSION/linux/openvz}
-S="${WORKDIR}/linux-${KV_FULL}"
-
 pkg_postinst() {
 	sabayon-kernel_pkg_postinst
 
