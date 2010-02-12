@@ -1,0 +1,22 @@
+# ChangeLog for app-misc/bleachbit
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  29 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> bleachbit-0.7.2.ebuild:
+  Style fixes.
+
+  11 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> bleachbit-0.7.2.ebuild:
+  Added missing dep. Fixed whitespace.
+
+  09 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> +Manifest:
+  Hmm, why wasn't Manifest added?
+
+  08 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> bleachbit-0.7.2.ebuild:
+  Added nls support.
+
+*bleachbit-0.7.2 (08 Jan 2010)
+
+  08 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> +bleachbit-0.7.2.ebuild,
+  +metadata.xml:
+  Initial ebuild.
+
