@@ -30,9 +30,11 @@ DESCRIPTION="Sabayon Linux kernel functions and phases"
 
 ## kernel-2 eclass settings
 K_NOSETEXTRAVERSION="1"
-K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.bz2"
-UNIPATCH_STRICTORDER="yes"
-UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
+if [ -n "${K_SABPATCHES_VER}" ]; then
+	UNIPATCH_STRICTORDER="yes"
+	K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.bz2"
+	UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
+fi
 
 # ebuild default values setup settings
 KV_FULL=${KV_FULL/linux/${K_SABKERNEL_NAME}}
