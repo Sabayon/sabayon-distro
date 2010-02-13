@@ -13,6 +13,11 @@
 # for example, of linux-sabayon it is "sabayon", for linux-server it is "server"
 K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-sabayon}"
 
+# @ECLASS-VARIABLE: K_KERNEL_SOURCES_PKG
+# @DESCRIPTION:
+# The kernel sources package used to build this kernel binary
+K_KERNEL_SOURCES_PKG="${K_KERNEL_SOURCES_PKG:-${CATEGORY}/${PN}-sources-${PVR}}"
+
 K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
@@ -200,15 +205,15 @@ sabayon-kernel_pkg_postinst() {
 	kernel-2_pkg_postinst
 	linux-mod_pkg_postinst
 
-	einfo "Please report kernel bugs at:"
-	einfo "http://bugs.sabayonlinux.org"
+	elog "Please report kernel bugs at:"
+	elog "http://bugs.sabayonlinux.org"
 
-	ewarn "The Sabayon Linux kernel source code is now located at"
-	ewarn "=${CATEGORY}/${PN}-sources-${PVR}."
-	ewarn "Sabayon Linux recommends that portage users install"
-	ewarn "${CATEGORY}/${PN}-sources-${PVR} if you want"
-	ewarn "to build any packages that install kernel modules"
-	ewarn "(such as ati-drivers, nvidia-drivers, virtualbox, etc...)."
+	elog "The source code of this kernel is located at"
+	elog "=${K_KERNEL_SOURCES_PKG}."
+	elog "Sabayon Linux recommends that portage users install"
+	elog "${K_KERNEL_SOURCES_PKG} if you want"
+	elog "to build any packages that install kernel modules"
+	elog "(such as ati-drivers, nvidia-drivers, virtualbox, etc...)."
 }
 
 sabayon-kernel_pkg_postrm() {

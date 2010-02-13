@@ -32,6 +32,7 @@ KV_PATCH=$(get_version_component_range 3 ${OKV})
 KERNEL_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/linux-${OKV}.tar.bz2"
 
 K_SABKERNEL_NAME="openvz"
+K_KERNEL_SOURCES_PKG="sys-kernel/openvz-sources-${PVR}"
 inherit sabayon-kernel
 
 SLOT=${CKV}-${OVZ_KV}
@@ -66,13 +67,6 @@ ${FILESDIR}/sabayon/4300_squashfs-3.4.patch
 
 pkg_postinst() {
 	sabayon-kernel_pkg_postinst
-
-	elog "The OpenVZ Linux kernel source code is located at"
-	elog "=sys-kernel/openvz-sources-${PVR}."
-	elog "Sabayon Linux recommends that portage users install"
-	elog "sys-kernel/openvz-sources-${PVR} if you want"
-	elog "to build any packages that install kernel modules"
-	elog "(such as ati-drivers, nvidia-drivers, virtualbox, etc...)."
 
 	elog "You can find OpenVZ templates at:"
 	elog "http://wiki.openvz.org/Download/template/precreated"

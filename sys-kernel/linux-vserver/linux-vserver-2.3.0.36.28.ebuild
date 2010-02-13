@@ -15,6 +15,7 @@ UNIPATCH_STRICTORDER="1"
 K_WANT_GENPATCHES="base extras"
 K_GENPATCHES_VER="2"
 K_SABKERNEL_NAME="vserver"
+K_KERNEL_SOURCES_PKG="sys-kernel/vserver-sources-${PVR}"
 inherit sabayon-kernel
 
 ############################################
