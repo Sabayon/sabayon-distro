@@ -8,7 +8,7 @@ K_SABPATCHES_VER="2"
 K_SABKERNEL_NAME="server"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
-DESCRIPTION="Official Sabayon Linux Standard kernel sources"
+DESCRIPTION="Official Sabayon Linux Server kernel sources"
 RESTRICT="mirror"
 IUSE="sources_standalone"
 
