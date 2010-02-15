@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-misc/tracker/tracker-0.7.17.ebuild,v 1.3 2010/02/10 14:31:12 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-misc/tracker/tracker-0.7.17.ebuild,v 1.4 2010/02/15 16:52:47 lxnay Exp $
 
 EAPI="2"
 G2CONF_DEBUG="no"
@@ -118,6 +118,12 @@ pkg_setup() {
 		G2CONF="${G2CONF} --disable-hal --disable-devkit-power"
 	fi
 
+	if use nautilus; then
+		G2CONF="${G2CONF} --enable-nautilus-extension=yes"
+	else
+		G2CONF="${G2CONF} --enable-nautilus-extension=no"
+	fi
+
 	G2CONF="${G2CONF}
 		--disable-unac
 		--disable-functional-tests
@@ -135,7 +141,6 @@ pkg_setup() {
 		$(use_enable jpeg libjpeg)
 		$(use_enable kmail kmail-miner)
 		$(use_enable mp3 id3lib)
-		$(use_enable nautilus nautilus-extensions)
 		$(use_enable pdf poppler-glib)
 		$(use_enable playlist)
 		$(use_enable test unit-tests)
