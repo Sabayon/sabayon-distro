@@ -1,0 +1,311 @@
+# ChangeLog for app-misc/tracker
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-misc/tracker/ChangeLog,v 1.62 2010/02/14 23:25:10 eva Exp $
+
+*tracker-0.7.20 (14 Feb 2010)
+
+  14 Feb 2010; Gilles Dartiguelongue <eva@gentoo.org>
+  -tracker-0.7.12.ebuild, -tracker-0.7.14.ebuild, +tracker-0.7.20.ebuild,
+  tracker-9999.ebuild:
+  Version bump, bug #304825.
+
+  10 Feb 2010; Samuli Suominen <ssuominen@gentoo.org> tracker-0.7.12.ebuild,
+  tracker-0.7.14.ebuild, tracker-0.7.17.ebuild, tracker-9999.ebuild:
+  Fix poppler depend.
+
+  22 Jan 2010; Samuli Suominen <ssuominen@gentoo.org> tracker-0.7.17.ebuild,
+  tracker-9999.ebuild:
+  Require SLOT="0" of media-libs/jpeg for headers.
+
+*tracker-0.7.17 (21 Jan 2010)
+
+  21 Jan 2010; Gilles Dartiguelongue <eva@gentoo.org>
+  +tracker-0.7.17.ebuild, tracker-9999.ebuild:
+  Version bump.
+
+*tracker-0.7.14 (03 Jan 2010)
+
+  03 Jan 2010; Gilles Dartiguelongue <eva@gentoo.org>
+  -tracker-0.7.10.ebuild, -tracker-0.7.11.ebuild, +tracker-0.7.14.ebuild:
+  Version bump. Clean up old revisions.
+
+  01 Jan 2010; Raúl Porcel <armin76@gentoo.org> tracker-0.7.10.ebuild,
+  tracker-0.7.11.ebuild, tracker-0.7.12.ebuild:
+  Add ~alpha/~ia64/~sparc wrt #296794
+
+*tracker-0.7.12 (21 Dec 2009)
+
+  21 Dec 2009; Gilles Dartiguelongue <eva@gentoo.org> tracker-0.7.10.ebuild,
+  tracker-0.7.11.ebuild, +tracker-0.7.12.ebuild, tracker-9999.ebuild,
+  metadata.xml:
+  Version bump. Add nautilus extension, various other improvments.
+
+*tracker-0.7.11 (13 Dec 2009)
+
+  13 Dec 2009; Gilles Dartiguelongue <eva@gentoo.org> tracker-0.7.10.ebuild,
+  +tracker-0.7.11.ebuild, tracker-9999.ebuild, metadata.xml:
+  Version bump.
+
+*tracker-0.7.10 (10 Dec 2009)
+
+  10 Dec 2009; Gilles Dartiguelongue <eva@gentoo.org>
+  -tracker-0.6.6-r1.ebuild, +tracker-0.7.10.ebuild, tracker-9999.ebuild,
+  metadata.xml:
+  Version bump. 0.7 series is API/ABI incompatible with 0.6 series. Sync
+  live ebuild and convert it to git.
+
+  30 Mar 2009; Peter Alfredsen <loki_val@gentoo.org> tracker-0.6.3.ebuild,
+  tracker-0.6.6.ebuild, tracker-0.6.6-r1.ebuild, tracker-9999.ebuild:
+  Update dependencies w.r.t. bug 264230, fully-split-out poppler transition.
+
+  15 Jan 2009; Peter Alfredsen <loki_val@gentoo.org> metadata.xml:
+  Compnerd retired. Freedesktop gets it.
+
+  10 Jan 2009; Markus Meier <maekke@gentoo.org> tracker-0.6.6-r1.ebuild:
+  amd64/x86 stable, bug #254034
+
+  09 Jan 2009; Brent Baude <ranger@gentoo.org> tracker-0.6.6-r1.ebuild:
+  Marking tracker-0.6.6-r1 ppc64 for bug 254034
+
+  11 Oct 2008; Gilles Dartiguelongue <eva@gentoo.org> tracker-0.6.3.ebuild,
+  tracker-0.6.6.ebuild, tracker-0.6.6-r1.ebuild, tracker-9999.ebuild:
+  Use gmime-2.2*, bug #239412.
+
+  07 Sep 2008; Brent Baude <ranger@gentoo.org> tracker-0.6.6-r1.ebuild:
+  Marking tracker-0.6.6-r1 ppc stable for gnome dependancies
+
+  12 Aug 2008; Raúl Porcel <armin76@gentoo.org> tracker-0.6.6-r1.ebuild:
+  alpha/ia64/sparc stable wrt #229709
+
+  31 Jul 2008; Ulrich Mueller <ulm@gentoo.org> metadata.xml:
+  Add USE flag description to metadata wrt GLEP 56.
+
+*tracker-9999 (30 Jul 2008)
+
+  30 Jul 2008; Gilles Dartiguelongue <eva@gentoo.org> +tracker-9999.ebuild:
+  add a live ebuild.
+
+  24 Apr 2008; Markus Rothe <corsair@gentoo.org> tracker-0.6.6-r1.ebuild:
+  Added ~ppc64; bug #218794
+
+  22 Apr 2008; Raúl Porcel <armin76@gentoo.org> tracker-0.6.6-r1.ebuild:
+  Add ~alpha/~ia64 wrt #218794
+
+  09 Mar 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  tracker-0.6.6-r1.ebuild:
+  fix tests and use emake at src_install to respect MAKEOPTS
+
+*tracker-0.6.6-r1 (05 Mar 2008)
+
+  05 Mar 2008; Saleem Abdulrasool <compnerd@gentoo.org>
+  +tracker-0.6.6-r1.ebuild:
+  Force the use of the internal qdbm
+
+  04 Mar 2008; Saleem Abdulrasool <compnerd@gentoo.org>
+  -tracker-0.6.4.ebuild, -tracker-0.6.5.ebuild:
+  Prune some unused versions
+
+*tracker-0.6.6 (04 Mar 2008)
+
+  04 Mar 2008; Saleem Abdulrasool <compnerd@gentoo.org>
+  +tracker-0.6.6.ebuild:
+  Version bump from upstream
+
+*tracker-0.6.5 (01 Mar 2008)
+
+  01 Mar 2008; Saleem Abdulrasool <compnerd@gentoo.org>
+  +tracker-0.6.5.ebuild:
+  Version bump from upstream
+
+  29 Feb 2008; Brent Baude <ranger@gentoo.org> tracker-0.6.4.ebuild:
+  keyworded ~arch for ppc64, bug 211733
+
+  14 Dec 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  tracker-0.6.3.ebuild:
+  Add intltoolize --force after eatuoreconf for intltool (bug #200423)
+
+  13 Dec 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  tracker-0.6.4.ebuild:
+  Restore sqlite dep as the bug is fixed in the 0.6.4 release. Adjust sqlite
+  useflag accordingly. Fix poppler check to be conditional.
+
+*tracker-0.6.4 (12 Dec 2007)
+
+  12 Dec 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +tracker-0.6.4.ebuild:
+  Version bump from upstream
+
+  07 Dec 2007; Petteri Räty <betelgeuse@gentoo.org>
+  -tracker-0.6.2-r1.ebuild, tracker-0.6.3.ebuild:
+  Adjust the ebuild to account for the threadsafe use flag changes in
+  dev-db/sqlite-3.5.3. Fixes bug #200114. Thanks to Arfrever Frehtes Taifersar
+  Arahesis <Arfrever.FTA@GMail.Com>.
+
+  26 Nov 2007; Markus Rothe <corsair@gentoo.org> tracker-0.6.3.ebuild:
+  Stable on ppc64; bug #199740
+
+  24 Nov 2007; Markus Rothe <corsair@gentoo.org> tracker-0.6.3.ebuild:
+  Added ~ppc64
+
+  22 Nov 2007; Raúl Porcel <armin76@gentoo.org> tracker-0.6.3.ebuild:
+  sparc stable wrt #199740
+
+  21 Nov 2007; Dawid Węgliński <cla@gentoo.org> tracker-0.6.3.ebuild:
+  Stable on x86 (bug #199740)
+
+  20 Nov 2007; Samuli Suominen <drac@gentoo.org> tracker-0.6.3.ebuild:
+  amd64 stable wrt #199740
+
+  28 Oct 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +files/tracker-0.6.3-really-disable-libtrackergtk.patch,
+  tracker-0.6.3.ebuild:
+  Add fix for libtrackergtk building (bug #196420)
+
+  10 Oct 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +files/tracker-0.6.3-tracker-extract-needs-gthread.patch,
+  tracker-0.6.3.ebuild:
+  Add patch for gthread for bug #194479
+
+  09 Oct 2007; Gilles Dartiguelongue <eva@gentoo.org> tracker-0.6.3.ebuild:
+  fix POTFILES test breakage
+
+  07 Oct 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  tracker-0.6.3.ebuild:
+  Fix deskbar applet support (bug #194899)
+
+*tracker-0.6.3 (02 Oct 2007)
+
+  02 Oct 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  -files/tracker-0.5.3-convert-pdf-thumbnailer.patch,
+  -files/tracker-0.5.4-deskbar-encoding.patch,
+  -files/tracker-0.5.4-deskbar-handler.patch,
+  +files/tracker-0.6.3-fix-unac-option.patch, -tracker-0.5.4-r1.ebuild,
+  -tracker-0.6.0.ebuild, -tracker-0.6.1.ebuild, -tracker-0.6.2.ebuild,
+  +tracker-0.6.3.ebuild:
+  Version bump from upstream, prune old versions
+
+*tracker-0.6.2-r1 (22 Sep 2007)
+
+  22 Sep 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +files/tracker-0.6.2-implicit-pointer-conversion.patch,
+  +tracker-0.6.2-r1.ebuild:
+  Add implicit pointer conversion patch to fix segfault on AMD64.  Resolves bug
+  #192668.
+
+*tracker-0.6.2 (07 Sep 2007)
+
+  07 Sep 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +tracker-0.6.2.ebuild:
+  Version bump from upstream
+
+*tracker-0.6.1 (11 Aug 2007)
+
+  11 Aug 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +tracker-0.6.1.ebuild:
+  Version bump from upstream
+
+  02 Aug 2007; Michael Sterrett <mr_bones_@gentoo.org>
+  tracker-0.5.4-r1.ebuild:
+  correct dbus deps (bug #187369)
+
+  25 Jul 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  tracker-0.6.0.ebuild:
+  minor stylistic cleanups and redigesting for updated tarball
+
+*tracker-0.6.0 (24 Jul 2007)
+
+  24 Jul 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +tracker-0.6.0.ebuild:
+  version bump from upstream
+
+  08 Jul 2007; Michael Sterrett <mr_bones_@gentoo.org>
+  tracker-0.5.4-r1.ebuild:
+  remove reference to old, removed dbus (bug #183696)
+
+  11 May 2007; Gustavo Zacarias <gustavoz@gentoo.org>
+  tracker-0.5.4-r1.ebuild:
+  Keyworded ~ppc
+
+  23 Apr 2007; Gustavo Zacarias <gustavoz@gentoo.org>
+  tracker-0.5.4-r1.ebuild:
+  Keyworded ~sparc and IUSE QA fix
+
+  22 Mar 2007; <compnerd@gentoo.org> tracker-0.5.4-r1.ebuild:
+  Update homepage (bug #170619)
+
+  16 Feb 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  -tracker-0.5.4.ebuild:
+  remove 0.5.4, as -r1 fixes a few bugs
+
+  15 Feb 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  tracker-0.5.4-r1.ebuild:
+  Add mplayer or totem as a dependency in the case that you build without
+  gstreamer or xine
+
+  15 Feb 2007; Daniel Gryniewicz <dang@gentoo.org> tracker-0.5.4-r1.ebuild:
+  amd64 keyword for tracker; don't link to gstreamer, it cores on 64-bit
+
+  15 Feb 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  tracker-0.5.4-r1.ebuild:
+  Fix disabling of media extrators
+
+  09 Feb 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  files/tracker-0.5.4-deskbar-encoding.patch:
+  Fix the encoding patch
+
+*tracker-0.5.4-r1 (08 Feb 2007)
+
+  08 Feb 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +files/tracker-0.5.4-deskbar-encoding.patch,
+  +files/tracker-0.5.4-deskbar-handler.patch, +tracker-0.5.4-r1.ebuild:
+  Revbump to fix installed files, and tracker-handler encoding (bug #165881)
+
+  27 Jan 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  tracker-0.5.4.ebuild:
+  add minor hack for misinstalled file that I didnt catch
+
+  27 Jan 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  -files/tracker-0.5.3-delete-services-missing.patch,
+  -files/tracker-0.5.3-disable-debug.patch,
+  -files/tracker-0.5.3-disable-tests.patch,
+  -files/tracker-0.5.3-imagemagick-5.2.1-needed.patch,
+  -files/tracker-0.5.3-remove-mysql.patch,
+  -files/tracker-0.5.3-requires-libpng.patch,
+  -files/tracker-0.5.3-sqlite-cleanups.patch,
+  -files/tracker-0.5.3-thumbnailer-create-dir.patch,
+  -files/tracker-0.5.3-trackerd-test-compile-fix.patch,
+  -tracker-0.5.3.ebuild:
+  Prune old version and its patches
+
+*tracker-0.5.4 (27 Jan 2007)
+
+  27 Jan 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +tracker-0.5.4.ebuild:
+  Version bump from upstream with numerous enhancements
+
+  11 Jan 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  -files/tracker-0.5.2-configure.in.patch, -tracker-0.5.2.ebuild:
+  prune old version
+
+*tracker-0.5.3 (11 Jan 2007)
+
+  11 Jan 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  +files/tracker-0.5.3-convert-pdf-thumbnailer.patch,
+  +files/tracker-0.5.3-delete-services-missing.patch,
+  +files/tracker-0.5.3-disable-debug.patch,
+  +files/tracker-0.5.3-disable-tests.patch,
+  +files/tracker-0.5.3-imagemagick-5.2.1-needed.patch,
+  +files/tracker-0.5.3-remove-mysql.patch,
+  +files/tracker-0.5.3-requires-libpng.patch,
+  +files/tracker-0.5.3-sqlite-cleanups.patch,
+  +files/tracker-0.5.3-thumbnailer-create-dir.patch,
+  +files/tracker-0.5.3-trackerd-test-compile-fix.patch,
+  +tracker-0.5.3.ebuild:
+  Version bump from upstream, with patches from myself
+
+*tracker-0.5.2 (21 Nov 2006)
+
+  21 Nov 2006; Saleem Abdulrasool <compnerd@gentoo.org>
+  +files/tracker-0.5.2-configure.in.patch, +tracker-0.5.2.ebuild:
+  Initial import, patch and ebuild by Saleem Abdulrasool <compnerd@gentoo.org>
+

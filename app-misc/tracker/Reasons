@@ -1,0 +1,4 @@
+# Fabio Erculiani <lxnay@sabayon.org>
+When you read this, please consider to remove the pkg completely.
+I fixed a small nautilus automagic RDEPEND, but also in tree.
+I just didn't want to wait for mirrors to sync.
