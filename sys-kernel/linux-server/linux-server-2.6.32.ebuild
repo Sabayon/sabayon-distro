@@ -4,7 +4,7 @@
 ETYPE="sources"
 K_SABPATCHES_VER="2"
 K_SABKERNEL_NAME="server"
-K_KERNEL_SOURCES_PKG="sys-kernel/linux-sabayon-sources-${PVR}"
+K_KERNEL_SOURCES_PKG="sys-kernel/linux-server-sources-${PVR}"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Server kernel image"
