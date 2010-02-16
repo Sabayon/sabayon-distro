@@ -10,15 +10,11 @@ SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE=""
+IUSE="gtk"
 RESTRICT="nomirror"
-RDEPEND="
-	~x11-themes/sabayon-artwork-core-${PV}
-	!<=x11-themes/sabayonlinux-artwork-4
-	"
-PDEPEND="x11-themes/qtcurve-qt4
-	x11-themes/gtk-engines-qtcurve
-	kde-misc/kcm_gtk"
+RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
+	x11-themes/aurorae
+	gtk? ( x11-themes/qtcurve-qt4 kde-misc/kcm_gtk )"
 
 S="${WORKDIR}/${PN}"
 
