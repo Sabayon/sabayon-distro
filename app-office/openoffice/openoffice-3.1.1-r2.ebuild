@@ -64,7 +64,7 @@ SLOT="0"
 KEYWORDS="amd64 ppc x86 ~sparc"
 
 # Temp to smooth upgrade to split artwork
-PDEPEND="x11-themes/sabayon-artwork-ooo"
+PDEPEND=">=x11-themes/sabayon-artwork-ooo-5.0"
 
 COMMON_DEPEND="!app-office/openoffice-bin
 	x11-libs/libXaw
@@ -377,8 +377,8 @@ src_install() {
 	rm -rf "${D}"/etc/bash_completion.d/ || die "rm failed"
 
 	# Remove splashes, provided by x11-themes/sabayon-artwork-ooo
-	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro-3.1.bmp || die "intro rm failed"
-	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro-3.1.bmp || die "intro rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro rm failed"
 
 }
 
