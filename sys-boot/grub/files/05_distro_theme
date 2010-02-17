@@ -12,8 +12,8 @@ EOF
 
 # check for usable backgrounds
 use_bg=false
-if [ "$GRUB_TERMINAL_OUTPUT" = "gfxterm" ] && [ -n "${WALLPAPER}" ]; then
-  for i in /boot/grub/`basename ${WALLPAPER}` ${WALLPAPER} ; do
+if [ "$GRUB_TERMINAL_OUTPUT" = "gfxterm" ] && [ -n "${GRUB_WALLPAPER}" ]; then
+  for i in /boot/grub/`basename ${GRUB_WALLPAPER}` ${GRUB_WALLPAPER} ; do
     if is_path_readable_by_grub $i ; then
       bg=$i
       case ${bg} in
@@ -36,8 +36,8 @@ if ${use_bg} ; then
   cat << EOF
 insmod ${reader}
 if background_image `make_system_path_relative_to_its_root ${bg}` ; then
-  set color_normal=${COLOR_NORMAL}
-  set color_highlight=${COLOR_HIGHLIGHT}
+  set color_normal=${GRUB_COLOR_NORMAL}
+  set color_highlight=${GRUB_COLOR_HIGHLIGHT}
 else
 EOF
 fi
