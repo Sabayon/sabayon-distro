@@ -1,0 +1,15 @@
+diff -Nurp grub-1.97.2.orig/util/grub-mkconfig.in grub-1.97.2/util/grub-mkconfig.in
+--- grub-1.97.2.orig/util/grub-mkconfig.in	2010-01-24 19:13:30.000000000 +0100
++++ grub-1.97.2/util/grub-mkconfig.in	2010-02-17 21:01:08.762963506 +0100
+@@ -224,7 +224,10 @@ export GRUB_DEFAULT \
+   GRUB_DISABLE_LINUX_UUID \
+   GRUB_DISABLE_LINUX_RECOVERY \
+   GRUB_GFXMODE \
+-  GRUB_DISABLE_OS_PROBER
++  GRUB_DISABLE_OS_PROBER \
++  GRUB_WALLPAPER \
++  GRUB_COLOR_NORMAL \
++  GRUB_COLOR_HIGHLIGHT
+ 
+ if test "x${grub_cfg}" != "x"; then
+   rm -f ${grub_cfg}.new

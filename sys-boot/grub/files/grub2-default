@@ -27,13 +27,13 @@ GRUB_GFXMODE=1024x768
 GRUB_DISABLE_LINUX_RECOVERY="true"
 
 # Default wallpaper image path
-WALLPAPER="/usr/share/grub/default-splash.png"
+GRUB_WALLPAPER="/usr/share/grub/default-splash.png"
 
 # Boot menu option normal color
-COLOR_NORMAL="black/black"
+GRUB_COLOR_NORMAL="black/black"
 
 # Boot menu option "highlight" color
-COLOR_HIGHLIGHT="magenta/black"
+GRUB_COLOR_HIGHLIGHT="magenta/black"
 
 # DO NOT REMOVE THIS IF YOUR GRUB_CMDLINE_LINUX IS EMPTY
 [[ -z "${GRUB_CMDLINE_LINUX}" ]] && GRUB_CMDLINE_LINUX="`cat /proc/cmdline`"

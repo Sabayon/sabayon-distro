@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-source /usr/lib/grub/grub-mkconfig_lib
+. /lib/grub/grub-mkconfig_lib
 
 set_blue_theme()
 {
@@ -12,7 +12,7 @@ EOF
 
 # check for usable backgrounds
 use_bg=false
-if [ "$GRUB_TERMINAL_OUTPUT" = "gfxterm" ] ; then
+if [ "$GRUB_TERMINAL_OUTPUT" = "gfxterm" ] && [ -n "${WALLPAPER}" ]; then
   for i in /boot/grub/`basename ${WALLPAPER}` ${WALLPAPER} ; do
     if is_path_readable_by_grub $i ; then
       bg=$i

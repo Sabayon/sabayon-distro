@@ -47,6 +47,7 @@ src_unpack() {
 	# see http://www.mail-archive.com/grub-devel@gnu.org/msg14971.html
 	epatch "${FILESDIR}"/${PN}-1.97-hostdisk.patch
 	epatch "${FILESDIR}"/${PN}-1.97-vga-deprecated.patch
+	epatch "${FILESDIR}"/${PN}-1.97-wallpaper-settings-support.patch
 	epatch_user
 
 	# autogen.sh does more than just run autotools
