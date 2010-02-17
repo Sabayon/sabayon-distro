@@ -63,6 +63,7 @@ else
 		app-arch/xz-utils
 		<sys-kernel/genkernel-3.4.11
 		splash? ( x11-themes/sabayon-artwork-core )"
+	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
 	RDEPEND="grub? ( sys-boot/grub sys-boot/grub-handler )"
 fi
 
@@ -197,9 +198,15 @@ sabayon-kernel_pkg_postinst() {
 		else
 			local kern_arch="x86"
 		fi
-		/usr/sbin/grub-handler add \
+		# grub-legacy
+		"${ROOT}/usr/sbin/grub-handler" add \
 			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
 			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
+
+		# grub2
+		if [ -x "${ROOT}/sbin/grub-mkconfig" ]; then
+			"${ROOT}/sbin/grub-mkconfig" -o "${ROOT}/boot/grub/grub.cfg"
+		fi
 	fi
 
 	kernel-2_pkg_postinst
