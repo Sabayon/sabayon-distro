@@ -30,7 +30,7 @@ GRUB_DISABLE_LINUX_RECOVERY="true"
 GRUB_WALLPAPER="/usr/share/grub/default-splash.png"
 
 # Boot menu option normal color
-GRUB_COLOR_NORMAL="black/black"
+GRUB_COLOR_NORMAL="white/black"
 
 # Boot menu option "highlight" color
 GRUB_COLOR_HIGHLIGHT="magenta/black"
