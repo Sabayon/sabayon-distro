@@ -1,4 +1,7 @@
 # Fabio Erculiani <lxnay@sabayonlinux.org>
-- custom splash
-- custom UUID support patches
-- remove some code on pkg_postinst which causes segfaults
+sys-boot/grub:0:
+  - custom splash
+  - custom UUID support patches
+  - remove some code on pkg_postinst which causes segfaults
+sys-boot/grub:2:
+  - make grub.cfg generate entries with "Sabayon" tag
