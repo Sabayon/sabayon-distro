@@ -40,7 +40,7 @@ src_unpack() {
 		unpack ${A}
 	fi
 	cd "${S}"
-	epatch "${FILESDIR}"/${PN}-1.96-genkernel.patch #256335
+	epatch "${FILESDIR}"/${PN}-1.97-genkernel.patch
 	epatch_user
 
 	# autogen.sh does more than just run autotools
@@ -83,6 +83,13 @@ src_install() {
 		mv "${D}"/sbin/grub{,2}-install || die
 		mv "${D}"/usr/share/info/grub{,2}.info || die
 	fi
+
+	# install /etc/default/grub
+	cp "${FILESDIR}/grub2-default" grub
+	dodir /etc/default
+	insinto /etc/default
+	doins grub
+
 }
 
 setup_boot_dir() {

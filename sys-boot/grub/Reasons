@@ -6,3 +6,4 @@ sys-boot/grub:0:
 sys-boot/grub:2:
   - make grub.cfg generate entries with "Sabayon" tag
   - add sys-boot/os-prober to PDEPEND
+  - fix Genkernel patch, improve Gentoo support
