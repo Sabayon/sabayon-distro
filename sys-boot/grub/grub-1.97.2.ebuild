@@ -41,6 +41,8 @@ src_unpack() {
 	fi
 	cd "${S}"
 	epatch "${FILESDIR}"/${PN}-1.97-genkernel.patch
+	# see http://www.mail-archive.com/grub-devel@gnu.org/msg14971.html
+	epatch "${FILESDIR}"/${PN}-1.97-hostdisk.patch
 	epatch_user
 
 	# autogen.sh does more than just run autotools
