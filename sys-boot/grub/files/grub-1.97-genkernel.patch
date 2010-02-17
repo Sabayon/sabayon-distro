@@ -5,7 +5,7 @@
    prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | sed -e "s/^/\t/"
    cat << EOF
 -	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro $2
-+	linux	${rel_dirname}/${basename} $2
++	linux	${rel_dirname}/${basename} ro $2
  EOF
    if test -n "${initrd}" ; then
      cat << EOF

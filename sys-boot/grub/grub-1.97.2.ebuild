@@ -23,7 +23,10 @@ IUSE="custom-cflags debug truetype multislot static"
 
 RDEPEND=">=sys-libs/ncurses-5.2-r5
 	dev-libs/lzo
-	truetype? ( media-libs/freetype )"
+	truetype? (
+		media-libs/freetype
+		media-fonts/unifont
+	)"
 DEPEND="${RDEPEND}
 	dev-lang/ruby"
 PDEPEND="${PDEPEND}
@@ -43,6 +46,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/${PN}-1.97-genkernel.patch
 	# see http://www.mail-archive.com/grub-devel@gnu.org/msg14971.html
 	epatch "${FILESDIR}"/${PN}-1.97-hostdisk.patch
+	epatch "${FILESDIR}"/${PN}-1.97-vga-deprecated.patch
 	epatch_user
 
 	# autogen.sh does more than just run autotools
@@ -77,9 +81,6 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" install || die
 	dodoc AUTHORS ChangeLog NEWS README THANKS TODO
-	cat <<-EOF >> "${D}"/lib*/grub/grub-mkconfig_lib
-	GRUB_DISTRIBUTOR="Sabayon"
-	EOF
 	if use multislot ; then
 		sed -i "s:grub-install:grub2-install:" "${D}"/sbin/grub-install || die
 		mv "${D}"/sbin/grub{,2}-install || die
@@ -91,6 +92,15 @@ src_install() {
 	dodir /etc/default
 	insinto /etc/default
 	doins grub
+
+	# Install fonts setup hook
+	exeinto /etc/grub.d
+	doexe "${FILESDIR}/00_fonts"
+	doexe "${FILESDIR}/05_distro_theme"
+
+	dodir /usr/share/grub
+	insinto /usr/share/grub
+	doins "${FILESDIR}/default-splash.png"
 
 }
 
