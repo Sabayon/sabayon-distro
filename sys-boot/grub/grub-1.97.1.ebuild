@@ -26,6 +26,8 @@ RDEPEND=">=sys-libs/ncurses-5.2-r5
 	truetype? ( media-libs/freetype )"
 DEPEND="${RDEPEND}
 	dev-lang/ruby"
+PDEPEND="${PDEPEND}
+	sys-boot/os-prober"
 PROVIDE="virtual/bootloader"
 
 export STRIP_MASK="*/grub/*/*.mod"

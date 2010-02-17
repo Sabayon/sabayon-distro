@@ -5,3 +5,4 @@ sys-boot/grub:0:
   - remove some code on pkg_postinst which causes segfaults
 sys-boot/grub:2:
   - make grub.cfg generate entries with "Sabayon" tag
+  - add sys-boot/os-prober to PDEPEND
