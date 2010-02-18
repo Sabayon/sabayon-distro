@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+## Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -17,11 +17,9 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 
-PATCHES=( "${FILESDIR}"/${PN}-4.3.2-solaris.patch )
-
 src_prepare() {
 	kde4-meta_src_prepare
-	use pulseaudio && epatch "${FILESDIR}"/pulseaudio-support.patch
+	use pulseaudio && epatch "${FILESDIR}"/pulseaudio-support-20100218.patch
 }
 
 src_configure() {
