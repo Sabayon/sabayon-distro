@@ -1,0 +1,43 @@
+--- nbbuild/build.xml.orig	2009-04-30 11:54:57.000000000 +0200
++++ nbbuild/build.xml	2009-04-30 11:55:52.000000000 +0200
+@@ -94,13 +94,6 @@
+     <validate-hg-configuration root=".."/>
+     <taskdef name="deregisterexternalhook" classname="org.netbeans.nbbuild.extlibs.DeregisterExternalHook" classpath="build/antclasses"/>
+     <deregisterexternalhook root=".."/>
+-    <taskdef name="downloadbinaries" classname="org.netbeans.nbbuild.extlibs.DownloadBinaries" classpath="build/antclasses"/>
+-    <downloadbinaries cache="${binaries.cache}" server="${binaries.server}">
+-        <manifest dir="${nb_all}">
+-            <include name="apisupport.harness/external/binaries-list"/>
+-            <include name="javahelp/external/binaries-list"/>
+-        </manifest>
+-    </downloadbinaries>
+ 
+     <echo message="Bootstrapping NetBeans-specific Ant extensions..."/>
+     <path id="bootstrap-cp">
+@@ -147,12 +140,6 @@
+     </jar>
+   </target>
+   <target name="-download-all-extbins" unless="ext.binaries.downloaded">
+-    <downloadbinaries cache="${binaries.cache}" server="${binaries.server}">
+-        <manifest dir="${nb_all}">
+-            <include name="*/external/binaries-list"/>
+-            <include name="contrib/*/external/binaries-list"/>
+-        </manifest>
+-    </downloadbinaries>
+     <property name="ext.binaries.downloaded" value="true"/>
+   </target>
+ 
+@@ -1387,13 +1374,6 @@
+         <include name="contrib/*/external/build.xml"/>
+       </fileset>
+     </subant>
+-    <taskdef name="downloadbinaries" classname="org.netbeans.nbbuild.extlibs.DownloadBinaries" classpath="nbantext.jar"/>
+-    <downloadbinaries cache="${binaries.cache}" server="${binaries.server}" clean="true">
+-        <manifest dir="${nb_all}">
+-            <include name="*/external/binaries-list"/>
+-            <include name="contrib/*/external/binaries-list"/>
+-        </manifest>
+-    </downloadbinaries>
+   </target>
+ 
+   <target name="-real-clean" depends="-cleanall,localclean,-clean-external">
