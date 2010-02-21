@@ -200,7 +200,7 @@ DEPEND=">=virtual/jdk-1.5
 		dev-java/sun-jaf:0
 		~dev-java/tomcat-servlet-api-3:2.2
 		>=dev-java/xerces-2.8.1:2
-		>=dev-util/subversion-1.6:0[java]
+		subversion? ( >=dev-util/subversion-1.6:0[java] )
 	)
 	netbeans_modules_java? (
 		>=dev-java/appframework-1.03:0
