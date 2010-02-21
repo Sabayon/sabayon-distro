@@ -108,7 +108,7 @@ COMMON_DEPEND="!app-office/openoffice-bin
 	>=app-text/libwpd-0.8.8
 	>=dev-libs/redland-1.0.8
 	>=media-libs/vigra-1.4
-	>=virtual/poppler-0.8.0"
+	>=app-text/poppler-0.12.3-r3"
 
 RDEPEND="java? ( >=virtual/jre-1.5 )
 	${SPELL_DIRS_DEPEND}
