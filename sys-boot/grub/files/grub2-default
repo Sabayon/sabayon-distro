@@ -24,7 +24,7 @@ GRUB_GFXMODE=1024x768
 #GRUB_DISABLE_LINUX_UUID=true
 
 # Uncomment to disable generation of recovery mode menu entrys
-GRUB_DISABLE_LINUX_RECOVERY="true"
+# GRUB_DISABLE_LINUX_RECOVERY="false"
 
 # Default wallpaper image path
 GRUB_WALLPAPER="/usr/share/grub/default-splash.png"
