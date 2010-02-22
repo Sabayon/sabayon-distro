@@ -37,7 +37,7 @@ DEPEND="dev-util/pkgconfig
 
 S="${WORKDIR}/*/RPMS"
 
-OOO_INSTDIR="/usr/$(get_libdir)/openoffice/"
+OOO_INSTDIR="/usr/$(get_libdir)/openoffice"
 
 openoffice-l10n_src_unpack() {
 	cd "${WORKDIR}"
@@ -52,10 +52,15 @@ openoffice-l10n_src_prepare() {
 }
 
 openoffice-l10n_src_install() {
-	dodir ${OOO_INSTDIR}
-	MY_SRC="${WORKDIR}/unpack/opt/openoffice.org/*"
-	MY_SRC2="${WORKDIR}/unpack/opt/openoffice.org3/*"
-	cp -R ${MY_SRC} ${D}/${OOO_INSTDIR}/ || die "cannot copy"
-	cp -R ${MY_SRC2} ${D}/${OOO_INSTDIR}/basis${PV:0:3}/ || die "cannot copy"
+	dodir "${OOO_INSTDIR}"
+	local MY_SRC="${WORKDIR}/unpack/opt/openoffice.org/*"
+	local MY_SRC2="${WORKDIR}/unpack/opt/openoffice.org3/*"
+	cp -R ${MY_SRC} "${D}${OOO_INSTDIR}/" || die "cannot copy"
+	cp -R ${MY_SRC2} "${D}${OOO_INSTDIR}/basis${PV:0:3}/" || die "cannot copy"
+	# FIXME: upstream bug, localisations listed below try to install the same file
+	# as ast bg bn dz el eo fi ga gu hi_IN km ku lv mk ml mr my oc om or pa_IN si ta te tr ug uk uz
+	local dict_file="${D}${OOO_INSTDIR}/basis${PV:0:3}/share/extension/install/dict-en.oxt"
+	[[ -f "${dict_file}" ]] && ewarn "Removing ${dict_file} due to collisions..." \
+		&& rm -f "${dict_file}"
 	chown root:root ${D}/${OOO_INSTDIR} -R
 }
