@@ -301,10 +301,11 @@ src_configure() {
 	{ use gtk || use gnome; } && GTKFLAG="--enable-gtk --enable-cairo --with-system-cairo"
 
 	cd "${S}"
+	# NOTE: --with-lang must stay ="" for OOO to build
 	./configure --with-distro="Gentoo" \
 		--with-arch="${ARCH}" \
 		--with-srcdir="${DISTDIR}" \
-		--with-lang="${LINGUAS_OOO}" \
+		--with-lang="" \
 		--with-num-cpus="${JOBS}" \
 		--without-binsuffix \
 		--with-installed-ooo-dirname="openoffice" \
