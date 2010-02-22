@@ -1,0 +1,18 @@
+--- patches/dev300/apply 
++++ patches/dev300/apply
+@@ -1596,7 +1596,7 @@
+ SectionOwner => aprosky
+ 
+ # Allow build to proceed with PaX enabled
+-gentoo-pax-fix.diff, aprosky
++#gentoo-pax-fix.diff, aprosky
+ # support server-only versions of 64bit JDKs
+ 64bit-jdk-server-paths.diff, i#65974, hmth
+ # use IBM j9vm over IBM classic JVM
+@@ -3550,4 +3550,4 @@
+ [ BuildBits ]
+ # Allow oowintool to detect java sdk 1.6.x
+ oowintool-java6.diff, fridrich
+-connectivity-build-fix-mac.diff, thorsten
++#connectivity-build-fix-mac.diff, thorsten
+
