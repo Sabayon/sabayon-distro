@@ -33,10 +33,15 @@ src_install() {
 	insinto ${KDEDIR}/share/apps/kdm/themes
 	doins -r ./
 
+	# Kwin
+	dodir ${KDEDIR}/share/apps/aurorae/themes/
+	cd ${S}/kwin
+	insinto ${KDEDIR}/share/apps/aurorae/themes/
+	doins -r ./
+
 	# KSplash
 	dodir ${KDEDIR}/share/apps/ksplash/Themes
 	cd ${S}/ksplash
 	insinto ${KDEDIR}/share/apps/ksplash/Themes
 	doins -r ./
-	rm ${D}/usr/kde/4.2/share/apps/ksplash/Themes/Sabayon/Theme.rc~ -f
 }
