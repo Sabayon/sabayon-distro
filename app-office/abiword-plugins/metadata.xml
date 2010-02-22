@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>gnome-office</herd>
+<longdescription lang="en">
+  Set of plugins for the abiword word processor.
+</longdescription>
+<use>
+  <flag name='grammar'>Enable grammar checking via
+    <pkg>dev-libs/link-grammar</pkg></flag>
+  <flag name='math'>Enable support for <pkg>x11-libs/gtkmathview</pkg></flag>
+  <flag name='ots'>Enable Text Summarizer plugin</flag>
+  <flag name='thesaurus'>Enable thesaurus support</flag>
+  <flag name='wordperfect'>Enable wordperfect file support via
+    <pkg>app-text/libwpdlibwpd</pkg></flag>
+</use>
+</pkgmetadata>

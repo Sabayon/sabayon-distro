@@ -1,0 +1,291 @@
+# ChangeLog for app-office/abiword-plugins
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-office/abiword-plugins/ChangeLog,v 1.64 2009/07/29 22:51:02 dirtyepic Exp $
+
+  29 Jul 2009; Ryan Hill <dirtyepic@gentoo.org>
+  abiword-plugins-2.6.8.ebuild,
+  +files/abiword-plugins-2.6.8-glibc-2.10.patch:
+  Fix building w/ glibc-2.10 for bug #273877. Patch pulled from upstream.
+
+  30 Mar 2009; Peter Alfredsen <loki_val@gentoo.org>
+  abiword-plugins-2.4.6.ebuild, abiword-plugins-2.6.4.ebuild,
+  abiword-plugins-2.6.5.ebuild, abiword-plugins-2.6.6.ebuild,
+  abiword-plugins-2.6.8.ebuild:
+  Update dependencies w.r.t. bug 264230, fully-split-out poppler transition.
+  Go EAPI=2 so abiword-plugins can depend on poppler-utils[abiword]. Also
+  convert built_with_use checks for x11-libs/goffice[gnome] to USE deps.
+
+*abiword-plugins-2.6.8 (15 Mar 2009)
+
+  15 Mar 2009; Gilles Dartiguelongue <eva@gentoo.org>
+  +abiword-plugins-2.6.8.ebuild:
+  Bump to 2.6.8. Bug fixes.
+
+*abiword-plugins-2.6.6 (20 Feb 2009)
+
+  20 Feb 2009; Gilles Dartiguelongue <eva@gentoo.org>
+  +abiword-plugins-2.6.6.ebuild:
+  Bump to 2.6.6. Fix some importers.
+
+  04 Jan 2009; Ulrich Mueller <ulm@gentoo.org> abiword-plugins-2.4.6.ebuild,
+  abiword-plugins-2.6.4.ebuild, abiword-plugins-2.6.5.ebuild:
+  Change virtual/xft dependency to x11-libs/libXft, bug 253771.
+
+*abiword-plugins-2.6.5 (14 Dec 2008)
+
+  14 Dec 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  +abiword-plugins-2.6.5.ebuild:
+  Bump to 2.6.5.
+
+  20 Sep 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  -abiword-plugins-2.6.3.ebuild:
+  remove old revision.
+
+  18 Sep 2008; Brent Baude <ranger@gentoo.org> abiword-plugins-2.6.4.ebuild:
+  Marking abiword-plugins-2.6.4 ppc64 for bug 236985
+
+  10 Sep 2008; Jeroen Roovers <jer@gentoo.org> abiword-plugins-2.6.4.ebuild:
+  Stable for HPPA (bug #236985).
+
+  09 Sep 2008; Brent Baude <ranger@gentoo.org> abiword-plugins-2.6.4.ebuild:
+  Marking abiword-plugins-2.6.4 ppc for bug 236985
+
+  09 Sep 2008; Raúl Porcel <armin76@gentoo.org>
+  abiword-plugins-2.6.4.ebuild:
+  alpha/ia64 stable wrt #236985
+
+  08 Sep 2008; Markus Meier <maekke@gentoo.org>
+  abiword-plugins-2.6.4.ebuild:
+  amd64/x86 stable, bug #236985
+
+  07 Sep 2008; Ferris McCormick <fmccor@gentoo.org>
+  abiword-plugins-2.6.4.ebuild:
+  Sparc stable, Bug #236985.
+
+  03 Aug 2008; Ulrich Mueller <ulm@gentoo.org> metadata.xml:
+  Add USE flag description to metadata wrt GLEP 56.
+
+*abiword-plugins-2.6.4 (30 Jul 2008)
+
+  30 Jul 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  -abiword-plugins-2.6.2.ebuild, +abiword-plugins-2.6.4.ebuild:
+  bump to 2.6.4. Clean up old revisions.
+
+  17 Jun 2008; Jeroen Roovers <jer@gentoo.org> abiword-plugins-2.6.3.ebuild:
+  Stable for HPPA (bug #225395).
+
+  11 Jun 2008; Kenneth Prugh <ken69267@gentoo.org>
+  abiword-plugins-2.6.3.ebuild:
+  amd64 stable, bug #225395
+
+  11 Jun 2008; Raúl Porcel <armin76@gentoo.org>
+  abiword-plugins-2.6.3.ebuild:
+  alpha/ia64/sparc stable wrt #225395
+
+  10 Jun 2008; Brent Baude <ranger@gentoo.org> abiword-plugins-2.6.3.ebuild:
+  Marking abiword-plugins-2.6.3 ppc & ppc64 stable for bug 225395
+
+  09 Jun 2008; Christian Faulhammer <opfer@gentoo.org>
+  abiword-plugins-2.6.3.ebuild:
+  stable x86, bug 225395
+
+  18 May 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  -abiword-plugins-2.6.0.ebuild, abiword-plugins-2.6.2.ebuild,
+  abiword-plugins-2.6.3.ebuild:
+  move jabber use_enable back to general myconf, bug #221823.
+
+*abiword-plugins-2.6.3 (04 May 2008)
+
+  04 May 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  +abiword-plugins-2.6.3.ebuild:
+  bump to 2.6.3. Crash fixes.
+
+*abiword-plugins-2.6.2 (10 Apr 2008)
+
+  10 Apr 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  +abiword-plugins-2.6.2.ebuild:
+  bump to 2.6.2. Bug fixes. Close bug #216874.
+
+  05 Apr 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  abiword-plugins-2.4.6.ebuild, abiword-plugins-2.6.0.ebuild:
+  use slotted goffice, bug #216329. Fix openxml plugin build issues,
+  bug #216245. Fix ots dep for 2.4.6, bug #210253.
+
+  03 Apr 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  abiword-plugins-2.6.0.ebuild:
+  fix stupid SRC_URI problem, abiword-plugins still needs abiword sources
+
+*abiword-plugins-2.6.0 (03 Apr 2008)
+
+  03 Apr 2008; Gilles Dartiguelongue <eva@gentoo.org>
+  +abiword-plugins-2.6.0.ebuild:
+  bump to 2.6.0
+
+  25 Dec 2007; Christian Heim <phreak@gentoo.org> metadata.xml:
+  Removing joem from metadata.xml as per #69387.
+
+  19 Oct 2007; <jeff@gentoo.org> abiword-plugins-2.4.6.ebuild:
+  Reverting the change as this appears fine with goffice-0.4.
+
+  19 Oct 2007; <jeff@gentoo.org> abiword-plugins-2.4.6.ebuild:
+  Changed goffice dependency as per bug #191555. Big Thanks(tm) to rbridge.
+
+  08 Sep 2007; Gilles Dartiguelongue <eva@gentoo.org>
+  +files/abiword-plugins-2.4.6-poppler-0.6-api.patch,
+  -abiword-plugins-2.4.5.ebuild, abiword-plugins-2.4.6.ebuild:
+  Prune older release, fix compilation against poppler-0.6
+
+  26 Jun 2007; Christian Faulhammer <opfer@gentoo.org>
+  abiword-plugins-2.4.6.ebuild:
+  stable x86, bug 173960
+
+  26 Jun 2007; Markus Rothe <corsair@gentoo.org>
+  abiword-plugins-2.4.6.ebuild:
+  Stable on ppc64; bug #173960
+
+  24 Jun 2007; Christoph Mende <angelos@gentoo.org>
+  abiword-plugins-2.4.6.ebuild:
+  Stable on amd64 wrt bug 173960
+
+  24 Jun 2007; Raúl Porcel <armin76@gentoo.org>
+  abiword-plugins-2.4.6.ebuild:
+  alpha/ia64 stable wrt #173960
+
+  24 Jun 2007; Gilles Dartiguelongue <eva@gentoo.org>
+  abiword-plugins-2.4.5.ebuild, abiword-plugins-2.4.6.ebuild:
+  Preparing for lib{gda,gnomedb} 3.0, fixing dependencies (bug #172106)
+
+  23 May 2007; Jeroen Roovers <jer@gentoo.org> abiword-plugins-2.4.6.ebuild:
+  Stable for HPPA too.
+
+  06 May 2007; Tobias Scherbaum <dertobi123@gentoo.org>
+  abiword-plugins-2.4.6.ebuild:
+  ppc stable
+
+  24 Apr 2007; Gustavo Zacarias <gustavoz@gentoo.org>
+  abiword-plugins-2.4.6.ebuild:
+  Stable on sparc
+
+  10 Feb 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  abiword-plugins-2.4.5.ebuild, abiword-plugins-2.4.6.ebuild:
+  Minor stylistic changes, quoting, and fix the depends for ots (bug #140036)
+
+  02 Feb 2007; Saleem Abdulrasool <compnerd@gentoo.org>
+  -files/abiword-plugins-2.4.1-goffice.patch,
+  -files/abiword-plugins-2.4.2-gcc41.patch, -abiword-plugins-2.4.4.ebuild:
+  abiword-2.4.4 is no longer in portage
+
+*abiword-plugins-2.4.6 (15 Jan 2007)
+
+  15 Jan 2007; Hanno Boeck <hanno@gentoo.org> +abiword-plugins-2.4.6.ebuild:
+  Version bump.
+
+  15 Oct 2006; Aron Griffis <agriffis@gentoo.org>
+  -abiword-plugins-2.4.1-r1.ebuild, -abiword-plugins-2.4.1-r2.ebuild,
+  -abiword-plugins-2.4.2.ebuild, abiword-plugins-2.4.5.ebuild:
+  Mark 2.4.5 stable on ia64.  Remove 2.4.2, 2.4.1-r2, 2.4.1-r1
+
+  06 Sep 2006; Thomas Cort <tcort@gentoo.org> abiword-plugins-2.4.5.ebuild:
+  Stable on alpha wrt Bug #144120.
+
+  21 Aug 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  abiword-plugins-2.4.5.ebuild:
+  Stable on amd64 and x86 wrt bug #144120.
+
+  19 Aug 2006; Tobias Scherbaum <dertobi123@gentoo.org>
+  abiword-plugins-2.4.5.ebuild:
+  ppc stable, bug #144120
+
+  17 Aug 2006; Jeroen Roovers <jer@gentoo.org> abiword-plugins-2.4.5.ebuild:
+  Stable for HPPA (bug #144120).
+
+  16 Aug 2006; Markus Rothe <corsair@gentoo.org>
+  abiword-plugins-2.4.5.ebuild:
+  Stable on ppc64; bug #144120
+
+  03 Aug 2006; Gustavo Zacarias <gustavoz@gentoo.org>
+  abiword-plugins-2.4.5.ebuild:
+  Stable on sparc
+
+*abiword-plugins-2.4.5 (10 Jul 2006)
+
+  10 Jul 2006; Gustavo Zacarias <gustavoz@gentoo.org>
+  +abiword-plugins-2.4.5.ebuild:
+  Revbump thanks to Pacho Ramos see #139823
+
+*abiword-plugins-2.4.4 (17 May 2006)
+
+  17 May 2006; Gustavo Zacarias <gustavoz@gentoo.org>
+  +abiword-plugins-2.4.4.ebuild:
+  Revbump wrt #130572, should fix #129169 and #131686
+
+  21 Apr 2006; Thomas Cort <tcort@gentoo.org> abiword-plugins-2.4.2.ebuild:
+  Added ~alpha keyword wrt Bug #110858.
+
+  12 Mar 2006; Joe McCann <joem@gentoo.org> abiword-plugins-2.4.2.ebuild:
+  make abiword dep less strict to allow rev bumps. Thanks to Rumen Yotov for
+  pointing this out in bug 125944
+
+  09 Mar 2006; Joe McCann <joem@gentoo.org> +files/poppler_abi_change.patch,
+  abiword-plugins-2.4.2.ebuild:
+  Add patch from bug #119942 to fix compile with newer versions of poppler.
+  Thanks to everybody on that bug for their time and work.
+
+  21 Feb 2006; Aron Griffis <agriffis@gentoo.org>
+  abiword-plugins-2.4.2.ebuild:
+  Mark 2.4.2 ~ia64. #110858
+
+*abiword-plugins-2.4.2 (25 Jan 2006)
+
+  25 Jan 2006; Mike Gardiner <obz@gentoo.org> +abiword-plugins-2.4.2.ebuild:
+  New version to go with abiword-2.4.2
+
+  10 Jan 2006; Mike Gardiner <obz@gentoo.org>
+  +files/abiword-plugins-2.4.1-goffice.patch,
+  abiword-plugins-2.4.1-r2.ebuild:
+  Apply a patch for goffice-0.1.2, see bug #118290
+
+  20 Dec 2005; Hanno Boeck <hanno@gentoo.org>
+  +files/abiword-plugins-2.4.2-gcc41.patch, abiword-plugins-2.4.1-r2.ebuild:
+  Fix for gcc 4.1.
+
+  02 Nov 2005; Herbie Hopkins <herbs@gentoo.org>
+  abiword-plugins-2.4.1-r2.ebuild:
+  Marked ~amd64 wrt bug #110858.
+
+*abiword-plugins-2.4.1-r2 (31 Oct 2005)
+
+  31 Oct 2005; Leonardo Boshell <leonardop@gentoo.org>
+  +abiword-plugins-2.4.1-r2.ebuild:
+  Added 'bzip2', 'debug', 'pdf', 'readline' and 'wmf' USE flags. Added
+  libgsf dependency to enable some document filters by default. Removed
+  duplicated aiksaurus dependency. Added fribidi dependency. Fixed libgda
+  dependencies. Updated other dependencies version numbers. Don't install
+  COPYING. Misc.  clean-ups.
+
+  31 Oct 2005; Brent Baude <ranger@gentoo.org>
+  abiword-plugins-2.4.1-r1.ebuild:
+  Marking abiword-plugins-2.4.1-r1 ~ppc64 for bug 110858
+
+  31 Oct 2005; Jason Wever <weeve@gentoo.org>
+  abiword-plugins-2.4.1-r1.ebuild:
+  Added ~sparc keyword wrt bug #110858.
+
+*abiword-plugins-2.4.1-r1 (30 Oct 2005)
+
+  30 Oct 2005; Joe McCann <joem@gentoo.org>
+  +abiword-plugins-2.4.1-r1.ebuild:
+  Adding two new use flags for thesaurus and wordperfect support. Disabling
+  unsupported psiconv and libwmf.
+
+  30 Oct 2005; Luca Barbato <lu_zero@gentoo.org>
+  abiword-plugins-2.4.1.ebuild:
+  Marked ~ppc
+
+*abiword-plugins-2.4.1 (30 Oct 2005)
+
+  30 Oct 2005; Joe McCann <joem@gentoo.org> +metadata.xml,
+  +abiword-plugins-2.4.1.ebuild:
+  This is a collection of plugins for abiword that was split out of the main
+  build
+
