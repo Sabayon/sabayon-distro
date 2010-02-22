@@ -24,6 +24,7 @@ DESCRIPTION="OpenOffice.org, a full office productivity suite."
 
 SRC_URI="${DEVPATH}_core.tar.bz2
 	${DEVPATH}_extensions.tar.bz2
+	${DEVPATH}_l10n.tar.bz2
 	${DEVPATH}_system.tar.bz2
 	${DEVPATH}_testautomation.tar.bz2
 	binfilter? ( ${DEVPATH}_binfilter.tar.bz2 )
