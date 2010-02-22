@@ -44,7 +44,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86 ~sparc"
 
 # Temp to smooth upgrade to split artwork
-PDEPEND=">=x11-themes/sabayon-artwork-ooo-5.0"
+# PDEPEND=">=x11-themes/sabayon-artwork-ooo-5.0"
 
 COMMON_DEPEND="!app-office/openoffice-bin
 	x11-libs/libXaw
