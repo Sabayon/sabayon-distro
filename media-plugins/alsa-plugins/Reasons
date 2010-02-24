@@ -1,0 +1,3 @@
+# Fabio Erculiani <lxnay@sabayon.org>
+It's a frigging workaround because pulseaudio is the worst failure in CS history.
+=> Provide default /etc/asound.conf to make PulseAudio working
