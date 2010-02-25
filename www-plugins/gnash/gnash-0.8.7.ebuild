@@ -49,7 +49,7 @@ RDEPEND=">=dev-libs/boost-1.35.0
 	)
 	gtk? (
 	x11-libs/gtk+:2
-	net-libs/xulrunner:1.9
+	>=net-libs/xulrunner-1.9.2:1.9
 	python? ( dev-python/pygtk:2 )
 	)
 	kde? ( >=kde-base/kdebase-startkde-${KDE_MINIMAL} )
@@ -116,20 +116,11 @@ src_prepare() {
 
 	# Use pkgconfig to determine XPCOM_IDL_DIR instead of non-portable construct.
 	# Fixes building against xulrunner-1.9.0, bug #284073.
-	epatch "${FILESDIR}"/${PN}-0.8.5-xpcom-idldir.patch
+	# Patch for 0.8.7 fixes building against xulrunner-1.9.2
+	epatch "${FILESDIR}"/${PN}-0.8.7-xpcom-idldir.patch
 
 	# Resurect patch from bug #230287
 	epatch "${FILESDIR}"/${PN}-0.8.3-boost-dynamic-link.patch
-
-	# Adapted from Alt Linux to fix klash support properly
-	# epatch "${FILESDIR}"/${PN}-0.8.5-klash.patch
-
-	# Patch to make gnash buildable with libssh-0.4
-	# epatch "${FILESDIR}"/${PN}-0.8.6-libssh-0.4.patch
-
-	# Fix build failure due to missing headers sub-directory in libcore/asClass.h
-	# when AS3 support is enabled (as default)
-	# epatch "${FILESDIR}"/${P}-libcore-as3-headers.patch
 
 	# Conflict headers with npapi.h from mozilla-sdk embedded stuffs and libxul-unstable header
 	# in case where xpcom (implicitly added with gtk) is enabled, we use the system header
@@ -138,6 +129,7 @@ src_prepare() {
 		ln -s $(pkg-config libxul --variable=includedir)/npapi.h \
 			${mozsdk_incdir}/npapi.h || die "symlink failed"
 	fi
+
 	eautoreconf
 }
 src_configure() {
@@ -220,6 +212,7 @@ src_configure() {
 		--enable-extensions=${myext} \
 		${myconf}
 }
+
 src_test() {
 	local log=testsuite-results.txt
 	cd testsuite
@@ -246,6 +239,7 @@ src_install() {
 		|| rm -rf "${D}/opt"
 	dodoc AUTHORS ChangeLog NEWS README || die "dodoc failed"
 }
+
 pkg_postinst() {
 	if use !ffmpeg && use !gstreamer || use gstreamer && ( ! use gnome ); then
 		ewarn ""
