@@ -41,21 +41,6 @@ DEPEND="${RDEPEND}
 	sys-devel/flex"
 
 pkg_setup() {
-	# Prevent user problems like bug 299777.
-	if ! grep -q /dev/shm <<< $(get_mounts); then
-		eerror "You don't have tmpfs mounted at /dev/shm."
-		eerror "${PN} isn't going to work in that configuration."
-		eerror "Please uncomment the /dev/shm entry in /etc/fstab,"
-		eerror "run 'mount /dev/shm' and try again."
-		die "/dev/shm is not mounted"
-	fi
-	if [ `stat -c %a /dev/shm` -ne 1777 ]; then
-		eerror "/dev/shm does not have correct permissions."
-		eerror "${PN} isn't going to work in that configuration."
-		eerror "Please run chmod 1777 /dev/shm and try again."
-		die "/dev/shm has incorrect permissions"
-	fi
-
 	elog "${PN} might crash occasionally. To get more useful backtraces"
 	elog "and submit better bug reports, please read"
 	elog "http://www.gentoo.org/proj/en/qa/backtraces.xml"
