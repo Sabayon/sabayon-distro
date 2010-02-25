@@ -135,7 +135,7 @@ src_prepare() {
 	# in case where xpcom (implicitly added with gtk) is enabled, we use the system header
 	if use gtk; then
 		rm -f ${mozsdk_incdir}/npapi.h
-		ln -s $(pkg-config libxul-unstable --variable=includedir)/unstable/npapi.h \
+		ln -s $(pkg-config libxul --variable=includedir)/npapi.h \
 			${mozsdk_incdir}/npapi.h || die "symlink failed"
 	fi
 	eautoreconf
