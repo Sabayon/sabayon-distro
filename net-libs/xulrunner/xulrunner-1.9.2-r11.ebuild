@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2-r1.ebuild,v 1.1 2010/01/29 15:00:31 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2-r2.ebuild,v 1.1 2010/02/12 20:47:45 anarchy Exp $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
@@ -27,7 +27,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.4
 	>=dev-libs/nspr-4.8
-	>=dev-db/sqlite-3.6.20-r1[fts3]
+	>=dev-db/sqlite-3.6.22-r2[fts3,secure-delete]
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
@@ -44,6 +44,12 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 S="${WORKDIR}/mozilla-${MAJ_PV}"
 
 pkg_setup() {
+	# Ensure we always build with C locale.
+	export LANG="C"
+	export LC_ALL="C"
+	export LC_MESSAGES="C"
+	export LC_CTYPE="C"
+
 	java-pkg-opt-2_pkg_setup
 }
 
@@ -80,10 +86,6 @@ src_prepare() {
 
 	cd js/src
 	eautoreconf
-
-	# Patch in support to reset all LANG variables to C
-	# Do NOT add to patchset as it must be applied after eautoreconf
-	epatch "${FILESDIR}/000_flex-configure-LANG.patch"
 }
 
 src_configure() {
@@ -116,6 +118,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
+	mozconfig_annotate 'sqlite' --enable-system-sqlite
 
 	# Build mozdevelop permately
 	mozconfig_annotate ''  --enable-jsd --enable-xpctools
