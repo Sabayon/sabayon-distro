@@ -13,7 +13,7 @@ KEYWORDS="~x86 ~amd64"
 IUSE="gtk"
 RESTRICT="nomirror"
 RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
-	x11-themes/aurorae
+	|| ( >=kde-base/kwin-4.4.0 x11-themes/aurorae )
 	gtk? ( x11-themes/qtcurve-qt4 kde-misc/kcm_gtk )"
 
 S="${WORKDIR}/${PN}"
