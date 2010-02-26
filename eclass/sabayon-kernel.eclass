@@ -64,7 +64,7 @@ else
 		<sys-kernel/genkernel-3.4.11
 		splash? ( x11-themes/sabayon-artwork-core )"
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
-	RDEPEND="grub? ( sys-boot/grub sys-boot/grub-handler )"
+	RDEPEND="grub? ( || ( sys-boot/grub:2 ( sys-boot/grub:0 sys-boot/grub-handler ) ) )"
 fi
 
 sabayon-kernel_pkg_setup() {
@@ -88,40 +88,40 @@ sabayon-kernel_src_compile() {
 	export LDFLAGS=""
 
 	# creating workdirs
-	mkdir ${WORKDIR}/lib
-	mkdir ${WORKDIR}/cache
-	mkdir ${S}/temp
+	mkdir "${WORKDIR}"/lib
+	mkdir "${WORKDIR}"/cache
+	mkdir "${S}"/temp
 	# needed anyway, even if grub use flag is not used here
-	mkdir -p ${WORKDIR}/boot/grub
+	mkdir -p "${WORKDIR}"/boot/grub
 
 	einfo "Starting to compile kernel..."
-	cp ${FILESDIR}/${PF/-r0/}-${ARCH}.config ${WORKDIR}/config || die "cannot copy kernel config"
+	cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${WORKDIR}"/config || die "cannot copy kernel config"
 
 	# do some cleanup
 	rm -rf "${WORKDIR}"/lib
 	rm -rf "${WORKDIR}"/cache
 	rm -rf "${S}"/temp
-	OLDARCH=${ARCH}
+	OLDARCH="${ARCH}"
 	unset ARCH
-	cd ${S}
+	cd "${S}"
 	GK_ARGS="--disklabel"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
 	use dmraid && GKARGS="${GKARGS} --dmraid"
 	export DEFAULT_KERNEL_SOURCE="${S}"
 	export CMD_KERNEL_DIR="${S}"
-	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
-		--kerneldir=${S} \
-		--kernel-config=${WORKDIR}/config \
-		--cachedir=${WORKDIR}/cache \
+	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel "${GKARGS}" \
+		--kerneldir="${S}" \
+		--kernel-config="${WORKDIR}"/config \
+		--cachedir="${WORKDIR}"/cache \
 		--makeopts=-j3 \
-		--tempdir=${S}/temp \
-		--logfile=${WORKDIR}/genkernel.log \
-		--bootdir=${WORKDIR}/boot \
+		--tempdir="${S}"/temp \
+		--logfile="${WORKDIR}"/genkernel.log \
+		--bootdir="${WORKDIR}"/boot \
 		--mountboot \
 		--lvm \
 		--luks \
 		--disklabel \
-		--module-prefix=${WORKDIR}/lib \
+		--module-prefix="${WORKDIR}"/lib \
 		all || die "genkernel failed"
 	ARCH=${OLDARCH}
 }
@@ -185,7 +185,7 @@ sabayon-kernel_pkg_postinst() {
 	einfo "Removing extents option for ext4 drives from ${fstab_file}"
 	# Remove "extents" from /etc/fstab
 	if [ -f "${fstab_file}" ]; then
-		sed -i '/ext4/ s/extents//g' ${fstab_file}
+		sed -i '/ext4/ s/extents//g' "${fstab_file}"
 	fi
 
 	# Update kernel initramfs to match user customizations
