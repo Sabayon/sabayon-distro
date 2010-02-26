@@ -362,7 +362,7 @@ src_install() {
 
 	# Remove splashes, provided by x11-themes/sabayon-artwork-ooo
 	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro rm failed"
-	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/about.bmp || die "about rm failed"
 
 }
 
