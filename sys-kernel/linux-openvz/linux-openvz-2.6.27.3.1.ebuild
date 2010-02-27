@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/openvz-sources/openvz-sources-2.6.27.2.1-r4.ebuild,v 1.2 2009/11/12 19:43:39 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/openvz-sources/openvz-sources-2.6.27.3.1.ebuild,v 1.2 2010/01/28 18:56:11 pva Exp $
 
 inherit versionator
 
@@ -8,8 +8,10 @@ inherit versionator
 # comparisment working we have to use numbers instead of strings, that is 4th
 # component of our version. So we have aivazovsky - 1, briullov - 2 and so on.
 # Keep this string on top since we have to modify it each new release.
-OVZ_CODENAME="briullov"
+OVZ_CODENAME="chistyakov"
 OVZ_CODENAME_SUBRELEASE=$(get_version_component_range 5)
+
+#http://download.openvz.org/kernel/branches/2.6.27/2.6.27-chistyakov.1/patches/patch-chistyakov.1-combined.gz
 
 OVZ_KV="${OVZ_CODENAME}.${OVZ_CODENAME_SUBRELEASE}"
 
@@ -42,16 +44,13 @@ fi
 
 KEYWORDS="~amd64 ~x86"
 
-DESCRIPTION="Linux Kernel binaries with OpenVZ patchset"
+DESCRIPTION="Kernel binaries with OpenVZ patchset"
 HOMEPAGE="http://www.openvz.org"
 SRC_URI="${KERNEL_URI} ${ARCH_URI}
-	http://download.openvz.org/kernel/branches/${CKV}/${CKV}-${OVZ_KV}/patches/patch-${OVZ_KV}-combined.gz                                                                                 
-	mirror://gentoo/linux-2.6.27-openvz-2.6.27.39-merge.patch.bz2"
+	http://download.openvz.org/kernel/branches/${CKV}/${CKV}-${OVZ_KV}/patches/patch-${OVZ_KV}-combined.gz"
 
-S_PN="openvz-sources"
 UNIPATCH_STRICTORDER=1
-UNIPATCH_LIST="${DISTDIR}/patch-${OVZ_KV}-combined.gz
-${DISTDIR}/linux-2.6.27-openvz-2.6.27.39-merge.patch.bz2"
+UNIPATCH_LIST="${DISTDIR}/patch-${OVZ_KV}-combined.gz"
 
 K_EXTRAEINFO="For more information about this kernel take a look at:
 http://wiki.openvz.org/Download/kernel/${CKV}/${CKV}-${OVZ_KV}"
