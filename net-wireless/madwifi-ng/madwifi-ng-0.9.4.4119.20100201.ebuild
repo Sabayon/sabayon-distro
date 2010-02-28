@@ -63,8 +63,8 @@ src_prepare() {
 	done
 	sed -e 's:-Werror ::' -i Makefile.inc || die "sed -Werror failed"
 
-	# Create svnrelease.h, otherwise build fails
-	touch "${S}/svnrelease.h"
+	# Create svnversion.h, otherwise build fails
+	touch "${S}/svnversion.h"
 
 }
 
