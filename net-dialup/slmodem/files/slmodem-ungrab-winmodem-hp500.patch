@@ -1,0 +1,27 @@
+--- ungrab-winmodem-20070505/ungrab-winmodem.c	2007-05-11 13:15:25.000000000 +0200
++++ ungrab-winmodem-20070505/ungrab-winmodem.c	2007-05-11 13:14:40.000000000 +0200
+@@ -20,6 +20,7 @@
+ #include <linux/pci.h>
+ #include <linux/kernel.h>
+ 
++#define PCI_DEVICE_ID_HP5457			0x266d
+ #define PCI_DEVICE_ID_ALI5457			0x5457
+ #define PCI_DEVICE_ID_ALI5459			0x5459
+ #define PCI_DEVICE_ID_ALI545A			0x545A
+@@ -28,6 +29,7 @@
+ #define PCI_VENDOR_ID_SMARTLINK_1		0x163c
+ #define PCI_VENDOR_ID_SMARTLINK_2		0x10a5
+ #define PCI_VENDOR_ID_SMARTLINK_3		0x2003
++#define PCI_VENDOR_ID_SMARTLINK_4		0x8086
+ #define PCI_DEVICE_ID_SL2800			0x2800
+ #define PCI_DEVICE_ID_SL1900			0x3052
+ #define PCI_DEVICE_ID_ND92XPA                   0x8800 /* ND92XPA */
+@@ -48,6 +50,8 @@
+ 	{PCI_VENDOR_ID_SMARTLINK, PCI_DEVICE_ID_SL2800, PCI_ANY_ID, PCI_ANY_ID },
+ 	/* 2003:8800 */
+ 	{PCI_VENDOR_ID_SMARTLINK_3, PCI_DEVICE_ID_ND92XPA, PCI_ANY_ID, PCI_ANY_ID },
++	/* 266d:8086 */
++	{PCI_VENDOR_ID_SMARTLINK_4, PCI_DEVICE_ID_HP5457, PCI_ANY_ID, PCI_ANY_ID },
+ 	/* pctel HSP1688 */
+ 	{ 0x134d, 0x2189, PCI_ANY_ID, PCI_ANY_ID },
+ 	{0,}

@@ -1,0 +1,45 @@
+diff -Nru slmodem-2.9.11-20080417.orig/modem/Makefile slmodem-2.9.11-20080417/modem/Makefile
+--- slmodem-2.9.11-20080417.orig/modem/Makefile	2008-04-18 06:06:17.000000000 +0300
++++ slmodem-2.9.11-20080417/modem/Makefile	2008-05-19 23:18:45.000000000 +0300
+@@ -16,15 +16,15 @@
+ ARCH64:=$(shell uname -m | sed -e '/amd64/s//x86_64/' | grep -c x86_64)
+ 
+ ifeq ($(ARCH64), 0)
+-CC:= gcc
++CC?= gcc
+ else
+ # SUPPORT_ALSA:=1
+-CC:= gcc -m32
++CC?= gcc -m32
+ endif
+ 
+ RM:= rm -f
+ 
+-CFLAGS+= -Wall -g -O -I. -DCONFIG_DEBUG_MODEM
++CFLAGS+= -Wall -finline -I. -DCONFIG_DEBUG_MODEM
+ 
+ modem-objs:= \
+ 	modem.o modem_datafile.o modem_at.o modem_timer.o \
+@@ -42,18 +42,18 @@
+ ifdef SUPPORT_ALSA
+ CFLAGS+= -DSUPPORT_ALSA=1
+ ifeq ($(ARCH64), 0)
+-LFLAGS+= /usr/lib/libasound.so
++LDLIBS+= /usr/lib/libasound.so
+ else
+ # LFLAGS+= /usr/lib32/libasound.so , replaced by -l commands search for asound
+-LFLAGS+= -lasound
++LDLIBS+= -lasound
+ endif
+ endif
+ 
+ slmodemd:
+-	$(CC) -o slmodemd modem_main.o $(all-objs) $(LFLAGS)
++	$(CC) $(LDFLAGS) -o slmodemd modem_main.o $(all-objs) $(LDLIBS)
+ 
+ modem_test:
+-	$(CC) -o modem_test modem_test.o $(all-objs) $(LFLAGS)
++	$(CC) $(LDFLAGS) -o modem_test modem_test.o $(all-objs) $(LDLIBS)
+ 
+ clean:
+ 	$(RM) slmodemd modem_test modem_main.o modem_cmdline.o modem_test.o $(modem-objs) $(dp-objs) $(sysdep-objs)

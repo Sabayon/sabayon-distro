@@ -1,0 +1,12 @@
+diff -Nru slmodem-2.9.11-20080817.orig/modem/modem_datafile.c slmodem-2.9.11-20080817/modem/modem_datafile.c
+--- slmodem-2.9.11-20080817.orig/modem/modem_datafile.c	2008-03-29 12:04:16.000000000 +0000
++++ slmodem-2.9.11-20080817/modem/modem_datafile.c	2009-03-03 22:02:01.000000000 +0000
+@@ -111,7 +111,7 @@
+ 	int ret = -1;
+ 	int fd;
+ 
+-	fd = open(file_name,O_CREAT|O_WRONLY);
++	fd = open(file_name,O_CREAT|O_WRONLY, 0600);
+ 	if(fd < 0)
+ 		return -errno;
+ 

@@ -1,0 +1,13 @@
+# slmodem 2.9.x kernel modules' configuration file
+
+alias char-major-242 slamr
+alias char-major-243 slusb
+
+# If you see message like this in dmesg output:
+# device 10b9:5457 is grabbed by driver serial
+# then try uncommenting the two lines at the bottom, run update-modules and reboot.
+# After reboot, check dmesg output again, you should see a message like this instead:
+# device 10b9:5457 is grabbed by driver serial: try to release
+
+# install slamr modprobe --ignore-install ungrab-winmodem ; sleep 5 ; modprobe --ignore-install slamr
+# install slusb modprobe --ignore-install ungrab-winmodem ; sleep 5 ; modprobe --ignore-install slusb

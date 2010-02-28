@@ -1,0 +1,17 @@
+#!/bin/sh
+
+script /etc/init.d/slmodem
+source /etc/conf.d/slmodem
+
+if [ -z "${USBMOD}" ] ; then 
+	MODULE="slusb"
+else
+	MODULE=${USBMOD}
+fi
+
+if $script --quiet status; then
+        $script stop
+elif
+    ! $script --quiet status; then
+        $script start
+fi
