@@ -247,9 +247,9 @@ def deploy_nvidia_xxxxxx_drivers(ver):
 		Equo = Client()
 
 		# prepare system
-		idpackage, result = Equo.clientDbconn.atomMatch('x11-drivers/nvidia-drivers')
+		idpackage, result = Equo.installed_repository().atomMatch('x11-drivers/nvidia-drivers')
 		if idpackage != -1:
-			content = Equo.clientDbconn.retrieveContent(idpackage)
+			content = Equo.installed_repository().retrieveContent(idpackage)
 			for myfile in content:
 				if os.path.isfile(myfile) and os.access(myfile,os.W_OK):
 					try:
