@@ -270,7 +270,7 @@ src_install() {
 
 	# Install xinitrc.d entry
 	exeinto /etc/X11/xinit/xinitrc.d/
-	doexe "${FILESDIR}/dist/11-xdg-menu-kde" || die "doexe failed"
+	doexe "${S}/dist/11-xdg-menu-kde" || die "doexe failed"
 
 }
 
