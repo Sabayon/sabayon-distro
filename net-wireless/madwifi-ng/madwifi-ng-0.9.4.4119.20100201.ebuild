@@ -62,6 +62,10 @@ src_prepare() {
 		convert_to_m "${S}/${dir}/Makefile"
 	done
 	sed -e 's:-Werror ::' -i Makefile.inc || die "sed -Werror failed"
+
+	# Create svnrelease.h, otherwise build fails
+	touch "${S}/svnrelease.h"
+
 }
 
 src_install() {
