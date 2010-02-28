@@ -43,6 +43,8 @@ src_unpack() {
 	# Apply various fixes to make module compile with 2.6.31+ kernels
 	# thanks to Mepis
 	epatch "${FILESDIR}"/2.6.31+-mepis/*
+	# 2.6.33 patches
+	epatch "${FILESDIR}"/acx-2.6.33.patch
 
 }
 
