@@ -29,3 +29,6 @@ blacklist usblp
 
 # make broadcom-sta happy
 blacklist ssb
+
+# keep nvidia-drivers working, sorry nouveau
+blacklist nouveau

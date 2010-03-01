@@ -1,20 +1,20 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/udev/udev-150.ebuild,v 1.1 2010/01/19 22:12:45 zzam Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-fs/udev/udev-151-r1.ebuild,v 1.2 2010/02/07 20:32:51 zzam Exp $
 
 EAPI="1"
 
 inherit eutils flag-o-matic multilib toolchain-funcs linux-info
 
-PATCHSET=${P}-gentoo-patchset-v1
+#PATCHSET=${P}-gentoo-patchset-v1
 
 if [[ ${PV} == "9999" ]]; then
 	EGIT_REPO_URI="git://git.kernel.org/pub/scm/linux/hotplug/udev.git"
 	EGIT_BRANCH="master"
 	inherit git autotools
 else
-	SRC_URI="mirror://kernel/linux/utils/kernel/hotplug/${P}.tar.bz2
-			mirror://gentoo/${PATCHSET}.tar.bz2"
+	SRC_URI="mirror://kernel/linux/utils/kernel/hotplug/${P}.tar.bz2"
+	[[ -n "${PATCHSET}" ]] && SRC_URI="${SRC_URI} mirror://gentoo/${PATCHSET}.tar.bz2"
 fi
 DESCRIPTION="Linux dynamic and persistent device naming support (aka userspace devfs)"
 HOMEPAGE="http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html"
@@ -22,7 +22,7 @@ HOMEPAGE="http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="-alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 -sh ~sparc ~x86"
-IUSE="selinux +devfs-compat -extras test"
+IUSE="selinux +devfs-compat +old-hd-rules -extras test"
 
 COMMON_DEPEND="selinux? ( sys-libs/libselinux )
 	extras? (
@@ -55,7 +55,8 @@ if [[ ${PV} == "9999" ]]; then
 fi
 
 # required kernel options
-CONFIG_CHECK="~INOTIFY_USER ~SIGNALFD ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2"
+CONFIG_CHECK="~INOTIFY_USER ~SIGNALFD ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2
+	~!IDE"
 
 # We need the lib/rcscripts/addon support
 PROVIDE="virtual/dev-manager"
@@ -137,8 +138,13 @@ src_unpack() {
 	# patches go here...
 
 	# backport some patches
-	EPATCH_SOURCE="${WORKDIR}/${PATCHSET}" EPATCH_SUFFIX="patch" \
-	        EPATCH_FORCE="yes" epatch
+	if [[ -n "${PATCHSET}" ]]; then
+		EPATCH_SOURCE="${WORKDIR}/${PATCHSET}" EPATCH_SUFFIX="patch" \
+	  	      EPATCH_FORCE="yes" epatch
+	fi
+
+	# Bug 301667
+	epatch "${FILESDIR}"/udev-150-fix-missing-firmware-timeout.diff
 
 	if ! use devfs-compat; then
 		# see Bug #269359
@@ -155,13 +161,17 @@ src_unpack() {
 		# (more for my own needs than anything else ...)
 		MD5=$(md5sum < "${S}/rules/rules.d/50-udev-default.rules")
 		MD5=${MD5/  -/}
-		if [[ ${MD5} != f9b06078926d497a25be996be9d79fcc ]]
+		if [[ ${MD5} != 5685cc3878df54845dda5e08d712447a ]]
 		then
 			echo
 			eerror "50-udev-default.rules has been updated, please validate!"
 			eerror "md5sum: ${MD5}"
 			die "50-udev-default.rules has been updated, please validate!"
 		fi
+	fi
+
+	if use old-hd-rules; then
+		epatch "${FILESDIR}"/udev-151-readd-hd-rules.diff
 	fi
 
 	sed_libexec_dir \
@@ -196,24 +206,10 @@ src_compile() {
 }
 
 src_install() {
-	local scriptdir="${FILESDIR}/147"
+	local scriptdir="${FILESDIR}/151"
 
 	into /
 	emake DESTDIR="${D}" install || die "make install failed"
-	# without this code, multilib-strict is angry
-	if [[ "$(get_libdir)" != "lib" ]]; then
-		# check if this code is needed, bug #281338
-		if [[ -d "${D}/lib" ]]; then
-			# we can not just rename /lib to /lib64, because
-			# make install creates /lib64 and /lib
-			einfo "Moving lib to $(get_libdir)"
-			mkdir -p "${D}/$(get_libdir)"
-			mv "${D}"/lib/* "${D}/$(get_libdir)/"
-			rmdir "${D}"/lib
-		else
-			einfo "There is no ${D}/lib, move code can be deleted."
-		fi
-	fi
 
 	exeinto "${udev_libexec_dir}"
 	newexe "${FILESDIR}"/net-130-r1.sh net.sh	|| die "net.sh not installed properly"
@@ -299,10 +295,6 @@ src_install() {
 	if use extras; then
 		dodoc extras/keymap/README.keymap.txt || die "failed installing docs"
 	fi
-
-	cd docs/writing_udev_rules
-	mv index.html writing_udev_rules.html
-	dohtml *.html
 }
 
 pkg_preinst() {
@@ -550,13 +542,21 @@ pkg_postinst() {
 
 	if use devfs-compat; then
 		ewarn
-		ewarn "You have devfs-compat use flag enabled."
+		ewarn "devfs-compat use flag is enabled (by default)."
 		ewarn "This enables devfs compatible device names."
 		ewarn "If you use /dev/md/*, /dev/loop/* or /dev/rd/*,"
 		ewarn "then please migrate over to using the device names"
 		ewarn "/dev/md*, /dev/loop* and /dev/ram*."
 		ewarn "The devfs-compat rules will be removed in the future."
 		ewarn "For reference see Bug #269359."
+	fi
+
+	if use old-hd-rules; then
+		ewarn
+		ewarn "old-hd-rules use flag is enabled (by default)."
+		ewarn "This adds the removed rules for /dev/hd* devices"
+		ewarn "Please migrate to the new libata."
+		ewarn "These rules will be removed in the future"
 	fi
 
 	elog
