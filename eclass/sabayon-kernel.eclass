@@ -234,6 +234,12 @@ sabayon-kernel_pkg_postrm() {
 		/usr/sbin/grub-handler remove \
 			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
 			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
+
+		# grub2
+		if [ -x "${ROOT}/sbin/grub-mkconfig" ]; then
+			"${ROOT}/sbin/grub-mkconfig" -o "${ROOT}/boot/grub/grub.cfg"
+		fi
+
 	fi
 
 	linux-mod_pkg_postrm
