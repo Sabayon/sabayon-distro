@@ -64,7 +64,8 @@ else
 		<sys-kernel/genkernel-3.4.11
 		splash? ( x11-themes/sabayon-artwork-core )"
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
-	RDEPEND="grub? ( || ( sys-boot/grub:2 ( sys-boot/grub:0 sys-boot/grub-handler ) ) )"
+	RDEPEND="grub? ( || ( sys-boot/grub:2 ( sys-boot/grub:0 sys-boot/grub-handler ) ) )
+		sys-apps/sed"
 fi
 
 sabayon-kernel_pkg_setup() {
@@ -180,6 +181,16 @@ sabayon-kernel_pkg_preinst() {
 	UPDATE_MODULEDB=false
 }
 
+sabayon-kernel_grub2_mkconfig() {
+	# grub2
+	# workaround for buggy /dev/fd0 checks
+	[[ -f "${ROOT}/boot/grub/device.map" ]] && \
+		sed -i '/.*\/dev\/fd0.*/d' "${ROOT}/boot/grub/device.map"
+	if [ -x "${ROOT}/sbin/grub-mkconfig" ]; then
+		"${ROOT}/sbin/grub-mkconfig" -o "${ROOT}/boot/grub/grub.cfg"
+	fi
+}
+
 sabayon-kernel_pkg_postinst() {
 	fstab_file="${ROOT}etc/fstab"
 	einfo "Removing extents option for ext4 drives from ${fstab_file}"
@@ -203,10 +214,7 @@ sabayon-kernel_pkg_postinst() {
 			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
 			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
 
-		# grub2
-		if [ -x "${ROOT}/sbin/grub-mkconfig" ]; then
-			"${ROOT}/sbin/grub-mkconfig" -o "${ROOT}/boot/grub/grub.cfg"
-		fi
+		sabayon-kernel_grub2_mkconfig
 	fi
 
 	kernel-2_pkg_postinst
@@ -235,11 +243,7 @@ sabayon-kernel_pkg_postrm() {
 			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
 			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
 
-		# grub2
-		if [ -x "${ROOT}/sbin/grub-mkconfig" ]; then
-			"${ROOT}/sbin/grub-mkconfig" -o "${ROOT}/boot/grub/grub.cfg"
-		fi
-
+		sabayon-kernel_grub2_mkconfig
 	fi
 
 	linux-mod_pkg_postrm
