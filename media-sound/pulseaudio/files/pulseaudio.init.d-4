@@ -1,7 +1,7 @@
 #!/sbin/runscript
 # Copyright 1999-2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-sound/pulseaudio/files/pulseaudio.init.d-4,v 1.5 2009/08/21 23:16:13 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-sound/pulseaudio/files/pulseaudio.init.d-4,v 1.6 2009/09/13 10:46:12 flameeyes Exp $
 
 depend() {
 	need localmount
@@ -30,7 +30,7 @@ depend() {
 
 #ifdef UDEV
 	if egrep -q '^[[:space:]]*load-module[[:space:]]+module-udev-detect' "$script"; then
-	    needs="${needs} hald"
+	    needs="${needs} udev"
 	fi
 #endif
 

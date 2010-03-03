@@ -1,0 +1,21 @@
+Index: pulseaudio-0.9.22~0.9.21+stable-queue-24-gfa64/src/daemon/daemon.conf.in
+===================================================================
+--- pulseaudio-0.9.22~0.9.21+stable-queue-24-gfa64.orig/src/daemon/daemon.conf.in	2010-01-15 18:21:18.000000000 -0500
++++ pulseaudio-0.9.22~0.9.21+stable-queue-24-gfa64/src/daemon/daemon.conf.in	2010-01-15 19:16:30.000000000 -0500
+@@ -50,7 +50,7 @@
+ ; log-time = no
+ ; log-backtrace = 0
+ 
+-; resample-method = speex-float-3
++resample-method = speex-float-1
+ ; enable-remixing = yes
+ ; enable-lfe-remixing = no
+ 
+@@ -77,5 +77,5 @@
+ ; default-sample-channels = 2
+ ; default-channel-map = front-left,front-right
+ 
+-; default-fragments = 4
+-; default-fragment-size-msec = 25
++default-fragments = 8
++default-fragment-size-msec = 10

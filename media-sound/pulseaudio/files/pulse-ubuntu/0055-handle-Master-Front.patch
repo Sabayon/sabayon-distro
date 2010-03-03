@@ -1,0 +1,83 @@
+Index: pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output-headphones-2.conf
+===================================================================
+--- pulseaudio-0.9.20.orig/src/modules/alsa/mixer/paths/analog-output-headphones-2.conf	2009-11-12 19:26:22.000000000 -0500
++++ pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output-headphones-2.conf	2009-11-12 19:26:38.000000000 -0500
+@@ -33,6 +33,12 @@
+ override-map.1 = all
+ override-map.2 = all-left,all-right
+ 
++[Element Master Front]
++switch = mute
++volume = merge
++override-map.1 = all
++override-map.2 = front-left,front-right
++
+ [Element Master Mono]
+ switch = off
+ volume = off
+Index: pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output-headphones.conf
+===================================================================
+--- pulseaudio-0.9.20.orig/src/modules/alsa/mixer/paths/analog-output-headphones.conf	2009-11-12 19:26:22.000000000 -0500
++++ pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output-headphones.conf	2009-11-12 19:26:38.000000000 -0500
+@@ -33,6 +33,12 @@
+ override-map.1 = all
+ override-map.2 = all-left,all-right
+ 
++[Element Master Front]
++switch = mute
++volume = merge
++override-map.1 = all
++override-map.2 = front-left,front-right
++
+ [Element Master Mono]
+ switch = off
+ volume = off
+Index: pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output-mono.conf
+===================================================================
+--- pulseaudio-0.9.20.orig/src/modules/alsa/mixer/paths/analog-output-mono.conf	2009-11-12 19:26:22.000000000 -0500
++++ pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output-mono.conf	2009-11-12 19:26:38.000000000 -0500
+@@ -31,6 +31,10 @@
+ switch = off
+ volume = off
+ 
++[Element Master Front]
++switch = off
++volume = off
++
+ [Element Master Mono]
+ required = any
+ switch = mute
+Index: pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output-speaker.conf
+===================================================================
+--- pulseaudio-0.9.20.orig/src/modules/alsa/mixer/paths/analog-output-speaker.conf	2009-11-12 19:26:22.000000000 -0500
++++ pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output-speaker.conf	2009-11-12 19:26:38.000000000 -0500
+@@ -33,6 +33,12 @@
+ override-map.1 = all
+ override-map.2 = all-left,all-right
+ 
++[Element Master Front]
++switch = mute
++volume = merge
++override-map.1 = all
++override-map.2 = front-left,front-right
++
+ [Element Master Mono]
+ switch = off
+ volume = off
+Index: pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output.conf
+===================================================================
+--- pulseaudio-0.9.20.orig/src/modules/alsa/mixer/paths/analog-output.conf	2009-11-12 19:26:22.000000000 -0500
++++ pulseaudio-0.9.20/src/modules/alsa/mixer/paths/analog-output.conf	2009-11-12 19:26:38.000000000 -0500
+@@ -34,6 +34,12 @@
+ override-map.1 = all
+ override-map.2 = all-left,all-right
+ 
++[Element Master Front]
++switch = mute
++volume = merge
++override-map.1 = all
++override-map.2 = front-left,front-right
++
+ [Element Master Mono]
+ switch = off
+ volume = off

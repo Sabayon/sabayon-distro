@@ -1,0 +1,26 @@
+From c6bb9dd1df10c49b11ac65db138fc3f34757bb41 Mon Sep 17 00:00:00 2001
+From: Clint Adams <schizo@debian.org>
+Date: Sun, 25 Oct 2009 12:35:14 +0000
+Subject: [PATCH] Work around some platforms not having O_CLOEXEC
+
+---
+ src/modules/module-cli.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/src/modules/module-cli.c b/src/modules/module-cli.c
+index 6bd0f4f..b1adb52 100644
+--- a/src/modules/module-cli.c
++++ b/src/modules/module-cli.c
+@@ -105,7 +105,12 @@ int pa__init(pa_module*m) {
+      * of log messages, particularly because if stdout and stderr are
+      * dup'ed they share the same O_NDELAY, too. */
+ 
++#ifdef O_CLOEXEC
+     if ((fd = open("/dev/tty", O_RDWR|O_CLOEXEC|O_NONBLOCK)) >= 0) {
++#else
++    if ((fd = open("/dev/tty", O_RDWR|O_NONBLOCK)) >= 0) {
++        pa_make_fd_cloexec(fd);
++#endif
+         io = pa_iochannel_new(m->core->mainloop, fd, fd);
+         pa_log_debug("Managed to open /dev/tty.");
+     } else {
