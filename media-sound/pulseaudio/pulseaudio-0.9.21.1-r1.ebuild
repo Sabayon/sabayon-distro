@@ -180,13 +180,6 @@ src_install() {
 		sed -i -e 's:-udev:-hal:' "${D}/etc/pulse/default.pa" || die
 	fi
 
-	if use alsa; then
-		# install ALSA configuration files, making PA to be used by alsa clients
-		dodir /usr/share/alsa
-		insinto /usr/share/alsa
-		doins "${FILESDIR}"/alsa/*.conf
-	fi
-
 	dodoc README ChangeLog todo || die
 
 	if use doc; then
