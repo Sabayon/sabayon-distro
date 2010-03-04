@@ -1,8 +1,0 @@
-DIST prism54-usb-firmware-1.0.4.3.tar.bz2 43815 RMD160 273e441d36b98fdd4ad26f3e39e10922b66ab4a3 SHA1 b4cc0fb138bc29d3c8a189fcd6f7d7a75ca056c0 SHA256 41ed702745a3a38c3556d5fc6f1c3a434c9546b7430be855b00ab0553e6ac7dd
-EBUILD prism54-usb-firmware-1.0.4.3.ebuild 584 RMD160 06c27ae2860dfd72393df23dd5a1319c2e2cc8af SHA1 9341865742fa810fbab24c696749a9d33f29d0b8 SHA256 9ec8f63f4ada2325ff6e0721c64adb712ef3cef74d24ca64813e9695955fafbd
-MD5 119f3037b71d1bf4343d279db14ea85c prism54-usb-firmware-1.0.4.3.ebuild 584
-RMD160 06c27ae2860dfd72393df23dd5a1319c2e2cc8af prism54-usb-firmware-1.0.4.3.ebuild 584
-SHA256 9ec8f63f4ada2325ff6e0721c64adb712ef3cef74d24ca64813e9695955fafbd prism54-usb-firmware-1.0.4.3.ebuild 584
-MD5 57d3b46d66bddd5180879def73579e7a files/digest-prism54-usb-firmware-1.0.4.3 286
-RMD160 034b13840321058a6bae3d004c490c123e70b748 files/digest-prism54-usb-firmware-1.0.4.3 286
-SHA256 b95654a41f64fe6a936541f301766ba8e1548ec6d8dbd4d074eab7727de76e6b files/digest-prism54-usb-firmware-1.0.4.3 286
