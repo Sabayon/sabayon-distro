@@ -182,12 +182,9 @@ sabayon-kernel_pkg_preinst() {
 }
 
 sabayon-kernel_grub2_mkconfig() {
-	# grub2
-	# workaround for buggy /dev/fd0 checks
-	[[ -f "${ROOT}/boot/grub/device.map" ]] && \
-		sed -i '/.*\/dev\/fd0.*/d' "${ROOT}/boot/grub/device.map"
-	if [ -x "${ROOT}/sbin/grub-mkconfig" ]; then
-		"${ROOT}/sbin/grub-mkconfig" -o "${ROOT}/boot/grub/grub.cfg"
+	if [ -x "${ROOT}sbin/grub-mkconfig" ]; then
+		"${ROOT}sbin/grub-mkdevicemap" --device-map="${ROOT}boot/grub/device.map"
+		"${ROOT}sbin/grub-mkconfig" -o "${ROOT}boot/grub/grub.cfg"
 	fi
 }
 
