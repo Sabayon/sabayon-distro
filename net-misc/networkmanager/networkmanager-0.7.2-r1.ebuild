@@ -19,7 +19,7 @@ SRC_URI="mirror://gnome/sources/NetworkManager/0.7/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~x86"
+KEYWORDS="amd64 ~arm ppc ppc64 x86"
 IUSE="avahi doc nss gnutls dhclient dhcpcd resolvconf connection-sharing"
 # modemmanager"
 
