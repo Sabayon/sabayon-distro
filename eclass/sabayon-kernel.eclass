@@ -155,8 +155,6 @@ sabayon-kernel_src_install() {
 	insinto "/boot"
 	doins "${WORKDIR}"/boot/*
 	cp -Rp "${WORKDIR}"/lib/* "${D}/"
-	rm "${D}/lib/modules/${KV_FULL}/source"
-	rm "${D}/lib/modules/${KV_FULL}/build"
 
 	dosym "../../..${MY_KERNEL_DIR}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
 	dosym "../../..${MY_KERNEL_DIR}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
