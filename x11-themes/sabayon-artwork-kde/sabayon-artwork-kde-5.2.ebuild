@@ -45,3 +45,11 @@ src_install() {
 	insinto ${KDEDIR}/share/apps/ksplash/Themes
 	doins -r ./
 }
+
+pkg_postinst()
+{
+	einfo "Clearing Plasma Wallpaper Cache"
+	for i in `ls /home` ; do
+		rm -rf /home/$i/.kde4/cache-*/plasma-wallpapers/usr/share/backgrounds/sabayon*
+	done
+}
