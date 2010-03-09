@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import os
 import string
@@ -275,6 +276,9 @@ def deploy_nvidia_xxxxxx_drivers(ver):
 		return False
 
 def set_xorg_device(xdriver, cardnum, total_cards, bus_id):
+	if (xdriver not in ("nvidia", "fglrx",)) and \
+		(not check_if_driver_is_available(xdriver)):
+		xdriver = "vesa" # fallback to vesa
 	bus_id_mark = '#'
 	if total_cards > 1:
 		bus_id_mark = ''
@@ -589,8 +593,7 @@ for videocard in videocards:
 
 		elif company_id == "80ee": # VirtualBox, InnoTek
 			generate_generic_steps()
-			if check_if_driver_is_available('vboxvideo'):
-				steps.append(('set_xorg_device','vboxvideo',cardnumber,total_cards,bus_id,))
+			steps.append(('set_xorg_device','vboxvideo',cardnumber,total_cards,bus_id,))
 			print "VirtualBox!"
 
 		elif company_id == "5333":
