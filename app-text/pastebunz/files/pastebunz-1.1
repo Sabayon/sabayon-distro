@@ -157,7 +157,7 @@ my = PastieInterface()
 f_obj = sys.stdin
 f_obj_diff = False
 for arg in sys.argv[1:]:
-    if os.access(arg, os.F_OK | os.R_OK):
+    if os.access(arg, os.R_OK) and os.path.isfile(arg):
         f_obj = open(arg, "rb")
         f_obj_diff = True
         break
