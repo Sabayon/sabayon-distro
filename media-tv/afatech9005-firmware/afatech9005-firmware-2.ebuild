@@ -1,10 +1,10 @@
-# Copyright 2006 SabayonLinux
+# Copyright 2004-2010 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 BC_REVISION="1"
 DESCRIPTION="Firmware for the Afatech 9005 DVB-T device"
 HOMEPAGE="http://www.linuxtv.org/"
-SRC_URI="http://www.sabayonlinux.org/distfiles/media-tv/af9005-2.fw"
+SRC_URI="http://distfiles.sabayon.org/media-tv/af9005-2.fw"
 
 LICENSE="AS-IS"
 SLOT="0"

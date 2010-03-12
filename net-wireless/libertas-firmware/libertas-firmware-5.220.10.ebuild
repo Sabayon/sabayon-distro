@@ -1,11 +1,11 @@
-# Copyright 2006-2007 Sabayon Linux
+# Copyright 2004-2010 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 RESTRICT="nomirror"
 
 DESCRIPTION="Firmware for Libertas Wireless Chipsets a/b/g"
 HOMEPAGE="http://wiki.laptop.org/go/Libertas"
-SRC_URI="http://www.sabayonlinux.org/distfiles/net-wireless/${PN}/${PN}-${PV}.p5-1.tar.gz"
+SRC_URI="http://distfiles.sabayon.org/net-wireless/${PN}/${PN}-${PV}.p5-1.tar.gz"
 
 LICENSE="as-is"
 SLOT="0"

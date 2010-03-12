@@ -1,10 +1,10 @@
-# Copyright 2006 SabayonLinux
+# Copyright 2004-2010 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 BC_REVISION="4"
 DESCRIPTION="Firmware for the BCM43xx Broadcom adapters using mac80211 driver"
 HOMEPAGE="http://bcm43xx.berlios.de/"
-SRC_URI="http://www.sabayonlinux.org/distfiles/net-wireless/bcm43xx-firmware/bcm-${PV}-${BC_REVISION}.tar.bz2"
+SRC_URI="http://distfiles.sabayon.org/net-wireless/bcm43xx-firmware/bcm-${PV}-${BC_REVISION}.tar.bz2"
 
 LICENSE="AS-IS"
 SLOT="0"
