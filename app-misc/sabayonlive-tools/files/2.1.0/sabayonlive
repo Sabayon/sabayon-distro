@@ -35,6 +35,7 @@ my_setup_desktop() {
 	rm -f /etc/xdg/autostart/magneto.desktop
 	rm -f /etc/xdg/autostart/beagled-autostart.desktop
 	rm -f /usr/share/autostart/magneto.desktop
+	rm -f /usr/share/autostart/nepomukserver.desktop
 
         # Remove broken entries in /etc/mtab
         sed -i '/.*newroot.*/d' /etc/mtab
