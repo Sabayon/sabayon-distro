@@ -14,7 +14,6 @@ prepare_fluxbox_locked_autologin() {
 	echo "[Desktop]" > /home/sabayonuser/.dmrc
 	echo "Session=fluxbox" >> /home/sabayonuser/.dmrc
 	chown sabayonuser /home/sabayonuser/.dmrc
-	my_setup_autologin
 	# Change passwords for security
 	echo root:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
 	echo sabayonuser:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
@@ -83,7 +82,6 @@ my_setup_session() {
 					echo "[Desktop]" > /home/sabayonuser/.dmrc
 					echo "Session="$my_sess >> /home/sabayonuser/.dmrc
 					chown sabayonuser /home/sabayonuser/.dmrc
-					my_setup_autologin
 				;;
 			esac
 		done
@@ -423,7 +421,6 @@ start() {
 
 	my_setup_desktop
 	my_setup_password
-	my_setup_session
 	my_setup_xsistence
 	# my_setup_samba
 	my_setup_keymap
@@ -433,6 +430,8 @@ start() {
 	my_setup_locale
 	# setup autologin for all the supported Login managers
 	sabayon_setup_autologin
+	# override autostart stuff if required:
+	my_setup_session
 	sabayon_setup_motd
 	sabayon_setup_vt_autologin
 
