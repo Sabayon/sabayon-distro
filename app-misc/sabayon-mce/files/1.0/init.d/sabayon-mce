@@ -1,12 +1,6 @@
 #!/sbin/runscript
 # Copyright 2009 Sabayon Linux
 
-SABAYONMCE_DM_SETTING="/etc/sabayonmce.dm_settings"
-SABAYONMCE_SETFILE="/etc/.sabayonmce.configured"
-XDM_CONFIG="/etc/conf.d/xdm"
-SABAYON_DM_EXEC="/usr/bin/sabayon-mce-start"
-MCE_PID="/var/run/${SABAYON_DM_EXEC}.pid"
-
 depend() {
 	after mtab
 	before xdm
@@ -14,55 +8,25 @@ depend() {
 
 start() {
 
-    # remove old pid file if exists
-    rm -f ${MCE_PID}
+	source /sbin/sabayon-functions.sh
+	sabayonmce_avail=$(cat /proc/cmdline | grep sabayonmce)
 
-    # setup ${XDM_CONFIG} -> DISPLAYMANAGER to /usr/bin/sabayon-mce-start
-    # if sabayonmce is set; if not, revert our change back to our saved setting, if available
-    sabayonmce_avail=$(cat /proc/cmdline | grep sabayonmce)
-    sabayon_live=$(cat /proc/cmdline | grep cdroot)
-    mce_dm=$(cat ${XDM_CONFIG} | grep "${SABAYON_DM_EXEC}")
+	if [ -n "$sabayonmce_avail" ]; then
+		ebegin "Sabayon Media Center mode enabled"
 
-    if [ -n "$sabayonmce_avail" ]; then
+		# setup default .dmrc
+		echo "[Desktop]" > /var/sabayonmce/.dmrc
+		echo "Session=sabayon-mce" >> /var/sabayonmce/.dmrc
+		chown sabayonmce /var/sabayonmce/.dmrc
 
-        ebegin "Sabayon Media Center mode enabled"
-
-        # update DISPLAYMANAGER in ${XDM_CONFIG} if needed
-	if [ ! -f "${SABAYONMCE_SETFILE}" ] || [ -z "${mce_dm}" ]; then
-
-        	# backup old setting
-		if [ ! -f "${SABAYONMCE_DM_SETTING}" ] && [ -f "${XDM_CONFIG}" ] && [ -z "${sabayon_live}" ]; then
-            		old_dm=$(cat ${XDM_CONFIG} | grep "^DISPLAYMANAGER=")
-			echo ${old_dm} > ${SABAYONMCE_DM_SETTING}
-		fi
-
-		touch ${SABAYONMCE_SETFILE}
-	        sed -i 's/^DISPLAYMANAGER=.*//g' ${XDM_CONFIG}
-        	echo "DISPLAYMANAGER=\"${SABAYON_DM_EXEC}\"" >> ${XDM_CONFIG}
+		SABAYON_USER="sabayonmce"
+		sabayon_setup_autologin
+	else
+		ebegin "Sabayon Media Center mode disabled"
+		sabayon_disable_autologin
 	fi
 
-    else
-
-        ebegin "Sabayon Media Center mode disabled"
-
-	rm -f ${SABAYONMCE_SETFILE}
-        if [ -f "${SABAYONMCE_DM_SETTING}" ] && [ -f "${XDM_CONFIG}" ] && [ -z "${sabayon_live}" ]; then
-            my_old_dm=$(cat ${SABAYONMCE_DM_SETTING})
-            if [ -n "${my_old_dm}" ] && [ -z "`cat ${XDM_CONFIG} | grep ${my_old_dm}`" ]; then
-                sed -i 's/^DISPLAYMANAGER=.*//g' ${XDM_CONFIG}
-                echo ${my_old_dm} >> ${XDM_CONFIG}
-            fi
-        fi
-
-    fi
-
-    eend 0
-
-}
-
-
-stop() {
-	# remove pid file if exists
-	rm -f ${MCE_PID}
 	eend 0
+
 }
+

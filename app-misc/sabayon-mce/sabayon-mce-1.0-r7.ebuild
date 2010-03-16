@@ -14,13 +14,13 @@ KEYWORDS="x86 amd64"
 IUSE=""
 
 RDEPEND="media-tv/xbmc
-	>=x11-apps/xinit-1.0.8-r10"
+	>=app-misc/sabayonlive-tools-2.1.0-r7"
 DEPEND=""
 
 S="${WORKDIR}"
 
 src_unpack() {
-	cp ${FILESDIR}/${PV}/* ${WORKDIR} -Rp
+	cp ${FILESDIR}/${PV}/* ${WORKDIR} -Rp || die "cannot unpack"
 }
 
 src_install () {
@@ -40,8 +40,6 @@ src_install () {
 }
 
 pkg_postinst() {
-
 	# create new user sabayonmce
 	enewuser sabayonmce -1 /bin/sh /var/sabayonmce users,lp,wheel,uucp,audio,cdrom,video,games,cdrw,usb,plugdev,scanner,polkituser
-
 }
