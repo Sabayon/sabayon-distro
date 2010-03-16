@@ -4,6 +4,8 @@
 depend() {
 	after mtab
 	before xdm
+	# In this way autologin settings are overwritten
+	after sabayonlive
 }
 
 start() {
