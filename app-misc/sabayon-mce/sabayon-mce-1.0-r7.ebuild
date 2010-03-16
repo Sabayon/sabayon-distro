@@ -14,7 +14,7 @@ KEYWORDS="x86 amd64"
 IUSE=""
 
 RDEPEND="media-tv/xbmc
-	>=app-misc/sabayonlive-tools-2.1.0-r7"
+	>=app-misc/sabayonlive-tools-2.1.0-r8"
 DEPEND=""
 
 S="${WORKDIR}"
