@@ -16,7 +16,7 @@ sabayon_setup_autologin() {
 	kdm_file="/usr/share/config/kdm/kdmrc"
 	if [ -f "$kdm_file" ]; then
 		sed -i "s/AutoLoginEnable=.*/AutoLoginEnable=true/" $kdm_file
-		sed -i "s/AutoLoginUser=.*/AutoLoginUser=${sabayon_user}" $kdm_file
+		sed -i "s/AutoLoginUser=.*/AutoLoginUser=${sabayon_user}/" $kdm_file
 		sed -i "s/AutoLoginDelay=.*/AutoLoginDelay=0/" $kdm_file
 
 		sed -i "s/AllowRootLogin=.*/AllowRootLogin=true/" $kdm_file
