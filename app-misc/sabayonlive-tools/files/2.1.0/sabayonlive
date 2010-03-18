@@ -30,7 +30,7 @@ my_setup_desktop() {
 	# Disable memory eating services
 	rm -f /etc/xdg/autostart/hplip-systray.desktop
 	rm -f /etc/xdg/autostart/beagle-search-autostart.desktop
-	rm -f /etc/xdg/autostart/trackerd.desktop
+	rm -f /etc/xdg/autostart/tracker*.desktop
 	rm -f /etc/xdg/autostart/magneto.desktop
 	rm -f /etc/xdg/autostart/beagled-autostart.desktop
 	rm -f /usr/share/autostart/magneto.desktop
