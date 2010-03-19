@@ -42,4 +42,9 @@ src_install () {
 pkg_postinst() {
 	# create new user sabayonmce
 	enewuser sabayonmce -1 /bin/sh /var/sabayonmce users,lp,wheel,uucp,audio,cdrom,video,games,cdrw,usb,plugdev,scanner,polkituser
+
+	elog "For those who are using <=Sabayon-5.1 as Media Center:"
+	elog "PLEASE update DISPLAYMANAGER= in /etc/conf.d/xdm"
+	elog "setting it to gdm or kdm."
+
 }
