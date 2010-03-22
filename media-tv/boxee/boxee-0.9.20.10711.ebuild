@@ -1,4 +1,4 @@
-# Copyright 1999-2009 Sabayon Foundation
+# Copyright 1999-2010 Sabayon Foundation
 # Distributed under the terms of the GNU General Public License v2
 #
 EAPI="2"
@@ -158,7 +158,13 @@ src_configure() {
 		--prefix=${MY_PREFIX} \
 		--disable-ccache \
 		--enable-optimizations \
-		--enable-external-libraries \
+		--enable-external-ffmpeg \
+		--enable-external-liba52 \
+		--enable-external-libdts \
+		--enable-external-libmpeg2 \
+		--enable-external-libass \
+		--enable-external-libogg \
+		--enable-external-libwavpack \
 		--enable-goom \
 		$(use_enable avahi) \
 		$(use_enable css dvdcss) \
@@ -179,8 +185,8 @@ src_compile() {
 	emake give_me_my_mouse_back
 
 	# Clean up Flashplayer cruft
-	rm -rf ./xmbc/system/players/flashplayer/*osx*
-	rm -rf ./xmbc/system/players/flashplayer/*win32*
+	rm -rf ./system/players/flashplayer/*osx*
+	rm -rf ./system/players/flashplayer/*win32*
 }
 
 src_install() {
@@ -196,9 +202,11 @@ src_install() {
 	done
 
 	# Link flashplayer
-	dodir ${MY_PREFIX}/share/system/players/flashplayer/xulrunner-${MY_ARCH}-linux/bin/plugins
+	rm -rf ${MY_PREFIX}/system/players/flashplayer/xulrunner-${MY_ARCH}-linux/bin/plugins/libflashplayer.so
+
+	dodir ${MY_PREFIX}/system/players/flashplayer/xulrunner-${MY_ARCH}-linux/bin/plugins
 	dosym /opt/netscape/plugins/libflashplayer.so \
-		${MY_PREFIX}/share/system/players/flashplayer/xulrunner-${MY_ARCH}-linux/bin/plugins/libflashplayer.so
+		${MY_PREFIX}/system/players/flashplayer/xulrunner-${MY_ARCH}-linux/bin/plugins/libflashplayer.so
 }
 
 pkg_postinst() {
