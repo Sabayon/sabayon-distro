@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.ebuild,v 1.2 2010/01/22 13:43:38 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.2.ebuild,v 1.1 2010/03/24 12:49:15 nirbheek Exp $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
@@ -10,7 +10,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 MY_PV="${PV/_rc/rc}" # Handle beta
 MY_PV="${MY_PV/1.9.2/3.6}"
 MAJ_PV="1.9.2" # from mozilla-* branch name
-PATCH="${PN}-1.9.2-patches-0.2"
+PATCH="${PN}-1.9.2-patches-0.4"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -20,21 +20,21 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug libnotify networkmanager"
+IUSE="+alsa debug libnotify system-sqlite wifi"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.4
 	>=dev-libs/nspr-4.8
-	>=dev-db/sqlite-3.6.20-r1[fts3]
+	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	x11-libs/libXt
-	networkmanager? ( net-wireless/wireless-tools )
+	wifi? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
@@ -44,6 +44,12 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 S="${WORKDIR}/mozilla-${MAJ_PV}"
 
 pkg_setup() {
+	# Ensure we always build with C locale.
+	export LANG="C"
+	export LC_ALL="C"
+	export LC_MESSAGES="C"
+	export LC_CTYPE="C"
+
 	java-pkg-opt-2_pkg_setup
 }
 
@@ -58,6 +64,12 @@ src_prepare() {
 
 	# Fix broken mozilla-plugin.pc
 	epatch "${FILESDIR}/${PN}-1.9.2-fix-pkgconfig-file.patch"
+
+	# Fix broken media support
+	epatch "${FILESDIR}/${PN}-1.9.2-noalsa-fixup.patch"
+
+	# Fix broken alignment
+	epatch "${FILESDIR}/1000_fix_alignment.patch"
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
@@ -77,10 +89,6 @@ src_prepare() {
 
 	cd js/src
 	eautoreconf
-
-	# Patch in support to reset all LANG variables to C
-	# Do NOT add to patchset as it must be applied after eautoreconf
-	epatch "${FILESDIR}/000_flex-configure-LANG.patch"
 }
 
 src_configure() {
@@ -133,9 +141,10 @@ src_configure() {
 
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
-	mozconfig_use_enable networkmanager necko-wifi
+	mozconfig_use_enable wifi necko-wifi
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
+	mozconfig_use_enable system-sqlite
 
 	# Debug
 	if use debug ; then
