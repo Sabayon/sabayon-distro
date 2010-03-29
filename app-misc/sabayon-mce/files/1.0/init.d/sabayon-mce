@@ -24,7 +24,7 @@ start() {
 
 		SABAYON_USER="sabayonmce"
 		sabayon_setup_autologin
-	elif [ -z "$is_live" ]; then
+	elif [ -z "$is_live" ] && [ -z "$sabayonmce_avail" ]; then
 		ebegin "Sabayon Media Center mode disabled"
 		sabayon_disable_autologin
 	fi
