@@ -1,0 +1,44 @@
+diff -up open-iscsi-2.0-870.1/utils/fwparam_ibft/fwparam_ibft_sysfs.c~ open-iscsi-2.0-870.1/utils/fwparam_ibft/fwparam_ibft_sysfs.c
+--- open-iscsi-2.0-870.1/utils/fwparam_ibft/fwparam_ibft_sysfs.c~	2009-01-28 22:09:21.000000000 +0100
++++ open-iscsi-2.0-870.1/utils/fwparam_ibft/fwparam_ibft_sysfs.c	2009-01-28 22:10:29.000000000 +0100
+@@ -186,6 +186,40 @@ static int get_iface_from_device(const c
+ 		break;
+ 	}
+ 
++	closedir(dirfd);
++
++	if (rc != ENODEV)
++		return rc;
++
++	/* If not found try again with newer kernel networkdev sysfs layout */
++	strncat(dev_dir, "/net", FILENAMESZ);
++
++	if (!file_exist(dev_dir))
++		return rc;
++
++	dirfd = opendir(dev_dir);
++	if (!dirfd)
++		return errno;
++
++	while ((dent = readdir(dirfd))) {
++		if (!strcmp(dent->d_name, ".") || !strcmp(dent->d_name, ".."))
++			continue;
++
++		/* Take the first "regular" directory entry */
++		if (strlen(dent->d_name) > (sizeof(context->iface) - 1)) {
++			rc = EINVAL;
++			printf("Net device %s too bug for iface buffer.\n",
++			       dent->d_name);
++			break;
++		}
++
++		strcpy(context->iface, dent->d_name);
++		rc = 0;
++		break;
++	}
++
++	closedir(dirfd);
++
+ 	return rc;
+ }
+ 

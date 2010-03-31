@@ -1,0 +1,12 @@
+diff -up open-iscsi-2.0-870.1/usr/iscsi_sysfs.c~ open-iscsi-2.0-870.1/usr/iscsi_sysfs.c
+--- open-iscsi-2.0-870.1/usr/iscsi_sysfs.c~	2008-11-22 18:06:46.000000000 +0100
++++ open-iscsi-2.0-870.1/usr/iscsi_sysfs.c	2010-02-14 10:28:45.030720189 +0100
+@@ -22,6 +22,8 @@
+ #include <string.h>
+ #include <errno.h>
+ #include <dirent.h>
++#include <sys/types.h>
++#include <sys/stat.h>
+ 
+ #include "log.h"
+ #include "initiator.h"
