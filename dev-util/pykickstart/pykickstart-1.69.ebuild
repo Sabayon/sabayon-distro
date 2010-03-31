@@ -3,7 +3,7 @@
 # $
 
 EAPI="2"
-EGIT_TREE="r${PV}-1"
+EGIT_COMMIT="r${PV}-1"
 EGIT_REPO_URI="git://git.fedorahosted.org/git/pykickstart.git"
 inherit base distutils git
 
