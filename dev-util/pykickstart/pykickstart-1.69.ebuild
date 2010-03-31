@@ -15,3 +15,4 @@ LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
 
+RDEPEND="${RDEPEND} sys-devel/gettext"
