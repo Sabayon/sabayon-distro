@@ -3,19 +3,16 @@
 # $
 
 EAPI="2"
-EHG_REPO_URI="http://hg.fedoraproject.org/hg/system-config-date"
-EHG_REVISION="${PN}-1_9_34"
-inherit base mercurial
+inherit base
 
 DESCRIPTION="The system-config-date tool lets you set the date and time of your machine."
 HOMEPAGE="http://fedoraproject.org/wiki/SystemConfig/date"
-SRC_URI=""
+SRC_URI="https://fedorahosted.org/released/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-1"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE=""
-S="${WORKDIR}/${PN}"
 
 # FIXME: would also require a dependency against anaconda
 DEPEND="app-text/docbook-xml-dtd
@@ -32,4 +29,5 @@ RDEPEND="net-misc/ntp
         gnome-base/libglade
         dev-libs/newt
         dev-python/rhpl
-        x11-themes/hicolor-icon-theme"
+        x11-themes/hicolor-icon-theme
+	dev-python/pygtk"
