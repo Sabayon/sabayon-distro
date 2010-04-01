@@ -27,7 +27,7 @@ RESTRICT_PYTHON_ABIS="3.*"
 DOCS="README doc/ChangeLog"
 
 src_prepare() {
-	epatch "${FILESDIR}"/*.patch
+	epatch "${FILESDIR}"/python-nss-fix-path.patch
 }
 
 src_install() {
