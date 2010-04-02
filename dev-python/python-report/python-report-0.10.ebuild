@@ -26,6 +26,7 @@ RDEPEND="dev-libs/openssl
 src_prepare() {
 
 	epatch "${FILESDIR}"/${P}-sabayon-defaults.patch
+	epatch "${FILESDIR}"/${P}-disable-rpm.patch
 
 	eautoreconf || die "cannot run eautoreconf"
 	autoreconf -i || die "wtf"
