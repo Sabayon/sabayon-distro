@@ -43,3 +43,16 @@ src_compile() {
 
 	emake || die "make failed"
 }
+
+src_install() {
+	base_src_install
+
+	# remove Red Hat stuff
+	rm "${D}"/etc/report.d/RHEL.ini
+	rm "${D}"/etc/report.d/dropbox.redhat.com.ini
+	rm "${D}"/etc/report.d/bugzilla.redhat.com.ini
+
+	# install Sabayon configuration
+	cp "${FILESDIR}"/bugs.sabayon.org.ini "${D}/etc/report.d/"
+
+}
