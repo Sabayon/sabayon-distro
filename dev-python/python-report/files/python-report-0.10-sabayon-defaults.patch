@@ -1,0 +1,54 @@
+diff -Nurp python-report-0.10.orig/python/report/templates/bugzilla-template/__init__.py python-report-0.10/python/report/templates/bugzilla-template/__init__.py
+--- python-report-0.10.orig/python/report/templates/bugzilla-template/__init__.py	2010-04-02 18:46:19.862030189 +0200
++++ python-report-0.10/python/report/templates/bugzilla-template/__init__.py	2010-04-02 18:56:47.102924468 +0200
+@@ -55,10 +55,10 @@ def displayURL(optionsDict):
+ def bugURL(optionsDict):
+     if 'bugURL' in optionsDict:
+         return optionsDict["bugURL"]
+-    host = "bugzilla.redhat.com"
++    host = "bugs.sabayon.org"
+     if 'bugzilla_host' in optionsDict:
+         host = optionsDict["bugzilla_host"]
+-    return "https://" + host + "/xmlrpc.cgi"
++    return "http://" + host + "/xmlrpc.cgi"
+ 
+ def report(signature, io, optionsDict):
+     if not io:
+@@ -130,8 +130,8 @@ def sendToBugzilla(component, signature,
+ 
+     try:
+         if not bzfiler:
+-            bzfiler = filer.BugzillaFiler("https://bugzilla.redhat.com/xmlrpc.cgi",
+-                                          "http://bugzilla.redhat.com",
++            bzfiler = filer.BugzillaFiler("http://bugs.sabayon.org/xmlrpc.cgi",
++                                          "http://bugs.sabayon.org",
+                                           filer.getVersion(), filer.getProduct())
+ 
+         if not bzfiler or not bzfiler.supportsFiling() or not bzfiler.bugUrl:
+diff -Nurp python-report-0.10.orig/python/report/templates/RHEL-template/__init__.py python-report-0.10/python/report/templates/RHEL-template/__init__.py
+--- python-report-0.10.orig/python/report/templates/RHEL-template/__init__.py	2010-04-02 18:46:19.862030189 +0200
++++ python-report-0.10/python/report/templates/RHEL-template/__init__.py	2010-04-02 18:56:33.214921519 +0200
+@@ -55,10 +55,10 @@ def displayURL(optionsDict):
+ def bugURL(optionsDict):
+     if optionsDict.has_key("bugURL"):
+         return optionsDict["bugURL"]
+-    host = "bugzilla.redhat.com"
++    host = "bugs.sabayon.org"
+     if optionsDict.has_key("bugzilla_host"):
+         host = optionsDict["bugzilla_host"]
+-    return "https://" + host + "/xmlrpc.cgi"
++    return "http://" + host + "/xmlrpc.cgi"
+ 
+ def report(signature, io, optionsDict):
+     if not io:
+@@ -131,8 +131,8 @@ def sendToBugzilla( component, hashmarke
+ 
+     try:
+         if not bzfiler:
+-            bzfiler = filer.BugzillaFiler("https://bugzilla.redhat.com/xmlrpc.cgi",
+-                                          "http://bugzilla.redhat.com",
++            bzfiler = filer.BugzillaFiler("http://bugs.sabayon.org/xmlrpc.cgi",
++                                          "http://bugs.sabayon.org",
+                                           filer.getVersion(), filer.getProduct())
+ 
+         if not bzfiler or not bzfiler.supportsFiling() or not bzfiler.bugUrl:
