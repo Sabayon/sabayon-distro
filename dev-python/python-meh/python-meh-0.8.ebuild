@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="gtk"
 
 COMMON_DEPEND="dev-util/intltool
 	sys-devel/gettext"
@@ -23,7 +23,7 @@ DEPEND="${COMMON_DEPEND}"
 # FIXME: missing RDEPENDs: rpm, yum
 RDEPEND="${COMMON_DEPEND}
 	dev-libs/newt
-	dev-python/pygtk:2
+	gtk? ( dev-python/pygtk:2 )
 	dev-python/python-bugzilla
 	dev-python/dbus-python
 	net-misc/openssh"
