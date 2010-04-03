@@ -3,7 +3,7 @@
 # $
 
 EAPI="2"
-inherit base
+inherit python base
 
 DESCRIPTION="The system-config-date tool lets you set the date and time of your machine."
 HOMEPAGE="http://fedoraproject.org/wiki/SystemConfig/date"
@@ -31,3 +31,7 @@ RDEPEND="net-misc/ntp
         dev-python/rhpl
         x11-themes/hicolor-icon-theme
 	dev-python/pygtk"
+
+pkg_postrm() {
+        python_mod_cleanup /usr/share/${PN}
+}
