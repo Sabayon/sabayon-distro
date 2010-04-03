@@ -3,7 +3,7 @@
 # $
 
 EAPI="2"
-inherit base
+inherit python base
 
 DESCRIPTION="The system-config-users tool lets you manage the users and groups on your computer."
 HOMEPAGE="http://fedoraproject.org/wiki/SystemConfig/users"
@@ -25,3 +25,7 @@ RDEPEND=">=app-admin/libuser-0.56
 	sys-libs/cracklib
 	sys-process/procps
 	x11-misc/xdg-utils"
+
+pkg_postrm() {
+        python_mod_cleanup /usr/share/${PN}
+}
