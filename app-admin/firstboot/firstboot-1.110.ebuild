@@ -18,16 +18,10 @@ IUSE=""
 RDEPEND="=dev-python/pygtk-2*
 	dev-python/rhpl
 	dev-python/rhpxl
-	app-admin/system-config-display
-	app-admin/system-config-language
-	app-admin/system-config-soundcard
 	app-admin/system-config-users
 	app-admin/system-config-date
 	app-admin/authconfig
 	sys-libs/libuser"
-# Incompatible with Gentoo, so we don't use these modules.
-#	app-admin/system-config-network
-#	app-admin/system-config-securitylevel
 DEPEND="${RDEPEND}
 	sys-devel/gettext"
 PDEPEND="app-admin/system-config-keyboard"
