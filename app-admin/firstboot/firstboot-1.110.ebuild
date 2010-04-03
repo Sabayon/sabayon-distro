@@ -17,7 +17,6 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 RDEPEND="=dev-python/pygtk-2*
 	dev-python/rhpl
-	dev-python/rhpxl
 	app-admin/system-config-users
 	app-admin/system-config-date
 	app-admin/authconfig
