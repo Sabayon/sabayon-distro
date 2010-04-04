@@ -1,0 +1,11 @@
+AC_INIT([libHBAAPI], [2.2])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+
+AC_PROG_CC
+AC_PROG_LIBTOOL
+
+AC_CHECK_LIB(dl, dlopen)
+
+AC_CONFIG_FILES([Makefile HBAAPI.pc])
+AC_OUTPUT
+
