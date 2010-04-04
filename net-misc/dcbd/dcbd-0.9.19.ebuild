@@ -6,7 +6,7 @@ EAPI="2"
 
 inherit base autotools
 
-DESCRIPTION="This package contains the Linux user space daemon and configuration tool for Intel Enhanced Ethernet for the Data Center software."
+DESCRIPTION="Linux user space daemon and config tool for Intel Enh. Eth. for the Data Center"
 HOMEPAGE="http://e1000.sourceforge.net"
 SRC_URI="mirror://sourceforge/project/e1000/DCB%20Tools/${PV}/${P}.tar.gz"
 
