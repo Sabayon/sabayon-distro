@@ -1,0 +1,28 @@
+--- hbaapi_src_2.2.orig/HBAAPILIB.c
++++ hbaapi_src_2.2/HBAAPILIB.c
+@@ -30,7 +30,6 @@
+ 
+ #ifdef WIN32
+ #include <windows.h>
+-#include <string.h>
+ /*
+  * Next define forces entry points in the dll to be exported
+  * See hbaapi.h to see what it does.
+@@ -40,6 +39,7 @@
+ #include <dlfcn.h>
+ #include <strings.h>
+ #endif
++#include <string.h>
+ #include <stdio.h>
+ #include <time.h>
+ #include "hbaapi.h"
+--- hbaapi_src_2.2.orig/hbaapitest.c
++++ hbaapi_src_2.2/hbaapitest.c
+@@ -31,6 +31,7 @@
+ #ifndef WIN32
+ #include <dlfcn.h> /* Dynamic library support for Solaris */
+ #include <time.h>
++#include <stdlib.h>
+ #endif
+ #include "hbaapi.h"
+ 
