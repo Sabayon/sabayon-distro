@@ -20,7 +20,7 @@ DEPEND="dev-util/desktop-file-utils
 	sys-devel/gettext"
 
 # FIXME: would require rpm-python
-RDEPEND=">=app-admin/libuser-0.56
+RDEPEND=">=sys-libs/libuser-0.56
 	>=dev-python/pygtk-2.6
 	sys-libs/cracklib
 	sys-process/procps
