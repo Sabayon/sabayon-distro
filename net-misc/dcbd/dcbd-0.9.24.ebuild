@@ -24,3 +24,10 @@ PATCHES=( "${FILESDIR}"/dcbd-0.9.7-make.patch
 	"${FILESDIR}"/dcbd-0.9.7-init.patch
 	"${FILESDIR}"/dcbd-0.9.19-init-lsb.patch
 	"${FILESDIR}"/${P}-fix-if_nameindex-already-defined.patch )
+
+src_install() {
+	base_src_install
+	# FIXME/TODO: create dcbd init script, the one provided doesn't
+	# work in Gentoo
+	rm "${D}"/etc/init.d/dcbd || die "cannot remove dcbd init script"
+}
