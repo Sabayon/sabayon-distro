@@ -24,6 +24,7 @@ DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}
 	dev-libs/newt
 	gtk? ( dev-python/pygtk:2 )
-	dev-python/python-bugzilla
 	dev-python/dbus-python
+	dev-python/python-bugzilla
+	dev-python/python-report
 	net-misc/openssh"
