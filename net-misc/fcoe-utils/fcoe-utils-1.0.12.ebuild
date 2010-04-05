@@ -19,7 +19,8 @@ IUSE="+dcb kernel_linux"
 
 DEPEND="sys-apps/hbaapi
 	dcb? ( >=net-misc/dcbd-0.9.24 )
-	kernel_linux? ( virtual/linux-sources )"
+	kernel_linux? ( virtual/linux-sources )
+	>=sys-kernel/linux-headers-2.6.32"
 RDEPEND="sys-apps/hbaapi
 	dcb? ( >=net-misc/dcbd-0.9.24 )"
 
