@@ -1,0 +1,20 @@
+--- fcoe-utils-1.0.7/etc/initd/initd.fedora	2009-03-27 21:40:22.000000000 +0100
++++ fcoe-utils-1.0.7/etc/initd/initd.fedora.update	2009-04-03 09:54:39.000000000 +0200
+ service_status()
+@@ -109,6 +109,8 @@ status()
+ 	else
+ 		echo "Created interfaces: $interfaces"
+ 	fi
++	test -f /var/lock/subsys/fcoe
++	return $@
+ }
+ 
+ case "$1" in
+@@ -137,6 +139,7 @@ case "$1" in
+ 
+ 	status)
+ 		status
++		exit $?
+ 		;;
+ 
+ 	*)

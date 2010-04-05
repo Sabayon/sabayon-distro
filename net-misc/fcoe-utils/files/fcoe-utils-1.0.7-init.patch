@@ -1,0 +1,40 @@
+--- fcoe-utils-1.0.7/etc/initd/initd.fedora	2009-03-27 21:40:22.000000000 +0100
++++ fcoe-utils-1.0.7/etc/initd/initd.fedora.update	2009-04-03 09:54:39.000000000 +0200
+@@ -15,14 +15,17 @@
+ # this program; if not, write to the Free Software Foundation, Inc.,
+ # 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+ #
++# chkconfig: - 21 80
++#
+ # Maintained at www.Open-FCoE.org
+ 
+ ### BEGIN INIT INFO
+ # Provides: fcoe
+ # Required-Start: network
+ # Required-Stop:
+-# Default-Start: 3 5
+-# Default-Stop: 3 5
++# Default-Start:
++# Default-Stop:
++# Short-Description: Open-FCoE Initiator
+ # Description: Open-FCoE Initiator
+ ### END INIT INFO
+ 
+@@ -69,6 +72,9 @@ service_start()
+ 
+ 	daemon --pidfile ${PID_FILE} ${FCOEMON} ${FCOEMON_OPTS}
+ 
++	echo 
++	touch /var/lock/subsys/fcoe
++
+ 	echo
+ }
+ 
+@@ -80,6 +86,7 @@ service_stop()
+ 
+ 	rm -f /var/run/fcoemon.*
+ 	rm -f /tmp/fcoemon.dcbd.*
++	rm -f /var/lock/subsys/fcoe
+ 
+ 	echo
+ }

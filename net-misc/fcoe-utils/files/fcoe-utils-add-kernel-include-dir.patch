@@ -1,0 +1,11 @@
+--- fcoe-utils-1.0.12.orig/Makefile.am
++++ fcoe-utils-1.0.12/Makefile.am
+@@ -5,7 +5,7 @@ sbin_PROGRAMS += fcoemon
+ endif
+ 
+ ## all targets should look for headers in the include directory
+-AM_CPPFLAGS = -Wall -I${srcdir}/include
++AM_CPPFLAGS = -Wall -I${srcdir}/include -I${KV_OUT_DIR}/include
+ 
+ ## pass the sysconfdir into the C proprocessor
+ AM_CFLAGS = -DSYSCONFDIR="\"${sysconfdir}\""

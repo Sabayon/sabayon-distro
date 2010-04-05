@@ -1,0 +1,26 @@
+Quick Start guide for Open-FCoE
+===============================
+
+1. Install fcoe-utils package.  This should also install dcbd, libhbaapi and
+   libhbalinux as dependencies.
+
+2. Rename /etc/fcoe/cfg-ethx so it corresponds with name of your network
+   interface (e.g. /etc/fcoe/cfg-eth0). Copy and rename this file accordingly
+   if you have more interfaces, which should be fcoe-enabled
+
+3. Modify configuration files to enable FCoE. Set FCOE_ENABLE="yes" and
+   DCB_REQUIRED="yes".
+
+3. Run 'chkconfig fcoe on' to start FCoE per run level. This will setup
+   FCoE to start on reboot.
+
+4. Run 'chkconfig dcbd on' to start DCB per run level. This will setup DCB to
+   start on reboot.
+
+5. Run 'service dcbd start' to start dcb.
+
+6. Run 'dcbtool sc ethX dcb on; dcbtool sc ethX app:0 e:1;' for each fcoe-enabled
+   interface to setup dcb for fcoe.
+
+7. Run 'service fcoe start' to start fcoe.
+

@@ -1,0 +1,34 @@
+--- fcoe-utils-1.0.8/etc/initd/initd.fedora.orig	2009-09-14 09:40:57.000000000 +0200
++++ fcoe-utils-1.0.8/etc/initd/initd.fedora	2009-09-14 11:06:34.000000000 +0200
+@@ -93,11 +93,13 @@
+ 
+ status()
+ {
++	status=0
+ 	pidof $FCOEMON
+ 	if [ $? -eq 0 ]; then
+ 		echo "$FCOEMON -- RUNNING, pid=`cat $PID_FILE`"
+ 	else
+ 		echo "$FCOEMON -- UNUSED"
++		status=3
+ 	fi
+ 
+ 	interfaces=`$FCOEADM -i 2>&1 | \
+@@ -244,9 +246,15 @@
+ 		echo "No interfaces created."
+ 	else
+ 		echo "Created interfaces: $interfaces"
++		status=0
+ 	fi
+-	test -f /var/lock/subsys/fcoe
+-	return $@
++	if [ -f /var/lock/subsys/fcoe -a $status -eq 3 ]; then
++		status=2
++	fi
++	if [ -f /var/run/fcoe.pid -a $status -eq 3 ]; then
++		status=1
++	fi
++	return $status
+ }
+ 
+ case "$1" in

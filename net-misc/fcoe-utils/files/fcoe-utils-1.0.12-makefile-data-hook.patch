@@ -1,0 +1,10 @@
+--- fcoe-utils-1.0.12.orig/Makefile.am
++++ fcoe-utils-1.0.12/Makefile.am
+@@ -70,7 +70,3 @@ init_d_SCRIPTS = etc/initd/fcoe
+ 
+ dist_noinst_DATA = README COPYING INSTALL fcoe-utils.spec
+ 
+-install-data-hook:
+-	if [ ! -f ${fcoe_configdir}/config ] ; then \
+-		cp etc/config ${fcoe_configdir}/config; \
+-	fi
