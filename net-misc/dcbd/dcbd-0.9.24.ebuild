@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="kernel_linux"
 
-DEPEND="kernel_linux? ( >=sys-kernel/linux-headers-2.6.31 )
+DEPEND="kernel_linux? ( >=sys-kernel/linux-headers-2.6.29 )
 	dev-libs/libconfig
 	>=sys-libs/glibc-2.10.1"
 RDEPEND=""
