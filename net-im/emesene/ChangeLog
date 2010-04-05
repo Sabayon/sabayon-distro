@@ -1,0 +1,10 @@
+# ChangeLog for net-im/emesene
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header$
+
+*emesene-1.6.0-r1 (05 Apr 2010)
+
+  05 Apr 2010; Ian Whyman <ian.whyman@sabayonlinux.org>
+  -emesene-1.6.0.ebuild, +emesene-1.6.0-r1.ebuild:
+  Bump to 1.6.1
+
