@@ -45,3 +45,12 @@ src_configure() {
 src_compile() {
 	emake KV_OUT_DIR="${KV_OUT_DIR}" || die "make failed"
 }
+
+src_install() {
+	base_src_install
+
+	# Redhat does this way, path is hardcoded in Anaconda
+	dodir /usr/libexec/fcoe
+	exeinto /usr/libexec/fcoe
+	doexe "${FILESDIR}"/fcoe_edd.sh
+}
