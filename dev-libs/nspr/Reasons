@@ -1,4 +1,0 @@
-Ian Whyman <ian.whyman@sabayonlinux.org>
-
-* Needed by xulrunner-1.9.1-rc* for firefox 3.5, can be removed once this gets updated in tree
-* Contains compat use to stop older apps breaking
