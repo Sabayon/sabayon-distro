@@ -27,6 +27,16 @@ my_setup_desktop() {
 	cp /etc/skel /home/sabayonuser -Rp
 	chown sabayonuser:users /home/sabayonuser -R
 
+	liveinst_desktop="/usr/share/applications/liveinst.desktop"
+	liveinst_desktop_name="$(basename ${liveinst_desktop})"
+	if [ -f "${liveinst_desktop}" ]; then
+		cp "${liveinst_desktop}" /home/sabayonuser/Desktop
+		chown sabayonuser:users /home/sabayonuser/Desktop/${liveinst_desktop_name}
+		chmod +x /home/sabayonuser/Desktop/${liveinst_desktop_name}
+		rm -f /etc/skel/Desktop/Anaconda*.desktop
+		rm -f /home/sabayonuser/Desktop/Anaconda*.desktop
+	fi
+
 	# Disable memory eating services
 	rm -f /etc/xdg/autostart/hplip-systray.desktop
 	rm -f /etc/xdg/autostart/beagle-search-autostart.desktop
