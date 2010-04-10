@@ -77,6 +77,8 @@ src_unpack() {
 	for i in ${FILESDIR}/3.4.11/*.patch; do
 		epatch "${i}"
 	done
+	# Add crypt support
+	epatch "${FILESDIR}"/${PN}-crypt-config.patch
 
 }
 
