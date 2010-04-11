@@ -26,6 +26,8 @@ RDEPEND=">=sys-libs/libuser-0.56
 	sys-process/procps
 	x11-misc/xdg-utils"
 
+PATCHES=( "${FILESDIR}/${PN}-kill-rpm.patch" )
+
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
 }
