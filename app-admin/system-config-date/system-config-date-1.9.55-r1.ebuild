@@ -12,7 +12,7 @@ SRC_URI="https://fedorahosted.org/released/${PN}/${P}.tar.bz2"
 LICENSE="GPL-1"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE=""
+IUSE="gtk"
 
 # FIXME: would also require a dependency against anaconda
 DEPEND="app-text/docbook-xml-dtd
@@ -26,11 +26,11 @@ DEPEND="app-text/docbook-xml-dtd
 
 RDEPEND="net-misc/ntp
         dev-python/libgnomecanvas-python
-        gnome-base/libglade
         dev-libs/newt
+	dev-python/python-slip
         dev-python/rhpl
-        x11-themes/hicolor-icon-theme
-	dev-python/pygtk"
+	gtk? ( dev-python/pygtk )
+        x11-themes/hicolor-icon-theme"
 
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
