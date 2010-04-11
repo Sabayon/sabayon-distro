@@ -19,7 +19,8 @@ RDEPEND="=dev-python/pygtk-2*
 	dev-python/rhpl
 	app-admin/system-config-users
 	app-admin/system-config-date
-	sys-libs/libuser"
+	sys-libs/libuser
+	dev-python/python-ethtool"
 DEPEND="${RDEPEND}
 	sys-devel/gettext"
 PDEPEND="app-admin/system-config-keyboard"
