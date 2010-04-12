@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+PYTHON_DEPEND="2"
+
 inherit eutils python games
 
 MY_PN="FretsOnFire"
@@ -17,15 +19,13 @@ KEYWORDS="~amd64 ~x86"
 IUSE="glew guitarhero psyco"
 
 DEPEND=""
-RDEPEND=">=dev-lang/python-2.3
-	>=dev-python/numeric-23.8
+RDEPEND=">=dev-python/numeric-23.8
 	>=dev-python/pyopengl-2.0.1.09
 	dev-python/pyvorbis
 	dev-python/pygame
 	dev-python/PyAmanith
 	dev-python/imaging
 	dev-python/numpy
-	dev-python/ctypes
 	psyco? ( dev-python/psyco )
 	glew? ( dev-python/glewpy )
 	guitarhero? ( media-sound/vorbis-tools )"
