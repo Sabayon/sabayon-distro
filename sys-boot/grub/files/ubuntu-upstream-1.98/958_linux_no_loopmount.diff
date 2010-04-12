@@ -1,0 +1,20 @@
+Ubuntu: needed for Wubi
+Description: Ignore devices loop-mounted from files in 10_linux.
+UbuntuSpecific: Not inherently, but perhaps we should integrate 10_lupin
+ properly instead.
+
+diff -Nur -x '*.orig' -x '*~' grub2-1.97~beta3/util/grub.d/10_linux.in grub2-1.97~beta3.new/util/grub.d/10_linux.in
+--- grub2-1.97~beta3/util/grub.d/10_linux.in	2009-09-16 17:41:06.000000000 +0100
++++ grub2-1.97~beta3.new/util/grub.d/10_linux.in	2009-09-16 17:44:52.000000000 +0100
+@@ -32,6 +32,11 @@
+ case ${GRUB_DEVICE} in
+   /dev/loop/*|/dev/loop[0-9])
+     GRUB_DEVICE=`losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
++    # We can't cope with devices loop-mounted from files here.
++    case ${GRUB_DEVICE} in
++      /dev/*) ;;
++      *) exit 0 ;;
++    esac
+   ;;
+ esac
+ 

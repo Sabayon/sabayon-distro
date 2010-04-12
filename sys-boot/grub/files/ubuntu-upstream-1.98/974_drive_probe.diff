@@ -1,0 +1,23 @@
+Description: Probe all devices if we've been asked for a drive name
+ This allows --target=drive to work properly even without a device.map.
+ .
+ Depends on 969_lvm_raid_probe.diff.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/549980
+Forwarded: no
+Last-Update: 2010-04-08
+
+diff -Nur -x '*.orig' -x '*~' grub2/util/grub-probe.c grub2.new/util/grub-probe.c
+--- grub2/util/grub-probe.c	2010-04-08 12:02:36.000000000 +0100
++++ grub2.new/util/grub-probe.c	2010-04-08 12:04:05.000000000 +0100
+@@ -139,7 +139,9 @@
+     }
+ 
+   if (stat (dev_map, &dev_map_stat) == -1 &&
+-      grub_util_get_dev_abstraction (device_name) != GRUB_DEV_ABSTRACTION_NONE)
++      (print == PRINT_DRIVE ||
++       grub_util_get_dev_abstraction (device_name) !=
++	 GRUB_DEV_ABSTRACTION_NONE))
+     {
+       /* If we don't have a device map, then we won't yet know about the
+          physical volumes underlying this device, so probe all devices.  */

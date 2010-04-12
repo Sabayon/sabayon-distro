@@ -1,0 +1,227 @@
+Description: Fix LVM/RAID probing without device.map
+ When probing LVM or RAID without a device.map, probe all devices in order
+ that we will know about the underlying physical volumes.
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/525085
+Forwarded: http://lists.gnu.org/archive/html/grub-devel/2010-03/msg00084.html
+Last-Update: 2010-03-22
+
+diff -Nur -x '*.orig' -x '*~' grub2/conf/common.rmk grub2.new/conf/common.rmk
+--- grub2/conf/common.rmk	2010-03-22 13:49:14.000000000 +0000
++++ grub2.new/conf/common.rmk	2010-03-22 13:53:20.000000000 +0000
+@@ -24,6 +24,7 @@
+ util/grub-probe.c_DEPENDENCIES = grub_probe_init.h
+ grub_probe_SOURCES = gnulib/progname.c util/grub-probe.c	\
+ 	util/hostdisk.c	util/misc.c util/getroot.c		\
++	util/deviceiter.c					\
+ 	kern/device.c kern/disk.c kern/err.c kern/misc.c	\
+ 	kern/parser.c kern/partition.c kern/file.c kern/list.c	\
+ 	\
+diff -Nur -x '*.orig' -x '*~' grub2/conf/i386-pc.rmk grub2.new/conf/i386-pc.rmk
+--- grub2/conf/i386-pc.rmk	2010-03-22 13:49:14.000000000 +0000
++++ grub2.new/conf/i386-pc.rmk	2010-03-22 13:49:17.000000000 +0000
+@@ -94,7 +94,8 @@
+ util/i386/pc/grub-setup.c_DEPENDENCIES = grub_setup_init.h
+ grub_setup_SOURCES = gnulib/progname.c \
+ 	util/i386/pc/grub-setup.c util/hostdisk.c	\
+-	util/misc.c util/getroot.c kern/device.c kern/disk.c	\
++	util/misc.c util/getroot.c util/deviceiter.c		\
++	kern/device.c kern/disk.c				\
+ 	kern/err.c kern/misc.c kern/parser.c kern/partition.c	\
+ 	kern/file.c kern/fs.c kern/env.c kern/list.c		\
+ 	fs/fshelp.c						\
+diff -Nur -x '*.orig' -x '*~' grub2/conf/sparc64-ieee1275.rmk grub2.new/conf/sparc64-ieee1275.rmk
+--- grub2/conf/sparc64-ieee1275.rmk	2010-03-22 13:49:14.000000000 +0000
++++ grub2.new/conf/sparc64-ieee1275.rmk	2010-03-22 13:49:17.000000000 +0000
+@@ -68,7 +68,8 @@
+ # For grub-setup.
+ util/sparc64/ieee1275/grub-setup.c_DEPENDENCIES = grub_setup_init.h
+ grub_setup_SOURCES = util/sparc64/ieee1275/grub-setup.c util/hostdisk.c	\
+-	util/misc.c util/getroot.c kern/device.c kern/disk.c	\
++	util/misc.c util/getroot.c util/deviceiter.c		\
++	kern/device.c kern/disk.c				\
+ 	kern/err.c kern/misc.c kern/parser.c kern/partition.c	\
+ 	kern/file.c kern/fs.c kern/env.c kern/list.c		\
+ 	fs/fshelp.c						\
+diff -Nur -x '*.orig' -x '*~' grub2/include/grub/util/hostdisk.h grub2.new/include/grub/util/hostdisk.h
+--- grub2/include/grub/util/hostdisk.h	2010-03-22 13:47:27.000000000 +0000
++++ grub2.new/include/grub/util/hostdisk.h	2010-03-22 13:51:33.000000000 +0000
+@@ -22,6 +22,7 @@
+ 
+ void grub_util_biosdisk_init (const char *dev_map);
+ void grub_util_biosdisk_fini (void);
++int grub_util_biosdisk_probe_device (const char *name, int is_floppy);
+ char *grub_util_biosdisk_get_grub_dev (const char *os_dev);
+ 
+ #endif /* ! GRUB_BIOSDISK_MACHINE_UTIL_HEADER */
+diff -Nur -x '*.orig' -x '*~' grub2/util/grub-probe.c grub2.new/util/grub-probe.c
+--- grub2/util/grub-probe.c	2010-03-22 13:47:27.000000000 +0000
++++ grub2.new/util/grub-probe.c	2010-03-22 13:53:10.000000000 +0000
+@@ -28,6 +28,7 @@
+ #include <grub/msdos_partition.h>
+ #include <grub/util/hostdisk.h>
+ #include <grub/util/getroot.h>
++#include <grub/util/deviceiter.h>
+ #include <grub/term.h>
+ #include <grub/env.h>
+ #include <grub/raid.h>
+@@ -106,13 +107,14 @@
+ }
+ 
+ static void
+-probe (const char *path, char *device_name)
++probe (const char *path, char *device_name, const char *dev_map)
+ {
+   char *drive_name = NULL;
+   char *grub_path = NULL;
+   char *filebuf_via_grub = NULL, *filebuf_via_sys = NULL;
+   grub_device_t dev = NULL;
+   grub_fs_t fs;
++  struct stat dev_map_stat;
+ 
+   if (path == NULL)
+     {
+@@ -136,6 +138,22 @@
+       goto end;
+     }
+ 
++  if (stat (dev_map, &dev_map_stat) == -1 &&
++      grub_util_get_dev_abstraction (device_name) != GRUB_DEV_ABSTRACTION_NONE)
++    {
++      /* If we don't have a device map, then we won't yet know about the
++         physical volumes underlying this device, so probe all devices.  */
++      grub_util_iterate_devices (grub_util_biosdisk_probe_device, 0);
++
++      /* Now reinitialise the higher layers.  */
++      grub_lvm_fini ();
++      grub_mdraid_fini ();
++      grub_raid_fini ();
++      grub_raid_init ();
++      grub_mdraid_init ();
++      grub_lvm_init ();
++    }
++
+   drive_name = grub_util_get_grub_dev (device_name);
+   if (! drive_name)
+     grub_util_error ("cannot find a GRUB drive for %s.  Check your device.map", device_name);
+@@ -428,9 +446,9 @@
+ 
+   /* Do it.  */
+   if (argument_is_device)
+-    probe (NULL, argument);
++    probe (NULL, argument, dev_map ? : DEFAULT_DEVICE_MAP);
+   else
+-    probe (argument, NULL);
++    probe (argument, NULL, dev_map ? : DEFAULT_DEVICE_MAP);
+ 
+   /* Free resources.  */
+   grub_fini_all ();
+diff -Nur -x '*.orig' -x '*~' grub2/util/hostdisk.c grub2.new/util/hostdisk.c
+--- grub2/util/hostdisk.c	2010-03-22 13:49:14.000000000 +0000
++++ grub2.new/util/hostdisk.c	2010-03-22 13:51:53.000000000 +0000
+@@ -1237,6 +1237,48 @@
+   return i;
+ }
+ 
++static void
++store_grub_dev (const char *grub_disk, const char *os_disk)
++{
++  unsigned int i;
++
++  for (i = 0; i < ARRAY_SIZE (map); i++)
++    if (! map[i].device)
++      break;
++    else if (strcmp (map[i].drive, grub_disk) == 0)
++      {
++	if (strcmp (map[i].device, os_disk) == 0)
++	  return;
++	grub_util_error (_("drive `%s' already mapped to `%s'"),
++			 map[i].drive, map[i].device);
++      }
++
++  if (i == ARRAY_SIZE (map))
++    grub_util_error (_("device count exceeds limit"));
++
++  map[i].drive = xstrdup (grub_disk);
++  map[i].device = xstrdup (os_disk);
++}
++
++static int num_hd = 0;
++static int num_fd = 0;
++
++int
++grub_util_biosdisk_probe_device (const char *name, int is_floppy)
++{
++  char *grub_disk;
++
++  if (is_floppy)
++    grub_disk = xasprintf ("fd%d", num_fd++);
++  else
++    grub_disk = xasprintf ("hd%d", num_hd++);
++
++  store_grub_dev (grub_disk, name);
++  free (grub_disk);
++
++  return 0;
++}
++
+ char *
+ grub_util_biosdisk_get_grub_dev (const char *os_dev)
+ {
+diff -Nur -x '*.orig' -x '*~' grub2/util/i386/pc/grub-setup.c grub2.new/util/i386/pc/grub-setup.c
+--- grub2/util/i386/pc/grub-setup.c	2010-03-22 13:49:13.000000000 +0000
++++ grub2.new/util/i386/pc/grub-setup.c	2010-03-22 13:53:10.000000000 +0000
+@@ -36,6 +36,7 @@
+ #include <grub/util/raid.h>
+ #include <grub/util/lvm.h>
+ #include <grub/util/getroot.h>
++#include <grub/util/deviceiter.h>
+ 
+ static const grub_gpt_part_type_t grub_gpt_partition_type_bios_boot = GRUB_GPT_PARTITION_TYPE_BIOS_BOOT;
+ 
+@@ -646,6 +647,7 @@
+   char *core_file = 0;
+   char *dir = 0;
+   char *dev_map = 0;
++  struct stat dev_map_stat;
+   char *root_dev = 0;
+   char *dest_dev;
+   int must_embed = 0, force = 0, fs_probe = 1;
+@@ -744,6 +746,9 @@
+   /* Initialize the emulated biosdisk driver.  */
+   grub_util_biosdisk_init (dev_map ? : DEFAULT_DEVICE_MAP);
+ 
++  if (stat (dev_map ? : DEFAULT_DEVICE_MAP, &dev_map_stat) == -1)
++    grub_util_iterate_devices (grub_util_biosdisk_probe_device, 0);
++
+   /* Initialize all modules. */
+   grub_init_all ();
+ 
+diff -Nur -x '*.orig' -x '*~' grub2/util/sparc64/ieee1275/grub-setup.c grub2.new/util/sparc64/ieee1275/grub-setup.c
+--- grub2/util/sparc64/ieee1275/grub-setup.c	2010-03-22 13:47:27.000000000 +0000
++++ grub2.new/util/sparc64/ieee1275/grub-setup.c	2010-03-22 13:53:10.000000000 +0000
+@@ -46,6 +46,7 @@
+ #include <sys/stat.h>
+ #include <dirent.h>
+ #include <grub/util/getroot.h>
++#include <grub/util/deviceiter.h>
+ 
+ #define _GNU_SOURCE	1
+ #include <getopt.h>
+@@ -618,6 +619,7 @@
+ main (int argc, char *argv[])
+ {
+   struct grub_setup_info ginfo;
++  struct stat dev_map_stat;
+ 
+   set_program_name (argv[0]);
+ 
+@@ -630,6 +632,9 @@
+   /* Initialize the emulated biosdisk driver.  */
+   grub_util_biosdisk_init (ginfo.dev_map ? ginfo.dev_map : DEFAULT_DEVICE_MAP);
+ 
++  if (stat (ginfo.dev_map ? : DEFAULT_DEVICE_MAP, &dev_map_stat) == -1)
++    grub_util_iterate_devices (grub_util_biosdisk_probe_device, 0);
++
+   /* Initialize all modules. */
+   grub_init_all ();
+ 

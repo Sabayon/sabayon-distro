@@ -1,0 +1,114 @@
+Description: Adjust hostdisk id for hard disks
+ This allows grub-setup to use its standard workaround for broken BIOSes.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug: http://savannah.gnu.org/bugs/?29464
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/555500
+Forwarded: http://savannah.gnu.org/bugs/?29464
+Last-Update: 2010-04-08
+
+diff -Nur -x '*.orig' -x '*~' grub2/util/hostdisk.c grub2.new/util/hostdisk.c
+--- grub2/util/hostdisk.c	2010-04-08 17:09:02.000000000 +0100
++++ grub2.new/util/hostdisk.c	2010-04-08 17:10:18.000000000 +0100
+@@ -186,6 +186,8 @@
+ 
+   disk->has_partitions = 1;
+   disk->id = drive;
++  if (strncmp (map[drive].drive, "hd", 2) == 0)
++    disk->id += 0x80;
+   disk->data = data = xmalloc (sizeof (struct grub_util_biosdisk_data));
+   data->dev = NULL;
+   data->access_mode = 0;
+@@ -491,9 +493,9 @@
+     int is_partition = 0;
+     char dev[PATH_MAX];
+ 
+-    strcpy (dev, map[disk->id].device);
++    strcpy (dev, map[disk->id & 0x7f].device);
+     if (disk->partition && sector >= disk->partition->start
+-	&& strncmp (map[disk->id].device, "/dev/", 5) == 0)
++	&& strncmp (map[disk->id & 0x7f].device, "/dev/", 5) == 0)
+       is_partition = linux_find_partition (dev, disk->partition->start);
+ 
+     if (data->dev && strcmp (data->dev, dev) == 0 &&
+@@ -548,7 +550,7 @@
+     }
+ #endif
+ 
+-  if (data->dev && strcmp (data->dev, map[disk->id].device) == 0 &&
++  if (data->dev && strcmp (data->dev, map[disk->id & 0x7f].device) == 0 &&
+       data->access_mode == (flags & O_ACCMODE))
+     {
+       grub_dprintf ("hostdisk", "reusing open device `%s'\n", data->dev);
+@@ -560,10 +562,10 @@
+       if (data->fd != -1)
+ 	close (data->fd);
+ 
+-      fd = open (map[disk->id].device, flags);
++      fd = open (map[disk->id & 0x7f].device, flags);
+       if (fd >= 0)
+ 	{
+-	  data->dev = xstrdup (map[disk->id].device);
++	  data->dev = xstrdup (map[disk->id & 0x7f].device);
+ 	  data->access_mode = (flags & O_ACCMODE);
+ 	  data->fd = fd;
+ 	}
+@@ -581,12 +583,12 @@
+ #if defined(__APPLE__)
+   /* If we can't have exclusive access, try shared access */
+   if (fd < 0)
+-    fd = open(map[disk->id].device, flags | O_SHLOCK);
++    fd = open(map[disk->id & 0x7f].device, flags | O_SHLOCK);
+ #endif
+ 
+   if (fd < 0)
+     {
+-      grub_error (GRUB_ERR_BAD_DEVICE, "cannot open `%s' in open_device()", map[disk->id].device);
++      grub_error (GRUB_ERR_BAD_DEVICE, "cannot open `%s' in open_device()", map[disk->id & 0x7f].device);
+       return -1;
+     }
+ #endif /* ! __linux__ */
+@@ -604,7 +606,7 @@
+     offset = (loff_t) sector << GRUB_DISK_SECTOR_BITS;
+     if (_llseek (fd, offset >> 32, offset & 0xffffffff, &result, SEEK_SET))
+       {
+-	grub_error (GRUB_ERR_BAD_DEVICE, "cannot seek `%s'", map[disk->id].device);
++	grub_error (GRUB_ERR_BAD_DEVICE, "cannot seek `%s'", map[disk->id & 0x7f].device);
+ 	close (fd);
+ 	return -1;
+       }
+@@ -615,7 +617,7 @@
+ 
+     if (lseek (fd, offset, SEEK_SET) != offset)
+       {
+-	grub_error (GRUB_ERR_BAD_DEVICE, "cannot seek `%s'", map[disk->id].device);
++	grub_error (GRUB_ERR_BAD_DEVICE, "cannot seek `%s'", map[disk->id & 0x7f].device);
+ 	close (fd);
+ 	return -1;
+       }
+@@ -713,7 +715,7 @@
+ 	 parts. -jochen  */
+       if (nread (fd, buf, GRUB_DISK_SECTOR_SIZE) != GRUB_DISK_SECTOR_SIZE)
+ 	{
+-	  grub_error (GRUB_ERR_READ_ERROR, "cannot read `%s'", map[disk->id].device);
++	  grub_error (GRUB_ERR_READ_ERROR, "cannot read `%s'", map[disk->id & 0x7f].device);
+ 	  close (fd);
+ 	  return grub_errno;
+ 	}
+@@ -725,7 +727,7 @@
+ 
+   if (nread (fd, buf, size << GRUB_DISK_SECTOR_BITS)
+       != (ssize_t) (size << GRUB_DISK_SECTOR_BITS))
+-    grub_error (GRUB_ERR_READ_ERROR, "cannot read from `%s'", map[disk->id].device);
++    grub_error (GRUB_ERR_READ_ERROR, "cannot read from `%s'", map[disk->id & 0x7f].device);
+ 
+   return grub_errno;
+ }
+@@ -759,7 +761,7 @@
+ 
+   if (nwrite (fd, buf, size << GRUB_DISK_SECTOR_BITS)
+       != (ssize_t) (size << GRUB_DISK_SECTOR_BITS))
+-    grub_error (GRUB_ERR_WRITE_ERROR, "cannot write to `%s'", map[disk->id].device);
++    grub_error (GRUB_ERR_WRITE_ERROR, "cannot write to `%s'", map[disk->id & 0x7f].device);
+ 
+   return grub_errno;
+ }

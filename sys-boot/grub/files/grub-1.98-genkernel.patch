@@ -1,0 +1,28 @@
+--- grub-1.98.orig/util/grub.d/10_linux.in	2010-03-06 21:51:37.000000000 +0100
++++ grub-1.98/util/grub.d/10_linux.in	2010-04-12 11:25:51.982167950 +0200
+@@ -84,7 +84,7 @@ EOF
+   printf '%s\n' "${prepare_boot_cache}"
+   cat << EOF
+ 	echo	$(printf "$(gettext "Loading Linux %s ...")" ${version})
+-	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro ${args}
++	linux	${rel_dirname}/${basename} ro ${args}
+ EOF
+   if test -n "${initrd}" ; then
+     cat << EOF
+@@ -97,7 +97,7 @@ EOF
+ EOF
+ }
+ 
+-list=`for i in /boot/vmlinu[xz]-* /vmlinu[xz]-* ; do
++list=`for i in /boot/kernel-* /boot/vmlinu[xz]-* /vmlinu[xz]-* ; do
+         if grub_file_is_not_garbage "$i" ; then echo -n "$i " ; fi
+       done`
+ prepare_boot_cache=
+@@ -114,6 +114,7 @@ while [ "x$list" != "x" ] ; do
+ 
+   initrd=
+   for i in "initrd.img-${version}" "initrd-${version}.img" \
++	   "initramfs-genkernel-${version}" "initramfs-genkernel-${alt_version}" \
+ 	   "initrd-${version}" "initrd.img-${alt_version}" \
+ 	   "initrd-${alt_version}.img" "initrd-${alt_version}"; do
+     if test -e "${dirname}/${i}" ; then

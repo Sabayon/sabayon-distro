@@ -1,0 +1,650 @@
+Description: Add DM-RAID probing support.
+Upstream: Maintained in an upstream branch,
+ sftp://bzr.sv.gnu.org/srv/bzr/grub/branches/dmraid-probe/; see
+ http://lists.gnu.org/archive/html/grub-devel/2010-01/msg00345.html
+
+diff -Nur -x '*.orig' -x '*~' grub2/ChangeLog.dmraid-probe grub2.new/ChangeLog.dmraid-probe
+--- grub2/ChangeLog.dmraid-probe	1969-12-31 16:00:00.000000000 -0800
++++ grub2.new/ChangeLog.dmraid-probe	2010-02-06 10:33:54.000000000 -0800
+@@ -0,0 +1,26 @@
++2010-01-31  Colin Watson  <cjwatson@ubuntu.com>
++
++	* configure.ac: Check for Linux device-mapper support.
++
++	* util/hostdisk.c (device_is_mapped): New function.
++	(find_partition_start): New function, partly broken out from
++	linux_find_partition and grub_util_biosdisk_get_grub_dev but with
++	device-mapper support added.
++	(linux_find_partition): Use find_partition_start.
++	(convert_system_partition_to_system_disk): Add `st' argument.
++	Support Linux /dev/mapper/* devices if device-mapper support is
++	available; only DM-RAID devices are understood at present.
++	(find_system_device): Add `st' argument.  Pass it to
++	convert_system_partition_to_system_disk.
++	(grub_util_biosdisk_get_grub_dev): Pass stat result to
++	find_system_device and convert_system_partition_to_system_disk.  Use
++	find_partition_start.
++
++	* conf/common.rmk (grub_mkdevicemap_SOURCES): Add kern/env.c,
++	kern/err.c, kern/list.c, and kern/misc.c.
++	* util/deviceiter.c [__linux__]: Define MINOR.
++	(grub_util_iterate_devices): Add support for DM-RAID disk devices.
++	* util/mkdevicemap.c (grub_putchar): New function.
++	(grub_getkey): New function.
++	(grub_refresh): New function.
++	(main): Set debug=all if -v -v is used.
+diff -Nur -x '*.orig' -x '*~' grub2/conf/common.rmk grub2.new/conf/common.rmk
+--- grub2/conf/common.rmk	2010-02-06 10:32:37.000000000 -0800
++++ grub2.new/conf/common.rmk	2010-02-06 10:33:54.000000000 -0800
+@@ -3,7 +3,8 @@
+ sbin_UTILITIES += grub-mkdevicemap
+ grub_mkdevicemap_SOURCES = gnulib/progname.c util/grub-mkdevicemap.c \
+ 	util/deviceiter.c \
+-	util/misc.c
++	util/misc.c \
++	kern/env.c kern/err.c kern/list.c kern/misc.c
+ 
+ ifeq ($(target_cpu)-$(platform), sparc64-ieee1275)
+ grub_mkdevicemap_SOURCES += util/ieee1275/ofpath.c util/ieee1275/devicemap.c
+diff -Nur -x '*.orig' -x '*~' grub2/configure.ac grub2.new/configure.ac
+--- grub2/configure.ac	2010-02-06 10:32:49.000000000 -0800
++++ grub2.new/configure.ac	2010-02-06 10:33:54.000000000 -0800
+@@ -660,6 +660,22 @@
+ AC_SUBST([freetype_cflags])
+ AC_SUBST([freetype_libs])
+ 
++AC_ARG_ENABLE([device-mapper],
++              [AS_HELP_STRING([--enable-device-mapper],
++                              [enable Linux device-mapper support (default=guessed)])])
++if test x"$enable_device_mapper" = xno ; then
++  device_mapper_excuse="explicitly disabled"
++fi
++
++if test x"$device_mapper_excuse" = x ; then
++  # Check for device-mapper library.
++  AC_CHECK_LIB([devmapper], [dm_task_create],
++               [LDFLAGS="$LDFLAGS -ldevmapper"
++                AC_DEFINE([HAVE_DEVICE_MAPPER], [1],
++                          [Define to 1 if you have the devmapper library.])],
++               [device_mapper_excuse="need devmapper library"])
++fi
++
+ AC_SUBST(ASFLAGS)
+ 
+ # Output files.
+diff -Nur -x '*.orig' -x '*~' grub2/util/deviceiter.c grub2.new/util/deviceiter.c
+--- grub2/util/deviceiter.c	2010-02-06 10:32:37.000000000 -0800
++++ grub2.new/util/deviceiter.c	2010-02-06 10:33:54.000000000 -0800
+@@ -31,6 +31,8 @@
+ 
+ #include <grub/util/misc.h>
+ #include <grub/util/deviceiter.h>
++#include <grub/list.h>
++#include <grub/misc.h>
+ 
+ #ifdef __linux__
+ # if !defined(__GLIBC__) || \
+@@ -62,12 +64,23 @@
+                  | ((unsigned int) (__dev >> 32) & ~0xfff); \
+   })
+ # endif /* ! MAJOR */
++# ifndef MINOR
++#  define MINOR(dev)	\
++  ({ \
++     unsigned long long __dev = (dev); \
++     (unsigned) (__dev & 0xff) | ((unsigned int) (__dev >> 12) & ~0xff); \
++  })
++# endif /* ! MINOR */
+ # ifndef CDROM_GET_CAPABILITY
+ #  define CDROM_GET_CAPABILITY	0x5331	/* get capabilities */
+ # endif /* ! CDROM_GET_CAPABILITY */
+ # ifndef BLKGETSIZE
+ #  define BLKGETSIZE	_IO(0x12,96)	/* return device size */
+ # endif /* ! BLKGETSIZE */
++
++#ifdef HAVE_DEVICE_MAPPER
++# include <libdevmapper.h>
++#endif
+ #endif /* __linux__ */
+ 
+ /* Use __FreeBSD_kernel__ instead of __FreeBSD__ for compatibility with
+@@ -411,6 +424,16 @@
+   return 1;
+ }
+ 
++#ifdef __linux__
++# ifdef HAVE_DEVICE_MAPPER
++struct dmraid_seen
++{
++  struct dmraid_seen *next;
++  const char *name;
++};
++# endif /* HAVE_DEVICE_MAPPER */
++#endif /* __linux__ */
++
+ void
+ grub_util_iterate_devices (int NESTED_FUNC_ATTR (*hook) (const char *, int),
+ 			   int floppy_disks)
+@@ -643,6 +666,123 @@
+ 	    return;
+ 	}
+     }
++
++# ifdef HAVE_DEVICE_MAPPER
++#  define dmraid_check(cond, ...) \
++  if (! (cond)) \
++    { \
++      grub_dprintf ("deviceiter", __VA_ARGS__); \
++      goto dmraid_end; \
++    }
++
++  /* DM-RAID.  */
++  {
++    struct dm_tree *tree = NULL;
++    struct dm_task *task = NULL;
++    struct dm_names *names = NULL;
++    unsigned int next = 0;
++    void *top_handle, *second_handle;
++    struct dm_tree_node *root, *top, *second;
++    struct dmraid_seen *seen = NULL;
++
++    /* Build DM tree for all devices.  */
++    tree = dm_tree_create ();
++    dmraid_check (tree, "dm_tree_create failed\n");
++    task = dm_task_create (DM_DEVICE_LIST);
++    dmraid_check (task, "dm_task_create failed\n");
++    dmraid_check (dm_task_run (task), "dm_task_run failed\n");
++    names = dm_task_get_names (task);
++    dmraid_check (names, "dm_task_get_names failed\n");
++    dmraid_check (names->dev, "No DM devices found\n");
++    do
++      {
++	names = (void *) names + next;
++	dmraid_check (dm_tree_add_dev (tree, MAJOR (names->dev),
++				       MINOR (names->dev)),
++			 "dm_tree_add_dev (%s) failed\n", names->name);
++	next = names->next;
++      }
++    while (next);
++
++    /* Walk the second-level children of the inverted tree; that is, devices
++       which are directly composed of non-DM devices such as hard disks.
++       This class includes all DM-RAID disks and excludes all DM-RAID
++       partitions.  */
++    root = dm_tree_find_node (tree, 0, 0);
++    top_handle = NULL;
++    top = dm_tree_next_child (&top_handle, root, 1);
++    while (top)
++      {
++	second_handle = NULL;
++	second = dm_tree_next_child (&second_handle, top, 1);
++	while (second)
++	  {
++	    const char *node_name, *node_uuid;
++	    char *name;
++	    struct dmraid_seen *seen_elt;
++
++	    node_name = dm_tree_node_get_name (second);
++	    dmraid_check (node_name, "dm_tree_node_get_name failed\n");
++	    node_uuid = dm_tree_node_get_uuid (second);
++	    dmraid_check (node_uuid, "dm_tree_node_get_uuid failed\n");
++	    if (strncmp (node_uuid, "DMRAID-", 7) != 0)
++	      {
++		grub_dprintf ("deviceiter", "%s is not DM-RAID\n", node_name);
++		goto dmraid_next_child;
++	      }
++
++	    /* Have we already seen this node?  There are typically very few
++	       DM-RAID disks, so a list should be fast enough.  */
++	    if (grub_named_list_find (GRUB_AS_NAMED_LIST (seen), node_name))
++	      {
++		grub_dprintf ("deviceiter", "Already seen DM device %s\n",
++			      node_name);
++		goto dmraid_next_child;
++	      }
++
++	    name = xasprintf ("/dev/mapper/%s", node_name);
++	    if (check_device (name))
++	      {
++		if (hook (name, 0))
++		  {
++		    free (name);
++		    while (seen)
++		      {
++			struct dmraid_seen *seen_elt =
++			  grub_list_pop (GRUB_AS_LIST_P (&seen));
++			free (seen_elt);
++		      }
++		    if (task)
++		      dm_task_destroy (task);
++		    if (tree)
++		      dm_tree_free (tree);
++		    return;
++		  }
++	      }
++	    free (name);
++
++	    seen_elt = xmalloc (sizeof *seen_elt);
++	    seen_elt->name = node_name;
++	    grub_list_push (GRUB_AS_LIST_P (&seen), GRUB_AS_LIST (seen_elt));
++
++dmraid_next_child:
++	    second = dm_tree_next_child (&second_handle, top, 1);
++	  }
++	top = dm_tree_next_child (&top_handle, root, 1);
++      }
++
++dmraid_end:
++    while (seen)
++      {
++	struct dmraid_seen *seen_elt = grub_list_pop (GRUB_AS_LIST_P (&seen));
++	free (seen_elt);
++      }
++    if (task)
++      dm_task_destroy (task);
++    if (tree)
++      dm_tree_free (tree);
++  }
++# endif /* HAVE_DEVICE_MAPPER */
+ #endif /* __linux__ */
+ }
+ 
+diff -Nur -x '*.orig' -x '*~' grub2/util/grub-mkdevicemap.c grub2.new/util/grub-mkdevicemap.c
+--- grub2/util/grub-mkdevicemap.c	2010-02-06 10:32:37.000000000 -0800
++++ grub2.new/util/grub-mkdevicemap.c	2010-02-06 10:33:54.000000000 -0800
+@@ -31,6 +31,7 @@
+ 
+ #include <grub/util/misc.h>
+ #include <grub/util/deviceiter.h>
++#include <grub/env.h>
+ #include <grub/i18n.h>
+ 
+ #define _GNU_SOURCE	1
+@@ -38,6 +39,24 @@
+ 
+ #include "progname.h"
+ 
++void
++grub_putchar (int c)
++{
++  putchar (c);
++}
++
++int
++grub_getkey (void)
++{
++  return -1;
++}
++
++void
++grub_refresh (void)
++{
++  fflush (stdout);
++}
++
+ static void
+ make_device_map (const char *device_map, int floppy_disks)
+ {
+@@ -158,6 +177,9 @@
+ 	  }
+     }
+ 
++  if (verbosity > 1)
++    grub_env_set ("debug", "all");
++
+   make_device_map (dev_map ? : DEFAULT_DEVICE_MAP, floppy_disks);
+ 
+   free (dev_map);
+diff -Nur -x '*.orig' -x '*~' grub2/util/hostdisk.c grub2.new/util/hostdisk.c
+--- grub2/util/hostdisk.c	2010-02-06 10:32:55.000000000 -0800
++++ grub2.new/util/hostdisk.c	2010-02-06 10:33:54.000000000 -0800
+@@ -97,6 +97,10 @@
+ # include <sys/disk.h>
+ #endif
+ 
++#ifdef HAVE_DEVICE_MAPPER
++# include <libdevmapper.h>
++#endif
++
+ struct
+ {
+   char *drive;
+@@ -253,6 +257,115 @@
+   return GRUB_ERR_NONE;
+ }
+ 
++#ifdef HAVE_DEVICE_MAPPER
++static int
++device_is_mapped (const char *dev)
++{
++  struct stat st;
++
++  if (stat (dev, &st) < 0)
++    return 0;
++
++  return dm_is_dm_major (major (st.st_rdev));
++}
++#endif /* HAVE_DEVICE_MAPPER */
++
++#if defined(__linux__) || defined(__CYGWIN__)
++static grub_disk_addr_t
++find_partition_start (const char *dev)
++{
++  int fd;
++  struct hd_geometry hdg;
++
++#ifdef HAVE_DEVICE_MAPPER
++  if (device_is_mapped (dev)) {
++    struct dm_task *task = NULL;
++    grub_uint64_t start, length;
++    char *target_type, *params, *space;
++    grub_disk_addr_t partition_start;
++
++    /* If any device-mapper operation fails, we fall back silently to
++       HDIO_GETGEO.  */
++    task = dm_task_create (DM_DEVICE_TABLE);
++    if (! task)
++      {
++	grub_dprintf ("hostdisk", "dm_task_create failed\n");
++	goto devmapper_fail;
++      }
++
++    if (! dm_task_set_name (task, dev))
++      {
++	grub_dprintf ("hostdisk", "dm_task_set_name failed\n");
++	goto devmapper_fail;
++      }
++
++    if (! dm_task_run (task))
++      {
++	grub_dprintf ("hostdisk", "dm_task_run failed\n");
++	goto devmapper_fail;
++      }
++
++    dm_get_next_target (task, NULL, &start, &length, &target_type, &params);
++    if (! target_type)
++      {
++	grub_dprintf ("hostdisk", "no dm target\n");
++	goto devmapper_fail;
++      }
++    if (strcmp (target_type, "linear") != 0)
++      {
++	grub_dprintf ("hostdisk", "ignoring dm target %s (not linear)\n",
++		      target_type);
++	goto devmapper_fail;
++      }
++    if (! params)
++      {
++	grub_dprintf ("hostdisk", "no dm params\n");
++	goto devmapper_fail;
++      }
++
++    /* The params string for a linear target looks like this:
++         DEVICE-NAME START-SECTOR
++       Parse this out.  */
++    space = strchr (params, ' ');
++    if (! space)
++      goto devmapper_fail;
++    errno = 0;
++    partition_start = strtoull (space + 1, NULL, 10);
++    if (errno == 0)
++      {
++	grub_dprintf ("hostdisk", "dm %s starts at %llu\n",
++		      dev, partition_start);
++	dm_task_destroy (task);
++	return partition_start;
++      }
++
++devmapper_fail:
++    if (task)
++      dm_task_destroy (task);
++  }
++#endif /* HAVE_DEVICE_MAPPER */
++
++  fd = open (dev, O_RDONLY);
++  if (fd == -1)
++    {
++      grub_error (GRUB_ERR_BAD_DEVICE, "cannot open `%s' while attempting to get disk geometry", dev);
++      return 0;
++    }
++
++  if (ioctl (fd, HDIO_GETGEO, &hdg))
++    {
++      grub_error (GRUB_ERR_BAD_DEVICE,
++		  "cannot get geometry of `%s'", dev);
++      close (fd);
++      return 0;
++    }
++
++  close (fd);
++
++  return hdg.start;
++}
++#endif /* __linux__ || __CYGWIN__ */
++
+ #ifdef __linux__
+ static int
+ linux_find_partition (char *dev, unsigned long sector)
+@@ -284,22 +397,20 @@
+   for (i = 1; i < 10000; i++)
+     {
+       int fd;
+-      struct hd_geometry hdg;
++      grub_disk_addr_t start;
+ 
+       sprintf (p, format, i);
++
+       fd = open (real_dev, O_RDONLY);
+       if (fd == -1)
+ 	return 0;
+-
+-      if (ioctl (fd, HDIO_GETGEO, &hdg))
+-	{
+-	  close (fd);
+-	  return 0;
+-	}
+-
+       close (fd);
+ 
+-      if (hdg.start == sector)
++      start = find_partition_start (real_dev);
++      /* We don't care about errors here.  */
++      grub_errno = GRUB_ERR_NONE;
++
++      if (start == sector)
+ 	{
+ 	  strcpy (dev, real_dev);
+ 	  return 1;
+@@ -711,7 +822,7 @@
+ }
+ 
+ static char *
+-convert_system_partition_to_system_disk (const char *os_dev)
++convert_system_partition_to_system_disk (const char *os_dev, struct stat *st)
+ {
+ #if defined(__linux__)
+   char *path = xmalloc (PATH_MAX);
+@@ -829,6 +940,96 @@
+ 	  p[4] = '\0';
+ 	  return path;
+ 	}
++
++#ifdef HAVE_DEVICE_MAPPER
++      /* If this is a DM-RAID device.  */
++      if ((strncmp ("mapper/", p, 7) == 0))
++	{
++	  static struct dm_tree *tree = NULL;
++	  uint32_t maj, min;
++	  struct dm_tree_node *node, *child;
++	  void *handle;
++	  const char *node_uuid, *mapper_name, *child_uuid, *child_name;
++
++	  if (! tree)
++	    tree = dm_tree_create ();
++
++	  if (! tree)
++	    {
++	      grub_dprintf ("hostdisk", "dm_tree_create failed\n");
++	      return NULL;
++	    }
++
++	  maj = major (st->st_rdev);
++	  min = minor (st->st_rdev);
++	  if (! dm_tree_add_dev (tree, maj, min))
++	    {
++	      grub_dprintf ("hostdisk", "dm_tree_add_dev failed\n");
++	      return NULL;
++	    }
++
++	  node = dm_tree_find_node (tree, maj, min);
++	  if (! node)
++	    {
++	      grub_dprintf ("hostdisk", "dm_tree_find_node failed\n");
++	      return NULL;
++	    }
++	  node_uuid = dm_tree_node_get_uuid (node);
++	  if (! node_uuid)
++	    {
++	      grub_dprintf ("hostdisk", "%s has no DM uuid\n", path);
++	      return NULL;
++	    }
++	  else if (strncmp (node_uuid, "DMRAID-", 7) != 0)
++	    {
++	      grub_dprintf ("hostdisk", "%s is not DM-RAID\n", path);
++	      return NULL;
++	    }
++
++	  handle = NULL;
++	  mapper_name = NULL;
++	  /* Counter-intuitively, device-mapper refers to the disk-like
++	     device containing a DM-RAID partition device as a "child" of
++	     the partition device.  */
++	  child = dm_tree_next_child (&handle, node, 0);
++	  if (! child)
++	    {
++	      grub_dprintf ("hostdisk", "%s has no DM children\n", path);
++	      goto devmapper_out;
++	    }
++	  child_uuid = dm_tree_node_get_uuid (child);
++	  if (! child_uuid)
++	    {
++	      grub_dprintf ("hostdisk", "%s child has no DM uuid\n", path);
++	      goto devmapper_out;
++	    }
++	  else if (strncmp (child_uuid, "DMRAID-", 7) != 0)
++	    {
++	      grub_dprintf ("hostdisk", "%s child is not DM-RAID\n", path);
++	      goto devmapper_out;
++	    }
++	  child_name = dm_tree_node_get_name (child);
++	  if (! child_name)
++	    {
++	      grub_dprintf ("hostdisk", "%s child has no DM name\n", path);
++	      goto devmapper_out;
++	    }
++	  mapper_name = child_name;
++
++devmapper_out:
++	  if (! mapper_name)
++	    {
++	      /* This is a DM-RAID disk, not a partition.  */
++	      mapper_name = dm_tree_node_get_name (node);
++	      if (! mapper_name)
++		{
++		  grub_dprintf ("hostdisk", "%s has no DM name\n", path);
++		  return NULL;
++		}
++	    }
++	  return xasprintf ("/dev/mapper/%s", mapper_name);
++	}
++#endif /* HAVE_DEVICE_MAPPER */
+     }
+ 
+   return path;
+@@ -884,12 +1085,12 @@
+ #endif
+ 
+ static int
+-find_system_device (const char *os_dev)
++find_system_device (const char *os_dev, struct stat *st)
+ {
+   unsigned int i;
+   char *os_disk;
+ 
+-  os_disk = convert_system_partition_to_system_disk (os_dev);
++  os_disk = convert_system_partition_to_system_disk (os_dev, st);
+   if (! os_disk)
+     return -1;
+ 
+@@ -923,7 +1124,7 @@
+       return 0;
+     }
+ 
+-  drive = find_system_device (os_dev);
++  drive = find_system_device (os_dev, &st);
+   if (drive < 0)
+     {
+       grub_error (GRUB_ERR_BAD_DEVICE,
+@@ -931,8 +1132,8 @@
+       return 0;
+     }
+ 
+-  if (grub_strcmp (os_dev, convert_system_partition_to_system_disk (os_dev))
+-      == 0)
++  if (grub_strcmp (os_dev,
++		   convert_system_partition_to_system_disk (os_dev, &st)) == 0)
+     return make_device_name (drive, -1, -1);
+ 
+ #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__APPLE__)
+@@ -954,8 +1155,7 @@
+   {
+     char *name;
+     grub_disk_t disk;
+-    int fd;
+-    struct hd_geometry hdg;
++    grub_disk_addr_t start;
+     int dos_part = -1;
+     int bsd_part = -1;
+     auto int find_partition (grub_disk_t disk,
+@@ -985,7 +1185,7 @@
+ 			      partition->index, partition->start);
+ 	  }
+ 
+-	if (hdg.start == partition->start)
++	if (start == partition->start)
+ 	  {
+ 	    if (pcdata)
+ 	      {
+@@ -1008,28 +1208,16 @@
+     if (MAJOR (st.st_rdev) == FLOPPY_MAJOR)
+       return name;
+ 
+-    fd = open (os_dev, O_RDONLY);
+-    if (fd == -1)
+-      {
+-	grub_error (GRUB_ERR_BAD_DEVICE, "cannot open `%s' while attempting to get disk geometry", os_dev);
+-	free (name);
+-	return 0;
+-      }
+-
+-    if (ioctl (fd, HDIO_GETGEO, &hdg))
++    start = find_partition_start (os_dev);
++    if (grub_errno != GRUB_ERR_NONE)
+       {
+-	grub_error (GRUB_ERR_BAD_DEVICE,
+-		    "cannot get geometry of `%s'", os_dev);
+-	close (fd);
+ 	free (name);
+ 	return 0;
+       }
+ 
+-    close (fd);
+-
+-    grub_util_info ("%s starts from %lu", os_dev, hdg.start);
++    grub_util_info ("%s starts from %lu", os_dev, start);
+ 
+-    if (hdg.start == 0 && device_is_wholedisk (os_dev))
++    if (start == 0 && device_is_wholedisk (os_dev))
+       return name;
+ 
+     grub_util_info ("opening the device %s", name);

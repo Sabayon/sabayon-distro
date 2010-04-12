@@ -1,0 +1,310 @@
+Upstream: http://lists.gnu.org/archive/html/grub-devel/2010-03/msg00008.html
+Description: Optimise hostdisk device handling
+ This substantially speeds up grub-probe filesystem reads.
+
+diff -Nur -x '*.orig' -x '*~' grub2/ChangeLog.hostdisk-speedup grub2.new/ChangeLog.hostdisk-speedup
+--- grub2/ChangeLog.hostdisk-speedup	1970-01-01 01:00:00.000000000 +0100
++++ grub2.new/ChangeLog.hostdisk-speedup	2010-03-03 10:43:43.000000000 +0000
+@@ -0,0 +1,18 @@
++2010-03-03  Colin Watson  <cjwatson@ubuntu.com>
++
++	* util/hostdisk.c (struct grub_util_biosdisk_data): New structure.
++	(grub_util_biosdisk_open): Initialise disk->data.
++	(struct linux_partition_cache): New structure.
++	(linux_find_partition): Cache partition start positions; these are
++	expensive to compute on every read and write.
++	(open_device): Cache open file descriptor in disk->data, so that we
++	don't have to reopen it and flush the buffer cache for consecutive
++	operations on the same device.
++	(grub_util_biosdisk_close): New function.
++	(grub_util_biosdisk_dev): Set `close' member.
++
++	* conf/common.rmk (grub_probe_SOURCES): Add kern/list.c.
++	* conf/i386-efi.rmk (grub_setup_SOURCES): Likewise.
++	* conf/i386-pc.rmk (grub_setup_SOURCES): Likewise.
++	* conf/sparc64-ieee1275.rmk (grub_setup_SOURCES): Likewise.
++	* conf/x86_64-efi.rmk (grub_setup_SOURCES): Likewise.
+diff -Nur -x '*.orig' -x '*~' grub2/conf/common.rmk grub2.new/conf/common.rmk
+--- grub2/conf/common.rmk	2010-03-03 20:11:04.000000000 +0000
++++ grub2.new/conf/common.rmk	2010-03-03 20:11:05.000000000 +0000
+@@ -25,7 +25,7 @@
+ grub_probe_SOURCES = gnulib/progname.c util/grub-probe.c	\
+ 	util/hostdisk.c	util/misc.c util/getroot.c		\
+ 	kern/device.c kern/disk.c kern/err.c kern/misc.c	\
+-	kern/parser.c kern/partition.c kern/file.c		\
++	kern/parser.c kern/partition.c kern/file.c kern/list.c	\
+ 	\
+ 	fs/affs.c fs/cpio.c fs/fat.c fs/ext2.c fs/hfs.c		\
+ 	fs/hfsplus.c fs/iso9660.c fs/udf.c fs/jfs.c fs/minix.c	\
+diff -Nur -x '*.orig' -x '*~' grub2/conf/i386-efi.rmk grub2.new/conf/i386-efi.rmk
+--- grub2/conf/i386-efi.rmk	2010-03-03 20:08:04.000000000 +0000
++++ grub2.new/conf/i386-efi.rmk	2010-03-03 20:11:05.000000000 +0000
+@@ -21,7 +21,7 @@
+ #	kern/err.c kern/misc.c fs/fat.c fs/ext2.c fs/xfs.c fs/affs.c	\
+ #	fs/sfs.c kern/parser.c kern/partition.c partmap/msdos.c		\
+ #	fs/ufs.c fs/ufs2.c fs/minix.c fs/hfs.c fs/jfs.c fs/hfsplus.c kern/file.c	\
+-#	kern/fs.c kern/env.c fs/fshelp.c
++#	kern/fs.c kern/env.c kern/list.c fs/fshelp.c
+ 
+ # Scripts.
+ sbin_SCRIPTS = grub-install
+diff -Nur -x '*.orig' -x '*~' grub2/conf/i386-pc.rmk grub2.new/conf/i386-pc.rmk
+--- grub2/conf/i386-pc.rmk	2010-03-03 20:08:04.000000000 +0000
++++ grub2.new/conf/i386-pc.rmk	2010-03-03 20:11:05.000000000 +0000
+@@ -96,7 +96,8 @@
+ 	util/i386/pc/grub-setup.c util/hostdisk.c	\
+ 	util/misc.c util/getroot.c kern/device.c kern/disk.c	\
+ 	kern/err.c kern/misc.c kern/parser.c kern/partition.c	\
+-	kern/file.c kern/fs.c kern/env.c fs/fshelp.c		\
++	kern/file.c kern/fs.c kern/env.c kern/list.c		\
++	fs/fshelp.c						\
+ 	\
+ 	fs/affs.c fs/cpio.c fs/ext2.c fs/fat.c fs/hfs.c		\
+ 	fs/hfsplus.c fs/iso9660.c fs/udf.c fs/jfs.c fs/minix.c	\
+diff -Nur -x '*.orig' -x '*~' grub2/conf/sparc64-ieee1275.rmk grub2.new/conf/sparc64-ieee1275.rmk
+--- grub2/conf/sparc64-ieee1275.rmk	2010-03-03 20:08:04.000000000 +0000
++++ grub2.new/conf/sparc64-ieee1275.rmk	2010-03-03 20:11:05.000000000 +0000
+@@ -70,7 +70,8 @@
+ grub_setup_SOURCES = util/sparc64/ieee1275/grub-setup.c util/hostdisk.c	\
+ 	util/misc.c util/getroot.c kern/device.c kern/disk.c	\
+ 	kern/err.c kern/misc.c kern/parser.c kern/partition.c	\
+-	kern/file.c kern/fs.c kern/env.c fs/fshelp.c		\
++	kern/file.c kern/fs.c kern/env.c kern/list.c		\
++	fs/fshelp.c						\
+ 	\
+ 	fs/affs.c fs/cpio.c fs/ext2.c fs/fat.c fs/hfs.c		\
+ 	fs/hfsplus.c fs/iso9660.c fs/udf.c fs/jfs.c fs/minix.c	\
+diff -Nur -x '*.orig' -x '*~' grub2/conf/x86_64-efi.rmk grub2.new/conf/x86_64-efi.rmk
+--- grub2/conf/x86_64-efi.rmk	2010-03-03 20:08:04.000000000 +0000
++++ grub2.new/conf/x86_64-efi.rmk	2010-03-03 20:11:05.000000000 +0000
+@@ -20,7 +20,7 @@
+ #	kern/err.c kern/misc.c fs/fat.c fs/ext2.c fs/xfs.c fs/affs.c	\
+ #	fs/sfs.c kern/parser.c kern/partition.c partmap/msdos.c		\
+ #	fs/ufs.c fs/ufs2.c fs/minix.c fs/hfs.c fs/jfs.c fs/hfsplus.c kern/file.c	\
+-#	kern/fs.c kern/env.c fs/fshelp.c
++#	kern/fs.c kern/env.c kern/list.c fs/fshelp.c
+ 
+ # Scripts.
+ sbin_SCRIPTS = grub-install
+diff -Nur -x '*.orig' -x '*~' grub2/util/hostdisk.c grub2.new/util/hostdisk.c
+--- grub2/util/hostdisk.c	2010-03-03 20:11:04.000000000 +0000
++++ grub2.new/util/hostdisk.c	2010-03-03 20:11:05.000000000 +0000
+@@ -26,6 +26,7 @@
+ #include <grub/util/hostdisk.h>
+ #include <grub/misc.h>
+ #include <grub/i18n.h>
++#include <grub/list.h>
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -107,6 +108,13 @@
+   char *device;
+ } map[256];
+ 
++struct grub_util_biosdisk_data
++{
++  char *dev;
++  int access_mode;
++  int fd;
++};
++
+ #ifdef __linux__
+ /* Check if we have devfs support.  */
+ static int
+@@ -169,6 +177,7 @@
+ {
+   int drive;
+   struct stat st;
++  struct grub_util_biosdisk_data *data;
+ 
+   drive = find_grub_drive (name);
+   if (drive < 0)
+@@ -177,6 +186,10 @@
+ 
+   disk->has_partitions = 1;
+   disk->id = drive;
++  disk->data = data = xmalloc (sizeof (struct grub_util_biosdisk_data));
++  data->dev = NULL;
++  data->access_mode = 0;
++  data->fd = -1;
+ 
+   /* Get the size.  */
+ #if defined(__MINGW32__)
+@@ -367,6 +380,17 @@
+ #endif /* __linux__ || __CYGWIN__ */
+ 
+ #ifdef __linux__
++/* Cache of partition start sectors for each disk.  */
++struct linux_partition_cache
++{
++  struct linux_partition_cache *next;
++  char *dev;
++  unsigned long start;
++  int partno;
++};
++
++struct linux_partition_cache *linux_partition_cache_list;
++
+ static int
+ linux_find_partition (char *dev, unsigned long sector)
+ {
+@@ -375,6 +399,7 @@
+   char *p;
+   int i;
+   char real_dev[PATH_MAX];
++  struct linux_partition_cache *cache;
+ 
+   strcpy(real_dev, dev);
+ 
+@@ -394,6 +419,16 @@
+       format = "%d";
+     }
+ 
++  for (cache = linux_partition_cache_list; cache; cache = cache->next)
++    {
++      if (strcmp (cache->dev, dev) == 0 && cache->start == sector)
++	{
++	  sprintf (p, format, cache->partno);
++	  strcpy (dev, real_dev);
++	  return 1;
++	}
++    }
++
+   for (i = 1; i < 10000; i++)
+     {
+       int fd;
+@@ -412,6 +447,15 @@
+ 
+       if (start == sector)
+ 	{
++	  struct linux_partition_cache *new_cache_item;
++
++	  new_cache_item = xmalloc (sizeof *new_cache_item);
++	  new_cache_item->dev = xstrdup (dev);
++	  new_cache_item->start = start;
++	  new_cache_item->partno = i;
++	  grub_list_push (GRUB_AS_LIST_P (&linux_partition_cache_list),
++			  GRUB_AS_LIST (new_cache_item));
++
+ 	  strcpy (dev, real_dev);
+ 	  return 1;
+ 	}
+@@ -425,6 +469,7 @@
+ open_device (const grub_disk_t disk, grub_disk_addr_t sector, int flags)
+ {
+   int fd;
++  struct grub_util_biosdisk_data *data = disk->data;
+ 
+ #ifdef O_LARGEFILE
+   flags |= O_LARGEFILE;
+@@ -451,18 +496,35 @@
+ 	&& strncmp (map[disk->id].device, "/dev/", 5) == 0)
+       is_partition = linux_find_partition (dev, disk->partition->start);
+ 
+-    /* Open the partition.  */
+-    grub_dprintf ("hostdisk", "opening the device `%s' in open_device()\n", dev);
+-    fd = open (dev, flags);
+-    if (fd < 0)
++    if (data->dev && strcmp (data->dev, dev) == 0 &&
++	data->access_mode == (flags & O_ACCMODE))
+       {
+-	grub_error (GRUB_ERR_BAD_DEVICE, "cannot open `%s'", dev);
+-	return -1;
++	grub_dprintf ("hostdisk", "reusing open device `%s'\n", dev);
++	fd = data->fd;
+       }
++    else
++      {
++	free (data->dev);
++	if (data->fd != -1)
++	  close (data->fd);
++
++	/* Open the partition.  */
++	grub_dprintf ("hostdisk", "opening the device `%s' in open_device()\n", dev);
++	fd = open (dev, flags);
++	if (fd < 0)
++	  {
++	    grub_error (GRUB_ERR_BAD_DEVICE, "cannot open `%s'", dev);
++	    return -1;
++	  }
+ 
+-    /* Flush the buffer cache to the physical disk.
+-       XXX: This also empties the buffer cache.  */
+-    ioctl (fd, BLKFLSBUF, 0);
++	/* Flush the buffer cache to the physical disk.
++	   XXX: This also empties the buffer cache.  */
++	ioctl (fd, BLKFLSBUF, 0);
++
++	data->dev = xstrdup (dev);
++	data->access_mode = (flags & O_ACCMODE);
++	data->fd = fd;
++      }
+ 
+     if (is_partition)
+       sector -= disk->partition->start;
+@@ -486,7 +548,26 @@
+     }
+ #endif
+ 
+-  fd = open (map[disk->id].device, flags);
++  if (data->dev && strcmp (data->dev, map[disk->id].device) == 0 &&
++      data->access_mode == (flags & O_ACCMODE))
++    {
++      grub_dprintf ("hostdisk", "reusing open device `%s'\n", data->dev);
++      fd = data->fd;
++    }
++  else
++    {
++      free (data->dev);
++      if (data->fd != -1)
++	close (data->fd);
++
++      fd = open (map[disk->id].device, flags);
++      if (fd >= 0)
++	{
++	  data->dev = xstrdup (map[disk->id].device);
++	  data->access_mode = (flags & O_ACCMODE);
++	  data->fd = fd;
++	}
++    }
+ 
+ #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+   if (! (sysctl_oldflags & 0x10)
+@@ -646,7 +727,6 @@
+       != (ssize_t) (size << GRUB_DISK_SECTOR_BITS))
+     grub_error (GRUB_ERR_READ_ERROR, "cannot read from `%s'", map[disk->id].device);
+ 
+-  close (fd);
+   return grub_errno;
+ }
+ 
+@@ -681,17 +761,27 @@
+       != (ssize_t) (size << GRUB_DISK_SECTOR_BITS))
+     grub_error (GRUB_ERR_WRITE_ERROR, "cannot write to `%s'", map[disk->id].device);
+ 
+-  close (fd);
+   return grub_errno;
+ }
+ 
++static void
++grub_util_biosdisk_close (struct grub_disk *disk)
++{
++  struct grub_util_biosdisk_data *data = disk->data;
++
++  free (data->dev);
++  if (data->fd != -1)
++    close (data->fd);
++  free (data);
++}
++
+ static struct grub_disk_dev grub_util_biosdisk_dev =
+   {
+     .name = "biosdisk",
+     .id = GRUB_DISK_DEVICE_BIOSDISK_ID,
+     .iterate = grub_util_biosdisk_iterate,
+     .open = grub_util_biosdisk_open,
+-    .close = 0,
++    .close = grub_util_biosdisk_close,
+     .read = grub_util_biosdisk_read,
+     .write = grub_util_biosdisk_write,
+     .next = 0

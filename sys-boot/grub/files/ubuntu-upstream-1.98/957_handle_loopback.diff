@@ -1,0 +1,45 @@
+Ubuntu: needed for Wubi
+Description: Change prepare_grub_to_access_device to handle filesystems
+ loop-mounted on file images.
+UbuntuSpecific: Not inherently. losetup and /proc/mounts are Linux-specific,
+ though, so we might need to refine this before sending it upstream.
+
+diff -Nur -x '*.orig' -x '*~' grub2-1.97~beta3/util/grub-mkconfig_lib.in grub2-1.97~beta3.new/util/grub-mkconfig_lib.in
+--- grub2-1.97~beta3/util/grub-mkconfig_lib.in	2009-09-15 00:23:50.000000000 +0100
++++ grub2-1.97~beta3.new/util/grub-mkconfig_lib.in	2009-09-15 00:31:31.000000000 +0100
+@@ -142,6 +142,20 @@
+ {
+   device=$1
+ 
++  loop_file=
++  case ${device} in
++    /dev/loop/*|/dev/loop[0-9])
++      loop_file=`losetup ${device} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
++      case $loop_file in
++        /dev/*) ;;
++        *)
++          loop_device=${device}
++          device=`${grub_probe} --target=device "${loop_file}"`
++        ;;
++      esac
++    ;;
++  esac
++
+   # Abstraction modules aren't auto-loaded.
+   abstraction="`${grub_probe} --device ${device} --target=abstraction`"
+   for module in ${abstraction} ; do 
+@@ -159,6 +173,14 @@
+   if fs_uuid="`${grub_probe} --device ${device} --target=fs_uuid 2> /dev/null`" ; then
+     echo "search --no-floppy --fs-uuid --set ${fs_uuid}"
+   fi
++
++  if [ "x${loop_file}" != x ]; then
++    loop_mountpoint="$(awk '"'${loop_file}'" ~ "^"$2 && $2 != "/" { print $2 }' /proc/mounts | tail -n1)"
++    if [ "x${loop_mountpoint}" != x ]; then
++      echo "loopback loop0 ${loop_file#$loop_mountpoint}"
++      echo "set root=(loop0)"
++    fi
++  fi
+ }
+ 
+ grub_file_is_not_garbage ()
