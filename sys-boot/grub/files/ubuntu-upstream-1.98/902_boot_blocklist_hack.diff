@@ -1,0 +1,20 @@
+Index: util/i386/pc/grub-setup.c
+===================================================================
+--- util/i386/pc/grub-setup.c	(revision 1836)
++++ util/i386/pc/grub-setup.c	(working copy)
+@@ -383,6 +383,15 @@
+       grub_disk_cache_invalidate_all ();
+
+       file = grub_file_open (core_path_dev);
++
++      if (grub_errno == GRUB_ERR_FILE_NOT_FOUND)
++	{
++	  /* Clean the previous grub_errno */
++	  grub_errno = GRUB_ERR_NONE;
++	  strcpy (core_path_dev, "/grub/core.img");
++	  file = grub_file_open (core_path_dev);
++	}
++
+       if (file)
+ 	{
+ 	  if (grub_file_size (file) != core_size)

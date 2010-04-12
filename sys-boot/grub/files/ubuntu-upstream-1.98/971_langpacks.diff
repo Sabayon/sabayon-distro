@@ -1,0 +1,30 @@
+Description: Prefer translations from language packs
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/537998
+Forwarded: not-needed
+Last-Update: 2010-03-22
+
+diff -Nur -x '*.orig' -x '*~' grub2/util/grub-install.in grub2.new/util/grub-install.in
+--- grub2/util/grub-install.in	2010-03-22 15:58:16.000000000 +0000
++++ grub2.new/util/grub-install.in	2010-03-22 15:59:04.000000000 +0000
+@@ -246,7 +246,7 @@
+ 
+ # Copy gettext files
+ mkdir -p ${grubdir}/locale/
+-for dir in ${localedir}/*; do
++for dir in ${localedir}/* ${localedir}-langpack/*; do
+     if test -f "$dir/LC_MESSAGES/grub.mo"; then
+         cp -f "$dir/LC_MESSAGES/grub.mo" "${grubdir}/locale/${dir##*/}.mo"
+     fi
+diff -Nur -x '*.orig' -x '*~' grub2/util/i386/efi/grub-install.in grub2.new/util/i386/efi/grub-install.in
+--- grub2/util/i386/efi/grub-install.in	2010-03-22 15:58:16.000000000 +0000
++++ grub2.new/util/i386/efi/grub-install.in	2010-03-22 15:59:17.000000000 +0000
+@@ -183,7 +183,7 @@
+ 
+ # Copy gettext files
+ mkdir -p ${grubdir}/locale/
+-for dir in ${localedir}/*; do
++for dir in ${localedir}/* ${localedir}-langpack/*; do
+     if test -f "$dir/LC_MESSAGES/grub.mo"; then
+         cp -f "$dir/LC_MESSAGES/grub.mo" "${grubdir}/locale/${dir##*/}.mo"
+     fi
