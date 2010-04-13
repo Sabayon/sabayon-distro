@@ -9,12 +9,17 @@ DESCRIPTION="Fedora legacy keyboard management tool."
 HOMEPAGE="https://fedorahosted.org/system-config-keyboard/wiki"
 SRC_URI="https://fedorahosted.org/released/system-config-keyboard/${P}.tar.gz"
 
-LICENSE="GPL-1"
+LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE=""
-DEPEND=""
-RDEPEND="app-admin/firstboot"
+DEPEND="dev-util/intltool
+	sys-devel/gettext
+	dev-util/desktop-file-utils"
+# We don't ship with firstboot, so it's not in RDEPEND
+# firstboot dependency missing (and not required by anaconda)
+# usermode dependency missing (and not required by anaconda)
+RDEPEND=""
 
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
