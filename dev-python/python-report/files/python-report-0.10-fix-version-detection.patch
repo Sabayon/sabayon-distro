@@ -1,0 +1,22 @@
+diff -Nurp python-report-0.10.orig//python/report/templates/bugzilla-template/filer.py python-report-0.10/python/report/templates/bugzilla-template/filer.py
+--- python-report-0.10.orig//python/report/templates/bugzilla-template/filer.py	2010-04-13 23:08:08.849090647 +0200
++++ python-report-0.10/python/report/templates/bugzilla-template/filer.py	2010-04-13 23:09:20.799052132 +0200
+@@ -61,15 +61,11 @@ def getVersion():
+         if os.path.exists(SYSTEM_VERSION_PATH):
+             file = open(SYSTEM_VERSION_PATH, "r")
+             content = file.read()
+-            if content.find("Rawhide") > -1:
+-                return "rawhide"
+-
+-            clist = content.split(" ")
+-            i = clist.index("release")
+-            return clist[i+1]
++            file.close()
++            return content.strip().split()[-1]
+         else:
+             # default to rawhide
+-            return "rawhide"
++            return "unknown"
+ 
+ class LoginError(Exception):
+     """An error occurred while logging into the bug reporting system."""
