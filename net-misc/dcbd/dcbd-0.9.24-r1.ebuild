@@ -30,4 +30,5 @@ src_install() {
 	# FIXME/TODO: create dcbd init script, the one provided doesn't
 	# work in Gentoo
 	rm "${D}"/etc/init.d/dcbd || die "cannot remove dcbd init script"
+	doinitd ${FILESDIR}/dcbd
 }
