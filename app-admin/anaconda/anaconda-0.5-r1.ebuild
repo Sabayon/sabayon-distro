@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit base libtool autotools eutils
+inherit base python libtool autotools multilib eutils
 
 DESCRIPTION="Sabayon Redhat Anaconda Installer Port"
 HOMEPAGE="http://gitweb.sabayon.org/?p=anaconda.git;a=summary"
@@ -41,4 +41,19 @@ src_prepare() {
 src_configure() {
 	econf $(use_enable ipv6) $(use_enable selinux) \
 		$(use_enable nfs) || die "configure failed"
+}
+
+src_install() {
+	base_src_install
+	# Anaconda build system wants to install some crap
+	find "${D}" -name "*.py[co]" | xargs rm
+	dosym /usr/bin/liveinst /usr/bin/installer
+}
+
+pkg_postrm() {
+	python_mod_cleanup
+}
+
+pkg_postinst() {
+	python_mod_compile
 }
