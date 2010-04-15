@@ -49,9 +49,9 @@ src_install() {
 }
 
 pkg_postrm() {
-	python_mod_cleanup /usr/$(python_get_sitedir)/py${PN}
+	python_mod_cleanup $(python_get_sitedir)/py${PN}
 }
 
 pkg_postinst() {
-	python_mod_optimize /usr/$(python_get_sitedir)/py${PN}
+	python_mod_optimize $(python_get_sitedir)/py${PN}
 }
