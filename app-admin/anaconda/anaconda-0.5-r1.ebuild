@@ -14,7 +14,7 @@ S="${WORKDIR}"/${PN}-${PVR}
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="gtk +ipv6 +nfs selinux"
+IUSE="+ipv6 +nfs selinux"
 
 COMMON_DEPEND="app-admin/system-config-keyboard
 	>=app-arch/libarchive-2.8
