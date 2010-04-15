@@ -8,7 +8,7 @@ DCBD_PID=/var/run/dcbd.pid
 
 depend() {
 	after modules
-	before checkfs fsck device-mapper
+	before net
 }
 
 start() {
