@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="gtk +ipv6 +nfs selinux"
 
 COMMON_DEPEND="app-admin/system-config-keyboard
-	>=app-archive/libarchive-2.8
+	>=app-arch/libarchive-2.8
 	app-cdr/isomd5sum
 	dev-libs/newt
 	sys-process/audit
