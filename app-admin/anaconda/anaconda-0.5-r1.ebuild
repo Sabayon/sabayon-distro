@@ -45,13 +45,11 @@ src_configure() {
 
 src_install() {
 	base_src_install
-	# Anaconda build system wants to install some crap
-	find "${D}" -name "*.py[co]" | xargs rm
 	dosym /usr/bin/liveinst /usr/bin/installer
 }
 
 pkg_postrm() {
-	python_mod_cleanup
+	python_mod_cleanup /usr/$(python_get_sitedir)/py${PN}
 }
 
 pkg_postinst() {
