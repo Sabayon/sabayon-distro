@@ -17,7 +17,8 @@ IUSE="kernel_linux"
 
 COMMON_DEPEND="dev-libs/libconfig
 	>=sys-libs/glibc-2.10.1"
-DEPEND="kernel_linux? ( >=sys-kernel/linux-headers-2.6.29 )"
+DEPEND="${COMMON_DEPEND}
+	kernel_linux? ( >=sys-kernel/linux-headers-2.6.29 )"
 RDEPEND="${COMMON_DEPEND}"
 
 PATCHES=( "${FILESDIR}"/dcbd-0.9.7-make.patch
