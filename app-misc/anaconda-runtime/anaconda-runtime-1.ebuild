@@ -31,6 +31,7 @@ RDEPEND="app-admin/authconfig
 	net-misc/curl
 	net-misc/dhcp
 	net-misc/fcoe-utils
+	net-misc/networkmanager
 	sys-apps/dmidecode
 	sys-apps/language-configuration-helpers
 	>=sys-boot/grub-1.98
