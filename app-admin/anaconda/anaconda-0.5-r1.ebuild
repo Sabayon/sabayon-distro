@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit base autotools eutils
+inherit base libtool autotools eutils
 
 DESCRIPTION="Sabayon Redhat Anaconda Installer Port"
 HOMEPAGE="http://gitweb.sabayon.org/?p=anaconda.git;a=summary"
@@ -34,8 +34,8 @@ RDEPEND="${COMMON_DEPEND}
 #   x11-libs/pango
 
 src_prepare() {
-	touch config.h.in
-	eautoreconf
+	# FIXME: make autotools functions working
+	./autogen.sh || die "cannot run autogen"
 }
 
 src_configure() {
