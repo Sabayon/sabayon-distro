@@ -33,7 +33,7 @@ RDEPEND="app-admin/authconfig
 	net-misc/fcoe-utils
 	sys-apps/dmidecode
 	sys-apps/language-configuration-helpers
-	>=sys-boot/grub-1.98:2
+	>=sys-boot/grub-1.98
 	sys-boot/makebootfat
 	sys-fs/cryptsetup
 	sys-fs/dosfstools
