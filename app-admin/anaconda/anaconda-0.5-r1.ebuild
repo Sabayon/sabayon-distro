@@ -53,5 +53,5 @@ pkg_postrm() {
 }
 
 pkg_postinst() {
-	python_mod_compile /usr/$(python_get_sitedir)/py${PN}
+	python_mod_optimize /usr/$(python_get_sitedir)/py${PN}
 }
