@@ -6,7 +6,7 @@ EAPI="2"
 
 inherit base autotools
 
-DESCRIPTION="Linux user space daemon and config tool for Intel Enh. Eth. for the Data Center"
+DESCRIPTION="Linux user space daemon and config tool for Intel Enhanced Ethernet for the Data Center"
 HOMEPAGE="http://e1000.sourceforge.net"
 SRC_URI="mirror://sourceforge/project/e1000/DCB%20Tools/${PV}/${P}.tar.gz"
 
@@ -27,8 +27,6 @@ PATCHES=( "${FILESDIR}"/dcbd-0.9.7-make.patch
 
 src_install() {
 	base_src_install
-	# FIXME/TODO: create dcbd init script, the one provided doesn't
-	# work in Gentoo
 	rm "${D}"/etc/init.d/dcbd || die "cannot remove dcbd init script"
 	doinitd ${FILESDIR}/dcbd
 }
