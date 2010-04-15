@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit base python libtool autotools multilib eutils
+inherit base python libtool autotools eutils
 
 DESCRIPTION="Sabayon Redhat Anaconda Installer Port"
 HOMEPAGE="http://gitweb.sabayon.org/?p=anaconda.git;a=summary"
@@ -55,5 +55,5 @@ pkg_postrm() {
 }
 
 pkg_postinst() {
-	python_mod_compile
+	python_mod_compile /usr/$(python_get_sitedir)/py${PN}
 }
