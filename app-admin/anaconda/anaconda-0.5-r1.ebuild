@@ -20,6 +20,7 @@ COMMON_DEPEND="app-admin/system-config-keyboard
 	>=app-arch/libarchive-2.8
 	app-cdr/isomd5sum
 	dev-libs/newt
+	nfs? ( net-fs/nfs-utils )
 	sys-process/audit
 	selinux? ( sys-libs/libselinux )
 	sys-fs/lvm2
