@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~x64-freebsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~x64-solaris ~x86-solaris"
 IUSE="caps"
 
-DEPEND="app-crypt/pinentry >=x11-libs/qt-gui-4.4.1"
+DEPEND="~app-crypt/pinentry-base-${PV} >=x11-libs/qt-gui-4.4.1"
 RDEPEND="${DEPEND}"
 S="${WORKDIR}/${P/-qt4}"
 

@@ -8,19 +8,19 @@ inherit multilib eutils
 
 DESCRIPTION="Collection of simple PIN or passphrase entry dialogs which utilize the Assuan protocol (GTK 2 frontend)"
 HOMEPAGE="http://www.gnupg.org/aegypten/"
-SRC_URI="mirror://gnupg/${PN/-gtk}/${P/-gtk}.tar.gz"
+SRC_URI="mirror://gnupg/${PN/-gtk2}/${P/-gtk2}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~x64-freebsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~x64-solaris ~x86-solaris"
 IUSE=""
 
-DEPEND="app-crypt/pinentry x11-libs/gtk+:2"
+DEPEND="~app-crypt/pinentry-base-${PV} x11-libs/gtk+:2"
 RDEPEND="${DEPEND}"
-S="${WORKDIR}/${P/-gtk}"
+S="${WORKDIR}/${P/-gtk2}"
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN/-gtk}-0.7.5-grab.patch"
+	epatch "${FILESDIR}/${PN/-gtk2}-0.7.5-grab.patch"
 }
 
 src_configure() {
