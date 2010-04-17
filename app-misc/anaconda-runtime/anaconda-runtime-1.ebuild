@@ -46,5 +46,6 @@ RDEPEND="app-admin/authconfig
 	sys-fs/squashfs-tools
 	sys-fs/xfsprogs
 	sys-libs/cracklib
+	sys-libs/libselinux
 	sys-libs/libuser
 	sys-libs/slang"
