@@ -45,7 +45,7 @@ src_configure() {
 
 src_install() {
 	base_src_install
-	dosym /usr/bin/liveinst /usr/bin/installer
+	dosym /usr/sbin/liveinst /usr/sbin/installer
 }
 
 pkg_postrm() {
