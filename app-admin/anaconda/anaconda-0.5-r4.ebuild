@@ -45,6 +45,10 @@ src_configure() {
 
 src_install() {
 	base_src_install
+	# install liveinst for user
+	dodir /usr/bin
+	exeinto /usr/bin
+	doexe "${FILESDIR}"/liveinst
 	dosym /usr/bin/liveinst /usr/bin/installer
 }
 
