@@ -5,8 +5,8 @@
 inherit eutils gnome2
 
 DESCRIPTION="Alarm Clock is a personal alarm clock applet for the Gnome panel."
-HOMEPAGE="http://alarm-clock.54.pl/"
-SRC_URI="http://www.alarm-clock.pl/downloads/${P}.tar.bz2"
+HOMEPAGE="http://alarm-clock.pl/"
+SRC_URI="http://www.alarm-clock.pl/media/distfiles/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
