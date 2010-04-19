@@ -41,10 +41,6 @@ src_install() {
 
 }
 
-pkg_postinst() {
-	python_mod_compile /usr/$(get_libdir)/molecule
-}
-
 pkg_postrm() {
 	python_mod_cleanup /usr/$(get_libdir)/molecule
 }
