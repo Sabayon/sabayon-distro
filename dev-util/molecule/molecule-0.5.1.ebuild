@@ -1,10 +1,9 @@
-# Copyright 2004-2009 Sabayon Linux
+# Copyright 2004-2010 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils
 EGIT_TREE="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/molecule.git"
-inherit git
+inherit eutils multilib python git
 SRC_URI=""
 DESCRIPTION="Release metatool used for creating Sabayon releases"
 HOMEPAGE="http://www.sabayonlinux.org"
@@ -40,4 +39,12 @@ src_install() {
 	insinto /etc/molecule
 	doins -r examples
 
+}
+
+pkg_postinst() {
+	python_mod_compile /usr/$(get_libdir)/molecule
+}
+
+pkg_postrm() {
+	python_mod_cleanup /usr/$(get_libdir)/molecule
 }
