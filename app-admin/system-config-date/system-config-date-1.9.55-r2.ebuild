@@ -32,6 +32,8 @@ RDEPEND="net-misc/ntp
 	gtk? ( dev-python/pygtk )
         x11-themes/hicolor-icon-theme"
 
+PATCHES=( "${FILESDIR}"/${P}-unicode-fix.patch )
+
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
 }

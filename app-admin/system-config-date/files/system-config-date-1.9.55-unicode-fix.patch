@@ -1,0 +1,48 @@
+diff -Nurp system-config-date-1.9.55.orig/src/date_gui.py system-config-date-1.9.55/src/date_gui.py
+--- system-config-date-1.9.55.orig/src/date_gui.py	2010-03-23 14:20:44.000000000 +0100
++++ system-config-date-1.9.55/src/date_gui.py	2010-04-21 17:25:11.519941467 +0200
+@@ -36,7 +36,7 @@ import scdMainWindow
+ import time
+ 
+ import gettext
+-_ = lambda x: gettext.ldgettext ("system-config-date", x)
++_ = lambda x: gettext.ldgettext ("system-config-date", x).decode("raw_unicode_escape")
+ 
+ ##
+ ## compat
+diff -Nurp system-config-date-1.9.55.orig/src/scdMainWindow.py system-config-date-1.9.55/src/scdMainWindow.py
+--- system-config-date-1.9.55.orig/src/scdMainWindow.py	2010-03-23 14:20:44.000000000 +0100
++++ system-config-date-1.9.55/src/scdMainWindow.py	2010-04-21 17:25:19.128926539 +0200
+@@ -41,7 +41,7 @@ from scdate.core import timezoneBackend
+ import signal
+ 
+ import gettext
+-_ = lambda x: gettext.ldgettext ("system-config-date", x)
++_ = lambda x: gettext.ldgettext ("system-config-date", x).decode("raw_unicode_escape")
+ 
+ # Initialize date and time zone backend
+ dateBackend = dateBackend.dateBackend()
+diff -Nurp system-config-date-1.9.55.orig/src/system-config-date.py system-config-date-1.9.55/src/system-config-date.py
+--- system-config-date-1.9.55.orig/src/system-config-date.py	2010-03-23 14:20:44.000000000 +0100
++++ system-config-date-1.9.55/src/system-config-date.py	2010-04-21 17:25:24.863910895 +0200
+@@ -33,7 +33,7 @@ import signal
+ import getopt
+ 
+ import gettext
+-_ = lambda x: gettext.ldgettext ("system-config-date", x)
++_ = lambda x: gettext.ldgettext ("system-config-date", x).decode("raw_unicode_escape")
+ 
+ def showhelp ():
+     sys.stderr.write (_("""Usage: system-config-date [options]
+diff -Nurp system-config-date-1.9.55.orig/src/timezone_map_gui.py system-config-date-1.9.55/src/timezone_map_gui.py
+--- system-config-date-1.9.55.orig/src/timezone_map_gui.py	2010-03-23 14:20:44.000000000 +0100
++++ system-config-date-1.9.55/src/timezone_map_gui.py	2010-04-21 17:25:00.863991385 +0200
+@@ -38,7 +38,7 @@ import random
+ import sys
+ 
+ import gettext
+-_ = lambda x: gettext.ldgettext ("system-config-date", x)
++_ = lambda x: gettext.ldgettext ("system-config-date", x).decode("raw_unicode_escape")
+ 
+ class Enum(object):
+     def __init__ (self, *args):
