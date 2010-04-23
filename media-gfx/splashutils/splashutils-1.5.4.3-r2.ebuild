@@ -138,6 +138,12 @@ src_compile() {
 src_install() {
 	local LIB=$(get_libdir)
 
+	# Sabayon: tweak /etc/conf.d/splash settings
+	sed -i 's/SPLASH_VERBOSE_ON_ERRORS="yes"/SPLASH_VERBOSE_ON_ERRORS="no"/g' "${SG}"/splash.conf || \
+		die "cannot tweak SPLASH_VERBOSE_ON_ERRORS"
+	sed -i 's/SPLASH_AUTOVERBOSE=".*"/SPLASH_AUTOVERBOSE="20"/g' "${SG}"/splash.conf || \
+		die "cannot tweak SPLASH_AUTOVERBOSE"
+
 	cd "${SM}"
 	make DESTDIR="${D}" LIB=${LIB} install || die
 
@@ -173,11 +179,6 @@ src_install() {
 	keepdir /${LIB}/splash/{tmp,cache,bin}
 	dosym /${LIB}/splash/bin/fbres /sbin/fbres
 
-	# Sabayon: tweak /etc/conf.d/splash settings
-	sed -i 's/SPLASH_VERBOSE_ON_ERRORS="yes"/SPLASH_VERBOSE_ON_ERRORS="no"/g' "${SG}"/splash.conf || \
-		die "cannot tweak SPLASH_VERBOSE_ON_ERRORS"
-	sed -i 's/SPLASH_AUTOVERBOSE=".*"/SPLASH_AUTOVERBOSE="20"/g' "${SG}"/splash.conf || \
-		die "cannot tweak SPLASH_AUTOVERBOSE"
 
 }
 
