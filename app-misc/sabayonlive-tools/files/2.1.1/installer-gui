@@ -27,7 +27,7 @@ start() {
         	echo "Session=fluxbox" >> /home/sabayonuser/.dmrc
 	        chown sabayonuser /home/sabayonuser/.dmrc
                 echo >> /home/sabayonuser/.fluxbox/init
-                echo "session.screen0.rootCommand: xhost + & display -backdrop -window root /usr/share/backgrounds/sabayonlinux.png & installer" >> /home/sabayonuser/.fluxbox/init
+                echo "session.screen0.rootCommand: xhost + & display -backdrop -window root /usr/share/backgrounds/sabayonlinux.png & installer --fullscreen" >> /home/sabayonuser/.fluxbox/init
 
 		eend 0
 	fi
