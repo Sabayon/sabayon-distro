@@ -1,2 +1,2 @@
 #!/bin/sh
-sudo /usr/sbin/liveinst $@
+sudo -E /usr/sbin/liveinst $@
