@@ -22,6 +22,9 @@ K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
+# Disable deblobbing feature
+K_DEBLOB_AVAILABLE=0
+
 inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
 
 # from kernel-2 eclass
