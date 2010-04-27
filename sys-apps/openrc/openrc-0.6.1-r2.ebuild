@@ -1,17 +1,18 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.4.3-r3.ebuild,v 1.3 2009/07/11 15:12:25 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.6.1-r1.ebuild,v 1.1 2010/03/23 20:04:30 vapier Exp $
+
+EAPI="1"
 
 inherit eutils flag-o-matic multilib toolchain-funcs
 
 if [[ ${PV} == "9999" ]] ; then
-	ESVN_REPO_URI="svn://roy.marples.name/openrc/trunk"
-	inherit subversion
+	EGIT_REPO_URI="git://roy.marples.name/openrc.git"
+	inherit git
+	KEYWORDS=""
 else
-	SRC_URI="http://roy.marples.name/downloads/${PN}/${P}.tar.bz2
-		mirror://gentoo/${P}.tar.bz2
-		http://dev.gentoo.org/~cardoe/files/${P}.tar.bz2
-		http://dev.gentoo.org/~vapier/dist/${P}.tar.bz2"
+	SRC_URI="http://roy.marples.name/downloads/${PN}/${P}.tar.bz2"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~sparc-fbsd ~x86 ~x86-fbsd"
 fi
 
 DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
@@ -19,7 +20,6 @@ HOMEPAGE="http://roy.marples.name/openrc"
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~sparc-fbsd ~x86 ~x86-fbsd"
 IUSE="debug elibc_glibc ncurses pam unicode kernel_linux kernel_FreeBSD"
 
 RDEPEND="virtual/init
@@ -34,10 +34,11 @@ RDEPEND="virtual/init
 DEPEND="${RDEPEND}
 	virtual/os-headers"
 
-pkg_setup() {
+make_args() {
 	unset LIBDIR #266688
 
-	MAKE_ARGS="${MAKE_ARGS} LIBNAME=$(get_libdir)"
+	MAKE_ARGS="${MAKE_ARGS} LIBNAME=$(get_libdir) LIBEXECDIR=/$(get_libdir)/rc"
+	MAKE_ARGS="${MAKE_ARGS} MKOLDNET=yes"
 
 	local brand="Unknown"
 	if use kernel_linux ; then
@@ -48,7 +49,9 @@ pkg_setup() {
 		brand="FreeBSD"
 	fi
 	export BRANDING="Sabayon ${brand}"
+}
 
+pkg_setup() {
 	export DEBUG=$(usev debug)
 	export MKPAM=$(usev pam)
 	export MKTERMCAP=$(usev ncurses)
@@ -56,33 +59,54 @@ pkg_setup() {
 
 src_unpack() {
 	if [[ ${PV} == "9999" ]] ; then
-		subversion_src_unpack
+		git_src_unpack
 	else
 		unpack ${A}
 	fi
 	cd "${S}"
 	sed -i 's:0444:0644:' mk/sys.mk
-	epatch "${FILESDIR}"/0.4.2/*
-	epatch "${FILESDIR}"/0.4.3/*
+	sed -i "/^DIR/s:/openrc:/${PF}:" doc/Makefile #241342
+	sed -i '/^CFLAGS+=.*_CC_FLAGS_SH/d' mk/cc.mk #289264
+	epatch "${FILESDIR}"/${P}-network-syntax.patch #310805
+	epatch "${FILESDIR}"/openrc-9999-msg-style.patch
+	epatch "${FILESDIR}"/openrc-9999-pause.patch
+	# Sabayon custom config
+	epatch "${FILESDIR}/${PN}-sabayon-config.patch"
+	epatch "${FILESDIR}"/${PN}-0.5.3-disable_warns_until_migrated.patch
+	epatch "${FILESDIR}/${PN}-netmount-fix.patch"
+	epatch "${FILESDIR}/${PN}-protect-rcsvcdir-for-symlink.patch"
 }
 
 src_compile() {
-	# catch people running `ebuild` w/out setup
-	if [[ -z ${MAKE_ARGS} ]] ; then
-		die "Your MAKE_ARGS is empty ... are you running 'ebuild' but forgot to execute 'setup' ?"
-	fi
+	make_args
 
 	if [[ ${PV} == "9999" ]] ; then
-		local ver="-svn-$(cd "${ESVN_STORE_DIR}/${ESVN_PROJECT}/${ESVN_REPO_URI##*/}"; LC_ALL=C svnversion)"
-		sed -i "/^SVNVER[[:space:]]*=/s:=.*:=${ver}:" src/rc/Makefile
+		local ver="git-$(echo ${EGIT_VERSION} | cut -c1-8)"
+		sed -i "/^GITVER[[:space:]]*=/s:=.*:=${ver}:" mk/git.mk
 	fi
 
 	tc-export CC AR RANLIB
 	emake ${MAKE_ARGS} || die "emake ${MAKE_ARGS} failed"
 }
 
+# set_config <file> <option name> <yes value> <no value> test
+# a value of "#" will just comment out the option
+set_config() {
+	local file="${D}/$1" var=$2 val com
+	eval "${@:5}" && val=$3 || val=$4
+	[[ ${val} == "#" ]] && com="#" && val='\2'
+	sed -i -r -e "/^#?${var}=/{s:=([\"'])?([^ ]*)\1?:=\1${val}\1:;s:^#?:${com}:}" "${file}"
+}
+set_config_yes_no() {
+	set_config "$1" "$2" YES NO "${@:3}"
+}
+
 src_install() {
+	make_args
 	emake ${MAKE_ARGS} DESTDIR="${D}" install || die
+
+	# install the readme for the new network scripts
+	dodoc README.net
 
 	# move the shared libs back to /usr so ldscript can install
 	# more of a minimal set of files
@@ -96,24 +120,50 @@ src_install() {
 
 	# Backup our default runlevels
 	dodir /usr/share/"${PN}"
-	mv "${D}/etc/runlevels" "${D}/usr/share/${PN}"
+	cp -PR "${D}"/etc/runlevels "${D}"/usr/share/${PN} || die
+	rm -rf "${D}"/etc/runlevels
+
+	# Stick with "old" net as the default for now
+	doconfd conf.d/net || die
+	pushd "${D}"/usr/share/${PN}/runlevels/boot > /dev/null
+	rm -f network staticroute
+	ln -s /etc/init.d/net.lo net.lo
+	popd > /dev/null
 
 	# Setup unicode defaults for silly unicode users
-	use unicode && sed -i -e '/^unicode=/s:NO:YES:' "${D}"/etc/rc.conf
+	set_config_yes_no /etc/rc.conf unicode use unicode
 
 	# Cater to the norm
-	(use x86 || use amd64) && sed -i -e '/^windowkeys=/s:NO:YES:' "${D}"/etc/conf.d/keymaps
+	set_config_yes_no /etc/conf.d/keymaps windowkeys '(' use x86 '||' use amd64 ')'
+
+	# Support for logfile rotation
+	insinto /etc/logrotate.d
+	newins "${FILESDIR}"/openrc.logrotate openrc
+
+	# Move /etc/conf.d/keymaps to .example
+	mv "${D}"/etc/conf.d/keymaps "${D}"/etc/conf.d/keymaps.example || \
+		die "cannot move keymaps"
+
 }
 
 add_boot_init() {
 	local initd=$1
-	# if the initscript is not going to be installed and  is not
+	local runlevel=${2:-boot}
+	# if the initscript is not going to be installed and is not
 	# currently installed, return
 	[[ -e ${D}/etc/init.d/${initd} || -e ${ROOT}/etc/init.d/${initd} ]] \
 		|| return
-	[[ -e ${ROOT}/etc/runlevels/boot/${initd} ]] && return
-	elog "Auto-adding '${initd}' service to your boot runlevel"
-	ln -snf /etc/init.d/${initd} "${ROOT}"/etc/runlevels/boot/${initd}
+	[[ -e ${ROOT}/etc/runlevels/${runlevel}/${initd} ]] && return
+
+	# if runlevels dont exist just yet, then create it but still flag
+	# to pkg_postinst that it needs real setup #277323
+	if [[ ! -d ${ROOT}/etc/runlevels/${runlevel} ]] ; then
+		mkdir -p "${ROOT}"/etc/runlevels/${runlevel}
+		touch "${ROOT}"/etc/runlevels/.add_boot_init.created
+	fi
+
+	elog "Auto-adding '${initd}' service to your ${runlevel} runlevel"
+	ln -snf /etc/init.d/${initd} "${ROOT}"/etc/runlevels/${runlevel}/${initd}
 }
 add_boot_init_mit_config() {
 	local config=$1 initd=$2
@@ -124,17 +174,35 @@ add_boot_init_mit_config() {
 	fi
 }
 
+CONFD_KEYMAPS="${ROOT}/etc/conf.d/keymaps"
 pkg_preinst() {
+	# backup user /etc/conf.d/keymaps
+	if [ -f "${CONFD_KEYMAPS}" ]; then
+		cp -p "${CONFD_KEYMAPS}" "${CONFD_KEYMAPS}.portage_openrc_bck"
+	fi
 	local f LIBDIR=$(get_libdir)
 
 	# default net script is just comments, so no point in biting people
-	# in the ass by accident
-	mv "${D}"/etc/conf.d/net "${T}"/
-	[[ -e ${ROOT}/etc/conf.d/net ]] && cp "${ROOT}"/etc/conf.d/net "${T}"/
+	# in the ass by accident.  we save in preinst so that the package
+	# manager doesnt go throwing etc-update crap at us -- postinst is
+	# too late to prevent that.  this behavior also lets us keep the
+	# file in the CONTENTS for binary packages.
+	[[ -e ${ROOT}/etc/conf.d/net ]] && cp "${ROOT}"/etc/conf.d/net "${D}"/etc/conf.d/
+
+	# avoid default thrashing in conf.d files when possible #295406
+	if [[ -e ${ROOT}/etc/conf.d/hostname ]] ; then
+		(
+		unset hostname HOSTNAME
+		source "${ROOT}"/etc/conf.d/hostname
+		: ${hostname:=${HOSTNAME}}
+		[[ -n ${hostname} ]] && set_config /etc/conf.d/hostname hostname "${hostname}"
+		)
+	fi
 
 	# upgrade timezone file ... do it before moving clock
 	if [[ -e ${ROOT}/etc/conf.d/clock && ! -e ${ROOT}/etc/timezone ]] ; then
 		(
+		unset TIMEZONE
 		source "${ROOT}"/etc/conf.d/clock
 		[[ -n ${TIMEZONE} ]] && echo "${TIMEZONE}" > "${ROOT}"/etc/timezone
 		)
@@ -181,30 +249,40 @@ pkg_preinst() {
 	# termencoding was added in 0.2.1 and needed in boot
 	has_version ">=sys-apps/openrc-0.2.1" || add_boot_init termencoding
 
-	# openrc-0.4.0 no longer loads the udev addon
-	enable_udev=0
-	if [[ ! -e "${ROOT}"/etc/runlevels/sysinit/udev ]] && \
-		[[ -e "${ROOT}"/etc/init.d/udev ]] && \
-		! has_version ">=sys-apps/openrc-0.4.0"
-	then
-		# make sure udev is in sysinit if it was enabled before
-		local rc_devices=$(
-			[[ -f /etc/rc.conf ]] && source /etc/rc.conf
-			[[ -f /etc/conf.d/rc ]] && source /etc/conf.d/rc
-			echo "${rc_devices:-${RC_DEVICES:-auto}}"
-		)
-		case ${rc_devices} in
-			udev|auto)
-				enable_udev=1
-				;;
-		esac
+	# set default interactive shell to sulogin if it exists
+	set_config /etc/rc.conf rc_shell /sbin/sulogin "#" test -e /sbin/sulogin
+
+	has_version sys-apps/openrc || migrate_from_baselayout_1
+	has_version ">=sys-apps/openrc-0.4.0" || migrate_udev_init_script
+}
+
+# >=openrc-0.4.0 no longer loads the udev addon
+migrate_udev_init_script() {
+	# make sure udev is in sysinit if it was enabled before
+	local enable_udev=false
+	local rc_devices=$(
+		[[ -f /etc/rc.conf ]] && source /etc/rc.conf
+		[[ -f /etc/conf.d/rc ]] && source /etc/conf.d/rc
+		echo "${rc_devices:-${RC_DEVICES:-auto}}"
+	)
+	case ${rc_devices} in
+		udev|auto)
+			enable_udev=true
+			;;
+	esac
+
+	if $enable_udev; then
+		add_boot_init udev sysinit
+		add_boot_init udev-postmount default
 	fi
+}
 
-	# skip remaining migration if we already have openrc installed
-	has_version sys-apps/openrc && return 0
-
+migrate_from_baselayout_1() {
 	# baselayout boot init scripts have been split out
 	for f in $(cd "${D}"/usr/share/${PN}/runlevels/boot || exit; echo *) ; do
+		# baselayout-1 is always "old" net, so ignore "new" net
+		[[ ${f} == "network" ]] && continue
+
 		add_boot_init ${f}
 	done
 
@@ -276,17 +354,25 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
+	# Copy config file over
+	if [ -f "${CONFD_KEYMAPS}.portage_openrc_bck" ]; then
+		cp ${CONFD_KEYMAPS}.portage_openrc_bck ${CONFD_KEYMAPS} -p
+	else
+		if [ -f "${CONFD_KEYMAPS}.example" ] && [ ! -f "${CONFD_KEYMAPS}" ]; then
+			cp ${CONFD_KEYMAPS}.example ${CONFD_KEYMAPS} -p
+		fi
+	fi
+
 	local LIBDIR=$(get_libdir)
 
 	# Remove old baselayout links
 	rm -f "${ROOT}"/etc/runlevels/boot/{check{fs,root},rmnologin}
 
-	[[ -e ${T}/net && ! -e ${ROOT}/etc/conf.d/net ]] && mv "${T}"/net "${ROOT}"/etc/conf.d/net
-
 	# Make our runlevels if they don't exist
-	if [[ ! -e ${ROOT}/etc/runlevels ]] ; then
+	if [[ ! -e ${ROOT}/etc/runlevels ]] || [[ -e ${ROOT}/etc/runlevels/.add_boot_init.created ]] ; then
 		einfo "Copying across default runlevels"
 		cp -RPp "${ROOT}"/usr/share/${PN}/runlevels "${ROOT}"/etc
+		rm -f "${ROOT}"/etc/runlevels/.add_boot_init.created
 	else
 		if [[ ! -e ${ROOT}/etc/runlevels/sysinit/devfs ]] ; then
 			mkdir -p "${ROOT}"/etc/runlevels/sysinit
@@ -300,18 +386,43 @@ pkg_postinst() {
 		fi
 	fi
 
-	if [[ "$enable_udev" = 1 ]]; then
-		elog "Auto adding udev init script to the sysinit runlevel"
-		ln -sf /etc/init.d/udev "${ROOT}"/etc/runlevels/sysinit/udev
+	# /etc/conf.d/net.example is no longer valid
+	local NET_EXAMPLE="${ROOT}/etc/conf.d/net.example"
+	local NET_MD5='8ebebfa07441d39eb54feae0ee4c8210'
+	if [[ -e "${NET_EXAMPLE}" ]] ; then
+		if [[ $(md5sum "${NET_EXAMPLE}") == ${NET_MD5}* ]]; then
+			rm -f "${NET_EXAMPLE}"
+			elog "${NET_EXAMPLE} has been removed."
+		else
+			sed -i '1i# This file is obsolete.\n' "${NET_EXAMPLE}"
+			elog "${NET_EXAMPLE} should be removed."
+		fi
+		elog "The new file is ${ROOT}/usr/share/doc/${PF}/net.example"
 	fi
 
-	# update the dependency tree bug #224171
-	[[ "${ROOT}" = "/" ]] && "${ROOT}/${LIBDIR}"/rc/bin/rc-depend -u
+	# /etc/conf.d/wireless.example is no longer valid
+	local WIRELESS_EXAMPLE="${ROOT}/etc/conf.d/wireless.example"
+	local WIRELESS_MD5='d1fad7da940bf263c76af4d2082124a3'
+	if [[ -e "${WIRELESS_EXAMPLE}" ]] ; then
+		if [[ $(md5sum "${WIRELESS_EXAMPLE}") == ${WIRELESS_MD5}* ]]; then
+			rm -f "${WIRELESS_EXAMPLE}"
+			elog "${WIRELESS_EXAMPLE} is deprecated and has been removed."
+		else
+			sed -i '1i# This file is obsolete.\n' "${WIRELESS_EXAMPLE}"
+			elog "${WIRELESS_EXAMPLE} is deprecated and should be removed."
+		fi
+		elog "If you are using the old style network scripts,"
+		elog "Configure wireless settings in ${ROOT}/etc/conf.d/net"
+		elog "after reviewing ${ROOT}/usr/share/doc/${PF}/net.example"
+	fi
 
 	if [[ -d ${ROOT}/etc/modules.autoload.d ]] ; then
 		ewarn "/etc/modules.autoload.d is no longer used.  Please convert"
 		ewarn "your files to /etc/conf.d/modules and delete the directory."
 	fi
+
+	# update the dependency tree after touching all files #224171
+	[[ "${ROOT}" = "/" ]] && "${ROOT}/${LIBDIR}"/rc/bin/rc-depend -u
 
 	elog "You should now update all files in /etc, using etc-update"
 	elog "or equivalent before restarting any services or this host."
