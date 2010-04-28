@@ -9,7 +9,6 @@ FLASHLIBVER=6684
 MY_PREFIX=/opt/${PN}/
 use x86 && MY_ARCH=i486
 use amd64 && MY_ARCH=x86_64
-PYTHON_INC="$(python_get_includedir)"
 
 SRC_URI="http://dl.boxee.tv/${PN}-sources-${PV}.tar.bz2
 	http://distfiles.sabayon.org/${CATEGORY}/xmbc-linux-tools-git20100110.tar.gz"
@@ -123,6 +122,7 @@ src_prepare() {
 	cp --no-dereference --preserve=all -R ${WORKDIR}/Linux ${S}/tools || die "XMBC Linux Tools copy Failed"
 
 	# Use system Python
+	PYTHON_INC="$(python_get_includedir)"
 	sed -i s#INCLUDES=#"INCLUDES=-I$PYTHON_INC "# xbmc/lib/libPython/Makefile \
 		|| die "Setting system python failed"
 
