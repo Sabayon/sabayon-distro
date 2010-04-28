@@ -42,7 +42,7 @@ DEPEND="${RDEPEND}
 
 EMULTILIB_PKG="true"
 
-S="${WORKDIR}/fglrx-installer-${PV}"
+S="${WORKDIR}/fglrx-installer-${REAL_PV}"
 
 # QA Silencing
 QA_TEXTRELS="
@@ -201,14 +201,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [[ $(get_major_version) -gt 8 ]]; then
-		# Switching to a standard way to extract the files since otherwise no signature file
-		# would be created
-		local src="${DISTDIR}/${A}"
-		sh "${src}" --extract "${S}"  2&>1 /dev/null
-	else
-		unpack ${A}
-	fi
+	unpack ${A}
 }
 
 src_prepare() {
@@ -222,6 +215,11 @@ src_prepare() {
 				|| die "Failed to enable debug output."
 		fi
 	fi
+
+	# 2.6.33 kernel support
+	epatch "${FILESDIR}"/ati-drivers-2.6.33.patch
+	# Fix a known compilation error
+	epatch "${FILESDIR}"/ati-drivers-fix_compilation-bug-297322.patch
 
 	# These are the userspace utilities that we also have source for.
 	# We rebuild these later.
