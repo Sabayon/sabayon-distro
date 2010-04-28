@@ -1,0 +1,9 @@
+# Joystick mapping file
+# =====================
+#
+# Contains mapping between name and logical (i.e. mame) joystick index
+#
+# Index   Name
+# -----   ----
+#   1     MOSIC USB 2A4K GamePad
+#   0     Logitech Logitech Attack 3
