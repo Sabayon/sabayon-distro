@@ -223,9 +223,6 @@ src_prepare() {
 		fi
 	fi
 
-	# Fix a known compilation error
-	epatch "${FILESDIR}"/ati-drivers-fix_compilation-bug-297322.patch
-
 	# These are the userspace utilities that we also have source for.
 	# We rebuild these later.
 	rm \
