@@ -2,6 +2,7 @@
 
 gdm_file="/usr/share/gdm/defaults.conf"
 kdm_file="/usr/share/config/kdm/kdmrc"
+oem_file="/etc/oemlive.sh"
 
 sabayon_setup_autologin() {
 
@@ -64,4 +65,8 @@ sabayon_setup_vt_autologin() {
 	source /sbin/livecd-functions.sh
 	export CDBOOT=1
 	livecd_fix_inittab
+}
+
+sabayon_setup_oem_livecd() {
+	[[ -x "${oem_file}" ]] && ${oem_file}
 }

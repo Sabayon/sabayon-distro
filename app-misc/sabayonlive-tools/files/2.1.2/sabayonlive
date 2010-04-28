@@ -444,6 +444,7 @@ start() {
 	my_setup_session
 	sabayon_setup_motd
 	sabayon_setup_vt_autologin
+	sabayon_setup_oem_livecd
 
 }
 
