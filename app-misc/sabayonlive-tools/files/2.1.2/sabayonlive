@@ -62,7 +62,7 @@ my_setup_desktop() {
 	fi
 
 	# create /overlay, this way df -h won't bitch
-	mkdir /overlay
+	[[ -d "/overlay" ]] || mkdir /overlay
 
 }
 
