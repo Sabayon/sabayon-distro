@@ -88,7 +88,10 @@ src_configure() {
 			--disable-alc"
 	fi
 
+	# Modify econf to give amuleado a custome name to
+	# avoid colliding with the regular version of amule.
 	econf \
+		--program-suffix=adu \
 		--with-wx-config=${WX_CONFIG} \
 		--with-wxbase-config=${WX_CONFIG} \
 		--enable-amulecmd \
