@@ -68,5 +68,5 @@ sabayon_setup_vt_autologin() {
 }
 
 sabayon_setup_oem_livecd() {
-	[[ -x "${oem_file}" ]] && ${oem_file}
+	( [[ -x "${oem_file}" ]] && ${oem_file} ) || return 0
 }
