@@ -1,6 +1,5 @@
-diff -Nurp system-config-date-1.9.55.orig/src/date_gui.py system-config-date-1.9.55/src/date_gui.py
---- system-config-date-1.9.55.orig/src/date_gui.py	2010-03-23 14:20:44.000000000 +0100
-+++ system-config-date-1.9.55/src/date_gui.py	2010-04-21 17:25:11.519941467 +0200
+--- system-config-date-1.9.55.orig/src/date_gui.py
++++ system-config-date-1.9.55/src/date_gui.py
 @@ -36,7 +36,7 @@ import scdMainWindow
  import time
  
@@ -10,9 +9,8 @@ diff -Nurp system-config-date-1.9.55.orig/src/date_gui.py system-config-date-1.9
  
  ##
  ## compat
-diff -Nurp system-config-date-1.9.55.orig/src/scdMainWindow.py system-config-date-1.9.55/src/scdMainWindow.py
---- system-config-date-1.9.55.orig/src/scdMainWindow.py	2010-03-23 14:20:44.000000000 +0100
-+++ system-config-date-1.9.55/src/scdMainWindow.py	2010-04-21 17:25:19.128926539 +0200
+--- system-config-date-1.9.55.orig/src/scdMainWindow.py
++++ system-config-date-1.9.55/src/scdMainWindow.py
 @@ -41,7 +41,7 @@ from scdate.core import timezoneBackend
  import signal
  
@@ -22,9 +20,8 @@ diff -Nurp system-config-date-1.9.55.orig/src/scdMainWindow.py system-config-dat
  
  # Initialize date and time zone backend
  dateBackend = dateBackend.dateBackend()
-diff -Nurp system-config-date-1.9.55.orig/src/system-config-date.py system-config-date-1.9.55/src/system-config-date.py
---- system-config-date-1.9.55.orig/src/system-config-date.py	2010-03-23 14:20:44.000000000 +0100
-+++ system-config-date-1.9.55/src/system-config-date.py	2010-04-21 17:25:24.863910895 +0200
+--- system-config-date-1.9.55.orig/src/system-config-date.py
++++ system-config-date-1.9.55/src/system-config-date.py
 @@ -33,7 +33,7 @@ import signal
  import getopt
  
@@ -34,9 +31,8 @@ diff -Nurp system-config-date-1.9.55.orig/src/system-config-date.py system-confi
  
  def showhelp ():
      sys.stderr.write (_("""Usage: system-config-date [options]
-diff -Nurp system-config-date-1.9.55.orig/src/timezone_map_gui.py system-config-date-1.9.55/src/timezone_map_gui.py
---- system-config-date-1.9.55.orig/src/timezone_map_gui.py	2010-03-23 14:20:44.000000000 +0100
-+++ system-config-date-1.9.55/src/timezone_map_gui.py	2010-04-21 17:25:00.863991385 +0200
+--- system-config-date-1.9.55.orig/src/timezone_map_gui.py
++++ system-config-date-1.9.55/src/timezone_map_gui.py
 @@ -38,7 +38,7 @@ import random
  import sys
  
@@ -46,3 +42,14 @@ diff -Nurp system-config-date-1.9.55.orig/src/timezone_map_gui.py system-config-
  
  class Enum(object):
      def __init__ (self, *args):
+--- system-config-date-1.9.57.orig/src/scdate/core/zonetab.py
++++ system-config-date-1.9.57/src/scdate/core/zonetab.py
+@@ -29,7 +29,7 @@ import locale
+ import warnings
+ 
+ from gettext import ldgettext
+-ugettext = lambda x: unicode(ldgettext("system-config-date", x), "utf-8")
++ugettext = lambda x: unicode(ldgettext("system-config-date", x), "raw_unicode_escape")
+ 
+ __all__ = ("ZoneTabEntry", "ZoneTab")
+ 
