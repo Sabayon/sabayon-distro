@@ -10,7 +10,7 @@ SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="gtk"
+IUSE="gtk ksplash"
 RESTRICT="nomirror"
 RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
 	|| ( >=kde-base/kwin-4.4.0 x11-themes/aurorae )
@@ -40,10 +40,12 @@ src_install() {
 	doins -r ./
 
 	# KSplash
-	dodir ${KDEDIR}/share/apps/ksplash/Themes
-	cd ${S}/ksplash
-	insinto ${KDEDIR}/share/apps/ksplash/Themes
-	doins -r ./
+	if use kplash; then
+		dodir ${KDEDIR}/share/apps/ksplash/Themes
+		cd ${S}/ksplash
+		insinto ${KDEDIR}/share/apps/ksplash/Themes
+		doins -r ./
+	fi
 }
 
 pkg_postinst()
