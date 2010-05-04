@@ -6,7 +6,7 @@
 depend() {
 	use logger acpid
 	need dbus
-	after coldplug dns nscd
+	after coldplug dns nscd consolekit
 }
 
 start() {

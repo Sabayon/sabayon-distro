@@ -250,10 +250,6 @@ src_install() {
 
 	# initscript
 	cp "${FILESDIR}/0.5.10-hald.rc" .
-	if use consolekit; then
-		sed -i 's/need dbus/need dbus consolekit/' "0.5.10-hald.rc" || \
-			die "sed failed"
-	fi
 	newinitd "0.5.10-hald.rc" hald || die "init script failed"
 
 	# configuration
