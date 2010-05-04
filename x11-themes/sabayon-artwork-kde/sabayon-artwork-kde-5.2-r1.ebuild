@@ -40,7 +40,7 @@ src_install() {
 	doins -r ./
 
 	# KSplash
-	if use kplash; then
+	if use ksplash; then
 		dodir ${KDEDIR}/share/apps/ksplash/Themes
 		cd ${S}/ksplash
 		insinto ${KDEDIR}/share/apps/ksplash/Themes
