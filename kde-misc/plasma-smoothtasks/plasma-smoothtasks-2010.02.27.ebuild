@@ -1,7 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
-
 EAPI="2"
 
 KDE_LINGUAS="cs de fr hu pl uk_UA zh_CN"
@@ -14,9 +13,9 @@ MY_P="smooth-tasks-src-wip-${MY_PV}"
 DESCRIPTION="KDE plasmoid. Windows 7 like taskbar, fork of stasks"
 HOMEPAGE="http://www.kde-look.org/content/show.php/Smooth+Tasks?content=101586"
 SRC_URI="http://www.kde-look.org/CONTENT/content-files/101586-${MY_P}.tar.bz2"
-RESTRICT="nomirror"
+RESTRICT="mirror"
 
-LICENSE="GPL"
+LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE="debug"
@@ -29,4 +28,3 @@ RDEPEND="${DEPEND}
 "
 
 S="${WORKDIR}/${MY_P}"
-
