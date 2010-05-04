@@ -35,6 +35,7 @@ src_unpack() {
 	cp ${FILESDIR}/${PV}/sabutil . -p
 	cp ${FILESDIR}/${PV}/livespawn . -p
 	cp ${FILESDIR}/${PV}/sabayon-live-check . -p
+	cp ${FILESDIR}/${PV}/sabayon-welcome-loader* . -p
 }
 
 src_install() {
@@ -55,6 +56,11 @@ src_install() {
 	doexe livespawn
 	doexe sabutil
 	doexe sabayon-live-check
+	doexe sabayon-welcome-loader
+
+	dodir /etc/sabayon
+	insinto /etc/sabayon
+	doins sabayon-welcome-loader.desktop
 
 	#insinto /etc/X11
 	#doins xorg.conf.sabayon
