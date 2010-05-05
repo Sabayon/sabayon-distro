@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=2
-inherit eutils qt4 fdo-mime
+inherit eutils qt4-r2 fdo-mime
 DESCRIPTION="A Secure and Open Source Web Browser that provides solid performance, stability, and cross-platform functionality."
 HOMEPAGE="http://dooble.sourceforge.net/"
 
