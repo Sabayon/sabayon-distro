@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit distutils eutils flag-o-matic toolchain-funcs versionator python qt4
+inherit distutils eutils flag-o-matic toolchain-funcs versionator python qt4-r2
 
 MAIN_PV=$(get_major_version)
 MAJOR_PV=$(get_version_component_range 1-2)
