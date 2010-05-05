@@ -1,7 +1,8 @@
 # Copyright 2006 SabayonLinux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils subversion qt4
+EAPI="2"
+inherit eutils subversion qt4-r2
 
 DESCRIPTION="Acceleration Manager for AIGLX/XGL on SabayonLinux"
 HOMEPAGE="http://www.sabayonlinux.org"
