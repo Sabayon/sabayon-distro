@@ -1,0 +1,345 @@
+Index: KDE/kdebase/workspace/kwin/tabbox.cpp
+===================================================================
+--- KDE/kdebase/workspace/kwin/tabbox.cpp	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/tabbox.cpp	(revision 1105144)
+@@ -180,6 +180,18 @@
+     return ret;
+     }
+ 
++TabBoxClient* TabBoxHandlerImpl::desktopClient() const
++    {
++    foreach( const Client* client, Workspace::self()->stackingOrder() )
++        {
++        if( client->isDesktop() )
++            {
++            return client->tabBoxClient();
++            }
++        }
++    return NULL;
++    }
++
+ /*********************************************************
+ * TabBoxClientImpl
+ *********************************************************/
+@@ -195,6 +207,9 @@
+ 
+ QString TabBoxClientImpl::caption() const
+     {
++    if( m_client->isDesktop() )
++        return i18nc( "Special entry in alt+tab list for minimizing all windows",
++                      "Show Desktop" );
+     return m_client->caption();
+     }
+ 
+@@ -258,12 +273,14 @@
+     m_desktopConfig = TabBoxConfig();
+     m_desktopConfig.setTabBoxMode( TabBoxConfig::DesktopTabBox );
+     m_desktopConfig.setShowTabBox( true );
++    m_desktopConfig.setShowDesktop( false );
+     m_desktopConfig.setDesktopSwitchingMode( TabBoxConfig::MostRecentlyUsedDesktopSwitching );
+     m_desktopConfig.setLayout( TabBoxConfig::VerticalLayout );
+ 
+     m_desktopListConfig = TabBoxConfig();
+     m_desktopListConfig.setTabBoxMode( TabBoxConfig::DesktopTabBox );
+     m_desktopListConfig.setShowTabBox( true );
++    m_desktopListConfig.setShowDesktop( false );
+     m_desktopListConfig.setDesktopSwitchingMode( TabBoxConfig::StaticDesktopSwitching );
+     m_desktopListConfig.setLayout( TabBoxConfig::VerticalLayout );
+     m_tabBox = new TabBoxHandlerImpl();
+@@ -523,6 +540,8 @@
+                                                             TabBoxConfig::defaultShowTabBox()));
+     tabBoxConfig.setHighlightWindows( config.readEntry<bool>( "HighlightWindows",
+                                                                   TabBoxConfig::defaultHighlightWindow()));
++    tabBoxConfig.setShowDesktop( config.readEntry<bool>( "ShowDesktop",
++                                                            TabBoxConfig::defaultShowDesktop()));
+ 
+     tabBoxConfig.setMinWidth( config.readEntry<int>( "MinWidth",
+                                                          TabBoxConfig::defaultMinWidth()));
+@@ -1156,6 +1175,8 @@
+             activateClient( c );
+             if( c->isShade() && options->shadeHover )
+                 c->setShade( ShadeActivated );
++            if( c->isDesktop() )
++                setShowingDesktop( !showingDesktop() );
+             }
+         }
+     if (control_grab)
+Index: KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/main.ui
+===================================================================
+--- KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/main.ui	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/main.ui	(revision 1105144)
+@@ -6,8 +6,8 @@
+    <rect>
+     <x>0</x>
+     <y>0</y>
+-    <width>445</width>
+-    <height>288</height>
++    <width>490</width>
++    <height>332</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+@@ -97,14 +97,14 @@
+         </item>
+        </widget>
+       </item>
+-      <item row="2" column="0" colspan="2">
++      <item row="3" column="0" colspan="2">
+        <widget class="QCheckBox" name="showOutlineCheck">
+         <property name="text">
+          <string>Show outline of selected window</string>
+         </property>
+        </widget>
+       </item>
+-      <item row="3" column="0">
++      <item row="4" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Effect:</string>
+@@ -114,7 +114,7 @@
+         </property>
+        </widget>
+       </item>
+-      <item row="3" column="1">
++      <item row="4" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="KComboBox" name="effectCombo">
+@@ -144,6 +144,16 @@
+         </item>
+        </layout>
+       </item>
++      <item row="2" column="0" colspan="2">
++       <widget class="QCheckBox" name="showDesktopBox">
++        <property name="toolTip">
++         <string>Adds an entry to minimize all windows.</string>
++        </property>
++        <property name="text">
++         <string>Include desktop</string>
++        </property>
++       </widget>
++      </item>
+      </layout>
+     </widget>
+    </item>
+Index: KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/previewhandlerimpl.cpp
+===================================================================
+--- KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/previewhandlerimpl.cpp	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/previewhandlerimpl.cpp	(revision 1105144)
+@@ -175,5 +175,11 @@
+     return 0;
+     }
+ 
++TabBoxClient* PreviewHandlerImpl::desktopClient() const
++    {
++    return 0;
++    }
++
++
+ } // namespace TabBox
+ } // namespace KWin
+Index: KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/main.cpp
+===================================================================
+--- KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/main.cpp	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/main.cpp	(revision 1105144)
+@@ -144,6 +144,7 @@
+     connect( m_primaryTabBoxUi->showOutlineCheck, SIGNAL(stateChanged(int)), this, SLOT(changed()));
+     connect( m_primaryTabBoxUi->showTabBox, SIGNAL(toggled(bool)), this, SLOT(changed()));
+     connect( m_primaryTabBoxUi->highlightWindowCheck, SIGNAL(stateChanged(int)), this, SLOT(changed()));
++    connect( m_primaryTabBoxUi->showDesktopBox, SIGNAL(stateChanged(int)), this, SLOT(changed()));
+     // combo boxes alternative
+     connect( m_alternativeTabBoxUi->listModeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
+     connect( m_alternativeTabBoxUi->switchingModeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
+@@ -152,6 +153,7 @@
+     connect( m_alternativeTabBoxUi->showOutlineCheck, SIGNAL(stateChanged(int)), this, SLOT(changed()));
+     connect( m_alternativeTabBoxUi->showTabBox, SIGNAL(toggled(bool)), this, SLOT(changed()));
+     connect( m_alternativeTabBoxUi->highlightWindowCheck, SIGNAL(stateChanged(int)), this, SLOT(changed()));
++    connect( m_alternativeTabBoxUi->showDesktopBox, SIGNAL(stateChanged(int)), this, SLOT(changed()));
+ 
+     // effects
+     connect( m_primaryTabBoxUi->effectCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(slotEffectSelectionChanged(int)));
+@@ -249,6 +251,8 @@
+         config.readEntry<int>( "LayoutMode", TabBox::TabBoxConfig::defaultLayoutMode() )));
+     tabBoxConfig.setSelectedItemViewPosition( TabBox::TabBoxConfig::SelectedItemViewPosition(
+         config.readEntry<int>( "SelectedItem", TabBox::TabBoxConfig::defaultSelectedItemViewPosition())));
++    tabBoxConfig.setShowDesktop( config.readEntry<bool>( "ShowDesktop",
++                                                         TabBox::TabBoxConfig::defaultShowDesktop()));
+ 
+     tabBoxConfig.setShowOutline( config.readEntry<bool>( "ShowOutline",
+                                                              TabBox::TabBoxConfig::defaultShowOutline()));
+@@ -275,6 +279,7 @@
+     config.writeEntry( "SelectedItem",       int(tabBoxConfig.selectedItemViewPosition()) );
+     config.writeEntry( "LayoutName",         tabBoxConfig.layoutName() );
+     config.writeEntry( "SelectedLayoutName", tabBoxConfig.selectedItemLayoutName() );
++    config.writeEntry( "ShowDesktop",        tabBoxConfig.isShowDesktop() );
+ 
+     // check boxes
+     config.writeEntry( "ShowOutline",      tabBoxConfig.isShowOutline() );
+@@ -389,6 +394,7 @@
+     m_primaryTabBoxUi->showOutlineCheck->setChecked( TabBox::TabBoxConfig::defaultShowOutline() );
+     m_primaryTabBoxUi->showTabBox->setChecked( TabBox::TabBoxConfig::defaultShowTabBox() );
+     m_primaryTabBoxUi->highlightWindowCheck->setChecked( TabBox::TabBoxConfig::defaultHighlightWindow() );
++    m_primaryTabBoxUi->showDesktopBox->setChecked( TabBox::TabBoxConfig::defaultShowDesktop() );
+ 
+     // effects
+     m_primaryTabBoxUi->effectCombo->setCurrentIndex( 1 );
+@@ -402,6 +408,7 @@
+     m_alternativeTabBoxUi->showOutlineCheck->setChecked( TabBox::TabBoxConfig::defaultShowOutline() );
+     m_alternativeTabBoxUi->showTabBox->setChecked( TabBox::TabBoxConfig::defaultShowTabBox() );
+     m_alternativeTabBoxUi->highlightWindowCheck->setChecked( TabBox::TabBoxConfig::defaultHighlightWindow() );
++    m_alternativeTabBoxUi->showDesktopBox->setChecked( TabBox::TabBoxConfig::defaultShowDesktop() );
+ 
+     // effects
+     m_alternativeTabBoxUi->effectCombo->setCurrentIndex( 0 );
+@@ -431,6 +438,7 @@
+     ui->showOutlineCheck->setChecked( config.isShowOutline() );
+     ui->showTabBox->setChecked( config.isShowTabBox());
+     ui->highlightWindowCheck->setChecked( config.isHighlightWindows() );
++    ui->showDesktopBox->setChecked( config.isShowDesktop() );
+     }
+ 
+ void KWinTabBoxConfig::updateConfigFromUi( const KWin::KWinTabBoxConfigForm* ui, TabBox::TabBoxConfig& config )
+@@ -441,6 +449,7 @@
+     config.setShowOutline( ui->showOutlineCheck->isChecked() );
+     config.setShowTabBox( ui->showTabBox->isChecked() );
+     config.setHighlightWindows( ui->highlightWindowCheck->isChecked() );
++    config.setShowDesktop( ui->showDesktopBox->isChecked() );
+     }
+ 
+ void KWinTabBoxConfig::slotEffectSelectionChanged( int index )
+Index: KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/previewhandlerimpl.h
+===================================================================
+--- KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/previewhandlerimpl.h	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/kcmkwin/kwintabbox/previewhandlerimpl.h	(revision 1105144)
+@@ -65,6 +65,7 @@
+         virtual KWin::TabBox::TabBoxClient* nextClientFocusChain(KWin::TabBox::TabBoxClient* client) const;
+         virtual KWin::TabBox::TabBoxClient* activeClient() const;
+         virtual int activeScreen() const;
++        virtual TabBoxClient* desktopClient() const;
+ 
+     private:
+         TabBoxClientList m_stackingOrder;
+Index: KDE/kdebase/workspace/kwin/tabbox/clientmodel.cpp
+===================================================================
+--- KDE/kdebase/workspace/kwin/tabbox/clientmodel.cpp	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/tabbox/clientmodel.cpp	(revision 1105144)
+@@ -226,6 +226,12 @@
+             break;
+             }
+         }
++    if( tabBox->config().isShowDesktop() )
++        {
++        TabBoxClient* desktopClient = tabBox->desktopClient();
++        if( desktopClient )
++            m_clientList.append( desktopClient );
++        }
+     reset();
+     }
+ 
+Index: KDE/kdebase/workspace/kwin/tabbox/tabboxconfig.cpp
+===================================================================
+--- KDE/kdebase/workspace/kwin/tabbox/tabboxconfig.cpp	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/tabbox/tabboxconfig.cpp	(revision 1105144)
+@@ -41,6 +41,7 @@
+             , minHeight( TabBoxConfig::defaultMinHeight() )
+             , layoutName( TabBoxConfig::defaultLayoutName() )
+             , selectedItemLayoutName( TabBoxConfig::defaultSelectedItemLayoutName() )
++            , showDesktop( TabBoxConfig::defaultShowDesktop() )
+             {
+             }
+         ~TabBoxConfigPrivate()
+@@ -60,6 +61,7 @@
+         int minHeight;
+         QString layoutName;
+         QString selectedItemLayoutName;
++        bool showDesktop;
+     };
+ 
+ TabBoxConfig::TabBoxConfig()
+@@ -78,6 +80,7 @@
+     d->highlightWindows = object.isHighlightWindows();
+     d->showOutline = object.isShowOutline();
+     d->tabBoxMode = object.tabBoxMode();
++    d->showDesktop = object.isShowDesktop();
+     d->layout = object.layout();
+     d->clientListMode = object.clientListMode();
+     d->clientSwitchingMode = object.clientSwitchingMode();
+@@ -220,5 +223,15 @@
+     d->selectedItemLayoutName = name;
+     }
+ 
++bool TabBoxConfig::isShowDesktop() const
++    {
++    return d->showDesktop;
++    }
++
++void TabBoxConfig::setShowDesktop( bool show )
++    {
++    d->showDesktop = show;
++    }
++
+ } // namespace TabBox
+ } // namespace KWin
+Index: KDE/kdebase/workspace/kwin/tabbox/tabboxconfig.h
+===================================================================
+--- KDE/kdebase/workspace/kwin/tabbox/tabboxconfig.h	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/tabbox/tabboxconfig.h	(revision 1105144)
+@@ -199,6 +199,11 @@
+         * @see setlayoutName
+         */
+         QString& selectedItemLayoutName() const;
++        /**
++        * @return If an item for minimizing all windows to the desktop should be included.
++        * @see setShowDesktop
++        */
++        bool isShowDesktop() const;
+ 
+         // setters
+         /**
+@@ -272,6 +277,11 @@
+         * @see selectedItemLayoutName
+         */
+         void setSelectedItemLayoutName( const QString& name );
++        /**
++        * @param show Include item to minimize all windows to the desktop
++        * @see isShowDesktop
++        */
++        void setShowDesktop( bool show );
+ 
+         // some static methods to access default values
+         static ClientListMode defaultListMode() { return CurrentDesktopClientList; }
+@@ -285,6 +295,7 @@
+         static int defaultMinHeight() { return 20; }
+         static QString defaultLayoutName() { return QString( "Default" ); }
+         static QString defaultSelectedItemLayoutName() { return QString( "Text" ); }
++        static bool defaultShowDesktop() { return false; }
+     private:
+         TabBoxConfigPrivate* d;
+     };
+Index: KDE/kdebase/workspace/kwin/tabbox/tabboxhandler.h
+===================================================================
+--- KDE/kdebase/workspace/kwin/tabbox/tabboxhandler.h	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/tabbox/tabboxhandler.h	(revision 1105144)
+@@ -157,6 +157,10 @@
+         * @return The client to be included in the list or NULL if it isn't to be included
+         */
+         virtual TabBoxClient* clientToAddToList( TabBoxClient* client, int desktop, bool allDesktops ) const = 0;
++        /**
++        * @return The first desktop window in the stacking order.
++        */
++        virtual TabBoxClient* desktopClient() const = 0;
+ 
+         /**
+         * @return The currently used TabBoxConfig
+Index: KDE/kdebase/workspace/kwin/tabbox.h
+===================================================================
+--- KDE/kdebase/workspace/kwin/tabbox.h	(revision 1105143)
++++ KDE/kdebase/workspace/kwin/tabbox.h	(revision 1105144)
+@@ -55,6 +55,7 @@
+         virtual int numberOfDesktops() const;
+         virtual TabBoxClientList stackingOrder() const;
+         virtual TabBoxClient* clientToAddToList( TabBoxClient* client, int desktop, bool allDesktops ) const;
++        virtual TabBoxClient* desktopClient() const;
+     };
+ 
+ class TabBoxClientImpl : public TabBoxClient
