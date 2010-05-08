@@ -34,8 +34,7 @@ RDEPEND="${COMMON_DEPEND}
 	!<dev-libs/poppler-glib-${PV}
 	!<app-text/poppler-qt4-${PV}
 	!<app-text/poppler-glib-${PV}
-	cjk? ( >=app-text/poppler-data-0.2.1 )
-	${PDEPEND}"
+	cjk? ( >=app-text/poppler-data-0.2.1 )"
 
 DOCS="AUTHORS ChangeLog NEWS README README-XPDF TODO"
 PATCHES=(
