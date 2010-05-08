@@ -26,15 +26,16 @@ COMMON_DEPEND=">=media-libs/fontconfig-2.6.0
 	png? ( media-libs/libpng )"
 DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig"
+PDEPEND="cairo? ( ~app-text/poppler-glib-${PV}[cairo] )
+	qt4? ( ~app-text/poppler-qt4-${PV} )"
 RDEPEND="${COMMON_DEPEND}
 	!dev-libs/poppler
 	!<dev-libs/poppler-qt4-${PV}
 	!<dev-libs/poppler-glib-${PV}
 	!<app-text/poppler-qt4-${PV}
 	!<app-text/poppler-glib-${PV}
-	cairo? ( ~app-text/poppler-glib-${PV}[cairo] )
 	cjk? ( >=app-text/poppler-data-0.2.1 )
-	qt4? ( ~app-text/poppler-qt4-${PV} )"
+	${PDEPEND}"
 
 DOCS="AUTHORS ChangeLog NEWS README README-XPDF TODO"
 PATCHES=(
