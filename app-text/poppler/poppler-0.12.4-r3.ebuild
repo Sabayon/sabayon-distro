@@ -20,19 +20,21 @@ COMMON_DEPEND=">=media-libs/fontconfig-2.6.0
 	>=media-libs/freetype-2.3.9
 	sys-libs/zlib
 	abiword? ( dev-libs/libxml2:2 )
-	cairo? ( ~app-text/poppler-glib-${PV}[cairo] )
 	jpeg? ( >=media-libs/jpeg-7:0 )
 	jpeg2k? ( media-libs/openjpeg )
 	lcms? ( media-libs/lcms )
-	png? ( media-libs/libpng )
-	qt4? ( ~app-text/poppler-qt4-${PV} )"
+	png? ( media-libs/libpng )"
 DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig"
 RDEPEND="${COMMON_DEPEND}
 	!dev-libs/poppler
+	!<dev-libs/poppler-qt4-${PV}
+	!<dev-libs/poppler-glib-${PV}
 	!<app-text/poppler-qt4-${PV}
 	!<app-text/poppler-glib-${PV}
-	cjk? ( >=app-text/poppler-data-0.2.1 )"
+	cairo? ( ~app-text/poppler-glib-${PV}[cairo] )
+	cjk? ( >=app-text/poppler-data-0.2.1 )
+	qt4? ( ~app-text/poppler-qt4-${PV} )"
 
 DOCS="AUTHORS ChangeLog NEWS README README-XPDF TODO"
 PATCHES=(
