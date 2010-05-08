@@ -16,13 +16,14 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-
 IUSE="+cairo doc"
 S="${WORKDIR}/poppler-${PV}"
 
-RDEPEND="~app-text/poppler-${PV}
-	>=dev-libs/glib-2.16
+COMMON_DEPEND=">=dev-libs/glib-2.16
 	cairo? (
 		>=x11-libs/cairo-1.8.4
 		>=x11-libs/gtk+-2.14.0:2
 	)"
-DEPEND="${RDEPEND}
+RDEPEND="${COMMON_DEPEND}
+	~app-text/poppler-${PV}"
+DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig"
 
 PATCHES=(
