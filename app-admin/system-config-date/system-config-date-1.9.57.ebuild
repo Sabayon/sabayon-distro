@@ -25,11 +25,10 @@ DEPEND="app-text/docbook-xml-dtd
         sys-devel/gettext"
 
 RDEPEND="net-misc/ntp
-        dev-python/libgnomecanvas-python
         dev-libs/newt
 	dev-python/python-slip
         dev-python/rhpl
-	gtk? ( dev-python/pygtk )
+	gtk? ( dev-python/pygtk dev-python/libgnomecanvas-python )
         x11-themes/hicolor-icon-theme"
 
 pkg_postrm() {
