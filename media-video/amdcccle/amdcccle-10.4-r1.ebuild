@@ -54,4 +54,10 @@ src_install() {
 	doins ${FOLDER_PREFIX}usr/share/icons/ccc_large.xpm || die
 	make_desktop_entry amdcccle 'ATI Catalyst Control Center' \
 		ccc_large System
+
+	use x86 && ARCH_BASE="x86"
+	use amd64 && ARCH_BASE="x86_64"
+        into /opt
+        dobin arch/"${ARCH_BASE}"/usr/X11R6/bin/amdcccle || die
+
 }
