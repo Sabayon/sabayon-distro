@@ -24,12 +24,16 @@ DEPEND="app-text/docbook-xml-dtd
         dev-util/intltool
         sys-devel/gettext"
 
-RDEPEND="net-misc/ntp
-        dev-libs/newt
+# also net-misc/ntp would be a soft-dependency
+# but code is redhat-centric, so we won't really
+# let user use this crap
+# net-misc/ntp
+RDEPEND="dev-libs/newt
 	dev-python/python-slip
         dev-python/rhpl
-	gtk? ( dev-python/pygtk dev-python/libgnomecanvas-python )
-        x11-themes/hicolor-icon-theme"
+	gtk? (  dev-python/pygtk:2
+		dev-python/libgnomecanvas-python
+	        x11-themes/hicolor-icon-theme )"
 
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
