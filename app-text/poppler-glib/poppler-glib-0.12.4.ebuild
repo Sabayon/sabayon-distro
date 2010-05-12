@@ -22,7 +22,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.16
 		>=x11-libs/gtk+-2.14.0:2
 	)"
 RDEPEND="${COMMON_DEPEND}
-	~app-text/poppler-${PV}"
+	~app-text/poppler-base-${PV}"
 DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig"
 

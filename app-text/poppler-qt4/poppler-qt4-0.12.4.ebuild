@@ -19,7 +19,7 @@ S="${WORKDIR}/poppler-${PV}"
 COMMON_DEPEND=">=x11-libs/qt-core-4.4.2:4
 	>=x11-libs/qt-gui-4.4.2:4"
 RDEPEND="${COMMON_DEPEND}
-	~app-text/poppler-${PV}"
+	~app-text/poppler-base-${PV}"
 DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig"
 
