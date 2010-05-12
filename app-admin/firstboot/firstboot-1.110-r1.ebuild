@@ -14,8 +14,9 @@ SRC_URI="mirror://fedora/development/source/SRPMS/${P}-${RPMREV}.fc13.src.rpm"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE=""
-RDEPEND="=dev-python/pygtk-2*
+IUSE="gtk"
+RDEPEND="
+	gtk? ( =dev-python/pygtk-2* )
 	dev-python/rhpl
 	app-admin/system-config-users
 	app-admin/system-config-date
