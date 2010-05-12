@@ -12,7 +12,7 @@ SRC_URI="https://fedorahosted.org/released/${PN}/${P}.tar.bz2"
 LICENSE="GPL-1"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE=""
+IUSE="X"
 
 DEPEND="dev-util/desktop-file-utils
 	dev-util/intltool
@@ -20,11 +20,13 @@ DEPEND="dev-util/desktop-file-utils
 	sys-devel/gettext"
 
 # FIXME: would require rpm-python
-RDEPEND=">=sys-libs/libuser-0.56
-	>=dev-python/pygtk-2.6
+RDEPEND="
+	X? (	>=dev-python/pygtk-2.6
+		x11-misc/xdg-utils
+	)
+	>=sys-libs/libuser-0.56
 	sys-libs/cracklib
-	sys-process/procps
-	x11-misc/xdg-utils"
+	sys-process/procps"
 
 PATCHES=( "${FILESDIR}/${PN}-kill-rpm.patch" )
 
