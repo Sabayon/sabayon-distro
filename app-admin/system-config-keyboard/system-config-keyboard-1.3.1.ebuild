@@ -16,10 +16,7 @@ IUSE=""
 DEPEND="dev-util/intltool
 	sys-devel/gettext
 	dev-util/desktop-file-utils"
-# We don't ship with firstboot, so it's not in RDEPEND
-# firstboot dependency missing (and not required by anaconda)
-# usermode dependency missing (and not required by anaconda)
-RDEPEND=""
+RDEPEND="app-admin/firstboot"
 
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
