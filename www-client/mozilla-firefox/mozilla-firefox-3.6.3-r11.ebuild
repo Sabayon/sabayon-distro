@@ -254,6 +254,11 @@ src_install() {
 		"${D}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
 		die "failed to cp firefox-default-prefs.js"
 
+	# Copy Sabayon bookmarks.html file to the default location
+	cp "${FILESDIR}"/bookmarks.html.sabayon \
+		"${D}/${MOZILLA_FIVE_HOME}/defaults/profile/bookmarks.html" || \
+		die "failed to cp bookmarks.html.sabayon"
+
 	# Plugins dir
 	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
 		|| die "failed to symlink"
