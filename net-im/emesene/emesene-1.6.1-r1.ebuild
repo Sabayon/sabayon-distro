@@ -4,7 +4,7 @@
 EAPI=2
 PYTHON_DEPEND="2"
 
-inherit eutils python distutils
+inherit eutils python
 
 DESCRIPTION="Platform independent MSN Messenger client written in Python+GTK"
 HOMEPAGE="http://www.emesene.org"
