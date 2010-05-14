@@ -45,6 +45,7 @@ RDEPEND="app-admin/authconfig
 	sys-fs/reiserfsprogs
 	sys-fs/squashfs-tools
 	sys-fs/xfsprogs
+	sys-fs/multipath-tools
 	sys-libs/cracklib
 	sys-libs/libselinux
 	sys-libs/libuser
