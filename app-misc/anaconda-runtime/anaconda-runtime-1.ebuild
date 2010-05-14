@@ -36,16 +36,17 @@ RDEPEND="app-admin/authconfig
 	sys-apps/language-configuration-helpers
 	>=sys-boot/grub-1.98
 	sys-boot/makebootfat
+	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
 	sys-fs/dosfstools
 	sys-fs/e2fsprogs
 	sys-fs/jfsutils
 	sys-fs/mdadm
+	sys-fs/multipath-tools
 	sys-fs/ntfsprogs
 	sys-fs/reiserfsprogs
 	sys-fs/squashfs-tools
 	sys-fs/xfsprogs
-	sys-fs/multipath-tools
 	sys-libs/cracklib
 	sys-libs/libselinux
 	sys-libs/libuser
