@@ -30,8 +30,9 @@ my_setup_desktop() {
 	liveinst_desktop="/usr/share/applications/liveinst.desktop"
 	liveinst_desktop_name="$(basename ${liveinst_desktop})"
 	if [ -f "${liveinst_desktop}" ]; then
+		[[ -d "/home/sabayonuser/Desktop" ]] || mkdir -p /home/sabayonuser/Desktop 
 		cp "${liveinst_desktop}" /home/sabayonuser/Desktop
-		chown sabayonuser:users /home/sabayonuser/Desktop/${liveinst_desktop_name}
+		chown sabayonuser:users /home/sabayonuser/Desktop -R
 		chmod +x /home/sabayonuser/Desktop/${liveinst_desktop_name}
 		rm -f /etc/skel/Desktop/Anaconda*.desktop
 		rm -f /home/sabayonuser/Desktop/Anaconda*.desktop
