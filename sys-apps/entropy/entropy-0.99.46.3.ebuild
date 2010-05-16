@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="2"
-inherit eutils python
+inherit eutils python multilib
 
 DESCRIPTION="Official Sabayon Linux Package Manager library"
 HOMEPAGE="http://www.sabayon.org"
@@ -28,11 +28,17 @@ pkg_setup() {
 }
 
 src_compile() {
+	# TODO: move to separate package
+	cd "${S}"/misc/po
 	emake -j1 || die "make failed"
 }
 
 src_install() {
 	emake -j1 DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" entropy-install || die "make install failed"
+
+	# TODO: move to separate package
+	cd "${S}"/misc/po
+	emake -j1 DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" install || die "make install failed"
 }
 
 pkg_preinst() {
