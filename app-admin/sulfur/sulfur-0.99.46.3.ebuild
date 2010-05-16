@@ -12,7 +12,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 SRC_URI="http://distfiles.sabayonlinux.org/sys-apps/entropy-${PV}.tar.bz2"
 RESTRICT="mirror"
-S="${WORKDIR}/entropy-${PV}"
+S="${WORKDIR}/entropy-${PV}/sulfur"
 
 RDEPEND="
 	!app-admin/spritz
@@ -27,10 +27,10 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" -j1 sulfur-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" -j1 install || die "make install failed"
 	dodir /etc/gconf/schemas
 	insinto /etc/gconf/schemas
-	doins "${S}/sulfur/misc/entropy-handler.schemas"
+	doins "${S}/misc/entropy-handler.schemas"
 }
 
 pkg_postinst() {
