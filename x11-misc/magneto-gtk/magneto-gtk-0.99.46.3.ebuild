@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="2"
-inherit eutils python
+inherit eutils python multilib
 
 DESCRIPTION="Official Sabayon Linux Entropy Notification Applet (GTK version)"
 HOMEPAGE="http://www.sabayon.org"
@@ -12,7 +12,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 SRC_URI="http://distfiles.sabayonlinux.org/sys-apps/entropy-${PV}.tar.bz2"
 RESTRICT="mirror"
-S="${WORKDIR}/entropy-${PV}"
+S="${WORKDIR}/entropy-${PV}/magneto"
 
 DEPEND="~app-misc/magneto-loader-${PV}
         dev-python/notify-python
@@ -21,7 +21,7 @@ DEPEND="~app-misc/magneto-loader-${PV}
 RDEPEND="${DEPEND}"
 
 src_compile() {
-	emake -j1 || die "make failed"
+	einfo "nothing to compile"
 }
 
 src_install() {
