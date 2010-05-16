@@ -12,17 +12,15 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 SRC_URI="http://distfiles.sabayonlinux.org/sys-apps/entropy-${PV}.tar.bz2"
 RESTRICT="mirror"
-S="${WORKDIR}/entropy-${PV}"
+S="${WORKDIR}/entropy-${PV}/magneto"
 
 DEPEND="~sys-apps/magneto-core-${PV}"
 RDEPEND="${DEPEND}"
 
 src_compile() {
-	emake -j1 || die "make failed"
+	einfo "nothing to compile"
 }
 
 src_install() {
-	# Fix 0.98 bug
-	mkdir -p ${D}/usr/$(get_libdir)/entropy/magneto
 	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" magneto-loader-install || die "make install failed"
 }
