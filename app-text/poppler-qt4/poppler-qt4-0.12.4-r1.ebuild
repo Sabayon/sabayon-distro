@@ -4,7 +4,7 @@
 
 EAPI=2
 
-inherit base eutils autotools
+inherit base eutils autotools multilib
 
 DESCRIPTION="Qt4 bindings for poppler"
 SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz
@@ -61,4 +61,8 @@ src_compile() {
 
 src_install() {
 	( cd "${S}/qt4" && base_src_install ) || die "cannot run base_src_install"
+
+        # install pkg-config data
+        insinto /usr/$(get_libdir)/pkgconfig
+        doins "${S}"/poppler-qt4.pc
 }
