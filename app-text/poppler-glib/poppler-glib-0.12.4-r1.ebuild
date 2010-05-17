@@ -4,7 +4,7 @@
 
 EAPI=2
 
-inherit base eutils autotools
+inherit base eutils autotools multilib
 
 DESCRIPTION="Glib bindings for poppler"
 SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz
@@ -64,6 +64,11 @@ src_compile() {
 
 src_install() {
 	( cd "${S}"/glib && base_src_install ) || die "cannot run base_src_install"
+
+	# install pkg-config data
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins "${S}"/poppler-glib.pc
+	use cairo && doins "${S}"/poppler-cairo.pc
 
 	if use cairo && use doc; then
 		# For now install gtk-doc there
