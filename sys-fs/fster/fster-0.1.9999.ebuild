@@ -15,7 +15,13 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 RDEPEND="
-	>=app-misc/tracker-0.7.12
+	>=app-misc/tracker-0.8.1
 	>=dev-libs/libxml2-2.7.4
 	>=sys-fs/fuse-2.8.1"
 DEPEND=">=dev-util/cmake-2.8.0 ${RDEPEND}"
+
+src_unpack() {
+	git_src_unpack
+	cd "${S}"
+	epatch "${FILESDIR}/fster-0.1-tracker-0.8.patch"
+}
