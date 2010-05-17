@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EGIT_COMMIT="${PV}"
+EGIT_COMMIT="c81cf5e289919f2f84cc0aacfb45ac5e97aecd59"
 [[ "${PV}" = "9999" ]] && EGIT_COMMIT="master"
 EGIT_REPO_URI="git://gitorious.org/itsme/${PN}.git"
 

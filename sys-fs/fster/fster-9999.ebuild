@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EGIT_TREE="${PV}"
-[[ "${PV}" = "9999" ]] && EGIT_TREE="master"
+EGIT_COMMIT="${PV}"
+[[ "${PV}" = "9999" ]] && EGIT_COMMIT="master"
 EGIT_REPO_URI="git://gitorious.org/itsme/${PN}.git"
 
 inherit eutils cmake-utils git
