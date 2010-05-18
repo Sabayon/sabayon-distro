@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ -z "$2" ]; then
-	echo do-entropy-bump.sh OLDVER NEWVER
+	echo do-artwork-bump.sh OLDVER NEWVER
 	exit
 fi
 
@@ -12,7 +12,11 @@ PACKAGES="x11-themes/sabayon-artwork-core x11-themes/sabayon-artwork-extra \
 
 for package in ${PACKAGES}; do
 	name=$(echo ${package} | cut -d/ -f2)
-	mv ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
+	if [ -a ${package}/${name}-${NEW}.ebuild ]; then
+		echo "${NEW} ebuild found, not overwriting"
+	else
+		cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
+	fi
 	git add ${package}/${name}-${NEW}.ebuild
 	ebuild ${package}/${name}-${NEW}.ebuild manifest --force
 done
