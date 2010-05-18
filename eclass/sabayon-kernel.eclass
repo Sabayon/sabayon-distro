@@ -13,6 +13,13 @@
 # for example, of linux-sabayon it is "sabayon", for linux-server it is "server"
 K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-sabayon}"
 
+# @ECLASS-VARIABLE: K_SABKERNEL_URI_CONFIG
+# @DESCRIPTION:
+# Set this either to "no" or "yes" depending on the location of kernel config files
+# if they are inside FILESDIR (old location) leave this option set to "no", otherwise
+# set this to "yes"
+K_SABKERNEL_URI_CONFIG="${K_SABKERNEL_URI_CONFIG:-no}"
+
 # @ECLASS-VARIABLE: K_KERNEL_SOURCES_PKG
 # @DESCRIPTION:
 # The kernel sources package used to build this kernel binary
@@ -54,7 +61,12 @@ EXTRAVERSION=${EXTRAVERSION/linux/${K_SABKERNEL_NAME}}
 
 HOMEPAGE="http://www.sabayon.org"
 SRC_URI="${KERNEL_URI}
-	http://distfiles.sabayonlinux.org/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
+	http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
+if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
+	K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-${ARCH}.config}"
+	SRC_URI="${SRC_URI}
+		http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE}"
+fi
 
 if [ -n "${K_ONLY_SOURCES}" ]; then
 	IUSE="${IUSE}"
@@ -99,7 +111,11 @@ sabayon-kernel_src_compile() {
 	mkdir -p "${WORKDIR}"/boot/grub
 
 	einfo "Starting to compile kernel..."
-	cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${WORKDIR}"/config || die "cannot copy kernel config"
+	if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
+		cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${WORKDIR}"/config || die "cannot copy kernel config"
+	else
+		cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" "${WORKDIR}"/config || die "cannot copy kernel config"
+	fi
 
 	# do some cleanup
 	rm -rf "${WORKDIR}"/lib
