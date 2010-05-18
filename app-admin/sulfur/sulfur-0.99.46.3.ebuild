@@ -19,7 +19,8 @@ RDEPEND="
 	>=dev-python/pygtk-2.12.1-r2
 	>=x11-libs/vte-0.12.2[python]
 	x11-misc/xdg-utils
-	~sys-apps/entropy-${PV}"
+	~sys-apps/entropy-${PV}
+	sys-apps/file[python]"
 DEPEND="sys-devel/gettext"
 
 src_compile() {

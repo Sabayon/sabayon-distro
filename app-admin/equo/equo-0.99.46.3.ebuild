@@ -15,7 +15,7 @@ RESTRICT="mirror"
 S="${WORKDIR}/entropy-${PV}"
 
 DEPEND="~sys-apps/entropy-${PV}"
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND} sys-apps/file[python]"
 
 src_compile() {
 	emake -j1 || die "make failed"
