@@ -96,7 +96,6 @@ RESTRICT="test" # tests are failing atm
 # NOTES:
 # do not use a specific user, useless and not more secure according to upstream
 # doc is in the tarball and always installed
-# ruck is broken (RDEPEND dev-python/urlgrabber), upstream bug 23248
 # mono doesn't install anything (RDEPEND dev-dotnet/gtk-sharp-gapi:2
 #	(R)DEPEND dev-dotnet/glib-sharp:2 dev-lang/mono), upstream bug 23247
 
@@ -135,8 +134,6 @@ src_configure() {
 	# localstatedir: for gentoo it's /var/lib but for $PN it's /var
 	# dep-tracking,option-check,libtool-lock,strict,local: obvious reasons
 	# command,debuginfo,gstreamer,service-packs: not supported by backend
-	# ruck,managed: failing (see UPSTREAM in ebuild header)
-	# glib2: experimental
 	# default backend is autodetected
 	# --with-default-backend=portage
 	econf \
@@ -152,7 +149,6 @@ src_configure() {
 		--disable-debuginfo-install \
 		--disable-gstreamer-plugin \
 		--disable-service-packs \
-		--disable-ruck \
 		--disable-managed \
 		--enable-man-pages \
 		$(use_enable portage) \
