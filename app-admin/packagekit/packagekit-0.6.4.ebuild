@@ -23,8 +23,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-# KEYWORDS="~amd64 ~x86"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE="connman +consolekit cron doc gtk networkmanager nsplugin pm-utils
 +policykit +portage entropy qt4 static-libs test udev"
 
