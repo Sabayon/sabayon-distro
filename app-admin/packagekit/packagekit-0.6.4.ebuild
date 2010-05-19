@@ -94,14 +94,11 @@ S="${WORKDIR}/${MY_P}"
 RESTRICT="test" # tests are failing atm
 
 # NOTES:
-# polkit is in gnome overlay, otherwise, should use policykit
 # do not use a specific user, useless and not more secure according to upstream
 # doc is in the tarball and always installed
 # ruck is broken (RDEPEND dev-python/urlgrabber), upstream bug 23248
 # mono doesn't install anything (RDEPEND dev-dotnet/gtk-sharp-gapi:2
 #	(R)DEPEND dev-dotnet/glib-sharp:2 dev-lang/mono), upstream bug 23247
-# using >=dbus-1.3.0 instead of >=dbus-1.1.1 because of a bug fixed in 1.3.0
-# glib2 is experimental atm. Think about a USE flag when it will be usable.
 
 # TODO:
 # +doc to install doc/website
@@ -116,8 +113,8 @@ src_prepare() {
 		# sheeesh! this gtk things is going to kill me
 		gtkdocize
 		intltoolize
+		eautoreconf
 	fi
-	eautoreconf
 }
 
 src_configure() {
