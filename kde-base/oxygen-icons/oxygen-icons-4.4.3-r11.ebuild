@@ -10,13 +10,13 @@ else
 	KMNAME="oxygen-icons"
 fi
 KDE_REQUIRED="never"
-SLREV=2
+SLREV=3
 inherit kde4-base
 
 DESCRIPTION="Oxygen SVG icon theme."
 HOMEPAGE="http://www.oxygen-icons.org/"
 SRC_URI="${SRC_URI}
-       http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-sabayon${SLREV}.tar.gz"
+       http://distfiles.sabayonlinux.org/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz"
 #SRC_URI="mirror://kde/unstable/${PV}/src/${P}.tar.bz2"
 
 LICENSE="LGPL-3"
@@ -30,6 +30,6 @@ add_blocker kmail '<4.3.2'
 add_blocker step 4.2.98
 
 src_prepare() {
-       cp -r ../${PN}-sabayon/* ../${P}
+       cp -r ../fdo-icons-sabayon/* ../${P}
 }
 
