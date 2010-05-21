@@ -113,6 +113,9 @@ src_prepare() {
 		intltoolize
 		eautoreconf
 	fi
+
+	epatch "${FILESDIR}"/packagekit-0.6.4-latest-entropy-fixes.patch
+
 }
 
 src_configure() {
