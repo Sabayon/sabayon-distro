@@ -11,7 +11,7 @@ DESCRIPTION="KDE-based PackageKit frontend"
 HOMEPAGE="http://www.kde-apps.org/content/show.php/show.php?content=84745"
 
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="~x86 ~amd64"
 SLOT="4"
 IUSE="debug"
 
