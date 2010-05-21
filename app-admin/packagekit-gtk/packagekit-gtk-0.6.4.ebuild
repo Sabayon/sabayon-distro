@@ -18,15 +18,12 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-RDEPEND=">=x11-libs/qt-core-4.4.0
-	>=x11-libs/qt-dbus-4.4.0
-	>=x11-libs/qt-sql-4.4.0
+RDEPEND="dev-libs/dbus-glib
+	media-libs/fontconfig
+	>=x11-libs/gtk+-2.14.0:2
+	x11-libs/pango
 	~app-admin/packagekit-base-${PV}"
-DEPEND="${RDEPEND}
-	dev-libs/libxslt
-	>=dev-util/intltool-0.35.0
-	dev-util/pkgconfig
-	sys-devel/gettext"
+DEPEND="${RDEPEND} dev-util/pkgconfig"
 
 S="${WORKDIR}/${MY_P}"
 
