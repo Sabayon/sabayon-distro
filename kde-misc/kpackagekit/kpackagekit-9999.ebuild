@@ -15,7 +15,5 @@ KEYWORDS="~x86 ~amd64"
 SLOT="4"
 IUSE="debug"
 
-DEPEND="
-	>=app-admin/packagekit-0.6.3[qt4]
-"
+DEPEND=">=app-admin/packagekit-qt4-0.6.4"
 RDEPEND="${DEPEND}"
