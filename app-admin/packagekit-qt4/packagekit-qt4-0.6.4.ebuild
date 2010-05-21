@@ -24,9 +24,7 @@ RDEPEND=">=x11-libs/qt-core-4.4.0
 	~app-admin/packagekit-base-${PV}"
 DEPEND="${RDEPEND}
 	dev-libs/libxslt
-	>=dev-util/intltool-0.35.0
-	dev-util/pkgconfig
-	sys-devel/gettext"
+	dev-util/pkgconfig"
 
 S="${WORKDIR}/${MY_P}"
 
