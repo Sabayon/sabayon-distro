@@ -88,8 +88,16 @@ start_udevd()
 	if [ -e /proc/modules ] ; then
 		modprobe -q unix 2>/dev/null
 	fi
+	local opts=""
+	yesno "${udev_trace:-no}" && opts="${opts} --debug-trace"
+
 	ebegin "Starting udevd"
-	start-stop-daemon --start --exec /sbin/udevd -- --daemon
+	if yesno "${udev_debug:-no}"; then
+		/sbin/udevd --daemon ${opts} --debug 2>/dev/.udev/udev.log
+	else
+		start-stop-daemon --start --exec /sbin/udevd -- --daemon ${opts}
+	fi
+
 	eend $?
 }
 
@@ -102,17 +110,18 @@ populate_dev()
 	fi
 
 	ebegin "Populating /dev with existing devices through uevents"
+	udevadm control --property=STARTUP=1
 	if yesno "${rc_coldplug}"; then
-		udevadm trigger
+		udevadm trigger --action="add"
 	else
 		# Do not run any init-scripts, Bug #206518
-		udevadm control --env do_not_run_plug_service=1
+		udevadm control --property=do_not_run_plug_service=1
 
 		# only create device nodes
-		udevadm trigger --attr-match=dev
+		udevadm trigger --action="add" --attr-match=dev
 
 		# run persistent-net stuff, bug 191466
-		udevadm trigger --subsystem-match=net
+		udevadm trigger --action="add" --subsystem-match=net
 	fi
 	eend $?
 
@@ -124,7 +133,8 @@ populate_dev()
 	udevadm settle --timeout=${udev_settle_timeout:-60}
 	eend $?
 
-	udevadm control --env do_not_run_plug_service=
+	udevadm control --property=do_not_run_plug_service=
+	udevadm control --property=STARTUP=
 	return 0
 }
 
