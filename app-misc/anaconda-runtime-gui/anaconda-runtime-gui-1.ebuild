@@ -13,6 +13,8 @@ SLOT="0"
 
 DEPEND=""
 RDEPEND="app-misc/anaconda-runtime
+	dev-python/libgnomecanvas-python
+	x11-themes/hicolor-icon-theme
 	media-libs/fontconfig:1.0
 	media-libs/glitz
 	x11-libs/gtk+:2
