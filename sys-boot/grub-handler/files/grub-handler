@@ -62,7 +62,8 @@ def configure_boot_grub(kernel, initramfs):
             # also check if we have the same kernel listed
             if (line.find("kernel") != 1) and \
                 (line.find(os.path.basename(kernel)) != -1) and not \
-                line.strip().startswith("#"):
+                line.strip().startswith("#") \
+                and (line.find("ide=nodma") == -1):
 
                 grubtest.close()
                 return
