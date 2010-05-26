@@ -47,7 +47,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	# XXX epatch "${FILESDIR}"/lvm.conf-2.02.56.patch
+	epatch "${FILESDIR}"/lvm.conf-2.02.56.patch
 
 	# Should not be needed due to upstream re-arrangement of build
 	#epatch "${FILESDIR}"/${PN}-2.02.56-dmeventd.patch
@@ -65,6 +65,8 @@ src_prepare() {
 
 	epatch "${FILESDIR}"/${PN}-2.02.63-always-make-static-libdm.patch
 	epatch "${FILESDIR}"/lvm2-2.02.56-lvm2create_initrd.patch
+
+	epatch "${FILESDIR}"/lvm2-2.02.64-grub2-udev-rules-fix.patch
 
 	eautoreconf
 }
