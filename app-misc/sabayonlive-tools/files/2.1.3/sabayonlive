@@ -301,6 +301,9 @@ my_setup_keymap() {
 					console-setup/layoutcode=*)
 					keymap_toset=$(echo $word | cut -d "=" -f 2)
 					;;
+					console-setup/modelcode=*)
+					keymap_toset_model="-$(echo $word | cut -d "=" -f 2)"
+					;;
 				esac
 			done
 		else
@@ -320,7 +323,7 @@ my_setup_keymap() {
 		fi
 
 		if [ -n "$keymap_toset" ]; then
-			/sbin/keyboard-setup $keymap_toset &> /dev/null
+			/sbin/keyboard-setup $keymap_toset$keymap_toset_model &> /dev/null
 		fi
 	
 	fi
