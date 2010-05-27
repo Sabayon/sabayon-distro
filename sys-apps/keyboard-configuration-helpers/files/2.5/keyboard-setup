@@ -114,6 +114,30 @@ if len(options) == 2:
 
 # Engine functions
 
+vt_keymaps_fixes = {
+    'be': 'be-latin1', # also fixed in config
+    'bg': 'bg-cp855',
+    'jp-jp106': 'jp106',
+    'la': 'la-latin1',
+    'no_smi': 'no',
+    'sk': 'sk-qwerty',
+    'se': 'se-lat6',
+    'se_smi': 'se-lat6',
+    'ch_fr': 'fr_CH',
+    'is': 'is-latin1',
+    'tj': 'tj_alt-UTF8',
+    'tr': 'trq',
+    'tr_f': 'trf',
+}
+
+vt_keymaps_fixes_us = ['ad', 'af', 'al', 'am', 'ara', 'az', 'ba', 'bd',
+    'bt', 'ca', 'cd', 'cs',  'ee', 'epo', 'fi_smi', 'fo', 'fr_oss', 'gb',
+    'ge', 'gh', 'hr', 'ie', 'in', 'in_guj', 'in_guru', 'in_kan', 'in_mal',
+    'in_tam', 'in_tel', 'iq', 'ir', 'kg', 'kh', 'kr', 'kz', 'lk', 'lv', 'mao',
+    'mm', 'mn', 'mt', 'mv', 'ng', 'pk', 'si', 'sy', 'th', 'uz', 'vn', 'za']
+for k in vt_keymaps_fixes_us:
+    vt_keymaps_fixes[k] = "us"
+
 # VT Shell keymap config
 def configureSystemKeymap():
     print_info("Setting up VT terminals keyboard mapping...")
@@ -121,11 +145,12 @@ def configureSystemKeymap():
     confdKeymapsFile = f.readlines()
     f.close()
     output = []
+    sys_key = vt_keymaps_fixes.get(keyLocale, keyLocale)
     for line in confdKeymapsFile:
         if line.startswith("KEYMAP="):
-            line = 'KEYMAP="'+keyLocale+'"\n'
+            line = 'KEYMAP="'+sys_key+'"\n'
         if line.startswith("keymap="):
-            line = 'keymap="'+keyLocale+'"\n'
+            line = 'keymap="'+sys_key+'"\n'
         output.append(line)
     f = open(confdKeymaps,"w")
     f.writelines(output)
