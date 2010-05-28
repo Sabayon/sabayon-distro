@@ -149,7 +149,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	python_mod_optimize $(python_get_sitedir)/${PN}
+	python_mod_optimize $(python_get_sitedir)/${PN/-base}
 
 	if ! use policykit; then
 		ewarn "You are not using policykit, the daemon can't be considered as secure."
@@ -178,5 +178,5 @@ pkg_prerm() {
 }
 
 pkg_postrm() {
-	python_mod_cleanup $(python_get_sitedir)/${PN}
+	python_mod_cleanup $(python_get_sitedir)/${PN/-base}
 }
