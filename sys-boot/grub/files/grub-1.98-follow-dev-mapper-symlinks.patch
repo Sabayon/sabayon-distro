@@ -1,60 +1,25 @@
 --- a/util/getroot.c	2010-03-06 20:51:37.000000000 +0000
-+++ b/util/getroot.c	2010-05-28 18:23:19.892788564 +0100
-@@ -180,7 +180,8 @@ grub_get_prefix (const char *dir)
- 
- static char *
- find_root_device (const char *dir __attribute__ ((unused)),
--                  dev_t dev __attribute__ ((unused)))
-+                  dev_t dev __attribute__ ((unused))
-+                  int depth __attribute__ ((unused)))
- {
-   return 0;
- }
-@@ -188,7 +189,7 @@ find_root_device (const char *dir __attr
- #elif ! defined(__CYGWIN__)
- 
- static char *
--find_root_device (const char *dir, dev_t dev)
-+find_root_device (const char *dir, dev_t dev, int depth)
- {
-   DIR *dp;
-   char *saved_cwd;
-@@ -222,16 +223,27 @@ find_root_device (const char *dir, dev_t
++++ b/util/getroot.c	2010-05-28 19:21:57.592307313 +0100
+@@ -222,9 +222,20 @@ find_root_device (const char *dir, dev_t
  	/* Ignore any error.  */
  	continue;
  
 -      if (S_ISLNK (st.st_mode))
+-	/* Don't follow symbolic links.  */
 +      if (S_ISLNK (st.st_mode)) {
 +#ifdef __linux__
-+	/* If we're in /dev/mapper, follow symbolic links. */
-+	if (depth == 1 && strcmp(dir, "mapper") == 0) {
-+		if (stat(ent->d_name, &st) == -1)
-+		  continue;
-+		if (S_ISDIR (st.st_mode))
-+		  continue;
-+	}
-+#else
- 	/* Don't follow symbolic links.  */
++	if (strcmp (dir, "mapper") == 0) {
++	  /* Follow symbolic links under /dev/mapper/; the canonical name
++	     may be something like /dev/dm-0, but the names under
++	     /dev/mapper/ are more human-readable and so we prefer them if
++	     we can get them.  */
++	  if (stat (ent->d_name, &st) < 0)
++	    continue;
++	} else
++#endif /* __linux__ */
++	/* Don't follow other symbolic links.  */
  	continue;
-+#endif
 +      }
  
        if (S_ISDIR (st.st_mode))
  	{
- 	  /* Find it recursively.  */
- 	  char *res;
- 
--	  res = find_root_device (ent->d_name, dev);
-+	  res = find_root_device (ent->d_name, dev, depth + 1);
- 
- 	  if (res)
- 	    {
-@@ -454,7 +466,7 @@ grub_guess_root_device (const char *dir)
- #else
- 
-   /* This might be truly slow, but is there any better way?  */
--  os_dev = find_root_device ("/dev", st.st_dev);
-+  os_dev = find_root_device ("/dev", st.st_dev, 0);
- #endif
- #endif /* !__GNU__ */
- 
