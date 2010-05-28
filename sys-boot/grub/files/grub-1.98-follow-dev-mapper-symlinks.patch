@@ -1,6 +1,6 @@
 --- a/util/getroot.c	2010-03-06 20:51:37.000000000 +0000
-+++ b/util/getroot.c	2010-05-28 04:13:59.248769562 +0100
-@@ -180,7 +180,8 @@
++++ b/util/getroot.c	2010-05-28 18:23:19.892788564 +0100
+@@ -180,7 +180,8 @@ grub_get_prefix (const char *dir)
  
  static char *
  find_root_device (const char *dir __attribute__ ((unused)),
@@ -10,7 +10,7 @@
  {
    return 0;
  }
-@@ -188,7 +189,7 @@
+@@ -188,7 +189,7 @@ find_root_device (const char *dir __attr
  #elif ! defined(__CYGWIN__)
  
  static char *
@@ -19,7 +19,7 @@
  {
    DIR *dp;
    char *saved_cwd;
-@@ -222,16 +223,34 @@
+@@ -222,16 +223,27 @@ find_root_device (const char *dir, dev_t
  	/* Ignore any error.  */
  	continue;
  
@@ -28,16 +28,9 @@
 +#ifdef __linux__
 +	/* If we're in /dev/mapper, follow symbolic links. */
 +	if (depth == 1 && strcmp(dir, "mapper") == 0) {
-+		char *path;
-+		int r;
-+
-+		if (!(path = realpath(ent->d_name, NULL)))
++		if (stat(ent->d_name, &st) == -1)
 +		  continue;
-+
-+		r = lstat(path, &st);
-+		free(path);
-+
-+		if (r == -1 || S_ISDIR (st.st_mode))
++		if (S_ISDIR (st.st_mode))
 +		  continue;
 +	}
 +#else
@@ -56,7 +49,7 @@
  
  	  if (res)
  	    {
-@@ -454,7 +473,7 @@
+@@ -454,7 +466,7 @@ grub_guess_root_device (const char *dir)
  #else
  
    /* This might be truly slow, but is there any better way?  */
