@@ -4,7 +4,7 @@
 ETYPE="sources"
 K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
-K_SABPATCHES_VER="8"
+K_SABPATCHES_VER="9"
 K_SABKERNEL_NAME="sabayon"
 K_SABKERNEL_URI_CONFIG="yes"
 inherit sabayon-kernel

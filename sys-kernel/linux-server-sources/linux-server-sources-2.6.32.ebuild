@@ -1,10 +1,11 @@
+
 # Copyright 2004-2010 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
 ETYPE="sources"
 K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
-K_SABPATCHES_VER="2"
+K_SABPATCHES_VER="3"
 K_SABKERNEL_NAME="server"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
