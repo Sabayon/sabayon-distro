@@ -66,7 +66,7 @@ pkg_postinst() {
 		rm -rf ${ENTROPY_CACHEDIR}/*
 	fi
 
-	python_mod_optimize "/usr/$(get_libdir)/entropy/entropy"
+	python_mod_optimize "/usr/$(get_libdir)/entropy/libraries/entropy"
 
 	# force python 2.6 at least
 	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3 --ignore 2.7
@@ -74,5 +74,5 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	python_mod_cleanup "/usr/$(get_libdir)/entropy"
+	python_mod_cleanup "/usr/$(get_libdir)/entropy/libraries/entropy"
 }
