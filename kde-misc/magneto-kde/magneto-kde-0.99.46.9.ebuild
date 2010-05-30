@@ -28,7 +28,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	python_mod_compile "/usr/$(get_libdir)/entropy/magneto/magneto/kde"
+	python_mod_optimize "/usr/$(get_libdir)/entropy/magneto/magneto/kde"
 }
 
 pkg_postrm() {

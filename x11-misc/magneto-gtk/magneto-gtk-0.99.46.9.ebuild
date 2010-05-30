@@ -29,7 +29,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	python_mod_compile "/usr/$(get_libdir)/entropy/magneto/magneto/gtk"
+	python_mod_optimize "/usr/$(get_libdir)/entropy/magneto/magneto/gtk"
 }
 
 pkg_postrm() {

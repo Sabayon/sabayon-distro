@@ -30,7 +30,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	python_mod_compile "/usr/$(get_libdir)/entropy/services"
+	python_mod_optimize "/usr/$(get_libdir)/entropy/services"
 }
 
 pkg_postrm() {

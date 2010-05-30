@@ -39,7 +39,7 @@ pkg_postinst() {
 	fdo-mime_desktop_database_update
 	gnome2_gconf_savelist
 	gnome2_gconf_install
-	python_mod_compile "/usr/$(get_libdir)/entropy/${PN}"
+	python_mod_optimize "/usr/$(get_libdir)/entropy/${PN}"
 }
 
 pkg_postrm() {

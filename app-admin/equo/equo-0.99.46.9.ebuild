@@ -27,7 +27,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	python_mod_compile "/usr/$(get_libdir)/entropy/client"
+	python_mod_optimize "/usr/$(get_libdir)/entropy/client"
 	bash-completion_pkg_postinst
 }
 
