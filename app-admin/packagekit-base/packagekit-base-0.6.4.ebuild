@@ -93,7 +93,7 @@ src_configure() {
 	# dep-tracking,option-check,libtool-lock,strict,local: obvious reasons
 	# command,debuginfo,gstreamer,service-packs: not supported by backend
 	# default backend is autodetected
-	# --with-default-backend=portage
+	# --with-default-backend=entropy
 	econf \
 		${myconf} \
 		--localstatedir=/var \
@@ -119,7 +119,8 @@ src_configure() {
 		--disable-qt \
 		$(use_enable static-libs static) \
 		$(use_enable test tests) \
-		$(use_enable udev device-rebind)
+		$(use_enable udev device-rebind) \
+		--with-default-backend=entropy
 }
 
 src_install() {
