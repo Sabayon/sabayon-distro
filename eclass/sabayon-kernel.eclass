@@ -67,6 +67,8 @@ if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
 	SRC_URI="${SRC_URI}
 		amd64? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
 		x86? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
+	use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
+	use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
 fi
 
 if [ -n "${K_ONLY_SOURCES}" ]; then
