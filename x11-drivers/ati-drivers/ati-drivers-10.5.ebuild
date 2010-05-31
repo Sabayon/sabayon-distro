@@ -28,6 +28,7 @@ RDEPEND="
 	!<x11-base/xorg-server-1.7
 	!x11-drivers/ati-drivers:0
 	!x11-apps/ati-drivers-extra
+	!media-video/amdcccle
 	>=app-admin/eselect-opengl-1.0.7
 	sys-power/acpid
 	x11-apps/xauth
