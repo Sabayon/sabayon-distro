@@ -9,6 +9,7 @@ GRUB_HIDDEN_TIMEOUT_QUIET=true
 GRUB_TIMEOUT=10
 
 # Add your extra parameters here below
+# Dear user, put your boot flags here ;-)
 GRUB_CMDLINE_LINUX_DEFAULT=""
 
 # Uncomment to disable graphical terminal (grub-pc only)
