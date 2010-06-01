@@ -17,7 +17,7 @@ SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${MMD_PV}/+download/${PN}-${MY_P
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE="xcomposite"
 
 RDEPEND="
