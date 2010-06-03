@@ -70,10 +70,6 @@ RESTRICT="test" # tests are failing atm
 # documentation/website with --enable-doc-install
 # failing tests
 
-src_prepare() {
-	epatch "${FILESDIR}"/${P}-latest-entropy-fixes.patch
-}
-
 src_configure() {
 	local myconf=""
 
