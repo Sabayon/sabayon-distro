@@ -132,11 +132,21 @@ sabayon-kernel_src_compile() {
 	use dmraid && GKARGS="${GKARGS} --dmraid"
 	export DEFAULT_KERNEL_SOURCE="${S}"
 	export CMD_KERNEL_DIR="${S}"
+	for opt in $MAKEOPTS
+	do
+		if [ "${opt:0:2}" = "-j" ]
+		then
+			mkopts="$opt"
+			break
+		fi
+	done
+	[ -z "$mkopts" ] && mkopts="-j3"
+
 	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
 		--kerneldir="${S}" \
 		--kernel-config="${WORKDIR}"/config \
 		--cachedir="${WORKDIR}"/cache \
-		--makeopts=-j3 \
+		--makeopts="$mkopts" \
 		--tempdir="${S}"/temp \
 		--logfile="${WORKDIR}"/genkernel.log \
 		--bootdir="${WORKDIR}"/boot \
