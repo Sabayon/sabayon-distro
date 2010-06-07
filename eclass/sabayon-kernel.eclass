@@ -73,11 +73,11 @@ fi
 
 if [ -n "${K_ONLY_SOURCES}" ]; then
 	IUSE="${IUSE}"
-	DEPEND="${DEPEND}"
+	DEPEND="sys-apps/sed"
 	RDEPEND="${RDEPEND}"
 else
 	IUSE="splash dmraid grub"
-	DEPEND="${DEPEND}
+	DEPEND="sys-apps/sed
 		app-arch/xz-utils
 		<sys-kernel/genkernel-3.4.11
 		splash? ( x11-themes/sabayon-artwork-core )"
