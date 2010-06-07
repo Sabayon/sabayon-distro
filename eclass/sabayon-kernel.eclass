@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Sabayon Project
+# Copyright 2004-2010 Sabayon Project
 # Distributed under the terms of the GNU General Public License v2
 # $
 
@@ -238,7 +238,7 @@ sabayon-kernel_pkg_postinst() {
 	linux-mod_pkg_postinst
 
 	elog "Please report kernel bugs at:"
-	elog "http://bugs.sabayonlinux.org"
+	elog "http://bugs.sabayon.org"
 
 	elog "The source code of this kernel is located at"
 	elog "=${K_KERNEL_SOURCES_PKG}."
@@ -249,7 +249,7 @@ sabayon-kernel_pkg_postinst() {
 }
 
 sabayon-kernel_pkg_postrm() {
-	# Add kernel to grub.conf
+	# Remove kernel from grub.conf
 	if use grub; then
 		if use amd64; then
 			local kern_arch="x86_64"
