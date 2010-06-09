@@ -1,0 +1,11 @@
+--- libproxy/CMakeLists.txt	2010/05/23 23:05:55	1.1
++++ libproxy/CMakeLists.txt	2010/05/23 23:06:33
+@@ -84,7 +84,7 @@ else()
+     px_check_modules(NM          NetworkManager dbus-1)
+     px_check_modules(WEBKIT      webkit-1.0)
+ 
+-    set(MOZJS_SEARCH_ORDER "xulrunner-js;firefox-js;mozilla-js;seamonkey-js" CACHE STRING "MozJS search order")
++    set(MOZJS_SEARCH_ORDER "mozilla-js;xulrunner-js;firefox-js;seamonkey-js" CACHE STRING "MozJS search order")
+     option(WITH_MOZJS "Search for MOZJS package" ON)
+     if (WITH_MOZJS)
+       pkg_search_module(MOZJS ${MOZJS_SEARCH_ORDER})
