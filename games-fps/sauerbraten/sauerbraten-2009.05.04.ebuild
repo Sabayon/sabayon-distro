@@ -16,7 +16,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="strip"
 
-DEPEND="" # binary
+DEPEND="sys-apps/sed"
 RDEPEND="sys-libs/glibc
 	x86? (
 		media-libs/libsdl[opengl]
@@ -32,7 +32,6 @@ S=${WORKDIR}/${PN}
 
 src_prepare() {
 	ecvs_clean
-	epatch "${FILESDIR}"/${PN}_unix-${PV}.patch
 }
 
 src_install() {
@@ -43,6 +42,10 @@ src_install() {
 
 	insinto "${GAMES_DATADIR}"/${PN}
 	doins -r data packages || die
+
+	sed -i "s/^SAUER_DATA=.*/SAUER_DATA=\/usr\/share\/games\/sauerbraten/" "${S}/sauerbraten_unix" || die "cannot sed"
+	local escaped_libdir=$(games_get_libdir | sed 's/\//\\\//g')
+	sed -i "s/^SAUER_BIN=.*/SAUER_BIN=${escaped_libdir}\/${PN}/" "${S}/sauerbraten_unix" || die "cannot sed"
 
 	local x
 	for x in client server ; do
