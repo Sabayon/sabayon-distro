@@ -1,0 +1,19 @@
+--- sauerbraten.orig/sauerbraten_unix
++++ sauerbraten/sauerbraten_unix
+@@ -3,6 +3,7 @@
+ #SAUER_DATA=~/sauerbraten
+ #SAUER_DATA=/usr/local/sauerbraten
+ SAUER_DATA=.
++SAUER_DATADIR=.
+ 
+ # SAUER_BIN should refer to the directory in which Sauerbraten executable files are placed.
+ SAUER_BIN=${SAUER_DATA}/bin_unix
+@@ -52,7 +53,7 @@ fi
+ 
+ if [ -x ${SAUER_BIN}/${SYSTEM_NAME}${MACHINE_NAME}client ]
+ then
+-  cd ${SAUER_DATA}
++  cd ${SAUER_DATADIR}
+   exec ${SAUER_BIN}/${SYSTEM_NAME}${MACHINE_NAME}client ${SAUER_OPTIONS} "$@"
+ else
+   echo "Your platform does not have a pre-compiled Sauerbraten client."
