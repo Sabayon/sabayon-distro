@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit eutils python
+inherit base python eutils
 
 DESCRIPTION="Command line tool for setting up authentication from network services"
 HOMEPAGE="https://fedorahosted.org/authconfig"
@@ -20,6 +20,7 @@ DEPEND="dev-libs/glib
 	dev-util/desktop-file-utils
 	dev-perl/XML-Parser"
 RDEPEND="${DEPEND} dev-libs/newt"
+PATCHES=( "${FILESDIR}/${PN}-fix-desktop-entry.patch" )
 
 src_install() {
 	emake DESTDIR="${D}" install || die "install failed"

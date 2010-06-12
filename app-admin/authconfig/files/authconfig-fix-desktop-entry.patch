@@ -1,0 +1,11 @@
+--- a/authconfig.desktop.in
++++ b/authconfig.desktop.in
+@@ -2,7 +2,7 @@
+ _Name=Authentication
+ _Comment=Control how the system verifies users who attempt to log in
+ Icon=system-config-authentication
+-Exec=/usr/bin/system-config-authentication
++Exec=/usr/sbin/system-config-authentication
+ Type=Application
+ Terminal=false
+ StartupNotify=true
