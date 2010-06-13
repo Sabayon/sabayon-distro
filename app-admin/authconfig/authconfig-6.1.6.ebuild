@@ -44,7 +44,7 @@ pkg_setup() {
 	python_pkg_setup
 
 	# Fix Sabayon 5.3 anaconda "bug" caused by the usage of authconfig
-	# that broken Gentoo pambase file layout making /etc/pam.d/system-auth
+	# that broke Gentoo pambase file layout making /etc/pam.d/system-auth
 	# a symlink of /etc/pam.d/system-auth-ac
 	# Sabayon >5.3 dropped authconfig (so this ebuild will be removed)
 	# and so the issue got solved.
