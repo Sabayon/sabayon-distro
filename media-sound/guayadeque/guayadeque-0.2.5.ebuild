@@ -22,20 +22,17 @@ RDEPEND="=x11-libs/wxGTK-2.8*
     >=media-libs/gstreamer-0.10
     >=sys-apps/dbus-1
     >=net-misc/curl-7
-    media-libs/flac
-    "
+    media-libs/flac"
     
 DEPEND="${RDEPEND}
     sys-devel/gettext
     dev-util/pkgconfig
-    dev-util/cmake
-    "
+    dev-util/cmake"
 
 pkg_postinst() {
 
-einfo "A plugin for the music-applet is available for ppl using this great
-applet. With this you can control guayadeque from it. You must put it where
-the music applets are. In Gentoo the plugins are at
-/usr/lib/python2.x/site-packages/musicapplet/plugins/."
-
+    einfo "A plugin for the music-applet is available for people using this great applet."
+    einfo "With this you can control guayadeque from it."
+    einfo "You must put it where the music applets are."
+    einfo " In Gentoo the plugins are at /usr/lib/python2.x/site-packages/musicapplet/plugins/."
 }
