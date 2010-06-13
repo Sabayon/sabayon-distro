@@ -1,0 +1,12 @@
+diff -Nur svg2pdf-0.1.3.orig/src/Makefile.in svg2pdf-0.1.3/src/Makefile.in
+--- svg2pdf-0.1.3.orig/src/Makefile.in	2005-06-18 02:57:48.000000000 +0200
++++ svg2pdf-0.1.3/src/Makefile.in	2009-02-11 18:52:18.190893672 +0100
+@@ -207,7 +207,7 @@
+ 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+ svg2pdf$(EXEEXT): $(svg2pdf_OBJECTS) $(svg2pdf_DEPENDENCIES) 
+ 	@rm -f svg2pdf$(EXEEXT)
+-	$(LINK) $(svg2pdf_LDFLAGS) $(svg2pdf_OBJECTS) $(svg2pdf_LDADD) $(LIBS)
++	$(LINK) $(svg2pdf_OBJECTS) $(svg2pdf_LDADD) $(LIBS) $(svg2pdf_LDFLAGS)
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
