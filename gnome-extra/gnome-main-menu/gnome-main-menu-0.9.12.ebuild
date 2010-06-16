@@ -19,7 +19,6 @@ RDEPEND=">=dev-libs/glib-2.8.0
 	>=gnome-base/gnome-desktop-2
 	>=gnome-base/gnome-panel-2
 	>=gnome-base/librsvg-2
-	>=gnome-base/eel-2
 	>=gnome-base/gnome-menus-2
 	>=gnome-base/gconf-2
 	>=gnome-base/libgtop-2
