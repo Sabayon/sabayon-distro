@@ -9,7 +9,7 @@ if [ "${PV}" = "9999" ]; then
 	EGIT_REPO_URI="git://sabayon.org/projects/anaconda.git"
 	MY_ECLASS="git"
 fi
-inherit base python libtool autotools eutils ${MY_ECLASS}
+inherit flag-o-matic base python libtool autotools eutils ${MY_ECLASS}
 
 AUDIT_VER="1.7.9"
 AUDIT_SRC_URI="http://people.redhat.com/sgrubb/audit/audit-${AUDIT_VER}.tar.gz"
@@ -57,6 +57,10 @@ src_unpack() {
 }
 
 src_prepare() {
+
+	# Setup CFLAGS, LDFLAGS
+	append-cflags "-I${D}/usr/include/anaconda-runtime"
+	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime -R/usr/$(get_libdir)/anaconda-runtime"
 
 	# Setup anaconda
 	cd "${S}"
@@ -120,27 +124,16 @@ src_configure() {
 	# configure anaconda
 	cd "${S}"
 	einfo "configuring anaconda"
-	LDFLAGS="${LDFLAGS} -L${D}/usr/$(get_libdir)/anaconda-runtime -R/usr/$(get_libdir)/anaconda-runtime" \
-	CFLAGS="${CFLAGS} -I${D}/usr/include/anaconda-runtime" \
 	econf \
 		$(use_enable ipv6) $(use_enable selinux) \
 		$(use_enable nfs) || die "configure failed"
-}
-
-src_compile() {
-	cd "${S}"
-	LDFLAGS="${LDFLAGS} -L${D}/usr/$(get_libdir)/anaconda-runtime -R/usr/$(get_libdir)/anaconda-runtime" \
-	CFLAGS="${CFLAGS} -I${D}/usr/include/anaconda-runtime" \
-		base_src_compile
 }
 
 src_install() {
 
 	cd "${S}"
 	copy_audit_data_over # ${D} is cleared
-	LDFLAGS="${LDFLAGS} -L${D}/usr/$(get_libdir)/anaconda-runtime -R/usr/$(get_libdir)/anaconda-runtime" \
-	CFLAGS="${CFLAGS} -I${D}/usr/include/anaconda-runtime" \
-		base_src_install
+	base_src_install
 
 	# install liveinst for user
 	dodir /usr/bin
