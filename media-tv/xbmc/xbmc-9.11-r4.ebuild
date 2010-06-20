@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit eutils
+inherit eutils python
 
 # Use XBMC_ESVN_REPO_URI to track a different branch
 ESVN_REPO_URI=${XBMC_ESVN_REPO_URI:-http://xbmc.svn.sourceforge.net/svnroot/xbmc/trunk}
@@ -34,10 +34,9 @@ RDEPEND="virtual/opengl
 	app-arch/unzip
 	app-arch/zip
 	app-i18n/enca
-	>=dev-lang/python-2.4
 	dev-libs/boost
 	dev-libs/fribidi
-	dev-libs/libcdio
+	dev-libs/libcdio[-minimal]
 	dev-libs/libpcre
 	dev-libs/lzo
 	>=dev-python/pysqlite-2
@@ -60,7 +59,7 @@ RDEPEND="virtual/opengl
 	media-libs/libmpeg2
 	media-libs/libogg
 	media-libs/libsamplerate
-	media-libs/libsdl[alsa,audio,video,X]
+	media-libs/libsdl[alsa,audio,opengl,video,X]
 	media-libs/libvorbis
 	media-libs/sdl-gfx
 	media-libs/sdl-image[gif,jpeg,png]
@@ -103,6 +102,11 @@ src_unpack() {
 }
 
 src_prepare() {
+	has_version ">=media-libs/libpng-1.4" && \
+		epatch "${FILESDIR}"/${P}-libpng14.patch #319113
+
+	epatch "${FILESDIR}"/${P}-TexturePacker-parallel-build.patch
+	epatch "${FILESDIR}"/${P}-shader-upscalers.patch #306661
 	epatch "${FILESDIR}"/${P}-wavpack.patch
 	epatch "${FILESDIR}"/${P}-jpeg-speedup.patch #300909
 	epatch "${FILESDIR}"/${P}-use-cdio-system-headers-on-non-win32.patch #303030, upstream: #8026
@@ -162,6 +166,8 @@ src_configure() {
 	# XXX: with this version, external ffmpeg (>p_20373) causes
 	# segfault when used with vdpau, so disable external ffmpeg
 	# keeping the rest of external modules sane
+	# XXX2: disabled external python because most XBMC just
+	# don't work with >Python2.4
 	econf \
 		--disable-ccache \
 		--disable-optimizations \
@@ -171,7 +177,7 @@ src_configure() {
 		--enable-external-libass \
 		--enable-external-libogg \
 		--enable-external-libwavpack \
-		--enable-external-python \
+		--disable-external-python \
 		--enable-goom \
 		--enable-gl \
 		$(use_enable avahi) \
@@ -196,8 +202,13 @@ src_install() {
 	doins tools/Linux/xbmc.desktop
 	doicon tools/Linux/xbmc.png
 
-	dodoc README.linux known_issues.txt
+	dodoc README.linux
 	rm "${D}"/usr/share/xbmc/{README.linux,LICENSE.GPL,*.txt}
+
+	insinto "$(python_get_sitedir)" #309885
+	doins tools/EventClients/lib/python/xbmcclient.py || die
+	newbin "tools/EventClients/Clients/XBMC Send/xbmc-send.py" xbmc-send || die
+
 }
 
 pkg_postinst() {
