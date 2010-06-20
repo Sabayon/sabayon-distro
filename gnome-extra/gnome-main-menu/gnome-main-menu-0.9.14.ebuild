@@ -25,6 +25,7 @@ RDEPEND=">=dev-libs/glib-2.16.0
 	>=gnome-base/libgtop-2
 	>=gnome-base/libgnome-2
 	>=gnome-base/libgnomeui-2
+	gnome-base/libslab
 	dev-libs/dbus-glib
 	>=net-misc/networkmanager-0.8
 	sys-apps/hal
