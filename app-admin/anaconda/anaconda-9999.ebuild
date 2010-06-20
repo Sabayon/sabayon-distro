@@ -70,7 +70,8 @@ src_prepare() {
 
 	# Setup CFLAGS, LDFLAGS
 	append-cflags "-I${D}/usr/include/anaconda-runtime"
-	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime -rpath=/usr/$(get_libdir)/anaconda-runtime"
+	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
+	# now using LDPATH via env.d => "-rpath=/usr/$(get_libdir)/anaconda-runtime"
 
 	# Setup anaconda
 	cd "${S}"
