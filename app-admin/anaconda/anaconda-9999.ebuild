@@ -139,16 +139,6 @@ src_configure() {
 		$(use_enable nfs) || die "configure failed"
 }
 
-_make_libselinux() {
-	emake \
-		PYLIBVER="python$(python_get_version)" \
-		PYTHONLIBDIR="${D}/usr/$(get_libdir)/python$(python_get_version)" \
-		LIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
-		SHLIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
-		INCLUDEDIR="${D}/usr/include/anaconda-runtime" \
-		${1} || die
-}
-
 src_compile() {
 
 	cd "${S}"
