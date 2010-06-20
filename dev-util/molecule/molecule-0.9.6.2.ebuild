@@ -1,7 +1,7 @@
 # Copyright 2004-2010 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EGIT_TREE="${PV}"
+EGIT_COMMIT="${PV}"
 EGIT_REPO_URI="git://sabayon.org/projects/molecule.git"
 inherit eutils multilib python git
 SRC_URI=""
