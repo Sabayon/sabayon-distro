@@ -71,7 +71,6 @@ src_prepare() {
 	# Setup CFLAGS, LDFLAGS
 	append-cflags "-I${D}/usr/include/anaconda-runtime"
 	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
-	# now using LDPATH via env.d => "-rpath=/usr/$(get_libdir)/anaconda-runtime"
 
 	# Setup anaconda
 	cd "${S}"
@@ -159,13 +158,14 @@ src_compile() {
 	einfo "compiling libselinux"
 	cd "${LSELINUX_S}"
 	emake \
+		LDFLAGS="-fPIC ${LDFLAGS}" \
 		PYLIBVER="python$(python_get_version)" \
 		PYTHONLIBDIR="${D}/usr/$(get_libdir)/python$(python_get_version)" \
 		SHLIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
 		INCLUDEDIR="${D}/usr/include/anaconda-runtime" \
 		all || die
-	# LDFLAGS="-fPIC ${LDFLAGS}" \
 	emake \
+		LDFLAGS="-fPIC ${LDFLAGS}" \
 		PYLIBVER="python$(python_get_version)" \
 		PYTHONLIBDIR="${D}/usr/$(get_libdir)/python$(python_get_version)" \
 		SHLIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
