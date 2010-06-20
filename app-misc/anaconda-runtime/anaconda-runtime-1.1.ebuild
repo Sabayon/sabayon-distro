@@ -30,7 +30,7 @@ RDEPEND="app-admin/system-config-date
 	net-misc/curl
 	net-misc/dhcp
 	net-misc/fcoe-utils
-	>=net-misc/networkmanager-0.8
+	>=net-misc/networkmanager-0.7.2
 	sys-apps/dmidecode
 	sys-apps/language-configuration-helpers
 	>=sys-boot/grub-1.98
