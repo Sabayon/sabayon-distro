@@ -50,7 +50,7 @@ COMMON_DEPEND="app-admin/system-config-keyboard
 DEPEND="${COMMON_DEPEND} ${AUDIT_DEPEND} ${LSELINUX_DEPEND} sys-apps/sed"
 RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	${LSELINUX_RDEPEND} ${LSELINUX_CONFLICT}
-	>=app-misc/anaconda-runtime-1"
+	>=app-misc/anaconda-runtime-1.1"
 
 # FIXME:
 # for anaconda-gtk we would require also
