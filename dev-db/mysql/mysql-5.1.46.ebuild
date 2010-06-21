@@ -12,7 +12,7 @@ PERCONA_VER='5.1.45-10' XTRADB_VER='1.0.6-10'
 
 inherit flag-o-matic toolchain-funcs mysql
 # only to make repoman happy. it is really set in the eclass
-IUSE="$IUSE"
+IUSE="$IUSE +pic"
 
 # REMEMBER: also update eclass/mysql*.eclass before committing!
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd ~x64-macos ~x86-solaris"
@@ -34,7 +34,7 @@ RDEPEND="!media-sound/amarok[embedded]"
 # mysql build system.
 
 src_prepare() {
-	append-flags "-fPIC"
+	use pic && append-flags "-fPIC"
 	mysql_src_prepare
 }
 
