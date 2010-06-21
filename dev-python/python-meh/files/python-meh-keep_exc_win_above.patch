@@ -1,0 +1,11 @@
+diff -Nurp python-meh-0.8.orig/meh/ui/gui.py python-meh-0.8/meh/ui/gui.py
+--- python-meh-0.8.orig/meh/ui/gui.py	2010-06-21 15:59:28.983568381 +0200
++++ python-meh-0.8/meh/ui/gui.py	2010-06-21 16:04:34.006524479 +0200
+@@ -139,6 +139,7 @@ class MainExceptionWindow(AbstractMainEx
+         self.dialog.destroy()
+ 
+     def run(self, *args, **kwargs):
++        self.dialog.set_keep_above(True)
+         self.dialog.show_all()
+         self.rc = self.dialog.run()
+         self.dialog.destroy()
