@@ -17,3 +17,11 @@ IUSE="debug"
 
 DEPEND=">=app-admin/packagekit-qt4-0.6.4"
 RDEPEND="${DEPEND}"
+
+src_install() {
+	kde4-base_src_install
+	# fix dbus service path otherwise conflicting with gnome-packagekit one
+	mv "${D}/usr/share/dbus-1/services/org.freedesktop.PackageKit.service" \
+		"${D}"/usr/share/dbus-1/services/kde-org.freedesktop.PackageKit.service || \
+		die "cannot hackily move packagekit dbus service file"
+}
