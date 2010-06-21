@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>rion-overlay</herd>
+<maintainer>
+  <email>spamslepnoga@inbox.ru</email>
+ <description>389 Server Management Console</description> 
+</maintainer>
+ <longdescription>389 Server Management Console - shared and help files</longdescription> 
+<use>
+</use>
+</pkgmetadata>

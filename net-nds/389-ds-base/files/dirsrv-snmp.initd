@@ -1,0 +1,38 @@
+#!/sbin/runscript
+# Copyright 1999-2010 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+
+PIDFILE="/var/run/ldap-agent.pid"
+CONFIGFILE="/etc/dirsrv/config/ldap-agent.conf"
+
+# instance support in progress
+
+depend() {
+	need net
+	use logger
+}
+
+start() {
+	ebegin "Starting ldap-snmp agent"
+
+	start-stop-daemon --start --quiet -m \
+	--pidfile $PIDFILE --exec /usr/sbin/ldap-agent -- ${CONFIGFILE}
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping ldap-snmp agent"
+
+	start-stop-daemon --stop --quiet --pidfile ${PIDFILE}
+
+	eend $?
+	
+}
+
+restart() {
+	svc_stop
+	sleep 2
+	svc_start
+}

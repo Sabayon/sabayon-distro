@@ -1,0 +1,112 @@
+#!/sbin/runscript
+# Copyright 1999-2010 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+exec="/usr/sbin/ns-slapd"
+# PID directory
+piddir="/var/run/dirsrv"
+# Instance basedir
+instbase="/etc/dirsrv"
+# Empty Instances List
+FDSINSTANCES=""
+
+depend() {
+  need net
+  use dns
+  provide dirsvr ldap
+}
+
+
+checkconfig() {
+  if [ -z "$INSTANCES" ] ; then
+     eerror "Fedora Directory Server has not been configured."
+     eend 1
+     return 1
+  elif [ -n "$INSTANCES" ] ; then
+     for INST in $INSTANCES ; do
+        if [ ! -d "$instbase/slapd-$INST" ] ; then
+	eerror "Instance $INST has not been configured."
+        eend 1
+        return 1
+	fi
+      done
+  fi
+}
+
+start() {
+   checkconfig || return 1
+   for inst in $INSTANCES ; do
+      if [ -d "$instbase/slapd-$INST" ] ; then
+         FDSINSTANCES="$FDSINSTANCES $inst"
+      fi
+   done
+   einfo "Starting Fedora DS"
+   eend 0
+   for instance in $FDSINSTANCES ; do
+      ebegin "Starting Instance $instance"
+      start-stop-daemon --start --quiet -m \
+      --pidfile $piddir/slapd-$instance.startpid \
+      --exec $exec -- -D $instbase/slapd-$instance \
+      -i $piddir/slapd-$instance.pid -w $piddir/slapd-$instance.startpid 
+      eend $?
+   done
+   sleep 5
+   status || return 1
+}
+
+
+
+stop() {
+   checkconfig || return 1
+   for inst in $INSTANCES ; do
+      if [ -d "$instbase/slapd-$INST" ] ; then
+         FDSINSTANCES="$FDSINSTANCES $inst"
+      fi
+   done
+   einfo "Stopping Fedora DS"
+   eend 0
+   for instance in $FDSINSTANCES ; do
+      ebegin "Stopping Instance $instance"
+      start-stop-daemon --stop --quiet \
+      --pidfile $piddir/slapd-$instance.pid \
+      --exec $exec
+      eend $?
+   done
+}
+
+restart() {
+   svc_stop
+   svc_start
+}
+
+
+status() {
+   for instance in $INSTANCES; do
+      if [ -e $piddir/slapd-$instance.pid ]; then
+         pid=$(cat $piddir/slapd-$instance.pid)
+         if [ $(echo "$pid" | grep -c $pid) -ge 1 ]; then
+            einfo "$prog $instance (pid $pid) is running..."
+         else
+            ewarn "$prog $instance dead but pid file exists"
+         fi
+      else
+         eerror "$prog $instance is stopped"
+      fi
+   done
+}
+
+#if [ -n "$2" ]; then
+#   for I in $INSTANCES; do
+#      if [ "$2" = "$I" ]; then
+#         INSTANCES="$2"
+#      fi
+#   done
+#   if [ "$2" != "$INSTANCES" ]; then
+#      echo -n "$2 is an invalid fedora-ds instance"
+#      failure; echo
+#      exit 1
+#   fi
+#fi
+
+

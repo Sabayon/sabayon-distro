@@ -1,0 +1,10 @@
+--- selinux.orig/Makefile	2010-03-09 04:55:28.915799132 +0200
++++ selinux/Makefile	2010-03-09 04:57:09.214733326 +0200
+@@ -1,6 +1,5 @@
+-POLICY_MAKEFILE = /usr/share/selinux/devel/Makefile
+ POLICY_DIR = $(DESTDIR)/usr/share/selinux/targeted
+-
++POLICY_MAKEFILE = /usr/share/selinux/targeted/include/Makefile
+ all:
+ 	if [ ! -e $(POLICY_MAKEFILE) ]; then echo "You need to install the SELinux policy development tools (selinux-policy)" && exit 1; fi
+ 
