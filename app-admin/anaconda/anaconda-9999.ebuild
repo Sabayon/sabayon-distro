@@ -83,20 +83,20 @@ src_prepare() {
         # Do not build GUI tools
         sed -i \
                 -e '/AC_CONFIG_SUBDIRS.*system-config-audit/d' \
-                "${AUDIT_S}"/configure.ac
+                "${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac"
         sed -i \
                 -e 's,system-config-audit,,g' \
                 -e '/^SUBDIRS/s,\\$,,g' \
-                "${AUDIT_S}"/Makefile.am
+                "${AUDIT_S}"/Makefile.am || die "cannot sed libaudit Makefile.am"
         rm -rf "${AUDIT_S}"/system-config-audit
 
         if ! use ldap; then
                 sed -i \
                         -e '/^AC_OUTPUT/s,audisp/plugins/zos-remote/Makefile,,g' \
-                        "${AUDIT_S}"/configure.ac
+                        "${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac (ldap)"
                 sed -i \
                         -e '/^SUBDIRS/s,zos-remote,,g' \
-                        "${AUDIT_S}"/audisp/plugins/Makefile.am
+                        "${AUDIT_S}"/audisp/plugins/Makefile.am || die "cannot sed libaudit Makefile.am (ldap)"
         fi
 	eautoreconf
 
@@ -121,14 +121,14 @@ src_configure() {
 
 	# compiling audit here, anaconda configure needs libaudit
 	einfo "compiling audit"
-	cd "${AUDIT_S}"
+	cd "${AUDIT_S}" || die "cannot cd into ${AUDIT_S}"
 	base_src_compile
 
 	# installing audit
-	einfo "installing audit libs into /usr/$(get_libdir)/anaconda-runtime"
-	cd "${AUDIT_S}"
-	mkdir fakeroot
-	emake DESTDIR="${AUDIT_S}/fakeroot" install
+	einfo "installing audit libs into ${AUDIT_S}/fakeroot temporarily"
+	cd "${AUDIT_S}" || die "cannot cd into ${AUDIT_S}"
+	( rm -rf fakeroot && mkdir fakeroot ) || die "cannot mkdir"
+	emake DESTDIR="${AUDIT_S}/fakeroot" install || die "cannot install libaudit"
 	copy_audit_data_over # for proper linking
 
 	# configure anaconda
@@ -146,7 +146,8 @@ src_compile() {
 
 	# compiling libselinux
 	einfo "compiling libselinux"
-	cd "${LSELINUX_S}"
+	cd "${LSELINUX_S}" || die "cannot cd into ${LSELINUX_S}"
+	LD_RUN_PATH="/usr/$(get_libdir)/anaconda-runtime" \
 	emake \
 		LDFLAGS="-fPIC ${LDFLAGS}" \
 		PYLIBVER="python$(python_get_version)" \
@@ -154,6 +155,7 @@ src_compile() {
 		SHLIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
 		INCLUDEDIR="${D}/usr/include/anaconda-runtime" \
 		all || die
+	LD_RUN_PATH="/usr/$(get_libdir)/anaconda-runtime" \
 	emake \
 		LDFLAGS="-fPIC ${LDFLAGS}" \
 		PYLIBVER="python$(python_get_version)" \
@@ -172,6 +174,7 @@ src_install() {
 	# installing libselinux
 	cd "${LSELINUX_S}"
 	python_need_rebuild
+	LD_RUN_PATH="/usr/$(get_libdir)/anaconda-runtime" \
 	emake DESTDIR="${D}" \
 		PYLIBVER="python$(python_get_version)" \
 		PYTHONLIBDIR="${D}/usr/$(get_libdir)/python$(python_get_version)" \
@@ -182,8 +185,8 @@ src_install() {
 
 	# fix libselinux.so link
 	dosym libselinux.so.1 /usr/$(get_libdir)/anaconda-runtime/libselinux.so
-	# XXX: libselinux build system broken, doesn't like -rpath=
-	# adding stuff to env.d
+	# LD_RUN_PATH works with ld >=2.20, so /etc/env.d/99anaconda for now
+	# will be dropped in future
 	echo "LDPATH=\"/usr/$(get_libdir)/anaconda-runtime\"" > 99anaconda
 	doenvd 99anaconda
 
