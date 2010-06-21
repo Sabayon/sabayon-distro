@@ -12,12 +12,13 @@ HOMEPAGE="http://live.gnome.org/Gjs"
 LICENSE="MIT MPL-1.1 LGPL-2 GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="coverage"
+IUSE="coverage examples"
 
 RDEPEND=">=dev-libs/glib-2.16.0
 	>=dev-libs/gobject-introspection-0.6.3
 
 	dev-libs/dbus-glib
+	x11-libs/cairo
 	net-libs/xulrunner:1.9"
 DEPEND="${RDEPEND}
 	sys-devel/gettext
@@ -27,3 +28,20 @@ DEPEND="${RDEPEND}
 		dev-util/lcov )"
 # AUTHORS, ChangeLog are empty
 DOCS="NEWS README"
+
+pkg_setup() {
+	G2CONF="${G2CONF}
+		$(use_enable coverage)"
+	# Build fails without this :/
+	# .libs/libgjs-gi.so: file not recognized: File format not recognized
+	MAKEOPTS="${MAKEOPTS} -j1"
+}
+
+src_install() {
+	gnome2_src_install
+
+	if use examples; then
+		insinto /usr/share/doc/${PF}/examples
+		doins ${S}/examples/* || die "doins examples failed!"
+	fi
+}
