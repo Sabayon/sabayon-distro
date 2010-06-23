@@ -128,12 +128,21 @@ src_install () {
 }
 
 pkg_postinst() {
+
 	einfo
-	einfo "This ebuild contains two apache modules"
-	einfo "mod_admserv and mod_restartd "
-	einfo "Please fix you config files "
-	einfo
-	einfo "This programm  based on CGI script"
-	einfo "It is therefore recommended "
+	einfo "This program is based on CGI script"
+	einfo "It is therefore recommended"
 	einfo "to use it apache SUEXEC"
+
+	# show einfo for both modules
+	einfo
+	einfo "You need to enable mod_restartd and mod_admserv,"
+	einfo "by editing your /etc/conf.d/apache2 file and"
+	einfo "adding '-D RESTARTD -D ADMSERV' to APACHE2_OPTS."
+	einfo
+
+	# show setup information
+	einfo "Once you configured www-servers/apache as written above,"
+	einfo "you need to run (as root): /usr/sbin/setup-ds-admin.pl"
+
 }
