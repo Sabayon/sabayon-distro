@@ -52,10 +52,10 @@ src_compile() {
 src_install() {
 	java-pkg_newjar "${S}"/build/389-console-1.1.4_en.jar 389-console_en.jar
 	java-pkg_dolauncher ${PN} --main com.netscape.management.client.console.Console \
-				--pwd "/usr/share/dirsrv/html/java/" \
-				--pkg_args "-Djava.util.prefs.systemRoot=\"\$HOME/.${PN}\" -Djava.util.prefs.userRoot=\"\$HOME/.${PN}\""\
-				die
+		--pwd "/usr/share/dirsrv/html/java/" \
+		--pkg_args "-Djava.util.prefs.systemRoot=\"\$HOME/.${PN}\" -Djava.util.prefs.userRoot=\"\$HOME/.${PN}\"" \
+		|| die
 
 	doicon "${DISTDIR}"/fedora.png || die "doicon failed"
-	make_desktop_entry ${PN} "Port389 Management Console" fedora.png System Path=fedora.png
+	make_desktop_entry ${PN} "Port389 Management Console" fedora System
 }
