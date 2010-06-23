@@ -58,13 +58,12 @@ need_apache2_2
 src_prepare() {
 
 	epatch "${FILESDIR}/${PV}/"*.patch
+	epatch "${FILESDIR}/${PN}-fix-libmodnss-httpd.conf.patch"
 
 	sed -e "s!SUBDIRS!# SUBDIRS!g" -i Makefile.am || die "sed failed"
-	sed -e "s!nobody!apache!g" -i configure.ac	  || die "sed failed"
-#	rm -rf "${S}"/mod_* || die
+	sed -e "s!nobody!apache!g" -i configure.ac || die "sed failed"
 
 	eautoreconf
-#	eautomake
 }
 
 src_configure() {
@@ -129,6 +128,7 @@ src_install () {
 		insinto /usr/share/selinux/${POLICY_TYPES}
 		doins -r "${S}/selinux-build/"*.pp
 	fi
+
 }
 
 pkg_postinst() {
