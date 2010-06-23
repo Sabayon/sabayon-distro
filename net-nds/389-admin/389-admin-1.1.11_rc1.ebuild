@@ -38,7 +38,7 @@ DEPEND="console? ( app-admin/389-console )
 	>=app-admin/389-admin-console-1.1.0
 	>=app-admin/389-ds-console-1.1.0
 	dev-libs/389-adminutil
-	www-servers/apache:2[apache2_modules_actions,apache2_modules_alias,apache2_modules_auth_basic,apache2_modules_authz_default,apache2_modules_mime_magic,apache2_modules_rewrite,apache2_modules_setenvif]
+	www-servers/apache:2[apache2_modules_actions,apache2_modules_alias,apache2_modules_auth_basic,apache2_modules_authz_default,apache2_modules_mime_magic,apache2_modules_rewrite,apache2_modules_setenvif,suexec]
 	!www-apache/mod_admserv
 	!www-apache/mod_restartd
 	selinux? ( sys-apps/policycoreutils
@@ -129,11 +129,6 @@ src_install () {
 
 pkg_postinst() {
 
-	elog
-	elog "This program is based on CGI script"
-	elog "It is therefore recommended"
-	elog "to use it apache SUEXEC"
-
 	# show elog for both modules
 	elog
 	elog "You need to enable mod_restartd and mod_admserv,"
@@ -148,7 +143,7 @@ pkg_postinst() {
 
 	# show security and sysctl info
 	elog "It is recommended to setup net.ipv4.tcp_keep_alive_time"
-	elog "in /etc/sysctl.conf (or via sysctl -w) to a reasonable"
+	elog "in /etc/sysctl.conf (or via sysctl -w && sysctl -p) to a reasonable"
 	elog "value (in milliseconds) to avoid temporary server congestions"
 	elog "from lost client connections"
 	elog
