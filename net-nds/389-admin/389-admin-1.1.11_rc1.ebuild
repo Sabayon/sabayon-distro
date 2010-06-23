@@ -129,20 +129,35 @@ src_install () {
 
 pkg_postinst() {
 
-	einfo
-	einfo "This program is based on CGI script"
-	einfo "It is therefore recommended"
-	einfo "to use it apache SUEXEC"
+	elog
+	elog "This program is based on CGI script"
+	elog "It is therefore recommended"
+	elog "to use it apache SUEXEC"
 
-	# show einfo for both modules
-	einfo
-	einfo "You need to enable mod_restartd and mod_admserv,"
-	einfo "by editing your /etc/conf.d/apache2 file and"
-	einfo "adding '-D RESTARTD -D ADMSERV' to APACHE2_OPTS."
-	einfo
+	# show elog for both modules
+	elog
+	elog "You need to enable mod_restartd and mod_admserv,"
+	elog "by editing your /etc/conf.d/apache2 file and"
+	elog "adding '-D RESTARTD -D ADMSERV' to APACHE2_OPTS."
+	elog
 
 	# show setup information
-	einfo "Once you configured www-servers/apache as written above,"
-	einfo "you need to run (as root): /usr/sbin/setup-ds-admin.pl"
+	elog "Once you configured www-servers/apache as written above,"
+	elog "you need to run (as root): /usr/sbin/setup-ds-admin.pl"
+	elog
+
+	# show security and sysctl info
+	elog "It is recommended to setup net.ipv4.tcp_keep_alive_time"
+	elog "in /etc/sysctl.conf (or via sysctl -w) to a reasonable"
+	elog "value (in milliseconds) to avoid temporary server congestions"
+	elog "from lost client connections"
+	elog
+
+	# /etc/security/limits.conf settings
+	elog "It is also recommended to fine tune the maximum open files"
+	elog "settings inside /etc/security/limits.conf:"
+	elog "* soft nofile 2048"
+	elog "*hard nofile 4096"
+	elog
 
 }
