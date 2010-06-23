@@ -47,6 +47,10 @@ DEPEND="console? ( app-admin/389-console )
 
 RDEPEND="${DEPEND}"
 
+# 389-ds-base needs to compile libacl-plugin.so
+# in order to make /usr/sbin/setup-ds-admin.pl working
+PDEPEND="net-nds/389-ds-base[presence,bitwise]"
+
 S="${WORKDIR}/${PN}-${MY_PV}"
 
 need_apache2_2
