@@ -22,7 +22,8 @@ DEPEND=">=dev-libs/nss-3.11.4
 	dev-util/pkgconfig"
 
 RDEPEND=">=dev-libs/nss-3.11.4
-	>=dev-libs/nspr-4.6.4"
+	>=dev-libs/nspr-4.6.4
+	net-dns/bind-tools"
 
 APACHE2_MOD_CONF="47_${PN}"
 APACHE2_MOD_DEFINE="NSS"
@@ -59,8 +60,6 @@ src_install() {
 pkg_postinst() {
 	apache-module_pkg_postinst
 
-	elog "If you need to create a self-signed"
-	elog "certificate, please install"
-	elog "net-dns/bind-tools package and"
-	elog "use gencert script"
+	elog "If you need to generate a SSL certificate,"
+	elog "please use gencert script from bind-tools"
 }
