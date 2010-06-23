@@ -18,11 +18,12 @@ SRC_URI="http://port389.org/sources/${PN}-${MY_PV}.tar.bz2"
 LICENSE="GPL-2 Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="debug ipv6 selinux threads"
+IUSE="+console debug ipv6 selinux threads"
 
 # TODO snmp agent init script
 
-DEPEND="dev-libs/nss[utils]
+DEPEND="console? ( app-admin/389-console )
+	dev-libs/nss[utils]
 	|| ( <=dev-libs/nspr-4.8.3-r3[ipv6?] >=dev-libs/nspr-4.8.4 )
 	dev-libs/svrcore
 	dev-libs/mozldap
