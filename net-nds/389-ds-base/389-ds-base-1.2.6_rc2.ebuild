@@ -16,7 +16,7 @@ SRC_URI="http://directory.fedoraproject.org/sources/${MY_P}.tar.bz2"
 LICENSE="GPL-2-with-exceptions"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="autobind auto-dn-suffix debug doc +pam-passthru +dna +ldapi +bitwise presence kerberos selinux"
+IUSE="autobind auto-dn-suffix debug doc +pam-passthru +dna +ldapi +bitwise +presence kerberos selinux"
 
 ALL_DEPEND="dev-libs/nss[utils]
 	dev-libs/nspr
