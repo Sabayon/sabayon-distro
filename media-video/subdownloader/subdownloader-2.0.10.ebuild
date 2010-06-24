@@ -24,7 +24,7 @@ src_unpack() {
 
 src_install() {
 	insinto /usr/$(get_libdir)/subdownloader
-	doins -r cli FileManagement gui languages modules __init__.py run.py || die "doins failed"
+	doins -r cli FileManagement gui languages modules run.py || die "doins failed"
 	fperms 755 /usr/$(get_libdir)/subdownloader/run.py
 	dosym /usr/$(get_libdir)/subdownloader/run.py /usr/bin/subdownloader
 	doman subdownloader.1 || die "doman failed"
