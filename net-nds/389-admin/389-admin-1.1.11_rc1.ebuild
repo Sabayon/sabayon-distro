@@ -96,8 +96,8 @@ src_install () {
 	rm -rf "${D}"/etc/default
 
 	# install gentoo style init script.
-	newinitd "${FILESDIR}"/dirsrv-admin.initd dirsrv-admin
-	newconfd "${FILESDIR}"/dirsrv-admin.confd dirsrv-admin
+	newinitd "${FILESDIR}"/${PN}.initd ${PN}
+	newconfd "${FILESDIR}"/${PN}.confd ${PN}
 
 	# remove redhat style wrapper scripts
 	# and install gentoo scripts.
