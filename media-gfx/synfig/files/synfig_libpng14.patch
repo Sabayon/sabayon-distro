@@ -1,5 +1,5 @@
-*** mptr_png.cpp.old	2010-06-24 17:12:13.108466453 +0200
---- mptr_png.cpp	2010-06-24 17:13:14.333341937 +0200
+*** src/modules/mod_png/mptr_png.cpp.old	2010-06-24 17:12:13.108466453 +0200
+--- src/modules/mod_png/mptr_png.cpp	2010-06-24 17:13:14.333341937 +0200
 ***************
 *** 309,315 ****
   				float b=gamma().b_U8_to_F32((unsigned char)png_ptr->palette[row_pointers[y][x]].blue);
