@@ -148,13 +148,6 @@ src_install () {
 
 pkg_postinst() {
 
-	# show elog for both modules
-	elog
-	elog "You need to enable mod_restartd and mod_admserv,"
-	elog "by editing your /etc/conf.d/apache2 file and"
-	elog "adding '-D RESTARTD -D ADMSERV' to APACHE2_OPTS."
-	elog
-
 	# show setup information
 	elog "Once you configured www-servers/apache as written above,"
 	elog "you need to run (as root): /usr/sbin/setup-ds-admin.pl"
@@ -178,6 +171,10 @@ pkg_postinst() {
 	elog "please add 389-admin service to the default runlevel:"
 	elog
 	elog "    rc-update add 389-admin default"
+	elog
+
+	elog "for 389 Directory Server Admin interface to work, you need"
+	elog "to setup a FQDN hostname and use it while running /usr/sbin/setup-ds-admin.pl"
 	elog
 
 }
