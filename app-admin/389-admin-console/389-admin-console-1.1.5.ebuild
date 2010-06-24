@@ -19,7 +19,7 @@ SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${P}.tar.bz2"
 LICENSE="LGPL-2.1"
 SLOT="1.1"
 KEYWORDS="~amd64 ~x86"
-IUSE="doc sources"
+IUSE=""
 
 COMMON_DEP="dev-java/jss:3.4
 	dev-java/ldapsdk:4.1
@@ -75,7 +75,7 @@ src_install() {
 		java-pkg_dojavadoc build/doc || die
 	fi
 
-	if use sources; then
+	if use source; then
 		java-pkg_dosrc src/com || die
 	fi
 }
