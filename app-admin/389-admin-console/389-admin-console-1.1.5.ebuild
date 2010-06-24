@@ -13,7 +13,8 @@ MY_MV=1.1
 
 DESCRIPTION="389 Server Management Console (share and help files)"
 HOMEPAGE="http://port389.org/"
-SRC_URI="http://port389.org/sources/${P}.tar.bz2"
+SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${P}.tar.bz2"
+# SRC_URI="http://port389.org/sources/${P}.tar.bz2"
 
 LICENSE="LGPL-2.1"
 SLOT="1.1"
