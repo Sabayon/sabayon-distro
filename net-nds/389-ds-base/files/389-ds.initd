@@ -30,10 +30,10 @@ start() {
 		instance=$(basename ${instance})
 		ebegin "Starting 389 Directory Server: instance ${instance}"
 		start-stop-daemon --start --quiet -m \
-			--pidfile ${PID_DIRECTORY}/slapd-${instance}.startpid \
-			--exec ${DIRSRV_EXEC} -- -D ${DIRSRV_CONF_DIR}/slapd-${instance} \
-			-i ${PID_DIRECTORY}/slapd-${instance}.pid \
-			-w ${PID_DIRECTORY}/slapd-${instance}.startpid
+			--pidfile ${PID_DIRECTORY}/${instance}.startpid \
+			--exec ${DIRSRV_EXEC} -- -D ${DIRSRV_CONF_DIR}/${instance} \
+			-i ${PID_DIRECTORY}/${instance}.pid \
+			-w ${PID_DIRECTORY}/${instance}.startpid
 		sts=${?}
 		eend ${?}
 		if [ "${sts}" != "0" ]; then
@@ -51,7 +51,7 @@ stop() {
 		instance=$(basename ${instance})
 		ebegin "Stopping 389 Directory Server: instance ${instance}"
 		start-stop-daemon --stop --quiet \
-			--pidfile ${PID_DIRECTORY}/slapd-${instance}.pid \
+			--pidfile ${PID_DIRECTORY}/${instance}.pid \
 			--exec ${DIRSRV_EXEC}
 		eend ${?}
 	done
@@ -60,8 +60,8 @@ stop() {
 status() {
 	for instance in ${DS_INSTANCES}; do
 		instance=$(basename ${instance})
-		if [ -e ${PID_DIRECTORY}/slapd-${instance}.pid ]; then
-			pid=$(cat ${PID_DIRECTORY}/slapd-${instance}.pid)
+		if [ -e ${PID_DIRECTORY}/${instance}.pid ]; then
+			pid=$(cat ${PID_DIRECTORY}/${instance}.pid)
 			if [ $(echo "$pid" | grep -c $pid) -ge 1 ]; then
 				einfo "389 Directory Server: instance ${instance} (pid $pid) running."
 			else
