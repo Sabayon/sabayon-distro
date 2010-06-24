@@ -1,0 +1,11 @@
+--- 389-admin-1.1.11.rc1.orig/admserv/html/admserv.html.in
++++ 389-admin-1.1.11.rc1/admserv/html/admserv.html.in
+@@ -82,7 +82,7 @@
+         </tr>
+         <tr valign="TOP"> 
+           <td><img src="/icons/goto.gif" width="10" height="15">&nbsp;</td>
+-          <td><font face="Verdana, sans-serif"><a href='/admin-serv/tasks/configuration/HTMLAdmin?op=index'>@capbrand@ 
++          <td><font face="Verdana, sans-serif"><a href='/admin-serv/commands/tasks/configuration/HTMLAdmin?op=index'>@capbrand@ 
+             Administration Express</a></font><font size="-1" face="Verdana, sans-serif"><br>
+             View server status and configuration/log data.</font><font size="-1" face="Verdana, sans-serif"> 
+             </font></td>
