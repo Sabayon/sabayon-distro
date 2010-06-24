@@ -17,7 +17,7 @@ start() {
 	ebegin "Starting ldap-snmp agent"
 
 	start-stop-daemon --start --quiet -m \
-	--pidfile $PIDFILE --exec /usr/sbin/ldap-agent -- ${CONFIGFILE}
+	--pidfile ${PIDFILE} --exec /usr/sbin/ldap-agent -- ${CONFIGFILE}
 	eend ${?}
 }
 

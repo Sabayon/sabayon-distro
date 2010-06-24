@@ -118,8 +118,6 @@ src_install () {
 	newinitd "${FILESDIR}"/dirsrv.initd dirsrv
 	newinitd "${FILESDIR}"/dirsrv-snmp.initd dirsrv-snmp
 
-	newconfd "${FILESDIR}"/dirsrv.confd dirsrv
-
 	# cope with libraries being in /usr/lib/dirsrv
 	dodir /etc/env.d
 	echo "LDPATH=/usr/$(get_libdir)/dirsrv" > "${D}"/etc/env.d/08dirsrv
