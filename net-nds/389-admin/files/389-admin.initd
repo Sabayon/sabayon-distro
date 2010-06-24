@@ -5,7 +5,7 @@
 opts="configdump configtest fullstatus graceful gracefulstop modules reload"
 
 depend() {
-	need net 389-ds
+	need net
 	use mysql dns logger netmount postgresql
 	after sshd
 }

@@ -1,4 +1,4 @@
-# /etc/conf.d/dirsrv-admin: config file for /etc/init.d/dirsrv-admin
+# /etc/conf.d/389-admin: config file for /etc/init.d/389-admin
 
 # When you install a module it is easy to activate or deactivate the modules
 # and other features of apache using the APACHE2_OPTS line. Every module should
