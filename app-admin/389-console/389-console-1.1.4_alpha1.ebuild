@@ -17,6 +17,7 @@ LICENSE="LGPL-2.1"
 SLOT="1.1"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
+S=${WORKDIR}/${P/_alpha/.a}
 
 COMMON_DEP="dev-java/jss:3.4
 	dev-java/ldapsdk:4.1
