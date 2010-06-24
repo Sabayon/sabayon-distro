@@ -3,110 +3,89 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-exec="/usr/sbin/ns-slapd"
-# PID directory
-piddir="/var/run/dirsrv"
-# Instance basedir
-instbase="/etc/dirsrv"
-# Empty Instances List
-FDSINSTANCES=""
+DIRSRV_EXEC="/usr/sbin/ns-slapd"
+PID_DIRECTORY="/var/run/dirsrv"
+DIRSRV_CONF_DIR="/etc/dirsrv"
+F389DS_INSTANCES=""
 
 depend() {
-  need net
-  use dns
-  provide dirsvr ldap
+	need net
+	use dns
+	provide dirsvr ldap
 }
 
 
 checkconfig() {
-  if [ -z "$INSTANCES" ] ; then
-     eerror "Fedora Directory Server has not been configured."
-     eend 1
-     return 1
-  elif [ -n "$INSTANCES" ] ; then
-     for INST in $INSTANCES ; do
-        if [ ! -d "$instbase/slapd-$INST" ] ; then
-	eerror "Instance $INST has not been configured."
-        eend 1
-        return 1
+	if [ -z "${INSTANCES}" ]; then
+		eerror "389 Directory Server has not been configured."
+		eend 1
+		return 1
+	elif [ -n "${INSTANCES}" ]; then
+		for instance in ${INSTANCES}; do
+			if [ ! -d "${DIRSRV_CONF_DIR}/slapd-${instance}" ] ; then
+				eerror "Instance ${instance} has not been configured."
+				eend 1
+				return 1
+			fi
+		done
 	fi
-      done
-  fi
 }
 
 start() {
-   checkconfig || return 1
-   for inst in $INSTANCES ; do
-      if [ -d "$instbase/slapd-$INST" ] ; then
-         FDSINSTANCES="$FDSINSTANCES $inst"
-      fi
-   done
-   einfo "Starting Fedora DS"
-   eend 0
-   for instance in $FDSINSTANCES ; do
-      ebegin "Starting Instance $instance"
-      start-stop-daemon --start --quiet -m \
-      --pidfile $piddir/slapd-$instance.startpid \
-      --exec $exec -- -D $instbase/slapd-$instance \
-      -i $piddir/slapd-$instance.pid -w $piddir/slapd-$instance.startpid 
-      eend $?
-   done
-   sleep 5
-   status || return 1
+	checkconfig || return 1
+	for instance in ${INSTANCES}; do
+		if [ -d "${DIRSRV_CONF_DIR}/slapd-${instance}" ] ; then
+			F389DS_INSTANCES="${F389DS_INSTANCES} ${instance}"
+		fi
+	done
+
+	for instance in ${F389DS_INSTANCES}; do
+		ebegin "Starting 389 Directory Server: instance ${instance}"
+		start-stop-daemon --start --quiet -m \
+			--pidfile ${PID_DIRECTORY}/slapd-${instance}.startpid \
+			--exec ${DIRSRV_EXEC} -- -D ${DIRSRV_CONF_DIR}/slapd-${instance} \
+			-i ${PID_DIRECTORY}/slapd-${instance}.pid \
+			-w ${PID_DIRECTORY}/slapd-${instance}.startpid
+		sts=${?}
+		eend ${?}
+		if [ "${?}" != "0" ]; then
+			return 1
+		fi
+	done
 }
 
 
 
 stop() {
-   checkconfig || return 1
-   for inst in $INSTANCES ; do
-      if [ -d "$instbase/slapd-$INST" ] ; then
-         FDSINSTANCES="$FDSINSTANCES $inst"
-      fi
-   done
-   einfo "Stopping Fedora DS"
-   eend 0
-   for instance in $FDSINSTANCES ; do
-      ebegin "Stopping Instance $instance"
-      start-stop-daemon --stop --quiet \
-      --pidfile $piddir/slapd-$instance.pid \
-      --exec $exec
-      eend $?
-   done
-}
+	checkconfig || return 1
+	for instance in ${INSTANCES}; do
+		if [ -d "${DIRSRV_CONF_DIR}/slapd-${instance}" ] ; then
+			F389DS_INSTANCES="${F389DS_INSTANCES} ${instance}"
+		fi
+	done
 
-restart() {
-   svc_stop
-   svc_start
+	einfo "Stopping 389 Directory Server"
+	eend 0
+	for instance in ${F389DS_INSTANCES}; do
+		ebegin "Stopping Instance ${instance}"
+		start-stop-daemon --stop --quiet \
+			--pidfile ${PID_DIRECTORY}/slapd-${instance}.pid \
+			--exec ${DIRSRV_EXEC}
+		eend $?
+	done
 }
-
 
 status() {
-   for instance in $INSTANCES; do
-      if [ -e $piddir/slapd-$instance.pid ]; then
-         pid=$(cat $piddir/slapd-$instance.pid)
-         if [ $(echo "$pid" | grep -c $pid) -ge 1 ]; then
-            einfo "$prog $instance (pid $pid) is running..."
-         else
-            ewarn "$prog $instance dead but pid file exists"
-         fi
-      else
-         eerror "$prog $instance is stopped"
-      fi
-   done
+	for instance in ${INSTANCES}; do
+		if [ -e ${PID_DIRECTORY}/slapd-${instance}.pid ]; then
+			pid=$(cat ${PID_DIRECTORY}/slapd-${instance}.pid)
+			if [ $(echo "$pid" | grep -c $pid) -ge 1 ]; then
+				einfo "$prog ${instance} (pid $pid) is running..."
+			else
+				ewarn "$prog ${instance} dead but pid file exists"
+			fi
+		else
+			eerror "$prog ${instance} is stopped"
+		fi
+	done
 }
-
-#if [ -n "$2" ]; then
-#   for I in $INSTANCES; do
-#      if [ "$2" = "$I" ]; then
-#         INSTANCES="$2"
-#      fi
-#   done
-#   if [ "$2" != "$INSTANCES" ]; then
-#      echo -n "$2 is an invalid fedora-ds instance"
-#      failure; echo
-#      exit 1
-#   fi
-#fi
-
-

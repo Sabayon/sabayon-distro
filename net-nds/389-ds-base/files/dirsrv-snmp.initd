@@ -3,7 +3,6 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-
 PIDFILE="/var/run/ldap-agent.pid"
 CONFIGFILE="/etc/dirsrv/config/ldap-agent.conf"
 
@@ -19,15 +18,14 @@ start() {
 
 	start-stop-daemon --start --quiet -m \
 	--pidfile $PIDFILE --exec /usr/sbin/ldap-agent -- ${CONFIGFILE}
-	eend $?
+	eend ${?}
 }
 
 stop() {
 	ebegin "Stopping ldap-snmp agent"
 
 	start-stop-daemon --stop --quiet --pidfile ${PIDFILE}
-
-	eend $?
+	eend ${?}
 	
 }
 
