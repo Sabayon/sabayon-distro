@@ -4,4 +4,4 @@
 #
 # Licensed under the GNU General Public License, v2
 
-rc-config restart dirsrv-admin
+rc-config restart 389-admin

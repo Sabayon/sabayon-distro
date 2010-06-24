@@ -4,4 +4,4 @@
 #
 # Licensed under the GNU General Public License, v2
 
-rc-config stop dirsrv-admin
+rc-config stop 389-admin
