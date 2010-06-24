@@ -6,11 +6,11 @@ EAPI="2"
 
 JAVA_PKG_IUSE=""
 
-inherit java-pkg-2 eutils java-ant-2
+inherit base java-pkg-2 eutils java-ant-2
 
 DESCRIPTION="A Java based console for remote management 389 server"
 HOMEPAGE="http://directory.fedoraproject.org/"
-SRC_URI="http://port389.org/sources/${P}.tar.bz2
+SRC_URI="http://port389.org/sources/${P/_alpha/.a}.tar.bz2
 	http://www.nongnu.org/smc/docs/smc-presentation2/pix/fedora.png"
 
 LICENSE="LGPL-2.1"
@@ -32,7 +32,7 @@ DEPEND=">=virtual/jdk-1.6
 	${COMMON_DEP}"
 
 src_unpack() {
-	unpack "${P}.tar.bz2"
+	base_src_unpack
 }
 
 src_prepare() {
