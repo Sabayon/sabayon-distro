@@ -11,9 +11,9 @@ depend() {
 }
 
 configtest() {
-	ebegin "Checking Apache Configuration of Fedora Admin Server"
+	ebegin "Checking Apache Configuration of 389 Directory Server Admin"
 	checkconfig
-	eend $?
+	eend ${?}
 }
 
 checkconfd() {
@@ -44,9 +44,9 @@ checkconfig() {
 	checkconfd || return 1
 
 	${APACHE2} ${APACHE2_OPTS} -t 1>/dev/null 2>&1
-	ret=$?
+	ret=${?}
 	if [ $ret -ne 0 ]; then
-		eerror "Fedora Admin Server (Apache2) has detected a syntax error in your configuration files:"
+		eerror "389 Directory Server Admin (Apache2) has detected a syntax error in your configuration files:"
 		${APACHE2} ${APACHE2_OPTS} -t
 	fi
 
@@ -58,8 +58,9 @@ start() {
 
 	[ -f /var/log/dirsrv/admin-serv/ssl_scache ] && rm /var/log/dirsrv/admin-serv/ssl_scache
 
-	ebegin "Starting Fedora Admin Server (apache2)"
+	ebegin "Starting 389 Directory Server Admin (apache2)"
 	${APACHE2} ${APACHE2_OPTS} -k start
+	[ "${?}" != "0" ] && eend "${?}" && return 1
 
 	let i=0
 	while [ ! -e "${PIDFILE}" ] && [ $i -lt ${TIMEOUT} ]; do
@@ -67,13 +68,13 @@ start() {
 	done
 
 	test $i -le ${TIMEOUT}
-	eend $?
+	eend ${?}
 }
 
 stop() {
 	checkconfd || return 1
 
-	ebegin "Stopping Fedora Admin Server (apache2)"
+	ebegin "Stopping 389 Directory Server Admin (apache2)"
 	${APACHE2} ${APACHE2_OPTS} -k stop
 
 	let i=0
@@ -82,7 +83,7 @@ stop() {
 	done
 
 	test $i -le ${TIMEOUT}
-	eend $?
+	eend ${?}
 }
 
 reload() {
@@ -92,13 +93,13 @@ reload() {
 	service_started "${SVCNAME}" || return
 
 	if [ "${RELOAD_TYPE}" = "restart" ]; then
-		ebegin "Restarting Fedora Admin Server (apache2)"
+		ebegin "Restarting 389 Directory Server Admin (apache2)"
 		${APACHE2} ${APACHE2_OPTS} -k restart
-		eend $?
+		eend ${?}
 	elif [ "${RELOAD_TYPE}" = "graceful" ]; then
-		ebegin "Gracefully restarting Fedora Admin Server (apache2)"
+		ebegin "Gracefully restarting 389 Directory Server Admin (apache2)"
 		${APACHE2} ${APACHE2_OPTS} -k graceful
-		eend $?
+		eend ${?}
 	else
 		eerror "${RELOAD_TYPE} is not a valid RELOAD_TYPE. Please edit /etc/conf.d/dirsrv-admin"
 	fi
@@ -107,9 +108,9 @@ reload() {
 graceful() {
 	checkconfig || return 1
 	service_started "${SVCNAME}" || return
-	ebegin "Gracefully restarting Fedora Admin Server (apache2)"
+	ebegin "Gracefully restarting 389 Directory Server Admin (apache2)"
 	${APACHE2} ${APACHE2_OPTS} -k graceful
-	eend $?
+	eend ${?}
 }
 
 gracefulstop() {
@@ -120,9 +121,9 @@ gracefulstop() {
 		mark_service_stopped "${SVCNAME}"
 	fi
 
-	ebegin "Gracefully stopping Fedora Admin Server (apache2)"
+	ebegin "Gracefully stopping 389 Directory Server Admin (apache2)"
 	${APACHE2} ${APACHE2_OPTS} -k graceful-stop
-	eend $?
+	eend ${?}
 }
 
 modules() {
@@ -152,8 +153,6 @@ configdump() {
 
 	if ! service_started "${SVCNAME}"; then
 		eerror "${SVCNAME} not started"
-	elif ! type -p ${LYNX} 2>&1 >/dev/null; then
-		eerror "lynx not found! you need to emerge www-client/lynx"
 	else
 		echo "${APACHE2} started with '${APACHE2_OPTS}'"
 		for i in config server list; do
@@ -161,5 +160,3 @@ configdump() {
 		done
 	fi
 }
-
-# vim: ts=4 filetype=gentoo-init-d

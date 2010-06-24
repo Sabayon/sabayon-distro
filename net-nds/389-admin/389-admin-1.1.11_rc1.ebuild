@@ -38,6 +38,7 @@ DEPEND="console? ( app-admin/389-console )
 	>=app-admin/389-admin-console-1.1.0
 	>=app-admin/389-ds-console-1.1.0
 	dev-libs/389-adminutil
+	www-client/lynx
 	www-servers/apache:2[apache2_modules_actions,apache2_modules_alias]
 	www-servers/apache:2[apache2_modules_auth_basic,apache2_modules_authz_default]
 	www-servers/apache:2[apache2_modules_mime_magic,apache2_modules_rewrite]
@@ -58,6 +59,15 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 
 need_apache2_2
 
+pkg_setup() {
+	depend.apache_pkg_setup
+	# This is also configured in 389-ds-base, but given
+	# our dependency setup, to make sure that all is
+	# pretty to the build system, better doing it here too
+        enewgroup dirsrv
+        enewuser dirsrv -1 -1 -1 dirsrv
+}
+
 src_prepare() {
 
 	epatch "${FILESDIR}/${PV}/"*.patch
@@ -65,7 +75,8 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-fix-modcgi-httpd.conf.patch"
 
 	sed -e "s!SUBDIRS!# SUBDIRS!g" -i Makefile.am || die "sed failed"
-	sed -e "s!nobody!apache!g" -i configure.ac || die "sed failed"
+	# Setup default user/group, in this case it's dirsrv
+	sed -e "s!nobody!dirsrv!g" -i configure.ac || die "sed failed"
 
 	eautoreconf
 }
