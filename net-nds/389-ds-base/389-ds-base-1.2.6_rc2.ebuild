@@ -152,7 +152,13 @@ pkg_postinst() {
 		fi
 	fi
 
+	elog
 	elog "If you are planning to use 389-ds-snmp (ldap-agent),"
 	elog "make sure to properly configure: /etc/dirsrv/config/ldap-agent.conf"
 	elog "adding proper 'server' entries"
+	elog
+	elog "To start 389 Directory Server (LDAP service) at boot:"
+	elog
+	elog "    rc-update add 389-ds default"
+	elog
 }
