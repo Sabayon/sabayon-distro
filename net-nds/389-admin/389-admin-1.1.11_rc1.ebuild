@@ -163,4 +163,10 @@ pkg_postinst() {
 	elog "*hard nofile 4096"
 	elog
 
+	elog "To start 389 Directory Server Administration Interface at boot"
+	elog "please add 389-admin service to the default runlevel:"
+	elog
+	elog "    rc-update add 389-admin default"
+	elog
+
 }
