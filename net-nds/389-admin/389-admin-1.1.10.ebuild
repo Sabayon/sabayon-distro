@@ -124,7 +124,7 @@ src_install () {
 	doexe "${S}/.libs"/mod_admserv.so || die "internal ebuild error: mod_admserv not found"
 
 	insinto "${APACHE_MODULES_CONFDIR}"
-	newins "${FILESDIR}/${PV}"/48_mod_admserv.conf 48_mod_admserv \
+	newins "${FILESDIR}/1.1.11_rc1"/48_mod_admserv.conf 48_mod_admserv \
 				|| die "internal ebuild error: 48_mod_admserv.conf not found"
 
 	# install mod_restard
@@ -132,7 +132,7 @@ src_install () {
 	doexe "${S}/.libs"/mod_restartd.so || die "internal ebuild error: mod_restartd  not found"
 
 	insinto "${APACHE_MODULES_CONFDIR}"
-	newins "${FILESDIR}/${PV}"/48_mod_restartd.conf 48_mod_restartd \
+	newins "${FILESDIR}/1.1.11_rc1"/48_mod_restartd.conf 48_mod_restartd \
 				|| die "internal ebuild error: 48_mod_restard.conf not found"
 
 	if use selinux; then
