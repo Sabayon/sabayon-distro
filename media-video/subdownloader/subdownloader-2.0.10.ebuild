@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI=2
+
 inherit eutils python fdo-mime versionator
 
 DESCRIPTION="GUI utility for making software releases on SourceForge"
@@ -16,10 +18,12 @@ IUSE=""
 DEPEND="dev-python/PyQt4
 	|| ( dev-python/kaa-metadata dev-python/mmpython )"
 
-S="${WORKDIR}/${PN}-${PV}"
-
 src_unpack() {
 	unpack ${A}
+}
+
+src_prepare() {
+	epatch "${FILESDIR}"/fix_desktop_file.patch	
 }
 
 src_install() {
