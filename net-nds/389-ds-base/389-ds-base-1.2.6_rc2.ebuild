@@ -129,29 +129,30 @@ src_install () {
 
 	if use doc; then
 		cd "${S}"
-		doxygen slapi.doxy
+		doxygen slapi.doxy || die "cannot run doxygen"
 		dohtml -r docs/html
 	fi
 }
 
 pkg_postinst() {
-	if use selinux;then
-		if has "loadpolicy" $FEATURES ; then
+	if use selinux; then
+		if has "loadpolicy" $FEATURES; then
 			einfo "Inserting the following modules into the module store"
 			cd /usr/share/selinux/targeted # struct policy not supported
 			semodule -s dirsrv -i dirsrv.pp
 		else
-			echo
-			echo
-			eerror "Policy has not been loaded.  It is strongly suggested"
-			eerror "that the policy be loaded before continuing!!"
-			echo
-			einfo "Automatic policy loading can be enabled by adding"
-			einfo "\"loadpolicy\" to the FEATURES in make.conf."
-			echo
-			echo
+			elog
+			elog "Policy has not been loaded.  It is strongly suggested"
+			elog "that the policy be loaded before continuing!!"
+			elog
+			elog "Automatic policy loading can be enabled by adding"
+			elog "\"loadpolicy\" to the FEATURES in make.conf."
+			elog
 			ebeep 4
-			epause 4
 		fi
 	fi
+
+	elog "If you are planning to use 389-ds-snmp (ldap-agent),"
+	elog "make sure to properly configure: /etc/dirsrv/config/ldap-agent.conf"
+	elog "adding proper 'server' entries"
 }
