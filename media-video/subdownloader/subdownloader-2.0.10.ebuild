@@ -6,8 +6,7 @@ inherit eutils python fdo-mime versionator
 
 DESCRIPTION="GUI utility for making software releases on SourceForge"
 HOMEPAGE="http://www.subdownloader.net/"
-SRC_URI="http://launchpad.net/subdownloader/trunk/$(get_version_component_range 
-1-3)/+download/${P}.tar.gz"
+SRC_URI="http://launchpad.net/subdownloader/trunk/$(get_version_component_range1-3)/+download/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
