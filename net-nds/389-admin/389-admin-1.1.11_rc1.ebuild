@@ -38,7 +38,10 @@ DEPEND="console? ( app-admin/389-console )
 	>=app-admin/389-admin-console-1.1.0
 	>=app-admin/389-ds-console-1.1.0
 	dev-libs/389-adminutil
-	www-servers/apache:2[apache2_modules_actions,apache2_modules_alias,apache2_modules_auth_basic,apache2_modules_authz_default,apache2_modules_mime_magic,apache2_modules_rewrite,apache2_modules_setenvif,suexec]
+	www-servers/apache:2[apache2_modules_actions,apache2_modules_alias]
+	www-servers/apache:2[apache2_modules_auth_basic,apache2_modules_authz_default]
+	www-servers/apache:2[apache2_modules_mime_magic,apache2_modules_rewrite]
+	www-servers/apache:2[apache2_modules_setenvif,suexec,threads]
 	!www-apache/mod_admserv
 	!www-apache/mod_restartd
 	selinux? ( sys-apps/policycoreutils
@@ -59,6 +62,7 @@ src_prepare() {
 
 	epatch "${FILESDIR}/${PV}/"*.patch
 	epatch "${FILESDIR}/${PN}-fix-libmodnss-httpd.conf.patch"
+	epatch "${FILESDIR}/${PN}-fix-modcgi-httpd.conf.patch"
 
 	sed -e "s!SUBDIRS!# SUBDIRS!g" -i Makefile.am || die "sed failed"
 	sed -e "s!nobody!apache!g" -i configure.ac || die "sed failed"
