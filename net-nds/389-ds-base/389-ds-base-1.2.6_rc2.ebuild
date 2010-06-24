@@ -115,8 +115,8 @@ src_install () {
 	rm -rf "${D}"/etc/default || die
 
 	# and install gentoo style init script
-	newinitd "${FILESDIR}"/dirsrv.initd dirsrv
-	newinitd "${FILESDIR}"/dirsrv-snmp.initd dirsrv-snmp
+	newinitd "${FILESDIR}"/389-ds.initd 389-ds
+	newinitd "${FILESDIR}"/389-ds-snmp.initd 389-ds-snmp
 
 	# cope with libraries being in /usr/lib/dirsrv
 	dodir /etc/env.d

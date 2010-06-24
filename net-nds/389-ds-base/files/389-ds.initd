@@ -27,6 +27,7 @@ start() {
 	checkconfig || return 1
 
 	for instance in ${DS_INSTANCES}; do
+		instance=$(basename ${instance})
 		ebegin "Starting 389 Directory Server: instance ${instance}"
 		start-stop-daemon --start --quiet -m \
 			--pidfile ${PID_DIRECTORY}/slapd-${instance}.startpid \
@@ -35,7 +36,7 @@ start() {
 			-w ${PID_DIRECTORY}/slapd-${instance}.startpid
 		sts=${?}
 		eend ${?}
-		if [ "${?}" != "0" ]; then
+		if [ "${sts}" != "0" ]; then
 			return 1
 		fi
 	done
@@ -47,6 +48,7 @@ stop() {
 	checkconfig || return 1
 
 	for instance in ${DS_INSTANCES}; do
+		instance=$(basename ${instance})
 		ebegin "Stopping 389 Directory Server: instance ${instance}"
 		start-stop-daemon --stop --quiet \
 			--pidfile ${PID_DIRECTORY}/slapd-${instance}.pid \
@@ -57,6 +59,7 @@ stop() {
 
 status() {
 	for instance in ${DS_INSTANCES}; do
+		instance=$(basename ${instance})
 		if [ -e ${PID_DIRECTORY}/slapd-${instance}.pid ]; then
 			pid=$(cat ${PID_DIRECTORY}/slapd-${instance}.pid)
 			if [ $(echo "$pid" | grep -c $pid) -ge 1 ]; then
