@@ -9,7 +9,7 @@ JAVA_PKG_IUSE="doc source"
 inherit java-pkg-2 eutils java-ant-2
 
 MY_V=${PV}
-MY_MV=1.1
+MY_MV=${PV}
 
 DESCRIPTION="389 Server Management Console (share and help files)"
 HOMEPAGE="http://port389.org/"
@@ -33,8 +33,6 @@ DEPEND=">=virtual/jdk-1.5
 	${COMMON_DEP}"
 
 src_prepare() {
-	epatch "${FILESDIR}/389-admin-console-fix-URL-path.patch"
-
 	# gentoo java rules say no jars with version number
 	# so sed away the version indicator '-'
 	sed -e "s!-\*!\*!g" -i build.xml
