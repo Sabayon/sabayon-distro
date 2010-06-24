@@ -14,16 +14,25 @@ depend() {
 }
 
 start() {
-	ebegin "Starting ldap-snmp agent"
-
-	start-stop-daemon --start --quiet -m \
-	--pidfile ${PIDFILE} --exec /usr/sbin/ldap-agent -- ${CONFIGFILE}
+	ebegin "Starting 389 Directory Server ldap-snmp agent"
+	start-stop-daemon --start --quiet -b \
+		--pidfile ${PIDFILE} --exec /usr/sbin/ldap-agent -- ${CONFIGFILE}
 	eend ${?}
+	if [ "${?}" != "0" ]; then
+		local entries=/etc/dirsrv/slapd-*
+		if [ -n "${entries}" ]; then
+			ewarn "Please make sure that ${CONFIGFILE} contains at least"
+			ewarn "one of the following entries:"
+			for entry in ${entries}; do
+				entry=$(basename ${entry})
+				ewarn "server ${entry}"
+			done
+		fi
+	fi
 }
 
 stop() {
-	ebegin "Stopping ldap-snmp agent"
-
+	ebegin "Stopping 389 Directory Server ldap-snmp agent"
 	start-stop-daemon --stop --quiet --pidfile ${PIDFILE}
 	eend ${?}
 	
