@@ -16,7 +16,7 @@ IUSE=""
 DEPEND="dev-python/PyQt4
 	|| ( dev-python/kaa-metadata dev-python/mmpython )"
 
-S="${WORKDIR}/${PN}"
+S="${WORKDIR}/${PN}${PV}"
 
 src_unpack() {
 	unpack ${A}
