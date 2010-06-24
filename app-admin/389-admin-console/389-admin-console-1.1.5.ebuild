@@ -33,6 +33,8 @@ DEPEND=">=virtual/jdk-1.5
 	${COMMON_DEP}"
 
 src_prepare() {
+	epatch "${FILESDIR}/389-admin-console-fix-URL-path.patch"
+
 	# gentoo java rules say no jars with version number
 	# so sed away the version indicator '-'
 	sed -e "s!-\*!\*!g" -i build.xml
