@@ -1,0 +1,60 @@
+This patch has been ported to 3.6.4, may not be entirely correct.
+
+Original patch was from bmo 460917, att 350845
+
+---
+--- browser/base/content/browser.js
++++ browser/base/content/browser.js
+@@ -6009,9 +6009,18 @@
+     var pluginInfo = getPluginInfo(aEvent.target);
+     missingPluginsArray[pluginInfo.mimetype] = pluginInfo;
+ 
++ 
++    gBrowser.selectedBrowser.addEventListener("NewPluginInstalled",
++                                              gMissingPluginInstaller.refreshBrowser,
++                                              false);
++ 
+     openDialog("chrome://mozapps/content/plugins/pluginInstallerWizard.xul",
+                "PFSWindow", "chrome,centerscreen,resizable=yes",
+                {plugins: missingPluginsArray, browser: gBrowser.selectedBrowser});
++
++    gBrowser.selectedBrowser.removeEventListener("NewPluginInstalled",
++                                                 gMissingPluginInstaller.refreshBrowser,
++                                                 false);
+   },
+ 
+   // Callback for user clicking on a disabled plugin
+@@ -6107,11 +6116,19 @@
+     function showPluginsMissing() {
+       // get the urls of missing plugins
+       var missingPluginsArray = gBrowser.selectedBrowser.missingPlugins;
++ 
++    gBrowser.selectedBrowser.addEventListener("NewPluginInstalled",
++                                              gMissingPluginInstaller.refreshBrowser,
++                                              false);
++ 
+       if (missingPluginsArray) {
+         window.openDialog("chrome://mozapps/content/plugins/pluginInstallerWizard.xul",
+                           "PFSWindow", "chrome,centerscreen,resizable=yes",
+                           {plugins: missingPluginsArray, browser: gBrowser.selectedBrowser});
+       }
++    gBrowser.selectedBrowser.removeEventListener("NewPluginInstalled",
++                                                 gMissingPluginInstaller.refreshBrowser,
++                                                 false);
+     }
+ 
+     if (aEvent.type == "PluginBlocklisted") {
+@@ -6442,6 +6459,13 @@
+       notificationBox.removeNotification(notification);
+     }
+     // reload the browser to make the new plugin show.
++  
++    // reload plugins
++    var pm = Components.classes["@mozilla.org/plugin/manager;1"]
++                 .getService(Components.interfaces.nsIPluginManager);
++    pm.reloadPlugins(false);
++  
++    // ... and reload the browser to activate new plugins available
+     browser.reload();
+   }
+ };
