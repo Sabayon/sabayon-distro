@@ -48,6 +48,6 @@ src_configure() {
 src_install() {
 	emake DESTDIR="${D}" install || die "Install failed!"
 	dodoc doc/*.txt || die "Dodoc failed!"
-	insinto /usr/share/${PN}/examples
-	doins examples/*.si{f,fz} || die "Doins failed!"
+	#insinto /usr/share/${PN}/examples
+	#doins examples/*.si{f,fz} || die "Doins failed!"
 }
