@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI=2
+
 DESCRIPTION="Film-Quality Vector Animation (core engine)"
 HOMEPAGE="http://www.synfig.org/"
 SRC_URI="mirror://sourceforge/synfig/${P}.tar.gz"
@@ -25,6 +27,10 @@ DEPEND=">=dev-libs/libsigc++-2.0.0
 RDEPEND="${DEPEND}
 	dv? ( media-libs/libdv )
 	imagemagick? ( media-gfx/imagemagick )"
+
+src_prepare() {
+	epatch "${FILESDIR}"/synfig_libpng14.patch
+}
 
 src_configure() {
 	econf \
