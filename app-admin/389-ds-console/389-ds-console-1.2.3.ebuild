@@ -8,8 +8,8 @@ JAVA_PKG_IUSE="doc source"
 
 inherit java-pkg-2 eutils java-ant-2
 
-MY_V=1.2.3
-MY_MV=1.3
+MY_V=${PV}
+MY_MV=${PV}
 
 DESCRIPTION="A Java based remote management console used for Managing 389 Administration and Directory Server."
 HOMEPAGE="http://port389.org/"
