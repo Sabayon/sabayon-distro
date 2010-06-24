@@ -8,7 +8,7 @@ JAVA_PKG_IUSE="doc source"
 
 inherit java-pkg-2 eutils java-ant-2
 
-MY_V=1.1.4
+MY_V=${PV}
 MY_MV=1.1
 
 DESCRIPTION="389 Server Management Console (share and help files)"
