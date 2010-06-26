@@ -8,6 +8,7 @@ depend() {
 	need net
 	use mysql dns logger netmount postgresql
 	after sshd
+	before 389-admin
 }
 
 configtest() {

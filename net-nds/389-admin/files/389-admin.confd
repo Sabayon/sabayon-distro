@@ -32,7 +32,7 @@
 #  SSL_DEFAULT_VHOST  Enables default vhost for SSL (you should enable this
 #                     when you enable SSL)
 #
-APACHE2_OPTS="-D DEFAULT_VHOST -D LANGUAGE -D INFO"
+APACHE2_OPTS="-D DEFAULT_VHOST -D LANGUAGE -D INFO -D SUEXEC"
 
 # Extended options for advanced uses of Apache ONLY
 # You don't need to edit these unless you are doing crazy Apache stuff
