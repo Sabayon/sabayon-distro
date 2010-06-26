@@ -57,6 +57,11 @@ src_prepare() {
 	sed -i -e 's/nobody/dirsrv/g' configure.ac || die "sed failed on configure.ac"
 	use selinux && epatch "${FILESDIR}/1.2.6"/*selinux*.patch
 	eautoreconf
+
+	# enable nsslapd-allow-unauthenticated-binds by default
+	sed -i '/^nsslapd-allow-unauthenticated-binds/ s/off/on/' "${S}"/ldap/ldif/template-dse.ldif.in || \
+		die "cannot tweak default setting: nsslapd-allow-unauthenticated-binds"
+
 }
 
 src_configure() {
