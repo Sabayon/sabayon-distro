@@ -43,8 +43,5 @@ src_configure() {
 
 src_install () {
 	emake DESTDIR="${D}" install || die "emake failed"
-	# install test suite
-	insinto /usr/share/doc
-	doins -r "${S}"/tests
 	dodoc README  NEWS
 }
