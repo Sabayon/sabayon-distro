@@ -6,10 +6,10 @@ EAPI="2"
 
 JAVA_PKG_IUSE="doc source"
 
-inherit java-pkg-2 eutils java-ant-2
+inherit java-pkg-2 java-ant-2 eutils versionator
 
 MY_V=${PV}
-MY_MV=${PV}
+MY_MV="$(get_version_component_range 1-2)"
 
 DESCRIPTION="A Java based remote management console used for Managing 389 Administration and Directory Server."
 HOMEPAGE="http://port389.org/"
@@ -56,11 +56,13 @@ src_compile() {
 
 src_install() {
 	java-pkg_jarinto /usr/share/dirsrv/html/java
-	java-pkg_newjar "${S}"/build/package/389-ds-${MY_V}.jar 389-ds.jar
-	java-pkg_newjar "${S}"/build/package/389-ds-${MY_V}_en.jar 389-ds_en.jar
+	java-pkg_newjar "${S}"/build/package/389-ds-${MY_V}.jar 389-ds-${MY_V}.jar
+	java-pkg_newjar "${S}"/build/package/389-ds-${MY_V}_en.jar 389-ds-${MY_V}_en.jar
 
-	dosym 389-ds.jar /usr/share/dirsrv/html/java/389-ds-${MY_MV}.jar
-	dosym 389-ds_en.jar /usr/share/dirsrv/html/java/389-ds-${MY_MV}_en.jar
+	dosym 389-ds-${MY_V}.jar /usr/share/dirsrv/html/java/389-ds.jar
+	dosym 389-ds-${MY_V}_en.jar /usr/share/dirsrv/html/java/389-ds_en.jar
+	dosym 389-ds-${MY_V}.jar /usr/share/dirsrv/html/java/389-ds-${MY_MV}.jar
+	dosym 389-ds-${MY_V}_en.jar /usr/share/dirsrv/html/java/389-ds-${MY_MV}_en.jar
 
 	insinto /usr/share/dirsrv/manual/en/slapd
 	doins "${S}"/help/en/*.html || die
