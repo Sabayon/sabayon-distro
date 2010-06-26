@@ -71,6 +71,8 @@ pkg_setup() {
 src_prepare() {
 
 	epatch "${FILESDIR}/${PV}/"*.patch
+	# Configuration fixes
+	epatch "${FILESDIR}/${PN}-"*.patch
 
 	sed -e "s!SUBDIRS!# SUBDIRS!g" -i Makefile.am || die "sed failed"
 	# Setup default user/group, in this case it's dirsrv
