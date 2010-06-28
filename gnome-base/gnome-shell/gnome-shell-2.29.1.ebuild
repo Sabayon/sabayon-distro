@@ -24,7 +24,7 @@ RDEPEND=">=dev-libs/glib-2.20
 
 	dev-libs/dbus-glib
 	dev-libs/gjs
-	>=media-libs/clutter-1.2.10:1.0[opengl]
+	>=media-libs/clutter-1.2.10
 	dev-libs/libcroco:0.6
 
 	gnome-base/gconf
