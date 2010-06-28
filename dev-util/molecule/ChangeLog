@@ -1,9 +1,0 @@
-# ChangeLog for dev-util/molecule
-# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
-# $Header: $
-
-*molecule-0.9.6.3 (28 Jun 2010)
-
-  28 Jun 2010; Fabio Erculiani <lxnay@gentoo.org> +molecule-0.9.6.3.ebuild,
-  +metadata.xml: new ebuild added, Molecule is the Sabayon release metatool
-
