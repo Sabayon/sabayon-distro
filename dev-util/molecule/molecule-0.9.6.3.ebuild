@@ -24,7 +24,7 @@ RDEPEND="${RDEPEND}
 	sys-fs/squashfs-tools"
 
 src_install() {
-	emake -j1 DESTDIR="${D}" LIBDIR="/usr/$(get_libdir)" \
+	emake DESTDIR="${D}" LIBDIR="/usr/$(get_libdir)" \
 		PREFIX="/usr" SYSCONFDIR="/etc" install \
 		|| die "emake install failed"
 }
