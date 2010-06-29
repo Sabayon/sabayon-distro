@@ -1,9 +1,10 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-5.0.375.23.ebuild,v 1.1 2010/04/28 13:12:18 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-5.0.375.86.ebuild,v 1.3 2010/06/25 20:16:02 angelos Exp $
 
 EAPI="2"
-inherit eutils flag-o-matic multilib portability toolchain-funcs
+
+inherit eutils flag-o-matic multilib pax-utils toolchain-funcs
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="http://chromium.org/"
@@ -11,8 +12,8 @@ SRC_URI="http://build.chromium.org/buildbot/official/${P}.tar.bz2"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~x86"
-IUSE="mp3 +plugins-symlink x264"
+KEYWORDS="amd64 ~arm x86"
+IUSE="+plugins-symlink"
 
 RDEPEND="app-arch/bzip2
 	>=dev-libs/libevent-1.4.13
@@ -23,7 +24,7 @@ RDEPEND="app-arch/bzip2
 	>=media-libs/alsa-lib-1.0.19
 	media-libs/jpeg:0
 	media-libs/libpng
-	>=media-video/ffmpeg-0.5_p21602[mp3=,threads,x264=]
+	media-video/ffmpeg[threads]
 	sys-libs/zlib
 	>=x11-libs/gtk+-2.14.7
 	x11-libs/libXScrnSaver"
@@ -40,6 +41,7 @@ RDEPEND+="
 		x11-themes/tango-icon-theme
 		x11-themes/xfce4-icon-theme
 	)
+	x11-apps/xmessage
 	x11-misc/xdg-utils
 	virtual/ttf-fonts"
 
@@ -50,76 +52,29 @@ RDEPEND+="
 		!www-plugins/gecko-mediaplayer[gnome]
 	)"
 
-pkg_setup() {
-	if [[ "${ROOT}" == "/" ]]; then
-		# Prevent user problems like bug 299777.
-		if ! grep -q /dev/shm <<< $(get_mounts); then
-			eerror "You don't have tmpfs mounted at /dev/shm."
-			eerror "${PN} isn't going to work in that configuration."
-			eerror "Please uncomment the /dev/shm entry in /etc/fstab,"
-			eerror "run 'mount /dev/shm' and try again."
-			die "/dev/shm is not mounted"
-		fi
-		if [ `stat -c %a /dev/shm` -ne 1777 ]; then
-			eerror "/dev/shm does not have correct permissions."
-			eerror "${PN} isn't going to work in that configuration."
-			eerror "Please run chmod 1777 /dev/shm and try again."
-			die "/dev/shm has incorrect permissions"
-		fi
-	fi
-
-	elog "${PN} might crash occasionally. To get more useful backtraces"
-	elog "and submit better bug reports, please read"
-	elog "http://www.gentoo.org/proj/en/qa/backtraces.xml"
-}
-
 src_prepare() {
-	# Changing this in ~/include.gypi does not work
-	sed -i "s/'-Werror'/''/" build/common.gypi || die "Werror sed failed"
-
 	# Prevent automatic -march=pentium4 -msse2 enabling on x86, http://crbug.com/9007
 	epatch "${FILESDIR}"/${PN}-drop_sse2-r0.patch
 
-	# Allow supporting more media types provided system ffmpeg supports them.
-	epatch "${FILESDIR}"/${PN}-supported-media-mime-types.patch
+	# Allow supporting more media types.
+	epatch "${FILESDIR}"/${PN}-20100122-ubuntu-html5-video-mimetypes.patch
 
 	# Fix build failure with libpng-1.4, bug 310959.
 	epatch "${FILESDIR}"/${PN}-libpng-1.4.patch
 
 	# Add Sabayon User Agent to browser string
 	epatch "${FILESDIR}"/${PN}-sabayon-user-agent.patch
-
-	# Disable prefixing to allow linking against system zlib
-	sed -e '/^#include "mozzconf.h"$/d' \
-		-i third_party/zlib/zconf.h \
-		|| die "zlib sed failed"
 }
 
 src_configure() {
 	export CHROMIUM_HOME=/usr/$(get_libdir)/chromium-browser
 
+	# Workaround for bug #318969.
+	# TODO: remove when http://crbug.com/43778 is fixed.
+	append-flags -D__STDC_CONSTANT_MACROS
+
 	# Fails to build on arm if we don't do this
 	use arm && append-flags -fno-tree-sink
-
-	if use mp3 ; then
-		append-cflags -DGENTOO_CHROMIUM_MP3_ENABLED
-	fi
-
-	if use x264 ; then
-		append-cflags -DGENTOO_CHROMIUM_H264_ENABLED
-	fi
-
-	# CFLAGS/LDFLAGS
-	mkdir -p "${S}"/.gyp
-	cat << EOF > "${S}"/.gyp/include.gypi
-{
-	'target_defaults': {
-		'cflags': [ '${CFLAGS// /','}' ],
-		'ldflags': [ '${LDFLAGS// /','}' ],
-	},
-}
-EOF
-	export HOME="${S}"
 
 	# Configuration options (system libraries)
 	local myconf="-Duse_system_zlib=1 -Duse_system_bzip2=1 -Duse_system_ffmpeg=1 -Duse_system_libevent=1 -Duse_system_libjpeg=1 -Duse_system_libpng=1 -Duse_system_libxml=1 -Duse_system_libxslt=1"
@@ -132,6 +87,14 @@ EOF
 	# Disable the V8 snapshot. It breaks the build on hardened (bug #301880),
 	# and the performance gain isn't worth it.
 	myconf="${myconf} -Dv8_use_snapshot=0"
+
+	# Disable tcmalloc memory allocator. It causes problems,
+	# for example bug #320419.
+	myconf="${myconf} -Dlinux_use_tcmalloc=0"
+
+	# Disable gpu rendering, it is incompatible with nvidia-drivers,
+	# bug #319331.
+	myconf="${myconf} -Denable_gpu=0"
 
 	# Use target arch detection logic from bug #296917.
 	local myarch="$ABI"
@@ -150,6 +113,11 @@ EOF
 	if [[ "$(gcc-major-version)$(gcc-minor-version)" == "44" ]]; then
 		myconf="${myconf} -Dno_strict_aliasing=1 -Dgcc_version=44"
 	fi
+
+	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
+	# Depending on GCC version the warnings are different and we don't want
+	# the build to fail because of that.
+	myconf="${myconf} -Dwerror="
 
 	build/gyp_chromium -f make build/all.gyp ${myconf} --depth=. || die "gyp failed"
 }
@@ -171,6 +139,7 @@ src_install() {
 	dodir ${CHROMIUM_HOME}
 
 	exeinto ${CHROMIUM_HOME}
+	pax-mark m out/Release/chrome
 	doexe out/Release/chrome
 	doexe out/Release/chrome_sandbox
 	fperms 4755 ${CHROMIUM_HOME}/chrome_sandbox
