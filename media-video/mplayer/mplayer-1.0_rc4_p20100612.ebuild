@@ -306,7 +306,7 @@ src_configure() {
 	use nut || myconf+=" --disable-libnut"
 	use rar || myconf+=" --disable-unrarexec"
 	use samba || myconf+=" --disable-smb"
-	use svga || myconf+=" --disable-svga --enable-svgalib_helper"
+	use svga || myconf+=" --disable-svga --disable-svgalib_helper"
 	if ! use lirc; then
 		myconf+="
 			--disable-lirc
