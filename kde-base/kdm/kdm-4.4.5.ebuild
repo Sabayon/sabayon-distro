@@ -8,7 +8,7 @@ KMNAME="kdebase-workspace"
 inherit kde4-meta flag-o-matic
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 IUSE="consolekit debug +handbook kerberos pam"
 
 DEPEND="
@@ -49,6 +49,12 @@ PATCHES=(
 	"${FILESDIR}/${PN}-4.3.1-xinitrc.d.patch"
 )
 
+pkg_setup() {
+	kde4-meta_pkg_setup
+
+	KDM_HOME=/var/lib/kdm-${SLOT}
+}
+
 src_configure() {
 	# genkdmconf breaks with -O3
 	# last checked in 4.2.95
@@ -68,14 +74,25 @@ src_install() {
 
 	kde4-meta_src_install
 
-	# Customize the kdmrc configuration
-	sed -e "s:^.*SessionsDirs=.*$:#&\nSessionsDirs=${EPREFIX}/usr/share/xsessions:" \
-		-e "s:#ServerTimeout=15:ServerTimeout=30:" \
+	# Customize the kdmrc configuration:
+	# - SessionDirs set to /usr/share/xsessions
+	# - increase server timeout to 30s
+	# - TerminateServer=true to workaround X server regen bug, bug 278473
+	# - DataDir set to /var/lib/kdm-${SLOT}
+	# - FaceDir set to /var/lib/kdm-${SLOT}/faces
+	sed -e "s|^.*SessionsDirs=.*$|#&\nSessionsDirs=${EPREFIX}/usr/share/xsessions|" \
+		-e "/#ServerTimeout=/s/^.*$/ServerTimeout=30/" \
+		-e "/#TerminateServer=/s/^.*$/TerminateServer=true/" \
+		-e "s|^.*DataDir=.*$|#&\nDataDir=${EPREFIX}${KDM_HOME}|" \
+		-e "s|^.*FaceDir=.*$|#&\nFaceDir=${EPREFIX}${KDM_HOME}/faces|" \
 		-i "${ED}"/${KDEDIR}/share/config/kdm/kdmrc \
 		|| die "Failed to set ServerTimeout and SessionsDirs correctly in kdmrc."
 
 	# Don't install empty dir
 	rmdir "${ED}${KDEDIR}"/share/config/kdm/sessions
+
+	# Set up kdm work directory
+	keepdir "${KDM_HOME}"
 }
 
 pkg_postinst() {
@@ -83,15 +100,15 @@ pkg_postinst() {
 
 	# Set the default kdm face icon if it's not already set by the system admin
 	# because this is user-overrideable in that way, it's not in src_install
-	if [[ ! -e "${EROOT}${KDEDIR}/share/apps/kdm/faces/.default.face.icon" ]]; then
-		mkdir -p "${EROOT}${KDEDIR}/share/apps/kdm/faces"
+	if [[ ! -e "${EPREFIX}${KDM_HOME}/faces/.default.face.icon" ]]; then
+		mkdir -p "${EPREFIX}${KDM_HOME}/faces"
 		cp "${EROOT}${KDEDIR}/share/apps/kdm/pics/users/default1.png" \
-			"${EROOT}${KDEDIR}/share/apps/kdm/faces/.default.face.icon"
+			"${EPREFIX}${KDM_HOME}/faces/.default.face.icon"
 	fi
-	if [[ ! -e "${EROOT}${KDEDIR}/share/apps/kdm/faces/root.face.icon" ]]; then
-		mkdir -p "${EROOT}${KDEDIR}/share/apps/kdm/faces"
+	if [[ ! -e "${EPREFIX}${KDM_HOME}/faces/root.face.icon" ]]; then
+		mkdir -p "${EPREFIX}${KDM_HOME}/faces"
 		cp "${EROOT}${KDEDIR}/share/apps/kdm/pics/users/root1.png" \
-			"${EROOT}${KDEDIR}/share/apps/kdm/faces/root.face.icon"
+			"${EPREFIX}${KDM_HOME}/faces/root.face.icon"
 	fi
 
 	if use consolekit; then
