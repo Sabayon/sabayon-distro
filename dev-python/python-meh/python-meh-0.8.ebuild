@@ -25,6 +25,11 @@ RDEPEND="${COMMON_DEPEND}
 	dev-libs/newt
 	gtk? ( dev-python/pygtk:2 )
 	dev-python/dbus-python
-	dev-python/python-bugzilla
 	dev-python/python-report
 	net-misc/openssh"
+
+src_prepare() {
+	cd "${S}"
+	epatch "${FILESDIR}/${PN}-keep_exc_win_above.patch"
+	distutils_src_prepare
+}

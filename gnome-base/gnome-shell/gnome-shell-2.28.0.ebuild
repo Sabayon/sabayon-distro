@@ -24,7 +24,7 @@ RDEPEND=">=dev-libs/glib-2.20
 
 	dev-libs/dbus-glib
 	dev-libs/gjs
-	media-libs/clutter:1.0[opengl,introspection]
+	media-libs/clutter:1.0[opengl]
 	dev-libs/libcroco:0.6
 
 	gnome-base/gconf
@@ -33,7 +33,7 @@ RDEPEND=">=dev-libs/glib-2.20
 
 	x11-libs/startup-notification
 	x11-libs/libXfixes
-	x11-wm/mutter[introspection]
+	x11-wm/mutter
 	x11-apps/mesa-progs
 "
 DEPEND="${RDEPEND}
