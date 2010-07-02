@@ -18,7 +18,7 @@ DEPEND="~sys-apps/entropy-${PV}"
 RDEPEND="${DEPEND} sys-apps/file[python]"
 
 src_compile() {
-	emake -j1 || die "make failed"
+	emake || die "make failed"
 }
 
 src_install() {

@@ -24,7 +24,7 @@ RDEPEND="
 DEPEND="sys-devel/gettext"
 
 src_compile() {
-	emake -j1 || die "make failed"
+	emake || die "make failed"
 }
 
 src_install() {
