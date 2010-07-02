@@ -132,6 +132,10 @@ src_install () {
 	keepdir /var/lib/dirsrv
 	dodir /var/lock/dirsrv
 
+	# snmp agent, required directory
+	keepdir /var/agentx
+	dodir /var/agentx
+
 	if use doc; then
 		cd "${S}"
 		doxygen slapi.doxy || die "cannot run doxygen"
@@ -160,7 +164,12 @@ pkg_postinst() {
 	elog
 	elog "If you are planning to use 389-ds-snmp (ldap-agent),"
 	elog "make sure to properly configure: /etc/dirsrv/config/ldap-agent.conf"
-	elog "adding proper 'server' entries"
+	elog "adding proper 'server' entries, and adding the lines below to"
+	elog " => /etc/snmp/snmpd.conf"
+	elog
+	elog "master agentx"
+	elog "agentXSocket /var/agentx/master"
+	elog
 	elog
 	elog "To start 389 Directory Server (LDAP service) at boot:"
 	elog

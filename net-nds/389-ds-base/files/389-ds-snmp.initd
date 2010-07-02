@@ -10,7 +10,7 @@ CONFIGFILE="/etc/dirsrv/config/ldap-agent.conf"
 
 depend() {
 	need net
-	use logger
+	use logger snmpd
 }
 
 start() {

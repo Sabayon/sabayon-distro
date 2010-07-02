@@ -57,6 +57,11 @@ src_prepare() {
 	sed -i -e 's/nobody/dirsrv/g' configure.ac || die "sed failed on configure.ac"
 	use selinux && epatch "${FILESDIR}/1.2.6"/*selinux*.patch
 	eautoreconf
+
+	# enable nsslapd-allow-unauthenticated-binds by default
+	sed -i '/^nsslapd-allow-unauthenticated-binds/ s/off/on/' "${S}"/ldap/ldif/template-dse.ldif.in || \
+		die "cannot tweak default setting: nsslapd-allow-unauthenticated-binds"
+
 }
 
 src_configure() {
@@ -127,6 +132,10 @@ src_install () {
 	keepdir /var/lib/dirsrv
 	dodir /var/lock/dirsrv
 
+	# snmp agent, required directory
+	keepdir /var/agentx
+	dodir /var/agentx
+
 	if use doc; then
 		cd "${S}"
 		doxygen slapi.doxy || die "cannot run doxygen"
@@ -155,7 +164,12 @@ pkg_postinst() {
 	elog
 	elog "If you are planning to use 389-ds-snmp (ldap-agent),"
 	elog "make sure to properly configure: /etc/dirsrv/config/ldap-agent.conf"
-	elog "adding proper 'server' entries"
+	elog "adding proper 'server' entries, and adding the lines below to"
+	elog " => /etc/snmp/snmpd.conf"
+	elog
+	elog "master agentx"
+	elog "agentXSocket /var/agentx/master"
+	elog
 	elog
 	elog "To start 389 Directory Server (LDAP service) at boot:"
 	elog
