@@ -1,20 +1,22 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.2.0.ebuild,v 1.2 2010/02/21 11:45:53 suka Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.2.1.ebuild,v 1.2 2010/06/22 20:00:18 arfrever Exp $
 
 WANT_AUTOMAKE="1.9"
 EAPI="2"
 KDE_REQUIRED="optional"
-CMAKE_REQUIRED="false"
+CMAKE_REQUIRED="never"
+PYTHON_DEPEND="2"
+PYTHON_USE_WITH="threads"
 
-inherit bash-completion check-reqs db-use eutils fdo-mime flag-o-matic java-pkg-opt-2 kde4-base mono multilib toolchain-funcs
+inherit autotools bash-completion check-reqs db-use eutils fdo-mime flag-o-matic java-pkg-opt-2 kde4-base multilib python toolchain-funcs
 
-IUSE="binfilter cups dbus debug eds gnome gstreamer gtk kde ldap mono nsplugin odk opengl pam"
+IUSE="binfilter cups dbus debug eds gnome gstreamer gtk kde ldap nsplugin odk opengl pam templates"
 
-MY_PV=3.2.0.5
+MY_PV=3.2.1.3
 PATCHLEVEL=OOO320
 SRC=OOo_${PV}_src
-MST=OOO320_m12
+MST=OOO320_m19
 DEVPATH=http://download.services.openoffice.org/files/stable/${PV}/${SRC}
 S=${WORKDIR}/ooo
 S_OLD=${WORKDIR}/ooo-build-${MY_PV}
@@ -24,10 +26,15 @@ DESCRIPTION="OpenOffice.org, a full office productivity suite."
 
 SRC_URI="${DEVPATH}_core.tar.bz2
 	${DEVPATH}_extensions.tar.bz2
-	${DEVPATH}_l10n.tar.bz2
 	${DEVPATH}_system.tar.bz2
-	${DEVPATH}_testautomation.tar.bz2
+	${DEVPATH}_l10n.tar.bz2
 	binfilter? ( ${DEVPATH}_binfilter.tar.bz2 )
+	templates? ( http://extensions.services.openoffice.org/files/273/0/Sun_ODF_Template_Pack_en-US.oxt
+		http://extensions.services.openoffice.org/files/295/1/Sun_ODF_Template_Pack_de.oxt
+		http://extensions.services.openoffice.org/files/299/0/Sun_ODF_Template_Pack_it.oxt
+		http://extensions.services.openoffice.org/files/297/0/Sun_ODF_Template_Pack_fr.oxt
+		http://extensions.services.openoffice.org/files/301/1/Sun_ODF_Template_Pack_es.oxt
+		ftp://ftp.devall.hu/kami/go-oo//Sun_ODF_Template_Pack_hu.oxt )
 	http://download.go-oo.org/${PATCHLEVEL}/ooo-build-${MY_PV}.tar.gz
 	odk? ( java? ( http://tools.openoffice.org/unowinreg_prebuild/680/unowinreg.dll ) )
 	http://download.go-oo.org/SRC680/extras-3.tar.bz2
@@ -35,15 +42,28 @@ SRC_URI="${DEVPATH}_core.tar.bz2
 	http://download.go-oo.org/SRC680/lp_solve_5.5.0.12_source.tar.gz
 	http://download.go-oo.org/DEV300/scsolver.2008-10-30.tar.bz2
 	http://download.go-oo.org/DEV300/ooo_oxygen_images-2009-06-17.tar.gz
-	http://download.go-oo.org/SRC680/libwps-0.1.2.tar.gz"
+	http://download.go-oo.org/SRC680/libwps-0.1.2.tar.gz
+	http://multidimalgorithm.googlecode.com/files/mdds_0.3.0.tar.bz2"
+
+LANGS1="af ar as_IN be_BY bg bn br brx bs ca cs cy da de dgo dz el en_GB en_ZA eo es et eu fa fi fr ga gl gu he hi_IN hr hu id it ja ka kk km kn_IN ko kok ks ku lt mai mk ml_IN mn mni mr_IN nb ne nl nn nr ns oc or_IN pa_IN pl pt pt_BR ru rw sa_IN sat sd sh sk sl sr ss st sv sw_TZ ta ta_IN te_IN tg th ti_ER tn tr ts uk ur_IN uz ve vi xh zh_CN zh_TW zu"
+LANGS="${LANGS1} en en_US"
+
+for X in ${LANGS} ; do
+	IUSE="${IUSE} linguas_${X}"
+done
+
+# intersection of available linguas and app-dicts/myspell-* dictionaries
+SPELL_DIRS="af bg ca cs cy da de el en eo es et fr ga gl he hr hu it ku lt mk nb nl nn pl pt ru sk sl sv tn zu"
+SPELL_DIRS_DEPEND=""
+for X in ${SPELL_DIRS} ; do
+	SPELL_DIRS_DEPEND="${SPELL_DIRS_DEPEND} linguas_${X}? ( app-dicts/myspell-${X} )"
+done
 
 HOMEPAGE="http://go-oo.org"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86 ~sparc"
-
-PDEPEND="x11-themes/sabayon-artwork-ooo"
+KEYWORDS="~amd64 ~ppc ~sparc ~x86"
 
 COMMON_DEPEND="!app-office/openoffice-bin
 	x11-libs/libXaw
@@ -66,13 +86,12 @@ COMMON_DEPEND="!app-office/openoffice-bin
 		dev-java/lucene:2.3
 		dev-java/lucene-analyzers:2.3
 		dev-java/rhino:1.5 )
-	mono? ( || ( >dev-lang/mono-2.4-r1 <dev-lang/mono-2.4 ) )
-	nsplugin? ( || ( net-libs/xulrunner:1.9 net-libs/xulrunner:1.8 )
+	nsplugin? ( net-libs/xulrunner:1.9
 		>=dev-libs/nspr-4.6.6
 		>=dev-libs/nss-3.11-r1 )
 	opengl? ( virtual/opengl
 		virtual/glu )
-	>=net-misc/neon-0.24.7
+	>=net-libs/neon-0.24.7
 	>=dev-libs/openssl-0.9.8g
 	>=media-libs/freetype-2.1.10-r2
 	>=media-libs/fontconfig-2.3.0
@@ -86,9 +105,8 @@ COMMON_DEPEND="!app-office/openoffice-bin
 	>=dev-libs/icu-4.0
 	>=sys-libs/db-4.3
 	>=app-text/libwpd-0.8.8
-	>=dev-libs/redland-1.0.8
 	>=media-libs/vigra-1.4
-	>=app-text/poppler-0.12.3-r3
+	>=app-text/poppler-0.12.3-r3[xpdf-headers]
 	>=media-libs/libwpg-0.1.3"
 
 RDEPEND="java? ( >=virtual/jre-1.5 )
@@ -117,12 +135,13 @@ DEPEND="${COMMON_DEPEND}
 	sys-apps/coreutils
 	pam? ( sys-libs/pam
 		sys-apps/shadow[pam] )
-	>=dev-lang/python-2.3.4[threads]
 	java? ( || ( =virtual/jdk-1.6* =virtual/jdk-1.5* )
 		>=dev-java/ant-core-1.7 )
 	ldap? ( net-nds/openldap )"
 
 PROVIDE="virtual/ooo"
+
+PDEPEND="x11-themes/sabayon-artwork-ooo"
 
 pkg_setup() {
 
@@ -130,7 +149,7 @@ pkg_setup() {
 	ewarn " It is important to note that OpenOffice.org is a very fragile  "
 	ewarn " build when it comes to CFLAGS.  A number of flags have already "
 	ewarn " been filtered out.  If you experience difficulty merging this  "
-	ewarn " package and use agressive CFLAGS, lower the CFLAGS and try to  "
+	ewarn " package and use aggressive CFLAGS, lower the CFLAGS and try to  "
 	ewarn " merge again. "
 	ewarn
 	ewarn " Also if you experience a build break, please make sure to retry "
@@ -142,7 +161,10 @@ pkg_setup() {
 	use debug && CHECKREQS_DISK_BUILD="12288" || CHECKREQS_DISK_BUILD="6144"
 	check_reqs
 
-	export LINGUAS_OOO="en-US"
+	strip-linguas ${LANGS}
+
+	# en_US is built by default, upstream needs us to use --with-lang="" in this case though, so strip it out
+	export LINGUAS_OOO=""
 
 	if use !java; then
 		ewarn " You are building with java-support disabled, this results in some "
@@ -167,22 +189,15 @@ pkg_setup() {
 		die
 	fi
 
-	if use nsplugin; then
-		if pkg-config --exists libxul; then
-			BRWS="libxul"
-		elif pkg-config --exists xulrunner-xpcom; then
-			BRWS="xulrunner"
-		else
-			die "USE flag [nsplugin] set but no installed xulrunner found!"
-		fi
-	fi
-
 	java-pkg-opt-2_pkg_setup
 
 	# sys-libs/db version used
 	local db_ver=$(db_findver '>=sys-libs/db-4.3')
 
 	kde4-base_pkg_setup
+
+	python_set_active_version 2
+	python_pkg_setup
 
 }
 
@@ -202,7 +217,8 @@ src_prepare() {
 	epatch "${FILESDIR}/gentoo-${PV}.diff"
 	epatch "${FILESDIR}/gentoo-pythonpath.diff"
 	epatch "${FILESDIR}/ooo-env_log.diff"
-	cp -f "${FILESDIR}/boost-undefined-references.diff" "${S}/patches/hotfixes" || die
+	cp -f "${FILESDIR}/qt-use-native-backend.diff" "${S}/patches/hotfixes" || die
+	cp -f "${FILESDIR}/neon-remove-SSPI-support.diff" "${S}/patches/hotfixes" || die
 
 	#Use flag checks
 	if use java ; then
@@ -221,13 +237,8 @@ src_prepare() {
 		echo "--with-rhino-jar=$(java-pkg_getjar rhino-1.5 js.jar)" >> ${CONFFILE}
 	fi
 
-	if use nsplugin ; then
-		echo "--enable-mozilla" >> ${CONFFILE}
-		echo "--with-system-mozilla=${BRWS}" >> ${CONFFILE}
-	else
-		echo "--disable-mozilla" >> ${CONFFILE}
-		echo "--without-system-mozilla" >> ${CONFFILE}
-	fi
+	echo $(use_enable nsplugin mozilla) >> ${CONFFILE}
+	echo $(use_with nsplugin system-mozilla libxul) >> ${CONFFILE}
 
 	echo $(use_enable binfilter) >> ${CONFFILE}
 	echo $(use_enable cups) >> ${CONFFILE}
@@ -255,20 +266,23 @@ src_prepare() {
 	echo "--without-writer2latex" >> ${CONFFILE}
 
 	# Use splash screen without Sun logo
-	echo "--with-intro-bitmaps=\\\"${S}/build/${MST}/ooo_custom_images/nologo/introabout/intro.bmp\\\"" >> ${CONFFILE}
+	echo "--with-intro-bitmaps=\\\"${S}/build/${MST}/ooo_custom_images/nologo/introabout/intro.png\\\"" >> ${CONFFILE}
 
-	# Upstream this
-	echo "--with-system-redland" >> ${CONFFILE}
+	# Upstream this, disabled for now #i108911
+	#echo "--with-system-redland" >> ${CONFFILE}
 
 	# Swap vendor to Sabayon
 	sed -i '/--with-vendor=/ s/Gentoo Foundation/Sabayon Linux/' "${CONFFILE}"
 
+	# needed for sun-templates patch
+	eautoreconf
 
 }
 
 src_configure() {
 
 	use kde && export KDE4DIR="${KDEDIR}"
+	use kde && export QT4LIB="/usr/$(get_libdir)/qt4"
 
 	# Use multiprocessing by default now, it gets tested by upstream
 	export JOBS=$(echo "${MAKEOPTS}" | sed -e "s/.*-j\([0-9]\+\).*/\1/")
@@ -300,11 +314,10 @@ src_configure() {
 	{ use gtk || use gnome; } && GTKFLAG="--enable-gtk --enable-cairo --with-system-cairo"
 
 	cd "${S}"
-	# NOTE: --with-lang must stay ="" for OOO to build
 	./configure --with-distro="Gentoo" \
 		--with-arch="${ARCH}" \
 		--with-srcdir="${DISTDIR}" \
-		--with-lang="" \
+		--with-lang="${LINGUAS_OOO}" \
 		--with-num-cpus="${JOBS}" \
 		--without-binsuffix \
 		--with-installed-ooo-dirname="openoffice" \
@@ -313,14 +326,14 @@ src_configure() {
 		--without-git \
 		--without-split \
 		${GTKFLAG} \
-		$(use_enable mono) \
+		--disable-mono \
 		--disable-kde \
 		$(use_enable kde kde4) \
 		$(use_enable !debug strip) \
 		$(use_enable odk) \
 		$(use_enable pam) \
 		$(use_with java) \
-		--disable-sun-templates \
+		$(use_with templates sun-templates) \
 		--disable-access \
 		--disable-post-install-scripts \
 		--enable-extensions \
@@ -369,7 +382,7 @@ pkg_postinst() {
 
 	fdo-mime_desktop_database_update
 	fdo-mime_mime_database_update
-	BASH_COMPLETION_NAME=ooffice && bash-completion_pkg_postinst
+	BASHCOMPLETION_NAME=ooffice && bash-completion_pkg_postinst
 
 	( [[ -x /sbin/chpax ]] || [[ -x /sbin/paxctl ]] ) && [[ -e /usr/$(get_libdir)/openoffice/program/soffice.bin ]] && scanelf -Xzm /usr/$(get_libdir)/openoffice/program/soffice.bin
 
