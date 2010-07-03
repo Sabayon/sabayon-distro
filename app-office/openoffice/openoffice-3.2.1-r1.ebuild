@@ -45,18 +45,9 @@ SRC_URI="${DEVPATH}_core.tar.bz2
 	http://download.go-oo.org/SRC680/libwps-0.1.2.tar.gz
 	http://multidimalgorithm.googlecode.com/files/mdds_0.3.0.tar.bz2"
 
-LANGS1="af ar as_IN be_BY bg bn br brx bs ca cs cy da de dgo dz el en_GB en_ZA eo es et eu fa fi fr ga gl gu he hi_IN hr hu id it ja ka kk km kn_IN ko kok ks ku lt mai mk ml_IN mn mni mr_IN nb ne nl nn nr ns oc or_IN pa_IN pl pt pt_BR ru rw sa_IN sat sd sh sk sl sr ss st sv sw_TZ ta ta_IN te_IN tg th ti_ER tn tr ts uk ur_IN uz ve vi xh zh_CN zh_TW zu"
-LANGS="${LANGS1} en en_US"
-
+LANGS="en en_US"
 for X in ${LANGS} ; do
 	IUSE="${IUSE} linguas_${X}"
-done
-
-# intersection of available linguas and app-dicts/myspell-* dictionaries
-SPELL_DIRS="af bg ca cs cy da de el en eo es et fr ga gl he hr hu it ku lt mk nb nl nn pl pt ru sk sl sv tn zu"
-SPELL_DIRS_DEPEND=""
-for X in ${SPELL_DIRS} ; do
-	SPELL_DIRS_DEPEND="${SPELL_DIRS_DEPEND} linguas_${X}? ( app-dicts/myspell-${X} )"
 done
 
 HOMEPAGE="http://go-oo.org"
