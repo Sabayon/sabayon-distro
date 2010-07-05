@@ -28,6 +28,10 @@ RDEPEND="${DEPEND}
 	virtual/perl-CGI"
 
 src_prepare() {
+
+	# as per 389 documentation, when 64bit, export USE_64
+	use amd64 && export USE_64=1
+
 	eautoreconf
 }
 

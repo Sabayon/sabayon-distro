@@ -70,6 +70,9 @@ pkg_setup() {
 
 src_prepare() {
 
+	# as per 389 documentation, when 64bit, export USE_64
+	use amd64 && export USE_64=1
+
 	epatch "${FILESDIR}/${PV}/"*.patch
 	# Configuration fixes
 	epatch "${FILESDIR}/${PN}-"*.patch

@@ -54,6 +54,10 @@ pkg_setup() {
 }
 
 src_prepare() {
+
+	# as per 389 documentation, when 64bit, export USE_64
+	use amd64 && export USE_64=1
+
 	sed -i -e 's/nobody/dirsrv/g' configure.ac || die "sed failed on configure.ac"
 	use selinux && epatch "${FILESDIR}/1.2.6"/*selinux*.patch
 	eautoreconf
