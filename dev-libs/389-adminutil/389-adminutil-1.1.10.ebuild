@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit libtool
+inherit libtool eutils
 
 MY_PV=${PV/_rc/.rc}
 MY_PV=${MY_PV/_a/.a}
@@ -31,6 +31,7 @@ DEPEND="dev-util/pkgconfig ${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
 
 src_prepare() {
+	epatch "${FILESDIR}/${PN}-workaround-PASSWORD_PIPE-bug.patch"
 	elibtoolize
 }
 
