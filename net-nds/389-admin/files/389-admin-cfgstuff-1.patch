@@ -1,43 +1,56 @@
-Submitted By: Mario Fetka (mario dot fetka at gmail dot com)
-Date: 2009-12-20
-Initial Package Version: 1.1.10
-Origin: me
-Upstream Status: Gentoo specific
-Description: correct filelocations
- 
-diff -Naur fedora-ds-admin-1.1.5.orig/admserv/cfgstuff/httpd-2.2.conf.in fedora-ds-admin-1.1.5/admserv/cfgstuff/httpd-2.2.conf.in
---- fedora-ds-admin-1.1.5.orig/admserv/cfgstuff/httpd-2.2.conf.in	2007-08-01 18:14:53.000000000 +0000
-+++ fedora-ds-admin-1.1.5/admserv/cfgstuff/httpd-2.2.conf.in	2008-08-30 12:25:00.766003282 +0000
-@@ -141,10 +141,10 @@
- LoadModule disk_cache_module @moddir@/mod_disk_cache.so
- LoadModule file_cache_module @moddir@/mod_file_cache.so
+--- 389-admin-1.1.11.rc1.orig/admserv/cfgstuff/httpd-2.2.conf.in
++++ 389-admin-1.1.11.rc1/admserv/cfgstuff/httpd-2.2.conf.in
+@@ -143,7 +143,7 @@ LoadModule file_cache_module @moddir@/mo
  LoadModule mem_cache_module @moddir@/mod_mem_cache.so
--LoadModule cgi_module @moddir@/mod_cgi.so
--LoadModule restartd_module     @admmoddir@/mod_restartd.so
+ LoadModule cgi_module @moddir@/mod_cgi.so
+ LoadModule restartd_module     @admmoddir@/mod_restartd.so
 -LoadModule nss_module         @nssmoddir@/libmodnss.so
--LoadModule admserv_module     @admmoddir@/mod_admserv.so
-+LoadModule cgid_module @moddir@/mod_cgid.so
-+LoadModule restartd_module     @admmoddir@/mod_restartd.so
 +LoadModule nss_module         @moddir@/mod_nss.so
-+LoadModule admserv_module     @admmoddir@/mod_admserv.so
+ LoadModule admserv_module     @admmoddir@/mod_admserv.so
  
  ### Section 2: 'Main' server configuration
+@@ -389,15 +389,7 @@ ServerSignature On
+ # Alias.
  #
-diff -Naur fedora-ds-admin-1.1.5.orig/admserv/cfgstuff/httpd.conf.in fedora-ds-admin-1.1.5/admserv/cfgstuff/httpd.conf.in
---- fedora-ds-admin-1.1.5.orig/admserv/cfgstuff/httpd.conf.in	2007-08-01 18:14:53.000000000 +0000
-+++ fedora-ds-admin-1.1.5/admserv/cfgstuff/httpd.conf.in	2008-08-30 12:26:03.402003388 +0000
-@@ -140,10 +140,10 @@
- LoadModule disk_cache_module @moddir@/mod_disk_cache.so
- LoadModule file_cache_module @moddir@/mod_file_cache.so
+ 
+-<IfModule mod_cgid.c>
+-#
+-# Additional to mod_cgid.c settings, mod_cgid has Scriptsock <path>
+-# for setting UNIX socket for communicating with cgid.
+-#
+-Scriptsock            @piddir@/admin-serv.cgisock
+-</IfModule>
+-
+-# and this one is for mod_restartd because mod_cgid will consume the other one
++# Setup mod_admserv socket handle
+ Scriptsock            @piddir@/admin-serv.cgisock
+ 
+ #
+--- 389-admin-1.1.11.rc1.orig/admserv/cfgstuff/httpd.conf.in
++++ 389-admin-1.1.11.rc1/admserv/cfgstuff/httpd.conf.in
+@@ -142,7 +142,7 @@ LoadModule file_cache_module @moddir@/mo
  LoadModule mem_cache_module @moddir@/mod_mem_cache.so
--LoadModule cgi_module @moddir@/mod_cgi.so
--LoadModule restartd_module     @admmoddir@/mod_restartd.so
+ LoadModule cgi_module @moddir@/mod_cgi.so
+ LoadModule restartd_module     @admmoddir@/mod_restartd.so
 -LoadModule nss_module         @nssmoddir@/libmodnss.so
--LoadModule admserv_module     @admmoddir@/mod_admserv.so
-+LoadModule cgid_module @moddir@/mod_cgid.so
-+LoadModule restartd_module     @admmoddir@/mod_restartd.so
 +LoadModule nss_module         @moddir@/mod_nss.so
-+LoadModule admserv_module     @admmoddir@/mod_admserv.so
+ LoadModule admserv_module     @admmoddir@/mod_admserv.so
  
  ### Section 2: 'Main' server configuration
+@@ -388,15 +388,7 @@ ServerSignature On
+ # Alias.
+ #
+ 
+-<IfModule mod_cgid.c>
+-#
+-# Additional to mod_cgid.c settings, mod_cgid has Scriptsock <path>
+-# for setting UNIX socket for communicating with cgid.
+-#
+-Scriptsock            @piddir@/admin-serv.cgisock
+-</IfModule>
+-
+-# and this one is for mod_restartd because mod_cgid will consume the other one
++# Setup mod_admserv socket handle                                         
+ Scriptsock            @piddir@/admin-serv.cgisock
+ 
  #
