@@ -129,6 +129,11 @@ src_install () {
 	newinitd "${FILESDIR}"/389-ds.initd 389-ds
 	newinitd "${FILESDIR}"/389-ds-snmp.initd 389-ds-snmp
 
+	# install Gentoo-specific start/stop scripts
+	rm -f ${D}/usr/sbin/{re,}start-dirsrv || die "cannot remove 389 start/stop executables"
+	exeinto /usr/sbin
+	doexe ${FILESDIR}/{re,}start-dirsrv
+
 	# cope with libraries being in /usr/lib/dirsrv
 	dodir /etc/env.d
 	echo "LDPATH=/usr/$(get_libdir)/dirsrv" > "${D}"/etc/env.d/08dirsrv
