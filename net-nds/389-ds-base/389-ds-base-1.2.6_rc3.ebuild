@@ -41,10 +41,11 @@ DEPEND="${ALL_DEPEND}
 	dev-util/pkgconfig
 	sys-devel/libtool:1.5
 	doc? ( app-doc/doxygen )
-	selinux? ( sys-devel/m4 >=sys-apps/checkpolicy-1.30.12 )"
+	selinux? ( sys-devel/m4 >=sys-apps/checkpolicy-1.30.12 )
+	sys-apps/sed"
 RDEPEND="${ALL_DEPEND}
-			virtual/perl-Time-Local
-			virtual/perl-MIME-Base64"
+	virtual/perl-Time-Local
+	virtual/perl-MIME-Base64"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -130,9 +131,9 @@ src_install () {
 	newinitd "${FILESDIR}"/389-ds-snmp.initd 389-ds-snmp
 
 	# install Gentoo-specific start/stop scripts
-	rm -f ${D}/usr/sbin/{re,}start-dirsrv || die "cannot remove 389 start/stop executables"
+	rm -f "${D}"/usr/sbin/{re,}start-dirsrv || die "cannot remove 389 start/stop executables"
 	exeinto /usr/sbin
-	doexe ${FILESDIR}/{re,}start-dirsrv
+	doexe "${FILESDIR}"/{re,}start-dirsrv
 
 	# cope with libraries being in /usr/lib/dirsrv
 	dodir /etc/env.d
