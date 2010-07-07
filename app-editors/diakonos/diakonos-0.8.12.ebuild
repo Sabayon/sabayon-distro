@@ -16,9 +16,6 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="$(ruby_implementation_depend ruby19)"
-RDEPND="$(ruby_samelib)"
-
 each_ruby_install() {
 	${RUBY} install.rb --dest-dir "${D}" || die "install failed"
 }
