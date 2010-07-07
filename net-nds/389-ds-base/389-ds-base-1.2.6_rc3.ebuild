@@ -92,14 +92,16 @@ src_configure() {
 src_compile() {
 	append-lfs-flags
 
-	emake || die "compile failed"
+	# Use -j1 otherwise libacl-plugin.so could fail to install properly
+	emake -j1 || die "compile failed"
 	if use selinux; then
 		emake -f selinux/Makefile || die " build selinux policy failed"
 	fi
 }
 
 src_install () {
-	emake DESTDIR="${D}" install || die "emake install failed"
+	# Use -j1 otherwise libacl-plugin.so could fail to install properly
+	emake -j1 DESTDIR="${D}" install || die "emake install failed"
 
 	if use selinux;then
 		emake -f selinux/Makefile DESTDIR="${D}" install || die "Install selinux policy failed"
