@@ -31,7 +31,6 @@ DEPEND="dev-util/pkgconfig ${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-workaround-PASSWORD_PIPE-bug.patch"
 	elibtoolize
 }
 
