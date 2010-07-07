@@ -30,7 +30,6 @@ RDEPEND=">=dev-libs/nss-3.11.4
 S="${WORKDIR}"/"${P}"/"mozilla/directory/c-sdk"
 
 src_prepare() {
-
 	epatch "${FILESDIR}"/${PN}-6.0.4-pkgconfig.patch
 	epatch "${FILESDIR}"/configure.in.patch
 	epatch "${FILESDIR}"/nss-m4.patch
@@ -39,11 +38,7 @@ src_prepare() {
 }
 
 src_configure() {
-
-	local myconf=""
-
-	myconf="${myconf} --libdir=/usr/$(get_libdir)/mozldap"
-
+	local myconf="--libdir=/usr/$(get_libdir)/mozldap"
 	econf $(use_enable debug) \
 		$(use_enable ipv6) \
 		$(use_enable amd64 64bit) \
@@ -56,7 +51,6 @@ src_configure() {
 }
 
 src_install () {
-
 	# Their build system is royally fucked, as usual
 	cd "${S}"
 	sed -e "s,%libdir%,\$\{exec_prefix\}/$(get_libdir)/${PN},g" \
@@ -107,12 +101,14 @@ src_install () {
 	cd "${D}"/usr/$(get_libdir)/mozldap
 
 	#create compatibility Link
-	ln -sf libldap$(get_major_version ${PV})$(get_version_component_range 2 ${PV}).so liblber$(get_major_version ${PV})$(get_version_component_range 2 ${PV}).so
+	dosym libldap$(get_major_version ${PV})$(get_version_component_range 2 ${PV}).so \
+		liblber$(get_major_version ${PV})$(get_version_component_range 2 ${PV}).so || die
 	#so lets move
 	for file in *.so; do
-		mv ${file} ${file}.$(get_major_version ${PV}).$(get_version_component_range 2 ${PV})
-		ln -s ${file}.$(get_major_version ${PV}).$(get_version_component_range 2 ${PV}) ${file}
-		ln -s ${file}.$(get_major_version ${PV}).$(get_version_component_range 2 ${PV}) ${file}.$(get_major_version ${PV})
+		mv ${file} ${file}.$(get_major_version ${PV}).$(get_version_component_range 2 ${PV}) || die
+		dosym ${file}.$(get_major_version ${PV}).$(get_version_component_range 2 ${PV}) ${file} || die
+		dosym ${file}.$(get_major_version ${PV}).$(get_version_component_range 2 ${PV}) \
+			${file}.$(get_major_version ${PV}) || die
 	done
 
 	# cope with libraries being in /usr/lib/mozldap
