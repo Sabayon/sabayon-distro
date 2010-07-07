@@ -25,8 +25,7 @@ COMMON_DEPEND=">=dev-libs/nss-3.11.4
 	>=dev-libs/svrcore-4.0.3
 	>=dev-libs/mozldap-6.0.2
 	>=dev-libs/cyrus-sasl-2.1.19
-	>=dev-libs/icu-3.4
-	!dev-libs/adminutil"
+	>=dev-libs/icu-3.4"
 DEPEND="dev-util/pkgconfig ${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
 
