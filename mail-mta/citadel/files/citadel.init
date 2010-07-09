@@ -1,0 +1,37 @@
+#!/sbin/runscript
+
+# original Author: Wilfried Goesgens <citadel@outgesourced.org>
+# adapted for Gentoo: the_mgt <themgt@mail.ru>
+
+depend() {
+        use dns logger
+	need net
+        provide mta
+}
+
+RUNDIR="/var/run/citadel"
+DAEMON="/usr/sbin/citserver"
+PIDFILE="${RUNDIR}/citadel.pid"
+SENDCOMMAND="/usr/sbin/sendcommand"
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+start() {
+	ebegin "Starting citserver"
+	start-stop-daemon --start --exec /usr/sbin/citserver -- ${CITSERVER_OPTS}
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping citserver"
+	${SENDCOMMAND} DOWN &>/dev/null
+	eend $?
+}
+
+restart() {
+	ebegin "Restarting citserver"
+	#sleep command mandatory due to long shutdown time!
+	svc_stop && sleep 3 && svc_start
+	eend $? "Failed to restart Citadel"
+}
