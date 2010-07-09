@@ -1,0 +1,47 @@
+#!/sbin/runscript
+# Copyright 1999-2007 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+
+opts="start stop"
+
+depend() {
+    need net
+}
+
+start() {
+    ebegin "Starting SABnzbd"
+    if ! check_config ; then
+        eend 1
+        return 1
+    fi
+
+    start-stop-daemon --quiet --start -c ${SAB_USER} -g ${SAB_GROUP} \
+        --name SABnzbd.py --exec /usr/bin/SABnzbd.py -- \
+        -s ${SAB_HOSTNAME}:${SAB_PORT} -f ${SAB_CONFIGFILE} -d &> /dev/null
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping SABnzbd"
+    URL="http://${SAB_HOSTNAME}:${SAB_PORT}/sabnzbd/shutdown"
+    if [ -x /usr/bin/wget ] ; then
+	/usr/bin/wget -q --delete-after "${URL}"
+    elif [ -x /usr/bin/curl ] ; then
+	/usr/bin/curl --silent "${URL}" > /dev/null 2> /dev/null
+    else
+	ewarn "missing wget and curl, ending all processes named SABnzbd.py"
+	start-stop-daemon --quiet --stop --name SABnzbd.py
+    fi
+    eend $?
+}
+
+check_config() {
+    if [ ! -e ${SAB_CONFIGFILE} ] ; then
+        eerror "ERROR: can't find ${SAB_CONFIGFILE}."
+        return 1
+    else
+        return 0
+    fi
+}
