@@ -22,7 +22,7 @@ IUSE="+rar unzip rss +yenc ssl"
 
 RDEPEND=">=dev-lang/python-2.4.4
 		>=dev-python/celementtree-1.0.5
-		=dev-python/cherrypy-2*
+		>=dev-python/cherrypy-2.3.0
 		>=dev-python/cheetah-2.0.1
 		>=app-arch/par2cmdline-0.4
 		rar? ( app-arch/rar )
