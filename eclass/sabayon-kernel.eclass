@@ -59,6 +59,9 @@ S="${WORKDIR}/linux-${KV_FULL}"
 SLOT="${PV}"
 EXTRAVERSION=${EXTRAVERSION/linux/${K_SABKERNEL_NAME}}
 
+# provide extra virtual pkg
+PROVIDE="${PROVIDE} virtual/linux-binary"
+
 HOMEPAGE="http://www.sabayon.org"
 SRC_URI="${KERNEL_URI}
 	http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
