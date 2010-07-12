@@ -22,6 +22,8 @@ DESCRIPTION="OpenOffice.org ${L10N_LANG} localisation"
 HOMEPAGE="http://projects.openoffice.org/native-lang.html"
 if [[ "${PV}" = "3.2.0" ]]; then
 	SRC_URI="mirror://openoffice-extended/${PV}rc5/OOo_${PV}rc5_20100203_LinuxIntel_langpack_${MY_LANG}.tar.gz"
+elif [[ "${PV}" = "3.2.1" ]]; then
+	SRC_URI="mirror://openoffice-extended/${PV}rc2/OOo_${PV}rc2_20100521_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
 else
 	SRC_URI="--NOT_SET--"
 fi
