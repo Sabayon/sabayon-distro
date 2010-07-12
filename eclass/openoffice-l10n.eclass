@@ -25,7 +25,7 @@ if [[ "${PV}" = "3.2.0" ]]; then
 elif [[ "${PV}" = "3.2.1" ]]; then
 	SRC_URI="mirror://openoffice-extended/${PV}rc2/OOo_${PV}rc2_20100521_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
 else
-	SRC_URI="--NOT_SET--"
+	SRC_URI="--NOT_SET_SEE_openoffice-l10n.eclass--"
 fi
 
 LICENSE="LGPL-2"
