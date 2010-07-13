@@ -1,6 +1,0 @@
-#!/bin/bash
-# Copyright 2007 - SabayonLinux (Fabio Erculiani)
-# Application: aiglx-setup - helper - enable/disable AIGLX
-
-# Wrapper script, run "/sbin/desktop-acceleration-setup aiglx"
-/sbin/desktop-acceleration-setup aiglx $@
