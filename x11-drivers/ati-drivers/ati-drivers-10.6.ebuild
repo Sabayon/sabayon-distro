@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-10.5.ebuild,v 1.1 2010/05/28 13:00:24 lu_zero Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-10.6.ebuild,v 1.2 2010/07/09 13:03:44 scarabeus Exp $
 
 EAPI="2"
 
@@ -20,7 +20,7 @@ fi
 IUSE="debug +modules multilib qt4"
 
 LICENSE="AMD GPL-2 QPL-1.0 as-is"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 SLOT="1"
 
 RDEPEND="
@@ -28,7 +28,6 @@ RDEPEND="
 	!<x11-base/xorg-server-1.7
 	!x11-drivers/ati-drivers:0
 	!x11-apps/ati-drivers-extra
-	qt4? ( media-video/amdcccle )
 	>=app-admin/eselect-opengl-1.0.7
 	sys-power/acpid
 	x11-apps/xauth
@@ -36,6 +35,7 @@ RDEPEND="
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	multilib? ( app-emulation/emul-linux-x86-xlibs )
+	qt4? ( >=media-video/amdcccle-${PV} )
 "
 
 DEPEND="${RDEPEND}
@@ -61,6 +61,7 @@ QA_TEXTRELS="
 
 QA_EXECSTACK="
 	opt/bin/atiode
+	opt/bin/amdcccle
 	usr/lib*/opengl/ati/lib/libGL.so.1.2
 	usr/lib*/dri/fglrx_dri.so
 "
@@ -228,8 +229,7 @@ src_prepare() {
 		fi
 	fi
 
-	# 2.6.33 kernel support
-	epatch "${FILESDIR}"/ati-drivers-2.6.33.patch
+	# 2.6.34 kernel support
 	epatch "${FILESDIR}"/ati-drivers-2.6.34.patch
 	# Fix a known compilation error
 	epatch "${FILESDIR}"/ati-drivers-fix_compilation-bug-297322.patch
@@ -442,6 +442,7 @@ src_install() {
 	newinitd "${FILESDIR}"/atieventsd.init atieventsd \
 		|| die "Failed to install atieventsd.init.d"
 	echo 'ATIEVENTSDOPTS=""' > "${T}"/atieventsd.conf
+	insopts -m0644
 	newconfd "${T}"/atieventsd.conf atieventsd || die
 }
 
