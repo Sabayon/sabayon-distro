@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-10.5.ebuild,v 1.1 2010/05/28 13:00:24 lu_zero Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/ati-drivers/ati-drivers-10.5.ebuild,v 1.3 2010/07/14 10:58:44 scarabeus Exp $
 
 EAPI="2"
 
@@ -20,7 +20,7 @@ fi
 IUSE="debug +modules multilib qt4"
 
 LICENSE="AMD GPL-2 QPL-1.0 as-is"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 SLOT="1"
 
 RDEPEND="
@@ -28,7 +28,6 @@ RDEPEND="
 	!<x11-base/xorg-server-1.7
 	!x11-drivers/ati-drivers:0
 	!x11-apps/ati-drivers-extra
-	qt4? ( media-video/amdcccle )
 	>=app-admin/eselect-opengl-1.0.7
 	sys-power/acpid
 	x11-apps/xauth
@@ -36,6 +35,7 @@ RDEPEND="
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	multilib? ( app-emulation/emul-linux-x86-xlibs )
+	qt4? ( media-video/amdcccle )
 "
 
 DEPEND="${RDEPEND}
@@ -479,29 +479,6 @@ src_install-libs() {
 	# AMD Cal libraries
 	exeinto /usr/$(get_libdir)
 	doexe "${MY_ARCH_DIR}"/usr/${pkglibdir}/libati*.so* || die
-
-	# warn about removal of .la file
-	# WILL BE NEEDED IN FUTURE
-	#if [[ -e ${ATI_ROOT}/lib/libGL.la ]]; then
-	#	ewarn "Since this version the libGL.la is not installed"
-	#	ewarn "For fixing this issues please take look on:"
-	#	ewarn "  dev-util/lafilefixer"
-	#	ewarn "This step is needed because the libGL.la is going"
-	#	ewarn "to be removed by newer versions of the media-libs/mesa"
-	#fi
-	# Make up a libGL.la. Ati does not provide one, but mesa does. If
-	# a (libtool-based) libfoo is built with libGL.la present a
-	# reference to it is put into libfoo.la, and compiling
-	# (libtool-based) things that link too libfoo.la will complain if
-	# libGL.la disappears. So if we do not make up a libGL.la
-	# switching between mesa and ati becomes painful.
-	local revision=$(printf '%d%02d%02d' $(get_version_components))
-	sed -e "s:\${libmajor}:${libmajor}:g" \
-		-e "s:\${libminor}:${libminor}:g" \
-		-e "s:\${libdir}:$(get_libdir):g" \
-		-e "s:\${revision}:${revision}:g" \
-		"${FILESDIR}"/libGL.la.in > "${D}"/${ATI_ROOT}/lib/libGL.la \
-		|| die "sed failed to make libGL.la"
 
 	local envname="${T}"/04ati-dri-path
 	if [[ -n ${ABI} ]]; then
