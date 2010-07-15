@@ -240,9 +240,11 @@ sabayon-kernel_pkg_postinst() {
 			local kern_arch="x86"
 		fi
 		# grub-legacy
-		"${ROOT}/usr/sbin/grub-handler" add \
-			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
-			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
+		if [ -x "${ROOT}usr/sbin/grub-handler" ]; then
+			"${ROOT}usr/sbin/grub-handler" add \
+				"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
+				"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
+		fi
 
 		sabayon-kernel_grub2_mkconfig
 	fi
@@ -269,9 +271,11 @@ sabayon-kernel_pkg_postrm() {
 		else
 			local kern_arch="x86"
 		fi
-		/usr/sbin/grub-handler remove \
-			"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
-			"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
+		if [ -x "${ROOT}usr/sbin/grub-handler" ]; then
+			"${ROOT}usr/sbin/grub-handler" remove \
+				"/boot/kernel-genkernel-${kern_arch}-${KV_FULL}" \
+				"/boot/initramfs-genkernel-${kern_arch}-${KV_FULL}"
+		fi
 
 		sabayon-kernel_grub2_mkconfig
 	fi
