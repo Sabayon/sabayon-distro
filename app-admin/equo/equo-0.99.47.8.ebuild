@@ -29,6 +29,11 @@ src_install() {
 pkg_postinst() {
 	python_mod_optimize "/usr/$(get_libdir)/entropy/client"
 	bash-completion_pkg_postinst
+	echo
+	elog "If you would like to allow users in the 'entropy' group"
+	elog "to update available package repositories, please consider"
+	elog "to install sys-apps/entropy-client-services"
+	echo
 }
 
 pkg_postrm() {
