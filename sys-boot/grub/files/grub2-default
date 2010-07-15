@@ -6,7 +6,7 @@ GRUB_DEFAULT=saved
 GRUB_DISTRIBUTOR="Sabayon"
 GRUB_HIDDEN_TIMEOUT=0
 GRUB_HIDDEN_TIMEOUT_QUIET=true
-GRUB_TIMEOUT=10
+GRUB_TIMEOUT=5
 
 # Add your extra parameters here below
 # Dear user, put your boot flags here ;-)
