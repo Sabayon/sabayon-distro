@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit eutils pam gnome2
+inherit autotools eutils pam gnome2
 
 DESCRIPTION="GNOME Display Manager"
 HOMEPAGE="http://www.gnome.org/projects/gdm/"
@@ -99,6 +99,13 @@ pkg_setup() {
 }
 
 src_prepare() {
+
+	# Sabayon specific.
+	# Fix ugly X grey background color by adding -br
+	sed -i '/X_CONFIG_OPTIONS/ s/X_CONFIG_OPTIONS="/X_CONFIG_OPTIONS="-br /g' "${S}"/configure.ac || die
+	sed -i '/XNEST_CONFIG_OPTIONS/ s/XNEST_CONFIG_OPTIONS="/XNEST_CONFIG_OPTIONS="-br /g' "${S}"/configure.ac || die
+	eautoreconf
+
 	gnome2_src_prepare
 
 	# remove unneeded linker directive for selinux (#41022)
