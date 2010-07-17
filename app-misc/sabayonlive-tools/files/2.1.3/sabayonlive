@@ -356,6 +356,15 @@ my_wait_opengl_config() {
 
 }
 
+my_setup_virtualbox() {
+	if [ -f "/etc/init.d/virtualbox-guest-additions" ]; then
+		is_virtualbox=$(/usr/sbin/lspci -n | grep " 80ee:")
+		if [ -n "${is_virtualbox}" ]; then
+			/etc/init.d/virtualbox-guest-additions start --nodeps
+		fi
+	fi
+}
+
 my_setup_locale() {
 
         cmdline_lang_exist=$(cat /proc/cmdline | grep -i "lang=")
@@ -438,6 +447,7 @@ start() {
 	my_setup_xsistence
 	# my_setup_samba
 	my_setup_keymap
+	my_setup_virtualbox
 	my_wait_opengl_config
 	# MOVED HERE TO AVOID RACE CONDITIONS ON WRITING /etc/profile.env variables
 	# Check if LANG is forced by cmdline
