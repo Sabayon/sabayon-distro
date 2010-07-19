@@ -68,7 +68,7 @@ sabayon_setup_live_user() {
 	if [ -n "${live_uid}" ]; then
 		live_uid="-u ${live_uid}"
 	fi
-	user_configured=$(id ${live_user} &> /dev/null)
+	id ${live_user} &> /dev/null
 	if [ "${?}" != "0" ]; then
 		local live_groups=""
 		local avail_groups=$(cat /etc/group | cut -d":" -f 1 | xargs echo)
@@ -86,7 +86,9 @@ sabayon_setup_live_user() {
 		# then setup live user, that is missing
 		adduser -d "/home/${live_user}" -g root -G ${live_groups} \
 			-m -N -p "" -s /bin/bash ${live_uid} "${live_user}"
+		return 0
 	fi
+	return 1
 }
 
 sabayon_setup_motd() {
