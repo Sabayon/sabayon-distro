@@ -2,6 +2,8 @@
 # Copyright 2004-2009 Fabio Erculiani
 # Distributed under the terms of the GNU General Public License v2 
 
+. /sbin/sabayon-functions.sh
+
 depend() {
 	after x-setup
 	before hald
@@ -11,31 +13,34 @@ depend() {
 prepare_fluxbox_locked_autologin() {
 
 	# change default wm to fluxbox
-	echo "[Desktop]" > /home/sabayonuser/.dmrc
-	echo "Session=fluxbox" >> /home/sabayonuser/.dmrc
-	chown sabayonuser /home/sabayonuser/.dmrc
+	echo "[Desktop]" > /home/${LIVE_USER}/.dmrc
+	echo "Session=fluxbox" >> /home/${LIVE_USER}/.dmrc
+	chown ${LIVE_USER} /home/${LIVE_USER}/.dmrc
 	# Change passwords for security
 	echo root:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
-	echo sabayonuser:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
+	echo ${LIVE_USER}:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
 
 }
 
 my_setup_desktop() {
 
-	# Copy sabayonuser directory
-	rm -rf /home/sabayonuser
-	cp /etc/skel /home/sabayonuser -Rp
-	chown sabayonuser:users /home/sabayonuser -R
+	# create LIVE_USER if it does not exist
+	sabayon_setup_live_user "${LIVE_USER}" "1000"
+
+	# Copy ${LIVE_USER} directory
+	rm -rf /home/${LIVE_USER}
+	cp /etc/skel /home/${LIVE_USER} -Rp
+	chown ${LIVE_USER}:users /home/${LIVE_USER} -R
 
 	liveinst_desktop="/usr/share/applications/liveinst.desktop"
 	liveinst_desktop_name="$(basename ${liveinst_desktop})"
 	if [ -f "${liveinst_desktop}" ]; then
-		[[ -d "/home/sabayonuser/Desktop" ]] || mkdir -p /home/sabayonuser/Desktop 
-		cp "${liveinst_desktop}" /home/sabayonuser/Desktop
-		chown sabayonuser:users /home/sabayonuser/Desktop -R
-		chmod +x /home/sabayonuser/Desktop/${liveinst_desktop_name}
+		[[ -d "/home/${LIVE_USER}/Desktop" ]] || mkdir -p /home/${LIVE_USER}/Desktop 
+		cp "${liveinst_desktop}" /home/${LIVE_USER}/Desktop
+		chown ${LIVE_USER}:users /home/${LIVE_USER}/Desktop -R
+		chmod +x /home/${LIVE_USER}/Desktop/${liveinst_desktop_name}
 		rm -f /etc/skel/Desktop/Anaconda*.desktop
-		rm -f /home/sabayonuser/Desktop/Anaconda*.desktop
+		rm -f /home/${LIVE_USER}/Desktop/Anaconda*.desktop
 	fi
 
 	# Disable memory eating services
@@ -57,7 +62,7 @@ my_setup_desktop() {
 	fi
 
 	# Add sudo to gparted exec=
-	gparted_file="/home/sabayonuser/Desktop/gparted.desktop"
+	gparted_file="/home/${LIVE_USER}/Desktop/gparted.desktop"
 	if [ -f "${gparted_file}" ]; then
 		sed -i 's/Exec=/Exec=sudo /' "${gparted_file}"
 	fi
@@ -74,7 +79,7 @@ my_setup_password() {
 		echo
 		echo -e "\E[33;36m * \E[0m\E[01;36m Autoscrambling root passwords for   S E C U R I T Y"
 		echo root:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
-		echo sabayonuser:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
+		echo ${LIVE_USER}:\`pwgen -s 16\` | chpasswd  > /dev/null 2>&1
 		echo
 	fi
 
@@ -90,9 +95,9 @@ my_setup_session() {
 				session=*)
 					my_sess=$(echo $word | cut -d "=" -f 2)
 					# change default DE to KDE
-					echo "[Desktop]" > /home/sabayonuser/.dmrc
-					echo "Session="$my_sess >> /home/sabayonuser/.dmrc
-					chown sabayonuser /home/sabayonuser/.dmrc
+					echo "[Desktop]" > /home/${LIVE_USER}/.dmrc
+					echo "Session="$my_sess >> /home/${LIVE_USER}/.dmrc
+					chown ${LIVE_USER} /home/${LIVE_USER}/.dmrc
 				;;
 			esac
 		done
@@ -439,8 +444,6 @@ my_setup_xsistence_stop() {
 }
 
 start() {
-
-	source /sbin/sabayon-functions.sh
 
 	my_setup_desktop
 	my_setup_password
