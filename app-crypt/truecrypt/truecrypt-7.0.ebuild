@@ -10,7 +10,7 @@ DESCRIPTION="Free open-source disk encryption software"
 HOMEPAGE="http://www.truecrypt.org/"
 SRC_URI="${P}.tar.gz"
 
-LICENSE="truecrypt-2.8"
+LICENSE="truecrypt-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 IUSE="X"
