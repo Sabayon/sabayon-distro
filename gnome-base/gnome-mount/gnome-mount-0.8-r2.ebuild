@@ -53,5 +53,8 @@ src_unpack() {
 	# Fix automagic dependency, bug #257753
 	epatch "${FILESDIR}/${P}-libnotify-automagic.patch"
 
+	# Fix ntfs-3g mount
+	epatch "${FILESDIR}/${P}-ntfs-3g.patch"
+
 	eautoreconf
 }
