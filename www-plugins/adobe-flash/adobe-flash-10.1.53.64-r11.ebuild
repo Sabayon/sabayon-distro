@@ -1,28 +1,20 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-plugins/adobe-flash/adobe-flash-10.0.45.2-r1.ebuild,v 1.4 2010/05/03 15:02:33 lack Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-plugins/adobe-flash/adobe-flash-10.1.53.64-r1.ebuild,v 1.1 2010/07/20 14:49:58 lack Exp $
 
 EAPI=1
 inherit nsplugins rpm multilib toolchain-funcs
 
 MY_32B_URI="http://fpdownload.macromedia.com/get/flashplayer/current/flash-plugin-${PV}-release.i386.rpm"
-MY_64B_URI="http://download.macromedia.com/pub/labs/flashplayer10/libflashplayer-${PV}.linux-x86_64.so.tar.gz"
 
 DESCRIPTION="Adobe Flash Player"
-SRC_URI="x86? ( ${MY_32B_URI} )
-amd64? (
-	multilib? (
-		32bit? ( ${MY_32B_URI} )
-		64bit? ( ${MY_64B_URI} )
-	)
-	!multilib? ( ${MY_64B_URI} )
-)"
+SRC_URI="${MY_32B_URI}"
 HOMEPAGE="http://www.adobe.com/"
-IUSE="multilib +32bit +64bit pulseaudio"
+IUSE="multilib pulseaudio"
 SLOT="0"
 
 KEYWORDS="-* ~amd64 ~x86"
-LICENSE="AdobeFlash-10"
+LICENSE="AdobeFlash-10.1"
 RESTRICT="strip mirror"
 
 S="${WORKDIR}"
@@ -33,51 +25,32 @@ NATIVE_DEPS="x11-libs/gtk+:2
 	net-misc/curl
 	>=sys-libs/glibc-2.4"
 
-EMUL_DEPS=">=app-emulation/emul-linux-x86-baselibs-20100220
-	app-emulation/emul-linux-x86-gtklibs
-	app-emulation/emul-linux-x86-soundlibs
-	app-emulation/emul-linux-x86-xlibs"
+EMUL_DEPS=">=app-emulation/emul-linux-x86-gtklibs-20100409-r1
+	app-emulation/emul-linux-x86-soundlibs"
 
 RDEPEND="x86? ( $NATIVE_DEPS )
-	amd64? (
-		multilib? (
-			64bit? ( $NATIVE_DEPS )
-			32bit? ( $EMUL_DEPS )
-		)
-		!multilib? ( $NATIVE_DEPS )
-	)
+	amd64? ( $EMUL_DEPS )
 	|| ( media-fonts/liberation-fonts media-fonts/corefonts )"
+
+# Where should this all go? (Bug #328639)
+INSTALL_BASE="opt/Adobe/flash-player"
 
 # Ignore QA warnings in these binary closed-source libraries, since we can't fix
 # them:
-QA_EXECSTACK="opt/netscape/plugins32/libflashplayer.so
-	opt/netscape/plugins/libflashplayer.so"
+QA_EXECSTACK="${INSTALL_BASE}32/libflashplayer.so
+	${INSTALL_BASE}/libflashplayer.so"
 
-QA_DT_HASH="opt/netscape/plugins32/libflashplayer.so
-	opt/netscape/plugins/libflashplayer.so"
+QA_DT_HASH="${INSTALL_BASE}32/libflashplayer.so
+	${INSTALL_BASE}/libflashplayer.so"
 
 pkg_setup() {
 	if use x86; then
 		export native_install=1
 	elif use amd64; then
-		# amd64 users may unselect the native 64bit binary, if they choose
-		if ! use multilib || use 64bit; then
-			export native_install=1
-			# 64bit flash requires the 'lahf' instruction (bug #268336)
-			# Also, check if *any* of the processors are affected (bug #286159)
-			if grep '^flags' /proc/cpuinfo | grep -qv 'lahf_lm'; then
-				export need_lahf_wrapper=1
-			else
-				unset need_lahf_wrapper
-			fi
-		else
-			unset native_install
-		fi
-
-		if use multilib && ! use 32bit && ! use 64bit; then
-			eerror "You must select at least one library USE flag (32bit or 64bit)"
-			die "No library version selected [-32bit -64bit]"
-		fi
+		# As of 10.1, no more native 64b version *grumble grumble*
+		unset native_install
+		unset need_lahf_wrapper
+		export amd64_32bit=1
 	fi
 }
 
@@ -96,9 +69,9 @@ src_install() {
 		# 32b RPM has things hidden in funny places
 		use x86 && pushd "${S}/usr/lib/flash-plugin"
 
-		exeinto /opt/netscape/plugins
+		exeinto /${INSTALL_BASE}
 		doexe libflashplayer.so
-		inst_plugin /opt/netscape/plugins/libflashplayer.so
+		inst_plugin /${INSTALL_BASE}/libflashplayer.so
 
 		use x86 && popd
 
@@ -109,20 +82,20 @@ src_install() {
 	if [[ $need_lahf_wrapper ]]; then
 		# This experimental wrapper, from Maks Verver via bug #268336 should
 		# emulate the missing lahf instruction affected platforms.
-		exeinto /opt/netscape/plugins
+		exeinto /${INSTALL_BASE}
 		doexe flashplugin-lahf-fix.so
-		inst_plugin /opt/netscape/plugins/flashplugin-lahf-fix.so
+		inst_plugin /${INSTALL_BASE}/flashplugin-lahf-fix.so
 	fi
 
-	if use amd64 && has_multilib_profile && use 32bit; then
+	if [[ $amd64_32bit ]]; then
 		oldabi="${ABI}"
 		ABI="x86"
 
 		# 32b plugin
 		pushd "${S}/usr/lib/flash-plugin"
-			exeinto /opt/netscape/plugins32/
+			exeinto /${INSTALL_BASE}32
 			doexe libflashplayer.so
-			inst_plugin /opt/netscape/plugins32/libflashplayer.so
+			inst_plugin /${INSTALL_BASE}32/libflashplayer.so
 			dodoc "${S}/usr/share/doc/flash-plugin-${PV}/readme.txt"
 		popd
 
@@ -144,6 +117,17 @@ src_install() {
 
 pkg_postinst() {
 	if use amd64; then
+		elog "Adobe has released 10.1 in only a 32-bit version and upgrading"
+		elog "is required to close a major security vulnerability:"
+		elog "  http://bugs.gentoo.org/322855"
+		elog
+		elog "Furthermore, there are stability problems when running 10.1 in a"
+		elog "64-bit browser with nspluginwrapper.  The current recommended"
+		elog "configuration is to use a 32-bit browser such as"
+		elog "www-client/firefox-bin:"
+		elog "  http://bugs.gentoo.org/324365"
+		elog
+
 		if has_version 'www-plugins/nspluginwrapper'; then
 			if [[ $native_install ]]; then
 				# TODO: Perhaps parse the output of 'nspluginwrapper -l'
@@ -170,14 +154,12 @@ pkg_postinst() {
 
 				ABI="${oldabi}"
 			fi
-		elif [[ ! $native_install ]]; then
-			einfo "To use the 32-bit flash player in a native 64-bit firefox,"
-			einfo "you must install www-plugins/nspluginwrapper"
+			if [[ ! $native_install ]]; then
+				einfo "To use the 32-bit flash player in a native 64-bit firefox,"
+				einfo "you must install www-plugins/nspluginwrapper"
+			fi
 		fi
 	fi
-
-	# Always a good idea
-	env-update
 
 	ewarn "Flash player is closed-source, with a long history of security"
 	ewarn "issues.  Please consider only running flash applets you know to"
