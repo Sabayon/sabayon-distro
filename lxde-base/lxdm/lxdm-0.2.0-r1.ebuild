@@ -55,6 +55,12 @@ src_install() {
 	if [[ -n "${DOCS}" ]]; then
 		dodoc $DOCS || die
 	fi
+
+	newinitd "${FILESDIR}"/lxdm.init.d lxdm || \
+		die "Cannot install /etc/init.d/lxdm"
+
+	newconfd "${FILESDIR}"/lxdm.conf.d lxdm || \
+		die "Cannot install /etc/conf.d/lxdm"
 }
 
 pkg_postinst() {
@@ -63,5 +69,8 @@ pkg_postinst() {
 	ewarn "Today /etc/lxdm/xsession is not compatible with Gentoo's"
 	ewarn "xdm init script."
 	ewarn "It will need to be changed to start X Session correctly."
+	ewarn ""
+	ewarn "LXDM cannot currently be started using /etc/init.d/xdm."
+	ewarn "Use /etc/init.d/lxdm as an alternative."
 	ewarn ""
 }
