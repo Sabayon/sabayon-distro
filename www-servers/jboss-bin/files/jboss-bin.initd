@@ -5,7 +5,7 @@
 
 JBOSS_HOME="__JBOSS_HOME__"
 JBOSS_START="bin/run.sh"
-JBOSS_STOP="bin/run.sh"
+JBOSS_STOP="bin/shutdown.sh"
 JBOSS_GROUP="jboss"
 
 depend() {
@@ -24,7 +24,7 @@ start() {
 
 stop() {
 	ebegin "Stopping JBoss Application Server __JBOSS_VER__"
-	"${JBOSS_HOME}/${JBOSS_BIN}" -S
+	"${JBOSS_HOME}/${JBOSS_STOP}" -S
 	eend ${?}
 	# Sorry, wait for server shutdown
 	sleep "${SHUTDOWN_SECS}"
