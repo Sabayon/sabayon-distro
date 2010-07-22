@@ -1,11 +1,11 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.3-r1.ebuild,v 1.1 2010/04/08 02:33:26 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.7.ebuild,v 1.4 2010/07/21 22:42:08 fauli Exp $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python
 
 MY_PV="${PV/_rc/rc}" # Handle beta
 MY_PV="${MY_PV/1.9.2/3.6}"
@@ -17,28 +17,28 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug libnotify system-sqlite wifi"
+IUSE="+alsa debug +ipc libnotify system-sqlite wifi"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
-	>=dev-lang/python-2.3[threads]
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.6
 	>=dev-libs/nspr-4.8
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
-	>=media-libs/lcms-1.17
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	x11-libs/libXt
+	x11-libs/pixman
 	wifi? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
+	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig"
 
 S="${WORKDIR}/mozilla-${MAJ_PV}"
@@ -51,6 +51,8 @@ pkg_setup() {
 	export LC_CTYPE="C"
 
 	java-pkg-opt-2_pkg_setup
+
+	python_set_active_version 2
 }
 
 src_prepare() {
@@ -65,14 +67,17 @@ src_prepare() {
 	# Fix broken mozilla-plugin.pc
 	epatch "${FILESDIR}/${PN}-1.9.2-fix-pkgconfig-file.patch"
 
-	# Fix broken media support
-	epatch "${FILESDIR}/${PN}-1.9.2-noalsa-fixup.patch"
-
-	# Fix broken alignment
-	epatch "${FILESDIR}/1000_fix_alignment.patch"
-
 	# Ensure we find myspell dict.
 	epatch "${FILESDIR}/1002_fix-system-hunspell-dict-detections.patch"
+
+	# ARM fixes, bug 327783
+	epatch "${FILESDIR}/${PN}-1.9.2-arm-fixes.patch"
+
+	# Enable tracemonkey for amd64 (bug #315997)
+	epatch "${FILESDIR}/801-enable-x86_64-tracemonkey.patch"
+
+	# Allow user to apply additional patches without modifing ebuild
+	epatch_user
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
@@ -139,9 +144,9 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
-	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 
+	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable wifi necko-wifi
@@ -177,7 +182,7 @@ src_configure() {
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
 		"${S}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path!"
 
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" econf
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
 }
 
 src_install() {
@@ -187,6 +192,13 @@ src_install() {
 
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+
+	if has_multilib_profile; then
+		local config
+		for config in "${D}"/etc/gre.d/*.system.conf ; do
+			mv "${config}" "${config%.conf}.${CHOST}.conf"
+		done
+	fi
 
 	dodir /usr/bin
 	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_PV}" || die
@@ -202,6 +214,7 @@ src_install() {
 
 	if use java ; then
 		java-pkg_regjar "${D}/${MOZLIBDIR}/javaxpcom.jar"
+		java-pkg_regso "${D}/${MOZLIBDIR}/libjavaxpcomglue.so"
 		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaGlue.jar"
 		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaInterfaces.jar"
 	fi
