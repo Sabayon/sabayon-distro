@@ -1,0 +1,40 @@
+--- a/defaults/initrd.scripts
++++ b/defaults/initrd.scripts
+@@ -698,7 +698,7 @@ openLUKS() {
+ 			;;
+ 	esac
+ 
+-	eval local LUKS_DEVICE='"${CRYPT_'${TYPE}'}"' LUKS_NAME="$1" LUKS_KEY='"${CRYPT_'${TYPE}'_KEY}"' LUKS_KEYDEV='"${CRYPT_'${TYPE}'_KEYDEV}"'
++	eval local LUKS_DEVICE='"${CRYPT_'${TYPE}'}"' LUKS_NAME="$2" LUKS_KEY='"${CRYPT_'${TYPE}'_KEY}"' LUKS_KEYDEV='"${CRYPT_'${TYPE}'_KEYDEV}"'
+ 	local DEV_ERROR=0 KEY_ERROR=0 KEYDEV_ERROR=0
+ 	local mntkey="/mnt/key/" cryptsetup_options=''
+ 
+@@ -818,12 +818,13 @@ startLUKS() {
+ 		&& sleep 6 && bootstrapKey "ROOT"
+ 
+ 	if [ -n "${CRYPT_ROOT}" ]; then
+-		openLUKS "root"
+ 		if [ -n "${REAL_ROOT}" ]
+ 		then
++			openLUKS "root" "$(basename "${REAL_ROOT}")"
+ 			# Rescan volumes
+ 			startVolumes
+ 		else
++			openLUKS "root" "root"
+ 			REAL_ROOT="/dev/mapper/root"
+ 		fi
+ 	fi
+@@ -833,9 +834,11 @@ startLUKS() {
+ 		&& { [ -z "${CRYPT_ROOT}" ] && sleep 6; bootstrapKey "SWAP"; }
+ 
+ 	if [ -n "${CRYPT_SWAP}" ]; then
+-		openLUKS "swap"
+-		if [ -z "${REAL_RESUME}" ]
++		if [ -n "${REAL_RESUME}" ]
+ 		then
++			openLUKS "swap" "$(basename "${REAL_RESUME}")"
++		else
++			openLUKS "swap" "swap"
+ 			# Resume from swap as default
+ 			REAL_RESUME="/dev/mapper/swap"
+ 		fi
