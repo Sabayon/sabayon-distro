@@ -10,11 +10,13 @@ depend() {
 
 start() {
 
+	SABAYON_USER="sabayonmce"
 	source /sbin/sabayon-functions.sh
 	sabayonmce_avail=$(cat /proc/cmdline | grep sabayonmce)
 	is_live=$(cat /proc/cmdline | grep cdroot)
 
 	if [ -n "$sabayonmce_avail" ]; then
+
 		ebegin "Sabayon Media Center mode enabled"
 
 		# setup default .dmrc
@@ -22,8 +24,8 @@ start() {
 		echo "Session=sabayon-mce" >> /var/sabayonmce/.dmrc
 		chown sabayonmce /var/sabayonmce/.dmrc
 
-		SABAYON_USER="sabayonmce"
 		sabayon_setup_autologin
+
 	elif [ -z "$is_live" ] && [ -z "$sabayonmce_avail" ]; then
 		ebegin "Sabayon Media Center mode disabled"
 		sabayon_disable_autologin
