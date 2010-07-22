@@ -61,6 +61,10 @@ src_install() {
 
 	newconfd "${FILESDIR}"/lxdm.conf.d lxdm || \
 		die "Cannot install /etc/conf.d/lxdm"
+
+	exeinto /etc/lxdm
+	doexe "${FILESDIR}"/xinitrc || \
+		die "Cannot install /etc/lxdm/xinitrc"
 }
 
 pkg_postinst() {
