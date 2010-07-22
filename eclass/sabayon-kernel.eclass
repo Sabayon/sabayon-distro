@@ -130,7 +130,7 @@ sabayon-kernel_src_compile() {
 	OLDARCH="${ARCH}"
 	unset ARCH
 	cd "${S}"
-	GK_ARGS="--disklabel"
+	GKARGS="--disklabel"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
 	use dmraid && GKARGS="${GKARGS} --dmraid"
 	export DEFAULT_KERNEL_SOURCE="${S}"
@@ -156,7 +156,6 @@ sabayon-kernel_src_compile() {
 		--mountboot \
 		--lvm \
 		--luks \
-		--disklabel \
 		--module-prefix="${WORKDIR}"/lib \
 		all || die "genkernel failed"
 	ARCH=${OLDARCH}
