@@ -1,0 +1,29 @@
+#!/sbin/runscript
+# Copyright 1999-2010 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+JBOSS_HOME="__JBOSS_HOME__"
+JBOSS_BIN="bin/run.sh"
+JBOSS_PID="/var/run/jboss/__JBOSS__.pid"
+
+depend() {
+	need net
+	use dns
+}
+
+start() {
+	ebegin "Starting JBoss Application Server __JBOSS_VER__"
+	# make sure Java stuff is set.
+	. /etc/profile
+	start-stop-daemon --start --quiet -m \
+		--pidfile ${JBOSS_PID} --exec "${JBOSS_HOME}/${JBOSS_BIN}" \
+		-- ${JBOSS_OPTIONS}
+	eend ${?}
+}
+
+stop() {
+	start-stop-daemon --stop --quiet \
+		--pidfile ${JBOSS_PID} --exec "${JBOSS_HOME}/${JBOSS_BIN}"
+	eend ${?}
+}
