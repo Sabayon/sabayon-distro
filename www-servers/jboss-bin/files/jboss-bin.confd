@@ -24,3 +24,7 @@ JBOSS_OPTIONS=""
 # If you change it, also make sure that /var/run/jboss has
 # appropriate permissions.
 JBOSS_USER="jboss"
+
+# JBoss needs some time to shutdown. To avoid data loss, a sleep
+# is required. Especially with OpenRC.
+SHUTDOWN_SECS="10"

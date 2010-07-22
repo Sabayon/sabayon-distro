@@ -46,10 +46,6 @@ src_install() {
 	doins -r client lib server
 	use doc && doins -r docs
 
-	# Setup custom init scripts, groups and perms
-	dodir /var/run/jboss
-	keepdir /var/run/jboss
-
 	cp "${FILESDIR}"/jboss-bin.confd . || die "cannot copy config file"
 	sed -i "s:__JBOSS_HOME__:${INSTALL_DIR}:g" jboss-bin.confd || die "cannot jboss-bin.confd"
 	sed -i "s:__JBOSS_VER__:${SLOT}:g" jboss-bin.confd || die "cannot sed jboss-bin.confd"
@@ -63,11 +59,7 @@ src_install() {
 	sed -i "s:__JBOSS__:${JBOSS_NAME}:g" jboss-bin.initd || die "cannot sed jboss-bin.initd"
 	dodir /etc/init.d
 	newinitd jboss-bin.initd "${JBOSS_NAME}"
-}
 
-pkg_postinst() {
-	# setup /var/run/jboss permissions
-	elog "Setting proper permissions to ${ROOT}var/run/jboss..."
-	chgrp jboss "${ROOT}var/run/jboss"
-	chmod g+w "${ROOT}var/run/jboss"
+	chown jboss:jboss "${D}/${INSTALL_DIR}" -R || die "failed to chown"
+
 }

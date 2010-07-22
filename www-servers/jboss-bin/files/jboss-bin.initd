@@ -4,8 +4,9 @@
 # $Header: $
 
 JBOSS_HOME="__JBOSS_HOME__"
-JBOSS_BIN="bin/run.sh"
-JBOSS_PID="/var/run/jboss/__JBOSS__.pid"
+JBOSS_START="bin/run.sh"
+JBOSS_STOP="bin/run.sh"
+JBOSS_GROUP="jboss"
 
 depend() {
 	need net
@@ -15,15 +16,16 @@ depend() {
 start() {
 	ebegin "Starting JBoss Application Server __JBOSS_VER__"
 	# make sure Java stuff is set.
-	. /etc/profile
-	start-stop-daemon --start --quiet -m \
-		--pidfile ${JBOSS_PID} --exec "${JBOSS_HOME}/${JBOSS_BIN}" \
+	start-stop-daemon --start --background -g "${JBOSS_GROUP}" \
+		-u "${JBOSS_USER}" --exec "${JBOSS_HOME}/${JBOSS_START}" \
 		-- ${JBOSS_OPTIONS}
 	eend ${?}
 }
 
 stop() {
-	start-stop-daemon --stop --quiet \
-		--pidfile ${JBOSS_PID} --exec "${JBOSS_HOME}/${JBOSS_BIN}"
+	ebegin "Stopping JBoss Application Server __JBOSS_VER__"
+	"${JBOSS_HOME}/${JBOSS_BIN}" -S
 	eend ${?}
+	# Sorry, wait for server shutdown
+	sleep "${SHUTDOWN_SECS}"
 }
