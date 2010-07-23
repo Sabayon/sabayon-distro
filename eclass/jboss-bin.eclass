@@ -62,4 +62,7 @@ src_install() {
 
 	chown jboss:jboss "${D}/${INSTALL_DIR}" -R || die "failed to chown"
 
+	echo "JBOSS_HOME=\"${INSTALL_DIR}\"" > "50-${JBOSS_NAME}"
+	doenvd "50-${JBOSS_NAME}"
+
 }
