@@ -6,7 +6,7 @@ EAPI=2
 
 MY_P="${P/_/}"
 
-inherit autotools flag-o-matic
+inherit autotools multilib flag-o-matic
 
 DESCRIPTION="ALSA extra plugins"
 HOMEPAGE="http://www.alsa-project.org/"
@@ -85,6 +85,16 @@ src_install() {
 		# making PA to be used by alsa clients
 		insinto /usr/share/alsa
 		doins "${FILESDIR}"/pulse*.conf
+		# setup proper LDPATH to make possible to load
+		# "libasound_module_conf_pulse.so"
+		# even for multilib systems
+		local ldpath=""
+		for libdir in $(get_all_libdirs); do
+			ldpath="${ldpath}:/usr/${libdir}/alsa-lib"
+		done
+		ldpath="${ldpath:1}"
+		echo "LDPATH=\"${ldpath}\"" > "${S}/40-alsa-plugin-pulse"
+		doenvd "${S}/40-alsa-plugin-pulse"
 	fi
 
 }
