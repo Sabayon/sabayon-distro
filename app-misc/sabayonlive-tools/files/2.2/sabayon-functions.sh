@@ -4,7 +4,7 @@ GDM_FILE="/usr/share/gdm/defaults.conf"
 KDM_FILE="/usr/share/config/kdm/kdmrc"
 OEM_FILE="/etc/oemlive.sh"
 LIVE_USER_GROUPS="audio cdrom cdrw clamav console disk entropy games haldaemon \
-kvm lp messagebus plugdev polkituser portage pulse pulse-access pulse-rt \
+kvm lp lpadmin messagebus plugdev polkituser portage pulse pulse-access pulse-rt \
 scanner usb users uucp vboxguest vboxusers video wheel"
 LIVE_USER=${SABAYON_USER:-sabayonuser}
 
