@@ -1,0 +1,59 @@
+* gre conf location is a bit hardcoded unfortunately :(
+
+--- extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java
++++ extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java
+@@ -470,8 +470,8 @@
+ 
+     final String greUserConfFile = ".gre.config";
+     final String greUserConfDir = ".gre.d";
+-    final String greConfPath = "/etc/gre.conf";
+-    final String greConfDir = "/etc/gre.d";
++    final String greConfPath = "@GENTOO_PORTAGE_EPREFIX@/etc/gre.conf";
++    final String greConfDir = "@GENTOO_PORTAGE_EPREFIX@/etc/gre.d";
+ 
+     env = System.getProperty("user.home");
+     if (env != null) {
+--- xpcom/build/nsXPCOMPrivate.h
++++ xpcom/build/nsXPCOMPrivate.h
+@@ -245,8 +245,8 @@
+ #endif
+ 
+ #define GRE_CONF_NAME ".gre.config"
+-#define GRE_CONF_PATH "/etc/gre.conf"
+-#define GRE_CONF_DIR  "/etc/gre.d"
++#define GRE_CONF_PATH "@GENTOO_PORTAGE_EPREFIX@/etc/gre.conf"
++#define GRE_CONF_DIR  "@GENTOO_PORTAGE_EPREFIX@/etc/gre.d"
+ #define GRE_USER_CONF_DIR ".gre.d"
+ #endif
+ 
+--- xulrunner/installer/Makefile.in
++++ xulrunner/installer/Makefile.in
+@@ -73,7 +73,7 @@
+ 
+ ifndef SKIP_GRE_REGISTRATION
+ # to register xulrunner per-user, override this with $HOME/.gre.d
+-regdir = /etc/gre.d
++regdir = @sysconfdir@/gre.d
+ 
+ install:: $(MOZILLA_VERSION).system.conf
+ 	$(NSINSTALL) -D $(DESTDIR)$(regdir)
+--- xulrunner/app/nsRegisterGREUnix.cpp
++++ xulrunner/app/nsRegisterGREUnix.cpp
+@@ -130,7 +130,7 @@
+ 
+   nsresult rv;
+ 
+-  char root[MAXPATHLEN] = "/etc/gre.d";
++  char root[MAXPATHLEN] = "@GENTOO_PORTAGE_EPREFIX@/etc/gre.d";
+ 
+   if (!aRegisterGlobally) {
+     char *home = PR_GetEnv("HOME");
+@@ -222,7 +222,7 @@
+ {
+   nsresult rv;
+ 
+-  char root[MAXPATHLEN] = "/etc/gre.d";
++  char root[MAXPATHLEN] = "@GENTOO_PORTAGE_EPREFIX@/etc/gre.d";
+ 
+   if (!aRegisterGlobally) {
+     char *home = PR_GetEnv("HOME");
