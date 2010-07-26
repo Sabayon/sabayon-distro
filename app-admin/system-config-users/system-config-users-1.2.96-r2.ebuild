@@ -33,3 +33,20 @@ PATCHES=( "${FILESDIR}/${PN}-kill-rpm.patch" )
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
 }
+
+# FIXME: this package should depend against sys-apps/usermode
+# which has been removed from Portage in May, 2009.
+# If you intend to provide a full package in future (and not
+# just stuff required by app-admin/anaconda, please consider
+# to re-add sys-apps/usermode (version bumping, QA checking)
+# and remove the hackish code in src_install below
+src_install() {
+	base_src_install
+
+	# See FIXME above
+	rm -rf "${D}/usr/share/"{man,applications}
+	rm -rf "${D}/etc/"{pam.d,sysconfig,security}
+	rm -rf "${D}/etc/sysconfig"
+	rm -rf "${D}/usr/bin"
+	find "${D}" -name "*.pyc" | xargs rm -f
+}
