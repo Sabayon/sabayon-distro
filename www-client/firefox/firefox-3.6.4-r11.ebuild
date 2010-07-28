@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.6.7.ebuild,v 1.4 2010/07/21 22:47:01 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-3.6.4.ebuild,v 1.1 2010/07/25 19:06:36 nirbheek Exp $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
@@ -17,12 +17,12 @@ MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.6"
 MY_PV="${PV/_rc/rc}" # Handle beta for SRC_URI
 XUL_PV="${MAJ_XUL_PV}${MAJ_PV/${DESKTOP_PV}/}" # Major + Minor version no.s
-PATCH="${PN}-3.6-patches-0.6"
+PATCH="mozilla-${PN}-3.6-patches-0.6"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86"
+KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 sparc x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa bindist +ipc java libnotify system-sqlite wifi"
@@ -34,14 +34,14 @@ SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
 for X in ${LANGS} ; do
 	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
 		SRC_URI="${SRC_URI}
-			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> mozilla-${P}-${X}.xpi )"
 	fi
 	IUSE="${IUSE} linguas_${X/-/_}"
 	# english is handled internally
 	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
 		if [ "${X}" != "en-US" ]; then
 			SRC_URI="${SRC_URI}
-				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> mozilla-${P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X%%-*}"
 	fi
@@ -119,7 +119,7 @@ src_unpack() {
 	linguas
 	for X in ${linguas}; do
 		# FIXME: Add support for unpacking xpis to portage
-		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
+		[[ ${X} != "en" ]] && xpi_unpack "mozilla-${P}-${X}.xpi"
 	done
 }
 
@@ -133,13 +133,16 @@ src_prepare() {
 	# The patch excluded above failed, ported patch is applied below
 	epatch "${FILESDIR}/137-bz460917_reload_new_plugins-gentoo-update-3.6.4.patch"
 
+	# Fix media build failure
+	epatch "${FILESDIR}/xulrunner-1.9.2-noalsa-fixup.patch"
+
+	# Fix broken alignment
+	epatch "${FILESDIR}/1000_fix_alignment.patch"
+
 	# ARM fixes, bug 327783
 	epatch "${FILESDIR}/xulrunner-1.9.2-arm-fixes.patch"
 
-	# Enable tracemonkey for amd64 (bug #315997)
-	epatch "${FILESDIR}/801-enable-x86_64-tracemonkey.patch"
-
-    	# Allow user to apply additional patches without modifing ebuild
+	# Allow user to apply additional patches without modifing ebuild
 	epatch_user
 
 	eautoreconf
@@ -149,7 +152,7 @@ src_prepare() {
 }
 
 src_configure() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-${PN}"
 	MEXTENSIONS="default"
 
 	####################################
@@ -230,31 +233,31 @@ src_compile() {
 }
 
 src_install() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	linguas
 	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"mozilla-${P}-${X}"
 	done
 
 	# Install icon and .desktop for menu entry
 	if ! use bindist ; then
-		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
-		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
-			${PN}-${DESKTOP_PV}.desktop
+		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png ${PN}-icon.png
+		newmenu "${FILESDIR}"/icon/${PN}-1.5.desktop \
+			mozilla-${PN}-${DESKTOP_PV}.desktop
 	else
-		newicon "${S}"/browser/branding/unofficial/content/icon48.png firefox-icon-unbranded.png
-		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
-			${PN}-${DESKTOP_PV}.desktop
+		newicon "${S}"/browser/branding/unofficial/content/icon48.png ${PN}-icon-unbranded.png
+		newmenu "${FILESDIR}"/icon/${PN}-1.5-unbranded.desktop \
+			mozilla-${PN}-${DESKTOP_PV}.desktop
 		sed -i -e "s:Bon Echo:Namoroka:" \
-			"${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop || die "sed failed!"
+			"${D}"/usr/share/applications/mozilla-${PN}-${DESKTOP_PV}.desktop || die "sed failed!"
 	fi
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification ; then
-		echo "StartupNotify=true" >> "${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop
+		echo "StartupNotify=true" >> "${D}"/usr/share/applications/mozilla-${PN}-${DESKTOP_PV}.desktop
 	fi
 
 	pax-mark m "${D}"/${MOZILLA_FIVE_HOME}/firefox
