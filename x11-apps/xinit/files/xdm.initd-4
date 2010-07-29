@@ -134,7 +134,7 @@ setup_dm() {
 			PIDFILE=/var/run/gpe-dm.pid
 			;;
 		lxdm)
-			EXE=/usr/sbin/lxdm
+			EXE=/usr/sbin/lxdm-binary
 			PIDFILE=/var/run/lxdm.pid
 			START_STOP_ARGS="--background"
 			;;
