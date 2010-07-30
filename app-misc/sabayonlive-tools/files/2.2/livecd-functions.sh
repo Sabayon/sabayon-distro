@@ -271,7 +271,7 @@ livecd_write_net_conf() {
 			DOMAIN="$(tail -n 1 ${iface}.SUFFIX)"
 			if [ -n "${IP}" -a -n "${BROADCAST}" -a -n "${NETMASK}" ]
 			then
-				echo "config_${iface}=\"${IP} broadcast ${BROADCAST} netmask ${NETMASK}\"" >> /etc/conf.d/net
+				echo "config_${iface}=\"${IP} netmask ${NETMASK} broadcast ${BROADCAST}\"" >> /etc/conf.d/net
 				if [ -n "${GATEWAY}" ]
 				then
 					echo "routes_${iface}=\"default via ${GATEWAY}\"" >> /etc/conf.d/net
