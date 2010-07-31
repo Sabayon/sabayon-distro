@@ -24,7 +24,10 @@ DEPEND="sys-apps/sandbox
 RDEPEND="${DEPEND}"
 
 pkg_setup() {
-	# Can update repos and handle on-disk cache
+	# Can:
+	# - update repos
+	# - update security advisories
+	# - handle on-disk cache (atm)
 	enewgroup entropy || die "failed to create entropy group"
 }
 
