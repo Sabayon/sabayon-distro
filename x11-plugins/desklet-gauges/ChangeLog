@@ -1,0 +1,11 @@
+# ChangeLog for x11-plugins/desklet-gauges
+# Copyright 1999-2008 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  17 Feb 2008; (Tommy[D]) tommy100@gmx.de desklet-gauges-0.52.ebuild:
+  Shorten description
+
+  06 Sep 2006; Greg Watson (eimono) <gwatson@linuxlogin.com>
+  +desklet-gauges-0.52.ebuild, +metadata.xml:
+  New ebuild for bug 86656, Thanks Bjoern
+
