@@ -1,0 +1,88 @@
+--- ov51x-jpeg-1.5.9/ov51x-jpeg-core.c	2008-09-28 12:58:09.000000000 +0200
++++ ov51x-jpeg-1.5.9/ov51x-jpeg-core.c.new	2009-05-31 18:19:39.000000000 +0200
+@@ -539,7 +539,7 @@
+ 
+ static struct file_operations ov511_control_fops = {
+ 	.ioctl =	ov51x_control_ioctl,
+-#ifdef CONFIG_COMPAT 
++#if defined(CONFIG_COMPAT) && LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 29)
+ 	.compat_ioctl =	v4l_compat_ioctl32,
+ #endif
+ };
+@@ -5733,7 +5733,7 @@
+ {
+ #else
+ static int
+-ov51x_v4l1_open(struct inode *inode, struct file *file)
++ov51x_v4l1_open(struct file *file)
+ {
+ 	struct video_device *vdev = video_devdata(file);
+ #endif
+@@ -5804,7 +5804,7 @@
+ {
+ #else
+ static int
+-ov51x_v4l1_close(struct inode *inode, struct file *file)
++ov51x_v4l1_close(struct file *file)
+ {
+ 	struct video_device *vdev = file->private_data;
+ #endif
+@@ -5850,13 +5850,15 @@
+ }
+ 
+ /* Do not call this function directly! */
+-static int
++
+ #ifdef OV511_OLD_V4L
++static int
+ ov51x_v4l1_ioctl_internal(struct usb_ov511 *ov, unsigned int cmd,
+ 			  void *arg)
+ {
+ #else
+-ov51x_v4l1_ioctl_internal(struct inode *inode, struct file *file,
++static long
++ov51x_v4l1_ioctl_internal(struct file *file,
+ 			  unsigned int cmd, void *arg)
+ {
+ 	struct video_device *vdev = file->private_data;
+@@ -6372,8 +6374,8 @@
+ 
+ #else	/* If new V4L API */
+ 
+-static int
+-ov51x_v4l1_ioctl(struct inode *inode, struct file *file,
++static long
++ov51x_v4l1_ioctl(struct file *file,
+ 		 unsigned int cmd, unsigned long arg)
+ {
+ 	struct video_device *vdev = file->private_data;
+@@ -6383,7 +6385,7 @@
+ 	if (down_interruptible(&ov->lock))
+ 		return -EINTR;
+ 
+-	rc = video_usercopy(inode, file, cmd, arg, ov51x_v4l1_ioctl_internal);
++	rc = video_usercopy(file, cmd, arg, ov51x_v4l1_ioctl_internal);
+ 
+ 	up(&ov->lock);
+ 	return rc;
+@@ -6624,17 +6626,17 @@
+ 
+ #else	/* New V4L API */
+ 
+-static struct file_operations ov511_fops = {
++static struct v4l2_file_operations ov511_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =		ov51x_v4l1_open,
+ 	.release =	ov51x_v4l1_close,
+ 	.read =		ov51x_v4l1_read,
+ 	.mmap =		ov51x_v4l1_mmap,
+ 	.ioctl =	ov51x_v4l1_ioctl,
+-#ifdef CONFIG_COMPAT 
++#if defined(CONFIG_COMPAT) && LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 29)
+ 	.compat_ioctl =	v4l_compat_ioctl32,
+ #endif
+-	.llseek =	no_llseek,
++//	.llseek =	no_llseek,
+ };
+ 
+ static struct video_device vdev_template = {
