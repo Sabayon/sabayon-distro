@@ -1,0 +1,22 @@
+--- src/NetworkManager.conf~	2010-06-30 19:55:33.000000000 +0100
++++ src/NetworkManager.conf	2010-07-28 10:11:06.648872144 +0100
+@@ -57,10 +57,19 @@
+                 <allow send_destination="org.freedesktop.NetworkManager"
+                        send_interface="org.freedesktop.NetworkManager.VPN.Connection"/>
+ 
++                <allow send_destination="org.freedesktop.NetworkManager"
++                       send_interface="org.freedesktop.NetworkManager.VPN.Plugin"/>
++
+                 <deny send_destination="org.freedesktop.NetworkManager"
+                        send_interface="org.freedesktop.NetworkManager"
+                        send_member="SetLogging"/>
+         </policy>
++        <policy group="plugdev">
++                <allow send_destination="org.freedesktop.NetworkManager"/>
++
++                <deny send_destination="org.freedesktop.NetworkManager"
++                      send_interface="org.freedesktop.NetworkManager.PPP"/>
++        </policy>
+         <policy context="default">
+                 <deny own="org.freedesktop.NetworkManager"/>
+                 <deny own="org.freedesktop.NetworkManagerSystemSettings"/>

@@ -1,9 +1,10 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.8.0_pre20091105.ebuild,v 1.2 2009/11/05 15:52:12 dagger Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.8.1.ebuild,v 1.1 2010/07/28 09:34:45 dagger Exp $
 
 EAPI="2"
-inherit eutils
+
+inherit gnome.org eutils autotools
 
 # NetworkManager likes itself with capital letters
 MY_PN=${PN/networkmanager/NetworkManager}
@@ -11,18 +12,19 @@ MY_P=${MY_PN}-${PV}
 
 DESCRIPTION="Network configuration and management in an easy way. Desktop environment independent."
 HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
-SRC_URI="http://dev.gentoo.org/~dagger/files/${MY_P}.tar.bz2"
+SRC_URI="${SRC_URI//${PN}/${MY_PN}}
+	http://dev.gentoo.org/~dagger/files/${PN}-ifnet.patch"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 IUSE="avahi bluetooth doc nss gnutls dhclient dhcpcd resolvconf connection-sharing"
 
 RDEPEND=">=sys-apps/dbus-1.2
 	>=dev-libs/dbus-glib-0.75
 	>=net-wireless/wireless-tools-28_pre9
 	>=sys-fs/udev-145[extras]
-	>=dev-libs/glib-2.16
+	>=dev-libs/glib-2.18
 	>=sys-auth/polkit-0.92
 	>=dev-libs/libnl-1.1
 	>=net-misc/modemmanager-0.2
@@ -53,10 +55,13 @@ DEPEND="${RDEPEND}
 S=${WORKDIR}/${MY_P}
 
 src_prepare() {
-
 	# Fix up the dbus conf file to use plugdev group
-	epatch "${FILESDIR}/${PN}-0.7.1-confchanges.patch"
+	epatch "${FILESDIR}/${P}-confchanges.patch"
 
+	# Gentoo system-plugin
+	epatch "${DISTDIR}/${PN}-ifnet.patch"
+
+	eautoreconf
 }
 
 src_configure() {
@@ -64,10 +69,11 @@ src_configure() {
 		--localstatedir=/var
 		--with-distro=gentoo
 		--with-dbus-sys-dir=/etc/dbus-1/system.d
+		--with-udev-dir=/etc/udev
+		--with-iptables=/sbin/iptables
 		$(use_enable doc gtk-doc)
 		$(use_with doc docs)
-		$(use_with resolvconf)
-		$(use_with connection-sharing iptables)"
+		$(use_with resolvconf)"
 
 	# default is dhcpcd (if none or both are specified), ISC dchclient otherwise
 	if use dhclient ; then
@@ -110,9 +116,6 @@ src_install() {
 	insinto /etc/NetworkManager
 	newins "${FILESDIR}/nm-system-settings.conf" nm-system-settings.conf \
 		|| die "newins failed"
-	insinto /etc/udev/rules.d
-	newins callouts/77-nm-probe-modem-capabilities.rules 77-nm-probe-modem-capabilities.rules
-	rm -rf "${D}"/lib/udev/rules.d
 
 	# Install script in /etc/NetworkManager/dispatcher.d to make netmount
 	# users (and init service) a bit more happy when NM is in use.
@@ -124,10 +127,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "You will need to restart DBUS if this is your first time"
-	elog "installing NetworkManager."
+	elog "You will need to reload DBus if this is your first time installing"
+	elog "NetworkManager, or if you're upgrading from 0.7 or older."
 	elog ""
-	elog "To save system-wide settings as a user, that user needs to have the"
-	elog "right policykit privileges. You can add them by running:"
-	elog 'polkit-auth --grant org.freedesktop.network-manager-settings.system.modify --user "USERNAME"'
 }
