@@ -17,7 +17,10 @@ SRC_URI="${SRC_URI//${PN}/${MY_PN}}
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+# KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+# Mask (per Mitch Harder Aug. 2, 2010) due to unresolved
+# Functionality issues.
+KEYWORDS=""
 IUSE="avahi bluetooth doc nss gnutls dhclient dhcpcd resolvconf connection-sharing"
 
 RDEPEND=">=sys-apps/dbus-1.2
