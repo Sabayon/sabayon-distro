@@ -87,6 +87,9 @@ src_prepare() {
 	# Enable tracemonkey for amd64 (bug #315997)
 	epatch "${FILESDIR}/801-enable-x86_64-tracemonkey.patch"
 
+        # Enable bilinear filtering of upscaled images
+        epatch "${FILESDIR}/using_extend_pad.patch"
+
 	# Allow user to apply additional patches without modifing ebuild
 	epatch_user
 
