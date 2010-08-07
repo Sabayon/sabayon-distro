@@ -29,6 +29,9 @@ pkg_setup() {
 	# - update security advisories
 	# - handle on-disk cache (atm)
 	enewgroup entropy || die "failed to create entropy group"
+	# Create unprivileged entropy user
+	enewgroup entropy-nopriv || die "failed to create entropy-nopriv group"
+	enewuser entropy-nopriv -1 -1 -1 entropy-nopriv || die "failed to create entropy-nopriv user"
 }
 
 src_compile() {
