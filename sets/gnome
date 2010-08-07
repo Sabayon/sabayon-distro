@@ -1,0 +1,15 @@
+app-arch/file-roller
+app-cdr/brasero
+app-misc/sabayon-skel
+app-text/evince
+gnome-base/gdm
+gnome-base/gnome-applets
+gnome-base/gnome-light
+gnome-extra/nm-applet
+gnome-extra/gnome-media
+mail-client/evolution
+media-gfx/eog
+media-video/totem
+@X
+x11-apps/xdm
+x11-themes/sabayon-artwork-gnome
