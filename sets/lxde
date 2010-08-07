@@ -3,5 +3,6 @@ app-text/epdfview
 gnome-base/gdm
 lxde-base/lxde-meta
 mail-client/claws-mail
+@wireless
 @X
 x11-themes/sabayon-artwork-gnome

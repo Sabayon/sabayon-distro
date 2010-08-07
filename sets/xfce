@@ -2,6 +2,7 @@ app-editors/mousepad
 app-misc/sabayon-skel
 gnome-base/gdm
 sys-apps/devicekit
+@wireless
 @X
 x11-themes/sabayon-artwork-gnome
 x11-themes/xfce4-icon-theme
