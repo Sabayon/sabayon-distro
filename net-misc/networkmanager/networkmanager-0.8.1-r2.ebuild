@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.8.1.ebuild,v 1.1 2010/07/28 09:34:45 dagger Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.8.1-r1.ebuild,v 1.1 2010/08/04 12:05:53 dagger Exp $
 
 EAPI="2"
 
@@ -17,10 +17,7 @@ SRC_URI="${SRC_URI//${PN}/${MY_PN}}
 
 LICENSE="GPL-2"
 SLOT="0"
-# KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
-# Mask (per Mitch Harder Aug. 2, 2010) due to unresolved
-# Functionality issues.
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 IUSE="avahi bluetooth doc nss gnutls dhclient dhcpcd resolvconf connection-sharing"
 
 RDEPEND=">=sys-apps/dbus-1.2
@@ -42,7 +39,7 @@ RDEPEND=">=sys-apps/dbus-1.2
 	!gnutls? ( >=dev-libs/nss-3.11 )
 	dhclient? (
 		dhcpcd? ( >=net-misc/dhcpcd-4.0.0_rc3 )
-		!dhcpcd? ( >=net-misc/dhcp-3.0.0 ) )
+		!dhcpcd? ( >=net-misc/dhcp-4.0.0 ) )
 	!dhclient? ( >=net-misc/dhcpcd-4.0.0_rc3 )
 	resolvconf? ( net-dns/openresolv )
 	connection-sharing? (
@@ -60,6 +57,9 @@ S=${WORKDIR}/${MY_P}
 src_prepare() {
 	# Fix up the dbus conf file to use plugdev group
 	epatch "${FILESDIR}/${P}-confchanges.patch"
+
+	# Fix problems with dhcpcd/dhclient (bug #330319)
+	epatch "${FILESDIR}/${P}-dhcp-configure.patch"
 
 	# Gentoo system-plugin
 	epatch "${DISTDIR}/${PN}-ifnet.patch"
@@ -81,12 +81,12 @@ src_configure() {
 	# default is dhcpcd (if none or both are specified), ISC dchclient otherwise
 	if use dhclient ; then
 		if use dhcpcd ; then
-			ECONF="${ECONF} --with-dhcp-client=dhcpcd"
+			ECONF="${ECONF} --with-dhcpcd"
 		else
-			ECONF="${ECONF} --with-dhcp-client=dhclient"
+			ECONF="${ECONF} --with-dhclient"
 		fi
 	else
-		ECONF="${ECONF} --with-dhcp-client=dhcpcd"
+		ECONF="${ECONF} --with-dhcpcd"
 	fi
 
 	# default is NSS (if none or both are specified), GnuTLS otherwise
