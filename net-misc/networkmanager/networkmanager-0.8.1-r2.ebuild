@@ -17,7 +17,11 @@ SRC_URI="${SRC_URI//${PN}/${MY_PN}}
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+
+# Re-masking the 0.8.1 ebuild due to continuing functionality issues.
+# KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+KEYWORDS=""
+
 IUSE="avahi bluetooth doc nss gnutls dhclient dhcpcd resolvconf connection-sharing"
 
 RDEPEND=">=sys-apps/dbus-1.2
