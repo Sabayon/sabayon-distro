@@ -25,7 +25,6 @@ IUSE="acpi custom-cflags gtk multilib kernel_FreeBSD kernel_linux userland_BSD"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
-# temp disable: nvidia-drivers-71.86.13.ebuild
 COMMON="multilib? ( app-emulation/emul-linux-x86-xlibs )
 	kernel_FreeBSD? ( !media-video/nvidia-freebsd )
 	!app-emulation/emul-linux-x86-nvidia
