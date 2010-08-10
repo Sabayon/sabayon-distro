@@ -8,7 +8,7 @@ OLD=$1
 NEW=$2
 PACKAGES="x11-themes/sabayon-artwork-core x11-themes/sabayon-artwork-extra \
 		x11-themes/sabayon-artwork-kde x11-themes/sabayon-artwork-gnome \
-			x11-themes/sabayon-artwork-ooo"
+			x11-themes/sabayon-artwork-ooo x11-themes/sabayon-artwork-lxde"
 
 for package in ${PACKAGES}; do
 	name=$(echo ${package} | cut -d/ -f2)
