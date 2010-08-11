@@ -37,6 +37,8 @@ src_prepare() {
 	# this will apply all patches in PATCHES array
 	base_src_prepare
 
+	epatch "${FILESDIR}/lxdm-0.2.0-pam_console-disable.patch"
+
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
 
