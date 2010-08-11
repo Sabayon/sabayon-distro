@@ -8,7 +8,7 @@ KMNAME="kdebase-workspace"
 inherit kde4-meta flag-o-matic
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="consolekit debug +handbook kerberos pam"
 
 DEPEND="
@@ -25,11 +25,12 @@ DEPEND="
 		virtual/pam
 	)
 "
+# >5.4 needed due to theme name change to "sabayon"
 RDEPEND="${DEPEND}
 	$(add_kdebase_dep kdepasswd)
 	>=x11-apps/xinit-1.0.5-r2
 	x11-apps/xmessage
-	x11-themes/sabayon-artwork-kde
+	>=x11-themes/sabayon-artwork-kde-5.4_beta1
 "
 
 KMEXTRACTONLY="
@@ -42,9 +43,6 @@ KMEXTRA="
 PATCHES=(
 	"${FILESDIR}/kdebase-4.0.2-pam-optional.patch"
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
-	"${FILESDIR}/${PN}-4.3.5-xdm-restart.patch"
-	"${FILESDIR}/${PN}-4-sabayon-bootmanager.patch"
-	"${FILESDIR}/${PN}-4-sabayon-theme-5.4.patch"
 )
 
 pkg_setup() {
@@ -81,11 +79,13 @@ src_install() {
 	# - TerminateServer=true to workaround X server regen bug, bug 278473
 	# - DataDir set to /var/lib/kdm-${SLOT}
 	# - FaceDir set to /var/lib/kdm-${SLOT}/faces
+	# - Set Sabayon theme
 	sed -e "s|^.*SessionsDirs=.*$|#&\nSessionsDirs=${EPREFIX}/usr/share/xsessions|" \
 		-e "/#ServerTimeout=/s/^.*$/ServerTimeout=30/" \
 		-e "/#TerminateServer=/s/^.*$/TerminateServer=true/" \
 		-e "s|^.*DataDir=.*$|#&\nDataDir=${EPREFIX}${KDM_HOME}|" \
 		-e "s|^.*FaceDir=.*$|#&\nFaceDir=${EPREFIX}${KDM_HOME}/faces|" \
+		-e "s|oxygen-air$|sabayon|" \
 		-i "${ED}"/${KDEDIR}/share/config/kdm/kdmrc \
 		|| die "Failed to set ServerTimeout and SessionsDirs correctly in kdmrc."
 
