@@ -2,8 +2,8 @@
 Encoding=UTF-8
 Type=Application
 
-Exec=xdg-open http://www.cafepress.com/sabayon
+Exec=xdg-open http://gitweb.sabayon.org/
 Icon=sabayon-weblink
 
-Name=Sabayon Shop
+Name=Sabayon Git Repos
 

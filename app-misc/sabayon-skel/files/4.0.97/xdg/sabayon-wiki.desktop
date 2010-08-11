@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Type=Application
 
-Exec=xdg-open http://www.sabayonlinux.org/packages
+Exec=xdg-open http://www.sabayon.org/packages
 Icon=sabayon-weblink
 
 Name=Sabayon Packages
