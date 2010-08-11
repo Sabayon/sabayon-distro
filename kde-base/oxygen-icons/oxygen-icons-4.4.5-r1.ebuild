@@ -10,7 +10,7 @@ else
 	KMNAME="oxygen-icons"
 fi
 KDE_REQUIRED="never"
-SLREV=3
+SLREV=4
 inherit kde4-base
 
 DESCRIPTION="Oxygen SVG icon theme."
