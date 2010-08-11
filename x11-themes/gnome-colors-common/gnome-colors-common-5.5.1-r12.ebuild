@@ -3,7 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/x11-themes/gnome-colors-common/gnome-colors-common-5.5.1.ebuild,v 1.1 2010/02/09 13:19:29 pacho Exp $
 
 EAPI=2
-SLREV=3
+SLREV=4
 inherit gnome2-utils
 
 DESCRIPTION="Colorized icons shared between all gnome-colors iconsets"
