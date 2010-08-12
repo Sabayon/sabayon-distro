@@ -10,7 +10,7 @@ HOMEPAGE="http://lxde.org/"
 SRC_URI="mirror://sourceforge/lxde/${P}.tar.gz"
 KEYWORDS="~amd64 ~arm ~ppc ~x86 ~x86-interix ~amd64-linux ~x86-linux"
 SLOT="0"
-IUSE="+X nls"
+IUSE="+X nls +sabayon"
 LICENSE="GPL-2 GPL-3 LGPL-2.1"
 
 RDEPEND="x11-libs/gtk+:2
@@ -18,7 +18,8 @@ RDEPEND="x11-libs/gtk+:2
 	 sys-libs/pam
 	 sys-auth/consolekit
 	 X? ( x11-libs/libXmu
-	      x11-libs/libX11 )"
+	      x11-libs/libX11 )
+	 sabayon? ( x11-themes/sabayon-artwork-lxde )"
 
 DEPEND+="${RDEPEND}
 	>=dev-util/intltool-0.40
@@ -38,6 +39,10 @@ src_prepare() {
 	base_src_prepare
 
 	epatch "${FILESDIR}/lxdm-0.2.0-pam_console-disable.patch"
+
+	if use sabayon; then
+		epatch "${FILESDIR}/lxdm-0.2.0-sabayon-theme.patch"
+	fi
 
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
