@@ -8,21 +8,18 @@
 # SURVIVOR_VERSION: A survivor version to be used
 #                   for rebuilding the manifests
 
-DEL_VERSION="4.4.0"
-SURVIVOR_VERSION="4.4.2"
+DEL_VERSION="4.4.3"
+SURVIVOR_VERSION="4.4.5"
 
 # Remove/Delete the old versions.
 for X in `find -name kde-l10n-*${DEL_VERSION}*.ebuild`; do
-        echo
+        echo ""
         echo " ________ Removing "${X}" ________"
-        echo
 	rm ${X}
 done
 
 # Regenerate the manifests based on a survivor version
 for X in `find -name kde-l10n-*${SURVIVOR_VERSION}*.ebuild`; do
-        echo
         echo " ________ Re-manifesting "${X}" ________"
-        echo
 	ebuild ${X} manifest
 done
