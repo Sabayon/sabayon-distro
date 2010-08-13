@@ -79,11 +79,12 @@ if [ -n "${K_ONLY_SOURCES}" ]; then
 	DEPEND="sys-apps/sed"
 	RDEPEND="${RDEPEND}"
 else
-	IUSE="splash dmraid grub"
+	IUSE="dmraid dracut grub splash"
 	DEPEND="sys-apps/sed
 		app-arch/xz-utils
 		<sys-kernel/genkernel-3.4.11
-		splash? ( x11-themes/sabayon-artwork-core )"
+		splash? ( x11-themes/sabayon-artwork-core )
+		dracut? ( sys-kernel/dracut )"
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
 	RDEPEND="grub? ( || ( sys-boot/grub:2 ( sys-boot/grub:0 sys-boot/grub-handler ) ) )
 		sys-apps/sed"
@@ -131,6 +132,7 @@ sabayon-kernel_src_compile() {
 	unset ARCH
 	cd "${S}"
 	GKARGS="--disklabel"
+	use dracut && GKARGS="${GKARGS} --dracut"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
 	use dmraid && GKARGS="${GKARGS} --dmraid"
 	export DEFAULT_KERNEL_SOURCE="${S}"
