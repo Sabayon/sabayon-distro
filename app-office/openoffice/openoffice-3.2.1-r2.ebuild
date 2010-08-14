@@ -13,7 +13,7 @@ inherit autotools bash-completion check-reqs db-use eutils fdo-mime flag-o-matic
 
 IUSE="binfilter cups dbus debug eds gnome gstreamer gtk kde ldap nsplugin odk opengl pam templates"
 
-MY_PV=3.2.1.3
+MY_PV=3.2.1.4
 PATCHLEVEL=OOO320
 SRC=OOo_${PV}_src
 MST=OOO320_m19
@@ -366,6 +366,9 @@ src_install() {
 	# Remove splashes, provided by x11-themes/sabayon-artwork-ooo
 	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro rm failed"
 	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/about.bmp || die "about rm failed"
+
+	# Fix NFS file locking issue, hacky fix while waiting for upstream
+	sed -i 's/export SAL_ENABLE_FILE_LOCKING//' "${D}"/usr/bin/soffice || die "cannot fix NFS file locking"
 
 }
 
