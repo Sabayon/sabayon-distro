@@ -4,8 +4,8 @@
 ETYPE="sources"
 K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
-K_SABPATCHES_VER="7"
-K_SABKERNEL_NAME="server"
+K_SABPATCHES_VER="8"
+K_SABKERNEL_NAME="sabayon"
 K_SABKERNEL_URI_CONFIG="yes"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
@@ -45,4 +45,20 @@ src_install() {
 	fi
 	ARCH=${oldarch}
 
+}
+
+### Override sabayon-kernel_pkg_postinst()
+### The sabayon-kernel eclass contains grub processing that is not
+### necessary for the sources package since the kernel isn't
+### built yet.
+pkg_postinst() {
+	einfo "linux-sabayon-sources pkg_postinst()"
+}
+
+### Override sabayon-kernel_pkg_postrm()
+### Since this is the sources package, there is clean-up in the
+### eclass sabayon-kernel pkg_postrm that is only appropriate
+### for built kernel packages.
+pkg_postrm() {
+	einfo "linux-sabayon-sources pkg_postrm()"
 }
