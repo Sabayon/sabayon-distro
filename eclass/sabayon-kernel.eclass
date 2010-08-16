@@ -15,9 +15,9 @@ K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-sabayon}"
 
 # @ECLASS-VARIABLE: K_SABKERNEL_URI_CONFIG
 # @DESCRIPTION:
-# Set this either to "no" or "yes" depending on the location of kernel config files
-# if they are inside FILESDIR (old location) leave this option set to "no", otherwise
-# set this to "yes"
+# Set this either to "no" or "yes" depending on the location of the 
+# kernel config files.  If they are inside FILESDIR (old location)
+# leave this option set to "no", otherwise set this to "yes"
 K_SABKERNEL_URI_CONFIG="${K_SABKERNEL_URI_CONFIG:-no}"
 
 # @ECLASS-VARIABLE: K_KERNEL_SOURCES_PKG
@@ -49,6 +49,10 @@ if [ -n "${K_SABPATCHES_VER}" ]; then
 	UNIPATCH_STRICTORDER="yes"
 	K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.bz2"
 	UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
+	SRC_URI="${KERNEL_URI}
+		http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
+else
+	SRC_URI="${KERNEL_URI}"
 fi
 
 # ebuild default values setup settings
@@ -63,8 +67,6 @@ EXTRAVERSION=${EXTRAVERSION/linux/${K_SABKERNEL_NAME}}
 PROVIDE="${PROVIDE} virtual/linux-binary"
 
 HOMEPAGE="http://www.sabayon.org"
-SRC_URI="${KERNEL_URI}
-	http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
 if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
 	K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
 	SRC_URI="${SRC_URI}
@@ -72,6 +74,9 @@ if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
 		x86? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
 	use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
 	use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+else
+	use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-amd64.config}"
+	use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-x86.config}"
 fi
 
 if [ -n "${K_ONLY_SOURCES}" ]; then
