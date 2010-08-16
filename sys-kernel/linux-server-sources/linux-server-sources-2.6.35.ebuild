@@ -5,7 +5,7 @@ ETYPE="sources"
 K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
 K_SABPATCHES_VER="8"
-K_SABKERNEL_NAME="sabayon"
+K_SABKERNEL_NAME="server"
 K_SABKERNEL_URI_CONFIG="yes"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
@@ -52,7 +52,7 @@ src_install() {
 ### necessary for the sources package since the kernel isn't
 ### built yet.
 pkg_postinst() {
-	einfo "linux-sabayon-sources pkg_postinst()"
+	einfo "linux-server-sources pkg_postinst()"
 }
 
 ### Override sabayon-kernel_pkg_postrm()
@@ -60,5 +60,5 @@ pkg_postinst() {
 ### eclass sabayon-kernel pkg_postrm that is only appropriate
 ### for built kernel packages.
 pkg_postrm() {
-	einfo "linux-sabayon-sources pkg_postrm()"
+	einfo "linux-server-sources pkg_postrm()"
 }
