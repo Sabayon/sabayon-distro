@@ -19,7 +19,7 @@ IUSE="udev nls"
 
 RDEPEND="
 	udev? ( >=sys-fs/udev-145[extras] )
-	>=app-admin/packagekit-0.5.5
+	>=app-admin/packagekit-gtk-0.5.5
 	>=dev-libs/dbus-glib-0.73
 	>=dev-libs/glib-2.18.0:2
 	>=dev-libs/libunique-1.0.0
