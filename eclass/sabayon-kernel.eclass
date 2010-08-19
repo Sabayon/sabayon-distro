@@ -25,6 +25,11 @@ K_SABKERNEL_URI_CONFIG="${K_SABKERNEL_URI_CONFIG:-no}"
 # The kernel sources package used to build this kernel binary
 K_KERNEL_SOURCES_PKG="${K_KERNEL_SOURCES_PKG:-${CATEGORY}/${PN}-sources-${PVR}}"
 
+# @ECLASS-VARIABLE: K_KERNEL_PATCH_VER
+# @DESCRIPTION:
+# Set this to the kernel patch version to download that patch
+# set directly from a kernel.org mirror.  Leave blank to ignore.
+
 K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
@@ -53,6 +58,14 @@ if [ -n "${K_SABPATCHES_VER}" ]; then
 		http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
 else
 	SRC_URI="${KERNEL_URI}"
+fi
+
+if [ -n "${K_KERNEL_PATCH_VER}" ]; then
+	K_PATCH_NAME="patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.${K_KERNEL_PATCH_VER}.bz2"
+	SRC_URI="${SRC_URI}
+		mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/${K_PATCH_NAME}"
+	UNIPATCH_LIST="${DISTDIR}/${K_PATCH_NAME}
+		${UNIPATCH_LIST}"
 fi
 
 # ebuild default values setup settings
