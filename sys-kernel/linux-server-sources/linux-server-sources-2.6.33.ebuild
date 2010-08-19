@@ -4,7 +4,7 @@
 ETYPE="sources"
 K_WANT_GENPATCHES=""
 K_GENPATCHES_VER=""
-K_SABPATCHES_VER="5"
+K_SABPATCHES_VER="6"
 K_SABKERNEL_NAME="server"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
