@@ -15,7 +15,7 @@ K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-sabayon}"
 
 # @ECLASS-VARIABLE: K_SABKERNEL_URI_CONFIG
 # @DESCRIPTION:
-# Set this either to "no" or "yes" depending on the location of the 
+# Set this either to "no" or "yes" depending on the location of the
 # kernel config files.  If they are inside FILESDIR (old location)
 # leave this option set to "no", otherwise set this to "yes"
 K_SABKERNEL_URI_CONFIG="${K_SABKERNEL_URI_CONFIG:-no}"
@@ -27,9 +27,14 @@ K_KERNEL_SOURCES_PKG="${K_KERNEL_SOURCES_PKG:-${CATEGORY}/${PN}-sources-${PVR}}"
 
 # @ECLASS-VARIABLE: K_KERNEL_PATCH_VER
 # @DESCRIPTION:
+# If set to "3" for example, it applies the upstream kernel
+# patch corresponding to patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.3.bz2
+K_KERNEL_PATCH_VER="${K_KERNEL_PATCH_VER:-}"
+
+# @ECLASS-VARIABLE: K_KERNEL_PATCH_VER
+# @DESCRIPTION:
 # Set this to the kernel patch version to download that patch
 # set directly from a kernel.org mirror.  Leave blank to ignore.
-
 K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
