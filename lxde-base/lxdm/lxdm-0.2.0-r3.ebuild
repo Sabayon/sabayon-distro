@@ -38,10 +38,11 @@ src_prepare() {
 	# this will apply all patches in PATCHES array
 	base_src_prepare
 
-	epatch "${FILESDIR}/lxdm-0.2.0-pam_console-disable.patch"
+	epatch "${FILESDIR}/${P}-pam_console-disable.patch"
+	epatch "${FILESDIR}/${P}-fix-DESKTOP_SESSION-handling.patch"
 
 	if use sabayon; then
-		epatch "${FILESDIR}/lxdm-0.2.0-sabayon-theme.patch"
+		epatch "${FILESDIR}/${P}-sabayon-theme.patch"
 	fi
 
 	# this replaces the bootstrap/autogen script in most packages
@@ -63,11 +64,11 @@ src_install() {
 		dodoc $DOCS || die
 	fi
 
-	newinitd "${FILESDIR}"/lxdm.init.d lxdm || \
-		die "Cannot install /etc/init.d/lxdm"
-
-	newconfd "${FILESDIR}"/lxdm.conf.d lxdm || \
-		die "Cannot install /etc/conf.d/lxdm"
+	# FIXME: deprecated, remove from FILESDIR
+	# newinitd "${FILESDIR}"/lxdm.init.d lxdm || \
+	#	die "Cannot install /etc/init.d/lxdm"
+	# newconfd "${FILESDIR}"/lxdm.conf.d lxdm || \
+	#	die "Cannot install /etc/conf.d/lxdm"
 
 	exeinto /etc/lxdm
 	doexe "${FILESDIR}"/xinitrc || \
