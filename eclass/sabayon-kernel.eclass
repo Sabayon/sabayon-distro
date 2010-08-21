@@ -31,10 +31,6 @@ K_KERNEL_SOURCES_PKG="${K_KERNEL_SOURCES_PKG:-${CATEGORY}/${PN}-sources-${PVR}}"
 # patch corresponding to patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.3.bz2
 K_KERNEL_PATCH_VER="${K_KERNEL_PATCH_VER:-}"
 
-# @ECLASS-VARIABLE: K_KERNEL_PATCH_VER
-# @DESCRIPTION:
-# Set this to the kernel patch version to download that patch
-# set directly from a kernel.org mirror.  Leave blank to ignore.
 K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
