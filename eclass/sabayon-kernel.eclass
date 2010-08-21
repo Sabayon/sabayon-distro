@@ -41,6 +41,8 @@ KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${
 
 # Disable deblobbing feature
 K_DEBLOB_AVAILABLE=0
+# Do not use PR for kernel versioning (EXTRAVERSION)
+K_NOUSEPR="1"
 
 inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
 
@@ -49,12 +51,11 @@ detect_version
 detect_arch
 
 # export all the available functions here
-EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_install pkg_preinst pkg_postinst pkg_postrm
+EXPORT_FUNCTIONS pkg_setup src_compile src_install pkg_preinst pkg_postinst pkg_postrm
 
 DESCRIPTION="Sabayon Linux kernel functions and phases"
 
 ## kernel-2 eclass settings
-K_NOSETEXTRAVERSION="1"
 if [ -n "${K_SABPATCHES_VER}" ]; then
 	UNIPATCH_STRICTORDER="yes"
 	K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.bz2"
@@ -74,12 +75,11 @@ if [ -n "${K_KERNEL_PATCH_VER}" ]; then
 fi
 
 # ebuild default values setup settings
-KV_FULL=${KV_FULL/linux/${K_SABKERNEL_NAME}}
-MY_KERNEL_DIR="/usr/src/linux-${KV_FULL}"
-KV_OUT_DIR="${MY_KERNEL_DIR}"
+KV_FULL="${PV}-${K_SABKERNEL_NAME}"
+KV_OUT_DIR="/usr/src/linux-${KV_FULL}"
 S="${WORKDIR}/linux-${KV_FULL}"
 SLOT="${PV}"
-EXTRAVERSION=${EXTRAVERSION/linux/${K_SABKERNEL_NAME}}
+EXTRAVERSION="-${K_SABKERNEL_NAME}"
 
 # provide extra virtual pkg
 PROVIDE="${PROVIDE} virtual/linux-binary"
@@ -116,16 +116,6 @@ fi
 sabayon-kernel_pkg_setup() {
 	# do not run linux-mod-pkg_setup
 	einfo "Preparing to build the kernel and its modules"
-}
-
-sabayon-kernel_src_unpack() {
-
-	kernel-2_src_unpack
-	cd "${S}"
-
-	# manually set extraversion
-	sed -i -e "s:^\(EXTRAVERSION =\).*:\1 ${EXTRAVERSION}:" Makefile
-
 }
 
 sabayon-kernel_src_compile() {
@@ -185,8 +175,8 @@ sabayon-kernel_src_compile() {
 }
 
 sabayon-kernel_src_install() {
-	dodir "${MY_KERNEL_DIR}"
-	insinto "${MY_KERNEL_DIR}"
+	dodir "${KV_OUT_DIR}"
+	insinto "${KV_OUT_DIR}"
 
 	cp "${FILESDIR}/${PF/-r0/}-${OLDARCH}.config" .config
 	doins ".config" || die "cannot copy kernel config"
@@ -205,16 +195,16 @@ sabayon-kernel_src_install() {
 	fi
 
 	# Include include/linux/version.h to make Portage happy
-	dodir "${MY_KERNEL_DIR}/include/linux"
-	insinto "${MY_KERNEL_DIR}/include/linux"
+	dodir "${KV_OUT_DIR}/include/linux"
+	insinto "${KV_OUT_DIR}/include/linux"
 	doins "${S}/include/linux/version.h" || die "cannot copy version.h"
 
 	insinto "/boot"
 	doins "${WORKDIR}"/boot/*
 	cp -Rp "${WORKDIR}"/lib/* "${D}/"
 
-	dosym "../../..${MY_KERNEL_DIR}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
-	dosym "../../..${MY_KERNEL_DIR}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
+	dosym "../../..${KV_OUT_DIR}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
+	dosym "../../..${KV_OUT_DIR}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
 
 	addwrite "/lib/firmware"
 	# Workaround kernel issue with colliding
