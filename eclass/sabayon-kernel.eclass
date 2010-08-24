@@ -101,7 +101,7 @@ else
 	IUSE="dmraid dracut grub splash"
 	DEPEND="sys-apps/sed
 		app-arch/xz-utils
-		<sys-kernel/genkernel-3.4.11
+		sys-kernel/genkernel
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
