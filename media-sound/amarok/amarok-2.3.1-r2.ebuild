@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-sound/amarok/amarok-2.3.1-r1.ebuild,v 1.5 2010/06/19 01:29:57 jmbsvicetto Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-sound/amarok/amarok-2.3.1-r2.ebuild,v 1.5 2010/08/24 01:44:26 jmbsvicetto Exp $
 
 EAPI="2"
 
@@ -8,7 +8,7 @@ EAPI="2"
 if [[ ${PV} != *9999* ]]; then
 	KDE_LINGUAS="bg ca cs da de en_GB es et eu fi fr it ja km nb nds nl
 	pa pl pt pt_BR ru sl sr sr@latin sv th tr uk wa zh_TW"
-	SRC_URI="mirror://kde/unstable/${PN}/${PV}/src/${P}.tar.bz2"
+	SRC_URI="mirror://kde/stable/${PN}/${PV}/src/${P}.tar.bz2"
 else
 	EGIT_REPO_URI="git://git.kde.org/${PN}/${PN}.git"
 	GIT_ECLASS="git"
@@ -21,7 +21,7 @@ DESCRIPTION="Advanced audio player based on KDE framework."
 HOMEPAGE="http://amarok.kde.org/"
 
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="amd64 ~ppc ~ppc64 x86"
 SLOT="4"
 IUSE="cdda daap debug embedded ipod lastfm mp3tunes mtp opengl +player semantic-desktop +utils"
 
@@ -71,7 +71,15 @@ RDEPEND="${DEPEND}
 	player? ( >=kde-base/phonon-kde-${KDE_MINIMAL} )
 "
 
-PATCHES=( "${FILESDIR}/${PN}-fix-accessibility-dep.patch" )
+# The fix trayicon patch was assembled from the 4 patches committed by Kevin Funk to fix
+# upstream bug at https://bugs.kde.org/show_bug.cgi?id=232578#c13 and available from
+# http://krf.kollide.net/files/work/amarok/
+# They correspond to the following 4 git commits:
+# http://gitweb.kde.org/amarok/amarok.git/commit/e959e75a8f028eb36406d65118885c32e3eff3c8
+# http://gitweb.kde.org/amarok/amarok.git/commit/26104cd35fd50222c354f3afc9fce6bba093c05f
+# http://gitweb.kde.org/amarok/amarok.git/commit/4995f14cefbbe78e9dd3c42af00188e6c82e6f94
+# http://gitweb.kde.org/amarok/amarok.git/commit/74ea4c1f9e69952ac274be44ab37ed073e61c1e6
+PATCHES=( "${FILESDIR}/${PN}-fix-accessibility-dep.patch" "${FILESDIR}/${P}-fix-trayicon.patch")
 
 src_prepare() {
 	if ! use player; then
