@@ -1,8 +1,8 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/kde-base/oxygen-icons/oxygen-icons-4.3.4.ebuild,v 1.1 2009/12/01 11:28:27 wired Exp $
 
-EAPI="2"
+EAPI="3"
 
 if [[ ${PV} = *9999* ]]; then
 	KMNAME="kdesupport"
@@ -21,13 +21,13 @@ SRC_URI="${SRC_URI}
 
 LICENSE="LGPL-3"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
-IUSE=""
+IUSE="aqua"
 
 # Block conflicting packages
 add_blocker kdebase-data '<4.2.67'
 add_blocker kdepim-icons 4.2.89
-add_blocker kmail '<4.3.2'
 add_blocker step 4.2.98
+add_blocker kmail '<4.3.2'
 
 src_prepare() {
        cp -r ../fdo-icons-sabayon/* ../${P}
