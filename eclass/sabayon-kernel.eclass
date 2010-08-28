@@ -174,7 +174,11 @@ sabayon-kernel_src_install() {
 	dodir "${KV_OUT_DIR}"
 	insinto "${KV_OUT_DIR}"
 
-	cp "${FILESDIR}/${PF/-r0/}-${OLDARCH}.config" .config
+        if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
+		cp "${FILESDIR}/${PF/-r0/}-${OLDARCH}.config" .config || die "cannot copy kernel config"
+        else
+                cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" .config || die "cannot copy kernel config"
+        fi
 	doins ".config" || die "cannot copy kernel config"
 	doins Makefile || die "cannot copy Makefile"
 	doins Module.symvers || die "cannot copy Module.symvers"
