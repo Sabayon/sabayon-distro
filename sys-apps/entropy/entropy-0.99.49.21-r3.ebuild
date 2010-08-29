@@ -38,6 +38,7 @@ src_prepare() {
 	cd "${S}"
 	epatch "${FILESDIR}/entropy-db-fix-retrieveUseflags.patch"
 	epatch "${FILESDIR}/entropy-server-fix-revision-bumping.patch"
+	epatch "${FILESDIR}/entropy-fix-logger.patch"
 	cd misc/po && rm POTFILES.in && make POTFILES.in && make update-po
 }
 
