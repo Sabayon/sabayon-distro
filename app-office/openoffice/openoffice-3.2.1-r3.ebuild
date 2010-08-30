@@ -364,9 +364,11 @@ src_install() {
 	rm -rf "${D}"/etc/bash_completion.d/ || die "rm failed"
 
 	# Remove files provided by x11-themes/sabayon-artwork-ooo
-	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro rm failed"
-	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/about.bmp || die "about rm failed"
-	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/sofficerc || die "about rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro.bmp rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/about*.bmp || die "about.bmp rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.png || die "intro.png rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/about*.png || die "about.png rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/sofficerc || die "sofficerc rm failed"
 
 	# Fix NFS file locking issue, hacky fix while waiting for upstream
 	sed -i 's/export SAL_ENABLE_FILE_LOCKING//' "${D}"/usr/bin/soffice || die "cannot fix NFS file locking"
