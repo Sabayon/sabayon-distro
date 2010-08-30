@@ -1,0 +1,22 @@
+#!/sbin/runscript
+# Copyright (c) 2010 Fabio Erculiani <lxnay@sabayon.org>
+# All rights reserved. Released under the 2-clause BSD license.
+
+description="Eject LiveCD/DVD at live system shutdown/reboot"
+
+depend()
+{
+	after *
+}
+
+start()
+{
+	is_live=$(cat /proc/cmdline | grep cdroot)
+	if [ -n "${is_live}" ]; then
+		for dev in /dev/cdrom*; do
+			einfo "Ejecting ${dev}"
+			eject -mp "${dev}" &> /dev/null
+		done
+	fi
+	eend 0
+}

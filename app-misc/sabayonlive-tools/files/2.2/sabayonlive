@@ -337,20 +337,6 @@ my_setup_keymap() {
 
 }
 
-my_setup_cd_eject() {
-
-	# Setup automatic DVD ejecting
-	sh_file="/etc/init.d/shutdown.sh"
-	cd_dev=$(mount | grep " /mnt/cdrom " | cut -d" " -f 1)
-	if [ -f "${sh_file}" ] && [ -n "`echo ${cd_dev} | grep /dev`" ]; then
-		# escape device string
-		cd_dev=$(echo $cd_dev | sed 's/\//\\\//'g)
-		# what a *blob*
-		echo "sed -i '/^\/sbin\/halt/ s/\/sbin\/halt/eject -mp "${cd_dev}" \&\& \/sbin\/halt/g' "${sh_file} | /bin/sh
-	fi
-
-}
-
 my_wait_opengl_config() {
 
 	echo -en "\E[33;36m * \E[0m \E[01;32m Waiting for Graphical Configurator to finish... \E[0m"
@@ -458,9 +444,6 @@ start() {
 }
 
 stop() {
-
-	my_setup_cd_eject
 	my_setup_xsistence_stop
-
 }
 

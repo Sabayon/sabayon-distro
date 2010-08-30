@@ -36,6 +36,7 @@ src_unpack() {
 	cp "${FILESDIR}"/${PV}/livespawn . -p
 	cp "${FILESDIR}"/${PV}/sabayon-live-check . -p
 	cp "${FILESDIR}"/${PV}/sabayon-welcome-loader* . -p
+	cp "${FILESDIR}"/${PV}/cdeject . -p
 }
 
 src_install() {
@@ -68,6 +69,7 @@ src_install() {
 	newinitd sabayonlive sabayonlive
 	newinitd installer-gui installer-gui
 	newinitd installer-text installer-text
+	newinitd cdeject cdeject
 
 }
 
