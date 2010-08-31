@@ -1,0 +1,47 @@
+commit 4575a792efaf0fe294c8aac96348efa85c13e7c3
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Tue Aug 31 15:22:54 2010 +0200
+
+    [entropy.server] improve reliability of Server._setup_repository_package_filename
+    
+    Providing the EntropyRepository instance currently in use is much
+    better than opening a new one.
+
+diff --git a/libraries/entropy/server/interfaces/main.py b/libraries/entropy/server/interfaces/main.py
+index b975e65..7b4d29f 100644
+--- a/libraries/entropy/server/interfaces/main.py
++++ b/libraries/entropy/server/interfaces/main.py
+@@ -4216,8 +4216,8 @@ class ServerRepositoryMixin:
+                     header = darkred("    # ")
+                 )
+ 
+-        download_url = self._setup_repository_package_filename(idpackage,
+-            repo = repo)
++        download_url = self._setup_repository_package_filename(dbconn,
++            idpackage)
+         destination_path = self.complete_local_upload_package_path(
+             download_url, repo = repo)
+         destination_dir = os.path.dirname(destination_path)
+@@ -4232,18 +4232,16 @@ class ServerRepositoryMixin:
+         return idpackage, destination_path
+ 
+     # this function changes the final repository package filename
+-    def _setup_repository_package_filename(self, idpackage, repo = None):
+-
+-        dbconn = self.open_server_repository(read_only = False,
+-            no_upload = True, repo = repo)
++    def _setup_repository_package_filename(self, dbconn, idpackage):
+ 
+         downloadurl = dbconn.retrieveDownloadURL(idpackage)
+         packagerev = dbconn.retrieveRevision(idpackage)
+         downloaddir = os.path.dirname(downloadurl)
+         downloadfile = os.path.basename(downloadurl)
+         # add revision
+-        downloadfile = downloadfile[:-5]+"~%s%s" % (packagerev,
+-            etpConst['packagesext'],)
++        pkg_ext = etpConst['packagesext']
++        downloadfile = downloadfile[:-len(pkg_ext)]+"~%s%s" % (packagerev,
++            pkg_ext,)
+         downloadurl = os.path.join(downloaddir, downloadfile)
+ 
+         # update url
