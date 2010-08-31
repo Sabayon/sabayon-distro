@@ -11,8 +11,8 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="nomirror"
-# Temporary to ease transition
-DEPEND=">=app-office/openoffice-3.1.1-r2"
+
+DEPEND=">=app-office/openoffice-3.2.1-r3"
 
 S="${WORKDIR}/${PN}"
 
