@@ -208,6 +208,7 @@ _kernel_src_compile() {
 		--mountboot \
 		--lvm \
 		--luks \
+		--iscsi \
 		--module-prefix="${WORKDIR}"/lib \
 		all || die "genkernel failed"
 	ARCH=${OLDARCH}
