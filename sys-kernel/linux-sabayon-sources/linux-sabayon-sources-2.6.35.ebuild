@@ -8,6 +8,7 @@ K_SABPATCHES_VER="9"
 K_KERNEL_PATCH_VER="3"
 K_SABKERNEL_NAME="sabayon"
 K_SABKERNEL_URI_CONFIG="yes"
+K_ONLY_SOURCES="1"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Standard kernel sources"
