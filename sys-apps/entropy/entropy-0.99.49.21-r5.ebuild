@@ -40,6 +40,7 @@ src_prepare() {
 	epatch "${FILESDIR}/entropy-server-fix-revision-bumping.patch"
 	epatch "${FILESDIR}/entropy-fix-logger.patch"
 	epatch "${FILESDIR}/entropy-server-package-filename.patch"
+	epatch "${FILESDIR}/entropy-spm-fix-worldfile-handling.patch"
 	cd misc/po && rm POTFILES.in && make POTFILES.in && make update-po
 }
 

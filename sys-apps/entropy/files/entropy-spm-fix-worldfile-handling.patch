@@ -1,0 +1,19 @@
+commit f184c8d779bed1f631f2b438a8c27232cccc658e
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Thu Sep 2 16:45:53 2010 +0200
+
+    [entropy.spm] PortagePlugin: fix world file handling, typo in function
+
+diff --git a/libraries/entropy/spm/plugins/interfaces/portage_plugin/__init__.py b/libraries/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
+index ebfb58e..d16dc47 100644
+--- a/libraries/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
++++ b/libraries/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
+@@ -2818,8 +2818,6 @@ class PortagePlugin(SpmPlugin):
+                         continue
+                     do_rm_path_atomic(mydir)
+ 
+-                return 0
+-
+         with self._PortageWorldSetLocker(self):
+ 
+             # otherwise update Portage world file
