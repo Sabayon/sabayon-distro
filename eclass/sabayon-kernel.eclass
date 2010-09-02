@@ -379,11 +379,6 @@ sabayon-kernel_pkg_postrm() {
 		fi
 
 		linux-mod_pkg_postrm
-
-		# drop stale dirs
-		rm -f "${ROOT}/lib/modules/${KV_FULL}"/source
-		rm -f "${ROOT}/lib/modules/${KV_FULL}"/build
-		rmdir --ignore-fail-on-non-empty "${ROOT}/lib/modules/${KV_FULL}"
 	fi
 }
 
