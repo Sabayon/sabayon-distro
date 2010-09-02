@@ -25,6 +25,23 @@ S=${WORKDIR}/${MY_P}
 MODULE_NAMES="r8192se_pci(net::${S}/HAL/rtl8192)"
 BUILD_TARGETS="clean all"
 
+src_prepare() {
+	# fixup fux0red build system
+	# please check if other zombies are around every new package release
+	# upstream should really fix this stuff
+	einfo "Fixing broken build system..."
+	for rtl_makefile in "${S}/Makefile" "${S}/HAL/rtl8192/Makefile" "${S}/rtllib/Makefile"; do
+		sed -i "${rtl_makefile}" -e "s:\`uname -r\`:${KV_FULL}:g" || die "Unable to patch Makefile"
+		sed -i "${rtl_makefile}" -e "s:\$(shell uname -r):${KV_FULL}:g" || die "Unable to patch Makefile (2)"
+		sed -i "${rtl_makefile}" -e "s:\$(shell uname -r|cut -d. -f1,2):${KV_MAJOR}.${KV_MINOR}:g" || die "Unable to patch Makefile (3)"
+		sed -i "${rtl_makefile}" -e "s:\$(shell uname -r | cut -d. -f1,2,3,4):${KV_FULL}:g" || die "Unable to patch Makefile (4)"
+		# useless... moblin stuff
+		sed -i "${rtl_makefile}" -e "s:\$(shell uname -r | cut -d. -f6 | cut -d- -f1):${KV_LOCAL}:g" || die "Unable to patch Makefile (5)"
+		# do not run depmod -a
+		sed -i "${rtl_makefile}" -e 's:/sbin/depmod -a ${shell uname -r}::g' || die "Unable to patch Makefile (6)"
+	done
+}
+
 src_install() {
 	linux-mod_src_install
 
