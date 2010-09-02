@@ -15,7 +15,7 @@ for package in ${PACKAGES}; do
 	if [ -a ${package}/${name}-${NEW}.ebuild ]; then
 		echo "${NEW} ebuild found, not overwriting"
 	else
-		cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
+		mv ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
 	fi
 	git add ${package}/${name}-${NEW}.ebuild
 	ebuild ${package}/${name}-${NEW}.ebuild manifest --force

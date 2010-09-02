@@ -4,8 +4,8 @@ EAPI="2"
 inherit eutils mount-boot sabayon-artwork
 
 DESCRIPTION="Sabayon Core Artwork, contains Gensplash, Wallpapers and Mouse themes"
-HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-5.4_beta2.tar.bz2"
+HOMEPAGE="http://www.sabayon.org/"
+SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${PN}/${PN}-5.4_beta2.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
@@ -19,20 +19,12 @@ RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
 
 S="${WORKDIR}/${PN}"
 
-src_prepare() {
-	cd ${S}/gensplash/sabayon
-	# Prog Bar
-	sed -i -e 's/#00b0ff/#3671BF/' *.cfg || die "Sed failed"
-	# Text Color
-	sed -i -e 's/0x666666/0xFFFFFF/' *.cfg || die "Sed failed"
-}
-
 src_install() {
 	# Gensplash theme
 	cd ${S}/gensplash
 	dodir /etc/splash/sabayon
 	cp -r ${S}/gensplash/sabayon/* ${D}/etc/splash/sabayon
-	
+
 	# Cursors
 	cd ${S}/mouse/entis/cursors/
 	dodir /usr/share/cursors/xorg-x11/entis/cursors
@@ -59,5 +51,5 @@ pkg_postinst() {
 	update_sabayon_kernel_initramfs_splash
 
 	ewarn "Please report bugs or glitches to"
-	ewarn "bugs.sabayonlinux.org"
+	ewarn "bugs.sabayon.org"
 }
