@@ -23,6 +23,8 @@ RDEPEND="${DEPEND} dev-libs/newt"
 
 src_install() {
 	emake DESTDIR="${D}" install || die "install failed"
+	# drop broken .desktop
+	rm "${D}/usr/share/applications/authconfig.desktop" -f
 }
 
 MY_SYSTEM_AUTH="
