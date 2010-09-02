@@ -41,6 +41,8 @@ src_prepare() {
 	epatch "${FILESDIR}/entropy-fix-logger.patch"
 	epatch "${FILESDIR}/entropy-server-package-filename.patch"
 	epatch "${FILESDIR}/entropy-spm-fix-worldfile-handling.patch"
+	epatch "${FILESDIR}/entropy-server-commit-asap.patch"
+	epatch "${FILESDIR}/entropy-db-disable-live-cache-on-xcache-false.patch"
 	cd misc/po && rm POTFILES.in && make POTFILES.in && make update-po
 }
 

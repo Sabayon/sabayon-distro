@@ -1,0 +1,33 @@
+commit ef586a5ae57600895c834d6f0974943f84b87c0c
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Thu Sep 2 19:09:37 2010 +0200
+
+    [entropy.db] if EntropyRepository caching is disable, do not use live cache at all
+
+diff --git a/libraries/entropy/db/__init__.py b/libraries/entropy/db/__init__.py
+index b5eed6f..77d3503 100644
+--- a/libraries/entropy/db/__init__.py
++++ b/libraries/entropy/db/__init__.py
+@@ -590,14 +590,16 @@ class EntropyRepository(EntropyRepositoryBase):
+             pass
+ 
+     def __setLiveCache(self, key, value):
+-        master_key = etpConst['systemroot'] + "_" + self._db_path + "_" + \
+-            self.reponame + "_"
+-        EntropyRepository._LIVE_CACHE[master_key + key] = value
++        if self.xcache:
++            master_key = etpConst['systemroot'] + "_" + self._db_path + "_" + \
++                self.reponame + "_"
++            EntropyRepository._LIVE_CACHE[master_key + key] = value
+ 
+     def __getLiveCache(self, key):
+-        master_key = etpConst['systemroot'] + "_" + self._db_path + "_" + \
+-            self.reponame + "_"
+-        return EntropyRepository._LIVE_CACHE.get(master_key + key)
++        if self.xcache:
++            master_key = etpConst['systemroot'] + "_" + self._db_path + "_" + \
++                self.reponame + "_"
++            return EntropyRepository._LIVE_CACHE.get(master_key + key)
+ 
+     def __del__(self):
+         self.closeDB()
