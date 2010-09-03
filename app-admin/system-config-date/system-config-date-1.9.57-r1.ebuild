@@ -35,6 +35,16 @@ RDEPEND="dev-libs/newt
 		dev-python/libgnomecanvas-python
 	        x11-themes/hicolor-icon-theme )"
 
+src_install() {
+        base_src_install
+
+	# removing .desktop file, not advertising this, it is
+	# only needed by app-admin/anaconda
+        rm -rf "${D}/usr/share/"{man,applications}
+        rm -rf "${D}/etc/"{pam.d,security}
+        rm -rf "${D}/usr/bin"
+}
+
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
 }
