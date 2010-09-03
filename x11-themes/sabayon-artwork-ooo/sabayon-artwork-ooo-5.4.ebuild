@@ -19,8 +19,7 @@ S="${WORKDIR}/${PN}"
 src_install () {
 	cd ${S}
 	insinto /usr/$(get_libdir)/openoffice/program
-	doins *.png
-	doins sofficerc
+	doins *.png *.bmp sofficerc
 }
 
 pkg_postinst () {
