@@ -15,12 +15,14 @@ IUSE=""
 SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${P}.tar.bz2"
 RESTRICT="mirror"
 
-DEPEND="sys-apps/sandbox
-	sys-devel/gettext
-	sys-apps/diffutils
-	|| ( dev-lang/python:2.6[sqlite] )
-	dev-db/sqlite[soundex]
-	dev-util/intltool"
+DEPEND="
+        dev-db/sqlite[soundex]
+        || ( dev-lang/python:2.6[sqlite] )
+        dev-util/intltool
+        net-misc/rsync
+        sys-apps/sandbox
+        sys-devel/gettext
+        sys-apps/diffutils"
 RDEPEND="${DEPEND}"
 
 pkg_setup() {
