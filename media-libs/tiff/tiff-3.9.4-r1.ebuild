@@ -38,13 +38,14 @@ src_configure() {
 }
 
 src_install() {
-	exeinto /usr/$(get_libdir)
-	cd "${S}/libtiff/.libs"
-	for lib in libtiff.so.${PV} libtiffxx.so.${PV}; do
-		chrpath -d ${lib} || die
-		doexe ${lib} || die
-		dosym ${lib} /usr/$(get_libdir)/${lib/${PV}/3}
-	done
+	emake DESTDIR="${D}" install || die
+	# drop unseless stuff for a compat lib
+	rm "${D}"/usr/bin -rf || die
+	rm "${D}"/usr/share -rf || die
+	rm "${D}"/usr/$(get_libdir)/libtiff.{a,la,so} -rf || die
+	rm "${D}"/usr/$(get_libdir)/libtiffxx.{a,la,so} -rf || die
+	dodir /usr/include/tiff3
+	mv "${D}"/usr/include/*.h* "${D}"/usr/include/tiff3/ || die9
 }
 
 pkg_postinst() {
