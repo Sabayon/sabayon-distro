@@ -1,35 +1,34 @@
 #!/bin/bash 
 
+# 3.09.2010 Enlik <sn at ubucentrum.net>
+# Some fixes for sabutil script from app-misc/sabayonlive-tools-2.2-r5.
+# Feel free to remove this notice, any part of it or any line I made.
+
 USER=$(users)
 HOMEDIR=/home/`cat /etc/passwd | grep 1000 | cut -d: -f1`/
-echo $HOMEDIR
+echo "$HOMEDIR"
 
-SCRIPT=$
 SYS=/sbin
-echo $SYS
-
-echo "
-fdisk -l
-" > test &
-fdisk -l >> test &
+echo "$SYS"
  
  function menu
-{    clear
+{
+     clear
      selection=""
      until  [[ "$selection" = "0" ]] ; do
 	 echo ""
          echo "Current Operating System:" $(cat /etc/sabayon-release)
          echo "Current Edition:" $(cat /etc/sabayon-edition)
          echo
-	 echo $myname
+	 echo "$myname"
          
  
 	 echo ""
 	 echo "1 - Backup & edit xorg.conf "
 	 echo "2 - Restore original xorg.conf"
 	 echo "3 - Regenerate Sabayon xorg.conf"
-	 echo "4 - Backup & edit grub.conf"
-	 echo "5 - Restore original grub.conf"
+	 echo "4 - Backup & edit grub.cfg"
+	 echo "5 - Restore original grub.cfg"
 	 echo "6 - Package Management."
          echo "----------------------------------------"
          echo "View and AutoPaste:"
@@ -39,7 +38,7 @@ fdisk -l >> test &
          echo "03 - Pastebin dmesg"
          echo "04 - Pastebin messages"
          echo "05 - Pastebin rc.log"
-         echo "06 - Pastebin grub.conf" 
+         echo "06 - Pastebin grub.cfg" 
          echo "07 - Pastebin fdisk -l"
          echo "08 - Pastebin kdm.log"
          echo "09 - Pastebin Hardware Info"
@@ -51,11 +50,11 @@ fdisk -l >> test &
 	 echo ""
  
  
-	 case $selection in
+	 case "$selection" in
 	     1 ) xorg_backup ; press_enter ; nano /etc/X11/xorg.conf; press_enter ;;
 	     2 ) xorg_restore ; press_enter ;;
 	     3 ) xorg_regen ; press_enter ;;
-	     4 ) grub_backup ; press_enter ; nano /boot/grub/grub.conf; press_enter ;;
+	     4 ) grub_backup ; press_enter ; nano /boot/grub/grub.cfg; press_enter ;;
 	     5 ) grub_restore ; press_enter ;;
 	     6 ) packages ; press_enter ;;
              01 ) xorglog ; press_enter ;;
@@ -88,8 +87,7 @@ fdisk -l >> test &
  
  function xorg_regen
 {
-    if [[ ! -f "/etc/X11/xorg.conf.sabayon" ]]
-    then
+    if [[ ! -f "/etc/X11/xorg.conf.sabayon" ]]; then
 	cat > /etc/X11/xorg.conf.sabayon <<EOF
 Section "Module"
     SubSection  "extmod"
@@ -246,12 +244,10 @@ EOF
 }
  
  function xorg_backup
-{ 
-     if  -f /etc/X11/xorg.conf.BKUP 
- 
-     then
-	 echo xorg.conf backup exists, whew! Now off we go to edit the file....
- 
+ { 
+     if [[ -f /etc/X11/xorg.conf.BKUP ]]; then 
+	 echo "xorg.conf backup already exists, so the new one wasn't made."
+	 echo "Now off we go to edit the file...."
      else
 	 cp /etc/X11/xorg.conf /etc/X11/xorg.conf.BKUP
 	 echo "Making backup of xorg.conf as /etc/X11/xorg.conf.BKUP"
@@ -267,17 +263,14 @@ EOF
  
  function xorg_restore
  { 
-     if  -f /etc/X11/xorg.conf.BKUP 
-     then
-	 echo xorg.conf backup exists, whew!
+     if [[ -f /etc/X11/xorg.conf.BKUP ]]; then
+	 echo "xorg.conf backup (/etc/X11/xorg.conf.BKUP) exists, whew!"
 	 cp /etc/X11/xorg.conf.BKUP /etc/X11/xorg.conf
 	 echo ""
 	 echo "The original xorg.conf has been restored"
- 
      else
- 
-	 echo "UH OH!! You didn't/ or haven't backed it up...nothing i can do sorry!"
-	 echo "Don't panic, you can copy the file from the Live DVD/CD "
+         echo "UH OH!! The backup /etc/X11/xorg.conf.BKUP hasn't been made."
+	 echo "Don't panic, you can copy the file from the Live DVD/CD."
      fi
  
  }
@@ -285,15 +278,13 @@ EOF
  
  
  function grub_backup
- { 
-     if  -f /boot/grub/grub.conf.BKUP 
-     then
-	 echo grub.conf backup exists, whew!
-	 echo Now off we go to edit the file....
- 
+ {
+     if [[ -f /boot/grub/grub.cfg.BKUP ]]; then
+	 echo "grub.cfg backup already exists, so the new one wasn't made."
+	 echo "Now off we go to edit the file...."
      else
-	 cp /boot/grub/grub.conf /boot/grub/grub.conf.BKUP
-	 echo Making backup of grub.conf as /boot/grub/grub.conf.BKUP
+	 cp /boot/grub/grub.cfg /boot/grub/grub.cfg.BKUP
+	 echo "Making backup of grub.cfg as /boot/grub/grub.cfg.BKUP"
 	 echo ""
      fi
  
@@ -302,18 +293,15 @@ EOF
  
  function grub_restore
  {
-     if  -f /boot/grub/grub.conf.BKUP 
+     if [[ -f /boot/grub/grub.cfg.BKUP ]]
      then
-	 echo "grub.conf backup exists, whew!"
-	 cp /boot/grub/grub.conf.BKUP /boot/grub/grub.conf
+	 echo "grub.cfg backup (/boot/grub/grub.cfg.BKUP) exists, whew!"
+	 cp /boot/grub/grub.cfg.BKUP /boot/grub/grub.cfg
 	 echo ""
-	 echo "The original grub.conf has been restored"
- 
+	 echo "The original grub.cfg has been restored"
      else
- 
-	 echo "UH OH!! You didn't/ or haven't backed it up yet"
-	 echo "Don't panic, you use the Sabayon installer to repair grub"
- 
+	 echo "UH OH!! The backup script /boot/grub/grub.cfg.BKUP hasn't been made."
+	 echo "Don't panic, you can use the Sabayon installer to repair GRUB."
      fi
  
  }
@@ -358,9 +346,75 @@ EOF
 
  } 
 
+ # pastebunz seems to have some limit on max pasted lines, so this would be handy...
+ function files_pastebin_linelimit
+ {
+     # args: limit file(s) to pastebin
+     # example: file_pastebin_linelimit file1 "file name" file3 ...
+     # first arg: 0 means no limit
+     # By Enlik <sn at ubucentrum.net>
+     local TMPFILE=~/newbietmp
+     local LINESLIMIT
+     local LLIMIT_H
+     
+     if [[ $# -le 1 ]]; then
+         echo "Warning: no files to paste (in files_pastebin_linelimit)." >&2
+         return 2
+     fi
+     
+     let LINESLIMIT=$1
+     shift
+     # If there is a limit of lines, we need to make space for file name and blank
+     # lines to be pasted. Otherwise we have as much space as we want.
+     if [[ $LINESLIMIT -eq 0 ]]; then
+         LLIMIT_H="+1"
+     else
+         LLIMIT_H=$(( LINESLIMIT - 3 ))
+     fi
+     
+     >"$TMPFILE" || {
+         echo "Oh no! I can't create temporary file... Aborting." >&2
+         return 3
+     }
+     
+     for file in "$@"; do
+	echo " $file"
+	echo ""
+	if [[ -r $file ]]; then
+	     # This tail guarantees that LAST file name is visible (unless the limit is really small, <= 2 lines)
+	     # (previous one(s) can be wiped by tail due to limit of lines).
+	     # The file name is always visible if there's only one specified
+	     # as argument (unless the limit value is really small, as above).
+	     # All file names are always visible if there's no limit
+	     # of lines, or the limit is big enough.
+	     cat "$file" | tail -n $LLIMIT_H
+	else
+	     echo "THIS FILE COULDN'T BE READ." 
+	fi
+	echo ""
+     done >> "$TMPFILE"
+     if [[ $LINESLIMIT -eq 0 ]]; then
+	cat "$TMPFILE" | pastebunz
+     else
+	cat "$TMPFILE" | tail -n $LINESLIMIT | pastebunz
+     fi
+     echo "** Please see the link above! **"
+     
+     rm "$TMPFILE"
+     return 0
+ }
+ 
+ function files_pastebin
+ {
+     files_pastebin_linelimit 0 "$@"
+ }
+
  function pastebinner
  {
-     >~/newbietmp
+     >~/newbietmp || {
+	 echo "Oh no! I can't create temporary file... Aborting."
+	 return 1
+     }
      horner >> ~/newbietmp
  
     echo "
@@ -408,15 +462,17 @@ EOF
      
      cat ~/newbietmp
      cat ~/newbietmp | pastebunz
+     echo "*** Please see the link above. ***"
      rm ~/newbietmp
-     
  }
  
  function packages
  {
      clear
+     echo "Warning - this function is not implemented."
+     echo "You may play with the menu though. ;)"
      pack_sel=
-     until  "$pack_sel" = "3" ; do
+     until [[ "$pack_sel" = "3" ]]; do
  
 	 echo "PACKAGE MANAGEMENT SUB-MENU"
 	 echo ""
@@ -429,7 +485,7 @@ EOF
 	 echo -n "Enter selection: "
 	 read pack_sel
 	 echo ""
-	 case $pack_sel in
+	 case "$pack_sel" in
 	     1 ) echo "portage"; press_enter ;;
 	     2 ) echo "entropy"; press_enter ;;
 	     3 ) echo "returning to MAIN MENU" ;;
@@ -441,116 +497,88 @@ EOF
 
 function system
  {
-
-  echo "
- sh $SYS/logscript.sh
- " >> ~/newbietmp
-     sh $SYS/logscript.sh >> ~/newbietmp
-
-cat ~/newbietmp
-cat ~/newbietmp | pastebunz
-     rm ~/newbietmp 
+     local PASTE_TMP=/tmp/sabutil-tmp
+     
+     >"$PASTE_TMP" || {
+	     echo "Oh no! I can't create temporary file... Aborting."
+	     return 1
+	 }
+    
+     echo "
+     sh $SYS/logscript.sh
+     " >> "$PASTE_TMP"
+     sh "$SYS/logscript.sh" >> "$PASTE_TMP"
+    
+     cat "$PASTE_TMP"
+     cat "$PASTE_TMP" | pastebunz
+     echo "*** Please see the link above. ***"
+     rm "$PASTE_TMP"
     
 }
 
 function xorglog
  {
-
-  echo "
-/var/log/Xorg.0.log
-" >> ~/newbietmp
-cat /var/log/Xorg.0.log >> ~/newbietmp
-
-cat ~/newbietmp     
-cat ~/newbietmp | pastebunz
-
-     rm ~/newbietmp
-
+     cat /var/log/Xorg.0.log
+     files_pastebin_linelimit 150 /var/log/Xorg.0.log
  } 
  
 function xsessionerrors
  {
-     echo "
-$HOMEDIR/.xsession-errors
-" >> ~/newbietmp
-cat $HOMEDIR/.xsession-errors >> ~/newbietmp
-     
-cat ~/newbietmp
-cat ~/newbietmp | pastebunz
-     rm ~/newbietmp
-
+     cat "$HOMEDIR/.xsession-errors" | tail -n 10
+     files_pastebin_linelimit 150 "$HOMEDIR/.xsession-errors"
  }
 
  function dmesg
  {
-     echo "
-/var/log/dmesg
-" >> ~/newbietmp
-cat /var/log/dmesg >> ~/newbietmp
-     
-cat ~/newbietmp
-cat ~/newbietmp | pastebunz
-     rm ~/newbietmp
+     cat /var/log/dmesg
+     files_pastebin_linelimit 150 /var/log/dmesg
  }
+ 
  function grub
  {
-     echo "
-/boot/grub/grub.conf
-" >> ~/newbietmp
-cat /boot/grub/grub.conf >> ~/newbietmp
-     
-cat ~/newbietmp
-cat ~/newbietmp | pastebunz
-     rm ~/newbietmp
-
+     cat /boot/grub/grub.cfg
+     files_pastebin /boot/grub/grub.cfg
  }
+ 
 function fdisk
  {
+     local FDISK_TMP=/tmp/sabutil-tmp
 
- cat test | tee ~/newbietmp
-
-cat ~/newbietmp | pastebunz
-     rm ~/newbietmp
-
+     >"$FDISK_TMP" || {
+	     echo "Oh no! I can't create temporary file... Aborting."
+	     return 1
+	 }
+	 
+     (
+     echo "
+     fdisk -l
+     ";
+     fdisk -l;
+     ) > "$FDISK_TMP"
+     
+     cat "$FDISK_TMP"
+     cat "$FDISK_TMP" | pastebunz
+     echo "*** Please see the link above. ***"
+     rm "$FDISK_TMP"
  }
+ 
 function messages
  {
-     echo "
-   /var/log/messages
-   " >> ~/newbietmp
-   cat /var/log/messages | tail -150 >> ~/newbietmp
-     
-
-cat ~/newbietmp
-cat ~/newbietmp | pastebunz
-     rm ~/newbietmp
+     cat /var/log/messages
+     files_pastebin_linelimit 150 /var/log/messages
  }
+ 
 function kdm
  {
-     echo "
-   /var/log/kdm.log
-   " >> ~/newbietmp
-   cat /var/log/kdm.log | tail -150 >> ~/newbietmp
-     
-
-cat ~/newbietmp
-cat ~/newbietmp | pastebunz
-     rm ~/newbietmp
+     cat /var/log/kdm.log
+     files_pastebin_linelimit 150 /var/log/kdm.log
  }
 
 function rclog
  {
-if [ -f /var/log/rc.log ];
-     then
-         echo "
-   /var/log/rc.log
-   " >> ~/newbietmp
-   cat /var/log/rc.log | tail -150 >> ~/newbietmp
-
-cat ~/newbietmp
-cat ~/newbietmp | pastebunz
-     rm ~/newbietmp
-
+     if [[ -f /var/log/rc.log ]]; then
+	 cat /var/log/rc.log | tail -n 10
+	 files_pastebin_linelimit 150 /var/log/rc.log
      else
          echo "You Don't Have rc.log enabled in your /etc/rc.log"
          echo " To enable, edit /etc/rc.log change NO to YES for rc_logger= "
@@ -563,19 +591,17 @@ cat ~/newbietmp | pastebunz
 
  if [[ $1 = "menu" ]]; then
      if [[ $EUID -ne 0 ]] && [[ $EUID -ne 1000 ]]; then
-         echo $myname
+         echo "$myname"
          echo ""
          echo "This script should be run as root, or by someone in the root group.  Some commands will not work for you." 1>&2
-
-         menu
-     else
-
-         menu
-
      fi
+     menu
+ elif [[ $1 = "--help" || $1 = "-h" ]]; then
+    echo "usage:"
+    echo "$0 - will print some basic system infos"
+    echo "$0 menu - will show you menu"
  else
      horner
  fi
-
 
 
