@@ -1,0 +1,2 @@
+0 * * * *	root	/usr/sbin/faxqclean
+25 23 * * *	root	sh /usr/sbin/faxcron | mail FaxMaster
