@@ -41,6 +41,7 @@ src_install() {
 	exeinto /usr/$(get_libdir)
 	cd "${S}/libtiff/.libs"
 	for lib in libtiff.so.${PV} libtiffxx.so.${PV}; do
+		chrpath -d ${lib} || die
 		doexe ${lib} || die
 		dosym ${lib} /usr/$(get_libdir)/${lib/${PV}/3}
 	done
