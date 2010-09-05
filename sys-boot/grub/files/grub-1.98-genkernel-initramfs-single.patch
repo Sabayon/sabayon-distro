@@ -1,0 +1,11 @@
+--- grub-1.98.orig/util/grub.d/10_linux.in
++++ grub-1.98/util/grub.d/10_linux.in
+@@ -139,7 +139,7 @@ while [ "x$list" != "x" ] ; do
+       "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
+   if [ "x${GRUB_DISABLE_LINUX_RECOVERY}" != "xtrue" ]; then
+     linux_entry "${OS}" "${version}" true \
+-	"single ${GRUB_CMDLINE_LINUX}"
++	"single init_opts=single ${GRUB_CMDLINE_LINUX}"
+   fi
+ 
+   list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`

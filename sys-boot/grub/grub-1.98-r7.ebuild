@@ -57,6 +57,10 @@ src_unpack() {
 	# see Gentoo #321569
 	epatch "${FILESDIR}"/${PN}-1.98-follow-dev-mapper-symlinks.patch
 
+	# Genkernel doesn't support "single" for rescue mode
+	# but rather init_opts=single
+	epatch "${FILESDIR}"/${PN}-1.98-genkernel-initramfs-single.patch
+
 	# autogen.sh does more than just run autotools
 	# need to eautomake due to weirdness #296013
 	if [[ ${PV} == "9999" ]] ; then
