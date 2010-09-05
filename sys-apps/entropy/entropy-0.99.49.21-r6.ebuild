@@ -44,6 +44,7 @@ src_prepare() {
 	epatch "${FILESDIR}/entropy-server-package-filename.patch"
 	epatch "${FILESDIR}/entropy-spm-fix-worldfile-handling.patch"
 	epatch "${FILESDIR}/entropy-server-commit-asap.patch"
+	epatch "${FILESDIR}/entropy-spm-fix-write_contents.patch"
 	cd misc/po && rm POTFILES.in && make POTFILES.in && make update-po
 }
 

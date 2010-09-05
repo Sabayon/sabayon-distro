@@ -1,0 +1,34 @@
+commit 165bd0173301542500b99d11170e088b2abe5572
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Sun Sep 5 14:49:43 2010 +0200
+
+    [entropy.spm] PortagePlugin: fix write_contents call in _create_contents_file_if_not_available
+    
+    write_contents root parameter was passed without a trailing "/".
+    This caused injected packages (server-side) not writing Portage
+    CONTENTS metadata correctly.
+
+diff --git a/libraries/entropy/spm/plugins/interfaces/portage_plugin/__init__.py b/libraries/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
+index 97402c4..5a6bccf 100644
+--- a/libraries/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
++++ b/libraries/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
+@@ -2468,10 +2468,7 @@ class PortagePlugin(SpmPlugin):
+         dir_t = const_convert_to_rawstring("dir")
+         fif_t = const_convert_to_rawstring("fif")
+         dev_t = const_convert_to_rawstring("dev")
+-        utf_sys_root = etpConst['systemroot']
+-        if utf_sys_root:
+-            utf_sys_root += os.path.sep
+-        sys_root = const_convert_to_rawstring(utf_sys_root)
++        sys_root = const_convert_to_rawstring(etpConst['systemroot'])
+ 
+         content_meta = {}
+         for path_orig in sorted(entropy_content):
+@@ -2521,6 +2518,7 @@ class PortagePlugin(SpmPlugin):
+         self._bump_vartree_mtime(portage_cpv)
+ 
+         with open(cont_path, "wb") as cont_f:
++            utf_sys_root = etpConst['systemroot'] + os.path.sep
+             # NOTE: content_meta contains paths with ROOT prefix, it's ok
+             write_contents(content_meta, utf_sys_root, cont_f)
+             cont_f.flush()
