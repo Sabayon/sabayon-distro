@@ -61,8 +61,8 @@ src_install() {
 	doins src/libXNVCtrl/{NVCtrl,NVCtrlLib}.h
 
 	# Install icon and .desktop entry
-	doicon "${S}/${PN}.png"
-	domenu "${S}/${PN}.desktop"
+	doicon "${S}/doc/${PN}.png"
+	domenu "${S}/doc/${PN}.desktop"
 
 	# Now install documentation
 	dodoc doc/*.txt
