@@ -37,10 +37,10 @@ app-emulation/qemu-gui
 # Modified by Fabio Erculiani to unmask 5.0 artwork.
 #
 # Mask Devel Artwork packages
->=x11-themes/sabayon-artwork-5.1
->=x11-themes/sabayon-artwork-core-5.1
->=x11-themes/sabayon-artwork-gnome-5.1
->=x11-themes/sabayon-artwork-kde-5.1
+>=x11-themes/sabayon-artwork-5.4.20
+>=x11-themes/sabayon-artwork-core-5.4.20
+>=x11-themes/sabayon-artwork-gnome-5.4.20
+>=x11-themes/sabayon-artwork-kde-5.4.20
 
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Breaks many apps, see: #575
@@ -58,7 +58,3 @@ app-emulation/qemu-gui
 # Mask imlib2 version used on Branch 5
 # by E17 stuff
 =media-libs/imlib2-9999
-
-# Ian Whyman <ian.whyman@sabayon.org>
-# Masked for testing
->=kde-base/kdm-4.4.90-r10
