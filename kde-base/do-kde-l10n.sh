@@ -8,8 +8,9 @@
 # EXISTING_VER:  An existing version to be used as a template
 # NEW_VER: The new version number to be generated.
 
-EXISTING_VER="4.4.4"
-NEW_VER="4.4.5"
+EXISTING_VER="4.4.5"
+NEW_VER="4.5.1"
+BROKEN_ONES=""
 
 for X in `find -name kde-l10n-*${EXISTING_VER}*.ebuild`; do
         echo
@@ -19,4 +20,8 @@ for X in `find -name kde-l10n-*${EXISTING_VER}*.ebuild`; do
                 cp ${X} ${X/${EXISTING_VER}/${NEW_VER}}
         fi
         ebuild ${X} manifest
+	if [ "${?}" != "0" ]; then
+		BROKEN_ONES+=" ${X}"
+	fi
 done
+echo "BROKEN: ${BROKEN_ONES}"
