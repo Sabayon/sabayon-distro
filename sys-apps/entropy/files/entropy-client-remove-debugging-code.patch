@@ -1,0 +1,20 @@
+commit 3c5d0fb6845eee341ebdf7861b028c6e2c609ae8
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Mon Sep 6 15:09:10 2010 +0200
+
+    [entropy.client] remove debugging code
+
+diff --git a/libraries/entropy/client/interfaces/dep.py b/libraries/entropy/client/interfaces/dep.py
+index 0754f07..9e5ed2d 100644
+--- a/libraries/entropy/client/interfaces/dep.py
++++ b/libraries/entropy/client/interfaces/dep.py
+@@ -402,9 +402,6 @@ class CalculatorsMixin:
+         unsatisfied = set()
+         for dependency in dependencies:
+ 
+-            if dependency == "~x11-drivers/xf86-video-virtualbox-3.2.8":
+-                import pdb; pdb.set_trace()
+-
+             if dependency in depcache:
+                 # already analized ?
+                 is_unsat = depcache[dependency]
