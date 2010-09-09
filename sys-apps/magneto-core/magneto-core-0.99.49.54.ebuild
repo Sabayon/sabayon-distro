@@ -15,7 +15,7 @@ RESTRICT="mirror"
 S="${WORKDIR}/entropy-${PV}/magneto"
 
 DEPEND="
-	~sys-apps/entropy-client-services-${PV}
+	>=sys-apps/entropy-client-services-${PV}
         x11-misc/xdg-utils"
 RDEPEND="${DEPEND}"
 

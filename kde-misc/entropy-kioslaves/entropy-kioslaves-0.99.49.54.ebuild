@@ -15,7 +15,7 @@ SRC_URI="http://distfiles.sabayon.org/sys-apps/entropy-${PV}.tar.bz2"
 RESTRICT="mirror"
 S="${WORKDIR}/entropy-${PV}"
 
-RDEPEND="~app-admin/sulfur-${PV}"
+RDEPEND=">=app-admin/sulfur-${PV}"
 
 src_prepare() {
 	einfo "nothing to prepare"
