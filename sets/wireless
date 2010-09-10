@@ -8,7 +8,6 @@ net-wireless/broadcom-sta
 net-wireless/ipw2100-firmware
 net-wireless/ipw2200-firmware
 net-wireless/ipw3945-ucode
-net-wireless/ipw3945d
 net-wireless/iwl3945-ucode
 net-wireless/iwl3945-ucode
 net-wireless/iwl4965-ucode
