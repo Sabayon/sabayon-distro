@@ -1,7 +1,7 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-3.6.4.ebuild,v 1.1 2010/07/25 19:06:36 nirbheek Exp $
-EAPI="2"
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-3.6.9.ebuild,v 1.4 2010/09/09 17:18:05 fauli Exp $
+EAPI="3"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension java-pkg-opt-2 python
@@ -17,31 +17,31 @@ MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.6"
 MY_PV="${PV/_rc/rc}" # Handle beta for SRC_URI
 XUL_PV="${MAJ_XUL_PV}${MAJ_PV/${DESKTOP_PV}/}" # Major + Minor version no.s
-PATCH="mozilla-${PN}-3.6-patches-0.6"
+PATCH="${PN}-3.6-patches-0.2"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist +ipc java libnotify system-sqlite wifi"
+IUSE="+alsa bindist +cups +ipc java libnotify system-sqlite wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 for X in ${LANGS} ; do
 	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
 		SRC_URI="${SRC_URI}
-			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> mozilla-${P}-${X}.xpi )"
+			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 	fi
 	IUSE="${IUSE} linguas_${X/-/_}"
 	# english is handled internally
 	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
 		if [ "${X}" != "en-US" ]; then
 			SRC_URI="${SRC_URI}
-				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> mozilla-${P}-${X}.xpi )"
+				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X%%-*}"
 	fi
@@ -49,8 +49,8 @@ done
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.4
-	>=dev-libs/nspr-4.8
+	>=dev-libs/nss-3.12.7
+	>=dev-libs/nspr-4.8.6
 	>=app-text/hunspell-1.2
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	alsa? ( media-libs/alsa-lib )
@@ -58,6 +58,7 @@ RDEPEND="
 	x11-libs/pango[X]
 	wifi? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
+	cups? ( net-print/cups[gnutls] )
 	~net-libs/xulrunner-${XUL_PV}[ipc=,java=,wifi=,libnotify=,system-sqlite=]"
 
 DEPEND="${RDEPEND}
@@ -69,6 +70,8 @@ RDEPEND="${RDEPEND} java? ( >=virtual/jre-1.4 )"
 
 S="${WORKDIR}/mozilla-1.9.2"
 
+# This is a copy of the launcher program installed as part of xulrunner, so has
+# already been stripped. Bug #332071 for details.
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
 
 linguas() {
@@ -93,6 +96,8 @@ linguas() {
 	done
 }
 
+# XXX FIXME XXX: All refs to mozilla-${PN} need to become ${PN} with the next bump
+# Note that this WILL cause breakage for packages that use fx's libdir and includedir
 pkg_setup() {
 	# Ensure we always build with C locale.
 	export LANG="C"
@@ -102,9 +107,9 @@ pkg_setup() {
 
 	if ! use bindist ; then
 		einfo
-		elog "You are enabling official branding. You may not redistribute this build"
-		elog "to any users on your network or the internet. Doing so puts yourself into"
-		elog "a legal problem with Mozilla Foundation"
+		elog "You are enabling official branding. Manually check configuration"
+		elog "carefully to ensure compliance with licensing provisions"
+		elog "of the Mozilla Foundation if you are re-distributing this package."
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 
@@ -119,7 +124,7 @@ src_unpack() {
 	linguas
 	for X in ${linguas}; do
 		# FIXME: Add support for unpacking xpis to portage
-		[[ ${X} != "en" ]] && xpi_unpack "mozilla-${P}-${X}.xpi"
+		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
 	done
 }
 
@@ -127,20 +132,7 @@ src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	EPATCH_EXCLUDE="137-bz460917_att350845_reload_new_plugins-gentoo-update.patch" \
 	epatch "${WORKDIR}"
-
-	# The patch excluded above failed, ported patch is applied below
-	epatch "${FILESDIR}/137-bz460917_reload_new_plugins-gentoo-update-3.6.4.patch"
-
-	# Fix media build failure
-	epatch "${FILESDIR}/xulrunner-1.9.2-noalsa-fixup.patch"
-
-	# Fix broken alignment
-	epatch "${FILESDIR}/1000_fix_alignment.patch"
-
-	# ARM fixes, bug 327783
-	epatch "${FILESDIR}/xulrunner-1.9.2-arm-fixes.patch"
 
 	# Allow user to apply additional patches without modifing ebuild
 	epatch_user
@@ -152,7 +144,7 @@ src_prepare() {
 }
 
 src_configure() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-${PN}"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	MEXTENSIONS="default"
 
 	####################################
@@ -192,11 +184,12 @@ src_configure() {
 	# Use system libraries
 	mozconfig_annotate '' --enable-system-cairo
 	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --with-system-nspr
-	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include	--x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libxul
-	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
+	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
@@ -205,6 +198,7 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable cups printing
 	mozconfig_use_enable !bindist official-branding
 
 	# Other ff-specific settings
@@ -233,13 +227,13 @@ src_compile() {
 }
 
 src_install() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-${PN}"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	linguas
 	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"mozilla-${P}-${X}"
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
 	done
 
 	# Install icon and .desktop for menu entry
@@ -251,20 +245,20 @@ src_install() {
 		newicon "${S}"/browser/branding/unofficial/content/icon48.png ${PN}-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/${PN}-1.5-unbranded.desktop \
 			mozilla-${PN}-${DESKTOP_PV}.desktop
-		sed -i -e "s:Bon Echo:Namoroka:" \
-			"${D}"/usr/share/applications/mozilla-${PN}-${DESKTOP_PV}.desktop || die "sed failed!"
+		sed -i -e "s:Bon\ Echo:Namoroka:" \
+			"${ED}"/usr/share/applications/mozilla-${PN}-${DESKTOP_PV}.desktop || die "sed failed!"
 	fi
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification ; then
-		echo "StartupNotify=true" >> "${D}"/usr/share/applications/mozilla-${PN}-${DESKTOP_PV}.desktop
+		echo "StartupNotify=true" >> "${ED}"/usr/share/applications/mozilla-${PN}-${DESKTOP_PV}.desktop
 	fi
 
-	pax-mark m "${D}"/${MOZILLA_FIVE_HOME}/firefox
+	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox
 
 	# Enable very specific settings not inherited from xulrunner
 	cp "${FILESDIR}"/firefox-default-prefs.js \
-		"${D}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
+		"${ED}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
 		die "failed to cp firefox-default-prefs.js"
 
 	# Copy Sabayon bookmarks.html file to the default location
@@ -278,13 +272,15 @@ src_install() {
 
 	# very ugly hack to make firefox not sigbus on sparc
 	use sparc && { sed -e 's/Firefox/FirefoxGentoo/g' \
-					 -i "${D}/${MOZILLA_FIVE_HOME}/application.ini" || \
+					 -i "${ED}/${MOZILLA_FIVE_HOME}/application.ini" || \
 					 die "sparc sed failed"; }
 }
 
 pkg_postinst() {
-	ewarn "All the packages built against ${PN} won't compile,"
-	ewarn "any package that fails to build warrants a bug report."
+	ewarn "We have finished moving away from mozilla-${PN}"
+	ewarn "to plain jane ${PN}. If for some reason you have a bug"
+	ewarn "that results please open a report and assign to maintainer"
+	ewarn "with mozilla@gentoo.org being CC'd on the bug report."
 	elog
 
 	# Update mimedb for the new .desktop file
