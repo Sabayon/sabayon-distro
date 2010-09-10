@@ -1,31 +1,31 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.7.ebuild,v 1.4 2010/07/21 22:42:08 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.9.ebuild,v 1.4 2010/09/09 17:14:56 fauli Exp $
 
-EAPI="2"
+EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python prefix pax-utils
 
 MY_PV="${PV/_rc/rc}" # Handle beta
 MY_PV="${MY_PV/1.9.2/3.6}"
 MAJ_PV="1.9.2" # from mozilla-* branch name
-PATCH="${PN}-1.9.2-patches-0.4"
+PATCH="${PN}-1.9.2-patches-0.7"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug +ipc libnotify system-sqlite wifi"
+IUSE="+alsa +cups debug +ipc libnotify system-sqlite wifi"
 
-RDEPEND="java? ( >=virtual/jre-1.4 )
+RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.6
-	>=dev-libs/nspr-4.8
+	>=dev-libs/nss-3.12.7
+	>=dev-libs/nspr-4.8.6
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
@@ -33,13 +33,18 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	x11-libs/pango[X]
 	x11-libs/libXt
 	x11-libs/pixman
+	>=dev-libs/libevent-1.4.7
 	wifi? ( net-wireless/wireless-tools )
-	libnotify? ( >=x11-libs/libnotify-0.4 )"
+	libnotify? ( >=x11-libs/libnotify-0.4 )
+	cups? ( net-print/cups[gnutls] )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
 	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig"
+
+# virtual/jre should not be in DEPEND. bug 325981
+RDEPEND="java? ( >=virtual/jre-1.4 ) ${RDEPEND}"
 
 S="${WORKDIR}/mozilla-${MAJ_PV}"
 
@@ -61,20 +66,15 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	# Fix build error for xpctools
-	epatch "${FILESDIR}/301-xulrunner-xpctools.diff"
+	eprefixify \
+		extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java \
+		xpcom/build/nsXPCOMPrivate.h \
+		xulrunner/installer/Makefile.in \
+		xulrunner/app/nsRegisterGREUnix.cpp
 
-	# Fix broken mozilla-plugin.pc
-	epatch "${FILESDIR}/${PN}-1.9.2-fix-pkgconfig-file.patch"
-
-	# Ensure we find myspell dict.
-	epatch "${FILESDIR}/1002_fix-system-hunspell-dict-detections.patch"
-
-	# ARM fixes, bug 327783
-	epatch "${FILESDIR}/${PN}-1.9.2-arm-fixes.patch"
-
-	# Enable tracemonkey for amd64 (bug #315997)
-	epatch "${FILESDIR}/801-enable-x86_64-tracemonkey.patch"
+	# fix double symbols due to double -ljemalloc
+	sed -i -e '/^LIBS += $(JEMALLOC_LIBS)/s/^/#/' \
+		xulrunner/stub/Makefile.in || die
 
 	# Allow user to apply additional patches without modifing ebuild
 	epatch_user
@@ -142,9 +142,11 @@ src_configure() {
 	# Use system libraries
 	mozconfig_annotate '' --enable-system-cairo
 	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --with-system-nspr
-	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
+	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
@@ -153,6 +155,7 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable cups printing
 
 	# Debug
 	if use debug ; then
@@ -182,20 +185,24 @@ src_configure() {
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
 		"${S}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path!"
 
+	# hack added to workaround bug 299905 on hosts with libc that doesn't
+	# support tls, (probably will only hit this condition with Gentoo Prefix)
+	tc-has-tls -l || export ac_cv_thread_keyword=no
+
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
 }
 
 src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
-	rm "${D}"/usr/bin/xulrunner
+	rm "${ED}"/usr/bin/xulrunner
 
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
 
 	if has_multilib_profile; then
 		local config
-		for config in "${D}"/etc/gre.d/*.system.conf ; do
+		for config in "${ED}"/etc/gre.d/*.system.conf ; do
 			mv "${config}" "${config%.conf}.${CHOST}.conf"
 		done
 	fi
@@ -205,18 +212,20 @@ src_install() {
 
 	# env.d file for ld search path
 	dodir /etc/env.d
-	echo "LDPATH=${MOZLIBDIR}" > "${D}"/etc/env.d/08xulrunner || die "env.d failed"
+	echo "LDPATH=${EPREFIX}/${MOZLIBDIR}" > "${ED}"/etc/env.d/08xulrunner || die "env.d failed"
 
 	# Add our defaults to xulrunner and out of firefox
 	cp "${FILESDIR}"/xulrunner-default-prefs.js \
-		"${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
+		"${ED}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
 			die "failed to cp xulrunner-default-prefs.js"
 
+	pax-mark m "${D}"/${MOZLIBDIR}/plugin-container
+
 	if use java ; then
-		java-pkg_regjar "${D}/${MOZLIBDIR}/javaxpcom.jar"
-		java-pkg_regso "${D}/${MOZLIBDIR}/libjavaxpcomglue.so"
-		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaGlue.jar"
-		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaInterfaces.jar"
+		java-pkg_regjar "${ED}/${MOZLIBDIR}/javaxpcom.jar"
+		java-pkg_regso "${ED}/${MOZLIBDIR}/libjavaxpcomglue.so"
+		java-pkg_regjar "${ED}/${SDKDIR}/lib/MozillaGlue.jar"
+		java-pkg_regjar "${ED}/${SDKDIR}/lib/MozillaInterfaces.jar"
 	fi
 }
 
