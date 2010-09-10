@@ -10,7 +10,7 @@ SRC_URI="mirror://kernel/linux/kernel/people/ck/apps/interbench/${PF}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86"
+KEYWORDS="~x86 ~amd64"
 
 DEPEND=""
 RDEPEND=""
@@ -18,8 +18,6 @@ RDEPEND=""
 src_unpack() {
 	unpack ${A}
 	cd ${S}
-	# correct silly typo
-	epatch ${FILESDIR}/interbench_syntaxerror.patch || die "patch error!"
 	sed -i -e 's/CFLAGS/#CFLAGS/' \
 		-e 's/CC/#CC/' Makefile || die "Can't sed Makefile!"
 }
