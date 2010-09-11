@@ -32,3 +32,6 @@ blacklist ssb
 
 # keep nvidia-drivers working, sorry nouveau
 blacklist nouveau
+
+# Ralink RT2800 PCI known to not work well and blocking other staging drivers
+rt2800pci
