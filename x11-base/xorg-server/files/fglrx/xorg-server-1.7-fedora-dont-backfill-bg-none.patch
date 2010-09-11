@@ -1,0 +1,23 @@
+Disable backfilling of windows created with bg=none, which otherwise
+would force a framebuffer readback.
+
+Index: xorg-server-1.2.0/composite/compalloc.c
+===================================================================
+--- xorg-server-1.4.2/composite/compalloc.c.orig	2007-09-18 18:16:24.000000000 -0700
++++ xorg-server-1.4.2/composite/compalloc.c	2007-09-18 18:16:48.000000000 -0700
+@@ -471,6 +471,7 @@ compNewPixmap (WindowPtr pWin, int x, in
+     pPixmap->screen_x = x;
+     pPixmap->screen_y = y;
+     
++#if 0
+     if (pParent->drawable.depth == pWin->drawable.depth)
+     {
+ 	GCPtr	pGC = GetScratchGC (pWin->drawable.depth, pScreen);
+@@ -529,6 +530,7 @@ compNewPixmap (WindowPtr pWin, int x, in
+ 	if (pDstPicture)
+ 	    FreePicture (pDstPicture, 0);
+     }
++#endif
+     return pPixmap;
+ }
+ 
