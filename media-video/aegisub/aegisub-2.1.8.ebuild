@@ -1,4 +1,4 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -22,13 +22,13 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="alsa debug ffmpeg lua nls openal oss perl portaudio pulseaudio spell ruby"
 
-RDEPEND="=x11-libs/wxGTK-2.8*[X]
+RDEPEND="=x11-libs/wxGTK-2.8*[X,opengl]
 	media-libs/libass
 	media-libs/fontconfig
 	media-libs/freetype
 
 	alsa? (	media-libs/alsa-lib )
-	portaudio? ( =media-libs/portaudio-18* )
+	portaudio? ( =media-libs/portaudio-19* )
 	pulseaudio? ( media-sound/pulseaudio )
 	openal? ( media-libs/openal )
 
@@ -46,8 +46,9 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/${MY_P}"
 
-pkg_setup() {
-	check_wxuse opengl
+src_prepare() {
+	epatch "${FILESDIR}"/${P}-do-not-verify-audiolibs.patch
+	eautoreconf
 }
 
 src_configure() {
@@ -55,7 +56,7 @@ src_configure() {
 		$(use_with oss) \
 		$(use_with portaudio) \
 		$(use_with pulseaudio) \
-		$(use_with openal openal) \
+		$(use_with openal) \
 		$(use_with lua) \
 		$(use_with ruby) \
 		$(use_with perl) \
