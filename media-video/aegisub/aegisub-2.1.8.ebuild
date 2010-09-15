@@ -48,6 +48,7 @@ S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-do-not-verify-audiolibs.patch
+	epatch "${FILESDIR}"/${P}-as_needed.patch
 	eautoreconf
 }
 
