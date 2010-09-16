@@ -1,0 +1,17 @@
+# ChangeLog for net-mail/gnarwl
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*gnarwl-3.6 (16 Sep 2010)
+
+  16 Sep 2010; Fabio Erculiani <lxnay@gentoo.org> +gnarwl-3.6.ebuild,
+  +metadata.xml:
+  import into sabayon overlay, thanks to wschlich-testing
+
+  19 Jun 2009; Wolfram Schlich <wschlich@gentoo.org> gnarwl-3.6.ebuild:
+  fix paths, added some variables for user control of ebuild setup
+
+  18 Jun 2009; Wolfram Schlich <wschlich@gentoo.org> +metadata.xml,
+  +gnarwl-3.6.ebuild:
+  initial import
+
