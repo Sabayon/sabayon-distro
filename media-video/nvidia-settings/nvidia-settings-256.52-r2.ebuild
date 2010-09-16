@@ -69,5 +69,4 @@ src_install() {
 
 	# Now install documentation
 	dodoc doc/*.txt
-	doman "${S}/doc/nvidia-settings.1.m4"
 }
