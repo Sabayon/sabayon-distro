@@ -34,4 +34,4 @@ blacklist ssb
 blacklist nouveau
 
 # Ralink RT2800 PCI known to not work well and blocking other staging drivers
-rt2800pci
+blacklist rt2800pci
