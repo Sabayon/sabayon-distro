@@ -62,6 +62,9 @@ src_install() {
 
 	# Install icon and .desktop entry
 	doicon "${S}/doc/${PN}.png"
+	sed -i "s:__UTILS_PATH__:/usr/bin:" "${S}/doc/${PN}.desktop"
+	sed -i "s:__PIXMAP_PATH__:/usr/share/pixmaps:" "${S}/doc/${PN}.desktop"
+	sed -i "s:__NVIDIA_SETTINGS_DESKTOP_CATEGORIES__:Utility:" "${S}/doc/${PN}.desktop"
 	domenu "${S}/doc/${PN}.desktop"
 
 	# Now install documentation
