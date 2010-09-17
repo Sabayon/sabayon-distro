@@ -24,3 +24,4 @@ net-wireless/rt61-firmware
 net-wireless/rt73-firmware
 net-wireless/ralink-rt2860-firmware
 net-wireless/ralink-rt2870-firmware
+sys-apps/usb_modeswitch
