@@ -119,4 +119,4 @@
 +
 +	return ptr;
 +}
-+EXPORT_SYMBOL_GPL(compat_alloc_user_space);
++EXPORT_SYMBOL(compat_alloc_user_space);

@@ -184,7 +184,7 @@ index e167efc..c9e2ec0 100644
 +
 +	return ptr;
 +}
-+EXPORT_SYMBOL_GPL(compat_alloc_user_space);
++EXPORT_SYMBOL(compat_alloc_user_space);
 -- 
 1.7.2.3
 
