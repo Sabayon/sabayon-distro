@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/openvz-sources/openvz-sources-2.6.27.3.1.ebuild,v 1.2 2010/01/28 18:56:11 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/openvz-sources/openvz-sources-2.6.27.6.1-r1.ebuild,v 1.2 2010/09/15 11:48:04 pva Exp $
 
 inherit versionator
 
@@ -35,6 +35,10 @@ KERNEL_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/linux-${OKV}.t
 
 K_SABKERNEL_NAME="openvz"
 K_KERNEL_SOURCES_PKG="sys-kernel/openvz-sources-${PVR}"
+# Security patches for CVE-2010-3081, will be merged in next stable kernel release
+K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.27/x86-64-compat-test-rax-for-the-syscall-number-not-eax.patch
+        ${FILESDIR}/hotfixes/2.6.27/x86-64-compat-retruncate-rax-after-ia32-syscall-entry-tracing.patch
+        ${FILESDIR}/hotfixes/2.6.27/compat-make-compat_alloc_user_space-incorporate-the-access_ok.patch"
 inherit sabayon-kernel
 
 SLOT=${CKV}-${OVZ_KV}
@@ -47,10 +51,12 @@ KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Kernel binaries with OpenVZ patchset"
 HOMEPAGE="http://www.openvz.org"
 SRC_URI="${KERNEL_URI} ${ARCH_URI}
-	http://download.openvz.org/kernel/branches/${CKV}/${CKV}-${OVZ_KV}/patches/patch-${OVZ_KV}-combined.gz"
+	http://download.openvz.org/kernel/branches/${CKV}/${CKV}-${OVZ_KV}/patches/patch-${OVZ_KV}-combined.gz
+	mirror://gentoo/openvz-2.6.27-2.6.27.53.patch.bz2"
 
 UNIPATCH_STRICTORDER=1
-UNIPATCH_LIST="${DISTDIR}/patch-${OVZ_KV}-combined.gz"
+UNIPATCH_LIST="${DISTDIR}/patch-${OVZ_KV}-combined.gz
+${DISTDIR}/openvz-2.6.27-2.6.27.53.patch.bz2"
 
 K_EXTRAEINFO="For more information about this kernel take a look at:
 http://wiki.openvz.org/Download/kernel/${CKV}/${CKV}-${OVZ_KV}"

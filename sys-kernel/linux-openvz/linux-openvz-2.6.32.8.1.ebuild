@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/openvz-sources/openvz-sources-2.6.32.7.1.ebuild,v 1.1 2010/08/30 10:37:20 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/openvz-sources/openvz-sources-2.6.32.8.1.ebuild,v 1.1 2010/09/10 07:23:55 pva Exp $
 
 inherit versionator
 
@@ -8,7 +8,7 @@ inherit versionator
 # comparisment working we have to use numbers instead of strings, that is 4th
 # component of our version. So we have aivazovsky - 1, briullov - 2 and so on.
 # Keep this string on top since we have to modify it each new release.
-OVZ_CODENAME="bykovsky"
+OVZ_CODENAME="dobrovolskiy"
 OVZ_CODENAME_SUBRELEASE=$(get_version_component_range 5)
 
 OVZ_KV="${OVZ_CODENAME}.${OVZ_CODENAME_SUBRELEASE}"
@@ -33,6 +33,10 @@ KERNEL_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/linux-${OKV}.t
 
 K_SABKERNEL_NAME="openvz"
 K_KERNEL_SOURCES_PKG="sys-kernel/openvz-sources-${PVR}"
+# Security patches for CVE-2010-3081, will be merged in next stable kernel release
+K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.32/x86-64-compat-test-rax-for-the-syscall-number-not-eax.patch
+        ${FILESDIR}/hotfixes/2.6.32/x86-64-compat-retruncate-rax-after-ia32-syscall-entry-tracing.patch
+        ${FILESDIR}/hotfixes/2.6.32/compat-make-compat_alloc_user_space-incorporate-the-access_ok.patch"
 inherit sabayon-kernel
 
 SLOT=${CKV}-${OVZ_KV}
