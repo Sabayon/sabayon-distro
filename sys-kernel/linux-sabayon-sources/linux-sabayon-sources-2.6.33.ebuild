@@ -7,6 +7,10 @@ K_GENPATCHES_VER=""
 K_SABPATCHES_VER="6"
 K_SABKERNEL_NAME="sabayon"
 K_ONLY_SOURCES="1"
+# Security patches for CVE-2010-3081, will be merged in next stable kernel release
+K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.33/x86-64-compat-test-rax-for-the-syscall-number-not-eax.patch
+        ${FILESDIR}/hotfixes/2.6.33/x86-64-compat-retruncate-rax-after-ia32-syscall-entry-tracing.patch
+        ${FILESDIR}/hotfixes/2.6.33/compat-make-compat_alloc_user_space-incorporate-the-access_ok.patch"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Standard kernel sources"
