@@ -31,6 +31,14 @@ K_KERNEL_SOURCES_PKG="${K_KERNEL_SOURCES_PKG:-${CATEGORY}/${PN}-sources-${PVR}}"
 # patch corresponding to patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.3.bz2
 K_KERNEL_PATCH_VER="${K_KERNEL_PATCH_VER:-}"
 
+# @ECLASS-VARIABLE: K_KERNEL_PATCH_HOTFIXES
+# @DESCRIPTION:
+# If there is the need to quickly apply patches to the kernel
+# without bumping the kernel patch tarball (for eg. in case
+# of just released security fixes), set this variable in your ebuild
+# pointing to space separated list of patch paths.
+K_KERNEL_PATCH_HOTFIXES="${K_KERNEL_PATCH_HOTFIXES:-}"
+
 # @ECLASS-VARIABLE: K_SABKERNEL_FIRMWARE
 # @DESCRIPTION:
 # Set this to "1" if your ebuild is a kernel firmware package
@@ -74,6 +82,9 @@ if [ -n "${K_KERNEL_PATCH_VER}" ]; then
 		mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/${K_PATCH_NAME}"
 	UNIPATCH_LIST="${DISTDIR}/${K_PATCH_NAME}
 		${UNIPATCH_LIST}"
+fi
+if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
+	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
 # ebuild default values setup settings
