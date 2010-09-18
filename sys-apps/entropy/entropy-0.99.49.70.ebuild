@@ -22,7 +22,8 @@ DEPEND="
 	net-misc/rsync
 	sys-apps/sandbox
 	sys-devel/gettext
-	sys-apps/diffutils"
+	sys-apps/diffutils
+	>=sys-apps/portage-2.2_rc67"
 RDEPEND="${DEPEND}"
 
 pkg_setup() {
