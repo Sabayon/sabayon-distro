@@ -128,7 +128,7 @@ else
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
-	RDEPEND="grub? ( || ( sys-boot/grub:2 ( sys-boot/grub:0 sys-boot/grub-handler ) ) )
+	RDEPEND="grub? ( || ( >=sys-boot/grub-1.98 ( <sys-boot/grub-1 sys-boot/grub-handler ) ) )
 		sys-apps/sed
 		>=sys-kernel/linux-firmwares-${PV}"
 fi
