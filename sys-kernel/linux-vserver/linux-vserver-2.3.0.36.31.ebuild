@@ -8,14 +8,18 @@
 #   - More Security frameworks enabled by default
 
 ETYPE="sources"
-CKV="2.6.32"
+CKV="2.6.35"
 K_USEPV="1"
 K_NOSETEXTRAVERSION="1"
 UNIPATCH_STRICTORDER="1"
 K_WANT_GENPATCHES="base extras"
-K_GENPATCHES_VER="2"
+K_GENPATCHES_VER="4"
 K_SABKERNEL_NAME="vserver"
 K_KERNEL_SOURCES_PKG="sys-kernel/vserver-sources-${PVR}"
+# Security patches for CVE-2010-3081, will be merged in next stable kernel release
+K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-c41d68a513c71e35a14f66d71782d27a79a81ea6.patch
+        ${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-eefdca043e8391dcd719711716492063030b55ac.patch
+        ${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-36d001c70d8a0144ac1d038f6876c484849a74de.patch"
 inherit sabayon-kernel
 
 ############################################
