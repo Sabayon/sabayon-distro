@@ -231,6 +231,11 @@ src_prepare() {
 	# Fix a known compilation error
 	epatch "${FILESDIR}"/ati-drivers-fix_compilation-bug-297322.patch
 
+	# 2.6.35.5 and newer have changed API
+	if kernel_is ge 2 6 35; then
+		epatch "${FILESDIR}"/ati-drivers-2.6.35-and-newer.patch
+	fi
+
 	# These are the userspace utilities that we also have source for.
 	# We rebuild these later.
 	rm \
