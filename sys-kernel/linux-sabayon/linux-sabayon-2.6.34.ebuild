@@ -3,7 +3,7 @@
 
 ETYPE="sources"
 K_SABPATCHES_VER="11"
-K_KERNEL_PATCH_VER="6"
+K_KERNEL_PATCH_VER="7"
 K_SABKERNEL_NAME="sabayon"
 K_SABKERNEL_URI_CONFIG="yes"
 # Security patches for CVE-2010-3081, will be merged in next stable kernel release
