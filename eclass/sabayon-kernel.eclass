@@ -55,7 +55,7 @@ KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${
 # Disable deblobbing feature
 K_DEBLOB_AVAILABLE=0
 # Do not use PR for kernel versioning (EXTRAVERSION)
-K_NOUSEPR="1"
+K_NOUSEPR="${K_NOUSEPR:-1}"
 
 inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
 
