@@ -44,6 +44,13 @@ K_KERNEL_PATCH_HOTFIXES="${K_KERNEL_PATCH_HOTFIXES:-}"
 # Set this to "1" if your ebuild is a kernel firmware package
 K_FIRMWARE_PACKAGE="${K_FIRMWARE_PACKAGE:-}"
 
+# @ECLASS-VARIABLE: K_KERNEL_DISABLE_PR_EXTRAVERSION
+# @DESCRIPTION:
+# Set this to "1" if you want to tell kernel-2 eclass to
+# not use ${PR} in kernel EXTRAVERSION (K_NOUSEPR). Otherwise, set
+# this to "0" to not set K_NOUSEPR at all.
+K_KERNEL_DISABLE_PR_EXTRAVERSION="${K_KERNEL_DISABLE_PR_EXTRAVERSION:-1}"
+
 # @ECLASS-VARIABLE: K_ONLY_SOURCES
 # @DESCRIPTION:
 # For every kernel binary package, there is a kernel source package associated
@@ -54,8 +61,11 @@ KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${
 
 # Disable deblobbing feature
 K_DEBLOB_AVAILABLE=0
+
 # Do not use PR for kernel versioning (EXTRAVERSION)
-K_NOUSEPR="${K_NOUSEPR:-1}"
+if [ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]; then
+	K_NOUSEPR="1"
+fi
 
 inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
 
