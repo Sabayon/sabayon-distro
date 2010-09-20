@@ -20,6 +20,7 @@ K_KERNEL_SOURCES_PKG="sys-kernel/vserver-sources-${PVR}"
 K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-c41d68a513c71e35a14f66d71782d27a79a81ea6.patch
         ${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-eefdca043e8391dcd719711716492063030b55ac.patch
         ${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-36d001c70d8a0144ac1d038f6876c484849a74de.patch"
+K_KERNEL_DISABLE_PR_EXTRAVERSION="0"
 inherit sabayon-kernel
 
 ############################################
