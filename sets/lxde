@@ -1,6 +1,6 @@
 app-misc/sabayon-skel
 app-text/epdfview
-gnome-base/gdm
+lxde-base/lxdm
 lxde-base/lxde-meta
 mail-client/claws-mail
 @wireless
