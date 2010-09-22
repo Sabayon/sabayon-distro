@@ -4,7 +4,6 @@
 ETYPE="sources"
 K_SABPATCHES_VER="9"
 K_KERNEL_PATCH_VER="4"
-K_SABKERNEL_NAME="sabayon"
 K_SABKERNEL_URI_CONFIG="yes"
 # Security patches for CVE-2010-3081, will be merged in next stable kernel release
 K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-c41d68a513c71e35a14f66d71782d27a79a81ea6.patch

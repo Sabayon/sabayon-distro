@@ -3,7 +3,6 @@
 
 ETYPE="sources"
 K_SABPATCHES_VER="6"
-K_SABKERNEL_NAME="server"
 K_KERNEL_SOURCES_PKG="sys-kernel/linux-server-sources-${PVR}"
 # Security patches for CVE-2010-3081, will be merged in next stable kernel release
 K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.33/x86-64-compat-test-rax-for-the-syscall-number-not-eax.patch

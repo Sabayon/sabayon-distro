@@ -10,8 +10,8 @@
 # @ECLASS-VARIABLE: K_SABKERNEL_NAME
 # @DESCRIPTION:
 # The kernel name used by the ebuild, it should be the ending ${PN} part
-# for example, of linux-sabayon it is "sabayon", for linux-server it is "server"
-K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-sabayon}"
+# for example, of linux-sabayon it is "${PN/${PN/-*}-}" (sabayon)
+K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-${PN/${PN/-*}-}}"
 
 # @ECLASS-VARIABLE: K_SABKERNEL_URI_CONFIG
 # @DESCRIPTION:
@@ -39,17 +39,24 @@ K_KERNEL_PATCH_VER="${K_KERNEL_PATCH_VER:-}"
 # pointing to space separated list of patch paths.
 K_KERNEL_PATCH_HOTFIXES="${K_KERNEL_PATCH_HOTFIXES:-}"
 
-# @ECLASS-VARIABLE: K_SABKERNEL_FIRMWARE
-# @DESCRIPTION:
-# Set this to "1" if your ebuild is a kernel firmware package
-K_FIRMWARE_PACKAGE="${K_FIRMWARE_PACKAGE:-}"
-
 # @ECLASS-VARIABLE: K_KERNEL_DISABLE_PR_EXTRAVERSION
 # @DESCRIPTION:
 # Set this to "1" if you want to tell kernel-2 eclass to
 # not use ${PR} in kernel EXTRAVERSION (K_NOUSEPR). Otherwise, set
 # this to "0" to not set K_NOUSEPR at all.
 K_KERNEL_DISABLE_PR_EXTRAVERSION="${K_KERNEL_DISABLE_PR_EXTRAVERSION:-1}"
+
+# @ECLASS-VARIABLE: K_KERNEL_SLOT_USEPVR
+# @DESCRIPTION:
+# Set this to "1" if you want to use ${PVR} in SLOT variable, instead of ${PV}
+# sys-kernel/linux-vserver (vserver-sources) require this. This won't work for
+# firmware pkgs.
+K_KERNEL_SLOT_USEPVR="${K_KERNEL_SLOT_USEPVR:-0}"
+
+# @ECLASS-VARIABLE: K_SABKERNEL_FIRMWARE
+# @DESCRIPTION:
+# Set this to "1" if your ebuild is a kernel firmware package
+K_FIRMWARE_PACKAGE="${K_FIRMWARE_PACKAGE:-}"
 
 # @ECLASS-VARIABLE: K_ONLY_SOURCES
 # @DESCRIPTION:
@@ -61,11 +68,6 @@ KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${
 
 # Disable deblobbing feature
 K_DEBLOB_AVAILABLE=0
-
-# Do not use PR for kernel versioning (EXTRAVERSION)
-if [ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]; then
-	K_NOUSEPR="1"
-fi
 
 inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
 
@@ -97,16 +99,25 @@ if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
 	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
-# ebuild default values setup settings
-KV_FULL="${PV}-${K_SABKERNEL_NAME}"
+# replace "linux" with K_SABKERNEL_NAME, usually replaces
+# "linux" with "sabayon" or "server" or "openvz"
+KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
+EXTRAVERSION="${EXTRAVERSION/${PN/-*}/${K_SABKERNEL_NAME}}"
+# drop -rX if exists
+[[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]] && \
+	EXTRAVERSION="${EXTRAVERSION/-r*}" && KV_FULL="${KV_FULL/-r*}" && \
+	KV="${KV/-r*}"
 KV_OUT_DIR="/usr/src/linux-${KV_FULL}"
 S="${WORKDIR}/linux-${KV_FULL}"
+
+
 if [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	SLOT="0"
+elif [ "${K_KERNEL_SLOT_USEPVR}" = "1" ]; then
+	SLOT="${PVR}"
 else
 	SLOT="${PV}"
 fi
-EXTRAVERSION="-${K_SABKERNEL_NAME}"
 
 # provide extra virtual pkg
 if [ -z "${K_FIRMWARE_PACKAGE}" ]; then
@@ -307,8 +318,17 @@ _kernel_src_install() {
 	doins "${WORKDIR}"/boot/*
 	cp -Rp "${WORKDIR}"/lib/* "${D}/"
 
-	dosym "../../..${KV_OUT_DIR}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
-	dosym "../../..${KV_OUT_DIR}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
+	# This doesn't always work because KV_FULL (when K_NOSETEXTRAVERSION=1) doesn't
+	# reflect the real value used in Makefile
+	#dosym "../../..${KV_OUT_DIR}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
+	#dosym "../../..${KV_OUT_DIR}" "/lib/modules/${KV_FULL}/build" || die "cannot install build symlink"
+	cd "${D}"/lib/modules/* || die "cannot enter /lib/modules directory, more than one element?"
+	# cleanup previous
+	rm -f build source || die
+	# create sane symlinks
+	ln -sf "../../..${KV_OUT_DIR}" source || die "cannot create source symlink"
+	ln -sf "../../..${KV_OUT_DIR}" build || die "cannot create build symlink"
+	cd "${S}"
 
 	# drop ${D}/lib/firmware, virtual/linux-firmwares provides it
 	rm -rf "${D}/lib/firmware"

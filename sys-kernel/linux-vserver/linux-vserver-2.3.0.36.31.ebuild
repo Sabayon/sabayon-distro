@@ -14,13 +14,17 @@ K_NOSETEXTRAVERSION="1"
 UNIPATCH_STRICTORDER="1"
 K_WANT_GENPATCHES="base extras"
 K_GENPATCHES_VER="4"
-K_SABKERNEL_NAME="vserver"
 K_KERNEL_SOURCES_PKG="sys-kernel/vserver-sources-${PVR}"
 # Security patches for CVE-2010-3081, will be merged in next stable kernel release
 K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-c41d68a513c71e35a14f66d71782d27a79a81ea6.patch
         ${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-eefdca043e8391dcd719711716492063030b55ac.patch
         ${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-36d001c70d8a0144ac1d038f6876c484849a74de.patch"
+# match vserver-sources
 K_KERNEL_DISABLE_PR_EXTRAVERSION="0"
+K_KERNEL_SLOT_USEPVR="1"
+# PLEASE NOTE: grub-handler is known to not work with kernel binary+initramfs installed
+# by this package, but grub-0.9x support is going to be dropped and there are no
+# releases shipped with it as of today.
 inherit sabayon-kernel
 
 ############################################

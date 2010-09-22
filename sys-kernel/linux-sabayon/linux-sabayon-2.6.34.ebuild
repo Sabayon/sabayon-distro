@@ -4,7 +4,6 @@
 ETYPE="sources"
 K_SABPATCHES_VER="11"
 K_KERNEL_PATCH_VER="7"
-K_SABKERNEL_NAME="sabayon"
 K_SABKERNEL_URI_CONFIG="yes"
 # Security patches for CVE-2010-3081, will be merged in next stable kernel release
 K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.34/x86-64-compat-test-rax-for-the-syscall-number-not-eax.patch

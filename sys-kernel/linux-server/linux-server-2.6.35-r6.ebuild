@@ -4,7 +4,6 @@
 ETYPE="sources"
 K_SABPATCHES_VER="9"
 K_KERNEL_PATCH_VER="5"
-K_SABKERNEL_NAME="server"
 K_KERNEL_SOURCES_PKG="sys-kernel/linux-server-sources-${PVR}"
 K_SABKERNEL_URI_CONFIG="yes"
 inherit sabayon-kernel

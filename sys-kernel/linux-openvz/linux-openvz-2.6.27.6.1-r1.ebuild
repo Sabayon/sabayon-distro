@@ -33,12 +33,12 @@ KV_PATCH=$(get_version_component_range 3 ${OKV})
 
 KERNEL_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/linux-${OKV}.tar.bz2"
 
-K_SABKERNEL_NAME="openvz"
 K_KERNEL_SOURCES_PKG="sys-kernel/openvz-sources-${PVR}"
 # Security patches for CVE-2010-3081, will be merged in next stable kernel release
 K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.27/x86-64-compat-test-rax-for-the-syscall-number-not-eax.patch
         ${FILESDIR}/hotfixes/2.6.27/x86-64-compat-retruncate-rax-after-ia32-syscall-entry-tracing.patch
         ${FILESDIR}/hotfixes/2.6.27/compat-make-compat_alloc_user_space-incorporate-the-access_ok.patch"
+# match openvz-sources
 K_KERNEL_DISABLE_PR_EXTRAVERSION="0"
 inherit sabayon-kernel
 
