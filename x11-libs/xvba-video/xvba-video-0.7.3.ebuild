@@ -17,8 +17,7 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND="x11-libs/libva"
-RDEPEND="${DEPEND}
-	>=x11-drivers/ati-drivers-9.10"
+RDEPEND="${DEPEND}"
 
 use x86 && S=${P}.i686
 use amd64 && S=${P}.x86_64
