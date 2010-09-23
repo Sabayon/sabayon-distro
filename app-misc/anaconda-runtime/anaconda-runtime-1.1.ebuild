@@ -13,7 +13,7 @@ SLOT="0"
 
 DEPEND=""
 RDEPEND="app-admin/system-config-date
-	app-admin/system-config-users
+	app-admin/system-config-users?
 	>=app-misc/sabayonlive-tools-2.1.1
 	>=app-misc/sabayon-version-5-r1
 	app-text/xmlto
@@ -36,7 +36,7 @@ RDEPEND="app-admin/system-config-date
 	>=sys-boot/grub-1.98
 	sys-boot/makebootfat
 	sys-fs/btrfs-progs
-	|| ( >=sys-fs/lvm2-2.02.45 sys-fs/cryptsetup )
+	sys-fs/cryptsetup
 	sys-fs/dosfstools
 	sys-fs/e2fsprogs
 	sys-fs/jfsutils
