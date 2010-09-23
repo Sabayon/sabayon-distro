@@ -415,7 +415,7 @@ sabayon-kernel_pkg_postinst() {
 
 		kernel-2_pkg_postinst
 		if [ -n "${K_WORKAROUND_DIFFERENT_EXTRAVERSION}" ]; then
-			export UPDATE_DEPMOD="false"
+			UPDATE_DEPMOD="false"
 			local depmod_r="${PV}$(_get_real_extraversion)"
 			einfo "Updating (overridden) modules dependencies using ${depmod_r}"
 			[[ -r "${KV_OUT_DIR}"/System.map ]] && \
