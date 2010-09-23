@@ -41,7 +41,7 @@ HOMEPAGE="http://www.gentoo.org/proj/en/vps/"
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}
 	http://dev.gentoo.org/~hollow/distfiles/${MY_PN}-${CKV}_${PVR}.tar.bz2"
 
-UNIPATCH_LIST="${DISTDIR}/${MY_PN}-${CKV}_${PVR}.tar.bz2"
+UNIPATCH_LIST="${UNIPATCH_LIST} ${DISTDIR}/${MY_PN}-${CKV}_${PVR}.tar.bz2"
 
 # upstream part
 ############################################
