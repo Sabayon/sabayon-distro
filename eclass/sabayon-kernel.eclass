@@ -355,9 +355,10 @@ _kernel_src_install() {
 		einfo "Workarounding source package collisions"
 		make_file="usr/src/linux-${KV_FULL}/Makefile"
 		einfo "Makefile: ${make_file}"
-		[[ -f "${ROOT}/${make_file}" ]] && \
-			elog "Removing ${D}/${make_file}" && \
-			rm "${D}/${make_file}" || die
+		if [ -f "${ROOT}/${make_file}" ]; then
+			elog "Removing ${D}/${make_file}"
+			rm -f "${D}/${make_file}"
+		fi
 	fi
 
 }
