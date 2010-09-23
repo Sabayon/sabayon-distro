@@ -415,17 +415,14 @@ sabayon-kernel_pkg_postinst() {
 
 		kernel-2_pkg_postinst
 		if [ -n "${K_WORKAROUND_DIFFERENT_EXTRAVERSION}" ]; then
-			local saved_depmod="${UPDATE_DEPMOD}"
-			if [ "${UPDATE_DEPMOD}" = "true" ]; then
-				UPDATE_DEPMOD="false"
-				[[ -r "${KV_OUT_DIR}"/System.map ]] && \
-				depmod -ae -F "${KV_OUT_DIR}"/System.map -b "${ROOT}" -r "${PV}$(_get_real_extraversion)"
-			fi
+			export UPDATE_DEPMOD="false"
+			local depmod_r="${PV}$(_get_real_extraversion)"
+			einfo "Updating (overridden) modules dependencies using ${depmod_r}"
+			[[ -r "${KV_OUT_DIR}"/System.map ]] && \
+				depmod -ae -F "${KV_OUT_DIR}"/System.map -b "${ROOT}" \
+					-r "${depmod_r}"
 		fi
 		linux-mod_pkg_postinst
-		if [ -n "${K_WORKAROUND_DIFFERENT_EXTRAVERSION}" ]; then
-			UPDATE_DEPMOD="${saved_depmod}"
-		fi
 
 		elog "Please report kernel bugs at:"
 		elog "http://bugs.sabayon.org"
