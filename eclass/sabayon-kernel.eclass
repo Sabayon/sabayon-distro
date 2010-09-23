@@ -71,6 +71,15 @@ K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 # by linux-openvz and linux-vserver
 K_WORKAROUND_SOURCES_COLLISION="${K_WORKAROUND_SOURCES_COLLISION:-}"
 
+# @ECLASS-VARIABLE: K_WORKAROUND_DIFFERENT_EXTRAVERSION
+# @DESCRIPTION:
+# Some kernel sources are shipped with their own EXTRAVERSION and
+# we're kindly asked to not touch it, if this is your case, set
+# this variable in order to make linux-mod_pkg_postinst happy
+# (update_depmod) by feeding it with valid KV_FULL, that will be
+# calculated using EXTRAVERSION in Makefile.
+K_WORKAROUND_DIFFERENT_EXTRAVERSION="${K_WORKAROUND_DIFFERENT_EXTRAVERSION:-}"
+
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
 # Disable deblobbing feature
@@ -339,6 +348,25 @@ _kernel_src_install() {
 
 	# drop ${D}/lib/firmware, virtual/linux-firmwares provides it
 	rm -rf "${D}/lib/firmware"
+
+	if [ -n "${K_WORKAROUND_SOURCES_COLLISION}" ]; then
+		# Fixing up Makefile collision if already installed by
+		# openvz-sources
+		einfo "Workarounding source package collisions"
+		make_file="usr/src/linux-${KV_FULL}/Makefile"
+		einfo "Makefile: ${make_file}"
+		[[ -f "${ROOT}/${make_file}" ]] && \
+			elog "Removing ${D}/${make_file}" && \
+			rm "${D}/${make_file}" || die
+	fi
+
+}
+
+_get_real_extraversion() {
+	make_file="${ROOT}${KV_OUT_DIR}/Makefile"
+	local extraver=$(grep -r "^EXTRAVERSION" "${make_file}" | cut -d "=" -f 2)
+	local trimmed=${extraver%% }
+	echo ${trimmed## }
 }
 
 sabayon-kernel_pkg_preinst() {
@@ -347,18 +375,7 @@ sabayon-kernel_pkg_preinst() {
 		linux-mod_pkg_preinst
 		UPDATE_MODULEDB=false
 	fi
-	if [ -n "${K_WORKAROUND_SOURCES_COLLISION}" ]; then
-		# Fixing up Makefile collision if already installed by
-		# openvz-sources
-		einfo "Workarounding source package collisions"
-		make_file="${ROOT}/usr/src/linux-${KV_FULL}/Makefile"
-		einfo "Makefile: ${make_file}"
-		[[ -f "${make_file}" ]] && \
-			elog "Removing ${make_file}" && \
-			rm "${make_file}"
-	fi
 }
-
 sabayon-kernel_grub2_mkconfig() {
 	if [ -x "${ROOT}sbin/grub-mkconfig" ]; then
 		"${ROOT}sbin/grub-mkdevicemap" --device-map="${ROOT}boot/grub/device.map"
@@ -396,7 +413,18 @@ sabayon-kernel_pkg_postinst() {
 		fi
 
 		kernel-2_pkg_postinst
+		if [ -n "${K_WORKAROUND_DIFFERENT_EXTRAVERSION}" ]; then
+			local saved_depmod="${UPDATE_DEPMOD}"
+			if [ "${UPDATE_DEPMOD}" = "true" ]; then
+				UPDATE_DEPMOD="false"
+				[[ -r "${KV_OUT_DIR}"/System.map ]] && \
+				depmod -ae -F "${KV_OUT_DIR}"/System.map -b "${ROOT}" -r "${PV}$(_get_real_extraversion)"
+			fi
+		fi
 		linux-mod_pkg_postinst
+		if [ -n "${K_WORKAROUND_DIFFERENT_EXTRAVERSION}" ]; then
+			UPDATE_DEPMOD="${saved_depmod}"
+		fi
 
 		elog "Please report kernel bugs at:"
 		elog "http://bugs.sabayon.org"
