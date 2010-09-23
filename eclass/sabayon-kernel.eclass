@@ -350,8 +350,12 @@ sabayon-kernel_pkg_preinst() {
 	if [ -n "${K_WORKAROUND_SOURCES_COLLISION}" ]; then
 		# Fixing up Makefile collision if already installed by
 		# openvz-sources
+		einfo "Workarounding source package collisions"
 		make_file="${ROOT}/usr/src/linux-${KV_FULL}/Makefile"
-		[[ -f "${make_file}" ]] && rm "${make_file}"
+		einfo "Makefile: ${make_file}"
+		[[ -f "${make_file}" ]] && \
+			elog "Removing ${make_file}" && \
+			rm "${make_file}"
 	fi
 }
 
