@@ -22,6 +22,7 @@ K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.35/linux-2.6.git-c41d68a513c71
 # match vserver-sources
 K_KERNEL_DISABLE_PR_EXTRAVERSION="0"
 K_KERNEL_SLOT_USEPVR="1"
+K_WORKAROUND_SOURCES_COLLISION="1"
 # PLEASE NOTE: grub-handler is known to not work with kernel binary+initramfs installed
 # by this package, but grub-0.9x support is going to be dropped and there are no
 # releases shipped with it as of today.

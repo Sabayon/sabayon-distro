@@ -64,6 +64,13 @@ K_FIRMWARE_PACKAGE="${K_FIRMWARE_PACKAGE:-}"
 # if your ebuild is one of them, set this to "1"
 K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 
+# @ECLASS-VARIABLE: K_WORKAROUND_SOURCES_COLLISION
+# @DESCRIPTION:
+# For kernel binary packages, Workaround file collisions with kernel
+# sources already providing certain files (like Makefile). Used
+# by linux-openvz and linux-vserver
+K_WORKAROUND_SOURCES_COLLISION="${K_WORKAROUND_SOURCES_COLLISION:-}"
+
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
 # Disable deblobbing feature
@@ -339,6 +346,12 @@ sabayon-kernel_pkg_preinst() {
 		mount-boot_pkg_preinst
 		linux-mod_pkg_preinst
 		UPDATE_MODULEDB=false
+	fi
+	if [ -n "${K_WORKAROUND_SOURCES_COLLISION}" ]; then
+		# Fixing up Makefile collision if already installed by
+		# openvz-sources
+		make_file="${ROOT}/usr/src/linux-${KV_FULL}/Makefile"
+		[[ -f "${make_file}" ]] && rm "${make_file}"
 	fi
 }
 

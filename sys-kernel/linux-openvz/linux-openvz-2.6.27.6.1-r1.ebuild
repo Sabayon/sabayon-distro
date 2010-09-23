@@ -40,6 +40,7 @@ K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.27/x86-64-compat-test-rax-for-
         ${FILESDIR}/hotfixes/2.6.27/compat-make-compat_alloc_user_space-incorporate-the-access_ok.patch"
 # match openvz-sources
 K_KERNEL_DISABLE_PR_EXTRAVERSION="0"
+K_WORKAROUND_SOURCES_COLLISION="1"
 inherit sabayon-kernel
 
 SLOT=${CKV}-${OVZ_KV}
@@ -70,14 +71,6 @@ UNIPATCH_LIST="${UNIPATCH_LIST}
 ${FILESDIR}/sabayon/4200_fbcondecor-0.9.4.patch
 ${FILESDIR}/sabayon/4300_squashfs-3.4.patch
 "
-
-pkg_preinst() {
-	sabayon-kernel_pkg_preinst
-	# Fixing up Makefile collision if already installed by
-	# openvz-sources
-	make_file="${ROOT}/usr/src/linux-${KV_FULL}/Makefile"
-	[[ -f "${make_file}" ]] && rm "${make_file}"
-}
 
 pkg_postinst() {
 	sabayon-kernel_pkg_postinst

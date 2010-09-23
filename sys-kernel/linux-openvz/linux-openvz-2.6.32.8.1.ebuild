@@ -37,6 +37,7 @@ K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.32/x86-64-compat-test-rax-for-
         ${FILESDIR}/hotfixes/2.6.32/x86-64-compat-retruncate-rax-after-ia32-syscall-entry-tracing.patch
         ${FILESDIR}/hotfixes/2.6.32/compat-make-compat_alloc_user_space-incorporate-the-access_ok.patch"
 K_KERNEL_DISABLE_PR_EXTRAVERSION="0"
+K_WORKAROUND_SOURCES_COLLISION="1"
 inherit sabayon-kernel
 
 SLOT=${CKV}-${OVZ_KV}
@@ -65,14 +66,6 @@ http://wiki.openvz.org/Download/kernel/${CKV}/${CKV}-${OVZ_KV}"
 UNIPATCH_LIST="${UNIPATCH_LIST}
 ${FILESDIR}/sabayon-2.6.32/4200_fbcondecor-0.9.6.patch
 "
-
-pkg_preinst() {
-	sabayon-kernel_pkg_preinst
-	# Fixing up Makefile collision if already installed by
-	# openvz-sources
-	make_file="${ROOT}/usr/src/linux-${KV_FULL}/Makefile"
-	[[ -f "${make_file}" ]] && rm "${make_file}"
-}
 
 pkg_postinst() {
 	sabayon-kernel_pkg_postinst
