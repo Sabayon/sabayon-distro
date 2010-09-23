@@ -71,6 +71,14 @@ ${FILESDIR}/sabayon/4200_fbcondecor-0.9.4.patch
 ${FILESDIR}/sabayon/4300_squashfs-3.4.patch
 "
 
+pkg_preinst() {
+	sabayon-kernel_pkg_preinst
+	# Fixing up Makefile collision if already installed by
+	# openvz-sources
+	make_file="${ROOT}/usr/src/linux-${KV_FULL}/Makefile"
+	[[ -f "${make_file}" ]] && rm "${make_file}"
+}
+
 pkg_postinst() {
 	sabayon-kernel_pkg_postinst
 

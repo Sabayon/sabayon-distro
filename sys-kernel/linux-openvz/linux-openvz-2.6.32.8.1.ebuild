@@ -66,6 +66,14 @@ UNIPATCH_LIST="${UNIPATCH_LIST}
 ${FILESDIR}/sabayon-2.6.32/4200_fbcondecor-0.9.6.patch
 "
 
+pkg_preinst() {
+	sabayon-kernel_pkg_preinst
+	# Fixing up Makefile collision if already installed by
+	# openvz-sources
+	make_file="${ROOT}/usr/src/linux-${KV_FULL}/Makefile"
+	[[ -f "${make_file}" ]] && rm "${make_file}"
+}
+
 pkg_postinst() {
 	sabayon-kernel_pkg_postinst
 
