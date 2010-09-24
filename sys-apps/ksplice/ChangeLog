@@ -1,0 +1,86 @@
+# ChangeLog for sys-apps/ksplice
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  04 Mar 2010; Angelo D'Autilia (sYdRo) <sydro@salug.it>
+  -ksplice-0.9.7.ebuild, +ksplice-0.9.9.ebuild:
+  Version bump to ksplice-0.9.9, add ~x86 keyword
+
+  26 Mar 2009; Tiago Cunha <tcunha@gentoo.org> -ksplice-0.9.6.ebuild,
+  +ksplice-0.9.7.ebuild:
+  Version bump, remove old.
+
+  02 Mar 2009; Tomas Chvatal <scarabeus@gentoo.org> ksplice-9999.ebuild:
+  Live ebuilds dont have keywords.
+
+  30 Jan 2009; Tiago Cunha <tcunha@gentoo.org> ksplice-9999.ebuild:
+  Run eautoreconf when installing from the Git repository. From Daniel Black
+  <dragonheart@g.o>
+
+  30 Jan 2009; Tiago Cunha <tcunha@gentoo.org> -ksplice-0.9.2.ebuild,
+  +ksplice-0.9.6.ebuild:
+  Version bump, remove old, thanks to Daniel Black <dragonheart@g.o>
+
+  19 Jan 2009; Christian Ruppert (idl0r) <spooky85@gmail.com>
+  ksplice-0.9.2.ebuild, ksplice-9999.ebuild:
+  Add suggested RDEPEND=${DEPEND}, replaced package name in SRC_URI/REPO_URI
+  by ${PN}.
+
+  18 Oct 2008; Tiago Cunha (tcunha) <me@tiagocunha.org> ksplice-9999.ebuild:
+  Update EGIT_REPO_URI, and HOMEPAGE
+
+  18 Oct 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  -ksplice-0.9.1.ebuild, +ksplice-0.9.2.ebuild:
+  Version bump, remove old
+
+  09 Oct 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  -ksplice-0.8.7.ebuild, +ksplice-0.9.1.ebuild:
+  Version bump, remove old
+
+  30 Jul 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  ksplice-0.8.7.ebuild, ksplice-9999.ebuild:
+  Make dodoc die on failure
+
+  26 Jun 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  ksplice-0.8.7.ebuild, ksplice-9999.ebuild:
+  Install ChangeLog
+
+  21 Jun 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  -ksplice-0.8.6.ebuild, +ksplice-0.8.7.ebuild:
+  Version bump, remove old
+
+  11 Jun 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  ksplice-0.8.6.ebuild, ksplice-9999.ebuild:
+  Simplify die messages
+
+  26 May 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  -ksplice-0.8.4.ebuild, +ksplice-0.8.6.ebuild:
+  Version bump, remove old
+
+  29 Apr 2008; Tiago Cunha (tcunha) <me@tiagocunha.org> ksplice-9999.ebuild:
+  DEPEND on dev-lang/perl too in the live git ebuild
+
+  29 Apr 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  ksplice-0.8.4.ebuild:
+  pod2man is required at build time, hence DEPEND on dev-lang/perl too
+
+  29 Apr 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  -ksplice-0.8.3.ebuild, +ksplice-0.8.4.ebuild:
+  Version bump, remove old
+
+  28 Apr 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  -ksplice-0.8.2.ebuild, +ksplice-0.8.3.ebuild:
+  Version bump, remove old
+
+  27 Apr 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  +ksplice-9999.ebuild:
+  Add live ebuild
+
+  27 Apr 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  -ksplice-0.8.1.ebuild, +ksplice-0.8.2.ebuild:
+  Version bump, remove old
+
+  25 Apr 2008; Tiago Cunha (tcunha) <me@tiagocunha.org>
+  +ksplice-0.8.1.ebuild, +metadata.xml:
+  New Ebuild for bug 219272. Thanks to Tommy[D] for reviewing
+
