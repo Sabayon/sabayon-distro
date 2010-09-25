@@ -1,3 +1,4 @@
 move sys-kernel/linux-server-sources sys-kernel/server-sources
 move sys-kernel/linux-sabayon-sources sys-kernel/sabayon-sources
 move app-cdr/lacie-lightscribe-labeler app-cdr/lightscribe-lacie
+move app-cdr/lightscribe app-cdr/lightscribe-simplelabeler
