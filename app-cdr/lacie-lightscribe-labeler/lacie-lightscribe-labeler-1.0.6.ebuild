@@ -2,14 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-inherit rpm multilib
+inherit rpm
 
 DESCRIPTION="LaCie LightScribe Labeler 4L"
 HOMEPAGE="http://www.lacie.com/us/products/product.htm?pid=10803"
 SRC_URI="http://www.lacie.com/download/drivers/4L-1.0-r6.i586.rpm"
 LICENSE=""
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="-amd64 ~x86"
 IUSE=""
 RESTRICT="mirror strip"
 DEPEND=""
@@ -31,21 +31,16 @@ RDEPEND="virtual/libc
 	x11-libs/libXrender
 	x11-libs/libXrandr
 	app-cdr/lightscribe
-	amd64? ( app-emulation/emul-linux-x86-baselibs )
 	"
 
 src_unpack() {
 	rpm_src_unpack
 }
 
-src_compile() {
-	einfo "nothing to compile"
-}
+src_compile() { :; }
 
 src_install() {
 	cd ${WORKDIR}
-
-	has_multilib_profile && ABI=x86
 
 	# we don't like /usr/4L, binary
 	# stuff shall go to /opt.
