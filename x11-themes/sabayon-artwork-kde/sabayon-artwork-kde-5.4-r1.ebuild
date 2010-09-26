@@ -5,8 +5,8 @@ EAPI=2
 inherit eutils kde4-base
 
 DESCRIPTION="Sabayon Linux Official KDE artwork"
-HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
+HOMEPAGE="http://www.sabayon.org/"
+SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
@@ -32,6 +32,8 @@ src_install() {
 	cd ${S}/kdm
 	insinto ${KDEDIR}/share/apps/kdm/themes
 	doins -r ./
+	# Fixup kdm theme glitches, needs to be merged
+	cp "${FILESDIR}/5.4-hotfixes/sabayon.xml" "${D}/${KDEDIR}/share/apps/kdm/themes/sabayon/" || die
 
 	# Kwin
 	dodir ${KDEDIR}/share/apps/aurorae/themes/
