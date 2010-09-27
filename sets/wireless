@@ -7,14 +7,15 @@ net-wireless/bcm43xx-fwcutter
 net-wireless/broadcom-sta
 net-wireless/ipw2100-firmware
 net-wireless/ipw2200-firmware
-net-wireless/ipw3945-ucode
-net-wireless/iwl3945-ucode
 net-wireless/iwl3945-ucode
 net-wireless/iwl4965-ucode
 net-wireless/iwl4965-ucode
 net-wireless/iwl5000-ucode
 net-wireless/iwl5000-ucode
 net-wireless/iwl5150-ucode
+net-wireless/iwl1000-ucode
+net-wireless/iwl6000-ucode
+net-wireless/iwl6050-ucode
 net-wireless/libertas-firmware
 net-wireless/linux-wlan-ng-firmware
 net-wireless/linux-wlan-ng-utils
