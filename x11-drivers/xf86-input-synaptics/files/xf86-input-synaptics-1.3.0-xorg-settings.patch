@@ -1,5 +1,5 @@
---- xf86-input-synaptics-1.2.1.orig/fdi/11-x11-synaptics.fdi
-+++ xf86-input-synaptics-1.2.1/fdi/11-x11-synaptics.fdi
+--- xf86-input-synaptics-1.2.1.orig/conf/11-x11-synaptics.fdi
++++ xf86-input-synaptics-1.2.1/conf/11-x11-synaptics.fdi
 @@ -5,27 +5,85 @@
          <merge key="input.x11_driver" type="string">synaptics</merge>
          <!-- Arbitrary options can be passed to the driver using
