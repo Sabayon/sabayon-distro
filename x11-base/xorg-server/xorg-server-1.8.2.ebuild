@@ -228,10 +228,28 @@ src_install() {
 	fi
 	newinitd "${T}"/xdm.initd xdm || die "initd file install failed"
 	newinitd "${FILESDIR}"/xdm-setup.initd-1 xdm-setup || die
-	newconfd "${FILESDIR}"/xdm.confd-3 xdm || die
+	newconfd "${FILESDIR}"/xdm.confd-3 xdm.example || die
+}
+
+CONFD_XDM="${ROOT}/etc/conf.d/xdm"
+pkg_preinst() {
+	# backup user /etc/conf.d/xdm
+	if [ -f "${CONFD_XDM}" ]; then
+		cp -p "${CONFD_XDM}" "${CONFD_XDM}.backup"
+	fi
 }
 
 pkg_postinst() {
+
+	# Copy config file over
+	if [ -f "${CONFD_XDM}.backup" ]; then
+		cp ${CONFD_XDM}.backup ${CONFD_XDM} -p
+	else
+		if [ -f "${CONFD_XDM}.example" ] && [ ! -f "${CONFD_XDM}" ]; then
+			cp ${CONFD_XDM}.example ${CONFD_XDM} -p
+		fi
+	fi
+
 	# sets up libGL and DRI2 symlinks if needed (ie, on a fresh install)
 	eselect opengl set --use-old xorg-x11
 
@@ -248,6 +266,12 @@ pkg_postinst() {
 		ewarn "category using this command:"
 		ewarn "	emerge portage-utils; qlist -I -C x11-drivers/"
 	fi
+
+	ewarn
+	ewarn "/etc/conf.d/xdm is no longer provided, /etc/conf.d/xdm.example is"
+	ewarn "Your current /etc/conf.d/xdm has been used as new default"
+	ewarn
+
 }
 
 pkg_postrm() {
