@@ -4,7 +4,7 @@
 inherit eutils
 
 DESCRIPTION="Sabayon Linux Media Center Infrastructure"
-HOMEPAGE="http://www.sabayonlinux.org/"
+HOMEPAGE="http://www.sabayon.org/"
 SRC_URI=""
 
 RESTRICT="nomirror"
@@ -20,19 +20,19 @@ DEPEND=""
 S="${WORKDIR}"
 
 src_unpack() {
-	cp ${FILESDIR}/${PV}/* ${WORKDIR} -Rp || die "cannot unpack"
+	cp "${FILESDIR}"/${PV}/* "${WORKDIR}"/ -Rp || die "cannot unpack"
 }
 
 src_install () {
 
-	cd ${WORKDIR}/init.d
+	cd "${WORKDIR}"/init.d
 	newinitd sabayon-mce sabayon-mce
 
-	cd ${WORKDIR}/bin
+	cd "${WORKDIR}"/bin
 	exeinto /usr/bin
 	doexe *
 
-	cd ${WORKDIR}/xsession
+	cd "${WORKDIR}"/xsession
 	dodir /usr/share/xsessions
 	insinto /usr/share/xsessions
 	doins *.desktop
