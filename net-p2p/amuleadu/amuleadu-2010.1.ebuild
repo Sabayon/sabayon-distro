@@ -22,8 +22,9 @@ KEYWORDS="~alpha ~amd64 ~hppa ~ppc ~ppc64 ~sparc ~x86"
 IUSE="daemon debug geoip gtk nls remote stats unicode upnp"
 
 DEPEND="=x11-libs/wxGTK-2.8*
-	dev-libs/crypto++[sse3]
+	>=dev-libs/crypto++-5.6.0
 	>=sys-libs/zlib-1.2.1
+	!net-p2p/amule
 	stats? ( >=media-libs/gd-2.0.26[jpeg] )
 	geoip? ( dev-libs/geoip )
 	upnp? ( >=net-libs/libupnp-1.6.6 )
