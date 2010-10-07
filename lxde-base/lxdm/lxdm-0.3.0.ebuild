@@ -39,7 +39,6 @@ src_prepare() {
 	base_src_prepare
 
 	epatch "${FILESDIR}/${P}-pam_console-disable.patch"
-	epatch "${FILESDIR}/${P}-fix-DESKTOP_SESSION-handling.patch"
 
 	if use sabayon; then
 		epatch "${FILESDIR}/${P}-sabayon-theme.patch"
@@ -73,6 +72,13 @@ src_install() {
 	exeinto /etc/lxdm
 	doexe "${FILESDIR}"/xinitrc || \
 		die "Cannot install /etc/lxdm/xinitrc"
+
+	# Move the lxdm script to start-lxdm,
+	# and symlink lxdm to lxdm-binary
+	# mv ${D}/usr/sbin/lxdm ${D}/usr/sbin/start-lxdm || \
+	#	die "Could not move /usr/sbin/lxdm..."
+	# dosym /usr/sbin/lxdm-binary /usr/sbin/lxdm || \
+	#	die "Could not symlink lxdm to lxdm-binary..."
 }
 
 pkg_postinst() {
