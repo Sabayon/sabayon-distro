@@ -1,6 +1,6 @@
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-2.eclass,v 1.12 2009/04/02 21:40:39 solar Exp $
+# $Header: eclass/mozcoreconf-2.eclass,v 1.16.1 2010/10/07 Sabayon Version Exp $
 #
 # mozcoreconf.eclass : core options for mozilla
 # inherit mozconfig-2 if you need USE flags
@@ -32,6 +32,8 @@ mozconfig_init() {
 	declare EM=$([[ ${PN} == enigmail ]] && echo true || echo false)
 	declare XUL=$([[ ${PN} == *xulrunner ]] && echo true || echo false)
 	declare SM=$([[ ${PN} == seamonkey ]] && echo true || echo false)
+	declare IC=$([[ ${PN} == *icecat ]] && echo true || echo false)
+	declare IC=$([[ ${PN} == kompozer ]] && echo true || echo false)
 
 	####################################
 	#
@@ -69,6 +71,14 @@ mozconfig_init() {
 			: >.mozconfig || die "initial mozconfig creation failed"
 			mozconfig_annotate "" --enable-application=suite
 			mozconfig_annotate "" --enable-extensions=default ;;
+		*icecat)
+			cp browser/config/mozconfig .mozconfig \
+				|| die "cp browser/config/mozconfig failed" ;;
+		kompozer)
+			# The other builds have an initial --enable-extensions in their
+			# .mozconfig.  The "default" set in configure applies to mozilla
+			# specifically.
+			: >.mozconfig || die "initial mozconfig creation failed" ;;
 	esac
 
 	####################################
@@ -80,7 +90,9 @@ mozconfig_init() {
 	# Set optimization level
 	if [[ ${ARCH} == hppa ]]; then
 		mozconfig_annotate "more than -O0 causes segfaults on hppa" --enable-optimize=-O0
-	elif use custom-optimization || [[ ${ARCH} == alpha ]]; then
+	elif [[ ${ARCH} == x86 ]]; then
+		mozconfig_annotate "less then -O2 causes a segfault on x86" --enable-optimize=-O2
+	elif use custom-optimization || [[ ${ARCH} =~ (alpha|ia64) ]]; then
 		# Set optimization level based on CFLAGS
 		if is-flag -O0; then
 			mozconfig_annotate "from CFLAGS" --enable-optimize=-O0
@@ -131,11 +143,6 @@ mozconfig_init() {
 		if [[ $(gcc-major-version).$(gcc-minor-version) == 3.3 ]]; then
 			append-flags -fno-strict-aliasing
 		fi
-		;;
-
-	sparc)
-		# Sparc support ...
-		replace-sparc64-flags
 		;;
 
 	x86)
