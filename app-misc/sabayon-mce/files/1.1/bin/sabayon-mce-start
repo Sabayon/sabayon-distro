@@ -5,6 +5,9 @@ myxinitrc="/usr/bin/sabayon-mce-session"
 myuser="sabayonmce"
 mcepid="/var/sabayonmce/.mcepid"
 
+# make sure samba is started
+[[ -f "/etc/init.d/samba" ]] && /etc/init.d/samba start &> /dev/null
+
 # Kill previous instance running since
 # /etc/init.d/xdm does not support PIDFILE for
 # custom DISPLAYMANAGER

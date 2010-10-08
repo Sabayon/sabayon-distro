@@ -25,8 +25,6 @@ start() {
 		chown sabayonmce /var/sabayonmce/.dmrc
 
 		sabayon_setup_autologin
-		# xbmc uses samba to connect to Windows shares
-		/etc/init.d/samba start --nodeps &> /dev/null &
 
 	elif [ -z "$is_live" ] && [ -z "$sabayonmce_avail" ]; then
 		ebegin "Sabayon Media Center mode disabled"
