@@ -41,7 +41,13 @@ src_install () {
 
 pkg_postinst() {
 	# create new user sabayonmce
-	enewuser sabayonmce -1 /bin/sh /var/sabayonmce users,lp,wheel,uucp,audio,cdrom,video,cdrw,usb,plugdev,polkituser
+	local mygroups="users"
+	for mygroup in lp wheel uucp audio cdrom scanner video cdrw usb plugdev polkituser; do
+		if [[ -n $(egetent group "${mygroup}") ]]; then
+        		mygroups+=",${mygroup}"
+		fi
+	done
+	enewuser sabayonmce -1 /bin/sh /var/sabayonmce "${mygroups}"
 
 	elog "For those who are using <=Sabayon-5.1 as Media Center:"
 	elog "PLEASE update DISPLAYMANAGER= in /etc/conf.d/xdm"
