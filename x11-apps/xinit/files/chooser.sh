@@ -2,22 +2,13 @@
 # Copyright 1999-2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2
 # Author:  Martin Schlemmer <azarah@gentoo.org>
-# $Header: /var/cvsroot/gentoo-x86/x11-apps/xinit/files/chooser.sh,v 1.4 2006/09/05 23:22:13 dberkholz Exp $
-
-# If $XSESSION is "", source first /etc/conf.d/basic, and then /etc/rc.conf
-if [ -z "${XSESSION}" ]
-then
-	[ -f /etc/conf.d/basic ] && . /etc/conf.d/basic
-	[ -f /etc/rc.conf ] && . /etc/rc.conf
-fi
+# $Header: /var/cvsroot/gentoo-x86/x11-apps/xinit/files/chooser.sh,v 1.5 2009/11/14 14:18:43 scarabeus Exp $
 
 # Find a match for $XSESSION in /etc/X11/Sessions
 GENTOO_SESSION=""
-for x in /etc/X11/Sessions/*
-do
+for x in /etc/X11/Sessions/* ; do
 	if [ "`echo ${x##*/} | awk '{ print toupper($1) }'`" \
-		= "`echo ${XSESSION} | awk '{ print toupper($1) }'`" ]
-	then
+		= "`echo ${XSESSION} | awk '{ print toupper($1) }'`" ]; then
 		GENTOO_SESSION=${x}
 		break
 	fi

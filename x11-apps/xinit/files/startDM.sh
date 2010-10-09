@@ -24,7 +24,7 @@ NAME="$(get_options name)"
 PIDFILE="$(get_options pidfile)"
 START_STOP_ARGS="$(get_options start_stop_args)"
 
-start-stop-daemon --start ${START_STOP_ARGS} --exec ${EXEC} \
+start-stop-daemon --start --exec ${EXEC} ${START_STOP_ARGS} \
 ${NAME:+--name} ${NAME} ${PIDFILE:+--pidfile} ${PIDFILE} || \
 eerror "ERROR: could not start the Display Manager"
 

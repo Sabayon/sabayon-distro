@@ -1,6 +1,6 @@
-From 57ce122fe4092fa3bffbd61b04ab69ef32426920 Mon Sep 17 00:00:00 2001
+From 4f039767273b60f9a1a24867db0988d46abe5972 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Cardona?= <remi@gentoo.org>
-Date: Sat, 28 Nov 2009 22:14:17 +0100
+Date: Tue, 8 Dec 2009 15:22:13 +0100
 Subject: [PATCH] Gentoo-specific customizations
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] Gentoo-specific customizations
  1 files changed, 17 insertions(+), 12 deletions(-)
 
 diff --git a/xinitrc.cpp b/xinitrc.cpp
-index 379b1f3..b6186df 100644
+index 379b1f3..159f294 100644
 --- a/xinitrc.cpp
 +++ b/xinitrc.cpp
 @@ -2,8 +2,8 @@ XCOMM!SHELL_CMD
@@ -48,7 +48,7 @@ index 379b1f3..b6186df 100644
 -XTERM -geometry 80x50+494+51 &
 -XTERM -geometry 80x20+494-0 &
 -exec XTERM -geometry 80x66+0+0 -name login
-+if [ $failsafe = "yes" ]; then
++if [ -n "$failsafe" ]; then
 +	TWM &
 +	XCLOCK -geometry 50x50-1+1 &
 +	XTERM -geometry 80x50+494+51 &
@@ -58,5 +58,5 @@ index 379b1f3..b6186df 100644
 +	exec $command
 +fi
 -- 
-1.6.5.3
+1.6.5.5
 
