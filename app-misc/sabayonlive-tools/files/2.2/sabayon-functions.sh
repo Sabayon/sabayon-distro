@@ -2,6 +2,7 @@
 
 GDM_FILE="/usr/share/gdm/defaults.conf"
 KDM_FILE="/usr/share/config/kdm/kdmrc"
+LXDM_FILE="/etc/lxdm/lxdm.conf"
 OEM_FILE="/etc/oemlive.sh"
 LIVE_USER_GROUPS="audio cdrom cdrw clamav console disk entropy games haldaemon \
 kvm lp lpadmin messagebus plugdev polkituser portage pulse pulse-access pulse-rt \
@@ -40,6 +41,12 @@ sabayon_setup_autologin() {
 		sed -i "/^#AllowRootLogin=/ s/^#//" $KDM_FILE
 		sed -i "/^#AllowNullPasswd=/ s/^#//" $KDM_FILE
 		sed -i "/^#AllowShutdown=/ s/^#//" $KDM_FILE
+	fi
+
+	# LXDM
+	if [ -f "$LXDM_FILE" ]; then
+		sed -i "s/autologin=.*/autologin=${LIVE_USER}" $LXDM_FILE
+		sed -i "/^#.*autologin=/ s/^#//" $LXDM_FILE
 	fi
 
 }
