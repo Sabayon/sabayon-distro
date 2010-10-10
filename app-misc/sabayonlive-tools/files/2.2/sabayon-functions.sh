@@ -45,7 +45,7 @@ sabayon_setup_autologin() {
 
 	# LXDM
 	if [ -f "$LXDM_FILE" ]; then
-		sed -i "s/autologin=.*/autologin=${LIVE_USER}" $LXDM_FILE
+		sed -i "s/autologin=.*/autologin=${LIVE_USER}/" $LXDM_FILE
 		sed -i "/^#.*autologin=/ s/^#//" $LXDM_FILE
 	fi
 
