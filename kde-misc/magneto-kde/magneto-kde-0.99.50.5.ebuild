@@ -16,7 +16,7 @@ S="${WORKDIR}/entropy-${PV}/magneto"
 
 DEPEND="~app-misc/magneto-loader-${PV}
 	kde-base/pykde4
-"
+	dev-python/PyQt4[dbus]"
 RDEPEND="${DEPEND}"
 
 src_compile() {
