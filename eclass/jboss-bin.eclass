@@ -60,11 +60,14 @@ src_install() {
 	dodir /etc/init.d
 	newinitd jboss-bin.initd "${JBOSS_NAME}"
 
-	chown jboss:jboss "${D}/${INSTALL_DIR}" -R || die "failed to chown"
-
 	echo "JBOSS_HOME=\"${INSTALL_DIR}\"" > "50-${JBOSS_NAME}"
 	doenvd "50-${JBOSS_NAME}"
 
 }
 
-EXPORT_FUNCTIONS pkg_setup src_install
+pkg_preinst() {
+	# setup permissions before merging
+	chown jboss:jboss "${D}/${INSTALL_DIR}" -R
+}
+
+EXPORT_FUNCTIONS pkg_setup src_install pkg_postinst
