@@ -70,4 +70,4 @@ jboss-bin_pkg_preinst() {
 	chown jboss:jboss "${D}/${INSTALL_DIR}" -R
 }
 
-EXPORT_FUNCTIONS pkg_setup src_install pkg_postinst
+EXPORT_FUNCTIONS pkg_setup src_install pkg_preinst
