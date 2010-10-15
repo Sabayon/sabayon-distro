@@ -66,3 +66,5 @@ src_install() {
 	doenvd "50-${JBOSS_NAME}"
 
 }
+
+EXPORT_FUNCTIONS pkg_setup src_install
