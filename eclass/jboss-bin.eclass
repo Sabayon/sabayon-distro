@@ -26,13 +26,13 @@ INSTALL_DIR="/opt/${JBOSS_NAME}"
 
 S="${WORKDIR}/jboss-${PV}.GA"
 
-pkg_setup() {
+jboss-bin_pkg_setup() {
 	# Create jboss user and groups
 	enewgroup jboss
 	enewuser jboss -1 -1 -1 jboss
 }
 
-src_install() {
+jboss-bin_src_install() {
 	dodir "${INSTALL_DIR}"
 
 	exeinto "${INSTALL_DIR}"/bin
@@ -65,7 +65,7 @@ src_install() {
 
 }
 
-pkg_preinst() {
+jboss-bin_pkg_preinst() {
 	# setup permissions before merging
 	chown jboss:jboss "${D}/${INSTALL_DIR}" -R
 }
