@@ -1,38 +1,39 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.8.ebuild,v 1.2 2010/07/25 09:24:45 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.11.ebuild,v 1.2 2010/10/20 10:53:31 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python prefix
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python prefix pax-utils
 
 MY_PV="${PV/_rc/rc}" # Handle beta
 MY_PV="${MY_PV/1.9.2/3.6}"
 MAJ_PV="1.9.2" # from mozilla-* branch name
-PATCH="${PN}-1.9.2-patches-0.4"
+PATCH="${PN}-1.9.2-patches-0.7"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
-KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa debug +ipc libnotify system-sqlite wifi"
 
-RDEPEND="java? ( >=virtual/jre-1.4 )
+RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.6
-	>=dev-libs/nspr-4.8
-	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
+	>=dev-libs/nss-3.12.7
+	>=dev-libs/nspr-4.8.6
+	system-sqlite? ( >=dev-db/sqlite-3.7.1[fts3,secure-delete] )
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	x11-libs/libXt
 	x11-libs/pixman
+	>=dev-libs/libevent-1.4.7
 	wifi? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )"
 
@@ -40,6 +41,9 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
 	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig"
+
+# virtual/jre should not be in DEPEND. bug 325981
+RDEPEND="java? ( >=virtual/jre-1.4 ) ${RDEPEND}"
 
 S="${WORKDIR}/mozilla-${MAJ_PV}"
 
@@ -57,38 +61,20 @@ pkg_setup() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="2001_mozilla_ps_pdf_simplify_operators.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	# Fix build error for xpctools
-	epatch "${FILESDIR}/301-xulrunner-xpctools.diff"
-
-	# Fix broken mozilla-plugin.pc
-	epatch "${FILESDIR}/${PN}-1.9.2-fix-pkgconfig-file.patch"
-
-	epatch "${FILESDIR}"/${PN}-1.9-no_sunstudio.patch # breaks sunstudio
-	epatch "${FILESDIR}"/${PN}-1.9-solaris64.patch
-	epatch "${FILESDIR}"/${PN}-1.9.1.5-solaris-undef-regs.patch
-	epatch "${FILESDIR}"/${PN}-1.9.2-solaris-madvise.patch
-	epatch "${FILESDIR}"/${PN}-1.9_beta5-prefix.patch
 	eprefixify \
 		extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java \
 		xpcom/build/nsXPCOMPrivate.h \
 		xulrunner/installer/Makefile.in \
 		xulrunner/app/nsRegisterGREUnix.cpp
 
-	# Ensure we find myspell dict.
-	epatch "${FILESDIR}/1002_fix-system-hunspell-dict-detections.patch"
-
-	# ARM fixes, bug 327783
-	epatch "${FILESDIR}/${PN}-1.9.2-arm-fixes.patch"
-
-	# Enable tracemonkey for amd64 (bug #315997)
-	epatch "${FILESDIR}/801-enable-x86_64-tracemonkey.patch"
-
-        # Enable bilinear filtering of upscaled images
-        epatch "${FILESDIR}/using_extend_pad.patch"
+	# fix double symbols due to double -ljemalloc
+	sed -i -e '/^LIBS += $(JEMALLOC_LIBS)/s/^/#/' \
+		xulrunner/stub/Makefile.in || die
 
 	# Allow user to apply additional patches without modifing ebuild
 	epatch_user
@@ -160,6 +146,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
+	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
@@ -230,6 +217,8 @@ src_install() {
 	cp "${FILESDIR}"/xulrunner-default-prefs.js \
 		"${ED}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
 			die "failed to cp xulrunner-default-prefs.js"
+
+	pax-mark m "${D}"/${MOZLIBDIR}/plugin-container
 
 	if use java ; then
 		java-pkg_regjar "${ED}/${MOZLIBDIR}/javaxpcom.jar"
