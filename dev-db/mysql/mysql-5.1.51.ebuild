@@ -1,8 +1,8 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-db/mysql/mysql-5.1.50-r1.ebuild,v 1.1 2010/09/01 19:05:27 robbat2 Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-db/mysql/mysql-5.1.51.ebuild,v 1.2 2010/10/07 19:05:55 robbat2 Exp $
 
-MY_EXTRAS_VER="20100901-1852Z"
+MY_EXTRAS_VER="20101006-0004Z"
 EAPI=2
 
 # PBXT
@@ -19,9 +19,10 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~spar
 
 # When MY_EXTRAS is bumped, the index should be revised to exclude these.
 # This is often broken still
-EPATCH_EXCLUDE='02040_all_embedded-library-shared-5.1.43.patch '
+EPATCH_EXCLUDE=''
 
-DEPEND="|| ( >=sys-devel/gcc-3.4.6 >=sys-devel/gcc-apple-4.0 )"
+DEPEND="|| ( >=sys-devel/gcc-3.4.6 >=sys-devel/gcc-apple-4.0 )
+	>=sys-devel/libtool-2.2.10"
 RDEPEND=""
 
 # Please do not add a naive src_unpack to this ebuild
@@ -35,6 +36,9 @@ RDEPEND=""
 
 src_prepare() {
 	use pic && append-flags "-fPIC"
+	sed -i \
+		-e '/^noinst_PROGRAMS/s/basic-t//g' \
+		"${S}"/unittest/mytap/t/Makefile.am
 	mysql_src_prepare
 }
 
@@ -170,6 +174,20 @@ src_test() {
 			done
 			;;
 		esac
+
+		# New failures in 5.1.50/5.1.51, reported by jmbsvicetto.
+		# These tests are picking up a 'connect-timeout' config from somewhere,
+		# which is not valid, and since it does not have 'loose-' in front of
+		# it, it's causing a failure
+		case ${PV} in
+			5.1.5*|5.4.*|5.5.*|6*)
+			for t in rpl.rpl_mysql_upgrade main.log_tables_upgrade ; do
+				mysql_disable_test  "$t" \
+					"False positives in Gentoo: connect-timeout"
+			done
+			;;
+		esac
+
 
 		use profiling && use community \
 		|| mysql_disable_test main.profiling \
