@@ -1,0 +1,49 @@
+#!/bin/sh
+
+[ -f /etc/conf.d/ejabberd ] && . /etc/conf.d/ejabberd
+
+# provide some default configuration
+ERL=/usr/bin/erl
+CONFIG=/etc/jabber/ejabberd.cfg
+INETRC=/etc/jabber/inetrc
+LOG_PATH=/var/log/jabber/ejabberd.log
+SASL_LOG=/var/log/jabber/sasl.log
+SPOOL=/var/spool/jabber
+
+ARGS=
+while [ $# -ne 0 ] ; do
+    PARAM=$1
+    shift
+    case $PARAM in
+	--) break ;;
+	--node) EJABBERD_NODE=$1; shift ;;
+	--config) CONFIG=$1 ; shift ;;
+	--log) LOG_PATH=$1 ; shift ;;
+	--sasl-log) SASL_LOG=$1 ; shift ;;
+	--spool) SPOOL=$1 ; shift ;;
+	*) ARGS="$ARGS $PARAM" ;;
+    esac
+done
+
+if [ "$EJABBERD_NODE" = "${EJABBERD_NODE%.*}" ] ; then
+    SNAME=-sname
+else
+    SNAME=-name
+fi
+
+# export ejabberd configuration environment variables
+export HOME=/var/run/jabber
+export EJABBERD_EBIN=/usr/@libdir@/erlang/lib/ejabberd-@version@/ebin
+export EJABBERD_MSGS_PATH=/usr/@libdir@/erlang/lib/ejabberd-@version@/priv/msgs
+export EJABBERD_SO_PATH=/usr/@libdir@/erlang/lib/ejabberd-@version@/priv/lib
+export EJABBERD_LOG_PATH=$LOG_PATH
+export EJABBERD_CONFIG_PATH=$CONFIG
+
+exec $ERL $SNAME $EJABBERD_NODE \
+    -s ejabberd \
+    -kernel inetrc \"$INETRC\" \
+    -sasl sasl_error_logger \{file,\"$SASL_LOG\"\} \
+    -mnesia dir \"$SPOOL\" \
+    $ERL_OPTIONS $ARGS "$@"
+
+

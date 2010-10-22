@@ -1,0 +1,13 @@
+diff --git a/src/mod_shared_roster_ldap.erl b/src/mod_shared_roster_ldap.erl
+index 8097385..44fd48e 100644
+--- a/src/mod_shared_roster_ldap.erl
++++ b/src/mod_shared_roster_ldap.erl
+@@ -142,7 +142,7 @@ init([Host, Opts]) ->
+ 			     State#state.port,
+ 			     State#state.dn,
+ 			     State#state.password,
+-			     none);
++			     []);
+ 	_ ->
+ 	    eldap:start_link(State#state.eldap_id,
+ 			     State#state.servers,

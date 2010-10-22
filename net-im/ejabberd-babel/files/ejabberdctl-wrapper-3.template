@@ -1,0 +1,46 @@
+#!/bin/sh
+
+[ -f /etc/conf.d/ejabberd ] && . /etc/conf.d/ejabberd
+
+if [ -r /var/run/jabber/.erlang.cookie ] ; then
+    HOME=/var/run/jabber
+    export HOME
+fi
+
+ERL=/usr/bin/erl
+
+if [ $# -ne 0 ] ; then
+    case $1 in
+	--node) shift ; EJABBERD_NODE=$1 ; shift ;;
+    esac
+fi
+
+if [ "$EJABBERD_NODE" = "${EJABBERD_NODE%.*}" ] ; then
+    SNAME=-sname
+else
+    SNAME=-name
+fi
+
+case $1 in
+    debug)
+    shift
+
+    if [ "$EJABBERD_NODE" = "${EJABBERD_NODE%@*}" ] ; then
+        EJABBERD_NODE=$EJABBERD_NODE@$(hostname -s)
+    fi
+
+    echo "Attaching Erlang shell to node $EJABBERD_NODE."
+    echo "To detach it, press: Ctrl+G, q, Return"
+    echo ""
+    exec $ERL $SNAME ejabberddebug \
+        -remsh $EJABBERD_NODE \
+        "$@"
+    ;;
+    *)
+exec $ERL $SNAME ejabberdctl \
+    -pa /usr/@libdir@/erlang/lib/ejabberd-@version@/ebin \
+    -s ejabberd_ctl \
+    -noinput \
+    -extra $EJABBERD_NODE "$@"
+    ;;
+esac
