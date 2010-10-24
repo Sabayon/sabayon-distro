@@ -1,0 +1,17 @@
+--- a/tests/Makefile.am	2009-12-06 20:57:21.000000000 +0100
++++ b/tests/Makefile.am	2009-12-06 20:57:37.000000000 +0100
+@@ -1,4 +1,4 @@
+-noinst_PROGRAMS = test-modules			\
++check_PROGRAMS = test-modules			\
+ 		  test-timeline			\
+ 		  test-timeline-dup-frames	\
+ 		  test-timeline-interpolate	\
+@@ -10,7 +10,7 @@
+ 		  test-grow-bubble		\
+ 		  test-scroll-text
+ 
+-check_PROGRAMS = test-modules
++check_PROGRAMS += test-modules
+ TESTS = test-modules
+ 
+ GCOV_CFLAGS = -fprofile-arcs -ftest-coverage
