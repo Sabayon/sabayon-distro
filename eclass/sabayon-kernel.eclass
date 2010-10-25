@@ -290,7 +290,11 @@ _kernel_sources_src_install() {
 	kernel-2_src_install
 	cd "${D}/usr/src/linux-${KV_FULL}"
 	local oldarch="${ARCH}"
-	cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" .config || die "cannot copy kernel config"
+	if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
+		cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" .config || die "cannot copy kernel config"
+	else
+		cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" .config || die "cannot copy kernel config"
+	fi
 	unset ARCH
 	if ! use sources_standalone; then
 		make modules_prepare || die "failed to run modules_prepare"
