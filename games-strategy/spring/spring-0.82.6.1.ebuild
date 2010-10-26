@@ -4,20 +4,17 @@
 
 EAPI=2
 
-inherit games eutils cmake-utils fdo-mime flag-o-matic
-
-MY_VER=${PV/_p/b}
-MY_P=${PN}_$MY_VER
-S=${WORKDIR}/${MY_P}
+inherit cmake-utils eutils fdo-mime flag-o-matic games
 
 DESCRIPTION="a 3D multiplayer real time strategy game engine"
 HOMEPAGE="http://springrts.com"
-SRC_URI="http://springrts.com/dl/${MY_P}_src.tar.lzma"
+SRC_URI="mirror://sourceforge/springrts/${PF/-/_}_src.tar.lzma"
+S="${WORKDIR}/${PF/-/_}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
-IUSE="debug java custom-cflags"
+KEYWORDS="~x86 ~amd64"
+IUSE="debug java custom-cflags gml headless"
 RESTRICT="nomirror"
 
 RDEPEND="
@@ -34,19 +31,27 @@ RDEPEND="
 "
 
 DEPEND="${RDEPEND}
-	>=sys-devel/gcc-4.2
-	app-arch/zip
+	>=sys-devel/gcc-4.1
+	app-arch/p7zip
 	>=dev-util/cmake-2.6.0
 "
+### gcc 4.4 dependency is bad, but 4.3 causes desync problems
 
 ### where to place content files which change each spring release (as opposed to mods, ota-content which go somewhere else)
 VERSION_DATADIR="${GAMES_DATADIR}/${PN}"
 
-pkg_setup () {
-	games_pkg_setup
+src_prepare() {
+	if ! use gml ; then
+		epatch "${FILESDIR}/no_gml.patch"
+	fi
+
+
+	if ! use headless ; then
+		epatch "${FILESDIR}/no_headless.patch"
+	fi
 }
 
-src_compile () {
+src_configure() {
 	if ! use custom-cflags ; then
 		strip-flags
 	else
@@ -58,12 +63,18 @@ src_compile () {
 	fi
 
 	LIBDIR="$(games_get_libdir)"
-	mycmakeargs="${mycmakeargs} -DCMAKE_INSTALL_PREFIX="/usr" -DBINDIR="${GAMES_BINDIR#/usr/}" -DLIBDIR="${LIBDIR#/usr/}" -DDATADIR="${VERSION_DATADIR#/usr/}" -DSPRING_DATADIR="${VERSION_DATADIR}""
+	mycmakeargs="${mycmakeargs} -DCMAKE_INSTALL_PREFIX=/usr -DBINDIR=${GAMES_BINDIR#/usr/} -DLIBDIR=${LIBDIR#/usr/} 
+-DDATADIR=${VERSION_DATADIR#/usr/}"
 	if use debug ; then
-		mycmakeargs="${mycmakeargs} -DCMAKE_BUILD_TYPE=DEBUG"
+		CMAKE_BUILD_TYPE="DEBUG"
 	else
-		mycmakeargs="${mycmakeargs} -DCMAKE_BUILD_TYPE=RELEASE"
+		CMAKE_BUILD_TYPE="RELEASE"
 	fi
+
+	cmake-utils_src_configure
+}
+
+src_compile () {
 	cmake-utils_src_compile
 }
 
@@ -73,10 +84,10 @@ src_install () {
 	prepgamesdirs
 
 	if use custom-cflags ; then
-		ewarn "You decided to use custom CFLAGS. This may be save, or it may cause your computer to desync more or less often. If you experience desyncs, disable it before doing any bugreport. If you don't know what you are doing, *disable custom-cflags*."
+		ewarn "You decided to use custom CFLAGS. This may be save, or it may cause your computer to desync more or less often. If you experience 
+desyncs, disable it before doing any bugreport. If you don't know what you are doing, *disable custom-cflags*."
 	fi
 }
-
 
 pkg_postinst() {
 	fdo-mime_mime_database_update
