@@ -71,21 +71,19 @@ K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 # by linux-openvz and linux-vserver
 K_WORKAROUND_SOURCES_COLLISION="${K_WORKAROUND_SOURCES_COLLISION:-}"
 
-# @ECLASS-VARIABLE: K_WORKAROUND_DIFFERENT_EXTRAVERSION
+# @ECLASS-VARIABLE: K_WORKAROUND_USE_REAL_EXTRAVERSION
 # @DESCRIPTION:
 # Some kernel sources are shipped with their own EXTRAVERSION and
 # we're kindly asked to not touch it, if this is your case, set
-# this variable in order to make linux-mod_pkg_postinst happy
-# (update_depmod) by feeding it with valid KV_FULL, that will be
-# calculated using EXTRAVERSION in Makefile.
-K_WORKAROUND_DIFFERENT_EXTRAVERSION="${K_WORKAROUND_DIFFERENT_EXTRAVERSION:-}"
+# this variable and depmod will work correctly.
+K_WORKAROUND_USE_REAL_EXTRAVERSION="${K_WORKAROUND_USE_REAL_EXTRAVERSION:-}"
 
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
 # Disable deblobbing feature
 K_DEBLOB_AVAILABLE=0
 
-inherit eutils kernel-2 sabayon-artwork mount-boot linux-mod
+inherit eutils kernel-2 sabayon-artwork mount-boot linux-info
 
 # from kernel-2 eclass
 detect_version
@@ -170,8 +168,33 @@ else
 		>=sys-kernel/linux-firmwares-${PV}"
 fi
 
+# internal function
+#
+# FUNCTION: _update_depmod
+# @USAGE: _update_depmod <-r depmod>
+# DESCRIPTION:
+# It updates the modules.dep file for the current kernel.
+# This is more or less the same of linux-mod update_depmod, with the
+# exception of accepting parameter which is passed to depmod -r switch
+_update_depmod() {
+
+        # if we haven't determined the version yet, we need too.
+        get_version;
+
+	ebegin "Updating module dependencies for ${KV_FULL}"
+	if [ -r "${KV_OUT_DIR}"/System.map ]; then
+		depmod -ae -F "${KV_OUT_DIR}"/System.map -b "${ROOT}" -r "${1}"
+		eend $?
+	else
+		ewarn
+		ewarn "${KV_OUT_DIR}/System.map not found."
+		ewarn "You must manually update the kernel module dependencies using depmod."
+		eend 1
+		ewarn
+	fi
+}
+
 sabayon-kernel_pkg_setup() {
-	# do not run linux-mod-pkg_setup
 	if [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 		einfo "Preparing to build kernel firmwares"
 	else
@@ -377,8 +400,6 @@ _get_real_extraversion() {
 sabayon-kernel_pkg_preinst() {
 	if [ -z "${K_ONLY_SOURCES}" ] && [ -z "${K_FIRMWARE_PACKAGE}" ]; then
 		mount-boot_pkg_preinst
-		linux-mod_pkg_preinst
-		UPDATE_MODULEDB=false
 	fi
 }
 sabayon-kernel_grub2_mkconfig() {
@@ -418,15 +439,13 @@ sabayon-kernel_pkg_postinst() {
 		fi
 
 		kernel-2_pkg_postinst
-		if [ -n "${K_WORKAROUND_DIFFERENT_EXTRAVERSION}" ]; then
-			UPDATE_DEPMOD="false"
+		if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
 			local depmod_r="${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
 			einfo "Updating (overridden) modules dependencies using ${depmod_r}"
-			[[ -r "${KV_OUT_DIR}"/System.map ]] && \
-				depmod -ae -F "${KV_OUT_DIR}"/System.map -b "${ROOT}" \
-					-r "${depmod_r}"
+			_update_depmod "${depmod_r}"
+		else
+			_update_depmod "${KV_FULL}"
 		fi
-		linux-mod_pkg_postinst
 
 		elog "Please report kernel bugs at:"
 		elog "http://bugs.sabayon.org"
@@ -465,8 +484,6 @@ sabayon-kernel_pkg_postrm() {
 
 			sabayon-kernel_grub2_mkconfig
 		fi
-
-		linux-mod_pkg_postrm
 	fi
 }
 
