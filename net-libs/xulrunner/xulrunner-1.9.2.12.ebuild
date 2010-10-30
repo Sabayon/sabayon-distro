@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.9.ebuild,v 1.4 2010/09/09 17:14:56 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.12.ebuild,v 1.5 2010/10/30 00:02:34 halcy0n Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -17,16 +17,16 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ppc ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +cups debug +ipc libnotify system-sqlite wifi"
+IUSE="+alsa debug +ipc libnotify system-sqlite wifi"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.7
+	>=dev-libs/nss-3.12.8
 	>=dev-libs/nspr-4.8.6
-	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.1[fts3,secure-delete] )
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
 	>=x11-libs/cairo-1.8.8[X]
@@ -35,8 +35,7 @@ RDEPEND="
 	x11-libs/pixman
 	>=dev-libs/libevent-1.4.7
 	wifi? ( net-wireless/wireless-tools )
-	libnotify? ( >=x11-libs/libnotify-0.4 )
-	cups? ( net-print/cups[gnutls] )"
+	libnotify? ( >=x11-libs/libnotify-0.4 )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
@@ -62,9 +61,13 @@ pkg_setup() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="2001_mozilla_ps_pdf_simplify_operators.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	epatch "${FILESDIR}/bug-606109.patch"
+	epatch "${FILESDIR}/${PN}-1.9.2-gtk+-2.21.patch"
 
 	eprefixify \
 		extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java \
@@ -155,7 +158,6 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable cups printing
 
 	# Debug
 	if use debug ; then
