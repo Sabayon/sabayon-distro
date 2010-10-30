@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-3.6.9.ebuild,v 1.4 2010/09/09 17:18:05 fauli Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-3.6.12.ebuild,v 1.5 2010/10/30 00:04:00 halcy0n Exp $
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
@@ -22,10 +22,10 @@ PATCH="${PN}-3.6-patches-0.2"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ppc ppc64 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist +cups +ipc java libnotify system-sqlite wifi"
+IUSE="+alsa bindist +ipc java libnotify system-sqlite wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
@@ -49,16 +49,15 @@ done
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.7
+	>=dev-libs/nss-3.12.8
 	>=dev-libs/nspr-4.8.6
 	>=app-text/hunspell-1.2
-	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.1[fts3,secure-delete] )
 	alsa? ( media-libs/alsa-lib )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	wifi? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	cups? ( net-print/cups[gnutls] )
 	~net-libs/xulrunner-${XUL_PV}[ipc=,java=,wifi=,libnotify=,system-sqlite=]"
 
 DEPEND="${RDEPEND}
@@ -107,9 +106,9 @@ pkg_setup() {
 
 	if ! use bindist ; then
 		einfo
-		elog "You are enabling official branding. Manually check configuration"
-		elog "carefully to ensure compliance with licensing provisions"
-		elog "of the Mozilla Foundation if you are re-distributing this package."
+		elog "You are enabling official branding. You may not redistribute this build"
+		elog "to any users on your network or the internet. Doing so puts yourself into"
+		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 
@@ -133,6 +132,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	epatch "${FILESDIR}/xulrunner-1.9.2-gtk+-2.21.patch"
 
 	# Allow user to apply additional patches without modifing ebuild
 	epatch_user
@@ -198,7 +199,6 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable cups printing
 	mozconfig_use_enable !bindist official-branding
 
 	# Other ff-specific settings
