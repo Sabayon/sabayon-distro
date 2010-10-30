@@ -1,0 +1,50 @@
+--- third_party/sqlite/sqlite3.h.orig	2010-09-30 13:13:26.000000000 +0200
++++ third_party/sqlite/sqlite3.h	2010-09-30 13:13:37.000000000 +0200
+@@ -14,7 +14,7 @@
+ 
+ // A no-op implementation of database preloading (not available
+ // when using system sqlite).
+-int sqlite3Preload(sqlite3 *db) { return SQLITE_OK; }
++int sqlite3Preload(sqlite3 *db);
+ #else
+ #include "third_party/sqlite/preprocessed/sqlite3.h"
+ #endif
+--- third_party/sqlite/sqlite.gyp.orig	2010-09-30 11:49:48.000000000 +0200
++++ third_party/sqlite/sqlite.gyp	2010-09-30 11:51:38.000000000 +0200
+@@ -32,7 +32,7 @@
+           },
+         }],
+         ['(OS=="linux" or OS=="freebsd" or OS=="openbsd") and use_system_sqlite', {
+-          'type': 'settings',
++          'type': '<(library)',
+           'direct_dependent_settings': {
+             'cflags': [
+               # This next command produces no output but it it will fail (and
+@@ -54,6 +54,9 @@
+               '<!@(pkg-config --libs-only-l sqlite3)',
+             ],
+           },
++          'sources': [
++            'stubs.cc',
++          ],
+         }, { # else: OS != "linux" or ! use_system_sqlite
+           'product_name': 'sqlite3',
+           'type': '<(library)',
+--- /dev/null	2010-09-03 08:04:12.886666449 +0200
++++ third_party/sqlite/stubs.cc	2010-09-30 11:53:35.000000000 +0200
+@@ -0,0 +1,5 @@
++#include <sqlite3.h>
++
++int sqlite3Preload(sqlite3 *db) {
++  return SQLITE_OK;
++}
+--- chrome/chrome.gyp.orig	2010-10-01 06:57:23.000000000 +0200
++++ chrome/chrome.gyp	2010-10-01 06:58:09.000000000 +0200
+@@ -1018,6 +1018,7 @@
+         '_USE_32BIT_TIME_T',
+       ],
+       'dependencies': [
++        'common',
+         '../skia/skia.gyp:skia',
+         '../third_party/libjingle/libjingle.gyp:libjingle',
+         'browser/sync/protocol/sync_proto.gyp:sync_proto_cpp',
