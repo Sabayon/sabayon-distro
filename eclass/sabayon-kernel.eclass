@@ -157,8 +157,9 @@ if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	RDEPEND="${RDEPEND}"
 else
 	IUSE="dmraid dracut grub splash"
-	DEPEND="sys-apps/sed
-		app-arch/xz-utils
+	DEPEND="app-arch/xz-utils
+		sys-apps/sed
+		<sys-devel/make-3.82
 		sys-kernel/genkernel
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
