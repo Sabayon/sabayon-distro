@@ -15,7 +15,7 @@ IUSE=""
 
 DEPEND=">=dev-python/pygtk-2.6.1
 	>=dev-python/gnome-python-extras-2.10
-	>=www-client/mozilla-firefox-3.0
+	>=www-client/firefox-3.0
 	>=dev-python/nevow-0.4.1
 	>=dev-python/twisted-2.0.1
 	>=dev-python/twisted-web-0.5.0
