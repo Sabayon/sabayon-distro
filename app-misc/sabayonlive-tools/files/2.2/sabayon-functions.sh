@@ -4,6 +4,7 @@ GDM_FILE="/usr/share/gdm/defaults.conf"
 KDM_FILE="/usr/share/config/kdm/kdmrc"
 LXDM_FILE="/etc/lxdm/lxdm.conf"
 OEM_FILE="/etc/oemlive.sh"
+OEM_FILE_NEW="/etc/oem/liveboot.sh"
 LIVE_USER_GROUPS="audio cdrom cdrw clamav console disk entropy games haldaemon \
 kvm lp lpadmin messagebus plugdev polkituser portage pulse pulse-access pulse-rt \
 scanner usb users uucp vboxguest vboxusers video wheel"
@@ -109,5 +110,10 @@ sabayon_setup_vt_autologin() {
 }
 
 sabayon_setup_oem_livecd() {
-	( [[ -x "${OEM_FILE}" ]] && ${OEM_FILE} ) || return 0
+	if [ -x "${OEM_LIVE_NEW}" ]; then
+		${OEM_FILE_NEW} || return 1
+	elif [ -x "${OEM_LIVE}" ]; then
+		${OEM_FILE} || return 1
+	fi
+	return 0
 }
