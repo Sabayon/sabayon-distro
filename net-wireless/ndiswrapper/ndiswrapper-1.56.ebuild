@@ -17,7 +17,7 @@ DEPEND="sys-apps/pciutils"
 RDEPEND="${DEPEND}
 	net-wireless/wireless-tools"
 
-PATCHES=( "${FILESDIR}"/${P}-ldflags.patch  "${FILESDIR}/${P}-2.6.35.patch" )
+PATCHES=( "${FILESDIR}"/${P}-ldflags.patch  "${FILESDIR}/${P}-2.6.35.patch" "${FILESDIR}/${P}-2.6.36.patch" )
 MODULE_NAMES="ndiswrapper(misc:${S}/driver)"
 BUILD_TARGETS="all"
 MODULESD_NDISWRAPPER_ALIASES=("wlan0 ndiswrapper")

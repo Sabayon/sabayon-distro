@@ -1,0 +1,37 @@
+--- ndiswrapper-1.56.orig/driver/loader.c
++++ ndiswrapper-1.56/driver/loader.c
+@@ -750,13 +750,22 @@ struct wrap_device *get_wrap_device(void
+ }
+ 
+ /* called with loader_mutex is down */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
+ static int wrapper_ioctl(struct inode *inode, struct file *file,
+ 			 unsigned int cmd, unsigned long arg)
++#else
++static int wrapper_unlocked_ioctl(struct file *file,
++			 unsigned int cmd, unsigned long arg)
++#endif
+ {
+ 	struct load_driver *load_driver;
+ 	struct load_device load_device;
+ 	struct load_driver_file load_bin_file;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
+ 	int ret;
++#else
++	long ret;
++#endif
+ 	void __user *addr = (void __user *)arg;
+ 
+ 	ENTER1("cmd: %u", cmd);
+@@ -831,7 +840,11 @@ static int wrapper_ioctl_release(struct
+ 
+ static struct file_operations wrapper_fops = {
+ 	.owner          = THIS_MODULE,
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
+ 	.ioctl		= wrapper_ioctl,
++#else
++	.unlocked_ioctl = wrapper_unlocked_ioctl,
++#endif
+ 	.release	= wrapper_ioctl_release,
+ };
+ 
