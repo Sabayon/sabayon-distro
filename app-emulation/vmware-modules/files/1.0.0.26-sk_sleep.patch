@@ -1,0 +1,119 @@
+--- vsock-only/linux/af_vsock.c.orig	2010-01-22 20:09:09.000000000 -0500
++++ vsock-only/linux/af_vsock.c	2010-08-04 14:16:34.000000000 -0400
+@@ -3221,7 +3221,7 @@
+     * a notification of an error.
+     */
+    timeout = sock_sndtimeo(sk, flags & O_NONBLOCK);
+-   compat_init_prepare_to_wait(sk->compat_sk_sleep, &wait, TASK_INTERRUPTIBLE);
++   compat_init_prepare_to_wait(compat_sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 
+    while (sk->compat_sk_state != SS_CONNECTED && sk->compat_sk_err == 0) {
+       if (timeout == 0) {
+@@ -3244,7 +3244,7 @@
+          goto outWaitError;
+       }
+ 
+-      compat_cont_prepare_to_wait(sk->compat_sk_sleep, &wait, TASK_INTERRUPTIBLE);
++      compat_cont_prepare_to_wait(compat_sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+    }
+ 
+    if (sk->compat_sk_err) {
+@@ -3256,7 +3256,7 @@
+    }
+ 
+ outWait:
+-   compat_finish_wait(sk->compat_sk_sleep, &wait, TASK_RUNNING);
++   compat_finish_wait(compat_sk_sleep(sk), &wait, TASK_RUNNING);
+ out:
+    release_sock(sk);
+    return err;
+@@ -3316,7 +3316,7 @@
+     * upon connection establishment.
+     */
+    timeout = sock_sndtimeo(listener, flags & O_NONBLOCK);
+-   compat_init_prepare_to_wait(listener->compat_sk_sleep, &wait, TASK_INTERRUPTIBLE);
++   compat_init_prepare_to_wait(compat_sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+ 
+    while ((connected = VSockVmciDequeueAccept(listener)) == NULL &&
+           listener->compat_sk_err == 0) {
+@@ -3332,7 +3332,7 @@
+          goto outWait;
+       }
+ 
+-      compat_cont_prepare_to_wait(listener->compat_sk_sleep, &wait, TASK_INTERRUPTIBLE);
++      compat_cont_prepare_to_wait(compat_sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+    }
+ 
+    if (listener->compat_sk_err) {
+@@ -3366,7 +3366,7 @@
+    }
+ 
+ outWait:
+-   compat_finish_wait(listener->compat_sk_sleep, &wait, TASK_RUNNING);
++   compat_finish_wait(compat_sk_sleep(listener), &wait, TASK_RUNNING);
+ out:
+    release_sock(listener);
+    return err;
+@@ -3464,7 +3464,7 @@
+    sk = sock->sk;
+    vsk = vsock_sk(sk);
+ 
+-   poll_wait(file, sk->compat_sk_sleep, wait);
++   poll_wait(file, compat_sk_sleep(sk), wait);
+    mask = 0;
+ 
+    if (sk->compat_sk_err) {
+@@ -4104,7 +4104,7 @@
+       goto out;
+    }
+ 
+-   compat_init_prepare_to_wait(sk->compat_sk_sleep, &wait, TASK_INTERRUPTIBLE);
++   compat_init_prepare_to_wait(compat_sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 
+    while (totalWritten < len) {
+       Bool sentWrote;
+@@ -4141,7 +4141,7 @@
+             goto outWait;
+          }
+ 
+-         compat_cont_prepare_to_wait(sk->compat_sk_sleep,
++         compat_cont_prepare_to_wait(compat_sk_sleep(sk),
+                                      &wait, TASK_INTERRUPTIBLE);
+       }
+ 
+@@ -4194,7 +4194,7 @@
+    if (totalWritten > 0) {
+       err = totalWritten;
+    }
+-   compat_finish_wait(sk->compat_sk_sleep, &wait, TASK_RUNNING);
++   compat_finish_wait(compat_sk_sleep(sk), &wait, TASK_RUNNING);
+ out:
+    release_sock(sk);
+    return err;
+@@ -4428,7 +4428,7 @@
+       goto out;
+    }
+ 
+-   compat_init_prepare_to_wait(sk->compat_sk_sleep, &wait, TASK_INTERRUPTIBLE);
++   compat_init_prepare_to_wait(compat_sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+ 
+    while ((ready = VSockVmciStreamHasData(vsk)) < target &&
+           sk->compat_sk_err == 0 &&
+@@ -4468,7 +4468,7 @@
+          goto outWait;
+       }
+ 
+-      compat_cont_prepare_to_wait(sk->compat_sk_sleep, &wait, TASK_INTERRUPTIBLE);
++      compat_cont_prepare_to_wait(compat_sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+    }
+ 
+    if (sk->compat_sk_err) {
+@@ -4534,7 +4534,7 @@
+    err = copied;
+ 
+ outWait:
+-   compat_finish_wait(sk->compat_sk_sleep, &wait, TASK_RUNNING);
++   compat_finish_wait(compat_sk_sleep(sk), &wait, TASK_RUNNING);
+ out:
+    release_sock(sk);
+    return err;

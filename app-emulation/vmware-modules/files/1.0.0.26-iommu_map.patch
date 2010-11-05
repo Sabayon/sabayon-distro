@@ -1,0 +1,20 @@
+--- vmmon-only/linux/iommu.c.orig	2010-01-22 23:50:32.000000000 -0500
++++ vmmon-only/linux/iommu.c	2010-08-04 14:18:34.000000000 -0400
+@@ -153,7 +153,7 @@
+          map_to =  PPN_2_PA(mpn);
+          map_prot = IOMMU_READ | IOMMU_WRITE;
+       }
+-      if ((status = iommu_map_range(vmLinux->iommuDomain,
++      if ((status = iommu_map(vmLinux->iommuDomain,
+                                     PPN_2_PA(ppn),
+                                     map_to, PAGE_SIZE, map_prot))) {
+          printk(KERN_ERR "%s: IOMMU Mapping of PPN 0x%x -> MPN 0x%x "
+@@ -400,7 +400,7 @@
+ 
+    /* Relinquish the IOMMU domain used by this VM. */
+    for (ppn = 0; ppn < vmLinux->numPages; ppn++) {
+-      iommu_unmap_range(vmLinux->iommuDomain, PPN_2_PA(ppn), PAGE_SIZE);
++      iommu_unmap(vmLinux->iommuDomain, PPN_2_PA(ppn), PAGE_SIZE);
+    }
+    if (vmLinux->iommuDomain) {
+       iommu_domain_free(vmLinux->iommuDomain);

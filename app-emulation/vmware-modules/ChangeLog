@@ -1,0 +1,338 @@
+# ChangeLog for app-emulation/vmware-modules
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/vmware-modules/ChangeLog,v 1.58 2010/08/04 19:01:30 vadimk Exp $
+
+  04 Aug 2010; Vadim Kuznetsov <vadimk@gentoo.org>
+  +files/1.0.0.24-sk_sleep.patch, vmware-modules-1.0.0.24-r1.ebuild,
+  +files/1.0.0.25-sk_sleep.patch, vmware-modules-1.0.0.25-r1.ebuild,
+  +files/1.0.0.26-iommu_map.patch, vmware-modules-1.0.0.26.ebuild,
+  +files/1.0.0.26-sk_sleep.patch:
+  patches for 2.6.35 kernel. Bug 322245, Bug 330019
+
+  03 May 2010; Vadim Kuznetsov <vadimk@gentoo.org>
+  vmware-modules-1.0.0.25-r1.ebuild, vmware-modules-1.0.0.26.ebuild,
+  +files/apic.patch:
+  Bugs 274529, 317583
+  Thanks to Mikhail Zolotaryov for the patch.
+
+*vmware-modules-1.0.0.26 (28 Feb 2010)
+
+  28 Feb 2010; Vadim Kuznetsov <vadimk@gentoo.org>
+  +files/1.0.0.26-makefile-include.patch, -vmware-modules-1.0.0.25.ebuild,
+  +files/1.0.0.26-makefile-kernel-dir.patch,
+  +vmware-modules-1.0.0.26.ebuild:
+  vmware-modules for VMware Workstation 7.0.x and Player 3.0.x
+
+  26 Feb 2010; Vadim Kuznetsov <vadimk@gentoo.org>
+  +files/1.0.0.24-autoconf-generated.patch,
+  vmware-modules-1.0.0.24-r1.ebuild,
+  +files/1.0.0.25-autoconf-generated.patch,
+  vmware-modules-1.0.0.25-r1.ebuild:
+  Bug 301320
+
+*vmware-modules-1.0.0.25-r1 (13 Feb 2010)
+
+  13 Feb 2010; Patrick Lauer <patrick@gentoo.org>
+  +vmware-modules-1.0.0.25-r1.ebuild:
+  Small fix for header changes in 2.6.33 and later
+
+  02 Jan 2010; Vadim Kuznetsov <vadimk@gentoo.org>
+  -vmware-modules-1.0.0.24.ebuild, vmware-modules-1.0.0.24-r1.ebuild,
+  vmware-modules-1.0.0.25.ebuild, +files/sched_h-2.6.32.patch:
+  Bug 295955
+
+  30 Oct 2009; Vadim Kuznetsov vadimk@gentoo.org
+  -files/1.0.0.23-makefile-kernel-dir.patch,
+  -vmware-modules-1.0.0.23.ebuild, -vmware-modules-1.0.0.23-r1.ebuild,
+  -files/1.0.0.23-r1-kernel-2.6.29.patch:
+  cleanup
+
+  25 Sep 2009; Markus Meier <maekke@gentoo.org>
+  vmware-modules-1.0.0.25.ebuild:
+  amd64 stable, bug #282213
+
+*vmware-modules-1.0.0.24-r1 (22 Sep 2009)
+
+  22 Sep 2009; Vadim Kuznetsov vadimk@gentoo.org
+  +vmware-modules-1.0.0.24-r1.ebuild, +files/1.0.0.24-vmnet-2.6.31.patch:
+  vmnet patch for 2.6.31 kernel. Bug 274173, comment 15.
+
+  02 Sep 2009; Vadim Kuznetsov vadimk@gentoo.org
+  -files/patches/vmmon/050_all_kernel-2.6.29.patch,
+  -files/patches/vmnet/040_all_kernel-2.6.29.patch:
+  revert previous commit. Bug 273173
+
+  28 Aug 2009; Vadim Kuznetsov vadimk@gentoo.org
+  +files/patches/vmmon/050_all_kernel-2.6.29.patch,
+  +files/patches/vmnet/040_all_kernel-2.6.29.patch:
+  bugs 264098, 273173. 1.0.0.15-r2 patches suggested in 272173
+
+  25 Aug 2009; Christian Faulhammer <fauli@gentoo.org>
+  vmware-modules-1.0.0.25.ebuild:
+  stable x86, security bug 282213
+
+*vmware-modules-1.0.0.25 (22 Aug 2009)
+
+  22 Aug 2009; Vadim Kuznetsov vadimk@gentoo.org
+  +files/1.0.0.25-makefile-include.patch, +vmware-modules-1.0.0.25.ebuild,
+  +files/1.0.0.25-makefile-kernel-dir.patch:
+  Version bump. modules for vmware-{workstation,player}-{6.2}.5.3
+
+  03 Jul 2009; Jeroen Roovers <jer@gentoo.org> metadata.xml:
+  Fix e-mail address.
+
+*vmware-modules-1.0.0.24 (14 Jun 2009)
+
+  14 Jun 2009; Vadim Kuznetsov vadimk@gentoo.org
+  +vmware-modules-1.0.0.24.ebuild, +files/1.0.0.24-kernel-2.6.29.patch,
+  +files/1.0.0.24-kernel-2.6.30.patch,
+  +files/1.0.0.24-makefile-kernel-dir.patch, metadata.xml:
+  Bugs 268099, 270150, 273750. New ebuild without vmware-mod eclass.
+
+*vmware-modules-1.0.0.23-r1 (16 May 2009)
+
+  16 May 2009; Mike Auty <ikelos@gentoo.org>
+  +vmware-modules-1.0.0.23-r1.ebuild,
+  +files/1.0.0.23-r1-kernel-2.6.29.patch:
+  Version bump vmware-modules for 2.6.29 support.
+
+  22 Feb 2009; Mike Auty <ikelos@gentoo.org>
+  -files/1.0.0.20-vmblock-2.6.26-2.patch,
+  -files/1.0.0.20-makefile-kernel-dir.patch,
+  -files/1.0.0.20-vmblock-2.6.26-1.patch,
+  -files/1.0.0.20-vmmon-2.6.26.patch, -files/1.0.0.20-vmnet-2.6.26.patch,
+  -files/1.0.0.22-makefile-kernel-dir.patch,
+  -vmware-modules-1.0.0.20.ebuild, -vmware-modules-1.0.0.22.ebuild:
+  Clear out old versions of vmware-modules that are no longer needed due to
+  the removal of insecure versions of vmware products (bug 245941).
+
+  14 Jan 2009; Mike Auty <ikelos@gentoo.org>
+  files/patches/vmnet/030_all_kernel-2.6.27.patch:
+  Third time lucky, more patches for < 2.6.26 kernels.
+
+  14 Jan 2009; Mike Auty <ikelos@gentoo.org>
+  files/patches/vmnet/030_all_kernel-2.6.27.patch:
+  Add patch to try and fix bug 254768.
+
+  12 Jan 2009; Mike Auty <ikelos@gentoo.org> Manifest:
+  Fix up vmware-modules-1.0.0.15 patches for kernels older than 2.6.27.
+
+  12 Jan 2009; Markus Meier <maekke@gentoo.org>
+  vmware-modules-1.0.0.23.ebuild:
+  amd64/x86 stable, bug #245941
+
+  11 Jan 2009; Markus Meier <maekke@gentoo.org>
+  vmware-modules-1.0.0.15-r2.ebuild:
+  amd64/x86 stable, bug #236167
+
+  10 Jan 2009; Mike Auty <ikelos@gentoo.org>
+  -files/1.0.0.17-update115-nasty-hack.patch,
+  -vmware-modules-1.0.0.16-r1.ebuild, -vmware-modules-1.0.0.17.ebuild,
+  -vmware-modules-1.0.0.17-r1.ebuild:
+  Clear out old modules for products no longer in the tree.
+
+*vmware-modules-1.0.0.15-r2 (10 Jan 2009)
+
+  10 Jan 2009; Mike Auty <ikelos@gentoo.org>
+  +files/patches/vmmon/040_all_kernel-2.6.27.patch,
+  +files/patches/vmnet/030_all_kernel-2.6.27.patch,
+  +vmware-modules-1.0.0.15-r2.ebuild:
+  Add in vmware-modules-1.0.0.15-r2. Should compile on kernels up to and
+  including 2.6.28, big thanks go to Tim Yamin for help with the patches.
+
+*vmware-modules-1.0.0.23 (09 Nov 2008)
+
+  09 Nov 2008; Mike Auty <ikelos@gentoo.org>
+  +files/1.0.0.23-makefile-kernel-dir.patch, vmware-modules-1.0.0.20.ebuild,
+  vmware-modules-1.0.0.22.ebuild, +vmware-modules-1.0.0.23.ebuild:
+  Add in vmware-modules-1.0.0.23 for vmware-workstation-6.5 and
+  vmware-player-2.5.
+
+*vmware-modules-1.0.0.22 (30 Sep 2008)
+
+  30 Sep 2008; Mike Auty <ikelos@gentoo.org>
+  +files/1.0.0.20-vmblock-2.6.26-1.patch,
+  +files/1.0.0.20-vmblock-2.6.26-2.patch,
+  +files/1.0.0.20-vmmon-2.6.26.patch,
+  +files/1.0.0.22-makefile-kernel-dir.patch,
+  +files/1.0.0.20-vmnet-2.6.26.patch, -vmware-modules-1.0.0.11-r1.ebuild,
+  -vmware-modules-1.0.0.13-r1.ebuild, vmware-modules-1.0.0.20.ebuild,
+  +vmware-modules-1.0.0.22.ebuild:
+  Remove old unused versions, fix up 1.0.0.20 bugs and put in a new version
+  for workstation 6.0.5 and player 2.0.5.
+
+  18 Jun 2008; Mike Auty <ikelos@gentoo.org>
+  +files/1.0.0.20-makefile-kernel-dir.patch, vmware-modules-1.0.0.20.ebuild:
+  Fix kernel build directories (bug 227941).
+
+*vmware-modules-1.0.0.20 (14 Jun 2008)
+
+  14 Jun 2008; Mike Auty <ikelos@gentoo.org> +vmware-modules-1.0.0.20.ebuild:
+  Add in vmware-modules-1.0.0.20 for workstation 6.0.4 and player 2.0.4.
+
+  26 Apr 2008; Mike Auty <ikelos@gentoo.org>
+  +files/patches/vmblock/010_all_kernel-2.6.25.patch,
+  +files/patches/vmmon/035_all_kernel-2.6.25.patch,
+  +files/patches/vmnet/025_all_kernel-2.6.25.patch:
+  Add patches for -r1 ebuilds to ensure they work on 2.6.25 and older
+  kernels.
+
+  31 Jan 2008; Mike Auty <ikelos@gentoo.org> ChangeLog:
+  Re-sign digestless manifest.
+
+*vmware-modules-1.0.0.17-r1 (26 Jan 2008)
+
+  26 Jan 2008; Mike Auty <ikelos@gentoo.org>
+  +files/1.0.0.17-update115-nasty-hack.patch,
+  +files/patches/vmmon/030_all_fix-linux-headers.patch,
+  +files/patches/vmnet/021_all_wireless_fix.patch,
+  +vmware-modules-1.0.0.17-r1.ebuild:
+  Bump vmware-modules to any-any115, and apply fixes for wireless and 2.6.24.
+
+  25 Nov 2007; Mike Auty <ikelos@gentoo.org>
+  -files/1.0.0.16-kernel-2.6.22.patch, -vmware-modules-1.0.0.16.ebuild,
+  vmware-modules-1.0.0.17.ebuild:
+  Bump to vmware-any-any-update114. Also update 1.0.0.17 to use the latest
+  vmware-player package.
+
+  14 Oct 2007; Mike Auty <ikelos@gentoo.org>
+  vmware-modules-1.0.0.16-r1.ebuild:
+  Add vmblock module building to vmware-modules-1.0.0.16-r1
+
+*vmware-modules-1.0.0.17 (14 Oct 2007)
+
+  14 Oct 2007; Mike Auty <ikelos@gentoo.org> vmware-modules-1.0.0.16.ebuild,
+  +vmware-modules-1.0.0.17.ebuild:
+  Add the latest modules for vmware-workstation-6.0.1
+
+*vmware-modules-1.0.0.16-r1 (16 Sep 2007)
+
+  16 Sep 2007; Mike Auty <ikelos@gentoo.org>
+  -files/1.0.0.15-gcc4-ignore-pedantic-errors.patch,
+  +vmware-modules-1.0.0.16-r1.ebuild:
+  Adding in vmware-modules-1.0.0.16-r1, now that vmware-any-any-update can
+  handle workstation 6. Also cleaned out an old patch for 1.0.0.15.
+
+  28 Jul 2007; Mike Auty <ikelos@gentoo.org>
+  +files/1.0.0.16-kernel-2.6.22.patch, vmware-modules-1.0.0.16.ebuild:
+  Redigest for vmware-any-any-update112.
+
+  12 Jul 2007; Chris Gianelloni <wolf31o2@gentoo.org>
+  -vmware-modules-1.0.0.11.ebuild, vmware-modules-1.0.0.11-r1.ebuild,
+  -vmware-modules-1.0.0.13.ebuild, vmware-modules-1.0.0.13-r1.ebuild:
+  Marking 1.0.0.11-r1 and 1.0.0.13-r1 stable on amd64/x86 since the changes
+  from the previous ebuilds is just the placement of a variable, and the
+  current stable versions didn't work properly.
+
+*vmware-modules-1.0.0.16 (24 Jun 2007)
+
+  24 Jun 2007; Mike Auty <ikelos@gentoo.org>
+  +vmware-modules-1.0.0.16.ebuild:
+  Add in the latest modules for vmware-player-2 and vmware-workstation-6.
+
+  28 Apr 2007; Mike Auty <ikelos@gentoo.org>
+  -files/patches/010_all_makefile-vm-build-no-unused-warnings.patch:
+  Remove unnecessary patch, that's now part of any-any109.
+
+  28 Apr 2007; Mike Auty <ikelos@gentoo.org>
+  files/digest-vmware-modules-1.0.0.11,
+  files/digest-vmware-modules-1.0.0.11-r1,
+  files/digest-vmware-modules-1.0.0.13,
+  files/digest-vmware-modules-1.0.0.13-r1,
+  files/digest-vmware-modules-1.0.0.15-r1, Manifest:
+  Redigest for vmware-any-any109.
+
+  04 Mar 2007; Mike Auty <ikelos@gentoo.org>
+  -vmware-modules-1.0.0.15.ebuild:
+  Bump vmware-any-any to 108.  Remove old vmware-server module ebuild.
+
+  05 Feb 2007; Mike Auty <ikelos@gentoo.org>
+  vmware-modules-1.0.0.15-r1.ebuild:
+  Vmware-any-any bump to support 2.6.20 and fix a copyright date.
+
+  17 Dec 2006; Mike Frysinger <vapier@gentoo.org>
+  +files/patches/010_all_makefile-vm-build-no-unused-warnings.patch,
+  +files/patches/020_all_epoll-def-warnings.patch:
+  Fix building with newer kernels #146004.
+
+  01 Dec 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  vmware-modules-1.0.0.15-r1.ebuild:
+  Stable on amd64/x86 for vmware-workstation-5.5.3.
+
+  01 Dec 2006; Mike Auty <ikelos@gentoo.org>
+  files/digest-vmware-modules-1.0.0.11,
+  files/digest-vmware-modules-1.0.0.11-r1,
+  files/digest-vmware-modules-1.0.0.13,
+  files/digest-vmware-modules-1.0.0.13-r1,
+  files/digest-vmware-modules-1.0.0.15-r1, Manifest:
+  Redigest for vmware-any-any105.
+
+  30 Oct 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  -vmware-modules-1.0.0.8.ebuild:
+  Removed verion 0.0.8 since we have removed the only VMware product (VMware
+  Workstation 3.2.1) that used it.
+
+*vmware-modules-1.0.0.15-r1 (17 Oct 2006)
+*vmware-modules-1.0.0.13-r1 (17 Oct 2006)
+*vmware-modules-1.0.0.11-r1 (17 Oct 2006)
+
+  17 Oct 2006; Mike Auty <ikelos@gentoo.org>
+  +vmware-modules-1.0.0.11-r1.ebuild, +vmware-modules-1.0.0.13-r1.ebuild,
+  +vmware-modules-1.0.0.15-r1.ebuild:
+  Version bump for all vmware-modules to fix for bug 149679, thanks to Jason
+  Urbank.
+
+  22 Sep 2006; Mike Auty <ikelos@gentoo.org>
+  files/patches/000_all_makefile-include-directory.patch:
+  Updated patch fixing bug #148613, thanks to Alon Bar-Lev.
+
+  13 Sep 2006; Mike Auty <ikelos@gentoo.org>
+  +files/1.0.0.15-gcc4-ignore-pedantic-errors.patch,
+  vmware-modules-1.0.0.15.ebuild:
+  Add a patch to fix compilation against kernels <= 2.6.16 with gcc-4.1.
+  Closes bug #146004.
+
+  28 Aug 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  vmware-modules-1.0.0.8.ebuild:
+  Stable on x86 for vmware-workstation.
+
+  27 Aug 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  vmware-modules-1.0.0.11.ebuild:
+  Stable on amd64 and x86 for vmware-workstation.
+
+  25 Aug 2006; Mike Auty <ikelos@gentoo.org>
+  files/digest-vmware-modules-1.0.0.8, files/digest-vmware-modules-1.0.0.11,
+  files/digest-vmware-modules-1.0.0.13, Manifest:
+  Redigested for vmware-any-any-update104.
+
+  22 Aug 2006; Chris Gianelloni <wolf31o2@gentoo.org>
+  vmware-modules-1.0.0.13.ebuild:
+  Stable on amd64 and x86 for vmware-workstation and vmware-player.
+
+  19 Aug 2006; Mike Auty <ikelos@gentoo.org> vmware-modules-1.0.0.15.ebuild:
+  Update vmware-modules to use the latest vmware-server package.
+
+  08 Aug 2006; Mike Auty <ikelos@gentoo.org>
+  files/digest-vmware-modules-1.0.0.8, files/digest-vmware-modules-1.0.0.11,
+  files/digest-vmware-modules-1.0.0.13, Manifest:
+  Make use of vmware-any-any103, which fixes kernel problems on 2.6.18, and
+  also two patches for problems with the kernel build system, thanks to Georgi
+  Georgiev <chutz (at) gg3.net> and Alon Bar-Lev <alon.barlev (at) gmail.com>.
+  Closes bug #142855.
+
+*vmware-modules-1.0.0.13 (31 Jul 2006)
+*vmware-modules-1.0.0.11 (31 Jul 2006)
+*vmware-modules-1.0.0.8 (31 Jul 2006)
+
+  31 Jul 2006; Mike Auty <ikelos@gentoo.org> +vmware-modules-1.0.0.8.ebuild,
+  +vmware-modules-1.0.0.11.ebuild, +vmware-modules-1.0.0.13.ebuild,
+  vmware-modules-1.0.0.15.ebuild:
+  Add in vmware-modules for workstation and player products.
+
+*vmware-modules-1.0.0.15 (31 Jul 2006)
+
+  31 Jul 2006; Mike Auty <ikelos@gentoo.org>
+  +files/patches/000_all_makefile-include-directory.patch, +metadata.xml,
+  +vmware-modules-1.0.0.15.ebuild:
+  Initial commit of vmware-modules, as used by several vmware-packages.
+

@@ -1,0 +1,65 @@
+--- vmmon-only/linux/driver.c.orig	2010-08-27 23:06:22.724140000 +0200
++++ vmmon-only/linux/driver.c	2010-08-27 23:13:08.937140000 +0200
+@@ -168,10 +168,8 @@
+ 
+ static int LinuxDriver_Ioctl(struct inode *inode, struct file *filp,
+                            u_int iocmd, unsigned long ioarg);
+-#if defined(HAVE_UNLOCKED_IOCTL) || defined(HAVE_COMPAT_IOCTL)
+ static long LinuxDriver_UnlockedIoctl(struct file *filp,
+                            u_int iocmd, unsigned long ioarg);
+-#endif
+ 
+ static int LinuxDriver_Close(struct inode *inode, struct file *filp);
+ static unsigned int LinuxDriverPoll(struct file *file, poll_table *wait);
+@@ -420,11 +418,7 @@
+    memset(&vmuser_fops, 0, sizeof vmuser_fops);
+    vmuser_fops.owner = THIS_MODULE;
+    vmuser_fops.poll = LinuxDriverPoll;
+-#ifdef VMW_HAVE_UNLOCKED_IOCTL
+    vmuser_fops.unlocked_ioctl = LinuxDriver_UnlockedIoctl;
+-#else
+-   vmuser_fops.ioctl = LinuxDriver_Ioctl;
+-#endif
+ #ifdef HAVE_COMPAT_IOCTL
+    vmuser_fops.compat_ioctl = LinuxDriver_UnlockedIoctl;
+ #endif
+@@ -2410,7 +2404,6 @@
+ }
+ 
+ 
+-#if defined(HAVE_UNLOCKED_IOCTL) || defined(HAVE_COMPAT_IOCTL)
+ /*
+  *-----------------------------------------------------------------------------
+  *
+@@ -2443,7 +2436,6 @@
+    unlock_kernel();
+    return err;
+ }
+-#endif
+ 
+ 
+ /*
+--- vmmon-only/linux/hostif.c.orig	2010-08-31 22:33:07.566964001 +0200
++++ vmmon-only/linux/hostif.c	2010-08-31 22:33:24.873964001 +0200
+@@ -3635,21 +3635,9 @@
+               u_int iocmd,
+               unsigned long ioarg)
+ {
+-#ifdef HAVE_UNLOCKED_IOCTL
+    if (filp->f_op->unlocked_ioctl) {
+       return filp->f_op->unlocked_ioctl(filp, iocmd, ioarg);
+    }
+-#endif
+-   if (filp->f_op->ioctl) {
+-      long err;
+-
+-      lock_kernel();
+-      err = filp->f_op->ioctl(filp->f_dentry->d_inode, filp, iocmd, ioarg);
+-      unlock_kernel();
+-
+-      return err;
+-   }
+-
+    return -ENOIOCTLCMD;
+ }
+ #endif //VMON_USE_HIGH_RES_TIMERS

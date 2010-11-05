@@ -1,0 +1,12 @@
+--- vmmon-only/linux/hostif.c.orig	2009-11-16 13:24:00.000000000 +0200
++++ vmmon-only/linux/hostif.c	2009-11-16 13:08:56.000000000 +0200
+@@ -78,6 +78,8 @@
+ #include "vmmonInt.h"
+ #include "versioned_atomic.h"
+ 
++#include <asm/apic.h>
++
+ #define UPTIME_FREQ CONST64(1000000)
+ 
+ static struct {
+

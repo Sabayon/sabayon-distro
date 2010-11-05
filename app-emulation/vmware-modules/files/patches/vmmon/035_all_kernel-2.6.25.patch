@@ -1,0 +1,17 @@
+diff --git a/common/task.c b/common/task.c
+index 3111098..8373d07 100644
+--- a/common/task.c
++++ b/common/task.c
+@@ -25,7 +25,12 @@ extern "C" {
+  * we do not need asm/page.h anymore in this file - not surprising, this
+  * is common file, yes?  And Windows do not have page.h, do they?
+  */
++#include <linux/version.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)
+ #define _I386_PAGE_H
++#else
++#define _ASM_X86_PAGE_H
++#endif
+ /* On Linux, must come before any inclusion of asm/page.h --hpreg */
+ #include "hostKernel.h"
+ #ifdef linux
