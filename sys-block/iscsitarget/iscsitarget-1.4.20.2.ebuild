@@ -24,6 +24,7 @@ src_unpack() {
 	unpack ${A}
 	cd "${S}"
 	epatch "${FILESDIR}"/${PN}-0.4.15-isns-set-scn-flag.patch #180619
+	epatch "${FILESDIR}"/${PN}-2.6.36.patch
 	convert_to_m "${S}"/Makefile
 }
 
