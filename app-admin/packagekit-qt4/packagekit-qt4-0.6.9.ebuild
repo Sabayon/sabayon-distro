@@ -30,6 +30,7 @@ S="${WORKDIR}/${MY_P}"
 
 src_configure() {
 	econf \
+		--enable-introspection=no \
 		--localstatedir=/var \
 		--disable-dependency-tracking \
 		--enable-option-checking \

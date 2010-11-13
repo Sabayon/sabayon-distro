@@ -92,6 +92,7 @@ src_configure() {
 	# --with-default-backend=entropy
 	econf \
 		${myconf} \
+		--enable-introspection=no \
 		--localstatedir=/var \
 		--disable-dependency-tracking \
 		--enable-option-checking \
