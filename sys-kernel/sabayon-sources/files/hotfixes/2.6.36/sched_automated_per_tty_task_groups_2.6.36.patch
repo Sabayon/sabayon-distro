@@ -1,0 +1,376 @@
+diff -upNr linux-2.6.36.orig//Documentation/kernel-parameters.txt linux-2.6.36.patched/Documentation/kernel-parameters.txt
+--- linux-2.6.36.orig//Documentation/kernel-parameters.txt	2010-10-20 22:30:22.000000000 +0200
++++ linux-2.6.36.patched/Documentation/kernel-parameters.txt	2010-11-17 00:33:14.461761002 +0100
+@@ -1610,6 +1610,8 @@ and is between 256 and 4096 characters.
+ 	noapic		[SMP,APIC] Tells the kernel to not make use of any
+ 			IOAPICs that may be present in the system.
+ 
++	noautogroup	Disable scheduler automatic task group creation.
++
+ 	nobats		[PPC] Do not use BATs for mapping kernel lowmem
+ 			on "Classic" PPC cores.
+ 
+diff -upNr linux-2.6.36.orig//drivers/char/tty_io.c linux-2.6.36.patched/drivers/char/tty_io.c
+--- linux-2.6.36.orig//drivers/char/tty_io.c	2010-10-20 22:30:22.000000000 +0200
++++ linux-2.6.36.patched/drivers/char/tty_io.c	2010-11-17 00:34:49.121761002 +0100
+@@ -3095,6 +3095,7 @@ static void __proc_set_tty(struct task_s
+ 	put_pid(tsk->signal->tty_old_pgrp);
+ 	tsk->signal->tty = tty_kref_get(tty);
+ 	tsk->signal->tty_old_pgrp = NULL;
++	sched_autogroup_create_attach(tsk);
+ }
+ 
+ static void proc_set_tty(struct task_struct *tsk, struct tty_struct *tty)
+diff -upNr linux-2.6.36.orig//include/linux/sched.h linux-2.6.36.patched/include/linux/sched.h
+--- linux-2.6.36.orig//include/linux/sched.h	2010-10-20 22:30:22.000000000 +0200
++++ linux-2.6.36.patched/include/linux/sched.h	2010-11-17 00:33:14.445761002 +0100
+@@ -506,6 +506,8 @@ struct thread_group_cputimer {
+ 	spinlock_t lock;
+ };
+ 
++struct autogroup;
++
+ /*
+  * NOTE! "signal_struct" does not have it's own
+  * locking, because a shared signal_struct always
+@@ -573,6 +575,9 @@ struct signal_struct {
+ 
+ 	struct tty_struct *tty; /* NULL if no tty */
+ 
++#ifdef CONFIG_SCHED_AUTOGROUP
++	struct autogroup *autogroup;
++#endif
+ 	/*
+ 	 * Cumulative resource counters for dead threads in the group,
+ 	 * and for reaped dead child processes forked by this group.
+@@ -1900,6 +1905,20 @@ int sched_rt_handler(struct ctl_table *t
+ 
+ extern unsigned int sysctl_sched_compat_yield;
+ 
++#ifdef CONFIG_SCHED_AUTOGROUP
++extern unsigned int sysctl_sched_autogroup_enabled;
++
++extern void sched_autogroup_create_attach(struct task_struct *p);
++extern void sched_autogroup_detach(struct task_struct *p);
++extern void sched_autogroup_fork(struct signal_struct *sig);
++extern void sched_autogroup_exit(struct signal_struct *sig);
++#else
++static inline void sched_autogroup_create_attach(struct task_struct *p) { }
++static inline void sched_autogroup_detach(struct task_struct *p) { }
++static inline void sched_autogroup_fork(struct signal_struct *sig) { }
++static inline void sched_autogroup_exit(struct signal_struct *sig) { }
++#endif
++
+ #ifdef CONFIG_RT_MUTEXES
+ extern int rt_mutex_getprio(struct task_struct *p);
+ extern void rt_mutex_setprio(struct task_struct *p, int prio);
+diff -upNr linux-2.6.36.orig//init/Kconfig linux-2.6.36.patched/init/Kconfig
+--- linux-2.6.36.orig//init/Kconfig	2010-10-20 22:30:22.000000000 +0200
++++ linux-2.6.36.patched/init/Kconfig	2010-11-17 00:33:14.461761002 +0100
+@@ -652,6 +652,18 @@ config DEBUG_BLK_CGROUP
+ 
+ endif # CGROUPS
+ 
++config SCHED_AUTOGROUP
++	bool "Automatic process group scheduling"
++	select CGROUPS
++	select CGROUP_SCHED
++	select FAIR_GROUP_SCHED
++	help
++	  This option optimizes the scheduler for common desktop workloads by
++	  automatically creating and populating task groups.  This separation
++	  of workloads isolates aggressive CPU burners (like build jobs) from
++	  desktop applications.  Task group autogeneration is currently based
++	  upon task tty association.
++
+ config MM_OWNER
+ 	bool
+ 
+diff -upNr linux-2.6.36.orig//kernel/fork.c linux-2.6.36.patched/kernel/fork.c
+--- linux-2.6.36.orig//kernel/fork.c	2010-10-20 22:30:22.000000000 +0200
++++ linux-2.6.36.patched/kernel/fork.c	2010-11-17 00:33:14.457761002 +0100
+@@ -173,8 +173,10 @@ static inline void free_signal_struct(st
+ 
+ static inline void put_signal_struct(struct signal_struct *sig)
+ {
+-	if (atomic_dec_and_test(&sig->sigcnt))
++	if (atomic_dec_and_test(&sig->sigcnt)) {
++		sched_autogroup_exit(sig);
+ 		free_signal_struct(sig);
++	}
+ }
+ 
+ void __put_task_struct(struct task_struct *tsk)
+@@ -900,6 +902,7 @@ static int copy_signal(unsigned long clo
+ 	posix_cpu_timers_init_group(sig);
+ 
+ 	tty_audit_fork(sig);
++	sched_autogroup_fork(sig);
+ 
+ 	sig->oom_adj = current->signal->oom_adj;
+ 	sig->oom_score_adj = current->signal->oom_score_adj;
+diff -upNr linux-2.6.36.orig//kernel/sched_autogroup.c linux-2.6.36.patched/kernel/sched_autogroup.c
+--- linux-2.6.36.orig//kernel/sched_autogroup.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.36.patched/kernel/sched_autogroup.c	2010-11-17 00:33:14.461761002 +0100
+@@ -0,0 +1,140 @@
++#ifdef CONFIG_SCHED_AUTOGROUP
++
++unsigned int __read_mostly sysctl_sched_autogroup_enabled = 1;
++
++struct autogroup {
++	struct kref		kref;
++	struct task_group	*tg;
++};
++
++static struct autogroup autogroup_default;
++
++static void autogroup_init(struct task_struct *init_task)
++{
++	autogroup_default.tg = &init_task_group;
++	kref_init(&autogroup_default.kref);
++	init_task->signal->autogroup = &autogroup_default;
++}
++
++static inline void autogroup_destroy(struct kref *kref)
++{
++	struct autogroup *ag = container_of(kref, struct autogroup, kref);
++	struct task_group *tg = ag->tg;
++
++	kfree(ag);
++	sched_destroy_group(tg);
++}
++
++static inline void autogroup_kref_put(struct autogroup *ag)
++{
++	kref_put(&ag->kref, autogroup_destroy);
++}
++
++static inline struct autogroup *autogroup_kref_get(struct autogroup *ag)
++{
++	kref_get(&ag->kref);
++	return ag;
++}
++
++static inline struct autogroup *autogroup_create(void)
++{
++	struct autogroup *ag = kmalloc(sizeof(*ag), GFP_KERNEL);
++
++	if (!ag)
++		goto out_fail;
++
++	ag->tg = sched_create_group(&init_task_group);
++	kref_init(&ag->kref);
++
++	if (!(IS_ERR(ag->tg)))
++		return ag;
++
++out_fail:
++	if (ag) {
++		kfree(ag);
++		WARN_ON(1);
++	} else
++		WARN_ON(1);
++
++	return autogroup_kref_get(&autogroup_default);
++}
++
++static inline struct task_group *
++autogroup_task_group(struct task_struct *p, struct task_group *tg)
++{
++	int enabled = ACCESS_ONCE(sysctl_sched_autogroup_enabled);
++
++	enabled &= (tg == &root_task_group);
++	enabled &= (p->sched_class == &fair_sched_class);
++	enabled &= (!(p->flags & PF_EXITING));
++
++	if (enabled)
++		return p->signal->autogroup->tg;
++
++	return tg;
++}
++
++static void
++autogroup_move_group(struct task_struct *p, struct autogroup *ag)
++{
++	struct autogroup *prev;
++	struct task_struct *t;
++	struct rq *rq;
++	unsigned long flags;
++
++	rq = task_rq_lock(p, &flags);
++	prev = p->signal->autogroup;
++	if (prev == ag) {
++		task_rq_unlock(rq, &flags);
++		return;
++	}
++
++	p->signal->autogroup = autogroup_kref_get(ag);
++	__sched_move_task(p, rq);
++	task_rq_unlock(rq, &flags);
++
++	rcu_read_lock();
++	list_for_each_entry_rcu(t, &p->thread_group, thread_group) {
++		sched_move_task(t);
++	}
++	rcu_read_unlock();
++
++	autogroup_kref_put(prev);
++}
++
++void sched_autogroup_create_attach(struct task_struct *p)
++{
++	struct autogroup *ag = autogroup_create();
++
++	autogroup_move_group(p, ag);
++	/* drop extra refrence added by autogroup_create() */
++	autogroup_kref_put(ag);
++}
++EXPORT_SYMBOL(sched_autogroup_create_attach);
++
++/* currently has no users */
++void sched_autogroup_detach(struct task_struct *p)
++{
++	autogroup_move_group(p, &autogroup_default);
++}
++EXPORT_SYMBOL(sched_autogroup_detach);
++
++void sched_autogroup_fork(struct signal_struct *sig)
++{
++	sig->autogroup = autogroup_kref_get(current->signal->autogroup);
++}
++
++void sched_autogroup_exit(struct signal_struct *sig)
++{
++	autogroup_kref_put(sig->autogroup);
++}
++
++static int __init setup_autogroup(char *str)
++{
++	sysctl_sched_autogroup_enabled = 0;
++
++	return 1;
++}
++
++__setup("noautogroup", setup_autogroup);
++#endif
+diff -upNr linux-2.6.36.orig//kernel/sched_autogroup.h linux-2.6.36.patched/kernel/sched_autogroup.h
+--- linux-2.6.36.orig//kernel/sched_autogroup.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.36.patched/kernel/sched_autogroup.h	2010-11-17 00:33:14.457761002 +0100
+@@ -0,0 +1,18 @@
++#ifdef CONFIG_SCHED_AUTOGROUP
++
++static void __sched_move_task(struct task_struct *tsk, struct rq *rq);
++
++static inline struct task_group *
++autogroup_task_group(struct task_struct *p, struct task_group *tg);
++
++#else /* !CONFIG_SCHED_AUTOGROUP */
++
++static inline void autogroup_init(struct task_struct *init_task) {  }
++
++static inline struct task_group *
++autogroup_task_group(struct task_struct *p, struct task_group *tg)
++{
++	return tg;
++}
++
++#endif /* CONFIG_SCHED_AUTOGROUP */
+diff -upNr linux-2.6.36.orig//kernel/sched.c linux-2.6.36.patched/kernel/sched.c
+--- linux-2.6.36.orig//kernel/sched.c	2010-10-20 22:30:22.000000000 +0200
++++ linux-2.6.36.patched/kernel/sched.c	2010-11-17 00:33:51.633761002 +0100
+@@ -78,6 +78,7 @@
+ 
+ #include "sched_cpupri.h"
+ #include "workqueue_sched.h"
++#include "sched_autogroup.h"
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/sched.h>
+@@ -612,11 +613,14 @@ static inline int cpu_of(struct rq *rq)
+  */
+ static inline struct task_group *task_group(struct task_struct *p)
+ {
++	struct task_group *tg;
+ 	struct cgroup_subsys_state *css;
+ 
+ 	css = task_subsys_state_check(p, cpu_cgroup_subsys_id,
+ 			lockdep_is_held(&task_rq(p)->lock));
+-	return container_of(css, struct task_group, css);
++	tg = container_of(css, struct task_group, css);
++
++	return autogroup_task_group(p, tg);
+ }
+ 
+ /* Change a task's cfs_rq and parent entity if it moves across CPUs/groups */
+@@ -1920,6 +1924,7 @@ static void deactivate_task(struct rq *r
+ #include "sched_idletask.c"
+ #include "sched_fair.c"
+ #include "sched_rt.c"
++#include "sched_autogroup.c"
+ #ifdef CONFIG_SCHED_DEBUG
+ # include "sched_debug.c"
+ #endif
+@@ -7749,7 +7754,7 @@ void __init sched_init(void)
+ #ifdef CONFIG_CGROUP_SCHED
+ 	list_add(&init_task_group.list, &task_groups);
+ 	INIT_LIST_HEAD(&init_task_group.children);
+-
++	autogroup_init(&init_task);
+ #endif /* CONFIG_CGROUP_SCHED */
+ 
+ #if defined CONFIG_FAIR_GROUP_SCHED && defined CONFIG_SMP
+@@ -8279,15 +8284,11 @@ void sched_destroy_group(struct task_gro
+ /* change task's runqueue when it moves between groups.
+  *	The caller of this function should have put the task in its new group
+  *	by now. This function just updates tsk->se.cfs_rq and tsk->se.parent to
+- *	reflect its new group.
++ *	reflect its new group.  Called with the runqueue lock held.
+  */
+-void sched_move_task(struct task_struct *tsk)
++void __sched_move_task(struct task_struct *tsk, struct rq *rq)
+ {
+ 	int on_rq, running;
+-	unsigned long flags;
+-	struct rq *rq;
+-
+-	rq = task_rq_lock(tsk, &flags);
+ 
+ 	running = task_current(rq, tsk);
+ 	on_rq = tsk->se.on_rq;
+@@ -8308,7 +8309,15 @@ void sched_move_task(struct task_struct
+ 		tsk->sched_class->set_curr_task(rq);
+ 	if (on_rq)
+ 		enqueue_task(rq, tsk, 0);
++}
+ 
++void sched_move_task(struct task_struct *tsk)
++{
++	struct rq *rq;
++	unsigned long flags;
++
++	rq = task_rq_lock(tsk, &flags);
++	__sched_move_task(tsk, rq);
+ 	task_rq_unlock(rq, &flags);
+ }
+ #endif /* CONFIG_CGROUP_SCHED */
+diff -upNr linux-2.6.36.orig//kernel/sysctl.c linux-2.6.36.patched/kernel/sysctl.c
+--- linux-2.6.36.orig//kernel/sysctl.c	2010-10-20 22:30:22.000000000 +0200
++++ linux-2.6.36.patched/kernel/sysctl.c	2010-11-17 00:33:14.461761002 +0100
+@@ -384,6 +384,17 @@ static struct ctl_table kern_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dointvec,
+ 	},
++#ifdef CONFIG_SCHED_AUTOGROUP
++	{
++		.procname	= "sched_autogroup_enabled",
++		.data		= &sysctl_sched_autogroup_enabled,
++		.maxlen		= sizeof(unsigned int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec,
++		.extra1		= &zero,
++		.extra2		= &one,
++	},
++#endif
+ #ifdef CONFIG_PROVE_LOCKING
+ 	{
+ 		.procname	= "prove_locking",
