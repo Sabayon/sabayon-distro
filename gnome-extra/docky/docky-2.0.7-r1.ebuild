@@ -50,7 +50,7 @@ DEPEND="
 RESTRICT="primaryuri"
 
 src_configure() {
-	epatch "${FILESDIR}"/fix_getoptions_deprication.patch
+	epatch "${FILESDIR}"/docky-mono28.patch
 	econf   $(use_enable debug) \
 		$(use_enable nls) \
 		--enable-release	
