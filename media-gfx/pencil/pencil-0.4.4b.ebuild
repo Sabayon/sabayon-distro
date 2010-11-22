@@ -1,6 +1,6 @@
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-gfx/gimp/gimp-9999.ebuild,v 1.6 2006/07/09 17:00:52 brix Exp $
+# $Header: $
 
 EAPI="2"
 
@@ -42,6 +42,5 @@ src_install() {
  	dodoc README TODO
 
 	mv "${S}"/icons/icon.png "${S}"/icons/${PN}.png
-	doicon "${S}"/icons/${PN}.png || die "doicon failed"
 	make_desktop_entry Pencil Pencil ${PN}.png Graphics
 }
