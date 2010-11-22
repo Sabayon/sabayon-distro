@@ -15,10 +15,13 @@ KEYWORDS="~x86 ~amd64"
 
 IUSE=""
 
-RDEPEND=">=x11-libs/qt-4 \
-		media-libs/ming"
-DEPEND="${RDEPEND} \
-		app-arch/unzip"
+RDEPEND="x11-libs/qt-core
+	 x11-libs/qt-opengl
+	 x11-libs/qt-gui
+	 media-libs/ming"
+
+DEPEND="${RDEPEND}
+	app-arch/unzip"
 
 S=${WORKDIR}/${P}-source
 
