@@ -17,9 +17,8 @@ KEYWORDS="~x86 ~amd64"
 
 IUSE=""
 
-RDEPEND="x11-libs/qt-core
-	 x11-libs/qt-opengl
-	 x11-libs/qt-gui
+RDEPEND="x11-libs/qt-opengl
+	 x11-libs/qt-gui:4
 	 >=media-libs/ming-0.4.3"
 
 DEPEND="${RDEPEND}
@@ -37,8 +36,12 @@ src_compile() {
 }
 
 src_install() {
-	mv Pencil pencil
-	dobin pencil || die "dobin failed"
-	doicon icons/icon.png
-}
+	exeinto /usr/local/bin
+	doexe Pencil || die "doexe failed"
 
+ 	dodoc README TODO
+
+	mv "${S}"/icons/icon.png "${S}"/icons/${PN}.png
+	doicon "${S}"/icons/${PN}.png || die "doicon failed"
+	make_desktop_entry Pencil Pencil ${PN}.png Graphics
+}
