@@ -44,6 +44,7 @@ DEPEND="
 	${RDEPEND}
 	>=dev-util/intltool-0.41.1
 	>=dev-util/pkgconfig-0.25-r2
+	dev-dotnet/gtk-sharp-gapi
 "
 
 RESTRICT="primaryuri"
