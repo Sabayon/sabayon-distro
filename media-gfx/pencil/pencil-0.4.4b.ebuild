@@ -8,7 +8,7 @@ inherit qt4
 
 DESCRIPTION="Pencil is an animation/drawing software package that lets you create traditional hand-drawn animation (cartoon) using both bitmap and vector
 graphics"
-HOMEPAGE="http://www.les-stooges.org/pascal/pencil"
+HOMEPAGE="http://www.pencil-animation.org"
 SRC_URI="mirror://sourceforge/pencil-planner/${P}-src.zip"
 
 LICENSE="GPL-2"
@@ -26,8 +26,8 @@ DEPEND="${RDEPEND}
 
 S=${WORKDIR}/${P}-source
 
-src_configure() {
-	sed -i s:SWFSprite:SWFMovieClip:g src/external/flash/flash.{cpp,h}
+src_prepare() {
+	sed -i s:SWFSprite:SWFMovieClip:g src/external/flash/flash.{cpp,h} || die "sed failed"
 }
 
 src_compile() {
@@ -39,8 +39,8 @@ src_install() {
 	exeinto /usr/local/bin
 	doexe Pencil || die "doexe failed"
 
- 	dodoc README TODO
-
+ 	dodoc README TODO || die "dodoc failed"
+	# TODO: use newicon function
 	mv "${S}"/icons/icon.png "${S}"/icons/${PN}.png
 	make_desktop_entry Pencil Pencil ${PN}.png Graphics
 }
