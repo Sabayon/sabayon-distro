@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/media-gfx/gimp/gimp-9999.ebuild,v 1.6 2006/07/09 17:00:52 brix Exp $
 
+EAPI="2"
+
 inherit qt4
 
 DESCRIPTION="Pencil is an animation/drawing software package that lets you create traditional hand-drawn animation (cartoon) using both bitmap and vector
@@ -18,12 +20,16 @@ IUSE=""
 RDEPEND="x11-libs/qt-core
 	 x11-libs/qt-opengl
 	 x11-libs/qt-gui
-	 media-libs/ming"
+	 >=media-libs/ming-0.4.3"
 
 DEPEND="${RDEPEND}
 	app-arch/unzip"
 
 S=${WORKDIR}/${P}-source
+
+src_configure() {
+	sed -i s:SWFSprite:SWFMovieClip:g src/external/flash/flash.{cpp,h}
+}
 
 src_compile() {
 	eqmake4 || die "eqmake4 failed"
