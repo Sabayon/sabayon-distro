@@ -5,7 +5,7 @@ ETYPE="sources"
 K_SABPATCHES_VER="3"
 K_KERNEL_PATCH_VER=""
 K_SABKERNEL_URI_CONFIG="yes"
-K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.36/sched_automated_per_tty_task_groups_2.6.36.patch"
+K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.36/v4-sched-automated-per-session-task-groups.patch"
 inherit sabayon-kernel
 
 KEYWORDS="~amd64 ~x86"
