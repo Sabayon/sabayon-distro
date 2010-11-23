@@ -1,7 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
-
 EAPI=3
 
 inherit eutils
@@ -49,4 +48,13 @@ src_install() {
     doexe   xmind/xmind
     doexe   xmind/xmind-bin
     dosym   /usr/lib/xmind/xmind/xmind /usr/bin/xmind
+
+
+	local res
+		for res in 16 32 48; do
+		insinto /usr/share/icons/hicolor/${res}x${res}/apps
+		newins "${FILESDIR}/xmind.${res}.png" xmind.png || die
+	done
+
+	make_desktop_entry xmind "XMind Manager" xmind "Office"
 }
