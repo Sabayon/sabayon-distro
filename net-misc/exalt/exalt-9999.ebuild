@@ -16,6 +16,7 @@ IUSE="dhcp"
 
 RDEPEND="net-wireless/wpa_supplicant
 		 dhcp? ( net-misc/dhcp )
+		 net-misc/connman
 		 >=dev-libs/ecore-0.9.9.037
 		 >=dev-libs/eet-0.9.9.038
 		 >=dev-libs/e_dbus-0.1.0.002[hal]
