@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI="2"
+
 SVN_SUBDIR="/PROTO"
 E17_EXTRA_CONF="--with-wpa-supplicant=/sbin/wpa_supplicant"
 inherit enlightenment
