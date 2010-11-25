@@ -1,0 +1,13 @@
+Index: bin/e_main.c
+===================================================================
+--- src/bin/e_main.c	(revision 50439)
++++ src/bin/e_main.c	(working copy)
+@@ -60,7 +60,7 @@
+ 
+ EAPI int e_precache_end = 0;
+ 
+-static int really_know = 0;
++static int really_know = 1;
+ 
+ /* local subsystem functions */
+ static void _e_main_shutdown_push(int (*func)(void));
