@@ -42,8 +42,8 @@ RDEPEND="exchange? ( >=app-misc/exchange-9999 )
 	>=dev-libs/ecore-1.0.0_beta[X,evas,inotify]
 	>=media-libs/edje-1.0.0_beta
 	>=dev-libs/e_dbus-1.0.0_beta[hal,libnotify]
-	e_modules_connman? ( >=x11-libs/e_dbus-1.0.0_beta[connman] )
-	e_modules_ofono? ( >=x11-libs/e_dbus-1.0.0_beta[ofono] )
+	e_modules_connman? ( >=dev-libs/e_dbus-1.0.0_beta[connman] )
+	e_modules_ofono? ( >=dev-libs/e_dbus-1.0.0_beta[ofono] )
 	>=media-libs/evas-1.0.0_beta[eet,X,jpeg,png]
 	bluetooth? ( net-wireless/bluez )
 	udev? ( dev-libs/eeze )
