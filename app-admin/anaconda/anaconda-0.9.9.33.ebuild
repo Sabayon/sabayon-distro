@@ -201,8 +201,10 @@ src_install() {
 	dosym /usr/bin/liveinst /usr/bin/installer
 
 	# drop .la files for God sake
-	find ${D} -name "*.la" | xargs rm
+	find "${D}" -name "*.la" | xargs rm
 
+	# Cleanup .pyc .pyo
+	find "${D}" -name "*.py[co]" -type f -delete
 }
 
 pkg_postrm() {
