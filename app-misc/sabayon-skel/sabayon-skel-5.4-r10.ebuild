@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI="2"
-EGIT_TREE="${PVR}"
+EGIT_COMMIT="${PVR}"
 EGIT_REPO_URI="git://git.sabayon.org/projects/skel.git"
 inherit eutils git fdo-mime
 
@@ -19,17 +19,17 @@ RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6
 
 src_install () {
 
-	dodir /etc
-	cp ${S}/skel ${D}/etc -Ra
+	dodir /etc/xdg/menus
+	cp "${S}"/* "${D}"/etc/ -Ra
 
 	# Sabayon Menu
 	dodir /usr/share/desktop-directories
-	cp ${FILESDIR}/4.0.97/xdg/*.directory ${D}/usr/share/desktop-directories/
+	cp "${FILESDIR}"/4.0.97/xdg/*.directory "${D}"/usr/share/desktop-directories/
 	dodir /usr/share/sabayon
-	cp -a ${FILESDIR}/4.0.97/* ${D}/usr/share/sabayon/
-	doicon ${FILESDIR}/4.0.97/img/sabayon-weblink.png
+	cp -a "${FILESDIR}"/4.0.97/* "${D}"/usr/share/sabayon/
+	doicon "${FILESDIR}"/4.0.97/img/sabayon-weblink.png
 
-	chown root:root ${D}/etc/skel -R
+	chown root:root "${D}"/etc/skel -R
 
 }
 
