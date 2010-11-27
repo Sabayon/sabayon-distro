@@ -28,4 +28,5 @@ net-wireless/ralink-rt2860-firmware
 net-wireless/ralink-rt2870-firmware
 net-wireless/zd1201-firmware
 net-wireless/zd1211-firmware
+net-wireless/wireless-tools
 sys-apps/usb_modeswitch
