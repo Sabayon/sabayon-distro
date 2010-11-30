@@ -1,0 +1,4 @@
+#!/bin/sh
+export OOO_EXTRA_ARG=''
+unset PYTHONPATH
+/usr/LIBDIR/libreoffice/program/soffice  "$@"
