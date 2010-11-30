@@ -37,11 +37,11 @@ DESCRIPTION="LibreOffice productivity suite."
 SRC_URI="amd64? ( ${FILEPATH}/x86_64/LibO_${MY_PV}_Linux_x86-64_install-rpm_en-US.tar.gz )
 	x86? ( ${FILEPATH}/x86/LibO_${MY_PV}_Linux_x86_install-rpm_en-US.tar.gz )"
 
-LANGS="af ar as be_BY bg bn bo br brx bs cs cy da de dgo dz el en_GB en_ZA 
-es et eu fa fi fr ga gd gl he hi hr hu is it ka kid kk km kn ko ks ku lo 
-lt lv mai mk ml mn mr ms my nb ne nn ns oc om or pa_IN pap pl ps pt pt_BR ru 
-rw sa_IN sat sc sd sh si sk sl sq sr ss st sv sw_TZ ta te th ti tn tr ts ug 
-uk uz ve vi xh zh_CN zh_TW zu"
+LANGS="af ar as be_BY bg bn bo br brx bs ca cs cy da de dgo dz el en_GB en_ZA eo
+es et eu fa fi fr ga gd gl gu he hi hr hu is it ja ka kid kk km kn ko kok ks ku
+ky lo lt lv mai mk ml mn mni mr ms my nb ne nl nn nr ns oc om or pa_IN pap pl ps
+pt pt_BR ro ru rw sa_IN sat sc sd sh si sk sl sq sr ss st sv sw_TZ ta te tg th
+ti tn tr ts ug uk ur uz ve vi xh zh_CN zh_TW zu"
 
 for X in ${LANGS} ; do
 	[[ ${X} != "en" ]] && SRC_URI="${SRC_URI} linguas_${X}? (
