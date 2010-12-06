@@ -36,7 +36,7 @@ src_install() {
 	local rtdir='runtimes/air/linux/Adobe AIR/Versions/1.0'
 
 	# remove the broken symlinks
-	rm -r "${rtdir}"/Resources/nss3/{0d,1d,None} || die "removing cruft failed"
+	rm -r "${rtdir}"/Resources/nss3/{0d,1d} || die "removing cruft failed"
 	if use x86; then
 		rm "${rtdir}"/Resources/lib{curl,flashplayer}.so || die "removing cruft failed"
 	fi
