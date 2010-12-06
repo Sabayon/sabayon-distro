@@ -14,6 +14,7 @@ LICENSE="AdobeAirSDK"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
+RESTRICT="strip"
 
 RDEPEND="app-arch/unzip
 	x86? ( dev-libs/libxml2
