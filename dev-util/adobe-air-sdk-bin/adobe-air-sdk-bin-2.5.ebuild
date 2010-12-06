@@ -30,8 +30,7 @@ RDEPEND="app-arch/unzip
 
 QA_PRESTRIPPED=".*\.so
 	/opt/Adobe/AirSDK/bin/adl"
-QA_EXECSTACK="*/libCore.so
-	*/libcurl.so"
+QA_EXECSTACK="*/libCore.so"
 
 src_install() {
 	local sdkdir=opt/Adobe/AirSDK
