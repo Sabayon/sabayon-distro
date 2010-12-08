@@ -47,23 +47,23 @@ src_install() {
 	doins -r "${S}/data"
 	exeinto "/usr/share/${PN}"
 	if use amd64; then
-		mv "${S}/lib64" "${S}/lib"
-		mv "${S}/main64" "${S}/${PN}.bin"
+		mv "${S}/lib64" "${S}/lib" || die
+		mv "${S}/main64" "${S}/${PN}.bin" || die
 	else
-		mv "${S}/lib64" "${S}/lib"
-		mv "${S}/main64" "${S}/${PN}.bin"
+		mv "${S}/lib64" "${S}/lib" || die
+		mv "${S}/main64" "${S}/${PN}.bin" || die
 	fi
-	doexe "${S}/${PN}.bin"
+	doexe "${S}/${PN}.bin" || die
 	doins -r "${S}/lib"
 	echo "MARS_LIBRARY_PATH=\"/usr/share/${PN}/lib\"" > "${S}/99-mars-bin"
 	doenvd "${S}/99-mars-bin"
 
 	exeinto /usr/bin
-	doexe "${FILESDIR}/${PN}"
+	doexe "${FILESDIR}/${PN}" || die
 
-	mv "${S}/data/tex/icon.png" "${S}/${PN}.png"
-	doicon "${S}/${PN}.png"
+	mv "${S}/data/tex/icon.png" "${S}/${PN}.png" || die
+	doicon "${S}/${PN}.png" || die
 
-	make_desktop_entry "${PN}" "M.A.R.S. is ridiculous" "/usr/share/pixmaps/${PN}.png" "Game"
+	make_desktop_entry "${PN}" "M.A.R.S. is ridiculous" "/usr/share/pixmaps/${PN}.png" "Game" || die
 
 }
