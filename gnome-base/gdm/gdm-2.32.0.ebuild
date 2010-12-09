@@ -104,8 +104,8 @@ src_prepare() {
 	gnome2_src_prepare
 
         # Sabayon Linux customization patches
-        # epatch "${FILESDIR}/${PN}-sabayon-customizations-1.patch"
         epatch "${FILESDIR}/${PN}2-sabayon-customizations-2.patch"
+	epatch "${FILESDIR}/${PN}-2.32.0-icon-logo.patch"
 
 	# remove unneeded linker directive for selinux, bug #41022
 	epatch "${FILESDIR}/${PN}-2.32.0-selinux-remove-attr.patch"
@@ -175,6 +175,10 @@ src_install() {
 
 	dopamd "${gentoodir}"/pam.d/*
 	dopamsecurity console.apps "${gentoodir}/security/console.apps/gdmsetup"
+
+	# Sabayon icon
+	insinto /usr/share/pixmaps
+	doins "${FILESDIR}/sabayon-gdm.png"
 }
 
 pkg_postinst() {
