@@ -1,6 +1,7 @@
 #!/bin/bash
 
 GDM_FILE="/usr/share/gdm/defaults.conf"
+CUSTOM_GDM_FILE="/etc/gdm/custom.conf"
 KDM_FILE="/usr/share/config/kdm/kdmrc"
 LXDM_FILE="/etc/lxdm/lxdm.conf"
 OEM_FILE="/etc/oemlive.sh"
@@ -21,6 +22,9 @@ sabayon_setup_autologin() {
 		sed -i "s/^TimedLogin=.*/TimedLogin=${LIVE_USER}/" ${GDM_FILE}
 		sed -i "s/^TimedLoginDelay=.*/TimedLoginDelay=0/" ${GDM_FILE}
 
+	elif [ -f "${CUSTOM_GDM_FILE}" ]; then
+		sed -i "s:\[daemon\]:\[daemon\]\nAutomaticLoginEnable=true\nAutomaticLogin=${LIVE_USER}\nTimedLoginEnable=true\nTimedLogin=${LIVE_USER}\nTimedLoginDelay=0:" \
+			"${CUSTOM_GDM_FILE}"
 	fi
 
 	# KDM - KDE
