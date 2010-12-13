@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-3.6.11.ebuild,v 1.2 2010/10/20 10:54:21 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-3.6.13.ebuild,v 1.7 2010/12/11 15:59:15 jer Exp $
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
@@ -17,12 +17,12 @@ MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.6"
 MY_PV="${PV/_rc/rc}" # Handle beta for SRC_URI
 XUL_PV="${MAJ_XUL_PV}${MAJ_PV/${DESKTOP_PV}/}" # Major + Minor version no.s
-PATCH="${PN}-3.6-patches-0.2"
+PATCH="${PN}-3.6-patches-0.4"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm hppa ~ia64 ppc ppc64 ~sparc x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa bindist +ipc java libnotify system-sqlite wifi"
@@ -49,7 +49,7 @@ done
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.7
+	>=dev-libs/nss-3.12.8
 	>=dev-libs/nspr-4.8.6
 	>=app-text/hunspell-1.2
 	system-sqlite? ( >=dev-db/sqlite-3.7.1[fts3,secure-delete] )
