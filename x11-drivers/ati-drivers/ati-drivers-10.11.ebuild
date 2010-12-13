@@ -17,7 +17,8 @@ else
 	SRC_URI="https://launchpad.net/ubuntu/maverick/+source/fglrx-installer/2:${PV}-0ubuntu1/+files/fglrx-installer_${PV}.orig.tar.gz"
 	FOLDER_PREFIX=""
 fi
-IUSE="debug +modules multilib"
+# qt4 use is fake and is used to match upstream
+IUSE="debug +modules multilib qt4"
 
 LICENSE="AMD GPL-2 QPL-1.0 as-is"
 KEYWORDS="~amd64 ~x86"
