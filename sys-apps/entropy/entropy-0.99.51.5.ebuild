@@ -23,7 +23,7 @@ DEPEND="
 	sys-apps/sandbox
 	sys-devel/gettext
 	sys-apps/diffutils
-	>=sys-apps/portage-2.2_rc67"
+	>=sys-apps/portage-2.1.9"
 RDEPEND="${DEPEND}"
 
 pkg_setup() {
