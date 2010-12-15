@@ -17,7 +17,7 @@ x86?   ( http://repository.spotify.com/pool/non-free/s/spotify/${MY_P}-1_i386.de
 
 LICENSE="Spotify"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 # media-sound/asoundconf left
