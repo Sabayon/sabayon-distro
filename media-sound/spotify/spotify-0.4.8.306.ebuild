@@ -19,6 +19,7 @@ LICENSE="Spotify"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
+RESTRICT="strip"
 
 # media-sound/asoundconf left
 DEPEND=""
@@ -36,10 +37,10 @@ src_install() {
 	insinto /opt/${PN}
 	into /opt/${PN}
 	dobin usr/bin/spotify
-	dosym /opt/${PN}/bin/spotify /usr/bin/spotify
+	dosym /opt/${PN}/bin/spotify /usr/bin/spotify || die "dosym failed"
 	newdoc usr/share/doc/spotify-client-qt/changelog.Debian.gz changelog.gz
-        doins -r usr/share/spotify/theme
+        doins -r usr/share/spotify/theme || die "doins failed"
 	# hardcoded path fix
 	dodir /usr/share/spotify
-	dosym /opt/${PN}/theme /usr/share/spotify/theme
+	dosym /opt/${PN}/theme /usr/share/spotify/theme || die "dosym failed"
 }
