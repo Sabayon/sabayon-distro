@@ -47,8 +47,8 @@ src_install() {
 	prepgamesdirs
 
 	if use opengl || ! use dedicated ; then
-		make_desktop_entry /usr/games/bin/crx "Alien Arena" aa
-		make_desktop_entry /usr/games/bin/crx-ded "Alien Arena (dedicated)" aa
+		make_desktop_entry /usr/games/bin/crx "Alien Arena" ${PN}
+		make_desktop_entry /usr/games/bin/crx-ded "Alien Arena (dedicated)" ${PN}
 	fi
 
 	cd "${S}" || die
