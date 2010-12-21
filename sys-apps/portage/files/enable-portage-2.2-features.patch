@@ -1,0 +1,17 @@
+--- portage-2.1.9.25.orig/pym/portage/const.py
++++ portage-2.1.9.25/pym/portage/const.py
+@@ -119,10 +119,10 @@ MANIFEST2_IDENTIFIERS    = ("AUX", "MISC
+ 
+ # Private constants for use in conditional code in order to minimize the diff
+ # between branches.
+-_ENABLE_DYN_LINK_MAP    = False
+-_ENABLE_PRESERVE_LIBS   = False
+-_ENABLE_REPO_NAME_WARN  = False
+-_ENABLE_SET_CONFIG      = False
++_ENABLE_DYN_LINK_MAP    = True
++_ENABLE_PRESERVE_LIBS   = True
++_ENABLE_REPO_NAME_WARN  = True
++_ENABLE_SET_CONFIG      = True
+ _SANDBOX_COMPAT_LEVEL   = "16"
+ 
+ 
