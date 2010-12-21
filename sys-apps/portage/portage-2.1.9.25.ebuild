@@ -176,6 +176,9 @@ src_install() {
 	insinto /etc
 	doins etc-update.conf dispatch-conf.conf || die
 
+	insinto "$portage_share_config/sets"
+	doins "$S"/cnf/sets/*.conf || die
+
 	insinto "$portage_share_config"
 	doins "$S/cnf/make.globals" || die
 	if [ -f "make.conf.${ARCH}".diff ]; then
