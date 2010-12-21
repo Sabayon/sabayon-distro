@@ -45,7 +45,7 @@ DEPEND="${CDEPEND}
 
 RDEPEND="${CDEPEND}
 	>=app-portage/layman-1.2.3
-	>=sys-apps/portage-2.2_rc39
+	>=sys-apps/portage-2.1.9
 	entropy? ( >=sys-apps/entropy-0.99.34 )
 	consolekit? ( sys-auth/consolekit )
 	pm-utils? ( sys-power/pm-utils )
