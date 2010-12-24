@@ -23,8 +23,7 @@ DEPEND="
 	sys-apps/sandbox
 	sys-devel/gettext
 	sys-apps/diffutils
-	>=sys-apps/portage-2.1.9
-	<sys-apps/portage-2.2_alpha999"
+	>=sys-apps/portage-2.1.9"
 RDEPEND="${DEPEND}"
 
 pkg_setup() {
@@ -79,13 +78,16 @@ pkg_postinst() {
 
 	python_mod_optimize "/usr/$(get_libdir)/entropy/libraries/entropy"
 
-	# force python 2.6 at least
-	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3 --ignore 2.7
+	# force python 2.6/2.7 at least
+	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3
 
 	echo
 	elog "Entropy packages cache has been moved to a more NFS-friendly location:"
 	elog "  /var/lib/entropy/client/packages/packages{-restricted,-nonfree,}"
 	elog "PLEASE make sure to update your mount points ASAP."
+	echo
+	elog "If you want to enable Entropy packages delta download support, please"
+	elog "install dev-util/bsdiff."
 	echo
 
 }
