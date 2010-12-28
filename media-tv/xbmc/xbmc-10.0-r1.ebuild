@@ -92,6 +92,10 @@ DEPEND="${RDEPEND}
 	dev-util/cmake
 	x86? ( dev-lang/nasm )"
 
+pkg_setup() {
+	append-ldflags $(no-as-needed)
+}
+
 src_unpack() {
 	if [[ ${PV} == "9999" ]] ; then
 		subversion_src_unpack
