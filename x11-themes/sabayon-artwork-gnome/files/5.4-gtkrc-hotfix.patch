@@ -1,0 +1,24 @@
+diff --git a/5.4/sabayon-artwork-gnome/gtk/ClearlooksSL/gtk-2.0/gtkrc b/5.4/sabayon-artwork-gnome/gtk/ClearlooksSL/gtk-2.0/gtkrc
+index eda2347..05ac147 100644
+--- a/5.4/sabayon-artwork-gnome/gtk/ClearlooksSL/gtk-2.0/gtkrc
++++ b/5.4/sabayon-artwork-gnome/gtk/ClearlooksSL/gtk-2.0/gtkrc
+@@ -427,7 +427,7 @@ style "panel"
+  fg[INSENSITIVE] = "#2257B1"
+  bg[NORMAL] = "#222222"
+  bg[PRELIGHT] = "#2E60B0"
+- bg[ACTIVE] = "#A0C61B"
++ bg[ACTIVE] = "#144696"
+  bg[SELECTED] = "#2E60B0"
+  bg[INSENSITIVE] = "#000000"
+ # base[NORMAL] = "#00ffff"
+@@ -444,9 +444,9 @@ style "panel"
+ widget "*PanelWidget*" style "panel"
+ widget "*PanelApplet*" style "panel"
+ widget "*gnome-panel*menu*" style "panel"
+-class "*Panel*" style "panel"
+ widget_class "*Applet*" style "panel"
+ widget_class "PanelToplevel.*" style "panel"
++widget_class "PanelApp*" style "panel"
+ class "*notif*" style "panel"
+ class "*Notif*" style "panel"
+ class "*Tray*" style "panel"

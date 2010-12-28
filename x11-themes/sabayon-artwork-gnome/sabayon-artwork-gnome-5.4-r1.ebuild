@@ -22,7 +22,7 @@ PDEPEND="x11-themes/gnome-colors-themes"
 S="${WORKDIR}/${PN}"
 
 src_prepare() {
-        einfo "Nothing to prepare"
+        epatch "${FILESDIR}/5.4-gtkrc-hotfix.patch"
 }
 
 src_configure() {
