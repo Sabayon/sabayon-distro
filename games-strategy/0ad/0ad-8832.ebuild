@@ -32,7 +32,8 @@ RDEPEND="virtual/opengl
 	media-libs/libpng
 	dev-libs/libxml2
 	media-libs/libvorbis
-	media-libs/libogg"
+	media-libs/libogg
+	dev-util/nvidia-cuda-toolkit"
 
 DEPEND="${RDEPEND}
 	dev-lang/nasm
