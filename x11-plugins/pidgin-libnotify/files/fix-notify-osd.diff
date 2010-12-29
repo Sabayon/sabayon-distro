@@ -1,0 +1,16 @@
+diff -urN pidgin-libnotify-0.14.orig/src/pidgin-libnotify.c pidgin-libnotify-0.14/src/pidgin-libnotify.c
+--- pidgin-libnotify-0.14.orig/src/pidgin-libnotify.c	2010-01-24 13:22:41.000000000 -0500
++++ pidgin-libnotify-0.14/src/pidgin-libnotify.c	2010-01-24 13:22:51.000000000 -0500
+@@ -317,7 +317,11 @@
+ 
+ 	notify_notification_set_urgency (notification, NOTIFY_URGENCY_NORMAL);
+ 
+-	notify_notification_add_action (notification, "show", _("Show"), action_cb, NULL, NULL);
++  GList *caps;
++  caps = notify_get_server_caps();
++  if (g_list_index(caps, "action") != -1) {
++    notify_notification_add_action (notification, "show", _("Show"), action_cb, NULL, NULL);
++  }
+ 
+ 	if (!notify_notification_show (notification, NULL)) {
+ 		purple_debug_error (PLUGIN_ID, "notify(), failed to send notification\n");

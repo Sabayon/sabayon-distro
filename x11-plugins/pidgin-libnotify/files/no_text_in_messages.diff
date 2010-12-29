@@ -1,0 +1,43 @@
+diff -ur pidgin-libnotify-0.14.orig/src/pidgin-libnotify.c pidgin-libnotify-0.14.mine/src/pidgin-libnotify.c
+--- pidgin-libnotify-0.14.orig/src/pidgin-libnotify.c	2008-12-14 17:45:51.000000000 +0000
++++ pidgin-libnotify-0.14.mine/src/pidgin-libnotify.c	2010-12-29 21:06:56.764904502 +0000
+@@ -58,6 +58,11 @@
+ 	purple_plugin_pref_frame_add (frame, ppref);
+ 
+ 	ppref = purple_plugin_pref_new_with_name_and_label (
++                            "/plugins/gtk/libnotify/newmsgshowtext",
++                            _("Show the message inside the popup"));
++	purple_plugin_pref_frame_add (frame, ppref);
++
++	ppref = purple_plugin_pref_new_with_name_and_label (
+                             "/plugins/gtk/libnotify/newconvonly",
+                             _("Only new conversations"));
+ 	purple_plugin_pref_frame_add (frame, ppref);
+@@ -408,8 +413,17 @@
+ 
+ 	tr_name = truncate_escape_string (best_name (buddy), 25);
+ 
+-	title = g_strdup_printf (_("%s says:"), tr_name);
+-	body = purple_markup_strip_html (message);
++	
++	if (purple_prefs_get_bool ("/plugins/gtk/libnotify/newmsgshowtext"))
++	{
++		title = g_strdup_printf (_("%s says:"), tr_name);
++		body = purple_markup_strip_html (message);
++	}
++	else
++	{
++		title = g_strdup_printf ("%s", tr_name);
++		body = g_strdup_printf(_("New message!"));
++	}
+ 
+ 	notify (title, body, buddy);
+ 
+@@ -585,6 +599,7 @@
+ 	purple_prefs_add_bool ("/plugins/gtk/libnotify/signon", TRUE);
+ 	purple_prefs_add_bool ("/plugins/gtk/libnotify/signoff", FALSE);
+ 	purple_prefs_add_bool ("/plugins/gtk/libnotify/only_available", FALSE);
++	purple_prefs_add_bool ("/plugins/gtk/libnotify/newmsgshowtext", TRUE);
+ }
+ 
+ PURPLE_INIT_PLUGIN(notify, init_plugin, info)

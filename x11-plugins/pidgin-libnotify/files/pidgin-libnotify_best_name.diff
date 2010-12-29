@@ -1,0 +1,22 @@
+diff -ur pidgin-libnotify-0.14.orig/src/pidgin-libnotify.c pidgin-libnotify-0.14.mine/src/pidgin-libnotify.c
+--- pidgin-libnotify-0.14.orig/src/pidgin-libnotify.c	2008-12-14 17:45:51.000000000 +0000
++++ pidgin-libnotify-0.14.mine/src/pidgin-libnotify.c	2010-12-29 21:19:33.495080501 +0000
+@@ -131,16 +131,10 @@
+ }
+ 
+ /* do NOT g_free() the string returned by this function */
+-static gchar *
++const static gchar *
+ best_name (PurpleBuddy *buddy)
+ {
+-	if (buddy->alias) {
+-		return buddy->alias;
+-	} else if (buddy->server_alias) {
+-		return buddy->server_alias;
+-	} else {
+-		return buddy->name;
+-	}
++	return purple_buddy_get_contact_alias(buddy);
+ }
+ 
+ static GdkPixbuf *

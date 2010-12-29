@@ -1,0 +1,160 @@
+#
+# LP BUG: https://bugs.launchpad.net/ubuntu/+source/pidgin-libnotify/+bug/345522
+# DESCRIPTION: adds notifications for file transfers (request, end, fail)
+#
+
+--- pidgin-libnotify-0.14.old/src/pidgin-libnotify.c	2008-12-14 18:45:51.000000000 +0100
++++ pidgin-libnotify-0.14.new/src/pidgin-libnotify.c	2009-03-19 20:04:39.000000000 +0100
+@@ -58,6 +58,11 @@
+ 	purple_plugin_pref_frame_add (frame, ppref);
+ 
+ 	ppref = purple_plugin_pref_new_with_name_and_label (
++                            "/plugins/gtk/libnotify/filetransfer",
++                            _("File transfers"));
++	purple_plugin_pref_frame_add (frame, ppref);
++
++	ppref = purple_plugin_pref_new_with_name_and_label (
+                             "/plugins/gtk/libnotify/newconvonly",
+                             _("Only new conversations"));
+ 	purple_plugin_pref_frame_add (frame, ppref);
+@@ -469,10 +474,62 @@
+ 	notify_msg_sent (account, sender, message);
+ }
+ 
++static void
++notify_transfer_with_message(const char* message, PurpleXfer *xfer)
++{
++	PurpleBuddy *buddy;
++	gchar *title, *body, *tr_name;
++	gboolean blocked;
++
++	if (!purple_prefs_get_bool ("/plugins/gtk/libnotify/filetransfer"))
++		return;
++	
++
++	buddy = purple_find_buddy (xfer->account, xfer->who);
++	if (!buddy)
++	{
++		purple_debug_info (PLUGIN_ID, "Buddy non trovato\n");
++		return;
++	}
++
++	blocked = purple_prefs_get_bool ("/plugins/gtk/libnotify/blocked");
++	if (!purple_privacy_check(xfer->account, xfer->who) && blocked)
++		return;
++
++	tr_name = truncate_escape_string (best_name (buddy), 25);
++
++	title = g_strdup_printf (_("%s file transfer:"), tr_name);
++	body = g_strdup_printf("%s: %s", message, xfer->filename);
++
++	notify (title, body, buddy);
++
++	g_free (tr_name);
++	g_free (title);
++	g_free (body);
++}
++
++static void
++event_file_transfer_request (PurpleXfer *xfer, gpointer data)
++{
++	notify_transfer_with_message(_("Request"), xfer);
++}
++
++static void
++event_file_transfer_complete (PurpleXfer *xfer, gpointer data)
++{
++	notify_transfer_with_message(_("Complete"), xfer);
++}
++
++static void
++event_file_transfer_cancel (PurpleXfer *xfer, gpointer data)
++{
++	notify_transfer_with_message(_("Failed"), xfer);
++}
++
+ static gboolean
+ plugin_load (PurplePlugin *plugin)
+ {
+-	void *conv_handle, *blist_handle, *conn_handle;
++	void *conv_handle, *blist_handle, *conn_handle, *xfer_handle;
+ 
+ 	if (!notify_is_initted () && !notify_init ("Pidgin")) {
+ 		purple_debug_error (PLUGIN_ID, "libnotify not running!\n");
+@@ -482,6 +539,7 @@
+ 	conv_handle = purple_conversations_get_handle ();
+ 	blist_handle = purple_blist_get_handle ();
+ 	conn_handle = purple_connections_get_handle();
++	xfer_handle =  purple_xfers_get_handle ();
+ 
+ 	buddy_hash = g_hash_table_new (NULL, NULL);
+ 
+@@ -496,6 +554,21 @@
+ 
+ 	purple_signal_connect (conv_handle, "received-chat-msg", plugin,
+ 						PURPLE_CALLBACK(notify_chat_nick), NULL);
++ 
++	purple_signal_connect (xfer_handle, "file-recv-request", plugin,
++							PURPLE_CALLBACK(event_file_transfer_request), NULL);
++
++	purple_signal_connect (xfer_handle, "file-recv-complete", plugin,
++							PURPLE_CALLBACK(event_file_transfer_complete), NULL);
++
++	purple_signal_connect (xfer_handle, "file-recv-cancel", plugin,
++							PURPLE_CALLBACK(event_file_transfer_cancel), NULL);
++
++	purple_signal_connect (xfer_handle, "file-send-complete", plugin,
++							PURPLE_CALLBACK(event_file_transfer_complete), NULL);
++
++	purple_signal_connect (xfer_handle, "file-send-cancel", plugin,
++							PURPLE_CALLBACK(event_file_transfer_cancel), NULL);
+ 
+ 	/* used just to not display the flood of guifications we'd get */
+ 	purple_signal_connect (conn_handle, "signed-on", plugin,
+@@ -507,11 +580,12 @@
+ static gboolean
+ plugin_unload (PurplePlugin *plugin)
+ {
+-	void *conv_handle, *blist_handle, *conn_handle;
++	void *conv_handle, *blist_handle, *conn_handle, *xfer_handle;
+ 
+ 	conv_handle = purple_conversations_get_handle ();
+ 	blist_handle = purple_blist_get_handle ();
+ 	conn_handle = purple_connections_get_handle();
++	xfer_handle =  purple_xfers_get_handle ();
+ 
+ 	purple_signal_disconnect (blist_handle, "buddy-signed-on", plugin,
+ 							PURPLE_CALLBACK(notify_buddy_signon_cb));
+@@ -527,6 +601,24 @@
+ 
+ 	purple_signal_disconnect (conn_handle, "signed-on", plugin,
+ 							PURPLE_CALLBACK(event_connection_throttle));
++ 
++	purple_signal_disconnect (conn_handle, "signed-on", plugin,
++							PURPLE_CALLBACK(event_connection_throttle));
++
++	purple_signal_disconnect (xfer_handle, "file-recv-request", plugin,
++							PURPLE_CALLBACK(event_file_transfer_request));
++
++	purple_signal_disconnect (xfer_handle, "file-recv-complete", plugin,
++							PURPLE_CALLBACK(event_file_transfer_complete));
++
++	purple_signal_disconnect (xfer_handle, "file-recv-cancel", plugin,
++							PURPLE_CALLBACK(event_file_transfer_cancel));
++
++	purple_signal_disconnect (xfer_handle, "file-send-complete", plugin,
++							PURPLE_CALLBACK(event_file_transfer_complete));
++
++	purple_signal_disconnect (xfer_handle, "file-send-cancel", plugin,
++							PURPLE_CALLBACK(event_file_transfer_cancel));
+ 
+ 	g_hash_table_destroy (buddy_hash);
+ 
+@@ -580,6 +672,7 @@
+ 
+ 	purple_prefs_add_none ("/plugins/gtk/libnotify");
+ 	purple_prefs_add_bool ("/plugins/gtk/libnotify/newmsg", TRUE);
++	purple_prefs_add_bool ("/plugins/gtk/libnotify/filetransfer", TRUE);
+ 	purple_prefs_add_bool ("/plugins/gtk/libnotify/blocked", TRUE);
+ 	purple_prefs_add_bool ("/plugins/gtk/libnotify/newconvonly", FALSE);
+ 	purple_prefs_add_bool ("/plugins/gtk/libnotify/signon", TRUE);
