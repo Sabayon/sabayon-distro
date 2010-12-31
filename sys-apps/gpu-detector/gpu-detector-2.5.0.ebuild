@@ -21,5 +21,4 @@ src_install () {
 	cd "${WORKDIR}"
 	exeinto /sbin/
 	doexe gpu-configuration
-
 }
