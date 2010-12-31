@@ -38,9 +38,6 @@ touch /etc/x-setup-configuration-running
 # Prepare Video Cards Proprietary Drivers
 if sabayon_is_live; then
 	runtime_linking_proprietary_drivers
-	if sabayon_is_live_install; then
-		export SKIP_OPENGL_SETUP="1"
-	fi
 fi
 /sbin/gpu-configuration &> /dev/null
 
