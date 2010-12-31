@@ -1,0 +1,25 @@
+#!/sbin/runscript
+# Copyright 2006 Sabayon Linux
+# Distributed under the terms of the GNU General Public License v2
+
+depend() {
+    before xdm      
+    after sabayonlive
+}
+
+start() {
+
+	source /sbin/sabayon-functions.sh
+
+        if sabayon_is_gui_install; then
+                ebegin "Sabayon Linux GUI Installer service"
+		# Enable autologin
+		sabayon_setup_autologin
+		# Setup GUI installer
+		sabayon_setup_gui_installer
+		eend 0
+	fi
+
+	return 0
+
+}

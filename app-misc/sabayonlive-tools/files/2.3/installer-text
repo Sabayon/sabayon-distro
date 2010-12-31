@@ -1,0 +1,21 @@
+#!/sbin/runscript
+# Copyright 2006 Sabayon Linux
+# Distributed under the terms of the GNU General Public License v2
+
+depend() {
+    after *      
+}
+
+start() {
+
+	source /sbin/sabayon-functions.sh
+
+	if sabayon_is_text_install; then
+                ebegin "Sabayon Linux Text Installer service"
+	        eend 0
+		sabayon_setup_text_installer
+	fi
+
+
+
+}

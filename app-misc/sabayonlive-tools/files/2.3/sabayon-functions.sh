@@ -12,7 +12,6 @@ scanner usb users uucp vboxguest vboxusers video wheel"
 LIVE_USER=${SABAYON_USER:-sabayonuser}
 
 sabayon_setup_autologin() {
-
 	# GDM - GNOME
 	if [ -f "${GDM_FILE}" ]; then
 		sed -i "s/^AutomaticLoginEnable=.*/AutomaticLoginEnable=true/" ${GDM_FILE}
@@ -53,11 +52,9 @@ sabayon_setup_autologin() {
 		sed -i "s/autologin=.*/autologin=${LIVE_USER}/" $LXDM_FILE
 		sed -i "/^#.*autologin=/ s/^#//" $LXDM_FILE
 	fi
-
 }
 
 sabayon_disable_autologin() {
-
 	# GDM - GNOME
 	if [ -f "${GDM_FILE}" ]; then
 		sed -i "s/^AutomaticLoginEnable=.*/AutomaticLoginEnable=false/" ${GDM_FILE}
@@ -68,7 +65,6 @@ sabayon_disable_autologin() {
 	if [ -f "$KDM_FILE" ]; then
 		sed -i "s/AutoLoginEnable=.*/AutoLoginEnable=false/" $KDM_FILE
 	fi
-
 }
 
 sabayon_setup_live_user() {
@@ -120,4 +116,64 @@ sabayon_setup_oem_livecd() {
 		${OEM_FILE} || return 1
 	fi
 	return 0
+}
+
+sabayon_is_live() {
+	local cmdl=$(cat /proc/cmdline | grep cdroot)
+	if [ -n "${cmdl}" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+sabayon_setup_gui_installer() {
+	# Configure Fluxbox
+	local dmrc_file="/home/${LIVE_USER}/.dmrc"
+	local flux_dir="/home/${LIVE_USER}/.fluxbox"
+	local flux_init_file="${flux_dir}/init"
+	if [ ! -d "${flux_dir}" ]; then
+		mkdir "${flux_dir}" && chown "${LIVE_USER}" "${flux_dir}"
+	fi
+	echo "[Desktop]" > "${dmrc_file}"
+	echo "Session=fluxbox" >> "${dmrc_file}"
+	chown sabayonuser "${dmrc_file}"
+	echo >> "${flux_init_file}"
+	echo "session.screen0.rootCommand: xhost + & display -backdrop" \
+		"-window root /usr/share/backgrounds/sabayonlinux.png &" \
+		"installer --fullscreen" >> "${flux_init_file}"
+}
+
+sabayon_setup_text_installer() {
+	# switch to verbose mode
+	splash_manager -c set -t default -m v &> /dev/null
+	reset
+	chvt 1
+	clear
+	echo "Welcome to Sabayon Linux Text installation." >> /etc/motd
+	echo "root password: root" >> /etc/motd
+	echo "to run the installation type: installer <and PRESS ENTER>" >> /etc/motd
+}
+
+sabayon_is_text_install() {
+	local _is_install=$(cat /proc/cmdline | grep installer-text)
+	if [ -n "${_is_install}" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+sabayon_is_gui_install() {
+	local _is_install=$(cat /proc/cmdline | grep installer-gui)
+	if [ -n "${_is_install}" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+sabayon_is_live_install() {
+	( sabayon_is_text_install || sabayon_is_gui_install ) && return 0
+	return 1
 }
