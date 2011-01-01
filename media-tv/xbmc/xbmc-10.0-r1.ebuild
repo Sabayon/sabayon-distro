@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit eutils python
+inherit eutils python flag-o-matic
 
 # Use XBMC_ESVN_REPO_URI to track a different branch
 ESVN_REPO_URI=${XBMC_ESVN_REPO_URI:-http://xbmc.svn.sourceforge.net/svnroot/xbmc/trunk}
