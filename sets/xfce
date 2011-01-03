@@ -1,7 +1,6 @@
 app-editors/mousepad
 app-misc/sabayon-skel
 lxde-base/lxdm
-sys-apps/devicekit
 @wireless
 @X
 x11-themes/sabayon-artwork-gnome
