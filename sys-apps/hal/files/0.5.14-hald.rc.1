@@ -1,12 +1,12 @@
 #!/sbin/runscript
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License, v2 or later
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/files/0.5.10-hald.rc,v 1.4 2009/08/17 22:25:45 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/files/0.5.14-hald.rc.1,v 1.1 2010/09/28 06:20:47 ssuominen Exp $
 
 depend() {
 	use logger acpid
 	need dbus
-	after coldplug dns nscd consolekit
+	after coldplug dns nscd
 }
 
 start() {
@@ -27,8 +27,6 @@ start() {
 		chgrp haldaemon /proc/acpi/event
 		chmod 440 /proc/acpi/event
 	fi
-
-	[ ${#PATH} -gt 512 ] && export PATH=/usr/libexec:${PATH} #267928
 
 	start-stop-daemon --start -q --exec /usr/sbin/hald -- --use-syslog --verbose=${HALD_VERBOSE}
 	eend $?

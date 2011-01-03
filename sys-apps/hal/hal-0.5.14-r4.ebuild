@@ -1,12 +1,12 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.13-r2.ebuild,v 1.1 2009/07/23 15:10:07 dang Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/hal/hal-0.5.14-r1.ebuild,v 1.1 2010/01/07 13:28:04 dang Exp $
 
 EAPI="2"
 
 inherit eutils linux-info autotools flag-o-matic multilib
 
-PATCH_VERSION="1"
+PATCH_VERSION="4"
 
 MY_P=${P/_/}
 S=${WORKDIR}/${MY_P}
@@ -18,17 +18,16 @@ SRC_URI="http://hal.freedesktop.org/releases/${MY_P}.tar.bz2
 
 LICENSE="|| ( GPL-2 AFL-2.0 )"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 -x86-fbsd"
 
 KERNEL_IUSE="kernel_linux kernel_FreeBSD"
-IUSE="X acpi apm crypt consolekit debug dell disk-partition doc laptop policykit selinux ${KERNEL_IUSE}"
+IUSE="X acpi apm crypt debug dell disk-partition doc laptop selinux ${KERNEL_IUSE}"
 
 RDEPEND=">=dev-libs/dbus-glib-0.61
 		 >=dev-libs/glib-2.14
 		 >=dev-libs/expat-1.95.8
 		 =virtual/libusb-0*
 		 >=sys-apps/pciutils-2.2.7-r1
-		 >=dev-util/gperf-3.0.3
 		   sys-apps/usbutils
 		   virtual/eject
 		 amd64? ( >=sys-apps/dmidecode-2.7 )
@@ -36,23 +35,17 @@ RDEPEND=">=dev-libs/dbus-glib-0.61
 		 disk-partition? ( >=sys-block/parted-1.8.0 )
 		 ia64? ( >=sys-apps/dmidecode-2.7 )
 		 kernel_linux?	(
-							>=sys-fs/udev-117
+							>=sys-fs/udev-125
 							>=sys-apps/util-linux-2.16
-							>=sys-kernel/linux-headers-2.6.19
+							>=sys-kernel/linux-headers-2.6.22
 							crypt?	( >=sys-fs/cryptsetup-1.0.5 )
 						)
 		 kernel_FreeBSD? ( >=dev-libs/libvolume_id-0.77 )
 		 x86? ( >=sys-apps/dmidecode-2.7 )
-		 selinux? ( sys-libs/libselinux sec-policy/selinux-hal )
-		 consolekit?	(
-		 					sys-auth/consolekit[policykit=]
-					)
-		 policykit?	(
-		 					sys-auth/consolekit[policykit]
-							sys-auth/policykit[pam]
-		 			)"
+		 selinux? ( sys-libs/libselinux sec-policy/selinux-hal )"
 DEPEND="${RDEPEND}
 		dev-util/pkgconfig
+		 >=dev-util/gperf-3.0.3
 		>=dev-util/intltool-0.35
 		doc?	(
 					app-text/xmlto
@@ -60,7 +53,7 @@ DEPEND="${RDEPEND}
 					dev-util/gtk-doc
 					app-text/docbook-sgml-utils
 				)
-		!<gnome-extra/gnome-power-manager-2.24.4-r2"
+		sys-apps/sed"
 PDEPEND=">=app-misc/hal-info-20081219
 	!gnome-extra/hal-device-manager
 	laptop? ( >=sys-power/pm-utils-0.99.3 )"
@@ -130,20 +123,12 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# Only apply one of the policy patches.  Bug #267042
-	if use policykit ; then
-		rm "${WORKDIR}/${PATCHNAME}/patches/0001-plugdev-dbus-policy.patch"
-	else
-		rm "${WORKDIR}/${PATCHNAME}/patches/0002-policykit-dbus-policy.patch"
-	fi
-
 	# Enable plugdev support
 	epatch "${FILESDIR}/96_plugdev_allow_send.patch"
 
 	# NTFS-3G support
 	epatch "${FILESDIR}"/hal-0.5.12-ntfs3g-support.patch
 	epatch "${FILESDIR}"/hal-0.5.12-fix-ntfs-mount.patch
-
 
 	EPATCH_MULTI_MSG="Applying Gentoo Patchset ..." \
 	EPATCH_SUFFIX="patch" \
@@ -158,7 +143,6 @@ src_configure() {
 	local acpi="$(use_enable acpi)"
 	local backend=
 	local hardware=
-	local consolekit="$(use_enable consolekit console-kit)"
 
 	append-flags -rdynamic
 
@@ -208,13 +192,6 @@ src_configure() {
 		hardware="$hardware --disable-sonypic"
 	fi
 
-	# Policykit support depends on consolekit support.  Therefore, force on
-	# consolekit, even if it's USE flag is off, if policykit support is on.
-	# This enables packages to USE-depend on hal[policykit?]
-	if use policykit ; then
-		consolekit="--enable-console-kit"
-	fi
-
 	econf --with-backend=${backend} \
 		  --with-os-type=gentoo \
 		  --with-pid-file=/var/run/hald.pid \
@@ -225,13 +202,13 @@ src_configure() {
 		  --enable-man-pages \
 		  --disable-acl-management \
 		  --enable-pci \
+		  --disable-policy-kit \
+		  --disable-console-kit \
 		  $(use_enable apm) \
 		  $(use_enable debug verbose-mode) \
 		  $(use_enable disk-partition parted) \
 		  $(use_enable doc docbook-docs) \
 		  $(use_enable doc gtk-doc) \
-		  $(use_enable policykit policy-kit) \
-		  ${consolekit} \
 		  --docdir=/usr/share/doc/${PF} \
 		  --localstatedir=/var \
 		  ${acpi} ${hardware} \
@@ -247,17 +224,18 @@ src_install() {
 	newexe "${FILESDIR}/hal-unmount.dev" hal_unmount || die "udev helper failed"
 
 	# initscript
-	newinitd "${FILESDIR}/0.5.10-hald.rc" hald || die "init script failed"
+	cp "${FILESDIR}/0.5.14-hald.rc" .
+	newinitd "0.5.14-hald.rc" hald || die "init script failed"
 
 	# configuration
-	cp "${FILESDIR}/0.5.10-hald.conf" "${WORKDIR}/" || \
+	cp "${FILESDIR}/0.5.14-hald.conf" "${WORKDIR}/" || \
 		die "failed to copy hald.conf"
 
 	if use debug; then
 		sed -e 's:HALD_VERBOSE="no":HALD_VERBOSE="yes":' \
-			-i "${WORKDIR}/0.5.10-hald.conf" || die "failed to change verbose"
+			-i "${WORKDIR}/0.5.14-hald.conf" || die "failed to change verbose"
 	fi
-	newconfd "${WORKDIR}/0.5.10-hald.conf" hald || \
+	newconfd "${WORKDIR}/0.5.14-hald.conf" hald || \
 		die "failed to install hald.conf"
 
 	if use X ; then
@@ -291,7 +269,6 @@ src_install() {
 	# We in Sabayon, HATE IT
 	rm ${D}/usr/share/hal/fdi/policy/10osvendor/99-storage-policy-fixed-drives.fdi || die "Cannot rm the bastard"
 
-
 }
 
 pkg_postinst() {
@@ -303,9 +280,9 @@ pkg_postinst() {
 	elog "scripts, this should be done like this :"
 	elog "\`rc-update add hald default\`"
 	echo
-	elog "Access to hal is not protected by either policykit or the plugdev group."
+	elog "Access to hal is not protected by either at_console or the plugdev group."
 	elog "If you have problems discovering/configuring hardware, try adding"
-	elog "yourself to plugdev."
+	elog "yourself to plugdev, or ensuring consolekit is started"
 	echo
 	elog "IF you have additional applications which consume ACPI events, you"
 	elog "should consider installing acpid to allow applications to share ACPI"
