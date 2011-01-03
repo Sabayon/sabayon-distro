@@ -1,0 +1,132 @@
+diff -Nurp genkernel-3.4.10.908.orig/doc/genkernel.8.txt genkernel-3.4.10.908/doc/genkernel.8.txt
+--- genkernel-3.4.10.908.orig/doc/genkernel.8.txt	2010-12-24 23:59:54.000000000 +0100
++++ genkernel-3.4.10.908/doc/genkernel.8.txt	2011-01-03 15:56:27.091071916 +0100
+@@ -6,7 +6,7 @@ GENKERNEL(8)
+ 
+ NAME
+ ----
+-genkernel - the Gentoo Linux automatic kernel compiler.
++genkernel - the Gentoo/Sabayon Linux automatic kernel compiler.
+ 
+ 
+ SYNOPSIS
+@@ -18,7 +18,7 @@ INTRODUCTION
+ ------------
+ Genkernel is designed to allow users who are not previously used to
+ compiling a kernel to use a similar setup to that one that is used on
+-the Gentoo LiveCDs which auto-detects your hardware.
++the Sabayon LiveCDs which auto-detects your hardware.
+ 
+ Some users may also be interested in using genkernel for hardware which
+ requires initialization and a working kernel before it can be booted
+@@ -448,15 +448,15 @@ kernel modules.
+ REPORTING BUGS
+ --------------
+ If you believe you have found a bug in the genkernel scripts,  then
+-please file a bug on the Gentoo Linux Bugzilla: 'http://bugs.gentoo.org',
+-assigning your bug to genkernel@gentoo.org. We cannot assist you with
+-kernel compilation failures unless they are caused by a genkernel bug.
++please file a bug on the Sabayon Linux Bugzilla: 'http://bugs.sabayon.org'.
++We cannot assist you with kernel compilation failures unless they are caused
++by a genkernel bug.
+ 
+-Kernel issues for Gentoo-supported kernels, including compilation failures
+-should go to 'http://bugs.gentoo.org' and should be assigned to kernel@gentoo.org.
++Kernel issues for Sabayon-supported kernels, including compilation failures
++should go to 'http://bugs.sabayon.org'.
+ Please check if an existing bug documents the same
+ issue before opening a new bug. Issues for kernel sources not supported
+-by Gentoo should go to their relevant authors.
++by Sabayon should go to their relevant authors.
+ 
+ 
+ AUTHORS
+diff -Nurp genkernel-3.4.10.908.orig/gen_bootloader.sh genkernel-3.4.10.908/gen_bootloader.sh
+--- genkernel-3.4.10.908.orig/gen_bootloader.sh	2010-12-24 23:59:54.000000000 +0100
++++ genkernel-3.4.10.908/gen_bootloader.sh	2011-01-03 15:53:34.665262495 +0100
+@@ -62,7 +62,7 @@ set_bootloader_grub() {
+ 
+ 			# Add grub configuration to grub.conf	
+ 			echo "# Genkernel generated entry, see GRUB documentation for details" >> ${GRUB_CONF}
+-			echo "title=Gentoo Linux ($KV)" >> ${GRUB_CONF}
++			echo "title=Sabayon Linux ($KV)" >> ${GRUB_CONF}
+ 			if [ "${BUILD_INITRD}" -eq '0' ]
+ 			then
+ 				echo -e "\tkernel /kernel-${KNAME}-${ARCH}-${KV} root=${GRUB_ROOTFS}" >> ${GRUB_CONF}
+@@ -139,7 +139,7 @@ set_bootloader_grub_duplicate_default()
+ 	sed -n 1,$((${startline}-1))p "${GRUB_CONF}" > "${GRUB_CONF_TMP}"
+ 
+ 	# Put in our title
+-	echo "title=Gentoo Linux (${KV})" >> "${GRUB_CONF_TMP}"
++	echo "title=Sabayon Linux (${KV})" >> "${GRUB_CONF_TMP}"
+ 
+ 	# Pass the default entry (minus the title) through to the replacement function and pipe the output to GRUB_CONF_TMP
+ 	sed -n $((${startline}+1)),$((${stopline}-1))p "${GRUB_CONF}" | set_bootloader_grub_duplicate_default_replace_kernel_initrd >> "${GRUB_CONF_TMP}"
+diff -Nurp genkernel-3.4.10.908.orig/gen_cmdline.sh genkernel-3.4.10.908/gen_cmdline.sh
+--- genkernel-3.4.10.908.orig/gen_cmdline.sh	2010-12-24 23:59:54.000000000 +0100
++++ genkernel-3.4.10.908/gen_cmdline.sh	2011-01-03 15:53:50.336608201 +0100
+@@ -2,7 +2,7 @@
+ # $Id: 3dcb65d10d4dc13e40b8f9a74097e1a324f69d2d $
+ 
+ longusage() {
+-  echo "Gentoo Linux Genkernel ${GK_V}"
++  echo "Gentoo/Sabayon Linux Genkernel ${GK_V}"
+   echo
+   echo "Usage: "
+   echo "  genkernel [options] action"
+@@ -140,7 +140,7 @@ longusage() {
+ }
+ 
+ usage() {
+-  echo "Gentoo Linux Genkernel ${GK_V}"
++  echo "Gentoo/Sabayon Linux Genkernel ${GK_V}"
+   echo
+   echo "Usage: "
+   echo "	genkernel [options] all"
+diff -Nurp genkernel-3.4.10.908.orig/genkernel.8 genkernel-3.4.10.908/genkernel.8
+--- genkernel-3.4.10.908.orig/genkernel.8	2010-12-24 23:59:54.000000000 +0100
++++ genkernel-3.4.10.908/genkernel.8	2011-01-03 15:55:34.010126374 +0100
+@@ -28,13 +28,13 @@
+ .\" * MAIN CONTENT STARTS HERE *
+ .\" -----------------------------------------------------------------
+ .SH "NAME"
+-genkernel \- the Gentoo Linux automatic kernel compiler\&.
++genkernel \- the Gentoo/Sabayon Linux automatic kernel compiler\&.
+ .SH "SYNOPSIS"
+ .sp
+ \fBgenkernel\fR [options\&...] action
+ .SH "INTRODUCTION"
+ .sp
+-Genkernel is designed to allow users who are not previously used to compiling a kernel to use a similar setup to that one that is used on the Gentoo LiveCDs which auto\-detects your hardware\&.
++Genkernel is designed to allow users who are not previously used to compiling a kernel to use a similar setup to that one that is used on the Sabayon LiveCDs which auto\-detects your hardware\&.
+ .sp
+ Some users may also be interested in using genkernel for hardware which requires initialization and a working kernel before it can be booted because genkernel also automatically compiles your kernel modules, allowing hardware which needs to be loaded with module parameters to be used\&.
+ .SH "USAGE"
+@@ -597,9 +597,9 @@ The initrd scripts have limited support
+ The initrd scripts will extract any *\&.tar\&.gz files found in the \fI/add\fR directory of the livecd into the root filesystem during boot\&. This way it is easy to extend a netbooted LiveCD i\&.e\&. add custom tools, or other kernel modules\&.
+ .SH "REPORTING BUGS"
+ .sp
+-If you believe you have found a bug in the genkernel scripts, then please file a bug on the Gentoo Linux Bugzilla: \fIhttp://bugs\&.gentoo\&.org\fR, assigning your bug to genkernel@gentoo\&.org\&. We cannot assist you with kernel compilation failures unless they are caused by a genkernel bug\&.
++If you believe you have found a bug in the genkernel scripts, then please file a bug on the Sabayon Linux Bugzilla: \fIhttp://bugs\&.sabayon\&.org\fR. We cannot assist you with kernel compilation failures unless they are caused by a genkernel bug\&.
+ .sp
+-Kernel issues for Gentoo\-supported kernels, including compilation failures should go to \fIhttp://bugs\&.gentoo\&.org\fR and should be assigned to kernel@gentoo\&.org\&. Please check if an existing bug documents the same issue before opening a new bug\&. Issues for kernel sources not supported by Gentoo should go to their relevant authors\&.
++Kernel issues for Sabayon\-supported kernels, including compilation failures should go to \fIhttp://bugs\&.sabayon\&.org\fR. Please check if an existing bug documents the same issue before opening a new bug\&. Issues for kernel sources not supported by Sabayon should go to their relevant authors\&.
+ .SH "AUTHORS"
+ .sp
+ .RS 4
+diff -Nurp genkernel-3.4.10.908.orig/netboot/linuxrc.x genkernel-3.4.10.908/netboot/linuxrc.x
+--- genkernel-3.4.10.908.orig/netboot/linuxrc.x	2010-12-24 23:59:54.000000000 +0100
++++ genkernel-3.4.10.908/netboot/linuxrc.x	2011-01-03 15:54:26.129965763 +0100
+@@ -249,10 +249,10 @@ SubGenius() {
+ GenMotd() {
+ 	echo -e ""										> /etc/motd
+ 	echo -e ""										>> /etc/motd
+-	echo -e "Gentoo Linux; http://www.gentoo.org/"						>> /etc/motd
++	echo -e "Sabayon Linux; http://www.sabayon.org/"					>> /etc/motd
+ 	echo -e " Copyright 2001-${CPYYEAR} Gentoo Foundation; Distributed under the GPL"	>> /etc/motd
+ 	echo -e ""										>> /etc/motd
+-	echo -e " Gentoo/${MYARCH} Netboot for ${MACHTYPE} Systems"				>> /etc/motd
++	echo -e " Sabayon/${MYARCH} Netboot for ${MACHTYPE} Systems"				>> /etc/motd
+ 	echo -e " ${BUILDDATE}"									>> /etc/motd
+ 	echo -e ""										>> /etc/motd
+ 
