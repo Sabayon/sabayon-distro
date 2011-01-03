@@ -1,0 +1,11 @@
+--- chrome/browser/speech/speech_recognizer.cc.orig	2010-12-22 09:58:16.000000000 +0000
++++ chrome/browser/speech/speech_recognizer.cc	2010-12-22 09:58:45.000000000 +0000
+@@ -10,7 +10,7 @@
+ #include "chrome/browser/browser_thread.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/common/net/url_request_context_getter.h"
+-#include "third_party/speex/include/speex/speex.h"
++#include "speex/speex.h"
+ 
+ using media::AudioInputController;
+ using std::list;
