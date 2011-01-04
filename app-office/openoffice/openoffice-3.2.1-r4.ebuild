@@ -11,9 +11,9 @@ PYTHON_USE_WITH="threads"
 
 inherit autotools bash-completion check-reqs db-use eutils fdo-mime flag-o-matic java-pkg-opt-2 kde4-base multilib python toolchain-funcs
 
-IUSE="binfilter cups dbus debug eds gnome gstreamer gtk kde ldap nsplugin odk opengl pam templates"
+IUSE="binfilter cups dbus debug eds gnome +gstreamer gtk kde ldap nsplugin odk opengl pam templates"
 
-MY_PV=3.2.1.4
+MY_PV=3.2.1.5
 PATCHLEVEL=OOO320
 SRC=OOo_${PV}_src
 MST=OOO320_m19
@@ -210,6 +210,7 @@ src_prepare() {
 	epatch "${FILESDIR}/ooo-env_log.diff"
 	cp -f "${FILESDIR}/qt-use-native-backend.diff" "${S}/patches/hotfixes" || die
 	cp -f "${FILESDIR}/neon-remove-SSPI-support.diff" "${S}/patches/hotfixes" || die
+	cp -f "${FILESDIR}/libX11-fix.diff" "${S}/patches/hotfixes" || die
 
 	#Use flag checks
 	if use java ; then
@@ -363,9 +364,12 @@ src_install() {
 	dobashcompletion "${D}"/etc/bash_completion.d/ooffice.sh ooffice
 	rm -rf "${D}"/etc/bash_completion.d/ || die "rm failed"
 
-	# Remove splashes, provided by x11-themes/sabayon-artwork-ooo
-	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro rm failed"
-	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/about.bmp || die "about rm failed"
+	# Remove files provided by x11-themes/sabayon-artwork-ooo
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.bmp || die "intro.bmp rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/about*.bmp || die "about.bmp rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/intro*.png || die "intro.png rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/about*.png || die "about.png rm failed"
+	rm -rf "${D}"/usr/$(get_libdir)/openoffice/program/sofficerc || die "sofficerc rm failed"
 
 	# Fix NFS file locking issue, hacky fix while waiting for upstream
 	sed -i 's/export SAL_ENABLE_FILE_LOCKING//' "${D}"/usr/bin/soffice || die "cannot fix NFS file locking"
