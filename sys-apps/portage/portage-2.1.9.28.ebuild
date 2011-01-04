@@ -273,6 +273,10 @@ src_install() {
 
 	dodir /etc/portage
 	keepdir /etc/portage
+
+	# Enable preserve-libs
+	sed -i "/preserve-libs/ s/#FEATURES/FEATURES/" "${D}/etc/make.globals" || die
+
 }
 
 pkg_preinst() {
