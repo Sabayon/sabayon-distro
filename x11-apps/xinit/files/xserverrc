@@ -1,1 +1,2 @@
-exec /usr/bin/X -nolisten tcp
+#!/bin/sh
+exec /usr/bin/X -nolisten tcp "$@"
