@@ -90,6 +90,11 @@ setup_dm() {
 			EXE=/usr/bin/gpe-dm
 			PIDFILE=/var/run/gpe-dm.pid
 			;;
+		lxdm)
+			EXE=/usr/sbin/lxdm-binary
+			PIDFILE=/var/run/lxdm.pid
+			START_STOP_ARGS="--background"
+			;;
 		*)
 			# first find out if there is such executable
 			EXE="$(which ${MY_XDM} 2>/dev/null)"
