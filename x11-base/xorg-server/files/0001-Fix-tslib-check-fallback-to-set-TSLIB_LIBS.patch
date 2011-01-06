@@ -1,0 +1,35 @@
+From 7cf37a8247205335657dd7a644856bbaf619b7ce Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
+Date: Mon, 4 Oct 2010 18:38:44 +0200
+Subject: [PATCH 1/2] Fix tslib check fallback to set TSLIB_LIBS.
+
+If pkg-config is unable to find tslib but the fallback check does find
+it, the compilation continues with tslib support enabled though
+TSLIB_LIBS is unset. Thus, the compilation fails with a linking error on
+tslib functions.
+
+This patch sets TSLIB_LIBS to '-lts' whenever the tslib fallback check
+succeds.
+---
+ configure.ac |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index c0bf98f..6d63663 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2034,7 +2034,10 @@ if test "$KDRIVE" = yes; then
+ 
+     PKG_CHECK_MODULES([TSLIB], [tslib-0.0], [HAVE_TSLIB="yes"], [HAVE_TSLIB="no"])
+     if test "x$HAVE_TSLIB" = xno; then
+-        AC_CHECK_LIB(ts, ts_open, [HAVE_TSLIB="yes"])
++        AC_CHECK_LIB(ts, ts_open, [
++			HAVE_TSLIB="yes"
++			TSLIB_LIBS="-lts"
++		])
+     fi
+ 
+     if test "xTSLIB" = xauto; then
+-- 
+1.7.3.1
+
