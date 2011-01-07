@@ -292,10 +292,15 @@ src_prepare() {
 
 	# Fix a known compilation error
 	epatch "${FILESDIR}"/ati-drivers-fix_compilation-bug-297322.patch
-	# Patch for 3.6.36 kernel
-	if kernel_is eq 2 6 36 ; then
+	# Patch for 2.6.36 kernel
+	if kernel_is ge 2 6 36 ; then
 		epatch "${FILESDIR}"/ati-drivers-2.6.36.patch || \
 			die "epatch ati-drivers-2.6.36.patch failed"
+	fi
+	# Patch for 2.6.37 kernel
+	if kernel_is ge 2 6 37 ; then
+		epatch "${FILESDIR}"/ati-drivers-2.6.37.patch || \
+			die "epatch ati-drivers-2.6.37.patch failed"
 	fi
 
 	# These are the userspace utilities that we also have source for.
