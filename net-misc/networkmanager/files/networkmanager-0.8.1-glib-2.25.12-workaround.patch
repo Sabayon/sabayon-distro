@@ -1,0 +1,24 @@
+From 41804010d622dfb7c90c477076608790840149c7 Mon Sep 17 00:00:00 2001
+From: Dan Williams <dcbw@redhat.com>
+Date: Tue, 10 Aug 2010 18:46:18 +0000
+Subject: build: fix compilation with glib >= 2.25.12
+
+WOrk around glib API breakage.
+---
+diff --git a/src/tests/test-policy-hosts.c b/src/tests/test-policy-hosts.c
+index 682c996..e6775f3 100644
+--- a/src/tests/test-policy-hosts.c
++++ b/src/tests/test-policy-hosts.c
+@@ -671,7 +671,11 @@ test_find_token (void)
+ 	}
+ }
+ 
++#if GLIB_CHECK_VERSION(2,25,12)
++typedef GTestFixtureFunc TCFunc;
++#else
+ typedef void (*TCFunc)(void);
++#endif
+ 
+ #define TESTCASE(t, d) g_test_create_case (#t, 0, d, NULL, (TCFunc) t, NULL)
+ 
+--

@@ -1,0 +1,10 @@
+--- configure.ac~	2010-08-23 16:18:33.000000000 +0100
++++ configure.ac	2010-08-23 16:29:37.578000313 +0100
+@@ -381,6 +381,7 @@
+ 	AC_MSG_WARN([Falling back to ISC dhclient, ${DHCLIENT_PATH}])
+ fi
+ AC_SUBST(DHCLIENT_PATH)
++AC_SUBST(DHCLIENT_VERSION)
+ AC_SUBST(DHCPCD_PATH)
+ 
+ # resolvconf support

@@ -1,0 +1,174 @@
+From d60a988518cb0851488bc21732271a971877cdcd Mon Sep 17 00:00:00 2001
+From: Dan Williams <dcbw@redhat.com>
+Date: Thu, 18 Nov 2010 22:30:00 +0000
+Subject: dhcpcd: prevent dhcpcd from messing with routing (bgo #634983)
+
+Since NM is already handling that.
+---
+diff --git a/src/dhcp-manager/nm-dhcp-dhcpcd.c b/src/dhcp-manager/nm-dhcp-dhcpcd.c
+index 378a97b..4fb703c 100644
+--- a/src/dhcp-manager/nm-dhcp-dhcpcd.c
++++ b/src/dhcp-manager/nm-dhcp-dhcpcd.c
+@@ -128,6 +128,8 @@ real_ip4_start (NMDHCPClient *client,
+ 
+ 	g_ptr_array_add (argv, (gpointer) "-L");	/* Disable built-in IPv4LL since we use avahi-autoipd */
+ 
++	g_ptr_array_add (argv, (gpointer) "-G");	/* Let NM handle routing */
++
+ 	g_ptr_array_add (argv, (gpointer) "-c");	/* Set script file */
+ 	g_ptr_array_add (argv, (gpointer) ACTION_SCRIPT_PATH );
+ 
+--
+cgit v0.8.3-6-g21f6
+From 83e02840b5ce1cf8c122cc70918ddd57396c91db Mon Sep 17 00:00:00 2001
+From: Dan Williams <dcbw@redhat.com>
+Date: Wed, 24 Nov 2010 04:17:21 +0000
+Subject: core: suppress error message when user settings service is not active
+
+Don't bother trying to initialize the user settings proxy when it
+isn't even active.  Would trigger a warning to syslog if PolicyKit
+permissions changed via changes to /usr/share/polkit-1/actions/.
+---
+diff --git a/src/nm-manager.c b/src/nm-manager.c
+index 48f2173..afcc6ad 100644
+--- a/src/nm-manager.c
++++ b/src/nm-manager.c
+@@ -1356,6 +1356,12 @@ user_proxy_init (NMManager *self)
+ 	g_return_if_fail (self != NULL);
+ 	g_return_if_fail (priv->user_proxy == NULL);
+ 
++	/* Don't try to initialize the user settings proxy if the user
++	 * settings service doesn't actually exist.
++	 */
++	if (!nm_dbus_manager_name_has_owner (priv->dbus_mgr, NM_DBUS_SERVICE_USER_SETTINGS))
++		return;
++
+ 	bus = nm_dbus_manager_get_connection (priv->dbus_mgr);
+ 	priv->user_proxy = dbus_g_proxy_new_for_name_owner (bus,
+ 	                                                    NM_DBUS_SERVICE_USER_SETTINGS,
+@@ -3975,8 +3981,7 @@ nm_manager_start (NMManager *self)
+ 	 * they will be queried when the user settings service shows up on the
+ 	 * bus in nm_manager_name_owner_changed().
+ 	 */
+-	if (nm_dbus_manager_name_has_owner (priv->dbus_mgr, NM_DBUS_SERVICE_USER_SETTINGS))
+-		user_proxy_init (self);
++	user_proxy_init (self);
+ 
+ 	nm_udev_manager_query_devices (priv->udev_mgr);
+ 	bluez_manager_resync_devices (self);
+--
+cgit v0.8.3-6-g21f6
+From 45ae52523158f4e7c0cc3fb5af56859c41512f66 Mon Sep 17 00:00:00 2001
+From: Jiří Klimeš <jklimes@redhat.com>
+Date: Wed, 24 Nov 2010 11:51:08 +0000
+Subject: dns: fix a crash due to uninitialized nis_domain (novell #655685)
+
+Reported and tested by Raymond Wooninck. Thanks!
+---
+diff --git a/src/dns-manager/nm-dns-manager.c b/src/dns-manager/nm-dns-manager.c
+index 7a6fbbc..b0cdcc2 100644
+--- a/src/dns-manager/nm-dns-manager.c
++++ b/src/dns-manager/nm-dns-manager.c
+@@ -583,6 +583,7 @@ update_dns (NMDnsManager *self,
+ 	rc.nameservers = g_ptr_array_new ();
+ 	rc.domain = NULL;
+ 	rc.searches = g_ptr_array_new ();
++	rc.nis_domain = NULL;
+ 	rc.nis_servers = g_ptr_array_new ();
+ 
+ 	if (priv->ip4_vpn_config)
+--
+cgit v0.8.3-6-g21f6
+From 71fcccbacd51e939f168d44301393301e9dcb5fe Mon Sep 17 00:00:00 2001
+From: Jiří Klimeš <jklimes@redhat.com>
+Date: Mon, 13 Dec 2010 19:55:02 +0000
+Subject: libnm-util: fix a memory leaks in nm_setting_to_string()
+
+---
+diff --git a/libnm-util/nm-setting.c b/libnm-util/nm-setting.c
+index 06994c7..190199c 100644
+--- a/libnm-util/nm-setting.c
++++ b/libnm-util/nm-setting.c
+@@ -620,6 +620,8 @@ nm_setting_to_string (NMSetting *setting)
+ 		is_serializable = prop_spec->flags & NM_SETTING_PARAM_SERIALIZE;
+ 		is_default = g_param_value_defaults (prop_spec, &value);
+ 
++		g_value_unset (&value);
++
+ 		if (is_serializable || is_default) {
+ 			g_string_append (string, " (");
+ 
+--
+cgit v0.8.3-6-g21f6
+From 7c2ba8a4a55899e4f4bd5bd243e10ce8a0c0f13a Mon Sep 17 00:00:00 2001
+From: Jiří Klimeš <jklimes@redhat.com>
+Date: Thu, 16 Dec 2010 12:49:28 +0000
+Subject: libnm-util: fix nm_utils_security_valid() checks for Ad-Hoc APs (rh #632123)
+
+Without the fix fake Ad-Hoc APs created by nm-applet's "Create New Wireless
+Network..." don't pass the check and nm-applet can crash.
+---
+diff --git a/libnm-util/nm-utils.c b/libnm-util/nm-utils.c
+index ce13da3..9c3662f 100644
+--- a/libnm-util/nm-utils.c
++++ b/libnm-util/nm-utils.c
+@@ -1269,14 +1269,24 @@ nm_utils_security_valid (NMUtilsSecurityType type,
+ 		if (!(wifi_caps & NM_WIFI_DEVICE_CAP_WPA))
+ 			return FALSE;
+ 		if (have_ap) {
+-			/* Ad-Hoc WPA APs won't necessarily have the PSK flag set */
+-			if ((ap_wpa & NM_802_11_AP_SEC_KEY_MGMT_PSK) || adhoc) {
+-				if (   (ap_wpa & NM_802_11_AP_SEC_PAIR_TKIP)
++			/* Ad-Hoc WPA APs won't necessarily have the PSK flag set, and
++			 * they don't have any pairwise ciphers. */
++			if (adhoc) {
++				if (   (ap_wpa & NM_802_11_AP_SEC_GROUP_TKIP)
+ 				    && (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_TKIP))
+ 					return TRUE;
+-				if (   (ap_wpa & NM_802_11_AP_SEC_PAIR_CCMP)
++				if (   (ap_wpa & NM_802_11_AP_SEC_GROUP_CCMP)
+ 				    && (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_CCMP))
+ 					return TRUE;
++			} else {
++				if (ap_wpa & NM_802_11_AP_SEC_KEY_MGMT_PSK) {
++					if (   (ap_wpa & NM_802_11_AP_SEC_PAIR_TKIP)
++					    && (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_TKIP))
++						return TRUE;
++					if (   (ap_wpa & NM_802_11_AP_SEC_PAIR_CCMP)
++					    && (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_CCMP))
++						return TRUE;
++				}
+ 			}
+ 			return FALSE;
+ 		}
+@@ -1285,14 +1295,22 @@ nm_utils_security_valid (NMUtilsSecurityType type,
+ 		if (!(wifi_caps & NM_WIFI_DEVICE_CAP_RSN))
+ 			return FALSE;
+ 		if (have_ap) {
+-			/* Ad-Hoc WPA APs won't necessarily have the PSK flag set */
+-			if ((ap_rsn & NM_802_11_AP_SEC_KEY_MGMT_PSK) || adhoc) {
+-				if (   (ap_rsn & NM_802_11_AP_SEC_PAIR_TKIP)
+-				    && (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_TKIP))
++			/* Ad-Hoc WPA APs won't necessarily have the PSK flag set, and
++			 * they don't have any pairwise ciphers, nor any RSA flags yet. */
++			if (adhoc) {
++				if (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_TKIP)
+ 					return TRUE;
+-				if (   (ap_rsn & NM_802_11_AP_SEC_PAIR_CCMP)
+-				    && (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_CCMP))
++				if (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_CCMP)
+ 					return TRUE;
++			} else {
++				if (ap_rsn & NM_802_11_AP_SEC_KEY_MGMT_PSK) {
++					if (   (ap_rsn & NM_802_11_AP_SEC_PAIR_TKIP)
++					    && (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_TKIP))
++						return TRUE;
++					if (   (ap_rsn & NM_802_11_AP_SEC_PAIR_CCMP)
++					    && (wifi_caps & NM_WIFI_DEVICE_CAP_CIPHER_CCMP))
++						return TRUE;
++				}
+ 			}
+ 			return FALSE;
+ 		}
+--
+cgit v0.8.3-6-g21f6
