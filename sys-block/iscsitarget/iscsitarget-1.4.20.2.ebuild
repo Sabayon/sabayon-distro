@@ -55,7 +55,7 @@ src_install() {
 	newconfd "${FILESDIR}"/ietd-conf.d ietd || die "newconfd failed"
 
 	# Lock down perms, per bug 198209
-	fperms 0640 /etc/ietd.conf /etc/initiators.{allow,deny}
+	fperms 0640 /etc/ietd.conf /etc/initiators.allow
 
 	doman doc/manpages/*.[1-9] || die "manpages failed"
 	dodoc ChangeLog README RELEASE_NOTES README.initiators README.vmware || die "docs failed"
