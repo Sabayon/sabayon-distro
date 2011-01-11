@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-9.0.587.0-r1.ebuild,v 1.1 2010/11/24 20:43:21 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-9.0.597.45.ebuild,v 1.1 2011/01/07 08:28:34 phajdan.jr Exp $
 
 EAPI="3"
 PYTHON_DEPEND="2:2.6"
@@ -14,14 +14,14 @@ SRC_URI="http://build.chromium.org/buildbot/official/${P}.tar.bz2"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="cups +gecko-mediaplayer gnome gnome-keyring system-sqlite system-v8"
 
 RDEPEND="app-arch/bzip2
 	system-sqlite? (
 		>=dev-db/sqlite-3.6.23.1[fts3,icu,secure-delete,threadsafe]
 	)
-	system-v8? ( ~dev-lang/v8-2.5.6 )
+	system-v8? ( >=dev-lang/v8-2.5.9.6 )
 	dev-libs/dbus-glib
 	>=dev-libs/icu-4.4.1
 	>=dev-libs/libevent-1.4.13
@@ -42,6 +42,7 @@ RDEPEND="app-arch/bzip2
 	x11-libs/libXtst"
 DEPEND="${RDEPEND}
 	dev-lang/perl
+	>=dev-util/chromium-tools-0.1.4
 	>=dev-util/gperf-3.0.3
 	>=dev-util/pkgconfig-0.23
 	sys-devel/flex"
@@ -60,10 +61,6 @@ egyp() {
 	set -- build/gyp_chromium --depth=. "${@}"
 	echo "${@}" >&2
 	"${@}"
-}
-
-get_bundled_v8_version() {
-	"$(PYTHON -2)" "${FILESDIR}"/extract_v8_version.py v8/src/version.cc
 }
 
 get_installed_v8_version() {
@@ -87,6 +84,7 @@ pkg_setup() {
 
 	# Make sure the build system will use the right python, bug #344367.
 	python_set_active_version 2
+	python_pkg_setup
 
 	# Prevent user problems like bug #299777.
 	if ! grep -q /dev/shm <<< $(get_mounts); then
@@ -113,6 +111,9 @@ src_prepare() {
 	# Make sure we don't use bundled libvpx headers.
 	epatch "${FILESDIR}"/${PN}-system-vpx-r1.patch
 
+	# Small fixes to make tests compile, to be upstreamed.
+	epatch "${FILESDIR}"/${PN}-tests-r0.patch
+
 	remove_bundled_lib "third_party/bzip2"
 	remove_bundled_lib "third_party/codesighs"
 	remove_bundled_lib "third_party/icu"
@@ -127,15 +128,12 @@ src_prepare() {
 	remove_bundled_lib "third_party/lzma_sdk"
 	remove_bundled_lib "third_party/molokocacao"
 	remove_bundled_lib "third_party/ocmock"
-	remove_bundled_lib "third_party/pyftpdlib"
-	remove_bundled_lib "third_party/simplejson"
-	remove_bundled_lib "third_party/tlslite"
 	remove_bundled_lib "third_party/yasm"
 	# TODO: also remove third_party/ffmpeg (needs to be compile-tested).
 	# TODO: also remove third_party/zlib. For now the compilation fails if we
 	# remove it (minizip-related).
 
-	local v8_bundled="$(get_bundled_v8_version)"
+	local v8_bundled="$(v8-extract-version v8/src/version.cc)"
 	if use system-v8; then
 		local v8_installed="$(get_installed_v8_version)"
 		einfo "V8 version: bundled - ${v8_bundled}; installed - ${v8_installed}"
@@ -267,11 +265,11 @@ src_configure() {
 
 src_compile() {
 	emake chrome chrome_sandbox BUILDTYPE=Release V=1 || die
+	pax-mark m out/Release/chrome
 }
 
 src_install() {
 	exeinto "${CHROMIUM_HOME}"
-	pax-mark m out/Release/chrome
 	doexe out/Release/chrome
 	doexe out/Release/chrome_sandbox || die
 	fperms 4755 "${CHROMIUM_HOME}/chrome_sandbox"
