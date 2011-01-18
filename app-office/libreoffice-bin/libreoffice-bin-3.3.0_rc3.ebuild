@@ -8,7 +8,7 @@ inherit eutils fdo-mime gnome2-utils rpm multilib versionator
 
 IUSE="gnome java kde linguas_en"
 
-BUILDID="4"
+BUILDID="5"
 UREVER="1.7.0"
 MY_PV="${PV/_/}" # download file name
 MY_PV1="${PV/_/-}" # download uri
@@ -33,21 +33,17 @@ S="${WORKDIR}"
 DESCRIPTION="LibreOffice productivity suite."
 
 SRC_URI="amd64? ( ${FILEPATH}/x86_64/LibO_${MY_PV}_Linux_x86-64_install-rpm_en-US.tar.gz )
-	x86? ( ${FILEPATH}/x86/LibO_${MY_PV}_Linux_x86_install-rpm_en-US.tar.gz )
-	linguas_en? (
-		x86? ( "${FILEPATH}"/x86/LibO_${MY_PV}_Linux_x86_langpack-rpm_en-US.tar.gz )
-		amd64? ( "${FILEPATH}"/x86_64/LibO_${MY_PV}_Linux_x86-64_langpack-rpm_en-US.tar.gz )
-	)"
+	x86? ( ${FILEPATH}/x86/LibO_${MY_PV}_Linux_x86_install-rpm_en-US.tar.gz )"
 
 # echo $(wget -qO-
 # http://download.documentfoundation.org/libreoffice/testing/3.3.0-rc1/rpm/x86/
 # | grep langpack | sed 's/.*langpack-rpm_\(.\+\).tar.gz.*/\1/' | sort -u | sed
 # 's/-/_/' )
-LANGS="af ar as be_BY bg bn bo br brx bs ca cs cy da de dgo dz el en_GB en_US
-en_ZA eo es et eu fa fi fr ga gd gl gu he hi hr hu is it ja ka kid kk km kn ko
-kok ks ku ky lo lt lv mai mk ml mn mni mr ms my nb ne nl nn nr ns oc om or pa_IN
-pap pl ps pt pt_BR ro ru rw sa_IN sat sc sd sh si sk sl sq sr ss st sv sw_TZ ta
-te tg th ti tn tr ts ug uk ur uz ve vi xh zh_CN zh_TW zu"
+LANGS="af ar as ast be_BY bg bn bo br brx bs ca ca_XV cs cy da de dgo dz el
+en_GB en_ZA eo es et eu fa fi fr ga gd gl gu he hi hr hu id is it ja ka kk km kn
+ko kok ks ku ky lo lt lv mai mk ml mn mni mr ms my nb ne nl nn nr ns oc om or
+pa_IN pap pl ps pt pt_BR ro ru rw sa_IN sat sd sh si sk sl sq sr ss st sv sw_TZ
+ta te tg th ti tn tr ts ug uk ur uz ve vi xh zh_CN zh_TW zu"
 
 for X in ${LANGS} ; do
 	SRC_URI="${SRC_URI} linguas_${X}? (
@@ -56,7 +52,7 @@ for X in ${LANGS} ; do
 	IUSE="${IUSE} linguas_${X}"
 done
 
-HOMEPAGE="http://www.documentfoundation.org"
+HOMEPAGE="http://www.libreoffice.org/"
 
 LICENSE="LGPL-2"
 SLOT="0"
@@ -115,7 +111,7 @@ src_unpack() {
 	use java && rpm_unpack "./${UP}/${BASIS}-javafilter-${MY_PV3}.${LOARCH}.rpm"
 
 	# Extensions
-	for j in mediawiki-publisher pdf-import presentation-minimizer presenter-screen report-builder; do
+	for j in mediawiki-publisher nlpsolver pdf-import presentation-minimizer presenter-screen report-builder; do
 		rpm_unpack "./${UP}/${BASIS}-extension-${j}-${MY_PV3}.${LOARCH}.rpm"
 	done
 
@@ -129,12 +125,14 @@ src_unpack() {
 		i="${k/_/-}"
 		if [[ ${i} = "en" ]] ; then
 			i="en-US"
+			LANGDIR="${UP}"
+		else
+			LANGDIR="${LANGP}${i}/RPMS/"
 		fi
-		LANGDIR="${LANGP}${i}/RPMS/"
 		rpm_unpack "./${LANGDIR}/${BASIS}-${i}-${MY_PV3}.${LOARCH}.rpm"
 		rpm_unpack "./${LANGDIR}/libreoffice${MY_PVM1}-${i}-${MY_PV3}.${LOARCH}.rpm"
-		rpm_unpack "./${LANGDIR}/libreoffice${MY_PVM1}-dict-"*"-${MY_PV3}.${LOARCH}.rpm"
-		for j in base binfilter calc help math res writer; do
+		rpm_unpack "./${LANGDIR}/libreoffice${MY_PVM1}-dict-${i%-*}"*"-${MY_PV3}.${LOARCH}.rpm"
+		for j in base binfilter calc math res writer; do
 			rpm_unpack "./${LANGDIR}/${BASIS}-${i}-${j}-${MY_PV3}.${LOARCH}.rpm"
 		done
 	done
