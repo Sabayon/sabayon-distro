@@ -6,7 +6,7 @@ KDM_FILE="/usr/share/config/kdm/kdmrc"
 LXDM_FILE="/etc/lxdm/lxdm.conf"
 OEM_FILE="/etc/oemlive.sh"
 OEM_FILE_NEW="/etc/oem/liveboot.sh"
-LIVE_USER_GROUPS="audio cdrom cdrw clamav console disk entropy games haldaemon \
+LIVE_USER_GROUPS="audio cdrom cdrw clamav console entropy games haldaemon \
 kvm lp lpadmin messagebus plugdev polkituser portage pulse pulse-access pulse-rt \
 scanner usb users uucp vboxguest vboxusers video wheel"
 LIVE_USER=${SABAYON_USER:-sabayonuser}
