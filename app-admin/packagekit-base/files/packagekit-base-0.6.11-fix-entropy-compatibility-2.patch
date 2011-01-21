@@ -1,0 +1,20 @@
+commit 6ad33cf6e2e35756b089c35f34c8620c1fe08b9c
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Fri Jan 21 11:43:45 2011 +0100
+
+    entropy: restore compatibility with entropy >=1.0_alpha8
+
+diff --git a/backends/entropy/entropyBackend.py b/backends/entropy/entropyBackend.py
+index 2ce2489..ea26b35 100755
+--- a/backends/entropy/entropyBackend.py
++++ b/backends/entropy/entropyBackend.py
+@@ -347,6 +347,9 @@ class PackageKitEntropyMixin(object):
+         Return repository name (identifier) given an EntropyRepository
+         instance.
+         """
++        if hasattr(repo_db, "name"):
++            # new Entropy releases, >=1.0_alpha8
++            return repo_db.name
+         repo_name = self._repo_name_cache.get(repo_db)
+         if repo_name is None:
+             repo_name = repo_db.get_plugins_metadata().get("repo_name")
