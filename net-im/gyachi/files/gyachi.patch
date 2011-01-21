@@ -1,0 +1,66 @@
+diff -uNr gyachi-1.0.5/client/Makefile.am gyachi-1.0.5.mod/client/Makefile.am
+--- gyachi-1.0.5/client/Makefile.am	2006-08-07 22:04:38.000000000 +0200
++++ gyachi-1.0.5.mod/client/Makefile.am	2007-03-03 23:34:05.615583979 +0100
+@@ -52,7 +52,7 @@
+ 	pmnotebook.c pmnotebook.h \
+ 	yahoophshare.c yahoophshare.h
+ 
+-gyachi_LDADD = @GTK_LIBS@ @GLIB_LIBS@ @GTKHTML_LIBS@ @LTDL_LIBS@ @ESD_LIBS@ @ALSA_LIBS@
++gyachi_LDADD = @GTK_LIBS@ @GLIB_LIBS@ @GTKHTML_LIBS@ @LTDL_LIBS@ @ESD_LIBS@ @ALSA_LIBS@ -lexpat
+ 
+ # This option is required because of plugin loading
+ gyachi_LDFLAGS = -rdynamic
+diff -uNr gyachi-1.0.5/plugins/gyachi-gpgme.c gyachi-1.0.5.mod/plugins/gyachi-gpgme.c
+--- gyachi-1.0.5/plugins/gyachi-gpgme.c	2006-03-26 22:34:20.000000000 +0200
++++ gyachi-1.0.5.mod/plugins/gyachi-gpgme.c	2007-03-03 22:06:53.803729680 +0100
+@@ -24,7 +24,7 @@
+  *****************************************************************************/
+ 
+ #include "plugin_api.h"
+-#include <gpgme.h>
++#include <gpgme/gpgme.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+diff -uNr gyachi-1.0.5/plugins/Makefile.am gyachi-1.0.5.mod/plugins/Makefile.am
+--- gyachi-1.0.5/plugins/Makefile.am	2006-07-24 22:25:14.000000000 +0200
++++ gyachi-1.0.5.mod/plugins/Makefile.am	2007-03-03 23:38:17.771116071 +0100
+@@ -2,8 +2,7 @@
+     gyachiphotos.so \
+     gyachimcrypt.so \
+     gyachiblowfish.so \
+-    gyachigpgme.so \
+-    gyachixmms.so
++    gyachigpgme.so
+ 
+ 
+ plugindir = $(pkgdatadir)/plugins
+@@ -24,11 +23,8 @@
+ gyachigpgme_so_LDADD = @GTK_LIBS@ -lgpgme
+ gyachigpgme_so_LDFLAGS = -shared -fpic -fPIC
+ 
+-gyachixmms_so_SOURCES = gyachi-xmms.c
+-gyachixmms_so_LDADD = @GTK_LIBS@ -lxmms
+-gyachixmms_so_LDFLAGS = -shared -fpic -fPIC -Xlinker -Bdynamic -Wl,--export-dynamic
+-
+ # Required for localization
+ localedir = $(datadir)/locale
+ 
+-INCLUDES = $(DEPS_CFLAGS) -DLOCALEDIR=\"$(localedir)\" -I../client @GTK_CFLAGS@ @GLIB_CFLAGS@
++INCLUDES = $(DEPS_CFLAGS) -DLOCALEDIR=\"$(localedir)\" -I../client @GTK_CFLAGS@ @GLIB_CFLAGS@ -shared -fpic -fPIC
++
+
+
+--- gyachi-1.0.5/po/Makefile.in.in	2006-08-23 21:14:03.000000000 +0200
++++ gyachi-1.0.5.m/po/Makefile.in.in	2007-03-04 00:22:32.939053555 +0100
+@@ -29,8 +29,8 @@
+ 
+ INSTALL = @INSTALL@
+ INSTALL_DATA = @INSTALL_DATA@
+-MKINSTALLDIRS = @MKINSTALLDIRS@
+-mkinstalldirs = $(SHELL) $(MKINSTALLDIRS)
++MKINSTALLDIRS = mkdir -p
++mkinstalldirs = $(MKINSTALLDIRS)
+ 
+ GMSGFMT = @GMSGFMT@
+ MSGFMT = @MSGFMT@
