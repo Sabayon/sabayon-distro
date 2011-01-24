@@ -1,99 +1,58 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="2"
-inherit eutils base autotools
+
+inherit eutils autotools
 
 DESCRIPTION="LXDE Display Manager"
-HOMEPAGE="http://lxde.org/"
+HOMEPAGE="http://lxde.org"
 SRC_URI="mirror://sourceforge/lxde/${P}.tar.gz"
-KEYWORDS="~amd64 ~arm ~ppc ~x86 ~x86-interix ~amd64-linux ~x86-linux"
+
+LICENSE="GPL-3"
 SLOT="0"
-IUSE="+X nls +sabayon"
-LICENSE="GPL-2 GPL-3 LGPL-2.1"
+KEYWORDS="~amd64 ~x86"
 
-RDEPEND="x11-libs/gtk+:2
-	 dev-libs/glib:2
-	 sys-libs/pam
-	 sys-auth/consolekit
-	 X? ( x11-libs/libXmu
-	      x11-libs/libX11 )
-	 sabayon? ( x11-themes/sabayon-artwork-lxde )"
+IUSE="nls"
 
-DEPEND+="${RDEPEND}
+RDEPEND="sys-libs/pam
+	sys-auth/consolekit
+	x11-libs/gtk+:2
+	x11-themes/sabayon-artwork-lxde
+	nls? ( sys-devel/gettext )"
+DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
-	dev-util/pkgconfig
-	nls? ( sys-devel/gettext )
-	"
-
-DOCS="AUTHORS README TODO"
+	dev-util/pkgconfig"
 
 src_configure() {
-	econf $(use_with X x) \
-		$(use nls || --disable-nls)
+	econf --with-x $(use_enable nls) || die "econf failed"
 }
 
 src_prepare() {
-	# this will apply all patches in PATCHES array
-	base_src_prepare
-
+	# There is consolekit
 	epatch "${FILESDIR}/${P}-pam_console-disable.patch"
-
-	if use sabayon; then
-		epatch "${FILESDIR}/${P}-sabayon-theme.patch"
-	fi
+	# Sabayon specific theme patch
+	epatch "${FILESDIR}/${P}-sabayon-theme.patch"
 
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
 
 	# process LINGUAS
-	if [[ -d "${S}/po" ]]; then
+	if use nls; then
 		einfo "Running intltoolize ..."
 		intltoolize --force --copy --automake || die
-		strip-linguas -i "${S}/po"
+		strip-linguas -i "${S}/po" || die
 	fi
 }
 
 src_install() {
 	emake DESTDIR="${D}" install || die
-
-	# install all docs in DOCS variable
-	if [[ -n "${DOCS}" ]]; then
-		dodoc $DOCS || die
-	fi
-
-	# FIXME: deprecated, remove from FILESDIR
-	# newinitd "${FILESDIR}"/lxdm.init.d lxdm || \
-	#	die "Cannot install /etc/init.d/lxdm"
-	# newconfd "${FILESDIR}"/lxdm.conf.d lxdm || \
-	#	die "Cannot install /etc/conf.d/lxdm"
-
-	exeinto /etc/lxdm
-	doexe "${FILESDIR}"/xinitrc || \
-		die "Cannot install /etc/lxdm/xinitrc"
-
-	# Move the lxdm script to start-lxdm,
-	# and symlink lxdm to lxdm-binary
-	# mv ${D}/usr/sbin/lxdm ${D}/usr/sbin/start-lxdm || \
-	#	die "Could not move /usr/sbin/lxdm..."
-	# dosym /usr/sbin/lxdm-binary /usr/sbin/lxdm || \
-	#	die "Could not symlink lxdm to lxdm-binary..."
+	dodoc AUTHORS README TODO || die
 }
 
 pkg_postinst() {
-	ewarn ""
-	ewarn "LXDM in the early stages of development!"
-	ewarn ""
-	ewarn "Compatibility with Gentoo's xdm init script is in"
-	ewarn "progresss."
-	ewarn ""
-	ewarn "Currently, if you want to start LXDM using xdm's"
-	ewarn "init scripts, this can only be done with"
-	ewarn "x11-apps/xinit-1.2.1 from the Sabayon overlay."
-	ewarn "However, the changes are being coordinated with the"
-	ewarn "Gentoo upstream, so this status is expected to change."
-	ewarn ""
-	ewarn "The /etc/init.d/lxdm init script can also be used"
-	ewarn "as an alternative."
+	echo
+	elog "LXDM in the early stages of development!"
+	echo
 }
