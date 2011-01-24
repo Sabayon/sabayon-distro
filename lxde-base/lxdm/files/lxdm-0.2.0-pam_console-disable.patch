@@ -1,9 +1,0 @@
-diff -Naur lxdm-0.2.0.a/pam/lxdm lxdm-0.2.0.b/pam/lxdm
---- lxdm-0.2.0.a/pam/lxdm	2010-04-12 11:49:44.000000000 -0500
-+++ lxdm-0.2.0.b/pam/lxdm	2010-08-11 17:22:30.000000000 -0500
-@@ -4,4 +4,4 @@
- session    optional	pam_keyinit.so force revoke
- session    include	system-auth
- session    required	pam_loginuid.so
--session    optional	pam_console.so
-+# session    optional	pam_console.so
