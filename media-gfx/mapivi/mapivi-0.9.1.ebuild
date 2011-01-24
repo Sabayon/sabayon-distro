@@ -34,7 +34,7 @@ src_install() {
 
 	exeinto /usr/share/mapivi/plugins
 	doexe PlugIns/{Channel-Separator,Join-RGB,checkDir-plugin,filelist-plugin,test-plugin} || die
-	dodoc Changes.txt FAQ README Tips.txt ToDo || die
+	dodoc Changes.txt FAQ README Tips.txt || die
 }
 
 pkg_postinst() {
