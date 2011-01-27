@@ -1,0 +1,273 @@
+#!/usr/bin/python
+import os
+import sys
+from xml.dom import minidom
+
+def _configure_system(root, keymap, variant, options):
+
+    print("Configuring system keyboard.")
+
+    vt_keymaps_fixes = {
+        'be': 'be-latin1', # also fixed in config
+        'bg': 'bg-cp855',
+        'jp-jp106': 'jp106',
+        'la': 'la-latin1',
+        'no_smi': 'no',
+        'sk': 'sk-qwerty',
+        'se': 'se-lat6',
+        'se_smi': 'se-lat6',
+        'ch_fr': 'fr_CH',
+        'is': 'is-latin1',
+        'tj': 'tj_alt-UTF8',
+        'tr': 'trq',
+        'tr_f': 'trf',
+    }
+    vt_keymaps_fixes_us = ['ad', 'af', 'al', 'am', 'ara', 'az', 'ba', 'bd',
+        'bt', 'ca', 'cd', 'cs',  'ee', 'epo', 'fi_smi', 'fo', 'fr_oss', 'gb',
+        'ge', 'gh', 'hr', 'ie', 'in', 'in_guj', 'in_guru', 'in_kan', 'in_mal',
+        'in_tam', 'in_tel', 'iq', 'ir', 'kg', 'kh', 'kr', 'kz', 'lk', 'lv', 'mao',
+        'mm', 'mn', 'mt', 'mv', 'ng', 'pk', 'si', 'sy', 'th', 'uz', 'vn', 'za']
+    for k in vt_keymaps_fixes_us:
+        vt_keymaps_fixes[k] = "us"
+    confd_keymaps = os.path.join(root, "etc/conf.d/keymaps")
+    sys_key = vt_keymaps_fixes.get(keymap, keymap)
+
+    output = []
+    with open(confd_keymaps, "r") as f:
+        for line in f.readlines():
+            if line.startswith("KEYMAP="):
+                line = 'KEYMAP="'+sys_key+'"\n'
+            if line.startswith("keymap="):
+                line = 'keymap="'+sys_key+'"\n'
+            output.append(line)
+
+    with open(confd_keymaps+".tmp", "w") as f:
+        print("Writing to %s" % (confd_keymaps,))
+        f.writelines(output)
+        f.flush()
+    os.rename(confd_keymaps+".tmp", confd_keymaps)
+
+    return 0
+
+def _configure_xorg(root, keymap, variant, options):
+
+    print("Configuring X keyboard.")
+
+    confd_dir = os.path.join(root, "etc/X11/xorg.conf.d")
+    if not os.path.isdir(confd_dir):
+        os.makedirs(confd_dir, 0o755)
+
+    if variant is None:
+        variant = ""
+    if options is None:
+        options = ""
+
+    _conf_skel = """\
+Section "InputClass"
+       Identifier "keyboard"
+       MatchIsKeyboard "yes"
+       Option "XkbLayout" "__LAYOUT__"
+       Option "XkbVariant" "__VARIANT__"
+       Option  "XkbOptions" "__OPTIONS__"
+EndSection
+"""
+    outtxt = _conf_skel.replace("__LAYOUT__", keymap).replace("__VARIANT__",
+        variant).replace("__OPTIONS__", options)
+
+    confd_file = os.path.join(confd_dir, "00-keyboard.conf")
+    with open(confd_file, "w") as f:
+        f.write(outtxt)
+        f.flush()
+
+    return 0
+
+def _configure_gnome(root, keymap, variant, options):
+
+    print("Configuring GNOME keyboard.")
+
+    def _gkeymap_handler(base_dir):
+
+        config_file = os.path.join(root, base_dir.lstrip(os.path.sep),
+            ".gconf/desktop/gnome/peripherals/keyboard/kbd/%gconf.xml")
+        if not (os.path.isfile(config_file) and \
+            os.access(config_file, os.W_OK)):
+            return
+
+        document = minidom.parse(config_file)
+        gconf_node = document.documentElement
+        changed = False
+        for entry in gconf_node.getElementsByTagName("entry"):
+            if entry.getAttribute("name") != "layouts":
+                continue
+            for li in entry.getElementsByTagName("li"):
+                for value in li.getElementsByTagName("stringvalue"):
+                    value.firstChild.nodeValue = keymap
+                    changed = True
+        if changed:
+            print("Writing to %s" % (config_file,))
+            xml_str = document.toxml()
+            with open(config_file + ".tmp", "w") as f:
+                f.write(xml_str)
+                f.flush()
+            os.rename(config_file + ".tmp", config_file)
+
+    if os.path.isdir("/home"):
+        for user_name in os.listdir("/home"):
+            if user_name.startswith("."):
+                continue
+            _gkeymap_handler(os.path.join("/home", user_name))
+    _gkeymap_handler("/root")
+    _gkeymap_handler("/etc/skel")
+
+    return 0
+
+def _configure_kde(root, keymap, variant, options):
+
+    print("Configuring KDE keyboard.")
+
+    def _keymap_handler(base_dir):
+
+        config_file = os.path.join(root, base_dir.lstrip(os.path.sep),
+            ".kde4/share/config/kxkbrc")
+        if not (os.path.isfile(config_file) and \
+            os.access(config_file, os.W_OK)):
+            return
+
+        output = []
+        with open(config_file, "r") as f:
+
+            layout_exists = False
+            display_names_exists = False
+            layout_list_exists = False
+
+            for line in f.readlines():
+                if line.startswith("Layout="):
+                    layout_exists = True
+                    line = "Layout=%s\n" % (keymap,)
+                elif line.startswith("DisplayNames="):
+                    display_names_exists = True
+                    line = "DisplayNames=%s\n" % (keymap,)
+                elif line.startswith("LayoutList="):
+                    layout_list_exists = True
+                    line = "LayoutList=%s\n" % (keymap,)
+                output.append(line)
+
+            if not layout_exists:
+                output.append("Layout=%s\n" % (keymap,))
+            if not display_names_exists:
+                output.append("DisplayNames=%s\n" % (keymap,))
+            if not layout_list_exists:
+                output.append("LayoutList=%s\n" % (keymap,))
+
+        with open(config_file+".tmp", "w") as f:
+            print("Writing to %s" % (config_file,))
+            f.writelines(output)
+            f.flush()
+        os.rename(config_file+".tmp", config_file)
+
+    if os.path.isdir("/home"):
+        for user_name in os.listdir("/home"):
+            if user_name.startswith("."):
+                continue
+            _keymap_handler(os.path.join("/home", user_name))
+    _keymap_handler("/root")
+    _keymap_handler("/etc/skel")
+
+    return 0
+
+def _configure_xfce(root, keymap, variant, options):
+
+    print("Configuring XFCE keyboard.")
+
+    def _keymap_handler(base_dir):
+
+        config_file = os.path.join(root, base_dir.lstrip(os.path.sep),
+            ".config/xfce4/xfkc/xfkcrc")
+        if not (os.path.isfile(config_file) and \
+            os.access(config_file, os.W_OK)):
+            return
+
+        output = []
+        with open(config_file, "r") as f:
+            for line in f.readlines():
+                if line.startswith("layouts="):
+                    line = "layouts=%s\n" % (keymap,)
+                output.append(line)
+
+        with open(config_file+".tmp", "w") as f:
+            print("Writing to %s" % (config_file,))
+            f.writelines(output)
+            f.flush()
+        os.rename(config_file+".tmp", config_file)
+
+    if os.path.isdir("/home"):
+        for user_name in os.listdir("/home"):
+            if user_name.startswith("."):
+                continue
+            _keymap_handler(os.path.join("/home", user_name))
+    _keymap_handler("/root")
+    _keymap_handler("/etc/skel")
+
+    return 0
+
+def _configure_all(root, keymap, variant, options):
+    funcs = (_configure_system, _configure_xorg, _configure_gnome,
+        _configure_kde, _configure_xfce)
+    for func in funcs:
+        rc = func(root, keymap, variant, options)
+        if rc != 0:
+            return rc
+    return 0
+
+VALID_OPTIONS = {
+    "system": _configure_system,
+    "xorg": _configure_xorg,
+    "gnome": _configure_gnome,
+    "kde": _configure_kde,
+    "xfce": _configure_xfce,
+    "all": _configure_all,
+}
+
+def print_help():
+    print("Keyboard configuration tool - Sabayon Linux (2011)")
+    print("usage: keyboard-setup <keymap> [<variant>] [<options>] <component>")
+    print("available components: " + ",".join(sorted(VALID_OPTIONS.keys())))
+
+args = sys.argv[1:]
+# print help
+if ("--help" in args) or ("-h" in args) or (len(args) < 2):
+    print_help()
+    if len(args) < 2:
+        raise SystemExit(1)
+    else:
+        raise SystemExit(0)
+
+_component = args[-1]
+_root = os.getenv("ROOT", "/")
+
+params = sys.argv[1:-1]
+_variant = None
+_options = None
+_keymap = params.pop(0)
+if params:
+    _variant = params.pop(0)
+if params:
+    _options = params.pop(0)
+if params:
+    # bad syntax
+    print_help()
+    raise SystemExit(1)
+
+if os.getuid() != 0:
+    # root !
+    print_help()
+    raise SystemExit(1)
+
+func = VALID_OPTIONS.get(_component)
+if func is None:
+    # bad syntax
+    print_help()
+    raise SystemExit(1)
+
+rc = func(_root, _keymap, _variant, _options)
+raise SystemExit(rc)
