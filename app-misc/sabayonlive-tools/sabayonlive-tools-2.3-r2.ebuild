@@ -1,4 +1,4 @@
-# Copyright 2004-2010 Sabayon
+# Copyright 2004-2011 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 inherit eutils
@@ -8,16 +8,16 @@ HOMEPAGE="http://www.sabayon.org"
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-RDEPEND="dev-util/dialog
-	sys-apps/pciutils
-	sys-apps/gawk
+DEPEND=""
+RDEPEND="!app-misc/livecd-tools
 	app-admin/eselect-opengl
-	!app-misc/livecd-tools
-	"
-DEPEND="${RDEPEND}"
+	dev-util/dialog
+	sys-apps/gawk
+	sys-apps/pciutils
+	>=sys-apps/keyboard-configuration-helpers-2.6"
 
 src_unpack() {
 	cd "${WORKDIR}"

@@ -128,7 +128,11 @@ my_setup_keymap() {
 		fi
 
 		if [ -n "$keymap_toset" ]; then
-			/sbin/keyboard-setup $keymap_toset$keymap_toset_model &> /dev/null
+			aggregated_keymap="${keymap_toset}${keymap_toset_model}"
+			/sbin/keyboard-setup-2 ${aggregated_keymap} all &> /dev/null
+			if [ "${?}" = "0" ]; then
+				/etc/init.d/keymaps restart --nodeps
+			fi
 		fi
 	
 	fi
