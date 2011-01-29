@@ -134,7 +134,7 @@ else
 fi
 
 # provide extra virtual pkg
-if [ -z "${K_FIRMWARE_PACKAGE}" ]; then
+if [ -z "${K_ONLY_SOURCES}" ] && [ -z "${K_FIRMWARE_PACKAGE}" ]; then
 	PROVIDE="${PROVIDE} virtual/linux-binary"
 fi
 
