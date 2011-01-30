@@ -66,8 +66,8 @@ src_install() {
 	#insinto /etc/X11
 	#doins xorg.conf.sabayon
 
-	dodir /etc/X11/xorg.conf.d
-	insinto /etc/X11/xorg.conf.d
+	dodir /usr/share/X11/xorg.conf.d
+	insinto /usr/share/X11/xorg.conf.d
 	doins "${FILESDIR}/${PV}/xorg.conf.d/"*
 
 	newinitd sabayonlive sabayonlive
