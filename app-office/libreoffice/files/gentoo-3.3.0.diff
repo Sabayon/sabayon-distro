@@ -1,0 +1,47 @@
+--- patches/dev300/apply 
++++ patches/dev300/apply
+@@ -1687,16 +1687,8 @@
+ [ GentooOnly ]
+ SectionOwner => aprosky
+ 
+-# Allow build to proceed with PaX enabled
+-gentoo-pax-fix.diff, aprosky
+ # support server-only versions of 64bit JDKs
+ 64bit-jdk-server-paths.diff, i#65974, hmth
+-# use IBM j9vm over IBM classic JVM
+-ibm-j9vm.diff, hmth
+-# system db check
+-system-db-check.diff, i#65979, hmth
+-# User ~/.ooo3 as user dir
+-scp2-user-config-ooo3.diff, pmladek
+ # default inc/lib
+ config_office-XINC-XLIB-defaults.diff, i#65976
+ # Sandbox problem with wrong path
+--- configure.in 
++++ configure.in 
+@@ -1326,12 +1326,18 @@
+ 	done
+     fi
+     SUNTEMPLATES_LANG=
+-    # check whether the langs are requested at all
+-    for lang in $wanted_sun_templates ; do
+-        if test -n "`echo $with_lang | grep "$lang"`" ; then
+-                SUNTEMPLATES_LANG="$SUNTEMPLATES_LANG $lang"
+-        fi
+-    done
++
++    # --with-lang="" now used for en-US
++    if test "z$with_lang" = "z" ; then
++        SUNTEMPLATES_LANG="en-US"
++    else
++        # check whether the langs are requested at all
++        for lang in $wanted_sun_templates ; do
++	    if test -n "`echo $with_lang | grep "$lang"`" ; then
++		  SUNTEMPLATES_LANG="$SUNTEMPLATES_LANG $lang"
++	    fi
++        done
++    fi
+     AC_MSG_RESULT([$SUNTEMPLATES_LANG])
+ fi
+ AC_SUBST(SUNTEMPLATES_LANG)
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>openoffice</herd>
+<longdescription>LibreOffice is a fork of OpenOffice.org. 
+This ebuild allows you to compile it yourself. Unfortunately this 
+compilation can take up to a day depending on the speed of your 
+computer. It will however make a snappier openoffice than the binary 
+version</longdescription>
+<use>
+  <flag name='binfilter'>Enable support for legacy StarOffice 5.x and earlier
+    file formats</flag>
+  <flag name='odk'>Build the Office Development Kit</flag>
+  <flag name='templates'>Enable installation of Sun templates</flag>
+</use>
+</pkgmetadata>
