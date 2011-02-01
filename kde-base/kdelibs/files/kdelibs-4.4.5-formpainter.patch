@@ -1,0 +1,22 @@
+Index: kdelibs/khtml/khtmlview.cpp
+===================================================================
+--- kdelibs/khtml/khtmlview.cpp	(Revision 1185321)
++++ kdelibs/khtml/khtmlview.cpp	(Revision 1185322)
+@@ -2135,17 +2135,6 @@
+       case QEvent::DragLeave:
+       case QEvent::Drop:
+         return false;
+-      case QEvent::Paint: {
+-          QRect r = static_cast<QPaintEvent*>(e)->rect();
+-          r = r.intersect( widget()->rect() );
+-          if (r.isValid() && !r.isEmpty()) {
+-              r.setX(r.x() +contentsX());
+-              r.setY(r.y() +contentsY());
+-              QPaintEvent pe(r);
+-              paintEvent(&pe);
+-          }
+-          return true;
+-      }
+       default:
+         break;
+     }

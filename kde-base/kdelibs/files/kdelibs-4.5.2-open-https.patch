@@ -1,0 +1,10 @@
+--- branches/KDE/4.5/kdelibs/kio/kio/krun.cpp	2010/10/06 22:28:05	1183316
++++ branches/KDE/4.5/kdelibs/kio/kio/krun.cpp	2010/10/06 22:33:23	1183317
+@@ -375,6 +375,7 @@
+             }
+             else { // if no KDE app, be a bit over-generic
+                 supportedProtocols.append("http");
++                supportedProtocols.append("https"); // #253294
+                 supportedProtocols.append("ftp");
+             }
+         }
