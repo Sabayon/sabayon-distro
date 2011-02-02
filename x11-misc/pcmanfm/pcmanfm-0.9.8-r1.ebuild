@@ -13,7 +13,7 @@ else
 	KEYWORDS="~amd64 ~arm ~ppc ~x86"
 fi
 
-inherit fdo-mime
+inherit eutils fdo-mime
 
 DESCRIPTION="Fast lightweight tabbed filemanager"
 HOMEPAGE="http://pcmanfm.sourceforge.net/"
