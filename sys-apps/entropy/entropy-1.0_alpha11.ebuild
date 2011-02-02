@@ -79,7 +79,7 @@ pkg_postinst() {
 	python_mod_optimize "/usr/$(get_libdir)/entropy/libraries/entropy"
 
 	# force python 2.6/2.7 at least
-	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3
+	eselect python update --ignore 2.7 --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3
 
 	echo
 	elog "Entropy packages cache has been moved to a more NFS-friendly location:"
