@@ -1,0 +1,76 @@
+From: Aaron Seigo <aseigo@kde.org>
+Date: Tue, 01 Feb 2011 20:54:44 +0000
+Subject: try to avoid doing any work when we are deleting
+X-Git-Url: http://quickgit.kde.org/?p=kde-workspace.git&amp;a=commitdiff&amp;h=92f71adb8bb6e46d4a3187ab8824c859312e9136
+---
+try to avoid doing any work when we are deleting
+---
+
+
+--- a/plasma/generic/applets/notifications/ui/notificationgroup.cpp
++++ b/plasma/generic/applets/notifications/ui/notificationgroup.cpp
+@@ -66,6 +66,8 @@ NotificationGroup::NotificationGroup(Ext
+ 
+ NotificationGroup::~NotificationGroup()
+ {
++    m_extenderItemsForNotification.clear();
++    m_notificationForExtenderItems.clear();
+     qDeleteAll(m_notifications);
+ }
+ 
+@@ -137,6 +139,11 @@ void NotificationGroup::addNotification(
+ 
+ void NotificationGroup::extenderItemDestroyed(Plasma::ExtenderItem *object)
+ {
++    if (m_extenderItemsForNotification.isEmpty()) {
++        // either we aren't tracking this notification or else we're being deleted
++        return;
++    }
++
+     Notification *n = m_notificationForExtenderItems.value(object);
+ 
+     if (n) {
+@@ -148,10 +155,16 @@ void NotificationGroup::extenderItemDest
+ 
+ void NotificationGroup::removeNotification(Notification *notification)
+ {
++    if (m_extenderItemsForNotification.isEmpty()) {
++        // either we aren't tracking this notification or else we're being deleted
++        return;
++    }
++
+     Plasma::ExtenderItem *item = m_extenderItemsForNotification.value(notification);
+     if (item) {
+         m_notificationForExtenderItems.remove(item);
+     }
++
+     m_extenderItemsForNotification.remove(notification);
+     m_notifications.removeAll(notification);
+     QString applicationName = m_appForNotification.value(notification);
+
+--- a/plasma/generic/applets/notifications/ui/notifications.cpp
++++ b/plasma/generic/applets/notifications/ui/notifications.cpp
+@@ -106,6 +106,9 @@ Notifications::~Notifications()
+ {
+     // stop listening to the manager
+     disconnect(m_manager, 0, this, 0);
++    if (m_notificationStackDialog) {
++        disconnect(m_notificationStackDialog, 0, this, 0);
++    }
+ 
+     foreach (Notification *notification, m_manager->notifications()) {
+         // we don't want a destroyed managed after the destruction of manager
+@@ -342,10 +345,10 @@ void Notifications::initExtenderItem(Pla
+         return;
+     }
+ 
+-    if (extenderItem->config().readEntry("type", "") == "job") {
++    if (extenderItem->config().readEntry("type", QString()) == "job") {
+         extenderItem->setWidget(new JobWidget(0, extenderItem));
+-    //unknown type, this should never happen
+     } else {
++        //unknown type, this should never happen
+         extenderItem->destroy();
+     }
+ 
+

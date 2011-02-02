@@ -1,0 +1,29 @@
+From: Aaron Seigo <aseigo@kde.org>
+Date: Tue, 01 Feb 2011 20:54:10 +0000
+Subject: simplification
+X-Git-Url: http://quickgit.kde.org/?p=kde-workspace.git&amp;a=commitdiff&amp;h=f0f66f023e6f2896bcc2ea67d7922fc0745ff7b5
+---
+simplification
+---
+
+
+--- a/plasma/generic/applets/notifications/ui/notificationwidget.cpp
++++ b/plasma/generic/applets/notifications/ui/notificationwidget.cpp
+@@ -43,7 +43,6 @@
+ 
+ #include <Plasma/Animation>
+ #include <Plasma/Animator>
+-#include <Plasma/Extender>
+ #include <Plasma/Frame>
+ #include <Plasma/IconWidget>
+ #include <Plasma/Label>
+@@ -170,7 +169,7 @@ NotificationWidget::NotificationWidget(N
+     d->notification = notification;
+ 
+     connect(d->signalMapper, SIGNAL(mapped(const QString &)),
+-            d->notification.data(), SLOT(triggerAction(const QString &)));
++            notification, SLOT(triggerAction(const QString &)));
+     connect(notification, SIGNAL(changed()),
+             this, SLOT(updateNotification()));
+     connect(notification, SIGNAL(destroyed()),
+
