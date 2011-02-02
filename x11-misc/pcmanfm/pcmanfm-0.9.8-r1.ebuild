@@ -6,14 +6,14 @@ EAPI=2
 
 if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="git://pcmanfm.git.sourceforge.net/gitroot/pcmanfm/${PN}"
-	inherit autotools git
+	inherit git
 	SRC_URI=""
 else
 	SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~ppc ~x86"
 fi
 
-inherit eutils fdo-mime
+inherit autotools eutils fdo-mime
 
 DESCRIPTION="Fast lightweight tabbed filemanager"
 HOMEPAGE="http://pcmanfm.sourceforge.net/"
@@ -37,8 +37,8 @@ src_prepare() {
 	epatch "${FILESDIR}/revert-new-IPC.patch"
 	if [[ ${PV} == 9999 ]]; then
 		intltoolize --force --copy --automake || die
-		eautoreconf
 	fi
+	eautoreconf
 }
 
 src_configure() {
