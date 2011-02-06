@@ -70,7 +70,7 @@ pkg_setup() {
 		$(use_enable nls)
 		$(use_enable test tests)
 		$(use_enable udev gudev)"
-	python_set_activer_version 2
+	python_set_active_version 2
 }
 
 src_prepare() {
