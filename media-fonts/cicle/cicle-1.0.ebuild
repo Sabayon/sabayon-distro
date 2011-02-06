@@ -4,7 +4,7 @@
 
 DESCRIPTION="Cicle Fonts by Joan Alegret (Tipomatika)"
 HOMEPAGE="www.tipomatika.co.nr"
-SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${PN}/${P}.tar.lzma"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.lzma"
 
 EAPI=2
 

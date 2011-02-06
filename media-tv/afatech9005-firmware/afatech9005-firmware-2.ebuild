@@ -4,7 +4,7 @@
 BC_REVISION="1"
 DESCRIPTION="Firmware for the Afatech 9005 DVB-T device"
 HOMEPAGE="http://www.linuxtv.org/"
-SRC_URI="http://distfiles.sabayon.org/media-tv/af9005-2.fw"
+SRC_URI="mirror://sabayon/media-tv/af9005-2.fw"
 
 LICENSE="AS-IS"
 SLOT="0"

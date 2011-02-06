@@ -11,7 +11,7 @@ MY_PN=${PN/-babel}
 MY_PF=${PF/-babel}
 DESCRIPTION="The Erlang Jabber Daemon (babel.it version, supporting multiple domains via LDAP)"
 HOMEPAGE="http://www.ejabberd.im/"
-SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${MY_PN}/${MY_P}.tar.bz2
+SRC_URI="mirror://sabayon/${CATEGORY}/${MY_PN}/${MY_P}.tar.bz2
 	mod_statsdx? ( mirror://gentoo/2.1.1-mod_statsdx.patch.bz2 )
 	mod_srl? ( https://alioth.debian.org/frs/download.php/3354/mod_shared_roster_ldap-0.5.3.tgz )"
 

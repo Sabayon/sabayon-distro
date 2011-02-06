@@ -4,7 +4,7 @@
 
 DESCRIPTION="Assembler for Broadcom BCM43xx firmware"
 HOMEPAGE="http://git.bu3sch.de/git/b43-tools.git"
-SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${PN}/${P}.tar.gz"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
 
 EAPI="2"
 LICENSE="GPL-2"

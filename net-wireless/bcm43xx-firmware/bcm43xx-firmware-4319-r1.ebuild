@@ -4,7 +4,7 @@
 BC_REVISION="1"
 DESCRIPTION="Firmware for the BCM43xx Broadcom adapters"
 HOMEPAGE="http://bcm43xx.berlios.de/"
-SRC_URI="http://distfiles.sabayon.org/net-wireless/bcm43xx-firmware/bcm${PV}_firmware-${BC_REVISION}.tar.bz2"
+SRC_URI="mirror://sabayon/net-wireless/bcm43xx-firmware/bcm${PV}_firmware-${BC_REVISION}.tar.bz2"
 
 LICENSE="AS-IS"
 SLOT="0"

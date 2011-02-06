@@ -7,7 +7,7 @@ inherit eutils
 
 DESCRIPTION="Sabayon Linux Entropy Test Package (fooooon't install this)"
 HOMEPAGE="http://www.sabayon.org"
-SRC_URI="http://distfiles.sabayon.org/app-misc/entrofoo-2.tar.bz2"
+SRC_URI="mirror://sabayon/app-misc/entrofoo-2.tar.bz2"
 
 RESTRICT="nomirror"
 LICENSE="GPL-2"

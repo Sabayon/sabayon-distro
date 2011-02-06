@@ -8,7 +8,7 @@ IUSE=""
 DESCRIPTION="Program to automatically probe a monitor for information"
 HOMEPAGE="http://www.knopper.net"
 
-SRC_URI="http://distfiles.sabayon.org/sys-apps/${PN}-${PV}.tar.bz2"
+SRC_URI="mirror://sabayon/sys-apps/${PN}-${PV}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64"

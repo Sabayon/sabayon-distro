@@ -8,7 +8,7 @@ inherit base eutils autotools multilib
 
 DESCRIPTION="Glib bindings for poppler"
 SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz
-	http://distfiles.sabayon.org/${CATEGORY}/poppler-patches-${PV}.tar.bz2"
+	mirror://sabayon/${CATEGORY}/poppler-patches-${PV}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"

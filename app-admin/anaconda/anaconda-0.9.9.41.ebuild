@@ -24,7 +24,7 @@ if [ "${PV}" = "9999" ]; then
 	SRC_URI="${AUDIT_SRC_URI} ${LSELINUX_SRC_URI}"
 	KEYWORDS=""
 else
-	SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${PN}-${PVR}.tar.bz2 ${AUDIT_SRC_URI} ${LSELINUX_SRC_URI}"
+	SRC_URI="mirror://sabayon/${CATEGORY}/${PN}-${PVR}.tar.bz2 ${AUDIT_SRC_URI} ${LSELINUX_SRC_URI}"
 	KEYWORDS="~amd64 ~x86"
 fi
 S="${WORKDIR}"/${PN}-${PVR}

@@ -9,7 +9,7 @@ inherit base eutils autotools
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="http://poppler.freedesktop.org/"
 SRC_URI="http://poppler.freedesktop.org/${P/-base}.tar.gz
-	http://distfiles.sabayon.org/${CATEGORY}/poppler-patches-${PV}.tar.bz2"
+	mirror://sabayon/${CATEGORY}/poppler-patches-${PV}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"

@@ -6,7 +6,7 @@ inherit eutils
 DESCRIPTION="Sabayon Linux Boot Music Infrastructure (BMI)"
 HOMEPAGE="http://www.sabayon.org"
 BOOT_MUSIC_OGG_FILE="08_-_rock'n'roll_hall_of_fame.ogg"
-SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${PN}/${BOOT_MUSIC_OGG_FILE}"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${BOOT_MUSIC_OGG_FILE}"
 RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"

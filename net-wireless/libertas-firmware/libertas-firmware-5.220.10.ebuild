@@ -5,7 +5,7 @@ RESTRICT="nomirror"
 
 DESCRIPTION="Firmware for Libertas Wireless Chipsets a/b/g"
 HOMEPAGE="http://wiki.laptop.org/go/Libertas"
-SRC_URI="http://distfiles.sabayon.org/net-wireless/${PN}/${PN}-${PV}.p5-1.tar.gz"
+SRC_URI="mirror://sabayon/net-wireless/${PN}/${PN}-${PV}.p5-1.tar.gz"
 
 LICENSE="as-is"
 SLOT="0"

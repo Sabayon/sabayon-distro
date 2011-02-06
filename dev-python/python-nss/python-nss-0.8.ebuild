@@ -9,7 +9,7 @@ inherit distutils eutils
 
 DESCRIPTION="Python bindings for Network Security Services (NSS)"
 HOMEPAGE="http://people.redhat.com/jdennis/python-nss/doc/api/html"
-SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${P}.tar.lzma"
+SRC_URI="mirror://sabayon/${CATEGORY}/${P}.tar.lzma"
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2 )"
 SLOT="0"

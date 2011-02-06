@@ -12,7 +12,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
-SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${P}.tar.bz2"
+SRC_URI="mirror://sabayon/${CATEGORY}/${P}.tar.bz2"
 RESTRICT="mirror"
 
 DEPEND="

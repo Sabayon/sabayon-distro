@@ -4,7 +4,7 @@
 
 DESCRIPTION="Asenine Fonts by Graham Meade of Apostrophic Labs"
 HOMEPAGE="http://apostrophiclab.pedroreina.net"
-SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${PN}/${P}.tar.lzma"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.lzma"
 
 EAPI=2
 

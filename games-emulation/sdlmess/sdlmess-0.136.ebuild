@@ -14,7 +14,7 @@ MY_PV=${MY_PV/_p/u}
 MY_P=${PN}${MY_PV}
 
 # Upstream doesn't allow fetching with unknown User-Agent such as wget
-SRC_URI="http://distfiles.sabayon.org/${CATEGORY}/${PN}/${MY_P}.zip"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${MY_P}.zip"
 
 # Same as xmame. Should it be renamed to MAME?
 LICENSE="XMAME"
