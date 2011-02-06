@@ -16,7 +16,7 @@ DESCRIPTION="Oxygen SVG icon theme."
 HOMEPAGE="http://www.oxygen-icons.org/"
 SLREV=4
 SRC_URI="http://dev.gentooexperimental.org/~scarabeus/${P}.tar.xz
-	http://distfiles.sabayonlinux.org/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz"
+	mirror://sabayon/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz"
 
 LICENSE="LGPL-3"
 KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"

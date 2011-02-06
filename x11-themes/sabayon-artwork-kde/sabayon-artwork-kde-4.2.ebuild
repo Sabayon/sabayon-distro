@@ -6,7 +6,7 @@ inherit eutils kde4-base
 
 DESCRIPTION="Sabayon Linux Official KDE artwork"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-4.1.99-r1.tar.lzma"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${PN}-4.1.99-r1.tar.lzma"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"

@@ -63,7 +63,7 @@ FIRMWARE=(	"esfw41.bin Perfection 2480/2580 PHOTO"
 			"esfw7A.bin Perfection V200 PHOTO"
 			"esfw7C.bin Perfection V500 PHOTO" )
 
-SRC_GCC34="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}_${PV}-${SRC_REV}.tar.gz"
+SRC_GCC34="mirror://sabayon/${CATEGORY}/${PN}/${PN}_${PV}-${SRC_REV}.tar.gz"
 BIN_GCC34=""
 
 for X in ${PLUGINS}; do

@@ -6,7 +6,7 @@ inherit eutils
 
 DESCRIPTION="Sabayon LXDE Artwork"
 HOMEPAGE="http://www.sabayon.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"

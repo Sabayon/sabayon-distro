@@ -5,7 +5,7 @@ inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official artwork, can include wallpapers, ksplash, and GTK/QT Themes."
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-4.0.97.tar.bz2"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${PN}-4.0.97.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"

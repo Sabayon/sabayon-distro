@@ -10,7 +10,7 @@ DESCRIPTION="Colorized icons shared between all gnome-colors iconsets"
 HOMEPAGE="http://code.google.com/p/gnome-colors/"
 
 SRC_URI="http://gnome-colors.googlecode.com/files/gnome-colors-${PV}.tar.gz
-	branding? ( http://distfiles.sabayonlinux.org/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz )"
+	branding? ( mirror://sabayon/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz )"
 
 LICENSE="GPL-2 public-domain"
 SLOT="0"

@@ -6,7 +6,7 @@ inherit mono autotools
 
 DESCRIPTION="An instant messenger application designed for the GNOME desktop"
 HOMEPAGE="http://code.google.com/p/galaxium/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${PN}-0.7.4.1+svn1634.tar.gz"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${PN}-0.7.4.1+svn1634.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"

@@ -7,7 +7,7 @@ inherit eutils mount-boot sabayon-artwork
 
 DESCRIPTION="Sabayon CoreCD Artwork"
 HOMEPAGE="http://www.sabayonlinux.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.lzma"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.lzma"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"

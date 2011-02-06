@@ -8,7 +8,7 @@ inherit eutils toolchain-funcs flag-o-matic versionator
 
 DESCRIPTION="multi-track hard disk recording software"
 HOMEPAGE="http://ardour.org/"
-SRC_URI="http://distfiles.sabayonlinux.org/${CATEGORY}/${PN}/${P}.tar.bz2"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
