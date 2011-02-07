@@ -70,6 +70,11 @@ RESTRICT="test" # tests are failing atm
 # documentation/website with --enable-doc-install
 # failing tests
 
+src_prepare() {
+	cd "${S}"
+	epatch "${FILESDIR}/${P}-file-updates.patch"
+}
+
 src_configure() {
 	local myconf=""
 
