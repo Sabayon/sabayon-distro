@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-sound/pulseaudio/pulseaudio-0.9.22.ebuild,v 1.6 2010/12/22 06:22:26 ford_prefect Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-sound/pulseaudio/pulseaudio-0.9.22.ebuild,v 1.8 2011/01/09 17:50:40 armin76 Exp $
 
 EAPI=3
 
@@ -13,8 +13,8 @@ SRC_URI="http://0pointer.de/lennart/projects/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2 GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="+alsa avahi +caps jack lirc oss tcpd +X hal dbus libsamplerate gnome bluetooth +asyncns +glib test doc +udev ipv6 system-wide realtime"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
+IUSE="+alsa avahi +caps jack lirc oss tcpd +X dbus libsamplerate gnome bluetooth +asyncns +glib test doc +udev ipv6 system-wide realtime"
 
 RDEPEND="app-admin/eselect-esd
 	X? (
@@ -34,10 +34,6 @@ RDEPEND="app-admin/eselect-esd
 	lirc? ( app-misc/lirc )
 	dbus? ( >=sys-apps/dbus-1.0.0 )
 	gnome? ( >=gnome-base/gconf-2.4.0 )
-	hal? (
-		>=sys-apps/hal-0.5.11
-		>=sys-apps/dbus-1.0.0
-	)
 	bluetooth? (
 		>=net-wireless/bluez-4
 		>=sys-apps/dbus-1.0.0
@@ -77,13 +73,6 @@ pkg_setup() {
 	enewgroup pulse-access
 	enewgroup pulse
 	enewuser pulse -1 -1 /var/run/pulse pulse,audio
-
-	if use udev && use hal; then
-		elog "Please note that enabling both udev and hal will build both"
-		elog "discover modules, but only udev will be used automatically."
-		elog "If you wish to use hal you have to enable it explicitly"
-		elog "or you might just disable the hal USE flag entirely."
-	fi
 }
 
 src_prepare() {
@@ -115,7 +104,7 @@ src_configure() {
 		$(use_enable jack) \
 		$(use_enable lirc) \
 		$(use_enable avahi) \
-		$(use_enable hal) \
+		--disable-hal \
 		$(use_enable dbus) \
 		$(use_enable gnome gconf) \
 		$(use_enable libsamplerate samplerate) \
@@ -160,8 +149,7 @@ src_install() {
 			use "$1" && echo "-D$define" || echo "-U$define"
 		}
 
-		unifdef $(use_define hal) \
-			$(use_define avahi) \
+		unifdef $(use_define avahi) \
 			$(use_define alsa) \
 			$(use_define bluetooth) \
 			$(use_define udev) \
@@ -172,10 +160,6 @@ src_install() {
 	fi
 
 	use avahi && sed -i -e '/module-zeroconf-publish/s:^#::' "${ED}/etc/pulse/default.pa"
-
-	if use hal && ! use udev; then
-		sed -i -e 's:-udev:-hal:' "${ED}/etc/pulse/default.pa" || die
-	fi
 
 	dodoc README ChangeLog todo || die
 
