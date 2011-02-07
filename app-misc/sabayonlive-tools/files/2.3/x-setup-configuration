@@ -2,6 +2,7 @@
 
 # get livecd functions
 source /sbin/livecd-functions.sh
+source /sbin/sabayon-functions.sh
 
 runtime_linking_proprietary_drivers() {
 	if [ -d "/lib/nvidia" ] || [ -d "/lib/fglrx" ]; then
