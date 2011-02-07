@@ -61,7 +61,7 @@ DEPEND="${RDEPEND}
 # alsa-utils dep is for the alsasound init.d script (see bug #155707)
 # bluez dep is for the bluetooth init.d script
 RDEPEND="${RDEPEND}
-	X? ( gnome-extra/gnome-audio )
+	gnome? ( gnome-extra/gnome-audio )
 	system-wide? (
 		sys-apps/openrc
 		alsa? ( media-sound/alsa-utils )
