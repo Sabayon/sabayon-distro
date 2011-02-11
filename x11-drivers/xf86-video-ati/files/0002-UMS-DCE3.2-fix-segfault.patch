@@ -1,0 +1,76 @@
+From 84450ea9221f32296c1f786a6aa126a08bb9756f Mon Sep 17 00:00:00 2001
+From: Alex Deucher <alexdeucher@gmail.com>
+Date: Sat, 5 Feb 2011 14:05:48 -0500
+Subject: [PATCH 02/11] UMS/DCE3.2: fix segfault
+
+atombios_pick_dig_encoder() needs to be called
+with a valid crtc assigned.
+
+Signed-off-by: Alex Deucher <alexdeucher@gmail.com>
+---
+ src/atombios_output.c |    5 +----
+ src/radeon_output.c   |    4 ++++
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/src/atombios_output.c b/src/atombios_output.c
+index af0e59a..0d0f48a 100644
+--- a/src/atombios_output.c
++++ b/src/atombios_output.c
+@@ -172,7 +172,6 @@ const char *device_name[12] = {
+ #define DP_SET_POWER_D3  0x2
+ 
+ static void do_displayport_link_train(xf86OutputPtr output);
+-static void atombios_pick_dig_encoder(xf86OutputPtr output);
+ 
+ static int
+ atombios_output_dac_setup(xf86OutputPtr output, int action)
+@@ -1469,7 +1468,6 @@ atombios_output_dpms(xf86OutputPtr output, int mode)
+ 
+     if (radeon_encoder == NULL)
+         return;
+-    atombios_pick_dig_encoder(output);
+ 
+     switch (radeon_encoder->encoder_id) {
+     case ENCODER_OBJECT_ID_INTERNAL_TMDS1:
+@@ -1781,7 +1779,7 @@ atombios_apply_output_quirks(xf86OutputPtr output, DisplayModePtr mode)
+     }
+ }
+ 
+-static void
++void
+ atombios_pick_dig_encoder(xf86OutputPtr output)
+ {
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(output->scrn);
+@@ -1878,7 +1876,6 @@ atombios_output_mode_set(xf86OutputPtr output,
+ 	return;
+ 
+     radeon_output->pixel_clock = adjusted_mode->Clock;
+-    atombios_pick_dig_encoder(output);
+     atombios_output_overscan_setup(output, mode, adjusted_mode);
+     atombios_output_scaler_setup(output);
+     atombios_set_output_crtc_source(output);
+diff --git a/src/radeon_output.c b/src/radeon_output.c
+index 877d711..f643870 100644
+--- a/src/radeon_output.c
++++ b/src/radeon_output.c
+@@ -120,6 +120,8 @@ static void
+ radeon_bios_output_crtc(xf86OutputPtr output);
+ static void
+ radeon_bios_output_lock(xf86OutputPtr output, Bool lock);
++extern void
++atombios_pick_dig_encoder(xf86OutputPtr output);
+ 
+ void RADEONPrintPortMap(ScrnInfoPtr pScrn)
+ {
+@@ -731,6 +733,8 @@ radeon_mode_prepare(xf86OutputPtr output)
+     }
+ 
+     radeon_bios_output_lock(output, TRUE);
++    if (IS_AVIVO_VARIANT)
++	atombios_pick_dig_encoder(output);
+     radeon_dpms(output, DPMSModeOff);
+     radeon_crtc_dpms(output->crtc, DPMSModeOff);
+ 
+-- 
+1.7.3.2
+
