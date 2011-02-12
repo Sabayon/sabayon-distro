@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import sys, os, urllib, urllib2
+MDL = 1024 * 100
 
 class Callable:
     def __init__(self, anycallable):
@@ -74,7 +75,7 @@ class MultipartPostHandler(urllib2.BaseHandler):
 class PastieInterface:
 
     def __init__(self):
-        self.url = 'http://www.sabayonlinux.org/pastebin/send'
+        self.url = 'http://pastebin.sabayon.org/send'
         self.opener = urllib2.build_opener(MultipartPostHandler)
         self.generated = False
         self.params = {}
@@ -118,19 +119,59 @@ class PastieInterface:
             opener = module.build_opener(proxy_support)
         module.install_opener(opener)
 
-    def submit(self):
+    def submit(self, f_obj):
 
-        data = sys.stdin.read()
+        data = f_obj.read()
+        if len(data) > MDL:
+            raise SystemExit(1)
         self.params['pastebin_syntax_id'] = "-1"
         self.params['pastebin_doctypes_id'] = "-1"
         self.params['expiration_days'] = "-1"
         self.params['pastebin_permissions_id'] = "-1"
         self.params['pastie_content'] = data
         self.params['just_url'] = "1"
-        if not data: raise SystemExit(1)
+        if not data:
+            return False
         result = self.opener.open(self.url, self.params).read()
         print result.strip()
+        return True
 
+    def submit_as_file(self, f_obj):
+
+        data = f_obj.read()
+        if len(data) > MDL:
+            raise SystemExit(1)
+        self.params['pastebin_syntax_id'] = "-1"
+        self.params['pastebin_doctypes_id'] = "-2"
+        self.params['expiration_days'] = "-1"
+        self.params['pastebin_permissions_id'] = "-1"
+        self.params['pastie_content'] = data
+        self.params['just_url'] = "1"
+        if not data:
+            return False
+        result = self.opener.open(self.url, self.params).read()
+        print result.strip()
+        return True
 
 my = PastieInterface()
-my.submit()
+f_obj = sys.stdin
+f_obj_diff = False
+for arg in sys.argv[1:]:
+    if os.access(arg, os.R_OK) and os.path.isfile(arg):
+        f_obj = open(arg, "rb")
+        f_obj_diff = True
+        break
+
+if "-f" in sys.argv:
+    rc = my.submit_as_file(f_obj)
+else:
+    rc = my.submit(f_obj)
+
+if f_obj_diff:
+    f_obj.close()
+
+if not rc:
+    print "syntax error !"
+    print "syntax:", sys.argv[0], "[-f] <path>"
+    print "note: if <path> is not provided, stdin will be used"
+    raise SystemExit(1)
