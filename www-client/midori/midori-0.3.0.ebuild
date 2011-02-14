@@ -1,17 +1,17 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/midori/midori-0.2.9-r1.ebuild,v 1.5 2011/02/05 12:46:32 ssuominen Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/midori/midori-0.3.0.ebuild,v 1.3 2011/02/05 12:46:32 ssuominen Exp $
 
 EAPI=3
 inherit eutils multilib python xfconf
 
 DESCRIPTION="A lightweight web browser based on WebKitGTK+"
 HOMEPAGE="http://www.twotoasts.de/index.php?/pages/midori_summary.html"
-SRC_URI="mirror://xfce/src/apps/${PN}/0.2/${P}.tar.bz2"
+SRC_URI="mirror://xfce/src/apps/${PN}/0.3/${P}.tar.bz2"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~ppc x86 ~x86-fbsd"
+KEYWORDS="~amd64 ~arm ~ppc ~x86 ~x86-fbsd"
 IUSE="doc gnome +html idn libnotify nls +unique"
 
 RDEPEND="libnotify? ( x11-libs/libnotify )
@@ -35,14 +35,6 @@ pkg_setup() {
 	python_set_active_version 2
 }
 
-src_prepare() {
-	epatch "${FILESDIR}"/${P}-libnotify-0.7.patch
-
-	# moving docs to version-specific directory
-	sed -i -e "s:/${PN}/user/midori.html:/user/midori.html:g" midori/midori-browser.c || die
-	epatch "${FILESDIR}/${PN}-sabayon-user-agent.patch"
-}
-
 src_configure() {
 	strip-linguas -i po
 
@@ -60,6 +52,10 @@ src_configure() {
 		$(use_enable unique) \
 		--disable-vala \
 		configure || die
+}
+
+src_prepare() {
+	epatch "${FILESDIR}/${PN}-sabayon-user-agent.patch"
 }
 
 src_compile() {
