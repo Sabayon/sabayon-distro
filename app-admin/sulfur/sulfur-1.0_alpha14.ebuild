@@ -4,7 +4,7 @@
 EAPI="2"
 inherit eutils gnome2-utils fdo-mime python
 
-DESCRIPTION="Official Sabayon Linux Package Manager Graphical Client (tagged release)"
+DESCRIPTION="Sulfur, the Entropy Store (Sabayon Package Manager GUI)"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-2"
 SLOT="0"
