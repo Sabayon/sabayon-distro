@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -10,13 +10,17 @@ PYTHON_MODNAME="turpial"
 
 inherit distutils
 
+MY_P="${P/_beta4/-b4}"
+
+S="${WORKDIR}/${MY_P}"
+
 DESCRIPTION="Lightweigth and featurefull microblogging client"
 HOMEPAGE="http://turpial.org.ve/"
-SRC_URI="http://turpial.googlecode.com/files/${P}.tar.gz"
+SRC_URI="http://turpial.org.ve/files/sources/development/${MY_P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~x86"
 IUSE=""
 
 DEPEND="dev-python/Babel
