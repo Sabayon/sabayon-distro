@@ -15,7 +15,7 @@ SRC_URI="mirror://sourceforge/codelite/codelite-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE=""
+IUSE="subversion"
 
 RDEPEND=""
 
