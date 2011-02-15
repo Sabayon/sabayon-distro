@@ -13,7 +13,7 @@ SLOT="0"
 
 DEPEND=""
 RDEPEND="app-admin/system-config-date
-	app-admin/system-config-users?
+	app-admin/system-config-users
 	>=app-misc/sabayonlive-tools-2.1.1
 	>=app-misc/sabayon-version-5-r1
 	app-text/xmlto
