@@ -32,6 +32,7 @@ src_prepare() {
 
 src_configure() {
         econf \
+		--enable-introspection=no \
 		--enable-poppler-glib \
 		--enable-zlib \
 		--disable-gtk-test \
