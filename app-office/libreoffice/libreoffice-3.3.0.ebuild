@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-office/libreoffice/libreoffice-3.3.0.ebuild,v 1.7 2011/02/05 21:35:16 suka Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-office/libreoffice/libreoffice-3.3.0.ebuild,v 1.8 2011/02/08 21:12:02 suka Exp $
 
 EAPI="3"
 
@@ -255,7 +255,7 @@ src_prepare() {
 	epatch "${FILESDIR}/scrap-pixmap-links.diff"
 	epatch "${FILESDIR}/enable-startup-notification.diff"
 	epatch "${FILESDIR}/libreoffice-3.3-prefix.patch"
-	cp -f "${FILESDIR}/sdext-presenter.diff" "${S}/patches/hotfixes" || die
+	use java && cp -f "${FILESDIR}/sdext-presenter.diff" "${S}/patches/hotfixes"
 
 	#Use flag checks
 	if use java ; then
@@ -289,12 +289,16 @@ src_prepare() {
 	echo $(use_enable debug crashdump) >> ${CONFFILE}
 	echo $(use_enable debug strip-solver) >> ${CONFFILE}
 
-	# Extension stuff
-	echo "--with-extension-integration" >> ${CONFFILE}
-	echo "--enable-pdfimport" >> ${CONFFILE}
-	echo "--enable-minimizer" >> ${CONFFILE}
-	echo "--enable-presenter-console" >> ${CONFFILE}
-	echo "--enable-presenter-extra-ui" >> ${CONFFILE}
+	# Extension stuff, disabled when building without java for bug #352812
+	if use java; then
+		echo "--with-extension-integration" >> ${CONFFILE}
+		echo "--enable-pdfimport" >> ${CONFFILE}
+		echo "--enable-minimizer" >> ${CONFFILE}
+		echo "--enable-presenter-console" >> ${CONFFILE}
+		echo "--enable-presenter-extra-ui" >> ${CONFFILE}
+		#still necessary
+		echo "--enable-presenter-screen" >> ${CONFFILE}
+	fi
 
 	# Misc stuff
 	echo "--disable-graphite" >> ${CONFFILE}
@@ -370,7 +374,7 @@ src_configure() {
 		$(use_with templates sun-templates) \
 		--disable-access \
 		--disable-post-install-scripts \
-		--enable-extensions \
+		$(use_enable java extensions) \
 		--without-system-libwpd \
 		--without-system-libwpg \
 		--mandir="${EPREFIX}"/usr/share/man \
