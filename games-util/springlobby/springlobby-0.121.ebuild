@@ -14,11 +14,12 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 RESTRICT="nomirror"
-IUSE="+torrent +sound debug"
+IUSE="+torrent +sound debug libnotify"
 
 RDEPEND="
 	>=x11-libs/wxGTK-2.8[X]
 	net-misc/curl
+	libnotify? ( x11-libs/libnotify )
 	sound? (	media-libs/openal )
 	torrent? (	>=net-libs/rb_libtorrent-0.14 )
 "
@@ -55,3 +56,4 @@ src_install() {
 	dodir /etc/env.d/
 	echo 'XDG_DATA_DIRS="/usr/share/games"' >> ${D}/etc/env.d/99games
 }
+
