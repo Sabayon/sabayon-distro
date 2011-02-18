@@ -24,6 +24,7 @@ RDEPEND="
 	>=dev-dotnet/gconf-sharp-2.24.1
 	>=dev-dotnet/gdk-sharp-2.12.10
 	>=dev-dotnet/glade-sharp-2.12.10
+	>=dev-dotnet/gio-sharp-0.0.1
 	>=dev-dotnet/gnome-desktop-sharp-2.6.0-r1
 	>=dev-dotnet/gnome-keyring-sharp-1.0.0-r2
 	>=dev-dotnet/gnome-sharp-2.24.1
