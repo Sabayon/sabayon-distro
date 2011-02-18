@@ -9,7 +9,7 @@ inherit gnome2-utils mono eutils
 DESCRIPTION="Docky is a full fledged dock application that makes opening \
 common applications and managing windows easier and quicker."
 HOMEPAGE="https://launchpad.net/docky"
-SRC_URI="http://launchpad.net/${PN}/2.0/${PV}/+download/${P}.tar.gz"
+SRC_URI="http://launchpad.net/${PN}/2.1/${PV}/+download/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -36,7 +36,6 @@ RDEPEND="
 	>=dev-dotnet/rsvg-sharp-2.24.0-r10
 	>=dev-dotnet/wnck-sharp-2.24.0-r10
 	>=dev-lang/mono-2.6.4-r1
-
 	!<gnome-extra/gnome-do-plugins-0.8
 "
 
@@ -44,16 +43,14 @@ DEPEND="
 	${RDEPEND}
 	>=dev-util/intltool-0.41.1
 	>=dev-util/pkgconfig-0.25-r2
-	dev-dotnet/gtk-sharp-gapi
 "
 
 RESTRICT="primaryuri"
 
 src_configure() {
-	epatch "${FILESDIR}"/docky-mono28.patch
 	econf   $(use_enable debug) \
 		$(use_enable nls) \
-		--enable-release	
+		--enable-release
 }
 
 src_compile() {
@@ -76,3 +73,4 @@ pkg_postinst() {
 pkg_postrm() { 
 	gnome2_icon_cache_update; 
 }
+
