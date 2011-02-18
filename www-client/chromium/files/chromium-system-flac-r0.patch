@@ -1,0 +1,13 @@
+--- third_party/flac/flac.h.orig	2011-01-22 14:23:20.000000000 +0000
++++ third_party/flac/flac.h	2011-01-22 14:24:34.000000000 +0000
+@@ -9,6 +9,10 @@
+ // This is a shim header to include the right flac headers.
+ // Use this instead of referencing the flac headers directly.
+ 
++#if defined(USE_SYSTEM_FLAC)
++#include <FLAC/stream_encoder.h>
++#else
+ #include "third_party/flac/include/FLAC/stream_encoder.h"
++#endif
+ 
+ #endif  // THIRD_PARTY_FLAC_FLAC_H_
