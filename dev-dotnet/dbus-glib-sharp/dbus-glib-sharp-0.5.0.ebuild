@@ -4,7 +4,9 @@
 
 EAPI=2
 
-inherit eutils mono autotools
+inherit eutils mono 
+
+MY_PN="dbus-sharp-glib"
 
 DESCRIPTION="glib integration for DBus-Sharp"
 HOMEPAGE="https://github.com/mono/dbus-sharp"
@@ -20,6 +22,14 @@ RDEPEND=">=dev-lang/mono-2.8.1
 DEPEND="${RDEPEND}
                 >=dev-util/pkgconfig-0.19"
 
-src_install() {
-        make install DESTDIR="${D}"
+S="${WORKDIR}/${MY_PN}-${PV}"
+
+src_configure() {
+        econf || die "econf failed"
 }
+
+
+src_install() {
+        emake DESTDIR="${D}" install || die "emake failed"
+}
+
