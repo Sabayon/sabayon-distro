@@ -60,6 +60,7 @@ src_compile() {
 }
 
 src_install() {
+	gnome2_src_install
 	emake install DESTDIR="${D}"  || die "Install failed"
 }
 
