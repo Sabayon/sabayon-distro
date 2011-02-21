@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-dotnet/dbus-sharp/dbus-sharp-0.6.1a.ebuild,v 1.4 2008/07/28 15:44:49 armin76 Exp $
+# $Header: Exp $
 
 EAPI=2
 
