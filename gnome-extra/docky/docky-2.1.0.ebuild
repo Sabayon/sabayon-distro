@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit gnome2-utils mono eutils gnome2
+inherit gnome2-utils mono eutils
 
 DESCRIPTION="Docky is a full fledged dock application that makes opening \
 common applications and managing windows easier and quicker."
@@ -60,7 +60,6 @@ src_compile() {
 }
 
 src_install() {
-	gnome2_src_install
 	emake install DESTDIR="${D}"  || die "Install failed"
 }
 
