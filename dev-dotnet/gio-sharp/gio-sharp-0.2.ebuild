@@ -29,7 +29,7 @@ S="${WORKDIR}/${MY_PN}"
 
 src_prepare () {
         cd "${WORKDIR}/${MY_PN}/"
-        ./autogen-2.22.sh
+        ./autogen-2.22.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var
 }
 
 src_configure () {
