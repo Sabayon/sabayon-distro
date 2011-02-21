@@ -22,5 +22,4 @@ DEPEND="${RDEPEND}
 
 src_install() {
         make install DESTDIR="${D}"
-        dodoc AUTHORS ChangeLog NEWS README
 }
