@@ -7,9 +7,9 @@ EAPI=3
 
 inherit eutils mono autotools
 
-DESCRIPTION="GIO bindings"
-HOMEPAGE="http://github.com/mono/gio-sharp/"
-SRC_URI="http://packages.monkeycode.org/${P}.tar.gz"
+DESCRIPTION="A branch of the official gtk-sharp/gio to get gio-sharp building on gtk-sharp 2.12"
+HOMEPAGE="http://github.com/mono/gio-sharp"
+SRC_URI="https://github.com/mono/gio-sharp/zipball/${PV}"
 
 LICENSE="MIT"
 SLOT="0"
