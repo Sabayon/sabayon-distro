@@ -21,7 +21,7 @@ RDEPEND=">=dev-lang/mono-2.8.1
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
-S=${WORKDIR}/${MY_PN}-${PV}
+S=${WORKDIR}/${PN}-${PV}
 
 src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed."
