@@ -33,10 +33,12 @@ src_prepare () {
 }
 
 src_configure () {
+	cd "${WORKDIR}/${MY_PN}/"
         ./configure --prefix=/usr
 }
 
 src_compile() {
+	cd "${WORKDIR}/${MY_PN}/"
         make
 }
 
