@@ -11,7 +11,7 @@ HOMEPAGE="https://github.com/mono/dbus-sharp"
 SRC_URI="https://github.com/downloads/mono/dbus-sharp/dbus-sharp-${PV}.tar.gz"
 
 LICENSE="MIT"
-SLOT="0"
+SLOT="1"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 

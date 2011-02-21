@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/mono/dbus-sharp"
 SRC_URI="https://github.com/downloads/mono/dbus-sharp/dbus-sharp-glib-${PV}.tar.gz"
 
 LICENSE="as-is"
-SLOT="0"
+SLOT="1"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
