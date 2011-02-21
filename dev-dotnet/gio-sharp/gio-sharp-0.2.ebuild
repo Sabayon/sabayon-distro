@@ -25,7 +25,7 @@ RDEPEND=">=dev-lang/mono-2
 DEPEND="${RDEPEND}
         app-arch/unzip"
 
-S="${WORKDIR}/${MY_PN}-${PV}"
+S="${WORKDIR}/${MY_PN}"
 
 src_prepare () {
         cd "${WORKDIR}/${MY_PN}/"
@@ -33,17 +33,13 @@ src_prepare () {
 }
 
 src_configure () {
-	cd "${WORKDIR}/${MY_PN}/"
-        ./configure --prefix=/usr
+        econf || die "configure failed"
 }
 
 src_compile() {
-	cd "${WORKDIR}/${MY_PN}/"
-        make
+        emake -j1 || die "make failed"
 }
 
 src_install() {
-        emake DESTDIR="${D}" install || die "emake install failed."
-        dodoc AUTHORS ChangeLog NEWS README
-        mono_multilib_comply
+        emake DESTDIR="${D}" install || die "install failed"
 }
