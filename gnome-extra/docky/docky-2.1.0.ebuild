@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit gnome2-utils mono eutils
+inherit gnome2-utils mono eutils gnome2
 
 DESCRIPTION="Docky is a full fledged dock application that makes opening \
 common applications and managing windows easier and quicker."
