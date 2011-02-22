@@ -36,7 +36,6 @@ RDEPEND="
 	>=dev-dotnet/rsvg-sharp-2.24.0-r10
 	>=dev-dotnet/wnck-sharp-2.24.0-r10
 	>=dev-lang/mono-2.6.4-r1
-
 	!<gnome-extra/gnome-do-plugins-0.8
 "
 
