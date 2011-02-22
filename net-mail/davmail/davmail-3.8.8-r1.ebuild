@@ -20,7 +20,7 @@ IUSE=""
 DEPEND="virtual/jre:1.6"
 RDEPEND="${DEPEND}"
 
-use x86 && S="${P/$PN/$PN-linux-x86_64}-${MY_VER}"
+use x86 && S="${P/$PN/$PN-linux-x86}-${MY_VER}"
 use amd64 && S="${P/$PN/$PN-linux-x86_64}-${MY_VER}"
 
 src_install() {
