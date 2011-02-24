@@ -4,10 +4,9 @@
 
 EAPI="2"
 
-inherit gnome2-utils mono eutils
+inherit gnome2-utils mono eutils autotools
 
-DESCRIPTION="Docky is a full fledged dock application that makes opening \
-common applications and managing windows easier and quicker."
+DESCRIPTION="Docky is a dock application that makes opening apps and windows easier"
 HOMEPAGE="https://launchpad.net/docky"
 SRC_URI="http://launchpad.net/${PN}/2.1/${PV}/+download/${P}.tar.gz"
 
@@ -16,8 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="debug nls"
 
-RDEPEND="
-	>=dev-dotnet/art-sharp-2.24.1
+RDEPEND=">=dev-dotnet/art-sharp-2.24.1
 	>=dev-dotnet/atk-sharp-2.12.10
 	>=dev-dotnet/dbus-glib-sharp-0.5.0:1
 	>=dev-dotnet/dbus-sharp-0.7.0:1
@@ -37,18 +35,19 @@ RDEPEND="
 	>=dev-dotnet/rsvg-sharp-2.24.0-r10
 	>=dev-dotnet/wnck-sharp-2.24.0-r10
 	>=dev-lang/mono-2.6.4-r1
-	!<gnome-extra/gnome-do-plugins-0.8
-"
+	!<gnome-extra/gnome-do-plugins-0.8"
 
-DEPEND="
-	${RDEPEND}
+DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.41.1
-	>=dev-util/pkgconfig-0.25-r2
-"
+	>=dev-util/pkgconfig-0.25-r2"
 
 RESTRICT="primaryuri"
 
 src_configure() {
+	# workaround upstream idiocy
+	sed -i "/^AC_PATH_PROG/ s/gconftool-2/true/g" ${S}/configure.ac || die
+	eautoreconf
+
 	econf   $(use_enable debug) \
 		$(use_enable nls) \
 		--enable-release
@@ -63,15 +62,15 @@ src_install() {
 	emake install DESTDIR="${D}"  || die "Install failed"
 }
 
-pkg_preinst() { 
-	gnome2_icon_savelist; 
+pkg_preinst() {
+	gnome2_icon_savelist
 }
 
-pkg_postinst() { 
-	gnome2_icon_cache_update; 
+pkg_postinst() {
+	gnome2_icon_cache_update
 }
 
-pkg_postrm() { 
-	gnome2_icon_cache_update; 
+pkg_postrm() {
+	gnome2_icon_cache_update
 }
 
