@@ -46,9 +46,9 @@ RESTRICT="primaryuri"
 G2CONF="$(use_enable nls) \
 	--enable-release"
 
-src_configure() {
+src_prepare() {
 	# workaround upstream idiocy
 	sed -i "/^AC_PATH_PROG/ s/gconftool-2/true/g" ${S}/configure.ac || die
 	eautoreconf
-	gnome2_src_configure
+	gnome2_src_prepare
 }
