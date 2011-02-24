@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit gnome2-utils mono eutils autotools
+inherit gnome2-utils gnome2 mono eutils autotools
 
 DESCRIPTION="Docky is a dock application that makes opening apps and windows easier"
 HOMEPAGE="https://launchpad.net/docky"
@@ -13,7 +13,7 @@ SRC_URI="http://launchpad.net/${PN}/2.1/${PV}/+download/${P}.tar.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="debug nls"
+IUSE="nls"
 
 RDEPEND=">=dev-dotnet/art-sharp-2.24.1
 	>=dev-dotnet/atk-sharp-2.12.10
@@ -43,34 +43,12 @@ DEPEND="${RDEPEND}
 
 RESTRICT="primaryuri"
 
+G2CONF="$(use_enable nls) \
+	--enable-release"
+
 src_configure() {
 	# workaround upstream idiocy
 	sed -i "/^AC_PATH_PROG/ s/gconftool-2/true/g" ${S}/configure.ac || die
 	eautoreconf
-
-	econf   $(use_enable debug) \
-		$(use_enable nls) \
-		--enable-release
+	gnome2_src_configure
 }
-
-src_compile() {
-	econf
-	emake || die "Build failed"
-}
-
-src_install() {
-	emake install DESTDIR="${D}"  || die "Install failed"
-}
-
-pkg_preinst() {
-	gnome2_icon_savelist
-}
-
-pkg_postinst() {
-	gnome2_icon_cache_update
-}
-
-pkg_postrm() {
-	gnome2_icon_cache_update
-}
-
