@@ -2,43 +2,48 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI=3
 
-inherit eutils mono autotools
+inherit autotools
 
-# Upstream seems to enjoy using random names.
-MY_PN="mono-gio-sharp-017c8a5"
-
-DESCRIPTION="A branch of the official gtk-sharp/gio to get gio-sharp building on gtk-sharp 2.12"
+DESCRIPTION="Bindings to Glib's libgio"
 HOMEPAGE="http://github.com/mono/gio-sharp"
 SRC_URI="https://github.com/mono/gio-sharp/tarball/master -> mono-gio-sharp-0.2.tar.gz"
-
-LICENSE="MIT"
-SLOT="0"
-KEYWORDS="~x86 ~amd64"
-IUSE=""
-
-RDEPEND=">=dev-lang/mono-2
-        dev-dotnet/glib-sharp
-        dev-dotnet/gtk-sharp-gapi
-        >=dev-libs/glib-2.22:2"
-DEPEND="${RDEPEND}"
-
+MY_PN="mono-gio-sharp-017c8a5"
 S="${WORKDIR}/${MY_PN}"
 
-src_prepare () {
-        cd "${WORKDIR}/${MY_PN}/"
-        ./autogen-2.22.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+LICENSE="LGPL-2"
+SLOT="0"
+KEYWORDS="~amd64 ~x86"
+IUSE=""
+
+GLIB_REQUIRED=2.22
+GIO_SHARP_VERSION=2.22.2
+
+DEPEND=">=dev-dotnet/glib-sharp-2.12
+    >=dev-dotnet/gtk-sharp-gapi-2.12
+	>=dev-libs/glib-${GLIB_REQUIRED}"
+RDEPEND="${DEPEND}"
+
+src_prepare() {
+	CSC_FLAGS="-d:GIO_SHARP_2_22"
+	sed -e "s/@GIO_SHARP_VERSION@/$GIO_SHARP_VERSION/"  \
+	    -e "s/@GLIB_REQUIRED@/$GLIB_REQUIRED/"          \
+	    -e "s/@CSC_FLAGS@/$CSC_FLAGS/"                  \
+	    configure.ac.in > configure.ac
+	ln -f sources/sources-$GLIB_REQUIRED.xml sources/sources.xml
+	ln -f gio/gio-api-$GLIB_REQUIRED.raw gio/gio-api.raw
+	eautoreconf
 }
 
-src_configure () {
-        econf || die "configure failed"
+src_configure() {
+	econf
 }
 
 src_compile() {
-        emake -j1 || die "make failed"
+	emake -j1
 }
 
 src_install() {
-        emake DESTDIR="${D}" install || die "install failed"
+	emake DESTDIR="${D}" install || die "Install failed"
 }
