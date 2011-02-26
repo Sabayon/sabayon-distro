@@ -18,8 +18,7 @@ IUSE="gtk selinux"
 # TODO: split package?
 RDEPEND="selinux? ( sys-libs/libselinux )
 	dev-python/dbus-python
-	sys-auth/policykit
-	sys-auth/polkit
+	|| ( sys-auth/polkit sys-auth/policykit )
 	dev-python/decorator
 	gtk? ( dev-python/pygtk )"
 
