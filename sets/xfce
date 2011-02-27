@@ -3,6 +3,5 @@ app-misc/sabayon-skel
 lxde-base/lxdm
 @wireless
 @X
-x11-themes/sabayon-artwork-gnome
 x11-themes/xfce4-icon-theme
 xfce-base/xfce4-meta
