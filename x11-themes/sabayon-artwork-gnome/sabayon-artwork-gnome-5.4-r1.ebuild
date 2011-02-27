@@ -15,9 +15,6 @@ RESTRICT="nomirror"
 DEPEDND="!!x11-themes/gnome-colors-themes"
 RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
 	 x11-themes/gtk-engines"
-#PDEPEND to make sure there are no collisions we need to upgrade to 5.3 first
-# (to remove the icons). This can be made a RDEP after 5.3.
-PDEPEND="x11-themes/gnome-colors-themes"
 
 S="${WORKDIR}/${PN}"
 
