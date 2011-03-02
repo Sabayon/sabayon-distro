@@ -18,7 +18,7 @@ DEPEND=">=x11-libs/gtk+-2.18.0
 	>=x11-libs/cairo-1.8.6
 	>=media-libs/gegl-0.0.22
 	>=media-libs/lcms-1.17
-	>=media-libs/jpeg-6b-r8
+	virtual/jpeg
 	>=media-gfx/exiv2-0.18.1
 	>=media-libs/libpng-1.2.38
 	>=dev-util/intltool-0.40.5
