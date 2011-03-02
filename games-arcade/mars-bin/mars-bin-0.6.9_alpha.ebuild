@@ -26,7 +26,7 @@ RDEPEND="virtual/opengl
 	media-libs/flac
 	media-libs/freetype
 	media-libs/glew
-	media-libs/jpeg
+	virtual/jpeg
 	media-libs/openal
 	media-libs/libogg
 	media-libs/libsndfile
