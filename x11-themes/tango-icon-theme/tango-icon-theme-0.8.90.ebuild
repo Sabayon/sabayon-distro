@@ -38,19 +38,21 @@ src_install() {
 	emake DESTDIR="${D}" install || die
 	dodoc AUTHORS ChangeLog README
 
-	# replace tango icon start-here.{png,svg} with Sabayon ones
-	for dir in "${D}"/usr/share/icons/Tango/*/places; do
-		base_dir=$(dirname "${dir}")
-		icon_dir=$(basename "${base_dir}")
-		sabayon_svg_file="${WORKDIR}"/fdo-icons-sabayon/scalable/places/start-here.svg
-		if [ "${icon_dir}" = "scalable" ]; then
-			cp "${sabayon_svg_file}" "${dir}/start-here.svg" || die
-		else
-			convert  -background none -resize \
-				"${icon_dir}" "${sabayon_svg_file}" \
-				"${dir}/start-here.png" || die
-		fi
-	done
+	if use branding; then
+		# replace tango icon start-here.{png,svg} with Sabayon ones
+		for dir in "${D}"/usr/share/icons/Tango/*/places; do
+			base_dir=$(dirname "${dir}")
+			icon_dir=$(basename "${base_dir}")
+			sabayon_svg_file="${WORKDIR}"/fdo-icons-sabayon/scalable/places/start-here.svg
+			if [ "${icon_dir}" = "scalable" ]; then
+				cp "${sabayon_svg_file}" "${dir}/start-here.svg" || die
+			else
+				convert  -background none -resize \
+					"${icon_dir}" "${sabayon_svg_file}" \
+					"${dir}/start-here.png" || die
+			fi
+		done
+	fi
 }
 
 pkg_preinst() {	gnome2_icon_savelist; }
