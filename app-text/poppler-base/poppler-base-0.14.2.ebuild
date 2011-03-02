@@ -20,7 +20,7 @@ COMMON_DEPEND=">=media-libs/fontconfig-2.6.0
 	sys-libs/zlib
 	abiword? ( dev-libs/libxml2:2 )
 	curl? ( net-misc/curl )
-	jpeg? ( >=media-libs/jpeg-7:0 )
+	jpeg? ( virtual/jpeg )
 	jpeg2k? ( media-libs/openjpeg )
 	lcms? ( =media-libs/lcms-1* )
 	png? ( media-libs/libpng )"
