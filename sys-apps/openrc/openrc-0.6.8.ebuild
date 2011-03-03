@@ -70,6 +70,7 @@ src_unpack() {
 
 	# Sabayon custom config
 	epatch "${FILESDIR}/${PN}-sabayon-config.patch"
+	epatch "${FILESDIR}/${PN}-fuck-enable-interactive.patch"
 	epatch "${FILESDIR}"/${PN}-0.5.3-disable_warns_until_migrated.patch
 	epatch "${FILESDIR}/${PN}-netmount-fix.patch"
 	epatch "${FILESDIR}/${PN}-protect-rcsvcdir-for-symlink.patch"
