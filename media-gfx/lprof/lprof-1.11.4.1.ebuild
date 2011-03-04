@@ -19,7 +19,7 @@ DEPEND="x11-libs/qt-core:4[qt3support]
 	sys-libs/zlib
 	media-libs/libpng
 	media-libs/tiff
-	media-libs/jpeg
+	virtual/jpeg
 	media-libs/vigra
 	virtual/libusb
 	x11-libs/libX11
