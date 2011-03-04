@@ -23,7 +23,7 @@ DEPEND=">=dev-libs/libsigc++-2.0.0
 	openexr? ( media-libs/openexr )
 	truetype? ( >=media-libs/freetype-2.1.9 )
 	fontconfig? ( media-libs/fontconfig )
-	jpeg? ( media-libs/jpeg )
+	jpeg? ( virtual/jpeg )
 	tiff? ( media-libs/tiff )"
 
 RDEPEND="${DEPEND}
