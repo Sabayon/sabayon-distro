@@ -17,7 +17,7 @@ DEPEND="dev-lang/perl
 	dev-perl/ImageInfo
 	media-gfx/jhead
 	media-gfx/imagemagick
-	media-libs/jpeg
+	virtual/jpeg
 	dev-perl/Image-MetaData-JPEG"
 RDEPEND=${DEPEND}
 
