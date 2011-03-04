@@ -18,7 +18,7 @@ IUSE="jbig pam mgetty html"
 
 DEPEND=">=sys-libs/zlib-1.1.4
 	app-text/ghostscript-gpl
-	media-libs/jpeg
+	virtual/jpeg
 	>=media-libs/tiff-3.9.4-r1[jbig?]
 	<media-libs/tiff-4.0
 	jbig? ( media-libs/jbigkit )
