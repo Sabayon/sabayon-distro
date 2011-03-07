@@ -133,8 +133,18 @@ else
 	SLOT="${PV}"
 fi
 
+_is_kernel_binary() {
+	if [ -z "${K_ONLY_SOURCES}" ] && [ -z "${K_FIRMWARE_PACKAGE}" ]; then
+		# yes it is
+		return 0
+	else
+		# no it isn't
+		return 1
+	fi
+}
+
 # provide extra virtual pkg
-if [ -z "${K_ONLY_SOURCES}" ] && [ -z "${K_FIRMWARE_PACKAGE}" ]; then
+if _is_kernel_binary; then
 	PROVIDE="${PROVIDE} virtual/linux-binary"
 fi
 
@@ -192,6 +202,14 @@ _update_depmod() {
 		ewarn "You must manually update the kernel module dependencies using depmod."
 		eend 1
 		ewarn
+	fi
+}
+
+_get_release_level() {
+	if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
+		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
+	else
+		echo "${KV_FULL}"
 	fi
 }
 
@@ -389,6 +407,18 @@ _kernel_src_install() {
 		fi
 	fi
 
+	# Install kernel configuration information
+	# useful for Entropy kernel-switcher
+	if _is_kernel_binary; then
+		# release level is enough for now
+		base_dir="/etc/kernels/${P}"
+		dodir "${base_dir}"
+		insinto "${base_dir}"
+		local depmod_r=$(_get_release_level)
+		echo "${depmod_r}" > "RELEASE_LEVEL"
+		doins "RELEASE_LEVEL"
+		einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${depmod_r}"
+	fi
 }
 
 _get_real_extraversion() {
@@ -399,7 +429,7 @@ _get_real_extraversion() {
 }
 
 sabayon-kernel_pkg_preinst() {
-	if [ -z "${K_ONLY_SOURCES}" ] && [ -z "${K_FIRMWARE_PACKAGE}" ]; then
+	if _is_kernel_binary; then
 		mount-boot_pkg_preinst
 	fi
 }
@@ -411,7 +441,7 @@ sabayon-kernel_grub2_mkconfig() {
 }
 
 sabayon-kernel_pkg_postinst() {
-	if [ -z "${K_ONLY_SOURCES}" ] && [ -z "${K_FIRMWARE_PACKAGE}" ]; then
+	if _is_kernel_binary; then
 		fstab_file="${ROOT}etc/fstab"
 		einfo "Removing extents option for ext4 drives from ${fstab_file}"
 		# Remove "extents" from /etc/fstab
@@ -440,13 +470,8 @@ sabayon-kernel_pkg_postinst() {
 		fi
 
 		kernel-2_pkg_postinst
-		if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
-			local depmod_r="${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
-			einfo "Updating (overridden) modules dependencies using ${depmod_r}"
-			_update_depmod "${depmod_r}"
-		else
-			_update_depmod "${KV_FULL}"
-		fi
+		local depmod_r=$(_get_release_level)
+		_update_depmod "${depmod_r}"
 
 		elog "Please report kernel bugs at:"
 		elog "http://bugs.sabayon.org"
@@ -463,13 +488,13 @@ sabayon-kernel_pkg_postinst() {
 }
 
 sabayon-kernel_pkg_prerm() {
-        if [ -z "${K_ONLY_SOURCES}" ] && [ -z "${K_FIRMWARE_PACKAGE}" ]; then
+        if _is_kernel_binary; then
 		mount-boot_pkg_prerm
 	fi
 }
 
 sabayon-kernel_pkg_postrm() {
-	if [ -z "${K_ONLY_SOURCES}" ] && [ -z "${K_FIRMWARE_PACKAGE}" ]; then
+	if _is_kernel_binary; then
 		# Remove kernel from grub.conf
 		if use grub; then
 			if use amd64; then
