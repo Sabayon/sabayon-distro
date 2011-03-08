@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.12.ebuild,v 1.5 2010/10/30 00:02:34 halcy0n Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.15.ebuild,v 1.3 2011/03/07 13:01:21 jer Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -10,14 +10,14 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 MY_PV="${PV/_rc/rc}" # Handle beta
 MY_PV="${MY_PV/1.9.2/3.6}"
 MAJ_PV="1.9.2" # from mozilla-* branch name
-PATCH="${PN}-1.9.2-patches-0.7"
+PATCH="${PN}-1.9.2-patches-0.9"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
-KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ppc ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa debug +ipc libnotify system-sqlite wifi"
@@ -61,13 +61,13 @@ pkg_setup() {
 
 src_prepare() {
 	# Apply our patches
-	EPATCH_EXCLUDE="2001_mozilla_ps_pdf_simplify_operators.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
 	epatch "${FILESDIR}/bug-606109.patch"
-	epatch "${FILESDIR}/${PN}-1.9.2-gtk+-2.21.patch"
+	epatch "${FILESDIR}/fix-animated-gifs.patch"
+	epatch "${FILESDIR}/libnotify-0.7.patch"
 
 	eprefixify \
 		extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java \

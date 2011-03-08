@@ -1,0 +1,56 @@
+# HG changeset patch
+# User Priit Laes <plaes@plaes.org>
+# Parent 194dd9a57615185c998a87148fac65df51600758
+Bug 628222 - Add support for libnotify-0.7+. r=karlt
+
+diff --git a/toolkit/system/gnome/nsAlertsIconListener.cpp b/toolkit/system/gnome/nsAlertsIconListener.cpp
+--- a/toolkit/system/gnome/nsAlertsIconListener.cpp
++++ b/toolkit/system/gnome/nsAlertsIconListener.cpp
+@@ -42,16 +42,21 @@
+ #include "nsNetUtil.h"
+ #include "nsIImageToPixbuf.h"
+ #include "nsIStringBundle.h"
+ 
+ #include <gdk-pixbuf/gdk-pixbuf.h>
+ #include <libnotify/notify.h>
+ #include <gdk/gdk.h>
+ 
++// Compatibility macro for <libnotify-0.7
++#ifndef NOTIFY_CHECK_VERSION
++#define NOTIFY_CHECK_VERSION(x,y,z) 0
++#endif
++
+ static PRBool gHasActions = PR_FALSE;
+ 
+ static void notify_action_cb(NotifyNotification *notification,
+                              gchar *action, gpointer user_data)
+ {
+   nsAlertsIconListener* alert = static_cast<nsAlertsIconListener*> (user_data);
+   alert->SendCallback();
+ }
+@@ -199,17 +204,23 @@ nsAlertsIconListener::OnStopFrame(imgIRe
+   return NS_OK;
+ }
+ 
+ nsresult
+ nsAlertsIconListener::ShowAlert(GdkPixbuf* aPixbuf)
+ {
+   NotifyNotification* notify = notify_notification_new(mAlertTitle.get(),
+                                                        mAlertText.get(),
+-                                                       NULL, NULL);
++                                          NULL
++// >=libnotify-0.7.0 has no support for attaching to widgets
++#if !NOTIFY_CHECK_VERSION(0,7,0)
++                                          , NULL
++#endif
++                                          );
++
+   if (!notify)
+     return NS_ERROR_OUT_OF_MEMORY;
+ 
+   if (aPixbuf)
+     notify_notification_set_icon_from_pixbuf(notify, aPixbuf);
+ 
+   NS_ADDREF(this);
+   if (mAlertHasAction) {
+
