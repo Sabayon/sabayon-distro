@@ -72,9 +72,9 @@ RESTRICT="test" # tests are failing atm
 
 src_prepare() {
 	cd "${S}"
-	#for _patch in "${FILESDIR}/${P}"-*.patch; do
-	#	epatch "${_patch}"
-	#done
+	for _patch in "${FILESDIR}/${P}"-*.patch; do
+		epatch "${_patch}"
+	done
 }
 
 src_configure() {
