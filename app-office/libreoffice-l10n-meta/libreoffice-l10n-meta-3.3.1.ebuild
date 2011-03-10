@@ -11,8 +11,10 @@ RDEPEND=""
 DEPEND=""
 IUSE=""
 
-SPELL_DIRS="af bg ca cs cy da de el en eo es et fo fr ga gd gl he hr hu ia id it \
-ku ky lt lv mi mk ms nb nl nn pap pl pt ps ro ru sk sl sv sw ti tn uk zu"
+DISABLED_LANGS="gd ky ms pap ps ti ur"
+
+SPELL_DIRS="af bg ca cs cy da de el en eo es et fo fr ga gl he hr hu ia id it \
+ku lt lv mi mk nb nl nn pl pt ro ru sk sl sv sw tn uk zu"
 
 LANGS="af ar as ast be_BY bg bn bo br brx bs ca ca_XV cs cy da de dgo dz el \
 en_GB en_ZA eo es et eu fa fi fr ga gl gu he hi hr hu id is it ja ka kk km kn \
