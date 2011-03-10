@@ -20,14 +20,14 @@ L10N_LANG="${L10N_LANG:-${MY_LANG}}"
 
 DESCRIPTION="LibreOffice.org ${L10N_LANG} localisation"
 HOMEPAGE="http://www.documentfoundation.org"
-OOVER="3.3.0-rc4"
-OODLVER="3.3.0rc4"
+OOVER="3.3.1"
+OODLVER="3.3.1"
 RESTRICT="nomirror"
-if [[ "${PV}" = "3.3.0" ]]; then
-	SRC_URI="http://download.documentfoundation.org/libreoffice/testing/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz
-		http://download.documentfoundation.org/libreoffice/testing/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
+if [[ "${PV}" = "3.3.1" ]]; then
+	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz
+		http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 else
-	SRC_URI="http://www.--NOT_SET_SEE_libreoffice-l10n.eclass--"
+	die "unsupported libreoffice-l10n ${PV}"
 fi
 
 LICENSE="LGPL-2"
