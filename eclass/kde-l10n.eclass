@@ -33,13 +33,15 @@ kde-l10n_src_prepare() {
 
     # kdepim locale support
     PIM_S="${WORKDIR}/${PN}-${KDEPIM_PV}"
-    if [ -d "${PIM_S}" ]; then
-        cp "${PIM_S}/docs/kdepim" "${S}"/docs/ -rp || die
-        cp "${PIM_S}/messages/kdepim" "${S}"/messages/ -rp || die
+    if [[ -d "${PIM_S}" ]]; then
 	# kdepim 4.5.0 docbook xmls are currently broken, no big deal
 	# we care more about package localization rather than handbooks
         # echo "add_subdirectory( kdepim )" >> "${S}"/docs/CMakeLists.txt
-        echo "add_subdirectory( kdepim )" >> "${S}"/messages/CMakeLists.txt
+        # cp "${PIM_S}/docs/kdepim" "${S}"/docs/ -rp || die
+	if [[ -d "${PIM_S}/messages/kdepim" ]]; then
+	        echo "add_subdirectory( kdepim )" >> "${S}"/messages/CMakeLists.txt
+        	cp "${PIM_S}/messages/kdepim" "${S}"/messages/ -rp || die
+	fi
     fi
 
 }
