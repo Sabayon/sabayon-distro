@@ -1,0 +1,45 @@
+From 014fc7abb7b2cc2110e3ab9a0bd6f7cff2c64c05 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Wed, 09 Mar 2011 17:10:50 +0000
+Subject: dri: Disable page-flip between a tiled buffer and a linear scanout
+
+Keith Packard pointed out a loophole that could cause the DDX to end up
+with a tiled scanout even if the user required a linear framebuffer;
+that is by using page-flipping we could replace the scanout pixmap with
+another of our choosing, and not necessarily tiled.
+
+Close that loophole by only allowing an exchange of buffers between
+identical tiling modes. For the common case, this is fine since they
+will indeed be allocated with the same tiling. For the linear
+framebuffer case with mesa using a tiled pixmap, we force it to blit
+onto the scanout instead.
+
+Reported-by: Keith Packard <keith.packard@intel.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+---
+diff --git a/src/intel_dri.c b/src/intel_dri.c
+index 3901aae..7449232 100644
+--- a/src/intel_dri.c
++++ b/src/intel_dri.c
+@@ -674,6 +674,8 @@ can_exchange(DRI2BufferPtr front, DRI2BufferPtr back)
+ 	I830DRI2BufferPrivatePtr back_priv = back->driverPrivate;
+ 	PixmapPtr front_pixmap = front_priv->pixmap;
+ 	PixmapPtr back_pixmap = back_priv->pixmap;
++	struct intel_pixmap *front_intel = intel_get_pixmap_private(front_pixmap);
++	struct intel_pixmap *back_intel = intel_get_pixmap_private(back_pixmap);
+ 
+ 	if (front_pixmap->drawable.width != back_pixmap->drawable.width)
+ 		return FALSE;
+@@ -690,6 +692,10 @@ can_exchange(DRI2BufferPtr front, DRI2BufferPtr back)
+ 		return FALSE;
+ #endif
+ 
++	/* prevent an implicit tiling mode change */
++	if (front_intel->tiling != back_intel->tiling)
++		return FALSE;
++
+ 	return TRUE;
+ }
+ 
+--
+cgit v0.8.3-6-g21f6
