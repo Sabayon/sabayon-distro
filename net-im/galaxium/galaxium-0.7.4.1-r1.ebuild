@@ -20,8 +20,8 @@ DEPEND=">=dev-dotnet/mono-addins-0.3
 	>=dev-dotnet/gtk-sharp-2.10.2
 	>=dev-dotnet/glade-sharp-2.10.0
 	>=dev-dotnet/gecko-sharp-0.10
-	>=dev-dotnet/dbus-sharp-0.4.2
-	>=dev-dotnet/dbus-glib-sharp-0.3
+	>=dev-dotnet/ndesk-dbus-0.4.2
+	>=dev-dotnet/ndesk-dbus-glib-0.3
 	>=media-libs/gstreamer-0.10
 	>=dev-dotnet/libanculus-sharp-0.3
 	webkit? ( >=dev-dotnet/webkit-sharp-0.2 )"

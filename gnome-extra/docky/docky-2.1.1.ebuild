@@ -17,7 +17,7 @@ IUSE="nls"
 
 RDEPEND=">=dev-dotnet/art-sharp-2.24.1
 	>=dev-dotnet/atk-sharp-2.12.10
-	>=dev-dotnet/dbus-glib-sharp-0.5.0
+	>=dev-dotnet/dbus-sharp-glib-0.5.0
 	>=dev-dotnet/dbus-sharp-0.7.0
 	>=dev-dotnet/gconf-sharp-2.24.1
 	>=dev-dotnet/gdk-sharp-2.12.10
