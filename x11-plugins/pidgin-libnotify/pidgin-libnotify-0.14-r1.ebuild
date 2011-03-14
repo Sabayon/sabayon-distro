@@ -23,6 +23,9 @@ DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
 src_prepare() {
+	epatch "${FILESDIR}"/${P}-libnotify-0.7-support.patch
+	# Source: Thev00d00
+	# Make it build with libnotify 0.7
 	epatch "${FILESDIR}"/pidgin-libnotify-showbutton.patch
 	# A collection of patches submitted to the (dead?) upstream
 	# Source: Debian
@@ -35,7 +38,7 @@ src_prepare() {
 	# Source: Sourceforge patches page
 	# Enables file transfer notifications
 	epatch "${FILESDIR}"/notify_file_transfers.diff
-	# Source: Thev00d00, 
+	# Source: Thev00d00
 	# A version of the same patch found on ${HOMEPAGE}
 	# Use what Purple thinks is the most appropriate name
 	epatch "${FILESDIR}"/pidgin-libnotify_best_name.diff
@@ -44,6 +47,7 @@ src_prepare() {
 src_configure() {
 	econf \
 		--disable-static \
+		--disable-deprecated \
 		$(use_enable debug) \
 		$(use_enable nls)
 }
