@@ -4,15 +4,20 @@
 
 EAPI=2
 
-DESCRIPTION="A BitTorrent client (installs net-p2p/transmission-gtk+)"
+DESCRIPTION="A BitTorrent client (meta package)"
 HOMEPAGE="http://www.transmissionbt.com/"
 SRC_URI=""
 
 LICENSE="MIT GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="gnome gtk kde libnotify libcanberra qt4"
 
-RDEPEND="~net-p2p/transmission-gtk+-${PV}"
-DEPEND=""
-
+RDEPEND="~net-p2p/transmission-base-${PV}
+	gtk? (
+		~net-p2p/transmission-gtk+-${PV}
+		~net-p2p/transmission-gtk+-${PV}[gnome=]
+		~net-p2p/transmission-gtk+-${PV}[libnotify=]
+		~net-p2p/transmission-gtk+-${PV}[libcanberra=]
+	)"
+DEPEND="${RDEPEND}"
