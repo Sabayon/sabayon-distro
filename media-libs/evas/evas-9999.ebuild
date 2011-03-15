@@ -129,7 +129,8 @@ src_configure() {
 		--enable-convert-32-bgrx-8888 \
 		--enable-convert-32-rgb-rot-0 \
 		--enable-convert-32-rgb-rot-270 \
-		--enable-convert-32-rgb-rot-90"
+		--enable-convert-32-rgb-rot-90 \
+		--disable-image-loader-edb"
 
 	enlightenment_src_configure
 }
