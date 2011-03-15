@@ -1,21 +1,22 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: Exp $
+# $Header: $
 
 EAPI="2"
 
 inherit enlightenment
 
 DESCRIPTION="Enlightenment's (Ecore) integration to DBus"
-SRC_URI="http://download.enlightenment.org/releases/${P}.tar.bz2"
 
 KEYWORDS="~amd64 ~x86"
-IUSE="bluetooth +connman +libnotify ofono static-libs test-binaries +udev"
+IUSE="bluetooth +connman hal +libnotify ofono static-libs test-binaries +udev"
 
-RDEPEND=">=dev-libs/eina-1.0.0_beta
-	>=dev-libs/ecore-1.0.0_beta
+RDEPEND="
+	>=dev-libs/eina-9999
+	>=dev-libs/ecore-9999
 	sys-apps/dbus
-	libnotify? ( >=media-libs/evas-1.0.0_beta )
+	libnotify? ( >=media-libs/evas-9999 )
+	hal? ( sys-apps/hal )
 	udev? ( sys-power/upower sys-fs/udisks )
 "
 DEPEND="${RDEPEND}"
@@ -25,7 +26,7 @@ src_configure() {
 		$(use_enable bluetooth ebluez)
 		$(use_enable connman econnman)
 		$(use_enable doc)
-		ehal
+		$(use_enable hal ehal)
 		$(use_enable libnotify enotify)
 		$(use_enable ofono eofono)
 		$(use_enable test-binaries edbus-test)
