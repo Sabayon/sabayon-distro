@@ -13,7 +13,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="debug examples gnutls ssl static-libs test +threads"
 
 RDEPEND=">=dev-libs/eina-9999
-	media-libs/jpeg
+	virtual/jpeg
 	sys-libs/zlib
 	gnutls? ( net-libs/gnutls )
 	!gnutls? ( ssl? ( dev-libs/openssl ) )"
