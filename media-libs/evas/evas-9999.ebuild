@@ -18,7 +18,7 @@ RDEPEND="
 	fontconfig? ( media-libs/fontconfig )
 	gles? ( media-libs/mesa[gallium,gles] )
 	gif? ( media-libs/giflib )
-	jpeg? ( media-libs/jpeg )
+	jpeg? ( virtual/jpeg )
 	png? ( media-libs/libpng )
 	bidi? ( >=dev-libs/fribidi-0.19.1 )
 	directfb? ( >=dev-libs/DirectFB-0.9.16 )
