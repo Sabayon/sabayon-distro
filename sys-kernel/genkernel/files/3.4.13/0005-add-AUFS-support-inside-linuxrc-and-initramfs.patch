@@ -72,12 +72,13 @@ diff --git a/defaults/linuxrc b/defaults/linuxrc
 index 59f1ea5..69c0d84 100755
 --- a/defaults/linuxrc
 +++ b/defaults/linuxrc
-@@ -218,6 +218,8 @@ do
+@@ -218,6 +218,9 @@ do
  		keymap\=*)
  			keymap=`parse_opt "${x}"`
  		;;
 +		aufs)
 +			USE_AUFS_NORMAL=1
++		;;
  		unionfs)
  			if [ ! -x /sbin/unionfs ]
  			then
