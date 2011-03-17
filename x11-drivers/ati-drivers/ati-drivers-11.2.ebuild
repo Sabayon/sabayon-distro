@@ -291,6 +291,9 @@ src_prepare() {
 		fi
 	fi
 
+	# 2.6.38 kernel support
+	epatch "${FILESDIR}"/ati-drivers-2.6.38.patch
+
 	# Fix a known compilation error
 	epatch "${FILESDIR}"/ati-drivers-fix_compilation-bug-297322.patch
 
