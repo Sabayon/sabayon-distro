@@ -58,6 +58,7 @@ pkg_setup() {
 
 src_prepare() {
 	use injection && epatch "${FILESDIR}"/${PN}-injection-r3925.patch
+	epatch "${FILESDIR}/${PN}-2.6.38.patch"
 	for dir in ath ath_hal net80211 ath_rate ath_rate/amrr ath_rate/minstrel ath_rate/onoe ath_rate/sample; do
 		convert_to_m "${S}/${dir}/Makefile"
 	done
