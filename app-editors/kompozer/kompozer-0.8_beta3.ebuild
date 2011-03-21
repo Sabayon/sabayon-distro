@@ -30,7 +30,7 @@ RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~mips ~ppc ~sparc ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="gnome java ldap"
 
 # linguas
