@@ -10,7 +10,7 @@ SRC_URI="http://www.axiom-developer.org/axiom-website/downloads/${PN}-sept2010-s
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 # NOTE: Do not strip since this seems to remove some crucial
