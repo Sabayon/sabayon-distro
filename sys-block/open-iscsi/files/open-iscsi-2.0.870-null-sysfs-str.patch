@@ -1,0 +1,12 @@
+--- open-iscsi-2.0-870.3.orig/usr/iscsi_sysfs.c
++++ open-iscsi-2.0-870.3/usr/iscsi_sysfs.c
+@@ -87,7 +86,8 @@ static int iscsi_sysfs_get_param(char *i
+ 		return EIO;
+ 	}
+ 
+-	if (!strncmp(sysfs_value, ISCSI_SYSFS_INVALID_VALUE, 6))
++	if (!strncmp(sysfs_value, "<NULL>", 6) ||
++		!strncmp(sysfs_value, "(null)", 6))
+ 		return ENODATA;
+ 
+ 	sscanf(sysfs_value, format, ret_value);

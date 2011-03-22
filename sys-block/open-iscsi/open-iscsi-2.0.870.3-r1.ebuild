@@ -46,6 +46,10 @@ src_unpack() {
 	epatch "${FILESDIR}"/redhat/${PN}-2.0-870.1-485217.patch
 	epatch "${FILESDIR}"/redhat/${PN}-2.0-870.1-fwparam-ppc-crash.patch
 	epatch "${FILESDIR}"/redhat/${PN}-2.0-870.1-compile-fix.patch
+
+	# >=2.6.36 kernel support
+	epatch "${FILESDIR}"/${PN}-2.0.870-null-sysfs-str.patch
+
 }
 
 src_compile() {
