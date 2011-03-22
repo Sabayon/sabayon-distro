@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -16,7 +16,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="media-gfx/sane-backends
-	=media-gfx/xsane-${PV}
+	=media-gfx/xsane-${PV}[-gimp]
 	media-gfx/gimp"
 
 DEPEND="${RDEPEND}
