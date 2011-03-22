@@ -1,0 +1,74 @@
+diff --git a/libiscsi/Makefile b/libiscsi/Makefile
+index 4aeb44f..a91d6b8 100644
+--- a/libiscsi/Makefile
++++ b/libiscsi/Makefile
+@@ -3,7 +3,7 @@
+ OSNAME=$(shell uname -s)
+ OPTFLAGS ?= -O2 -g
+ WARNFLAGS ?= -Wall -Wstrict-prototypes
+-CFLAGS = $(OPTFLAGS) $(WARNFLAGS) -I../include -I../usr -I../utils/open-isns \
++CFLAGS = $(OPTFLAGS) $(WARNFLAGS) -I../include -I../usr \
+ 		-D$(OSNAME) -fPIC -D_GNU_SOURCE -fvisibility=hidden
+ LIB = libiscsi.so.0
+ TESTS = tests/test_discovery_sendtargets tests/test_discovery_firmware
+@@ -43,11 +43,10 @@ fw-objs/%.o: ../utils/fwparam_ibft/%.c
+ 	$(CC) $(CFLAGS) -c $< -o $@
+ 
+ $(LIB): $(COMMON_OBJS) $(FW_OBJS) $(USR_OBJS) libiscsi.o
+-	$(CC) $(CFLAGS) -L../utils/open-isns -lisns -shared -Wl,-soname,$(LIB) $^ -o $@
++	$(CC) $(CFLAGS) -shared -Wl,-soname,$(LIB) $^ -o $@
+ 	ln -s -f $(LIB) libiscsi.so
+ 
+ $(TESTS): $(FW_OBJS) $(COMMON_OBJS) $(USR_OBJS) $(LIB)
+-	$(CC) $(CFLAGS) -L../utils/open-isns -lisns -c $< -o $@
+ 
+ html: libiscsi.h libiscsi.doxy
+ 	doxygen libiscsi.doxy
+diff --git a/usr/Makefile b/usr/Makefile
+index 8e505bf..13a60f9 100644
+--- a/usr/Makefile
++++ b/usr/Makefile
+@@ -31,7 +31,7 @@ endif
+ OPTFLAGS ?= -O2 -g
+ WARNFLAGS ?= -Wall -Wstrict-prototypes
+ CFLAGS += $(OPTFLAGS) $(WARNFLAGS) -I../include -I. -I../utils/open-isns \
+-					-D$(OSNAME) $(IPC_CFLAGS)
++					-D$(OSNAME) $(IPC_CFLAGS) -DISNS_ENABLE
+ PROGRAMS = iscsid iscsiadm iscsistart
+ 
+ # libc compat files
+diff --git a/usr/discovery.c b/usr/discovery.c
+index 2233de7..02c6f25 100644
+--- a/usr/discovery.c
++++ b/usr/discovery.c
+@@ -45,9 +45,11 @@
+ #include "iscsid_req.h"
+ #include "iscsi_util.h"
+ /* libisns includes */
++#ifdef ISNS_ENABLE
+ #include "isns.h"
+ #include "paths.h"
+ #include "message.h"
++#endif
+ 
+ #ifdef SLP_ENABLE
+ #include "iscsi-slp-discovery.h"
+@@ -94,6 +96,7 @@ static int request_initiator_name(void)
+ 	return 0;
+ }
+ 
++#ifdef ISNS_ENABLE
+ void discovery_isns_free_servername(void)
+ {
+ 	if (isns_config.ic_server_name)
+@@ -367,6 +370,7 @@ retry:
+ 	discovery_isns_free_servername();
+ 	return rc;
+ }
++#endif
+ 
+ int discovery_fw(void *data, struct iface_rec *iface,
+ 		 struct list_head *rec_list)
+-- 
+1.6.6.1
+

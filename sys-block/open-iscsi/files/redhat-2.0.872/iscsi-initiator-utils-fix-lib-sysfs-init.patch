@@ -1,0 +1,49 @@
+diff -aurp open-iscsi-2.0-872-rc1-bnx2i/libiscsi/libiscsi.c open-iscsi-2.0-872-rc1-bnx2i.work/libiscsi/libiscsi.c
+--- open-iscsi-2.0-872-rc1-bnx2i/libiscsi/libiscsi.c	2010-05-18 17:57:59.000000000 -0500
++++ open-iscsi-2.0-872-rc1-bnx2i.work/libiscsi/libiscsi.c	2010-05-18 17:58:43.000000000 -0500
+@@ -40,6 +40,9 @@
+ 
+ #define CHECK(a) { context->error_str[0] = 0; rc = a; if (rc) goto leave; }
+ 
++/* UGLY, not thread safe :( */
++static int sysfs_initialized = 0;
++
+ struct libiscsi_context {
+ 	char error_str[256];
+ 	/* For get_parameter_helper() */
+@@ -66,7 +69,10 @@ struct libiscsi_context *libiscsi_init(v
+ 		return NULL;
+ 
+ 	log_init("libiscsi", 1024, libiscsi_log, context);
+-	sysfs_init();
++	if (!sysfs_initialized) {
++		sysfs_init();
++		sysfs_initialized = 1;
++	}
+ 	increase_max_files();
+ 	if (idbm_init(NULL)) {
+ 		sysfs_cleanup();
+@@ -529,6 +535,11 @@ int libiscsi_get_firmware_network_config
+ {
+ 	struct boot_context fw_entry;
+ 
++	if (!sysfs_initialized) {
++		sysfs_init();
++		sysfs_initialized = 1;
++	}
++
+ 	memset(config, 0, sizeof *config);
+ 	memset(&fw_entry, 0, sizeof fw_entry);
+ 	if (fw_get_entry(&fw_entry))
+@@ -551,6 +562,11 @@ int libiscsi_get_firmware_initiator_name
+ {
+ 	struct boot_context fw_entry;
+ 
++	if (!sysfs_initialized) {
++		sysfs_init();
++		sysfs_initialized = 1;
++	}
++
+ 	memset(initiatorname, 0, LIBISCSI_VALUE_MAXLEN);
+ 	memset(&fw_entry, 0, sizeof fw_entry);
+ 	if (fw_get_entry(&fw_entry))

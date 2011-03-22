@@ -1,0 +1,114 @@
+diff -aurp open-iscsi-2.0-872-rc3-bnx2i/etc/iscsid.conf open-iscsi-2.0-872-rc3-bnx2i.diff/etc/iscsid.conf
+--- open-iscsi-2.0-872-rc3-bnx2i/etc/iscsid.conf	2010-07-11 03:45:50.000000000 -0500
++++ open-iscsi-2.0-872-rc3-bnx2i.diff/etc/iscsid.conf	2010-07-11 03:57:57.000000000 -0500
+@@ -17,10 +17,10 @@
+ # maintainers.
+ #
+ # Default for Fedora and RHEL. (uncomment to activate).
+-# iscsid.startup = /etc/rc.d/init.d/iscsid force-start
++iscsid.startup = /etc/rc.d/init.d/iscsid force-start
+ # 
+ # Default for upstream open-iscsi scripts (uncomment to activate).
+-iscsid.startup = /sbin/iscsid
++# iscsid.startup = /sbin/iscsid
+ 
+ 
+ #############################
+@@ -36,8 +36,8 @@ iscsid.startup = /sbin/iscsid
+ # To request that the iscsi initd scripts startup a session set to "automatic".
+ # node.startup = automatic
+ #
+-# To manually startup the session set to "manual". The default is manual.
+-node.startup = manual
++# To manually startup the session set to "manual". The default is automatic.
++node.startup = automatic
+ 
+ 
+ # *************
+@@ -255,29 +255,26 @@ node.conn[0].iscsi.MaxXmitDataSegmentLen
+ discovery.sendtargets.iscsi.MaxRecvDataSegmentLength = 32768
+ 
+ # To allow the targets to control the setting of the digest checking,
+-# with the initiator requesting a preference of enabling the checking, uncomment# one or both of the following lines:
++# with the initiator requesting a preference of enabling the checking, uncomment
++# the following lines (Data digests are not supported.):
+ #node.conn[0].iscsi.HeaderDigest = CRC32C,None
+-#node.conn[0].iscsi.DataDigest = CRC32C,None
+ #
+ # To allow the targets to control the setting of the digest checking,
+ # with the initiator requesting a preference of disabling the checking,
+-# uncomment one or both of the following lines:
++# uncomment the following lines:
+ #node.conn[0].iscsi.HeaderDigest = None,CRC32C
+-#node.conn[0].iscsi.DataDigest = None,CRC32C
+ #
+ # To enable CRC32C digest checking for the header and/or data part of
+-# iSCSI PDUs, uncomment one or both of the following lines:
++# iSCSI PDUs, uncomment the following lines:
+ #node.conn[0].iscsi.HeaderDigest = CRC32C
+-#node.conn[0].iscsi.DataDigest = CRC32C
+ #
+ # To disable digest checking for the header and/or data part of
+-# iSCSI PDUs, uncomment one or both of the following lines:
++# iSCSI PDUs, uncomment the following lines:
+ #node.conn[0].iscsi.HeaderDigest = None
+-#node.conn[0].iscsi.DataDigest = None
+ #
+ # The default is to never use DataDigests or HeaderDigests.
+ #
+-
++node.conn[0].iscsi.HeaderDigest = None
+ 
+ #************
+ # Workarounds
+diff -aurp open-iscsi-2.0-872-rc3-bnx2i/README open-iscsi-2.0-872-rc3-bnx2i.diff/README
+--- open-iscsi-2.0-872-rc3-bnx2i/README	2010-07-11 03:45:50.000000000 -0500
++++ open-iscsi-2.0-872-rc3-bnx2i.diff/README	2010-07-11 03:57:57.000000000 -0500
+@@ -74,11 +74,6 @@ the cache sync command will fail.
+ - iscsiadm's -P 3 option will not print out scsi devices.
+ - iscsid will not automatically online devices.
+ 
+-You need to enable "Cryptographic API" under "Cryptographic options" in the
+-kernel config. And you must enable "CRC32c CRC algorithm" even if
+-you do not use header or data digests. They are the kernel options,
+-CONFIG_CRYPTO and CONFIG_CRYPTO_CRC32C, respectively.
+-
+ By default the kernel source found at
+ /lib/modules/`uname -a`/build
+ will be used to compile the open-iscsi modules. To specify a different
+@@ -907,7 +902,7 @@ Red Hat or Fedora:
+ -----------------
+ To start open-iscsi in Red Hat/Fedora you can do:
+ 
+-	service open-iscsi start
++	service iscsi start
+ 
+ To get open-iscsi to automatically start at run time you may have to
+ run:
+@@ -1115,6 +1110,8 @@ iscsid will only perform rediscovery whe
+ #   linux-isns (SLES's iSNS server) where it sometimes does not send SCN
+ #   events in the proper format, so they may not get handled.
+ 
++To set the startup value, so that nodes are not logged into automatically
++use the value "manual".
+ 
+ Example:
+ --------
+Only in open-iscsi-2.0-872-rc3-bnx2i.diff/: README.orig
+diff -aurp open-iscsi-2.0-872-rc3-bnx2i/usr/idbm.c open-iscsi-2.0-872-rc3-bnx2i.diff/usr/idbm.c
+--- open-iscsi-2.0-872-rc3-bnx2i/usr/idbm.c	2010-07-11 03:45:50.000000000 -0500
++++ open-iscsi-2.0-872-rc3-bnx2i.diff/usr/idbm.c	2010-07-11 03:57:57.000000000 -0500
+@@ -346,9 +346,13 @@ idbm_recinfo_node(node_rec_t *r, recinfo
+ 				 IDBM_SHOW, "None", "CRC32C", "CRC32C,None",
+ 				 "None,CRC32C", num, 1);
+ 		sprintf(key, CONN_DATA_DIGEST, i);
++
++#if 0
++We do not support data digests
+ 		__recinfo_int_o4(key, ri, r, conn[i].iscsi.DataDigest, IDBM_SHOW,
+ 				 "None", "CRC32C", "CRC32C,None",
+ 				 "None,CRC32C", num, 1);
++#endif
+ 		sprintf(key, CONN_IFMARKER, i);
+ 		__recinfo_int_o2(key, ri, r, conn[i].iscsi.IFMarker, IDBM_SHOW,
+ 				"No", "Yes", num, 1);

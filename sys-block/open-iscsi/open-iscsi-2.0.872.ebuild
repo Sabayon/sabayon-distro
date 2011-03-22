@@ -1,9 +1,9 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-block/open-iscsi/open-iscsi-2.0.871.3.ebuild,v 1.3 2010/08/24 13:48:01 ssuominen Exp $
+# $Header: $
 
 EAPI=2
-inherit versionator linux-info eutils flag-o-matic autotools
+inherit distutils versionator linux-info eutils flag-o-matic autotools
 
 DESCRIPTION="Open-iSCSI is a high performance, transport independent, multi-platform implementation of RFC3720"
 HOMEPAGE="http://www.open-iscsi.org/"
@@ -11,7 +11,7 @@ MY_PV="${PN}-$(replace_version_separator 2 "-" $MY_PV)"
 SRC_URI="mirror://kernel/linux/kernel/people/mnc/open-iscsi/releases/${MY_PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE="debug slp"
 DEPEND="net-libs/openslp"
 RDEPEND="${DEPEND}
@@ -33,6 +33,15 @@ src_prepare() {
 	epatch "${FILESDIR}"/${P}-glibc212.patch
 	epatch "${FILESDIR}"/${P}-slp.patch
 	epatch "${FILESDIR}"/${P}-omg-calling-configure.patch
+
+	# add RH patches, we need libiscsi for anaconda
+	epatch "${FILESDIR}"/redhat-${PV}/iscsi-initiator-utils-update-initscripts-and-docs.patch
+	epatch "${FILESDIR}"/redhat-${PV}/iscsi-initiator-utils-use-var-for-config.patch
+	epatch "${FILESDIR}"/redhat-${PV}/iscsi-initiator-utils-use-red-hat-for-name.patch
+	epatch "${FILESDIR}"/redhat-${PV}/iscsi-initiator-utils-add-libiscsi.patch
+	epatch "${FILESDIR}"/redhat-${PV}/iscsi-initiator-utils-disable-isns-for-lib.patch
+	epatch "${FILESDIR}"/redhat-${PV}/iscsi-initiator-utils-fix-lib-sysfs-init.patch
+
 	if use slp; then
 		# workaround bug with lslp
 		cd "${S}"/utils/open-isns || die
@@ -55,17 +64,10 @@ src_compile() {
 }
 
 src_install() {
-	einfo "Installing userspace"
-	dosbin usr/iscsid usr/iscsiadm usr/iscsistart
-
-	einfo "Installing utilities"
-	dosbin utils/iscsi-iname utils/iscsi_discovery
-
-	einfo "Installing docs"
-	doman doc/*[1-8]
-	dodoc README THANKS
-	docinto test
-	dodoc test/*
+	# build system is broken...
+	emake DESTDIR="${D}" sbindir="/usr/sbin" install_user || die "emake install_user failed"
+	# this doesn't get installed
+	dosbin usr/iscsistart
 
 	einfo "Installing configuration"
 	insinto /etc/iscsi
@@ -80,6 +82,20 @@ src_install() {
 	keepdir /var/db/iscsi
 	fperms 700 /var/db/iscsi
 	fperms 600 /etc/iscsi/iscsid.conf
+
+	einfo "Installing libiscsi"
+	dodir /usr/$(get_libdir)
+	exeinto /usr/$(get_libdir)
+	doexe "${S}"/libiscsi/libiscsi.so.0
+	dosym libiscsi.so.0 /usr/$(get_libdir)/libiscsi.so
+
+	dodir /usr/include
+	insinto /usr/include
+	doins "${S}"/libiscsi/libiscsi.h
+
+	cd "${S}"/libiscsi || die
+	distutils_src_install
+
 }
 
 pkg_postinst() {

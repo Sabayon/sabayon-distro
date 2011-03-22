@@ -1,0 +1,12 @@
+diff -aurp open-iscsi-2.0-871.1.1-bnx2i/utils/iscsi-iname.c open-iscsi-2.0-871.1.1-bnx2i.work/utils/iscsi-iname.c
+--- open-iscsi-2.0-871.1.1-bnx2i/utils/iscsi-iname.c	2010-01-15 02:24:02.000000000 -0600
++++ open-iscsi-2.0-871.1.1-bnx2i.work/utils/iscsi-iname.c	2010-01-15 03:44:23.000000000 -0600
+@@ -73,7 +73,7 @@ main(int argc, char *argv[])
+ 			exit(0);
+ 		}
+ 	} else {
+-		prefix = "iqn.2005-03.org.open-iscsi";
++		prefix = "iqn.1994-05.com.redhat";
+ 	}
+ 
+ 	/* try to feed some entropy from the pool to MD5 in order to get

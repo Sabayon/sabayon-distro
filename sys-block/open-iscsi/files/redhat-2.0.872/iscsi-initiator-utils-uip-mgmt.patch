@@ -1,0 +1,385 @@
+diff --git a/usr/Makefile b/usr/Makefile
+index e9d6bd1..8e505bf 100644
+--- a/usr/Makefile
++++ b/usr/Makefile
+@@ -42,7 +42,7 @@ ISCSI_LIB_SRCS = iscsi_util.o io.o auth.o login.o log.o md5.o sha1.o iface.o \
+ 	iscsid_req.o $(SYSDEPS_SRCS)
+ # core initiator files
+ INITIATOR_SRCS = initiator.o scsi.o actor.o event_poll.o mgmt_ipc.o \
+-		transport.o cxgb3i.o be2iscsi.o
++		transport.o cxgb3i.o be2iscsi.o uip_mgmt_ipc.o
+ # fw boot files
+ FW_BOOT_SRCS = $(wildcard ../utils/fwparam_ibft/*.o)
+ 
+diff --git a/usr/initiator.c b/usr/initiator.c
+index 1c9d8b6..8f7a383 100644
+--- a/usr/initiator.c
++++ b/usr/initiator.c
+@@ -45,6 +45,7 @@
+ #include "iscsi_sysfs.h"
+ #include "iscsi_settings.h"
+ #include "iface.h"
++#include "host.h"
+ #include "sysdeps.h"
+ 
+ #define ISCSI_CONN_ERR_REOPEN_DELAY	3
+@@ -743,6 +744,38 @@ static int iscsi_conn_connect(struct iscsi_conn *conn, queue_task_t *qtask)
+ 	return 0;
+ }
+ 
++static int __set_net_config(struct iscsi_transport *t,
++			    iscsi_session_t *session,
++			    struct iface_rec *iface)
++{
++	if (t->template->set_net_config) {
++		/* uip needs the netdev name */
++		struct host_info hinfo;
++		int hostno, rc;
++
++		/* this assumes that the netdev or hw address is going to be
++		   set */
++		hostno = iscsi_sysfs_get_host_no_from_hwinfo(iface, &rc);
++		if (rc) {
++			log_debug(4, "Couldn't get host no.\n");
++			return rc;
++		}
++
++		/* uip needs the netdev name */
++		if (!strlen(iface->netdev)) {
++			memset(&hinfo, 0, sizeof(hinfo));
++			hinfo.host_no = hostno;
++			iscsi_sysfs_get_hostinfo_by_host_no(&hinfo);
++			strcpy(iface->netdev, hinfo.iface.netdev);
++		}
++
++		return t->template->set_net_config(t, iface, session);
++	}
++
++	return 0;
++}
++
++
+ static void
+ __session_conn_reopen(iscsi_conn_t *conn, queue_task_t *qtask, int do_stop,
+ 		      int redirected)
+@@ -784,6 +817,11 @@ __session_conn_reopen(iscsi_conn_t *conn, queue_task_t *qtask, int do_stop,
+ 	if (!redirected)
+ 		session->reopen_cnt++;
+ 
++	/* uIP will needs to be re-triggered on the connection re-open */
++	if (__set_net_config(conn->session->t, conn->session,
++			      &conn->session->nrec.iface) != 0)
++		goto queue_reopen;
++
+ 	if (iscsi_conn_connect(conn, qtask)) {
+ 		delay = ISCSI_CONN_ERR_REOPEN_DELAY;
+ 		goto queue_reopen;
+@@ -2130,6 +2168,10 @@ static int iface_set_param(struct iscsi_transport *t, struct iface_rec *iface,
+ 		return EINVAL;
+ 	}
+ 
++	rc = __set_net_config(t, session, iface);
++	if (rc != 0)
++		return rc;
++
+ 	rc = __iscsi_host_set_param(t, session->hostno,
+ 				    ISCSI_HOST_PARAM_IPADDRESS,
+ 				    iface->ipaddress, ISCSI_STRING);
+diff --git a/usr/iscsid_req.c b/usr/iscsid_req.c
+index 5280a0a..6eb8b1d 100644
+--- a/usr/iscsid_req.c
++++ b/usr/iscsid_req.c
+@@ -22,6 +22,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <errno.h>
++#include <fcntl.h>
+ #include <sys/un.h>
+ #include <sys/types.h>
+ #include <sys/socket.h>
+@@ -31,6 +32,7 @@
+ #include "mgmt_ipc.h"
+ #include "iscsi_util.h"
+ #include "config.h"
++#include "uip_mgmt_ipc.h"
+ 
+ static void iscsid_startup(void)
+ {
+@@ -51,7 +53,8 @@ static void iscsid_startup(void)
+ 
+ #define MAXSLEEP 128
+ 
+-static mgmt_ipc_err_e iscsid_connect(int *fd, int start_iscsid)
++static mgmt_ipc_err_e ipc_connect(int *fd, char *unix_sock_name,
++				  int start_iscsid)
+ {
+ 	int nsec;
+ 	struct sockaddr_un addr;
+@@ -64,8 +67,8 @@ static mgmt_ipc_err_e iscsid_connect(int *fd, int start_iscsid)
+ 
+ 	memset(&addr, 0, sizeof(addr));
+ 	addr.sun_family = AF_LOCAL;
+-	memcpy((char *) &addr.sun_path + 1, ISCSIADM_NAMESPACE,
+-		strlen(ISCSIADM_NAMESPACE));
++	memcpy((char *) &addr.sun_path + 1, unix_sock_name,
++		strlen(unix_sock_name));
+ 	/*
+ 	 * Trying to connect with exponential backoff
+ 	 */
+@@ -93,6 +96,11 @@ static mgmt_ipc_err_e iscsid_connect(int *fd, int start_iscsid)
+ 	return MGMT_IPC_ERR_ISCSID_NOTCONN;
+ }
+ 
++static mgmt_ipc_err_e iscsid_connect(int *fd, int start_iscsid)
++{
++       return ipc_connect(fd, ISCSIADM_NAMESPACE, start_iscsid);
++}
++
+ mgmt_ipc_err_e iscsid_request(int *fd, iscsiadm_req_t *req, int start_iscsid)
+ {
+ 	int err;
+@@ -190,6 +198,72 @@ int iscsid_req_by_sid(iscsiadm_cmd_e cmd, int sid)
+ 	return iscsid_req_wait(cmd, fd);
+ }
+ 
++static mgmt_ipc_err_e uip_connect(int *fd)
++{
++	return ipc_connect(fd, ISCSID_UIP_NAMESPACE, 0);
++}
++
++int uip_broadcast(void *buf, size_t buf_len)
++{
++	int err;
++	int fd;
++	iscsid_uip_rsp_t rsp;
++	int flags;
++	int count;
++
++	err = uip_connect(&fd);
++	if (err) {
++		log_warning("uIP daemon is not up");
++		return err;
++	}
++
++	/*  Send the data to uIP */
++	if ((err = write(fd, buf, buf_len)) != buf_len) {
++		log_error("got write error (%d/%d), daemon died?",
++			err, errno);
++		close(fd);
++		return -EIO;
++	}
++
++	/*  Set the socket to a non-blocking read, this way if there are
++	 *  problems waiting for uIP, iscsid can bailout early */
++	flags = fcntl(fd, F_GETFL, 0);
++	if (flags == -1)
++	        flags = 0;
++	err = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
++	if(err != 0) {
++		log_error("could not set uip broadcast to non-blocking: %d",
++			  errno);
++		close(fd);
++		return -EIO;
++	}
++
++#define MAX_UIP_BROADCAST_READ_TRIES 3
++	for(count = 0; count < MAX_UIP_BROADCAST_READ_TRIES; count++) {
++		/*  Wait for the response */
++		err = read(fd, &rsp, sizeof(rsp));
++		if (err == sizeof(rsp)) {
++			log_debug(3, "Broadcasted to uIP with length: %ld\n",
++				  buf_len);
++			break;
++		} else if((err == -1) && (errno == EAGAIN)) {
++			usleep(250000);
++			continue;
++		} else {
++			log_error("Could not read response (%d/%d), daemon died?",
++				  err, errno);
++			break;
++		}
++	}
++
++	if(count == MAX_UIP_BROADCAST_READ_TRIES)
++		log_error("Could not broadcast to uIP");
++
++	close(fd);
++
++	return 0;
++}
++
+ void iscsid_handle_error(mgmt_ipc_err_e err)
+ {
+ 	static char *err_msgs[] = {
+diff --git a/usr/iscsid_req.h b/usr/iscsid_req.h
+index 3bba2f4..e2cf1c3 100644
+--- a/usr/iscsid_req.h
++++ b/usr/iscsid_req.h
+@@ -34,4 +34,6 @@ extern int iscsid_req_by_rec(int cmd, struct node_rec *rec);
+ extern int iscsid_req_by_sid_async(int cmd, int sid, int *fd);
+ extern int iscsid_req_by_sid(int cmd, int sid);
+ 
++extern int uip_broadcast(void *buf, size_t buf_len);
++
+ #endif
+diff --git a/usr/transport.c b/usr/transport.c
+index c0789bb..aa0395c 100644
+--- a/usr/transport.c
++++ b/usr/transport.c
+@@ -25,6 +25,7 @@
+ #include "log.h"
+ #include "iscsi_util.h"
+ #include "iscsi_sysfs.h"
++#include "uip_mgmt_ipc.h"
+ #include "cxgb3i.h"
+ #include "be2iscsi.h"
+ 
+@@ -58,6 +59,7 @@ struct iscsi_transport_template bnx2i = {
+ 	.ep_connect	= ktransport_ep_connect,
+ 	.ep_poll	= ktransport_ep_poll,
+ 	.ep_disconnect	= ktransport_ep_disconnect,
++	.set_net_config = uip_broadcast_params,
+ };
+ 
+ struct iscsi_transport_template be2iscsi = {
+diff --git a/usr/transport.h b/usr/transport.h
+index 5ceedb3..2ec903c 100644
+--- a/usr/transport.h
++++ b/usr/transport.h
+@@ -35,6 +35,9 @@ struct iscsi_transport_template {
+ 	int (*ep_poll) (struct iscsi_conn *conn, int timeout_ms);
+ 	void (*ep_disconnect) (struct iscsi_conn *conn);
+ 	void (*create_conn) (struct iscsi_conn *conn);
++	int (*set_net_config) (struct iscsi_transport *t,
++			       struct iface_rec *iface,
++			       struct iscsi_session *session);
+ };
+ 
+ /* represents data path provider */
+diff --git a/usr/uip_mgmt_ipc.c b/usr/uip_mgmt_ipc.c
+new file mode 100644
+index 0000000..73b1632
+--- /dev/null
++++ b/usr/uip_mgmt_ipc.c
+@@ -0,0 +1,41 @@
++/*
++ * uIP iSCSI Daemon/Admin Management IPC
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * General Public License for more details.
++ *
++ * See the file COPYING included with this distribution for more details.
++ */
++
++#include <string.h>
++
++#include "log.h"
++#include "uip_mgmt_ipc.h"
++#include "iscsid_req.h"
++
++int uip_broadcast_params(struct iscsi_transport *t,
++			 struct iface_rec *iface,
++			 struct iscsi_session *session)
++{
++	struct iscsid_uip_broadcast broadcast;
++
++        log_debug(3, "broadcasting to uip\n");
++
++	memset(&broadcast, 0, sizeof(broadcast));
++
++	broadcast.header.command = ISCSID_UIP_IPC_GET_IFACE;
++	broadcast.header.payload_len = sizeof(*iface);
++
++	memcpy(&broadcast.u.iface_rec, iface, sizeof(*iface));
++
++	return uip_broadcast(&broadcast,
++			     sizeof(iscsid_uip_broadcast_header_t) +
++			     sizeof(*iface));
++}
+diff --git a/usr/uip_mgmt_ipc.h b/usr/uip_mgmt_ipc.h
+new file mode 100644
+index 0000000..dd49c0b
+--- /dev/null
++++ b/usr/uip_mgmt_ipc.h
+@@ -0,0 +1,71 @@
++/*
++ * uIP iSCSI Daemon/Admin Management IPC
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * General Public License for more details.
++ *
++ * See the file COPYING included with this distribution for more details.
++ */
++#ifndef UIP_MGMT_IPC_H
++#define UIP_MGMT_IPC_H
++
++#include "types.h"
++#include "iscsi_if.h"
++#include "config.h"
++#include "mgmt_ipc.h"
++
++#include "initiator.h"
++#include "transport.h"
++
++#define ISCSID_UIP_NAMESPACE	"ISCSID_UIP_ABSTRACT_NAMESPACE"
++
++typedef enum iscsid_uip_cmd {
++	ISCSID_UIP_IPC_UNKNOWN			= 0,
++	ISCSID_UIP_IPC_GET_IFACE		= 1,
++
++        __ISCSID_UIP_IPC_MAX_COMMAND
++} iscsid_uip_cmd_e;
++
++typedef struct iscsid_uip_broadcast_header {
++	iscsid_uip_cmd_e command;
++	uint32_t payload_len;
++} iscsid_uip_broadcast_header_t;
++
++/* IPC Request */
++typedef struct iscsid_uip_broadcast {
++	struct iscsid_uip_broadcast_header header;
++
++	union {
++		/* messages */
++		struct ipc_broadcast_iface_rec {
++			struct iface_rec rec;
++		} iface_rec;
++	} u;
++} iscsid_uip_broadcast_t;
++
++typedef enum iscsid_uip_mgmt_ipc_err {
++	ISCSID_UIP_MGMT_IPC_OK                     = 0,
++        ISCISD_UIP_MGMT_IPC_ERR                    = 1,
++        ISCISD_UIP_MGMT_IPC_ERR_NOT_FOUND          = 2,
++        ISCISD_UIP_MGMT_IPC_ERR_NOMEM              = 3,
++} iscsid_uip_mgmt_ipc_err_e;
++
++/* IPC Response */
++typedef struct iscsid_uip_mgmt_rsp {
++	iscsid_uip_cmd_e command;
++	iscsid_uip_mgmt_ipc_err_e err;
++} iscsid_uip_rsp_t;
++
++extern int uip_broadcast_params(struct iscsi_transport *t,
++				struct iface_rec *iface,
++				struct iscsi_session *session);
++
++
++#endif /* UIP_MGMT_IPC_H */
+-- 
+1.6.6.1
+
