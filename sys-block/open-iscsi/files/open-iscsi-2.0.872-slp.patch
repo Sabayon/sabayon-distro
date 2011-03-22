@@ -1,0 +1,11 @@
+--- open-iscsi-2.0-872.orig/utils/open-isns/configure.ac
++++ open-iscsi-2.0-872/utils/open-isns/configure.ac
+@@ -79,7 +79,7 @@ AC_ARG_WITH(slp,
+ 			WITH_SLP=$withval
+ 		else
+ 			WITH_SLP=yes
+-			CPPFLAGS="$CPPFLAGS -I${withval}"
++			CPPFLAGS="$CPPFLAGS -I${withval} -lslp"
+ 			LDFLAGS="$LDFLAGS -L${withval}"
+ 		fi
+ 	]
