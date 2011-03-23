@@ -197,17 +197,7 @@ src_configure() {
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
-	# Enable very specific settings not inherited from xulrunner
-	cp "${FILESDIR}"/firefox-default-prefs.js \
-		"${S}/dist/bin/defaults/preferences/all-gentoo.js" || \
-		die "failed to cp firefox-default-prefs.js"
-
 	emake DESTDIR="${D}" install || die "emake install failed"
-
-	# Copy Sabayon bookmarks.html file to the default location
-	cp "${FILESDIR}"/bookmarks.html.sabayon \
-		"${D}/${MOZILLA_FIVE_HOME}/defaults/profile/bookmarks.html" || \
-		die "failed to cp bookmarks.html.sabayon"
 
 	linguas
 	for X in ${linguas}; do
@@ -247,6 +237,16 @@ src_install() {
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox
+
+	# Enable very specific settings not inherited from xulrunner
+	cp "${FILESDIR}"/firefox-default-prefs.js \
+		"${ED}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
+		die "failed to cp firefox-default-prefs.js"
+
+	# Copy Sabayon bookmarks.html file to the default location
+	cp "${FILESDIR}"/bookmarks.html.sabayon \
+		"${D}/${MOZILLA_FIVE_HOME}/defaults/profile/bookmarks.html" || \
+		die "failed to cp bookmarks.html.sabayon"
 
 	# Plugins dir
 	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
