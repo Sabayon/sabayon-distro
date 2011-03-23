@@ -1,6 +1,0 @@
-Ian Whyman <ian.whyman@sabayonlinux.org>
-
-04.07.2009
-
-This ebuild provides offical sabayon branding by switching the vendor string and homepage.
-Other changes include moving files from $FILESDIR to $FILESDIR/$PV for clarity
