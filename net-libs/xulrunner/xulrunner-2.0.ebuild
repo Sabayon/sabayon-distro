@@ -5,7 +5,7 @@
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator pax-utils prefix
+inherit flag-o-matic toolchain-funcs eutils mozcoreconf-2 mozconfig-3 makeedit multilib autotools python versionator pax-utils prefix
 
 MAJ_XUL_PV="$(get_version_component_range 1-2)" # from mozilla-* branch name
 MAJ_FF_PV="4.0"
