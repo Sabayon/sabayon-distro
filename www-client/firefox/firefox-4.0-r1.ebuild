@@ -1,11 +1,11 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-4.0.ebuild,v 1.1 2011/03/22 01:58:18 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-4.0-r1.ebuild,v 1.1 2011/03/23 00:45:30 nirbheek Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python
+inherit flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python
 
 MAJ_XUL_PV="2.0"
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
@@ -28,11 +28,14 @@ REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
+# XXX: GConf is used for setting the default browser
+#      revisit to make it optional with GNOME 3
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
 	>=dev-libs/glib-2.26
+	>=gnome-base/gconf-1.2.1:2
 	x11-libs/pango[X]
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]
@@ -211,22 +214,36 @@ src_install() {
 		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}/${P}-${X}"
 	done
 
-	# Install icon and .desktop for menu entry
-	if ! use bindist ; then
-		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png ${PN}-icon.png
-		newmenu "${FILESDIR}"/icon/${PN}-1.5.desktop \
-			${PN}-${MAJ_FF_PV}.desktop
+	local size sizes icon_path icon name
+	if use bindist; then
+		sizes="16 32 48"
+		icon_path="${S}/browser/branding/unofficial"
+		icon="tumucumaque"
+		name="Tumucumaque"
 	else
-		newicon "${S}"/browser/base/branding/icon48.png ${PN}-icon-unbranded.png
-		newmenu "${FILESDIR}"/icon/${PN}-1.5-unbranded.desktop \
-			${PN}-${MAJ_FF_PV}.desktop
-		sed -i -e "s:Bon Echo:Shiretoko:" \
-			"${ED}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop || die "sed failed!"
+		sizes="16 22 24 32 256"
+		icon_path="${S}/other-licenses/branding/firefox"
+		icon="${PN}"
+		name="Mozilla Firefox"
 	fi
+
+	# Install icons and .desktop for menu entry
+	for size in ${sizes}; do
+		insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
+		newins "${icon_path}/default${size}.png" "${icon}.png" || die
+	done
+	# The 128x128 icon has a different name
+	insinto "/usr/share/icons/hicolor/128x128/apps"
+	newins "${icon_path}/mozicon128.png" "${icon}.png" || die
+	# Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
+	newicon "${icon_path}/content/icon48.png" "${icon}.png" || die
+	newmenu "${FILESDIR}/icon/${PN}.desktop" "${PN}.desktop" || die
+	sed -i -e "s:@NAME@:${name}:" -e "s:@ICON@:${icon}:" \
+		"${ED}/usr/share/applications/${PN}.desktop" || die
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification ; then
-		echo "StartupNotify=true" >> "${ED}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop
+		echo "StartupNotify=true" >> "${ED}/usr/share/applications/${PN}.desktop"
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox
@@ -241,7 +258,16 @@ src_install() {
 					 die "sparc sed failed"; }
 }
 
+pkg_preinst() {
+	gnome2_icon_savelist
+}
+
 pkg_postinst() {
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
+	gnome2_icon_cache_update
+}
+
+pkg_postrm() {
+	gnome2_icon_cache_update
 }
