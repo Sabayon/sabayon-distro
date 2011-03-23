@@ -1,6 +1,6 @@
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: eclass/mozcoreconf-2.eclass,v 1.16.1 2010/10/07 Sabayon Version Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-2.eclass,v 1.13 2009/12/02 22:41:59 anarchy Exp $
 #
 # mozcoreconf.eclass : core options for mozilla
 # inherit mozconfig-2 if you need USE flags
@@ -33,7 +33,6 @@ mozconfig_init() {
 	declare XUL=$([[ ${PN} == *xulrunner ]] && echo true || echo false)
 	declare SM=$([[ ${PN} == seamonkey ]] && echo true || echo false)
 	declare IC=$([[ ${PN} == *icecat ]] && echo true || echo false)
-	declare IC=$([[ ${PN} == kompozer ]] && echo true || echo false)
 
 	####################################
 	#
@@ -90,9 +89,7 @@ mozconfig_init() {
 	# Set optimization level
 	if [[ ${ARCH} == hppa ]]; then
 		mozconfig_annotate "more than -O0 causes segfaults on hppa" --enable-optimize=-O0
-	elif [[ ${ARCH} == x86 ]]; then
-		mozconfig_annotate "less then -O2 causes a segfault on x86" --enable-optimize=-O2
-	elif use custom-optimization || [[ ${ARCH} =~ (alpha|ia64) ]]; then
+	elif use custom-optimization || [[ ${ARCH} == alpha ]]; then
 		# Set optimization level based on CFLAGS
 		if is-flag -O0; then
 			mozconfig_annotate "from CFLAGS" --enable-optimize=-O0
@@ -145,6 +142,11 @@ mozconfig_init() {
 		fi
 		;;
 
+	sparc)
+		# Sparc support ...
+		replace-sparc64-flags
+		;;
+
 	x86)
 		if [[ $(gcc-major-version) -eq 3 ]]; then
 			# gcc-3 prior to 3.2.3 doesn't work well for pentium4
@@ -189,7 +191,7 @@ mozconfig_init() {
 		--disable-strip \
 		--disable-strip-libs \
 		--disable-install-strip \
-		--with-distribution-id=Sabayon
+		--with-distribution-id=org.sabayon
 
 		# This doesn't work yet
 		#--with-system-png \
