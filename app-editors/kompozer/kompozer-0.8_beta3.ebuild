@@ -227,6 +227,20 @@ src_compile() {
 	emake ${jobs} || die
 }
 
+xpi_dict_install() {
+	local emid
+
+	# You must tell xpi_install which xpi to use
+	[[ ${#} -ne 1 ]] && die "$FUNCNAME takes exactly one argument, please specify an xpi to unpack"
+
+	x="${1}"
+	cd ${x}
+	# determine id for extension
+	emid=$(sed -n -e '/<\?em:id>\?/!d; s/.*\([\"{].*[}\"]\).*/\1/; s/\"//g; p; q' ${x}/install.rdf) || die "failed to determine extension id"
+	insinto "${MOZILLA_FIVE_HOME}"/${emid}
+	doins -r "${x}"/* || die "failed to copy extension"
+}
+
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	declare emid
