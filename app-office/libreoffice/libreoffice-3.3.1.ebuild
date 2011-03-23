@@ -152,7 +152,8 @@ COMMON_DEPEND="!app-office/libreoffice-bin
 
 RDEPEND="java? ( >=virtual/jre-1.5 )
 	${SPELL_DIRS_DEPEND}
-	${COMMON_DEPEND}"
+	${COMMON_DEPEND}
+	x11-themes/sabayon-artwork-loo"
 
 DEPEND="${COMMON_DEPEND}
 	x11-libs/libXrender
@@ -412,6 +413,10 @@ src_install() {
 	dobashcompletion "${ED}"/etc/bash_completion.d/libreoffice.sh libreoffice
 	rm -rf "${ED}"/etc/bash_completion.d/ || die "rm failed"
 
+	# Remove files provided by x11-themes/sabayon-artwork-loo
+	rm  "${D}"/usr/$(get_libdir)/libreoffice/program/intro.png || die "intro.bmp rm failed"
+	rm "${D}"/usr/$(get_libdir)/libreoffice/program/about.png || die "about.png rm failed"
+	rm "${D}"/usr/$(get_libdir)/libreoffice/program/sofficerc || die "sofficerc rm failed"
 }
 
 pkg_postinst() {
