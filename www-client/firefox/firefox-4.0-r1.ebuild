@@ -244,6 +244,7 @@ src_install() {
 		die "failed to cp firefox-default-prefs.js"
 
 	# Copy Sabayon bookmarks.html file to the default location
+	dodir "${MOZILLA_FIVE_HOME}/defaults/profile"
 	cp "${FILESDIR}"/bookmarks.html.sabayon \
 		"${D}/${MOZILLA_FIVE_HOME}/defaults/profile/bookmarks.html" || \
 		die "failed to cp bookmarks.html.sabayon"
