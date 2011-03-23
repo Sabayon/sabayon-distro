@@ -46,7 +46,7 @@ COMMON_DEPEND="app-admin/system-config-keyboard
 	dev-libs/newt
 	nfs? ( net-fs/nfs-utils )
 	sys-fs/lvm2
-	=sys-block/open-iscsi-2.0.870.3-r1"
+	sys-block/open-iscsi"
 DEPEND="${COMMON_DEPEND} ${AUDIT_DEPEND} ${LSELINUX_DEPEND} sys-apps/sed"
 RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	${LSELINUX_RDEPEND} ${LSELINUX_CONFLICT}
