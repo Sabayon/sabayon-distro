@@ -12,7 +12,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="nomirror"
 
-DEPEND=">=app-office/libreoffice-3.3.0"
+DEPEND=""
+RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 
