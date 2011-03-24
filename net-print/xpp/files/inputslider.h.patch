@@ -1,0 +1,19 @@
+--- inputslider.h.1	2003-06-30 16:31:36.000000000 +0200
++++ inputslider.h	2003-06-30 16:31:50.000000000 +0200
+@@ -85,14 +85,14 @@
+     void input_box(Fl_Boxtype s) {
+       inputfield_->box(Fl_Widget::box());
+     }
+-    void color(Fl_Color s) {
++    void color(int s) {
+       Fl_Widget::color(s);
+       slider_->color(Fl_Widget::color());
+     }
+     void input_color(Fl_Color s) {
+       inputfield_->color(Fl_Widget::color());
+     }
+-    void selection_color(Fl_Color s) {
++    void selection_color(int s) {
+       Fl_Widget::selection_color(s);
+       slider_->selection_color(Fl_Widget::selection_color());
+     }
