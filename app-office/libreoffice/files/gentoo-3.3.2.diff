@@ -1,0 +1,49 @@
+--- distro-configs/Gentoo.conf.in
++++ distro-configs/Gentoo.conf.in
+@@ -1,5 +1,3 @@
+---disable-fontooo
+---disable-qadevooo
+ --enable-neon
+ --enable-xrender-link
+ --with-external-dict-dir=/usr/share/myspell
+--- configure.in 
++++ configure.in 
+@@ -1326,12 +1326,18 @@
+ 	done
+     fi
+     SUNTEMPLATES_LANG=
+-    # check whether the langs are requested at all
+-    for lang in $wanted_sun_templates ; do
+-        if test -n "`echo $with_lang | grep "$lang"`" ; then
+-                SUNTEMPLATES_LANG="$SUNTEMPLATES_LANG $lang"
+-        fi
+-    done
++
++    # --with-lang="" now used for en-US
++    if test "z$with_lang" = "z" ; then
++        SUNTEMPLATES_LANG="en-US"
++    else
++        # check whether the langs are requested at all
++        for lang in $wanted_sun_templates ; do
++	    if test -n "`echo $with_lang | grep "$lang"`" ; then
++		  SUNTEMPLATES_LANG="$SUNTEMPLATES_LANG $lang"
++	    fi
++        done
++    fi
+     AC_MSG_RESULT([$SUNTEMPLATES_LANG])
+ fi
+ AC_SUBST(SUNTEMPLATES_LANG)
+--- bin/package-ooo
++++ bin/package-ooo
+@@ -126,8 +126,8 @@
+ fi
+ 
+ # create bash completion
+-mkdir -p $OODESTDIR/etc/bash_completion.d
+-$TOOLSDIR/bin/generate-bash-completion --binsuffix="$BINSUFFIX" $TOOLSDIR/bin/bash-completion.in $OODESTDIR/etc/bash_completion.d/libreoffice${BINSUFFIX}.sh
++mkdir -p $SYSCONFDIR/bash_completion.d
++$TOOLSDIR/bin/generate-bash-completion --binsuffix="$BINSUFFIX" $TOOLSDIR/bin/bash-completion.in $SYSCONFDIR/bash_completion.d/libreoffice${BINSUFFIX}.sh
+ if test "$COMPAT_OOWRAPPERS" = "YES" ; then
+     $TOOLSDIR/bin/generate-bash-completion --compat-oowrappers --binsuffix="$BINSUFFIX"  $TOOLSDIR/bin/bash-completion.in $OODESTDIR/etc/bash_completion.d/ooffice${BINSUFFIX}.sh
+ fi
+
