@@ -33,8 +33,8 @@ src_prepare() {
 
 src_configure() {
 	export CXX="$(tc-getCXX)"
-	export LDFLAGS="-L/usr/lib/fltk-1.1 -lfltk"
-	export CPPFLAGS="-I/usr/include/fltk-1.1"
+	export LDFLAGS="-L/usr/lib/fltk-1 -lfltk"
+	export CPPFLAGS="-I/usr/include/fltk-1"
 
 	econf
 }
