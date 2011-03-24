@@ -1,0 +1,30 @@
+--- remoting/remoting.gyp.orig	2011-03-10 14:43:29.000000000 +0000
++++ remoting/remoting.gyp	2011-03-10 14:44:50.000000000 +0000
+@@ -127,6 +127,7 @@
+         '../ui/gfx/gfx.gyp:gfx',
+         '../media/media.gyp:media',
+         '../third_party/protobuf/protobuf.gyp:protobuf_lite',
++        '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+         '../third_party/libvpx/libvpx.gyp:libvpx_include',
+         '../third_party/zlib/zlib.gyp:zlib',
+         'chromoting_jingle_glue',
+--- third_party/ffmpeg/ffmpeg.gyp.orig	2011-03-10 15:39:13.000000000 +0000
++++ third_party/ffmpeg/ffmpeg.gyp	2011-03-10 15:39:41.000000000 +0000
+@@ -728,11 +728,14 @@
+                 '../libvpx/include',
+               ],
+             }, { # use_system_vpx != 0
++              'defines': [
++                'USE_SYSTEM_VPX',
++              ],
+               'direct_dependent_settings': {
++                'defines': [
++                  'USE_SYSTEM_VPX',
++                ],
+                 'link_settings': {
+-                  'defines': [
+-                    'USE_SYSTEM_VPX',
+-                  ],
+                   'libraries': [
+                     '-lvpx',
+                   ],
