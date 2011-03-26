@@ -6,7 +6,7 @@ EAPI="3"
 GCONF_DEBUG="no"
 PYTHON_DEPEND="2"
 
-inherit eutils gnome2 python virtualx
+inherit eutils gnome2 python virtualx autotools
 
 DESCRIPTION="PackageKit client for the GNOME desktop"
 HOMEPAGE="http://www.packagekit.org/"
@@ -81,6 +81,8 @@ src_prepare() {
 	# fix pyc/pyo generation
 	rm py-compile || die "rm py-compile failed"
 	ln -s $(type -P true) py-compile
+
+	eautoreconf
 }
 
 src_test() {
