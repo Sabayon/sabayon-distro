@@ -57,7 +57,6 @@ pkg_setup() {
 	# scrollkeeper and schemas-install: managed by gnome2 eclass
 	# tests: not working (need DISPLAY)
 	# gtk-doc: not needed (builded file is useless)
-#		--enable-libtool-lock
 #		--disable-dependency-tracking
 #		--enable-option-checking
 	G2CONF="
@@ -67,6 +66,7 @@ pkg_setup() {
 		--disable-scrollkeeper
 		--disable-schemas-install
 		--disable-strict
+		--enable-libtool-lock
 		$(use_enable nls)
 		$(use_enable test tests)
 		$(use_enable udev gudev)"
