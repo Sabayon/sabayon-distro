@@ -1,0 +1,22 @@
+diff -Nur vagalume-0.8.4/src/vgl-tray-icon.c vagalume-0.8.4_patched/src/vgl-tray-icon.c
+--- vagalume-0.8.4/src/vgl-tray-icon.c	2010-04-09 13:57:15.000000000 +0300
++++ vagalume-0.8.4_patched/src/vgl-tray-icon.c	2011-03-14 00:57:53.000000000 +0200
+@@ -518,11 +518,18 @@
+         /* Create the notification if not already created */
+         if (priv->notification == NULL) {
+                 priv->notification =
++#if !defined(NOTIFY_VERSION_MINOR) || (NOTIFY_VERSION_MAJOR == 0 && NOTIFY_VERSION_MINOR < 7)
+                         notify_notification_new_with_status_icon (
+                                 notification_summary,
+                                 notification_body,
+                                 NULL,
+                                 priv->tray_icon);
++#else
++                        notify_notification_new (
++                                notification_summary,
++                                notification_body,
++                                NULL);
++#endif
+         } else {
+                 notify_notification_update (priv->notification,
+                                             notification_summary,
