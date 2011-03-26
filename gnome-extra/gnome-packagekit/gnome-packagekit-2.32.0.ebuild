@@ -20,7 +20,7 @@ RDEPEND="
 	>=app-admin/packagekit-gtk-0.5.5
 	>=dev-libs/dbus-glib-0.73
 	>=dev-libs/glib-2.18.0:2
-	>=dev-libs/libunique-1:0
+	dev-libs/libunique:1
 	>=gnome-base/gconf-2.22:2
 	>=gnome-base/gnome-menus-2.24.1
 	media-libs/fontconfig
