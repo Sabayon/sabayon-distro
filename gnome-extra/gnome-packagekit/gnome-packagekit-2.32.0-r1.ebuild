@@ -28,7 +28,7 @@ RDEPEND="
 	>=sys-apps/dbus-1.1.2
 	>=sys-power/upower-0.9
 	>=x11-libs/gtk+-2.19.3:2
-	>=x11-libs/libnotify-0.4.3
+	>=x11-libs/libnotify-0.7.1
 	udev? ( >=sys-fs/udev-145[extras] )"
 DEPEND="${RDEPEND}
 	app-text/docbook-sgml-utils
