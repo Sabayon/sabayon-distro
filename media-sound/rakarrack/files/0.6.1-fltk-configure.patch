@@ -1,0 +1,23 @@
+diff -Naur rakarrack-0.6.1/configure rakarrack-0.6.1.new//configure
+--- rakarrack-0.6.1/configure	2010-11-03 18:29:52.000000000 +0100
++++ rakarrack-0.6.1.new//configure	2011-03-30 15:36:54.090000103 +0200
+@@ -5413,6 +5413,9 @@
+ 
+ fi
+ 
++CXXFLAGS="`$FLTKCONFIG --use-images --cxxflags` $CXXFLAGS"
++LIBS="`$FLTKCONFIG --use-images --ldflags` $LIBS"
++
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lfltk" >&5
+ $as_echo_n "checking for main in -lfltk... " >&6; }
+ if test "${ac_cv_lib_fltk_main+set}" = set; then :
+@@ -6330,8 +6333,7 @@
+ fi
+ fi
+ 
+-LIBS="`$FLTKCONFIG --use-images --ldflags` $LIBS"
+-CXXFLAGS="-Wall $SSE $ALTIVEC -ffast-math -pipe $ADDS -fsigned-char `$FLTKCONFIG --use-images --cxxflags` `pkg-config --cflags sndfile` `pkg-config --cflags jack` $CXXFLAGS"
++CXXFLAGS="-Wall $SSE $ALTIVEC -ffast-math -pipe $ADDS -fsigned-char `pkg-config --cflags sndfile` `pkg-config --cflags jack` $CXXFLAGS"
+ ac_config_files="$ac_config_files Makefile src/Makefile man/Makefile data/Makefile icons/Makefile doc/Makefile doc/help/Makefile doc/help/imagenes/Makefile doc/help/css/Makefile extra/Makefile"
+ 
+ cat >confcache <<\_ACEOF
