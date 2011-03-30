@@ -22,7 +22,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+crashreporter +ipc system-sqlite +webm"
+IUSE="+crashreporter debug +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -66,6 +66,9 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	# Sabayon User-Agent patch
+	epatch "${FILESDIR}/xulrunner-2.0-ua.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
