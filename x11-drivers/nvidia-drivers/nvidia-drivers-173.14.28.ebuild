@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -12,9 +12,9 @@ X86_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86-${PV}"
 
 DESCRIPTION="NVIDIA GPUs kernel drivers"
 HOMEPAGE="http://www.nvidia.com/"
-SRC_URI="x86? ( http://us.download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKAGE}.run )
-	 amd64? ( http://us.download.nvidia.com/XFree86/Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}.run )
-	 x86-fbsd? ( http://us.download.nvidia.com/XFree86/FreeBSD-x86/${PV}/${X86_FBSD_NV_PACKAGE}.tar.gz )"
+SRC_URI="x86? ( ftp://download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKAGE}-pkg0.run )
+	 amd64? ( ftp://download.nvidia.com/XFree86/Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}-pkg2.run )
+	 x86-fbsd? ( ftp://download.nvidia.com/freebsd/${PV}/${X86_FBSD_NV_PACKAGE}.tar.gz )"
 
 LICENSE="NVIDIA"
 SLOT="0"
@@ -28,12 +28,22 @@ RDEPEND="~x11-drivers/nvidia-userspace-${PV}
 	multilib? ( ~x11-drivers/nvidia-userspace-${PV}[multilib] )
 	!<x11-drivers/nvidia-userspace-${PV}
 	!>x11-drivers/nvidia-userspace-${PV}
-	x11-libs/libXvMC
 	kernel_linux? ( virtual/modutils )
 	acpi? ( sys-power/acpid )"
-PDEPEND=">=x11-libs/libvdpau-0.3-r1"
+PDEPEND="gtk? ( media-video/nvidia-settings )"
 
-S="${WORKDIR}/"
+if use x86; then
+	PKG_V="-pkg0"
+	NV_PACKAGE="${X86_NV_PACKAGE}"
+elif use amd64; then
+	PKG_V="-pkg2"
+	NV_PACKAGE="${AMD64_NV_PACKAGE}"
+elif use x86-fbsd; then
+	PKG_V=""
+	NV_PACKAGE="${X86_FBSD_NV_PACKAGE}"
+fi
+
+S="${WORKDIR}/${NV_PACKAGE}${PKG_V}"
 
 mtrr_check() {
 	ebegin "Checking for MTRR support"
@@ -54,11 +64,9 @@ mtrr_check() {
 lockdep_check() {
 	if linux_chkconfig_present LOCKDEP; then
 		eerror "You've enabled LOCKDEP -- lock tracking -- in the kernel."
-		eerror "Unfortunately, this option exports the symbol "
-		eerror "'lockdep_init_map' as GPL-only which will prevent "
-		eerror "${P} from compiling."
+		eerror "Unfortunately, this option exports the symbol 'lockdep_init_map' as GPL-only"
+		eerror "which will prevent ${P} from compiling."
 		eerror "Please make sure the following options have been unset:"
-		eerror
 		eerror "    Kernel hacking  --->"
 		eerror "        [ ] Lock debugging: detect incorrect freeing of live locks"
 		eerror "        [ ] Lock debugging: prove locking correctness"
@@ -71,7 +79,7 @@ lockdep_check() {
 pkg_setup() {
 	if use kernel_linux; then
 		linux-mod_pkg_setup
-		MODULE_NAMES="nvidia(video:${S}/kernel)"
+		MODULE_NAMES="nvidia(video:${S}/usr/src/nv)"
 		BUILD_PARAMS="IGNORE_CC_MISMATCH=yes V=1 SYSSRC=${KV_DIR} \
 		SYSOUT=${KV_OUT_DIR} HOST_CC=$(tc-getBUILD_CC)"
 		mtrr_check
@@ -93,7 +101,7 @@ pkg_setup() {
 	if use kernel_FreeBSD; then
 		NV_SRC="${S}/src"
 	elif use kernel_linux; then
-		NV_SRC="${S}/kernel"
+		NV_SRC="${S}/usr/src/nv"
 	else
 		die "Could not determine proper NVIDIA package"
 	fi
@@ -111,6 +119,7 @@ src_unpack() {
 	fi
 
 	if ! use x86-fbsd; then
+		mkdir "${S}"
 		cd "${S}"
 		unpack_makeself
 	else
@@ -125,11 +134,9 @@ src_prepare() {
 	if use kernel_linux; then
 		# Quiet down warnings the user does not need to see
 		sed -i \
+			-e 's:-Wpointer-arith::g' \
 			-e 's:-Wsign-compare::g' \
 			"${NV_SRC}"/Makefile.kbuild
-
-		# Add support for the 'x86' unified kernel arch in conftest.sh
-		epatch "${FILESDIR}"/256.35-unified-arch.patch
 
 		# If you set this then it's your own fault when stuff breaks :)
 		use custom-cflags && sed -i "s:-O:${CFLAGS}:" "${NV_SRC}"/Makefile.*
@@ -186,7 +193,7 @@ pkg_postinst() {
 	elog "match explicitly in their version. This means, if you restart"
 	elog "X, you must modprobe -r nvidia before starting it back up"
 	elog
-
+	echo
 }
 
 pkg_postrm() {
