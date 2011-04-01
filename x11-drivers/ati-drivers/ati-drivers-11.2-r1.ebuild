@@ -24,9 +24,9 @@ KEYWORDS="~amd64 ~x86"
 SLOT="1"
 
 RDEPEND="multilib? ( ~x11-drivers/ati-userspace-${PV}[multilib] )
-	!<x11-drivers/nvidia-userspace-${PV}
-	!>x11-drivers/nvidia-userspace-${PV}
-	~x11-drivers/nvidia-userspace-${PV}"
+	!<x11-drivers/ati-userspace-${PV}
+	!>x11-drivers/ati-userspace-${PV}
+	~x11-drivers/ati-userspace-${PV}"
 DEPEND="${RDEPEND}
 	sys-power/acpid"
 
