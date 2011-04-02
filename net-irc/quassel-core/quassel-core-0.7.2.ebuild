@@ -4,25 +4,48 @@
 
 EAPI=3
 
-inherit eutils
+EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
+EGIT_BRANCH="master"
+[[ "${PV}" == "9999" ]] && GIT_ECLASS="git"
 
-DESCRIPTION="Qt4/KDE4 IRC client. This provides the \"core\" (server) component (static build, no Qt dependency)."
+QT_MINIMAL="4.6.0"
+KDE_MINIMAL="4.4"
+
+inherit cmake-utils eutils ${GIT_ECLASS}
+
+DESCRIPTION="Qt4/KDE4 IRC client. This provides the \"core\" (server) component."
 HOMEPAGE="http://quassel-irc.org/"
-
-MY_FETCH_NAME="quasselcore-static-${PV}"
-
-SRC_URI="http://quassel-irc.org/pub/${MY_FETCH_NAME}.bz2"
+MY_P=${P/-core}
+MY_PN=${PN/-core}
+[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE=""
+IUSE="crypt dbus +ssl postgres"
 
-RDEPEND=""
-DEPEND="!!net-irc/quassel-core"
+SERVER_RDEPEND="
+	crypt? (
+		app-crypt/qca:2
+		app-crypt/qca-ossl
+	)
+	!postgres? ( >=x11-libs/qt-sql-${QT_MINIMAL}:4[sqlite] dev-db/sqlite[threadsafe,-secure-delete] )
+	postgres? ( >=x11-libs/qt-sql-${QT_MINIMAL}:4[postgres] )
+	>=x11-libs/qt-script-${QT_MINIMAL}:4
+"
 
-# MY_P=${P/-core-bin}
-MY_PN=${PN/-core-bin}
+RDEPEND="
+	>=x11-libs/qt-core-${QT_MINIMAL}:4[ssl?]
+	${SERVER_RDEPEND}
+	"
+DEPEND="
+	${RDEPEND}
+	!net-irc/quassel-core-bin
+	"
+
+DOCS="AUTHORS ChangeLog README"
+
+S="${WORKDIR}/${MY_P/_/-}"
 
 pkg_setup() {
 	QUASSEL_DIR=/var/lib/${MY_PN}
@@ -32,8 +55,32 @@ pkg_setup() {
 	enewuser "${QUASSEL_USER}" -1 -1 "${QUASSEL_DIR}" "${QUASSEL_USER}"
 }
 
+src_configure() {
+	local mycmakeargs=(
+		"-DWITH_LIBINDICATE=OFF"
+		"-DWANT_CORE=ON"
+		"-DWANT_QTCLIENT=OFF"
+		"-DWANT_MONO=OFF"
+		"-DWITH_WEBKIT=OFF"
+		"-DWITH_PHONON=OFF"
+		"-DWITH_KDE=OFF"
+		$(cmake-utils_use_with dbus)
+		$(cmake-utils_use_with ssl OPENSSL)
+		"-DWITH_OXYGEN=OFF"
+		$(cmake-utils_use_with crypt)
+		"-DEMBED_DATA=OFF"
+	)
+
+	# -DSTATIC=ON
+	cmake-utils_src_configure
+}
+
 src_install() {
-	newbin "${MY_FETCH_NAME}" "${MY_FETCH_NAME%%-*}"
+	cmake-utils_src_install
+
+	rm -rf "${ED}"usr/share/apps/quassel/
+	rm -f "${ED}"usr/share/pixmaps/quassel.png
+	rm -f "${ED}"usr/share/icons/hicolor/48x48/apps/quassel.png
 
 	# server stuff
 	# prepare folders in /var/

@@ -77,3 +77,8 @@ src_install() {
 	insinto /usr/share/applications
 	doins data/quasselclient.desktop
 }
+
+pkg_postinst() {
+	elog "To make use of quasselclient, install server, too."
+	elog "It is provided by net-irc/quassel-core and net-irc/quassel-core-bin."
+}

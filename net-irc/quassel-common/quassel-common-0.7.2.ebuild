@@ -18,7 +18,7 @@ MY_P=${P/-common}
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE="kde"
+IUSE=""
 
 RDEPEND=""
 DEPEND="${RDEPEND}
@@ -29,25 +29,15 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/${MY_P/_/-}"
 
 src_configure() {
-		local mycmakeargs=(
-		"-DWITH_LIBINDICATE=OFF"
-		"-DWANT_CORE=ON"
-		"-DWANT_QTCLIENT=OFF"
-		"-DWANT_MONO=OFF"
-		"-DWITH_WEBKIT=OFF"
-		"-DWITH_PHONON=OFF"
-		"-DWITH_KDE=OFF"
-		"-DWITH_DBUS=OFF"
-		"-DWITH_OPENSSL=OFF"
-		"-DWITH_OXYGEN=ON"
-		"-DWITH_CRYPT=OFF"
-		"-DEMBED_DATA=OFF"
-	)
 	cmake-utils_src_configure
 }
 
+src_compile() {
+	cmake-utils_src_make po
+}
+
 src_install() {
-	cmake-utils_src_install
+	# cmake-utils_src_install
 
 	local mypath
 
@@ -65,10 +55,11 @@ src_install() {
 	done
 
 	# /usr/share/apps/quassel/icons/oxygen
-	if ! has_version '>kde-base/oxygen-icons-4.3'; then
+	# Sabayon bug: users that has no oxygen-icons have missing icons
+	# don't rely on has_version here, it's executed on build servers
+	# if ! has_version '>kde-base/oxygen-icons-4.3'; then
 		dodoc icons/README.Oxygen
 		newdoc icons/oxygen/COPYING COPYING.Oxygen
-
 		local mydest
 		for mypath in icons/oxygen{,_kde}/*/*/*.{svgz,png}; do
 			if [ -f "${mypath}" ]; then
@@ -77,7 +68,7 @@ src_install() {
 				doins "${mypath}" || die "doins for Oxygen icon failed"
 			fi
 		done
-	fi
+	# fi
 
 	# /usr/share/apps/quassel/stylesheets
 	for mypath in data/stylesheets/*.qss; do
@@ -93,6 +84,12 @@ src_install() {
 			insinto /usr/share/apps/quassel/scripts
 			doins "${mypath/$CMAKE_BUILD_DIR}" || die "doins for script failed"
 		fi
+	done
+	
+	# /usr/share/apps/quassel/translations
+	for mypath in "${CMAKE_BUILD_DIR}"/po/*.qm; do
+		insinto /usr/share/apps/quassel/translations
+		doins "${mypath}" || die "doins for .qm file failed"
 	done
 
 	insinto /usr/share/apps/quassel

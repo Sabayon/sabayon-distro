@@ -15,7 +15,7 @@
 	</maintainer>
 	<maintainer>
 		<email>poczta-sn@gazeta.pl</email>
-		<description>author of the split ebuild based on Portage (non-split) one</description>
+		<description>Author of the split ebuild based on Portage (non-split) one. Bugs regarding the split ebuild please here.</description>
 	</maintainer>
 	<use>
 		<flag name="phonon">
