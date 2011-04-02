@@ -43,7 +43,6 @@ GUI_RDEPEND="
 	)
 	kde? (
 		>=kde-base/kdelibs-${KDE_MINIMAL}
-		>=kde-base/oxygen-icons-${KDE_MINIMAL}
 		ayatana? ( kde-misc/plasma-widget-message-indicator )
 	)
 	phonon? ( || ( media-sound/phonon >=x11-libs/qt-phonon-${QT_MINIMAL} ) )
@@ -71,7 +70,7 @@ src_configure() {
 		$(cmake-utils_use_with kde)
 		$(cmake-utils_use_with dbus)
 		$(cmake-utils_use_with ssl OPENSSL)
-		$(cmake-utils_use_with !kde OXYGEN)
+		"-DWITH_OXYGEN=OFF"
 		$(cmake-utils_use_with crypt)
 		"-DEMBED_DATA=OFF"
 	)

@@ -8,6 +8,8 @@ EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
 EGIT_BRANCH="master"
 [[ "${PV}" == "9999" ]] && GIT_ECLASS="git"
 
+KDE_MINIMAL="4.4"
+
 inherit cmake-utils eutils ${GIT_ECLASS}
 
 DESCRIPTION="Qt4/KDE4 IRC client suppporting a remote daemon for 24/7 connectivity (common files)."
@@ -18,9 +20,9 @@ MY_P=${P/-common}
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE=""
+IUSE="kde"
 
-RDEPEND=""
+RDEPEND="kde? ( >=kde-base/oxygen-icons-${KDE_MINIMAL} )"
 DEPEND="${RDEPEND}
 		!<net-irc/quassel-${PV}
 		!<net-irc/quassel-client-${PV}"
@@ -55,9 +57,7 @@ src_install() {
 	done
 
 	# /usr/share/apps/quassel/icons/oxygen
-	# Sabayon bug: users that has no oxygen-icons have missing icons
-	# don't rely on has_version here, it's executed on build servers
-	# if ! has_version '>kde-base/oxygen-icons-4.3'; then
+	if ! use kde; then
 		dodoc icons/README.Oxygen
 		newdoc icons/oxygen/COPYING COPYING.Oxygen
 		local mydest
@@ -68,7 +68,7 @@ src_install() {
 				doins "${mypath}" || die "doins for Oxygen icon failed"
 			fi
 		done
-	# fi
+	fi
 
 	# /usr/share/apps/quassel/stylesheets
 	for mypath in data/stylesheets/*.qss; do
@@ -85,7 +85,7 @@ src_install() {
 			doins "${mypath/$CMAKE_BUILD_DIR}" || die "doins for script failed"
 		fi
 	done
-	
+
 	# /usr/share/apps/quassel/translations
 	for mypath in "${CMAKE_BUILD_DIR}"/po/*.qm; do
 		insinto /usr/share/apps/quassel/translations

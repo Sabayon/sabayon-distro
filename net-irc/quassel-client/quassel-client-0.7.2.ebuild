@@ -33,7 +33,6 @@ GUI_RDEPEND="
 	)
 	kde? (
 		>=kde-base/kdelibs-${KDE_MINIMAL}
-		>=kde-base/oxygen-icons-${KDE_MINIMAL}
 		ayatana? ( kde-misc/plasma-widget-message-indicator )
 	)
 	phonon? ( || ( media-sound/phonon >=x11-libs/qt-phonon-${QT_MINIMAL} ) )
