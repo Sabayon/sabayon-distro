@@ -1,0 +1,25 @@
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -5701,16 +5701,21 @@ then
+ 
+     AC_SUBST(MOZ_ENABLE_GIO)
+     AC_SUBST(MOZ_GIO_CFLAGS)
+     AC_SUBST(MOZ_GIO_LIBS)
+    
+     dnl ========================================================
+     dnl = GConf support module
+     dnl ========================================================
++    MOZ_ARG_DISABLE_BOOL(gconf,
++    [  --disable-gconf      Disable Gconf support ],
++        MOZ_ENABLE_GCONF=,
++        MOZ_ENABLE_GCONF=force)
++
+     if test "$MOZ_ENABLE_GCONF"
+     then
+         PKG_CHECK_MODULES(MOZ_GCONF, gconf-2.0 >= $GCONF_VERSION gobject-2.0 ,[
+             MOZ_GCONF_LIBS=`echo $MOZ_GCONF_LIBS | sed 's/-llinc\>//'`
+             MOZ_ENABLE_GCONF=1
+         ],[
+             if test "$MOZ_ENABLE_GCONF" = "force"
+             then
