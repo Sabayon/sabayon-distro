@@ -22,20 +22,18 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+crashreporter debug +ipc system-sqlite +webm"
+IUSE="+crashreporter gconf +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
-# XXX: GConf is used for setting the default browser
-#      revisit to make it optional with GNOME 3
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
 	>=dev-libs/glib-2.26
-	>=gnome-base/gconf-1.2.1:2
+	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	x11-libs/pango[X]
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx
@@ -69,6 +67,8 @@ src_prepare() {
 
 	# Sabayon User-Agent patch
 	epatch "${FILESDIR}/xulrunner-2.0-ua.patch"
+
+	epatch "${FILESDIR}"/mozilla-2.0-gconf-config-update.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -131,6 +131,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable gconf
 
 	# Finalize and report settings
 	mozconfig_final
