@@ -283,34 +283,19 @@ src_install() {
 	if use x86-fbsd; then
 		dodoc "${NV_DOC}/README"
 		doman "${NV_MAN}/nvidia-xconfig.1"
-		use gtk && doman "${NV_MAN}/nvidia-settings.1"
 	else
 		# Docs
 		newdoc "${NV_DOC}/README.txt" README
 		dodoc "${NV_DOC}/NVIDIA_Changelog"
 		doman "${NV_MAN}/nvidia-smi.1.gz"
 		doman "${NV_MAN}/nvidia-xconfig.1.gz"
-		use gtk && doman "${NV_MAN}/nvidia-settings.1.gz"
 	fi
 
 	# Helper Apps
 	dobin ${NV_EXEC}/nvidia-xconfig || die
-	if use gtk; then
-		dobin ${NV_EXEC}/nvidia-settings || die
-	fi
 	dobin ${NV_EXEC}/nvidia-bug-report.sh || die
 	if use kernel_linux; then
 		dobin ${NV_EXEC}/nvidia-smi || die
-	fi
-
-	# Desktop entries for nvidia-settings
-	if use gtk; then
-		sed -e 's:__UTILS_PATH__:/usr/bin:' \
-			-e 's:__PIXMAP_PATH__:/usr/share/pixmaps:' \
-			-i "${NV_EXEC}/nvidia-settings.desktop"
-		domenu ${NV_EXEC}/nvidia-settings.desktop
-
-		doicon ${NV_EXEC}/nvidia-settings.png
 	fi
 
 	if has_multilib_profile ; then
