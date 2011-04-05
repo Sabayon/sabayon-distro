@@ -12,8 +12,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="ksplash"
 RESTRICT="nomirror"
-RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
-	|| ( >=kde-base/kwin-4.4.0 x11-themes/aurorae )"
+RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 

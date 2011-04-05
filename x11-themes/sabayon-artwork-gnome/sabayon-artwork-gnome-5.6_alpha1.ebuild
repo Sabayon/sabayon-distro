@@ -11,10 +11,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="nomirror"
-# Need to make sure its not going cause a collision
-DEPEDND="!!x11-themes/gnome-colors-themes"
-RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
-	 x11-themes/gtk-engines"
+RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 
