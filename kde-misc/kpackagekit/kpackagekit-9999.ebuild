@@ -1,8 +1,8 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="3"
 
 KMNAME="playground/sysadmin"
 inherit kde4-base
@@ -21,7 +21,7 @@ RDEPEND="${DEPEND}"
 src_install() {
 	kde4-base_src_install
 	# fix dbus service path otherwise conflicting with gnome-packagekit one
-	mv "${D}/usr/share/dbus-1/services/org.freedesktop.PackageKit.service" \
-		"${D}"/usr/share/dbus-1/services/kde-org.freedesktop.PackageKit.service || \
+	mv "${ED}/usr/share/dbus-1/services/org.freedesktop.PackageKit.service" \
+		"${ED}"/usr/share/dbus-1/services/kde-org.freedesktop.PackageKit.service || \
 		die "cannot hackily move packagekit dbus service file"
 }
