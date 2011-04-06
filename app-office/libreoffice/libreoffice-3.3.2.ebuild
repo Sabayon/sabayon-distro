@@ -400,9 +400,9 @@ src_install() {
 	rm -rf "${ED}"/etc/bash_completion.d/ || die "rm failed"
 
 	# Remove files provided by x11-themes/sabayon-artwork-loo
-	rm  "${D}"/usr/$(get_libdir)/libreoffice/program/intro.png || die "intro.bmp rm failed"
-	rm "${D}"/usr/$(get_libdir)/libreoffice/program/about.png || die "about.png rm failed"
-	rm "${D}"/usr/$(get_libdir)/libreoffice/program/sofficerc || die "sofficerc rm failed"
+	rm  "${ED}"/usr/$(get_libdir)/libreoffice/program/intro.png || die "intro.bmp rm failed"
+	rm "${ED}"/usr/$(get_libdir)/libreoffice/program/about.png || die "about.png rm failed"
+	rm "${ED}"/usr/$(get_libdir)/libreoffice/program/sofficerc || die "sofficerc rm failed"
 }
 
 pkg_preinst() {
