@@ -1,7 +1,7 @@
 # Copyright 1999-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
+EAPI=3
 inherit eutils kde4-base
 
 DESCRIPTION="Sabayon Linux Official KDE artwork"
