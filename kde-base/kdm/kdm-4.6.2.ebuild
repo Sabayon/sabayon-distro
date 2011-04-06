@@ -10,7 +10,7 @@ inherit kde4-meta flag-o-matic
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
 KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
-IUSE="consolekit debug kerberos pam"
+IUSE="+consolekit debug kerberos pam"
 
 DEPEND="
 	x11-libs/libXau
