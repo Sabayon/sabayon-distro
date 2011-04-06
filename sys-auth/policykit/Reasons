@@ -1,3 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-Provide fixes for KDE, allowing users to eject CDs & such
-Note: fix is in ${FILESDIR}/PolicyKit.conf
