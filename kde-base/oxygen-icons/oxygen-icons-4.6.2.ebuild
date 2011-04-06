@@ -15,8 +15,9 @@ inherit kde4-base
 DESCRIPTION="Oxygen SVG icon theme."
 HOMEPAGE="http://www.oxygen-icons.org/"
 SLREV=4
-SRC_URI="http://dev.gentooexperimental.org/~scarabeus/${P}.tar.xz
-	mirror://sabayon/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz"
+SRC_URI="http://dev.gentoo.org/~scarabeus/${P}.tar.xz"
+#SRC_URI="http://dev.gentooexperimental.org/~scarabeus/${P}.tar.xz
+#	mirror://sabayon/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz"
 
 LICENSE="LGPL-3"
 KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
