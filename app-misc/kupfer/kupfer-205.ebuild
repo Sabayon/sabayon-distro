@@ -22,8 +22,9 @@ COMMON_DEPEND=">=dev-lang/python-2.6
 	dev-python/dbus-python
 	dev-python/libwnck-python
 	dev-python/pygobject
-	dev-python/libgnome-python
-	dev-python/gnome-keyring-python"
+	dev-python/libgnome-python"
+	# dev-python/gnome-keyring-python doesn't work well with Kupfer
+	# dev-python/gnome-keyring-python
 DEPEND="${COMMON_DEPEND}
 	dev-python/docutils
 	doc? ( app-text/gnome-doc-utils )
@@ -35,10 +36,13 @@ RDEPEND="${COMMON_DEPEND}
 S=${WORKDIR}/${MY_P}
 
 src_prepare() {
-	sed -i "s/keyring/gnomekeyring/" wscript || die
-	sed -i "s/import keyring/import gnomekeyring/" \
-		kupfer/plugin_support.py || \
-		die "Error: src_prepare failed!"
+	# don't try to fix them with sed
+	# it will cause Kupfer doesn't bother importing gnomekeyring module
+	# dev-python/gnome-keyring-python doesn't work well with Kupfer
+	# sed -i "s/keyring/gnomekeyring/" wscript || die
+	# sed -i "s/import keyring/import gnomekeyring as keyring/" \
+	#	kupfer/plugin_support.py || \
+	#	die "Error: src_prepare failed!"
 	sed -i "s/rule = 'rst2man /rule = 'rst2man.py /" wscript || \
 		die "Error: src_prepare failed!"
 }
