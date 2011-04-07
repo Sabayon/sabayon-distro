@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI="3"
-inherit kde4-base
+# inherit kde4-base
 
 DESCRIPTION="KDE internationalization meta-package - merge this to pull in all kde-l10n packages"
 HOMEPAGE="http://www.kde.org/"
@@ -12,6 +12,7 @@ LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 SRC_URI=""
+SLOT="0"
 
 RDEPEND="!kde-base/kde-l10n"
 DEPEND=">=sys-devel/gettext-0.15"
