@@ -12,7 +12,7 @@ LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 SRC_URI=""
-SLOT="0"
+SLOT="4.6"
 
 RDEPEND="!kde-base/kde-l10n"
 DEPEND=">=sys-devel/gettext-0.15"
