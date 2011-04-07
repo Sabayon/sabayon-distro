@@ -17,7 +17,7 @@ RESTRICT="mirror"
 
 DEPEND="
 	dev-db/sqlite[soundex]
-	|| ( dev-lang/python:2.6[sqlite] )
+	|| ( dev-lang/python:2.6[sqlite] dev-lang/python:2.7[sqlite] )
 	dev-util/intltool
 	net-misc/rsync
 	sys-apps/sandbox
@@ -78,7 +78,7 @@ pkg_postinst() {
 
 	python_mod_optimize "/usr/$(get_libdir)/entropy/libraries/entropy"
 
-	# force python 2.6/2.7 at least
+	# still force python 2.6 for now, until we migrate
 	eselect python update --ignore 2.7 --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3
 
 	echo
