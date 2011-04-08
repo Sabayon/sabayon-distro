@@ -1,0 +1,27 @@
+From: Oswald Buddenhagen <ossi@kde.org>
+Date: Fri, 08 Apr 2011 17:02:01 +0000
+Subject: linux shutdown wants -P instead of -p
+X-Git-Url: http://quickgit.kde.org/?p=kde-workspace.git&amp;a=commitdiff&amp;h=4b7ec7c9966df0c705bc0c9b9bff1010475347b6
+---
+linux shutdown wants -P instead of -p
+
+BUG: 270228
+FIXED-IN: 4.6.3
+---
+
+
+--- a/kdm/config.def
++++ b/kdm/config.def
+@@ -37,7 +37,10 @@
+ #ifdef _AIX
+ # define HALT_CMD	"/usr/sbin/shutdown -h now"
+ # define REBOOT_CMD	"/usr/sbin/shutdown -r now"
+-#elif defined(BSD) || defined(__linux__)
++#elif defined(__linux__)
++# define HALT_CMD	"/sbin/shutdown -P now"
++# define REBOOT_CMD	"/sbin/shutdown -r now"
++#elif defined(BSD)
+ # define HALT_CMD	"/sbin/shutdown -p now"
+ # define REBOOT_CMD	"/sbin/shutdown -r now"
+ #elif defined(__SVR4)
+

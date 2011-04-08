@@ -1,0 +1,25 @@
+From: Oswald Buddenhagen <ossi@kde.org>
+Date: Fri, 08 Apr 2011 18:58:29 +0000
+Subject: actually, it wants -h -P, because -P is just a modifier
+X-Git-Url: http://quickgit.kde.org/?p=kde-workspace.git&amp;a=commitdiff&amp;h=28b79d8d04cce4d0a0899cadcc8fe6fd69d38e01
+---
+actually, it wants -h -P, because -P is just a modifier
+
+FAIL ...
+
+BUG: 270228 (take 2)
+---
+
+
+--- a/kdm/config.def
++++ b/kdm/config.def
+@@ -38,7 +38,7 @@
+ # define HALT_CMD	"/usr/sbin/shutdown -h now"
+ # define REBOOT_CMD	"/usr/sbin/shutdown -r now"
+ #elif defined(__linux__)
+-# define HALT_CMD	"/sbin/shutdown -P now"
++# define HALT_CMD	"/sbin/shutdown -h -P now"
+ # define REBOOT_CMD	"/sbin/shutdown -r now"
+ #elif defined(BSD)
+ # define HALT_CMD	"/sbin/shutdown -p now"
+
