@@ -83,7 +83,7 @@ src_install() {
 	sed -e "s|^.*SessionsDirs=.*$|#&\nSessionsDirs=${EPREFIX}/usr/share/xsessions|" \
 		-e "/#ServerTimeout=/s/^.*$/ServerTimeout=30/" \
 		-e "/#TerminateServer=/s/^.*$/TerminateServer=true/" \
-		-e "s|^.*HaltCmd=.*$|#&\nHaltCmd=shutdown -h|" \
+		-e "s|^.*HaltCmd=.*$|#&\nHaltCmd=shutdown -h now|" \
 		-e "s|^.*DataDir=.*$|#&\nDataDir=${EPREFIX}${KDM_HOME}|" \
 		-e "s|^.*FaceDir=.*$|#&\nFaceDir=${EPREFIX}${KDM_HOME}/faces|" \
 		-e "s|themes/horos$|themes/sabayon|" \
