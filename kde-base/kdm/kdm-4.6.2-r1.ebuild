@@ -76,12 +76,14 @@ src_install() {
 	# - SessionDirs set to /usr/share/xsessions
 	# - increase server timeout to 30s
 	# - TerminateServer=true to workaround X server regen bug, bug 278473
+	# - Use shutdown -h instead of the default shutdown -p
 	# - DataDir set to /var/lib/kdm-${SLOT}
 	# - FaceDir set to /var/lib/kdm-${SLOT}/faces
 	# - Switch to Sabayon theme by default
 	sed -e "s|^.*SessionsDirs=.*$|#&\nSessionsDirs=${EPREFIX}/usr/share/xsessions|" \
 		-e "/#ServerTimeout=/s/^.*$/ServerTimeout=30/" \
 		-e "/#TerminateServer=/s/^.*$/TerminateServer=true/" \
+		-e "s|^.*HaltCmd=.*$|#&\nHaltCmd=shutdown -h|" \
 		-e "s|^.*DataDir=.*$|#&\nDataDir=${EPREFIX}${KDM_HOME}|" \
 		-e "s|^.*FaceDir=.*$|#&\nFaceDir=${EPREFIX}${KDM_HOME}/faces|" \
 		-e "s|themes/horos$|themes/sabayon|" \
