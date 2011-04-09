@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>no-herd</herd>
+	<maintainer>
+		<email>arfrever@gentoo.org</email>
+		<name>Arfrever Frehtes Taifersar Arahesis</name>
+		<description>Gentoo Subversion maintainer and Subversion upstream representative</description>
+	</maintainer>
+	<maintainer>
+		<email>poczta-sn@gazeta.pl</email>
+		<description>Maintainer for split subversion-java ebuild. Please send bugs about this one only here.</description>
+	</maintainer>
+</pkgmetadata>
