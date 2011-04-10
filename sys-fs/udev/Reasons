@@ -1,4 +1,0 @@
-# Fabio Erculiani <lxnay@sabayon.org>
-- Blacklist usblp by default to make cups 1.4+ usb backend working
-- Blacklist ssb module to make broadcom-sta happy
-- Blacklist nouveau, otherwise nvidia-drivers won't work
