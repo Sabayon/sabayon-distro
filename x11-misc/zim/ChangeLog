@@ -1,0 +1,74 @@
+# ChangeLog for x11-misc/zim
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-misc/zim/ChangeLog,v 1.12 2011/03/02 19:22:25 signals Exp $
+
+  02 Mar 2011; Kevin McCarthy <signals@gentoo.org> zim-0.28.ebuild,
+  zim-0.46.ebuild:
+  Slotted gtk+ depend and EAPI=2 bump to support it.
+
+*zim-0.47 (15 Jun 2010)
+
+  15 Jun 2010; Kacper Kowalik <xarthisius@gentoo.org> +zim-0.47.ebuild:
+  Version bump.
+
+  15 Jun 2010; Markos Chandras <hwoarang@gentoo.org> zim-0.46.ebuild:
+  Fixing testsuite wrt bug #323073
+
+*zim-0.46 (28 May 2010)
+
+  28 May 2010; Markos Chandras <hwoarang@gentoo.org> +zim-0.46.ebuild,
+  +files/zim-0.46-disable-updates.patch:
+  Version bump. Fixes bug #304419. Thanks to Mat <jackdachef@gmail.com> for
+  the ebuild and to Arfrever for the ebuild review
+
+  10 Aug 2009; Torsten Veller <tove@gentoo.org> zim-0.28.ebuild:
+  Depend on the virtual of Test-Harness
+
+*zim-0.28 (21 Jul 2009)
+
+  21 Jul 2009; Samuli Suominen <ssuominen@gentoo.org> +zim-0.28.ebuild,
+  +files/zim-0.28-disable-updates.patch:
+  Version bump.
+
+  03 Jun 2009; Samuli Suominen <ssuominen@gentoo.org> zim-0.27.ebuild:
+  Missing virtual/perl-Module-Build depend wrt #253340.
+
+  16 Jan 2009; Ben de Groot <yngwin@gentoo.org> zim-0.27.ebuild:
+  Updating homepage and SRC_URI, as noted by Todd Partridge in bug 255187.
+
+  27 Dec 2008; Santiago M. Mola <coldwind@gentoo.org>
+  -files/zim-0.20-disable-update-desktop-database.patch, -zim-0.23.ebuild:
+  Remove old.
+
+*zim-0.27 (29 Nov 2008)
+
+  29 Nov 2008; <ssuominen@gentoo.org> +files/zim-0.27-disable-updates.patch,
+  +zim-0.27.ebuild:
+  Version bump for bug 226143, thanks to René Neumann and Ilya Kashirin.
+
+*zim-0.23 (25 Apr 2008)
+
+  25 Apr 2008; Samuli Suominen <drac@gentoo.org> -zim-0.17.ebuild,
+  +zim-0.23.ebuild:
+  Version bump for bug 209112, thanks to René Neumann.
+
+*zim-0.20 (27 Sep 2007)
+
+  27 Sep 2007; Samuli Suominen <drac@gentoo.org>
+  +files/zim-0.20-disable-update-desktop-database.patch, +zim-0.20.ebuild:
+  Version bump wrt #188714, thanks to Chris Mayo for reporting.
+
+*zim-0.17 (27 Feb 2007)
+
+  27 Feb 2007; Steev Klimaszewski <steev@gentoo.org> -zim-0.16.ebuild,
+  +zim-0.17.ebuild:
+  New upstream release, fix perl dependencies, add ~amd64 keyword, closes bug
+  #168005 (Thanks to Balint Dobai-Pataky <dpblnt@gmail.com> for reporting) and
+  also closes bug #157683 (Thanks to Jakub Moc <jakub@gentoo.org> for reporting)
+
+*zim-0.16 (10 Sep 2006)
+
+  10 Sep 2006; Steev Klimaszewski <steev@gentoo.org> +Changelog,
+  +metadata.xml, +zim-0.16.ebuild:
+  Initial import.  Finally closes bug #112957
+
