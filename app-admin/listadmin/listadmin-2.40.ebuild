@@ -20,13 +20,14 @@ RDEPEND="dev-lang/perl
 	dev-perl/text-reform
 	dev-perl/Term-ReadLine-Perl
 	virtual/perl-MIME-Base64"
+DEPEND=""
 
 src_prepare() {
-
-	rm Makefile;
+	rm Makefile
+	mv listadmin.man listadmin.1
 }
 
 src_install() {
 	dobin listadmin.pl || die "Failed to install script listadmin.pl"
-	doman listadmin.man || die "doman failed"
+	doman listadmin.1 || die "doman failed"
 }
