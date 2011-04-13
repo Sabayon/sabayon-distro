@@ -3,7 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/app-office/openoffice/openoffice-3.2.1.ebuild,v 1.2 2010/06/22 20:00:18 arfrever Exp $
 
 WANT_AUTOMAKE="1.9"
-EAPI="2"
+EAPI="3"
 KDE_REQUIRED="optional"
 CMAKE_REQUIRED="never"
 PYTHON_DEPEND="2"
