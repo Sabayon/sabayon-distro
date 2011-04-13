@@ -122,6 +122,9 @@ src_unpack() {
 	cp /usr/include/python2.6/pyconfig.h ${S}/xbmc/lib/libPython/Python/Include
 	cp ${S}/xbmc/{ThreadPolicy.cpp,ThreadPolicy.h} ${S}/xbmc/lib/libPython
 	epatch "${FILESDIR}/boxee-0.9.21.12563-fix_python_a-include_ThreadPolicy.patch" || die "Patch failed"
+
+        # We don't want hal
+        epatch "${FILESDIR}/remove_hal.patch" || die "Patch failed"
 	
 	cd "${S}"/xbmc/lib/libass
 		./autogen.sh || die "libass failed"

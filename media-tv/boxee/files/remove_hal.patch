@@ -1,0 +1,18 @@
+--- configure.in	2010-10-19 23:20:42.000000000 +0200
++++ configure.in2	2011-04-13 13:59:13.000000000 +0200
+@@ -395,15 +395,9 @@ else
+   PKG_CHECK_MODULES([DBUS],         [dbus-1],
+                     [INCLUDES+=" $DBUS_CFLAGS"; LIBS+=" $DBUS_LIBS"],
+                     AC_MSG_ERROR($missing_library))
+-  PKG_CHECK_MODULES([HAL_STORAGE],  [hal-storage],
+-                    [INCLUDES+=" $HAL_STORAGE_CFLAGS"; LIBS+=" $HAL_STORAGE_LIBS"], 
+-                    AC_MSG_ERROR($missing_library))
+   PKG_CHECK_MODULES([SDL],          [sdl],
+                     [INCLUDES+=" $SDL_CFLAGS"; LIBS+=" $SDL_LIBS"],
+                     AC_MSG_ERROR($missing_library))
+-  PKG_CHECK_MODULES([HAL],          [hal],
+-                    [INCLUDES+=" $HAL_CFLAGS"; LIBS+=" $HAL_LIBS"],
+-                    AC_MSG_ERROR($missing_library))
+ fi
+ 
+ # PulseAudio
