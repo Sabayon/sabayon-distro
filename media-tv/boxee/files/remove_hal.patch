@@ -17,44 +17,86 @@
  
  # PulseAudio
 
---- Application.cpp	2010-10-27 15:20:40.000000000 +0200
-+++ Application.cpp1	2011-04-13 14:20:46.623548772 +0200
-@@ -365,9 +365,9 @@
+--- xbmc/Application.cpp 2011-04-13 17:48:02.824998184 +0200
++++ xbmc/Application.cpp1        2011-04-13 17:50:46.216984398 +0200
+@@ -365,10 +365,6 @@
  #include "lib/libcdio/logging.h"
  #endif
  
 -#ifdef HAS_HAL
 -#include "linux/HALManager.h"
 -#endif
-+// #ifdef HAS_HAL
-+// #include "linux/HALManager.h"
-+// #endif
- 
+-
  #include "MediaManager.h"
  
-@@ -1994,9 +1994,9 @@ void CApplication::PostLoginInitializati
+ #include "GUISound.h"
+@@ -1994,10 +1990,6 @@ void CApplication::PostLoginInitializati
    if (!g_settings.bUseLoginScreen)
      UpdateLibraries();
  
 -#ifdef HAS_HAL
 -  g_HalManager.Initialize();
 -#endif
-+// #ifdef HAS_HAL
-+//  g_HalManager.Initialize();
-+// #endif
- 
+-
    m_slowTimer.StartZero();
  
-@@ -4493,9 +4493,9 @@ void CApplication::Stop()
+ #ifdef __APPLE__
+@@ -2900,7 +2892,7 @@ void CApplication::RenderScreenSaver()
+       if (screenSaverFadeAmount > 0)
+       {
+         draw = true;
+-        screenSaverFadeAmount = std::max(0, screenSaverFadeAmount - 4);  // around a half second to unfade
++        screenSaverFadeAmount = std::max(0, screenSaverFadeAmount - 4);  // around a xhalf second to unfade
+ }
+     }
+   }
+@@ -4493,10 +4485,6 @@ void CApplication::Stop()
      }
  #endif
  
 -#ifdef HAS_HAL
 -    g_HalManager.Stop();
 -#endif
-+// #ifdef HAS_HAL
-+//    g_HalManager.Stop();
-+// #endif
- 
+-
      CGUISoundPlayer::GetInstance().Deinitialize();
+ 
+ //Boxee
+
+--- xbmc/GUIWindowSettingsCategory.cpp   2011-04-13 18:11:18.435002804 +0200
++++ xbmc/GUIWindowSettingsCategory.cpp1  2011-04-13 18:11:35.025987473 +0200
+@@ -72,9 +72,6 @@
+ #if !defined(__APPLE__) 
+ #include "cores/AudioRenderers/ALSADirectSound.h"
+ #endif
+-#ifdef HAS_HAL
+-#include "HALManager.h"
+-#endif
+ #endif
+ #ifdef __APPLE__
+ #include "CoreAudio.h"
+
+--- xbmc/GUIDialogContextMenu.cpp        2011-04-13 18:53:50.472995070 +0200
++++ xbmc/GUIDialogContextMenu.cpp1       2011-04-13 18:49:23.064995907 +0200
+@@ -41,9 +41,6 @@
+ #include "Picture.h"
+ #include "Settings.h"
+ #include "LocalizeStrings.h"
+-#ifdef HAS_HAL
+-#include "linux/HALManager.h"
+-#endif
+ 
+ #ifdef _WIN32
+ #include "WIN32Util.h"
+@@ -351,9 +348,7 @@ bool CGUIDialogContextMenu::OnContextBut
+   switch (button)
+   {
+   case CONTEXT_BUTTON_EJECT_DRIVE:
+-#ifdef HAS_HAL
+-    return g_HalManager.Eject(item->m_strPath);
+-#elif defined(_WIN32)
++#ifdef defined(_WIN32)
+     return CWIN32Util::EjectDrive(item->m_strPath[0]);
+ #else
+     return false;
+
 
