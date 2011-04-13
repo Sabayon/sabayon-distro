@@ -125,6 +125,11 @@ src_unpack() {
 
         # We don't want hal
         epatch "${FILESDIR}/remove_hal.patch" || die "Patch failed"
+
+        # Remove some hal files
+        rm xbmc/linux/HALManager*
+        rm xbmc/linux/HALPowerSyscall*
+        rm xbmc/linux/HALProvider*
 	
 	cd "${S}"/xbmc/lib/libass
 		./autogen.sh || die "libass failed"

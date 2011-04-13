@@ -99,4 +99,51 @@
  #else
      return false;
 
+--- xbmc/linux/LinuxStorageProvider.h  2011-04-13 19:49:41.753006479 +0200
++++ xbmc/linux/LinuxStorageProvider.h1 2011-04-13 19:52:06.762997386 +0200
+@@ -1,6 +1,5 @@
+ #pragma once
+ #include "IStorageProvider.h"
+-#include "HALProvider.h"
+ #include "DeviceKitDisksProvider.h"
+ #include "PosixMountProvider.h"
+ 
+@@ -9,15 +8,11 @@ class CLinuxStorageProvider : public ISt
+ public:
+   CLinuxStorageProvider()
+   {
+-#ifdef HAS_HAL
+-    m_instance = new CHALProvider();
+-#elif defined(HAS_DBUS)
++#ifdef defined(HAS_DBUS)
+     if (CDeviceKitDisksProvider::HasDeviceKitDisks())
+       m_instance = new CDeviceKitDisksProvider();
+     else
+       m_instance = new CPosixMountProvider();
+-#elif defined(HAS_BOXEE_HAL)
+-    m_instance = NULL;
+ #else
+     m_instance = new CPosixMountProvider();
+ #endif
+
+--- xbmc/PowerManager.cpp    2009-10-13 22:44:31.000000000 +0200
++++ xbmc/PowerManager.cpp1   2011-04-13 19:03:13.376000067 +0200
+@@ -34,8 +34,6 @@
+ 
+ #ifdef __APPLE__
+ #include "osx/CocoaPowerSyscall.h"
+-#elif defined(_LINUX) && defined(HAS_DBUS) && defined(HAS_HAL)
+-#include "linux/HALPowerSyscall.h"
+ #elif defined(_LINUX) && defined(HAS_DBUS)
+ #include "linux/ConsoleDeviceKitPowerSyscall.h"
+ #elif defined(_WIN32)
+@@ -61,8 +59,6 @@
+ 
+ #ifdef __APPLE__
+   m_instance = new CCocoaPowerSyscall();
+-#elif defined(_LINUX) && defined(HAS_DBUS) && defined(HAS_HAL)
+-  m_instance = new CHALPowerSyscall();
+ #elif defined(_LINUX) && defined(HAS_DBUS)
+   m_instance = new CConsoleDeviceKitPowerSyscall();
+ #elif defined(_WIN32)
 
