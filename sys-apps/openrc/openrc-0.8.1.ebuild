@@ -1,26 +1,25 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.6.1-r1.ebuild,v 1.1 2010/03/23 20:04:30 vapier Exp $
-
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/openrc/openrc-0.8.1.ebuild,v 1.1 2011/04/12 14:43:02 williamh Exp $
 EAPI="1"
 
 inherit eutils flag-o-matic multilib toolchain-funcs
 
 if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="git://roy.marples.name/openrc.git"
+	EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/openrc.git"
 	inherit git
 	KEYWORDS=""
 else
-	SRC_URI="http://roy.marples.name/downloads/${PN}/${P}.tar.bz2"
+	SRC_URI="mirror://gentoo/${P}.tar.bz2"
 	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~sparc-fbsd ~x86 ~x86-fbsd"
 fi
 
 DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
-HOMEPAGE="http://roy.marples.name/openrc"
+HOMEPAGE="http://www.gentoo.org/proj/en/base/openrc/"
 
 LICENSE="BSD-2"
 SLOT="0"
-IUSE="debug elibc_glibc ncurses pam unicode kernel_linux kernel_FreeBSD"
+IUSE="debug elibc_glibc ncurses pam selinux unicode kernel_linux kernel_FreeBSD"
 
 RDEPEND="virtual/init
 	kernel_FreeBSD? ( sys-process/fuser-bsd )
@@ -48,6 +47,9 @@ make_args() {
 		MAKE_ARGS="${MAKE_ARGS} OS=FreeBSD"
 		brand="FreeBSD"
 	fi
+	if use selinux; then
+			MAKE_ARGS="${MAKE_ARGS} MKSELINUX=yes"
+	fi
 	export BRANDING="Sabayon ${brand}"
 }
 
@@ -66,15 +68,17 @@ src_unpack() {
 	cd "${S}"
 	sed -i 's:0444:0644:' mk/sys.mk
 	sed -i "/^DIR/s:/openrc:/${PF}:" doc/Makefile #241342
-	sed -i '/^CFLAGS+=.*_CC_FLAGS_SH/d' mk/cc.mk #289264
-	epatch "${FILESDIR}"/${P}-network-syntax.patch #310805
-	epatch "${FILESDIR}"/openrc-9999-msg-style.patch
-	epatch "${FILESDIR}"/openrc-9999-pause.patch
+
+	# Allow user patches to be applied without modifying the ebuild
+	epatch_user
+
 	# Sabayon custom config
 	epatch "${FILESDIR}/${PN}-sabayon-config.patch"
+	epatch "${FILESDIR}/${PN}-enable-interactive.patch"
 	epatch "${FILESDIR}"/${PN}-0.5.3-disable_warns_until_migrated.patch
 	epatch "${FILESDIR}/${PN}-netmount-fix.patch"
 	epatch "${FILESDIR}/${PN}-protect-rcsvcdir-for-symlink.patch"
+	epatch "${FILESDIR}/${PN}-0.6.1-fix-clockskew-error-handling.patch"
 }
 
 src_compile() {
@@ -106,7 +110,7 @@ src_install() {
 	emake ${MAKE_ARGS} DESTDIR="${D}" install || die
 
 	# install the readme for the new network scripts
-	dodoc README.net
+	dodoc README.newnet
 
 	# move the shared libs back to /usr so ldscript can install
 	# more of a minimal set of files
@@ -351,6 +355,14 @@ migrate_from_baselayout_1() {
 			rmdir "${ROOT}"/etc/modules.autoload.d 2>/dev/null
 		fi
 	fi
+
+	# Handle the conf.d/local.{start,stop} -> local.d transition
+	if path_exists -o "${ROOT}"/etc/conf.d/local.{start,stop} ; then
+		elog "Moving your /etc/conf.d/local.{start,stop} files to /etc/local.d"
+		mv "${ROOT}"/etc/conf.d/local.start "${ROOT}"/local.d/baselayout1.start
+		mv "${ROOT}"/etc/conf.d/local.stop "${ROOT}"/local.d/baselayout1.stop
+		chmod +x "${ROOT}"/local.d/*{start,stop}
+	fi
 }
 
 pkg_postinst() {
@@ -367,6 +379,7 @@ pkg_postinst() {
 
 	# Remove old baselayout links
 	rm -f "${ROOT}"/etc/runlevels/boot/{check{fs,root},rmnologin}
+	rm -f "${ROOT}"/etc/init.d/{depscan,runscript}.sh
 
 	# Make our runlevels if they don't exist
 	if [[ ! -e ${ROOT}/etc/runlevels ]] || [[ -e ${ROOT}/etc/runlevels/.add_boot_init.created ]] ; then
