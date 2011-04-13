@@ -16,3 +16,45 @@
  fi
  
  # PulseAudio
+
+--- Application.cpp	2010-10-27 15:20:40.000000000 +0200
++++ Application.cpp1	2011-04-13 14:20:46.623548772 +0200
+@@ -365,9 +365,9 @@
+ #include "lib/libcdio/logging.h"
+ #endif
+ 
+-#ifdef HAS_HAL
+-#include "linux/HALManager.h"
+-#endif
++// #ifdef HAS_HAL
++// #include "linux/HALManager.h"
++// #endif
+ 
+ #include "MediaManager.h"
+ 
+@@ -1994,9 +1994,9 @@ void CApplication::PostLoginInitializati
+   if (!g_settings.bUseLoginScreen)
+     UpdateLibraries();
+ 
+-#ifdef HAS_HAL
+-  g_HalManager.Initialize();
+-#endif
++// #ifdef HAS_HAL
++//  g_HalManager.Initialize();
++// #endif
+ 
+   m_slowTimer.StartZero();
+ 
+@@ -4493,9 +4493,9 @@ void CApplication::Stop()
+     }
+ #endif
+ 
+-#ifdef HAS_HAL
+-    g_HalManager.Stop();
+-#endif
++// #ifdef HAS_HAL
++//    g_HalManager.Stop();
++// #endif
+ 
+     CGUISoundPlayer::GetInstance().Deinitialize();
+
