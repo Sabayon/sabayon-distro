@@ -171,11 +171,11 @@ src_install() {
 	print
 	emake -j1 DESTDIR="${D}" install-javahl || die "Installation of Subversion JavaHL library failed"
 	java-pkg_regso "${ED}"usr/$(get_libdir)/libsvnjavahl*.so
+	java-pkg_jarinto /usr/share/"${MY_SVN_PN}"/lib
 	java-pkg_dojar "${ED}"usr/$(get_libdir)/svn-javahl/svn-javahl.jar
 	rm -fr "${ED}"usr/$(get_libdir)/svn-javahl/*.jar
 
-	rm -fr "${ED}usr/share/${MY_SVN_PN}" # to be sure mv command below executes properly
-	mv "${ED}usr/share/${PN}" "${ED}usr/share/${MY_SVN_PN}"
+	mv "${ED}usr/share/${PN}/package.env" "${ED}/usr/share/${MY_SVN_PN}/"
 
 	if use doc; then
 		java-pkg_dojavadoc doc/javadoc
