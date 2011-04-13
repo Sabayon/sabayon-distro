@@ -48,8 +48,7 @@ RDEPEND="opengl? ( virtual/opengl )
 	net-libs/xulrunner
 	www-plugins/adobe-flash
 	net-misc/curl
-	sys-apps/dbus
-	sys-apps/hal
+	sys-apps/dbus	
 	sys-apps/pmount
 	virtual/mysql
 	x11-libs/libvdpau
