@@ -127,21 +127,18 @@
  #endif
 
 --- xbmc/linux/Makefile.in	2009-10-13 22:44:31.000000000 +0200
-+++ xbmc/linux/Makefile.in1	2011-04-14 09:44:05.320805116 +0200
++++ xbmc/linux/Makefile.in1	2011-04-14 10:23:26.945280746 +0200
 @@ -7,7 +7,7 @@ endif
  
  CXXFLAGS+=-fPIC #-DHAS_SDL
  
--SRCS=ConvUtils.cpp XEventUtils.cpp XFileUtils.cpp XHandle.cpp XSyncUtils.cpp XTimeUtils.cpp XMemUtils.cpp XThreadUtils.cpp NetworkLinux.cpp LinuxResourceCounter.cpp LinuxTimezone.cpp XRandR.cpp 
-XCriticalSection.cpp XLCDproc.cpp HALManager.cpp HALPowerSyscall.cpp ConsoleDeviceKitPowerSyscall.cpp DBusUtil.cpp DBusMessage.cpp ZeroconfAvahi.cpp ZeroconfBrowserAvahi.cpp HALProvider.cpp 
-PosixMountProvider.cpp DeviceKitDisksProvider.cpp
-+SRCS=ConvUtils.cpp XEventUtils.cpp XFileUtils.cpp XHandle.cpp XSyncUtils.cpp XTimeUtils.cpp XMemUtils.cpp XThreadUtils.cpp NetworkLinux.cpp LinuxResourceCounter.cpp LinuxTimezone.cpp XRandR.cpp 
-XCriticalSection.cpp XLCDproc.cpp ConsoleDeviceKitPowerSyscall.cpp DBusUtil.cpp DBusMessage.cpp ZeroconfAvahi.cpp ZeroconfBrowserAvahi.cpp PosixMountProvider.cpp DeviceKitDisksProvider.cpp
+-SRCS=ConvUtils.cpp XEventUtils.cpp XFileUtils.cpp XHandle.cpp XSyncUtils.cpp XTimeUtils.cpp XMemUtils.cpp XThreadUtils.cpp NetworkLinux.cpp LinuxResourceCounter.cpp LinuxTimezone.cpp XRandR.cpp XCriticalSection.cpp XLCDproc.cpp HALManager.cpp HALPowerSyscall.cpp ConsoleDeviceKitPowerSyscall.cpp DBusUtil.cpp DBusMessage.cpp ZeroconfAvahi.cpp ZeroconfBrowserAvahi.cpp HALProvider.cpp PosixMountProvider.cpp DeviceKitDisksProvider.cpp
++SRCS=ConvUtils.cpp XEventUtils.cpp XFileUtils.cpp XHandle.cpp XSyncUtils.cpp XTimeUtils.cpp XMemUtils.cpp XThreadUtils.cpp NetworkLinux.cpp LinuxResourceCounter.cpp LinuxTimezone.cpp XRandR.cpp XCriticalSection.cpp XLCDproc.cpp ConsoleDeviceKitPowerSyscall.cpp DBusUtil.cpp DBusMessage.cpp ZeroconfAvahi.cpp ZeroconfBrowserAvahi.cpp PosixMountProvider.cpp DeviceKitDisksProvider.cpp
  
  LIB=linux.a
 
 --- xbmc/PowerManager.cpp	2009-10-13 22:44:31.000000000 +0200
-+++ xbmc/PowerManager.cpp1	2011-04-14 09:47:32.484215216 +0200
++++ xbmc/PowerManager.cpp1	2011-04-14 10:09:47.888520363 +0200
 @@ -34,8 +34,6 @@
  
  #ifdef __APPLE__
