@@ -23,10 +23,13 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="debug doc nls test"
 
-RDEPEND=">=virtual/jre-1.5"
-DEPEND=">=virtual/jdk-1.5
-	test? ( dev-java/junit:4 )
-	~dev-vcs/subversion-${PV}"
+COMMON_DEPEND="~dev-vcs/subversion-${PV}"
+RDEPEND="
+	${COMMON_DEPEND}
+	>=virtual/jre-1.5"
+DEPEND="${COMMON_DEPEND}
+	>=virtual/jdk-1.5
+	test? ( dev-java/junit:4 )"
 
 S="${WORKDIR}/${MY_SVN_P/_/-}"
 
