@@ -75,7 +75,7 @@ src_unpack() {
 	my_arch=i486
 	fi || die "Set arch failed"
 
-	my_prefix=/opt/${PN}
+	my_prefix="${D}"/opt/${PN}
 	pic="-fPIC"
 
 	unpack ${A}
