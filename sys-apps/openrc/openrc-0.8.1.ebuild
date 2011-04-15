@@ -359,8 +359,8 @@ migrate_from_baselayout_1() {
 	# Handle the conf.d/local.{start,stop} -> local.d transition
 	if path_exists -o "${ROOT}"/etc/conf.d/local.{start,stop} ; then
 		elog "Moving your /etc/conf.d/local.{start,stop} files to /etc/local.d"
-		mv "${ROOT}"/etc/conf.d/local.start "${ROOT}"/local.d/baselayout1.start
-		mv "${ROOT}"/etc/conf.d/local.stop "${ROOT}"/local.d/baselayout1.stop
+		mv "${ROOT}"/etc/conf.d/local.start "${ROOT}"/etc/local.d/baselayout1.start
+		mv "${ROOT}"/etc/conf.d/local.stop "${ROOT}"/etc/local.d/baselayout1.stop
 		chmod +x "${ROOT}"/local.d/*{start,stop}
 	fi
 }
