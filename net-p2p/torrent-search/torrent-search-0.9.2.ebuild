@@ -34,4 +34,9 @@ src_install() {
 		--root="${D}" \
 		--prefix="${EPREFIX}/usr" \
 		|| die "src_install failed"
+
+	if ! use gnome; then
+		rm -f "${ED}"usr/bin/torrent-search-gnomeapplet
+		rm -f "${ED}"usr/lib/bonobo/servers/TorrentSearch_Applet.server
+	fi
 }
