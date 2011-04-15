@@ -19,18 +19,17 @@ SRC_URI="x86? ( ftp://download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKA
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
-IUSE="acpi custom-cflags gtk multilib kernel_linux"
+IUSE="acpi custom-cflags multilib kernel_linux"
 RESTRICT="strip"
 
 DEPEND="kernel_linux? ( virtual/linux-sources )"
 RDEPEND="~x11-drivers/nvidia-userspace-${PV}
-	gtk? ( ~x11-drivers/nvidia-userspace-${PV}[gtk] )
 	multilib? ( ~x11-drivers/nvidia-userspace-${PV}[multilib] )
 	!<x11-drivers/nvidia-userspace-${PV}
 	!>x11-drivers/nvidia-userspace-${PV}
 	kernel_linux? ( virtual/modutils )
 	acpi? ( sys-power/acpid )"
-PDEPEND="gtk? ( media-video/nvidia-settings )"
+PDEPEND=""
 
 if use x86; then
 	PKG_V="-pkg0"

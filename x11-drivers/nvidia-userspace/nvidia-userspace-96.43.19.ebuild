@@ -19,7 +19,7 @@ SRC_URI="x86? ( ftp://download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKA
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
-IUSE="gtk multilib kernel_linux"
+IUSE="multilib kernel_linux"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
@@ -31,8 +31,7 @@ DEPEND="${COMMON}
 	kernel_linux? ( virtual/linux-sources )"
 RDEPEND="${COMMON}
 	kernel_linux? ( virtual/modutils )"
-PDEPEND="gtk? ( media-video/nvidia-settings )
-	~x11-drivers/nvidia-drivers-${PV}"
+PDEPEND="~x11-drivers/nvidia-drivers-${PV}"
 
 QA_TEXTRELS_x86="usr/lib/opengl/nvidia/lib/libnvidia-tls.so.${PV}
 	usr/lib/opengl/nvidia/lib/libGL.so.${PV}

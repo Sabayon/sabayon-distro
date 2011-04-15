@@ -19,7 +19,7 @@ SRC_URI="x86? ( http://us.download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_P
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
-IUSE="gtk multilib kernel_linux"
+IUSE="multilib kernel_linux"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
@@ -32,7 +32,6 @@ DEPEND="${COMMON}"
 RDEPEND="${COMMON}
 	x11-libs/libXvMC"
 PDEPEND=">=x11-libs/libvdpau-0.3-r1
-	gtk? ( media-video/nvidia-settings )
 	~x11-drivers/nvidia-drivers-${PV}"
 
 QA_TEXTRELS_x86="usr/lib/opengl/nvidia/lib/libnvidia-tls.so.${PV}
