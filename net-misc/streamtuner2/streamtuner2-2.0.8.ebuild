@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -29,14 +29,17 @@ src_prepare() {
 }
 
 src_install() {
-	cd ${PN}
-	exeinto /usr/bin
-	doexe st2.py
-	dosym st2.py /usr/bin/${PN}
+	cd "${PN}"
+	newbin st2.py streamtuner2
+	rm -f st2.py
 
 	insinto /usr/share/pixmaps
 	doins streamtuner2.png
-	
+
+	insinto /usr/share/applications
+	doins streamtuner2.desktop
+	rm -f streamtuner2.desktop
+
 	dodir /usr/share/${PN}
-	cp -R . ${D}/usr/share/${PN}
+	cp -R . "${D}"usr/share/${PN}
 }
