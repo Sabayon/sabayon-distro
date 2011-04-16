@@ -3,6 +3,7 @@
 # $Header: $
 
 EAPI=3
+inherit waf-utils
 
 DESCRIPTION="kupfer, a convenient command and access tool"
 HOMEPAGE="http://kaizer.se/wiki/kupfer/"
@@ -43,26 +44,23 @@ src_prepare() {
 	# sed -i "s/import keyring/import gnomekeyring as keyring/" \
 	#	kupfer/plugin_support.py || \
 	#	die "Error: src_prepare failed!"
-	sed -i "s/rule = 'rst2man /rule = 'rst2man.py /" wscript || \
-		die "Error: src_prepare failed!"
+
+	# not needed in v206
+	#sed -i "s/rule = 'rst2man /rule = 'rst2man.py /" wscript || \
+	#	die "Error: src_prepare failed!"
+	true
 }
 
 src_configure() {
 	local myopts=""
 	use nautilus || myopts="--no-install-nautilus-extension"
-	./waf configure --no-update-mime --prefix=/usr $myopts || \
+	waf-utils_src_configure --no-update-mime $myopts || \
 		die "Error: configure failed!"
 }
 
-src_compile() {
-	./waf --no-update-mime || die "Error: src_compile failed!"
-}
-
 src_install() {
-	./waf --no-update-mime --destdir="${D}" install || \
-		die "Error: src_install failed!"
-
-	if !use doc; then
+	waf-utils_src_install || die "Error: install failed!"
+	if ! use doc; then
 		rm -rf "${ED}"usr/share/gnome/help/kupfer
 	fi
 }
