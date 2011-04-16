@@ -1,0 +1,11 @@
+--- a/streamtuner2/st2.py	2010-09-03 21:02:41.000000000 +0200
++++ b/streamtuner2/st2.py	2010-10-02 17:15:22.380839185 +0200
+@@ -99,7 +99,7 @@
+ 
+ 
+ # custom modules
+-sys.path.append("/usr/share/streamtuner2")   # pre-defined directory for modules
++sys.path.insert(0, "/usr/share/streamtuner2")   # pre-defined directory for modules
+ from config import conf   # initializes itself, so all conf.vars are available right away
+ from mygtk import mygtk   # gtk treeview
+ import http
