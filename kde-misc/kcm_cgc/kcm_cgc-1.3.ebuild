@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation    
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -25,10 +25,10 @@ RDEPEND="${COMMON_DEPEND}
 S="${WORKDIR}/chakra-gtk-config-${PV}"
 
 src_prepare() {
-   if [[ $(kde4-config --version | grep KDE | cut -d "." -f 2) -lt 6 ]] ; then
-      einfo "KDE version < 4.6. Altering desktop file..."
-      sed -i \
-         -e "s/Parent-Category[^ ]*/Parent-Category=appearance/" \
-         chakra-gtk-config.desktop && einfo "completed." || ewarn "failed."
-   fi
+	if [[ $(kde4-config --version | grep KDE | cut -d "." -f 2) -lt 6 ]] ; then
+		einfo "KDE version < 4.6. Altering desktop file..."
+		sed -i \
+			-e "s/Parent-Category[^ ]*/Parent-Category=appearance/" \
+		chakra-gtk-config.desktop && einfo "completed." || ewarn "failed."
+	fi
 }

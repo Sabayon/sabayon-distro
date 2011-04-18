@@ -3,12 +3,12 @@
 <pkgmetadata>
 <herd>no-herd</herd>
 <maintainer>
-	<name>Sławomir Nizio</name>
 	<email>slawomir.nizio@sabayonlinux.org</email>
+	<name>Sławomir Nizio</name>
 </maintainer>
 <maintainer>
-	<name>Ian Whyman</name>
 	<email>ian.whyman@sabayon.org</email>
+	<name>Ian Whyman</name>
 </maintainer>
 </pkgmetadata>
 
