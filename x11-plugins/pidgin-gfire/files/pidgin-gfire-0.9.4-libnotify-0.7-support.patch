@@ -1,6 +1,5 @@
-diff -Naur pidgin-gfire-0.9.4/src/gf_util.c pidgin-gfire-0.9.4.new//src/gf_util.c
---- pidgin-gfire-0.9.4/src/gf_util.c	2011-03-14 21:19:46.000000000 +0100
-+++ pidgin-gfire-0.9.4.new//src/gf_util.c	2011-03-26 18:59:30.395000121 +0100
+--- src/gf_util.c.orig
++++ src/gf_util.c
 @@ -612,7 +612,13 @@
  	if(!gfire_notify_init() || !p_title)
  		return;

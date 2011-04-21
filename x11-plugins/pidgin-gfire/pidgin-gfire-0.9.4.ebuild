@@ -2,7 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI=4
+
 inherit eutils
 
 DESCRIPTION="Pidgin plugin for adding Xfire accounts and connecting to the Xfire network"
@@ -25,8 +26,8 @@ DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PV}-libnotify-0.7-support.patch \
-		|| die "epatch failed"
+	epatch "${FILESDIR}"/${P}-libnotify-0.7-support.patch
+	epatch "${FILESDIR}"/${P}-disabled-nls-fix.patch
 }
 
 src_configure() {
@@ -42,8 +43,10 @@ src_configure() {
 }
 
 src_install() {
-	emake install DESTDIR="${D}" || die "emake install failed"
-	dodoc AUTHORS README ChangeLog || die "dodoc failed"
+	emake install DESTDIR="${D}"
+	dodoc AUTHORS README ChangeLog
+
+	find "${ED}" -name '*.la' -exec rm -f '{}' +
 }
 
 pkg_postinst() {
