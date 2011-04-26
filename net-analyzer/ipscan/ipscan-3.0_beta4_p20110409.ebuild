@@ -44,7 +44,7 @@ src_prepare() {
 	rm *.jar
 	mv picocontainer-1.0.jar.tmp picocontainer-1.0.jar || die
 
-	java-pkg_jar-from --build-only swt-3.5
+	java-pkg_jar-from swt-3.5
 	# todo swt-mac.jar swt-win32.jar swt-win64.jar?
 	if use x86; then
 		mv swt.jar swt-linux.jar || die "error renaming swt.jar"
