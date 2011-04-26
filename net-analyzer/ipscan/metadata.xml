@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>no-herd</herd>
+<maintainer>
+<email>slawomir.nizio@sabayonlinux.org</email>
+<name>Sławomir Nizio</name>
+</maintainer>
+<longdescription lang="en">
+Angry IP Scanner (or simply ipscan) is an open-source and cross-platform network scanner designed to be fast and simple to use. It scans IP addresses and ports as well as has many other features.
+</longdescription>
+</pkgmetadata>
+

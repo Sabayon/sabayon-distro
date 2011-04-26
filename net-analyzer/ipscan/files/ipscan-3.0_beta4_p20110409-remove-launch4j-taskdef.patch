@@ -1,0 +1,11 @@
+--- build.xml.orig	2011-04-26 16:24:13.421000039 +0200
++++ build.xml	2011-04-26 16:24:16.549000042 +0200
+@@ -22,8 +22,6 @@
+     <taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+ 
+ 	<taskdef resource="proguard/ant/task.properties" classpath="ext/proguard/proguard.jar"/>
+-	
+-	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="ext/launch4j/launch4j.jar:ext/launch4j/xstream.jar"/>
+ 
+ 	<patternset id="classpath.resources">
+ 		<exclude name="**/*.java"/>
