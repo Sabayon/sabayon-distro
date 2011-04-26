@@ -17,7 +17,7 @@ RESTRICT="mirror"
 
 DEPEND="
 	dev-db/sqlite[soundex]
-	|| ( dev-lang/python:2.6[sqlite] dev-lang/python:2.7[sqlite] )
+	=dev-lang/python-2*
 	dev-util/intltool
 	net-misc/rsync
 	sys-apps/sandbox
