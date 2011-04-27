@@ -22,7 +22,6 @@ RDEPEND=">=dev-lang/perl-5.10
 DEPEND=""
 
 src_install() {
-	cd "${WORKDIR}/${P}"
-	dobin "${PN}.pl"
+	newbin "${PN}.pl" "${PN}"
 	dodoc "README"
 }
