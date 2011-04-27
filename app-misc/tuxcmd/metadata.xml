@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>no-herd</herd>
+<maintainer>
+<email>slawomir.nizio@sabayonlinux.org</email>
+<name>Sławomir Nizio</name>
+</maintainer>
+<longdescription lang="en">
+Tux Commander is a windowed file manager with 2 panels side by side similar to popular Total Commander or Midnight Commander file managers. The main goal of this project is to create powerful and user friendly file manager for Unix operating systems.
+</longdescription>
+</pkgmetadata>
+
