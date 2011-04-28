@@ -1,0 +1,12 @@
+Debian patch to enable autodetect of locale.
+--- a/mozilla/modules/libpref/src/init/all.js
++++ b/mozilla/modules/libpref/src/init/all.js
+@@ -793,7 +793,7 @@ pref("intl.charsetmenu.browser.cache.siz
+ pref("intl.charset.detector",               "chrome://navigator/locale/navigator.properties");
+ pref("intl.charset.default",                "chrome://navigator-platform/locale/navigator.properties");
+ pref("intl.content.langcode",               "chrome://communicator-region/locale/region.properties");
+-pref("intl.locale.matchOS",                 false);
++pref("intl.locale.matchOS",                 true);
+ // fallback charset list for Unicode conversion (converting from Unicode)
+ // currently used for mail send only to handle symbol characters (e.g Euro, trademark, smartquotes)
+ // for ISO-8859-1
