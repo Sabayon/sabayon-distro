@@ -156,9 +156,16 @@ pkg_setup() {
 }
 
 src_prepare() {
+	# enable detecting of locale
+	sed 's/\(pref("intl.locale.matchOS",                 \)false);/\1true);/' \
+		-i "${S}"/composer/app/profile/all.js \
+		-i "${S}"/modules/libpref/src/init/all.js
+	# filter a line containing syntax causing mozconfig eclass to fail
+	sed '/default spellcheck/d' -i "${S}"/.mozconfig
+	# Fixes building with libpng14. See Bug #319575 and Bug #323513.
+	epatch "${FILESDIR}"/seamonkey-libpng14.patch
 	java-pkg-opt-2_src_prepare
 	eautoreconf
-	epatch "${FILESDIR}"/${P}-detect-locale.patch
 }
 
 src_configure() {
