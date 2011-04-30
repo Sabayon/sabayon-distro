@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-plugins/alsa-plugins/alsa-plugins-1.0.23-r1.ebuild,v 1.2 2010/05/28 18:47:05 lxnay Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-plugins/alsa-plugins/alsa-plugins-1.0.24.ebuild,v 1.2 2011/04/10 20:21:10 scarabeus Exp $
 
 EAPI=2
 

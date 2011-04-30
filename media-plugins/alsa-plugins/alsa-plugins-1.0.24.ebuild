@@ -1,12 +1,12 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-plugins/alsa-plugins/alsa-plugins-1.0.23.ebuild,v 1.1 2010/04/16 22:44:22 chainsaw Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-plugins/alsa-plugins/alsa-plugins-1.0.24.ebuild,v 1.2 2011/04/10 20:21:10 scarabeus Exp $
 
-EAPI=2
+EAPI=3
 
 MY_P="${P/_/}"
 
-inherit autotools flag-o-matic
+inherit autotools base flag-o-matic
 
 DESCRIPTION="ALSA extra plugins"
 HOMEPAGE="http://www.alsa-project.org/"
@@ -18,7 +18,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86"
 IUSE="debug ffmpeg jack libsamplerate pulseaudio speex"
 
 RDEPEND=">=media-libs/alsa-lib-${PV}[alsa_pcm_plugins_ioplug]
-	ffmpeg? ( media-video/ffmpeg
+	ffmpeg? ( virtual/ffmpeg
 		media-libs/alsa-lib[alsa_pcm_plugins_rate,alsa_pcm_plugins_plug] )
 	jack? ( >=media-sound/jack-audio-connection-kit-0.98 )
 	libsamplerate? (
@@ -32,20 +32,21 @@ RDEPEND=">=media-libs/alsa-lib-${PV}[alsa_pcm_plugins_ioplug]
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
+PATCHES=(
+	"${FILESDIR}/${PN}-1.0.19-missing-avutil.patch"
+	"${FILESDIR}/${PN}-1.0.23-automagic.patch"
+)
+
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
+	base_src_prepare
+
 	# For some reasons the polyp/pulse plugin does fail with alsaplayer with a
 	# failed assert. As the code works just fine with asserts disabled, for now
 	# disable them waiting for a better solution.
 	sed -i -e '/AM_CFLAGS/s:-Wall:-DNDEBUG -Wall:' \
 		"${S}/pulse/Makefile.am"
-
-	# Bug #256119
-	epatch "${FILESDIR}"/${PN}-1.0.19-missing-avutil.patch
-
-	# Bug #278352
-	epatch "${FILESDIR}"/${P}-automagic.patch
 
 	eautoreconf
 }
@@ -84,7 +85,17 @@ src_install() {
 		# install ALSA configuration files
 		# making PA to be used by alsa clients
 		insinto /usr/share/alsa
-		doins "${FILESDIR}"/pulse/*.conf
+		doins "${FILESDIR}"/pulse*.conf
+		# setup proper LDPATH to make possible to load
+		# "libasound_module_conf_pulse.so"
+		# even for multilib systems
+		local ldpath=""
+		for libdir in $(get_all_libdirs); do
+			ldpath="${ldpath}:/usr/${libdir}/alsa-lib"
+		done
+		ldpath="${ldpath:1}"
+		echo "LDPATH=\"${ldpath}\"" > "${S}/40-alsa-plugin-pulse"
+		doenvd "${S}/40-alsa-plugin-pulse"
 	fi
 
 }
