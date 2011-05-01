@@ -14,12 +14,13 @@ LICENSE="GPL-3"
 
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE="+imagemagick +hwinfo"
+IUSE="+imagemagick +hwinfo packagekit"
 
 COMMON_DEPEND="
 	>=kde-base/kdelibs-4.6
 	imagemagick? ( media-gfx/imagemagick )
-	hwinfo? ( sys-apps/hwinfo )"
+	hwinfo? ( sys-apps/hwinfo )
+	packagekit? ( app-admin/packagekit-qt4 )"
 DEPEND="${COMMON_DEPEND}
 	dev-util/automoc"
 RDEPEND="${COMMON_DEPEND}
@@ -27,6 +28,8 @@ RDEPEND="${COMMON_DEPEND}
 
 src_configure() {
 	mycmakeargs=(
+	-DWITHQApt=OFF
+	$( cmake-utils_use_with packagekit QPackageKit )
 	$( cmake-utils_use_with imagemagick ImageMagick )
 	$( cmake-utils_use_with hwinfo HD )
 	)
