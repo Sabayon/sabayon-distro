@@ -10,7 +10,7 @@ DESCRIPTION="KDE internationalization package meta includer"
 HOMEPAGE="http://www.kde.org/"
 LICENSE="GPL-2"
 
-KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 # ignored: ca@valencia
@@ -23,7 +23,7 @@ RDEPEND="${DEPEND}"
 for MY_LANG in ${MY_LANGS} ; do
 	IUSE="${IUSE} linguas_${MY_LANG}"
 	RDEPEND="${RDEPEND}
-		linguas_${MY_LANG}? ( kde-base/kde-l10n-${MY_LANG} )"
+		linguas_${MY_LANG}? ( $(add_kdebase_dep kde-l10n-${MY_LANG}) )"
 done
 
 unset MY_LANG
