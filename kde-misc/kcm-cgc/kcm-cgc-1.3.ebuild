@@ -2,25 +2,28 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI=4
 
+KDE_MINIMAL="4.5"
 inherit kde4-base
 
 DESCRIPTION="KCM for set the look&feel of your Gtk apps using the KDE systemsettings."
-HOMEPAGE="http://kde-apps.org/content/show.php/Chakra+Gtk+Config+-+KCM?content=137496"
+HOMEPAGE="http://kde-apps.org/content/show.php?content=137496"
 SRC_URI="http://chakra-project.org/sources/gtk-integration/chakra-gtk-config-${PV}.tar.gz"
 
 LICENSE="GPL-3"
 
 KEYWORDS="~amd64 ~x86"
-SLOT="0"
+SLOT="4"
 IUSE=""
 
-COMMON_DEPEND="kde-base/kdelibs"
+COMMON_DEPEND="$(add_kdebase_dep kdelibs)"
 DEPEND="${COMMON_DEPEND}
-	dev-util/automoc"
+	dev-util/automoc
+"
 RDEPEND="${COMMON_DEPEND}
-	kde-base/kcmshell"
+	$(add_kdebase_dep kcmshell)
+"
 
 S="${WORKDIR}/chakra-gtk-config-${PV}"
 
