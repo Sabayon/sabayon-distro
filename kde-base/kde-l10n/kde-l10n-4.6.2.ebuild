@@ -19,7 +19,8 @@ hr hu ia id is it ja kk km kn ko lt lv mai nb nds nl nn pa pl pt pt_BR ro ru sk
 sl sr sv th tr uk wa zh_CN zh_TW"
 
 DEPEND=""
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	!kde-base/kde-l10n-meta"
 for MY_LANG in ${MY_LANGS} ; do
 	IUSE="${IUSE} linguas_${MY_LANG}"
 	RDEPEND="${RDEPEND}

@@ -1,1 +1,2 @@
 slotmove kde-misc/kcm-cgc 0 4
+move kde-base/kde-l10n-meta kde-base/kde-l10n
