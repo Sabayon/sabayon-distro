@@ -1,10 +1,9 @@
 # Copyright 1999-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 EAPI=2
-inherit eutils versionator
 
 DESCRIPTION="Sabayon Linux Official GNOME artwork"
-HOMEPAGE="http://www.sabayonlinux.org/"
+HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
@@ -15,16 +14,12 @@ RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 
-src_prepare() {
-        epatch "${FILESDIR}/5.4-gtkrc-hotfix.patch"
-}
-
 src_configure() {
-        einfo "Nothing to configure"
+	einfo "Nothing to configure"
 }
 
 src_compile() {
-        einfo "Nothing to compile"
+	einfo "Nothing to compile"
 }
 
 
