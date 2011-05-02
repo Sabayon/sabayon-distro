@@ -1,0 +1,15 @@
+--- data/Makefile.in.orig	2011-05-02 20:56:19.068000068 +0200
++++ data/Makefile.in	2011-05-02 20:56:22.409000065 +0200
+@@ -728,9 +728,9 @@
+ @GCONF_SCHEMAS_INSTALL_TRUE@		for p in $(schemas_DATA) ; do \
+ @GCONF_SCHEMAS_INSTALL_TRUE@			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $$p ; \
+ @GCONF_SCHEMAS_INSTALL_TRUE@		done
+-@GCONF_SCHEMAS_INSTALL_FALSE@	for p in $(schemas_DATA) ; do \
+-@GCONF_SCHEMAS_INSTALL_FALSE@		GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-uninstall-rule $$p ; \
+-@GCONF_SCHEMAS_INSTALL_FALSE@	done
++# @GCONF_SCHEMAS_INSTALL_FALSE@	for p in $(schemas_DATA) ; do \
++# @GCONF_SCHEMAS_INSTALL_FALSE@		GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-uninstall-rule $$p ; \
++# @GCONF_SCHEMAS_INSTALL_FALSE@	done
+ 
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
