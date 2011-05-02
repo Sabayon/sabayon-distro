@@ -1,18 +1,16 @@
 # Copyright 2004-2011 Sabayon Promotion
 # Distributed under the terms of the GNU General Public License v2
 #
-EAPI=2
 
-inherit eutils
+EAPI=3
 
-DESCRIPTION="Sabayon Extra Artwork, Including Compiz/Emerald Themes and misc others"
+DESCRIPTION="Offical Sabayon Linux Artwork Extras"
 HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
-RESTRICT="nomirror"
 RDEPEND=""
 
 S="${WORKDIR}/${PN}"

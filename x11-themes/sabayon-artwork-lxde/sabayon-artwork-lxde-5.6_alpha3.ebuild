@@ -1,8 +1,8 @@
-# Copyright 2004-2010 Sabayon Linux
+# Copyright 2004-2011 Sabayon Promotion
 # Distributed under the terms of the GNU General Public License v2
 #
 
-inherit eutils
+EAPI=3
 
 DESCRIPTION="Sabayon LXDE Artwork"
 HOMEPAGE="http://www.sabayon.org/"
@@ -11,7 +11,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
-RESTRICT="nomirror"
 RDEPEND=""
 
 S="${WORKDIR}/${PN}"

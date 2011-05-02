@@ -1,21 +1,20 @@
-# Copyright 1999-2009 Sabayon Linux
+# Copyright 1999-2011 Sabayon Promotion
 # Distributed under the terms of the GNU General Public License v2
-EAPI="2"
+#
+
+EAPI=3
 inherit eutils mount-boot sabayon-artwork
 
-DESCRIPTION="Sabayon Core Artwork, contains Gensplash, Wallpapers and Mouse themes"
+DESCRIPTION="Offical Sabayon Linux Core Artwork"
 HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
-RESTRICT="nomirror"
-RDEPEND="!<=x11-themes/sabayonlinux-artwork-4
-	!<x11-themes/sabayon-artwork-4
-	sys-apps/findutils
+RDEPEND="sys-apps/findutils
 	!<sys-boot/grub-0.97-r22
-	"
+"
 
 S="${WORKDIR}/${PN}"
 
@@ -50,6 +49,6 @@ pkg_postinst() {
 	# Update Sabayon initramfs images
 	update_sabayon_kernel_initramfs_splash
 
-	ewarn "Please report bugs or glitches to"
-	ewarn "bugs.sabayon.org"
+	einfo "Please report bugs or glitches to"
+	einfo "bugs.sabayon.org"
 }

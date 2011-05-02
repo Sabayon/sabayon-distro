@@ -1,6 +1,8 @@
 # Copyright 1999-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
-EAPI=2
+#
+
+EAPI=3
 
 DESCRIPTION="Sabayon Linux Official GNOME artwork"
 HOMEPAGE="http://www.sabayon.org/"
@@ -9,7 +11,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
-RESTRICT="nomirror"
 RDEPEND=""
 
 S="${WORKDIR}/${PN}"

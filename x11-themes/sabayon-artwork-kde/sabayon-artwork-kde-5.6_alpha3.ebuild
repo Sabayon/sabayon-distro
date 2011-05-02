@@ -1,17 +1,17 @@
 # Copyright 1999-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
+#
 
 EAPI=3
 inherit eutils kde4-base
 
-DESCRIPTION="Sabayon Linux Official KDE artwork"
+DESCRIPTION="Sabayon Linux Official KDE Artwork"
 HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="ksplash"
-RESTRICT="nomirror"
+IUSE="+ksplash"
 RDEPEND=""
 
 S="${WORKDIR}/${PN}"
