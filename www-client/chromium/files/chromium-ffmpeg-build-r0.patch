@@ -1,0 +1,22 @@
+Index: media/ffmpeg/ffmpeg_common.h
+diff --git a/media/ffmpeg/ffmpeg_common.h b/media/ffmpeg/ffmpeg_common.h
+index ac1774a5b1dc7a80aee96e7e35fa2f5366e8f589..46dbe07bf5dad14e897b21b7f479776127ff7ef7 100644
+--- a/media/ffmpeg/ffmpeg_common.h
++++ b/media/ffmpeg/ffmpeg_common.h
+@@ -19,11 +19,15 @@ extern "C" {
+ // TODO(scherkus): fix and upstream the compiler warnings.
+ MSVC_PUSH_DISABLE_WARNING(4244);
+ #include <libavcodec/avcodec.h>
+-#include <libavcore/samplefmt.h>
+ #include <libavformat/avformat.h>
+ #include <libavformat/avio.h>
+ #include <libavutil/avutil.h>
+ #include <libavutil/log.h>
++#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(50, 38, 0)
++#include <libavutil/samplefmt.h>
++#else
++#include <libavcore/samplefmt.h>
++#endif
+ MSVC_POP_WARNING();
+ }  // extern "C"
+ 

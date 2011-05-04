@@ -1,13 +1,12 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-11.0.696.16.ebuild,v 1.1 2011/03/22 11:46:37 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-11.0.696.57.ebuild,v 1.3 2011/04/29 14:32:32 tomka Exp $
 
 EAPI="3"
 PYTHON_DEPEND="2:2.6"
-V8_DEPEND="3.1.8.3"
 
-inherit eutils fdo-mime flag-o-matic gnome2-utils multilib pax-utils \
-	portability python toolchain-funcs versionator virtualx
+inherit eutils fdo-mime flag-o-matic gnome2-utils linux-info multilib \
+	pax-utils portability python toolchain-funcs versionator virtualx
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="http://chromium.org/"
@@ -15,11 +14,10 @@ SRC_URI="http://build.chromium.org/official/${P}.tar.bz2"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~x86"
+KEYWORDS="amd64 ~arm x86"
 IUSE="cups gnome gnome-keyring"
 
 RDEPEND="app-arch/bzip2
-	>=dev-lang/v8-${V8_DEPEND}
 	dev-libs/dbus-glib
 	>=dev-libs/icu-4.4.1
 	>=dev-libs/libevent-1.4.13
@@ -43,7 +41,6 @@ RDEPEND="app-arch/bzip2
 	x11-libs/libXtst"
 DEPEND="${RDEPEND}
 	dev-lang/perl
-	>=dev-util/chromium-tools-0.1.4
 	>=dev-util/gperf-3.0.3
 	>=dev-util/pkgconfig-0.23
 	sys-devel/flex
@@ -97,6 +94,13 @@ pkg_setup() {
 		ewarn "If compilation fails, please try removing -g{,gdb} before reporting a bug."
 	fi
 	eshopts_pop
+
+	# Warn if the kernel doesn't support features useful for sandboxing,
+	# bug #363907.
+	CONFIG_CHECK="~PID_NS ~NET_NS"
+	PID_NS_WARNING="PID (process id) namespaces are needed for sandboxing."
+	NET_NS_WARNING="Network namespaces are needed for sandboxing."
+	check_extra_config
 }
 
 src_prepare() {
@@ -106,6 +110,9 @@ src_prepare() {
 
 	# Make sure we don't use bundled libvpx headers.
 	epatch "${FILESDIR}/${PN}-system-vpx-r3.patch"
+
+	# Backport FFmpeg compatibility patch, bug #355405.
+	epatch "${FILESDIR}/${PN}-ffmpeg-build-r0.patch"
 
 	# Remove most bundled libraries. Some are still needed.
 	find third_party -type f \! -iname '*.gyp*' \
@@ -139,29 +146,6 @@ src_prepare() {
 		\! -path 'third_party/zlib/contrib/minizip/*' \
 		-delete || die
 
-	# Check for the maintainer to ensure that the dependencies
-	# are up-to-date.
-	local v8_bundled="$(v8-extract-version v8/src/version.cc)"
-	if [ "${V8_DEPEND}" != "${v8_bundled}" ]; then
-		die "update v8 dependency to ${v8_bundled}"
-	fi
-
-	# Remove bundled v8.
-	find v8 -type f \! -iname '*.gyp*' -delete || die
-
-	# Disable experimental extensions incompatible with system-provided V8,
-	# bug #354343.
-	cp "${FILESDIR}/experimental.gyp" "v8/src/extensions/experimental" || die
-	sed -e 's/ENABLE_JAVASCRIPT_I18N_API=1/ENABLE_JAVASCRIPT_I18N_API=0/g' \
-		-i build/features_override.gypi || die
-
-	# The implementation files include v8 headers with full path,
-	# like #include "v8/include/v8.h". Make sure the system headers
-	# will be used.
-	# TODO: find a solution that can be upstreamed.
-	rmdir v8/include || die
-	ln -s /usr/include v8/include || die
-
 	# Make sure the build system will use the right python, bug #344367.
 	# Only convert directories that need it, to save time.
 	python_convert_shebangs -q -r 2 build tools
@@ -188,7 +172,6 @@ src_configure() {
 		-Duse_system_libpng=1
 		-Duse_system_libxml=1
 		-Duse_system_speex=1
-		-Duse_system_v8=1
 		-Duse_system_vpx=1
 		-Duse_system_xdg_utils=1
 		-Duse_system_zlib=1"
@@ -204,6 +187,12 @@ src_configure() {
 	myconf+="
 		-Dlinux_sandbox_path=${CHROMIUM_HOME}/chrome_sandbox
 		-Dlinux_sandbox_chrome_path=${CHROMIUM_HOME}/chrome"
+
+	if host-is-pax; then
+		# Prevent the build from failing (bug #301880). The performance
+		# difference is very small.
+		myconf+=" -Dv8_use_snapshot=0"
+	fi
 
 	# Our system ffmpeg should support more codecs than the bundled one
 	# for Chromium.
@@ -298,8 +287,10 @@ src_install() {
 		newins chrome/app/theme/chromium/product_logo_${SIZE}.png \
 			chromium-browser.png || die
 	done
+	local mime_types="text/html;text/xml;application/xhtml+xml;"
+	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
 	make_desktop_entry chromium-browser "Chromium" chromium-browser \
-		"Network;WebBrowser" "MimeType=text/html;text/xml;application/xhtml+xml;"
+		"Network;WebBrowser" "MimeType=${mime_types}"
 	sed -e "/^Exec/s/$/ %U/" -i "${D}"/usr/share/applications/*.desktop || die
 
 	# Install GNOME default application entry (bug #303100).
@@ -318,7 +309,8 @@ pkg_postinst() {
 	fdo-mime_desktop_database_update
 	gnome2_icon_cache_update
 
-	# For more info see bugs #292201 and bug #352263.
+	# For more info see bug #292201, bug #352263, bug #361859.
+	elog
 	elog "Depending on your desktop environment, you may need"
 	elog "to install additional packages to get icons on the Downloads page."
 	elog
@@ -326,7 +318,21 @@ pkg_postinst() {
 	elog
 	elog "For other desktop environments, try one of the following:"
 	elog " - x11-themes/gnome-icon-theme"
-	elog " - x11-themes/xfce4-icon-theme"
+	elog " - x11-themes/tango-icon-theme"
+
+	# For more info see bug #359153.
+	elog
+	elog "Some web pages may require additional fonts to display properly."
+	elog "Try installing some of the following packages if some characters"
+	elog "are not displayed properly:"
+	elog " - media-fonts/arphicfonts"
+	elog " - media-fonts/bitstream-cyberbit"
+	elog " - media-fonts/droid"
+	elog " - media-fonts/ipamonafont"
+	elog " - media-fonts/ja-ipafonts"
+	elog " - media-fonts/takao-fonts"
+	elog " - media-fonts/wqy-microhei"
+	elog " - media-fonts/wqy-zenhei"
 }
 
 pkg_postrm() {
