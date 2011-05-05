@@ -1,20 +1,28 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="3"
 PYTHON_DEPEND="2:2.6"
 SUPPORT_PYTHON_ABIS="1"
-inherit bzr distutils
 
-EBZR_REPO_URI="lp:${PN}"
+if [[ ${PV} = 9999 ]]; then
+	LIVE_ECLASS="bzr"
+	EBZR_REPO_URI="lp:${PN}"
+else
+	SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
+	KEYWORDS="~amd64 ~x86"
+fi
+
+inherit ${LIVE_ECLASS} distutils
+unset LIVE_ECLASS
+
 DESCRIPTION="A Pandora Radio (pandora.com) player for the GNOME Desktop"
 HOMEPAGE="http://kevinmehall.net/p/pithos/"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
-IUSE="gnome"
+IUSE=""
 
 DEPEND="dev-python/python-distutils-extra"
 
@@ -28,8 +36,9 @@ RDEPEND="dev-python/pyxdg
 	media-libs/gst-plugins-bad
 	media-plugins/gst-plugins-faad
 	media-plugins/gst-plugins-soup
-	gnome? ( gnome-base/gnome-settings-daemon )
-	!gnome? ( dev-libs/keybinder )"
+	|| ( gnome-base/gnome-settings-daemon
+		dev-libs/keybinder )
+"
 
 RESTRICT_PYTHON_ABIS="2.[45] 3.*"
 DISTUTILS_USE_SEPARATE_SOURCE_DIRECTORIES="1"
@@ -43,5 +52,8 @@ src_prepare() {
 }
 
 src_install() {
-	distutils_src_install --prefix="${EPREFIX}/usr"
+	distutils_src_install
+
+	dosym  ../icons/hicolor/scalable/apps/pithos.svg \
+		/usr/share/pixmaps/ || die "dosym failed"
 }
