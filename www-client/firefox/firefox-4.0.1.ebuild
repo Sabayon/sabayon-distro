@@ -1,11 +1,11 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-4.0-r1.ebuild,v 1.1 2011/03/23 00:45:30 nirbheek Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-4.0.1.ebuild,v 1.1 2011/05/02 23:33:17 anarchy Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils gnome2-utils mozcoreconf-2 mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python
+inherit flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python
 
 MAJ_XUL_PV="2.0"
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
@@ -14,7 +14,7 @@ FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-4.0-patches-0.8"
+PATCH="${PN}-4.0-patches-0.9"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -22,7 +22,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist gconf +ipc system-sqlite +webm"
+IUSE="bindist +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -33,7 +33,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
 	>=dev-libs/glib-2.26
-	gconf? ( >=gnome-base/gconf-1.2.1:2 )
+	>=media-libs/libpng-1.4.7[apng]
 	x11-libs/pango[X]
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]
@@ -167,6 +167,7 @@ src_configure() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --enable-safe-browsing
+	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
@@ -174,7 +175,6 @@ src_configure() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable gconf
 
 	# Finalize and report settings
 	mozconfig_final
@@ -194,6 +194,11 @@ src_configure() {
 
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+
+	# Enable very specific settings not inherited from xulrunner
+	cp "${FILESDIR}"/firefox-default-prefs.js \
+		"${S}/dist/bin/defaults/preferences/all-gentoo.js" || \
+		die "failed to cp firefox-default-prefs.js"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
@@ -235,11 +240,6 @@ src_install() {
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox
-
-	# Enable very specific settings not inherited from xulrunner
-	cp "${FILESDIR}"/firefox-default-prefs.js \
-		"${ED}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
-		die "failed to cp firefox-default-prefs.js"
 
 	# Copy Sabayon bookmarks.html file to the default location
 	dodir "${MOZILLA_FIVE_HOME}/defaults/profile"
