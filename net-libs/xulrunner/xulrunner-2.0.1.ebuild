@@ -1,11 +1,11 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-2.0.ebuild,v 1.2 2011/03/23 01:05:11 nirbheek Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-2.0.1.ebuild,v 1.2 2011/05/03 01:38:43 anarchy Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozcoreconf-2 mozconfig-3 makeedit multilib autotools python versionator pax-utils prefix
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator pax-utils prefix
 
 MAJ_XUL_PV="$(get_version_component_range 1-2)" # from mozilla-* branch name
 MAJ_FF_PV="4.0"
@@ -14,7 +14,7 @@ FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-2.0-patches-1.3"
+PATCH="${PN}-2.0-patches-1.7"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -35,9 +35,11 @@ RDEPEND="
 	>=dev-libs/glib-2.26
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	x11-libs/pango[X]
+	media-libs/libpng[apng]
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx
-		media-libs/alsa-lib )
+		media-libs/alsa-lib
+		media-libs/mesa )
 	!www-plugins/weave"
 
 DEPEND="${RDEPEND}
@@ -64,11 +66,6 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
-
-	# Sabayon User-Agent patch
-	epatch "${FILESDIR}/xulrunner-2.0-ua.patch"
-
-	epatch "${FILESDIR}"/mozilla-2.0-gconf-config-update.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -129,7 +126,7 @@ src_configure() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --enable-safe-browsing
-
+	mozconfig_annotate '' --with-system-png
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable gconf
 
