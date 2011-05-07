@@ -14,7 +14,7 @@ else
 	KEYWORDS="~amd64 ~x86"
 fi
 
-inherit ${LIVE_ECLASS} distutils
+inherit eutils ${LIVE_ECLASS} distutils
 unset LIVE_ECLASS
 
 DESCRIPTION="A Pandora Radio (pandora.com) player for the GNOME Desktop"
@@ -24,7 +24,7 @@ LICENSE="GPL-3"
 SLOT="0"
 IUSE=""
 
-DEPEND="dev-python/python-distutils-extra"
+DEPEND=">=dev-python/python-distutils-extra-2.10"
 
 RDEPEND="dev-python/pyxdg
 	dev-python/pygobject
@@ -44,6 +44,9 @@ RESTRICT_PYTHON_ABIS="2.[45] 3.*"
 DISTUTILS_USE_SEPARATE_SOURCE_DIRECTORIES="1"
 
 src_prepare() {
+	# hacky way to build when DISPLAY not set
+	# https://bugs.launchpad.net/pithos/+bug/778522
+	epatch "${FILESDIR}"/${P}-fix-build.patch
 	distutils_src_prepare
 
 	# bug #216009
