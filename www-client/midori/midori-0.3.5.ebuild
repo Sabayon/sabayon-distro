@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/midori/midori-0.3.3.ebuild,v 1.3 2011/03/21 22:22:44 nirbheek Exp $
+# $Header: $
 
 EAPI=3
 inherit eutils fdo-mime gnome2-utils python waf-utils
@@ -9,9 +9,9 @@ DESCRIPTION="A lightweight web browser based on WebKitGTK+"
 HOMEPAGE="http://www.twotoasts.de/index.php?/pages/midori_summary.html"
 SRC_URI="mirror://xfce/src/apps/${PN}/0.3/${P}.tar.bz2"
 
-LICENSE="LGPL-2.1"
+LICENSE="LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~x86 ~x86-fbsd"
+KEYWORDS="~amd64 ~x86"
 IUSE="doc gnome idn libnotify nls +unique vala"
 
 RDEPEND="dev-libs/libxml2:2
@@ -34,13 +34,15 @@ pkg_setup() {
 	python_set_active_version 2
 	python_pkg_setup
 
-	DOCS=( AUTHORS ChangeLog INSTALL TODO )
+	DOCS=( AUTHORS ChangeLog HACKING INSTALL TODO TRANSLATE )
 	HTML_DOCS=( data/faq.html data/faq.css )
 }
 
 src_prepare() {
 	# Make it work with slotted vala versions
 	sed -i -e "s/conf.env, 'valac'/conf.env, 'valac-0.10', var='VALAC'/" wscript || die
+	# https://bugs.launchpad.net/midori/+bug/776154
+	epatch "${FILESDIR}"/${P}-speeddial-fix.patch
 	epatch "${FILESDIR}/${PN}-sabayon-user-agent.patch"
 	epatch "${FILESDIR}/${PN}-advertise-proper-arch-in-user-agent.patch"
 }

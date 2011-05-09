@@ -3,7 +3,7 @@
 <pkgmetadata>
   <herd>xfce</herd>
   <use>
-    <flag name="html">Install HTML documentation</flag>
     <flag name="unique">Optional libunique support</flag>
+    <flag name="vala">Enable support for <pkg>dev-lang/vala</pkg> based extensions</flag>
   </use>
 </pkgmetadata>
