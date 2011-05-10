@@ -1,0 +1,61 @@
+# ChangeLog for media-gfx/xaralx
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  30 Apr 2011; Justin Lecher <jlec@gentoo.org>
+  -files/60_launchpad_translations, xaralx-0.7_p1785.ebuild,
+  files/xaralx-0.7_p1785-pragma.patch, -files/xaralx-pragma.patch:
+  Actually use the patches
+
+  30 Apr 2011; Justin Lecher <jlec@gentoo.org>
+  +files/30_gtk_wxwidgets_symbol_clash.dpatch,
+  +files/50_update_imagemagick_version_parser,
+  +files/60_launchpad_translations, -xaralx-0.7_p1692-r1.ebuild,
+  +files/xaralx-0.7_p1785-pragma.patch, +files/40_algorithm_include,
+  +xaralx-0.7_p1785.ebuild, +files/xaralx-pragma.patch:
+  Fix deps for gnome3, Make it compile again, included patches from debian
+
+  13 Jan 2008; Jakub Moc <jakub@gentoo.org> xaralx-0.7_p1692-r1.ebuild:
+  Fix wxGTK handling
+
+  13 Jan 2008; (Tommy[D]) tommy100@gmx.de xaralx-0.7_p1692-r1.ebuild:
+  drop WANT_AUTO* and eutils.eclass
+
+  03 Nov 2007; Markus Ullmann <jokey@gentoo.org> xaralx-0.7_p1692-r1:
+  Works on amd64 as well
+
+  28 Oct 2007; Markus Ullmann <jokey@gentoo.org> xaralx-0.7_p1692-r1:
+  Fix quoting and don't install LICENSE file
+
+  20 Oct 2006; Christian Faulhammer (opfer) <gentoo@faulhammer.org>
+  xaralx-0.7_p1692-r1.ebuild, xaralx-0.7_p1744.ebuild:
+  added trailing slash to HOMEPAGE URL
+
+  05 Oct 2006; Markus Ullmann <jokey@gentoo.org> xaralx-0.7_p1692-r1.ebuild,
+  xaralx-0.7_p1744.ebuild:
+  Add missing autoconf/automake dependency
+
+  25 Sep 2006; Alex Tarkovsky <alextarkovsky@gmail.org>
+  +xaralx-0.7_p1692-r1.ebuild:
+  Restoring ebuild for latest stable version p1692; modified $PN and autotools
+  config to compensate for upstream's retro-active changes to the tarball
+  (grumble)
+
+  08 Sep 2006; Alex Tarkovsky <alextarkovsky@gmail.org>
+  -xaralx-0.7_p1709.ebuild, +xaralx-0.7_p1744.ebuild:
+  Bump to rev 1744; removing r1709
+
+  20 Aug 2006; Stefan Schweizer <genstef@gentoo.org>
+  -xaralx-0.6_pre1692.ebuild, +xaralx-0.7_p1709.ebuild:
+  version bump thanks to Jiri Tyr <jiri.tyr@e-learning.vslib.cz> in bug 126867
+
+  14 Aug 2006; Stefan Schweizer <genstef@gentoo.org>
+  -xaralx-0.6_pre1479.ebuild, +xaralx-0.7_p1692.ebuild:
+  version bump, much improved ebuild
+
+  14 Aug 2006; Jakub Moc <jakub@gentoo.org> xaralx-0.6_pre1479.ebuild:
+  Fix gettext dependency
+
+  20 Jul 2006; Piotr Jaroszyński <peper@aster.pl> ChangeLog:
+  New ebuild. bug #126867
+

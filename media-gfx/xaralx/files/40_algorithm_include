@@ -1,0 +1,18 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 40_algorithm_include.dpatch by Joachim Breitner <nomeata@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Taken from http://ubuntuforums.org/showpost.php?p=6483814&postcount=2
+
+@DPATCH@
+diff -urNad xaralx-0.7r1785~/wxOil/bitmapgriddropdown.cpp xaralx-0.7r1785/wxOil/bitmapgriddropdown.cpp
+--- xaralx-0.7r1785~/wxOil/bitmapgriddropdown.cpp	2007-11-07 01:48:25.000000000 +0100
++++ xaralx-0.7r1785/wxOil/bitmapgriddropdown.cpp	2009-10-08 10:53:09.000000000 +0200
+@@ -105,6 +105,7 @@
+ //-----------------------------------------------------------------------------------------
+ // Include files
+ 
++#include <algorithm>
+ #include "camtypes.h"
+ #include "camelot.h"
+ #include "errors.h"
