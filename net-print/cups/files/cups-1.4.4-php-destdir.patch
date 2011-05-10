@@ -1,0 +1,21 @@
+# Source: Gentoo
+
+diff -urN cups-1.4.4/scripting/php/Makefile cups-1.4.4.new//scripting/php/Makefile
+--- cups-1.4.4/scripting/php/Makefile	2008-08-27 23:12:43.000000000 +0200
++++ cups-1.4.4.new//scripting/php/Makefile	2010-08-13 10:32:35.764063909 +0200
+@@ -95,11 +95,11 @@
+ 
+ install-exec:
+ 	echo Installing $(PHPCUPS) in $(PHPDIR)
+-	$(INSTALL_DIR) $(PHPDIR)
+-	$(INSTALL_LIB) $(PHPCUPS) $(PHPDIR)
++	$(INSTALL_DIR) $(DESTDIR)/$(PHPDIR)
++	$(INSTALL_LIB) $(PHPCUPS) $(DESTDIR)/$(PHPDIR)
+ 	if test "x$(SYMROOT)" != x; then \
+-		$(INSTALL_DIR) $(SYMROOT); \
+-		cp $(PHPCUPS) $(SYMROOT); \
++		$(INSTALL_DIR) $(DESTDIR)/$(SYMROOT); \
++		cp $(PHPCUPS) $(DESTDIR)/$(SYMROOT); \
+ 	fi
+ 
+ 

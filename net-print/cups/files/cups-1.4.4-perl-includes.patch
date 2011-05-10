@@ -1,0 +1,12 @@
+diff -urN cups-1.4.4/scripting/perl/Makefile.PL cups-1.4.4.new//scripting/perl/Makefile.PL
+--- cups-1.4.4/scripting/perl/Makefile.PL	2002-08-19 22:43:03.000000000 +0200
++++ cups-1.4.4.new//scripting/perl/Makefile.PL	2010-09-12 19:12:53.173000149 +0200
+@@ -11,7 +11,7 @@
+     'LIBS'		=> ['-lcups '], # e.g., '-lm'
+     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
+ 	# Insert -I. if you add *.h files later:
+-    'INC'		=> '', # e.g., '-I/usr/include/other'
++    'INC'		=> '-I../../', # e.g., '-I/usr/include/other'
+ 	# Un-comment this if you add C files to link with later:
+     # 'OBJECT'		=> '$(O_FILES)', # link all the C files too
+ );
