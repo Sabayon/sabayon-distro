@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.8.2-r6.ebuild,v 1.1 2011/02/08 13:31:01 dagger Exp $
 
-EAPI="2"
+EAPI="3"
 
 inherit autotools eutils gnome.org linux-info
 
@@ -17,7 +17,7 @@ SRC_URI="${SRC_URI//${PN}/${MY_PN}}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
-IUSE="avahi bluetooth doc nss gnutls dhclient dhcpcd kernel_linux resolvconf connection-sharing"
+IUSE="avahi bluetooth doc nss gnutls +dhclient dhcpcd kernel_linux resolvconf connection-sharing"
 
 RDEPEND=">=sys-apps/dbus-1.2
 	>=dev-libs/dbus-glib-0.75
@@ -36,10 +36,8 @@ RDEPEND=">=sys-apps/dbus-1.2
 		!nss? ( dev-libs/libgcrypt
 			net-libs/gnutls ) )
 	!gnutls? ( >=dev-libs/nss-3.11 )
-	dhclient? (
-		dhcpcd? ( >=net-misc/dhcpcd-4.0.0_rc3 )
-		!dhcpcd? ( net-misc/dhcp ) )
-	!dhclient? ( >=net-misc/dhcpcd-4.0.0_rc3 )
+	dhclient? ( net-misc/dhcp )
+	dhcpcd? ( >=net-misc/dhcpcd-4.0.0_rc3 )
 	resolvconf? ( net-dns/openresolv )
 	connection-sharing? (
 		net-dns/dnsmasq
@@ -81,6 +79,11 @@ pkg_setup() {
 		fi
 
 	fi
+
+	if ! use dhclient && ! use dhcpcd; then
+		eerror "Please enable either dhclient or dhcpcd USE flag"
+		die
+	fi
 }
 
 src_prepare() {
@@ -103,26 +106,19 @@ src_prepare() {
 }
 
 src_configure() {
+	# Sabayon: make possible to compile support for both dhclient and dhcpcd
+	# upstream Gentoo defaults are just silly.
 	ECONF="--disable-more-warnings
 		--localstatedir=/var
 		--with-distro=gentoo
 		--with-dbus-sys-dir=/etc/dbus-1/system.d
 		--with-udev-dir=/etc/udev
 		--with-iptables=/sbin/iptables
+		$(use_with dhclient)
+		$(use_with dhcpcd)
 		$(use_enable doc gtk-doc)
 		$(use_with doc docs)
 		$(use_with resolvconf)"
-
-	# default is dhcpcd (if none or both are specified), ISC dchclient otherwise
-	if use dhclient ; then
-		if use dhcpcd ; then
-			ECONF="${ECONF} --with-dhcpcd --without-dhclient"
-		else
-			ECONF="${ECONF} --with-dhclient --without-dhcpcd"
-		fi
-	else
-		ECONF="${ECONF} --with-dhcpcd --without-dhclient"
-	fi
 
 	# default is NSS (if none or both are specified), GnuTLS otherwise
 	if use gnutls ; then
