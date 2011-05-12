@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI=4
 
 inherit eutils versionator
 
@@ -23,7 +23,7 @@ LICENSE="QPL-1.0 as-is"
 KEYWORDS="~amd64 ~x86"
 SLOT="1"
 
-RDEPEND="x11-drivers/ati-drivers[-qt4]
+RDEPEND="x11-drivers/ati-drivers[-qt4(-)]
 	x11-libs/qt-core
 	x11-libs/qt-gui"
 
