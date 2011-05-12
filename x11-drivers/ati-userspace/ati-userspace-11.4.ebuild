@@ -263,6 +263,7 @@ src_install() {
 
 	# Common files.
 	# etc.
+	insinto /etc/ati
 	exeinto /etc/ati
 	# Everything except for the authatieventsd.sh script.
 	doins ${FOLDER_PREFIX}etc/ati/{logo*,control,atiogl.xml,signature,amdpcsdb.default}
@@ -296,10 +297,8 @@ src_install() {
 	newdoc extra/fgl_glxgears/README README.fgl_glxgears
 
 	# Gentoo-specific stuff:
-	newinitd "${FILESDIR}"/atieventsd.init atieventsd \
-		|| die "Failed to install atieventsd.init.d"
+	newinitd "${FILESDIR}"/atieventsd.init atieventsd
 	echo 'ATIEVENTSDOPTS=""' > "${T}"/atieventsd.conf
-	insopts -m0644
 	newconfd "${T}"/atieventsd.conf atieventsd
 }
 
@@ -328,7 +327,7 @@ src_install-libs() {
 	dosym libGL.so.${libver} ${ATI_ROOT}/lib/libGL.so
 
 	exeinto ${ATI_ROOT}/extensions
-	doexe "${EX_BASE_DIR}"/usr/X11R6/${pkglibdir}/modules/extensions/*.so
+	doexe "${EX_BASE_DIR}"/usr/X11R6/${pkglibdir}/modules/extensions/libglx.so
 
 	# DRI modules, installed into the path used by recent versions of mesa.
 	exeinto /usr/$(get_libdir)/dri
