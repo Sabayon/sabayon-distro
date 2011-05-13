@@ -8,7 +8,7 @@ EGIT_REPO_URI="git://ipscan.git.sourceforge.net/gitroot/ipscan/ipscan"
 # this is unable to build
 # EGIT_COMMIT="3.0-beta4"
 EGIT_COMMIT="cff4d38ee5185355d30512aacdbdcbe3276c2842"
-inherit git-2 java-pkg-2 java-ant-2
+inherit versionator git-2 java-pkg-2 java-ant-2
 
 DESCRIPTION="Angry IP - The fast and friendly network scanner"
 HOMEPAGE="http://www.angryip.org"
@@ -29,7 +29,6 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}
 	>=virtual/jre-1.6.0"
 
-EANT_BUILD_TARGET="linux"
 JAVA_PKG_BSFIX=no
 
 src_prepare() {
@@ -46,13 +45,7 @@ src_prepare() {
 
 	java-pkg_jar-from swt-3.5
 	# todo swt-mac.jar swt-win32.jar swt-win64.jar?
-	if use x86; then
-		mv swt.jar swt-linux.jar || die "error renaming swt.jar"
-	elif use amd64; then
-		mv swt.jar swt-linux64.jar || die "error renaming swt.jar"
-	else
-		die "arch unsupported!"
-	fi
+	mv swt.jar swt-$(my_get_target).jar || die "error renaming swt.jar"
 
 	# see comment above
 	#java-pkg_jar-from \
@@ -69,8 +62,14 @@ src_prepare() {
 	# note: uses binary .so file from ext/rocksaw
 }
 
+src_compile() {
+	eant $(my_get_target) || die "ant failed"
+}
+
 src_install() {
-	java-pkg_newjar "${S}"/dist/ipscan-linux-3.0-git.jar ipscan-linux.jar
+	java-pkg_newjar \
+		"${S}/dist/ipscan-$(my_get_target)-$(get_version_component_range 1-2)-git.jar" \
+		ipscan-linux.jar
 	java-pkg_dolauncher
 	insinto /usr/share/pixmaps
 	newins "${S}"/resources/images/icon32.png ipscan.png || \
@@ -79,4 +78,14 @@ src_install() {
 	insinto /usr/share/applications
 	doins "${S}"/ext/deb-bundle/usr/share/applications/ipscan.desktop || \
 		die "cannot copy .desktop file"
+}
+
+my_get_target() {
+	if use x86; then
+		echo linux
+	elif use amd64; then
+		echo linux64
+	else
+		die "arch unsupported"
+	fi
 }
