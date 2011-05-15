@@ -1,0 +1,49 @@
+diff --git a/programs/winecfg/audio.c b/programs/winecfg/audio.c
+index 4c90282..fcf3236 100644
+--- a/programs/winecfg/audio.c
++++ b/programs/winecfg/audio.c
+@@ -90,6 +90,7 @@ typedef struct
+ } AUDIO_DRIVER;
+ 
+ static AUDIO_DRIVER sAudioDrivers[] = {
++  {IDS_DRIVER_PULSE,     "pulse"},
+   {IDS_DRIVER_ALSA,      "alsa"},
+   {IDS_DRIVER_OSS,       "oss"},
+   {IDS_DRIVER_COREAUDIO, "coreaudio"},
+diff --git a/programs/winecfg/libraries.c b/programs/winecfg/libraries.c
+index e402b4e..f0264ca 100644
+--- a/programs/winecfg/libraries.c
++++ b/programs/winecfg/libraries.c
+@@ -73,6 +73,7 @@ static const char * const builtin_only[] =
+     "winedos",
+     "winemp3.acm",
+     "wineps",
++    "winepulse.drv",
+     "winmm",
+     "wintab32",
+     "wnaspi32",
+diff --git a/programs/winecfg/resource.h b/programs/winecfg/resource.h
+index 3bed6aa..2f347d9 100644
+--- a/programs/winecfg/resource.h
++++ b/programs/winecfg/resource.h
+@@ -186,7 +186,7 @@
+ #define IDS_ACCEL_BASIC                 8302
+ #define IDS_ACCEL_EMULATION             8303
+ #define IDS_DRIVER_ALSA                 8304
+-
++#define IDS_DRIVER_PULSE                8305
+ #define IDS_DRIVER_ESOUND               8306
+ #define IDS_DRIVER_OSS                  8307
+ #define IDS_DRIVER_JACK                 8308
+diff --git a/programs/winecfg/winecfg.rc b/programs/winecfg/winecfg.rc
+index f98a14d..314bd65 100644
+--- a/programs/winecfg/winecfg.rc
++++ b/programs/winecfg/winecfg.rc
+@@ -97,6 +97,7 @@ BEGIN
+     IDS_ACCEL_STANDARD          "Standard"
+     IDS_ACCEL_BASIC             "Basic"
+     IDS_ACCEL_EMULATION         "Emulation"
++    IDS_DRIVER_PULSE            "PulseAudio Driver"
+     IDS_DRIVER_ALSA             "ALSA Driver"
+     IDS_DRIVER_ESOUND           "EsounD Driver"
+     IDS_DRIVER_OSS              "OSS Driver"
