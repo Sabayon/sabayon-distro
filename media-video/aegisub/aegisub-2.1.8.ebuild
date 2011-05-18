@@ -37,7 +37,7 @@ RDEPEND="=x11-libs/wxGTK-2.8*[X,opengl]
 	lua? ( dev-lang/lua )
 
 	spell? ( app-text/hunspell )
-	ffmpeg? ( >=media-video/ffmpeg-0.5_p18642 )"
+	ffmpeg? ( virtual/ffmpeg )"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
