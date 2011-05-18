@@ -32,7 +32,7 @@ RDEPEND="hdf5? ( sci-libs/hdf5 )
 	media-libs/libpng
 	media-libs/jpeg
 	media-libs/tiff
-	media-video/ffmpeg
+	virtual/ffmpeg
 	dev-libs/expat
 	sys-libs/zlib
 	media-libs/freetype

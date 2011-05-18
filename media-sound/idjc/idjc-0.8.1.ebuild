@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header$
+# $Header $
 
 inherit autotools
 
@@ -21,7 +21,7 @@ RDEPEND=">=dev-lang/python-2.4
 	media-sound/jack-audio-connection-kit
 	media-sound/vorbis-tools
 	aac? ( media-libs/faad2 )
-	ffmpeg? ( media-video/ffmpeg )
+	ffmpeg? ( virtual/ffmpeg )
 	flac? ( media-libs/flac )
 	mp3? ( media-libs/libmad )
 	mp3-streaming? ( media-sound/lame )
@@ -33,14 +33,18 @@ DEPEND="${RDEPEND}
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-	if has_version \>=media-video/ffmpeg-0.4.9_p20080326 ; then
-		for x in $(find . -name "*.[ch]" -print0 | xargs -0 grep -l "#include <ffmpeg/avcodec.h>" ); do
-			sed -i -e "/avcodec\.h/s:ffmpeg:libavcodec:" $x;
-		done
-		for x in $(find . -name "*.[ch]" -print0 | xargs -0 grep -l "#include <ffmpeg/avformat.h>"); do
-			sed -i -e "/avformat\.h/s:ffmpeg:libavformat:" $x;
-		done
-	fi
+	# oldest version is >=media-video/ffmpeg-0.4.9_p20080326 anyway...
+	for x in $(find . -name "*.[ch]" -print0 | xargs -0 grep -l "#include <ffmpeg/avcodec.h>" ); do
+		sed -i -e "/avcodec\.h/s:ffmpeg:libavcodec:" $x;
+	done
+	#if has_version \>=media-video/ffmpeg-0.4.9_p20080326 ; then
+		#for x in $(find . -name "*.[ch]" -print0 | xargs -0 grep -l "#include <ffmpeg/avcodec.h>" ); do
+			#sed -i -e "/avcodec\.h/s:ffmpeg:libavcodec:" $x;
+		#done
+		#for x in $(find . -name "*.[ch]" -print0 | xargs -0 grep -l "#include <ffmpeg/avformat.h>"); do
+			#sed -i -e "/avformat\.h/s:ffmpeg:libavformat:" $x;
+		#done
+	#fi
 
 	eautoreconf
 }

@@ -17,7 +17,7 @@ KEYWORDS="~alpha amd64 ~hppa ppc sparc x86"
 
 DEPEND=">=sys-apps/sed-4
 	=dev-libs/pwlib-1.10*
-	>=media-video/ffmpeg-0.4.7
+	virtual/ffmpeg
 	ssl? ( dev-libs/openssl )"
 
 S="${WORKDIR}/${PN}_v${PV//./_}"

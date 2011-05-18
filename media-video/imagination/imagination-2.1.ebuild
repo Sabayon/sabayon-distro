@@ -17,7 +17,7 @@ DEPEND=">=x11-libs/gtk+-2.12.11
 	>=media-sound/sox-14.2.0"
 
 RDEPEND="${DEPEND}
-	media-video/ffmpeg"
+	virtual/ffmpeg"
 
 src_unpack() {
 	unpack ${A}
