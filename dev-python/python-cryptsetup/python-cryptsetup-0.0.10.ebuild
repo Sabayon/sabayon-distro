@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="3"
 EGIT_REPO_URI="git://git.fedorahosted.org/python-cryptsetup.git"
 EGIT_COMMIT="${P}"
 
