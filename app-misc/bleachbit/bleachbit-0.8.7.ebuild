@@ -1,8 +1,10 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit distutils
+EAPI=3
+
+inherit eutils distutils
 
 DESCRIPTION="Free disk space and maintain privacy"
 HOMEPAGE="http://bleachbit.sourceforge.net/"
@@ -13,7 +15,9 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="nls"
 
-RDEPEND="dev-python/pygtk"
+RDEPEND="dev-python/pygtk
+	dev-python/simplejson
+	dev-lang/python[sqlite,xml]"
 DEPEND="sys-devel/gettext
 	${RDEPEND}"
 
@@ -30,14 +34,14 @@ src_compile() {
 src_install() {
 	distutils_src_install
 
-	newbin ${PN}.py ${PN}
-	doicon ${PN}.png
+	newbin ${PN}.py ${PN} || die
+	doicon ${PN}.png || die
 
 	insinto /usr/share/applications
-	doins ${PN}.desktop
+	doins ${PN}.desktop || die
 
 	insinto /usr/share/data/${PN}
-	doins -r cleaners
+	doins -r cleaners || die
 
 	if use nls ; then
 	    cd "${S}/po"
