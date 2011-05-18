@@ -14,7 +14,7 @@ SRC_URI="http://ftp.osuosl.org/pub/pculture.org/${PN}/src/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="libnotify faac faad +ffmpeg mp3 musepack theora vorbis x264 xvid"
+IUSE="libnotify faad +ffmpeg mp3 musepack theora vorbis x264 xvid"
 
 CDEPEND="
 	dev-libs/glib:2
@@ -41,7 +41,7 @@ RDEPEND="${CDEPEND}
 	musepack? ( =media-plugins/gst-plugins-musepack-0.10* )
 	x264? ( =media-plugins/gst-plugins-x264-0.10* )
 	xvid? ( =media-plugins/gst-plugins-xvid-0.10* )
-	ffmpeg?	( >media-video/ffmpeg-0.6[faac?,mp3?,theora?,vorbis?,x264?,xvid?] )
+	ffmpeg?	( >virtual/ffmpeg-0.6 )
 	theora? ( media-video/ffmpeg2theora )"
 
 DEPEND="${CDEPEND}"
