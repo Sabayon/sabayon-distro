@@ -11,7 +11,7 @@ RPMREV="1"
 
 DESCRIPTION="Initial system configuration utility"
 HOMEPAGE="http://fedoraproject.org/wiki/FirstBoot"
-SRC_URI="mirror://fedora/development/source/SRPMS/${P}-${RPMREV}.fc13.src.rpm"
+SRC_URI="mirror://sabayon/${CATEGORY}/${P}-${RPMREV}.fc13.src.rpm"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
