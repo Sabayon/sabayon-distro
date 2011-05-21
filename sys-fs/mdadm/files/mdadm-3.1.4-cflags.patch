@@ -1,0 +1,27 @@
+by Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
+
+Use CFLAGS when using the compiler driver during the linking stage.
+Fixes Gentoo portage-multilib compilation failure.
+
+http://bugs.gentoo.org/336175
+
+--- a/Makefile
++++ b/Makefile
+@@ -144,7 +144,7 @@
+ # mdadm.tcc doesn't work..
+ 
+ mdadm : $(OBJS)
+-	$(CC) $(LDFLAGS) -o mdadm $(OBJS) $(LDLIBS)
++	$(CC) $(CFLAGS) $(LDFLAGS) -o mdadm $(OBJS) $(LDLIBS)
+ 
+ mdadm.static : $(OBJS) $(STATICOBJS)
+ 	$(CC) $(LDFLAGS) -static -o mdadm.static $(OBJS) $(STATICOBJS)
+@@ -167,7 +167,7 @@
+ 
+ # use '' to guarantee no dynamic linker interactions with the monitor thread
+ mdmon : $(MON_OBJS)
+-	$(CC) $(LDFLAGS) $(MON_LDFLAGS) -z now -o mdmon $(MON_OBJS) $(LDLIBS)
++	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -z now -o mdmon $(MON_OBJS) $(LDLIBS)
+ msg.o: msg.c msg.h
+ 
+ test_stripe : restripe.c mdadm.h
