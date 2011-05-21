@@ -1,15 +1,16 @@
---- mdadm-3.1.3-git20100722/udev-md-raid.rules.no-incremental	2010-07-22 12:11:39.188967623 -0400
-+++ mdadm-3.1.3-git20100722/udev-md-raid.rules	2010-07-22 12:12:24.298092552 -0400
-@@ -3,8 +3,10 @@
+diff -Nurp mdadm-3.1.5.orig/udev-md-raid.rules mdadm-3.1.5/udev-md-raid.rules
+--- mdadm-3.1.5.orig/udev-md-raid.rules	2011-05-21 19:53:53.366629520 +0200
++++ mdadm-3.1.5/udev-md-raid.rules	2011-05-21 19:56:36.641629418 +0200
+@@ -3,8 +3,12 @@
  SUBSYSTEM!="block", GOTO="md_end"
  
  # handle potential components of arrays
--ENV{ID_FS_TYPE}=="linux_raid_member", ACTION=="remove", RUN+="/sbin/mdadm -If $name"
--ENV{ID_FS_TYPE}=="linux_raid_member", ACTION=="add", RUN+="/sbin/mdadm --incremental $env{DEVNAME}"
 +# Note: in Fedora we handle incremental assembly in 65-incremental.rules so
 +#       we can do things like honor anaconda install options
-+#ENV{ID_FS_TYPE}=="linux_raid_member", ACTION=="remove", RUN+="/sbin/mdadm -If $name"
-+#ENV{ID_FS_TYPE}=="linux_raid_member", ACTION=="add", RUN+="/sbin/mdadm --incremental $env{DEVNAME}"
++ENV{ANACONDA}=="?*", GOTO="md_anaconda_jump"
+ ENV{ID_FS_TYPE}=="linux_raid_member", ACTION=="remove", RUN+="/sbin/mdadm -If $name"
+ ENV{ID_FS_TYPE}=="linux_raid_member", ACTION=="add", RUN+="/sbin/mdadm --incremental $env{DEVNAME}"
++LABEL="md_anaconda_jump"
  
  # handle md arrays
  ACTION!="add|change", GOTO="md_end"
