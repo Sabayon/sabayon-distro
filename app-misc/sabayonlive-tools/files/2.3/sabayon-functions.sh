@@ -131,17 +131,14 @@ sabayon_setup_gui_installer() {
 	# Configure Fluxbox
 	local dmrc_file="/home/${LIVE_USER}/.dmrc"
 	local flux_dir="/home/${LIVE_USER}/.fluxbox"
-	local flux_init_file="${flux_dir}/init"
+	local flux_startup_file="${flux_dir}/startup"
 	if [ ! -d "${flux_dir}" ]; then
 		mkdir "${flux_dir}" && chown "${LIVE_USER}" "${flux_dir}"
 	fi
 	echo "[Desktop]" > "${dmrc_file}"
 	echo "Session=fluxbox" >> "${dmrc_file}"
 	chown sabayonuser "${dmrc_file}"
-	echo >> "${flux_init_file}"
-	echo "session.screen0.rootCommand: xhost + & display -backdrop" \
-		"-window root /usr/share/backgrounds/sabayonlinux.png &" \
-		"installer --fullscreen" >> "${flux_init_file}"
+	sed -i "/installer --fullscreen/ s/^# //" "${flux_startup_file}"
 }
 
 sabayon_setup_text_installer() {
