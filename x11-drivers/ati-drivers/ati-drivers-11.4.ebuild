@@ -108,7 +108,7 @@ _check_kernel_config() {
 		failed=1
 	fi
 
-	kernel_is ge 2 6 37 && if ! linux_chkconfig_present BKL ; then
+	kernel_is le 2 6 38 && if ! linux_chkconfig_present BKL ; then
 		eerror "${P} requires BKL."
 		eerror "Please enable the Big Kernel Lock:"
 		eerror "Kernel hacking  --->"
@@ -196,6 +196,9 @@ src_prepare() {
 	cd "${MODULE_DIR}"
 	# bugged fglrx build system, this file should be copied by hand
 	cp "${ARCH_DIR}"/lib/modules/fglrx/build_mod/libfglrx_ip.a 2.6.x
+
+	# Add 2.6.39 support
+	epatch "${FILESDIR}"/ati-drivers-2.6.39.patch
 
 	convert_to_m 2.6.x/Makefile || die "convert_to_m failed"
 
