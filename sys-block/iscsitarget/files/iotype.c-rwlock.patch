@@ -1,0 +1,11 @@
+--- kernel/iotype.c.orig	2011-05-20 18:56:46.742302451 -0400
++++ kernel/iotype.c	2011-05-20 19:02:00.659126352 -0400
+@@ -9,7 +9,7 @@
+ #include "iscsi_dbg.h"
+ 
+ static LIST_HEAD(iotypes);
+-static rwlock_t iotypes_lock = RW_LOCK_UNLOCKED;
++static DEFINE_RWLOCK(iotypes_lock);
+ 
+ static struct iotype *find_iotype(const char *name)
+ {

@@ -27,6 +27,8 @@ src_unpack() {
 	epatch "${FILESDIR}"/${PN}-2.6.36.patch
 	kernel_is ge 2 6 37 && epatch "${FILESDIR}/${PN}-2.6.37.patch"
 	kernel_is ge 2 6 38 && epatch "${FILESDIR}/${PN}-2.6.38.patch"
+	kernel_is ge 2 6 39 && epatch "${FILESDIR}/block-io.c-new-plugging-method.patch"
+	kernel_is ge 2 6 39 && epatch "${FILESDIR}/iotype.c-rwlock.patch"
 	convert_to_m "${S}"/Makefile
 }
 
