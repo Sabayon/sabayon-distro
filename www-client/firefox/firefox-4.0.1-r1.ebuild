@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-4.0.1.ebuild,v 1.1 2011/05/02 23:33:17 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-4.0.1-r1.ebuild,v 1.2 2011/05/16 18:00:19 xarthisius Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -14,12 +14,12 @@ FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-4.0-patches-0.9"
+PATCH="${PN}-4.0-patches-1.0"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist +ipc system-sqlite +webm"
@@ -28,13 +28,16 @@ REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
+ASM_DEPEND=">=dev-lang/yasm-1.1"
+
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
 	>=dev-libs/glib-2.26
-	>=media-libs/libpng-1.4.7[apng]
+	media-libs/libpng[apng]
 	x11-libs/pango[X]
+	dev-libs/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]
 	webm? ( media-libs/libvpx
@@ -42,7 +45,8 @@ RDEPEND="
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
-	webm? ( dev-lang/yasm )"
+	webm? ( x86? ( ${ASM_DEPEND} )
+		amd64? ( ${ASM_DEPEND} ) )"
 
 # No source releases for alpha|beta
 if [[ ${PV} =~ alpha|beta ]]; then
@@ -111,9 +115,9 @@ pkg_setup() {
 
 	if ! use bindist ; then
 		einfo
-		elog "You are enabling official branding. You may not redistribute this build"
-		elog "to any users on your network or the internet. Doing so puts yourself into"
-		elog "a legal problem with Mozilla Foundation"
+		elog "You are enabling official branding. Manually check configuration"
+		elog "carefully to ensure compliance with licensing provisions"
+		elog "of the Mozilla Foundation if you are re-distributing this package."
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 }
@@ -168,6 +172,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
+	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
