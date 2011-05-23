@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-11.0.696.57.ebuild,v 1.3 2011/04/29 14:32:32 tomka Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-12.0.742.60.ebuild,v 1.1 2011/05/19 09:25:25 phajdan.jr Exp $
 
 EAPI="3"
 PYTHON_DEPEND="2:2.6"
@@ -14,8 +14,8 @@ SRC_URI="http://build.chromium.org/official/${P}.tar.bz2"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64 ~arm x86"
-IUSE="cups gnome gnome-keyring"
+KEYWORDS="~amd64 ~x86"
+IUSE="cups gnome gnome-keyring kerberos xinerama"
 
 RDEPEND="app-arch/bzip2
 	dev-libs/dbus-glib
@@ -31,11 +31,12 @@ RDEPEND="app-arch/bzip2
 	virtual/jpeg
 	media-libs/libpng
 	>=media-libs/libvpx-0.9.5
+	>=media-libs/libwebp-0.1.2
 	media-libs/speex
-	>=media-video/ffmpeg-0.6_p25767[threads]
 	cups? ( >=net-print/cups-1.3.11 )
 	sys-libs/pam
 	sys-libs/zlib
+	>=virtual/ffmpeg-0.6.90[threads]
 	x11-libs/gtk+:2
 	x11-libs/libXScrnSaver
 	x11-libs/libXtst"
@@ -44,8 +45,16 @@ DEPEND="${RDEPEND}
 	>=dev-util/gperf-3.0.3
 	>=dev-util/pkgconfig-0.23
 	sys-devel/flex
-	>=sys-devel/make-3.81-r2"
+	>=sys-devel/make-3.81-r2
+	x11-libs/libXinerama
+	test? (
+		dev-python/pyftpdlib
+		dev-python/simplejson
+		virtual/krb5
+	)"
 RDEPEND+="
+	kerberos? ( virtual/krb5 )
+	xinerama? ( x11-libs/libXinerama )
 	x11-misc/xdg-utils
 	virtual/ttf-fonts"
 
@@ -109,10 +118,13 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-sabayon-user-agent-11.0.x.patch
 
 	# Make sure we don't use bundled libvpx headers.
-	epatch "${FILESDIR}/${PN}-system-vpx-r3.patch"
+	epatch "${FILESDIR}/${PN}-system-vpx-r4.patch"
 
-	# Backport FFmpeg compatibility patch, bug #355405.
-	epatch "${FILESDIR}/${PN}-ffmpeg-build-r0.patch"
+	# Fix compilation with system zlib, bug #364205. To be upstreamed.
+	epatch "${FILESDIR}/${PN}-system-zlib-r0.patch"
+
+	# Fix compilation without CUPS, bug #364525. To be upstreamed.
+	epatch "${FILESDIR}/${PN}-cups-r0.patch"
 
 	# Remove most bundled libraries. Some are still needed.
 	find third_party -type f \! -iname '*.gyp*' \
@@ -128,10 +140,10 @@ src_prepare() {
 		\! -path 'third_party/hunspell/*' \
 		\! -path 'third_party/iccjpeg/*' \
 		\! -path 'third_party/launchpad_translations/*' \
+		\! -path 'third_party/leveldb/*' \
 		\! -path 'third_party/libjingle/*' \
 		\! -path 'third_party/libsrtp/*' \
 		\! -path 'third_party/libvpx/libvpx.h' \
-		\! -path 'third_party/libwebp/*' \
 		\! -path 'third_party/mesa/*' \
 		\! -path 'third_party/modp_b64/*' \
 		\! -path 'third_party/npapi/*' \
@@ -142,6 +154,7 @@ src_prepare() {
 		\! -path 'third_party/speex/speex.h' \
 		\! -path 'third_party/sqlite/*' \
 		\! -path 'third_party/tcmalloc/*' \
+		\! -path 'third_party/tlslite/*' \
 		\! -path 'third_party/undoview/*' \
 		\! -path 'third_party/zlib/contrib/minizip/*' \
 		-delete || die
@@ -170,6 +183,7 @@ src_configure() {
 		-Duse_system_libevent=1
 		-Duse_system_libjpeg=1
 		-Duse_system_libpng=1
+		-Duse_system_libwebp=1
 		-Duse_system_libxml=1
 		-Duse_system_speex=1
 		-Duse_system_vpx=1
@@ -198,9 +212,18 @@ src_configure() {
 	# for Chromium.
 	myconf+=" -Dproprietary_codecs=1"
 
-	# Use target arch detection logic from bug #296917.
-	local myarch="$ABI"
-	[[ $myarch = "" ]] && myarch="$ARCH"
+	# Use target arch detection logic from bug #354601.
+	case ${CHOST} in
+		i?86-*) myarch=x86 ;;
+		x86_64-*)
+			if [[ $ABI = "" ]] ; then
+				myarch=amd64
+			else
+				myarch="$ABI"
+			fi ;;
+		arm*-*) myarch=arm ;;
+		*) die "Unrecognized CHOST: ${CHOST}"
+	esac
 
 	if [[ $myarch = amd64 ]] ; then
 		myconf+=" -Dtarget_arch=x64"
@@ -231,8 +254,8 @@ src_compile() {
 	emake chrome chrome_sandbox BUILDTYPE=Release V=1 || die
 	pax-mark m out/Release/chrome
 	if use test; then
-		emake base_unittests BUILDTYPE=Release V=1 || die
-		pax-mark m out/Release/base_unittests
+		emake {base,crypto,googleurl,net}_unittests BUILDTYPE=Release V=1 || die
+		pax-mark m out/Release/{base,crypto,googleurl,net}_unittests
 	fi
 }
 
@@ -250,6 +273,14 @@ src_test() {
 	# For more info see bug #350347.
 	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/base_unittests virtualmake \
 		'--gtest_filter=-ICUStringConversionsTest.*'
+
+	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/crypto_unittests virtualmake
+	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/googleurl_unittests virtualmake
+
+	# NetUtilTest: bug #361885.
+	# UDP: unstable, active development. We should revisit this later.
+	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/net_unittests virtualmake \
+		'--gtest_filter=-NetUtilTest.IDNToUnicode*:NetUtilTest.FormatUrl*:*UDP*'
 }
 
 src_install() {
