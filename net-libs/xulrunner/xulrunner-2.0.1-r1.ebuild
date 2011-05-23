@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-2.0.1.ebuild,v 1.2 2011/05/03 01:38:43 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-2.0.1-r1.ebuild,v 1.4 2011/05/16 17:58:38 xarthisius Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -14,12 +14,12 @@ FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-2.0-patches-1.7"
+PATCH="${PN}-2.0-patches-1.8"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 
-KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+crashreporter gconf +ipc system-sqlite +webm"
@@ -27,6 +27,8 @@ IUSE="+crashreporter gconf +ipc system-sqlite +webm"
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
+
+ASM_DEPEND=">=dev-lang/yasm-1.1.0"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
@@ -36,6 +38,7 @@ RDEPEND="
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
+	dev-libs/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib
@@ -44,7 +47,8 @@ RDEPEND="
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
-	dev-lang/yasm"
+	webm? ( amd64? ( ${ASM_DEPEND} )
+		x86? ( ${ASM_DEPEND} ) )"
 
 if [[ ${PV} =~ alpha|beta ]]; then
 	# hg snapshot tarball
@@ -66,6 +70,9 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	#64bit big indian support
+	epatch "${FILESDIR}/mozilla-2.0_support_64bit_big_endian.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -127,6 +134,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
+	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable gconf
 
@@ -135,6 +143,11 @@ src_configure() {
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
 		append-flags -fno-stack-protector
+	fi
+
+	# Ensure we do not fail on i{3,5,7} processors that support -mavx
+	if use amd64 || use x86; then
+		append-flags -mno-avx
 	fi
 
 	####################################

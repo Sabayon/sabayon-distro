@@ -1,9 +1,0 @@
---- mozilla-1.9.2/xulrunner/installer/mozilla-plugin.pc.in-orig	2010-01-18 22:07:22.609207920 -0600
-+++ mozilla-1.9.2/xulrunner/installer/mozilla-plugin.pc.in	2010-01-18 22:07:31.665185152 -0600
-@@ -5,5 +5,5 @@
- Name: Mozilla Plug-In API
- Description: Mozilla Plug-In API
- Version: %MOZILLA_VERSION%
--Cflags: -I${includedir}/stable -DXP_UNIX %ojidef%
-+Cflags: -I${includedir} -DXP_UNIX %ojidef%
- 
