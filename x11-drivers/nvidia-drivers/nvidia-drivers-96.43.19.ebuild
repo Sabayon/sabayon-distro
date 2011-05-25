@@ -127,7 +127,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${P}-2.6.39.patch"
+	kernel_is ge 2 6 39 && epatch "${FILESDIR}/${P}-2.6.39.patch"
 
 	# Please add a brief description for every added patch
 	use x86-fbsd && cd doc
