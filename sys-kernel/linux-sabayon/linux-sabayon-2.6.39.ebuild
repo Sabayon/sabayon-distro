@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 ETYPE="sources"
-K_SABPATCHES_VER="2"
+K_SABPATCHES_VER="3"
 K_KERNEL_PATCH_VER=""
 K_SABKERNEL_URI_CONFIG="yes"
 inherit sabayon-kernel
