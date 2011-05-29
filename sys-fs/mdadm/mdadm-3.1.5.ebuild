@@ -73,6 +73,10 @@ src_install() {
 	sed -i \
 		-e "s:/lib/rcscripts/:/$(get_libdir)/rcscripts/:" \
 		"${D}"/etc/init.d/*
+
+	# Anaconda, Fedora, ported configuration
+	insinto /lib/udev/rules.d
+	doins "${FILESDIR}"/65-md-incremental.rules
 }
 
 pkg_postinst() {
