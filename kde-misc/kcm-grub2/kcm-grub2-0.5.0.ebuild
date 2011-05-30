@@ -28,7 +28,7 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/automoc
 "
 RDEPEND="${COMMON_DEPEND}
-$(add_kdebase_dep kcmshell)
+	$(add_kdebase_dep kcmshell)
 "
 
 src_configure() {
