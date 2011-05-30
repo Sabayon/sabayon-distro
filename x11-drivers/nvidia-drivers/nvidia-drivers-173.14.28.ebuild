@@ -25,8 +25,6 @@ RESTRICT="strip"
 DEPEND="kernel_linux? ( virtual/linux-sources )"
 RDEPEND="~x11-drivers/nvidia-userspace-${PV}
 	multilib? ( ~x11-drivers/nvidia-userspace-${PV}[multilib] )
-	!<x11-drivers/nvidia-userspace-${PV}
-	!>x11-drivers/nvidia-userspace-${PV}
 	kernel_linux? ( virtual/modutils )
 	acpi? ( sys-power/acpid )"
 PDEPEND=""

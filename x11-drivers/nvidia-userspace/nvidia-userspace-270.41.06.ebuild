@@ -30,7 +30,9 @@ COMMON="<x11-base/xorg-server-1.10.99
 	!<media-video/nvidia-settings-256.52"
 DEPEND="${COMMON}"
 RDEPEND="${COMMON}
-	x11-libs/libXvMC"
+	x11-libs/libXvMC
+        !<x11-drivers/nvidia-userspace-${PV}
+        !>x11-drivers/nvidia-userspace-${PV}"
 PDEPEND=">=x11-libs/libvdpau-0.3-r1
 	~x11-drivers/nvidia-drivers-${PV}"
 
