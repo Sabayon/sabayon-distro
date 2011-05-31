@@ -33,7 +33,9 @@ RDEPEND="<=x11-base/xorg-server-1.10.99
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	x11-libs/libXrender
-	multilib? ( app-emulation/emul-linux-x86-opengl )"
+	multilib? ( app-emulation/emul-linux-x86-opengl )
+	!<x11-drivers/ati-userspace-${PV}
+	!>x11-drivers/ati-userspace-${PV}"
 
 DEPEND="${RDEPEND}
 	app-portage/portage-utils
