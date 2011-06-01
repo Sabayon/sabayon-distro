@@ -1,0 +1,78 @@
+From 17d9e374721d6c8ee3f7f9cdc882f80127bdb57f Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Wed, 02 Mar 2011 18:21:39 +0000
+Subject: glx: Lobotomize _glapi_get_proc_address
+
+This isn't a meaningful thing in the indirect glx loader, so just warn
+if it ever happens and move on.
+
+But also, mark it PUBLIC, so if the driver does ever call it we merely
+warn instead of aborting because ld.so can't find the symbol.
+
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+---
+diff --git a/glx/glapi.c b/glx/glapi.c
+index 1814493..79ff6b1 100644
+--- a/glx/glapi.c
++++ b/glx/glapi.c
+@@ -54,6 +54,7 @@
+ 
+ #include <dix-config.h>
+ #include <X11/Xfuncproto.h>
++#include <os.h>
+ #define PUBLIC _X_EXPORT
+ 
+ #else
+@@ -713,43 +714,15 @@ _glapi_add_dispatch( const char * const * function_names,
+    return offset;
+ }
+ 
+-/**
+- * Return pointer to the named function.  If the function name isn't found
+- * in the name of static functions, try generating a new API entrypoint on
+- * the fly with assembly language.
++/*
++ * glXGetProcAddress doesn't exist in the protocol, the drivers never call
++ * this themselves, and neither does the server.  warn if it happens though.
+  */
+-_glapi_proc
++PUBLIC _glapi_proc
+ _glapi_get_proc_address(const char *funcName)
+ {
+-   struct _glapi_function * entry;
+-   GLuint i;
+-
+-#ifdef MANGLE
+-   if (funcName[0] != 'm' || funcName[1] != 'g' || funcName[2] != 'l')
+-      return NULL;
+-#else
+-   if (funcName[0] != 'g' || funcName[1] != 'l')
+-      return NULL;
+-#endif
+-
+-   /* search extension functions first */
+-   for (i = 0; i < NumExtEntryPoints; i++) {
+-      if (strcmp(ExtEntryTable[i].name, funcName) == 0) {
+-         return ExtEntryTable[i].dispatch_stub;
+-      }
+-   }
+-
+-#if !defined( XFree86Server ) && !defined( XGLServer )
+-   /* search static functions */
+-   {
+-      const _glapi_proc func = get_static_proc_address(funcName);
+-      if (func)
+-         return func;
+-   }
+-#endif /* !defined( XFree86Server ) */
+-
+-   entry = add_function_name(funcName);
+-   return (entry == NULL) ? NULL : entry->dispatch_stub;
++    ErrorF("_glapi_get_proc_address called!\n");
++    return NULL;
+ }
+ 
+ /**
+--
+cgit v0.8.3-6-g21f6
