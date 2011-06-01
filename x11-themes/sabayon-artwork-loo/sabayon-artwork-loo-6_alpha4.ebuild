@@ -8,7 +8,7 @@ inherit multilib
 DESCRIPTION="Sabayon LibreOffice Artwork"
 HOMEPAGE="http://www.sabayon.org"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
-LICENSE="GPL-2"
+LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
