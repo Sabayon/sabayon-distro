@@ -20,7 +20,8 @@ COMMON_DEPEND=">=x11-libs/qt-core-4.4.2:4
 RDEPEND="${COMMON_DEPEND}
 	~app-text/poppler-base-${PV}"
 DEPEND="${COMMON_DEPEND}
-	dev-util/pkgconfig"
+	dev-util/pkgconfig
+	x11-libs/qt-test"
 
 src_prepare() {
 	base_src_prepare
@@ -28,7 +29,7 @@ src_prepare() {
 }
 
 src_configure() {
-        econf \
+	econf \
 		--disable-poppler-glib \
 		--enable-zlib \
 		--disable-gtk-test \
@@ -48,7 +49,7 @@ src_compile() {
 src_install() {
 	( cd "${S}/qt4" && base_src_install ) || die "cannot run base_src_install"
 
-        # install pkg-config data
-        insinto /usr/$(get_libdir)/pkgconfig
-        doins "${S}"/poppler-qt4.pc
+	# install pkg-config data
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins "${S}"/poppler-qt4.pc
 }
