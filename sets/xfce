@@ -1,5 +1,6 @@
 @wireless
 @X
+app-arch/squeeze
 app-editors/leafpad
 app-misc/sabayon-skel
 lxde-base/lxdm
