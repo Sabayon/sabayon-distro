@@ -1,6 +1,7 @@
+@wireless
+@X
 app-editors/leafpad
 app-misc/sabayon-skel
 lxde-base/lxdm
-@wireless
-@X
 xfce-base/xfce4-meta
+xfce-extra/xfce4-taskmanager
