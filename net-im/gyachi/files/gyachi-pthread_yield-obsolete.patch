@@ -1,0 +1,22 @@
+--- gyvoice/protocol.c.orig	2011-05-19 18:08:05.000000000 -0600
++++ gyvoice/protocol.c	2011-05-19 18:08:34.000000000 -0600
+@@ -586,7 +586,7 @@
+ 			pthread_cond_signal(&data_cond);
+ 		    }
+ 		pthread_mutex_unlock(&data_mutex);
+-		pthread_yield();
++		sched_yield();
+ 		dbg_print("ytspextract: %d chunks are now available\n", (char *)playchunk);
+ 	}
+ }
+--- gyvoice/sound.c.orig	2011-05-19 18:08:18.000000000 -0600
++++ gyvoice/sound.c	2011-05-19 18:08:40.000000000 -0600
+@@ -229,7 +229,7 @@
+ 				silence = 0;
+ 			    }
+ 			pthread_mutex_unlock(&data_mutex);
+-			pthread_yield();
++			sched_yield();
+ 
+ 		}
+ 	}
