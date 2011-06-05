@@ -14,7 +14,7 @@ SRC_URI="http://launchpad.net/ufw/${MY_PV_12}/${PV}/+download/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~x86"
 IUSE="examples"
 
 DEPEND=""
@@ -37,28 +37,36 @@ pkg_setup() {
 }
 
 src_prepare() {
-	cp "${FILESDIR}"/ufw.{confd,initd} "${T}/" \
-		|| die "copying files to temporary directory failed"
-	eprefixify "${T}"/ufw.{confd,initd}
+	cp "${FILESDIR}"/ufw.initd "${T}/" \
+		|| die "copying file to temporary directory failed"
+	eprefixify "${T}"/ufw.initd
+	# Set as enabled by default. User can enable or disable
+	# the service by adding or removing it to/from a runlevel.
+	sed -i 's/^ENABLED=no/ENABLED=yes/' conf/ufw.conf \
+		|| die "sed failed (ufw.conf)"
 }
 
 src_install() {
-	newconfd "${T}"/ufw.confd ufw || die "inserting a file to conf.d failed"
+	newconfd "${FILESDIR}"/ufw.confd ufw || die "inserting a file to conf.d failed"
 	newinitd "${T}"/ufw.initd ufw || die "inserting a file to init.d failed"
-	distutils_src_install
+	cat <<-EOF > "${T}"/99ufw
+	CONFIG_PROTECT="${EPREFIX}/lib/ufw/user6.rules ${EPREFIX}/lib/ufw/user.rules"
+	EOF
+	doenvd "${T}"/99ufw || die "doenvd failed"
 	if use examples; then
 		dodoc doc/rsyslog.example || die "inserting example rsyslog configuration failed"
 		insinto /usr/share/doc/${PF}/examples
 		doins examples/* || die "inserting example files failed"
 	fi
+	distutils_src_install
 	dobashcompletion shell-completion/bash
 }
 
 pkg_postinst() {
+	distutils_pkg_postinst
 	elog "Remember to enable ufw add it to your boot sequence:"
 	elog "-- # ufw enable"
 	elog "-- # rc-update add ufw boot"
 	echo
-	distutils_pkg_postinst
 	bash-completion_pkg_postinst
 }
