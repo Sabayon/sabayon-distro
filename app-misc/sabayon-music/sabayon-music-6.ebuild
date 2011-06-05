@@ -3,9 +3,9 @@
 
 inherit eutils
 
-DESCRIPTION="Sabayon Linux Boot Music Infrastructure (BMI)"
+DESCRIPTION="Sabayon Boot Music"
 HOMEPAGE="http://www.sabayon.org"
-BOOT_MUSIC_OGG_FILE="08_-_rock'n'roll_hall_of_fame.ogg"
+BOOT_MUSIC_OGG_FILE="titan.ogg"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${BOOT_MUSIC_OGG_FILE}"
 RESTRICT="nomirror"
 LICENSE="GPL-2"
@@ -16,13 +16,13 @@ RDEPEND="media-sound/vorbis-tools"
 
 
 src_unpack() {
-	cp "${DISTDIR}/${BOOT_MUSIC_OGG_FILE}" "${WORKDIR}/boot.ogg"
-	cp "${FILESDIR}/music" "${WORKDIR}/"
+	cp "${DISTDIR}/${BOOT_MUSIC_OGG_FILE}" "${WORKDIR}/boot.ogg" || die
+	cp "${FILESDIR}/music" "${WORKDIR}/" || die
 }
 
 src_install () {
 
-	cd ${WORKDIR}
+	cd "${WORKDIR}" || die
 	dodir /usr/share/sounds
 	insinto /usr/share/sounds
 	doins boot.ogg
@@ -32,9 +32,9 @@ src_install () {
 
 pkg_postinst() {
 
-	einfo "Song by: Pornophonique"
-	einfo "Album: 8-bit lagerfeuer"
-	einfo "Title: Rock 'n Roll Hall of Fame"
-	einfo "Visit: http://www.jamendo.com/en/album/7505"
+	einfo "Song by: Epic Soul Factory"
+	einfo "Album: Volume One"
+	einfo "Title: TITAN"
+	einfo "Visit: http://www.jamendo.com/it/artist/Epic_Soul_Factory"
 
 }
