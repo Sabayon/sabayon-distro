@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-12.0.742.53.ebuild,v 1.1 2011/05/13 08:20:25 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-12.0.742.77.ebuild,v 1.1 2011/06/03 08:01:20 phajdan.jr Exp $
 
 EAPI="3"
 PYTHON_DEPEND="2:2.6"
@@ -14,7 +14,7 @@ SRC_URI="http://build.chromium.org/official/${P}.tar.bz2"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE="cups gnome gnome-keyring kerberos xinerama"
 
 RDEPEND="app-arch/bzip2
