@@ -20,6 +20,19 @@ K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-${PN/${PN/-*}-}}"
 # leave this option set to "no", otherwise set this to "yes"
 K_SABKERNEL_URI_CONFIG="${K_SABKERNEL_URI_CONFIG:-no}"
 
+# @ECLASS-VARIABLE: K_SABKERNEL_SELF_TARBALL_NAME
+# @DESCRIPTION:
+# If the main kernel sources tarball is generated in-house and available
+# on the "sabayon" mirror, set this variable to the extension name (see example
+# below). This will disable ALL the extra/local patches (since they have to
+# be applied inside the tarball). Moreover, K_SABKERNEL_URI_CONFIG,
+# K_SABPATCHES_VER, K_SABKERNEL_NAME, K_KERNEL_PATCH_VER will be ignored.
+# Example:
+#   K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
+#   This would generate:
+#   SRC_URI="mirror://sabayon/sys-kernel/linux-${PV}+sabayon.tar.bz2"
+K_SABKERNEL_SELF_TARBALL_NAME="${K_SABKERNEL_SELF_TARBALL_NAME:-}"
+
 # @ECLASS-VARIABLE: K_KERNEL_SOURCES_PKG
 # @DESCRIPTION:
 # The kernel sources package used to build this kernel binary
@@ -92,7 +105,9 @@ detect_arch
 DESCRIPTION="Sabayon Linux kernel functions and phases"
 
 ## kernel-2 eclass settings
-if [ -n "${K_SABPATCHES_VER}" ]; then
+if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+	SRC_URI="mirror://sabayon/${CATEGORY}/linux-${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}.tar.bz2"
+elif [ -n "${K_SABPATCHES_VER}" ]; then
 	UNIPATCH_STRICTORDER="yes"
 	K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.bz2"
 	UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
@@ -102,15 +117,17 @@ else
 	SRC_URI="${KERNEL_URI}"
 fi
 
-if [ -n "${K_KERNEL_PATCH_VER}" ]; then
-	K_PATCH_NAME="patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.${K_KERNEL_PATCH_VER}.bz2"
-	SRC_URI="${SRC_URI}
-		mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/${K_PATCH_NAME}"
-	UNIPATCH_LIST="${DISTDIR}/${K_PATCH_NAME}
-		${UNIPATCH_LIST}"
-fi
-if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
-	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
+if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+	if [ -n "${K_KERNEL_PATCH_VER}" ]; then
+		K_PATCH_NAME="patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.${K_KERNEL_PATCH_VER}.bz2"
+		SRC_URI="${SRC_URI}
+			mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/${K_PATCH_NAME}"
+		UNIPATCH_LIST="${DISTDIR}/${K_PATCH_NAME}
+			${UNIPATCH_LIST}"
+	fi
+	if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
+		UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
+	fi
 fi
 
 # replace "linux" with K_SABKERNEL_NAME, usually replaces
@@ -148,17 +165,30 @@ if _is_kernel_binary; then
 	PROVIDE="${PROVIDE} virtual/linux-binary"
 fi
 
-HOMEPAGE="http://www.sabayon.org"
-if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
+if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+	HOMEPAGE="http://gitweb.sabayon.org/?p=linux/kernel/sabayon.git;a=summary"
+else
+	HOMEPAGE="http://www.sabayon.org"
+fi
+
+
+# Setup kernel configuration file name
+if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+	if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
+		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
+		SRC_URI="${SRC_URI}
+			amd64? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
+			x86? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
+		use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
+		use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+	else
+		use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-amd64.config}"
+		use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-x86.config}"
+	fi
+else
 	K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
-	SRC_URI="${SRC_URI}
-		amd64? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
-		x86? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
 	use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
 	use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
-else
-	use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-amd64.config}"
-	use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-x86.config}"
 fi
 
 if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
@@ -221,6 +251,15 @@ sabayon-kernel_pkg_setup() {
 	fi
 }
 
+sabayon-kernel_src_unpack() {
+	local okv="${OKV}"
+	if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+		OKV="${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}"
+	fi
+	kernel-2_src_unpack
+	OKV="${okv}"
+}
+
 sabayon-kernel_src_compile() {
 	if [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 		_firmwares_src_compile
@@ -244,10 +283,14 @@ _firmwares_src_compile() {
 }
 
 _kernel_copy_config() {
-	if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
-		cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${1}" || die "cannot copy kernel config"
+	if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+		cp "${S}/sabayon/config/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
 	else
-		cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
+		if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
+			cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${1}" || die "cannot copy kernel config"
+		else
+			cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
+		fi
 	fi
 }
 
@@ -306,11 +349,11 @@ _kernel_src_compile() {
 }
 
 sabayon-kernel_src_install() {
-        if [ -n "${K_FIRMWARE_PACKAGE}" ]; then
-                _firmwares_src_install
-        elif [ -n "${K_ONLY_SOURCES}" ]; then
+	if [ -n "${K_FIRMWARE_PACKAGE}" ]; then
+		_firmwares_src_install
+	elif [ -n "${K_ONLY_SOURCES}" ]; then
 		_kernel_sources_src_install
-        else
+	else
 		_kernel_src_install
 	fi
 }
@@ -330,14 +373,10 @@ _kernel_sources_src_install() {
 		rm -f "${version_h}"
 	fi
 
+	_kernel_copy_config ".config"
 	kernel-2_src_install
 	cd "${D}/usr/src/linux-${KV_FULL}"
 	local oldarch="${ARCH}"
-	if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
-		cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" .config || die "cannot copy kernel config"
-	else
-		cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" .config || die "cannot copy kernel config"
-	fi
 	unset ARCH
 	if ! use sources_standalone; then
 		make modules_prepare || die "failed to run modules_prepare"
@@ -352,11 +391,7 @@ _kernel_src_install() {
 	dodir "${KV_OUT_DIR}"
 	insinto "${KV_OUT_DIR}"
 
-        if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
-		cp "${FILESDIR}/${PF/-r0/}-${OLDARCH}.config" .config || die "cannot copy kernel config"
-        else
-                cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" .config || die "cannot copy kernel config"
-        fi
+	_kernel_copy_config ".config"
 	doins ".config" || die "cannot copy kernel config"
 	doins Makefile || die "cannot copy Makefile"
 	doins Module.symvers || die "cannot copy Module.symvers"
@@ -364,12 +399,12 @@ _kernel_src_install() {
 
 	# NOTE: this is a workaround caused by linux-info.eclass not
 	# being ported to EAPI=2 yet
-        local version_h_name="usr/src/linux-${KV_FULL}/include/linux"
-        local version_h="${ROOT}${version_h_name}/version.h"
+	local version_h_name="usr/src/linux-${KV_FULL}/include/linux"
+	local version_h="${ROOT}${version_h_name}/version.h"
 	if [ -f "${version_h}" ]; then
-	        einfo "Discarding previously installed version.h to avoid collisions"
-        	addwrite "${version_h}"
-        	rm -f "${version_h}"
+		einfo "Discarding previously installed version.h to avoid collisions"
+		addwrite "${version_h}"
+		rm -f "${version_h}"
 	fi
 
 	# Include include/linux/version.h to make Portage happy
@@ -489,7 +524,7 @@ sabayon-kernel_pkg_postinst() {
 }
 
 sabayon-kernel_pkg_prerm() {
-        if _is_kernel_binary; then
+	if _is_kernel_binary; then
 		mount-boot_pkg_prerm
 	fi
 }
@@ -515,5 +550,5 @@ sabayon-kernel_pkg_postrm() {
 }
 
 # export all the available functions here
-EXPORT_FUNCTIONS pkg_setup src_compile src_install pkg_preinst pkg_postinst pkg_prerm pkg_postrm
+EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_install pkg_preinst pkg_postinst pkg_prerm pkg_postrm
 

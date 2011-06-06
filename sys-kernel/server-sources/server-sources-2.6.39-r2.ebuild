@@ -2,12 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
 ETYPE="sources"
-K_WANT_GENPATCHES=""
-K_GENPATCHES_VER=""
-K_SABPATCHES_VER="3"
-K_KERNEL_PATCH_VER="1"
+K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
 K_SABKERNEL_NAME="server"
-K_SABKERNEL_URI_CONFIG="yes"
 K_ONLY_SOURCES="1"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
