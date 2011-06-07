@@ -42,4 +42,4 @@ x11-drivers/xf86-video-sis
 x11-drivers/xf86-video-sisusb
 x11-drivers/xf86-video-tdfx
 x11-drivers/xf86-video-tga
-
+x11-drivers/xf86-video-vesa
