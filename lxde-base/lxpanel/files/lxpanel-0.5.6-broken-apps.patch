@@ -1,0 +1,20 @@
+diff -NrU5 lxpanel-0.5.6.original/data/default/panels/panel.in lxpanel-0.5.6/data/default/panels/panel.in
+--- lxpanel-0.5.6.original/data/default/panels/panel.in	2010-02-08 00:37:52.000000000 -0600
++++ lxpanel-0.5.6/data/default/panels/panel.in	2010-12-26 12:49:42.000000000 -0600
+@@ -50,16 +50,10 @@
+     type = launchbar
+     Config {
+         Button {
+             id=pcmanfm.desktop
+         }
+-        Button {
+-            id=gnome-terminal.desktop
+-        }
+-        Button {
+-            id=firefox.desktop
+-        }
+     }
+ }
+ 
+ Plugin {
+     type = space
