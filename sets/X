@@ -7,13 +7,13 @@ x11-drivers/radeon-ucode
 x11-drivers/xf86-input-acecad
 x11-drivers/xf86-input-aiptek
 x11-drivers/xf86-input-evdev
+x11-drivers/xf86-input-fpit
 x11-drivers/xf86-input-joystick
 x11-drivers/xf86-input-synaptics
 x11-drivers/xf86-input-virtualbox
 x11-drivers/xf86-input-vmmouse
 x11-drivers/xf86-input-void
 x11-drivers/xf86-input-wacom
-x11-drivers/xf86-input-fpit
 x11-drivers/xf86-video-apm
 x11-drivers/xf86-video-ark
 x11-drivers/xf86-video-ast
@@ -32,6 +32,7 @@ x11-drivers/xf86-video-neomagic
 x11-drivers/xf86-video-nouveau
 x11-drivers/xf86-video-nv
 x11-drivers/xf86-video-openchrome
+x11-drivers/xf86-video-qxl
 x11-drivers/xf86-video-r128
 x11-drivers/xf86-video-rendition
 x11-drivers/xf86-video-s3
@@ -42,4 +43,9 @@ x11-drivers/xf86-video-sis
 x11-drivers/xf86-video-sisusb
 x11-drivers/xf86-video-tdfx
 x11-drivers/xf86-video-tga
+x11-drivers/xf86-video-trident
+x11-drivers/xf86-video-tseng
+x11-drivers/xf86-video-v4l
 x11-drivers/xf86-video-vesa
+x11-drivers/xf86-video-vmware
+x11-drivers/xf86-video-voodoo
