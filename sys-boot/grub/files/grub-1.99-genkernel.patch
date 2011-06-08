@@ -1,6 +1,6 @@
---- grub-1.99~rc1.orig/util/grub.d/10_linux.in
-+++ grub-1.99~rc1/util/grub.d/10_linux.in
-@@ -97,7 +97,7 @@ EOF
+--- grub-1.99.orig/util/grub.d/10_linux.in
++++ grub-1.99/util/grub.d/10_linux.in
+@@ -116,7 +116,7 @@ EOF
    message="$(gettext_printf "Loading Linux %s ..." ${version})"
    cat << EOF
  	echo	'$message'
@@ -9,20 +9,3 @@
  EOF
    if test -n "${initrd}" ; then
      message="$(gettext_printf "Loading initial ramdisk ...")"
-@@ -111,7 +111,7 @@ EOF
- EOF
- }
- 
--list=`for i in /boot/vmlinuz-* /boot/vmlinux-* /vmlinuz-* /vmlinux-* ; do
-+list=`for i in /boot/kernel-* /boot/vmlinuz-* /boot/vmlinux-* /vmlinuz-* /vmlinux-* ; do
-         if grub_file_is_not_garbage "$i" ; then echo -n "$i " ; fi
-       done`
- prepare_boot_cache=
-@@ -129,6 +129,7 @@ while [ "x$list" != "x" ] ; do
-   initrd=
-   for i in "initrd.img-${version}" "initrd-${version}.img" \
- 	   "initrd-${version}" "initramfs-${version}.img" \
-+	   "initramfs-genkernel-${version}" "initramfs-genkernel-${alt_version}" \
- 	   "initrd.img-${alt_version}" "initrd-${alt_version}.img" \
- 	   "initrd-${alt_version}" "initramfs-${alt_version}.img"; do
-     if test -e "${dirname}/${i}" ; then
