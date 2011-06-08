@@ -140,12 +140,6 @@ grub_src_compile() {
 
 grub_src_install() {
 	default_src_install
-	if use multislot ; then
-		sed -i "s:grub-install:grub2-install:" "${D}"/sbin/grub-install || die
-		mv "${D}"/sbin/grub{,2}-install || die
-		mv "${D}"/sbin/grub{,2}-set-default || die
-		mv "${D}"/usr/share/info/grub{,2}.info || die
-	fi
 }
 
 src_prepare() {
@@ -201,6 +195,12 @@ src_install() {
 	for i in ${GRUB_ENABLED_PLATFORMS}; do
 		grub_run_phase ${FUNCNAME} ${i}
 	done
+	if use multislot ; then
+		sed -i "s:grub-install:grub2-install:" "${D}"/sbin/grub-install || die
+		mv "${D}"/sbin/grub{,2}-install || die
+		mv "${D}"/sbin/grub{,2}-set-default || die
+		mv "${D}"/usr/share/info/grub{,2}.info || die
+	fi
 
 	# can't be in docs array as we use defualt_src_install in different builddir
 	dodoc AUTHORS ChangeLog NEWS README THANKS TODO
