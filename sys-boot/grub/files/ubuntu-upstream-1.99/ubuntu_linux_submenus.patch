@@ -1,0 +1,32 @@
+Description: Put second and subsequent Linux menu entries in a submenu
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/540452
+Forwarded: http://lists.gnu.org/archive/html/grub-devel/2010-11/msg00074.html
+Last-Update: 2011-01-05
+
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -156,6 +156,7 @@
+ if [ "\$linux_gfx_mode" != "text" ]; then load_video; fi
+ EOF
+ 
++in_submenu=false
+ while [ "x$list" != "x" ] ; do
+   linux=`version_find_latest $list`
+   echo "Found linux image: $linux" >&2
+@@ -202,4 +203,13 @@
+   fi
+ 
+   list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`
++
++  if [ "$list" ] && ! $in_submenu; then
++    echo "submenu \"Previous Linux versions\" {"
++    in_submenu=:
++  fi
+ done
++
++if $in_submenu; then
++  echo "}"
++fi

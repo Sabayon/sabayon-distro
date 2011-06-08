@@ -1,0 +1,31 @@
+Description: Fix use of freed memory when replacing existing loopback device
+ Store the loopback device as data on loopback grub_disk structures, rather
+ than the file it points to.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/742967
+Forwarded: yes
+Applied-Upstream: http://bazaar.launchpad.net/~vcs-imports/grub/grub2-bzr/revision/3162
+Last-Update: 2011-04-01
+
+Index: b/grub-core/disk/loopback.c
+===================================================================
+--- a/grub-core/disk/loopback.c
++++ b/grub-core/disk/loopback.c
+@@ -166,7 +166,7 @@
+     disk->total_sectors = GRUB_DISK_SIZE_UNKNOWN;
+   disk->id = (unsigned long) dev;
+ 
+-  disk->data = dev->file;
++  disk->data = dev;
+ 
+   return 0;
+ }
+@@ -175,7 +175,7 @@
+ grub_loopback_read (grub_disk_t disk, grub_disk_addr_t sector,
+ 		    grub_size_t size, char *buf)
+ {
+-  grub_file_t file = (grub_file_t) disk->data;
++  grub_file_t file = ((struct grub_loopback *) disk->data)->file;
+   grub_off_t pos;
+ 
+   grub_file_seek (file, sector << GRUB_DISK_SECTOR_BITS);

@@ -1,0 +1,46 @@
+Description: Always copy partition table zone if floppy support is disabled
+ Do this even if no partition table is found.  Otherwise, the BIOS on Dell
+ Latitude E series laptops will freeze during POST if an invalid partition
+ table is contained in the PBR of the active partition when GRUB is
+ installed to a partition.
+Author: Mario Limonciello <Mario_Limonciello@Dell.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/741867
+Forwarded: http://lists.gnu.org/archive/html/grub-devel/2011-03/msg00062.html
+Applied-Upstream: http://bazaar.launchpad.net/~vcs-imports/grub/grub2-bzr/revision/3123
+Last-Update: 2011-03-29
+
+Index: b/util/grub-setup.c
+===================================================================
+--- a/util/grub-setup.c
++++ b/util/grub-setup.c
+@@ -400,6 +400,15 @@
+       }
+ #endif
+ 
++    /* Copy the partition table.  */
++    if (dest_partmap ||
++        (!allow_floppy && !grub_util_biosdisk_is_floppy (dest_dev->disk)))
++      memcpy (boot_img + GRUB_BOOT_MACHINE_WINDOWS_NT_MAGIC,
++	      tmp_img + GRUB_BOOT_MACHINE_WINDOWS_NT_MAGIC,
++	      GRUB_BOOT_MACHINE_PART_END - GRUB_BOOT_MACHINE_WINDOWS_NT_MAGIC);
++
++    free (tmp_img);
++    
+     if (! dest_partmap)
+       {
+ 	grub_util_warn (_("Attempting to install GRUB to a partitionless disk or to a partition.  This is a BAD idea."));
+@@ -411,14 +420,6 @@
+ 	goto unable_to_embed;
+       }
+ 
+-    /* Copy the partition table.  */
+-    if (dest_partmap)
+-      memcpy (boot_img + GRUB_BOOT_MACHINE_WINDOWS_NT_MAGIC,
+-	      tmp_img + GRUB_BOOT_MACHINE_WINDOWS_NT_MAGIC,
+-	      GRUB_BOOT_MACHINE_PART_END - GRUB_BOOT_MACHINE_WINDOWS_NT_MAGIC);
+-
+-    free (tmp_img);
+-    
+     if (!dest_partmap->embed)
+       {
+ 	grub_util_warn ("Partition style '%s' doesn't support embeding",

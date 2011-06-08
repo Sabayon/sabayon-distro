@@ -1,0 +1,22 @@
+Description: Build part_msdos and vfat into EFI boot images
+Author: Mario Limonciello <Mario_Limonciello@dell.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/677758
+Forwarded: http://lists.gnu.org/archive/html/grub-devel/2011-01/msg00028.html
+Last-Update: 2011-04-11
+
+Index: b/util/grub-mkrescue.in
+===================================================================
+--- a/util/grub-mkrescue.in
++++ b/util/grub-mkrescue.in
+@@ -288,9 +288,9 @@
+     mkdir -p "${efi_dir}/efi/boot"
+ 
+     # build bootx64.efi
+-    make_image "${efi64_dir}" x86_64-efi "${efi_dir}"/efi/boot/bootx64.efi ""
++    make_image "${efi64_dir}" x86_64-efi "${efi_dir}"/efi/boot/bootx64.efi "part_msdos fat"
+     # build bootia32.efi
+-    make_image "${efi32_dir}" i386-efi "${efi_dir}"/efi/boot/bootia32.efi ""
++    make_image "${efi32_dir}" i386-efi "${efi_dir}"/efi/boot/bootia32.efi "part_msdos fat"
+ 
+     mformat -C -f 2880 -L 16 -i "${iso9660_dir}"/efi.img ::
+     mcopy -s -i "${iso9660_dir}"/efi.img ${efi_dir}/efi ::/

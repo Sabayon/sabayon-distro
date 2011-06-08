@@ -1,0 +1,170 @@
+Description: Fix LVM/RAID probing without device.map
+ When probing LVM or RAID without a device.map, probe all devices in order
+ that we will know about the underlying physical volumes.
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/525085
+Forwarded: http://lists.gnu.org/archive/html/grub-devel/2010-03/msg00084.html
+Last-Update: 2010-11-26
+
+Index: b/ChangeLog.lvm-raid-probe
+===================================================================
+--- /dev/null
++++ b/ChangeLog.lvm-raid-probe
+@@ -0,0 +1,11 @@
++2010-11-26  Colin Watson  <cjwatson@ubuntu.com>
++
++	* grub-core/kern/emu/hostdisk.c (store_grub_dev): New function.
++	(grub_util_biosdisk_probe_device): New function.
++	* include/grub/emu/hostdisk.h (grub_util_biosdisk_probe_device):
++	Add prototype.
++	* util/grub-probe.c (main): If we don't have a device map, probe all
++	devices.
++	* util/grub-setup.c (main): Likewise.
++	* Makefile.util.def (grub-probe): Add util/deviceiter.c.
++	(grub-setup): Likewise.
+Index: b/Makefile.util.def
+===================================================================
+--- a/Makefile.util.def
++++ b/Makefile.util.def
+@@ -269,6 +269,7 @@
+   installdir = sbin;
+   mansection = 8;
+   common = util/grub-probe.c;
++  common = util/deviceiter.c;
+ 
+   ldadd = libgrubmods.a;
+   ldadd = libgrubkern.a;
+@@ -283,6 +284,7 @@
+   common = util/grub-setup.c;
+   common = util/raid.c;
+   common = util/lvm.c;
++  common = util/deviceiter.c;
+   common = grub-core/lib/reed_solomon.c;
+ 
+   sparc64_ieee1275 = util/ieee1275/ofpath.c;
+Index: b/grub-core/kern/emu/hostdisk.c
+===================================================================
+--- a/grub-core/kern/emu/hostdisk.c
++++ b/grub-core/kern/emu/hostdisk.c
+@@ -1626,6 +1626,48 @@
+   return find_system_device (os_dev, &st, 1, 0) != -1;
+ }
+ 
++static void
++store_grub_dev (const char *grub_disk, const char *os_disk)
++{
++  unsigned int i;
++
++  for (i = 0; i < ARRAY_SIZE (map); i++)
++    if (! map[i].device)
++      break;
++    else if (strcmp (map[i].drive, grub_disk) == 0)
++      {
++	if (strcmp (map[i].device, os_disk) == 0)
++	  return;
++	grub_util_error (_("drive `%s' already mapped to `%s'"),
++			 map[i].drive, map[i].device);
++      }
++
++  if (i == ARRAY_SIZE (map))
++    grub_util_error (_("device count exceeds limit"));
++
++  map[i].drive = xstrdup (grub_disk);
++  map[i].device = xstrdup (os_disk);
++}
++
++static int num_hd = 0;
++static int num_fd = 0;
++
++int
++grub_util_biosdisk_probe_device (const char *name, int is_floppy)
++{
++  char *grub_disk;
++
++  if (is_floppy)
++    grub_disk = xasprintf ("fd%d", num_fd++);
++  else
++    grub_disk = xasprintf ("hd%d", num_hd++);
++
++  store_grub_dev (grub_disk, name);
++  free (grub_disk);
++
++  return 0;
++}
++
+ char *
+ grub_util_biosdisk_get_grub_dev (const char *os_dev)
+ {
+Index: b/include/grub/emu/hostdisk.h
+===================================================================
+--- a/include/grub/emu/hostdisk.h
++++ b/include/grub/emu/hostdisk.h
+@@ -24,6 +24,7 @@
+ 
+ void grub_util_biosdisk_init (const char *dev_map);
+ void grub_util_biosdisk_fini (void);
++int grub_util_biosdisk_probe_device (const char *name, int is_floppy);
+ char *grub_util_biosdisk_get_grub_dev (const char *os_dev);
+ const char *grub_util_biosdisk_get_osdev (grub_disk_t disk);
+ int grub_util_biosdisk_is_present (const char *name);
+Index: b/util/grub-probe.c
+===================================================================
+--- a/util/grub-probe.c
++++ b/util/grub-probe.c
+@@ -30,6 +30,7 @@
+ #include <grub/msdos_partition.h>
+ #include <grub/emu/hostdisk.h>
+ #include <grub/emu/getroot.h>
++#include <grub/util/deviceiter.h>
+ #include <grub/term.h>
+ #include <grub/env.h>
+ #include <grub/raid.h>
+@@ -307,6 +308,7 @@
+ {
+   char *dev_map = 0;
+   char *argument;
++  struct stat dev_map_stat;
+ 
+   set_program_name (argv[0]);
+ 
+@@ -391,6 +393,11 @@
+   /* Initialize the emulated biosdisk driver.  */
+   grub_util_biosdisk_init (dev_map ? : DEFAULT_DEVICE_MAP);
+ 
++  if (stat (dev_map ? : DEFAULT_DEVICE_MAP, &dev_map_stat) == -1)
++    /* If we don't have a device map, then we won't yet know about the
++       physical volumes underlying this device, so probe all devices.  */
++    grub_util_iterate_devices (grub_util_biosdisk_probe_device, 0);
++
+   /* Initialize all modules. */
+   grub_init_all ();
+ 
+Index: b/util/grub-setup.c
+===================================================================
+--- a/util/grub-setup.c
++++ b/util/grub-setup.c
+@@ -34,6 +34,7 @@
+ #include <grub/i18n.h>
+ #include <grub/util/raid.h>
+ #include <grub/util/lvm.h>
++#include <grub/util/deviceiter.h>
+ #ifdef GRUB_MACHINE_IEEE1275
+ #include <grub/util/ofpath.h>
+ #endif
+@@ -878,6 +879,7 @@
+ int
+ main (int argc, char *argv[])
+ {
++  struct stat dev_map_stat;
+   char *root_dev = NULL;
+   char *dest_dev = NULL;
+   int must_embed = 0;
+@@ -908,6 +910,9 @@
+   /* Initialize the emulated biosdisk driver.  */
+   grub_util_biosdisk_init (arguments.dev_map ? : DEFAULT_DEVICE_MAP);
+ 
++  if (stat (arguments.dev_map ? : DEFAULT_DEVICE_MAP, &dev_map_stat) == -1)
++    grub_util_iterate_devices (grub_util_biosdisk_probe_device, 0);
++
+   /* Initialize all modules. */
+   grub_init_all ();
+ 

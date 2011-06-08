@@ -1,0 +1,106 @@
+Description: Suppress "GRUB loading" message unless Shift is held down
+ Upstream doesn't want this, as it makes debugging harder.  Ubuntu wants it
+ to provide a cleaner boot experience.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: not-needed
+Last-Update: 2011-01-05
+
+Index: b/grub-core/boot/i386/pc/boot.S
+===================================================================
+--- a/grub-core/boot/i386/pc/boot.S
++++ b/grub-core/boot/i386/pc/boot.S
+@@ -19,6 +19,7 @@
+ 
+ #include <grub/symbol.h>
+ #include <grub/boot.h>
++#include <grub/machine/memory.h>
+ #include <grub/machine/boot.h>
+ 
+ /*
+@@ -151,9 +152,15 @@
+ 	/* save drive reference first thing! */
+ 	pushw	%dx
+ 
++	/* is either shift key held down? */
++	movw	$(GRUB_MEMORY_MACHINE_BIOS_DATA_AREA_ADDR + 0x17), %bx
++	andb	$3, (%bx)
++	jz	2f
++
+ 	/* print a notification message on the screen */
+ 	MSG(notification_string)
+ 
++2:
+ 	/* set %si to the disk address packet */
+ 	movw	$disk_address_packet, %si
+ 
+Index: b/grub-core/boot/i386/pc/diskboot.S
+===================================================================
+--- a/grub-core/boot/i386/pc/diskboot.S
++++ b/grub-core/boot/i386/pc/diskboot.S
+@@ -17,6 +17,7 @@
+  */
+ 
+ #include <grub/symbol.h>
++#include <grub/machine/memory.h>
+ #include <grub/machine/boot.h>
+ 
+ /*
+@@ -24,6 +25,7 @@
+  */
+ 
+ #define MSG(x)	movw $x, %si; call LOCAL(message)
++#define SILENT(x)	call LOCAL(check_silent); jz LOCAL(x)
+ 
+ 	.file	"diskboot.S"
+ 
+@@ -50,11 +52,14 @@
+ 	/* save drive reference first thing! */
+ 	pushw	%dx
+ 
++	SILENT(after_notification_string)
++
+ 	/* print a notification message on the screen */
+ 	pushw	%si
+ 	MSG(notification_string)
+ 	popw	%si
+ 
++LOCAL(after_notification_string):
+ 	/* this sets up for the first run through "bootloop" */
+ 	movw	$(firstlist - GRUB_BOOT_MACHINE_LIST_SIZE), %di
+ 
+@@ -279,7 +284,10 @@
+ 	/* restore addressing regs and print a dot with correct DS
+ 	   (MSG modifies SI, which is saved, and unused AX and BX) */
+ 	popw	%ds
++	SILENT(after_notification_step)
+ 	MSG(notification_step)
++
++LOCAL(after_notification_step):
+ 	popa
+ 
+ 	/* check if finished with this dataset */
+@@ -295,8 +303,11 @@
+ /* END OF MAIN LOOP */
+ 
+ LOCAL(bootit):
++	SILENT(after_notification_done)
+ 	/* print a newline */
+ 	MSG(notification_done)
++
++LOCAL(after_notification_done):
+ 	popw	%dx	/* this makes sure %dl is our "boot" drive */
+ 	ljmp	$0, $(GRUB_BOOT_MACHINE_KERNEL_ADDR + 0x200)
+ 
+@@ -320,6 +331,12 @@
+ /* go here when you need to stop the machine hard after an error condition */
+ LOCAL(stop):	jmp	LOCAL(stop)
+ 
++LOCAL(check_silent):
++	/* is either shift key held down? */
++	movw	$(GRUB_MEMORY_MACHINE_BIOS_DATA_AREA_ADDR + 0x17), %bx
++	andb	$3, (%bx)
++	ret
++
+ notification_string:	.asciz "loading"
+ 
+ notification_step:	.asciz "."

@@ -1,0 +1,50 @@
+Description: Handle filesystems loop-mounted on file images
+ This is needed for Wubi.
+ .
+ This patch isn't inherently Ubuntu-specific.  losetup and /proc/mounts are
+ Linux-specific, though, so we might need to refine this before sending it
+ upstream.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: no
+Last-Update: 2011-01-05
+
+Index: b/util/grub-mkconfig_lib.in
+===================================================================
+--- a/util/grub-mkconfig_lib.in
++++ b/util/grub-mkconfig_lib.in
+@@ -99,6 +99,20 @@
+ {
+   device=$1
+ 
++  loop_file=
++  case ${device} in
++    /dev/loop/*|/dev/loop[0-9])
++      loop_file=`losetup ${device} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
++      case $loop_file in
++        /dev/*) ;;
++        *)
++          loop_device=${device}
++          device=`${grub_probe} --target=device "${loop_file}"`
++        ;;
++      esac
++    ;;
++  esac
++
+   if dmsetup status $device 2>/dev/null | grep -q 'crypt[[:space:]]$'; then
+     grub_warn \
+       "$device is a crypto device, which GRUB cannot read directly.  Some" \
+@@ -135,6 +149,14 @@
+   if fs_uuid="`${grub_probe} --device ${device} --target=fs_uuid 2> /dev/null`" ; then
+     echo "search --no-floppy --fs-uuid --set=root ${fs_uuid}"
+   fi
++
++  if [ "x${loop_file}" != x ]; then
++    loop_mountpoint="$(awk '"'${loop_file}'" ~ "^"$2 && $2 != "/" { print $2 }' /proc/mounts | tail -n1)"
++    if [ "x${loop_mountpoint}" != x ]; then
++      echo "loopback loop0 ${loop_file#$loop_mountpoint}"
++      echo "set root=(loop0)"
++    fi
++  fi
+ }
+ 
+ grub_file_is_not_garbage ()

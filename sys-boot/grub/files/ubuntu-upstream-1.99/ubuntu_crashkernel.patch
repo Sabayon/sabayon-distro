@@ -1,0 +1,34 @@
+Description: Add crashkernel option
+ Add crashkernel= option if kdump and makedumpfile are available. See
+ https://blueprints.launchpad.net/ubuntu/+spec/foundations-karmic-linux-kernel-crash-dump.
+ .
+ This requires several fairly distribution-specific pieces to work properly.
+Author: Michael Vogt <michael.vogt@ubuntu.com>
+Forwarded: not-needed
+Last-Update: 2011-01-05
+
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -59,6 +59,11 @@
+   fi
+ fi
+ 
++# add crashkernel option if we have the required tools
++if [ -x "/usr/bin/makedumpfile" ] && [ -x "/sbin/kexec" ]; then
++    GRUB_CMDLINE_EXTRA="$GRUB_CMDLINE_EXTRA crashkernel=384M-2G:64M,2G-:128M"
++fi
++
+ linux_entry ()
+ {
+   os="$1"
+@@ -152,7 +157,7 @@
+   fi
+ 
+   linux_entry "${OS}" "${version}" false \
+-      "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
++      "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_EXTRA} ${GRUB_CMDLINE_LINUX_DEFAULT}"
+   if [ "x${GRUB_DISABLE_RECOVERY}" != "xtrue" ]; then
+     linux_entry "${OS}" "${version}" true \
+ 	"single ${GRUB_CMDLINE_LINUX}"

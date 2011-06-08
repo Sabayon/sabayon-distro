@@ -1,0 +1,56 @@
+Description: Remove verbose messages printed before reading configuration
+ In some ways this is awkward because it makes debugging harder, but it's a
+ requirement for a smooth-looking boot process; we may be able to do better in
+ future.  Upstream doesn't want this, though.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/386922
+Forwarded: not-needed
+Last-Update: 2011-01-05
+
+Index: b/grub-core/kern/main.c
+===================================================================
+--- a/grub-core/kern/main.c
++++ b/grub-core/kern/main.c
+@@ -173,11 +173,6 @@
+   /* First of all, initialize the machine.  */
+   grub_machine_init ();
+ 
+-  /* Hello.  */
+-  grub_setcolorstate (GRUB_TERM_COLOR_HIGHLIGHT);
+-  grub_printf ("Welcome to GRUB!\n\n");
+-  grub_setcolorstate (GRUB_TERM_COLOR_STANDARD);
+-
+   /* Load pre-loaded modules and free the space.  */
+   grub_register_exported_symbols ();
+ #ifdef GRUB_LINKER_HAVE_INIT
+Index: b/grub-core/kern/rescue_reader.c
+===================================================================
+--- a/grub-core/kern/rescue_reader.c
++++ b/grub-core/kern/rescue_reader.c
+@@ -77,8 +77,6 @@
+ void
+ grub_rescue_run (void)
+ {
+-  grub_printf ("Entering rescue mode...\n");
+-
+   while (1)
+     {
+       char *line;
+Index: b/grub-core/normal/menu.c
+===================================================================
+--- a/grub-core/normal/menu.c
++++ b/grub-core/normal/menu.c
+@@ -640,12 +640,9 @@
+ 
+ /* Callback invoked immediately before a menu entry is executed.  */
+ static void
+-notify_booting (grub_menu_entry_t entry,
++notify_booting (grub_menu_entry_t entry __attribute__((unused)),
+ 		void *userdata __attribute__((unused)))
+ {
+-  grub_printf ("  ");
+-  grub_printf_ (N_("Booting \'%s\'"), entry->title);
+-  grub_printf ("\n\n");
+ }
+ 
+ /* Callback invoked when a default menu entry executed because of a timeout

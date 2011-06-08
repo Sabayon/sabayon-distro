@@ -1,0 +1,41 @@
+Description: Ignore devices loop-mounted from files in Linux grub.d scripts
+ This is needed for Wubi.
+ .
+ This patch isn't inherently Ubuntu-specific, although perhaps we should
+ integrate 10_lupin properly instead.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: no
+Last-Update: 2011-01-05
+
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -40,6 +40,11 @@
+ case ${GRUB_DEVICE} in
+   /dev/loop/*|/dev/loop[0-9])
+     GRUB_DEVICE=`losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
++    # We can't cope with devices loop-mounted from files here.
++    case ${GRUB_DEVICE} in
++      /dev/*) ;;
++      *) exit 0 ;;
++    esac
+   ;;
+ esac
+ 
+Index: b/util/grub.d/20_linux_xen.in
+===================================================================
+--- a/util/grub.d/20_linux_xen.in
++++ b/util/grub.d/20_linux_xen.in
+@@ -40,6 +40,11 @@
+ case ${GRUB_DEVICE} in
+   /dev/loop/*|/dev/loop[0-9])
+     GRUB_DEVICE=`losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
++    # We can't cope with devices loop-mounted from files here.
++    case ${GRUB_DEVICE} in
++      /dev/*) ;;
++      *) exit 0 ;;
++    esac
+   ;;
+ esac
+ 

@@ -1,0 +1,494 @@
+Description: Preferred resolution detection for VBE
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: http://lists.gnu.org/archive/html/grub-devel/2010-12/msg00051.html
+Last-Update: 2010-12-15
+
+Index: b/ChangeLog.vbe-autodetect
+===================================================================
+--- /dev/null
++++ b/ChangeLog.vbe-autodetect
+@@ -0,0 +1,33 @@
++2011-01-17  Colin Watson  <cjwatson@ubuntu.com>
++
++	Preferred resolution detection for VBE.
++
++	* grub-core/video/video.c (grub_video_edid_checksum): New function.
++	(grub_video_edid_preferred_mode): Likewise.  Try EDID followed by
++	the Flat Panel extension, in line with the X.org VESA driver.
++	* grub-core/video/i386/pc/vbe.c (grub_vbe_bios_get_flat_panel_info):
++	New function.
++	(grub_vbe_bios_get_ddc_capabilities): Likewise.
++	(grub_vbe_bios_read_edid): Likewise.
++	(grub_vbe_get_preferred_mode): Likewise.
++	(grub_video_vbe_setup): When the mode is "auto", try to get the
++	preferred mode from VBE, and use the largest mode that is no larger
++	than the preferred mode (some BIOSes expose a preferred mode that is
++	not in their mode list!).  If this fails, fall back to 640x480 as a
++	safe conservative choice.
++	(grub_video_vbe_get_edid): New function.
++	(grub_video_vbe_adapter): Add get_edid.
++	* include/grub/video.h (struct grub_vbe_edid_info): New structure.
++	(struct grub_video_adapter): Add get_edid.
++	(grub_video_edid_checksum): Add prototype.
++	(grub_video_edid_preferred_mode): Likewise.
++	* include/grub/i386/pc/vbe.h (struct grub_vbe_flat_panel_info): New
++	structure.
++
++	* grub-core/commands/videoinfo.c (print_edid): New function.
++	(grub_cmd_videoinfo): Print EDID if available.
++
++	* util/grub.d/00_header.in (GRUB_GFXMODE): Default to "auto".  This
++	is more appropriate on a wider range of platforms than 640x480.
++	* docs/grub.texi (Simple configuration): Update GRUB_GFXMODE
++	documentation.
+Index: b/docs/grub.texi
+===================================================================
+--- a/docs/grub.texi
++++ b/docs/grub.texi
+@@ -1142,7 +1142,8 @@
+ Set the resolution used on the @samp{gfxterm} graphical terminal.  Note that
+ you can only use modes which your graphics card supports via VESA BIOS
+ Extensions (VBE), so for example native LCD panel resolutions may not be
+-available.  The default is @samp{640x480}.
++available.  The default is @samp{auto}, which tries to select a preferred
++resolution.
+ 
+ @item GRUB_BACKGROUND
+ Set a background image for use with the @samp{gfxterm} graphical terminal.
+Index: b/grub-core/commands/videoinfo.c
+===================================================================
+--- a/grub-core/commands/videoinfo.c
++++ b/grub-core/commands/videoinfo.c
+@@ -77,6 +77,30 @@
+   return 0;
+ }
+ 
++static void
++print_edid (struct grub_video_edid_info *edid_info)
++{
++  unsigned int edid_width, edid_height;
++
++  if (grub_video_edid_checksum (edid_info))
++    {
++      grub_printf ("  EDID checksum invalid\n");
++      grub_errno = GRUB_ERR_NONE;
++      return;
++    }
++
++  grub_printf ("  EDID version: %u.%u\n",
++	       edid_info->version, edid_info->revision);
++  if (grub_video_edid_preferred_mode (edid_info, &edid_width, &edid_height)
++	== GRUB_ERR_NONE)
++    grub_printf ("    Preferred mode: %ux%u\n", edid_width, edid_height);
++  else
++    {
++      grub_printf ("    No preferred mode available\n");
++      grub_errno = GRUB_ERR_NONE;
++    }
++}
++
+ static grub_err_t
+ grub_cmd_videoinfo (grub_command_t cmd __attribute__ ((unused)),
+ 		    int argc, char **args)
+@@ -120,6 +144,8 @@
+ 
+   FOR_VIDEO_ADAPTERS (adapter)
+   {
++    struct grub_video_edid_info edid_info;
++
+     grub_printf ("Adapter '%s':\n", adapter->name);
+ 
+     if (!adapter->iterate)
+@@ -143,6 +169,11 @@
+ 
+     adapter->iterate (hook);
+ 
++    if (adapter->get_edid && adapter->get_edid (&edid_info) == GRUB_ERR_NONE)
++      print_edid (&edid_info);
++    else
++      grub_errno = GRUB_ERR_NONE;
++
+     if (adapter->id != id)
+       {
+ 	if (adapter->fini ())
+Index: b/grub-core/video/i386/pc/vbe.c
+===================================================================
+--- a/grub-core/video/i386/pc/vbe.c
++++ b/grub-core/video/i386/pc/vbe.c
+@@ -273,6 +273,56 @@
+   return regs.eax & 0xffff;
+ }
+ 
++/* Call VESA BIOS 0x4f11 to get flat panel information, return status.  */
++static grub_vbe_status_t
++grub_vbe_bios_get_flat_panel_info (struct grub_vbe_flat_panel_info *flat_panel_info)
++{
++  struct grub_bios_int_registers regs;
++
++  regs.eax = 0x4f11;
++  regs.ebx = 0x0001;
++  regs.es = (((grub_addr_t) flat_panel_info) & 0xffff0000) >> 4;
++  regs.edi = ((grub_addr_t) flat_panel_info) & 0xffff;
++  regs.flags = GRUB_CPU_INT_FLAGS_DEFAULT;
++  grub_bios_interrupt (0x10, &regs);
++  return regs.eax & 0xffff;
++}
++
++/* Call VESA BIOS 0x4f15 to get DDC availability, return status.  */
++static grub_vbe_status_t
++grub_vbe_bios_get_ddc_capabilities (grub_uint8_t *level)
++{
++  struct grub_bios_int_registers regs;
++
++  regs.eax = 0x4f15;
++  regs.ebx = 0x0000;
++  regs.ecx = 0x0000;
++  regs.es = 0x0000;
++  regs.edi = 0x0000;
++  regs.flags = GRUB_CPU_INT_FLAGS_DEFAULT;
++  grub_bios_interrupt (0x10, &regs);
++
++  *level = regs.ebx & 0xff;
++  return regs.eax & 0xffff;
++}
++
++/* Call VESA BIOS 0x4f15 to read EDID information, return status.  */
++static grub_vbe_status_t
++grub_vbe_bios_read_edid (struct grub_video_edid_info *edid_info)
++{
++  struct grub_bios_int_registers regs;
++
++  regs.eax = 0x4f15;
++  regs.ebx = 0x0001;
++  regs.ecx = 0x0000;
++  regs.edx = 0x0000;
++  regs.es = (((grub_addr_t) edid_info) & 0xffff0000) >> 4;
++  regs.edi = ((grub_addr_t) edid_info) & 0xffff;
++  regs.flags = GRUB_CPU_INT_FLAGS_DEFAULT;
++  grub_bios_interrupt (0x10, &regs);
++  return regs.eax & 0xffff;
++}
++
+ 
+ grub_err_t
+ grub_vbe_probe (struct grub_vbe_info_block *info_block)
+@@ -327,6 +377,61 @@
+   return GRUB_ERR_NONE;
+ }
+ 
++static grub_err_t
++grub_video_vbe_get_edid (struct grub_video_edid_info *edid_info)
++{
++  struct grub_video_edid_info *edid_info_lowmem;
++
++  /* Use low memory scratch area as temporary storage for VESA BIOS calls.  */
++  edid_info_lowmem =
++    (struct grub_video_edid_info *) GRUB_MEMORY_MACHINE_SCRATCH_ADDR;
++  grub_memset (edid_info_lowmem, 0, sizeof (*edid_info_lowmem));
++
++  if (grub_vbe_bios_read_edid (edid_info_lowmem) != GRUB_VBE_STATUS_OK)
++    return grub_error (GRUB_ERR_BAD_DEVICE, "EDID information not available");
++
++  grub_memcpy (edid_info, edid_info_lowmem, sizeof (*edid_info));
++
++  return GRUB_ERR_NONE;
++}
++
++static grub_err_t
++grub_vbe_get_preferred_mode (unsigned int *width, unsigned int *height)
++{
++  grub_vbe_status_t status;
++  grub_uint8_t ddc_level;
++  struct grub_video_edid_info edid_info;
++  struct grub_vbe_flat_panel_info *flat_panel_info;
++
++  /* Use low memory scratch area as temporary storage for VESA BIOS calls.  */
++  flat_panel_info = (struct grub_vbe_flat_panel_info *)
++    (GRUB_MEMORY_MACHINE_SCRATCH_ADDR + sizeof (struct grub_video_edid_info));
++  grub_memset (flat_panel_info, 0, sizeof (*flat_panel_info));
++
++  if (controller_info.version >= 0x200
++      && (grub_vbe_bios_get_ddc_capabilities (&ddc_level) & 0xff)
++	 == GRUB_VBE_STATUS_OK)
++    {
++      if (grub_video_vbe_get_edid (&edid_info) == GRUB_ERR_NONE
++	  && grub_video_edid_checksum (&edid_info) == GRUB_ERR_NONE
++	  && grub_video_edid_preferred_mode (&edid_info, width, height)
++	      == GRUB_ERR_NONE)
++	return GRUB_ERR_NONE;
++
++      grub_errno = GRUB_ERR_NONE;
++    }
++
++  status = grub_vbe_bios_get_flat_panel_info (flat_panel_info);
++  if (status == GRUB_VBE_STATUS_OK)
++    {
++      *width = flat_panel_info->horizontal_size;
++      *height = flat_panel_info->vertical_size;
++      return GRUB_ERR_NONE;
++    }
++
++  return grub_error (GRUB_ERR_UNKNOWN_DEVICE, "cannot get preferred mode");
++}
++
+ grub_err_t
+ grub_vbe_set_video_mode (grub_uint32_t vbe_mode,
+ 			 struct grub_vbe_mode_info_block *vbe_mode_info)
+@@ -695,11 +800,28 @@
+   struct grub_vbe_mode_info_block best_vbe_mode_info;
+   grub_uint32_t best_vbe_mode = 0;
+   int depth;
++  int preferred_mode = 0;
+ 
+   /* Decode depth from mode_type.  If it is zero, then autodetect.  */
+   depth = (mode_type & GRUB_VIDEO_MODE_TYPE_DEPTH_MASK)
+           >> GRUB_VIDEO_MODE_TYPE_DEPTH_POS;
+ 
++  if (width == 0 && height == 0)
++    {
++      grub_vbe_get_preferred_mode (&width, &height);
++      if (grub_errno == GRUB_ERR_NONE)
++	preferred_mode = 1;
++      else
++	{
++	  /* Fall back to 640x480.  This is conservative, but the largest
++	     mode supported by the graphics card may not be safe for the
++	     display device.  */
++	  grub_errno = GRUB_ERR_NONE;
++	  width = 640;
++	  height = 480;
++	}
++    }
++
+   /* Walk thru mode list and try to find matching mode.  */
+   for (p = vbe_mode_list; *p != 0xFFFF; p++)
+     {
+@@ -742,10 +864,21 @@
+ 	/* Unsupported bitdepth . */
+         continue;
+ 
+-      if (((vbe_mode_info.x_resolution != width)
+-	   || (vbe_mode_info.y_resolution != height)) && width != 0 && height != 0)
+-        /* Non matching resolution.  */
+-        continue;
++      if (preferred_mode)
++	{
++	  if (vbe_mode_info.x_resolution > width
++	      || vbe_mode_info.y_resolution > height)
++	    /* Resolution exceeds that of preferred mode.  */
++	    continue;
++	}
++      else
++	{
++	  if (((vbe_mode_info.x_resolution != width)
++	       || (vbe_mode_info.y_resolution != height))
++	      && width != 0 && height != 0)
++	    /* Non matching resolution.  */
++	    continue;
++	}
+ 
+       /* Check if user requested RGB or index color mode.  */
+       if ((mode_mask & GRUB_VIDEO_MODE_TYPE_COLOR_MASK) != 0)
+@@ -899,6 +1032,7 @@
+     .set_active_render_target = grub_video_fb_set_active_render_target,
+     .get_active_render_target = grub_video_fb_get_active_render_target,
+     .iterate = grub_video_vbe_iterate,
++    .get_edid = grub_video_vbe_get_edid,
+     .print_adapter_specific_info = grub_video_vbe_print_adapter_specific_info,
+ 
+     .next = 0
+Index: b/grub-core/video/video.c
+===================================================================
+--- a/grub-core/video/video.c
++++ b/grub-core/video/video.c
+@@ -374,6 +374,50 @@
+   return grub_video_adapter_active->get_active_render_target (target);
+ }
+ 
++grub_err_t
++grub_video_edid_checksum (struct grub_video_edid_info *edid_info)
++{
++  const char *edid_bytes = (const char *) edid_info;
++  int i;
++  char checksum = 0;
++
++  /* Check EDID checksum.  */
++  for (i = 0; i < 128; ++i)
++    checksum += edid_bytes[i];
++
++  if (checksum != 0)
++    return grub_error (GRUB_ERR_BAD_DEVICE,
++		       "invalid EDID checksum %d", checksum);
++
++  grub_errno = GRUB_ERR_NONE;
++  return grub_errno;
++}
++
++grub_err_t
++grub_video_edid_preferred_mode (struct grub_video_edid_info *edid_info,
++				unsigned int *width, unsigned int *height)
++{
++  /* Bit 1 in the Feature Support field indicates that the first
++     Detailed Timing Description is the preferred timing mode.  */
++  if (edid_info->version == 1 /* we don't understand later versions */
++      && (edid_info->feature_support
++	  & GRUB_VIDEO_EDID_FEATURE_PREFERRED_TIMING_MODE)
++      && edid_info->detailed_timings[0].pixel_clock)
++    {
++      *width = edid_info->detailed_timings[0].horizontal_active_lo
++	       | (((unsigned int)
++		   (edid_info->detailed_timings[0].horizontal_hi & 0xf0))
++		  << 4);
++      *height = edid_info->detailed_timings[0].vertical_active_lo
++		| (((unsigned int)
++		    (edid_info->detailed_timings[0].vertical_hi & 0xf0))
++		   << 4);
++      return GRUB_ERR_NONE;
++    }
++
++  return grub_error (GRUB_ERR_BAD_DEVICE, "no preferred mode available");
++}
++
+ /* Parse <width>x<height>[x<depth>]*/
+ static grub_err_t
+ parse_modespec (const char *current_mode, int *width, int *height, int *depth)
+Index: b/include/grub/i386/pc/vbe.h
+===================================================================
+--- a/include/grub/i386/pc/vbe.h
++++ b/include/grub/i386/pc/vbe.h
+@@ -19,6 +19,8 @@
+ #ifndef GRUB_VBE_MACHINE_HEADER
+ #define GRUB_VBE_MACHINE_HEADER	1
+ 
++#include <grub/video.h>
++
+ /* Default video mode to be used.  */
+ #define GRUB_VBE_DEFAULT_VIDEO_MODE     0x101
+ 
+@@ -169,6 +171,21 @@
+   grub_uint8_t alignment;
+ } __attribute__ ((packed));
+ 
++struct grub_vbe_flat_panel_info
++{
++  grub_uint16_t horizontal_size;
++  grub_uint16_t vertical_size;
++  grub_uint16_t panel_type;
++  grub_uint8_t red_bpp;
++  grub_uint8_t green_bpp;
++  grub_uint8_t blue_bpp;
++  grub_uint8_t reserved_bpp;
++  grub_uint32_t reserved_offscreen_mem_size;
++  grub_vbe_farptr_t reserved_offscreen_mem_ptr;
++
++  grub_uint8_t reserved[14];
++} __attribute__ ((packed));
++
+ /* Prototypes for helper functions.  */
+ /* Call VESA BIOS 0x4f00 to get VBE Controller Information, return status.  */
+ grub_vbe_status_t 
+Index: b/include/grub/video.h
+===================================================================
+--- a/include/grub/video.h
++++ b/include/grub/video.h
+@@ -210,6 +210,66 @@
+   grub_uint8_t a; /* Reserved bits value (0-255).  */
+ };
+ 
++struct grub_video_edid_info
++{
++  grub_uint8_t header[8];
++  grub_uint16_t manufacturer_id;
++  grub_uint16_t product_id;
++  grub_uint32_t serial_number;
++  grub_uint8_t week_of_manufacture;
++  grub_uint8_t year_of_manufacture;
++  grub_uint8_t version;
++  grub_uint8_t revision;
++
++  grub_uint8_t video_input_definition;
++  grub_uint8_t max_horizontal_image_size;
++  grub_uint8_t max_vertical_image_size;
++  grub_uint8_t display_gamma;
++  grub_uint8_t feature_support;
++#define GRUB_VIDEO_EDID_FEATURE_PREFERRED_TIMING_MODE	(1 << 1)
++
++  grub_uint8_t red_green_lo;
++  grub_uint8_t blue_white_lo;
++  grub_uint8_t red_x_hi;
++  grub_uint8_t red_y_hi;
++  grub_uint8_t green_x_hi;
++  grub_uint8_t green_y_hi;
++  grub_uint8_t blue_x_hi;
++  grub_uint8_t blue_y_hi;
++  grub_uint8_t white_x_hi;
++  grub_uint8_t white_y_hi;
++
++  grub_uint8_t established_timings_1;
++  grub_uint8_t established_timings_2;
++  grub_uint8_t manufacturer_reserved_timings;
++
++  grub_uint16_t standard_timings[8];
++
++  struct {
++    grub_uint16_t pixel_clock;
++    /* Only valid if the pixel clock is non-null.  */
++    grub_uint8_t horizontal_active_lo;
++    grub_uint8_t horizontal_blanking_lo;
++    grub_uint8_t horizontal_hi;
++    grub_uint8_t vertical_active_lo;
++    grub_uint8_t vertical_blanking_lo;
++    grub_uint8_t vertical_hi;
++    grub_uint8_t horizontal_sync_offset_lo;
++    grub_uint8_t horizontal_sync_pulse_width_lo;
++    grub_uint8_t vertical_sync_lo;
++    grub_uint8_t sync_hi;
++    grub_uint8_t horizontal_image_size_lo;
++    grub_uint8_t vertical_image_size_lo;
++    grub_uint8_t image_size_hi;
++    grub_uint8_t horizontal_border;
++    grub_uint8_t vertical_border;
++    grub_uint8_t flags;
++  } detailed_timings[4];
++
++  grub_uint8_t extension_flag;
++  grub_uint8_t checksum;
++} __attribute__ ((packed));
++
+ typedef enum grub_video_driver_id
+   {
+     GRUB_VIDEO_DRIVER_NONE,
+@@ -311,6 +371,8 @@
+ 
+   int (*iterate) (int (*hook) (const struct grub_video_mode_info *info));
+ 
++  grub_err_t (*get_edid) (struct grub_video_edid_info *edid_info);
++
+   void (*print_adapter_specific_info) (void);
+ };
+ typedef struct grub_video_adapter *grub_video_adapter_t;
+@@ -423,6 +485,11 @@
+ 
+ grub_err_t grub_video_get_active_render_target (struct grub_video_render_target **target);
+ 
++grub_err_t grub_video_edid_checksum (struct grub_video_edid_info *edid_info);
++grub_err_t grub_video_edid_preferred_mode (struct grub_video_edid_info *edid_info,
++					   unsigned int *width,
++					   unsigned int *height);
++
+ grub_err_t EXPORT_FUNC (grub_video_set_mode) (const char *modestring,
+ 					      unsigned int modemask,
+ 					      unsigned int modevalue);
+Index: b/util/grub.d/00_header.in
+===================================================================
+--- a/util/grub.d/00_header.in
++++ b/util/grub.d/00_header.in
+@@ -36,7 +36,7 @@
+ if [ "x${GRUB_DEFAULT}" = "x" ] ; then GRUB_DEFAULT=0 ; fi
+ if [ "x${GRUB_DEFAULT}" = "xsaved" ] ; then GRUB_DEFAULT='${saved_entry}' ; fi
+ if [ "x${GRUB_TIMEOUT}" = "x" ] ; then GRUB_TIMEOUT=5 ; fi
+-if [ "x${GRUB_GFXMODE}" = "x" ] ; then GRUB_GFXMODE=640x480 ; fi
++if [ "x${GRUB_GFXMODE}" = "x" ] ; then GRUB_GFXMODE=auto ; fi
+ 
+ if [ "x${GRUB_DEFAULT_BUTTON}" = "x" ] ; then GRUB_DEFAULT_BUTTON="$GRUB_DEFAULT" ; fi
+ if [ "x${GRUB_DEFAULT_BUTTON}" = "xsaved" ] ; then GRUB_DEFAULT_BUTTON='${saved_entry}' ; fi

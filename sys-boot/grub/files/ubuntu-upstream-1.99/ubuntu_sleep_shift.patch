@@ -1,0 +1,53 @@
+Description: Allow Shift to interrupt 'sleep --interruptible'
+ Upstream would like to consider this at more length. See
+ http://lists.gnu.org/archive/html/grub-devel/2009-08/msg00718.html, and the
+ rest of the thread for context.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: http://lists.gnu.org/archive/html/grub-devel/2009-08/msg00694.html
+Last-Update: 2011-01-05
+
+Index: b/grub-core/commands/sleep.c
+===================================================================
+--- a/grub-core/commands/sleep.c
++++ b/grub-core/commands/sleep.c
+@@ -43,6 +43,31 @@
+   grub_printf ("%d    ", n);
+ }
+ 
++static int
++grub_check_keyboard (void)
++{
++  int mods = 0;
++  grub_term_input_t term;
++
++  if (grub_term_poll_usb)
++    grub_term_poll_usb ();
++
++  FOR_ACTIVE_TERM_INPUTS(term)
++  {
++    if (term->getkeystatus)
++      mods |= term->getkeystatus (term);
++  }
++
++  if (mods >= 0 &&
++      (mods & (GRUB_TERM_STATUS_LSHIFT | GRUB_TERM_STATUS_RSHIFT)) != 0)
++    return 1;
++
++  if (grub_checkkey () >= 0 && grub_getkey () == GRUB_TERM_ESC)
++    return 1;
++
++  return 0;
++}
++
+ /* Based on grub_millisleep() from kern/generic/millisleep.c.  */
+ static int
+ grub_interruptible_millisleep (grub_uint32_t ms)
+@@ -52,7 +77,7 @@
+   start = grub_get_time_ms ();
+ 
+   while (grub_get_time_ms () - start < ms)
+-    if (grub_checkkey () >= 0 && grub_getkey () == GRUB_TERM_ESC)
++    if (grub_check_keyboard ())
+       return 1;
+ 
+   return 0;

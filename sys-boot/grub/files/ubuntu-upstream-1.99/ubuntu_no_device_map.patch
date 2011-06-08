@@ -1,0 +1,92 @@
+Description: Don't generate a device map by default
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: no
+Last-Update: 2011-01-05
+
+Index: b/util/grub-install.in
+===================================================================
+--- a/util/grub-install.in
++++ b/util/grub-install.in
+@@ -311,14 +311,6 @@
+     exit 1
+ fi
+ 
+-set "$grub_mkdevicemap" dummy
+-if test -f "$1"; then
+-    :
+-else
+-    echo "$1: Not found." 1>&2
+-    exit 1
+-fi
+-
+ if [ x"$platform" = xefi ]; then
+     # Find the EFI System Partition.
+     efidir=
+@@ -408,22 +400,14 @@
+     rm -f "$device_map"
+ fi
+ 
+-# Create the device map file if it is not present.
++# Make sure that there is no duplicated entry in the device map.
+ if test -f "$device_map"; then
+-    :
+-else
+-    # Create a safe temporary file.
+-    test -n "$mklog" && log_file=`$mklog`
+-
+-    "$grub_mkdevicemap" "--device-map=$device_map" $no_floppy || exit 1
+-fi
+-
+-# Make sure that there is no duplicated entry.
+-tmp=`sed -n '/^([fh]d[0-9]*)/s/\(^(.*)\).*/\1/p' "$device_map" \
+-    | sort | uniq -d | sed -n 1p`
+-if test -n "$tmp"; then
+-    echo "The drive $tmp is defined multiple times in the device map $device_map" 1>&2
+-    exit 1
++    tmp=`sed -n '/^([fh]d[0-9]*)/s/\(^(.*)\).*/\1/p' "$device_map" \
++	| sort | uniq -d | sed -n 1p`
++    if test -n "$tmp"; then
++	echo "The drive $tmp is defined multiple times in the device map $device_map" 1>&2
++	exit 1
++    fi
+ fi
+ 
+ # Copy the GRUB images to the GRUB directory.
+Index: b/util/grub-mkconfig.in
+===================================================================
+--- a/util/grub-mkconfig.in
++++ b/util/grub-mkconfig.in
+@@ -36,7 +36,6 @@
+ 
+ self=`basename $0`
+ 
+-grub_mkdevicemap=${sbindir}/`echo grub-mkdevicemap | sed "${transform}"`
+ grub_probe=${sbindir}/`echo grub-probe | sed "${transform}"`
+ grub_script_check="${bindir}/`echo grub-script-check | sed "${transform}"`"
+ 
+@@ -118,14 +117,6 @@
+   fi
+ fi
+ 
+-set $grub_mkdevicemap dummy
+-if test -f "$1"; then
+-    :
+-else
+-    echo "$1: Not found." 1>&2
+-    exit 1
+-fi
+-
+ set $grub_probe dummy
+ if test -f "$1"; then
+     :
+@@ -136,10 +127,6 @@
+ 
+ mkdir -p ${GRUB_PREFIX}
+ 
+-if test -e ${GRUB_PREFIX}/device.map ; then : ; else
+-  ${grub_mkdevicemap}
+-fi
+-
+ # Device containing our userland.  Typically used for root= parameter.
+ GRUB_DEVICE="`${grub_probe} --target=device /`"
+ GRUB_DEVICE_UUID="`${grub_probe} --device ${GRUB_DEVICE} --target=fs_uuid 2> /dev/null`" || true

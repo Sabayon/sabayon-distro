@@ -1,0 +1,12 @@
+--- grub-1.99~rc1.orig/util/grub.d/00_header.in
++++ grub-1.99~rc1/util/grub.d/00_header.in
+@@ -131,6 +131,9 @@ if [ "x$gfxterm" = x1 ]; then
+ if loadfont `make_system_path_relative_to_its_root "${GRUB_FONT_PATH}"` ; then
+   set gfxmode=${GRUB_GFXMODE}
+   load_video
++  # vga= is deprecated, grub2 handles this just fine
++  # making grub2 res == linux fb res
++  set gfxpayload=keep
+   insmod gfxterm
+ fi
+ EOF

@@ -1,0 +1,19 @@
+Description: Fix FreeBSD compilation problem
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Forwarded: yes
+Applied-Upstream: http://bazaar.launchpad.net/~vcs-imports/grub/grub2-bzr/revision/3117
+Last-Update: 2011-03-29
+
+Index: b/grub-core/kern/emu/hostdisk.c
+===================================================================
+--- a/grub-core/kern/emu/hostdisk.c
++++ b/grub-core/kern/emu/hostdisk.c
+@@ -93,6 +93,8 @@
+ # include <sys/disk.h> /* DIOCGMEDIASIZE */
+ # include <sys/param.h>
+ # include <sys/sysctl.h>
++# define MAJOR(dev) major(dev)
++# define FLOPPY_MAJOR	2
+ #endif
+ 
+ #if defined(__APPLE__)

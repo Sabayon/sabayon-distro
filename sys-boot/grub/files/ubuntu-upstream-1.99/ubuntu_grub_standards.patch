@@ -1,0 +1,19 @@
+Description: Remove GNU/Linux from default distributor string
+ This is Ubuntu-specific (we call it "Ubuntu", not "Ubuntu GNU/Linux").
+Author: Mario Limonciello <Mario_Limonciello@dell.com>
+Forwarded: not-needed
+Last-Update: 2011-01-05
+
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -31,7 +31,7 @@
+ if [ "x${GRUB_DISTRIBUTOR}" = "x" ] ; then
+   OS=GNU/Linux
+ else
+-  OS="${GRUB_DISTRIBUTOR} GNU/Linux"
++  OS="${GRUB_DISTRIBUTOR}"
+   CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr '[A-Z]' '[a-z]' | cut -d' ' -f1) ${CLASS}"
+ fi
+ 

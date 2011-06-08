@@ -1,0 +1,235 @@
+Description: Check hardware support before using gfxpayload=keep
+ Set GRUB_GFXPAYLOAD_LINUX=keep unless it's known to be unsupported on the
+ current hardware. See
+ https://blueprints.launchpad.net/ubuntu/+spec/packageselection-foundations-n-grub2-boot-framebuffer.
+Author: Evan Broder <evan@ebroder.net>
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: no
+Last-Update: 2011-03-29
+
+Index: b/grub-core/Makefile.core.def
+===================================================================
+--- a/grub-core/Makefile.core.def
++++ b/grub-core/Makefile.core.def
+@@ -596,6 +596,15 @@
+ };
+ 
+ module = {
++  name = hwmatch;
++  i386_pc = commands/i386/pc/hwmatch.c;
++  enable = i386_pc;
++  ldadd = libgnulib.a;
++  cflags = '$(CFLAGS_POSIX) $(CFLAGS_GNULIB)';
++  cppflags = '$(CPPFLAGS_POSIX) $(CPPFLAGS_GNULIB)';
++};
++
++module = {
+   name = keystatus;
+   common = commands/keystatus.c;
+ };
+Index: b/grub-core/commands/i386/pc/hwmatch.c
+===================================================================
+--- /dev/null
++++ b/grub-core/commands/i386/pc/hwmatch.c
+@@ -0,0 +1,139 @@
++/* hwmatch.c - Match hardware against a whitelist/blacklist.  */
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2011  Free Software Foundation, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <grub/dl.h>
++#include <grub/misc.h>
++#include <grub/command.h>
++#include <grub/pci.h>
++#include <grub/normal.h>
++#include <grub/file.h>
++#include <grub/env.h>
++#include <grub/i18n.h>
++#include <regex.h>
++
++static grub_err_t
++grub_cmd_hwmatch (grub_command_t cmd __attribute__ ((unused)),
++		  int argc, char **args)
++{
++  grub_file_t matches_file;
++  int class_match;
++  int match = 0;
++  char *match_str;
++
++  auto int NESTED_FUNC_ATTR hwmatch_iter (grub_pci_device_t dev,
++					  grub_pci_id_t pciid);
++
++  int NESTED_FUNC_ATTR hwmatch_iter (grub_pci_device_t dev,
++				     grub_pci_id_t pciid)
++  {
++    grub_pci_address_t addr;
++    grub_uint32_t class, baseclass, vendor, device;
++    grub_pci_id_t subpciid;
++    grub_uint32_t subvendor, subdevice, subclass;
++    char *id, *line;
++
++    addr = grub_pci_make_address (dev, GRUB_PCI_REG_CLASS);
++    class = grub_pci_read (addr);
++    baseclass = class >> 24;
++
++    if (class_match != baseclass)
++      return 0;
++
++    vendor = pciid & 0xffff;
++    device = pciid >> 16;
++
++    addr = grub_pci_make_address (dev, GRUB_PCI_REG_SUBVENDOR);
++    subpciid = grub_pci_read (addr);
++
++    subclass = (class >> 16) & 0xff;
++    subvendor = subpciid & 0xffff;
++    subdevice = subpciid >> 16;
++
++    id = grub_xasprintf ("v%04xd%04xsv%04xsd%04xbc%02xsc%02x",
++			 vendor, device, subvendor, subdevice,
++			 baseclass, subclass);
++
++    grub_file_seek (matches_file, 0);
++    while ((line = grub_file_getline (matches_file)) != NULL)
++      {
++	char *anchored_line;
++	regex_t regex;
++	int ret;
++
++	if (! *line || *line == '#')
++	  {
++	    grub_free (line);
++	    continue;
++	  }
++
++	anchored_line = grub_xasprintf ("^%s$", line);
++	ret = regcomp (&regex, anchored_line, REG_EXTENDED | REG_NOSUB);
++	grub_free (anchored_line);
++	if (ret)
++	  {
++	    grub_free (line);
++	    continue;
++	  }
++
++	ret = regexec (&regex, id, 0, NULL, 0);
++	regfree (&regex);
++	grub_free (line);
++	if (! ret)
++	  {
++	    match = 1;
++	    return 1;
++	  }
++      }
++
++    return 0;
++  }
++
++  if (argc < 2)
++    return grub_error (GRUB_ERR_BAD_ARGUMENT, "list file and class required");
++
++  matches_file = grub_file_open (args[0]);
++  if (! matches_file)
++    return grub_error (GRUB_ERR_FILE_NOT_FOUND, "file not found");
++
++  class_match = grub_strtol (args[1], 0, 10);
++
++  grub_pci_iterate (hwmatch_iter);
++
++  match_str = grub_xasprintf ("%d", match);
++  grub_env_set ("match", match_str);
++  grub_free (match_str);
++
++  grub_file_close (matches_file);
++
++  return GRUB_ERR_NONE;
++}
++
++static grub_command_t cmd;
++
++GRUB_MOD_INIT(hwmatch)
++{
++  cmd = grub_register_command ("hwmatch", grub_cmd_hwmatch,
++			       N_("MATCHES-FILE CLASS"),
++			       N_("Match PCI devices."));
++}
++
++GRUB_MOD_FINI(hwmatch)
++{
++  grub_unregister_command (cmd);
++}
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -88,18 +88,9 @@
+       save_default_entry | sed -e "s/^/\t/"
+   fi
+ 
+-  # Use ELILO's generic "efifb" when it's known to be available.
+-  # FIXME: We need an interface to select vesafb in case efifb can't be used.
+-  if [ "x$GRUB_GFXPAYLOAD_LINUX" != x ]; then
+-      if [ "x$GRUB_GFXPAYLOAD_LINUX" != xtext ]; then
+-	  cat << EOF
+-	load_video
+-EOF
+-      fi
+-	  cat << EOF
+-	set gfxpayload=$GRUB_GFXPAYLOAD_LINUX
++  cat << EOF
++	set gfxpayload=\$linux_gfx_mode
+ EOF
+-  fi
+ 
+   if [ -z "${prepare_boot_cache}" ]; then
+     prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | sed -e "s/^/\t/")"
+@@ -135,6 +126,36 @@
+       done`
+ prepare_boot_cache=
+ 
++# Use ELILO's generic "efifb" when it's known to be available.
++# FIXME: We need an interface to select vesafb in case efifb can't be used.
++if [ "x$GRUB_GFXPAYLOAD_LINUX" != x ]; then
++  echo "set linux_gfx_mode=$GRUB_GFXPAYLOAD_LINUX"
++else
++  cat << EOF
++if [ \${recordfail} != 1 ]; then
++  if [ -e \${prefix}/gfxblacklist.txt ]; then
++    if hwmatch \${prefix}/gfxblacklist.txt 3; then
++      if [ \${match} = 0 ]; then
++        set linux_gfx_mode=keep
++      else
++        set linux_gfx_mode=text
++      fi
++    else
++      set linux_gfx_mode=text
++    fi
++  else
++    set linux_gfx_mode=keep
++  fi
++else
++  set linux_gfx_mode=text
++fi
++EOF
++fi
++cat << EOF
++export linux_gfx_mode
++if [ "\$linux_gfx_mode" != "text" ]; then load_video; fi
++EOF
++
+ while [ "x$list" != "x" ] ; do
+   linux=`version_find_latest $list`
+   echo "Found linux image: $linux" >&2
