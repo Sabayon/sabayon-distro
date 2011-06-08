@@ -140,6 +140,12 @@ grub_src_compile() {
 
 grub_src_install() {
 	default_src_install
+	if use multislot ; then
+		sed -i "s:grub-install:grub2-install:" "${D}"/sbin/grub-install || die
+		mv "${D}"/sbin/grub{,2}-install || die
+		mv "${D}"/sbin/grub{,2}-set-default || die
+		mv "${D}"/usr/share/info/grub{,2}.info || die
+	fi
 }
 
 src_prepare() {
