@@ -149,14 +149,6 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.99-vga-deprecated.patch
 	epatch "${FILESDIR}"/${PN}-1.99-wallpaper-settings-support.patch
 	epatch "${FILESDIR}"/${PN}-1.98-add-legacy-rootfs-detection.patch
-	# Ubuntu and upstream patches
-	series_file="${FILESDIR}/ubuntu-upstream-1.99/series"
-	for p in `cat ${series_file}`; do
-		if [ "${p}" = "series" ]; then
-			continue
-		fi
-		epatch "${FILESDIR}/ubuntu-upstream-1.99/${p}"
-	done
 	epatch_user
 	# Genkernel doesn't support "single" for rescue mode
 	# but rather init_opts=single
