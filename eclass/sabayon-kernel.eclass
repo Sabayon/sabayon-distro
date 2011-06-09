@@ -125,9 +125,9 @@ if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 		UNIPATCH_LIST="${DISTDIR}/${K_PATCH_NAME}
 			${UNIPATCH_LIST}"
 	fi
-	if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
-		UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
-	fi
+fi
+if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
+	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
 # replace "linux" with K_SABKERNEL_NAME, usually replaces
