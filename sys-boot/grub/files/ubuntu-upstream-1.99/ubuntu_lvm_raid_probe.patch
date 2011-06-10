@@ -45,7 +45,7 @@ Index: b/grub-core/kern/emu/hostdisk.c
 ===================================================================
 --- a/grub-core/kern/emu/hostdisk.c
 +++ b/grub-core/kern/emu/hostdisk.c
-@@ -1626,6 +1626,48 @@
+@@ -1651,6 +1651,48 @@
    return find_system_device (os_dev, &st, 1, 0) != -1;
  }
  
@@ -150,7 +150,7 @@ Index: b/util/grub-setup.c
  #ifdef GRUB_MACHINE_IEEE1275
  #include <grub/util/ofpath.h>
  #endif
-@@ -878,6 +879,7 @@
+@@ -867,6 +868,7 @@
  int
  main (int argc, char *argv[])
  {
@@ -158,7 +158,7 @@ Index: b/util/grub-setup.c
    char *root_dev = NULL;
    char *dest_dev = NULL;
    int must_embed = 0;
-@@ -908,6 +910,9 @@
+@@ -897,6 +899,9 @@
    /* Initialize the emulated biosdisk driver.  */
    grub_util_biosdisk_init (arguments.dev_map ? : DEFAULT_DEVICE_MAP);
  

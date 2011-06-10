@@ -1,0 +1,58 @@
+Description: Show the boot menu if the previous boot failed
+ "Failure" here is defined as failing to get to the end of one of the normal
+ runlevels.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: no
+Last-Update: 2011-01-05
+
+Index: b/util/grub.d/00_header.in
+===================================================================
+--- a/util/grub.d/00_header.in
++++ b/util/grub.d/00_header.in
+@@ -44,6 +44,7 @@
+ 
+ cat << EOF
+ if [ -s \$prefix/grubenv ]; then
++  set have_grubenv=true
+   load_env
+ fi
+ EOF
+@@ -76,6 +77,11 @@
+   fi
+ }
+ 
++function recordfail {
++  set recordfail=1
++  if [ -n "\${have_grubenv}" ]; then if [ -z "\${boot_once}" ]; then save_env recordfail; fi; fi
++}
++
+ function load_video {
+ EOF
+ if [ -n "${GRUB_VIDEO_BACKEND}" ]; then
+@@ -226,7 +232,11 @@
+ make_timeout ()
+ {
+     cat << EOF
+-set timeout=${2}
++if [ "\${recordfail}" = 1 ]; then
++  set timeout=-1
++else
++  set timeout=${2}
++fi
+ EOF
+ }
+ 
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -81,6 +81,9 @@
+     title="$(gettext_quoted "%s, with Linux %s")"
+   fi
+   printf "menuentry '${title}' ${CLASS} {\n" "${os}" "${version}"
++  cat << EOF
++	recordfail
++EOF
+   if ! ${recovery} ; then
+       save_default_entry | sed -e "s/^/\t/"
+   fi

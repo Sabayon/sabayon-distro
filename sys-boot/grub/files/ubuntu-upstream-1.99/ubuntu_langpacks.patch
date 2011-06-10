@@ -1,0 +1,19 @@
+Description: Prefer translations from language packs
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/537998
+Forwarded: not-needed
+Last-Update: 2010-03-22
+
+Index: b/util/grub-install.in
+===================================================================
+--- a/util/grub-install.in
++++ b/util/grub-install.in
+@@ -434,7 +434,7 @@
+ 
+ # Copy gettext files
+ mkdir -p "${grubdir}"/locale/
+-for dir in "${localedir}"/*; do
++for dir in "${localedir}"/* "${localedir}-langpack"/*; do
+     if test -f "$dir/LC_MESSAGES/grub.mo"; then
+         cp -f "$dir/LC_MESSAGES/grub.mo" "${grubdir}/locale/${dir##*/}.mo"
+     fi

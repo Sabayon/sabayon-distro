@@ -1,0 +1,30 @@
+Description: Improve handling of Debian kernel version numbers
+Author: Robert Millan <rmh@aybabtu.com>
+Forwarded: not-needed
+Last-Update: 2011-04-21
+
+Index: b/util/grub-mkconfig_lib.in
+===================================================================
+--- a/util/grub-mkconfig_lib.in
++++ b/util/grub-mkconfig_lib.in
+@@ -172,8 +172,9 @@
+ 
+ version_test_gt ()
+ {
+-  local a="`echo "$1" | sed -e "s/[^-]*-//"`"
+-  local b="`echo "$2" | sed -e "s/[^-]*-//"`"
++  local sedexp="s/[^-]*-//;s/[._-]\(pre\|rc\|test\|git\|old\|trunk\)/~\1/g"
++  local a="`echo "$1" | sed -e "$sedexp"`"
++  local b="`echo "$2" | sed -e "$sedexp"`"
+   local cmp=gt
+   if [ "x$b" = "x" ] ; then
+     return 0
+@@ -183,7 +184,7 @@
+     *.old:*) a="`echo -n "$a" | sed -e 's/\.old$//'`" ; cmp=gt ;;
+     *:*.old) b="`echo -n "$b" | sed -e 's/\.old$//'`" ; cmp=ge ;;
+   esac
+-  version_test_numeric "$a" "$cmp" "$b"
++  dpkg --compare-versions "$a" $cmp "$b"
+   return "$?"
+ }
+ 

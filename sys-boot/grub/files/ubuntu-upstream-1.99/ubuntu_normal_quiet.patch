@@ -1,0 +1,62 @@
+Description: Reduce visual clutter in normal mode
+ Don't display introductory message about line editing unless we're actually
+ offering a shell prompt.  (This is believed to be a workaround for a
+ different bug.  We'll go with this for now, but will drop this in favour of
+ a better fix upstream if somebody figures out what that is.)
+ .
+ Don't clear the screen just before booting if we never drew the menu in the
+ first place.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: http://lists.gnu.org/archive/html/grub-devel/2009-09/msg00056.html
+Last-Update: 2011-01-05
+
+Index: b/grub-core/normal/main.c
+===================================================================
+--- a/grub-core/normal/main.c
++++ b/grub-core/normal/main.c
+@@ -384,6 +384,13 @@
+ grub_normal_read_line_real (char **line, int cont, int nested)
+ {
+   const char *prompt;
++  static int displayed_intro;
++
++  if (! displayed_intro)
++    {
++      grub_normal_reader_init (nested);
++      displayed_intro = 1;
++    }
+ 
+   if (cont)
+     prompt = ">";
+@@ -430,8 +437,6 @@
+       return;
+     }
+ 
+-  grub_normal_reader_init (nested);
+-
+   while (1)
+     {
+       char *line;
+Index: b/grub-core/normal/menu.c
+===================================================================
+--- a/grub-core/normal/menu.c
++++ b/grub-core/normal/menu.c
+@@ -721,6 +721,7 @@
+       int boot_entry;
+       grub_menu_entry_t e;
+       int auto_boot;
++      int initial_timeout = grub_menu_get_timeout ();
+ 
+       boot_entry = run_menu (menu, nested, &auto_boot);
+       if (boot_entry < 0)
+@@ -730,7 +731,9 @@
+       if (! e)
+ 	continue; /* Menu is empty.  */
+ 
+-      grub_cls ();
++      /* Only clear the screen if we drew the menu in the first place.  */
++      if (initial_timeout != 0)
++	grub_cls ();
+ 
+       if (auto_boot)
+ 	grub_menu_execute_with_fallback (menu, e, autobooted,

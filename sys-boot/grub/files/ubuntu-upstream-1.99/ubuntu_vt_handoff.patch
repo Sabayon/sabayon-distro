@@ -1,0 +1,26 @@
+Description: Add vt.handoff=7 to non-recovery Linux entries
+ We do it this way rather than by changing GRUB_CMDLINE_LINUX_DEFAULT
+ directly because this saves users from having to resolve configuration file
+ conflicts, especially since this may not be the final version of the
+ parameter.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: not-needed
+Last-Update: 2010-12-15
+
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -64,6 +64,12 @@
+   fi
+ fi
+ 
++for word in $GRUB_CMDLINE_LINUX_DEFAULT; do
++  if [ "$word" = splash ]; then
++    GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT vt.handoff=7"
++  fi
++done
++
+ # add crashkernel option if we have the required tools
+ if [ -x "/usr/bin/makedumpfile" ] && [ -x "/sbin/kexec" ]; then
+     GRUB_CMDLINE_EXTRA="$GRUB_CMDLINE_EXTRA crashkernel=384M-2G:64M,2G-:128M"

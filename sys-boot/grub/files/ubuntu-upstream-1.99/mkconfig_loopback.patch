@@ -1,0 +1,83 @@
+Description: Handle filesystems loop-mounted on file images
+ Improve prepare_grub_to_access_device to emit appropriate commands for such
+ filesystems, and ignore them in Linux grub.d scripts.
+ .
+ This is needed for Ubuntu's Wubi installation method.
+ .
+ This patch isn't inherently Debian/Ubuntu-specific.  losetup and
+ /proc/mounts are Linux-specific, though, so we might need to refine this
+ before sending it upstream.  The changes to the Linux grub.d scripts might
+ be better handled by integrating 10_lupin properly instead.
+
+Index: b/util/grub-mkconfig_lib.in
+===================================================================
+--- a/util/grub-mkconfig_lib.in
++++ b/util/grub-mkconfig_lib.in
+@@ -105,6 +105,20 @@
+ {
+   device="$1"
+ 
++  loop_file=
++  case ${device} in
++    /dev/loop/*|/dev/loop[0-9])
++      loop_file=`losetup "${device}" | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
++      case $loop_file in
++        /dev/*) ;;
++        *)
++          loop_device="${device}"
++          device=`"${grub_probe}" --target=device "${loop_file}"`
++        ;;
++      esac
++    ;;
++  esac
++
+   if dmsetup status $device 2>/dev/null | grep -q 'crypt[[:space:]]$'; then
+     grub_warn \
+       "$device is a crypto device, which GRUB cannot read directly.  Some" \
+@@ -141,6 +155,14 @@
+   if fs_uuid="`"${grub_probe}" --device "${device}" --target=fs_uuid 2> /dev/null`" ; then
+     echo "search --no-floppy --fs-uuid --set=root ${fs_uuid}"
+   fi
++
++  if [ "x${loop_file}" != x ]; then
++    loop_mountpoint="$(awk '"'${loop_file}'" ~ "^"$2 && $2 != "/" { print $2 }' /proc/mounts | tail -n1)"
++    if [ "x${loop_mountpoint}" != x ]; then
++      echo "loopback loop0 ${loop_file#$loop_mountpoint}"
++      echo "set root=(loop0)"
++    fi
++  fi
+ }
+ 
+ grub_file_is_not_garbage ()
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -40,6 +40,11 @@
+ case ${GRUB_DEVICE} in
+   /dev/loop/*|/dev/loop[0-9])
+     GRUB_DEVICE=`losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
++    # We can't cope with devices loop-mounted from files here.
++    case ${GRUB_DEVICE} in
++      /dev/*) ;;
++      *) exit 0 ;;
++    esac
+   ;;
+ esac
+ 
+Index: b/util/grub.d/20_linux_xen.in
+===================================================================
+--- a/util/grub.d/20_linux_xen.in
++++ b/util/grub.d/20_linux_xen.in
+@@ -40,6 +40,11 @@
+ case ${GRUB_DEVICE} in
+   /dev/loop/*|/dev/loop[0-9])
+     GRUB_DEVICE=`losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
++    # We can't cope with devices loop-mounted from files here.
++    case ${GRUB_DEVICE} in
++      /dev/*) ;;
++      *) exit 0 ;;
++    esac
+   ;;
+ esac
+ 

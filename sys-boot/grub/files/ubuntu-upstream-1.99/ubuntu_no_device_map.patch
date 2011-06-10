@@ -7,7 +7,7 @@ Index: b/util/grub-install.in
 ===================================================================
 --- a/util/grub-install.in
 +++ b/util/grub-install.in
-@@ -311,14 +311,6 @@
+@@ -316,14 +316,6 @@
      exit 1
  fi
  
@@ -22,7 +22,7 @@ Index: b/util/grub-install.in
  if [ x"$platform" = xefi ]; then
      # Find the EFI System Partition.
      efidir=
-@@ -408,22 +400,14 @@
+@@ -413,22 +405,14 @@
      rm -f "$device_map"
  fi
  

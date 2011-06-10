@@ -1,0 +1,36 @@
+Description: Give up scanning partitions after ten consecutive open failures
+ Scanning all the way up to 10000 is excessive and can cause serious
+ performance problems in some configurations.
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/787461
+Forwarded: yes
+Applied-Upstream: http://bazaar.launchpad.net/~vcs-imports/grub/grub2-bzr/revision/3320
+Last-Update: 2011-05-27
+
+Index: b/grub-core/kern/emu/hostdisk.c
+===================================================================
+--- a/grub-core/kern/emu/hostdisk.c
++++ b/grub-core/kern/emu/hostdisk.c
+@@ -564,6 +564,7 @@
+   int i;
+   char real_dev[PATH_MAX];
+   struct linux_partition_cache *cache;
++  int missing = 0;
+ 
+   strcpy(real_dev, dev);
+ 
+@@ -602,7 +603,13 @@
+ 
+       fd = open (real_dev, O_RDONLY);
+       if (fd == -1)
+-	continue;
++	{
++	  if (missing++ < 10)
++	    continue;
++	  else
++	    return 0;
++	}
++      missing = 0;
+       close (fd);
+ 
+       start = find_partition_start (real_dev);

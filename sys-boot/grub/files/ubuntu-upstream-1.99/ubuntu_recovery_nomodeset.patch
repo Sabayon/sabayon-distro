@@ -1,0 +1,19 @@
+Description: Set nomodeset for recovery mode
+ https://launchpad.net/ubuntu/+spec/desktop-o-xorg-tools-and-processes
+Author: Colin Watson <cjwatson@ubuntu.com>
+Forwarded: no
+Last-Update: 2011-05-23
+
+Index: b/util/grub.d/10_linux.in
+===================================================================
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -232,7 +232,7 @@
+       quiet
+   if [ "x${GRUB_DISABLE_RECOVERY}" != "xtrue" ]; then
+     linux_entry "${OS}" "${version}" true \
+-	"single ${GRUB_CMDLINE_LINUX}"
++	"single nomodeset ${GRUB_CMDLINE_LINUX}"
+   fi
+ 
+   list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`

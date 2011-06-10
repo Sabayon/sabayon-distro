@@ -7,7 +7,7 @@ Index: b/grub-core/kern/emu/hostdisk.c
 ===================================================================
 --- a/grub-core/kern/emu/hostdisk.c
 +++ b/grub-core/kern/emu/hostdisk.c
-@@ -963,6 +963,18 @@
+@@ -1077,6 +1077,18 @@
  	  continue;
  	}
  
