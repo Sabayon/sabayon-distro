@@ -15,7 +15,7 @@ else
 	S=${WORKDIR}/${MY_P}
 fi
 
-inherit mount-boot eutils flag-o-matic toolchain-funcs ${LIVE_ECLASS}
+inherit mount-boot eutils flag-o-matic toolchain-funcs autotools ${LIVE_ECLASS}
 unset LIVE_ECLASS
 
 DESCRIPTION="GNU GRUB boot loader"
@@ -162,12 +162,9 @@ src_prepare() {
 	# but rather init_opts=single
 	epatch "${FILESDIR}"/${PN}-1.99-genkernel-initramfs-single.patch
 
-	# autogen.sh does more than just run autotools
-	if [[ ${PV} == "9999" ]] ; then
-		sed -i -e '/^autoreconf/ d' autogen.sh || die
-		(. ./autogen.sh) || die
-		eautoreconf
-	fi
+	sed -i -e '/^autoreconf/ d' autogen.sh || die
+	(. ./autogen.sh) || die
+	eautoreconf
 
 	# get enabled platforms
 	GRUB_ENABLED_PLATFORMS=""
