@@ -149,7 +149,11 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.99-vga-deprecated.patch
 	epatch "${FILESDIR}"/${PN}-1.99-wallpaper-settings-support.patch
 	epatch "${FILESDIR}"/${PN}-1.98-add-legacy-rootfs-detection.patch
-	epatch "${FILESDIR}"/ubuntu-upstream-1.99/ubuntu_no_device_map.patch
+	local upstream_patches="${FILESDIR}"/ubuntu-upstream-1.99
+
+	epatch "${upstream_patches}"/ubuntu_no_device_map.patch
+	epatch "${upstream_patches}"/disable_floppies.patch
+	epatch "${upstream_patches}"/ubuntu_lvm_raid_probe.patch
 	epatch_user
 	# Genkernel doesn't support "single" for rescue mode
 	# but rather init_opts=single
