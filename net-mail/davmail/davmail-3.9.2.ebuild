@@ -5,7 +5,7 @@
 EAPI=3
 inherit eutils
 
-MY_VER=1630
+MY_VER="1700"
 
 DESCRIPTION="POP/IMAP/SMTP/Caldav/Carddav/LDAP Exchange Gateway"
 HOMEPAGE="http://davmail.sourceforge.net/"
