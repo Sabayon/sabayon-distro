@@ -13,7 +13,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
 	x11-themes/equinox-themes
-	x11-themes/elementary-icon-theme[monochrome]"
+	x11-themes/elementary-icon-theme[monochrome,branding]"
 
 S="${WORKDIR}/${PN}"
 
