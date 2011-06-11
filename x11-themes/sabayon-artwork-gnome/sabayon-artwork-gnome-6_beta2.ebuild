@@ -9,9 +9,11 @@ HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
-RDEPEND=""
+RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
+	x11-themes/equinox-themes
+	x11-themes/elementary-icon-theme[monochrome]"
 
 S="${WORKDIR}/${PN}"
 
@@ -22,7 +24,6 @@ src_configure() {
 src_compile() {
 	einfo "Nothing to compile"
 }
-
 
 src_install() {
 	dodir /usr/share/themes
@@ -39,23 +40,9 @@ src_install() {
 	insinto /usr/share/themes
 	doins -r ./*
 
-	# Panel Image
-	cd ${S}/background
-	insinto /usr/share/backgrounds
-	doins *.png
-
 	# GDM theme
 	cd ${S}/gdm
 	insinto /usr/share/gdm/themes
 	doins -r ./*
-}
-
-pkg_postinst () {
-	gtk-update-icon-cache
-	einfo "Please report glitches to bugs.sabayon.org"
-}
-
-pkg_postrm () {
-	gtk-update-icon-cache
 }
 
