@@ -19,7 +19,7 @@ S=${WORKDIR}/${PN}
 
 src_install () {
 	insinto /usr/$(get_libdir)/libreoffice/program
-	doins *.png *.bmp sofficerc
+	doins *.png sofficerc
 }
 
 pkg_postinst () {
