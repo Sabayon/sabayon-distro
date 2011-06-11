@@ -148,7 +148,10 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.99-genkernel.patch #256335
 	epatch "${FILESDIR}"/${PN}-1.99-vga-deprecated.patch
 	epatch "${FILESDIR}"/${PN}-1.99-wallpaper-settings-support.patch
+	# This happens with md raid metadata 0.90. Due to limitations of the format
 	epatch "${FILESDIR}"/${PN}-1.99-workaround-raid-bios-bug.patch
+	# vga= not yet deprecated for us
+	epatch "${FILESDIR}"/${PN}-1.99-vga-deprecated-not-yet.patch
 	# Ubuntu and upstream patches
 	series_file="${FILESDIR}/ubuntu-upstream-1.99/series"
 	for p in `cat ${series_file}`; do
@@ -227,6 +230,10 @@ EOF
 	dodir /usr/share/grub
 	insinto /usr/share/grub
 	newins "${FILESDIR}/default-splash-6.png" default-splash.png
+
+	dodir /etc/env.d
+	echo 'CONFIG_PROTECT_MASK="/etc/grub.d"' > "${D}/etc/env.d/10grub2"
+
 }
 
 setup_boot_dir() {

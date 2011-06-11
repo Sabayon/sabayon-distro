@@ -1,0 +1,14 @@
+diff -Nurp grub-1.99.orig/grub-core/loader/i386/linux.c grub-1.99/grub-core/loader/i386/linux.c
+--- grub-1.99.orig/grub-core/loader/i386/linux.c	2011-06-11 10:49:46.975998646 +0200
++++ grub-1.99/grub-core/loader/i386/linux.c	2011-06-11 11:52:14.419996325 +0200
+@@ -821,10 +821,6 @@ grub_cmd_linux (grub_command_t cmd __att
+ 	    if (! buf)
+ 	      goto fail;
+ 
+-	    grub_printf ("%s is deprecated. "
+-			 "Use set gfxpayload=%s before "
+-			 "linux command instead.\n",
+-			 argv[i], buf);
+ 	    err = grub_env_set ("gfxpayload", buf);
+ 	    grub_free (buf);
+ 	    if (err)
