@@ -273,6 +273,10 @@ setup_boot_dir() {
 }
 
 pkg_postinst() {
+	if use multislot ; then
+		elog "You have installed grub2 with USE=multislot, so to coexist"
+		elog "with grub1, the grub2 install binary is named grub2-install."
+	fi
 	mount-boot_mount_boot_partition
 
 	setup_boot_dir "${ROOT}"boot/grub
