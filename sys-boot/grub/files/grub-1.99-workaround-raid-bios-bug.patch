@@ -1,0 +1,17 @@
+diff -Nurp grub-1.99.orig/grub-core/disk/raid.c grub-1.99/grub-core/disk/raid.c
+--- grub-1.99.orig/grub-core/disk/raid.c	2011-04-18 23:16:16.000000000 +0200
++++ grub-1.99/grub-core/disk/raid.c	2011-06-11 10:48:16.606998702 +0200
+@@ -562,13 +562,6 @@ insert_array (grub_disk_t disk, struct g
+ 			     "superfluous RAID member (%d found)",
+ 			     array->total_devs);
+ 
+-        if (array->members[new_array->index].device != NULL)
+-          /* We found multiple devices with the same number. Again,
+-             this shouldn't happen.  */
+-	  return grub_error (GRUB_ERR_BAD_DEVICE,
+-			     "found two disks with the index %d for RAID %s",
+-			     new_array->index, array->name);
+-
+         if (new_array->disk_size < array->disk_size)
+           array->disk_size = new_array->disk_size;
+         break;
