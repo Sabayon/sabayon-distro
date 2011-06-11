@@ -24,7 +24,7 @@ HOMEPAGE="http://www.gnu.org/software/grub/"
 LICENSE="GPL-3"
 use multislot && SLOT="2" || SLOT="0"
 [[ ${PV} != "9999" ]] && KEYWORDS="~amd64 ~x86 ~mips ~ppc ~ppc64"
-IUSE="custom-cflags debug device-mapper multislot nls static sdl truetype"
+IUSE="custom-cflags debug +device-mapper multislot nls static sdl +truetype"
 
 GRUB_PLATFORMS="coreboot efi-32 efi-64 emu ieee1275 multiboot pc qemu qemu-mips yeeloong"
 # everywhere:
