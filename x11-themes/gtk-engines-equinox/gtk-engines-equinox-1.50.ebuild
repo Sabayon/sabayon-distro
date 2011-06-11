@@ -6,24 +6,26 @@ EAPI=3
 
 MY_PN="equinox"
 ODTAG="121881"
-FILE="${ODTAG}-${MY_PN}-${PV}"
+MY_P="${MY_PN}-${PV}"
 
 DESCRIPTION="Sleek GTK Theme engine"
 HOMEPAGE="http://gnome-look.org/content/show.php?content=121881"
-SRC_URI="http://gnome-look.org/CONTENT/content-files/${FILE}.tar.gz"
+SRC_URI="http://gnome-look.org/CONTENT/content-files/${ODTAG}-${MY_P}.tar.gz"
 
-LICENSE="GPL"
+LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND=""
+DEPEND="x11-libs/gtk+:2"
 RDEPEND="${DEPEND}"
 
-S="${WORKDIR}/${MY_PN}-${PV}"
+S="${WORKDIR}/${MY_P}"
 
 src_configure () {
-	ls
-	pwd
 	econf --enable-animation
+}
+
+src_install () {
+	emake DESTDIR="${D}" install
 }
