@@ -26,7 +26,6 @@ DEPEND="kernel_linux? ( virtual/linux-sources )"
 RDEPEND="~x11-drivers/nvidia-userspace-${PV}
 	multilib? ( ~x11-drivers/nvidia-userspace-${PV}[multilib] )
 	x11-libs/libXvMC
-	kernel_linux? ( virtual/modutils )
 	acpi? ( sys-power/acpid )"
 PDEPEND=">=x11-libs/libvdpau-0.3-r1"
 
