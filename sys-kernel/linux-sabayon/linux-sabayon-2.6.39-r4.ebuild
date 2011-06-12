@@ -3,7 +3,6 @@
 
 ETYPE="sources"
 K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
-K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/hotfixes/2.6.39/cifs-silence-printk-when-establishing-first-session-on.patch"
 inherit sabayon-kernel
 
 KEYWORDS="~amd64 ~x86"
