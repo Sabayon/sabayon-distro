@@ -15,11 +15,6 @@ RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 
-src_prepare () {
-	sed -i 's#/usr/share/backgrounds/##' \
-			"${S}/lxdm/Sabayon/gtkrc" || die "Couldnt fix gtkrc"
-}
-
 src_install () {
 	cd "${S}"/lxdm
 	dodir /usr/share/lxdm/themes/Sabayon
