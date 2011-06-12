@@ -1,9 +1,0 @@
-disable_floppies.patch
-ubuntu_no_device_map.patch
-ubuntu_quiet_grub_loading.patch
-ubuntu_lvm_raid_probe.patch
-ubuntu_langpacks.patch
-ubuntu_vbe_autodetect.patch
-ubuntu_blacklist_1440x900x32.patch
-ubuntu_recovery_nomodeset.patch
-ubuntu_partition_performance.patch

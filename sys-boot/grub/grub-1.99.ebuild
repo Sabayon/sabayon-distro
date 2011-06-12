@@ -26,7 +26,7 @@ use multislot && SLOT="2" || SLOT="0"
 [[ ${PV} != "9999" ]] && KEYWORDS="~amd64 ~x86 ~mips ~ppc ~ppc64"
 IUSE="custom-cflags debug +device-mapper multislot nls static sdl +truetype"
 
-GRUB_PLATFORMS="coreboot efi-32 efi-64 emu ieee1275 multiboot pc qemu qemu-mips yeeloong"
+GRUB_PLATFORMS="coreboot efi-32 efi-64 emu ieee1275 multiboot pc yeeloong"
 # everywhere:
 #     emu
 # mips only:
@@ -152,18 +152,11 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.99-workaround-raid-bios-bug.patch
 	# vga= not yet deprecated for us
 	epatch "${FILESDIR}"/${PN}-1.99-vga-deprecated-not-yet.patch
-	# Ubuntu and upstream patches
-	series_file="${FILESDIR}/ubuntu-upstream-1.99/series"
-	for p in `cat ${series_file}`; do
-		if [ "${p}" = "series" ]; then
-			continue
-		fi
-		epatch "${FILESDIR}/ubuntu-upstream-1.99/${p}"
-	done
+	epatch "${FILESDIR}"/${PN}-1.99-disable-floppies.patch
 	epatch_user
 	# Genkernel doesn't support "single" for rescue mode
 	# but rather init_opts=single
-	epatch "${FILESDIR}"/${PN}-1.99-genkernel-initramfs-single.patch
+	epatch "${FILESDIR}"/${PN}-1.98-genkernel-initramfs-single.patch
 
 	sed -i -e '/^autoreconf/ d' autogen.sh || die
 	(. ./autogen.sh) || die
@@ -213,7 +206,7 @@ src_install() {
 	# can't be in docs array as we use defualt_src_install in different builddir
 	dodoc AUTHORS ChangeLog NEWS README THANKS TODO
 	insinto /etc/default
-	newins "${FILESDIR}"/grub2-default grub
+	newins "${FILESDIR}"/grub2-default-1.99 grub
 	cat <<-EOF >> "${D}"/lib*/grub/grub-mkconfig_lib
 	GRUB_DISTRIBUTOR="Sabayon"
 EOF
