@@ -1,0 +1,37 @@
+--- src/nfq.cc	2010-10-23 08:54:30.000000000 +0200
++++ src/nfq.cc.new	2011-06-08 12:03:09.866005819 +0200
+@@ -92,7 +92,7 @@
+ {
+ 	int err;
+ 	uint32_t id;
+-	char* data;
++	unsigned char* data;
+ 	nfqnl_msg_packet_hdr* ph;
+ 	range::range_set_t::iterator i;
+ 
+@@ -122,14 +122,14 @@
+ 	}
+ 	if (i != rset->end()) {
+ 		err = (rset->target_mark) ? 
+-			nfq_set_verdict_mark(qh, id, i->target, htonl(rset->target_mark), 0, NULL) : 
++			nfq_set_verdict2(qh, id, i->target, rset->target_mark, 0, NULL) : 
+ 			nfq_set_verdict(qh, id, i->target, 0, NULL);
+ 
+ 		if (log::loglevel & (LOG_MATCH | LOG_ALL))
+ 			print_pkt(" Match=" + i->name, i->target, nfa, ph);
+ 	} else {
+ 		err = (rset->policy_mark) ? 
+-			nfq_set_verdict_mark(qh, id, rset->policy, htonl(rset->policy_mark), 0, NULL) : 
++			nfq_set_verdict2(qh, id, rset->policy, rset->policy_mark, 0, NULL) : 
+ 			nfq_set_verdict(qh, id, rset->policy, 0, NULL);
+ 
+ 		if (log::loglevel & LOG_ALL)
+@@ -144,7 +144,7 @@
+ 		nfq_data* nfa, nfqnl_msg_packet_hdr* ph)
+ {
+ 	packet_msg pkt;
+-	char* data;
++	unsigned char* data;
+ 
+ 	if (nfq_get_timestamp(nfa, &pkt.tv)) 
+ 		gettimeofday(&pkt.tv, NULL);

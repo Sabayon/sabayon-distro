@@ -1,0 +1,19 @@
+--- a/ipblockUI/nbproject/build-impl.xml
++++ b/ipblockUI/nbproject/build-impl.xml
+@@ -157,7 +157,7 @@
+             <sequential>
+                 <javac debug="@{debug}" deprecation="${javac.deprecation}" destdir="@{destdir}" encoding="${source.encoding}" excludes="@{excludes}" includeantruntime="false" includes="@{includes}" source="${javac.source}" sourcepath="@{sourcepath}" srcdir="@{srcdir}" target="${javac.target}">
+                     <classpath>
+-                        <path path="@{classpath}"/>
++                        <path path="@{classpath}:."/>
+                     </classpath>
+                     <compilerarg line="${javac.compilerargs} ${javac.compilerargs.jaxws}"/>
+                     <customize/>
+@@ -305,6 +305,7 @@
+     </target>
+     <target name="-init-presetdef-jar">
+         <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">
++
+             <jar compress="${jar.compress}" jarfile="${dist.jar}">
+                 <j2seproject1:fileset dir="${build.classes.dir}"/>
+             </jar>

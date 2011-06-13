@@ -1,0 +1,13 @@
+--- a/ipblockUI/build.xml
++++ b/ipblockUI/build.xml
+@@ -68,8 +68,8 @@
+     -->
+ 	<target name="-post-jar">
+ 		<jar update="true" destfile="${dist.jar}">
+-			<zipfileset src="/home/lxuser/opt/netbeans/java2/modules/ext/appframework-1.0.3.jar"/>
+-			<zipfileset src="/home/lxuser/opt/netbeans/java2/modules/ext/swing-worker-1.1.jar"/>
++			<zipfileset src="appframework.jar"/>
++			<zipfileset src="swing-worker.jar"/>
+ 		</jar>
+ 	</target>
+ </project>
