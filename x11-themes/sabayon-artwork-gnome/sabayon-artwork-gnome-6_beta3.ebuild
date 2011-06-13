@@ -11,7 +11,7 @@ LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
-RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
+RDEPEND="~x11-themes/sabayon-artwork-core-6_beta2
 	x11-themes/equinox-themes
 	x11-themes/elementary-icon-theme[monochrome,branding]"
 
