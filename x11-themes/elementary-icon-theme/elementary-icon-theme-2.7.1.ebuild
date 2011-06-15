@@ -36,6 +36,11 @@ src_install() {
 			insinto /usr/share/icons/elementary-mono-dark
 			doins -r fdo-icons-sabayon/*
 		fi
+
+		# ugly fix, while Ian is ZzZ
+		for target in $(find "${D}"/usr/share/icons/*/panel/ -name start-here.svg); do
+			cp fdo-icons-sabayon/scalable/places/start-here.svg "${target}" || die
+		done
 	fi
 }
 
