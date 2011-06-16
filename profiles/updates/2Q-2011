@@ -241,3 +241,11 @@ slotmove kde-base/kde-l10n-uk 4.6 4
 slotmove kde-base/kde-l10n-wa 4.6 4
 slotmove kde-base/kde-l10n-zh_CN 4.6 4
 slotmove kde-base/kde-l10n-zh_TW 4.6 4
+slotmove kde-base/kdm 4.3 4
+slotmove kde-base/kdm 4.4 4
+slotmove kde-base/kdm 4.5 4
+slotmove kde-base/kdm 4.6 4
+slotmove kde-base/oxygen-icons 4.3 4
+slotmove kde-base/oxygen-icons 4.4 4
+slotmove kde-base/oxygen-icons 4.5 4
+slotmove kde-base/oxygen-icons 4.6 4
