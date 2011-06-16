@@ -34,6 +34,7 @@ LSELINUX_S="${WORKDIR}/libselinux-${LSELINUX_VER}"
 LICENSE="GPL-2 public-domain"
 SLOT="0"
 IUSE="+ipv6 +nfs ldap"
+RESTRICT="nomirror"
 
 AUDIT_DEPEND="dev-lang/swig"
 AUDIT_RDEPEND="ldap? ( net-nds/openldap )"
