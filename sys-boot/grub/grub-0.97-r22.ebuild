@@ -205,6 +205,11 @@ setup_boot_dir() {
 		[[ -e "${s}.bz2" ]] && bzcat "${s}.bz2" >${dir}/grub.conf
 	fi
 
+	splash_xpm_gz="${ROOT}/usr/share/grub/splash.xpm.gz"
+	boot_splash_xpm_gz="${dir}/splash.xpm.gz"
+	[[ -e "${splash_xpm_gz}" ]] && [[ ! -e "${boot_splash_xpm_gz}" ]] && \
+		cp "${splash_xpm_gz}" "${boot_splash_xpm_gz}"
+
 	einfo "Grub has been installed to ${boot_dir} successfully."
 }
 
