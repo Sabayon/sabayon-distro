@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>no-herd</herd>
+	<maintainer>
+		<email>wojciech.dzierzanowski@gmail.com</email>
+		<name>Wojciech Dzierżanowski</name>
+	</maintainer>
+	<use>
+		<flag name="lensfun">Enable the lensfun lens-correction library</flag>
+		<flag name="watermark">Build the watermark plugin</flag>
+	</use>
+</pkgmetadata>
