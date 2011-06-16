@@ -13,13 +13,15 @@ SRC_URI="http://downloads.sourceforge.net/project/darktable/darktable/0.8/${P}.t
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+lensfun openmp gnome-keyring static-libs nls watermark doc"
+IUSE="+lensfun openmp opencl gnome-keyring static-libs nls watermark doc"
 
 RDEPEND="dev-db/sqlite:3
 	doc? ( dev-java/fop )
 	dev-libs/dbus-glib
 	gnome-base/gconf
-	gnome-keyring? ( gnome-base/gnome-keyring )
+	gnome-keyring? ( gnome-base/libgnome-keyring )
+	gnome-base/librsvg:2
+	gnome-base/libglade:2.0
 	media-gfx/exiv2
 	virtual/jpeg
 	>=media-libs/libgphoto2-2.4.5
@@ -28,12 +30,20 @@ RDEPEND="dev-db/sqlite:3
 	media-libs/libpng
 	media-libs/openexr
 	media-libs/tiff
+	opencl? ( x11-drivers/nvidia-userspace )
 	net-misc/curl
 	x11-libs/cairo
 	x11-libs/gtk+:2"
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	openmp? ( >=sys-devel/gcc-4.4[openmp] )"
+
+src_prepare() {
+	sed -i -e "s/-Werror//" src/CMakeLists.txt || die "Failed to remove -Werror"
+	if ! use "opencl"; then
+		sed -i -e "s/find_package(OpenCL)//" src/CMakeLists.txt || die "Failed to disable opencl support"
+	fi
+}
 
 src_unpack() {
 	unpack ${A}
