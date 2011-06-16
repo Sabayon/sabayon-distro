@@ -12,7 +12,7 @@ SRC_URI="http://downloads.sourceforge.net/project/darktable/darktable/0.8/${P}.t
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE="+lensfun openmp gnome-keyring static-libs nls watermark doc"
 
 RDEPEND="dev-db/sqlite:3
