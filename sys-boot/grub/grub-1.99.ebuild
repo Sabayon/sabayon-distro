@@ -216,10 +216,7 @@ EOF
 	doexe "${FILESDIR}/00_fonts"
 	doexe "${FILESDIR}/05_distro_theme"
 
-	dodir /boot/grub
-	insinto /boot/grub
-	newins "${FILESDIR}/default-splash-6.png" default-splash.png
-	# keep backward compat
+	# cannot install directly to /boot/grub
 	dodir /usr/share/grub
 	insinto /usr/share/grub
 	newins "${FILESDIR}/default-splash-6.png" default-splash.png
@@ -260,6 +257,11 @@ setup_boot_dir() {
 		grub-mkconfig -o "${dir}/grub.cfg" || \
 			ewarn "Running grub-mkconfig failed! Check your configuration files!"
 	fi
+
+	# install Sabayon splash here, cannot touch boot/grub inside
+	# src_install
+	cp "${ROOT}/usr/share/grub/default-splash.png" "${dir}/default-splash.png" || \
+		ewarn "cannot install default splash file!"
 
 	elog "Remember to run \"grub-mkconfig -o '${dir}/grub.cfg'\" every time"
 	elog "you update the configuration files."
