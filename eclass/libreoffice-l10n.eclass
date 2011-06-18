@@ -29,7 +29,9 @@ if [[ "${PV}" = "3.3.1" ]]; then
 elif [[ "${PV}" = "3.3.2" ]]; then
 	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz
 		http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
-
+elif [[ "${PV}" = "3.3.3" ]]; then
+	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz
+		http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 else
 	die "unsupported libreoffice-l10n ${PV}"
 fi
