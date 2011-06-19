@@ -1,0 +1,100 @@
+From 485b75728884a052b74d5458199ad45f0acbf190 Mon Sep 17 00:00:00 2001
+From: Timothy Jones <one.timothy.jones@gmail.com>
+Date: Mon, 28 Jun 2010 10:38:18 -0400
+Subject: [PATCH v2] Guest OS hangs on usb_add
+
+This is a small patch to sligtly "intelligentify" usb device and
+config descriptor parsing and to handle bug with certain usb
+device (URC MX-950) reporting device desriptor length as 0x18
+instead of 18 with added vendor_id/product_id check
+---
+ hw/usb.h    |    5 +++++
+ usb-linux.c |   37 ++++++++++++++++++++++---------------
+ 2 files changed, 27 insertions(+), 15 deletions(-)
+
+diff --git a/hw/usb.h b/hw/usb.h
+index 00d2802..5c3528f 100644
+--- a/hw/usb.h
++++ b/hw/usb.h
+@@ -117,6 +117,11 @@
+ #define USB_DT_INTERFACE		0x04
+ #define USB_DT_ENDPOINT			0x05
+ 
++#define USB_DT_DEVICE_LEN		18
++#define USB_DT_CONFIG_LEN		9
++#define USB_DT_INTERFACE_LEN		9
++#define USB_DT_ENDPOINT_LEN		7
++
+ #define USB_ENDPOINT_XFER_CONTROL	0
+ #define USB_ENDPOINT_XFER_ISOC		1
+ #define USB_ENDPOINT_XFER_BULK		2
+diff --git a/usb-linux.c b/usb-linux.c
+index 88273ff..2ac6562 100644
+--- a/usb-linux.c
++++ b/usb-linux.c
+@@ -288,7 +288,7 @@ static void async_cancel(USBPacket *unused, void *opaque)
+ 
+ static int usb_host_claim_interfaces(USBHostDevice *dev, int configuration)
+ {
+-    int dev_descr_len, config_descr_len;
++    int dev_descr_len, config_descr_total_len;
+     int interface, nb_interfaces;
+     int ret, i;
+ 
+@@ -297,32 +297,39 @@ static int usb_host_claim_interfaces(USBHostDevice *dev, int configuration)
+ 
+     DPRINTF("husb: claiming interfaces. config %d\n", configuration);
+ 
+-    i = 0;
+     dev_descr_len = dev->descr[0];
+-    if (dev_descr_len > dev->descr_len) {
++    if (dev_descr_len == 0x18 && dev->descr[ 8] == 0x47 && dev->descr[ 9] == 0x46
++                              && dev->descr[10] == 0x00 && dev->descr[11] == 0x30)
++        dev_descr_len = USB_DT_DEVICE_LEN; /* for buggy MX-950 remote reporting len in hex */
++
++    if (dev_descr_len > dev->descr_len || dev_descr_len < USB_DT_DEVICE_LEN || dev->descr[1] != USB_DT_DEVICE) {
++        fprintf(stderr, "husb: invalid device descriptor\n");
+         goto fail;
+     }
+ 
+-    i += dev_descr_len;
+-    while (i < dev->descr_len) {
++    for (i = dev_descr_len; i < dev->descr_len; ) {
+         DPRINTF("husb: i is %d, descr_len is %d, dl %d, dt %d\n",
+                 i, dev->descr_len,
+                dev->descr[i], dev->descr[i+1]);
+ 
+-        if (dev->descr[i+1] != USB_DT_CONFIG) {
+-            i += dev->descr[i];
+-            continue;
++        if (dev->descr[i] < 2) {
++            fprintf(stderr, "husb: invalid descriptor\n");
++            goto fail;
+         }
+-        config_descr_len = dev->descr[i];
++        if (dev->descr[i+1] == USB_DT_CONFIG) {
++            config_descr_total_len = dev->descr[i+2] + (dev->descr[i+3] << 8);
+ 
+-        printf("husb: config #%d need %d\n", dev->descr[i + 5], configuration);
++            printf("husb: config #%d need %d\n", dev->descr[i + 5], configuration);
+ 
+-        if (configuration < 0 || configuration == dev->descr[i + 5]) {
+-            configuration = dev->descr[i + 5];
+-            break;
+-        }
++            if (configuration < 0 || configuration == dev->descr[i + 5]) {
++                configuration = dev->descr[i + 5];
++                break;
++            }
+ 
+-        i += config_descr_len;
++            i += config_descr_total_len;
++        }
++        else
++            i += dev->descr[i];
+     }
+ 
+     if (i >= dev->descr_len) {
+-- 
+1.7.1
+
