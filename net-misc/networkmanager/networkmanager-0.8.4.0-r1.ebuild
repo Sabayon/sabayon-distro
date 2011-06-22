@@ -64,6 +64,10 @@ sysfs_deprecated_check() {
 }
 
 pkg_setup() {
+	# FIXME. Required by -confchanges.patch, but the patch is invalid as
+	# ConsoleKit and PolicyKit is enough to get authorization.
+	enewgroup plugdev
+
 	if use kernel_linux; then
 		get_version
 		if linux_config_exists; then
@@ -83,6 +87,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	epatch "${FILESDIR}/${PN}-0.8.2-confchanges.patch"
 	# backported ifnet patches
 	epatch "${FILESDIR}/${P}-shared-connection.patch"
 	epatch "${FILESDIR}/${P}-fix-tests.patch"
