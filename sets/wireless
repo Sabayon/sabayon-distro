@@ -30,5 +30,6 @@ net-wireless/zd1201-firmware
 net-wireless/zd1211-firmware
 net-wireless/rtl8192se-firmware
 net-wireless/rtl8192su-firmware
+net-wireless/rtl8192se
 net-wireless/wireless-tools
 sys-apps/usb_modeswitch
