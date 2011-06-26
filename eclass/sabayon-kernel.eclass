@@ -77,6 +77,11 @@ K_FIRMWARE_PACKAGE="${K_FIRMWARE_PACKAGE:-}"
 # if your ebuild is one of them, set this to "1"
 K_ONLY_SOURCES="${K_ONLY_SOURCES:-}"
 
+# @ECLASS-VARIABLE: K_REQUIRED_LINUX_FIRMWARE_VER
+# @DESCRIPTION:
+# Minimum required version of sys-kernel/linux-formware package, if any
+K_REQUIRED_LINUX_FIRMWARE_VER="${K_REQUIRED_LINUX_FIRMWARE_VER:-}"
+
 # @ECLASS-VARIABLE: K_WORKAROUND_SOURCES_COLLISION
 # @DESCRIPTION:
 # For kernel binary packages, Workaround file collisions with kernel
@@ -206,7 +211,10 @@ else
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
 	RDEPEND="grub? ( || ( >=sys-boot/grub-1.98 ( <sys-boot/grub-1 sys-boot/grub-handler ) ) )
 		sys-apps/sed
-		>=sys-kernel/linux-firmwares-${PV}"
+		sys-kernel/linux-firmware"
+	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
+		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
+	fi
 fi
 
 # internal function
