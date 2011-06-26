@@ -51,29 +51,19 @@ src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" install || die "make install failed"
 }
 
-pkg_preinst() {
-	# backup user repositories.conf
-	if [ -f "${REPO_CONFPATH}" ]; then
-		cp -p "${REPO_CONFPATH}" "${REPO_CONFPATH}.backup"
-	fi
-}
-
 pkg_postinst() {
 
 	# make sure than old entropy pyc files don't interfere (this is a workaround)
 	find /usr/$(get_libdir)/entropy -name "*.pyc" | xargs rm &> /dev/null
 
 	# Copy config file over
-	if [ -f "${REPO_CONFPATH}.backup" ]; then
-		cp ${REPO_CONFPATH}.backup ${REPO_CONFPATH} -p
-	else
-		if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
-			cp ${REPO_CONFPATH}.example ${REPO_CONFPATH} -p
-		fi
+	if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
+		einfo "Copying ${REPO_CONFPATH}.example over to ${REPO_CONFPATH}"
+		cp "${REPO_CONFPATH}.example" "${REPO_CONFPATH}" -p
 	fi
 	if [ -d "${ENTROPY_CACHEDIR}" ]; then
 		einfo "Purging current Entropy cache"
-		rm -rf ${ENTROPY_CACHEDIR}/*
+		rm -rf "${ENTROPY_CACHEDIR}"/*
 	fi
 
 	python_mod_optimize "/usr/$(get_libdir)/entropy/libraries/entropy"
