@@ -3,7 +3,6 @@ x11-apps/setxkbmap
 x11-apps/xdm
 x11-apps/xhost
 x11-base/xorg-server
-x11-drivers/radeon-ucode
 x11-drivers/xf86-input-acecad
 x11-drivers/xf86-input-aiptek
 x11-drivers/xf86-input-evdev
