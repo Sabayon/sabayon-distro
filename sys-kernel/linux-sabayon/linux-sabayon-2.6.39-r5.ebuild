@@ -3,6 +3,7 @@
 
 ETYPE="sources"
 K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
+K_REQUIRED_LINUX_FIRMWARE_VER="20110604"
 inherit sabayon-kernel
 
 KEYWORDS="~amd64 ~x86"
