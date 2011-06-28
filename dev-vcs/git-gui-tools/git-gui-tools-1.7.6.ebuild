@@ -45,6 +45,7 @@ RDEPEND="${CDEPEND}
 	~dev-vcs/git-${PV}
 	dev-vcs/git[-gtk]
 	dev-vcs/git[-tk]
+	dev-vcs/git[python]
 	>=dev-python/pygtk-2.8
 	|| ( dev-python/pygtksourceview:2  dev-python/gtksourceview-python )"
 
