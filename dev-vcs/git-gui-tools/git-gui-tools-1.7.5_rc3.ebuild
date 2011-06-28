@@ -42,6 +42,7 @@ CDEPEND="
 	dev-lang/tk"
 
 RDEPEND="${CDEPEND}
+	~dev-vcs/git-${PV}
 	dev-vcs/git[-gtk]
 	dev-vcs/git[-tk]
 	>=dev-python/pygtk-2.8
