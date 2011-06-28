@@ -198,10 +198,6 @@ src_install() {
 		rmdir "${libdir}" || die
 	fi
 
-	dodir /usr/share/git/contrib
-	cp -rf "${S}"/contrib/svn-fe "${ED}"/usr/share/git/contrib \
-		|| die "Failed contrib svn-fe"
-
 	doman man*/*svn* || die
 	if use doc; then
 		docinto /
