@@ -30,7 +30,6 @@ COMMON="x11-base/xorg-server
 DEPEND="${COMMON}
 	kernel_linux? ( virtual/linux-sources )"
 RDEPEND="${COMMON}
-	kernel_linux? ( virtual/modutils )
         !<x11-drivers/nvidia-userspace-${PV}
         !>x11-drivers/nvidia-userspace-${PV}"
 PDEPEND="~x11-drivers/nvidia-drivers-${PV}"
