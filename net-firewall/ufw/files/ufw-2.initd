@@ -5,6 +5,7 @@
 
 depend() {
 	before net
+	provide firewall
 }
 
 start() {
