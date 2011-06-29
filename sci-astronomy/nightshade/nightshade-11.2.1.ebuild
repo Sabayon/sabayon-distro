@@ -15,17 +15,17 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="
+	>=dev-libs/boost-1.42
 	media-gfx/graphicsmagick
 	media-libs/libpng
+	>=media-libs/libsdl-1.2.10
 	media-libs/sdl-mixer
 	media-libs/sdl-pango
-	>=media-libs/libsdl-1.2.10
 	virtual/glu
 	virtual/opengl
 "
 DEPEND="${RDEPEND}
 	dev-db/fastdb
-	>=dev-libs/boost-1.42
 "
 
 src_prepare() {
