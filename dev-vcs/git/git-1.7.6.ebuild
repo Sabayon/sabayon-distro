@@ -312,6 +312,9 @@ src_install() {
 
 	# Depending on the tarball and manual rebuild of the documentation, the
 	# manpages may exist in either OR both of these directories.
+	if ! use cvs; then
+		find man? -name "*git*cvs*" | xargs rm
+	fi
 	find man?/*.[157] >/dev/null 2>&1 && doman man?/*.[157]
 	find Documentation/*.[157] >/dev/null 2>&1 && doman Documentation/*.[157]
 
@@ -407,8 +410,7 @@ src_install() {
 	# burn CVS with fire, see #373439
 	if ! use cvs; then
 		rm -rf "${ED}"/usr/bin/git-cvsserver \
-			"${ED}"/usr/libexec/git-core/git-cvs* \
-			"${ED}"/usr/share/man/man*/git*cvs*.bz2 || die
+			"${ED}"/usr/libexec/git-core/git-cvs* || die
 	fi
 }
 
