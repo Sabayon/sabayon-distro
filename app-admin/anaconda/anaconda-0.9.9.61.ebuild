@@ -16,7 +16,7 @@ AUDIT_SRC_URI="http://people.redhat.com/sgrubb/audit/audit-${AUDIT_VER}.tar.gz"
 
 SEPOL_VER="2.0"
 LSELINUX_VER="2.0.85"
-LSELINUX_SRC_URI="http://userspace.selinuxproject.org/releases/current/devel/libselinux-${LSELINUX_VER}.tar.gz"
+LSELINUX_SRC_URI="mirror://sabayon/app-admin/libselinux-${LSELINUX_VER}.tar.gz"
 
 DESCRIPTION="Sabayon Redhat Anaconda Installer Port"
 HOMEPAGE="http://gitweb.sabayon.org/?p=anaconda.git;a=summary"
