@@ -394,13 +394,6 @@ src_install() {
 			"${ED}"/usr/share/man/man1/git-svn.1*
 	fi
 
-	# burn CVS with fire, see #373439
-	if ! use cvs; then
-		rm -f "${ED}"/usr/bin/git-cvsserver \
-			"${ED}"/usr/libexec/git-core/git-cvs* \
-			"${ED}"/usr/share/man/man*/git*cvs*.bz2
-	fi
-
 	if use xinetd ; then
 		insinto /etc/xinetd.d
 		newins "${FILESDIR}"/git-daemon.xinetd git-daemon
@@ -410,6 +403,13 @@ src_install() {
 	newconfd "${FILESDIR}"/git-daemon.confd git-daemon
 
 	fixlocalpod
+
+	# burn CVS with fire, see #373439
+	if ! use cvs; then
+		rm -rf "${ED}"/usr/bin/git-cvsserver \
+			"${ED}"/usr/libexec/git-core/git-cvs* \
+			"${ED}"/usr/share/man/man*/git*cvs*.bz2 || die
+	fi
 }
 
 src_test() {
