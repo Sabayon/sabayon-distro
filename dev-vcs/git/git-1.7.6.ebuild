@@ -398,7 +398,7 @@ src_install() {
 	if ! use cvs; then
 		rm -f "${ED}"/usr/bin/git-cvsserver \
 			"${ED}"/usr/libexec/git-core/git-cvs* \
-			"${ED}"/usr/share/man*/*/git*cvs*.bz2
+			"${ED}"/usr/share/man/man*/git*cvs*.bz2
 	fi
 
 	if use xinetd ; then
