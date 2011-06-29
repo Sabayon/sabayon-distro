@@ -1,4 +1,0 @@
-# Fabio Erculiani <lxnay@sabayon.org>
-- apply a patch to 2.6.4 (2.6.5 has it already) to snooze bogus
-  "exception on exit" warnings coming from threads during interpreter
-  shutdown
