@@ -35,8 +35,6 @@ DEPEND="
 RDEPEND="${DEPEND}
 	>=sys-apps/shadow-4.1.4.2-r3"
 
-PROVIDE="virtual/jabber-server"
-
 S=${WORKDIR}/${MY_P}/src
 
 # paths in net-im/jabber-base
