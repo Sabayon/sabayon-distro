@@ -1,0 +1,10 @@
+--- a/browser/installer/package-manifest.in	2011-03-24 23:01:23.543000001 -0500
++++ b/browser/installer/package-manifest.in	2011-03-24 23:02:01.927000001 -0500
+@@ -444,6 +444,7 @@
+ 
+ ; [Default Preferences]
+ ; All the pref files must be part of base to prevent migration bugs
++@BINPATH@/@PREF_DIR@/all-gentoo.js
+ @BINPATH@/@PREF_DIR@/firefox.js
+ @BINPATH@/@PREF_DIR@/firefox-branding.js
+ @BINPATH@/@PREF_DIR@/channel-prefs.js
