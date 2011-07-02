@@ -6,7 +6,7 @@ EAPI="3"
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python virtualx
+inherit flag-o-matic toolchain-funcs eutils gnome2-utils mozcoreconf-2 mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python virtualx
 
 MAJ_XUL_PV="5.0"
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
