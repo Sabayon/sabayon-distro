@@ -4,8 +4,8 @@
   <web-browsers>
     <web-browser>
       <name>Chromium</name>
-      <executable>chromium</executable>
-      <command>chromium %s</command>
+      <executable>chromium-browser</executable>
+      <command>chromium-browser %s</command>
       <icon-name>chromium-browser</icon-name>
       <run-in-terminal>false</run-in-terminal>
     </web-browser>
