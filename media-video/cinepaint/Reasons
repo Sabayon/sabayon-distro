@@ -1,4 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-:: fix compilation with glibc 2.10
-:: fix another misc coding error
-:: fix LDFLAGS support (stripping --as-needed)
