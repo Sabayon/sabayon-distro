@@ -14,26 +14,28 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-IUSE="nls"
+IUSE="nls debug"
 
 RDEPEND="sys-libs/pam
 	sys-auth/consolekit
 	x11-libs/gtk+:2
-	x11-themes/sabayon-artwork-lxde
+	>=x11-themes/sabayon-artwork-lxde-6_beta2
 	nls? ( sys-devel/gettext )"
 DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
 	dev-util/pkgconfig"
 
 src_configure() {
-	econf --with-x $(use_enable nls) || die "econf failed"
+	econf --with-x $(use_enable nls) $(use_enable debug) || die "econf failed"
 }
 
 src_prepare() {
 	# There is consolekit
 	epatch "${FILESDIR}/${P}-pam_console-disable.patch"
 	# Sabayon specific theme patch
-	epatch "${FILESDIR}/${P}-sabayon-theme.patch"
+	epatch "${FILESDIR}/${P}-sabayon-6-theme.patch"
+
+	epatch "${FILESDIR}"/${P}-properly-load-session-settings-using-dmrc-entry-as-pointer-for-xsessions-dir-file.patch
 
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
