@@ -18,27 +18,20 @@ IUSE="gutenprint"
 
 S=${WORKDIR}/${PN}-${MY_PV}
 
-RDEPEND=">=x11-libs/gtk+-2.0
+RDEPEND="x11-libs/gtk+:2
 	>=media-libs/libpng-1.2
-	gutenprint? ( >=net-print/gutenprint-5.0.0 )
+	gutenprint? ( net-print/gutenprint )
 	media-libs/openexr
-	>=media-libs/lcms-1.16
+	media-libs/lcms
 	media-libs/tiff
 	virtual/jpeg
-	x11-libs/fltk:1
+	x11-libs/fltk:1[opengl]
 	x11-libs/libXmu
 	x11-libs/libXinerama
 	x11-libs/libXpm"
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	x11-proto/xineramaproto"
-
-pkg_setup() {
-	if ! built_with_use x11-libs/fltk opengl ; then
-		eerror "${PN} requires x11-libs/fltk to be built with opengl"
-		die "Please install x11-libs/fltk with opengl useflag enabled"
-	fi
-}
 
 src_prepare() {
 	epatch "${FILESDIR}/${P}-gcc43.patch"
