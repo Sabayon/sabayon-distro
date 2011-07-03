@@ -4,7 +4,7 @@
 
 EAPI=2
 
-inherit base eutils autotools multilib
+inherit base eutils libtool multilib
 
 DESCRIPTION="Qt4 bindings for poppler"
 SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz"
@@ -25,7 +25,7 @@ DEPEND="${COMMON_DEPEND}
 
 src_prepare() {
 	base_src_prepare
-	eautoreconf
+	elibtoolize
 }
 
 src_configure() {

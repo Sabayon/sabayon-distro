@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit base eutils autotools
+inherit base eutils libtool
 
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="http://poppler.freedesktop.org/"
@@ -40,7 +40,7 @@ DOCS="AUTHORS ChangeLog NEWS README README-XPDF TODO"
 
 src_prepare() {
 	base_src_prepare
-	eautoreconf
+	elibtoolize
 }
 
 src_configure() {
