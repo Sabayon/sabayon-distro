@@ -142,6 +142,9 @@ src_install() {
 	local libdir="lib"
 	[[ ${SYMLINK_LIB} == "yes" ]] && libdir=$(get_abi_LIBDIR "${DEFAULT_ABI}")
 
+	# Setup /run directory, this is missing from original baselayout
+	dodir /run
+
 	emake \
 		OS=$(use kernel_FreeBSD && echo BSD || echo Linux) \
 		LIB=${libdir} \
