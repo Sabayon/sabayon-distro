@@ -1,0 +1,23 @@
+#!/sbin/runscript
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/sys-boot/plymouth/files/plymouth.initd,v 1.1 2011/02/21 21:08:17 aidecoe Exp $
+
+depend() {
+	before xdm
+}
+
+start() {
+	ebegin "Hiding plymouth splash"
+	if pgrep plymouthd >/dev/null; then
+		/bin/plymouth --quit
+		chvt 7
+        fi
+	eend $?
+}
+
+stop() {
+	ebegin "Showing plymouth splash"
+	/sbin/plymouthd && /bin/plymouth --show-splash
+	eend $?
+}
