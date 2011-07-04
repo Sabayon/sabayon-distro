@@ -28,4 +28,10 @@ src_install() {
 	cd "${S}"/avahi-ui || die
 	emake -j1 install py_compile=true DESTDIR="${D}" || die
 	avahi_src_install-cleanup
+
+	# Workaround for avahi-ui.h collision between avahi-gtk and avahi-gtk3
+	root_avahi_ui="${ROOT}usr/include/avahi-ui/avahi-ui.h"
+	if [ -e "${root_avahi_ui}" ]; then
+		rm -f "${ED}usr/include/avahi-ui/avahi-ui.h"
+	fi
 }
