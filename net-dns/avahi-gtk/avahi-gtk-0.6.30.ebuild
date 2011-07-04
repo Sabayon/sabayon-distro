@@ -12,7 +12,7 @@ AVAHI_MODULE_DEPEND="${COMMON_DEPEND}"
 AVAHI_MODULE_RDEPEND="${COMMON_DEPEND}"
 
 AVAHI_PATCHES=( "${FILESDIR}/avahi-0.6.28-optional-gtk-utils.patch" )
-inherit eutils avahi
+inherit eutils python avahi
 
 src_configure() {
 	local myconf=" --enable-gtk
