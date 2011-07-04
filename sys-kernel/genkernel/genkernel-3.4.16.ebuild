@@ -5,7 +5,7 @@
 # genkernel-9999        -> latest Git branch "master"
 # genkernel-VERSION     -> normal genkernel release
 
-VERSION_BUSYBOX='1.18.1'
+VERSION_BUSYBOX='1.18.5'
 VERSION_DMAP='1.02.22'
 VERSION_DMRAID='1.0.0.rc14'
 VERSION_MDADM='3.1.4'
