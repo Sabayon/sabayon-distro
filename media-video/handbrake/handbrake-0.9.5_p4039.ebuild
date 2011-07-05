@@ -40,7 +40,6 @@ RDEPEND="sys-libs/zlib
 	css? ( media-libs/libdvdcss )
 	gtk? (	x11-libs/gtk+:2
 			dev-libs/dbus-glib
-			sys-apps/hal
 			net-libs/webkit-gtk
 			x11-libs/libnotify
 			media-libs/gstreamer
