@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=3
-PYTHON_DEPEND="2:2.7"
+PYTHON_DEPEND="2:2.6"
 inherit distutils
 
 DESCRIPTION="Provides graphical frontend to ufw"
