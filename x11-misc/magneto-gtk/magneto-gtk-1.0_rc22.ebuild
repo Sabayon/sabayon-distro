@@ -1,7 +1,8 @@
 # Copyright 2004-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="2"
+EAPI="3"
+PYTHON_DEPEND="2"
 inherit eutils python multilib
 
 DESCRIPTION="Official Sabayon Linux Entropy Notification Applet (GTK version)"

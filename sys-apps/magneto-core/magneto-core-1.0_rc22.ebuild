@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="2"
+PYTHON_DEPEND="2"
 inherit eutils python multilib
 
 DESCRIPTION="Official Sabayon Linux Entropy Notification Applet Core library"
