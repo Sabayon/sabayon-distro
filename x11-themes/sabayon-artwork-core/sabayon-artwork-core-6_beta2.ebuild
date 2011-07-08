@@ -34,6 +34,7 @@ src_install() {
 	cd ${S}/background
 	insinto /usr/share/backgrounds
 	doins *.png *.jpg
+	newins sabayonlinux.png sabayonlinux-nvidia.png
 }
 
 pkg_postinst() {
