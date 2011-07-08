@@ -1,6 +1,9 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI="3"
+PYTHON_DEPEND="2"
+
 inherit distutils
 
 MY_P="${P/rb_/}" MY_P="${MY_P/-python/}"
