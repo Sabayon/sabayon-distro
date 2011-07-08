@@ -12,8 +12,7 @@ SRC_URI="mirror://sourceforge/cinepaint/${PN}-${MY_PV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-# KEYWORDS="~amd64 ~x86"
-KEYWORDS="~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="gutenprint"
 
 S=${WORKDIR}/${PN}-${MY_PV}
@@ -67,7 +66,9 @@ src_configure(){
 src_install(){
 	emake DESTDIR="${D}" install || die "emake install failed"
 	dodoc AUTHORS ChangeLog README NEWS
-	rm "${ED}"usr/lib/pkgconfig/cinepaint-gtk.pc \
+	# /usr/share/aclocal/cinepaint.m4:8: warning: underquoted definition of
+	# AM_PATH_CINEPAINT
+	rm "${ED}"usr/share/aclocal/cinepaint.m4 \
 		|| die "rm for a .pc file failed"
 	# workaround... https://bugs.launchpad.net/getdeb.net/+bug/489737
 	einfo "removing localization files (workaround)..."
