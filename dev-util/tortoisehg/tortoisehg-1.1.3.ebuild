@@ -2,9 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit distutils
+EAPI="3"
+PYTHON_DEPEND="2"
 
-EAPI="2"
+inherit distutils
 
 DESCRIPTION="Mercurial GUI command line tool hgtk"
 HOMEPAGE="http://bitbucket.org/${PN}/stable/wiki/Home"
