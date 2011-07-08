@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-server/xorg-server-1.10.2.ebuild,v 1.1 2011/05/29 08:19:28 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-server/xorg-server-1.10.2.ebuild,v 1.6 2011/06/28 21:22:26 ranger Exp $
 
 EAPI=4
 
@@ -9,9 +9,9 @@ inherit xorg-2 multilib versionator
 EGIT_REPO_URI="git://anongit.freedesktop.org/git/xorg/xserver"
 
 DESCRIPTION="X.Org X servers"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~mips ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
 
-IUSE_SERVERS="dmx kdrive xorg"
+IUSE_SERVERS="dmx kdrive xnest xorg xvfb"
 IUSE="${IUSE_SERVERS} ipv6 minimal nptl tslib +udev"
 
 RDEPEND=">=app-admin/eselect-opengl-1.0.8
@@ -55,6 +55,8 @@ RDEPEND=">=app-admin/eselect-opengl-1.0.8
 	udev? ( >=sys-fs/udev-150 )
 	>=x11-apps/xinit-1.3"
 
+# dmx+doc DEPEND is a hack, a proper solution needs to be implemented in the
+# xorg-2.eclass for next release
 DEPEND="${RDEPEND}
 	sys-devel/flex
 	>=x11-proto/bigreqsproto-1.1.0
@@ -79,7 +81,16 @@ DEPEND="${RDEPEND}
 	>=x11-proto/xf86vidmodeproto-2.2.99.1
 	>=x11-proto/xineramaproto-1.1.3
 	>=x11-proto/xproto-7.0.17
-	dmx? ( >=x11-proto/dmxproto-2.2.99.1 )
+	dmx? (
+		>=x11-proto/dmxproto-2.2.99.1
+		doc? (
+			|| (
+				www-client/links
+				www-client/lynx
+				www-client/w3m
+			)
+		)
+	)
 	!minimal? (
 		>=x11-proto/xf86driproto-2.1.0
 		>=x11-proto/dri2proto-2.3
@@ -128,15 +139,15 @@ pkg_setup() {
 		$(use_enable kdrive kdrive-evdev)
 		$(use_enable tslib)
 		$(use_enable tslib xcalibrate)
-		$(use_enable !minimal xvfb)
-		$(use_enable !minimal xnest)
 		$(use_enable !minimal record)
 		$(use_enable !minimal xfree86-utils)
 		$(use_enable !minimal install-libxf86config)
 		$(use_enable !minimal dri)
 		$(use_enable !minimal dri2)
 		$(use_enable !minimal glx)
+		$(use_enable xnest)
 		$(use_enable xorg)
+		$(use_enable xvfb)
 		$(use_enable nptl glx-tls)
 		$(use_enable udev config-udev)
 		$(use_with doc doxygen)
