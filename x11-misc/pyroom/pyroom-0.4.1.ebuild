@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI="3"
+
 inherit distutils versionator
 
 DESCRIPTION="Pyroom is a text editor that stays out of your way and keeps
