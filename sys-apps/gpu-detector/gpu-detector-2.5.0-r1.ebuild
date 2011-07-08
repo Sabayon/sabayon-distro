@@ -22,3 +22,16 @@ src_install () {
 	exeinto /sbin/
 	doexe gpu-configuration
 }
+
+pkg_postinst() {
+	local xorg_conf="${ROOT}/etc/X11/xorg.conf"
+	if [ -f "${xorg_conf}" ]; then
+		echo
+		elog "Disabling UseEvents option in your xorg.conf if found"
+		elog "This option is known to cause Segmentation Faults on"
+		elog "NVIDIA GeForce 6xxx and 7xxx with >=nvidia-drivers-275.xx"
+		echo
+		# this is quite lame sed, but who cares
+		sed -i "/Option.*UseEvents/ s/^/#/" "${xorg_conf}"
+	fi
+}
