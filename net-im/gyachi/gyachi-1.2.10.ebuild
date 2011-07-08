@@ -12,11 +12,12 @@ SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="alsa blowfish gpgme gtkspell libnotify mcrypt pulseaudio +voice"
+IUSE="alsa blowfish gpgme gtkspell libnotify mcrypt pulseaudio voice"
 
 DEPEND="
 	dev-libs/openssl
 	dev-libs/libxml2
+	media-gfx/imagemagick
 	media-libs/jasper
 	gnome-extra/gtkhtml:2
 	x11-libs/gtk+:2
@@ -29,6 +30,15 @@ DEPEND="
 "
 RDEPEND="${DEPEND}
 	www-client/htmlview"
+
+pkg_setup() {
+	if ! use x86 && use voice; then
+		echo
+		elog "Sorry, gyvoice on your arch. is not supported."
+		elog "The application will be build as if \"voice\" wasn't in USE."
+		echo
+	fi
+}
 
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-gpgme-gentoo.patch"
@@ -53,7 +63,12 @@ src_configure() {
 		fi
 	done
 	myconf="${myconf} $(use_enable gtkspell)"
-	myconf="${myconf} $(use_enable voice wine)"
+	# myconf="${myconf} $(use_enable voice wine)"
+	if use x86 && use voice; then
+		myconf="${myconf} --enable-wine"
+	else
+		myconf="${myconf} --disable-wine"
+	fi
 
 	einfo "Running provided autogen.sh script..."
 	./autogen.sh || die
