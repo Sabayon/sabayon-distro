@@ -165,7 +165,9 @@ Section "Device"
     #Option "BusType" "PCI"
     #Option "ColorTiling" "on"
     #Option "EnablePageFlip" "on"
-    Option "UseEvents" "True"
+    # UseEvents is causing segmentation faults with
+    # NVIDIA 6xxx, 7xxx and >=275.xx.xx drivers
+    #Option "UseEvents" "True"
 EndSection
 
 
