@@ -2,6 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI="3"
+PYTHON_DEPEND="2"
+
 inherit distutils
 
 DESCRIPTION="Authoring application to assist teachers and academics in the publishing of web content"
