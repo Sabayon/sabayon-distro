@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="3"
 
 if [ "${PV}" = "9999" ]; then
 	EGIT_COMMIT="master"
@@ -11,12 +11,12 @@ if [ "${PV}" = "9999" ]; then
 fi
 inherit flag-o-matic base python libtool autotools eutils ${MY_ECLASS}
 
-AUDIT_VER="1.7.9"
+AUDIT_VER="2.1.2"
 AUDIT_SRC_URI="http://people.redhat.com/sgrubb/audit/audit-${AUDIT_VER}.tar.gz"
 
 SEPOL_VER="2.0"
-LSELINUX_VER="2.0.85"
-LSELINUX_SRC_URI="http://userspace.selinuxproject.org/releases/current/devel/libselinux-${LSELINUX_VER}.tar.gz"
+LSELINUX_VER="2.0.94"
+LSELINUX_SRC_URI="http://userspace.selinuxproject.org/releases/20100525/devel/libselinux-${LSELINUX_VER}.tar.gz"
 
 DESCRIPTION="Sabayon Redhat Anaconda Installer Port"
 HOMEPAGE="http://gitweb.sabayon.org/?p=anaconda.git;a=summary"
@@ -34,6 +34,7 @@ LSELINUX_S="${WORKDIR}/libselinux-${LSELINUX_VER}"
 LICENSE="GPL-2 public-domain"
 SLOT="0"
 IUSE="+ipv6 +nfs ldap"
+RESTRICT="nomirror"
 
 AUDIT_DEPEND="dev-lang/swig"
 AUDIT_RDEPEND="ldap? ( net-nds/openldap )"
@@ -46,7 +47,7 @@ COMMON_DEPEND="app-admin/system-config-keyboard
 	dev-libs/newt
 	nfs? ( net-fs/nfs-utils )
 	sys-fs/lvm2
-	=sys-block/open-iscsi-2.0.870.3-r1"
+	sys-block/open-iscsi"
 DEPEND="${COMMON_DEPEND} ${AUDIT_DEPEND} ${LSELINUX_DEPEND} sys-apps/sed"
 RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	${LSELINUX_RDEPEND} ${LSELINUX_CONFLICT}
@@ -205,7 +206,6 @@ src_install() {
 
 	# Cleanup .pyc .pyo
 	find "${D}" -name "*.py[co]" -type f -delete
-
 }
 
 pkg_postrm() {
