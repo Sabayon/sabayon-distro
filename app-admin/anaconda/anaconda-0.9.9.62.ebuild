@@ -11,12 +11,12 @@ if [ "${PV}" = "9999" ]; then
 fi
 inherit flag-o-matic base python libtool autotools eutils ${MY_ECLASS}
 
-AUDIT_VER="1.7.18"
+AUDIT_VER="2.1.2"
 AUDIT_SRC_URI="http://people.redhat.com/sgrubb/audit/audit-${AUDIT_VER}.tar.gz"
 
 SEPOL_VER="2.0"
-LSELINUX_VER="2.0.85"
-LSELINUX_SRC_URI="mirror://sabayon/app-admin/libselinux-${LSELINUX_VER}.tar.gz"
+LSELINUX_VER="2.0.94"
+LSELINUX_SRC_URI="http://userspace.selinuxproject.org/releases/20100525/devel/libselinux-${LSELINUX_VER}.tar.gz"
 
 DESCRIPTION="Sabayon Redhat Anaconda Installer Port"
 HOMEPAGE="http://gitweb.sabayon.org/?p=anaconda.git;a=summary"
