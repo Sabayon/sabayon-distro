@@ -548,7 +548,7 @@ webapp_pkg_prerm() {
 			if [[ -f "${x}"/.webapp ]]; then
 				. "${x}"/.webapp
 				if [[ -n "${WEB_HOSTNAME}" && -n "${WEB_INSTALLDIR}" ]]; then
-					${WEBAPP_CONFIG} -C -h ${WEB_HOSTNAME} -d ${WEB_INSTALLDIR}
+					${WEBAPP_CONFIG} -C -h ${WEB_HOSTNAME} -d ${WEB_INSTALLDIR} ${PN} ${PVR}
 				fi
 			else
 				ewarn "Cannot find file ${x}/.webapp"
