@@ -133,6 +133,9 @@ webapp_getinstalltype() {
 			elog "${my_output} is installed there"
 		fi
 	else
+		# for binpkgs, reset status, var declared in global scope
+		IS_REPLACE=0
+		IS_UPGRADE=0
 		elog "This is an installation"
 	fi
 }
