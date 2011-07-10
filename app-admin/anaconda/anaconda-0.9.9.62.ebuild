@@ -11,7 +11,7 @@ if [ "${PV}" = "9999" ]; then
 fi
 inherit flag-o-matic base python libtool autotools eutils ${MY_ECLASS}
 
-AUDIT_VER="1.7.9"
+AUDIT_VER="1.7.18"
 AUDIT_SRC_URI="http://people.redhat.com/sgrubb/audit/audit-${AUDIT_VER}.tar.gz"
 
 SEPOL_VER="2.0"
