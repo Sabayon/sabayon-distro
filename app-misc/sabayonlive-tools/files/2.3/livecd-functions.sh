@@ -315,6 +315,15 @@ get_ifbus() {
 	basename ${if_bus}
 }
 
+livecd_rev_string() {
+	# See Sabayon #2522, cannot use /usr/bin/rev because
+	# /usr might not be mounted
+	local copy=${1}
+	len=${#copy}
+	for((i=$len-1;i>=0;i--)); do rev="$rev${copy:$i:1}"; done
+	echo ${rev}
+}
+
 get_ifproduct() {
 	local iface=$1
 	local bus=$(get_ifbus ${iface})
@@ -480,7 +489,7 @@ livecd_console_settings() {
 	# scan for a valid parity
 	# If the second to last byte is a [n,e,o] set parity
 	local parity
-	parity=$(echo $1 | rev | cut -b 2-2)
+	parity=$(livecd_rev_string $1 | cut -b 2-2)
 	case "$parity" in
 		[neo])
 			LIVECD_CONSOLE_PARITY=$parity
@@ -492,7 +501,7 @@ livecd_console_settings() {
 	# Only set databits if second to last character is parity
 	if [ "${LIVECD_CONSOLE_PARITY}" != "" ]
 	then
-		LIVECD_CONSOLE_DATABITS=$(echo $1 | rev | cut -b 1)
+		LIVECD_CONSOLE_DATABITS=$(livecd_rev_string $1 | cut -b 1)
 	fi
 	export LIVECD_CONSOLE_DATABITS
 	return 0
