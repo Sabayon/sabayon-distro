@@ -209,9 +209,9 @@ src_install() {
 }
 
 pkg_postrm() {
-	python_mod_cleanup $(python_get_sitedir)/py${PN}
+	python_mod_cleanup py${PN}
 }
 
 pkg_postinst() {
-	python_mod_optimize $(python_get_sitedir)/py${PN}
+	python_mod_optimize py${PN}
 }
