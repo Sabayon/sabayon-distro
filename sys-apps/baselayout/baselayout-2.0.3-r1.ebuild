@@ -130,6 +130,12 @@ pkg_preinst() {
 		emake -C "${D}/usr/share/${PN}" DESTDIR="${ROOT}" layout || die "failed to layout filesystem"
 	fi
 	rm -f "${D}"/usr/share/${PN}/Makefile
+
+	# Sabayon customization, protect /etc/hosts from removal (from older ebuilds)
+	local etc_hosts="${ROOT}/etc/hosts"
+	if [ -e "${etc_hosts}" ]; then
+		cp -p "${etc_hosts}" "${etc_hosts}.baselayout_ebuild_backup" # don't die
+	fi
 }
 
 src_unpack() {
@@ -227,9 +233,13 @@ pkg_postinst() {
 	fi
 
 	# Sabayon customization, copy /etc/hosts back in place if it doesn't exist
-	local dest_hosts=${ROOT}/etc/hosts
-	if [ ! -e "${dest_hosts}" ]; then
-		cp "${dest_hosts}.example" "${dest_hosts}" -p || die
-		chown root:root "${dest_hosts}" || die
+	local etc_hosts="${ROOT}/etc/hosts"
+	if [ ! -e "${etc_hosts}" ]; then
+		if [ -e "${etc_hosts}.baselayout_ebuild_backup" ]; then
+			cp -p "${etc_hosts}.baselayout_ebuild_backup" "${etc_hosts}" # don't die
+		else
+			cp -p "${etc_hosts}.example" "${etc_hosts}" # don't die
+		fi
+		chown root:root "${etc_hosts}" # don't die
 	fi
 }
