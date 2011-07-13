@@ -182,6 +182,14 @@ add_boot_init_mit_config() {
 }
 
 pkg_preinst() {
+	# Sabayon customization, still protect conf files from being removed
+	# as no longer owned by package
+	for conf_file in "${ROOT}/etc/conf.d/keymaps" "${ROOT}/etc/conf.d/hwclock"; do
+		if [ -e "${conf_file}" ]; then
+			cp -p "${conf_file}" "${conf_file}.ebuild_preserved" # don't die
+		fi
+	done
+
 	local f LIBDIR=$(get_libdir)
 
 	# default net script is just comments, so no point in biting people
@@ -358,10 +366,12 @@ migrate_from_baselayout_1() {
 pkg_postinst() {
 	# Sabayon customization, do not bug user with tedious, useless config file updates
 	for conf_file in "${ROOT}/etc/conf.d/keymaps" "${ROOT}/etc/conf.d/hwclock"; do
-		if [ ! -e "${conf_file}" ]; then
-			cp "${conf_file}.example" "${conf_file}" -p || die
-			chown root:root "${conf_file}" || die
+		if [ -e "${conf_file}.ebuild_preserved" ]; then
+			cp -p "${conf_file}.ebuild_preserved" "${conf_file}" # don't die
+		elif [ ! -e "${conf_file}" ]; then
+			cp -p "${conf_file}.example" "${conf_file}" # don't die
 		fi
+		chown root:root "${conf_file}" # don't die
 	done
 
 	local LIBDIR=$(get_libdir)
