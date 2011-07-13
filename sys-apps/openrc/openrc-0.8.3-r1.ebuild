@@ -146,9 +146,11 @@ src_install() {
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/openrc.logrotate openrc
 
-	# Move /etc/conf.d/keymaps to .example
+	# Sabayon customization, do not bug user with annoying updates (for now)
 	mv "${D}"/etc/conf.d/keymaps "${D}"/etc/conf.d/keymaps.example || \
 		die "cannot move keymaps"
+	mv "${D}"/etc/conf.d/hwclock "${D}"/etc/conf.d/hwclock.example || \
+		die "cannot move hwclock"
 }
 
 add_boot_init() {
@@ -179,12 +181,7 @@ add_boot_init_mit_config() {
 	fi
 }
 
-CONFD_KEYMAPS="${ROOT}/etc/conf.d/keymaps"
 pkg_preinst() {
-	# backup user /etc/conf.d/keymaps
-	if [ -f "${CONFD_KEYMAPS}" ]; then
-		cp -p "${CONFD_KEYMAPS}" "${CONFD_KEYMAPS}.portage_openrc_bck"
-	fi
 	local f LIBDIR=$(get_libdir)
 
 	# default net script is just comments, so no point in biting people
@@ -359,14 +356,13 @@ migrate_from_baselayout_1() {
 }
 
 pkg_postinst() {
-	# Copy config file over
-	if [ -f "${CONFD_KEYMAPS}.portage_openrc_bck" ]; then
-		cp "${CONFD_KEYMAPS}.portage_openrc_bck" "${CONFD_KEYMAPS}" -p
-	else
-		if [ -f "${CONFD_KEYMAPS}.example" ] && [ ! -f "${CONFD_KEYMAPS}" ]; then
-			cp "${CONFD_KEYMAPS}.example" "${CONFD_KEYMAPS}" -p
+	# Sabayon customization, do not bug user with tedious, useless config file updates
+	for conf_file in "${ROOT}/etc/conf.d/keymaps" "${ROOT}/etc/conf.d/hwclock"; do
+		if [ ! -e "${conf_file}" ]; then
+			cp "${conf_file}.example" "${conf_file}" -p || die
+			chown root:root "${conf_file}" || die
 		fi
-	fi
+	done
 
 	local LIBDIR=$(get_libdir)
 
