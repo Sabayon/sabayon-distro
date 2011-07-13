@@ -177,6 +177,9 @@ src_install() {
 
 	# rc-scripts version for testing of features that *should* be present
 	echo "Gentoo Base System release ${PV}" > "${D}"/etc/gentoo-release
+
+	# Sabayon customization, install /etc/hosts separately (to .example)
+	mv "${D}"/etc/hosts "${D}"/etc/hosts.example || die "cannot move /etc/hosts"
 }
 
 pkg_postinst() {
@@ -221,5 +224,12 @@ pkg_postinst() {
 			ewarn "The following users have non-existent shells!"
 			ewarn "${bad_shells}"
 		fi
+	fi
+
+	# Sabayon customization, copy /etc/hosts back in place if it doesn't exist
+	local dest_hosts=${ROOT}/etc/hosts
+	if [ ! -e "${dest_hosts}" ]; then
+		cp "${dest_hosts}.example" "${dest_hosts}" -p || die
+		chown root:root "${dest_hosts}" || die
 	fi
 }
