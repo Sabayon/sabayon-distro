@@ -234,12 +234,10 @@ pkg_postinst() {
 
 	# Sabayon customization, copy /etc/hosts back in place if it doesn't exist
 	local etc_hosts="${ROOT}/etc/hosts"
-	if [ ! -e "${etc_hosts}" ]; then
-		if [ -e "${etc_hosts}.baselayout_ebuild_backup" ]; then
-			cp -p "${etc_hosts}.baselayout_ebuild_backup" "${etc_hosts}" # don't die
-		else
-			cp -p "${etc_hosts}.example" "${etc_hosts}" # don't die
-		fi
-		chown root:root "${etc_hosts}" # don't die
+	if [ -e "${etc_hosts}.baselayout_ebuild_backup" ]; then
+		cp -p "${etc_hosts}.baselayout_ebuild_backup" "${etc_hosts}" # don't die
+	elif [ ! -e "${etc_hosts}" ]; then
+		cp -p "${etc_hosts}.example" "${etc_hosts}" # don't die
 	fi
+	chown root:root "${etc_hosts}" # don't die
 }
