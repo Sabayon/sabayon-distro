@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>no-herd</herd>
+<maintainer><email>maintainer-wanted@gentoo.org</email></maintainer>
+<use>
+	<flag name='aplay'>Use aplay from <pkg>media-sound/alsa-utils</pkg> for
+	playing sounds</flag>
+	<flag name='gtk3'>Use gtk3 instead of gtk2</flag>
+	<flag name='keylogger'>Enable keylogger support (logs all text into html;
+	<pkg>x11-misc/gxneur</pkg> allows to view this text)</flag>
+</use>
+</pkgmetadata>
