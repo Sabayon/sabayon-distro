@@ -1,0 +1,172 @@
+#!/usr/bin/python2
+"""
+
+    @author: Fabio Erculiani <lxnay@sabayon.org>
+    @contact: lxnay@sabayon.org
+    @copyright: Fabio Erculiani
+    @license: GPL-2
+
+"""
+import os
+import sys
+sys.path.insert(0, '../libraries')
+sys.path.insert(1, '../client')
+sys.path.insert(2, '../server')
+sys.path.insert(3, '/usr/lib/entropy/client')
+sys.path.insert(4, '/usr/lib/entropy/libraries')
+sys.path.insert(5, '/usr/lib/entropy/server')
+import tempfile
+import subprocess
+import glob
+import shutil
+
+from entropy.i18n import _
+from entropy.output import print_info, print_warning, print_error, \
+    print_generic
+import entropy.tools
+
+options = sys.argv[1:]
+
+COMMANDS_MAP = {
+    'lspci': {
+        'args': ("lspci", "-nn"),
+        'out': "lspci.txt",
+        'desc': "PCI Hardware Devices (simple)",
+    },
+    'lspci-vvv': {
+        'args': ("lspci", "-vvv"),
+        'out': "lspci-vvv.txt",
+        'desc': "PCI Hardware Devices (extended)",
+    },
+    'lsusb': {
+        'args': ("lsusb", "-v"),
+        'out': "lsusb.txt",
+        'desc': "USB Hardware Devices",
+    },
+    'meminfo': {
+        'args': ("cat", "/proc/meminfo"),
+        'out': "meminfo.txt",
+        'desc': "Memory Information",
+    },
+    'netdev': {
+        'args': ("cat", "/proc/net/dev"),
+        'out': "procnetdev.txt",
+        'desc': "Registered Network Cards",
+    },
+    'lsmod': {
+        'args': ("lsmod",),
+        'out': "lsmod.txt",
+        'desc': "Kernel Modules",
+    },
+    'uname': {
+        'args': ("uname", "-a"),
+        'out': "uname.txt",
+        'desc': "Kernel Version and Architecture",
+    },
+    'cpuinfo': {
+        'args': ("cat", "/proc/cpuinfo"),
+        'out': "cpuinfo.txt",
+        'desc': "CPU Information",
+    },
+    'filesystem': {
+        'args': ("cat", "/proc/filesystems"),
+        'out': "filesystems.txt",
+        'desc': "Filesystems Information",
+    },
+    'cmdline': {
+        'args': ("cat", "/proc/cmdline"),
+        'out': "cmdline.txt",
+        'desc': "Kernel Boot Line",
+    },
+    'mounts': {
+        'args': ("cat", "/proc/mounts"),
+        'out': "mounts.txt",
+        'desc': "Filesystem Mountpoints",
+    },
+    'dmesg': {
+        'args': ("dmesg", "-s", "99999"),
+        'out': "dmesg.txt",
+        'desc': "Latest Kernel messages",
+    },
+    'grub.cfg': {
+        'args': ("tail", "--lines", "2000", "/boot/grub/grub.cfg"),
+        'out': "grub.cfg.txt",
+        'desc': "GRUB2 Configuration",
+    },
+    'Xorg.0.log': {
+        'args': ("tail", "--lines", "2000", "/var/log/Xorg.0.log"),
+        'out': "Xorg.0.log.txt",
+        'desc': "X.Org Logs (current)",
+    },
+    'Xorg.0.log.old': {
+        'args': ("tail", "--lines", "2000", "/var/log/Xorg.0.log.old"),
+        'out': "Xorg.0.log.old.txt",
+        'desc': "X.Org Logs (old)",
+    },
+    'messages': {
+        'args': ("tail", "--lines", "2000", "/var/log/messages"),
+        'out': "messages.txt",
+        'desc': "System Logger messages",
+    },
+    'xsession-errors': {
+        'args': ["tail", "--lines", "2000"] + glob.glob("/home/*/.xsession-errors"),
+        'out': "messages.txt",
+        'desc': "Desktop Environment startup messages",
+    },
+}
+
+def _mkdtemp():
+    return tempfile.mkdtemp(prefix="cookbug.")
+
+def _mkstemp(suffix=""):
+    return tempfile.mkstemp(prefix="cookbug.report.", suffix=suffix)
+
+def _collect():
+    print_info("Collecting Hardware details useful for hunting your bug...")
+
+    tmp_dir = _mkdtemp()
+    main_rc = 0
+    files_to_compress = []
+
+    for cmd_name, cmd_data in COMMANDS_MAP.items():
+        argv = cmd_data['args']
+        out_file = cmd_data['out']
+        desc = cmd_data['desc']
+        out_path = os.path.join(tmp_dir, out_file)
+        with open(out_path, "wb") as out_f:
+            print_info("%s: %s" % ("Getting", desc))
+            rc = subprocess.call(argv, stdout = out_f, stderr = out_f)
+        if rc != 0:
+            main_rc = rc
+            print_error("Unable to collect logs about: %s" % (cmd_name,))
+            with open(out_path, "rb") as out_f:
+                print_generic(out_f.read())
+            print_error("Going ahead anyway...")
+        else:
+            files_to_compress.append(out_path)
+
+    # pack up into a tarball
+    tmp_fd, tmp_path = _mkstemp(".tar.bz2")
+    entropy.tools.compress_files(tmp_path, files_to_compress,
+        compressor = "bz2")
+    os.chmod(tmp_path, 0o644)
+
+    print_info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print_info("Your bug report is available at: %s" % (tmp_path,))
+
+    # not really mission critical here
+    os.close(tmp_fd)
+    shutil.rmtree(tmp_dir, True)
+    return main_rc
+
+
+if __name__ == "__main__":
+
+    if os.getuid() != 0:
+        print_error("superuser access required")
+        raise SystemExit(1)
+
+    print_warning("PLEASE NOTE: no personal information is collected, but...")
+    print_warning("...we are not responsible for what apps write in logs !!")
+    print_warning("However, it is suggested to review the produced tar file.")
+    raise SystemExit(_collect())
