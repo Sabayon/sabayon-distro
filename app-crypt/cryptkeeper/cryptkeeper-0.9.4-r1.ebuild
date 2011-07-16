@@ -2,7 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=0
+EAPI="2"
+
 inherit eutils
 DESCRIPTION="A Linux system tray applet that manages EncFS encrypted folders."
 HOMEPAGE="http://tom.noflag.org.uk/cryptkeeper.html"
