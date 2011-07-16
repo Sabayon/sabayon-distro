@@ -251,3 +251,5 @@ slotmove kde-base/oxygen-icons 4.5 4
 slotmove kde-base/oxygen-icons 4.6 4
 
 move sys-kernel/linux-firmwares sys-kernel/linux-firmware
+
+move app-text/cookbug sys-apps/cookbug
