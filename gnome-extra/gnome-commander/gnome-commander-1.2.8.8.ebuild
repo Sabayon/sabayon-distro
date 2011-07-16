@@ -26,7 +26,7 @@ USE_DESC="
 	python: add support for python plugins"
 
 
-RDEPEND=">=x11-libs/gtk+-2.8.0
+RDEPEND=">=x11-libs/gtk+-2.8.0:2
         >=dev-libs/glib-2.6.0
         >=gnome-base/libgnomeui-2.4.0
         >=gnome-base/libgnome-2.0.0
