@@ -69,7 +69,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.8
 	>=app-text/hunspell-1.2
-	>=x11-libs/gtk+-2.10.0
+	>=x11-libs/gtk+-2.10.0:2
 	>=x11-libs/cairo-1.8.8[X]
 	>=x11-libs/pango-1.14.0[X]"
 
