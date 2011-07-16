@@ -93,6 +93,12 @@ COMMANDS_MAP = {
         'out': "grub.cfg.txt",
         'desc': "GRUB2 Configuration",
     },
+    'xorg.conf': {
+        'args': ["tail", "--lines", "2000", "/etc/X11/xorg.conf"] + \
+            glob.glob("/etc/X11/xorg.conf.d/*"),
+        'out': "xorg.conf.d.txt",
+        'desc': "X.Org configuration (+xorg.conf.d/*)",
+    },
     'Xorg.0.log': {
         'args': ("tail", "--lines", "2000", "/var/log/Xorg.0.log"),
         'out': "Xorg.0.log.txt",
@@ -108,12 +114,14 @@ COMMANDS_MAP = {
         'out': "messages.txt",
         'desc': "System Logger messages",
     },
-    'xsession-errors': {
-        'args': ["tail", "--lines", "2000"] + glob.glob("/home/*/.xsession-errors"),
+}
+xsession_errors = glob.glob("/home/*/.xsession-errors")
+if xsession_errors:
+    COMMANDS_MAP['xsession-errors'] = {
+        'args': ["tail", "--lines", "2000"] + xsession_errors,
         'out': "messages.txt",
         'desc': "Desktop Environment startup messages",
-    },
-}
+    }
 
 def _mkdtemp():
     return tempfile.mkdtemp(prefix="cookbug.")
@@ -128,7 +136,10 @@ def _collect():
     main_rc = 0
     files_to_compress = []
 
-    for cmd_name, cmd_data in COMMANDS_MAP.items():
+    _sorter = lambda x: COMMANDS_MAP[x]['desc']
+
+    for cmd_name in sorted(COMMANDS_MAP.keys(), key = _sorter):
+        cmd_data = COMMANDS_MAP[cmd_name]
         argv = cmd_data['args']
         out_file = cmd_data['out']
         desc = cmd_data['desc']
