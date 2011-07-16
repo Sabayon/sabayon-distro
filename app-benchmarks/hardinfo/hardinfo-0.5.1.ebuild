@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /home/menelkir/portage/app-benchmark/hardinfo/hardinfo-0.5.1.ebuild,v 0.5.1  2010/05/31 10:20:14 menelkir Exp $
 
+EAPI="2"
+
 inherit eutils
 
 DESCRIPTION="HardInfo is a system information and benchmark tool for Linux systems"
@@ -13,11 +15,10 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
-DEPEND=">=x11-libs/gtk+-2.6
+DEPEND=">=x11-libs/gtk+-2.6:2
 >=net-libs/libsoup-2.4"
 RDEPEND="${DEPEND}"
-
-	S="${WORKDIR}/${P}"       
+S="${WORKDIR}/${P}"
 
 src_unpack() {
 	unpack ${A}
