@@ -16,7 +16,7 @@ IUSE=""
 
 QA_PRESTRIPPED="/usr/bin/tuxcmd"
 
-RDEPEND=">=x11-libs/gtk+-2.4.0
+RDEPEND=">=x11-libs/gtk+-2.4.0:2
 	>=dev-libs/glib-2.16.0
 	>=x11-libs/pango-1.4.0
 	x11-libs/cairo
