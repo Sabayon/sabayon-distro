@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="doc"
 
 RDEPEND=">=dev-libs/glib-2.18.0
-	>=x11-libs/gtk+-2.14.0
+	>=x11-libs/gtk+-2.14.0:2
 	gnome-base/gnome-desktop
 	gnome-base/librsvg
 	gnome-base/gconf
