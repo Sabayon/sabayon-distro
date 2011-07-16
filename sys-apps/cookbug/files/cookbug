@@ -167,6 +167,6 @@ if __name__ == "__main__":
         raise SystemExit(1)
 
     print_warning("PLEASE NOTE: no personal information is collected, but...")
-    print_warning("...we are not responsible for what apps write in logs !!")
+    print_warning("...we are not responsible for what apps write to logs !!")
     print_warning("However, it is suggested to review the produced tar file.")
     raise SystemExit(_collect())
