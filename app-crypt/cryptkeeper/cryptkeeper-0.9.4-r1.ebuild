@@ -14,7 +14,7 @@ KEYWORDS="~x86 ~amd64"
 IUSE="nls"
 DEPEND=">=sys-fs/fuse-2.6.3
 	>=sys-fs/encfs-1.5
-	>=x11-libs/gtk+-2.12.11
+	>=x11-libs/gtk+-2.12.11:2
 	>=gnome-base/gconf-2.22.0
 	nls? ( >=sys-devel/gettext-0.14.1 )"
 RDEPEND="${DEPEND}"
