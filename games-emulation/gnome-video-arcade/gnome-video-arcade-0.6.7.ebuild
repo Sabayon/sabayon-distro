@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI=2
+
 inherit gnome2 games
 
 DESCRIPTION="A simple MAME front-end for the GNOME Desktop Environment"
@@ -14,7 +16,7 @@ IUSE="gnome"
 
 RDEPEND="gnome? ( >=gnome-base/libgnomeui-2.14.0 )
 	>=dev-libs/glib-2.14.0
-	>=x11-libs/gtk+-2.12.0
+	>=x11-libs/gtk+-2.12.0:2
 	>=gnome-base/libglade-2.6.0
 	>=x11-themes/gnome-icon-theme-2.18.0
 	>=dev-db/sqlite-3.0.0
