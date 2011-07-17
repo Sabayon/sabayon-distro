@@ -27,7 +27,7 @@ SRC_URI="${SRC_URI}
 RDEPEND=">=sys-apps/devicekit-power-008
 	>=dev-libs/dbus-glib-0.74
 	>=dev-libs/glib-2.15.4
-	>=x11-libs/gtk+-2.10.0
+	>=x11-libs/gtk+-2.10.0:2
 	>=x11-libs/pango-1.3
 	>=media-libs/libcanberra-0.4[gtk]
 	>=gnome-base/libglade-2

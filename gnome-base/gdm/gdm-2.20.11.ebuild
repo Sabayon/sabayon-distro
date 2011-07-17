@@ -24,7 +24,7 @@ SRC_URI="${SRC_URI}
 	branding? ( mirror://gentoo/gentoo-gdm-theme-r3.tar.bz2 )"
 
 RDEPEND=">=dev-libs/glib-2.12
-	>=x11-libs/gtk+-2.6
+	>=x11-libs/gtk+-2.6:2
 	>=x11-libs/pango-1.3
 	>=gnome-base/libglade-2
 	>=gnome-base/libgnomecanvas-2
