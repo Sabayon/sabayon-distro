@@ -20,7 +20,7 @@ IUSE=""
 # This also allows us to optimize out a lot of the other dependancies, as
 # between gtk and xorg-server, almost all libraries and headers are accounted
 # for.
-DEPEND=">=x11-libs/gtk+-2
+DEPEND=">=x11-libs/gtk+-2:2
 	dev-util/pkgconfig
 	x11-base/xorg-server
 	x11-libs/libXt
