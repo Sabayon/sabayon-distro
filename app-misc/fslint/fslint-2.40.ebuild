@@ -17,7 +17,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
-DEPEND=">=x11-libs/gtk+-2.4
+DEPEND=">=x11-libs/gtk+-2.4:2
 	gnome-base/libglade
 	>=dev-python/pygtk-2.4"
 
