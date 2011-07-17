@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="dbus libnotify"
 
-DEPEND=">=x11-libs/gtk+-2.10
+DEPEND=">=x11-libs/gtk+-2.10:2
 	>=dev-libs/libxml2-2.6
 	>=net-misc/curl-7.15
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
