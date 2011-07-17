@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI="2"
+
 inherit eutils
 
 DESCRIPTION="Simple DVD slideshow maker"
@@ -13,7 +15,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
-DEPEND=">=x11-libs/gtk+-2.12.11
+DEPEND=">=x11-libs/gtk+-2.12.11:2
 	>=media-sound/sox-14.2.0"
 
 RDEPEND="${DEPEND}
