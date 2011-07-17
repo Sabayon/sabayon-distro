@@ -17,7 +17,7 @@ IUSE="nls debug"
 
 RDEPEND=">=x11-libs/libnotify-0.3.2
 	net-im/pidgin[gtk]
-	>=x11-libs/gtk+-2"
+	>=x11-libs/gtk+-2:2"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
