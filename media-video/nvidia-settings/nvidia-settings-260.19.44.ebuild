@@ -28,7 +28,7 @@ DEPEND=">=x11-libs/gtk+-2:2
 	x11-proto/xf86driproto
 	x11-proto/xf86vidmodeproto"
 
-RDEPEND=">=x11-libs/gtk+-2
+RDEPEND=">=x11-libs/gtk+-2:2
 	x11-base/xorg-server
 	x11-libs/libXt
 	x11-drivers/nvidia-drivers
