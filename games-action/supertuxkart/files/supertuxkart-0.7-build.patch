@@ -1,0 +1,200 @@
+--- supertuxkart-0.7.orig/Makefile.am
++++ supertuxkart-0.7/Makefile.am
+@@ -1,8 +1,6 @@
+ ACLOCAL_AMFLAGS = -I m4
+ 
+-SUBDIRS = $(BULLETTREE) $(ENETTREE) src doc data
++SUBDIRS = $(BULLETTREE) $(ENETTREE) src data
+ 
+-pkgdatadir=$(datadir)/doc/$(PACKAGE)
+-dist_pkgdata_DATA=AUTHORS ChangeLog COPYING README
+ # NEWS only contains "see changelog"
+ # CHANGES only contains "see NEW"
+--- supertuxkart-0.7.orig/configure.ac
++++ supertuxkart-0.7/configure.ac
+@@ -107,6 +107,7 @@
+    if test "x$ac_cv_search_glNewList" = "x-lGLcore"; then
+        # if GLcore found, then also check for GL
+        AC_SEARCH_LIBS(glXCreateContext, GL)
++       AC_SEARCH_LIBS(gluLookAt, GLU)
+    fi
+    ;;
+ esac
+@@ -399,7 +400,6 @@
+   ;;
+ esac
+ SUMMARY="$SUMMARY\nUsing enet network support."
+-ENETTREE="src/enet"
+ 
+ # =================
+ # Check for gettext
+@@ -460,7 +460,6 @@
+  src/ide/Makefile                   \
+  src/bullet/Makefile                \
+  src/bullet/src/Makefile            \
+- src/enet/Makefile                  \
+ ])
+ AC_OUTPUT
+ echo -e $SUMMARY
+--- supertuxkart-0.7.orig/data/Makefile.am
++++ supertuxkart-0.7/data/Makefile.am
+@@ -1,7 +1,7 @@
+ # data/
+ 
+ SUBDIRS    = fonts gui karts models music po sfx textures tracks grandprix
+-pkgdatadir = $(datadir)/games/$(PACKAGE)/data
++pkgdatadir = $(datadir)/$(PACKAGE)/data
+ 
+ dist_pkgdata_DATA = \
+  $(shell find $(srcdir) -name "*.data")                  \
+@@ -13,16 +13,7 @@
+  stk_config.xml  powerup.xml  items.xml                  \
+  CREDITS
+ 
+-desktopdir = $(prefix)/share/applications
+-desktop_DATA = supertuxkart.desktop
+ 
+-icondir = $(prefix)/share/pixmaps
+-dist_icon_DATA = supertuxkart_32.xpm supertuxkart_64.xpm
+ 
+ 
+-# The desktop file needs the absolute path to the binary
+ # since e.g. /usr/games might not be in the standard path
+-EXTRA_DIST = supertuxkart_desktop.template
+-CLEANFILES = supertuxkart.desktop
+-supertuxkart.desktop: Makefile supertuxkart_desktop.template
+-	sed 's#PREFIX#$(prefix)#' $(srcdir)/supertuxkart_desktop.template >supertuxkart.desktop
+--- supertuxkart-0.7.orig/data/fonts/Makefile.am
++++ supertuxkart-0.7/data/fonts/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/fonts/
+ 
+-pkgdatadir = $(datadir)/games/$(PACKAGE)/data/fonts
++pkgdatadir = $(datadir)/$(PACKAGE)/data/fonts
+ 
+ dist_pkgdata_DATA =  $(shell find $(srcdir) -name "*.png") \
+                      $(shell find $(srcdir) -name "*.xml")
+--- supertuxkart-0.7.orig/data/grandprix/Makefile.am
++++ supertuxkart-0.7/data/grandprix/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/music
+ 
+-pkgdatadir = $(datadir)/games/$(PACKAGE)/data/grandprix
++pkgdatadir = $(datadir)/$(PACKAGE)/data/grandprix
+ 
+ dist_pkgdata_DATA = $(shell find $(srcdir) -name "*.grandprix")  \
+                     $(shell find $(srcdir) -name "*.challenge")
+--- supertuxkart-0.7.orig/data/gui/Makefile.am
++++ supertuxkart-0.7/data/gui/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/gui/
+ 
+-pkgdatadir = $(datadir)/games/$(PACKAGE)/data/gui
++pkgdatadir = $(datadir)/$(PACKAGE)/data/gui
+ 
+ nobase_dist_pkgdata_DATA =  $(shell find $(srcdir) -name "*.png"      ) \
+                             $(shell find $(srcdir) -name "*.jpg"      ) \
+--- supertuxkart-0.7.orig/data/karts/Makefile.am
++++ supertuxkart-0.7/data/karts/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/karts
+ 
+-pkgdatadir= $(datadir)/games/$(PACKAGE)/data/karts
++pkgdatadir= $(datadir)/$(PACKAGE)/data/karts
+ 
+ nobase_dist_pkgdata_DATA = $(shell find $(srcdir) -name "materials.xml") \
+                            $(shell find $(srcdir) -name "*.png")         \
+--- supertuxkart-0.7.orig/data/models/Makefile.am
++++ supertuxkart-0.7/data/models/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/models/
+ 
+-pkgdatadir = $(datadir)/games/$(PACKAGE)/data/models
++pkgdatadir = $(datadir)/$(PACKAGE)/data/models
+ 
+ dist_pkgdata_DATA =  $(shell find $(srcdir) -name "*.b3d") \
+                      $(shell find $(srcdir) -name "*.png") \
+--- supertuxkart-0.7.orig/data/music/Makefile.am
++++ supertuxkart-0.7/data/music/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/music
+ 
+-pkgdatadir = $(datadir)/games/$(PACKAGE)/data/music
++pkgdatadir = $(datadir)/$(PACKAGE)/data/music
+ 
+ dist_pkgdata_DATA = $(shell find $(srcdir) -name "*.ogg")  \
+                     $(shell find $(srcdir) -name "*.music") \
+--- supertuxkart-0.7.orig/data/po/Makefile.am
++++ supertuxkart-0.7/data/po/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/po/
+ 
+-pkgdatadir = $(datadir)/games/@PACKAGE@/data/po
++pkgdatadir = $(datadir)/@PACKAGE@/data/po
+ 
+ nobase_pkgdata_DATA = $(shell find $(srcdir) -name "*.po") \
+                       $(shell find $(srcdir) -name "*.mo") \
+--- supertuxkart-0.7.orig/data/sfx/Makefile.am
++++ supertuxkart-0.7/data/sfx/Makefile.am
+@@ -1,6 +1,6 @@
+ # sfx/
+ 
+-pkgdatadir = $(datadir)/games/$(PACKAGE)/data/sfx
++pkgdatadir = $(datadir)/$(PACKAGE)/data/sfx
+ 
+ nobase_dist_pkgdata_DATA =  $(shell find $(srcdir) -name "*.ogg")      \
+                             $(shell find $(srcdir) -name "sfx.xml")    \
+--- supertuxkart-0.7.orig/data/textures/Makefile.am
++++ supertuxkart-0.7/data/textures/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/textures
+ 
+-pkgdatadir   = $(datadir)/games/$(PACKAGE)/data/textures
++pkgdatadir   = $(datadir)/$(PACKAGE)/data/textures
+ dist_pkgdata_DATA = $(shell find $(srcdir) -name "*.png") \
+                     $(shell find $(srcdir) -name "*.jpg") \
+                     materials.xml License.txt
+--- supertuxkart-0.7.orig/data/tracks/Makefile.am
++++ supertuxkart-0.7/data/tracks/Makefile.am
+@@ -1,6 +1,6 @@
+ # data/tracks
+ 
+-pkgdatadir= $(datadir)/games/$(PACKAGE)/data/tracks
++pkgdatadir= $(datadir)/$(PACKAGE)/data/tracks
+ nobase_dist_pkgdata_DATA = $(shell find $(srcdir) -name "*.jpg")           \
+                            $(shell find $(srcdir) -name "*.png")           \
+                            $(shell find $(srcdir) -name "*.b3d")           \
+--- supertuxkart-0.7.orig/src/Makefile.am
++++ supertuxkart-0.7/src/Makefile.am
+@@ -2,10 +2,9 @@
+ 
+ SUBDIRS = ide
+ 
+-bindir=$(prefix)/games
+ bin_PROGRAMS = supertuxkart
+ 
+-AM_CPPFLAGS = -DSUPERTUXKART_DATADIR="\"$(datadir)/games/$(PACKAGE)/\""  \
++AM_CPPFLAGS = -DSUPERTUXKART_DATADIR="\"$(datadir)/$(PACKAGE)/\""  \
+  -I$(srcdir)/bullet/src/ -I$(srcdir)/enet/include/
+ 
+ supertuxkart_SOURCES = \
+--- supertuxkart-0.7.orig/src/utils/translation.cpp
++++ supertuxkart-0.7/src/utils/translation.cpp
+@@ -103,6 +103,8 @@
+ // ----------------------------------------------------------------------------
+ const wchar_t* Translations::w_gettext(const char* original)
+ {
++    const char* original_t;
++
+     if (original[0] == '\0') return L"";
+     
+ #if TRANSLATE_VERBOSE
+@@ -114,7 +116,7 @@
+ #endif
+     
+ #if ENABLE_NLS
+-    const char* original_t = gettext(original);
++    original_t = gettext(original);
+ #else
+     m_converted_string = core::stringw(original);
+     return m_converted_string.c_str();
