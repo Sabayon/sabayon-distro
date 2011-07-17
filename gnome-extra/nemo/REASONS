@@ -1,8 +1,0 @@
-gnome-extra/nemo
-
-Ebuild added March, 2009
-Added by Ian Whyman <ian.whyman@sabayonlinux.org>
-
-New ebuild, added gnome-extra/nemo-2.3.ebuild at the request of Joost.
-
-Ebuild based on an ebuild found on Gentoo bug #22391
