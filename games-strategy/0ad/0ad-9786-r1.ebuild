@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -17,7 +17,7 @@ SRC_URI="mirror://sourceforge/zero-ad/${MY_P}-unix-build.tar.xz
 LICENSE="GPL-2 CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="debug +editor test"
+IUSE="debug +editor nvtt test"
 
 RDEPEND="virtual/opengl
 	media-libs/openal
@@ -27,13 +27,14 @@ RDEPEND="virtual/opengl
 	|| ( dev-libs/libgamin app-admin/fam )
 	editor? ( x11-libs/wxGTK:2.8 )
 	media-libs/devil
-	net-libs/enet:0
+	net-libs/enet:1.3
 	virtual/jpeg
 	media-libs/libpng
 	dev-libs/libxml2
 	media-libs/libvorbis
 	media-libs/libogg
-	net-misc/curl"
+	net-misc/curl
+	nvtt? ( dev-util/nvidia-texture-tools )"
 
 DEPEND="${RDEPEND}
 	dev-lang/nasm
@@ -53,13 +54,18 @@ pkg_setup() {
 }
 
 src_compile() {
+	UPDATE_ARGS="--with-system-enet"
+
 	if ! use editor ; then
-		sed -i "s:--atlas::" "${S}/build/workspaces/update-workspaces.sh" \
-		|| die "AtlasUI sed failed"
+		UPDATE_ARGS="${UPDATE_ARGS} --disable-atlas"
+	fi
+
+	if ! use nvtt ; then
+		UPDATE_ARGS="${UPDATE_ARGS} --with-system-nvtt"
 	fi
 
 	cd "${S}/build/workspaces"
-	./update-workspaces.sh || die "update-workspaces.sh failed"
+	./update-workspaces.sh ${UPDATE_ARGS} || die "update-workspaces.sh failed"
 	cd gcc
 
 	TARGETS="pyrogenesis Collada"
@@ -93,10 +99,12 @@ src_install() {
 
 	insinto "${dir}"/system
 
-	doins "${S}"/binaries/system/libnvcore.so || die "doins failed"
-	doins "${S}"/binaries/system/libnvimage.so || die "doins failed"
-	doins "${S}"/binaries/system/libnvmath.so || die "doins failed"
-	doins "${S}"/binaries/system/libnvtt.so || die "doins failed"
+	if use !nvtt ; then
+		doins "${S}"/binaries/system/libnvcore.so || die "doins failed"
+		doins "${S}"/binaries/system/libnvimage.so || die "doins failed"
+		doins "${S}"/binaries/system/libnvmath.so || die "doins failed"
+		doins "${S}"/binaries/system/libnvtt.so || die "doins failed"
+	fi
 
 	if use debug ; then
 		doins "${S}"/binaries/system/libmozjs-ps-debug.so || die "doins failed"
@@ -123,3 +131,4 @@ src_install() {
 
 	prepgamesdirs
 }
+
