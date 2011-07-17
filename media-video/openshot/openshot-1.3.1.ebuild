@@ -20,7 +20,7 @@ IUSE=""
 
 DEPEND=""
 RDEPEND="
-	>=x11-libs/gtk+-2.18
+	>=x11-libs/gtk+-2.18:2
 	dev-python/pygtk
 	dev-python/pygoocanvas
 	dev-python/pyxdg
