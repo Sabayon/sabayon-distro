@@ -1,0 +1,79 @@
+--- work.orig/ioq3-urt-git/ioq3-urt/code/client/cl_ui.c	2011-05-04 18:16:08.143400352 +0200
++++ work/ioq3-urt-git/ioq3-urt/code/client/cl_ui.c	2011-05-04 18:21:32.599472560 +0200
+@@ -28,6 +28,8 @@
+ 
+ vm_t *uivm;
+ 
++static void LAN_GetServerNameStr( char *buf, netadr_t adr,  int buflen );
++
+ /*
+ ====================
+ GetClientState
+@@ -36,7 +38,7 @@
+ static void GetClientState( uiClientState_t *state ) {
+ 	state->connectPacketCount = clc.connectPacketCount;
+ 	state->connState = cls.state;
+-	Q_strncpyz( state->servername, cls.servername, sizeof( state->servername ) );
++	LAN_GetServerNameStr( state->servername, clc.serverAddress, sizeof( state->servername) );
+ 	Q_strncpyz( state->updateInfoString, cls.updateInfoString, sizeof( state->updateInfoString ) );
+ 	Q_strncpyz( state->messageString, clc.serverMessage, sizeof( state->messageString ) );
+ 	state->clientNum = cl.snap.ps.clientNum;
+@@ -259,6 +261,48 @@
+ 
+ /*
+ ====================
++LAN_GetServerNameStr
++====================
++*/
++static void LAN_GetServerNameStrSrc( int source, netadr_t adr, char *buf, int buflen ){
++        int count,i;
++        serverInfo_t *servers = NULL;
++        count = 0;
++
++        switch (source) {
++                case AS_LOCAL :
++                        servers = &cls.localServers[0];
++                        count = MAX_OTHER_SERVERS;
++                        break;
++                case AS_MPLAYER :
++                case AS_GLOBAL :
++                        servers = &cls.globalServers[0];
++                        count = MAX_GLOBAL_SERVERS;
++                        break;
++                case AS_FAVORITES :
++                        servers = &cls.favoriteServers[0];
++                        count = MAX_OTHER_SERVERS;
++                        break;
++        }
++        if (servers) {
++                for (i = 0; i < count; i++) {
++                        if ( NET_CompareAdr (servers[i].adr, adr )){
++                                Q_strncpyz( buf, servers[i].hostName, buflen );
++                                return;
++                        }
++                }
++        }
++        buf[0] = '\0';
++}
++
++static void LAN_GetServerNameStr( char *buf, netadr_t adr,  int buflen ){
++        LAN_GetServerNameStrSrc( AS_LOCAL, adr, buf, buflen);
++        LAN_GetServerNameStrSrc( AS_GLOBAL, adr, buf, buflen);
++        LAN_GetServerNameStrSrc( AS_FAVORITES, adr, buf, buflen);
++}
++
++/*
++====================
+ LAN_GetServerInfo
+ ====================
+ */
+--- work.orig/ioq3-urt-git/ioq3-urt/code/ui/ui_public.h	2011-05-04 18:16:08.158400215 +0200
++++ work/ioq3-urt-git/ioq3-urt/code/ui/ui_public.h	2011-05-04 18:17:00.097931413 +0200
+@@ -30,6 +30,7 @@
+ 	int				connectPacketCount;
+ 	int				clientNum;
+ 	char			servername[MAX_STRING_CHARS];
++	char			servernamestr[MAX_STRING_CHARS];
+ 	char			updateInfoString[MAX_STRING_CHARS];
+ 	char			messageString[MAX_STRING_CHARS];
+ } uiClientState_t;
