@@ -60,7 +60,7 @@ src_compile() {
 		UPDATE_ARGS="${UPDATE_ARGS} --disable-atlas"
 	fi
 
-	if ! use nvtt ; then
+	if use nvtt ; then
 		UPDATE_ARGS="${UPDATE_ARGS} --with-system-nvtt"
 	fi
 
