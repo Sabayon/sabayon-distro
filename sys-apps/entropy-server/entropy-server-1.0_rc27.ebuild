@@ -1,18 +1,21 @@
-# Copyright 2004-2007 Sabayon Linux
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
 EAPI="3"
 PYTHON_DEPEND="2"
 inherit eutils python
 
-DESCRIPTION="Official Sabayon Linux Package Manager Server Interface (tagged release)"
+DESCRIPTION="Entropy Package Manager server-side tools"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-2"
+
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
+
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
-RESTRICT="mirror"
+
 S="${WORKDIR}/entropy-${PV}"
 
 DEPEND="~sys-apps/entropy-${PV}"
@@ -31,6 +34,5 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-        python_mod_cleanup "/usr/$(get_libdir)/entropy/server"
+	python_mod_cleanup "/usr/$(get_libdir)/entropy/server"
 }
-

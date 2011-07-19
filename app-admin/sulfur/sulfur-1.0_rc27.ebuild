@@ -1,27 +1,28 @@
-# Copyright 2004-2007 Sabayon Linux
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
 EAPI="3"
 PYTHON_DEPEND="2"
 inherit eutils gnome2-utils fdo-mime python
 
-DESCRIPTION="Sulfur, the Entropy Store (Sabayon Package Manager GUI)"
+DESCRIPTION="Sulfur, the Entropy Package Manager Store"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-2"
+
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
+
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
-RESTRICT="mirror"
 S="${WORKDIR}/entropy-${PV}/sulfur"
 
-RDEPEND="
-	!app-admin/spritz
-	>=dev-python/pygtk-2.12.1-r2
-	>=x11-libs/vte-0.12.2[python]
-	x11-misc/xdg-utils
+RDEPEND=">=dev-python/pygtk-2.12.1-r2
 	~sys-apps/entropy-${PV}
-	sys-apps/file[python]"
+	sys-apps/file[python]
+	sys-devel/gettext
+	>=x11-libs/vte-0.12.2[python]
+	x11-misc/xdg-utils"
 DEPEND="sys-devel/gettext"
 
 src_compile() {
@@ -29,7 +30,7 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" -j1 install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" install || die "make install failed"
 	dodir /etc/gconf/schemas
 	insinto /etc/gconf/schemas
 	doins "${S}/misc/entropy-handler.schemas"
@@ -44,8 +45,7 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-        python_mod_cleanup "/usr/$(get_libdir)/entropy/${PN}"
+	python_mod_cleanup "/usr/$(get_libdir)/entropy/${PN}"
 	gnome2_gconf_savelist
 	gnome2_gconf_uninstall
 }
-

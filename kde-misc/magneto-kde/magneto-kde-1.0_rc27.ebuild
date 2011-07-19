@@ -1,24 +1,26 @@
-# Copyright 2004-2009 Sabayon Linux
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
 EAPI="3"
 PYTHON_DEPEND="2"
 inherit eutils python multilib
 
-DESCRIPTION="Official Sabayon Linux Entropy Notification Applet (KDE/Qt version)"
+DESCRIPTION="Entropy Package Manager notification applet KDE frontend"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-2"
+
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
+
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
-RESTRICT="mirror"
 S="${WORKDIR}/entropy-${PV}/magneto"
 
-DEPEND="~app-misc/magneto-loader-${PV}
+RDEPEND="~app-misc/magneto-loader-${PV}
 	kde-base/pykde4
 	dev-python/PyQt4[dbus]"
-RDEPEND="${DEPEND}"
+DEPEND=""
 
 src_compile() {
 	einfo "nothing to compile"
@@ -33,6 +35,5 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-        python_mod_cleanup "/usr/$(get_libdir)/entropy/magneto/magneto/kde"
+	python_mod_cleanup "/usr/$(get_libdir)/entropy/magneto/magneto/kde"
 }
-

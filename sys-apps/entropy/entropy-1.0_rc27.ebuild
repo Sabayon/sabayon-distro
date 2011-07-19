@@ -1,31 +1,32 @@
-# Copyright 2004-2007 Sabayon Linux
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
 EAPI="3"
 PYTHON_DEPEND="2"
 inherit eutils python multilib
 
-DESCRIPTION="Official Sabayon Linux Package Manager library"
+DESCRIPTION="Entropy Package Manager foundation library"
 HOMEPAGE="http://www.sabayon.org"
-REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
-ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
+
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
+
 IUSE=""
 SRC_URI="mirror://sabayon/${CATEGORY}/${P}.tar.bz2"
-RESTRICT="mirror"
 
-DEPEND="
-	dev-db/sqlite[soundex]
-	|| ( dev-lang/python:2.6 dev-lang/python:2.7 )
-	dev-util/intltool
+RDEPEND="dev-db/sqlite[soundex]
 	net-misc/rsync
-	sys-apps/sandbox
-	sys-devel/gettext
 	sys-apps/diffutils
-	>=sys-apps/portage-2.1.9"
-RDEPEND="${DEPEND}"
+	sys-apps/sandbox
+	>=sys-apps/portage-2.1.9
+	sys-devel/gettext"
+DEPEND="${RDEPEND}
+	dev-util/intltool"
+
+REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
+ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
 
 pkg_setup() {
 	# Can:
@@ -40,7 +41,7 @@ pkg_setup() {
 
 src_compile() {
 	# TODO: move to separate package
-	cd "${S}"/misc/po
+	cd "${S}"/misc/po || die
 	emake || die "make failed"
 }
 
@@ -48,14 +49,11 @@ src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" entropy-install || die "make install failed"
 
 	# TODO: move to separate package
-	cd "${S}"/misc/po
+	cd "${S}"/misc/po || die
 	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" install || die "make install failed"
 }
 
 pkg_postinst() {
-
-	# make sure than old entropy pyc files don't interfere (this is a workaround)
-	find /usr/$(get_libdir)/entropy -name "*.pyc" | xargs rm &> /dev/null
 
 	# Copy config file over
 	if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
@@ -72,10 +70,6 @@ pkg_postinst() {
 	# force python 2.x
 	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3
 
-	echo
-	elog "Entropy packages cache has been moved to a more NFS-friendly location:"
-	elog "  /var/lib/entropy/client/packages/packages{-restricted,-nonfree,}"
-	elog "PLEASE make sure to update your mount points ASAP."
 	echo
 	elog "If you want to enable Entropy packages delta download support, please"
 	elog "install dev-util/bsdiff."
