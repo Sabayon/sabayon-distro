@@ -22,11 +22,18 @@ src_compile() {
 		cd "${S}"/${target} || die
 		emake || die
 	done
+	cd "${S}" || die
+	emake avahi-ui-gtk3.pc || die
 }
 
 src_install() {
 	cd "${S}"/avahi-ui || die
 	emake -j1 install py_compile=true DESTDIR="${D}" || die
+	cd "${S}" || die
+	dodir /usr/$(get_libdir)/pkgconfig
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins avahi-ui-gtk3.pc
+
 	avahi_src_install-cleanup
 
 	# Workaround for avahi-ui.h collision between avahi-gtk and avahi-gtk3

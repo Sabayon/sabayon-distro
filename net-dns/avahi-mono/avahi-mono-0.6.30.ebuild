@@ -28,9 +28,13 @@ src_compile() {
 		cd "${S}"/${target} || die
 		emake || die
 	done
+	cd "${S}" || die
+	emake avahi-sharp.pc || die
 	if use gtk; then
 		cd "${S}"/avahi-ui-sharp || die
 		emake || die
+		cd "${S}" || die
+		emake avahi-ui-sharp.pc || die
 	fi
 }
 
@@ -41,5 +45,10 @@ src_install() {
 		cd "${S}"/avahi-ui-sharp || die
 		emake install DESTDIR="${D}" || die
 	fi
+	cd "${S}" || die
+	dodir /usr/$(get_libdir)/pkgconfig
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins *.pc
+
 	avahi_src_install-cleanup
 }

@@ -31,6 +31,8 @@ src_compile() {
 		cd "${S}"/${target} || die
 		emake || die
 	done
+	cd "${S}" || die
+	emake avahi-ui.pc || die
 }
 
 src_install() {
@@ -40,6 +42,11 @@ src_install() {
 		cd "${S}"/avahi-python/avahi-discover || die
 		emake install py_compile=true DESTDIR="${D}" || die
 	fi
+	cd "${S}" || die
+	dodir /usr/$(get_libdir)/pkgconfig
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins avahi-ui.pc
+
 	avahi_src_install-cleanup
 }
 

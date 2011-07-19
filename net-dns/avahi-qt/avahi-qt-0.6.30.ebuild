@@ -4,6 +4,8 @@
 
 EAPI="3"
 
+inherit multilib
+
 IUSE=""
 COMMON_DEPEND="=net-dns/avahi-base-${PVR}
 	x11-libs/qt-core:4"
@@ -22,10 +24,18 @@ src_compile() {
 	emake || die
 	cd "${S}"/avahi-qt || die
 	emake || die
+	cd "${S}" || die
+	emake avahi-qt4.pc || die
 }
 
 src_install() {
 	cd "${S}"/avahi-qt || die
 	emake install DESTDIR="${D}" || die
+
+	cd "${S}" || die
+	dodir /usr/$(get_libdir)/pkgconfig
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins avahi-qt4.pc
+
 	avahi_src_install-cleanup
 }
