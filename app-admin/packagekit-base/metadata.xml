@@ -3,8 +3,8 @@
 <pkgmetadata>
 	<herd>no-herd</herd>
 	<maintainer>
-		<email>volkmar@gentoo.org</email>
-		<name>Mounir Lamouri</name>
+		<email>lxnay@gentoo.org</email>
+		<name>Fabio Erculiani</name>
 	</maintainer>
 	<use>
 		<flag name="connman">Add support for <pkg>net-misc/connman</pkg></flag>
