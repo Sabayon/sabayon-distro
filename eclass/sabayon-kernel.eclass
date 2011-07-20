@@ -96,6 +96,11 @@ K_WORKAROUND_SOURCES_COLLISION="${K_WORKAROUND_SOURCES_COLLISION:-}"
 # this variable and depmod will work correctly.
 K_WORKAROUND_USE_REAL_EXTRAVERSION="${K_WORKAROUND_USE_REAL_EXTRAVERSION:-}"
 
+# @ECLASS-VARIABLE: K_GENKERNEL_ARGS
+# @DESCRIPTION:
+# Provide extra genkernel arguments using K_GENKERNEL_ARGS
+K_GENKERNEL_ARGS="${K_GENKERNEL_ARGS-}"
+
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
 # Disable deblobbing feature
@@ -338,7 +343,7 @@ _kernel_src_compile() {
 	done
 	[ -z "${mkopts}" ] && mkopts="-j3"
 
-	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
+	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} ${K_GENKERNEL_ARGS} \
 		--kerneldir="${S}" \
 		--kernel-config="${WORKDIR}"/config \
 		--cachedir="${WORKDIR}"/cache \
