@@ -210,7 +210,7 @@ else
 	DEPEND="app-arch/xz-utils
 		sys-apps/sed
 		<sys-devel/make-3.82
-		>=sys-kernel/genkernel-3.4.13-r1
+		>=sys-kernel/genkernel-3.4.16-r1
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
