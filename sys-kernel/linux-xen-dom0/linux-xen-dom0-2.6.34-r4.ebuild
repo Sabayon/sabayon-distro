@@ -8,6 +8,7 @@ K_WANT_GENPATCHES="base extras"
 K_GENPATCHES_VER="13"
 K_SABKERNEL_NAME="xen"
 K_KERNEL_SOURCES_PKG="sys-kernel/xen-sources-${PVR}"
+K_SABKERNEL_NAME="xen-dom0"
 K_GENKERNEL_ARGS="--kernel-target= --kernel-binary=arch/x86/boot/vmlinuz"
 inherit sabayon-kernel
 
