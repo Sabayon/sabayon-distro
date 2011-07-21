@@ -4,18 +4,14 @@
 
 EAPI="4"
 
-inherit gnome2-utils
-
 DESCRIPTION="A gnome-shell extension to add the distributor logo beside the Activities button"
 HOMEPAGE="http://www.fpmurphy.com/gnome-shell-extensions"
-
-SRC_URI="http://www.fpmurphy.com/gnome-shell-extensions/activitiesbutton.tar.gz"
-S="${WORKDIR}/activitiesbutton@fpmurphy.com"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE=""
 KEYWORDS="~amd64 ~x86"
+IUSE=""
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.26
@@ -32,19 +28,9 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-util/intltool-0.26
 	gnome-base/gnome-common"
 
-src_prepare() {
-	:
-}
-
-src_configure() {
-	:
-}
-
-src_compile() {
-	:
-}
+S="${WORKDIR}"
 
 src_install()	{
 	insinto /usr/share/gnome-shell/extensions
-	doins -r  activitiesbutton@fpmurphy.com || die "doins failed"
+	doins -r activitiesbutton@fpmurphy.com
 }
