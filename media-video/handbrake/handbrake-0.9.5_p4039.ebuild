@@ -60,7 +60,7 @@ RDEPEND="sys-libs/zlib
 			dev-libs/libtasn1
 			dev-libs/libxml2
 			dev-libs/libxslt
-			net-libs/webkit-gtk
+			net-libs/webkit-gtk:2
 			media-libs/fontconfig
 			media-libs/gst-plugins-base
 			media-libs/gstreamer
