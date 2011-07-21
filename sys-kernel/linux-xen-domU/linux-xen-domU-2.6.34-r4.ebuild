@@ -11,10 +11,13 @@ K_KERNEL_SOURCES_PKG="sys-kernel/xen-sources-${PVR}"
 K_GENKERNEL_ARGS="--kernel-target= --kernel-binary=arch/x86/boot/vmlinuz"
 inherit sabayon-kernel
 
+# Also see:
+# http://ec2-downloads.s3.amazonaws.com/user_specified_kernels.pdf
+
 ############################################
 # upstream part
 
-DESCRIPTION="Full sources for a dom0/domU Linux kernel to run under Xen"
+DESCRIPTION="Xen domU Linux Kernel binaries suitable for running on Xen and Amazon EC2"
 HOMEPAGE="http://xen.org/"
 IUSE=""
 
