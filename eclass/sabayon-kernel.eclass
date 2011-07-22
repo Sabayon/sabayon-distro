@@ -329,7 +329,7 @@ _kernel_src_compile() {
 	OLDARCH="${ARCH}"
 	unset ARCH
 	cd "${S}"
-	GKARGS="--disklabel"
+	GKARGS="--no-save-config --disklabel"
 	use dracut && GKARGS="${GKARGS} --dracut"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
 	use dmraid && GKARGS="${GKARGS} --dmraid"
