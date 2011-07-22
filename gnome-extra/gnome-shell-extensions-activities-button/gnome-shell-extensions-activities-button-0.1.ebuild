@@ -28,6 +28,10 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-util/intltool-0.26
 	gnome-base/gnome-common"
 
+src_prepare() {
+	 sed -i -e "s:fedora-logo-icon:distributor-logo:" "activitiesbutton@fpmurphy.com/extension.js" || die "sed failed!"
+}
+
 S="${WORKDIR}"
 
 src_install()	{
