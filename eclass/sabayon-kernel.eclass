@@ -251,8 +251,12 @@ _update_depmod() {
 _get_release_level() {
 	if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
 		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
-	else
+	elif [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
 		echo "${KV_FULL}"
+	else
+		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
+		# need to add another final .0
+		echo "${KV_FULL}.0"
 	fi
 }
 
