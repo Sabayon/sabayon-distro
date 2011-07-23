@@ -140,6 +140,20 @@ if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
 	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
+_get_release_level() {
+	if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
+		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
+	elif [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
+		echo "${KV_FULL}"
+	elif [[ "${OKV/.*}" = "3" ]]; then
+		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
+		# need to add another final .0 to the version part
+		echo "${KV_FULL/-/.0-}"
+	else
+		echo "${KV_FULL}"
+	fi
+}
+
 # replace "linux" with K_SABKERNEL_NAME, usually replaces
 # "linux" with "sabayon" or "server" or "openvz"
 KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
@@ -148,7 +162,12 @@ EXTRAVERSION="${EXTRAVERSION/${PN/-*}/${K_SABKERNEL_NAME}}"
 [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]] && \
 	EXTRAVERSION="${EXTRAVERSION/-r*}" && KV_FULL="${KV_FULL/-r*}" && \
 	KV="${KV/-r*}"
-KV_OUT_DIR="/usr/src/linux-${KV_FULL}"
+# Starting from linux-3.0, we still have to install
+# sources stuff into /usr/src/linux-3.0.0-sabayon (example)
+# where the last part must always match uname -r
+# otherwise kernel-switcher (and RELEASE_LEVEL file)
+# will complain badly
+KV_OUT_DIR="/usr/src/linux-$(_get_release_level)"
 S="${WORKDIR}/linux-${KV_FULL}"
 
 
@@ -187,8 +206,8 @@ if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
 		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
 		SRC_URI="${SRC_URI}
-			amd64? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
-			x86? ( http://distfiles.sabayon.org/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
+			amd64? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
+			x86? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
 		use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
 		use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
 	else
@@ -245,18 +264,6 @@ _update_depmod() {
 		ewarn "You must manually update the kernel module dependencies using depmod."
 		eend 1
 		ewarn
-	fi
-}
-
-_get_release_level() {
-	if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
-		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
-	elif [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
-		echo "${KV_FULL}"
-	else
-		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
-		# need to add another final .0 to the version part
-		echo "${KV_FULL/-/.0-}"
 	fi
 }
 
