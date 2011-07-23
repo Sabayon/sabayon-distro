@@ -1,0 +1,22 @@
+Having a sed command at the top of the Makefile will break with
+current (3.82) GNU make.
+
+2011-05-23 Martin von Gagern
+
+Index: eresi-0.82_beta2/configure
+===================================================================
+--- eresi-0.82_beta2.orig/configure
++++ eresi-0.82_beta2/configure
+@@ -618,10 +618,10 @@ echo "RM      = rm -f "
+ echo ""								>> Makefile
+ echo "all     : world modules testsuite tags"			>> Makefile
+ 
++sed -ie "s%TESTING_ROOT=.*%TESTING_ROOT=`pwd`/%" eresi-config
++
+ cat >> Makefile <<EOF
+ 
+-sed -ie "s%TESTING_ROOT=.*%TESTING_ROOT=`pwd`/%" eresi-config
+-
+ ifdef NAME
+ include  build/defs/dep-rules.def
+ component:	dep-\$(NAME)

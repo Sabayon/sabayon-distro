@@ -1,0 +1,66 @@
+Index: librevm/Makefile
+===================================================================
+--- librevm/Makefile	(revision 1284)
++++ librevm/Makefile	(working copy)
+@@ -42,7 +42,7 @@
+ 			$(MAKE) -C io   all32
+ 			$(MAKE) -C api  all32
+ 
+-$(NAME32).so			:
++$(NAME32).so			: mod32
+ 			$(CC) -shared $(OBJ32) -o $(NAME32).so $(LDFLAGS32) \
+ 			$(STATOPT) $(NCURSESLNOPT) $(READLNOPT)
+ 			ar rc ${NAME32}.a ${OBJ32} 
+@@ -57,7 +57,7 @@
+ 			$(MAKE) -C io   all64
+ 			$(MAKE) -C api  all64
+ 
+-lib64			:
++lib64			: mod64
+ 			$(CC) -shared $(OBJ64) -o $(NAME64).so $(LDFLAGS64) \
+ 			$(STATOPT) $(NCURSESLNOPT) $(READLNOPT)
+ 			ar rc ${NAME64}.a ${OBJ64} 
+Index: libstderesi/Makefile
+===================================================================
+--- libstderesi/Makefile	(revision 1284)
++++ libstderesi/Makefile	(working copy)
+@@ -47,7 +47,7 @@
+ 			$(MAKE) -C analysis all32
+ 			$(MAKE) -C files all32
+ 
+-$(NAME32).so		:
++$(NAME32).so		: mod32
+ 			$(CC) -shared $(OBJ32) -o $(NAME32).so $(LDFLAGS32) \
+ 			$(NCURSESLNOPT) $(READLNOPT)
+ 			ar rc ${NAME32}.a ${OBJ32} 
+@@ -66,7 +66,7 @@
+ 			$(MAKE) -C analysis all64
+ 			$(MAKE) -C files all64
+ 
+-$(NAME64).so			:
++$(NAME64).so			: mod64
+ 			$(CC) -shared $(OBJ64) -o $(NAME64).so $(LDFLAGS64) \
+ 			$(STATOPT) $(NCURSESLNOPT) $(READLNOPT)
+ 			ar rc ${NAME64}.a ${OBJ64} 
+Index: libe2dbg/Makefile
+===================================================================
+--- libe2dbg/Makefile	(revision 1284)
++++ libe2dbg/Makefile	(working copy)
+@@ -52,7 +52,7 @@
+ 			$(MAKE) -C kernel 
+ endif
+ 
+-$(DBGNAME32O):
++$(DBGNAME32O): mod32
+ 			@$(CC) -shared $(COBJ32) $(EXTRAOBJ32) $(UOBJ32) $(LDFLAGS32) \
+ 			-o $(DBGNAME32).so
+ 			@$(AR) $(DBGNAME32).a $(COBJ32) $(UOBJ32) $(EXTRAOBJ32)
+@@ -70,7 +70,7 @@
+ 			$(MAKE) -C common all64
+ 			$(MAKE) -C user   all64
+ 
+-$(DBGNAME64O)			:
++$(DBGNAME64O)			: mod64
+ 			@$(CC) -shared $(COBJ64) $(EXTRAOBJ64) $(UOBJ64) $(LDFLAGS64) \
+ 			-o $(DBGNAME64).so
+ 			@$(AR) $(DBGNAME64).a $(OBJ64)

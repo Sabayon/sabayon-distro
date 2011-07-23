@@ -1,0 +1,17 @@
+Avoid autodetecting Gentoo using any kind of black magic.
+
+2011-05-23 Martin von Gagern
+
+Index: eresi-0.82_beta2/configure
+===================================================================
+--- eresi-0.82_beta2.orig/configure
++++ eresi-0.82_beta2/configure
+@@ -20,7 +20,7 @@ VARSFILE="librevm/include/revm-vars.h"
+ LIBVARSFILE="libelfsh/include/libvars.h"
+ LPTHREAD="-lpthread"
+ SHELL=`which bash`
+-GENTOO=` uname -a | grep gentoo` 
++GENTOO=yes
+ 
+ printHelp() 
+ {
