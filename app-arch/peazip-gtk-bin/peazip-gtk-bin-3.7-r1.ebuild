@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI="3"
-inherit eutils
+inherit eutils multilib
 
 DESCRIPTION="Open Source file and archive manager: flexible, portable, secure, and free as in freedom"
 HOMEPAGE="http://www.peazip.org"
@@ -25,7 +25,7 @@ MY_GTK_RDEPEND="!${CATEGORY}/${MY_PN}-qt4-bin
 	amd64? ( app-emulation/emul-linux-x86-gtklibs )
 	x86? ( x11-libs/cairo
 		x11-libs/gdk-pixbuf
-		x11-libs/gtk+ )"
+		x11-libs/gtk+:2 )"
 
 MY_QT4_RDEPEND="!${CATEGORY}/${MY_PN}-gtk-bin
 	amd64? ( app-emulation/emul-linux-x86-qtlibs )
@@ -94,8 +94,6 @@ src_install() {
 	mkdir -p opt
 	cp -Rf "${S}"/usr/local/share/* opt
 
-	chmod -R 644 usr/share
-
 	mkdir -p usr/bin
 	ln -sf ../../opt/PeaZip/res/pea usr/bin/pea
 	ln -sf ../../opt/PeaZip/res/pealauncher usr/bin/pealauncher
@@ -105,9 +103,8 @@ src_install() {
 		# /opt/PeaZip/libQt4Pas.so.5
 		# unfortunately this app's helpers does not work
 		# if we make a wrapper with LD_LIBRARY_PATH
-		mkdir -p usr/{lib,lib32}
-		ln -s ../../opt/PeaZip/libQt4Pas.so usr/lib/libQt4Pas.so.5
-		ln -s ../../opt/PeaZip/libQt4Pas.so usr/lib32/libQt4Pas.so.5
+		mkdir -p usr/"$(get_libdir)"
+		ln -s ../../opt/PeaZip/libQt4Pas.so usr/"$(get_libdir)"/libQt4Pas.so.5
 	fi
 }
 
