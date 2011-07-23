@@ -94,6 +94,8 @@ src_install() {
 	mkdir -p opt
 	cp -Rf "${S}"/usr/local/share/* opt
 
+	find usr/share -type f -exec chmod a-x {} \;
+
 	mkdir -p usr/bin
 	ln -sf ../../opt/PeaZip/res/pea usr/bin/pea
 	ln -sf ../../opt/PeaZip/res/pealauncher usr/bin/pealauncher
