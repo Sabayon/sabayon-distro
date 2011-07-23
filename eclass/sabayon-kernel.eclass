@@ -255,8 +255,8 @@ _get_release_level() {
 		echo "${KV_FULL}"
 	else
 		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
-		# need to add another final .0
-		echo "${KV_FULL}.0"
+		# need to add another final .0 to the version part
+		echo "${KV_FULL/-/.0-}"
 	fi
 }
 
