@@ -33,7 +33,7 @@ S="${WORKDIR}"
 _check_kernel_config() {
 	local failed=0
 	local error=""
-	if ! kernel_is 2 6; then
+	if ! kernel_is ge 2 6; then
 		eerror "You need a 2.6 linux kernel to compile against!"
 		die "No 2.6 Kernel found"
 	fi
@@ -74,7 +74,7 @@ _check_kernel_config() {
 		eerror "    Bus options (PCI etc.)  --->"
 		eerror "        [*] Message Signaled Interrupts (MSI and MSI-X)"
 		eerror "in the kernel config."
-		error+="CONFIG_PCI_MSI disabled"
+		error+=" CONFIG_PCI_MSI disabled"
 		failed=1
 	fi
 
@@ -89,7 +89,7 @@ _check_kernel_config() {
 		eerror "        [ ] Lock debugging: prove locking correctness"
 		eerror "        [ ] Lock usage statistics"
 		eerror "in 'menuconfig'"
-		error+="LOCKDEP enabled"
+		error+=" LOCKDEP enabled"
 		failed=1
 	fi
 
@@ -102,7 +102,7 @@ _check_kernel_config() {
 		eerror "if this doesn't enable CONFIG_COMPAT add"
 		eerror "    CONFIG_COMPAT=y"
 		eerror "in /usr/src/linux/.config"
-		error+="COMPAT disabled"
+		error+=" COMPAT disabled"
 		failed=1
 	fi
 
@@ -115,7 +115,7 @@ _check_kernel_config() {
 		eerror "or add"
 		eerror "    CONFIG_BKL=y"
 		eerror "in /usr/src/linux/.config"
-		error+="BKL disabled"
+		error+=" BKL disabled"
 		failed=1
 	fi
 
