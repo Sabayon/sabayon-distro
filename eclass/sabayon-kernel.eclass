@@ -140,23 +140,25 @@ if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
 	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
+_ORIGINAL_KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
 _get_release_level() {
 	if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
 		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
 	elif [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
-		echo "${KV_FULL}"
+		echo "${_ORIGINAL_KV_FULL}"
 	elif [[ "${OKV/.*}" = "3" ]]; then
 		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
 		# need to add another final .0 to the version part
-		echo "${KV_FULL/-/.0-}"
+		echo "${_ORIGINAL_KV_FULL/-/.0-}"
 	else
-		echo "${KV_FULL}"
+		echo "${_ORIGINAL_KV_FULL}"
 	fi
 }
 
 # replace "linux" with K_SABKERNEL_NAME, usually replaces
 # "linux" with "sabayon" or "server" or "openvz"
-KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
+_KV_FULL=$(_get_release_level)
+KV_FULL="${_KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
 EXTRAVERSION="${EXTRAVERSION/${PN/-*}/${K_SABKERNEL_NAME}}"
 # drop -rX if exists
 [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]] && \
@@ -167,7 +169,7 @@ EXTRAVERSION="${EXTRAVERSION/${PN/-*}/${K_SABKERNEL_NAME}}"
 # where the last part must always match uname -r
 # otherwise kernel-switcher (and RELEASE_LEVEL file)
 # will complain badly
-KV_OUT_DIR="/usr/src/linux-$(_get_release_level)"
+KV_OUT_DIR="/usr/src/linux-${KV_FULL}"
 S="${WORKDIR}/linux-${KV_FULL}"
 
 
@@ -399,7 +401,7 @@ _kernel_sources_src_install() {
 
 	_kernel_copy_config ".config"
 	kernel-2_src_install
-	cd "${D}/usr/src/linux-${KV_FULL}"
+	cd "${D}/usr/src/linux-${KV_FULL}" || die
 	local oldarch="${ARCH}"
 	unset ARCH
 	if ! use sources_standalone; then
