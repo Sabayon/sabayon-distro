@@ -140,7 +140,7 @@ if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
 	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
-_get_kv_full() {
+_get_real_kv_full() {
 	if [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
 		echo "${KV_FULL}"
 	elif [[ "${OKV/.*}" = "3" ]] && [[ "${KV_PATCH}" = "0" ]]; then
@@ -162,13 +162,15 @@ if [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]]; th
 	KV_FULL="${KV_FULL%-r*}"
 	KV="${KV%-r*}"
 fi
+# rewrite it
+KV_FULL="$(_get_real_kv_full)"
 
 # Starting from linux-3.0, we still have to install
 # sources stuff into /usr/src/linux-3.0.0-sabayon (example)
 # where the last part must always match uname -r
 # otherwise kernel-switcher (and RELEASE_LEVEL file)
 # will complain badly
-KV_OUT_DIR="/usr/src/linux-$(_get_kv_full)"
+KV_OUT_DIR="/usr/src/linux-${KV_FULL}"
 S="${WORKDIR}/linux-${KV_FULL}"
 
 
@@ -340,7 +342,7 @@ _kernel_src_compile() {
 	rm -rf "${S}"/temp
 	OLDARCH="${ARCH}"
 	unset ARCH
-	cd "${S}"
+	cd "${S}" || die
 	GKARGS="--no-save-config --disklabel"
 	use dracut && GKARGS="${GKARGS} --dracut"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
@@ -386,11 +388,12 @@ sabayon-kernel_src_install() {
 _firmwares_src_install() {
 	dodir /lib/firmware
 	keepdir /lib/firmware
-	( cd "${S}" && emake INSTALL_FW_PATH="${D}/lib/firmware" firmware_install ) || die "cannot install firmwares"
+	cd "${S}" || die
+	emake INSTALL_FW_PATH="${D}/lib/firmware" firmware_install || die "cannot install firmwares"
 }
 
 _kernel_sources_src_install() {
-	local version_h_name="usr/src/linux-${KV_FULL}/include/linux"
+	local version_h_name="${KV_OUT_DIR/\//}/include/linux"
 	local version_h="${ROOT}${version_h_name}"
 	if [ -f "${version_h}" ]; then
 		einfo "Discarding previously installed version.h to avoid collisions"
@@ -400,7 +403,7 @@ _kernel_sources_src_install() {
 
 	_kernel_copy_config ".config"
 	kernel-2_src_install
-	cd "${D}/usr/src/linux-${KV_FULL}" || die
+	cd "${D}${KV_OUT_DIR}" || die
 	local oldarch="${ARCH}"
 	unset ARCH
 	if ! use sources_standalone; then
@@ -424,7 +427,7 @@ _kernel_src_install() {
 
 	# NOTE: this is a workaround caused by linux-info.eclass not
 	# being ported to EAPI=2 yet
-	local version_h_name="usr/src/linux-${KV_FULL}/include/linux"
+	local version_h_name="${KV_OUT_DIR/\//}/include/linux"
 	local version_h="${ROOT}${version_h_name}/version.h"
 	if [ -f "${version_h}" ]; then
 		einfo "Discarding previously installed version.h to avoid collisions"
@@ -451,7 +454,7 @@ _kernel_src_install() {
 	# create sane symlinks
 	ln -sf "../../..${KV_OUT_DIR}" source || die "cannot create source symlink"
 	ln -sf "../../..${KV_OUT_DIR}" build || die "cannot create build symlink"
-	cd "${S}"
+	cd "${S}" || die
 
 	# drop ${D}/lib/firmware, virtual/linux-firmwares provides it
 	rm -rf "${D}/lib/firmware"
@@ -460,7 +463,7 @@ _kernel_src_install() {
 		# Fixing up Makefile collision if already installed by
 		# openvz-sources
 		einfo "Workarounding source package collisions"
-		make_file="usr/src/linux-${KV_FULL}/Makefile"
+		make_file="${KV_OUT_DIR/\//}/Makefile"
 		einfo "Makefile: ${make_file}"
 		if [ -f "${ROOT}/${make_file}" ]; then
 			elog "Removing ${D}/${make_file}"
@@ -475,7 +478,7 @@ _kernel_src_install() {
 		base_dir="/etc/kernels/${P}"
 		dodir "${base_dir}"
 		insinto "${base_dir}"
-		local depmod_r=$(_get_kv_full)
+		local depmod_r=$(_get_real_kv_full)
 		echo "${depmod_r}" > "RELEASE_LEVEL"
 		doins "RELEASE_LEVEL"
 		einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${depmod_r}"
