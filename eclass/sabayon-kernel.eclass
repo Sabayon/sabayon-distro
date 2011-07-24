@@ -162,8 +162,9 @@ KV_FULL="${_KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
 EXTRAVERSION="${EXTRAVERSION/${PN/-*}/${K_SABKERNEL_NAME}}"
 # drop -rX if exists
 [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]] && \
-	EXTRAVERSION="${EXTRAVERSION/-r*}" && KV_FULL="${KV_FULL/-r*}" && \
-	KV="${KV/-r*}"
+	EXTRAVERSION="${EXTRAVERSION%-r*}" && KV_FULL="${KV_FULL%-r*}" && \
+	_ORIGINAL_KV_FULL="${_ORIGINAL_KV_FULL%-r*}" && KV="${KV%-r*}"
+
 # Starting from linux-3.0, we still have to install
 # sources stuff into /usr/src/linux-3.0.0-sabayon (example)
 # where the last part must always match uname -r
