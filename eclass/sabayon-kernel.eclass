@@ -481,7 +481,7 @@ _kernel_src_install() {
 		insinto "${base_dir}"
 		echo "${KV_FULL}" > "RELEASE_LEVEL"
 		doins "RELEASE_LEVEL"
-		einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${depmod_r}"
+		einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${KV_FULL}"
 	fi
 }
 
