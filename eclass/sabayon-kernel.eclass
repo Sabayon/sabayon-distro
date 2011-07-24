@@ -140,32 +140,26 @@ if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
 	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
-_get_release_level() {
-	if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
-		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
-	elif [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
-		echo "${_ORIGINAL_KV_FULL}"
-	elif [[ "${OKV/.*}" = "3" ]]; then
+_get_kv_full() {
+	if [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
+		echo "${KV_FULL}"
+	elif [[ "${OKV/.*}" = "3" ]] && [[ "${KV_PATCH}" = "0" ]]; then
 		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
 		# need to add another final .0 to the version part
-		echo "${_ORIGINAL_KV_FULL/-/.0-}"
+		echo "${KV_FULL/-/.0-}"
 	else
-		echo "${_ORIGINAL_KV_FULL}"
+		echo "${KV_FULL}"
 	fi
 }
 
 # replace "linux" with K_SABKERNEL_NAME, usually replaces
 # "linux" with "sabayon" or "server" or "openvz"
-_ORIGINAL_KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
-_KV_FULL=$(_get_release_level)
-KV_FULL="${_KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
+KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
 EXTRAVERSION="${EXTRAVERSION/${PN/-*}/${K_SABKERNEL_NAME}}"
 # drop -rX if exists
 if [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]]; then
 	EXTRAVERSION="${EXTRAVERSION%-r*}"
 	KV_FULL="${KV_FULL%-r*}"
-	_KV_FULL="${KV_FULL%-r*}"
-	_ORIGINAL_KV_FULL="${_ORIGINAL_KV_FULL%-r*}"
 	KV="${KV%-r*}"
 fi
 
@@ -174,7 +168,7 @@ fi
 # where the last part must always match uname -r
 # otherwise kernel-switcher (and RELEASE_LEVEL file)
 # will complain badly
-KV_OUT_DIR="/usr/src/linux-${KV_FULL}"
+KV_OUT_DIR="/usr/src/linux-$(_get_kv_full)"
 S="${WORKDIR}/linux-${KV_FULL}"
 
 
@@ -481,18 +475,11 @@ _kernel_src_install() {
 		base_dir="/etc/kernels/${P}"
 		dodir "${base_dir}"
 		insinto "${base_dir}"
-		local depmod_r=$(_get_release_level)
+		local depmod_r=$(_get_kv_full)
 		echo "${depmod_r}" > "RELEASE_LEVEL"
 		doins "RELEASE_LEVEL"
 		einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${depmod_r}"
 	fi
-}
-
-_get_real_extraversion() {
-	make_file="${ROOT}${KV_OUT_DIR}/Makefile"
-	local extraver=$(grep -r "^EXTRAVERSION" "${make_file}" | cut -d "=" -f 2)
-	local trimmed=${extraver%% }
-	echo ${trimmed## }
 }
 
 sabayon-kernel_pkg_preinst() {
@@ -504,6 +491,27 @@ sabayon-kernel_grub2_mkconfig() {
 	if [ -x "${ROOT}sbin/grub-mkconfig" ]; then
 		"${ROOT}sbin/grub-mkdevicemap" --device-map="${ROOT}boot/grub/device.map"
 		"${ROOT}sbin/grub-mkconfig" -o "${ROOT}boot/grub/grub.cfg"
+	fi
+}
+
+_get_real_extraversion() {
+	make_file="${ROOT}${KV_OUT_DIR}/Makefile"
+	local extraver=$(grep -r "^EXTRAVERSION" "${make_file}" | cut -d "=" -f 2)
+	local trimmed=${extraver%% }
+	echo ${trimmed## }
+}
+
+_get_release_level() {
+	if [[ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]]; then
+		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
+	elif [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
+		echo "${KV_FULL}"
+	elif [[ "${OKV/.*}" = "3" ]] && [[ "${KV_PATCH}" = "0" ]]; then
+		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
+		# need to add another final .0 to the version part
+		echo "${KV_FULL/-/.0-}"
+	else
+		echo "${KV_FULL}"
 	fi
 }
 
