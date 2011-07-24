@@ -142,13 +142,13 @@ fi
 
 _get_real_kv_full() {
 	if [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
-		echo "${KV_FULL}"
+		echo "${ORIGINAL_KV_FULL}"
 	elif [[ "${OKV/.*}" = "3" ]] && [[ "${KV_PATCH}" = "0" ]]; then
 		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
 		# need to add another final .0 to the version part
-		echo "${KV_FULL/-/.0-}"
+		echo "${ORIGINAL_KV_FULL/-/.0-}"
 	else
-		echo "${KV_FULL}"
+		echo "${ORIGINAL_KV_FULL}"
 	fi
 }
 
@@ -163,6 +163,7 @@ if [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]]; th
 	KV="${KV%-r*}"
 fi
 # rewrite it
+ORIGINAL_KV_FULL="${KV_FULL}"
 KV_FULL="$(_get_real_kv_full)"
 
 # Starting from linux-3.0, we still have to install
@@ -478,8 +479,7 @@ _kernel_src_install() {
 		base_dir="/etc/kernels/${P}"
 		dodir "${base_dir}"
 		insinto "${base_dir}"
-		local depmod_r=$(_get_real_kv_full)
-		echo "${depmod_r}" > "RELEASE_LEVEL"
+		echo "${KV_FULL}" > "RELEASE_LEVEL"
 		doins "RELEASE_LEVEL"
 		einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${depmod_r}"
 	fi
