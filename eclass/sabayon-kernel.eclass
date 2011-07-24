@@ -140,7 +140,6 @@ if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
 	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
-_ORIGINAL_KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
 _get_release_level() {
 	if [ -n "${K_WORKAROUND_USE_REAL_EXTRAVERSION}" ]; then
 		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
@@ -157,13 +156,18 @@ _get_release_level() {
 
 # replace "linux" with K_SABKERNEL_NAME, usually replaces
 # "linux" with "sabayon" or "server" or "openvz"
+_ORIGINAL_KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
 _KV_FULL=$(_get_release_level)
 KV_FULL="${_KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
 EXTRAVERSION="${EXTRAVERSION/${PN/-*}/${K_SABKERNEL_NAME}}"
 # drop -rX if exists
-[[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]] && \
-	EXTRAVERSION="${EXTRAVERSION%-r*}" && KV_FULL="${KV_FULL%-r*}" && \
-	_ORIGINAL_KV_FULL="${_ORIGINAL_KV_FULL%-r*}" && KV="${KV%-r*}"
+if [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]]; then
+	EXTRAVERSION="${EXTRAVERSION%-r*}"
+	KV_FULL="${KV_FULL%-r*}"
+	_KV_FULL="${KV_FULL%-r*}"
+	_ORIGINAL_KV_FULL="${_ORIGINAL_KV_FULL%-r*}"
+	KV="${KV%-r*}"
+fi
 
 # Starting from linux-3.0, we still have to install
 # sources stuff into /usr/src/linux-3.0.0-sabayon (example)
