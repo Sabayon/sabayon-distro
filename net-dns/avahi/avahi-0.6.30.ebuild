@@ -19,6 +19,6 @@ COMMON_DEPEND="=net-dns/avahi-base-${PVR}[autoipd=,bookmarks=,dbus=,doc=,gdbm=,h
 	utils? ( =net-dns/avahi-gtk-${PVR}[utils] )
 	gtk3? ( =net-dns/avahi-gtk3-${PVR} )
 	mono? ( =net-dns/avahi-mono-${PVR} )
-	qt4? ( =net-dns/avahi-qt4-${PVR} )"
+	qt4? ( =net-dns/avahi-qt-${PVR} )"
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${DEPEND}"
