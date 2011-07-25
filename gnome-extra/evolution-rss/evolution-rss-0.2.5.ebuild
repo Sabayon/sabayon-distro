@@ -13,16 +13,23 @@ SRC_URI="http://gnome.eu.org/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="dbus webkit"
+IUSE="dbus nls webkit"
 
-RDEPEND=">=mail-client/evolution-2.32
-	>=gnome-base/gconf-2.32.0-r1
-	net-libs/libsoup:2.4
+RDEPEND="app-text/enchant
+	dev-libs/expat
 	>=dev-libs/glib-2.26.1:2
+	>=gnome-base/gconf-2.32.0-r1
 	>=gnome-base/libglade-2
+	gnome-base/orbit:2
 	>=gnome-extra/gtkhtml-3.32.1:3.14
-	>=x11-libs/gtk+-2.22.1-r1:2
 	>=gnome-extra/evolution-data-server-2.32
+	net-libs/libsoup:2.4
+	>=mail-client/evolution-2.32
+	media-libs/fontconfig
+	media-libs/freetype:2
+	media-libs/libpng:0
+	>=x11-libs/gtk+-2.22.1-r1:2
+	x11-libs/pango
 	dbus? ( dev-libs/dbus-glib )
 	webkit? ( net-libs/webkit-gtk )"
 
@@ -42,6 +49,7 @@ pkg_setup() {
 	G2CONF="${G2CONF}
 		--disable-schemas-install
 		$(use_enable dbus)
+		$(use_enable nls)
 		$(use_enable webkit)"
 
 		# $(use_enable xulrunner gecko)
