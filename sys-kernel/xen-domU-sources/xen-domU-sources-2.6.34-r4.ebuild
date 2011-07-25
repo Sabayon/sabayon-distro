@@ -1,15 +1,14 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 2004-2011 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
 ETYPE="sources"
 UNIPATCH_STRICTORDER="1"
 K_WANT_GENPATCHES="base extras"
 K_GENPATCHES_VER="13"
 K_SABKERNEL_NAME="xen"
-K_KERNEL_SOURCES_PKG="sys-kernel/xen-domU-sources-${PVR}"
 K_SABKERNEL_NAME="xen-domU"
-K_GENKERNEL_ARGS="--kernel-target= --kernel-binary=arch/x86/boot/vmlinuz"
+K_ONLY_SOURCES="1"
+
 inherit sabayon-kernel
 
 # Also see:
@@ -18,7 +17,7 @@ inherit sabayon-kernel
 ############################################
 # upstream part
 
-DESCRIPTION="Xen domU Linux Kernel binaries suitable for running on Xen and Amazon EC2"
+DESCRIPTION="Xen domU Linux Kernel sources suitable for running on Xen and Amazon EC2"
 HOMEPAGE="http://xen.org/"
 IUSE=""
 
@@ -36,7 +35,3 @@ DEPEND="${DEPEND} >=sys-devel/binutils-2.17"
 
 # upstream part
 ############################################
-
-
-
-
