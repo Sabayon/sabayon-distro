@@ -38,6 +38,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	epatch "${WORKDIR}"/gentoo/patches
 
+	epatch "${FILESDIR}/${PN}-linux-3.0.patch"
+
 	# packaging is f-ed up, so we can't run automake (i.e. eautoreconf)
 	sed -i 's/^\(\s*\)a/\1ea/' regen.sh
 	: # this line makes repoman ok with not calling eautoconf etc. directly
@@ -53,12 +55,6 @@ src_configure() {
 }
 
 src_compile() {
-	if kernel_is ge 3 0; then
-		# fixup header files
-		for x in ${S}/src/config/*param*_linux26.h; do
-			cp "${x}" "${x/26/${KV_MAJOR}${KV_MINOR}}" -p || die
-		done
-	fi
 	ARCH="$(tc-arch-kernel)" emake -j1 only_libafs || die
 }
 
