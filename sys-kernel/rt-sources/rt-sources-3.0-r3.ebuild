@@ -19,8 +19,7 @@ http://www.kernel.org/pub/linux/kernel/projects/rt/${RT_PATCH}
 http://www.kernel.org/pub/linux/kernel/projects/rt/older/${RT_PATCH}"
 
 
-KEYWORDS="" #This version doesn't work well now.
-#KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 src_unpack(){
