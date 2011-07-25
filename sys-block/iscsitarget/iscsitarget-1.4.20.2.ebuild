@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-block/iscsitarget/iscsitarget-1.4.19.ebuild,v 1.5 2010/06/21 20:22:21 maekke Exp $
+# $Header: $
 
 inherit linux-mod eutils flag-o-matic
 
@@ -29,6 +29,7 @@ src_unpack() {
 	kernel_is ge 2 6 38 && epatch "${FILESDIR}/${PN}-2.6.38.patch"
 	kernel_is ge 2 6 39 && epatch "${FILESDIR}/block-io.c-new-plugging-method.patch"
 	kernel_is ge 2 6 39 && epatch "${FILESDIR}/iotype.c-rwlock.patch"
+	kernel_is ge 3 0 0 && epatch "${FILESDIR}/${PN}-3.0.patch"
 	convert_to_m "${S}"/Makefile
 }
 
