@@ -157,7 +157,8 @@ _get_real_kv_full() {
 KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
 EXTRAVERSION="${EXTRAVERSION/${PN/-*}/${K_SABKERNEL_NAME}}"
 # drop -rX if exists
-if [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]]; then
+if [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]] \
+		&& [[ -z "${K_NOSETEXTRAVERSION}" ]]; then
 	EXTRAVERSION="${EXTRAVERSION%-r*}"
 	KV_FULL="${KV_FULL%-r*}"
 	KV="${KV%-r*}"
