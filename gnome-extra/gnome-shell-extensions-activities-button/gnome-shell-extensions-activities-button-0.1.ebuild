@@ -29,7 +29,8 @@ DEPEND="${COMMON_DEPEND}
 	gnome-base/gnome-common"
 
 src_prepare() {
-	 sed -i -e "s:fedora-logo-icon:distributor-logo:" "activitiesbutton@fpmurphy.com/extension.js" || die "sed failed!"
+	sed -i -e "s:fedora-logo-icon:distributor-logo:" "activitiesbutton@fpmurphy.com/extension.js" || die "sed failed!"
+	sed -i -e "s/font-size: 18px;/font-size: 14px;/" "activitiesbutton@fpmurphy.com/stylesheet.css" || die "sed failed!"
 }
 
 S="${WORKDIR}"
