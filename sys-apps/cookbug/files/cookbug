@@ -114,6 +114,11 @@ COMMANDS_MAP = {
         'out': "messages.txt",
         'desc': "System Logger messages",
     },
+    'installed_pkgs': {
+        'args': ("equo", "query", "list", "installed", "-qv"),
+        'out': "installed_pkgs.txt",
+        'desc': "Installed Packages",
+    },
 }
 xsession_errors = glob.glob("/home/*/.xsession-errors")
 if xsession_errors:
