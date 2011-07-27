@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-13.0.782.24-r1.ebuild,v 1.1 2011/06/17 15:10:48 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-13.0.782.99.ebuild,v 1.1 2011/07/21 03:07:43 phajdan.jr Exp $
 
 EAPI="3"
 PYTHON_DEPEND="2:2.6"
@@ -51,6 +51,7 @@ DEPEND="${RDEPEND}
 	dev-lang/yasm
 	>=dev-util/gperf-3.0.3
 	>=dev-util/pkgconfig-0.23
+	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	>=sys-devel/make-3.81-r2
 	x11-libs/libXinerama
@@ -121,6 +122,15 @@ src_prepare() {
 
 	# Make sure we don't use bundled libvpx headers.
 	epatch "${FILESDIR}/${PN}-system-vpx-r4.patch"
+
+	# Backport build fix for perl-5.14, bug #372301.
+	epatch "${FILESDIR}/${PN}-perl-5.14-r0.patch"
+
+	# Backport build fix for glibc-2.14, bug #372495.
+	epatch "${FILESDIR}/${PN}-glibc-2.14-r0.patch"
+
+	# Fix build without libgcrypt, bug #373079.
+	epatch "${FILESDIR}/${PN}-libgcrypt-r0.patch"
 
 	# Remove most bundled libraries. Some are still needed.
 	find third_party -type f \! -iname '*.gyp*' \
@@ -280,8 +290,18 @@ src_install() {
 	doexe out/Release/chrome_sandbox || die
 	fperms 4755 "${CHROMIUM_HOME}/chrome_sandbox"
 
+	# Install Native Client files on platforms that support it.
 	insinto "${CHROMIUM_HOME}"
-	doins out/Release/libppGoogleNaClPluginChrome.so || die
+	case "$(tc-arch)" in
+		amd64)
+			doins native_client/irt_binaries/nacl_irt_x86_64.nexe || die
+			doins out/Release/libppGoogleNaClPluginChrome.so || die
+		;;
+		x86)
+			doins native_client/irt_binaries/nacl_irt_x86_32.nexe || die
+			doins out/Release/libppGoogleNaClPluginChrome.so || die
+		;;
+	esac
 
 	newexe "${FILESDIR}"/chromium-launcher-r2.sh chromium-launcher.sh || die
 
@@ -362,8 +382,9 @@ src_install() {
 	local mime_types="text/html;text/xml;application/xhtml+xml;"
 	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
 	make_desktop_entry chromium-browser "Chromium" chromium-browser \
-		"Network;WebBrowser" "MimeType=${mime_types}"
-	sed -e "/^Exec/s/$/ %U/" -i "${D}"/usr/share/applications/*.desktop || die
+		"Network;WebBrowser"
+		"MimeType=${mime_types}\nStartupWMClass=chromium-browser"
+	sed -e "/^Exec/s/$/ %U/" -i "${ED}"/usr/share/applications/*.desktop || die
 
 	# Install GNOME default application entry (bug #303100).
 	if use gnome; then
