@@ -17,6 +17,7 @@ inherit eutils python avahi
 src_configure() {
 	local myconf=" --enable-gtk
 		--disable-gtk3
+		--disable-mono
 		$(use_enable dbus)
 		$(use_enable utils gtk-utils)
 		--enable-pygtk"
