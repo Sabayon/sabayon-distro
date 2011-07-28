@@ -15,7 +15,8 @@ AVAHI_MODULE_RDEPEND="${COMMON_DEPEND}"
 inherit eutils avahi
 
 src_configure() {
-	local myconf=" --enable-qt4"
+	local myconf=" --enable-qt4
+	--disable-mono"
 	avahi_src_configure "${myconf}"
 }
 
