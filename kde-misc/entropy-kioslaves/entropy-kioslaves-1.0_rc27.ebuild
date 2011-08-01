@@ -10,7 +10,7 @@ DESCRIPTION="Entropy Package Manager KDE kioslaves support"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-2"
 
-SLOT="0"
+SLOT="4"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
