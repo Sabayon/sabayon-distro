@@ -22,7 +22,7 @@ HOMEPAGE="http://kde.org/"
 [[ ${PV} != 9999* ]] && SRC_URI="mirror://gentoo/${P}.tar.bz2"
 
 LICENSE="GPL-2 LGPL-2"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 SLOT="4"
 IUSE="consolekit nm09 debug"
 
