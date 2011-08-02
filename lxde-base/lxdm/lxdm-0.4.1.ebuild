@@ -41,6 +41,8 @@ src_configure() {
 src_prepare() {
 	# There is consolekit
 	epatch "${FILESDIR}/${P}-pam_console-disable.patch"
+	# Backported, drop it when 0.4.2
+	epatch "${FILESDIR}/${P}-git-fix-null-pointer-deref.patch"
 	# Sabayon specific theme patch
 	epatch "${FILESDIR}/${P}-sabayon-6-theme.patch"
 
