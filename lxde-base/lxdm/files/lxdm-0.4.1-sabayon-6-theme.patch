@@ -1,6 +1,6 @@
---- lxdm-0.4.0.orig/data/lxdm.conf
-+++ lxdm-0.4.0/data/lxdm.conf
-@@ -27,7 +27,7 @@ greeter=/usr/libexec/lxdm-greeter-gtk
+--- lxdm-0.4.0.orig/data/lxdm.conf.in
++++ lxdm-0.4.0/data/lxdm.conf.in
+@@ -27,7 +27,7 @@ greeter=@FULL_LIBEXECDIR@/lxdm-greeter-gtk
  gtk_theme=Clearlooks
  
  ## background of the greeter

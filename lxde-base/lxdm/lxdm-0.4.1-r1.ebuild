@@ -28,16 +28,10 @@ DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
 src_configure() {
-	# --libexecdir=/usr/libexec
-	# workarounds build system bug
-	# if not set, FULL_LIBEXECDIR
-	# is set to /usr/local, causing
-	# wrong paths in lxdm.conf
 	econf	--enable-password \
 		--with-pam \
 		--with-x \
 		--with-xconn=xcb \
-		--libexecdir=/usr/libexec \
 		$(use_enable gtk3) \
 		$(use_enable nls) \
 		$(use_enable debug) \
@@ -46,6 +40,9 @@ src_configure() {
 }
 
 src_prepare() {
+	# Upstream bug, tarball contains pre-made lxdm.conf
+	rm "${S}"/data/lxdm.conf || die
+
 	# There is consolekit
 	epatch "${FILESDIR}/${P}-pam_console-disable.patch"
 	# Backported, drop it when 0.4.2
