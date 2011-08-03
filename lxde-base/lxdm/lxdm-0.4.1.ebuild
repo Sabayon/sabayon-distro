@@ -28,14 +28,21 @@ DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
 src_configure() {
+	# --libexecdir=/usr/libexec
+	# workarounds build system bug
+	# if not set, FULL_LIBEXECDIR
+	# is set to /usr/local, causing
+	# wrong paths in lxdm.conf
 	econf	--enable-password \
 		--with-pam \
 		--with-x \
 		--with-xconn=xcb \
+		--libexecdir=/usr/libexec \
 		$(use_enable gtk3) \
 		$(use_enable nls) \
 		$(use_enable debug) \
 		|| die "econf failed"
+
 }
 
 src_prepare() {
