@@ -1,0 +1,12 @@
+diff -Nurp gnome-themes-standard-3.0.2.orig/themes/Adwaita/backgrounds/adwaita.xml.in.in gnome-themes-standard-3.0.2/themes/Adwaita/backgrounds/adwaita.xml.in.in
+--- gnome-themes-standard-3.0.2.orig/themes/Adwaita/backgrounds/adwaita.xml.in.in	2010-11-30 14:34:29.000000000 +0100
++++ gnome-themes-standard-3.0.2/themes/Adwaita/backgrounds/adwaita.xml.in.in	2011-08-05 11:16:42.912963587 +0200
+@@ -3,7 +3,7 @@
+ <wallpapers>
+   <wallpaper deleted="false">
+     <_name>Default Background</_name>
+-    <filename>@datadir@/themes/Adwaita/backgrounds/stripes.jpg</filename>
++    <filename>/usr/share/backgrounds/sabayonlinux.jpg</filename>
+     <options>zoom</options>
+     <shade_type>solid</shade_type>
+     <pcolor>#3465a4</pcolor>
