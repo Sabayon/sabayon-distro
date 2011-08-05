@@ -114,6 +114,10 @@ src_prepare() {
 
 	# We want the fucking WM buttons
 	epatch "${FILESDIR}/${PN}-minimize-maximize-close-buttons.patch"
+
+	# We also want a nice looking applications menu
+	epatch "${FILESDIR}/${PN}-applications-menu-style-fix.patch"
+
 	gnome2_src_prepare
 }
 
