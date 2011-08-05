@@ -1,0 +1,33 @@
+From 9a7f3dbd2030a5e1b54297f1aa7cf228eccafb27 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Tue, 24 May 2011 22:15:10 -0400
+Subject: [PATCH] gdm: ignore user-removed signals for untracked users
+
+If we don't know about a user, we don't care if it goes away,
+and we shouldn't try to remove it from the book keeping.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=647893
+---
+ src/gdmuser/gdm-user-manager.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/src/gdmuser/gdm-user-manager.c b/src/gdmuser/gdm-user-manager.c
+index e7ca833..561be32 100644
+--- a/src/gdmuser/gdm-user-manager.c
++++ b/src/gdmuser/gdm-user-manager.c
+@@ -887,6 +887,13 @@ on_user_removed_in_accounts_service (DBusGProxy *proxy,
+ 
+         user = g_hash_table_lookup (manager->priv->users_by_object_path, object_path);
+ 
++        if (user == NULL) {
++                g_debug ("GdmUserManager: ignoring untracked user %s", object_path);
++                return;
++        } else {
++                g_debug ("GdmUserManager: tracked user %s removed from accounts service", object_path);
++        }
++
+         manager->priv->new_users = g_slist_remove (manager->priv->new_users, user);
+ 
+         remove_user (manager, user);
+-- 
+1.7.5.1
