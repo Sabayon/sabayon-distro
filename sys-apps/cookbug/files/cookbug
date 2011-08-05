@@ -124,7 +124,7 @@ xsession_errors = glob.glob("/home/*/.xsession-errors")
 if xsession_errors:
     COMMANDS_MAP['xsession-errors'] = {
         'args': ["tail", "--lines", "2000"] + xsession_errors,
-        'out': "messages.txt",
+        'out': "xsession_errors.txt",
         'desc': "Desktop Environment startup messages",
     }
 
