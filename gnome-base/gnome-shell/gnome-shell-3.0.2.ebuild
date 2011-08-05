@@ -24,6 +24,9 @@ else
 	KEYWORDS="~amd64 ~x86"
 fi
 
+# Sabayon GNOME Shell plugins
+SABAYON_RDEPEND="gnome-extra/gnome-shell-extensions-activities-button"
+
 # gnome-desktop-2.91.2 is needed due to header changes, db82a33 in gnome-desktop
 # FIXME: Automagic gnome-bluetooth[introspection] support.
 # latest gsettings-desktop-schemas is needed due to commit 602fa1c6
@@ -69,7 +72,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.25.9:2
 # 4. Control shell settings
 # 5. accountsservice is needed for GdmUserManager
 # 6. nm-applet is needed for auth prompting and the wireless connection dialog
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="${COMMON_DEPEND} ${SABAYON_RDEPEND}
 	>=sys-auth/polkit-0.101[introspection]
 
 	>=gnome-base/dconf-0.4.1
