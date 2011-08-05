@@ -127,6 +127,13 @@ src_install() {
 	# Need to keep the /etc/NetworkManager/dispatched.d for dispatcher scripts
 	keepdir /etc/NetworkManager/dispatcher.d
 
+	# Install script in /etc/NetworkManager/dispatcher.d to make netmount
+	# users (and init service) a bit more happy when NM is in use.
+	# In this way, at least network mounts are magically mounted
+	exeinto /etc/NetworkManager/dispatcher.d
+	doexe "${FILESDIR}"/01-netmount-up-down.rc
+	fperms 0744 /etc/NetworkManager/dispatcher.d/01-netmount-up-down.rc
+
 	# Add keyfile plugin support
 	keepdir /etc/NetworkManager/system-connections
 	insinto /etc/NetworkManager
