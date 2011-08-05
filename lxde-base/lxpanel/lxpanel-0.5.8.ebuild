@@ -1,16 +1,17 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: Exp $
+# $Header: /var/cvsroot/gentoo-x86/lxde-base/lxpanel/lxpanel-0.5.8.ebuild,v 1.1 2011/08/03 09:19:57 hwoarang Exp $
 
-EAPI="2"
-inherit eutils autotools
+EAPI="4"
+
+inherit autotools eutils
 
 DESCRIPTION="Lightweight X11 desktop panel for LXDE"
 HOMEPAGE="http://lxde.org/"
 SRC_URI="mirror://sourceforge/lxde/${P}.tar.gz"
 
 LICENSE="GPL-2"
-KEYWORDS="~alpha amd64 arm ppc x86 ~x86-interix ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~ppc ~x86 ~x86-interix ~amd64-linux ~x86-linux"
 SLOT="0"
 IUSE="+alsa"
 RESTRICT="test"  # bug 249598
@@ -26,10 +27,10 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext"
 
 src_prepare() {
-	cp "${FILESDIR}"/start-here.png data/images/my-computer.png || die "Could not copy image"
+	cp "${FILESDIR}"/start-here.png data/images/my-computer.png \
+		|| die "Could not copy image."
 	epatch "${FILESDIR}"/${PN}-0.5.1-sandbox.patch
-	epatch "${FILESDIR}"/${P}-symbol-alarm.patch
-	epatch "${FILESDIR}"/${P}-broken-apps.patch
+	epatch "${FILESDIR}"/${PN}-0.5.6-broken-apps.patch
 	eautoreconf
 }
 
@@ -42,8 +43,8 @@ src_configure() {
 }
 
 src_install () {
-	emake DESTDIR="${D}" install || die "emake install failed"
-	dodoc AUTHORS ChangeLog README || die "dodoc failed"
+	emake DESTDIR="${D}" install
+	dodoc AUTHORS ChangeLog README
 
 	# Get rid of the .la files.
 	find "${D}" -name '*.la' -delete
