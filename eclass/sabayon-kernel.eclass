@@ -33,6 +33,11 @@ K_SABKERNEL_URI_CONFIG="${K_SABKERNEL_URI_CONFIG:-no}"
 #   SRC_URI="mirror://sabayon/sys-kernel/linux-${PV}+sabayon.tar.bz2"
 K_SABKERNEL_SELF_TARBALL_NAME="${K_SABKERNEL_SELF_TARBALL_NAME:-}"
 
+# @ECLASS-VARIABLE: K_SABKERNEL_FORCE_SUBLEVEL
+# @DESCRIPTION:
+# Force the rewrite of SUBLEVEL in kernel sources Makefile
+K_SABKERNEL_FORCE_SUBLEVEL="${K_SABKERNEL_FORCE_SUBLEVEL:-}"
+
 # @ECLASS-VARIABLE: K_KERNEL_SOURCES_PKG
 # @DESCRIPTION:
 # The kernel sources package used to build this kernel binary
@@ -42,6 +47,7 @@ K_KERNEL_SOURCES_PKG="${K_KERNEL_SOURCES_PKG:-${CATEGORY}/${PN/*-}-sources-${PVR
 # @DESCRIPTION:
 # If set to "3" for example, it applies the upstream kernel
 # patch corresponding to patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.3.bz2
+# @TODO: deprecate and remove once 2.6.x kernels are retired
 K_KERNEL_PATCH_VER="${K_KERNEL_PATCH_VER:-}"
 
 # @ECLASS-VARIABLE: K_KERNEL_PATCH_HOTFIXES
@@ -286,6 +292,11 @@ sabayon-kernel_src_unpack() {
 		OKV="${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}"
 	fi
 	kernel-2_src_unpack
+	if [ -n "${K_SABKERNEL_FORCE_SUBLEVEL}" ]; then
+		# patch out Makefile with proper sublevel
+		sed -i "s:^SUBLEVEL = .*:SUBLEVEL = ${K_SABKERNEL_FORCE_SUBLEVEL}:" \
+			"${S}/Makefile" || die
+	fi
 	OKV="${okv}"
 }
 
