@@ -114,6 +114,11 @@ COMMANDS_MAP = {
         'out': "messages.txt",
         'desc': "System Logger messages",
     },
+    'entropy': {
+        'args': ("tail", "--lines", "2000", "/var/log/entropy/entropy.log"),
+        'out': "entropy.log.txt",
+        'desc': "Entropy Package Manager logs",
+    },
     'installed_pkgs': {
         'args': ("equo", "query", "list", "installed", "-qv"),
         'out': "installed_pkgs.txt",
