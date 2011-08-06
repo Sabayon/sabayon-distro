@@ -3,8 +3,8 @@ app-cdr/brasero
 app-misc/sabayon-skel
 app-text/evince
 gnome-base/gdm
-gnome-base/gnome-applets
-gnome-base/gnome-light
+gnome-base/gnome
+gnome-base/gnome-shell
 gnome-extra/nm-applet
 gnome-extra/gnome-media
 mail-client/evolution
