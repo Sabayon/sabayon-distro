@@ -138,7 +138,7 @@ COMMON_DEPEND="!app-office/libreoffice-bin
 	>=media-libs/fontconfig-2.3.0
 	>=media-libs/vigra-1.4
 	media-libs/libpng
-	media-libs/libwpg:0.2
+	app-text/libwpg:0.2
 	>=sys-libs/db-4.3
 	virtual/jpeg
 	>=x11-libs/cairo-1.0.2
