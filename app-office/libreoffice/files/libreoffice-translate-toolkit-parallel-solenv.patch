@@ -1,0 +1,7 @@
+--- translate_toolkit/prj/build.lst	2011-07-26 17:21:41.006169229 +0200
++++ translate_toolkit/prj/build.lst	2011-07-26 17:21:52.854170398 +0200
+@@ -1,3 +1,3 @@
+-trt     translate_toolkit       :       PYTHON:python NULL
++trt     translate_toolkit       :       solenv PYTHON:python NULL
+ trt     translate_toolkit       usr1    -       all     trt_mkout NULL
+ trt     translate_toolkit       nmake   -       all     translate_toolkit NULL

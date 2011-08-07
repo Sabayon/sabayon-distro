@@ -1,0 +1,11 @@
+--- solenv/gbuild/gbuild.mk	2011-03-21 19:46:14.427883458 +0100
++++ solenv/gbuild/gbuild.mk	2011-03-21 19:46:37.019883448 +0100
+@@ -128,7 +128,7 @@
+ endif
+ endif
+ ifneq ($(strip $(CXXFLAGS)),)
+-gb__ENV_CXXFLAGS := $(CFLAGS)
++gb__ENV_CXXFLAGS := $(CXXFLAGS)
+ else
+ # TODO remove after the old build system is abolished
+ ifneq ($(strip $(ENVCFLAGSCXX)),)

@@ -1,0 +1,32 @@
+From 7f54882a2b2a769a49d539fac0922320de51c848 Mon Sep 17 00:00:00 2001
+From: Petr Mladek <pmladek@suse.cz>
+Date: Mon, 1 Aug 2011 21:16:58 +0200
+Subject: [PATCH] fix build with -Wl,--no-as-needed
+
+---
+ binfilter/filter/source/bf_offwrp/makefile.mk |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/binfilter/filter/source/bf_offwrp/makefile.mk b/binfilter/filter/source/bf_offwrp/makefile.mk
+index d65beed..0545931 100644
+--- a/binfilter/filter/source/bf_offwrp/makefile.mk
++++ b/binfilter/filter/source/bf_offwrp/makefile.mk
+@@ -52,7 +52,6 @@ SHL1STDLIBS=    \
+                 $(BFSVTOOLLIB) 		\
+                 $(BFOFALIB)			\
+                 $(VCLLIB) 			\
+-                $(SOTLIB) 			\
+                 $(SALLIB)			\
+                 $(TOOLSLIB)			\
+                 $(CPPULIB)			\
+@@ -64,6 +63,7 @@ SHL1STDLIBS=    \
+                 $(BFSCLIB)          \
+                 $(BFSVXLIB)         \
+                 $(BFSO3LIB) 			\
++                $(SOTLIB) 			\
+                 $(UNOTOOLSLIB)		\
+                 $(COMPHELPERLIB)	\
+                 $(LEGACYSMGRLIB)
+-- 
+1.7.3.4
+
