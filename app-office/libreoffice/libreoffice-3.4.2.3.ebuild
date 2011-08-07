@@ -100,7 +100,7 @@ SLOT="0"
 [[ ${PV} == *9999* ]] || KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
 
 # translations
-LANGUAGES="en en-US"
+LANGUAGES="en"
 
 COMMON_DEPEND="
 	app-arch/zip
@@ -327,7 +327,7 @@ src_unpack() {
 src_prepare() {
 	strip-linguas ${LANGUAGES}
 
-	LO_LANGUAGES="en-US"
+	LO_LANGUAGES=
 
 	# Now for our optimization flags ...
 	export ARCH_FLAGS="${CXXFLAGS}"
