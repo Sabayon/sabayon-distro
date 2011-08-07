@@ -186,6 +186,7 @@ DEPEND="${COMMON_DEPEND}
 	sys-devel/bison
 	sys-apps/coreutils
 	sys-devel/flex
+	>=sys-devel/make-3.82
 	sys-libs/zlib
 	x11-libs/libXtst
 	x11-proto/randrproto
