@@ -239,7 +239,7 @@ else
 	IUSE="dmraid dracut grub splash"
 	DEPEND="app-arch/xz-utils
 		sys-apps/sed
-		<sys-devel/make-3.82
+		sys-devel/make
 		>=sys-kernel/genkernel-3.4.16-r1
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
