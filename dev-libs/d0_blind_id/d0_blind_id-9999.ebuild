@@ -21,9 +21,7 @@ fi
 
 LICENSE="BSD"
 SLOT="0"
-if [ "${PV#9999}" = "${PV}" ] ; then
-	KEYWORDS="~amd64 ~x86"
-fi
+KEYWORDS="~amd64 ~x86"
 IUSE="crypt openssl static-libs"
 
 RDEPEND="
