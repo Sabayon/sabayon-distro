@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI=3
 
 inherit games
 
 DESCRIPTION="First-person ego-shooter, built as a total conversion of Cube Engine 2"
 HOMEPAGE="http://www.redeclipse.net/"
-SRC_URI="mirror://sourceforge/${PN}/${PN}_${PV}_linux.tar.bz2"
+SRC_URI="mirror://sourceforge/${PN}/${PN}_${PV}_linux_bsd.tar.bz2"
 
 # According to license.txt file
 LICENSE="as-is ZLIB CCPL-Attribution-ShareAlike-3.0"
