@@ -345,10 +345,10 @@ src_install-libs() {
 	# lib.
 	exeinto /usr/$(get_libdir)
 	# Everything except for the libGL.so installed in src_install-libs.
-	doexe $(find "${MY_ARCH_DIR}"/usr/X11R6/${PKG_LIBDIR} \
+	doexe $(find "${MY_ARCH_DIR}"/usr/X11R6/${pkglibdir} \
 		-maxdepth 1 -type f -name '*.so*' -not -name '*libGL.so*')
 	insinto /usr/$(get_libdir)
-	doins $(find "${MY_ARCH_DIR}"/usr/X11R6/${PKG_LIBDIR} \
+	doins $(find "${MY_ARCH_DIR}"/usr/X11R6/${pkglibdir} \
 		-maxdepth 1 -type f -not -name '*.so*')
 
 	# DRI modules, installed into the path used by recent versions of mesa.
