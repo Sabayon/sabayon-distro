@@ -299,7 +299,11 @@ src_install() {
 		dosym /usr/${libdir}/opengl/xorg-x11/lib/libGL.so.1.2 \
 			/usr/${libdir}/fglrx/libGL.so.1.2
 		dosym ./libGL.so.1.2 /usr/${libdir}/fglrx/fglrx-libGL.so.1.2
+
+		# Fixup xvba-video compilation
+		dosym libXvBAW.so.1.0 /usr/${libdir}/libXvBAW.so
 	done
+
 }
 
 src_install-libs() {
