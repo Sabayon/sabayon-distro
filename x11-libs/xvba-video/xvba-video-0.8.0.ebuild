@@ -2,31 +2,33 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit multilib
+inherit base
 
 EAPI="2"
 
 DESCRIPTION="xvba-video"
 HOMEPAGE="http://www.splitted-desktop.com/~gbeauchesne/xvba-video/"
-SRC_URI="x86? ( http://www.splitted-desktop.com/~gbeauchesne/${PN}/${P}.i686.tar.gz )
-	amd64? ( http://www.splitted-desktop.com/~gbeauchesne/${PN}/${P}.x86_64.tar.gz )"
+SRC_URI="http://www.splitted-desktop.com/~gbeauchesne/xvba-video/${P}.tar.gz"
 
 LICENSE=""
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="x11-libs/libva"
+COMMON_DEPEND="x11-libs/libva
+	virtual/opengl"
+DEPEND="${COMMON_DEPEND}
+	>=x11-drivers/ati-userspace-10.12"
 RDEPEND="${DEPEND}"
 
-use x86 && S=${P}.i686
-use amd64 && S=${P}.x86_64
+src_configure() {
+	base_src_configure --enable-libxvba-dlopen \
+		--enable-glx
+}
 
-QA_PRESTRIPPED=usr/$(get_libdir)/va/drivers/xvba_drv_video.so
-
-src_install() {
-	cd ${S}
-	insinto usr/$(get_libdir)/va/drivers
-	doins usr/lib/va/drivers/xvba_drv_video.so
-	dosym xvba_drv_video.so usr/$(get_libdir)/va/drivers/fglrx_drv_video.so
+pkg_postinst() {
+	echo
+	elog "This version of xvba-video requires >=x11-drivers/ati-drivers-10.12"
+	elog "at runtime."
+	echo
 }
