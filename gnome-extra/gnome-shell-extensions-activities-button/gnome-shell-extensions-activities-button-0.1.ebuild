@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-DESCRIPTION="A gnome-shell extension to add the distributor logo beside the Activities button"
+DESCRIPTION="A GNOME Shell extension to add the distributor logo beside the Activities button"
 HOMEPAGE="http://www.fpmurphy.com/gnome-shell-extensions"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
 
@@ -13,27 +13,16 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-COMMON_DEPEND="
-	>=dev-libs/glib-2.26
-	>=gnome-base/gnome-desktop-3:3"
-RDEPEND="${COMMON_DEPEND}
-	gnome-base/gnome-desktop:3[introspection]
-	media-libs/clutter:1.0[introspection]
-	net-libs/telepathy-glib[introspection]
-	x11-libs/gtk+:3[introspection]
-	x11-libs/pango[introspection]"
-DEPEND="${COMMON_DEPEND}
-	sys-devel/gettext
-	>=dev-util/pkgconfig-0.22
-	>=dev-util/intltool-0.26
-	gnome-base/gnome-common"
-
-src_prepare() {
-	sed -i -e "s:fedora-logo-icon:distributor-logo:" "activitiesbutton@fpmurphy.com/extension.js" || die "sed failed!"
-	sed -i -e "s/font-size: 18px;/font-size: 14px;/" "activitiesbutton@fpmurphy.com/stylesheet.css" || die "sed failed!"
-}
+COMMON_DEPEND="gnome-base/gnome-shell"
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
 
 S="${WORKDIR}"
+
+src_prepare() {
+	sed -i -e "s:fedora-logo-icon:distributor-logo:" "activitiesbutton@fpmurphy.com/extension.js" || die "sed failed"
+	sed -i -e "s/font-size: 18px;/font-size: 14px;/" "activitiesbutton@fpmurphy.com/stylesheet.css" || die "sed failed"
+}
 
 src_install()	{
 	insinto /usr/share/gnome-shell/extensions
