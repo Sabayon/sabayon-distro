@@ -4,7 +4,7 @@
 
 EAPI="3"
 PYTHON_DEPEND="2"
-inherit eutils multilib python bash-completion
+inherit eutils python bash-completion
 
 DESCRIPTION="Entropy Package Manager text-based client"
 HOMEPAGE="http://www.sabayon.org"
@@ -25,12 +25,12 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" equo-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/lib" equo-install || die "make install failed"
 	dobashcompletion "${S}/misc/equo-completion.bash" equo
 }
 
 pkg_postinst() {
-	python_mod_optimize "/usr/$(get_libdir)/entropy/client"
+	python_mod_optimize "/usr/lib/entropy/client"
 	bash-completion_pkg_postinst
 	echo
 	elog "If you would like to allow users in the 'entropy' group"
@@ -40,5 +40,5 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	python_mod_cleanup "/usr/$(get_libdir)/entropy/client"
+	python_mod_cleanup "/usr/lib/entropy/client"
 }

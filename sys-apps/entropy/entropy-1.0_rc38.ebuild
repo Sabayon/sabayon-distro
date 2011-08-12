@@ -4,7 +4,7 @@
 
 EAPI="3"
 PYTHON_DEPEND="2"
-inherit eutils python multilib
+inherit eutils python
 
 DESCRIPTION="Entropy Package Manager foundation library"
 HOMEPAGE="http://www.sabayon.org"
@@ -46,11 +46,11 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" entropy-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/lib" entropy-install || die "make install failed"
 
 	# TODO: move to separate package
 	cd "${S}"/misc/po || die
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/lib" install || die "make install failed"
 }
 
 pkg_postinst() {
@@ -65,7 +65,7 @@ pkg_postinst() {
 		rm -rf "${ENTROPY_CACHEDIR}"/*
 	fi
 
-	python_mod_optimize "/usr/$(get_libdir)/entropy/libraries/entropy"
+	python_mod_optimize "/usr/lib/entropy/libraries/entropy"
 
 	# force python 2.x
 	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3
@@ -78,5 +78,5 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	python_mod_cleanup "/usr/$(get_libdir)/entropy/libraries/entropy"
+	python_mod_cleanup "/usr/lib/entropy/libraries/entropy"
 }

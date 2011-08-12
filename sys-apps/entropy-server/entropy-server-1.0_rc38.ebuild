@@ -26,13 +26,13 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" entropy-server-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/lib" entropy-server-install || die "make install failed"
 }
 
 pkg_postinst() {
-	python_mod_optimize "/usr/$(get_libdir)/entropy/server"
+	python_mod_optimize "/usr/lib/entropy/server"
 }
 
 pkg_postrm() {
-	python_mod_cleanup "/usr/$(get_libdir)/entropy/server"
+	python_mod_cleanup "/usr/lib/entropy/server"
 }

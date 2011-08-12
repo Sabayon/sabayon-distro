@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI="2"
-inherit eutils multilib
+inherit eutils
 
 DESCRIPTION="Official Sabayon Linux Entropy Notification Applet Loader"
 HOMEPAGE="http://www.sabayon.org"
@@ -24,5 +24,5 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" magneto-loader-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-loader-install || die "make install failed"
 }

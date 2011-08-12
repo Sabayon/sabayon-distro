@@ -4,7 +4,7 @@
 
 EAPI="3"
 PYTHON_DEPEND="2"
-inherit eutils python multilib
+inherit eutils python
 
 DESCRIPTION="Entropy Package Manager notification applet KDE frontend"
 HOMEPAGE="http://www.sabayon.org"
@@ -27,13 +27,13 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/$(get_libdir)" magneto-kde-install || die "make install failed"
+	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-kde-install || die "make install failed"
 }
 
 pkg_postinst() {
-	python_mod_optimize "/usr/$(get_libdir)/entropy/magneto/magneto/kde"
+	python_mod_optimize "/usr/lib/entropy/magneto/magneto/kde"
 }
 
 pkg_postrm() {
-	python_mod_cleanup "/usr/$(get_libdir)/entropy/magneto/magneto/kde"
+	python_mod_cleanup "/usr/lib/entropy/magneto/magneto/kde"
 }
