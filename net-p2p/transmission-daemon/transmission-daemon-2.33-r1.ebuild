@@ -44,7 +44,7 @@ src_prepare() {
 	# Upstream is not interested in this: https://trac.transmissionbt.com/ticket/4324
 	sed -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' -i libtransmission/Makefile.am || die
 
-	mv third-party/miniupnp{,c} || die
+	#mv third-party/miniupnp{,c} || die
 	eautoreconf
 
 	sed -i -e 's:-ggdb3::g' configure || die
