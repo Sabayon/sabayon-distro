@@ -14,34 +14,41 @@ LICENSE="GPL-2 ZLIB"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="aac adplug alsa cdda cover curl dts encode ffmpeg flac gme +gtk
-	hotkeys lastfm libnotify libsamplerate m3u mac midi mms mp3 musepack
-	nls null oss pulseaudio shellexec sid sndfile supereq threads tta
-	vorbis vtx wavpack zip"
+	hotkeys imlib lastfm libnotify libsamplerate m3u mac midi mms mp3
+	musepack nls null oss pulseaudio shellexec sid sndfile supereq threads
+	tta vorbis vtx wavpack zip"
 
 REQUIRED_USE="encode? ( gtk )
 	cover? ( curl )
 	lastfm? ( curl )"
 
-DEPEND="
-	gtk? ( x11-libs/gtk+:2 )
+RDEPEND="
+	aac? ( media-libs/faad2 )
 	alsa? ( media-libs/alsa-lib )
-	vorbis? ( media-libs/libvorbis )
-	curl? ( net-misc/curl )
-	mp3? ( media-libs/libmad )
-	flac? ( media-libs/flac )
-	wavpack? ( media-sound/wavpack )
-	sndfile? ( media-libs/libsndfile )
 	cdda? ( dev-libs/libcdio media-libs/libcddb )
+	cover? (
+		imlib? ( media-libs/imlib2 )
+		!imlib? ( virtual/jpeg media-libs/libpng )
+	)
+	curl? ( net-misc/curl )
 	ffmpeg? ( virtual/ffmpeg )
+	flac? ( media-libs/flac )
+	gtk? ( x11-libs/gtk+:2 )
 	hotkeys? ( x11-libs/libX11 )
 	libnotify? ( sys-apps/dbus )
-	pulseaudio? ( media-sound/pulseaudio )
-	aac? ( media-libs/faad2 )
-	midi? ( media-sound/timidity-freepats )
-	zip? ( sys-libs/zlib )
 	libsamplerate? ( media-libs/libsamplerate )
+	midi? ( media-sound/timidity-freepats )
+	mp3? ( media-libs/libmad )
+	pulseaudio? ( media-sound/pulseaudio )
+	sndfile? ( media-libs/libsndfile )
+	vorbis? ( media-libs/libvorbis )
+	wavpack? ( media-sound/wavpack )
+	zip? ( sys-libs/zlib )
 	"
-RDEPEND="${DEPEND}"
+DEPEND="${RDEPEND}
+	dev-util/pkgconfig
+	nls? ( virtual/libintl dev-util/intltool )
+	"
 
 src_prepare() {
 	if use midi; then
@@ -52,7 +59,7 @@ src_prepare() {
 }
 
 src_configure() {
-	my_config="$(use_enable nls)
+	local my_config="$(use_enable nls)
 		$(use_enable threads)
 		$(use_enable null nullout)
 		$(use_enable alsa)
@@ -69,6 +76,7 @@ src_configure() {
 		$(use_enable flac)
 		$(use_enable gme)
 		$(use_enable hotkeys)
+		$(use_enable imlib artwork-imlib2)
 		$(use_enable lastfm lfm)
 		$(use_enable libnotify notify)
 		$(use_enable libsamplerate src)
@@ -87,7 +95,15 @@ src_configure() {
 		$(use_enable vorbis)
 		$(use_enable vtx)
 		$(use_enable wavpack)
-		$(use_enable zip vfs-zip)"
+		$(use_enable zip vfs-zip)
+		--docdir=/usr/share/doc/${PF}"
 
 	econf ${my_config}
+}
+
+src_install() {
+	# Do not compress docs as we need it for deadbeef's help function.
+	PORTAGE_DOCOMPRESS_SKIP+=( "/usr/share/doc/${PF}" )
+
+	emake DESTDIR="${D}" install
 }
