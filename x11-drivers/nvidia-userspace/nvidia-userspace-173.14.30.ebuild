@@ -32,7 +32,7 @@ DEPEND="${COMMON}
 RDEPEND="${COMMON}
         !<x11-drivers/nvidia-userspace-${PV}
         !>x11-drivers/nvidia-userspace-${PV}"
-PDEPEND="~x11-drivers/nvidia-drivers-${PV}"
+PDEPEND=""
 
 QA_TEXTRELS_x86="usr/lib/opengl/nvidia/lib/libnvidia-tls.so.${PV}
 	usr/lib/opengl/nvidia/lib/libGL.so.${PV}

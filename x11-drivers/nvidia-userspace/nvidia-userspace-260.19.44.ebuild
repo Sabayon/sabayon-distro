@@ -33,8 +33,7 @@ RDEPEND="${COMMON}
 	x11-libs/libXvMC
         !<x11-drivers/nvidia-userspace-${PV}
         !>x11-drivers/nvidia-userspace-${PV}"
-PDEPEND=">=x11-libs/libvdpau-0.3-r1
-	~x11-drivers/nvidia-drivers-${PV}"
+PDEPEND=">=x11-libs/libvdpau-0.3-r1"
 
 QA_TEXTRELS_x86="usr/lib/opengl/nvidia/lib/libnvidia-tls.so.${PV}
 	usr/lib/opengl/nvidia/lib/libGL.so.${PV}
