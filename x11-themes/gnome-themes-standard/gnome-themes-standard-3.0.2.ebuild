@@ -17,7 +17,7 @@ IUSE=""
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux ~x64-solaris ~x86-solaris"
 
 # Sabayon, provide our background
-SABAYON_RDEPEND="x11-themes/sabayon-artwork-core"
+SABAYON_RDEPEND="x11-themes/sabayon-artwork-core x11-themes/elementary-icon-theme"
 COMMON_DEPEND=">=x11-libs/gtk+-3.0.8:3
 	>=x11-themes/gtk-engines-2.15.3:2"
 DEPEND="${COMMON_DEPEND}
@@ -38,6 +38,7 @@ DOCS="ChangeLog NEWS"
 
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-sabayon-default-background.patch"
+	epatch "${FILESDIR}/${PN}-sabayon-elementary-icons.patch"
 
 	gnome2_src_prepare
 	# Install cursors in the right place
