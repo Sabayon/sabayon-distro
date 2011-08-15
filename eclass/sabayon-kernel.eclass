@@ -38,6 +38,11 @@ K_SABKERNEL_SELF_TARBALL_NAME="${K_SABKERNEL_SELF_TARBALL_NAME:-}"
 # Force the rewrite of SUBLEVEL in kernel sources Makefile
 K_SABKERNEL_FORCE_SUBLEVEL="${K_SABKERNEL_FORCE_SUBLEVEL:-}"
 
+# @ECLASS-VARIABLE: K_SABKERNEL_LONGTERM
+# @DESCRIPTION:
+# Consider Kernel stable patchset as longterm (changing URL)
+K_SABKERNEL_LONGTERM="${K_SABKERNEL_LONGTERM:-}"
+
 # @ECLASS-VARIABLE: K_KERNEL_SOURCES_PKG
 # @DESCRIPTION:
 # The kernel sources package used to build this kernel binary
@@ -122,7 +127,7 @@ DESCRIPTION="Sabayon Linux kernel functions and phases"
 
 
 K_LONGTERM_URL_STR=""
-if [ -n "${K_LONGTERM}" ]; then
+if [ -n "${K_SABKERNEL_LONGTERM}" ]; then
 	K_LONGTERM_URL_STR="/longterm/v${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}"
 fi
 
