@@ -92,7 +92,7 @@ sabayon_setup_live_user() {
 			done
 		done
 		# then setup live user, that is missing
-		useradd -d "/home/${live_user}" -g root -G ${live_groups} \
+		useradd -d "/home/${live_user}" -g root -G ${live_groups} -c "Sabayon" \
 			-m -N -p "" -s /bin/bash ${live_uid} "${live_user}"
 		return 0
 	fi
