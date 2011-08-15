@@ -14,7 +14,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="dbus gcrypt"
 
 RDEPEND="dev-db/sqlite:3
-	media-libs/taglib
+	>=media-libs/taglib-1.7
 	media-libs/xine-lib
 	net-misc/curl
 	x11-libs/fox[png]
