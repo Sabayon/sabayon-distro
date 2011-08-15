@@ -120,6 +120,12 @@ detect_arch
 
 DESCRIPTION="Sabayon Linux kernel functions and phases"
 
+
+K_LONGTERM_URL_STR=""
+if [ -n "${K_LONGTERM}" ]; then
+	K_LONGTERM_URL_STR="/longterm/v${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}"
+fi
+
 ## kernel-2 eclass settings
 if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	SRC_URI="mirror://sabayon/${CATEGORY}/linux-${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}.tar.bz2"
@@ -137,7 +143,7 @@ if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	if [ -n "${K_KERNEL_PATCH_VER}" ]; then
 		K_PATCH_NAME="patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.${K_KERNEL_PATCH_VER}.bz2"
 		SRC_URI="${SRC_URI}
-			mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/${K_PATCH_NAME}"
+			mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}${K_LONGTERM_URL_STR}/${K_PATCH_NAME}"
 		UNIPATCH_LIST="${DISTDIR}/${K_PATCH_NAME}
 			${UNIPATCH_LIST}"
 	fi
