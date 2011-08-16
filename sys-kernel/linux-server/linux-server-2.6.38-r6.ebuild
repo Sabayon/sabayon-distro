@@ -3,7 +3,7 @@
 
 ETYPE="sources"
 K_SABPATCHES_VER="1"
-K_KERNEL_PATCH_VER="6"
+K_KERNEL_PATCH_VER="8"
 K_KERNEL_SOURCES_PKG="sys-kernel/server-sources-${PVR}"
 K_SABKERNEL_URI_CONFIG="yes"
 inherit sabayon-kernel
