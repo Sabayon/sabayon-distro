@@ -351,7 +351,8 @@ _kernel_src_compile() {
 	export LDFLAGS=""
 
 	# creating workdirs
-	mkdir "${WORKDIR}"/lib
+	# some kernels fail with make 3.82 if firmware dir is not created
+	mkdir "${WORKDIR}"/lib/lib/firmware -p
 	mkdir "${WORKDIR}"/cache
 	mkdir "${S}"/temp
 	# needed anyway, even if grub use flag is not used here
