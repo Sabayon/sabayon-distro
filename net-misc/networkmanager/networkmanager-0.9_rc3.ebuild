@@ -1,55 +1,69 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/networkmanager/networkmanager-0.9_rc3.ebuild,v 1.2 2011/08/16 10:07:01 nirbheek Exp $
 
-EAPI="3"
+EAPI="4"
+PATCHSET="${PN}-0.9-patches-0.1"
+GNOME_ORG_MODULE="NetworkManager"
+GNOME_ORG_PVP="0.8"
+REAL_PV="0.8.9997"
 
-inherit autotools eutils gnome.org linux-info
-
-# NetworkManager likes itself with capital letters
-MY_PN=${PN/networkmanager/NetworkManager}
-MY_P=${MY_PN}-${PV}
+inherit autotools eutils gnome.org linux-info systemd
 
 DESCRIPTION="Network configuration and management in an easy way. Desktop environment independent."
 HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
-SRC_URI="${SRC_URI//${PN}/${MY_PN}}"
+# Replace our fake _rc version with the actual version
+SRC_URI="${SRC_URI//${PV}/${REAL_PV}}
+	mirror://gentoo/${PATCHSET}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
+IUSE="avahi bluetooth doc +nss gnutls dhclient +dhcpcd +introspection
+	kernel_linux +ppp resolvconf connection-sharing wimax"
 KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
-IUSE="avahi bluetooth doc nss gnutls +dhclient dhcpcd kernel_linux resolvconf connection-sharing"
 
-RDEPEND=">=sys-apps/dbus-1.2
+REQUIRED_USE="
+	^^ ( nss gnutls )
+	^^ ( dhclient dhcpcd )"
+
+# gobject-introspection-0.10.3 is needed due to gnome bug 642300
+# wpa_supplicant-0.7.3-r3 is needed due to bug 359271
+# make consolekit and/or polkit support optional ?
+COMMON_DEPEND=">=sys-apps/dbus-1.2
 	>=dev-libs/dbus-glib-0.75
 	>=net-wireless/wireless-tools-28_pre9
-	|| ( >=sys-fs/udev-171[gudev] >=sys-fs/udev-145[extras] )
-	>=dev-libs/glib-2.18
-	>=sys-auth/polkit-0.92
+	|| ( >=sys-fs/udev-171[gudev] >=sys-fs/udev-147[extras] )
+	>=dev-libs/glib-2.26
+	>=sys-auth/polkit-0.97
 	>=dev-libs/libnl-1.1
 	>=net-misc/modemmanager-0.4
-	>=net-wireless/wpa_supplicant-0.5.10[dbus]
-	bluetooth? ( net-wireless/bluez )
-	|| ( sys-libs/e2fsprogs-libs <sys-fs/e2fsprogs-1.41.0 )
+	>=net-wireless/wpa_supplicant-0.7.3-r3[dbus]
+	bluetooth? ( >=net-wireless/bluez-4.82 )
 	avahi? ( net-dns/avahi[autoipd] )
 	gnutls? (
-		nss? ( >=dev-libs/nss-3.11 )
-		!nss? ( dev-libs/libgcrypt
-			net-libs/gnutls ) )
-	!gnutls? ( >=dev-libs/nss-3.11 )
+		dev-libs/libgcrypt
+		net-libs/gnutls )
+	nss? ( >=dev-libs/nss-3.11 )
 	dhclient? ( net-misc/dhcp )
 	dhcpcd? ( >=net-misc/dhcpcd-4.0.0_rc3 )
+	introspection? ( >=dev-libs/gobject-introspection-0.10.3 )
+	ppp? ( >=net-dialup/ppp-2.4.5 )
 	resolvconf? ( net-dns/openresolv )
 	connection-sharing? (
 		net-dns/dnsmasq
-		net-firewall/iptables )"
+		net-firewall/iptables )
+	wimax? ( >=net-wireless/wimax-1.5.1 )"
 
-DEPEND="${RDEPEND}
+RDEPEND="${COMMON_DEPEND}
+	sys-auth/consolekit"
+
+DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig
-	dev-util/intltool
-	>=net-dialup/ppp-2.4.5
+	>=dev-util/intltool-0.40
+	>=sys-devel/gettext-0.17
 	doc? ( >=dev-util/gtk-doc-1.8 )"
-
-S=${WORKDIR}/${MY_P}
+# Replace our fake _rc version with the actual version
+S="${WORKDIR}/${GNOME_ORG_MODULE}-${REAL_PV}"
 
 sysfs_deprecated_check() {
 	ebegin "Checking for SYSFS_DEPRECATED support"
@@ -63,11 +77,7 @@ sysfs_deprecated_check() {
 	eend $?
 }
 
-pkg_setup() {
-	# FIXME. Required by -confchanges.patch, but the patch is invalid as
-	# ConsoleKit and PolicyKit is enough to get authorization.
-	enewgroup plugdev
-
+pkg_pretend() {
 	if use kernel_linux; then
 		get_version
 		if linux_config_exists; then
@@ -79,67 +89,53 @@ pkg_setup() {
 		fi
 
 	fi
-
-	if ! use dhclient && ! use dhcpcd; then
-		eerror "Please enable either dhclient or dhcpcd USE flag"
-		die
-	fi
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-0.8.2-confchanges.patch"
-	# backported ifnet patches
-	epatch "${FILESDIR}/${P}-shared-connection.patch"
+	# Add useful patches from upstream git (fixing crashes, SSID parsing bugs,
+	# and significant usability problems).
+	epatch "${WORKDIR}/${PATCHSET}/"*.patch
+
+	# Don't build tests
 	epatch "${FILESDIR}/${P}-fix-tests.patch"
-	epatch "${FILESDIR}/${P}-ifnet-smarter-write.patch"
 	eautoreconf
+	default
 }
 
 src_configure() {
-	# Sabayon: make possible to compile support for both dhclient and dhcpcd
-	# upstream Gentoo defaults are just silly.
 	ECONF="--disable-more-warnings
+		--disable-static
 		--localstatedir=/var
 		--with-distro=gentoo
 		--with-dbus-sys-dir=/etc/dbus-1/system.d
 		--with-udev-dir=/lib/udev
 		--with-iptables=/sbin/iptables
+		$(use_enable doc gtk-doc)
+		$(use_enable introspection)
+		$(use_enable ppp)
+		$(use_enable wimax)
 		$(use_with dhclient)
 		$(use_with dhcpcd)
-		$(use_enable doc gtk-doc)
 		$(use_with doc docs)
-		$(use_with resolvconf)"
+		$(use_with resolvconf)
+		$(systemd_with_unitdir)"
 
-	# default is NSS (if none or both are specified), GnuTLS otherwise
-	if use gnutls ; then
 		if use nss ; then
-			ECONF="${ECONF} --with-crypto=nss"
+			ECONF="${ECONF} $(use_with nss crypto=nss)"
 		else
-			ECONF="${ECONF} --with-crypto=gnutls"
+			ECONF="${ECONF} $(use_with gnutls crypto=gnutls)"
 		fi
-	else
-		ECONF="${ECONF} --with-crypto=nss"
-	fi
 
 	econf ${ECONF}
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die "emake install failed"
-
+	default
 	# Need to keep the /var/run/NetworkManager directory
 	keepdir /var/run/NetworkManager
 
 	# Need to keep the /etc/NetworkManager/dispatched.d for dispatcher scripts
 	keepdir /etc/NetworkManager/dispatcher.d
-
-	dodoc AUTHORS ChangeLog NEWS README TODO || die "dodoc failed"
-
-	# Add keyfile plugin support
-	keepdir /etc/NetworkManager/system-connections
-	insinto /etc/NetworkManager
-	newins "${FILESDIR}/nm-system-settings.conf-ifnet" nm-system-settings.conf \
-		|| die "newins failed"
 
 	# Install script in /etc/NetworkManager/dispatcher.d to make netmount
 	# users (and init service) a bit more happy when NM is in use.
@@ -147,10 +143,12 @@ src_install() {
 	exeinto /etc/NetworkManager/dispatcher.d
 	doexe "${FILESDIR}"/01-netmount-up-down.rc
 	fperms 0744 /etc/NetworkManager/dispatcher.d/01-netmount-up-down.rc
-}
 
-pkg_postinst() {
-	elog "You will need to reload DBus if this is your first time installing"
-	elog "NetworkManager, or if you're upgrading from 0.7 or older."
-	elog ""
+	# Add keyfile plugin support
+	keepdir /etc/NetworkManager/system-connections
+	insinto /etc/NetworkManager
+	newins "${FILESDIR}/nm-system-settings.conf-ifnet" nm-system-settings.conf
+
+	# Remove useless .la files
+	find "${D}" -name '*.la' -exec rm -f {} + || die "la file removal failed"
 }
