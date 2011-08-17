@@ -16,7 +16,7 @@ DEPEND="=media-libs/freetype-2*
 	zlib? ( sys-libs/zlib )
 	gif? ( >=media-libs/giflib-4.1.0 )
 	png? ( >=media-libs/libpng-1.2.1 )
-	jpeg? ( media-libs/jpeg )
+	jpeg? ( virtual/jpeg )
 	tiff? ( >=media-libs/tiff-3.5.5 )
 	X? ( x11-libs/libXext x11-proto/xextproto )
 	mp3? ( media-libs/libid3tag )"
