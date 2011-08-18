@@ -50,9 +50,9 @@ start() {
 			if [ "$memory_avail" -gt "384" ]; then
 				# copy the image in ram
 				cp /usr/share/sounds/boot.ogg /var/tmp/music.ogg &> /dev/null
-				nice -n -15 ogg123 -p 30 -q /var/tmp/music.ogg &> /dev/null
+				nice -n -15 ogg123 -p 30 -q /var/tmp/music.ogg &> /dev/null &
 			else
-				nice -n -15 ogg123 -p 30 -q /usr/share/sounds/boot.ogg &> /dev/null
+				nice -n -15 ogg123 -p 30 -q /usr/share/sounds/boot.ogg &> /dev/null &
 			fi
 		eend 0
 	else
