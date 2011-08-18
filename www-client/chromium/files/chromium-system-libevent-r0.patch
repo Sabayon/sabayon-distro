@@ -1,0 +1,12 @@
+--- base/base.gyp.orig	2011-08-04 18:25:17.000000000 +0200
++++ base/base.gyp	2011-08-04 18:25:24.000000000 +0200
+@@ -283,6 +283,9 @@
+             'message_pump_libevent_unittest.cc',
+           ],
+         }, {  # OS != "win"
++          'dependencies': [
++            '../third_party/libevent/libevent.gyp:libevent'
++          ],
+           'sources/': [
+             ['exclude', '^win/'],
+           ],

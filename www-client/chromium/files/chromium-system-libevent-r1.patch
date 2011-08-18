@@ -1,0 +1,10 @@
+--- third_party/libevent/libevent.gyp.orig	2011-08-12 19:02:14.000000000 +0200
++++ third_party/libevent/libevent.gyp	2011-08-12 19:02:50.000000000 +0200
+@@ -67,6 +67,7 @@
+         {
+           'target_name': 'libevent',
+           'type': 'settings',
++          'toolsets': ['host', 'target'],
+           'direct_dependent_settings': {
+             'defines': [
+               'USE_SYSTEM_LIBEVENT',
