@@ -136,7 +136,7 @@ src_compile() {
 
 src_install() {
 	eval set -- $(get_make_options)
-	emake "$@" install || die "emake install failed"
+	emake "$@" -j1 install || die "emake install failed"
 
 	dodoc docs/{KNOWN_BUGS*,RELEASE-NOTES*,PATENTS*,debugging*}
 	newinitd "${FILESDIR}"/ipsec-initd ipsec || die "failed to install init script"
