@@ -1,0 +1,35 @@
+From 727355c16234603734e33c16b713ccfffbcef972 Mon Sep 17 00:00:00 2001
+From: Gabriel Burt <gabriel.burt@gmail.com>
+Date: Wed, 04 May 2011 21:05:00 +0000
+Subject: Set UserAgent when doing MusicBrainz queries (bgo#649401)
+
+Our Audio CD metadata lookup and coverart lookup that depend on MB were
+broken without this.
+---
+diff --git a/src/Core/Banshee.Services/Banshee.Metadata.MusicBrainz/MusicBrainzQueryJob.cs b/src/Core/Banshee.Services/Banshee.Metadata.MusicBrainz/MusicBrainzQueryJob.cs
+index 7dc9248..490bd34 100644
+--- a/src/Core/Banshee.Services/Banshee.Metadata.MusicBrainz/MusicBrainzQueryJob.cs
++++ b/src/Core/Banshee.Services/Banshee.Metadata.MusicBrainz/MusicBrainzQueryJob.cs
+@@ -83,6 +83,7 @@ namespace Banshee.Metadata.MusicBrainz
+         public MusicBrainzQueryJob (IBasicTrackInfo track)
+         {
+             Track = track;
++            MusicBrainzService.UserAgent = Banshee.Web.Browser.UserAgent;
+         }
+ 
+         public override void Run ()
+diff --git a/src/Extensions/Banshee.AudioCd/Banshee.AudioCd/AudioCdDiscModel.cs b/src/Extensions/Banshee.AudioCd/Banshee.AudioCd/AudioCdDiscModel.cs
+index 24b6972..51a35d0 100644
+--- a/src/Extensions/Banshee.AudioCd/Banshee.AudioCd/AudioCdDiscModel.cs
++++ b/src/Extensions/Banshee.AudioCd/Banshee.AudioCd/AudioCdDiscModel.cs
+@@ -74,6 +74,8 @@ namespace Banshee.AudioCd
+         {
+             this.volume = volume;
+             disc_title = Catalog.GetString ("Audio CD");
++
++            MusicBrainzService.UserAgent = Banshee.Web.Browser.UserAgent;
+         }
+ 
+         public void NotifyUpdated ()
+--
+cgit v0.9

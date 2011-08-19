@@ -1,0 +1,41 @@
+From d6274af6f2a0240d16854b9c78a0175bada255ec Mon Sep 17 00:00:00 2001
+From: Bertrand Lorentz <bertrand.lorentz@gmail.com>
+Date: Sat, 28 May 2011 14:21:20 +0000
+Subject: AudioCd: Fix metadata fetching with multiple results (bgo#587264)
+
+When looking for CD metadata on MusicBrainz, we were looking for a
+perfect match: only one release with a score of 100. If the search
+returned more than one result with a score of 100, we would reject all
+results.
+MusicBrainz recently started to return multiple releases much more
+often, causing our metadata fetching to fail quite a lot.
+
+We now use the first result if it has a score of 100, ignoring any other
+results.
+
+This also fixes a NRE when no results were found.
+---
+diff --git a/src/Extensions/Banshee.AudioCd/Banshee.AudioCd/AudioCdDiscModel.cs b/src/Extensions/Banshee.AudioCd/Banshee.AudioCd/AudioCdDiscModel.cs
+index 51a35d0..2e7a7db 100644
+--- a/src/Extensions/Banshee.AudioCd/Banshee.AudioCd/AudioCdDiscModel.cs
++++ b/src/Extensions/Banshee.AudioCd/Banshee.AudioCd/AudioCdDiscModel.cs
+@@ -123,10 +123,15 @@ namespace Banshee.AudioCd
+ 
+                 OnMetadataQueryStarted (mb_disc);
+ 
+-                Release release = Release.Query (mb_disc).PerfectMatch ();
++                Release release = Release.Query (mb_disc).First ();
+ 
++                if (release == null || release.Score < 100) {
++                    OnMetadataQueryFinished (false);
++                    return;
++                }
++                
+                 var tracks = release.GetTracks ();
+-                if (release == null || tracks.Count != Count) {
++                if (tracks.Count != Count) {
+                     OnMetadataQueryFinished (false);
+                     return;
+                 }
+--
+cgit v0.9
