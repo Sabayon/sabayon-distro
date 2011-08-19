@@ -10,7 +10,7 @@ DESCRIPTION="E file chunk reading/writing library"
 HOMEPAGE="http://trac.enlightenment.org/e/wiki/Eet"
 
 KEYWORDS="~amd64 ~x86"
-IUSE="debug examples gnutls ssl static-libs test +threads"
+IUSE="debug examples gnutls ssl static-libs test"
 
 RDEPEND=">=dev-libs/eina-9999
 	virtual/jpeg
@@ -54,7 +54,6 @@ src_configure() {
 		$(use_enable doc)
 		$(use_enable test tests)
 		$(use_enable test coverage)
-		$(use_enable threads posix-threads)
 		${SSL_FLAGS}
 		${MY_ECONF}"
 
