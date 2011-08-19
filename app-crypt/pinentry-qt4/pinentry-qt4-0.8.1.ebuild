@@ -4,6 +4,8 @@
 
 EAPI=3
 
+inherit multilib
+
 MY_PN=${PN/-qt4}
 MY_P=${P/-qt4}
 DESCRIPTION="Qt4 frontend for pinentry"
