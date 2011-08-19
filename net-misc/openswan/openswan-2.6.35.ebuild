@@ -139,10 +139,6 @@ src_install() {
 	emake "$@" install || die "emake install failed"
 
 	dodoc docs/{KNOWN_BUGS*,RELEASE-NOTES*,PATENTS*,debugging*}
-	dohtml doc/*.html
-	docinto quickstarts
-	dodoc doc/quickstarts/*
-
 	newinitd "${FILESDIR}"/ipsec-initd ipsec || die "failed to install init script"
 
 	keepdir /var/run/pluto
