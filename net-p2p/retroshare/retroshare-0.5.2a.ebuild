@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI="4"
 
-inherit eutils versionator
+inherit eutils versionator multilib
 
 MY_PN="RetroShare-v"
 MY_P="${MY_PN}${PV}"
@@ -33,15 +33,7 @@ DEPEND="${RDEPEND}
 	!net-p2p/retroshare-gui
 	!net-p2p/retroshare-cli"
 
-pkg_setup() {
-	if ! use cli && ! use qt4; then
-		eerror "Please activate at least one of these USE flags:"
-		eerror " - cli : console interface"
-		eerror " - qt4   : graphical user interface"
-		eerror
-		die "No client interface selected."
-	fi
-}
+REQUIRED_USE="|| ( cli qt4 )"
 
 src_prepare() {
 	epatch "${FILESDIR}/retroshare-0.5.1d.patch"
@@ -76,12 +68,12 @@ src_compile() {
 src_install() {
 	if use qt4; then
 		cd "${WORKDIR}/trunk/retroshare-gui/src"
-		make INSTALL_ROOT="${D}" install || die
+		emake INSTALL_ROOT="${D}" install || die
 	fi
 
 	if use cli; then
 		cd "${WORKDIR}/trunk/retroshare-nogui/src"
-		make INSTALL_ROOT="${D}" install || die
+		emake INSTALL_ROOT="${D}" install || die
 	fi
 }
 
