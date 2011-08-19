@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>no-herd</herd>
+	<maintainer>
+		<email>leander256@gmail.com</email>
+		<name>leander256</name>
+		<description>maintainer of ebuild from retroshare-overlay</description>
+	</maintainer>
+	<maintainer>
+		<email>slawomir.nizio@sabayon.org</email>
+	</maintainer>
+	<use>
+		<flag name="cli">Enables the CLI version of RetroShare</flag>
+		<flag name="qt4">Enables the GUI version of RetroShare</flag>
+	</use>
+</pkgmetadata>
