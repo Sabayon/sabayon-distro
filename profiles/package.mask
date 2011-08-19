@@ -58,3 +58,7 @@ app-emulation/qemu-gui
 # Mask imlib2 version used on Branch 5
 # by E17 stuff
 =media-libs/imlib2-9999
+
+# Fabio Erculiani <lxnay@sabayon.org>
+# Testing, breaks libs, not yet needed
+dev-libs/libdbusmenu
