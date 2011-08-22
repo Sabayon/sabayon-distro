@@ -15,16 +15,20 @@ SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="caps"
+IUSE="caps static"
 
-RDEPEND="~app-crypt/pinentry-${PV}
-	app-admin/eselect-pinentry
-	>=x11-libs/qt-gui-4.4.1
-	caps? ( sys-libs/libcap )"
+RDEPEND="~app-crypt/pinentry-base-${PV}
+	caps? ( ~app-crypt/pinentry-base-${PV}[caps] )
+	static? ( ~app-crypt/pinentry-base-${PV}[static] )
+	>=x11-libs/qt-gui-4.4.1"
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
 S="${WORKDIR}/${MY_P}"
+
+pkg_setup() {
+	use static && append-ldflags -static
+}
 
 src_prepare() {
 	local file
