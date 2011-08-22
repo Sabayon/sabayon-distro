@@ -3,5 +3,6 @@ app-text/epdfview
 lxde-base/lxdm
 lxde-base/lxde-meta
 mail-client/claws-mail
+media-plugins/alsa-plugins
 @wireless
 @X
