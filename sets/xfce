@@ -4,6 +4,7 @@ app-arch/squeeze
 app-editors/leafpad
 app-misc/sabayon-skel
 lxde-base/lxdm
+media-plugins/alsa-plugins
 xfce-base/xfce4-meta
 xfce-extra/xfce4-power-manager
 xfce-extra/xfce4-taskmanager
