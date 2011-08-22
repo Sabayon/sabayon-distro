@@ -28,16 +28,15 @@ RDEPEND="app-text/enchant
 	media-libs/freetype:2
 	media-libs/libpng:0
 	x11-libs/pango
-	webkit? ( net-libs/webkit-gtk )
 	gtk3? (
 		gnome-extra/gtkhtml:4.0
-		net-libs/webkit-gtk:3
+		webkit? ( net-libs/webkit-gtk:3 )
 		x11-libs/gtk+:3
 		>=mail-client/evolution-3
 	)
 	!gtk3? (
 		gnome-extra/gtkhtml:3.14
-		net-libs/webkit-gtk:2
+		webkit? ( net-libs/webkit-gtk:2 )
 		x11-libs/gtk+:2
 		<mail-client/evolution-3
 	)"
