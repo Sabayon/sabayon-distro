@@ -154,7 +154,7 @@ src_compile() {
 		PYLIBVER="python$(python_get_version)" \
 		PYTHONLIBDIR="${D}/usr/$(get_libdir)/python$(python_get_version)" \
 		SHLIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
-		INCLUDEDIR="${D}/usr/include/anaconda-runtime" \
+		INCDIR="${D}/usr/include/anaconda-runtime" \
 		all || die
 	LD_RUN_PATH="/usr/$(get_libdir)/anaconda-runtime" \
 	emake \
@@ -162,7 +162,7 @@ src_compile() {
 		PYLIBVER="python$(python_get_version)" \
 		PYTHONLIBDIR="${D}/usr/$(get_libdir)/python$(python_get_version)" \
 		SHLIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
-		INCLUDEDIR="${D}/usr/include/anaconda-runtime" \
+		INCDIR="${D}/usr/include/anaconda-runtime" \
 		pywrap || die
 
         # add compatibility aliases to swig wrapper
@@ -181,7 +181,7 @@ src_install() {
 		PYTHONLIBDIR="${D}/usr/$(get_libdir)/python$(python_get_version)" \
 		LIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
 		SHLIBDIR="${D}/usr/$(get_libdir)/anaconda-runtime" \
-		INCLUDEDIR="${D}/usr/include/anaconda-runtime" \
+		INCDIR="${D}/usr/include/anaconda-runtime" \
 		install install-pywrap || die
 
 	# fix libselinux.so link
