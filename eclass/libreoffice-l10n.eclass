@@ -42,7 +42,7 @@ elif [[ "${PV}" = "3.4.1" ]]; then
 	if [ "${HELPPACK_AVAIL}" = "1" ]; then
 		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 	fi
-elif [[ "${PV}" = "3.4.2.3" ]]; then
+elif [[ "${PV}" = "3.4.2.3" ]] || [[ "${PV}" = "3.4.3.2" ]]; then
 	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/3.4.2/rpm/x86/LibO_3.4.2_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
 	if [ "${HELPPACK_AVAIL}" = "1" ]; then
 		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/3.4.2/rpm/x86/LibO_3.4.2_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
