@@ -38,6 +38,11 @@ K_SABKERNEL_SELF_TARBALL_NAME="${K_SABKERNEL_SELF_TARBALL_NAME:-}"
 # Force the rewrite of SUBLEVEL in kernel sources Makefile
 K_SABKERNEL_FORCE_SUBLEVEL="${K_SABKERNEL_FORCE_SUBLEVEL:-}"
 
+# @ECLASS-VARIABLE: K_SABKERNEL_RESET_EXTRAVERSION
+# @DESCRIPTION:
+# Force the rewrite of EXTRAVERSION in kernel sources Makefile (setting it to "")
+K_SABKERNEL_RESET_EXTRAVERSION="${K_SABKERNEL_RESET_EXTRAVERSION:-}"
+
 # @ECLASS-VARIABLE: K_SABKERNEL_LONGTERM
 # @DESCRIPTION:
 # Consider Kernel stable patchset as longterm (changing URL)
@@ -307,6 +312,11 @@ sabayon-kernel_src_unpack() {
 		# patch out Makefile with proper sublevel
 		sed -i "s:^SUBLEVEL = .*:SUBLEVEL = ${K_SABKERNEL_FORCE_SUBLEVEL}:" \
 			"${S}/Makefile" || die
+	fi
+	if [ -n "${K_SABKERNEL_RESET_EXTRAVERSION}" ]; then
+		sed -i "s:^EXTRAVERSION =.*:EXTRAVERSION = :" "${S}/Makefile" || die
+		# some sources could have multiple append-based EXTRAVERSIONs
+		sed -i "s/^EXTRAVERSION :=.*//" "${S}/Makefile" || die
 	fi
 	OKV="${okv}"
 }
