@@ -38,7 +38,7 @@ REQUIRED_USE="|| ( cli qt4 )"
 src_prepare() {
 	epatch "${FILESDIR}/retroshare-0.5.1d.patch"
 	sed -i -e \
-		"s|/usr/lib/retroshare/extensions/|/usr/$(get_libdir)/${PV}/extensions/|" \
+		"s|/usr/lib/retroshare/extensions/|/usr/$(get_libdir)/${PN}/extensions/|" \
 		libretroshare/src/rsserver/rsinit.cc \
 		|| die "sed failed"
 }
@@ -68,12 +68,12 @@ src_compile() {
 src_install() {
 	if use qt4; then
 		cd "${WORKDIR}/trunk/retroshare-gui/src"
-		emake INSTALL_ROOT="${D}" install || die
+		emake INSTALL_ROOT="${D}" install
 	fi
 
 	if use cli; then
 		cd "${WORKDIR}/trunk/retroshare-nogui/src"
-		emake INSTALL_ROOT="${D}" install || die
+		emake INSTALL_ROOT="${D}" install
 	fi
 }
 
