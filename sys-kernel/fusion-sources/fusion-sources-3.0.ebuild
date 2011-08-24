@@ -7,6 +7,7 @@ K_SABKERNEL_URI_CONFIG="yes"
 K_SABKERNEL_SELF_TARBALL_NAME="fusion"
 K_ONLY_SOURCES="1"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
+K_SABKERNEL_RESET_EXTRAVERSION="1"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Fusion (on steroids) kernel sources"
