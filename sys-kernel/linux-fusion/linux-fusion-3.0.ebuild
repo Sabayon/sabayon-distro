@@ -5,9 +5,14 @@ ETYPE="sources"
 K_SABKERNEL_SELF_TARBALL_NAME="fusion"
 K_REQUIRED_LINUX_FIRMWARE_VER="20110709"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
-K_SABKERNEL_RESET_EXTRAVERSION="1"
 inherit sabayon-kernel
 
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Fusion (on steroids) kernel image"
 RESTRICT="mirror"
+
+src_unpack() {
+	sabayon-kernel_src_unpack
+	# fixup EXTRAVERSION, we don't want anything to append stuff
+	sed -i "s/^EXTRAVERSION :=.*//" "${S}/Makefile" || die
+}
