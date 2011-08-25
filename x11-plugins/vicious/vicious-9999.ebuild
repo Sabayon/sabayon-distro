@@ -3,7 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/x11-plugins/vicious/vicious-2.0.2.ebuild,v 1.1 2011/02/05 17:46:09 wired Exp $
 
 EAPI=3
-inherit git
+inherit git-2
 
 DESCRIPTION="Modular widget library for x11-wm/awesome"
 HOMEPAGE="http://awesome.naquadah.org/wiki/Vicious"
