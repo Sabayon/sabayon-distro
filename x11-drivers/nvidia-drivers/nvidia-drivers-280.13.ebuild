@@ -159,6 +159,9 @@ src_install() {
 		exeinto /boot/modules
 		doexe "${WORKDIR}/${NV_PACKAGE}/src/nvidia.ko" || die
 	fi
+
+	# Gentoo bug #375615 -- GTK apps hanging
+	doenvd "${FILESDIR}"/10nvidia
 }
 
 pkg_preinst() {
