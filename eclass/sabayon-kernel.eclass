@@ -533,7 +533,7 @@ sabayon-kernel_grub2_mkconfig() {
 
 _get_real_extraversion() {
 	make_file="${ROOT}${KV_OUT_DIR}/Makefile"
-	local extraver=$(grep -r "^EXTRAVERSION" "${make_file}" | cut -d "=" -f 2)
+	local extraver=$(grep -r "^EXTRAVERSION =" "${make_file}" | cut -d "=" -f 2 | head -n 1)
 	local trimmed=${extraver%% }
 	echo ${trimmed## }
 }
