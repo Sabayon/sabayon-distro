@@ -1,0 +1,97 @@
+diff -dupr qnapi-0.1.6-rc2.orig/doc/qnapi.desktop qnapi-0.1.6-rc2/doc/qnapi.desktop
+--- qnapi-0.1.6-rc2.orig/doc/qnapi.desktop	2009-08-07 11:12:56.029409132 +0200
++++ qnapi-0.1.6-rc2/doc/qnapi.desktop	2009-08-07 11:13:33.989532257 +0200
+@@ -1,7 +1,7 @@
+ [Desktop Entry]
+ Exec=qnapi
+ Name=QNapi
+-Icon=/usr/share/icons/qnapi-48.png
++Icon=qnapi
+ Type=Application
+ Categories=AudioVideo
+ Comment=Program do pobierania napisów do filmów
+diff -dupr qnapi-0.1.6-rc2.orig/doc/qnapi-download.desktop qnapi-0.1.6-rc2/doc/qnapi-download.desktop
+--- qnapi-0.1.6-rc2.orig/doc/qnapi-download.desktop	2009-08-07 11:12:56.029409132 +0200
++++ qnapi-0.1.6-rc2/doc/qnapi-download.desktop	2009-08-07 11:13:33.990532256 +0200
+@@ -3,7 +3,7 @@ Version=1.0
+ Actions=QNapiDownload;
+ Name=Pobierz napisy do filmu z QNapi
+ GenericName=Pobierz napisy do filmu z QNapi
+-Icon=/usr/share/icons/qnapi-48.png
++Icon=qnapi
+ ServiceTypes=video/x-msvideo,video/x-ms-asf,video/mpeg,video/x-ms-wmv,video/mp4,video/quicktime,video/x-theora,video/x-matroska,video/3gpp,application/vnd.rn-realmedia,application/vnd.rn-realmedia-vbr
+ X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+ Type=Service
+@@ -11,4 +11,4 @@ Type=Service
+ [Desktop Action QNapiDownload]
+ Name=Pobierz napisy do filmu z QNapi
+ Exec=qnapi %F
+-Icon=/usr/share/icons/qnapi-48.png
++Icon=qnapi
+diff -dupr qnapi-0.1.6-rc2.orig/doc/qnapi-download.schemas qnapi-0.1.6-rc2/doc/qnapi-download.schemas
+--- qnapi-0.1.6-rc2.orig/doc/qnapi-download.schemas	2009-08-07 11:12:56.029409132 +0200
++++ qnapi-0.1.6-rc2/doc/qnapi-download.schemas	2009-08-07 11:13:33.991532214 +0200
+@@ -32,7 +32,7 @@
+         <short>The icon of the menu item</short>
+         <long>The icon of the menu item that will appear next to the label in the Nautilus popup menu when the selection matches the appearance conditions settings</long>
+       </locale>
+-      <default>/usr/share/icons/qnapi.png</default>
++      <default>/usr/share/pixmaps/qnapi.png</default>
+     </schema>
+     <schema>
+       <key>/schemas/apps/nautilus-actions/configurations/12e76756-c203-4a27-830f-af5a1527869e/path</key>
+diff -dupr qnapi-0.1.6-rc2.orig/qnapi.pro qnapi-0.1.6-rc2/qnapi.pro
+--- qnapi-0.1.6-rc2.orig/qnapi.pro	2009-08-07 11:12:56.017406961 +0200
++++ qnapi-0.1.6-rc2/qnapi.pro	2009-08-07 11:21:04.772421790 +0200
+@@ -104,39 +104,32 @@ macx {
+ unix {
+  INSTALL_PREFIX =  /usr
+  target.path =  $${INSTALL_PREFIX}/bin
+- doc.path =  $${INSTALL_PREFIX}/share/doc/$${TARGET}
++ doc.path =  $${INSTALL_PREFIX}/share/doc/$(PF)
+  doc.files =  doc/ChangeLog \
+-  doc/changelog.gz \
+   doc/README \
+-  doc/README.pl \
+-  doc/LICENSE \
+-  doc/LICENSE.pl \
+-  doc/COPYRIGHT \
+-  doc/qnapi-download.desktop \
+-  doc/qnapi-download.schemas
++  doc/README.pl
+  man.path =  $${INSTALL_PREFIX}/share/man/man1
+- man.files =  doc/$${TARGET}.1.gz
+- icons.path =  /usr/share/icons
+- icons.files =  res/qnapi.png  res/qnapi-48.png  res/qnapi-128.png  res/qnapi-512.png
++ man.files =  doc/$${TARGET}.1
++ icons.path =  /usr/share/pixmaps
++ icons.files =  res/qnapi.png
+  desktop.path =  /usr/share/applications
+  desktop.files =  doc/$${TARGET}.desktop
+- dolphin_integration.path =  /usr/share/apps/dolphin/servicemenus
++ dolphin_integration.path =  /usr/kde/3.5/share/apps/dolphin/servicemenus
+  dolphin_integration.files =  doc/$${TARGET}-download.desktop
+- d3lphin_integration.path =  /usr/share/apps/d3lphin/servicemenus
++ d3lphin_integration.path =  /usr/kde/3.5/share/apps/d3lphin/servicemenus
+  d3lphin_integration.files =  doc/$${TARGET}-download.desktop
+- konqueror_integration.path =  /usr/share/apps/konqueror/servicemenus
++ konqueror_integration.path =  /usr/kde/3.5/share/apps/konqueror/servicemenus
+  konqueror_integration.files =  doc/$${TARGET}-download.desktop
+- kde4_integration.path =  /usr/lib/kde4/share/kde4/services/ServiceMenus
++ kde4_integration.path =  $$(KDE4DIR)/share/kde4/services/ServiceMenus
+  kde4_integration.files =  doc/$${TARGET}-download.desktop
++ gnome_integration.path =  /etc/gconf/schemas/
++ gnome_integration.files =  doc/$${TARGET}-download.schemas
+  INSTALLS =  target \
+   doc \
+   man \
+   icons \
+   desktop \
+-  dolphin_integration \
+-  d3lphin_integration \
+-  konqueror_integration \
+-  kde4_integration
++  $$(INTEGRATION_TARGETS)
+ }
+ win32 {
+  RC_FILE =  win32/qnapi.rc
