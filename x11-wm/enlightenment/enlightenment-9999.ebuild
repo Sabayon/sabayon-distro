@@ -47,6 +47,7 @@ DEPEND="${RDEPEND}"
 
 src_prepare() {
 	epatch "${FILESDIR}"/quickstart.diff
+	epatch "${FILESDIR}"/e_start_main_ugly_proc_die.patch
 	enlightenment_src_prepare
 }
 
