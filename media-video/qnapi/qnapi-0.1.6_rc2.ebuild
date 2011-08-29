@@ -32,7 +32,6 @@ PATCHES=( "${FILESDIR}/${P}-gentoo.diff" )
 
 pkg_setup() {
 	use kde && kde4-base_pkg_setup # get KDEDIR for KDE4
-	qt4-r2_pkg_setup
 }
 
 src_configure() {
