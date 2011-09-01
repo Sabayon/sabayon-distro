@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-6.0.ebuild,v 1.2 2011/08/23 19:35:58 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-6.0.ebuild,v 1.6 2011/08/28 01:03:44 anarchy Exp $
 
 EAPI="3"
 VIRTUALX_REQUIRED="pgo"
@@ -18,7 +18,7 @@ PATCH="${PN}-6.0-patches-0.1"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist +crashreporter +methodjit +ipc pgo system-sqlite +webm"
@@ -34,7 +34,7 @@ RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.10
 	>=dev-libs/nspr-4.8.8
-	>=dev-libs/glib-2.26
+	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	media-libs/libpng[apng]
 	dev-libs/libffi
@@ -228,6 +228,7 @@ src_configure() {
 
 	mozconfig_annotate '' --prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --libdir="${EPREFIX}"/usr/$(get_libdir)
+	# mozconfig_annotate '' --target="${target}"
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --disable-gconf
 	mozconfig_annotate '' --disable-mailnews
@@ -262,7 +263,12 @@ src_compile() {
 	if use pgo; then
 		addpredict /root
 		addpredict /etc/gconf
-		addpredict /dev/dri
+		# Firefox tries to dri stuff when it's run, see bug 380283
+		shopt -s nullglob
+		local cards=$(echo -n /dev/{dri,ati}/card* /dev/nvidiactl* | sed 's/ /:/g')
+		shopt -u nullglob
+		test -n "${cards}" && addpredict "${cards}"
+
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 		Xemake -f client.mk profiledbuild || die "Xemake failed"
