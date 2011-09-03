@@ -42,7 +42,7 @@ RDEPEND="app-admin/system-config-date
 	sys-fs/jfsutils
 	sys-fs/mdadm
 	sys-fs/multipath-tools
-	sys-fs/ntfsprogs
+	|| ( sys-fs/ntfsprogs sys-fs/ntfs3g[ntfsprogs] )
 	sys-fs/reiserfsprogs
 	sys-fs/squashfs-tools
 	sys-fs/xfsprogs
