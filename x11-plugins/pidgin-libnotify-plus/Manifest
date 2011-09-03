@@ -1,0 +1,2 @@
+DIST pidgin-libnotify-plus-1.2.2.tar.xz 228388 RMD160 b60d584d140cf237a8bbde665a4b7a6d27f059ca SHA1 7ad2afcc15b47637e5211c869c70bee8a6e73bb1 SHA256 e7b9be913ee795d05b1e7ce9696a5ccda1ac7d42fd859b6fed3db7372d4f2559
+EBUILD pidgin-libnotify-plus-1.2.2.ebuild 529 RMD160 9bbed3ce3809b0eac218b1d6c11de7e828913a8f SHA1 4e466e7524c2c323f688f2b0ae73be13acde1ac0 SHA256 441ff46a006f1e5ed5c42749dde958cba98c7abccf107e664ee09d1acc58afdf
