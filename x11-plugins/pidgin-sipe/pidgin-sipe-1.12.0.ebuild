@@ -3,6 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/x11-plugins/pidgin-sipe/pidgin-sipe-1.10.0.ebuild,v 1.3 2010/05/24 12:12:35 pva Exp $
 
 EAPI=4
+inherit autotools
 
 DESCRIPTION="Pidgin Plug-in SIPE (Sip Exchange Protocol)"
 HOMEPAGE="http://sipe.sourceforge.net/"
@@ -23,6 +24,10 @@ DEPEND="net-im/pidgin
 		>=net-libs/libnice-0.1.0
 		media-libs/gstreamer )
 	!voice? ( >=dev-libs/glib-2.12.0 )"
+
+src_prepare() {
+	elibtoolize
+}
 
 src_configure() {
 	econf \
