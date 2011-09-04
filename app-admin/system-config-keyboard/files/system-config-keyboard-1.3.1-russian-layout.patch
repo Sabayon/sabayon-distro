@@ -1,0 +1,11 @@
+--- system-config-keyboard-1.3.1.orig/lib/keyboard_models.py
++++ system-config-keyboard-1.3.1/lib/keyboard_models.py
+@@ -207,7 +207,7 @@ class KeyboardModels:
+             'ro-std-cedilla'                  : [_('keyboard|Romanian Standard Cedilla'), 'ro', 'pc105', 'std_cedilla', ''],
+             # Translators: the word before the bar is just context and
+             # doesn't need to be translated. Only after will be translated.
+-            'ru'                      : [_('keyboard|Russian'), 'ru,us', 'pc105', '', 'grp:shifts_toggle,grp_led:scroll'],
++            'ru'                      : [_('keyboard|Russian'), 'ru,us', 'pc105', 'intl-unicode,', 'grp:ctrl_shift_toggle,grp_led:scroll,compose:ralt,terminate:ctrl_alt_bksp'],
+             # Translators: the word before the bar is just context and
+             # doesn't need to be translated. Only after will be translated.
+             'sr-cy'                 : [_('keyboard|Serbian'), 'rs', 'pc105', '', ''],

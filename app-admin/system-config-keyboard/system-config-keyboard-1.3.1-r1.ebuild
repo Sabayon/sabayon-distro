@@ -18,6 +18,10 @@ DEPEND="dev-util/intltool
 	dev-util/desktop-file-utils"
 RDEPEND="app-admin/firstboot"
 
+PATCHES=(
+	"${FILESDIR}/${P}-russian-layout.patch"
+)
+
 pkg_postrm() {
         python_mod_cleanup /usr/share/${PN}
 }
