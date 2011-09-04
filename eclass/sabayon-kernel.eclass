@@ -296,9 +296,9 @@ _update_depmod() {
 
 sabayon-kernel_pkg_setup() {
 	if [ -n "${K_FIRMWARE_PACKAGE}" ]; then
-		einfo "Preparing to build kernel firmwares"
+		einfo "Preparing kernel firmwares"
 	else
-		einfo "Preparing to build the kernel and its modules"
+		einfo "Preparing kernel and its modules"
 	fi
 }
 
