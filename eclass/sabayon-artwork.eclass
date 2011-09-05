@@ -8,7 +8,7 @@ inherit eutils
 # @DESCRIPTION:
 # Argument used by `find` to search inside ${ROOT}boot Linux
 # Kernel initramfs files to patch
-KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*sabayon}"
+KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*}"
 
 # @ECLASS-VARIABLE: GFX_SPLASH_NAME
 # @DESCRIPTION:
