@@ -31,17 +31,6 @@ app-emulation/qemu-gui
 # Gentoo #260441
 ~x11-drivers/nvidia-drivers-180.35
 
-# Ian Whyman <ian.whyman@sabayonlinux.org
-# Modified by Joost Ruis unmask 6.0 artwork.
-#
-# Mask Devel Artwork packages
->=x11-themes/sabayon-artwork-6
->=x11-themes/sabayon-artwork-core-6
->=x11-themes/sabayon-artwork-gnome-6
->=x11-themes/sabayon-artwork-kde-6
->=x11-themes/sabayon-artwork-lxde-6
->=x11-themes/sabayon-artwork-loo-6
-
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Breaks many apps, see: #575
 =x11-libs/libxcb-1.1.93-r1
