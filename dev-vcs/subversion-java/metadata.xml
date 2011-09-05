@@ -3,12 +3,7 @@
 <pkgmetadata>
 	<herd>no-herd</herd>
 	<maintainer>
-		<email>arfrever@gentoo.org</email>
-		<name>Arfrever Frehtes Taifersar Arahesis</name>
-		<description>Gentoo Subversion maintainer and Subversion upstream representative</description>
-	</maintainer>
-	<maintainer>
-		<email>poczta-sn@gazeta.pl</email>
-		<description>Maintainer for split subversion-java ebuild. Please send bugs about this one only here.</description>
+		<email>slawomir.nizio@sabayon.org</email>
+		<description>Maintainer for split subversion-java ebuild.</description>
 	</maintainer>
 </pkgmetadata>
