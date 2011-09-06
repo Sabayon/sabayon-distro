@@ -20,8 +20,8 @@ RDEPEND="
 	>=x11-libs/wxGTK-2.8[X]
 	net-misc/curl
 	libnotify? ( x11-libs/libnotify )
-	sound? (	media-libs/openal )
-	torrent? (	>=net-libs/rb_libtorrent-0.14 )
+	sound? ( media-libs/openal )
+	torrent? ( >=net-libs/rb_libtorrent-0.14 )
 "
 
 DEPEND="${RDEPEND}
@@ -59,4 +59,3 @@ src_install() {
 	dodir /etc/env.d/
 	echo 'XDG_DATA_DIRS="/usr/share/games"' >> ${D}/etc/env.d/99games
 }
-
