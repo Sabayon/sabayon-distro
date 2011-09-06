@@ -257,9 +257,9 @@ setup_boot_dir() {
 		einfo
 	else
 		# we need to refresh the grub.cfg everytime just to play it safe
-		einfo "Running: grub2-mkconfig -o '${dir}/grub.cfg'"
-		grub2-mkconfig -o "${dir}/grub.cfg" || \
-			ewarn "Running grub2-mkconfig failed! Check your configuration files!"
+		einfo "Running: grub-mkconfig -o '${dir}/grub.cfg'"
+		grub-mkconfig -o "${dir}/grub.cfg" || \
+			ewarn "Running grub-mkconfig failed! Check your configuration files!"
 	fi
 
 	# install Sabayon splash here, cannot touch boot/grub inside
