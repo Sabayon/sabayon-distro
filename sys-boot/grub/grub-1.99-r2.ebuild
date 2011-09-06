@@ -22,9 +22,9 @@ DESCRIPTION="GNU GRUB boot loader"
 HOMEPAGE="http://www.gnu.org/software/grub/"
 
 LICENSE="GPL-3"
-use multislot && SLOT="2" || SLOT="0"
+SLOT="2"
 [[ ${PV} != "9999" ]] && KEYWORDS="~amd64 ~x86 ~mips ~ppc ~ppc64"
-IUSE="custom-cflags debug +device-mapper multislot nls static sdl +truetype"
+IUSE="custom-cflags debug +device-mapper nls static sdl +truetype"
 
 GRUB_PLATFORMS="coreboot efi-32 efi-64 emu ieee1275 multiboot pc yeeloong"
 # everywhere:
@@ -60,16 +60,25 @@ DEPEND="${RDEPEND}
 if [[ ${PV} == "9999" ]]; then
 	DEPEND+=" >=sys-devel/autogen-5.10 sys-apps/help2man"
 else
-	DEPEND+=" >=sys-devel/autogen-5.10 app-arch/xz-utils"
+	DEPEND+=" app-arch/xz-utils"
 fi
 
-export STRIP_MASK="*/grub/*/*.mod"
+export STRIP_MASK="*/grub*/*/*.{mod,img}"
 QA_EXECSTACK="
-	sbin/grub-probe
-	sbin/grub-setup
-	sbin/grub-mkdevicemap
-	bin/grub-script-check
-	bin/grub-fstest
+	lib64/grub2/*/setjmp.mod
+	lib64/grub2/*/kernel.img
+	sbin/grub2-probe
+	sbin/grub2-setup
+	sbin/grub2-mkdevicemap
+	bin/grub2-script-check
+	bin/grub2-fstest
+	bin/grub2-mklayout
+	bin/grub2-menulst2cfg
+	bin/grub2-mkrelpath
+	bin/grub2-mkpasswd-pbkdf2
+	bin/grub2-mkfont
+	bin/grub2-editenv
+	bin/grub2-mkimage
 "
 
 grub_run_phase() {
@@ -196,18 +205,18 @@ src_install() {
 	for i in ${GRUB_ENABLED_PLATFORMS}; do
 		grub_run_phase ${FUNCNAME} ${i}
 	done
-	if use multislot ; then
-		sed -i "s:grub-install:grub2-install:" "${D}"/sbin/grub-install || die
-		mv "${D}"/sbin/grub{,2}-install || die
-		mv "${D}"/sbin/grub{,2}-set-default || die
-		mv "${D}"/usr/share/info/grub{,2}.info || die
-	fi
+
+	# avoid collisions with grub-1
+	sed -i "s:grub-install:grub2-install:" "${ED}"/sbin/grub-install || die
+	mv "${ED}"/sbin/grub{,2}-install || die
+	mv "${ED}"/sbin/grub{,2}-set-default || die
+	mv "${ED}"/usr/share/info/grub{,2}.info || die
 
 	# can't be in docs array as we use defualt_src_install in different builddir
 	dodoc AUTHORS ChangeLog NEWS README THANKS TODO
 	insinto /etc/default
 	newins "${FILESDIR}"/grub2-default-1.99 grub
-	cat <<-EOF >> "${D}"/lib*/grub/grub-mkconfig_lib
+	cat <<-EOF >> "${ED}"/lib*/grub/grub-mkconfig_lib
 	GRUB_DISTRIBUTOR="Sabayon"
 EOF
 
@@ -222,20 +231,16 @@ EOF
 	newins "${FILESDIR}/default-splash-6.png" default-splash.png
 
 	dodir /etc/env.d
-	echo 'CONFIG_PROTECT_MASK="/etc/grub.d"' > "${D}/etc/env.d/10grub2"
+	echo 'CONFIG_PROTECT_MASK="/etc/grub.d"' > "${ED}/etc/env.d/10grub2"
 
 }
 
 setup_boot_dir() {
 	local dir=$1
 
-	if [[ ! -e ${dir}/grub.cfg ]]; then
-		# display the link to guide if user didn't set up anything yet.
-		elog "For informations how to configure grub-2 please reffer to guide:"
-		# FIXME: we don't have any guide yet!
-		# Lets just use archlinux wiki until we have some.
-		elog "    https://wiki.archlinux.org/index.php/GRUB2"
-	fi
+	# display the link to guide if user didn't set up anything yet.
+	elog "For informations how to configure grub-2 please reffer to the guide:"
+	elog "    http://dev.gentoo.org/~scarabeus/grub-2-guide.xml"
 
 	if [[ ! -e ${dir}/grub.cfg && -e ${dir}/menu.lst ]] ; then
 		# This is first grub2 install and we have old configuraton for
@@ -246,16 +251,15 @@ setup_boot_dir() {
 		grub-menulst2cfg "${dir}/menu.lst" "${dir}/grub.cfg" || \
 			ewarn "Running grub-menulst2cfg failed!"
 
-		einfo "Even if we just created configuration for your grub-2 using old"
-		einfo "grub-1 configuration file you should migrate to use new style"
+		einfo "Even if we just created configuration for your grub2 using old"
+		einfo "grub-legacy configuration file you should migrate to use new style"
 		einfo "configuration in '${ROOT}/etc/grub.d'."
 		einfo
-		elog "Remember to run grub-install to install your grub!"
 	else
 		# we need to refresh the grub.cfg everytime just to play it safe
-		einfo "Running: grub-mkconfig -o '${dir}/grub.cfg'"
-		grub-mkconfig -o "${dir}/grub.cfg" || \
-			ewarn "Running grub-mkconfig failed! Check your configuration files!"
+		einfo "Running: grub2-mkconfig -o '${dir}/grub.cfg'"
+		grub2-mkconfig -o "${dir}/grub.cfg" || \
+			ewarn "Running grub2-mkconfig failed! Check your configuration files!"
 	fi
 
 	# install Sabayon splash here, cannot touch boot/grub inside
@@ -263,15 +267,11 @@ setup_boot_dir() {
 	cp "${ROOT}/usr/share/grub/default-splash.png" "${dir}/default-splash.png" || \
 		ewarn "cannot install default splash file!"
 
-	elog "Remember to run \"grub-mkconfig -o '${dir}/grub.cfg'\" every time"
-	elog "you update the configuration files."
+	elog "Remember to run grub2-install to install your grub every time"
+	elog "you update this package!"
 }
 
 pkg_postinst() {
-	if use multislot ; then
-		elog "You have installed grub2 with USE=multislot, so to coexist"
-		elog "with grub1, the grub2 install binary is named grub2-install."
-	fi
 	mount-boot_mount_boot_partition
 
 	setup_boot_dir "${ROOT}"boot/grub
