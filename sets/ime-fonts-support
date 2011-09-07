@@ -1,0 +1,7 @@
+# Also see Sabayon bug 2518
+app-i18n/ibus-anthy
+app-i18n/ibus-hangul
+app-i18n/ibus-m17n
+app-i18n/ibus-pinyin
+
+# For KDE/Qt users, app-i18n/ibus-qt could be provided
