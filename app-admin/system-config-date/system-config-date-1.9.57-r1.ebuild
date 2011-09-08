@@ -1,8 +1,8 @@
-# Copyright 2004-2010 Sabayon
+# Copyright 2004-2011 Sabayon
 # Distributed under the terms of the GNU General Public License v2
-# $
+# $Header: $
 
-EAPI="2"
+EAPI="3"
 inherit python base
 
 DESCRIPTION="The system-config-date tool lets you set the date and time of your machine."
@@ -16,13 +16,13 @@ IUSE="gtk"
 
 # FIXME: would also require a dependency against anaconda
 DEPEND="app-text/docbook-xml-dtd
-        app-text/docbook-sgml-dtd
-        app-text/gnome-doc-utils
-        app-text/rarian
-        dev-libs/newt
-        dev-util/desktop-file-utils
-        dev-util/intltool
-        sys-devel/gettext"
+	app-text/docbook-sgml-dtd
+	app-text/gnome-doc-utils
+	app-text/rarian
+	dev-libs/newt
+	dev-util/desktop-file-utils
+	dev-util/intltool
+	sys-devel/gettext"
 
 # also net-misc/ntp would be a soft-dependency
 # but code is redhat-centric, so we won't really
@@ -30,21 +30,21 @@ DEPEND="app-text/docbook-xml-dtd
 # net-misc/ntp
 RDEPEND="dev-libs/newt
 	dev-python/python-slip
-        dev-python/rhpl
+	dev-python/rhpl
 	gtk? (  dev-python/pygtk:2
 		dev-python/libgnomecanvas-python
-	        x11-themes/hicolor-icon-theme )"
+		x11-themes/hicolor-icon-theme )"
 
 src_install() {
-        base_src_install
+	base_src_install
 
 	# removing .desktop file, not advertising this, it is
 	# only needed by app-admin/anaconda
-        rm -rf "${D}/usr/share/"{man,applications}
-        rm -rf "${D}/etc/"{pam.d,security}
-        rm -rf "${D}/usr/bin"
+	rm -rf "${ED}/usr/share/"{man,applications}
+	rm -rf "${ED}/etc/"{pam.d,security}
+	rm -rf "${ED}/usr/bin"
 }
 
 pkg_postrm() {
-        python_mod_cleanup /usr/share/${PN}
+	python_mod_cleanup /usr/share/${PN}
 }

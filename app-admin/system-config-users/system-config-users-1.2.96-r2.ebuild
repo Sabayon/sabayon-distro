@@ -1,8 +1,8 @@
-# Copyright 2004-2010 Sabayon
+# Copyright 2004-2011 Sabayon
 # Distributed under the terms of the GNU General Public License v2
-# $
+# $Header: $
 
-EAPI="2"
+EAPI="3"
 inherit python base
 
 DESCRIPTION="The system-config-users tool lets you manage the users and groups on your computer."
@@ -21,7 +21,7 @@ DEPEND="dev-util/desktop-file-utils
 
 # FIXME: would require rpm-python
 RDEPEND="
-	X? (	>=dev-python/pygtk-2.6
+	X? ( >=dev-python/pygtk-2.6
 		x11-misc/xdg-utils
 	)
 	>=sys-libs/libuser-0.56
@@ -31,7 +31,7 @@ RDEPEND="
 PATCHES=( "${FILESDIR}/${PN}-kill-rpm.patch" )
 
 pkg_postrm() {
-        python_mod_cleanup /usr/share/${PN}
+	python_mod_cleanup /usr/share/${PN}
 }
 
 # FIXME: this package should depend against sys-apps/usermode
@@ -44,9 +44,9 @@ src_install() {
 	base_src_install
 
 	# See FIXME above
-	rm -rf "${D}/usr/share/"{man,applications}
-	rm -rf "${D}/etc/"{pam.d,sysconfig,security}
-	rm -rf "${D}/etc/sysconfig"
-	rm -rf "${D}/usr/bin"
-	find "${D}" -name "*.pyc" | xargs rm -f
+	rm -rf "${ED}/usr/share/"{man,applications}
+	rm -rf "${ED}/etc/"{pam.d,sysconfig,security}
+	rm -rf "${ED}/etc/sysconfig"
+	rm -rf "${ED}/usr/bin"
+	find "${ED}" -name "*.pyc" | xargs rm -f
 }

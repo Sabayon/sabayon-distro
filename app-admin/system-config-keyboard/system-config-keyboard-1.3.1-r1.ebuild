@@ -1,8 +1,8 @@
-# Copyright 2004-2010 Sabayon
+# Copyright 2004-2011 Sabayon
 # Distributed under the terms of the GNU General Public License v2
-# $
+# $Header: $
 
-EAPI="2"
+EAPI="3"
 inherit base python
 
 DESCRIPTION="Fedora legacy keyboard management tool."
@@ -23,5 +23,5 @@ PATCHES=(
 )
 
 pkg_postrm() {
-        python_mod_cleanup /usr/share/${PN}
+	python_mod_cleanup /usr/share/${PN}
 }
