@@ -1,7 +1,7 @@
 #!/sbin/runscript
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/net-irc/quassel/files/quasselcore.init,v 1.8 2011/08/19 11:43:49 scarabeus Exp $
 
 depend() {
 	need localmount net
@@ -16,9 +16,7 @@ QUASSEL_USER=${QUASSEL_USER:-"quassel"}
 
 checkconfig() {
 	# set defaults
-	LISTEN=${LISTEN:-"0.0.0.0"}
 	LOGLEVEL=${LOGLEVEL:-"Info"}
-	PORT=${PORT:-"4242"}
 
 	# check config folder
 	if [ ! -d "${CONFIGDIR}" ]; then
@@ -45,14 +43,14 @@ start() {
 		start-stop-daemon --start --user "${QUASSEL_USER}" --background --make-pidfile \
 		--pidfile "${PID}" \
 		--exec "${CORE}" -- --logfile="${LOGFILE}" --loglevel="${LOGLEVEL}" \
-		--listen="${LISTEN}" --port="${PORT}" \
+		${LISTEN:+--listen="${LISTEN}"} ${PORT:+--port="${PORT}"} \
 		--configdir="${CONFIGDIR}"
 	else
 		# running on baselayout-1
 		start-stop-daemon --start --chuid "${QUASSEL_USER}" --background --make-pidfile \
 		--pidfile "${PID}" --env HOME="${CONFIGDIR}" \
 		--exec "${CORE}" -- --logfile="${LOGFILE}" --loglevel="${LOGLEVEL}" \
-		--listen="${LISTEN}" --port="${PORT}" \
+		${LISTEN:+--listen="${LISTEN}"} ${PORT:+--port="${PORT}"} \
 		--configdir="${CONFIGDIR}"
 	fi
 	eend $?

@@ -2,11 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=4
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
 EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && GIT_ECLASS="git"
+[[ "${PV}" == "9999" ]] && GIT_ECLASS="git-2"
 
 QT_MINIMAL="4.6.0"
 KDE_MINIMAL="4.4"
@@ -101,14 +101,16 @@ pkg_postinst() {
 	einfo "	emerge --config =${CATEGORY}/${PF}"
 
 	# temporary info mesage
-	echo
-	ewarn "Please note that all configuration moved from"
-	ewarn "/home/\${QUASSEL_USER}/.config/quassel-irc.org/"
-	ewarn "to: ${QUASSEL_DIR}."
-	echo
-	ewarn "For migration, stop the core, move quasselcore files (pretty much"
-	ewarn "everything apart from quasselclient.conf and settings.qss) into"
-	ewarn "new location and then start server again."
+	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]]; then
+		echo
+		ewarn "Please note that all configuration moved from"
+		ewarn "/home/\${QUASSEL_USER}/.config/quassel-irc.org/"
+		ewarn "to: ${QUASSEL_DIR}."
+		echo
+		ewarn "For migration, stop the core, move quasselcore files (pretty much"
+		ewarn "everything apart from quasselclient.conf and settings.qss) into"
+		ewarn "new location and then start server again."
+	fi
 }
 
 pkg_config() {

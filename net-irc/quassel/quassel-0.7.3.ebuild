@@ -2,11 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=4
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
 EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && GIT_ECLASS="git"
+[[ "${PV}" == "9999" ]] && GIT_ECLASS="git-2"
 
 QT_MINIMAL="4.6.0"
 KDE_MINIMAL="4.4"
@@ -45,7 +45,7 @@ GUI_RDEPEND="
 		>=kde-base/kdelibs-${KDE_MINIMAL}
 		ayatana? ( kde-misc/plasma-widget-message-indicator )
 	)
-	phonon? ( || ( media-sound/phonon >=x11-libs/qt-phonon-${QT_MINIMAL} ) )
+	phonon? ( || ( media-libs/phonon >=x11-libs/qt-phonon-${QT_MINIMAL} ) )
 	webkit? ( >=x11-libs/qt-webkit-${QT_MINIMAL}:4 )
 "
 

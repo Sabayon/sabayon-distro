@@ -10,7 +10,6 @@ DESCRIPTION="Qt4/KDE4 IRC client. This provides the \"core\" (server) component 
 HOMEPAGE="http://quassel-irc.org/"
 
 MY_FETCH_NAME="quasselcore-static-${PV}"
-[[ "${PV}" = "0.7.2" ]] && MY_FETCH_NAME="quasselcore-static-0.7.1"
 
 SRC_URI="http://quassel-irc.org/pub/${MY_FETCH_NAME}.bz2"
 
@@ -55,14 +54,16 @@ pkg_postinst() {
 	einfo "	emerge --config =${CATEGORY}/${PF}"
 
 	# temporary info mesage
-	echo
-	ewarn "Please note that all configuration moved from"
-	ewarn "/home/\${QUASSEL_USER}/.config/quassel-irc.org/"
-	ewarn "to: ${QUASSEL_DIR}."
-	echo
-	ewarn "For migration, stop the core, move quasselcore files (pretty much"
-	ewarn "everything apart from quasselclient.conf and settings.qss) into"
-	ewarn "new location and then start server again."
+	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]]; then
+		echo
+		ewarn "Please note that all configuration moved from"
+		ewarn "/home/\${QUASSEL_USER}/.config/quassel-irc.org/"
+		ewarn "to: ${QUASSEL_DIR}."
+		echo
+		ewarn "For migration, stop the core, move quasselcore files (pretty much"
+		ewarn "everything apart from quasselclient.conf and settings.qss) into"
+		ewarn "new location and then start server again."
+	fi
 }
 
 pkg_config() {

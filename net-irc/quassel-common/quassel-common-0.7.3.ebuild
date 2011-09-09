@@ -2,11 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=4
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
 EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && GIT_ECLASS="git"
+[[ "${PV}" == "9999" ]] && GIT_ECLASS="git-2"
 
 KDE_MINIMAL="4.4"
 
