@@ -1,0 +1,20 @@
+--- cpu-g.orig	2011-09-10 18:30:31.038328373 +0200
++++ cpu-g	2011-09-10 18:32:18.586997254 +0200
+@@ -52,7 +52,7 @@ class main:
+         model = self.cpuinfo("model", core)
+         vendor = self.cpuinfo("vendor", core)
+         
+-        path = 'data/logos/'
++        path = '@GENTOO_PORTAGE_EPREFIX@/usr/share/cpu-g/data/logos/'
+         
+         if vendor == 'AMD':
+             label = 'amd.png'
+@@ -228,7 +228,7 @@ class CPUG:
+     """Description"""
+     
+     def __init__(self):
+-        self.gladefile = "cpu-g.glade"
++        self.gladefile = "@GENTOO_PORTAGE_EPREFIX@/usr/share/cpu-g/cpu-g.glade"
+         self.wTree = gtk.Builder()
+         self.wTree.add_from_file(self.gladefile)
+         
