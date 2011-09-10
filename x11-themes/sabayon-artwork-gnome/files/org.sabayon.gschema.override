@@ -1,6 +1,3 @@
-[org.gnome.FileRoller.UI]
-view-toolbar=false
-
 [org.gnome.shell.clock]
 show-date=true
 
