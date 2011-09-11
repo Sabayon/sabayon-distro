@@ -90,6 +90,8 @@ src_prepare() {
 	# Sabayon patch, require logger, avoid modemmanager or other plugins
 	# output on VT
 	epatch "${FILESDIR}/${PN}-init-need-logger.patch"
+	# Sabayon gentoo=nonm support, see bug 2400
+	epatch "${FILESDIR}/${PN}-init-nonm-support.patch"
 	eautoreconf
 	default
 }
@@ -135,6 +137,10 @@ src_install() {
 	exeinto /etc/NetworkManager/dispatcher.d
 	doexe "${FILESDIR}"/01-netmount-up-down.rc
 	fperms 0744 /etc/NetworkManager/dispatcher.d/01-netmount-up-down.rc
+
+	# Sabayon Live boot support, make possible to turn off networkmanager
+	# See bug 2400
+	doinitd "${FILESDIR}/NetworkManager-setup"
 
 	# Add keyfile plugin support
 	keepdir /etc/NetworkManager/system-connections
