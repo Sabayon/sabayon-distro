@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Type=Application
 
-Exec=xdg-open http://gitweb.sabayon.org/
+Exec=xdg-open https://git.sabayon.org
 Icon=sabayon-weblink
 
 Name=Sabayon Git Repos

@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Type=Application
 
-Exec=xdg-open http://www.sabayon.org/mirrors
+Exec=xdg-open https://www.sabayon.org/download
 Icon=sabayon-weblink
 
 Name=Download Locations

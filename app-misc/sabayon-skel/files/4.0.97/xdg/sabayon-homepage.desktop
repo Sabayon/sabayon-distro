@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Type=Application
 
-Exec=xdg-open http://sabayon.org/
+Exec=xdg-open https://www.sabayon.org
 Icon=sabayon-weblink
 
 Name=Sabayon Homepage
