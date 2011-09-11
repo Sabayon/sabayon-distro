@@ -46,7 +46,11 @@ src_install() {
 }
 
 pkg_preinst() {
-	gnome2_schemas_savelist
+	# taken from gnome2_schemas_savelist
+	has ${EAPI:-0} 0 1 2 && ! use prefix && ED="${D}"
+	pushd "${ED}" &>/dev/null
+	export GNOME2_ECLASS_GLIB_SCHEMAS="/usr/share/glib-2.0/schemas/org.sabayon.gschema.override"
+	popd &>/dev/null
 }
 
 pkg_postinst() {
