@@ -22,8 +22,12 @@ sabayon_setup_autologin() {
 		sed -i "s/^TimedLoginDelay=.*/TimedLoginDelay=0/" ${GDM_FILE}
 
 	elif [ -f "${CUSTOM_GDM_FILE}" ]; then
+		# FIXME: if this is called multiple times, it generates duplicated entries
 		sed -i "s:\[daemon\]:\[daemon\]\nAutomaticLoginEnable=true\nAutomaticLogin=${LIVE_USER}\nTimedLoginEnable=true\nTimedLogin=${LIVE_USER}\nTimedLoginDelay=0:" \
 			"${CUSTOM_GDM_FILE}"
+		# change other entries there
+		sed -i "s/^TimedLogin=.*/TimedLogin=${LIVE_USER}/" "${CUSTOM_GDM_FILE}"
+		sed -i "s/^AutomaticLogin=.*/AutomaticLogin=${LIVE_USER}/" "${CUSTOM_GDM_FILE}"
 	fi
 
 	# KDM - KDE
