@@ -1,4 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-add our custom configuration file for:
- - theme
- - server timeout set to 35 (default was 10 and caused troubles)
