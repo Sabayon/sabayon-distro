@@ -32,6 +32,9 @@ src_unpack() {
 	# http://git.darksatanic.net/cgi/gitweb.cgi?p=btrfs-progs-unstable.git;a=summary
 	epatch "${WORKDIR}"/${PN}-0.19-git-diff-20110804.patch
 
+        # Apply fix for snapshot arguments
+        epatch "${FILESDIR}"/0001-btrfs-progs-unstable-darksatanic-repo-fix-arg-checki.patch
+
 	# Fix hardcoded "gcc" and "make"
 	sed -i -e 's:gcc $(CFLAGS):$(CC) $(CFLAGS):' Makefile
 	sed -i -e 's:make:$(MAKE):' Makefile
