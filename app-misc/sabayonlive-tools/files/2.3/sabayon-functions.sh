@@ -143,6 +143,12 @@ sabayon_setup_gui_installer() {
 	echo "Session=fluxbox" >> "${dmrc_file}"
 	chown sabayonuser "${dmrc_file}"
 	sed -i "/installer --fullscreen/ s/^# //" "${flux_startup_file}"
+	if [ -x "/usr/libexec/gdm-set-default-session" ]; then
+		# oh my fucking glorious god, this
+		# is AccountsService bullshit
+		# cross fingers
+		/usr/libexec/gdm-set-default-session fluxbox
+	fi
 }
 
 sabayon_setup_text_installer() {
