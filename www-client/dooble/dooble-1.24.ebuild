@@ -36,7 +36,7 @@ src_compile() {
 }
 
 # translations aren't visible unless the browser
-# is called rm /usr/share/dooble, needs fixing
+# is called from /usr/share/dooble, needs fixing
 src_install() {
 	# Have todo it manually.... w00t
 	dobin Dooble || die
