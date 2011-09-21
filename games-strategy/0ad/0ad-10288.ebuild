@@ -1,12 +1,13 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
+# This ebuild come from roslin overlay
 
 EAPI="3"
 
 inherit eutils wxwidgets games
 
-MY_P="0ad-r0${PV}-alpha"
+MY_P="0ad-r${PV}-alpha"
 S="${WORKDIR}/${MY_P}"
 
 DESCRIPTION="0 A.D. is a free, real-time strategy game currently under development by Wildfire Games."
@@ -27,7 +28,7 @@ RDEPEND="virtual/opengl
 	|| ( dev-libs/libgamin app-admin/fam )
 	editor? ( x11-libs/wxGTK:2.8 )
 	media-libs/devil
-	net-libs/enet:0
+	net-libs/enet:1.3
 	virtual/jpeg
 	media-libs/libpng
 	dev-libs/libxml2
@@ -53,13 +54,14 @@ pkg_setup() {
 }
 
 src_compile() {
+	UPDATE_ARGS="--with-system-enet"
+
 	if ! use editor ; then
-		sed -i "s:--atlas::" "${S}/build/workspaces/update-workspaces.sh" \
-		|| die "AtlasUI sed failed"
+		UPDATE_ARGS="${UPDATE_ARGS} --disable-atlas"
 	fi
 
 	cd "${S}/build/workspaces"
-	./update-workspaces.sh || die "update-workspaces.sh failed"
+	./update-workspaces.sh ${UPDATE_ARGS} || die "update-workspaces.sh failed"
 	cd gcc
 
 	TARGETS="pyrogenesis Collada"
@@ -99,14 +101,14 @@ src_install() {
 	doins "${S}"/binaries/system/libnvtt.so || die "doins failed"
 
 	if use debug ; then
-		doins "${S}"/binaries/system/libmozjs-ps-debug.so || die "doins failed"
+		doins "${S}"/binaries/system/libmozjs*-ps-debug.so.* || die "doins failed"
 		doins "${S}"/binaries/system/libCollada_dbg.so || die "doins failed"
 		if use editor ; then
 			doins "${S}"/binaries/system/libAtlasUI_dbg.so || die "doins failed"
 		fi
 		EXE_NAME=pyrogenesis_dbg
 	else
-		doins "${S}"/binaries/system/libmozjs-ps-release.so || die "doins failed"
+		doins "${S}"/binaries/system/libmozjs*-ps-release.so.* || die "doins failed"
 		doins "${S}"/binaries/system/libCollada.so || die "doins failed"
 		if use editor ; then
 			doins "${S}"/binaries/system/libAtlasUI.so || die "doins failed"
