@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-14.0.835.94.ebuild,v 1.1 2011/08/16 19:01:52 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-14.0.835.163.ebuild,v 1.6 2011/09/18 21:32:36 tomka Exp $
 
 EAPI="3"
 PYTHON_DEPEND="2:2.6"
@@ -14,8 +14,8 @@ SRC_URI="http://build.chromium.org/official/${P}.tar.bz2"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
-IUSE="cups gnome gnome-keyring kerberos"
+KEYWORDS="amd64 x86"
+IUSE="bindist cups gnome gnome-keyring kerberos"
 
 # en_US is ommitted on purpose from the list below. It must always be available.
 LANGS="am ar bg bn ca cs da de el en_GB es es_LA et fa fi fil fr gu he hi hr
@@ -113,6 +113,12 @@ pkg_setup() {
 	# bug #363907.
 	CONFIG_CHECK="~PID_NS ~NET_NS"
 	check_extra_config
+
+	if use bindist; then
+		elog "bindist enabled: H.264 video support will be disabled."
+	else
+		elog "bindist disabled: Resulting binaries may not be legal to re-distribute."
+	fi
 }
 
 src_prepare() {
@@ -124,6 +130,13 @@ src_prepare() {
 
 	# Fix build with system libevent, to be upstreamed.
 	epatch "${FILESDIR}/${PN}-system-libevent-r0.patch"
+
+	# zlib-1.2.5.1-r1 renames the OF macro in zconf.h, bug 383371.
+	sed -i '1i#define OF(x) x' \
+		third_party/zlib/contrib/minizip/{ioapi,{,un}zip}.c \
+		chrome/common/zip.cc || die
+
+	epatch_user
 
 	# Remove most bundled libraries. Some are still needed.
 	find third_party -type f \! -iname '*.gyp*' \
@@ -221,6 +234,11 @@ src_configure() {
 	# Our system ffmpeg should support more codecs than the bundled one
 	# for Chromium.
 	# myconf+=" -Dproprietary_codecs=1"
+
+	if ! use bindist; then
+		# Enable H.624 support in bundled ffmpeg.
+		myconf+=" -Dproprietary_codecs=1 -Dffmpeg_branding=Chrome"
+	fi
 
 	local myarch="$(tc-arch)"
 	if [[ $myarch = amd64 ]] ; then
