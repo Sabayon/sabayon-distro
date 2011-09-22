@@ -70,7 +70,7 @@ src_unpack() {
 src_prepare() {
 
 	# Setup CFLAGS, LDFLAGS
-	append-cflags "-I${D}/usr/include/anaconda-runtime"
+	append-cppflags "-I${D}/usr/include/anaconda-runtime"
 	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
 
 	# Setup anaconda
