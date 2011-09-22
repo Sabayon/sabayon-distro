@@ -21,6 +21,13 @@ RDEPEND="dev-python/pygtk
 DEPEND="sys-devel/gettext
 	${RDEPEND}"
 
+src_prepare() {
+	# /usr/lib/python2.7/site-packages/bleachbit/Unix.py:45: ImportWarning: Not
+	# importing directory '/usr/share/gnome': missing __init__.py
+	epatch "${FILESDIR}"/${P}-no-append-path.patch
+	distutils_src_prepare
+}
+
 src_compile() {
 	distutils_src_compile
 
@@ -40,7 +47,7 @@ src_install() {
 	insinto /usr/share/applications
 	doins ${PN}.desktop || die
 
-	insinto /usr/share/data/${PN}
+	insinto /usr/share/${PN}
 	doins -r cleaners || die
 
 	if use nls ; then

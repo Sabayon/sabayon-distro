@@ -2,6 +2,23 @@
 # Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+*bleachbit-0.9.0-r1 (21 Sep 2011)
+
+  21 Sep 2011; Sławomir Nizio <slawomir.nizio@sabayon.org>
+  -bleachbit-0.9.0.ebuild, +bleachbit-0.9.0-r1.ebuild,
+  +files/bleachbit-0.9.0-no-append-path.patch, metadata.xml:
+  Revision bump: fix path to cleaners (Sabayon bug 2718)
+
+*bleachbit-0.9.0 (07 Sep 2011)
+
+  07 Sep 2011; Michał Ziąbkowski <mziab@o2.pl> +bleachbit-0.9.0.ebuild:
+  Bumped.
+
+*bleachbit-0.8.8 (15 Jun 2011)
+
+  15 Jun 2011; Michał Ziąbkowski <mziab@o2.pl> +bleachbit-0.8.8.ebuild:
+  Bumped.
+
   14 Apr 2011; Michał Ziąbkowski <mziab@o2.pl> bleachbit-0.8.5.ebuild,
   bleachbit-0.8.6.ebuild, bleachbit-0.8.7.ebuild:
   Added inherit which was previously implied.
