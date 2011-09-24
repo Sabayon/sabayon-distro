@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-print/cups/cups-1.4.6-r1.ebuild,v 1.5 2011/05/03 10:16:08 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-print/cups/cups-1.4.8-r22.ebuild,v 1.1 2011/08/28 23:20:47 dilfridge Exp $
 
 EAPI=3
 
@@ -120,6 +120,7 @@ pkg_setup() {
 				ewarn "    Device Drivers --->"
 				ewarn "        USB support  --->"
 				ewarn "            [*] USB Printer support"
+				ewarn "Alternatively, enable the usb useflag for cups and use the new, less-tested libusb code."
 			fi
 		fi
 	fi
@@ -136,8 +137,9 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-1.4.4-perl-includes.patch"
 	epatch "${FILESDIR}/${PN}-1.4.6-force-gnutls.patch"
 	epatch "${FILESDIR}/${PN}-1.4.6-serialize-gnutls.patch"
-	# interface hangs using some browsers, bug #325871
-	epatch "${FILESDIR}/${PN}-1.4.6-web-hang.patch"
+	epatch "${FILESDIR}/${PN}-1.4.8-largeimage.patch"
+	# security fixes
+	epatch "${FILESDIR}/${PN}-1.4.8-CVE-2011-3170.patch"
 	epatch "${FILESDIR}/usb-backend-both-usblp-and-libusb.patch"
 
 	AT_M4DIR=config-scripts eaclocal
@@ -166,6 +168,16 @@ src_configure() {
 		"
 	fi
 
+	# bug 352252, recheck for later versions if still necessary....
+	if use gnutls && ! use threads ; then
+		ewarn "The useflag gnutls requires also threads enabled. Switching on threads."
+	fi
+	if use gnutls || use threads ; then
+		myconf+=" --enable-threads "
+	else
+		myconf+=" --disable-threads "
+	fi
+
 	econf \
 		--libdir=/usr/$(get_libdir) \
 		--localstatedir=/var \
@@ -186,7 +198,6 @@ src_configure() {
 		$(use_enable png) \
 		$(use_enable slp) \
 		$(use_enable static-libs static) \
-		$(use_enable threads) \
 		$(use_enable tiff) \
 		$(use_enable usb libusb) \
 		$(use_with java) \
