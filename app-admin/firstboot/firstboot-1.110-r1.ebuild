@@ -27,6 +27,13 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext"
 PDEPEND="app-admin/system-config-keyboard"
 
+src_install() {
+	distutils_src_install
+	# remove fedorish init script completely
+	rm -r "${ED}"/etc/rc.d || die
+}
+
 pkg_postrm() {
 	python_mod_cleanup /usr/share/${PN}
 }
+
