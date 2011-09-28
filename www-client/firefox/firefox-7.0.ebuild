@@ -167,7 +167,7 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
-	EPATCH_EXCLUDE="5001_use_system_libffi.patch" \
+	EPATCH_EXCLUDE="5001_use_system_libffi.patch 2003_fix_system_hunspell_dict_detection.patch 5001_arm-respect-cflags.patch 5003_finish-removing-gconf-automagic.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
