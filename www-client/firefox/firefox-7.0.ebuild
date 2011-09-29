@@ -136,9 +136,9 @@ pkg_setup() {
 
 	if ! use bindist; then
 		einfo
-		elog "You are enabling official branding. You may not redistribute this build"
-		elog "to any users on your network or the internet. Doing so puts yourself into"
-		elog "a legal problem with Mozilla Foundation"
+		elog "You are enabling official branding. Manually check configuration"
+		elog "carefully to ensure compliance with licensing provisions"
+		elog "of the Mozilla Foundation if you are re-distributing this package."
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 
