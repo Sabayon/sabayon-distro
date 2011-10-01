@@ -143,7 +143,7 @@ diff -Nurp gdm-3.2.0.orig/daemon/gdm-session-direct.c gdm-3.2.0/daemon/gdm-sessi
                  send_dbus_string_signal (conversation, "SetSessionName",
                                           get_session_name (impl));
 +
-+                send_dbus_bool_signal (impl, "SetIsFailsafe",
++                send_dbus_bool_signal (conversation, "SetIsFailsafe",
 +                                         get_is_session_failsafe(impl));
          }
  }
