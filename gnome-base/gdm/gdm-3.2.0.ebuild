@@ -160,6 +160,7 @@ src_prepare() {
 	# makes possible to circumvent this crap. GNOME devs are idiots
 	# and this is another nice proof of it.
 	epatch "${FILESDIR}/${PN}-3.0.4-lame-default-session-hardcoded-omg-wtf.patch"
+	epatch "${FILESDIR}/30_don_t_save_failsafe_session-2.patch"
 
 	# don't load accessibility support at runtime when USE=-accessibility
 	if ! use accessibility; then
