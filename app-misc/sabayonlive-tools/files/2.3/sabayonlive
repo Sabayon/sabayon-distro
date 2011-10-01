@@ -151,6 +151,32 @@ my_wait_opengl_config() {
 
 }
 
+my_workaround_fglrx_gnome_shell() {
+	# Current ati-drivers do not work well with
+	# GNOME Shell (in other words, they're shit)
+	# This is a temp workaround to force GNOME
+	# to use gnome-fallback by default on fglrx systems
+	# It will be dropped hopefully ASAP
+
+	if [ ! -x "/usr/bin/gnome-shell" ]; then
+		return 0
+	fi
+
+	# check if fglrx has been selected
+	if [ ! -f "/etc/X11/xorg.conf" ]; then
+		# no xorg.conf available?
+		return 0
+	fi
+
+	has_fglrx=$(cat /etc/X11/xorg.conf | grep "Driver.*fglrx")
+	if [ -n "${has_fglrx}" ]; then
+		schema_file=/usr/share/glib-2.0/schemas/org.sabayon-fglrx.gschema.override
+		echo "[org.gnome.desktop.session]" > "${schema_file}"
+		echo "session-name='gnome-fallback'" >> "${schema_file}"
+		/usr/bin/glib-compile-schemas /usr/share/glib-2.0/schemas > /dev/null
+	fi
+}
+
 my_setup_locale() {
 
         cmdline_lang_exist=$(cat /proc/cmdline | grep -i "lang=")
@@ -199,6 +225,7 @@ start() {
 	my_setup_password
 	my_setup_keymap
 	my_wait_opengl_config
+	my_workaround_fglrx_gnome_shell
 	# MOVED HERE TO AVOID RACE CONDITIONS ON WRITING /etc/profile.env variables
 	# Check if LANG is forced by cmdline
 	my_setup_locale
