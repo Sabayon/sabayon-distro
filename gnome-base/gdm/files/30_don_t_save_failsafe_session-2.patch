@@ -5,14 +5,14 @@ diff -Nurp gdm-3.2.0.orig/daemon/gdm-session-direct.c gdm-3.2.0/daemon/gdm-sessi
  }
  
  static void
-+send_dbus_bool_signal (GdmSessionDirect *session,
++send_dbus_bool_signal (GdmSessionConversation *conversation,
 +                       const char *name,
 +                       const gboolean value)
 +{
 +        DBusMessage    *message;
 +        DBusMessageIter iter;
 +
-+        g_return_if_fail (session != NULL);
++        g_return_if_fail (conversation != NULL);
 +
 +        message = dbus_message_new_signal (GDM_SESSION_DBUS_PATH,
 +                                           GDM_SESSION_DBUS_INTERFACE,
@@ -21,7 +21,7 @@ diff -Nurp gdm-3.2.0.orig/daemon/gdm-session-direct.c gdm-3.2.0/daemon/gdm-sessi
 +        dbus_message_iter_init_append (message, &iter);
 +        dbus_message_iter_append_basic (&iter, DBUS_TYPE_BOOLEAN, &value);
 +
-+        if (! send_dbus_message (session->priv->worker_connection, message)) {
++        if (! send_dbus_message (conversation, message)) {
 +                g_debug ("GdmSessionDirect: Could not send %s signal",
 +                         name ? name : "(null)");
 +        }
