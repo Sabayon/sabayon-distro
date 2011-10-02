@@ -1,6 +1,5 @@
-diff -Nurp glibc-2.12.2.orig/localedata/locales/it_IT glibc-2.12.2/localedata/locales/it_IT
---- glibc-2.12.2.orig/localedata/locales/it_IT	2010-12-13 11:47:26.000000000 +0100
-+++ glibc-2.12.2/localedata/locales/it_IT	2011-09-17 17:39:44.237847598 +0200
+--- glibc-2.12.2.orig/localedata/locales/it_IT
++++ glibc-2.12.2/localedata/locales/it_IT
 @@ -124,6 +124,8 @@ t_fmt_ampm ""
  date_fmt       "<U0025><U0061><U0020><U0025><U0065><U0020><U0025>/
  <U0062><U0020><U0025><U0059><U002C><U0020><U0025><U0048><U002E>/
