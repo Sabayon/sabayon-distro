@@ -27,11 +27,14 @@ RDEPEND="ffmpeg? ( virtual/ffmpeg[vdpau?] )
 		media-libs/ladspa-sdk
 		>=dev-libs/libxml2-2.5 )
 	frei0r? ( media-plugins/frei0r-plugins )
-	gtk? ( x11-libs/gtk+:2
+	gtk? ( media-libs/libexif
+		x11-libs/gtk+:2
 		x11-libs/pango )
 	quicktime? ( media-libs/libquicktime )
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
-	qt4? ( x11-libs/qt-gui:4 )
+	qt4? ( media-libs/libexif
+		x11-libs/qt-gui:4
+		x11-libs/qt-svg:4 )
 	!media-libs/mlt++
 	lua? ( >=dev-lang/lua-5.1.4-r4 )
 	ruby? ( dev-lang/ruby )"
