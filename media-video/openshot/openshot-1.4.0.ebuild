@@ -41,6 +41,10 @@ src_prepare() {
 	python_convert_shebangs -q -r 2 .
 	distutils_src_prepare
 
+	# Disable the installation of the mime.types file.
+	# The .desktop file would be used to update the mime database.
+	sed -ie '/launcher/,+1d' setup.py || die
+
 	# Avoid stuff covered by fdo-mime.eclass
 	# (update-mime-database update-desktop-database update-mime)
 	# export "FAKEROOTKEY=gentoo" does not work as this variable is filtered
