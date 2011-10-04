@@ -2,9 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header:
 
-inherit gnome2 flag-o-matic
-
 EAPI="2"
+inherit gnome2 flag-o-matic
 
 DESCRIPTION="A full featured, dual-pane file manager for Gnome2"
 HOMEPAGE="http://www.nongnu.org/gcmd/"
@@ -43,9 +42,9 @@ RDEPEND=">=x11-libs/gtk+-2.8.0:2
 
 
 
- DEPEND="${RDEPEND}
-        >=dev-util/intltool-0.35.0
-        dev-util/pkgconfig"
+DEPEND="${RDEPEND}
+	>=dev-util/intltool-0.35.0
+	dev-util/pkgconfig"
 
 
 DOCS="AUTHORS BUGS ChangeLog NEWS README TODO"
@@ -53,10 +52,10 @@ DOCS="AUTHORS BUGS ChangeLog NEWS README TODO"
 
 
 pkg_setup() {
-        G2CONF=" ${G2CONF}
-                $(use_with exif exiv2)
-                $(use_with gsf  libgsf)
-                $(use_with id3  taglib)
-                $(use_enable python python)"
-                filter-ldflags -Wl,--as-needed
+	G2CONF=" ${G2CONF}
+		$(use_with exif exiv2)
+		$(use_with gsf  libgsf)
+		$(use_with id3  taglib)
+		$(use_enable python python)"
+		filter-ldflags -Wl,--as-needed
 }

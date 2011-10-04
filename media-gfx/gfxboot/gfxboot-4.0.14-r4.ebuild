@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header:
 
+EAPI='1'
 inherit rpm toolchain-funcs
 
-EAPI='1'
 DESCRIPTION="gfxboot allows you to create gfx menus for bootmanagers."
 HOMEPAGE="http://suse.com"
 # We need find better place for src and repack it, but now...

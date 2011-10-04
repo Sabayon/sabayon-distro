@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI="2"
 inherit eutils versionator gnome2
 
 DESCRIPTION="Me TV Gnome DVB Program"
@@ -9,7 +10,6 @@ HOMEPAGE="http://me-tv.sourceforge.net/"
 SRC_URI="http://launchpad.net/${PN}/stable/$(get_version_component_range 1-3)/+download/${P}.tar.gz"
 RESTRICT="mirror"
 
-EAPI="2"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"

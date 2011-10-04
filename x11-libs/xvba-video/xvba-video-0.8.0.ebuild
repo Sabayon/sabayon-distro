@@ -2,9 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit base
-
 EAPI="2"
+inherit base
 
 DESCRIPTION="xvba-video"
 HOMEPAGE="http://www.splitted-desktop.com/~gbeauchesne/xvba-video/"

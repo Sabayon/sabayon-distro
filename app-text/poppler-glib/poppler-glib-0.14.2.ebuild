@@ -7,6 +7,7 @@ EAPI=2
 inherit base eutils autotools multilib
 
 DESCRIPTION="Glib bindings for poppler"
+HOMEPAGE="http://poppler.freedesktop.org/"
 SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz"
 
 LICENSE="GPL-2"
@@ -31,7 +32,7 @@ src_prepare() {
 }
 
 src_configure() {
-        econf \
+	econf \
 		--enable-poppler-glib \
 		--enable-zlib \
 		--disable-gtk-test \

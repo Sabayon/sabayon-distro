@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI="1"
 inherit git
 
 EGIT_REPO_URI="git://git.glacicle.com/awesome/wicked.git"
@@ -18,8 +19,6 @@ IUSE=""
 
 RDEPEND="dev-lang/lua"
 DEPEND="${RDEPEND}"
-
-EAPI="1"
 
 src_install()
 {

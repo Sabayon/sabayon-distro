@@ -7,6 +7,7 @@ EAPI=2
 inherit base eutils autotools multilib
 
 DESCRIPTION="Qt4 bindings for poppler"
+HOMEPAGE="http://poppler.freedesktop.org/"
 SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz"
 
 LICENSE="GPL-2"
@@ -28,7 +29,7 @@ src_prepare() {
 }
 
 src_configure() {
-        econf \
+	econf \
 		--disable-poppler-glib \
 		--enable-zlib \
 		--disable-gtk-test \
