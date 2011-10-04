@@ -127,7 +127,11 @@ pkg_setup() {
 		$(use_with xinerama)"
 
 	enewgroup gdm
-	enewuser gdm -1 -1 /var/lib/gdm gdm
+
+	# This makes gdm and gnome-shell working with
+	# the video group. Latest (285.05.09) nvidia-drivers
+	# has /dev/nvidiactl with root:video and 0660 perms
+	enewuser gdm -1 -1 /var/lib/gdm gdm,video
 }
 
 src_prepare() {
@@ -239,6 +243,11 @@ pkg_postinst() {
 		elog "file.  It has been moved to /etc/X11/gdm/gdm-pre-gnome-2.16"
 		mv /etc/X11/gdm/gdm.conf /etc/X11/gdm/gdm-pre-gnome-2.16
 	fi
+
+	# make sure gdm is in the video group, otherwise the whole gdm+shell thing
+	# won't work.
+	# NOTE: this is only tested on Linux
+	usermod -a -G video gdm
 
 	# https://bugzilla.redhat.com/show_bug.cgi?id=513579
 	# Lennart says this problem is fixed, but users are still reporting problems
