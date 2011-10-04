@@ -1,5 +1,0 @@
-# We want new open-iscsi you damn Portage
-~sys-block/open-iscsi-2.0.872
-
-# We always want our grub2
-<sys-boot/grub-9999
