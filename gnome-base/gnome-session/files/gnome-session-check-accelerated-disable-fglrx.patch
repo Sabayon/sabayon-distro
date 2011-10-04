@@ -17,8 +17,8 @@ index 3f83f76..b2f4f05 100644
 +        /* fglrx is currently garbage, this is Sabayon workaround
 +           to avoid having fglrx and GNOME Shell enabled */
 +        vendor = (const char *) glGetString (GL_VENDOR);
-+        if ((strcasestr(vendor, "ati ") != NULL) ||
-+            (strcasestr(vendor, "amd ") != NULL))
++        if ((strstr(vendor, "ATI ") != NULL) ||
++            (strstr(vendor, "AMD ") != NULL))
 +          goto out;
 +
          ret = 0;
