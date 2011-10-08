@@ -1,0 +1,70 @@
+--- btrfs-progs-0.19.orig/utils.c
++++ btrfs-progs-0.19/utils.c
+@@ -708,6 +708,21 @@ int is_same_blk_file(const char* a, cons
+ 	return 0;
+ }
+ 
++/* Checks if a file exists and is a block or regular file*/
++int is_existing_blk_or_reg_file(const char* filename)
++{
++	struct stat st_buf;
++
++	if(stat(filename, &st_buf) < 0) {
++		if(errno == ENOENT)
++			return 0;
++		else
++			return -errno;
++	}
++
++	return (S_ISBLK(st_buf.st_mode) || S_ISREG(st_buf.st_mode));
++}
++
+ /* checks if a and b are identical or device
+  * files associated with the same block device or
+  * if one file is a loop device that uses the other
+@@ -727,7 +742,10 @@ int is_same_loop_file(const char* a, con
+ 	} else if(ret) {
+ 		if((ret = resolve_loop_device(a, res_a, sizeof(res_a))) < 0)
+ 			return ret;
+-
++		/* if the resolved path is not available, there is nothing
++		   we can do */
++		if((ret = is_existing_blk_or_reg_file(res_a)) == 0)
++			return ret;
+ 		final_a = res_a;
+ 	} else {
+ 		final_a = a;
+@@ -739,6 +757,10 @@ int is_same_loop_file(const char* a, con
+ 	} else if(ret) {
+ 		if((ret = resolve_loop_device(b, res_b, sizeof(res_b))) < 0)
+ 			return ret;
++		/* if the resolved path is not available, there is nothing
++		   we can do */
++		if((ret = is_existing_blk_or_reg_file(res_b)) == 0)
++			return ret;
+ 
+ 		final_b = res_b;
+ 	} else {
+@@ -748,21 +770,6 @@ int is_same_loop_file(const char* a, con
+ 	return is_same_blk_file(final_a, final_b);
+ }
+ 
+-/* Checks if a file exists and is a block or regular file*/
+-int is_existing_blk_or_reg_file(const char* filename)
+-{
+-	struct stat st_buf;
+-
+-	if(stat(filename, &st_buf) < 0) {
+-		if(errno == ENOENT)
+-			return 0;
+-		else
+-			return -errno;
+-	}
+-
+-	return (S_ISBLK(st_buf.st_mode) || S_ISREG(st_buf.st_mode));
+-}
+-
+ /* Checks if a file is used (directly or indirectly via a loop device)
+  * by a device in fs_devices
+  */
+

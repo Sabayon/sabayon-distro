@@ -34,6 +34,9 @@ src_unpack() {
 
         # Apply fix for snapshot arguments
         epatch "${FILESDIR}"/0001-btrfs-progs-unstable-darksatanic-repo-fix-arg-checki.patch
+	# See Sabayon ML
+	# http://lists.sabayon.org/pipermail/devel/2011-October/007155.html
+	epatch "${FILESDIR}"/0002-btrfs-progs-ignore-unavailable-loop-device-source-files.patch
 
 	# Fix hardcoded "gcc" and "make"
 	sed -i -e 's:gcc $(CFLAGS):$(CC) $(CFLAGS):' Makefile
