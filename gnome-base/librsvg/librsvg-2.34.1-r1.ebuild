@@ -41,8 +41,11 @@ my_gdk_pixbuf_query_loaders() {
 
 	tmp_file=$(mktemp --suffix=gdk_pixbuf_ebuild)
 	# be atomic!
-	gdk-pixbuf-query-loaders > "${tmp_file}" || die "gdk-pixbuf-query-loaders failed"
-	cat "${tmp_file}" > "${EROOT}usr/$(get_libdir)/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+	if gdk-pixbuf-query-loaders > "${tmp_file}"; then
+		cat "${tmp_file}" > "${EROOT}usr/$(get_libdir)/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+	else
+		ewarn "Warning, gdk-pixbuf-query-loaders failed."
+	fi
 	rm "${tmp_file}"
 }
 
