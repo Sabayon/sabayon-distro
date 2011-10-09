@@ -1,0 +1,33 @@
+--- configure.in.old	2011-06-22 13:44:43.000000000 +0200
++++ configure.in	2011-06-23 15:12:46.000000000 +0200
+@@ -235,14 +235,28 @@
+   [],[enable_gtk_theme=yes])
+ AC_MSG_RESULT([$enable_gtk_theme])
+ 
++AC_MSG_CHECKING([which gtk+ version to compile against])
++AC_ARG_WITH([gtk],
++  [AS_HELP_STRING([--with-gtk=2.0|3.0|both],[which gtk+ version to compile against (default: 2.0)])],
++  [case "$with_gtk" in
++     2.0|3.0|both) ;;
++     *) AC_MSG_ERROR([invalid gtk version specified]) ;;
++   esac],
++  [with_gtk=2.0])
++AC_MSG_RESULT([$with_gtk])
++
+ have_gtk_2=no
+ have_gtk_3=no
+ GTK2_BINARY_VERSION=
+ GTK3_BINARY_VERSION=
+ 
+ if test "x$enable_gtk_theme" = "xyes" -o "x$enable_pixbuf_loader" = "xyes"; then
+-  PKG_CHECK_MODULES([GTK2],[gtk+-2.0 >= $GTK2_REQUIRED],[have_gtk_2=yes],[have_gtk_2=no])
+-  PKG_CHECK_MODULES([GTK3],[gtk+-3.0 >= $GTK3_REQUIRED],[have_gtk_3=yes],[have_gtk_3=no])
++case "$with_gtk" in
++  2.0) PKG_CHECK_MODULES([GTK2],[gtk+-2.0 >= $GTK2_REQUIRED],[have_gtk_2=yes],[have_gtk_2=no]);;
++  3.0) PKG_CHECK_MODULES([GTK3],[gtk+-3.0 >= $GTK3_REQUIRED],[have_gtk_3=yes],[have_gtk_3=no]);;
++  both) PKG_CHECK_MODULES([GTK2],[gtk+-2.0 >= $GTK2_REQUIRED],[have_gtk_2=yes],[have_gtk_2=no])
++	PKG_CHECK_MODULES([GTK3],[gtk+-3.0 >= $GTK3_REQUIRED],[have_gtk_3=yes],[have_gtk_3=no]);;
++esac
+ 
+   if test "$have_gtk_2" = "yes"; then
+      GTK2_BINARY_VERSION="`$PKG_CONFIG --variable=gtk_binary_version gtk+-2.0`"
