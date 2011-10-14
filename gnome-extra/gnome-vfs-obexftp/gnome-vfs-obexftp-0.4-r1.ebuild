@@ -17,8 +17,7 @@ IUSE=""
 RDEPEND=">=gnome-base/gnome-vfs-2.12.0.1
 	dev-libs/dbus-glib
 	>=dev-libs/openobex-1.2
-	|| ( net-wireless/bluez >=net-wireless/bluez-libs-3.7 )
-	|| ( net-wireless/bluez >=net-wireless/bluez-utils-3.7 )
+	net-wireless/bluez
 	net-wireless/bluez-gnome"
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"

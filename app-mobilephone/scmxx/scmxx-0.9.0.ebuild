@@ -11,7 +11,7 @@ SLOT="0"
 KEYWORDS="~amd64 x86"
 IUSE="bluetooth nls"
 
-RDEPEND="bluetooth? ( || ( net-wireless/gnome-bluetooth net-wireless/bluez net-wireless/bluez-libs ) )"
+RDEPEND="bluetooth? ( || ( net-wireless/gnome-bluetooth net-wireless/bluez ) )"
 DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )"
 

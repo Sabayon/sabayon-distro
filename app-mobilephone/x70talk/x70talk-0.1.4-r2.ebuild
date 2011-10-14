@@ -13,7 +13,7 @@ SLOT="0"
 KEYWORDS="ppc x86"
 IUSE=""
 
-DEPEND=" || ( net-wireless/bluez net-wireless/bluez-libs )"
+DEPEND="net-wireless/bluez"
 
 S="${WORKDIR}/${PN}"
 
