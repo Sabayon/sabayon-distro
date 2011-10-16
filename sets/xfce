@@ -5,6 +5,7 @@ app-editors/leafpad
 app-misc/sabayon-skel
 lxde-base/lxdm
 media-plugins/alsa-plugins
+x11-themes/elementary-icon-theme
 xfce-base/xfce4-meta
 xfce-extra/xfce4-appfinder
 xfce-extra/xfce4-power-manager
