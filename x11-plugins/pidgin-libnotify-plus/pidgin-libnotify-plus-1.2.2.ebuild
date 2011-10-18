@@ -14,7 +14,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="debug"
 
 DEPEND=">=x11-libs/libnotify-0.3.2
-	>=net-im/pidgin-2.6.0"
+	>=net-im/pidgin-2.6.0[gtk]"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${P/-plus/+}"
