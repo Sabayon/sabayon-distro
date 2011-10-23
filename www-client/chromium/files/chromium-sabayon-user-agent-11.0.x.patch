@@ -1,5 +1,5 @@
---- webkit/glue/user_agent.cc.orig	2011-03-19 03:28:25.000000000 -0500
-+++ webkit/glue/user_agent.cc	2011-03-24 15:02:31.172764189 -0500
+--- webkit/glue/user_agent.cc.orig
++++ webkit/glue/user_agent.cc
 @@ -125,7 +125,7 @@
    base::StringAppendF(
        result,
