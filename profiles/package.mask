@@ -62,6 +62,3 @@ dev-libs/libdbusmenu
 
 # We always want our grub2
 -~sys-boot/grub-1.99
-
-# Always allow chromium from overlay
--<www-client/chromium-9999
