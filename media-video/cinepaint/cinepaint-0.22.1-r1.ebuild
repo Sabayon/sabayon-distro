@@ -13,13 +13,12 @@ SRC_URI="mirror://sourceforge/cinepaint/${PN}-${MY_PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="gutenprint"
+IUSE="gutenprint text"
 
 S=${WORKDIR}/${PN}-${MY_PV}
 
 RDEPEND="x11-libs/gtk+:2
 	>=media-libs/libpng-1.2
-	gutenprint? ( net-print/gutenprint )
 	media-libs/openexr
 	media-libs/lcms
 	media-libs/tiff
@@ -27,7 +26,9 @@ RDEPEND="x11-libs/gtk+:2
 	x11-libs/fltk:1[opengl]
 	x11-libs/libXmu
 	x11-libs/libXinerama
-	x11-libs/libXpm"
+	x11-libs/libXpm
+	gutenprint? ( net-print/gutenprint )
+	text? ( media-libs/ftgl )"
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	x11-proto/xineramaproto"
@@ -43,6 +44,12 @@ src_prepare() {
 }
 
 src_configure(){
+	if ! use text; then
+		sed -i -e '/^FTGL=2;/s/FTGL=2/FTGL=0/' \
+			"${S}"/plug-ins/icc_examin/icc_examin/configure \
+			|| die "sed failed"
+	fi
+
 	# Filter --as-needed in LDFLAGS
 	# filter-ldflags "--as-needed"
 
