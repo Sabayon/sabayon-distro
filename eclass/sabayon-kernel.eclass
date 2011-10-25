@@ -165,7 +165,7 @@ fi
 _get_real_kv_full() {
 	if [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
 		echo "${ORIGINAL_KV_FULL}"
-	elif [[ "${OKV/.*}" = "3" ]] && [[ "${KV_PATCH}" = "0" ]]; then
+	elif [[ "${OKV/.*}" = "3" ]]; then
 		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
 		# need to add another final .0 to the version part
 		echo "${ORIGINAL_KV_FULL/-/.0-}"
