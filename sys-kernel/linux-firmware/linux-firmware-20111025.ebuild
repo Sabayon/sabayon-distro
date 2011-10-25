@@ -1,17 +1,13 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/linux-firmware/linux-firmware-20110604.ebuild,v 1.2 2011/06/15 21:48:05 flameeyes Exp $
+# $Header: $
 
 EAPI=3
-inherit savedconfig
+inherit savedconfig git-2
 
-if [[ ${PV} == 99999999* ]]; then
-	inherit git-2
-	SRC_URI=""
-	EGIT_REPO_URI="git://git.kernel.org/pub/scm/linux/kernel/git/dwmw2/${PN}.git"
-else
-	SRC_URI="mirror://kernel/linux/kernel/people/dwmw2/firmware/${P}.tar.bz2"
-fi
+SRC_URI=""
+EGIT_REPO_URI="git://git.kernel.org/pub/scm/linux/kernel/git/dwmw2/${PN}.git"
+EGIT_COMMIT="15888a2eab052ac3d3f49334e4f6f05f347a516e"
 
 DESCRIPTION="Linux firmware files"
 HOMEPAGE="http://www.kernel.org/pub/linux/kernel/people/dwmw2/firmware"
@@ -41,6 +37,8 @@ RDEPEND="!savedconfig? (
 		!net-wireless/iwl5000-ucode
 		!net-wireless/iwl5150-ucode
 		!net-wireless/iwl6000-ucode
+		!net-wireless/iwl6005-ucode
+		!net-wireless/iwl6030-ucode
 		!net-wireless/iwl6050-ucode
 		!net-wireless/libertas-firmware
 		!net-wireless/rt61-firmware
