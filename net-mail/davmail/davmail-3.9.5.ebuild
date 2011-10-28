@@ -4,6 +4,8 @@
 
 EAPI=4
 
+inherit eutils
+
 MY_VER="1805"
 
 DESCRIPTION="POP/IMAP/SMTP/Caldav/Carddav/LDAP Exchange Gateway"
