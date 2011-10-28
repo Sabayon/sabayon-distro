@@ -19,7 +19,11 @@ MY_P="${MY_P/gitweb/git}"
 DESCRIPTION="A web interface to git"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ "$PV" != *9999 ]]; then
-	SRC_URI="mirror://kernel/software/scm/git/${MY_P}.tar.bz2"
+	SRC_URI_SUFFIX="gz"
+	SRC_URI_GOOG="http://git-core.googlecode.com/files"
+	SRC_URI_KORG="mirror://kernel/software/scm/git"
+	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
+			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}"
 	KEYWORDS="~amd64 ~x86"
 else
 	SRC_URI=""
@@ -54,7 +58,7 @@ S="${WORKDIR}/${MY_P}"
 
 src_unpack() {
 	if [[ "${PV}" != *9999 ]]; then
-		unpack ${MY_P}.tar.bz2
+		unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
 		git-2_src_unpack
