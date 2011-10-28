@@ -13,17 +13,25 @@ EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 inherit toolchain-funcs eutils multilib python ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
-MY_PN="${PN/-cvs}"
+MY_PN="${PN/-subversion}"
 MY_P="${MY_PN}-${MY_PV}"
 
 DOC_VER=${MY_PV}
 
-DESCRIPTION="CVS module for GIT, the stupid content tracker"
+DESCRIPTION="Subversion module for GIT, the stupid content tracker"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
-	SRC_URI="mirror://kernel/software/scm/git/${MY_P}.tar.bz2
-		mirror://kernel/software/scm/git/${MY_PN}-manpages-${DOC_VER}.tar.bz2
-		doc? ( mirror://kernel/software/scm/git/${MY_PN}-htmldocs-${DOC_VER}.tar.bz2 )"
+	SRC_URI_SUFFIX="gz"
+	SRC_URI_GOOG="http://git-core.googlecode.com/files"
+	SRC_URI_KORG="mirror://kernel/software/scm/git"
+	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
+			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
+			${SRC_URI_GOOG}/${MY_PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+			${SRC_URI_KORG}/${MY_PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+			doc? (
+			${SRC_URI_KORG}/${MY_PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+			${SRC_URI_GOOG}/${MY_PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+			)"
 	KEYWORDS="~amd64 ~x86"
 else
 	SRC_URI=""
@@ -35,11 +43,11 @@ SLOT="0"
 IUSE="doc"
 
 RDEPEND="~dev-vcs/git-${PV}
-	dev-vcs/git[-cvs,perl,python]
+	dev-vcs/git[-subversion,perl,python]
 	dev-perl/Error
 	dev-perl/Net-SMTP-SSL
 	dev-perl/Authen-SASL
-	>=dev-vcs/cvsps-2.1 dev-perl/DBI dev-perl/DBD-SQLite"
+	dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey"
 DEPEND="app-arch/cpio
 	doc? (
 		app-text/asciidoc
@@ -77,6 +85,7 @@ exportmakeopts() {
 
 	myopts="${myopts} INSTALLDIRS=vendor"
 	myopts="${myopts} NO_SVN_TESTS=YesPlease"
+	myopts="${myopts} NO_CVS=YesPlease"
 
 	has_version '>=app-text/asciidoc-8.0' \
 		&& myopts="${myopts} ASCIIDOC8=YesPlease"
@@ -92,12 +101,12 @@ exportmakeopts() {
 
 src_unpack() {
 	if [[ ${PV} != *9999 ]]; then
-		unpack ${MY_P}.tar.bz2
+		unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
-		unpack ${MY_PN}-manpages-${DOC_VER}.tar.bz2
+		unpack ${MY_PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 		use doc && \
 			cd "${S}"/Documentation && \
-			unpack ${MY_PN}-htmldocs-${DOC_VER}.tar.bz2
+			unpack ${MY_PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
 		git-2_src_unpack
@@ -177,19 +186,17 @@ src_install() {
 	git_emake install || die "make install failed"
 
 	rm -rf "${ED}"usr/share/gitweb || die
+	rm -rf "${ED}"usr/bin || die
 	rm -rf "${ED}"usr/share/git-core/templates || die
 	rm -rf "${ED}"usr/share/git-gui || die
 	rm -rf "${ED}"usr/share/gitk || die
 
-	local myrelfile=""
-	for myfile in "${ED}"usr/libexec/git-core/* "${ED}"usr/$(get_libdir)/* "${ED}"usr/share/man/*/* "${ED}"usr/bin/* ; do
-		# image dir contains the keyword "cvs"
-		myrelfile="${myfile/${ED}}"
-		case "${myrelfile}" in
-			*cvs*)
-				true ;;
-			*)
-				rm -rf "${myfile}" || die ;;
+	for myfile in "${ED}"usr/libexec/git-core/* "${ED}"usr/$(get_libdir)/* "${ED}"usr/share/man/*/*; do
+		case "$myfile" in
+		*svn*)
+			true ;;
+		*)
+			rm -rf "${myfile}" || die ;;
 		esac
 	done
 
@@ -199,11 +206,11 @@ src_install() {
 		rmdir "${libdir}" || die
 	fi
 
-	doman man*/*cvs* || die
+	doman man*/*svn* || die
 	if use doc; then
 		docinto /
-		dodoc Documentation/*cvs*.txt
-		dohtml -p / Documentation/*cvs*.html
+		dodoc Documentation/*svn*.txt
+		dohtml -p / Documentation/*svn*.html
 	fi
 
 	# kill empty dirs from ${ED}

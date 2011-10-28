@@ -22,7 +22,11 @@ MY_P="${MY_P/-gui-tools}"
 DESCRIPTION="GUI tools derived from git: gitk, git-gui and gitview"
 HOMEPAGE="http://www.git-scm.com/"
 if [ "$PV" != "9999" ]; then
-	SRC_URI="mirror://kernel/software/scm/git/${MY_P}.tar.bz2"
+	SRC_URI_SUFFIX="gz"
+	SRC_URI_GOOG="http://git-core.googlecode.com/files"
+	SRC_URI_KORG="mirror://kernel/software/scm/git"
+	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
+			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}"
 	KEYWORDS="~amd64 ~x86"
 else
 	SRC_URI=""
@@ -47,7 +51,7 @@ RDEPEND="${CDEPEND}
 	dev-vcs/git[-tk]
 	dev-vcs/git[python]
 	>=dev-python/pygtk-2.8
-	|| ( dev-python/pygtksourceview:2  dev-python/gtksourceview-python )"
+	dev-python/pygtksourceview:2 "
 
 DEPEND="${CDEPEND}
 	app-arch/cpio
@@ -102,7 +106,7 @@ exportmakeopts() {
 
 src_unpack() {
 	if [ "${PV}" != "9999" ]; then
-		unpack ${MY_P}.tar.bz2
+		unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
 		git_src_unpack
@@ -172,12 +176,13 @@ src_install() {
 		-name .packlist \
 		-exec rm \{\} \;
 
-	rm -rf "${ED}"/usr/share/gitweb
+	rm -rf "${ED}"usr/share/gitweb
 	rm -rf "${ED}"usr/share/git/contrib
 	rm -rf "${ED}"usr/share/git-core
 	rm -rf "${ED}"usr/share/man/
 	rm -rf "${ED}"usr/lib{,64}/perl5/
 	rm -rf "${ED}"usr/lib{,64}/python*
+	rm -rf "${ED}"usr/libexec/git-core/mergetools
 
 	local myfile
 	for myfile in "${ED}"usr/bin/*; do
