@@ -1,11 +1,10 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: mail-client/davmail-3.8.5 $
+# $Header: $
 
-EAPI=3
-inherit eutils
+EAPI=4
 
-MY_VER="1750"
+MY_VER="1805"
 
 DESCRIPTION="POP/IMAP/SMTP/Caldav/Carddav/LDAP Exchange Gateway"
 HOMEPAGE="http://davmail.sourceforge.net/"
@@ -17,7 +16,7 @@ SLOT="0"
 KEYWORDS="-* ~amd64 ~x86"
 IUSE=""
 
-DEPEND="virtual/jre:1.6"
+DEPEND=">=virtual/jre-1.6"
 RDEPEND="${DEPEND}"
 
 use x86 && S="${P/$PN/$PN-linux-x86_64}-${MY_VER}"
@@ -37,5 +36,4 @@ src_install() {
 
 	domenu "${FILESDIR}"/davmail.desktop
 	doicon "${FILESDIR}"/davmail.png
-
 }
