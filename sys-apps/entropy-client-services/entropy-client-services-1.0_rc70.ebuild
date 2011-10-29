@@ -30,11 +30,3 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" updates-daemon-install || die "make install failed"
 }
-
-pkg_postinst() {
-	python_mod_optimize "/usr/lib/entropy/services"
-}
-
-pkg_postrm() {
-	python_mod_cleanup "/usr/lib/entropy/services"
-}
