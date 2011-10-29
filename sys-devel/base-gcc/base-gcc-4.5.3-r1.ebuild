@@ -90,6 +90,20 @@ src_install() {
 
 	# from toolchain.eclass yay
 	gcc_movelibs
+
+	# Now do the fun stripping stuff
+	env RESTRICT="" CHOST=${CTARGET} prepstrip "${D}${LIBPATH}"
+
+	cd "${S}"
+	if ! is_crosscompile; then
+		has noinfo ${FEATURES} \
+			&& rm -r "${D}/${DATAPATH}"/info \
+			|| prepinfo "${DATAPATH}"
+	fi
+
+	# use gid of 0 because some stupid ports don't have
+	# the group 'root' set to gid 0
+	chown -R root:0 "${D}"${LIBPATH}
 }
 
 ## Do nothing!
