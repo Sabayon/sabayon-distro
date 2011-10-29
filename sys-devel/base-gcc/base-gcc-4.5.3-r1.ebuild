@@ -84,6 +84,10 @@ src_install() {
 	S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libgfortran || die
 	S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libobjc || die
 
+	# drop any .la, .a
+	find "${D}" -name *.a -delete
+	find "${D}" -name *.la -delete
+
 	# from toolchain.eclass yay
 	gcc_movelibs
 }
