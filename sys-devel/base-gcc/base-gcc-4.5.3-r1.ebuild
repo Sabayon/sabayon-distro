@@ -71,18 +71,29 @@ src_install() {
 	cd "${WORKDIR}/build"
 	S="${WORKDIR}"/build \
 		emake -j1 -C "${CTARGET}/libgcc" DESTDIR="${D}" install-shared || die
-	for lib in libmudflap libgomp libstdc++-v3/src; do
+	use mudflap && \
+		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libmudflap" DESTDIR="${D}" \
+		install-toolexeclibLTLIBRARIES || die
+
+	use openmp && \
 		S="${WORKDIR}"/build \
-			emake -j1 -C "${CTARGET}/${lib}" DESTDIR="${D}" \
-				install-toolexeclibLTLIBRARIES || die
-	done
+		emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" \
+		install-toolexeclibLTLIBRARIES || die
+
+	S="${WORKDIR}"/build \
+		emake -j1 -C "${CTARGET}/libstdc++-v3/src" DESTDIR="${D}" \
+		install-toolexeclibLTLIBRARIES || die
+
 	S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libstdc++-v3/po" DESTDIR="${D}" install || die
 	S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" install-info || die
 
 	# GCC 4.6 only
 	#S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libquadmath || die
-	S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libgfortran || die
-	S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libobjc || die
+	use fortran && \
+		S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libgfortran || die
+	# TODO: what to do with USE objc++ and objc-gc ?
+	use objc && \
+		S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libobjc || die
 
 	# drop any .la, .a
 	find "${D}" -name *.a -delete
