@@ -91,6 +91,9 @@ src_install() {
 	# from toolchain.eclass yay
 	gcc_movelibs
 
+	# drop any include
+	rm "${D}${LIBPATH}"/include -rf
+
 	# Now do the fun stripping stuff
 	env RESTRICT="" CHOST=${CTARGET} prepstrip "${D}${LIBPATH}"
 
