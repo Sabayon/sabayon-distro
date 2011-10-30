@@ -6,7 +6,7 @@ EAPI=4
 
 inherit distutils
 
-SRC_URI="https://github.com/dbr/${PN}/tarball/${PV}"
+SRC_URI="http://pypi.python.org/packages/source/t/${PN}/${P}.tar.gz"
 DESCRIPTION="Automatic TV episode file renamer, uses data from thetvdb.com"
 HOMEPAGE="http://github.com/dbr/tvnamer"
 SLOT="0"
