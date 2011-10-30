@@ -80,11 +80,17 @@ src_install() {
 	toolchain_src_install
 
 	# now drop what's provided by sys-devel/base-gcc-${PV}:${SLOT}
-	base_gcc_libs="libgcc_eh.a 32/libgfortran.so* libgfortran.so* libgcc_s.so*
+	base_gcc_libs="libgcc_eh.a libgfortran.so* libgcc_s.so*
 		libmudflap.so* libmudflapth.so* libgomp.so* libstdc++.so*"
+	base_multilib_gcc_libs="32/libgfortran.so*"
 	for gcc_lib in ${base_gcc_libs}; do
 		rm "${D}"${LIBPATH}/${gcc_lib} -r || die "cannot remove ${gcc_lib}"
 	done
+	if use multilib; then
+		for gcc_lib in ${base_multilib_gcc_libs}; do
+			rm "${D}"${LIBPATH}/${gcc_lib} -r || die "cannot remove ${gcc_lib}"
+		done
+	fi
 	# then .mo files provided by sys-devel/base-gcc-${PV}:${SLOT}
 	find "${D}"${DATAPATH}/locale -name libstdc++.mo -delete
 }
