@@ -80,22 +80,22 @@ src_install() {
 	toolchain_src_install
 
 	# now drop what's provided by sys-devel/base-gcc-${PV}:${SLOT}
-	base_gcc_libs="libgcc_eh.a libgfortran.so* libgcc_s.so*
-		libmudflap.so* libmudflapth.so* libgomp.so* libstdc++.so*"
-	base_multilib_gcc_libs="32/libgfortran.so*"
+	base_gcc_libs="libgcc_eh.a libgfortran.so* libgcc_s.so* libobjc.so.*
+		libobjc_gc.so.* libmudflap.so* libmudflapth.so* libgomp.so* libstdc++.so*"
+	base_multilib_gcc_libs="32/libgfortran.so* 32/libobjc.so.* 32/libobjc_gc.so.*"
 	for gcc_lib in ${base_gcc_libs}; do
-		rm "${D}"${LIBPATH}/${gcc_lib} -r || die "cannot remove ${gcc_lib}"
+		rm "${D}"${LIBPATH}/${gcc_lib} -rf || die "cannot remove ${gcc_lib}"
 		debug_dir="${D}"/usr/lib/debug
 		if [ -d "${debug_dir}" ]; then
-			rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -r || die "cannot remove ${gcc_lib}.debug"
+			rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -rf || die "cannot remove ${gcc_lib}.debug"
 		fi
 	done
 	if use multilib; then
 		for gcc_lib in ${base_multilib_gcc_libs}; do
-			rm "${D}"${LIBPATH}/${gcc_lib} -r || die "cannot remove ${gcc_lib}"
+			rm "${D}"${LIBPATH}/${gcc_lib} -rf || die "cannot remove ${gcc_lib}"
 			debug_dir="${D}"/usr/lib/debug
 			if [ -d "${debug_dir}" ]; then
-				rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -r || die "cannot remove ${gcc_lib}.debug"
+				rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -rf || die "cannot remove ${gcc_lib}.debug"
 			fi
 		done
 	fi
