@@ -85,10 +85,18 @@ src_install() {
 	base_multilib_gcc_libs="32/libgfortran.so*"
 	for gcc_lib in ${base_gcc_libs}; do
 		rm "${D}"${LIBPATH}/${gcc_lib} -r || die "cannot remove ${gcc_lib}"
+		debug_dir="${D}"/usr/lib/debug
+		if [ -d "${debug_dir}" ]; then
+			rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -r || die "cannot remove ${gcc_lib}.debug"
+		fi
 	done
 	if use multilib; then
 		for gcc_lib in ${base_multilib_gcc_libs}; do
 			rm "${D}"${LIBPATH}/${gcc_lib} -r || die "cannot remove ${gcc_lib}"
+			debug_dir="${D}"/usr/lib/debug
+			if [ -d "${debug_dir}" ]; then
+				rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -r || die "cannot remove ${gcc_lib}.debug"
+			fi
 		done
 	fi
 	# then .mo files provided by sys-devel/base-gcc-${PV}:${SLOT}
