@@ -101,5 +101,5 @@ src_install() {
 	fi
 	# then .mo files provided by sys-devel/base-gcc-${PV}:${SLOT}
 	find "${D}"${DATAPATH}/locale -name libstdc++.mo -delete
-	find "${D}"${DATAPATH}/info -name libgomp.info.bz2 -delete
+	find "${D}"${DATAPATH}/info -name libgomp.info* -delete
 }
