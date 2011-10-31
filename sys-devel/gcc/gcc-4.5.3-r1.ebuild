@@ -54,7 +54,8 @@ done
 
 DEPEND="${RDEPEND}
 	amd64? ( multilib? ( gcj? ( app-emulation/emul-linux-x86-xlibs ) ) )"
-PDEPEND=">=sys-devel/gcc-config-1.4"
+## Should this be moved to base-gcc?
+## I guess the cross-* thing is now utterly broken
 if [[ ${CATEGORY} != cross-* ]] ; then
 	PDEPEND="${PDEPEND} elibc_glibc? ( >=sys-libs/glibc-2.8 )"
 fi
@@ -84,22 +85,30 @@ src_install() {
 		libobjc_gc.so* libmudflap.so* libmudflapth.so* libgomp.so* libstdc++.so*"
 	base_multilib_gcc_libs="32/libgfortran.so* 32/libobjc.so* 32/libobjc_gc.so*"
 	for gcc_lib in ${base_gcc_libs}; do
-		rm "${D}"${LIBPATH}/${gcc_lib} -rf || die "cannot remove ${gcc_lib}"
+		# -f is used because the file might not be there
+		rm "${D}"${LIBPATH}/${gcc_lib} -rf || die "cannot execute rm on ${gcc_lib}"
 		debug_dir="${D}"/usr/lib/debug
 		if [ -d "${debug_dir}" ]; then
-			rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -rf || die "cannot remove ${gcc_lib}.debug"
+			rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -rf || die "cannot execute rm on ${gcc_lib}.debug"
 		fi
 	done
 	if use multilib; then
 		for gcc_lib in ${base_multilib_gcc_libs}; do
-			rm "${D}"${LIBPATH}/${gcc_lib} -rf || die "cannot remove ${gcc_lib}"
+			# -f is used because the file might not be there
+			rm "${D}"${LIBPATH}/${gcc_lib} -rf || die "cannot execute rm on ${gcc_lib}"
 			debug_dir="${D}"/usr/lib/debug
 			if [ -d "${debug_dir}" ]; then
-				rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -rf || die "cannot remove ${gcc_lib}.debug"
+				rm "${debug_dir}"${LIBPATH}/${gcc_lib}.debug -rf || die "cannot execute rm on ${gcc_lib}.debug"
 			fi
 		done
 	fi
 	# then .mo files provided by sys-devel/base-gcc-${PV}:${SLOT}
 	find "${D}"${DATAPATH}/locale -name libstdc++.mo -delete
 	find "${D}"${DATAPATH}/info -name libgomp.info* -delete
+
+	# drop stuff from env.d, provided by sys-devel/base-gcc-${PV}:${SLOT}
+	rm "${D}"/etc/env.d -rf
+	# drop specs as well, provided by sys-devel/base-gcc-${PV}:${SLOT}
+	rm "${D}${LIBPATH}"/*.specs -rf
+	rm "${D}${LIBPATH}"/specs -rf
 }
