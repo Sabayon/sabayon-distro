@@ -76,6 +76,10 @@ src_install() {
 		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libmudflap" DESTDIR="${D}" \
 		install-toolexeclibLTLIBRARIES || die
 
+	use libffi && \
+		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libffi" DESTDIR="${D}" \
+		install-toolexeclibLTLIBRARIES || die
+
 	use openmp && \
 		S="${WORKDIR}"/build \
 		emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" \
