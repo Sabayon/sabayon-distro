@@ -72,18 +72,21 @@ src_install() {
 	cd "${WORKDIR}/build"
 	S="${WORKDIR}"/build \
 		emake -j1 -C "${CTARGET}/libgcc" DESTDIR="${D}" install-shared || die
-	use mudflap && \
+
+	if use mudflap; then
 		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libmudflap" DESTDIR="${D}" \
-		install-toolexeclibLTLIBRARIES || die
+			install-toolexeclibLTLIBRARIES || die
+	fi
 
-	use libffi && \
+	if use libffi; then
 		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libffi" DESTDIR="${D}" \
-		install-toolexeclibLTLIBRARIES || die
+			install-toolexeclibLTLIBRARIES || die
+	fi
 
-	use openmp && \
-		S="${WORKDIR}"/build \
-		emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" \
-		install-toolexeclibLTLIBRARIES || die
+	if use openmp; then
+		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" \
+			install-toolexeclibLTLIBRARIES || die
+	fi
 
 	S="${WORKDIR}"/build \
 		emake -j1 -C "${CTARGET}/libstdc++-v3/src" DESTDIR="${D}" \
@@ -94,11 +97,13 @@ src_install() {
 
 	# GCC 4.6 only
 	#S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libquadmath || die
-	use fortran && \
+	if use fortran; then
 		S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libgfortran || die
+	fi
 	# TODO: what to do with USE objc++ and objc-gc ?
-	use objc && \
+	if use objc; then
 		S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libobjc || die
+	fi
 
 	# from toolchain.eclass yay
 	gcc_movelibs
