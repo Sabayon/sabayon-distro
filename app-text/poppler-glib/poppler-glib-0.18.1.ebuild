@@ -1,10 +1,10 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI=4
 
-inherit base eutils autotools multilib
+inherit base eutils libtool multilib
 
 DESCRIPTION="Glib bindings for poppler"
 HOMEPAGE="http://poppler.freedesktop.org/"
@@ -16,9 +16,9 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-
 IUSE="+cairo doc"
 S="${WORKDIR}/poppler-${PV}"
 
-COMMON_DEPEND=">=dev-libs/glib-2.16
+COMMON_DEPEND="dev-libs/glib:2
 	cairo? (
-		>=x11-libs/cairo-1.8.4
+		>=x11-libs/cairo-1.10.0
 		>=x11-libs/gtk+-2.14.0:2
 	)"
 RDEPEND="${COMMON_DEPEND}
@@ -28,11 +28,12 @@ DEPEND="${COMMON_DEPEND}
 
 src_prepare() {
 	base_src_prepare
-	eautoreconf
+	elibtoolize
 }
 
 src_configure() {
-	 econf \
+	econf \
+		--enable-introspection=no \
 		--enable-poppler-glib \
 		--enable-zlib \
 		--disable-gtk-test \

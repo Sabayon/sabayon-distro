@@ -1,42 +1,40 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI=4
 
-inherit base eutils autotools multilib
+inherit base eutils libtool multilib
 
-DESCRIPTION="Glib bindings for poppler"
+DESCRIPTION="Qt4 bindings for poppler"
 HOMEPAGE="http://poppler.freedesktop.org/"
 SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
-IUSE="+cairo doc"
+IUSE=""
 S="${WORKDIR}/poppler-${PV}"
 
-COMMON_DEPEND=">=dev-libs/glib-2.16
-	cairo? (
-		>=x11-libs/cairo-1.8.4
-		>=x11-libs/gtk+-2.14.0:2
-	)"
+COMMON_DEPEND="x11-libs/qt-core:4
+	x11-libs/qt-gui:4"
 RDEPEND="${COMMON_DEPEND}
 	~app-text/poppler-base-${PV}"
 DEPEND="${COMMON_DEPEND}
-	dev-util/pkgconfig"
+	dev-util/pkgconfig
+	x11-libs/qt-test"
 
 src_prepare() {
 	base_src_prepare
-	eautoreconf
+	elibtoolize
 }
 
 src_configure() {
 	econf \
-		--enable-poppler-glib \
+		--disable-poppler-glib \
 		--enable-zlib \
 		--disable-gtk-test \
-		--disable-poppler-qt4 \
+		--enable-poppler-qt4 \
 		--disable-xpdf-headers \
 		--disable-libjpeg \
 		--disable-libopenjpeg \
@@ -50,17 +48,9 @@ src_compile() {
 }
 
 src_install() {
-	( cd "${S}"/glib && base_src_install ) || die "cannot run base_src_install"
+	( cd "${S}/qt4" && base_src_install ) || die "cannot run base_src_install"
 
 	# install pkg-config data
 	insinto /usr/$(get_libdir)/pkgconfig
-	doins "${S}"/poppler-glib.pc
-	use cairo && doins "${S}"/poppler-cairo.pc
-
-	if use cairo && use doc; then
-		# For now install gtk-doc there
-		insinto /usr/share/gtk-doc/html/poppler
-		doins -r "${S}"/glib/reference/html/* || die 'failed to install API documentation'
-	fi
-
+	doins "${S}"/poppler-qt4.pc
 }
