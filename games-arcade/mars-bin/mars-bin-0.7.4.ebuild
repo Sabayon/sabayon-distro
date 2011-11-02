@@ -48,10 +48,10 @@ src_install() {
 	exeinto "/usr/share/${PN}"
 	if use amd64; then
 		mv "${S}/lib64" "${S}/lib" || die
-		mv "${S}/main64" "${S}/${PN}.bin" || die
+		mv "${S}/marsshooter64" "${S}/${PN}.bin" || die
 	else
-		mv "${S}/lib64" "${S}/lib" || die
-		mv "${S}/main64" "${S}/${PN}.bin" || die
+		mv "${S}/lib32" "${S}/lib" || die
+		mv "${S}/marsshooter32" "${S}/${PN}.bin" || die
 	fi
 	doexe "${S}/${PN}.bin" || die
 	doins -r "${S}/lib"
