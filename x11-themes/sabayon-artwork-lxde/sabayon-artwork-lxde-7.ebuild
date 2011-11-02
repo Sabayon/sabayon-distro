@@ -4,9 +4,13 @@
 
 EAPI=3
 
+inherit base
+
+REAL_PV="6_beta2"
+REAL_P="${PN}-${REAL_PV}"
 DESCRIPTION="Sabayon LXDE Artwork"
 HOMEPAGE="http://www.sabayon.org/"
-SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${REAL_P}.tar.xz"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
@@ -14,6 +18,10 @@ IUSE=""
 RDEPEND=""
 
 S="${WORKDIR}/${PN}"
+
+PATCHES=(
+	"${FILESDIR}/${P}-fix-background-image-ext.patch"
+)
 
 src_install () {
 	cd "${S}"/lxdm
