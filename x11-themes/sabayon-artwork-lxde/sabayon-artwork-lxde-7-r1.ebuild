@@ -21,6 +21,7 @@ S="${WORKDIR}/${PN}"
 
 PATCHES=(
 	"${FILESDIR}/${P}-fix-background-image-ext.patch"
+	"${FILESDIR}/${P}-lxdm-theme-colors.patch"
 )
 
 src_install () {
