@@ -72,25 +72,46 @@ src_install() {
 	cd "${WORKDIR}/build"
 	S="${WORKDIR}"/build \
 		emake -j1 -C "${CTARGET}/libgcc" DESTDIR="${D}" install-shared || die
+	if use multilib; then
+		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libgcc" DESTDIR="${D}" \
+			install-shared || die
+	fi
 
 	if use mudflap; then
 		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libmudflap" DESTDIR="${D}" \
 			install-toolexeclibLTLIBRARIES || die
+		if use multilib; then
+			S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libmudflap" DESTDIR="${D}" \
+				install-toolexeclibLTLIBRARIES || die
+		fi
 	fi
 
 	if use libffi; then
 		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libffi" DESTDIR="${D}" \
 			install-toolexeclibLTLIBRARIES || die
+		if use multilib; then
+			S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libffi" DESTDIR="${D}" \
+				install-toolexeclibLTLIBRARIES || die
+		fi
 	fi
 
 	if use openmp; then
 		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" \
 			install-toolexeclibLTLIBRARIES || die
+		if use multilib; then
+			S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libgomp" DESTDIR="${D}" \
+				install-toolexeclibLTLIBRARIES || die
+		fi
 	fi
 
 	S="${WORKDIR}"/build \
 		emake -j1 -C "${CTARGET}/libstdc++-v3/src" DESTDIR="${D}" \
 		install-toolexeclibLTLIBRARIES || die
+	if use multilib; then
+		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libstdc++-v3/src" DESTDIR="${D}" \
+			install-toolexeclibLTLIBRARIES || die
+	fi
+
 
 	S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libstdc++-v3/po" DESTDIR="${D}" install || die
 	S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" install-info || die
