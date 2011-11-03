@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-base/kdm/kdm-4.7.2.ebuild,v 1.1 2011/10/06 18:11:01 alexxy Exp $
+# $Header: /var/cvsroot/gentoo-x86/kde-base/kdm/kdm-4.7.3.ebuild,v 1.1 2011/11/02 20:48:16 alexxy Exp $
 
 EAPI=4
 
@@ -70,6 +70,9 @@ src_install() {
 	export GENKDMCONF_FLAGS="--no-old --no-backup"
 
 	kde4-meta_src_install
+
+	# an equivalent file is already installed by kde-base/startkde, bug 377151
+	rm "${ED}/usr/share/apps/kdm/sessions/kde-plasma.desktop" || die
 
 	# Customize the kdmrc configuration:
 	# - SessionDirs set to /usr/share/xsessions
