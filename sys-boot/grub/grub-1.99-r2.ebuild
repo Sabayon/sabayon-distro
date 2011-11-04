@@ -6,8 +6,9 @@ EAPI=4
 
 if [[ ${PV} == "9999" ]] ; then
 	EBZR_REPO_URI="http://bzr.savannah.gnu.org/r/grub/trunk/grub/"
-	LIVE_ECLASS="autotools bzr"
+	LIVE_ECLASS="bzr"
 	SRC_URI=""
+	DO_AUTORECONF="true"
 else
 	MY_P=${P/_/\~}
 	SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.xz
@@ -15,8 +16,8 @@ else
 	S=${WORKDIR}/${MY_P}
 fi
 
+inherit mount-boot eutils flag-o-matic pax-utils toolchain-funcs ${DO_AUTORECONF:+autotools} ${LIVE_ECLASS}
 inherit mount-boot eutils flag-o-matic toolchain-funcs autotools ${LIVE_ECLASS}
-unset LIVE_ECLASS
 
 DESCRIPTION="GNU GRUB boot loader"
 HOMEPAGE="http://www.gnu.org/software/grub/"
@@ -56,8 +57,11 @@ RDEPEND="
 	truetype? ( media-libs/freetype >=media-fonts/unifont-5 )"
 DEPEND="${RDEPEND}
 	>=dev-lang/python-2.5.2
+	sys-devel/flex
+	virtual/yacc
+	sys-apps/texinfo
 "
-if [[ ${PV} == "9999" ]]; then
+if [[ -n ${DO_AUTORECONF} ]] ; then
 	DEPEND+=" >=sys-devel/autogen-5.10 sys-apps/help2man"
 else
 	DEPEND+=" app-arch/xz-utils"
@@ -79,6 +83,11 @@ QA_EXECSTACK="
 	bin/grub2-mkfont
 	bin/grub2-editenv
 	bin/grub2-mkimage
+"
+
+QA_WX_LOAD="
+	lib*/grub2/*/kernel.img
+	lib*/grub2/*/setjmp.mod
 "
 
 grub_run_phase() {
@@ -167,9 +176,23 @@ src_prepare() {
 	# but rather init_opts=single
 	epatch "${FILESDIR}"/${PN}-1.98-genkernel-initramfs-single.patch
 
-	sed -i -e '/^autoreconf/ d' autogen.sh || die
-	(. ./autogen.sh) || die
-	eautoreconf
+	# fix texinfo file name, as otherwise the grub2.info file will be
+	# useless
+	sed -i \
+		-e '/setfilename/s:grub.info:grub2.info:' \
+		-e 's:(grub):(grub2):' \
+		"${S}"/docs/grub.texi
+
+	# autogen.sh does more than just run autotools
+	if [[ -n ${DO_AUTORECONF} ]] ; then
+		sed -i -e '/^autoreconf/s:^:set +e; e:' autogen.sh || die
+		(. ./autogen.sh) || die
+	fi
+
+	# install into the right dir for eselect #372735
+	sed -i \
+		-e '/^bashcompletiondir =/s:=.*:= $(datarootdir)/bash-completion:' \
+		util/bash-completion.d/Makefile.in || die
 
 	# get enabled platforms
 	GRUB_ENABLED_PLATFORMS=""
@@ -204,6 +227,24 @@ src_install() {
 
 	for i in ${GRUB_ENABLED_PLATFORMS}; do
 		grub_run_phase ${FUNCNAME} ${i}
+	done
+
+	# Do pax marking
+	local PAX=(
+		"sbin/grub2-probe"
+		"sbin/grub2-setup"
+		"sbin/grub2-mkdevicemap"
+		"bin/grub2-script-check"
+		"bin/grub2-fstest"
+		"bin/grub2-mklayout"
+		"bin/grub2-menulst2cfg"
+		"bin/grub2-mkrelpath"
+		"bin/grub2-mkpasswd-pbkdf2"
+		"bin/grub2-editenv"
+		"bin/grub2-mkimage"
+	)
+	for e in ${PAX[@]}; do
+		pax-mark -mp "${ED}/${e}"
 	done
 
 	# avoid collisions with grub-1
