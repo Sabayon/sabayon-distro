@@ -81,7 +81,7 @@ src_install() {
 	toolchain_src_install
 
 	# now drop what's provided by sys-devel/base-gcc-${PV}:${SLOT}
-	base_gcc_libs="libgcc_eh.a libgfortran.so* libgcc_s.so* libobjc.so*
+	base_gcc_libs="libgfortran.so* libgcc_s.so* libobjc.so*
 		libobjc_gc.so* libmudflap.so* libmudflapth.so* libgomp.so* libstdc++.so*
 		libffi.so*"
 	base_multilib_gcc_libs="32/libgfortran.so* 32/libobjc.so* 32/libobjc_gc.so*
