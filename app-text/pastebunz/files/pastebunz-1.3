@@ -27,7 +27,7 @@ class MultipartPostHandler(urlmod.BaseHandler):
             v_vars = []
             try:
                  for(key, value) in list(data.items()):
-                     if type(value) == file:
+                     if hasattr(value, "fileno"):
                          v_files.append((key, value))
                      else:
                          v_vars.append((key, value))
