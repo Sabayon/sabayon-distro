@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Sabayon Linux
+# Copyright 2004-2011 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
 PYTHON_DEPEND="2"
@@ -16,9 +16,7 @@ KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc-fbsd ~sparc ~x86 ~x86-fbs
 IUSE=""
 
 DEPEND=""
-RDEPEND="${DEPEND}
-	dev-lang/python
-	"
+RDEPEND="${DEPEND}"
 
 S=${WORKDIR}
 
