@@ -1,7 +1,10 @@
 # Copyright 2004-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils
+PYTHON_DEPEND="2"
+RESTRICT_PYTHON_ABIS="3.*"
+
+inherit python eutils
 
 DESCRIPTION="command line interface to http://www.sabayonlinux.org/pastebin"
 HOMEPAGE="http://www.sabayonlinux.org/pastebin"
