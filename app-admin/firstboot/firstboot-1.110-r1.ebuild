@@ -5,6 +5,9 @@
 EAPI=3
 inherit python distutils rpm
 
+RESTRICT_PYTHON_ABIS="3.*"
+PYTHON_DEPEND="2"
+
 # Revision of the RPM. Shouldn't affect us, as we're just grabbing the source
 # tarball out of it
 RPMREV="1"
