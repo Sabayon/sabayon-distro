@@ -1,13 +1,21 @@
 #!/usr/bin/python
-import sys, os, urllib, urllib2
+import sys, os
+
+if sys.hexversion >= 0x3000000:
+    import urllib.request as urlmod
+    from urllib.parse import urlencode
+else:
+    import urllib2 as urlmod
+    from urllib import urlencode
+
 MDL = 1024 * 100
 
 class Callable:
     def __init__(self, anycallable):
         self.__call__ = anycallable
 
-class MultipartPostHandler(urllib2.BaseHandler):
-    handler_order = urllib2.HTTPHandler.handler_order - 10 # needs to run first
+class MultipartPostHandler(urlmod.BaseHandler):
+    handler_order = urlmod.HTTPHandler.handler_order - 10 # needs to run first
 
     def http_request(self, request):
 
@@ -18,17 +26,17 @@ class MultipartPostHandler(urllib2.BaseHandler):
             v_files = []
             v_vars = []
             try:
-                 for(key, value) in data.items():
+                 for(key, value) in list(data.items()):
                      if type(value) == file:
                          v_files.append((key, value))
                      else:
                          v_vars.append((key, value))
             except TypeError:
                 systype, value, traceback = sys.exc_info()
-                raise TypeError, "not a valid non-string sequence or mapping object", traceback
+                raise TypeError("not a valid non-string sequence or mapping object").with_traceback(traceback)
 
             if len(v_files) == 0:
-                data = urllib.urlencode(v_vars, doseq)
+                data = urlencode(v_vars, doseq)
             else:
                 boundary, data = self.multipart_encode(v_vars, v_files)
 
@@ -44,7 +52,7 @@ class MultipartPostHandler(urllib2.BaseHandler):
 
     def multipart_encode(vars, files, boundary = None, buf = None):
 
-        from cStringIO import StringIO
+        from io import StringIO
         import mimetools, mimetypes
 
         if boundary is None:
@@ -76,7 +84,7 @@ class PastieInterface:
 
     def __init__(self):
         self.url = 'http://pastebin.sabayon.org/send'
-        self.opener = urllib2.build_opener(MultipartPostHandler)
+        self.opener = urlmod.build_opener(MultipartPostHandler)
         self.generated = False
         self.params = {}
 
@@ -97,9 +105,9 @@ class PastieInterface:
         username = None
         password = None
         authinfo = None
-        if data.has_key('password'):
+        if 'password' in data:
             username = data.pop('username')
-        if data.has_key('password'):
+        if 'password' in data:
             username = data.pop('password')
         if username == None or password == None:
             username = None
@@ -133,7 +141,7 @@ class PastieInterface:
         if not data:
             return False
         result = self.opener.open(self.url, self.params).read()
-        print result.strip()
+        print(result.strip())
         return True
 
     def submit_as_file(self, f_obj):
@@ -150,7 +158,7 @@ class PastieInterface:
         if not data:
             return False
         result = self.opener.open(self.url, self.params).read()
-        print result.strip()
+        print(result.strip())
         return True
 
 my = PastieInterface()
@@ -171,7 +179,7 @@ if f_obj_diff:
     f_obj.close()
 
 if not rc:
-    print "syntax error !"
-    print "syntax:", sys.argv[0], "[-f] <path>"
-    print "note: if <path> is not provided, stdin will be used"
+    print("syntax error !")
+    print("syntax:", sys.argv[0], "[-f] <path>")
+    print("note: if <path> is not provided, stdin will be used")
     raise SystemExit(1)
