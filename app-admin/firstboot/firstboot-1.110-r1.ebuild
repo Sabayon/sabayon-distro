@@ -3,10 +3,11 @@
 # $Header: /var/cvsroot/gentoo-x86/app-admin/firstboot/firstboot-1.4.19.ebuild,v 1.3 2007/10/15 09:35:28 dberkholz Exp $
 
 EAPI=3
-inherit python distutils rpm
 
 RESTRICT_PYTHON_ABIS="3.*"
 PYTHON_DEPEND="2"
+
+inherit python distutils rpm
 
 # Revision of the RPM. Shouldn't affect us, as we're just grabbing the source
 # tarball out of it
