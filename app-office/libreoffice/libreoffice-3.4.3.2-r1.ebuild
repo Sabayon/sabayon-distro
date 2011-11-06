@@ -23,7 +23,7 @@ EXT_URI="http://ooo.itc.hu/oxygenoffice/download/libreoffice"
 ADDONS_URI="http://dev-www.libreoffice.org/src/"
 
 [[ ${PV} == *9999* ]] && SCM_ECLASS="git-2"
-inherit base autotools check-reqs eutils java-pkg-opt-2 kde4-base pax-utils prefix python multilib toolchain-funcs flag-o-matic nsplugins ${SCM_ECLASS}
+inherit base autotools bash-completion check-reqs eutils java-pkg-opt-2 kde4-base pax-utils prefix python multilib toolchain-funcs flag-o-matic nsplugins versionator ${SCM_ECLASS}
 unset SCM_ECLASS
 
 DESCRIPTION="LibreOffice, a full office productivity suite."
@@ -33,7 +33,7 @@ SRC_URI=""
 # Bootstrap MUST be first!
 MODULES="bootstrap artwork base calc components extensions extras filters help
 impress libs-core libs-extern libs-extern-sys libs-gui postprocess sdk testing
-ure writer translations"
+ure writer"
 # Only release has the tarballs
 if [[ ${PV} != *9999* ]]; then
 	for i in ${DEV_URI}; do
@@ -60,7 +60,6 @@ ADDONS_SRC+=" ${ADDONS_URI}/35efabc239af896dfb79be7ebdd6e6b9-gentiumbasic-fonts-
 ADDONS_SRC+=" ${ADDONS_URI}/39bb3fcea1514f1369fcfc87542390fd-sacjava-1.3.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/48470d662650c3c074e1c3fabbc67bbd-README_source-9.0.0.7-bj.txt"
 ADDONS_SRC+=" ${ADDONS_URI}/4a660ce8466c9df01f19036435425c3a-glibc-2.1.3-stub.tar.gz"
-ADDONS_SRC+=" ${ADDONS_URI}/599dc4cc65a07ee868cf92a667a913d2-xpdf-3.02.tar.gz"
 ADDONS_SRC+=" ${ADDONS_URI}/798b2ffdc8bcfe7bca2cf92b62caf685-rhino1_5R5.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/8294d6c42e3553229af9934c5c0ed997-stax-api-1.0-2-sources.jar"
 ADDONS_SRC+=" ${ADDONS_URI}/a7983f859eafb2677d7ff386a023bc40-xsltml_2.1.2.zip"
@@ -92,37 +91,34 @@ unset ADDONS_URI
 unset EXT_URI
 unset ADDONS_SRC
 
-IUSE="binfilter cups custom-cflags dbus debug eds gnome graphite
-gstreamer gtk kde ldap mysql nsplugin odk offlinehelp opengl python templates
-test +vba webdav"
+IUSE="binfilter +branding custom-cflags dbus debug eds gnome graphite
+gstreamer gtk kde ldap mysql nsplugin odk opengl python templates test +vba
+webdav pdfimport"
 LICENSE="LGPL-3"
 SLOT="0"
-[[ ${PV} == *9999* ]] || KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
-
-# translations
-LANGUAGES="en"
+[[ ${PV} == *9999* ]] || KEYWORDS="amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
 
 COMMON_DEPEND="
 	app-arch/zip
 	app-arch/unzip
-	>=app-text/hunspell-1.3.2
+	>=app-text/hunspell-1.3.2-r1
 	app-text/mythes
 	app-text/libwpd:0.9[tools]
 	app-text/libwpg:0.2
 	>=app-text/libwps-0.2.2
-	>=app-text/poppler-0.12.3-r3[xpdf-headers]
 	dev-db/unixODBC
 	dev-libs/expat
-	>=dev-libs/glib-2.18
+	>=dev-libs/glib-2.28
 	>=dev-libs/hyphen-2.7.1
-	>=dev-libs/icu-4.0
+	>=dev-libs/icu-4.8.1-r1
 	>=dev-lang/perl-5.0
 	>=dev-libs/openssl-0.9.8g
-	dev-libs/redland[ssl]
+	>=dev-libs/redland-1.0.14[ssl]
 	media-libs/freetype:2
-	>=media-libs/fontconfig-2.3.0
+	>=media-libs/fontconfig-2.8.0
 	>=media-libs/vigra-1.7
 	>=media-libs/libpng-1.4
+	net-print/cups
 	sci-mathematics/lpsolve
 	>=sys-libs/db-4.8
 	virtual/jpeg
@@ -131,10 +127,13 @@ COMMON_DEPEND="
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	x11-libs/libXrender
-	cups? ( net-print/cups )
-	dbus? ( >=dev-libs/dbus-glib-0.94 )
+	pdfimport? ( >=app-text/poppler-0.12.3-r3[xpdf-headers,cairo] )
+	dbus? ( >=dev-libs/dbus-glib-0.92 )
 	eds? ( gnome-extra/evolution-data-server )
-	gnome? ( gnome-base/gconf:2 )
+	gnome? (
+		gnome-base/gconf:2
+		gnome-base/orbit:2
+	)
 	gtk? ( >=x11-libs/gtk+-2.24:2 )
 	graphite? ( media-gfx/graphite2 )
 	gstreamer? (
@@ -163,7 +162,6 @@ RDEPEND="${COMMON_DEPEND}
 	!app-office/openoffice-bin
 	!app-office/openoffice
 	java? ( >=virtual/jre-1.6 )
-	${SPELL_DIRS_DEPEND}
 	x11-themes/sabayon-artwork-loo
 "
 
@@ -176,8 +174,8 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/intltool
 	dev-util/mdds
 	>=dev-util/pkgconfig-0.26
-	>=net-misc/curl-7.21.7
-	>=sys-apps/findutils-4.5.9
+	>=net-misc/curl-7.21.4
+	>=sys-apps/findutils-4.4.2
 	sys-devel/bison
 	sys-apps/coreutils
 	sys-devel/flex
@@ -269,14 +267,10 @@ pkg_setup() {
 		ewarn
 	fi
 
-	ewarn "Libreoffice compilation often fails on parallel issues"
-	ewarn "but the slowdown by enforcing MAKEOPTS=-j1 is too huge."
-	ewarn "If you encounter errors try yourself to disable parallel build."
-
 	# Check if we have enough RAM and free diskspace to build this beast
-	CHECKREQS_MEMORY="1024"
-	use debug && CHECKREQS_DISK_BUILD="15360" || CHECKREQS_DISK_BUILD="9216"
-	check_reqs
+	CHECKREQS_MEMORY="1G"
+	use debug && CHECKREQS_DISK_BUILD="15G" || CHECKREQS_DISK_BUILD="9G"
+	check-reqs_pkg_setup
 }
 
 src_unpack() {
@@ -327,11 +321,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	strip-linguas ${LANGUAGES}
-
-	LO_LANGUAGES=
-
-	# Now for our optimization flags ...
+	# optimization flags
 	export ARCH_FLAGS="${CXXFLAGS}"
 	use debug || export LINKFLAGSOPTIMIZE="${LDFLAGS}"
 
@@ -361,7 +351,7 @@ src_configure() {
 
 	# list the extensions we are going to build by default
 	extensions="
-		--enable-ext-pdfimport
+		$(use_enable pdfimport ext-pdfimport)
 		--enable-ext-presenter-console
 		--enable-ext-presenter-minimizer
 	"
@@ -382,9 +372,6 @@ src_configure() {
 	# as internal libraries.
 	if ! use java; then
 		internal_libs+="
-			--without-system-beanshell
-			--without-system-lucene
-			--without-system-saxon
 			--without-junit
 		"
 	else
@@ -432,6 +419,7 @@ src_configure() {
 		--with-system-db \
 		--with-system-dicts \
 		--enable-cairo \
+		--enable-cups \
 		--enable-fontconfig \
 		--enable-largefile \
 		--enable-randr \
@@ -460,7 +448,7 @@ src_configure() {
 		--with-external-hyph-dir="${EPREFIX}/usr/share/myspell" \
 		--with-external-thes-dir="${EPREFIX}/usr/share/myspell" \
 		--with-external-tar="${DISTDIR}" \
-		--with-lang="${LO_LANGUAGES}" \
+		--with-lang="" \
 		--with-max-jobs=${jbs} \
 		--with-num-cpus=1 \
 		--with-theme="${themes}" \
@@ -472,8 +460,8 @@ src_configure() {
 		--without-myspell-dicts \
 		--without-ppds \
 		--without-stlport \
+		--without-helppack-integration \
 		$(use_enable binfilter) \
-		$(use_enable cups) \
 		$(use_enable dbus) \
 		$(use_enable debug crashdump) \
 		$(use_enable eds evolution2) \
@@ -500,7 +488,6 @@ src_configure() {
 		$(use_with ldap openldap) \
 		$(use_with mysql system-mysql-cppconn) \
 		$(use_with nsplugin system-mozilla libxul) \
-		$(use_with offlinehelp helppack-integration) \
 		$(use_with templates sun-templates) \
 		${internal_libs} \
 		${java_opts} \
@@ -515,6 +502,10 @@ src_compile() {
 src_install() {
 	# This is not Makefile so no buildserver
 	make DESTDIR="${D}" distro-pack-install || die
+
+	# Fix bash completion placement
+	dobashcompletion "${ED}"/etc/bash_completion.d/libreoffice.sh ${PN}
+	rm -rf "${ED}"/etc/
 
 	# symlink the plugin to system location
 	if use nsplugin; then
