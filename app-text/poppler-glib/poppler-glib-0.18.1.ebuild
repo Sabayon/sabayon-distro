@@ -26,6 +26,8 @@ RDEPEND="${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig"
 
+PATCHES=( "${FILESDIR}/${P}-fix-pc-upstream.patch" )
+
 src_prepare() {
 	base_src_prepare
 	elibtoolize
