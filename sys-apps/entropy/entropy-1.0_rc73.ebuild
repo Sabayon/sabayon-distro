@@ -27,7 +27,6 @@ DEPEND="${RDEPEND}
 	dev-util/intltool"
 
 REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
-REPO_D_CONFPATH="${ROOT}/etc/entropy/repositories.conf.d"
 ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
 
 pkg_setup() {
@@ -58,21 +57,6 @@ pkg_postinst() {
 	if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
 		elog "Copying ${REPO_CONFPATH}.example over to ${REPO_CONFPATH}"
 		cp "${REPO_CONFPATH}.example" "${REPO_CONFPATH}" -p
-	fi
-	already_run="${ROOT}/etc/entropy/.repo_d_conf.migrated"
-	if [ ! -e "${already_run}" ]; then
-		# others?
-		for ex_conf in "${REPO_D_CONFPATH}"/entropy_sabayonlinux.org.example; do
-			real_conf="${ex_conf%.example}"
-			if [ -f "${real_conf}" ] || [ -f "_${real_conf}" ]; then
-				# skip installation then
-				continue
-			fi
-			elog "Installing: ${real_conf}"
-			cp "${ex_conf}" "${real_conf}" -p
-		done
-		# only run once
-		touch "${already_run}"
 	fi
 
 	if [ -d "${ENTROPY_CACHEDIR}" ]; then
