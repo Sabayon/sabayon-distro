@@ -19,7 +19,7 @@ index beedf9d..609e09a 100644
  
 +# In case the compiler supports AVX this code segfaults so specifically turn
 +# it off.
-+.IF "$(HAVE_GCC_AVX)" == "YES"
++.IF "$(HAVE_GCC_AVX)" == "TRUE"
 +    CFLAGSCXX+= -mno-avx
 +.ENDIF
 +
@@ -36,7 +36,7 @@ index dd35432..e519105 100644
  
 +# In case the compiler supports AVX this code segfaults so specifically turn
 +# it off.
-+.IF "$(HAVE_GCC_AVX)" == "YES"
++.IF "$(HAVE_GCC_AVX)" == "TRUE"
 +    CFLAGSCXX+= -mno-avx
 +.ENDIF
 +
@@ -53,7 +53,7 @@ index 2c7a8da..d2b0809 100644
  
 +# In case the compiler supports AVX this code segfaults so specifically turn
 +# it off.
-+.IF "$(HAVE_GCC_AVX)" == "YES"
++.IF "$(HAVE_GCC_AVX)" == "TRUE"
 +    CFLAGSCXX+= -mno-avx
 +.ENDIF
 +

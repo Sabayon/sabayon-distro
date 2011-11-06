@@ -1,10 +1,11 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-office/libreoffice/libreoffice-3.4.2.3.ebuild,v 1.21 2011/08/06 16:48:01 mattst88 Exp $
+# $Header: $
 
 EAPI=3
 
 KDE_REQUIRED="optional"
+KDE_SCM="git"
 CMAKE_REQUIRED="never"
 
 PYTHON_DEPEND="2"
@@ -29,7 +30,6 @@ DESCRIPTION="LibreOffice, a full office productivity suite."
 HOMEPAGE="http://www.libreoffice.org"
 SRC_URI=""
 
-# Shiny split sources with so many packages...
 # Bootstrap MUST be first!
 MODULES="bootstrap artwork base calc components extensions extras filters help
 impress libs-core libs-extern libs-extern-sys libs-gui postprocess sdk testing
@@ -50,6 +50,7 @@ unset DEV_URI
 # FIXME: actually review which one of these are used
 ADDONS_SRC+=" ${ADDONS_URI}/128cfc86ed5953e57fe0f5ae98b62c2e-libtextcat-2.2.tar.gz"
 ADDONS_SRC+=" ${ADDONS_URI}/17410483b5b5f267aa18b7e00b65e6e0-hsqldb_1_8_0.zip"
+ADDONS_SRC+=" ${ADDONS_URI}/bd30e9cf5523cdfc019b94f5e1d7fd19-cppunit-1.12.1.tar.gz"
 ADDONS_SRC+=" ${ADDONS_URI}/1756c4fa6c616ae15973c104cd8cb256-Adobe-Core35_AFMs-314.tar.gz"
 ADDONS_SRC+=" ${ADDONS_URI}/1f24ab1d39f4a51faf22244c94a6203f-xmlsec1-1.2.14.tar.gz"
 ADDONS_SRC+=" ${ADDONS_URI}/24be19595acad0a2cae931af77a0148a-LICENSE_source-9.0.0.7-bj.html"
@@ -71,7 +72,6 @@ ADDONS_SRC+=" ${ADDONS_URI}/3bdf40c0d199af31923e900d082ca2dd-libfonts-1.1.6.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/8ce2fcd72becf06c41f7201d15373ed9-librepository-1.1.6.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/97b2d4dba862397f446b217e2b623e71-libloader-1.1.6.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/d8bd5eed178db6e2b18eeed243f85aa8-flute-1.1.6.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/db60e4fde8dd6d6807523deb71ee34dc-liblayout-0.2.10.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/eeb2c7ddf0d302fba4bfc6e97eac9624-libbase-1.1.6.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/f94d9870737518e3b597f9265f4e9803-libserializer-1.1.6.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/ba2930200c9f019c2d93a8c88c651a0f-flow-engine-0.9.4.zip"
@@ -105,9 +105,10 @@ LANGUAGES="en"
 COMMON_DEPEND="
 	app-arch/zip
 	app-arch/unzip
-	>=app-text/hunspell-1.1.4-r1
+	>=app-text/hunspell-1.3.2
 	app-text/mythes
 	app-text/libwpd:0.9[tools]
+	app-text/libwpg:0.2
 	>=app-text/libwps-0.2.2
 	>=app-text/poppler-0.12.3-r3[xpdf-headers]
 	dev-db/unixODBC
@@ -120,25 +121,21 @@ COMMON_DEPEND="
 	dev-libs/redland[ssl]
 	media-libs/freetype:2
 	>=media-libs/fontconfig-2.3.0
-	>=media-libs/vigra-1.4
-	media-libs/libpng
-	app-text/libwpg:0.2
+	>=media-libs/vigra-1.7
+	>=media-libs/libpng-1.4
 	sci-mathematics/lpsolve
 	>=sys-libs/db-4.8
 	virtual/jpeg
-	>=x11-libs/cairo-1.0.2
+	>=x11-libs/cairo-1.10.0
 	x11-libs/libXaw
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	x11-libs/libXrender
 	cups? ( net-print/cups )
-	dbus? ( >=dev-libs/dbus-glib-0.71 )
-	eds? ( >=gnome-extra/evolution-data-server-1.2 )
-	gnome? (
-		>=x11-libs/gtk+-2.10:2
-		gnome-base/gconf:2
-	)
-	gtk? ( >=x11-libs/gtk+-2.10:2 )
+	dbus? ( >=dev-libs/dbus-glib-0.94 )
+	eds? ( gnome-extra/evolution-data-server )
+	gnome? ( gnome-base/gconf:2 )
+	gtk? ( >=x11-libs/gtk+-2.24:2 )
 	graphite? ( media-gfx/graphite2 )
 	gstreamer? (
 		>=media-libs/gstreamer-0.10
@@ -151,11 +148,11 @@ COMMON_DEPEND="
 		dev-java/saxon:0
 	)
 	ldap? ( net-nds/openldap )
-	mysql? ( dev-db/mysql-connector-c++ )
+	mysql? ( >=dev-db/mysql-connector-c++-1.1.0 )
 	nsplugin? (
 		net-libs/xulrunner:1.9
-		>=dev-libs/nspr-4.6.6
-		>=dev-libs/nss-3.11-r1
+		>=dev-libs/nspr-4.8.8
+		>=dev-libs/nss-3.12.9
 	)
 	opengl? ( virtual/opengl )
 	webdav? ( net-libs/neon )
@@ -165,24 +162,22 @@ RDEPEND="${COMMON_DEPEND}
 	!app-office/libreoffice-bin
 	!app-office/openoffice-bin
 	!app-office/openoffice
-	java? ( >=virtual/jre-1.5 )
+	java? ( >=virtual/jre-1.6 )
 	${SPELL_DIRS_DEPEND}
 	x11-themes/sabayon-artwork-loo
 "
 
 DEPEND="${COMMON_DEPEND}
-	>=dev-libs/boost-1.36
-	>=dev-libs/libxml2-2.0
+	>=dev-libs/boost-1.46
+	>=dev-libs/libxml2-2.7.8
 	dev-libs/libxslt
 	dev-perl/Archive-Zip
-	dev-util/cppunit
 	>=dev-util/gperf-3
 	dev-util/intltool
 	dev-util/mdds
-	dev-util/pkgconfig
-	media-gfx/sane-backends
-	>=net-misc/curl-7.12
-	>=sys-apps/findutils-4.1.20-r1
+	>=dev-util/pkgconfig-0.26
+	>=net-misc/curl-7.21.7
+	>=sys-apps/findutils-4.5.9
 	sys-devel/bison
 	sys-apps/coreutils
 	sys-devel/flex
@@ -209,7 +204,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-vbaobj-visibility-fix.patch"
 	"${FILESDIR}/${PN}-solenv-build-crash.patch"
 	"${FILESDIR}/${PN}-as-needed-gtk.patch"
-	"${FILESDIR}/${PN}-fix-sandbox-install.patch"
 	"${FILESDIR}/${PN}-translate-toolkit-parallel-solenv.patch"
 	"${FILESDIR}/${PN}-gbuild-use-cxxflags.patch"
 	"${FILESDIR}/${PN}-installed-files-permissions.patch"
@@ -217,6 +211,11 @@ PATCHES=(
 	"${FILESDIR}/${PN}-append-no-avx.patch"
 	"${FILESDIR}/${PN}-32b-qt4-libdir.patch"
 	"${FILESDIR}/${PN}-binfilter-as-needed.patch"
+	"${FILESDIR}/${PN}-kill-cppunit.patch"
+	"${FILESDIR}/${PN}-honor-strip.patch"
+	"${FILESDIR}/${PN}-java.patch"
+	"${FILESDIR}/${PN}-poppler-0.18.0.patch"
+	"${FILESDIR}/${PN}-poppler-0.18.0-2.patch"
 )
 
 # Uncoment me when updating to eapi4
@@ -225,6 +224,9 @@ PATCHES=(
 #	gnome? ( gtk )
 #	nsplugin? ( gtk )
 #"
+
+# Needs lots and lots of work and compiling
+RESTRICT="test"
 
 S="${WORKDIR}/${PN}-bootstrap-${PV}"
 
@@ -366,8 +368,14 @@ src_configure() {
 
 	# hsqldb: requires just 1.8.0 not 1.8.1 which we don't ship at all
 	# dmake: not worth of splitting out
+	# cppunit: patched not to run anything, just main() { return 0; }
+	#          workaround to upstream running the tests during build
+	# sane: just sane.h header that is used for scan in writer, not
+	#       linked or anything else, worthless to depend on
 	internal_libs+="
 		--without-system-hsqldb
+		--without-system-cppunit
+		--without-system-sane-header
 	"
 
 	# When building without java some things needs to be done
@@ -417,6 +425,7 @@ src_configure() {
 	# --without-{afms,fonts,myspell-dicts,ppsd}: prevent install of sys pkgs
 	# --without-stlport: disable deprecated extensions framework
 	econf \
+		--docdir="${EPREFIX}/usr/share/doc/${PF}/" \
 		--with-system-headers \
 		--with-system-libs \
 		--with-system-jars \
