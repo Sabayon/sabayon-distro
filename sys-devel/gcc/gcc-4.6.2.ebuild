@@ -46,7 +46,7 @@ RDEPEND="~sys-devel/base-gcc-${PV}
 
 ## Make sure we share all the USE flags in sys-devel/base-gcc
 BASE_GCC_USE="fortran gcj gtk mudflap multilib nls nptl openmp altivec
-	bootstrap build doc fixed-point graphite hardened libffi lto
+	bootstrap build doc fixed-point go graphite hardened libffi
 	multislot nocxx nopie nossp objc objc++ objc-gc test vanilla"
 for base_use in ${BASE_GCC_USE}; do
 	RDEPEND+=" ~sys-devel/base-gcc-${PV}[${base_use}=]"
@@ -66,14 +66,17 @@ src_unpack() {
 
 	use vanilla && return 0
 
-	sed -i 's/use_fixproto=yes/:/' gcc/config.gcc #PR33200
-
 	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
 }
 
 ## Remove lto conditional
 pkg_setup() {
 	toolchain_pkg_setup
+
+	ewarn
+	ewarn "LTO support is still experimental and unstable."
+	ewarn "Any bugs resulting from the use of LTO will not be fixed."
+	ewarn
 }
 
 ## Just install libgcc stuff
@@ -83,10 +86,10 @@ src_install() {
 	# now drop what's provided by sys-devel/base-gcc-${PV}:${SLOT}
 	base_gcc_libs="libgfortran.so* libgcc_s.so* libobjc.so*
 		libobjc_gc.so* libmudflap.so* libmudflapth.so* libgomp.so* libstdc++.so*
-		libffi.so*"
+		libffi.so* libquadmath.so*"
 	base_multilib_gcc_libs="32/libgfortran.so* 32/libobjc.so* 32/libobjc_gc.so*
 		32/libffi.so* 32/libgcc_s.so* 32/libgomp.so* 32/libmudflap.so*
-		32/libmudflapth.so* 32/libstdc++.so*"
+		32/libmudflapth.so* 32/libstdc++.so* 32/libquadmath.so*"
 	for gcc_lib in ${base_gcc_libs}; do
 		# -f is used because the file might not be there
 		rm "${D}"${LIBPATH}/${gcc_lib} -rf || die "cannot execute rm on ${gcc_lib}"
@@ -108,6 +111,7 @@ src_install() {
 	# then .mo files provided by sys-devel/base-gcc-${PV}:${SLOT}
 	find "${D}"${DATAPATH}/locale -name libstdc++.mo -delete
 	find "${D}"${DATAPATH}/info -name libgomp.info* -delete
+	find "${D}"${DATAPATH}/info -name libquadmath.info* -delete
 
 	# drop stuff from env.d, provided by sys-devel/base-gcc-${PV}:${SLOT}
 	rm "${D}"/etc/env.d -rf
