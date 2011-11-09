@@ -1,3 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-Add new "udevadm settle" patch from Gentoo bug #242778 which fixes
-bogus warning messages on early genkernel initrd init

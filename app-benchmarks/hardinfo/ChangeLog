@@ -1,9 +1,0 @@
-# Copyright 1999-2010 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /home/menelkir/portage/app-benchmark/hardinfo/ChangeLog,v 1.440 2010/05/31 10:20:14 menelkir Exp $
-
-*hardinfo-0.5.1.ebuild (31 May 2010)
-
-31 May 2010; Daniel de Oliveira <menelkir@itroll.org> +hardinfo-0.5.1.ebuild,
-+hardinfo-9999.ebuild:
-Initial ebuild.

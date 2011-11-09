@@ -1,4 +1,0 @@
-# Sample udev rule for ttyUSB devices used by cheap GPS hardware (for use with
-# gpsd) such as a PL2303 USB-Serial adapter.
-
-KERNEL=="ttyUSB[0-9]*",  NAME="tts/USB%n", SYMLINK="ttyUSB%n", GROUP="tty", MODE="0660"

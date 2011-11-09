@@ -1,8 +1,0 @@
-Ian Whyman <ian.whyman@sabayonlinux.org>
-
-games-strategy/quantz
-Ebuild for the free linux beta version of the game QuantZ.
-http://www.reddit.com/r/linux_gaming/comments/a2kux/quantz_ported_to_linux_please_help_us_test_the/
-
-TODO
-* Use the games eclass?

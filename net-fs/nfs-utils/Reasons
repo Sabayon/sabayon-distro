@@ -1,6 +1,0 @@
-Ian Whyman <ian.whyman@sabayonlinux.org>
-Added at request of joost_op, fixes below issue:
-https://bugzilla.redhat.com/show_bug.cgi?id=532270
-
-Patch has been upstreamed, so we can probably
-remove this next time it gets a version bump

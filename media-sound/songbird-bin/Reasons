@@ -1,5 +1,0 @@
-media-sound/songbird-bin
-
-2010-01-11 - Ian Whyman <ian.whyman@sabayon.org>
-  Added as part of bug #1146, ebuild based on Gentoo #139019
-  but uses EAPI2, versionator so is cleaner / easier to bump

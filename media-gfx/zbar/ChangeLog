@@ -1,8 +1,0 @@
-# ChangeLog for dev-util/symlookup
-# Copyright 2000-2010 Gentoo Foundation; Distributed under the GPL v2
-# $Header: $
-
-*zbar-0.10 (14 Dec 2010)
-
-  14 Dec 2010; Andrew Savchenko <bircoph@gmail.com> +zbar-0.10.ebuild:
-  Initial ebuild taken from bug 288002 by spadix.

@@ -1,6 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-Main actual reason is that we need imlib2-9999 for E17
-packages and this ebuild from enlightenment comes with
-no KEYWORDS. Entropy doesn't feature a server-side
-package.keywords support atm, so moving it here and
-add proper keywords.

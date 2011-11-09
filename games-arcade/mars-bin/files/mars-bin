@@ -1,5 +1,0 @@
-#!/bin/sh
-source /etc/profile
-export LD_LIBRARY_PATH="${MARS_LIBRARY_PATH}"
-cd /usr/share/mars-bin
-exec ./mars-bin.bin $@
