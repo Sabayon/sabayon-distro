@@ -17,7 +17,7 @@ DEPEND=""
 # Listing default packages for the current release
 RDEPEND="app-admin/eselect-python
 	dev-lang/python:2.7
-	sys-devel/base-gcc:4.5
+	sys-devel/base-gcc:4.6
 	sys-devel/gcc-config"
 
 SABAYON_VER="${PV}"
