@@ -243,8 +243,14 @@ if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	fi
 else
 	K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
-	use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
-	use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+	K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PV}-__ARCH__.config}"
+	if use amd64; then
+		K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
+		K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/amd64}
+	elif use x86; then
+		K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+		K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/x86}
+	fi
 fi
 
 if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
@@ -345,7 +351,14 @@ _firmwares_src_compile() {
 
 _kernel_copy_config() {
 	if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
-		cp "${S}/sabayon/config/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
+		local base_path="${S}/sabayon/config"
+		if [ -f "${base_path}/${K_SABKERNEL_ALT_CONFIG_FILE}" ]; then
+			# new path, without revision
+			cp "${base_path}/${K_SABKERNEL_ALT_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
+		else
+			# PVR path (old)
+			cp "${base_path}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
+		fi
 	else
 		if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
 			cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${1}" || die "cannot copy kernel config"
