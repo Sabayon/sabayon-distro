@@ -60,5 +60,5 @@ dev-libs/libdbusmenu
 
 ##### unmask ####
 
-# We always want our grub2
--~sys-boot/grub-1.99
+# example
+# -~sys-boot/grub-1.99
