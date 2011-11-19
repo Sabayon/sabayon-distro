@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit eutils python
+inherit eutils python flag-o-matic
 
 # Use XBMC_ESVN_REPO_URI to track a different branch
 ESVN_REPO_URI=${XBMC_ESVN_REPO_URI:-http://xbmc.svn.sourceforge.net/svnroot/xbmc/trunk}
@@ -91,6 +91,14 @@ DEPEND="${COMMON_DEPEND}
 	x11-proto/xineramaproto
 	dev-util/cmake
 	x86? ( dev-lang/nasm )"
+
+pkg_setup() {
+	# nasty runtime things might happen otherwise
+	# /usr/lib64/xbmc/system/players/dvdplayer/avcodec-52-x86_64-linux.so:
+	# undefined symbol: NeAACDecSetConfiguration
+	append-ldflags $(no-as-needed)
+	python_pkg_setup
+}
 
 src_unpack() {
 	if [[ ${PV} == "9999" ]] ; then
