@@ -73,6 +73,8 @@ pkg_setup() {
 src_prepare() {
 	# Sabayon, fix icons setup during Live system autostart (first boot only)
 	epatch "${FILESDIR}/${PN}-3.0.2-fix-autostart-live-boot.patch"
+	# Sabayon bug #2797
+	epatch "${FILESDIR}/${PN}-3.2.1-startup-notify.patch"
 	gnome2_src_prepare
 
 	# Remove crazy CFLAGS
