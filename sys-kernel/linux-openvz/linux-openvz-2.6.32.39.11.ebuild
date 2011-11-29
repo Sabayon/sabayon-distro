@@ -57,7 +57,8 @@ http://wiki.openvz.org/Download/kernel/rhel6/042stab${OVZ_KV}"
 # Sabayon patches
 UNIPATCH_LIST="${UNIPATCH_LIST}
 ${FILESDIR}/sabayon-2.6.32/4200_fbcondecor-0.9.6-2.patch
-${FILESDIR}/hotfixes/2.6.32/2.6.32.39.10-invalidate_inodes-macro-fix.patch"
+${FILESDIR}/hotfixes/2.6.32/2.6.32.39.10-invalidate_inodes-macro-fix.patch
+${FILESDIR}/hotfixes/2.6.32/linux-openvz-2.6.32.39.11-gcc46.patch"
 
 pkg_postinst() {
         sabayon-kernel_pkg_postinst
