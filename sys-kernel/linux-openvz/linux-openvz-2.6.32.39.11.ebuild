@@ -40,7 +40,7 @@ IUSE=""
 DESCRIPTION="Kernel binaries with OpenVZ patchset"
 HOMEPAGE="http://www.openvz.org"
 SRC_URI="${KERNEL_URI} ${ARCH_URI}
-	http://download.openvz.org/kernel/branches/rhel6-${CKV}-testing/042stab${OVZ_KV}/patches/patch-042stab${OVZ_KV}-combined.gz"
+	http://download.openvz.org/kernel/branches/rhel6-${CKV}/042stab${OVZ_KV}/patches/patch-042stab${OVZ_KV}-combined.gz"
 
 UNIPATCH_STRICTORDER=1
 UNIPATCH_LIST="${DISTDIR}/patch-042stab${OVZ_KV}-combined.gz"
