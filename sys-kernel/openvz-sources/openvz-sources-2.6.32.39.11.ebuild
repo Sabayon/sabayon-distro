@@ -37,7 +37,8 @@ SRC_URI="${KERNEL_URI} ${ARCH_URI}
 
 UNIPATCH_STRICTORDER=1
 UNIPATCH_LIST="${DISTDIR}/patch-042stab${OVZ_KV}-combined.gz
-	${FILESDIR}/2.6.32.39.10-invalidate_inodes-macro-fix.patch"
+	${FILESDIR}/2.6.32.39.10-invalidate_inodes-macro-fix.patch
+	${FILESDIR}/hotfixes/2.6.32/linux-openvz-2.6.32.39.11-gcc46.patch"
 
 K_EXTRAEINFO="This openvz kernel uses RHEL6 patchset instead of vanilla kernel.
 This patchset considered to be more stable and security supported by upstream,
