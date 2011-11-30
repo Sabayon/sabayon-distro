@@ -529,9 +529,6 @@ _kernel_src_install() {
 		echo "${KV_FULL}" > "RELEASE_LEVEL"
 		doins "RELEASE_LEVEL"
 		einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${KV_FULL}"
-		# FIXME: /usr/lib/debug/.build-id are causing collisions between kernels
-		# just remove the whole dirs for now.
-		rm "${D}/usr/lib/debug/.build-id" -rf
 	fi
 }
 
