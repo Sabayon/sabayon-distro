@@ -8,7 +8,7 @@ inherit base rpm multilib
 
 MY_LANG=${PN/libreoffice-l10n-/}
 MY_LANG=${MY_LANG/_/-}
-MY_PV="${PV/_/}"
+PKG_PV="${PV}"
 
 # export all the available functions here
 EXPORT_FUNCTIONS src_unpack src_prepare src_install
@@ -52,6 +52,9 @@ elif [[ "${PV}" = "3.4.4.2" ]] || [[ "${PV}" = "3.5.0.0" ]]; then
 	if [ "${HELPPACK_AVAIL}" = "1" ]; then
 		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/3.4.4/rpm/x86/LibO_3.4.4_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 	fi
+	if [[ "${PV}" = "3.5.0.0" ]]; then
+		PKG_PV="3.4"
+	fi
 else
 	die "unsupported libreoffice-l10n ${PV}"
 fi
@@ -84,14 +87,14 @@ libreoffice-l10n_src_prepare() {
 libreoffice-l10n_src_install() {
 	dodir "${OOO_INSTDIR}/basis-link"
 	if [ "${PV:0:3}" = "3.3" ]; then
-		cp -R "${WORKDIR}"/unpack/opt/libreoffice/basis${PV:0:3}/* \
+		cp -R "${WORKDIR}"/unpack/opt/libreoffice/basis${PKG_PV:0:3}/* \
 		"${ED}${OOO_INSTDIR}/basis-link/" || die "cannot copy"
 		cp -R "${WORKDIR}"/unpack/opt/libreoffice/{program,readmes} \
 			"${ED}${OOO_INSTDIR}/" || die "cannot copy"
 	else
-		cp -R "${WORKDIR}"/unpack/opt/libreoffice${PV:0:3}/basis${PV:0:3} \
+		cp -R "${WORKDIR}"/unpack/opt/libreoffice${PKG_PV:0:3}/basis${PKG_PV:0:3} \
 		"${ED}${OOO_INSTDIR}"/basis${PV:0:3} || die "cannot copy"
-		for source_dir in "${WORKDIR}"/unpack/opt/libreoffice${PV:0:3}/{program,readmes}; do
+		for source_dir in "${WORKDIR}"/unpack/opt/libreoffice${PKG_PV:0:3}/{program,readmes}; do
 			if [ -d "${source_dir}" ]; then
 				cp -R "${source_dir}" "${ED}${OOO_INSTDIR}/" || die "cannot copy"
 			fi
