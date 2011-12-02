@@ -150,10 +150,7 @@ RDEPEND="${COMMON_DEPEND}
 	java? ( >=virtual/jre-1.6 )
 "
 
-PDEPEND="
-	=app-office/libreoffice-l10n-$(get_version_component_range 1-3)*
-	x11-themes/sabayon-artwork-loo
-"
+PDEPEND="x11-themes/sabayon-artwork-loo"
 
 # FIXME: cppunit should be moved to test conditional
 #        after everything upstream is under gbuild
