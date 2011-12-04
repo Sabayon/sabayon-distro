@@ -69,7 +69,7 @@ unset ADDONS_URI
 unset EXT_URI
 unset ADDONS_SRC
 
-IUSE="binfilter dbus debug eds gnome +graphite gstreamer +gtk
+IUSE="binfilter dbus debug eds gnome +graphite gstreamer +gtk gtk3
 +jemalloc kde mysql +nsplugin odk opengl pdfimport postgres svg test +vba
 +webdav +xmlsec"
 LICENSE="LGPL-3"
@@ -118,8 +118,8 @@ COMMON_DEPEND="
 		gnome-base/orbit
 	)
 	gtk? (
-		>=x11-libs/gtk+-2.24:2
-		>=x11-libs/gtk+-3.2:3
+		gtk3? ( >=x11-libs/gtk+-3.2:3 )
+		!gtk3? ( >=x11-libs/gtk+-2.24:2 )
 	)
 	graphite? ( media-gfx/graphite2 )
 	gstreamer? (
@@ -193,6 +193,7 @@ PATCHES=(
 REQUIRED_USE="
 	nsplugin? ( gtk )
 	gnome? ( gtk )
+	gtk3? ( gtk )
 	eds? ( gnome )
 "
 
@@ -421,8 +422,8 @@ src_configure() {
 		$(use_enable gnome lockdown) \
 		$(use_enable graphite) \
 		$(use_enable gstreamer) \
-		$(use_enable gtk) \
-		$(use_enable gtk gtk3) \
+		$(use gtk && ! use gtk3 && echo "--enable-gtk" || echo "--disable-gtk" ) \
+		$(use_enable gtk3) \
 		$(use_enable gtk systray) \
 		$(use_enable java ext-scripting-beanshell) \
 		$(use_enable kde kde4) \
