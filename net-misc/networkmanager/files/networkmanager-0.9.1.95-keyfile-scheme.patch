@@ -1,0 +1,26 @@
+From 2938243e251dc10b22fecc4fd50c675f9c2ca1c4 Mon Sep 17 00:00:00 2001
+From: Florian Echtler <floe@butterbrot.org>
+Date: Tue, 1 Nov 2011 16:32:51 +0100
+Subject: [PATCH] keyfile: call correct scheme function when writing
+ certificates (bgo #662836)
+
+---
+ src/settings/plugins/keyfile/writer.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/settings/plugins/keyfile/writer.c b/src/settings/plugins/keyfile/writer.c
+index db43b23..2babe26 100644
+--- a/src/settings/plugins/keyfile/writer.c
++++ b/src/settings/plugins/keyfile/writer.c
+@@ -679,7 +679,7 @@ cert_writer (GKeyFile *file,
+ 	}
+ 	g_return_if_fail (objtype != NULL);
+ 
+-	scheme = objtypes->scheme_func (NM_SETTING_802_1X (setting));
++	scheme = objtype->scheme_func (NM_SETTING_802_1X (setting));
+ 	if (scheme == NM_SETTING_802_1X_CK_SCHEME_PATH) {
+ 		path = objtype->path_func (NM_SETTING_802_1X (setting));
+ 		g_assert (path);
+-- 
+1.7.7.2
+
