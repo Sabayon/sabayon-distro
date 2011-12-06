@@ -1,4 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-- Add our 00-xhost env file to fix hostname changes bug
-- Fix Gentoo bug #287498
-- Avoid /etc/conf.d/xdm user merge mess
