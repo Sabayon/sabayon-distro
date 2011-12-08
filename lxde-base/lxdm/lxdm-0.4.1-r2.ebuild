@@ -14,26 +14,41 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-IUSE="nls"
+IUSE="debug gtk3 nls"
 
 RDEPEND="sys-libs/pam
 	sys-auth/consolekit
-	x11-libs/gtk+:2
-	x11-themes/sabayon-artwork-lxde
+	x11-libs/libxcb
+	>=x11-themes/sabayon-artwork-lxde-6_beta2
+	gtk3? ( x11-libs/gtk+:3 )
+	!gtk3? ( x11-libs/gtk+:2 )
 	nls? ( sys-devel/gettext )"
 DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
 	dev-util/pkgconfig"
 
 src_configure() {
-	econf --with-x $(use_enable nls) || die "econf failed"
+	econf	--enable-password \
+		--with-pam \
+		--with-x \
+		--with-xconn=xcb \
+		$(use_enable gtk3) \
+		$(use_enable nls) \
+		$(use_enable debug) \
+		|| die "econf failed"
+
 }
 
 src_prepare() {
+	# Upstream bug, tarball contains pre-made lxdm.conf
+	rm "${S}"/data/lxdm.conf || die
+
 	# There is consolekit
 	epatch "${FILESDIR}/${P}-pam_console-disable.patch"
+	# Backported, drop it when 0.4.2
+	epatch "${FILESDIR}/${P}-git-fix-null-pointer-deref.patch"
 	# Sabayon specific theme patch
-	epatch "${FILESDIR}/${P}-sabayon-theme.patch"
+	epatch "${FILESDIR}/${P}-sabayon-6-theme.patch"
 
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
