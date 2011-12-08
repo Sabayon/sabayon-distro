@@ -14,24 +14,24 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-IUSE="debug gtk3 nls"
+IUSE="debug gtk3 nls pam"
 
-RDEPEND="sys-libs/pam
-	sys-auth/consolekit
+RDEPEND="sys-auth/consolekit
 	x11-libs/libxcb
 	>=x11-themes/sabayon-artwork-lxde-6_beta2
 	gtk3? ( x11-libs/gtk+:3 )
 	!gtk3? ( x11-libs/gtk+:2 )
-	nls? ( sys-devel/gettext )"
+	nls? ( sys-devel/gettext )
+	pam? ( virtual/pam )"
 DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
 	dev-util/pkgconfig"
 
 src_configure() {
 	econf	--enable-password \
-		--with-pam \
 		--with-x \
 		--with-xconn=xcb \
+		$(use_with pam) \
 		$(use_enable gtk3) \
 		$(use_enable nls) \
 		$(use_enable debug) \
@@ -49,6 +49,8 @@ src_prepare() {
 	epatch "${FILESDIR}/${P}-git-fix-null-pointer-deref.patch"
 	# Sabayon specific theme patch
 	epatch "${FILESDIR}/${P}-sabayon-6-theme.patch"
+
+	epatch "${FILESDIR}/${P}-Fix-configure.ac-test-for-pam-libs.patch"
 
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
