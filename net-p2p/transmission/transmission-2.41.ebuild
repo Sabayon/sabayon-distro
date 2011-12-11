@@ -11,13 +11,10 @@ SRC_URI=""
 LICENSE="MIT GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="gtk kde libnotify libcanberra nls qt4 utp"
+IUSE="gtk kde nls qt4 utp"
 
 RDEPEND="~net-p2p/transmission-base-${PV}
 	gtk? (
-		~net-p2p/transmission-gtk+-${PV}
-		~net-p2p/transmission-gtk+-${PV}[libnotify=]
-		~net-p2p/transmission-gtk+-${PV}[libcanberra=]
 		~net-p2p/transmission-gtk+-${PV}[utp=]
 	)"
 DEPEND="${RDEPEND}"

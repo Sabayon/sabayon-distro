@@ -25,7 +25,7 @@ RDEPEND="
 	>=dev-libs/openssl-0.9.4
 	|| ( >=net-misc/curl-7.16.3[ssl]
 		>=net-misc/curl-7.16.3[gnutls] )
-	net-libs/miniupnpc"
+	>=net-libs/miniupnpc-1.6"
 DEPEND="${RDEPEND}
 	>=sys-devel/libtool-2.2.6b
 	nls? ( sys-devel/gettext
@@ -37,14 +37,16 @@ S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	# https://trac.transmissionbt.com/ticket/4323
-	epatch "${FILESDIR}/${MY_P}-0001-configure.ac.patch"
-	epatch "${FILESDIR}/${MY_P}-0002-config.in-4-qt.pro.patch"
+	epatch "${FILESDIR}/${MY_PN}-2.33-0001-configure.ac.patch"
+	epatch "${FILESDIR}/${MY_PN}-2.33-0002-config.in-4-qt.pro.patch"
 	epatch "${FILESDIR}/${MY_P}-0003-system-miniupnpc.patch"
+
+	# Fix build failure with USE=-utp, bug #290737
+	epatch "${FILESDIR}/${MY_P}-noutp.patch"
 
 	# Upstream is not interested in this: https://trac.transmissionbt.com/ticket/4324
 	sed -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' -i libtransmission/Makefile.am || die
 
-	#mv third-party/miniupnp{,c} || die
 	eautoreconf
 
 	sed -i -e 's:-ggdb3::g' configure || die
