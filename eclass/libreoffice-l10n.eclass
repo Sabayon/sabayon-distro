@@ -103,7 +103,9 @@ libreoffice-l10n_src_install() {
 		done
 	else
 		for source_dir in "${WORKDIR}"/unpack/opt/libreoffice${PKG_PV:0:3}/{help,program,readmes,share}; do
-			cp -R "${source_dir}" "${ED}${OOO_INSTDIR}/" || die "cannot copy"
+			if [ -d "${source_dir}" ]; then
+				cp -R "${source_dir}" "${ED}${OOO_INSTDIR}/" || die "cannot copy"
+			fi
 		done
 	fi
 	chown root:root "${ED}/${OOO_INSTDIR}" -R || die "cannot chown"
