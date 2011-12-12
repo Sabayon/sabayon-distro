@@ -47,13 +47,15 @@ elif [[ "${PV}" = "3.4.2.3" ]] || [[ "${PV}" = "3.4.3.2" ]]; then
 	if [ "${HELPPACK_AVAIL}" = "1" ]; then
 		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/3.4.2/rpm/x86/LibO_3.4.2_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 	fi
-elif [[ "${PV}" = "3.4.4.2" ]] || [[ "${PV}" = "3.5.0.0" ]]; then
+elif [[ "${PV}" = "3.4.4.2" ]]; then
 	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/3.4.4/rpm/x86/LibO_3.4.4_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
 	if [ "${HELPPACK_AVAIL}" = "1" ]; then
 		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/3.4.4/rpm/x86/LibO_3.4.4_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 	fi
-	if [[ "${PV}" = "3.5.0.0" ]]; then
-		PKG_PV="3.4"
+elif [[ "${PV}" = "3.5.0.0" ]]; then
+	SRC_URI="http://download.documentfoundation.org/libreoffice/testing/3.5.0-beta0/rpm/x86/LibO_3.5.0beta0_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
+	if [ "${HELPPACK_AVAIL}" = "1" ]; then
+		SRC_URI+=" http://download.documentfoundation.org/libreoffice/testing/3.5.0-beta0/rpm/x86/LibO_3.5.0beta0_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 	fi
 else
 	die "unsupported libreoffice-l10n ${PV}"
@@ -86,12 +88,12 @@ libreoffice-l10n_src_prepare() {
 
 libreoffice-l10n_src_install() {
 	dodir "${OOO_INSTDIR}/basis-link"
-	if [ "${PV:0:3}" = "3.3" ]; then
+	if [[ "${PV:0:3}" = "3.3" ]]; then
 		cp -R "${WORKDIR}"/unpack/opt/libreoffice/basis${PKG_PV:0:3}/* \
 		"${ED}${OOO_INSTDIR}/basis-link/" || die "cannot copy"
 		cp -R "${WORKDIR}"/unpack/opt/libreoffice/{program,readmes} \
 			"${ED}${OOO_INSTDIR}/" || die "cannot copy"
-	else
+	elif [[ "${PV:0:3}" = "3.4" ]]; then
 		cp -R "${WORKDIR}"/unpack/opt/libreoffice${PKG_PV:0:3}/basis${PKG_PV:0:3} \
 		"${ED}${OOO_INSTDIR}"/basis${PV:0:3} || die "cannot copy"
 		for source_dir in "${WORKDIR}"/unpack/opt/libreoffice${PKG_PV:0:3}/{program,readmes}; do
@@ -99,7 +101,10 @@ libreoffice-l10n_src_install() {
 				cp -R "${source_dir}" "${ED}${OOO_INSTDIR}/" || die "cannot copy"
 			fi
 		done
-
+	else
+		for source_dir in "${WORKDIR}"/unpack/opt/libreoffice${PKG_PV:0:3}/{help,program,readmes,share}; do
+			cp -R "${source_dir}" "${ED}${OOO_INSTDIR}/" || die "cannot copy"
+		done
 	fi
 	chown root:root "${ED}/${OOO_INSTDIR}" -R || die "cannot chown"
 }
