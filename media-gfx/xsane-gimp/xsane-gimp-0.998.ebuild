@@ -2,18 +2,19 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI="4"
 inherit eutils
 
 DESCRIPTION="XSane plugin for GIMP"
 HOMEPAGE="http://www.xsane.org/"
 MY_P="${P/-gimp}"
-SRC_URI="http://www.xsane.org/download/${MY_P}.tar.gz"
+SRC_URI="http://www.xsane.org/download/${MY_P}.tar.gz
+	http://dev.gentoo.org/~pacho/xsane/${MY_P}-patches.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="nls"
 
 RDEPEND="media-gfx/sane-backends
 	=media-gfx/xsane-${PV}[-gimp]
@@ -24,14 +25,19 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/${MY_P}"
 
+src_prepare() {
+	# Apply multiple fixes from different distributions
+	epatch "${WORKDIR}/${MY_P}-patches"/*.patch
+}
+
 src_configure() {
 	econf --enable-gtk2 \
+		$(use_enable nls) \
 		--disable-jpeg \
 		--disable-png \
 		--disable-tiff \
 		--disable-lcms \
-		--disable-sanetest \
-		|| die
+		--disable-sanetest
 }
 
 src_install() {
@@ -44,14 +50,14 @@ src_install() {
 	else
 		die "Can't find GIMP plugin directory."
 	fi
-	newbin src/xsane xsane-gimp || die
-	dodir "${plugindir}" || die
-	dosym /usr/bin/xsane-gimp "${plugindir}"/xsane || die
+	newbin src/xsane xsane-gimp
+	dodir "${plugindir}"
+	dosym /usr/bin/xsane-gimp "${plugindir}"/xsane
 }
 
 pkg_postinst() {
 	elog "If a new scanner is added or the device of the the scanner has"
 	elog "changed, it is recommended to rebuild the cache:"
-	elog "issue \"touch /usr/local/bin/xsane\" or delete the plugin cache"
+	elog "issue \"touch /usr/bin/xsane-gimp\" or delete the plugin cache"
 	elog "(~/.gimp*/pluginrc)."
 }
