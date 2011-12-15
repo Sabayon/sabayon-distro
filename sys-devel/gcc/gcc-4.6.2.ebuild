@@ -62,6 +62,17 @@ fi
 
 ## No changes
 src_unpack() {
+	if has_version '<sys-libs/glibc-2.12' ; then
+		ewarn "Your host glibc is too old; disabling automatic fortify."
+		ewarn "Please rebuild gcc after upgrading to >=glibc-2.12 #362315"
+		EPATCH_EXCLUDE+=" 10_all_default-fortify-source.patch"
+	fi
+
+	# drop the x32 stuff once 4.7 goes stable
+	case ${CHOST} in
+	x86_64*) has x32 $(get_all_abis) || EPATCH_EXCLUDE+=" 80_all_gcc-4.6-x32.patch" ;;
+	esac
+
 	toolchain_src_unpack
 
 	use vanilla && return 0
