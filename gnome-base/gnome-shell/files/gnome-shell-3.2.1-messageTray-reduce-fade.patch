@@ -1,0 +1,40 @@
+From 18541c447e30154e7bd5806e11e3fe70fb9d5887 Mon Sep 17 00:00:00 2001
+From: Jasper St. Pierre <jstpierre@mecheye.net>
+Date: Thu, 27 Oct 2011 13:52:17 -0400
+Subject: [PATCH 2/2] messageTray: Reduce the scroll view fade
+
+https://bugzilla.gnome.org/show_bug.cgi?id=662226
+---
+ data/theme/gnome-shell.css |    1 +
+ js/ui/messageTray.js       |    3 +--
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/data/theme/gnome-shell.css b/data/theme/gnome-shell.css
+index 0e09866..ea81870 100644
+--- a/data/theme/gnome-shell.css
++++ b/data/theme/gnome-shell.css
+@@ -1217,6 +1217,7 @@ StTooltip StLabel {
+ 
+ #notification-scrollview {
+     max-height: 10em;
++    -st-vfade-offset: 24px;
+ }
+ 
+ #notification-scrollview > .top-shadow, #notification-scrollview > .bottom-shadow {
+diff --git a/js/ui/messageTray.js b/js/ui/messageTray.js
+index 75eb9f9..ca12fb1 100644
+--- a/js/ui/messageTray.js
++++ b/js/ui/messageTray.js
+@@ -597,8 +597,7 @@ Notification.prototype = {
+         this._table.add_style_class_name('multi-line-notification');
+         this._scrollArea = new St.ScrollView({ name: 'notification-scrollview',
+                                                vscrollbar_policy: this._scrollPolicy,
+-                                               hscrollbar_policy: Gtk.PolicyType.NEVER,
+-                                               style_class: 'vfade' });
++                                               hscrollbar_policy: Gtk.PolicyType.NEVER });
+         this._table.add(this._scrollArea, { row: 1,
+                                             col: 2 });
+         this._updateLastColumnSettings();
+-- 
+1.7.3.4
+
