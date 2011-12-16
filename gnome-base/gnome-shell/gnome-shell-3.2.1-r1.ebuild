@@ -118,6 +118,8 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-3.2.1-messageTray-reduce-fade.patch"
 	# Sabayon Linux custom patch to have minimize and maximize buttons
 	epatch "${FILESDIR}/${PN}-minimize-maximize-close-buttons.patch"
+        # Sabayon Linux custom patch to have a readable applications menu font
+	epatch "${FILESDIR}/${PN}-applications-menu-style-fix.patch"
 }
 
 src_install() {
