@@ -76,7 +76,6 @@ DOCS="AUTHORS BUGS PATCHES README STYLE"
 src_prepare() {
 	epatch \
 		"${FILESDIR}/${PN}-3.4.2-backtrace.patch" \
-		"${FILESDIR}/3.4-0001-Update-the-code-following-release-of-xcb-util-0.3.8.patch" \
 		"${FILESDIR}/sabayon-background.patch"
 }
 
