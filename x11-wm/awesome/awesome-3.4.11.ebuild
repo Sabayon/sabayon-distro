@@ -33,7 +33,7 @@ COMMON_DEPEND=">=dev-lang/lua-5.1
 # graphicsmagick's 'convert -channel' has no Alpha support, bug #352282
 DEPEND="${COMMON_DEPEND}
 	>=app-text/asciidoc-8.4.5
-	>=app-text/xmlto-0.0.24
+	app-text/xmlto
 	dev-util/gperf
 	dev-util/pkgconfig
 	media-gfx/imagemagick[png]
