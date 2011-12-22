@@ -49,7 +49,7 @@ BASE_GCC_USE="fortran gcj gtk mudflap multilib nls nptl openmp altivec
 	bootstrap build doc fixed-point graphite hardened libffi lto
 	multislot nocxx nopie nossp objc objc++ objc-gc test vanilla"
 for base_use in ${BASE_GCC_USE}; do
-	RDEPEND+=" ~sys-devel/base-gcc-${PV}[${base_use}=]"
+	RDEPEND+=" ~sys-devel/base-gcc-${PV}[${base_use}?]"
 done
 
 DEPEND="${RDEPEND}
