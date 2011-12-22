@@ -233,11 +233,14 @@ if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
 		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
 		SRC_URI="${SRC_URI}
+			arm? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/arm} )
 			amd64? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
 			x86? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
 		use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
 		use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+		use arm && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/arm}
 	else
+		use arm && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-arm.config}"
 		use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-amd64.config}"
 		use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-x86.config}"
 	fi
@@ -250,6 +253,9 @@ else
 	elif use x86; then
 		K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
 		K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/x86}
+	elif use arm; then
+		K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/arm}
+		K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/arm}
 	fi
 fi
 
@@ -378,8 +384,13 @@ _kernel_src_compile() {
 	mkdir "${WORKDIR}"/lib/lib/firmware -p
 	mkdir "${WORKDIR}"/cache
 	mkdir "${S}"/temp
+
 	# needed anyway, even if grub use flag is not used here
-	mkdir -p "${WORKDIR}"/boot/grub
+	if use amd64 || use x86; then
+		mkdir -p "${WORKDIR}"/boot/grub
+	else
+		mkdir -p "${WORKDIR}"/boot
+	fi
 
 	einfo "Starting to compile kernel..."
 	_kernel_copy_config "${WORKDIR}"/config
@@ -578,7 +589,7 @@ sabayon-kernel_pkg_postinst() {
 		update_sabayon_kernel_initramfs_splash
 
 		# Add kernel to grub.conf
-		if use grub; then
+		if use grub && ( use amd64 || use x86 ); then
 			if use amd64; then
 				local kern_arch="x86_64"
 			else
@@ -621,7 +632,7 @@ sabayon-kernel_pkg_prerm() {
 sabayon-kernel_pkg_postrm() {
 	if _is_kernel_binary; then
 		# Remove kernel from grub.conf
-		if use grub; then
+		if use grub && ( use amd64 || use x86 ); then
 			if use amd64; then
 				local kern_arch="x86_64"
 			else
