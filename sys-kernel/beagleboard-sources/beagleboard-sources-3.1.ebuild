@@ -13,7 +13,7 @@ DESCRIPTION="Sabayon BeagleBoard/BeagleBone/OMAP sources"
 RESTRICT="mirror"
 IUSE="sources_standalone"
 
-DEPEND="${DEPEND}
-	sources_standalone? ( !=sys-kernel/linux-sabayon-${PVR} )
-	!sources_standalone? ( =sys-kernel/linux-sabayon-${PVR} )"
+DEPEND="${DEPEND}"
+#	sources_standalone? ( !=sys-kernel/linux-beagleboard-${PVR} )
+#	!sources_standalone? ( =sys-kernel/linux-beagleboard-${PVR} )"
 
