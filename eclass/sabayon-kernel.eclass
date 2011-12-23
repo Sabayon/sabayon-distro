@@ -416,7 +416,7 @@ _kernel_src_compile() {
 	OLDARCH="${ARCH}"
 	env_setup_xmakeopts
 	[ -n "${xmakeopts}" ] && eval "${xmakeopts}"
-	if [ -n "${CROSS_COMPILE}" ]; then
+	if [ -n "${CROSS_COMPILE}" ] && [ "${CBUILD:-${CHOST}}" != "${CTARGET}" ]; then
 		einfo "Enabling cross-compile for ${CROSS_COMPILE}, arch: ${KARCH}"
 		GKARGS="${GKARGS} --arch-override=${KARCH}"
 		GKARGS="${GKARGS} --kernel-cross-compile=${CROSS_COMPILE}"
@@ -424,6 +424,8 @@ _kernel_src_compile() {
 		# ARCH= must be forced to KARCH
 		ARCH="${KARCH}"
 	else
+		einfo "Cross-compile is disabled"
+		unset CROSS_COMPILE
 		unset ARCH
 	fi
 
