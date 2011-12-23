@@ -421,6 +421,7 @@ _kernel_src_compile() {
 		einfo "Enabling cross-compile for ${CROSS_COMPILE}, arch: ${KARCH}"
 		GKARGS="${GKARGS} --arch-override=${KARCH}"
 		GKARGS="${GKARGS} --kernel-cross-compile=${CROSS_COMPILE}"
+		GKARGS="${GKARGS} --utils-cross-compile=${CROSS_COMPILE}"
 		# ARCH= must be forced to KARCH
 		ARCH="${KARCH}"
 	else
