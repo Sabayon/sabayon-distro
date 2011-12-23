@@ -377,7 +377,6 @@ _kernel_copy_config() {
 _kernel_src_compile() {
 	# disable sandbox
 	export SANDBOX_ON=0
-	export LDFLAGS=""
 
 	# creating workdirs
 	# some kernels fail with make 3.82 if firmware dir is not created
@@ -399,8 +398,7 @@ _kernel_src_compile() {
 	rm -rf "${WORKDIR}"/lib
 	rm -rf "${WORKDIR}"/cache
 	rm -rf "${S}"/temp
-	OLDARCH="${ARCH}"
-	unset ARCH
+
 	cd "${S}" || die
 	GKARGS="--no-save-config --disklabel"
 	use dracut && GKARGS="${GKARGS} --dracut"
@@ -416,6 +414,20 @@ _kernel_src_compile() {
 	done
 	[ -z "${mkopts}" ] && mkopts="-j3"
 
+	OLDARCH="${ARCH}"
+	env_setup_xmakeopts
+	[ -n "${xmakeopts}" ] && eval "${xmakeopts}"
+	if [ -n "${CROSS_COMPILE}" ]; then
+		einfo "Enabling cross-compile for ${CROSS_COMPILE}, arch: ${KARCH}"
+		GKARGS="${GKARGS} --arch-override=${KARCH}"
+		GKARGS="${GKARGS} --kernel-cross-compile=${CROSS_COMPILE}"
+		# ARCH= must be forced to KARCH
+		ARCH="${KARCH}"
+	else
+		unset ARCH
+	fi
+
+	unset LDFLAGS
 	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} ${K_GENKERNEL_ARGS} \
 		--kerneldir="${S}" \
 		--kernel-config="${WORKDIR}"/config \
