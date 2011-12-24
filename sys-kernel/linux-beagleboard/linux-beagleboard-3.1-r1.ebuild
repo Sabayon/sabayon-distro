@@ -10,3 +10,4 @@ inherit sabayon-kernel
 KEYWORDS="~arm"
 DESCRIPTION="Sabayon BeagleBoard/BeagleBone/OMAP Linux kernel and modules"
 RESTRICT="mirror"
+DEPEND="${DEPEND} app-arch/lzop"
