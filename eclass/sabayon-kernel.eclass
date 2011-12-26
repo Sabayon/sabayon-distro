@@ -417,14 +417,14 @@ _kernel_src_compile() {
 	env_setup_xmakeopts
 	[ -n "${xmakeopts}" ] && eval "${xmakeopts}"
 	if [ -n "${CROSS_COMPILE}" ] && [ "${CBUILD:-${CHOST}}" != "${CTARGET}" ]; then
-		einfo "Enabling cross-compile for ${CROSS_COMPILE}, arch: ${KARCH}"
+		einfo "Enabling cross-emerge for ${CROSS_COMPILE}, arch: ${KARCH}"
 		GKARGS="${GKARGS} --arch-override=${KARCH}"
 		GKARGS="${GKARGS} --kernel-cross-compile=${CROSS_COMPILE}"
 		GKARGS="${GKARGS} --utils-cross-compile=${CROSS_COMPILE}"
 		# ARCH= must be forced to KARCH
 		ARCH="${KARCH}"
 	else
-		einfo "Cross-compile is disabled"
+		einfo "Cross-emerge is disabled"
 		unset CROSS_COMPILE
 		unset ARCH
 	fi
