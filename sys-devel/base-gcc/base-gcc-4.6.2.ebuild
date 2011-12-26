@@ -19,14 +19,6 @@ SSP_UCLIBC_STABLE=""
 
 inherit toolchain
 
-# This is here to redeclare is_gcc() in toolchain.eclass
-# We don't even want to build gcj, which is a real hog
-# on memory constrained hardware. base-gcc doesn't actually
-# ship with it atm.
-is_gcj() {
-	return 1
-}
-
 DESCRIPTION="The GNU Compiler Collection"
 
 LICENSE="GPL-3 LGPL-3 || ( GPL-3 libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.2"
