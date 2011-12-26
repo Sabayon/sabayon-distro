@@ -47,7 +47,7 @@ RDEPEND="~sys-devel/base-gcc-${PV}
 ## Make sure we share all the USE flags in sys-devel/base-gcc
 BASE_GCC_USE="fortran gcj gtk mudflap multilib nls nptl openmp altivec
 	bootstrap build doc fixed-point go graphite hardened libffi
-	multislot nocxx nopie nossp objc objc++ objc-gc test vanilla"
+	multislot cxx nopie nossp objc objc++ objc-gc test vanilla"
 for base_use in ${BASE_GCC_USE}; do
 	RDEPEND+=" ~sys-devel/base-gcc-${PV}[${base_use}?]"
 done
