@@ -430,6 +430,11 @@ _kernel_src_compile() {
 		unset ARCH
 	fi
 
+	# If ARM, build the uImage directly
+	if use arm; then
+		K_GENKERNEL_ARGS+=" --kernel-target=uImage --kernel-binary=arch/x86/boot/uImage"
+	fi
+
 	unset LDFLAGS
 	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} ${K_GENKERNEL_ARGS} \
 		--kerneldir="${S}" \
