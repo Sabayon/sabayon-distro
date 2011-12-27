@@ -1,7 +1,5 @@
-Index: config/arm/arm.md
-===================================================================
---- config/arm/arm.md	(revision 169875)
-+++ config/arm/arm.md	(working copy)
+--- a/gcc/config/arm/arm.md
++++ b/gcc/config/arm/arm.md
 @@ -4202,7 +4202,9 @@
     #
     ldr%(h%)\\t%0, %1"
