@@ -432,7 +432,7 @@ _kernel_src_compile() {
 
 	# If ARM, build the uImage directly
 	if use arm; then
-		K_GENKERNEL_ARGS+=" --kernel-target=uImage --kernel-binary=arch/x86/boot/uImage"
+		K_GENKERNEL_ARGS+=" --kernel-target=uImage --kernel-binary=arch/arm/boot/uImage"
 	fi
 
 	unset LDFLAGS
