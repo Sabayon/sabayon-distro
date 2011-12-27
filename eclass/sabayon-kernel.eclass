@@ -268,6 +268,7 @@ else
 		sys-apps/sed
 		sys-devel/make
 		>=sys-kernel/genkernel-3.4.16-r1
+		arm? ( dev-embedded/u-boot-tools )
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
