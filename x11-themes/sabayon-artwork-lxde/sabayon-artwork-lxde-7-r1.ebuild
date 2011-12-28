@@ -13,7 +13,7 @@ HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${REAL_P}.tar.xz"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~arm ~x86 ~amd64"
 IUSE=""
 RDEPEND=""
 
