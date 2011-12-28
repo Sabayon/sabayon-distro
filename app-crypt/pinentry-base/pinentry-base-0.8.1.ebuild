@@ -10,7 +10,7 @@ SRC_URI="mirror://gnupg/${PN}/${P/-base}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~arm ~amd64 ~x86"
 IUSE="caps static"
 
 RDEPEND="app-admin/eselect-pinentry

@@ -14,7 +14,7 @@ SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~arm ~amd64 ~x86"
 IUSE="caps static"
 
 RDEPEND="~app-crypt/pinentry-base-${PV}
