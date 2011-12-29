@@ -1,0 +1,25 @@
+From: Patrice Fournier <pfournier@ifax.com>
+Date: Tue, 12 Oct 2010 15:35:25 +0000 (-0400)
+Subject: Re-order library files in fchmod() configure check
+X-Git-Url: http://git.hylafax.org/HylaFAX?a=commitdiff_plain;h=b0d873c950a72aa568d2fcfe7dbc8bb6e981c129
+
+Re-order library files in fchmod() configure check
+
+Newer gcc -E stops it's output on the first missing include file so we must
+make sure that a possibly missing file in the list of headers to check is at
+the end.
+---
+
+diff --git a/configure b/configure
+index e49c08f..c6976fd 100755
+--- a/configure
++++ b/configure
+@@ -2882,7 +2882,7 @@ BuildPortDotH()
+ 	echo '#define HAS_FCHMOD 1'
+ 	Note "... configure use of fchmod"
+ 	CheckFuncDecl fchmod 'extern int fchmod(int, mode_t);' \
+-	    unistd.h libc.h $OSFCNH sys/stat.h
++	    unistd.h $OSFCNH sys/stat.h libc.h
+     }
+     CheckFuncDecl mknod 'extern int mknod(const char*, mode_t, dev_t);' \
+ 	unistd.h sys/stat.h

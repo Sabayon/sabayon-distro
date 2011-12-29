@@ -33,6 +33,9 @@ RDEPEND="${DEPEND}
 export CONFIG_PROTECT="${CONFIG_PROTECT} /var/spool/fax/etc /usr/lib/fax"
 
 src_prepare() {
+	# http://mailman.archlinux.org/pipermail/arch-general/2011-April/019246.html
+	epatch "${FILESDIR}"/${P}-gcc46.patch
+
 	# force it not to strip binaries
 	for dir in etc util faxalter faxcover faxd faxmail faxrm faxstat \
 		hfaxd sendfax sendpage ; do
