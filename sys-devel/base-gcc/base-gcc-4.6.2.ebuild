@@ -17,13 +17,20 @@ SSP_STABLE="amd64 x86 ppc ppc64 arm"
 SSP_UCLIBC_STABLE=""
 #end Hardened stuff
 
-inherit toolchain
+inherit eutils toolchain
+
+# This is here to redeclare is_gcc() in toolchain.eclass
+# We don't even want to build gcj, which is a real hog
+# on memory constrained hardware. base-gcc doesn't actually
+# ship with it atm.
+is_gcj() {
+       return 1
+}
 
 DESCRIPTION="The GNU Compiler Collection"
 
 LICENSE="GPL-3 LGPL-3 || ( GPL-3 libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.2"
 KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
-IUSE=""
 
 RDEPEND=">=sys-libs/zlib-1.1.4
 	virtual/libiconv
@@ -86,13 +93,6 @@ src_install() {
 			S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libmudflap" DESTDIR="${D}" \
 				install-toolexeclibLTLIBRARIES || die
 		fi
-	fi
-
-	S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libffi" DESTDIR="${D}" \
-		install-toolexeclibLTLIBRARIES || die
-	if use multilib; then
-		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libffi" DESTDIR="${D}" \
-			install-toolexeclibLTLIBRARIES || die
 	fi
 
 	if use openmp; then
