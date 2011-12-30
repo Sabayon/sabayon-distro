@@ -272,7 +272,8 @@ else
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
 	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
-	RDEPEND="grub? ( || ( >=sys-boot/grub-1.98 ( <sys-boot/grub-1 sys-boot/grub-handler ) ) )
+	RDEPEND="arm? ( >=app-admin/eselect-uimage-0.1.1 )
+		grub? ( || ( >=sys-boot/grub-1.98 ( <sys-boot/grub-1 sys-boot/grub-handler ) ) )
 		sys-apps/sed
 		sys-kernel/linux-firmware"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
@@ -596,6 +597,31 @@ _get_release_level() {
 	fi
 }
 
+sabayon-kernel_uimage_config() {
+	# Two cases here:
+	# 1. /boot/uImage symlink is broken (pkg_postrm)
+	# 2. /boot/uImage symlink doesn't exist (pkg_postinst)
+	uimage_file=$(eselect uimage show --quiet 2> /dev/null)
+	if [ -z "${uimage_file}" ]; then
+		# pick the first listed, sorry!
+		eselect_list=$(eselect uimage list --quiet 2> /dev/null)
+		if [ -n "${eselect_list}" ]; then
+			eselect uimage set 1
+		else
+			echo
+			ewarn "No more kernels available, you won't be able to boot"
+			echo
+		fi
+	else
+		echo
+		elog "You are currently booting with kernel:"
+		elog "${uimage_file}"
+		elog
+		elog "Use 'eselect uimage' in order to switch between the available ones"
+		echo
+	fi
+}
+
 sabayon-kernel_pkg_postinst() {
 	if _is_kernel_binary; then
 		fstab_file="${ROOT}etc/fstab"
@@ -623,6 +649,11 @@ sabayon-kernel_pkg_postinst() {
 			fi
 
 			sabayon-kernel_grub2_mkconfig
+		fi
+
+		# Setup newly installed kernel on ARM
+		if use arm; then
+			sabayon-kernel_uimage_config
 		fi
 
 		kernel-2_pkg_postinst
@@ -665,6 +696,11 @@ sabayon-kernel_pkg_postrm() {
 			fi
 
 			sabayon-kernel_grub2_mkconfig
+		fi
+
+		# Setup newly installed kernel on ARM
+		if use arm; then
+			sabayon-kernel_uimage_config
 		fi
 	fi
 }
