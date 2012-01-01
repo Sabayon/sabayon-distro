@@ -233,6 +233,9 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
+	# Taken from Debian
+	use arm && mozconfig_annotate '' --disable-methodjit
+	use arm && append-cflags "-D__ARM_PCS"
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
