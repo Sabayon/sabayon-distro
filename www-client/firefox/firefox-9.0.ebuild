@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +crashreporter +ipc pgo system-sqlite +webm"
+IUSE="bindist +crashreporter +ipc neon pgo system-sqlite +webm"
 
 FTP_URI="ftp://ftp.mozilla.org/pub/firefox/releases/"
 # More URIs appended below...
@@ -175,6 +175,26 @@ src_prepare() {
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
+
+	# NEON (ARM SIMD) support is broken in Firefox at linker level
+	# undefined symbol arm_private::neon_enabled
+	# Upstream should really take care of it, since compilation
+	# fails on ARMv7 (at least on my qemu-user environment).
+	# So, here we force it on and off getting rid of the fugly
+	# macro hackery.
+	# Besides this, emerge via qemu-user fails if USE=neon
+	# due to unsupported instruction set.
+	if use arm && use neon; then
+		einfo "Enabling NEON SIMD"
+		append-cppflags "-DMOZILLA_PRESUME_NEON"
+	elif use arm && ! use neon; then
+		einfo "Disabling NEON SIMD"
+		# eautoreconf is called below
+		sed -i "s:AC_DEFINE(HAVE_ARM_NEON)::" "${S}"/configure.in \
+			|| die "cannot turn off NEON (AC_DEFINE)"
+		sed -i "s:HAVE_ARM_NEON=1:true:" "${S}"/configure.in \
+			|| die "cannot turn off NEON (HAVE_ARM_NEON)"
+	fi
 
 	# Enable gnomebreakpad
 	if use debug ; then
