@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/lxde-base/lxpanel/lxpanel-0.5.8.ebuild,v 1.1 2011/08/03 09:19:57 hwoarang Exp $
+# $Header: Exp $
 
 EAPI="4"
 
@@ -31,6 +31,7 @@ src_prepare() {
 		|| die "Could not copy image."
 	epatch "${FILESDIR}"/${PN}-0.5.1-sandbox.patch
 	epatch "${FILESDIR}"/${PN}-0.5.6-broken-apps.patch
+	epatch "${FILESDIR}"/${P}-battery-meter.patch
 	eautoreconf
 }
 

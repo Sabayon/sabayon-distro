@@ -1,0 +1,27 @@
+--- src/plugins/batt/batt_sys.c.orig	2011-12-19 15:10:52.690113669 +0100
++++ src/plugins/batt/batt_sys.c	2011-12-19 15:14:36.154315765 +0100
+@@ -217,10 +217,24 @@
+ 	    b->remaining_capacity = b->remaining_energy;
+ 	}
+     }
++    // Start ideapad patch
++    if (b->remaining_capacity != -1 && b->last_capacity == -1) {
++	if (b->voltage != -1) {
++	    b->remaining_energy = b->remaining_capacity * b->voltage / 1000;
++	    b->present_rate = b->present_rate * 1000 / b->voltage;
++	} else {
++	    b->remaining_capacity = b->remaining_energy;
++	}
++    }
++    // end ideapad patch
+     if (b->last_capacity < MIN_CAPACITY)
+ 	b->percentage = 0;
+     else
++	if (b->last_capacity_unit != -1) {
+ 	b->percentage = ((float) b->remaining_energy * 100.0) / (float) b->last_capacity_unit;
++	} else {
++	    b->percentage = ((float) b->remaining_capacity *100.0) / (float) b->last_capacity;
++	}
+ 	    
+     if (b->percentage > 100)
+ 	b->percentage = 100;
