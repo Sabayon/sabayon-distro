@@ -466,8 +466,8 @@ _kernel_src_compile() {
 }
 
 _setup_mkimage_ramdisk() {
-	local initramfs="${WORKDIR}"/boot/${KERN_INITRAMFS_SEARCH_NAME}*
-	if [ ! -f "${initramfs}" ]; then
+	local initramfs=$(ls "${WORKDIR}"/boot/${KERN_INITRAMFS_SEARCH_NAME}* 2> /dev/null)
+	if [ ! -e "${initramfs]" ] || [ ! -f "${initramfs}" ]; then
 		ewarn "No initramfs at ${initramfs}, cannot run mkimage on it!"
 	else
 		einfo "Setting up u-boot initramfs for: ${initramfs}"
