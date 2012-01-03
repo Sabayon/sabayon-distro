@@ -117,6 +117,16 @@ K_WORKAROUND_USE_REAL_EXTRAVERSION="${K_WORKAROUND_USE_REAL_EXTRAVERSION:-}"
 # Provide extra genkernel arguments using K_GENKERNEL_ARGS
 K_GENKERNEL_ARGS="${K_GENKERNEL_ARGS:-}"
 
+# @ECLASS-VARIABLE: K_MKIMAGE_RAMDISK_ADDRESS
+# @DESCRIPTION:
+# [ARM ONLY] Provide the ramdisk load address to be used with mkimage
+K_MKIMAGE_RAMDISK_ADDRESS="${K_MKIMAGE_RAMDISK_ADDRESS:-}"
+
+# @ECLASS-VARIABLE: K_MKIMAGE_RAMDISK_ENTRYPOINT
+# @DESCRIPTION:
+# [ARM ONLY] Provide the ramdisk entry point address to be used with mkimage
+K_MKIMAGE_RAMDISK_ENTRYPOINT="${K_MKIMAGE_RAMDISK_ENTRYPOINT:-}"
+
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
 # Disable deblobbing feature
@@ -455,6 +465,20 @@ _kernel_src_compile() {
 	ARCH=${OLDARCH}
 }
 
+_setup_mkimage_ramdisk() {
+	local initramfs="${WORKDIR}"/boot/${KERN_INITRAMFS_SEARCH_NAME}*
+	if [ ! -f "${initramfs}" ]; then
+		ewarn "No initramfs at ${initramfs}, cannot run mkimage on it!"
+	else
+		einfo "Setting up u-boot initramfs for: ${initramfs}"
+		/usr/bin/mkimage -A arm -O linux -T ramdisk -C none -a "${K_MKIMAGE_RAMDISK_ADDRESS}" \
+			-e "${K_MKIMAGE_RAMDISK_ENTRYPOINT}" -d "${initramfs}" \
+			"${initramfs}.u-boot" || return 1
+		mv "${initramfs}.u-boot" "${initramfs}" || return 1
+	fi
+	return 0
+}
+
 sabayon-kernel_src_install() {
 	if [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 		_firmwares_src_install
@@ -496,6 +520,8 @@ _kernel_sources_src_install() {
 }
 
 _kernel_src_install() {
+	use arm && { _setup_mkimage_ramdisk || die "cannot setup mkimage"; }
+
 	dodir "${KV_OUT_DIR}"
 	insinto "${KV_OUT_DIR}"
 
