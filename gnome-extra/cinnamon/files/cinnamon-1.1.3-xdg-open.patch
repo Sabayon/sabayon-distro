@@ -1,0 +1,26 @@
+From 9db2c12d23daaeab0d69bc8b58cec610689cc4dc Mon Sep 17 00:00:00 2001
+From: "Jasper St. Pierre" <jstpierre@mecheye.net>
+Date: Thu, 20 Oct 2011 12:48:40 -0400
+Subject: [PATCH 04/28] gnome-shell-extension-tool: Use xdg-open
+
+gnome-open is deprecated
+
+[Alexandre Rostovtsev <tetromino@gentoo.org>: port to cinnamon]
+---
+ src/gnome-shell-extension-tool.in |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/cinnamon-extension-tool.in b/src/cinnamon-extension-tool.in
+index 8ec24fb..2f942d8 100644
+--- a/src/cinnamon-extension-tool.in
++++ b/src/cinnamon-extension-tool.in
+@@ -149,5 +149,5 @@ use an extension title clicktofocus@janedoe.example.com.'''
+ 
+     print "Created extension in %r" % (extension_path, )
+     extensionjs_path = os.path.join(extension_path, 'extension.js')
+-    subprocess.Popen(['gnome-open', extensionjs_path])
++    subprocess.Popen(['xdg-open', extensionjs_path])
+     sys.exit(0)
+-- 
+1.7.8.3
+

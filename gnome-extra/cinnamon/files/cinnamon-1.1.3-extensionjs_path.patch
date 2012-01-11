@@ -1,0 +1,31 @@
+From b64739844de4d84032b69ecd04f0fbe1d452f311 Mon Sep 17 00:00:00 2001
+From: "Jasper St. Pierre" <jstpierre@mecheye.net>
+Date: Thu, 13 Oct 2011 00:46:46 -0400
+Subject: [PATCH 03/28] gnome-shell-extension-tool: Fix error after creating
+ extension
+
+Commit 7a8a00c7057d56350d4b5509cefd812a67d4b7d7 cleaned up the code to move all
+files to a dictionary, which accidentally left an undefined "extensionjs_path"
+error. Fix that error.
+
+[Alexandre Rostovtsev <tetromino@gentoo.org>: port to cinnamon]
+
+https://bugzilla.gnome.org/show_bug.cgi?id=661623
+---
+ src/cinnamon-extension-tool.in |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/src/cinnamon-extension-tool.in b/src/cinnamon-extension-tool.in
+index e610b46..8ec24fb 100644
+--- a/src/cinnamon-extension-tool.in
++++ b/src/cinnamon-extension-tool.in
+@@ -148,5 +148,6 @@ use an extension title clicktofocus@janedoe.example.com.'''
+         f.close()
+ 
+     print "Created extension in %r" % (extension_path, )
++    extensionjs_path = os.path.join(extension_path, 'extension.js')
+     subprocess.Popen(['gnome-open', extensionjs_path])
+     sys.exit(0)
+-- 
+1.7.8.3
+
