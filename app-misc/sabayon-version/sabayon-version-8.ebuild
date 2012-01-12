@@ -41,15 +41,4 @@ src_install () {
 pkg_postinst() {
 	# Setup Python 2.7
 	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3 --ignore 3.4
-
-	# Setup GCC 4.6 (it's also in packages.db.post_upgrade.sh
-	# TODO: remove in 2012, this is part of base-gcc trigger now.
-	c_profile=$(gcc-config -l | grep "\-4.6" | cut -d"[" -f 2 | cut -d"]" -f 1)
-	[[ "${?}" != "0" ]] && ewarn "gcc-config script error" && exit 1
-	if [[ ${c_profile} =~ ^[0-9]+$ ]]; then
-		gcc-config ${c_profile}
-		env-update
-	else
-		ewarn "gcc-config unable to set new profile:" ${c_profile}
-	fi
 }
