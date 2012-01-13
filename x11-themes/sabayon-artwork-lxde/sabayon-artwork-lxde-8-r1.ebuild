@@ -17,6 +17,8 @@ RDEPEND=""
 
 S="${WORKDIR}/${PN}"
 
+PATCHES=( "${FILESDIR}/${PN}-7-fix-background-image-ext.patch" )
+
 src_install () {
 	cd "${S}"/lxdm
 	dodir /usr/share/lxdm/themes/Sabayon
