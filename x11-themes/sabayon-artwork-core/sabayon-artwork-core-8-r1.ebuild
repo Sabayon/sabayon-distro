@@ -7,7 +7,7 @@ inherit eutils mount-boot sabayon-artwork
 
 DESCRIPTION="Offical Sabayon Linux Core Artwork"
 HOMEPAGE="http://www.sabayon.org/"
-SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${PN}-${PVR}.tar.xz"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~arm ~x86 ~amd64"
