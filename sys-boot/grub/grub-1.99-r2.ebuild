@@ -46,6 +46,7 @@ unset i
 # os-prober: Used on runtime to detect other OSes
 # xorriso (dev-libs/libisoburn): Used on runtime for mkrescue
 RDEPEND="
+	x11-themes/sabayon-artwork-grub
 	dev-libs/libisoburn
 	dev-libs/lzo
 	sys-boot/os-prober
@@ -265,11 +266,6 @@ EOF
 	exeinto /etc/grub.d
 	doexe "${FILESDIR}/00_fonts"
 	doexe "${FILESDIR}/05_distro_theme"
-
-	# cannot install directly to /boot/grub
-	dodir /usr/share/grub
-	insinto /usr/share/grub
-	newins "${FILESDIR}/default-splash-6.png" default-splash.png
 
 	dodir /etc/env.d
 	echo 'CONFIG_PROTECT_MASK="/etc/grub.d"' > "${ED}/etc/env.d/10grub2"
