@@ -1,0 +1,47 @@
+--- xbmc-10.1.orig/xbmc/lib/cximage-6.0/CxImage/ximapng.cpp
++++ xbmc-10.1/xbmc/lib/cximage-6.0/CxImage/ximapng.cpp
+@@ -178,12 +178,14 @@ bool CxImagePNG::Decode(CxFile *hFile)
+ 	int _num_palette;
+ 	png_colorp _palette;
+ #if PNG_LIBPNG_VER > 10399
+-	png_get_PLTE(png_ptr,info_ptr,&_palette,&_num_palette);
++	png_uint_32 _palette_ret;
++	_palette_ret = png_get_PLTE(png_ptr,info_ptr,&_palette,&_num_palette);
++	if (_palette_ret && _num_palette>0){
+ #else
+ 	_num_palette=info_ptr->num_palette;
+ 	_palette=info_ptr->palette;
+-#endif
+ 	if (_num_palette>0){
++#endif
+ 		SetPalette((rgb_color*)_palette,_num_palette);
+ 		SetClrImportant(_num_palette);
+ 	} else if (_bit_depth ==2) { //<DP> needed for 2 bpp grayscale PNGs
+@@ -199,11 +201,13 @@ bool CxImagePNG::Decode(CxFile *hFile)
+ 	int _num_trans;
+ 	png_color_16p _trans_color;
+ #if PNG_LIBPNG_VER > 10399
+-	png_get_tRNS(png_ptr,info_ptr,&_trans_alpha,&_num_trans,&_trans_color);
++	png_uint_32 _trans_ret;
++	_trans_ret = png_get_tRNS(png_ptr,info_ptr,&_trans_alpha,&_num_trans,&_trans_color);
++	if (_trans_ret && _num_trans!=0){ //palette transparency
+ #else
+ 	_num_trans=info_ptr->num_trans;
+-#endif
+ 	if (_num_trans!=0){ //palette transparency
++#endif
+ 		if (_num_trans==1){
+ 			if (_color_type == PNG_COLOR_TYPE_PALETTE){
+ #if PNG_LIBPNG_VER > 10399
+@@ -219,7 +223,11 @@ bool CxImagePNG::Decode(CxFile *hFile)
+ #endif
+ 			}
+ 		}
++#if PNG_LIBPNG_VER > 10399
++		if (_num_trans>1 && _trans_alpha!=NULL){
++#else
+ 		if (_num_trans>1){
++#endif
+ 			RGBQUAD* pal=GetPalette();
+ 			if (pal){
+ 				DWORD ip;

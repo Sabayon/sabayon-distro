@@ -87,6 +87,7 @@ COMMON_DEPEND="virtual/opengl
 RDEPEND="${COMMON_DEPEND}
 	udev? (	sys-fs/udisks sys-power/upower )"
 DEPEND="${COMMON_DEPEND}
+	app-text/dos2unix
 	dev-util/gperf
 	x11-proto/xineramaproto
 	dev-util/cmake
@@ -120,6 +121,10 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-10.1-gcc-4.6.patch #367261
 	epatch "${FILESDIR}"/${P}-libpng-1.5.patch #380127
 	epatch "${FILESDIR}"/${PN}-10.1-headers.patch #380127
+	# Fix runtime SEGV, Sabayon bug #2968
+	dos2unix -o "${S}/xbmc/lib/cximage-6.0/CxImage/ximapng.cpp"
+	epatch "${FILESDIR}"/${PN}-9999-libpng-1.5-fix-plt-trn-get.patch
+	unix2dos -o "${S}/xbmc/lib/cximage-6.0/CxImage/ximapng.cpp"
 
 	# some dirs ship generated autotools, some dont
 	local d
