@@ -24,3 +24,11 @@ src_install () {
 	insinto /usr/share/grub
 	doins default-splash.png
 }
+
+pkg_postinst() {
+	# install Sabayon splash here, cannot touch boot/grub inside
+	# src_install
+	local dir="${ROOT}"boot/grub
+	cp "${ROOT}/usr/share/grub/default-splash.png" "${dir}/default-splash.png" || \
+		ewarn "cannot install default splash file!"
+}
