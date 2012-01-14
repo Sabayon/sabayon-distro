@@ -299,6 +299,7 @@ setup_boot_dir() {
 			ewarn "Running grub-mkconfig failed! Check your configuration files!"
 	fi
 
+	# TODO: drop from here before 2012-06
 	# install Sabayon splash here, cannot touch boot/grub inside
 	# src_install
 	cp "${ROOT}/usr/share/grub/default-splash.png" "${dir}/default-splash.png" || \
