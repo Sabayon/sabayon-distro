@@ -56,6 +56,9 @@ sabayon_setup_autologin() {
 		sed -i "s/autologin=.*/autologin=${LIVE_USER}/" $LXDM_FILE
 		sed -i "/^#.*autologin=/ s/^#//" $LXDM_FILE
 	fi
+
+	# Setup correct login session
+	sabayon_is_normal_boot && sabayon_fixup_gnome_autologin_session
 }
 
 sabayon_disable_autologin() {
@@ -151,6 +154,19 @@ sabayon_setup_gui_installer() {
 	fi
 }
 
+# This function reads /etc/skel/.dmrc and properly
+# set the Session= value inside AccountsService.
+# Blame the idiots who broke de-facto standards
+# and created this fugly thing called AccountsService
+sabayon_fixup_gnome_autologin_session() {
+	if [ -x "/usr/libexec/gdm-set-default-session" ] && [ -f "/etc/skel/.dmrc" ]; then
+		local cur_session=$(cat /etc/skel/.dmrc | grep ^Session | cut -d"=" -f 2)
+		if [ -n "${cur_session}" ] && [ -f "/usr/share/xsessions/${cur_session}.desktop" ]; then
+			/usr/libexec/gdm-set-default-session "${cur_session}"
+		fi
+	fi
+}
+
 sabayon_setup_text_installer() {
 	# switch to verbose mode
 	splash_manager -c set -t default -m v &> /dev/null
@@ -183,4 +199,21 @@ sabayon_is_gui_install() {
 sabayon_is_live_install() {
 	( sabayon_is_text_install || sabayon_is_gui_install ) && return 0
 	return 1
+}
+
+sabayon_is_mce() {
+	local _is_mce=$(cat /proc/cmdline | grep sabayonmce)
+	if [ -n "${_is_mce}" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+sabayon_is_normal_boot() {
+	if ! sabayon_is_mce && ! sabayon_is_live_install; then
+		return 0
+	else
+		return 1
+	fi
 }
