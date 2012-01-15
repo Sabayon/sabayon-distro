@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Sabayon Linux (Fabio Erculiani)
+# Copyright 2004-2012 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 inherit eutils
@@ -14,7 +14,7 @@ KEYWORDS="x86 amd64"
 IUSE=""
 
 RDEPEND="media-tv/xbmc
-	>=app-misc/sabayonlive-tools-2.2"
+	>=app-misc/sabayonlive-tools-2.3-r12"
 DEPEND=""
 
 S="${WORKDIR}"

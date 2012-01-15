@@ -1,5 +1,5 @@
 #!/sbin/runscript
-# Copyright 2009 Sabayon Linux
+# Copyright 2012 Sabayon
 
 depend() {
 	# In this way autologin settings are overwritten
@@ -12,10 +12,8 @@ start() {
 
 	SABAYON_USER="sabayonmce"
 	source /sbin/sabayon-functions.sh
-	sabayonmce_avail=$(cat /proc/cmdline | grep sabayonmce)
-	is_live=$(cat /proc/cmdline | grep cdroot)
 
-	if [ -n "$sabayonmce_avail" ]; then
+	if sabayon_is_mce; then
 
 		ebegin "Sabayon Media Center mode enabled"
 
@@ -32,7 +30,7 @@ start() {
 
 		sabayon_setup_autologin
 
-	elif [ -z "$is_live" ] && [ -z "$sabayonmce_avail" ]; then
+	elif ! sabayon_is_live && ! sabayon_is_mce; then
 		ebegin "Sabayon Media Center mode disabled"
 		sabayon_disable_autologin
 	fi
