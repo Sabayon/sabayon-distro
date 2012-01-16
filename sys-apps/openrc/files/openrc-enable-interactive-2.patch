@@ -1,0 +1,11 @@
+--- openrc-0.9.8.1.orig//etc/rc.conf.in
++++ openrc-0.9.8.1/etc/rc.conf.in
+@@ -3,7 +3,7 @@
+ # Set rc_interactive to "YES" and you'll be able to press the I key during
+ # boot so you can choose to start specific services. Set to "NO" to disable
+ # this feature.
+-#rc_interactive="YES"
++rc_interactive="YES"
+ 
+ # If we need to drop to a shell, you can specify it here.
+ # If not specified we use $SHELL, otherwise the one specified in /etc/passwd,
