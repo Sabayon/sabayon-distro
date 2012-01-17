@@ -45,19 +45,5 @@ if [ -f "/etc/default/sabayon-grub" ]; then
 	# this file is placed by the Sabayon Installer and contains
 	# custom GRUB_CMDLINE_LINUX parameters created at install
 	# time.
-	source /etc/default/sabayon-grub
-fi
-
-# DO NOT REMOVE THIS IF YOUR GRUB_CMDLINE_LINUX IS EMPTY (BACKWARD COMPAT)
-if [ -z "${GRUB_CMDLINE_LINUX}" ]; then
-	if [ ! -e "/proc/cmdline" ]; then
-		echo "ATTENTION ATTENTION ATTENTION" >&2
-		echo "GRUB_CMDLINE_LINUX is not set inside /etc/default/grub" >&2
-		echo "  cannot generate a bootable configuration." >&2
-	else
-		echo "ATTENTION ATTENTION ATTENTION" >&2
-		echo "GRUB_CMDLINE_LINUX is not set inside /etc/default/grub" >&2
-		echo "  grub is going to use your /proc/cmdline content" >&2
-		GRUB_CMDLINE_LINUX="`cat /proc/cmdline | sed -e 's#BOOT_IMAGE=.* ro ##g'`"
-	fi
+	. /etc/default/sabayon-grub
 fi
