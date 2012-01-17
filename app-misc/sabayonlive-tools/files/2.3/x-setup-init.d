@@ -11,9 +11,10 @@ depend() {
 
 start() {
 
-    is_live=$(cat /proc/cmdline | grep "cdroot")
-    do_redetect=$(cat /proc/cmdline | grep "gpudetect")
-    if [ -n "$is_live" ]; then
+    . /sbin/sabayon-functions.sh
+    local do_redetect=$(cat /proc/cmdline | grep "gpudetect")
+
+    if sabayon_is_live; then
         ebegin "Configuring GPU Hardware Acceleration and Input devices"
         start-stop-daemon --start --background --pidfile /var/run/x-setup.pid --make-pidfile --exec /usr/sbin/x-setup-configuration
         eend 0
