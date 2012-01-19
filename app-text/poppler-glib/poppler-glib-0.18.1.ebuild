@@ -13,7 +13,7 @@ SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
-IUSE="+cairo doc"
+IUSE="+cairo +introspection doc"
 S="${WORKDIR}/poppler-${PV}"
 
 COMMON_DEPEND="dev-libs/glib:2
@@ -35,7 +35,7 @@ src_prepare() {
 
 src_configure() {
 	econf \
-		--enable-introspection=no \
+		--enable-introspection=$(use introspection && echo "yes" || echo "no") \
 		--enable-poppler-glib \
 		--enable-zlib \
 		--disable-gtk-test \

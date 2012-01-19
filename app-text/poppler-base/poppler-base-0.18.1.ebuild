@@ -13,7 +13,7 @@ SRC_URI="http://poppler.freedesktop.org/${P/-base}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="cairo curl cxx debug doc jpeg jpeg2k +lcms png qt4 tiff +utils +xpdf-headers"
+IUSE="cairo curl +cxx debug doc jpeg jpeg2k +lcms png qt4 tiff +utils +xpdf-headers"
 
 COMMON_DEPEND=">=media-libs/fontconfig-2.6.0
 	>=media-libs/freetype-2.3.9
@@ -55,7 +55,7 @@ src_configure() {
 		$(use_enable jpeg2k libopenjpeg) \
 		$(use_enable png libpng) \
 		$(use_enable tiff libtiff) \
-		$(use_enable curl LIBCURL) \
-		$(use_enable cxx CPP) \
+		$(use_enable curl libcurl) \
+		$(use_enable cxx poppler-cpp) \
 		$(use_enable utils) || die "econf failed"
 }
