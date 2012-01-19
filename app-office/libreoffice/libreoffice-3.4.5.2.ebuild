@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=4
 
 KDE_REQUIRED="optional"
 KDE_SCM="git"
@@ -22,13 +22,17 @@ DEV_URI="
 EXT_URI="http://ooo.itc.hu/oxygenoffice/download/libreoffice"
 ADDONS_URI="http://dev-www.libreoffice.org/src/"
 
+BRANDING="${PN}-branding-gentoo-0.3.tar.xz"
+# PATCHSET="${P}-patchset-01.tar.xz"
+
 [[ ${PV} == *9999* ]] && SCM_ECLASS="git-2"
-inherit base autotools bash-completion check-reqs eutils java-pkg-opt-2 kde4-base pax-utils prefix python multilib toolchain-funcs flag-o-matic nsplugins versionator ${SCM_ECLASS}
+inherit base autotools bash-completion-r1 check-reqs eutils java-pkg-opt-2 kde4-base pax-utils prefix python multilib toolchain-funcs flag-o-matic nsplugins versionator ${SCM_ECLASS}
 unset SCM_ECLASS
 
 DESCRIPTION="LibreOffice, a full office productivity suite."
 HOMEPAGE="http://www.libreoffice.org"
 SRC_URI=""
+[[ -n ${PATCHSET} ]] && SRC_URI+=" http://dev.gentooexperimental.org/~scarabeus/${PATCHSET}"
 
 # Bootstrap MUST be first!
 MODULES="bootstrap artwork base calc components extensions extras filters help
@@ -51,57 +55,29 @@ unset DEV_URI
 ADDONS_SRC+=" ${ADDONS_URI}/128cfc86ed5953e57fe0f5ae98b62c2e-libtextcat-2.2.tar.gz"
 ADDONS_SRC+=" ${ADDONS_URI}/17410483b5b5f267aa18b7e00b65e6e0-hsqldb_1_8_0.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/bd30e9cf5523cdfc019b94f5e1d7fd19-cppunit-1.12.1.tar.gz"
-ADDONS_SRC+=" ${ADDONS_URI}/1756c4fa6c616ae15973c104cd8cb256-Adobe-Core35_AFMs-314.tar.gz"
 ADDONS_SRC+=" ${ADDONS_URI}/1f24ab1d39f4a51faf22244c94a6203f-xmlsec1-1.2.14.tar.gz"
-ADDONS_SRC+=" ${ADDONS_URI}/24be19595acad0a2cae931af77a0148a-LICENSE_source-9.0.0.7-bj.html"
-ADDONS_SRC+=" ${ADDONS_URI}/2a177023f9ea8ec8bd00837605c5df1b-jakarta-tomcat-5.0.30-src.tar.gz"
-ADDONS_SRC+=" ${ADDONS_URI}/35c94d2df8893241173de1d16b6034c0-swingExSrc.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/35efabc239af896dfb79be7ebdd6e6b9-gentiumbasic-fonts-1.10.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/39bb3fcea1514f1369fcfc87542390fd-sacjava-1.3.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/48470d662650c3c074e1c3fabbc67bbd-README_source-9.0.0.7-bj.txt"
-ADDONS_SRC+=" ${ADDONS_URI}/4a660ce8466c9df01f19036435425c3a-glibc-2.1.3-stub.tar.gz"
-ADDONS_SRC+=" ${ADDONS_URI}/798b2ffdc8bcfe7bca2cf92b62caf685-rhino1_5R5.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/8294d6c42e3553229af9934c5c0ed997-stax-api-1.0-2-sources.jar"
-ADDONS_SRC+=" ${ADDONS_URI}/a7983f859eafb2677d7ff386a023bc40-xsltml_2.1.2.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/ada24d37d8d638b3d8a9985e80bc2978-source-9.0.0.7-bj.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/d4c4d91ab3a8e52a2e69d48d34ef4df4-core.zip"
 ADDONS_SRC+=" ${ADDONS_URI}/fdb27bfe2dbe2e7b57ae194d9bf36bab-SampleICC-1.3.2.tar.gz"
-ADDONS_SRC+=" ${ADDONS_URI}/3404ab6b1792ae5f16bbd603bd1e1d03-libformula-1.1.7.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/3bdf40c0d199af31923e900d082ca2dd-libfonts-1.1.6.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/8ce2fcd72becf06c41f7201d15373ed9-librepository-1.1.6.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/97b2d4dba862397f446b217e2b623e71-libloader-1.1.6.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/d8bd5eed178db6e2b18eeed243f85aa8-flute-1.1.6.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/eeb2c7ddf0d302fba4bfc6e97eac9624-libbase-1.1.6.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/f94d9870737518e3b597f9265f4e9803-libserializer-1.1.6.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/ba2930200c9f019c2d93a8c88c651a0f-flow-engine-0.9.4.zip"
-ADDONS_SRC+=" ${ADDONS_URI}/451ccf439a36a568653b024534669971-ConvertTextToNumber-1.3.2.oxt"
-ADDONS_SRC+=" ${ADDONS_URI}/47e1edaa44269bc537ae8cabebb0f638-JLanguageTool-1.0.0.tar.bz2"
-ADDONS_SRC+=" ${ADDONS_URI}/90401bca927835b6fbae4a707ed187c8-nlpsolver-0.9.tar.bz2"
-ADDONS_SRC+=" ${ADDONS_URI}/0f63ee487fda8f21fafa767b3c447ac9-ixion-0.2.0.tar.gz"
-ADDONS_SRC+=" ${ADDONS_URI}/71474203939fafbe271e1263e61d083e-nss-3.12.8-with-nspr-4.8.6.tar.gz"
-ADDONS_SRC+=" http://download.go-oo.org/extern/185d60944ea767075d27247c3162b3bc-unowinreg.dll"
+ADDONS_SRC+=" ${ADDONS_URI}/798b2ffdc8bcfe7bca2cf92b62caf685-rhino1_5R5.zip"
+ADDONS_SRC+=" ${ADDONS_URI}/35c94d2df8893241173de1d16b6034c0-swingExSrc.zip"
 ADDONS_SRC+=" http://download.go-oo.org/extern/b4cae0700aa1c2aef7eb7f345365e6f1-translate-toolkit-1.8.1.tar.bz2"
-ADDONS_SRC+=" http://www.numbertext.org/linux/881af2b7dca9b8259abbca00bbbc004d-LinLibertineG-20110101.zip"
+ADDONS_SRC+=" http://download.go-oo.org/extern/185d60944ea767075d27247c3162b3bc-unowinreg.dll"
 SRC_URI+=" ${ADDONS_SRC}"
-
-TDEPEND="${EXT_URI}/472ffb92d82cf502be039203c606643d-Sun-ODF-Template-Pack-en-US_1.0.0.oxt"
-SRC_URI+=" templates? ( ${TDEPEND} )"
 
 unset ADDONS_URI
 unset EXT_URI
 unset ADDONS_SRC
 
 IUSE="binfilter +branding custom-cflags dbus debug eds gnome graphite
-gstreamer gtk kde ldap mysql nsplugin odk opengl python templates test +vba
-webdav pdfimport"
+gstreamer gtk jemalloc kde mysql nsplugin odk opengl pdfimport python
+test +vba webdav"
 LICENSE="LGPL-3"
 SLOT="0"
-[[ ${PV} == *9999* ]] || KEYWORDS="amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
+[[ ${PV} == *9999* ]] || KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
 
 COMMON_DEPEND="
 	app-arch/zip
 	app-arch/unzip
-	>=app-text/hunspell-1.3.2-r1
+	>=app-text/hunspell-1.3.2-r3
 	app-text/mythes
 	app-text/libwpd:0.9[tools]
 	app-text/libwpg:0.2
@@ -112,7 +88,7 @@ COMMON_DEPEND="
 	>=dev-libs/hyphen-2.7.1
 	>=dev-libs/icu-4.8.1-r1
 	>=dev-lang/perl-5.0
-	>=dev-libs/openssl-0.9.8g
+	>=dev-libs/openssl-1.0.0d
 	>=dev-libs/redland-1.0.14[ssl]
 	media-libs/freetype:2
 	>=media-libs/fontconfig-2.8.0
@@ -127,7 +103,6 @@ COMMON_DEPEND="
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	x11-libs/libXrender
-	pdfimport? ( >=app-text/poppler-0.12.3-r3[xpdf-headers,cairo] )
 	dbus? ( >=dev-libs/dbus-glib-0.92 )
 	eds? ( gnome-extra/evolution-data-server )
 	gnome? (
@@ -146,7 +121,7 @@ COMMON_DEPEND="
 		dev-java/lucene-analyzers:2.3
 		dev-java/saxon:0
 	)
-	ldap? ( net-nds/openldap )
+	jemalloc? ( dev-libs/jemalloc )
 	mysql? ( >=dev-db/mysql-connector-c++-1.1.0 )
 	nsplugin? (
 		net-libs/xulrunner:1.9
@@ -154,6 +129,7 @@ COMMON_DEPEND="
 		>=dev-libs/nss-3.12.9
 	)
 	opengl? ( virtual/opengl )
+	pdfimport? ( >=app-text/poppler-0.16[xpdf-headers,cxx] )
 	webdav? ( net-libs/neon )
 "
 
@@ -196,7 +172,6 @@ DEPEND="${COMMON_DEPEND}
 PATCHES=(
 	"${FILESDIR}/${PN}-3.3.1-neon_remove_SSPI_support.diff"
 	"${FILESDIR}/${PN}-libdb5-fix-check.diff"
-	"${FILESDIR}/${PN}-3.4.1-salfix.diff"
 	"${FILESDIR}/sdext-presenter.diff"
 	"${FILESDIR}/${PN}-svx.patch"
 	"${FILESDIR}/${PN}-vbaobj-visibility-fix.patch"
@@ -212,21 +187,32 @@ PATCHES=(
 	"${FILESDIR}/${PN}-kill-cppunit.patch"
 	"${FILESDIR}/${PN}-honor-strip.patch"
 	"${FILESDIR}/${PN}-java.patch"
-	"${FILESDIR}/${PN}-poppler-0.18.0.patch"
-	"${FILESDIR}/${PN}-poppler-0.18.0-2.patch"
+	"${FILESDIR}/${PN}-kde48.patch"
 )
 
-# Uncoment me when updating to eapi4
-# REQUIRED_USE="
-#	|| ( gtk gnome kde )
-#	gnome? ( gtk )
-#	nsplugin? ( gtk )
-#"
+REQUIRED_USE="
+	gnome? ( gtk )
+	nsplugin? ( gtk )
+	eds? ( gnome )
+"
 
 # Needs lots and lots of work and compiling
 RESTRICT="test"
 
 S="${WORKDIR}/${PN}-bootstrap-${PV}"
+
+pkg_pretend() {
+	if [[ ${MERGE_TYPE} != binary ]]; then
+		CHECKREQS_MEMORY="1G"
+		use debug && CHECKREQS_DISK_BUILD="15G" || CHECKREQS_DISK_BUILD="9G"
+		check-reqs_pkg_pretend
+
+		if [[ $(gcc-major-version) -lt 4 ]]; then
+			eerror "Compilation with gcc older than 4.0 is not supported"
+			die "Too old gcc found."
+		fi
+	fi
+}
 
 pkg_setup() {
 	java-pkg-opt-2_pkg_setup
@@ -234,11 +220,6 @@ pkg_setup() {
 
 	python_set_active_version 2
 	python_pkg_setup
-
-	if [[ $(gcc-major-version) -lt 4 ]]; then
-		eerror "Compilation with gcc older than 4.0 is not supported"
-		die "Too old gcc found."
-	fi
 
 	if use custom-cflags; then
 		ewarn "You are using custom CFLAGS, which is NOT supported and can cause"
@@ -266,11 +247,6 @@ pkg_setup() {
 		ewarn "activate the 'gtk' use flag."
 		ewarn
 	fi
-
-	# Check if we have enough RAM and free diskspace to build this beast
-	CHECKREQS_MEMORY="1G"
-	use debug && CHECKREQS_DISK_BUILD="15G" || CHECKREQS_DISK_BUILD="9G"
-	check-reqs_pkg_setup
 }
 
 src_unpack() {
@@ -301,23 +277,7 @@ src_unpack() {
 		unset EGIT_PROJECT EGIT_SOURCEDIR EGIT_REPO_URI EGIT_BRANCH
 	fi
 
-	# copy extension templates; o what fun ...
-	if use templates; then
-		dest="${S}/extras/source/extensions"
-		mkdir -p "${dest}"
-
-		for template in ${TDEPEND}; do
-			if [[ ${template} == *.oxt ]]; then
-				tmplfile="${DISTDIR}/$(basename ${template})"
-				tmplname="$(echo "${template}" | \
-					cut -f 2- -s -d - | cut -f 1 -d _)"
-				echo ">>> Unpacking ${tmplfile/\*/} to ${dest}"
-				if [[ -f ${tmplfile} && ! -f "${dest}/${tmplname}.oxt" ]]; then
-					cp -v "${tmplfile}" "${dest}/${tmplname}.oxt" || die
-				fi
-			fi
-		done
-	fi
+	[[ -n ${PATCHSET} ]] && unpack ${PATCHSET}
 }
 
 src_prepare() {
@@ -330,6 +290,13 @@ src_prepare() {
 	use debug || filter-flags "-g*"
 	# silent miscompiles; LO/OOo adds -O2/1/0 where appropriate
 	filter-flags "-O*"
+
+	if [[ -n ${PATCHSET} ]]; then
+		EPATCH_FORCE="yes" \
+		EPATCH_SOURCE="${WORKDIR}/${PATCHSET/.tar.xz/}" \
+		EPATCH_SUFFIX="patch" \
+		epatch
+	fi
 
 	base_src_prepare
 	eautoreconf
@@ -359,9 +326,9 @@ src_configure() {
 	# hsqldb: requires just 1.8.0 not 1.8.1 which we don't ship at all
 	# dmake: not worth of splitting out
 	# cppunit: patched not to run anything, just main() { return 0; }
-	#          workaround to upstream running the tests during build
+	# 	   workaround to upstream running the tests during build
 	# sane: just sane.h header that is used for scan in writer, not
-	#       linked or anything else, worthless to depend on
+	#	linked or anything else, worthless to depend on
 	internal_libs+="
 		--without-system-hsqldb
 		--without-system-cppunit
@@ -435,13 +402,14 @@ src_configure() {
 		--disable-gnome-vfs \
 		--disable-kdeab \
 		--disable-kde \
+		--disable-ldap \
 		--disable-online-update \
 		--disable-pch \
 		--disable-rpath \
 		--disable-static-gtk \
 		--disable-strip-solver \
 		--disable-zenity \
-		--with-alloc=system \
+		--with-alloc=$(use jemalloc && echo "jemalloc" || echo "system") \
 		--with-build-version="Sabayon official package" \
 		--with-extension-integration \
 		--with-external-dict-dir="${EPREFIX}/usr/share/myspell" \
@@ -461,6 +429,7 @@ src_configure() {
 		--without-ppds \
 		--without-stlport \
 		--without-helppack-integration \
+		--without-sun-templates \
 		$(use_enable binfilter) \
 		$(use_enable dbus) \
 		$(use_enable debug crashdump) \
@@ -474,7 +443,6 @@ src_configure() {
 		$(use_enable gtk systray) \
 		$(use_enable java ext-scripting-beanshell) \
 		$(use_enable kde kde4) \
-		$(use_enable ldap) \
 		$(use_enable mysql ext-mysql-connector) \
 		$(use_enable nsplugin mozilla) \
 		$(use_enable odk) \
@@ -485,10 +453,8 @@ src_configure() {
 		$(use_enable vba activex-component) \
 		$(use_enable webdav neon) \
 		$(use_with java) \
-		$(use_with ldap openldap) \
 		$(use_with mysql system-mysql-cppconn) \
 		$(use_with nsplugin system-mozilla libxul) \
-		$(use_with templates sun-templates) \
 		${internal_libs} \
 		${java_opts} \
 		${extensions}
@@ -504,7 +470,7 @@ src_install() {
 	make DESTDIR="${D}" distro-pack-install || die
 
 	# Fix bash completion placement
-	dobashcompletion "${ED}"/etc/bash_completion.d/libreoffice.sh ${PN}
+	newbashcomp "${ED}"/etc/bash_completion.d/libreoffice.sh ${PN}
 	rm -rf "${ED}"/etc/
 
 	# symlink the plugin to system location

@@ -55,6 +55,11 @@ elif [[ "${PV}" = "3.4.4.2" ]] || [[ "${PV}" = "3.5.0.0" ]]; then
 	if [[ "${PV}" = "3.5.0.0" ]]; then
 		PKG_PV="3.4"
 	fi
+elif [[ "${PV}" = "3.4.5.2" ]]; then
+	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/3.4.5/rpm/x86/LibO_3.4.5_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
+	if [ "${HELPPACK_AVAIL}" = "1" ]; then
+		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/3.4.5/rpm/x86/LibO_3.4.5_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
+	fi
 else
 	die "unsupported libreoffice-l10n ${PV}"
 fi
