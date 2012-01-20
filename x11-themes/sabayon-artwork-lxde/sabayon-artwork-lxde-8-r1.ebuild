@@ -13,7 +13,7 @@ LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
-RDEPEND=""
+RDEPEND="x11-themes/sabayon-artwork-core"
 
 S="${WORKDIR}/${PN}"
 
@@ -24,6 +24,10 @@ src_install () {
 	dodir /usr/share/lxdm/themes/Sabayon
 	insinto /usr/share/lxdm/themes/Sabayon
 	doins Sabayon/*
-	dosym /usr/share/backgrounds/kgdm.png \
-		/usr/share/lxdm/themes/Sabayon/kgdm.png
+
+	# both provided by sabayon-artwork-core
+	for lame_format in png jpg; do
+		dosym /usr/share/backgrounds/kgdm.${lame_format} \
+			/usr/share/lxdm/themes/Sabayon/kgdm.${lame_format}
+	done
 }
