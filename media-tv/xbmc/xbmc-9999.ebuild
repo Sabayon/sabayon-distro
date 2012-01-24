@@ -1,18 +1,14 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-tv/xbmc/xbmc-9.11-r3.ebuild,v 1.3 2010/04/07 20:39:16 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-tv/xbmc/xbmc-9999.ebuild,v 1.94 2011/12/21 03:42:04 vapier Exp $
 
 EAPI="2"
 
 inherit eutils python
 
-# Use XBMC_ESVN_REPO_URI to track a different branch
-ESVN_REPO_URI=${XBMC_ESVN_REPO_URI:-http://xbmc.svn.sourceforge.net/svnroot/xbmc/trunk}
-ESVN_PROJECT=${ESVN_REPO_URI##*/svnroot/}
-ESVN_PROJECT=${ESVN_PROJECT%/*}
+EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
 if [[ ${PV} == "9999" ]] ; then
-	inherit subversion autotools
-	KEYWORDS=""
+	inherit git-2 autotools
 else
 	inherit autotools
 	MY_P=${P/_/-}
@@ -26,69 +22,81 @@ HOMEPAGE="http://xbmc.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="aac alsa altivec avahi css debug joystick midi profile pulseaudio sse sse2 vdpau xrandr"
+IUSE="airplay alsa altivec avahi bluray css debug goom joystick midi profile +projectm pulseaudio +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr"
 
-RDEPEND="virtual/opengl
+COMMON_DEPEND="virtual/opengl
 	app-arch/bzip2
-	app-arch/unrar
 	app-arch/unzip
 	app-arch/zip
 	app-i18n/enca
+	airplay? ( app-pda/libplist )
+	>=dev-lang/python-2.4
 	dev-libs/boost
 	dev-libs/fribidi
 	dev-libs/libcdio[-minimal]
-	dev-libs/libpcre
-	dev-libs/lzo
+	dev-libs/libpcre[cxx]
+	>=dev-libs/lzo-2.04
+	dev-libs/yajl
 	>=dev-python/pysqlite-2
-	media-libs/a52dec
+	dev-python/simplejson
 	media-libs/alsa-lib
-	aac? ( media-libs/faac )
-	media-libs/faad2
 	media-libs/flac
 	media-libs/fontconfig
 	media-libs/freetype
-	media-libs/glew
+	>=media-libs/glew-1.5.6
 	media-libs/jasper
 	media-libs/jbigkit
 	virtual/jpeg
 	>=media-libs/libass-0.9.7
-	media-libs/libdca
+	bluray? ( media-libs/libbluray )
 	css? ( media-libs/libdvdcss )
 	media-libs/libmad
-	media-libs/libmms
+	media-libs/libmodplug
 	media-libs/libmpeg2
 	media-libs/libogg
+	media-libs/libpng
+	projectm? ( media-libs/libprojectm )
 	media-libs/libsamplerate
-	media-libs/libsdl[alsa,audio,opengl,video,X]
+	media-libs/libsdl[audio,opengl,video,X]
+	alsa? ( media-libs/libsdl[alsa] )
 	media-libs/libvorbis
 	media-libs/sdl-gfx
-	media-libs/sdl-image[gif,jpeg,png]
+	>=media-libs/sdl-image-1.2.10[gif,jpeg,png]
 	media-libs/sdl-mixer
 	media-libs/sdl-sound
 	media-libs/tiff
 	pulseaudio? ( media-sound/pulseaudio )
 	media-sound/wavpack
+	>=virtual/ffmpeg-0.6
+	rtmp? ( media-video/rtmpdump )
 	avahi? ( net-dns/avahi )
+	webserver? ( net-libs/libmicrohttpd )
 	net-misc/curl
-	|| ( >=net-fs/samba-3.4.6[smbclient] <net-fs/samba-3.3 )
+	samba? ( >=net-fs/samba-3.4.6[smbclient] )
 	sys-apps/dbus
-	sys-apps/hal
 	sys-libs/zlib
 	virtual/mysql
 	x11-apps/xdpyinfo
 	x11-apps/mesa-progs
-	vdpau? ( || ( x11-libs/libvdpau >=x11-drivers/nvidia-drivers-180.51 ) )
+	vaapi? ( x11-libs/libva )
+	vdpau? (
+		|| ( x11-libs/libvdpau >=x11-drivers/nvidia-drivers-180.51 )
+		virtual/ffmpeg[vdpau]
+	)
 	x11-libs/libXinerama
 	xrandr? ( x11-libs/libXrandr )
 	x11-libs/libXrender"
-DEPEND="${RDEPEND}
+RDEPEND="${COMMON_DEPEND}
+	udev? (	sys-fs/udisks sys-power/upower )"
+DEPEND="${COMMON_DEPEND}
+	dev-util/gperf
 	x11-proto/xineramaproto
 	dev-util/cmake
 	x86? ( dev-lang/nasm )"
 
 src_unpack() {
 	if [[ ${PV} == "9999" ]] ; then
-		subversion_src_unpack
+		git-2_src_unpack
 		cd "${S}"
 		rm -f configure
 	else
@@ -102,26 +110,16 @@ src_unpack() {
 }
 
 src_prepare() {
-	has_version ">=media-libs/libpng-1.4" && \
-		epatch "${FILESDIR}"/${P}-libpng14.patch #319113
-
-	epatch "${FILESDIR}"/${P}-TexturePacker-parallel-build.patch
-	epatch "${FILESDIR}"/${P}-shader-upscalers.patch #306661
-	epatch "${FILESDIR}"/${P}-wavpack.patch
-	epatch "${FILESDIR}"/${P}-jpeg-speedup.patch #300909
-	epatch "${FILESDIR}"/${P}-use-cdio-system-headers-on-non-win32.patch #303030, upstream: #8026
-	# http://xbmc.org/trac/ticket/8218
-	sed -i \
-		-e 's: ftell64: dll_ftell64:' \
-		xbmc/cores/DllLoader/exports/wrapper.c || die
-	sed -i \
-		-e '1i#include <stdlib.h>\n#include <string.h>\n' \
-		xbmc/lib/libid3tag/libid3tag/metadata.c || die
+	epatch "${FILESDIR}/${P}-arm-kill-softfp.patch"
 
 	# some dirs ship generated autotools, some dont
 	local d
-	for d in . xbmc/cores/dvdplayer/Codecs/libbdnav ; do
-		[[ -d ${d} ]] || continue
+	for d in \
+		. \
+		lib/{libdvd/lib*/,cpluff,libapetag,libid3tag/libid3tag} \
+		xbmc/screensavers/rsxs-* \
+		xbmc/visualizations/Goom/goom2k4-0
+	do
 		[[ -e ${d}/configure ]] && continue
 		pushd ${d} >/dev/null
 		einfo "Generating autotools in ${d}"
@@ -136,25 +134,26 @@ src_prepare() {
 	sed -i \
 		-e '/^CXXFLAGS/{s:-D[^=]*=.::;s:-m[[:alnum:]]*::}' \
 		-e "1iCXXFLAGS += ${squish}" \
-		xbmc/lib/libsquish/Makefile.in || die
+		lib/libsquish/Makefile.in || die
 
 	# Fix XBMC's final version string showing as "exported"
 	# instead of the SVN revision number.
-	export SVN_REV=${ESVN_WC_REVISION:-exported}
+	export HAVE_GIT=no GIT_REV=${EGIT_VERSION:-exported}
 
 	# Avoid lsb-release dependency
 	sed -i \
-		-e 's:/usr/bin/lsb_release -d:cat /etc/gentoo-release:' \
-		xbmc/utils/SystemInfo.cpp
+		-e 's:lsb_release -d:cat /etc/gentoo-release:' \
+		xbmc/utils/SystemInfo.cpp || die
 
-	# Do not use termcap #262822
-	sed -i 's:-ltermcap::' xbmc/lib/libPython/Python/configure
+	# avoid long delays when powerkit isn't running #348580
+	sed -i \
+		-e '/dbus_connection_send_with_reply_and_block/s:-1:3000:' \
+		xbmc/linux/*.cpp || die
 
 	epatch_user #293109
 
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
-
 }
 
 src_configure() {
@@ -163,54 +162,46 @@ src_configure() {
 	# Avoid help2man
 	export HELP2MAN=$(type -P help2man || echo true)
 
-	# XXX: with this version, external ffmpeg (>p_20373) causes
-	# segfault when used with vdpau, so disable external ffmpeg
-	# keeping the rest of external modules sane
-	# XXX2: disabled external python because most XBMC just
-	# don't work with >Python2.4
 	econf \
+		--docdir=/usr/share/doc/${PF} \
 		--disable-ccache \
 		--disable-optimizations \
-		--enable-external-liba52 \
-		--enable-external-libdts \
-		--enable-external-libmpeg2 \
-		--enable-external-libass \
-		--enable-external-libogg \
-		--enable-external-libwavpack \
-		--disable-external-python \
-		--enable-goom \
+		--enable-external-libraries \
 		--enable-gl \
+		$(use_enable airplay) \
 		$(use_enable avahi) \
+		$(use_enable bluray libbluray) \
 		$(use_enable css dvdcss) \
 		$(use_enable debug) \
-		$(use_enable aac faac) \
+		$(use_enable goom) \
+		--disable-hal \
 		$(use_enable joystick) \
 		$(use_enable midi mid) \
 		$(use_enable profile profiling) \
+		$(use_enable projectm) \
 		$(use_enable pulseaudio pulse) \
+		$(use_enable rsxs) \
+		$(use_enable rtmp) \
+		$(use_enable samba) \
+		$(use_enable vaapi) \
 		$(use_enable vdpau) \
+		$(use_enable webserver) \
 		$(use_enable xrandr)
 }
 
 src_install() {
-	einstall || die "Install failed!"
-
-	insinto /usr/share/xbmc/web/styles/
-	doins -r "${S}"/web/*/styles/*/ || die
+	emake install DESTDIR="${D}" || die
+	prepalldocs
 
 	insinto /usr/share/applications
 	doins tools/Linux/xbmc.desktop
 	doicon tools/Linux/xbmc.png
 
-	dodoc README.linux
-	rm "${D}"/usr/share/xbmc/{README.linux,LICENSE.GPL,*.txt}
-
 	insinto "$(python_get_sitedir)" #309885
 	doins tools/EventClients/lib/python/xbmcclient.py || die
 	newbin "tools/EventClients/Clients/XBMC Send/xbmc-send.py" xbmc-send || die
-
 }
 
 pkg_postinst() {
-	elog "Visit http://xbmc.org/wiki/?title=XBMC_Online_Manual"
+	elog "Visit http://wiki.xbmc.org/?title=XBMC_Online_Manual"
 }

@@ -1,0 +1,15 @@
+--- xbmc-9999.orig/configure.in
++++ xbmc-9999/configure.in
+@@ -572,9 +572,9 @@ if test "$host_vendor" = "apple" ; then
+     LIBS="$LIBS -framework ApplicationServices"
+   fi
+ elif test "$use_arch" = "arm"; then
+-  CFLAGS="$CFLAGS -mfloat-abi=softfp -mno-apcs-stack-check"
+-  CXXFLAGS="$CXXFLAGS -mfloat-abi=softfp -mno-apcs-stack-check"
+-  FFMPEG_EXTRACFLAGS="-mfloat-abi=softfp"
++  CFLAGS="$CFLAGS -mno-apcs-stack-check"
++  CXXFLAGS="$CXXFLAGS -mno-apcs-stack-check"
++  FFMPEG_EXTRACFLAGS=""
+   if test "$use_tegra" = "yes"; then
+     # Compile for ARMv7a architecture, need to test gcc for vfpv3-d16 support 
+     SAVE_CFLAGS="$CFLAGS"
