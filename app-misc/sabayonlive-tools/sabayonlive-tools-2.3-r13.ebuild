@@ -68,7 +68,12 @@ src_install() {
 
 	dodir /usr/share/X11/xorg.conf.d
 	insinto /usr/share/X11/xorg.conf.d
-	doins "${FILESDIR}/${PV}/xorg.conf.d/"*
+	doins "${FILESDIR}/${PV}/xorg.conf.d/90-synaptics.conf"
+
+	dodir /usr/share/sabayonlive-tools/xorg.conf.d
+	insinto /usr/share/sabayonlive-tools/xorg.conf.d
+	# fglrx <12.2 Xv workaround, enabled at runtime
+	doins "${FILESDIR}/${PV}/xorg.conf.d/90-fglrx-12.1-and-older-workaround.conf"
 
 	newinitd sabayonlive sabayonlive
 	newinitd installer-gui installer-gui
