@@ -1,0 +1,12 @@
+diff --git a/tools/TexturePacker/XBTFWriter.cpp b/tools/TexturePacker/XBTFWriter.cpp
+index 78b47fe..2e75d96 100644
+--- a/tools/TexturePacker/XBTFWriter.cpp
++++ b/tools/TexturePacker/XBTFWriter.cpp
+@@ -22,6 +22,7 @@
+ #include "XBTFWriter.h"
+ #define __STDC_FORMAT_MACROS
+ #include <inttypes.h>
++#include <unistd.h> /* for unlink() prototype */
+ #include "guilib/XBTF.h"
+ #include "utils/EndianSwap.h"
+ #if !defined(__APPLE__) && !defined(__FreeBSD__)

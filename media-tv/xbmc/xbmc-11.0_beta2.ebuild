@@ -4,16 +4,22 @@
 
 EAPI="2"
 
-inherit eutils python
+inherit autotools eutils python flag-o-matic
 
 EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
 if [[ ${PV} == "9999" ]] ; then
-	inherit git-2 autotools
+	inherit git-2
 else
-	inherit autotools
-	MY_P=${P/_/-}
-	SRC_URI="mirror://sourceforge/${PN}/${MY_P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
+	if [[ ${PV} == *beta* ]] ; then 
+		inherit versionator
+		CODENAME="Eden"
+		MY_PV=`get_version_component_range 1-2`-${CODENAME}_`get_version_component_range 3`
+		MY_P="${PN}-${MY_PV}"
+	else
+		MY_P=${P/_/-}
+	fi
+	SRC_URI="http://mirrors.xbmc.org/releases/source/${MY_P}.tar.gz"
+	KEYWORDS="~amd64 ~arm ~x86"
 	S=${WORKDIR}/${MY_P}
 fi
 
@@ -24,13 +30,11 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE="airplay alsa altivec avahi bluray css debug goom joystick midi profile +projectm pulseaudio +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr"
 
-COMMON_DEPEND="virtual/opengl
+COMMON_DEPEND="
 	app-arch/bzip2
 	app-arch/unzip
 	app-arch/zip
 	app-i18n/enca
-	airplay? ( app-pda/libplist )
-	>=dev-lang/python-2.4
 	dev-libs/boost
 	dev-libs/fribidi
 	dev-libs/libcdio[-minimal]
@@ -43,49 +47,53 @@ COMMON_DEPEND="virtual/opengl
 	media-libs/flac
 	media-libs/fontconfig
 	media-libs/freetype
-	>=media-libs/glew-1.5.6
+	media-libs/glew
 	media-libs/jasper
 	media-libs/jbigkit
-	virtual/jpeg
-	>=media-libs/libass-0.9.7
-	bluray? ( media-libs/libbluray )
-	css? ( media-libs/libdvdcss )
+	media-libs/libass
 	media-libs/libmad
 	media-libs/libmodplug
 	media-libs/libmpeg2
 	media-libs/libogg
 	media-libs/libpng
-	projectm? ( media-libs/libprojectm )
 	media-libs/libsamplerate
 	media-libs/libsdl[audio,opengl,video,X]
-	alsa? ( media-libs/libsdl[alsa] )
 	media-libs/libvorbis
 	media-libs/sdl-gfx
-	>=media-libs/sdl-image-1.2.10[gif,jpeg,png]
+	media-libs/sdl-image[gif,jpeg,png]
 	media-libs/sdl-mixer
 	media-libs/sdl-sound
 	media-libs/tiff
-	pulseaudio? ( media-sound/pulseaudio )
 	media-sound/wavpack
 	>=virtual/ffmpeg-0.6
-	rtmp? ( media-video/rtmpdump )
-	avahi? ( net-dns/avahi )
-	webserver? ( net-libs/libmicrohttpd )
 	net-misc/curl
-	samba? ( >=net-fs/samba-3.4.6[smbclient] )
+	=net-wireless/bluez-4.96
 	sys-apps/dbus
 	sys-libs/zlib
+	virtual/jpeg
+	virtual/opengl
 	virtual/mysql
 	x11-apps/xdpyinfo
 	x11-apps/mesa-progs
+	x11-libs/libXinerama
+	x11-libs/libXrender
+	airplay? ( app-pda/libplist )
+	alsa? ( media-libs/libsdl[alsa] )
+	avahi? ( net-dns/avahi )
+	bluray? ( media-libs/libbluray )
+	css? ( media-libs/libdvdcss )
+	pulseaudio? ( media-sound/pulseaudio )
+	projectm? ( media-libs/libprojectm )
+	rtmp? ( media-video/rtmpdump )
+	samba? ( >=net-fs/samba-3.4.6[smbclient] )
 	vaapi? ( x11-libs/libva )
 	vdpau? (
 		|| ( x11-libs/libvdpau >=x11-drivers/nvidia-drivers-180.51 )
-		virtual/ffmpeg[vdpau]
+		media-video/ffmpeg[vdpau]
 	)
-	x11-libs/libXinerama
-	xrandr? ( x11-libs/libXrandr )
-	x11-libs/libXrender"
+	webserver? ( net-libs/libmicrohttpd )
+	xrandr? ( x11-libs/libXrandr )"
+
 RDEPEND="${COMMON_DEPEND}
 	udev? (	sys-fs/udisks sys-power/upower )"
 DEPEND="${COMMON_DEPEND}
@@ -93,6 +101,14 @@ DEPEND="${COMMON_DEPEND}
 	x11-proto/xineramaproto
 	dev-util/cmake
 	x86? ( dev-lang/nasm )"
+
+pkg_setup() {
+	# nasty runtime things might happen otherwise
+	# /usr/lib64/xbmc/system/players/dvdplayer/avcodec-52-x86_64-linux.so:
+	# undefined symbol: NeAACDecSetConfiguration
+	append-ldflags $(no-as-needed)
+	python_pkg_setup
+}
 
 src_unpack() {
 	if [[ ${PV} == "9999" ]] ; then
@@ -110,8 +126,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${P}-arm-kill-softfp.patch"
-
 	# some dirs ship generated autotools, some dont
 	local d
 	for d in \
@@ -150,8 +164,13 @@ src_prepare() {
 		-e '/dbus_connection_send_with_reply_and_block/s:-1:3000:' \
 		xbmc/linux/*.cpp || die
 
-	epatch_user #293109
+	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-headers.patch
+	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5.patch
+	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-fix-plt-trn-get.patch
+	epatch "${FILESDIR}"/xbmc-9999-no-arm-flags.patch
 
+
+	epatch_user #293109
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
 }
@@ -162,12 +181,24 @@ src_configure() {
 	# Avoid help2man
 	export HELP2MAN=$(type -P help2man || echo true)
 
+	# XBMC python mods only work with internal Python 2.4
+	# ffmpeg is a moving target and newer version may
+	# not work with xbmc, even if API compatible (vdpau in
+	# ffmpeg is the main issue)
+	# a52 support is deprecated
+	# libdts support is deprecated
 	econf \
 		--docdir=/usr/share/doc/${PF} \
 		--disable-ccache \
 		--disable-optimizations \
-		--enable-external-libraries \
+		--disable-external-python \
+		--disable-external-ffmpeg \
+		--disable-external-libdts \
+		--disable-external-liba52 \
+		--enable-goom \
 		--enable-gl \
+		--disable-liba52 \
+		--disable-libdts \
 		$(use_enable airplay) \
 		$(use_enable avahi) \
 		$(use_enable bluray libbluray) \
