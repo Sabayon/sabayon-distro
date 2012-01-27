@@ -124,7 +124,7 @@ src_prepare() {
 		|| die "Could not copy image."
 
 	# Fix automagic gnome-bluetooth dep, bug #398145
-	# epatch "${FILESDIR}/${PN}-1.1.3-automagic-gnome-bluetooth.patch"
+	epatch "${FILESDIR}/${PN}-1.1.3-automagic-gnome-bluetooth.patch"
 
 	# Make networkmanager optional, bug #398593
 	epatch "${FILESDIR}/${PN}-1.2-optional-networkmanager.patch"
