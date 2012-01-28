@@ -10,7 +10,7 @@ SRC_URI=""
 RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64"
+KEYWORDS="amd64 ~arm x86"
 IUSE=""
 
 RDEPEND="media-tv/xbmc
