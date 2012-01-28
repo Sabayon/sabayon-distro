@@ -12,7 +12,7 @@ HOMEPAGE="http://www.sabayon.org"
 RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6"
 
