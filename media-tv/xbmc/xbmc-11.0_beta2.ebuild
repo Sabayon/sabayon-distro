@@ -167,7 +167,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-headers.patch
 	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5.patch
 	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-fix-plt-trn-get.patch
-	epatch "${FILESDIR}"/xbmc-9999-arm-kill-softfp.patch
+	epatch "${FILESDIR}"/xbmc-9999-no-arm-flags.patch
 
 
 	epatch_user #293109
