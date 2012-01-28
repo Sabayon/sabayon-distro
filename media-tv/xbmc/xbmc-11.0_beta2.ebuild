@@ -126,6 +126,13 @@ src_unpack() {
 }
 
 src_prepare() {
+	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-headers.patch
+	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5.patch
+	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-fix-plt-trn-get.patch
+	epatch "${FILESDIR}"/xbmc-9999-no-arm-flags.patch
+
+	epatch_user
+
 	# some dirs ship generated autotools, some dont
 	local d
 	for d in \
@@ -134,7 +141,7 @@ src_prepare() {
 		xbmc/screensavers/rsxs-* \
 		xbmc/visualizations/Goom/goom2k4-0
 	do
-		[[ -e ${d}/configure ]] && continue
+		# [[ -e ${d}/configure ]] && continue
 		pushd ${d} >/dev/null
 		einfo "Generating autotools in ${d}"
 		eautoreconf
@@ -164,15 +171,6 @@ src_prepare() {
 		-e '/dbus_connection_send_with_reply_and_block/s:-1:3000:' \
 		xbmc/linux/*.cpp || die
 
-	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-headers.patch
-	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5.patch
-	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-fix-plt-trn-get.patch
-
-	epatch "${FILESDIR}"/xbmc-9999-no-arm-flags.patch
-	eautoreconf
-
-
-	epatch_user #293109
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
 }
