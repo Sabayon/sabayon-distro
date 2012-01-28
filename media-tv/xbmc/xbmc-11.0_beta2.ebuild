@@ -10,7 +10,7 @@ EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
 if [[ ${PV} == "9999" ]] ; then
 	inherit git-2
 else
-	if [[ ${PV} == *beta* ]] ; then 
+	if [[ ${PV} == *beta* ]] ; then
 		inherit versionator
 		CODENAME="Eden"
 		MY_PV=`get_version_component_range 1-2`-${CODENAME}_`get_version_component_range 3`
@@ -167,7 +167,9 @@ src_prepare() {
 	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-headers.patch
 	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5.patch
 	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-fix-plt-trn-get.patch
+
 	epatch "${FILESDIR}"/xbmc-9999-no-arm-flags.patch
+	eautoreconf
 
 
 	epatch_user #293109
