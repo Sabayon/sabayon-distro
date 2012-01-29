@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-16.0.912.36.ebuild,v 1.1 2011/11/11 17:44:49 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-17.0.963.44.ebuild,v 1.1 2012/01/26 04:17:23 floppym Exp $
 
 EAPI="4"
 PYTHON_DEPEND="2:2.6"
@@ -15,7 +15,7 @@ SRC_URI="http://commondatastorage.googleapis.com/chromium-browser-official/${P}.
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="bindist cups gnome gnome-keyring kerberos pulseaudio"
+IUSE="bindist cups custom-cflags gnome gnome-keyring kerberos pulseaudio"
 
 # en_US is ommitted on purpose from the list below. It must always be available.
 LANGS="am ar bg bn ca cs da de el en_GB es es_LA et fa fi fil fr gu he hi hr
@@ -30,7 +30,7 @@ RDEPEND="app-arch/bzip2
 		dev-libs/libgcrypt
 		>=net-print/cups-1.3.11
 	)
-	>=dev-lang/v8-3.6.5.1
+	>=dev-lang/v8-3.7.6
 	dev-libs/dbus-glib
 	dev-libs/elfutils
 	>=dev-libs/icu-4.4.1
@@ -54,8 +54,9 @@ RDEPEND="app-arch/bzip2
 	x11-libs/libXtst
 	kerberos? ( virtual/krb5 )"
 DEPEND="${RDEPEND}
-	dev-lang/nacl-toolchain-newlib
+	>=dev-lang/nacl-toolchain-newlib-0_p7311
 	dev-lang/perl
+	dev-lang/yasm
 	dev-python/simplejson
 	>=dev-util/gperf-3.0.3
 	>=dev-util/pkgconfig-0.23
@@ -128,6 +129,14 @@ chromium-pkg_die() {
 		ewarn
 	fi
 
+	# No ricer bugs.
+	if use custom-cflags; then
+		ewarn
+		ewarn "You have enabled the custom-cflags USE flag."
+		ewarn "Please disable it before reporting a bug."
+		ewarn
+	fi
+
 	# If the system doesn't have enough memory, the compilation is known to
 	# fail. Print info about memory to recognize this condition.
 	einfo
@@ -174,10 +183,11 @@ src_prepare() {
 	# zlib-1.2.5.1-r1 renames the OF macro in zconf.h, bug 383371.
 	sed -i '1i#define OF(x) x' \
 		third_party/zlib/contrib/minizip/{ioapi,{,un}zip}.c \
-		chrome/common/zip.cc || die
+		chrome/common/zip*.cc || die
 
 	epatch "${FILESDIR}"/${PN}-sabayon-user-agent-16.0.x.patch
-	epatch "${FILESDIR}/${PN}-cups-r0.patch"
+	# Revert WebKit changeset responsible for Gentoo bug #393471.
+	epatch "${FILESDIR}/${PN}-revert-jpeg-swizzle-r0.patch"
 
 	epatch_user
 
@@ -194,6 +204,8 @@ src_prepare() {
 		\! -path 'third_party/harfbuzz/*' \
 		\! -path 'third_party/hunspell/*' \
 		\! -path 'third_party/iccjpeg/*' \
+		\! -path 'third_party/jsoncpp/*' \
+		\! -path 'third_party/khronos/*' \
 		\! -path 'third_party/launchpad_translations/*' \
 		\! -path 'third_party/leveldb/*' \
 		\! -path 'third_party/leveldatabase/*' \
@@ -221,7 +233,6 @@ src_prepare() {
 		\! -path 'third_party/webdriver/*' \
 		\! -path 'third_party/webgl_conformance/*' \
 		\! -path 'third_party/webrtc/*' \
-		\! -path 'third_party/yasm/*' \
 		\! -path 'third_party/zlib/contrib/minizip/*' \
 		-delete || die
 
@@ -269,6 +280,7 @@ src_configure() {
 		-Duse_system_speex=1
 		-Duse_system_v8=1
 		-Duse_system_xdg_utils=1
+		-Duse_system_yasm=1
 		-Duse_system_zlib=1"
 
 	# Optional dependencies.
@@ -322,8 +334,10 @@ src_configure() {
 	myconf+=" -Dwerror="
 
 	# Avoid CFLAGS problems, bug #352457, bug #390147.
-	replace-flags "-Os" "-O2"
-	strip-flags
+	if ! use custom-cflags; then
+		replace-flags "-Os" "-O2"
+		strip-flags
+	fi
 
 	egyp ${myconf} || die
 }
@@ -332,8 +346,8 @@ src_compile() {
 	emake chrome chrome_sandbox chromedriver BUILDTYPE=Release V=1 || die
 	pax-mark m out/Release/chrome
 	if use test; then
-		emake {base,crypto,googleurl,net}_unittests BUILDTYPE=Release V=1 || die
-		pax-mark m out/Release/{base,crypto,googleurl,net}_unittests
+		emake {base,cacheinvalidation,crypto,googleurl,gpu,media,net,printing}_unittests BUILDTYPE=Release V=1 || die
+		pax-mark m out/Release/{base,cacheinvalidation,crypto,googleurl,gpu,media,net,printing}_unittests
 	fi
 }
 
@@ -353,18 +367,24 @@ src_test() {
 		die "Tests must be run as non-root. Please use FEATURES=userpriv."
 	fi
 
-	# For more info see bug #350347.
+	# ICUStringConversionsTest: bug #350347.
+	# MessagePumpLibeventTest: bug #398501.
 	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/base_unittests virtualmake \
-		'--gtest_filter=-ICUStringConversionsTest.*'
+		'--gtest_filter=-ICUStringConversionsTest.*:MessagePumpLibeventTest.*'
 
+	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/cacheinvalidation_unittests virtualmake
 	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/crypto_unittests virtualmake
 	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/googleurl_unittests virtualmake
+	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/gpu_unittests virtualmake
+	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/media_unittests virtualmake
 
 	# NetUtilTest: bug #361885.
 	# NetUtilTest.GenerateFileName: some locale-related mismatch.
 	# UDP: unstable, active development. We should revisit this later.
 	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/net_unittests virtualmake \
 		'--gtest_filter=-NetUtilTest.IDNToUnicode*:NetUtilTest.FormatUrl*:NetUtilTest.GenerateFileName:*UDP*'
+
+	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/printing_unittests virtualmake
 }
 
 src_install() {
