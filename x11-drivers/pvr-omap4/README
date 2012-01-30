@@ -1,0 +1,2 @@
+This ebuild has been imported from the "pandaboard" layman overlay.
+Deps got fixed in order to accomodate sabayon kernel packages.
