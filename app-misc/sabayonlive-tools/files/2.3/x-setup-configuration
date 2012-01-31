@@ -54,7 +54,7 @@ if sabayon_is_live; then
 fi
 /sbin/gpu-configuration &> /dev/null
 
-buggy_fglrx_xv_fixup_code
+# buggy_fglrx_xv_fixup_code
 
 # delete seed
 rm -f /etc/x-setup-configuration-running
