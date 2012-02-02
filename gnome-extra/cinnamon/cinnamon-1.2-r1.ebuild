@@ -7,7 +7,7 @@ GCONF_DEBUG="no"
 GNOME2_LA_PUNT="yes"
 PYTHON_DEPEND="2:2.5"
 
-inherit autotools eutils gnome2 pax-utils python
+inherit autotools eutils gnome2 multilib pax-utils python
 
 DESCRIPTION="A fork of GNOME Shell with layout similar to GNOME 2"
 HOMEPAGE="http://cinnamon.linuxmint.com/"
@@ -74,6 +74,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.29.10:2
 #    user switching with gdm-3.1.x)
 # 6. caribou needed for on-screen keyboard
 # 7. xdg-utils needed for xdg-open, used by extension tool
+# 8. gconf-python needed for cinnamon-settings
 RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/dconf-0.4.1
 	>=gnome-base/libgnomekbd-2.91.4[introspection]
@@ -139,18 +140,30 @@ src_prepare() {
 	sed -e "s:/usr/lib/gnome-session/gnome-session-check-accelerated:${EPREFIX}/usr/libexec/gnome-session-check-accelerated:" \
 		-i "files/usr/share/gnome-session/sessions/cinnamon.session" || die "sed 1 failed"
 
+	# Gentoo uses /usr/$(get_libdir), not /usr/lib even for python
+	sed -e "s:/usr/lib/cinnamon-settings:/usr/$(get_libdir)/cinnamon-settings:" \
+		-i files/usr/lib/cinnamon-settings/cinnamon-settings.py \
+		   files/usr/bin/cinnamon-settings \
+		   files/cinnamon-settings.pot \
+		   files/makepot || die "sed 2 failed"
+	if [[ "$(get_libdir)" != lib ]]; then
+		mv files/usr/lib "files/usr/$(get_libdir)" || die "mv failed"
+	fi
+
 	eautoreconf
 	gnome2_src_prepare
 
 	# Drop G_DISABLE_DEPRECATED for sanity on glib upgrades; bug #384765
 	# Note: sed Makefile.in because it is generated from several Makefile.ams
 	sed -e 's/-DG_DISABLE_DEPRECATED//g' \
-		-i src/Makefile.in browser-plugin/Makefile.in || die "sed 2 failed"
+		-i src/Makefile.in browser-plugin/Makefile.in || die "sed 3 failed"
 }
 
 src_install() {
 	gnome2_src_install
-	python_convert_shebangs 2 "${D}"/usr/bin/cinnamon-extension-tool
+	python_convert_shebangs 2 "${ED}usr/bin/cinnamon-extension-tool" \
+		"${ED}usr/bin/cinnamon-settings" \
+		"${ED}usr/$(get_libdir)/cinnamon-settings/cinnamon-settings.py"
 
 	# Required for gnome-shell on hardened/PaX, bug #398941
 	pax-mark mr "${ED}usr/bin/cinnamon"
@@ -158,6 +171,8 @@ src_install() {
 
 pkg_postinst() {
 	gnome2_pkg_postinst
+	python_mod_optimize /usr/$(get_libdir)/cinnamon-settings
+
 	if ! has_version '>=media-libs/gst-plugins-good-0.10.23' || \
 	   ! has_version 'media-plugins/gst-plugins-vp8'; then
 		ewarn "To make use of Cinnamon's built-in screen recording utility,"
@@ -195,4 +210,9 @@ pkg_postinst() {
 			ewarn "You will need to emerge media-libs/mesa with USE=classic."
 		fi
 	fi
+}
+
+pkg_postrm() {
+	gnome2_pkg_postrm
+	python_mod_cleanup /usr/$(get_libdir)/cinnamon-settings
 }
