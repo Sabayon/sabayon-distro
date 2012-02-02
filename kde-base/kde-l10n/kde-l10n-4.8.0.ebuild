@@ -14,7 +14,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 # ignored: ca@valencia
-MY_LANGS="ar bg ca cs da de el en_GB es et eu fi fr ga gl he
+MY_LANGS="ar bg ca cs da de el en_GB es et eu fi fr ga gl 
 hr hu ia id is it ja kk km kn ko lt lv mai nb nds nl nn pa pl pt pt_BR ro ru sk
 sl sr sv th tr uk wa zh_CN zh_TW"
 
