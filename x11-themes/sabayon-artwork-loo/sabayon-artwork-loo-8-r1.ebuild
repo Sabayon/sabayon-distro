@@ -20,9 +20,9 @@ S=${WORKDIR}/${PN}
 src_install () {
 	cd "${S}/images"
 	insinto /usr/$(get_libdir)/libreoffice/program
-	doins *.png sofficerc
 	sed -i 's/ProgressSize=650/ProgressSize=620/g' /usr/$(get_libdir)/libreoffice/program \
 	|| die "sed 1 failed"
+        doins *.png sofficerc
 }
 
 pkg_postinst () {
