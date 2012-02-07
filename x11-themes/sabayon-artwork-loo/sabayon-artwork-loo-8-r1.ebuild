@@ -12,16 +12,15 @@ LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-DEPEND=""
+DEPEND="sys-apps/sed"
 RDEPEND=""
 
 S=${WORKDIR}/${PN}
 
 src_install () {
 	cd "${S}/images"
+	sed -i "s:650:620:" sofficerc || die
 	insinto /usr/$(get_libdir)/libreoffice/program
-	sed -i 's/ProgressSize=650/ProgressSize=620/g' /usr/$(get_libdir)/libreoffice/program \
-	|| die "sed 1 failed"
         doins *.png sofficerc
 }
 
