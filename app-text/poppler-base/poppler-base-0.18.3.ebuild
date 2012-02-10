@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -22,8 +22,8 @@ COMMON_DEPEND=">=media-libs/fontconfig-2.6.0
 	jpeg? ( virtual/jpeg )
 	jpeg2k? ( media-libs/openjpeg )
 	lcms? ( =media-libs/lcms-1* )
-	png? ( media-libs/libpng )
-	tiff? ( media-libs/tiff )"
+	png? ( media-libs/libpng:0 )
+	tiff? ( media-libs/tiff:0 )"
 DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig"
 RDEPEND="${COMMON_DEPEND}
