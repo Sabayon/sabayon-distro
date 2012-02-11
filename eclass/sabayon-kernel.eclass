@@ -389,12 +389,6 @@ _kernel_src_compile() {
 	# disable sandbox
 	export SANDBOX_ON=0
 
-	# creating workdirs
-	# some kernels fail with make 3.82 if firmware dir is not created
-	mkdir "${WORKDIR}"/lib/lib/firmware -p
-	mkdir "${WORKDIR}"/cache
-	mkdir "${S}"/temp
-
 	# needed anyway, even if grub use flag is not used here
 	if use amd64 || use x86; then
 		mkdir -p "${WORKDIR}"/boot/grub
@@ -409,6 +403,12 @@ _kernel_src_compile() {
 	rm -rf "${WORKDIR}"/lib
 	rm -rf "${WORKDIR}"/cache
 	rm -rf "${S}"/temp
+
+	# creating workdirs
+	# some kernels fail with make 3.82 if firmware dir is not created
+	mkdir "${WORKDIR}"/lib/lib/firmware -p
+	mkdir "${WORKDIR}"/cache
+	mkdir "${S}"/temp
 
 	cd "${S}" || die
 	GKARGS="--no-save-config --disklabel"
