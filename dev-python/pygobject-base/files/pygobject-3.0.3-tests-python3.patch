@@ -1,0 +1,28 @@
+From 8d88283688797b8fc70a7cbccd42a71b8518098d Mon Sep 17 00:00:00 2001
+From: Alexandre Rostovtsev <tetromino@gentoo.org>
+Date: Mon, 26 Dec 2011 00:44:56 -0500
+Subject: [PATCH] Fix bytearray test compatibility with python3
+
+https://bugs.gentoo.org/show_bug.cgi?id=321879
+---
+ tests/test_gi.py |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/test_gi.py b/tests/test_gi.py
+index 0a9b1b2..8726187 100644
+--- a/tests/test_gi.py
++++ b/tests/test_gi.py
+@@ -783,8 +783,8 @@ class TestArray(unittest.TestCase):
+         self.assertEquals([27, "Hello"], map(GLib.Variant.unpack, GIMarshallingTests.array_gvariant_none_in(v)))
+ 
+     def test_bytearray_gvariant(self):
+-        v = GLib.Variant.new_bytestring("foo")
+-        self.assertEquals(v.get_bytestring(), "foo")
++        v = GLib.Variant.new_bytestring(b"foo")
++        self.assertEquals(v.get_bytestring(), b"foo")
+ 
+ class TestGArray(unittest.TestCase):
+ 
+-- 
+1.7.8.1
+

@@ -1,0 +1,69 @@
+Disable tests requiring >=gobject-introspection-1.31
+
+diff --git a/tests/test_everything.py b/tests/test_everything.py
+index 43735e5..ecfdef4 100644
+--- a/tests/test_everything.py
++++ b/tests/test_everything.py
+@@ -507,22 +507,3 @@ class TestAdvancedInterfaces(unittest.TestCase):
+         self.assertEquals(ret[0], 51);
+         self.assertEquals(ret[1], 61);
+         self.assertEquals(ret[2], 32);
+-
+-    def test_obj_skip_return_val_no_out(self):
+-        obj = Everything.TestObj();
+-        # raises an error for 0, succeeds for any other value
+-        self.assertRaises(GLib.GError, obj.skip_return_val_no_out, 0)
+-
+-        ret = obj.skip_return_val_no_out(1)
+-        self.assertEquals(ret, None)
+-
+-class TestSignals(unittest.TestCase):
+-    def test_object_param_signal(self):
+-        obj = Everything.TestObj();
+-
+-        def callback (obj_param):
+-            self.assertEquals(obj_param.props.int, 3)
+-            self.assertEquals(obj_param.__grefcount__, 2)
+-
+-        obj.connect('sig-with-obj', callback)
+-        obj.emit_sig_with_obj()
+diff --git a/tests/test_gi.py b/tests/test_gi.py
+index 0a9b1b2..7e24778 100644
+--- a/tests/test_gi.py
++++ b/tests/test_gi.py
+@@ -770,18 +770,6 @@ class TestArray(unittest.TestCase):
+     def test_gstrv_inout(self):
+         self.assertEquals(['-1', '0', '1', '2'], GIMarshallingTests.gstrv_inout(['0', '1', '2']))
+     
+-    def test_array_gvariant_none_in(self):
+-        v = [GLib.Variant("i", 27), GLib.Variant("s", "Hello")]
+-        self.assertEquals([27, "Hello"], map(GLib.Variant.unpack, GIMarshallingTests.array_gvariant_none_in(v)))
+-    
+-    def test_array_gvariant_container_in(self):
+-        v = [GLib.Variant("i", 27), GLib.Variant("s", "Hello")]
+-        self.assertEquals([27, "Hello"], map(GLib.Variant.unpack, GIMarshallingTests.array_gvariant_none_in(v)))
+-    
+-    def test_array_gvariant_full_in(self):
+-        v = [GLib.Variant("i", 27), GLib.Variant("s", "Hello")]
+-        self.assertEquals([27, "Hello"], map(GLib.Variant.unpack, GIMarshallingTests.array_gvariant_none_in(v)))
+-
+     def test_bytearray_gvariant(self):
+         v = GLib.Variant.new_bytestring("foo")
+         self.assertEquals(v.get_bytestring(), "foo")
+@@ -1651,16 +1639,6 @@ class TestPythonGObject(unittest.TestCase):
+             def do_method_not_a_vfunc(self):
+                 pass
+ 
+-    def test_subsubobject(self):
+-        class SubSubSubObject(GIMarshallingTests.SubSubObject):
+-            def do_method_deep_hierarchy(self, num):
+-                self.props.int = num * 2
+-
+-        sub_sub_sub_object = SubSubSubObject()
+-        GIMarshallingTests.SubSubObject.do_method_deep_hierarchy(sub_sub_sub_object, 5)
+-        self.assertEqual(sub_sub_sub_object.props.int, 5)
+-
+-
+ class TestMultiOutputArgs(unittest.TestCase):
+ 
+     def test_int_out_out(self):

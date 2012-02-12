@@ -1,0 +1,70 @@
+From 00030bc6f0fb961c716ed692144cd8e4bb9be7d0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20P=C3=B6lsterl?= <sebp@k-d-w.org>
+Date: Sat, 10 Dec 2011 12:51:45 +0100
+Subject: [PATCH] Fixed bug where GObject.property did not respect minimum and
+ maximum values
+
+https://bugzilla.gnome.org/show_bug.cgi?id=664864
+---
+ gi/_gobject/propertyhelper.py |    2 +-
+ tests/test_properties.py      |   31 +++++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+), 1 deletions(-)
+
+diff --git a/gi/_gobject/propertyhelper.py b/gi/_gobject/propertyhelper.py
+index 4635350..9208a0b 100644
+--- a/gi/_gobject/propertyhelper.py
++++ b/gi/_gobject/propertyhelper.py
+@@ -298,7 +298,7 @@ class property(object):
+         ptype = self.type
+         if ptype in [TYPE_INT, TYPE_UINT, TYPE_LONG, TYPE_ULONG,
+                      TYPE_INT64, TYPE_UINT64, TYPE_FLOAT, TYPE_DOUBLE]:
+-            args = self._get_minimum(), self._get_maximum(), self.default
++            args = self.minimum, self.maximum, self.default
+         elif (ptype == TYPE_STRING or ptype == TYPE_BOOLEAN or
+               ptype.is_a(TYPE_ENUM)):
+             args = (self.default,)
+diff --git a/tests/test_properties.py b/tests/test_properties.py
+index 3521647..75aacff 100644
+--- a/tests/test_properties.py
++++ b/tests/test_properties.py
+@@ -367,6 +367,37 @@ class TestProperty(unittest.TestCase):
+                               GObject.property, type=gtype, minimum=min,
+                               maximum=max+1)
+ 
++    def testMinMax(self):
++        class C(GObject.GObject):
++            prop_int = GObject.property(type=int, minimum=1, maximum=100, default=1)
++            prop_float = GObject.property(type=float, minimum=0.1, maximum=10.5, default=1.1)
++
++            def __init__(self):
++                GObject.GObject.__init__(self)
++
++        o = C()
++        self.assertEqual(o.prop_int, 1)
++
++        o.prop_int = 5
++        self.assertEqual(o.prop_int, 5)
++
++        o.prop_int = 0
++        self.assertEqual(o.prop_int, 5)
++
++        o.prop_int = 101
++        self.assertEqual(o.prop_int, 5)
++
++        self.assertEqual(o.prop_float, 1.1)
++
++        o.prop_float = 7.75
++        self.assertEqual(o.prop_float, 7.75)
++
++        o.prop_float = 0.09
++        self.assertEqual(o.prop_float, 7.75)
++
++        o.prop_float = 10.51
++        self.assertEqual(o.prop_float, 7.75)
++
+     def testMultipleInstances(self):
+         class C(GObject.GObject):
+             prop = GObject.property(type=str, default='default')
+-- 
+1.7.8.1
+
