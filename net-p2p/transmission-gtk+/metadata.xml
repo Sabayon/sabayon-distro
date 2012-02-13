@@ -11,6 +11,7 @@
     <description>maintainer of Gentoo (non-split) ebuild</description>
   </maintainer>
   <use>
+    <flag name='ayatana'>Enable Ayatana support with <pkg>dev-libs/libappindicator</pkg></flag>
 	<flag name="utp">Adds support for µTP (Micro Transport Protocol)</flag>
   </use>
 </pkgmetadata>
