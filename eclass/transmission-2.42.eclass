@@ -17,7 +17,7 @@
 
 # @ECLASS-VARIABLE: E_TRANSM_TAIL
 # @DESCRIPTION:
-# "Tail" of package name. Can take value gtk+, qt4, etc. or can be empty.
+# "Tail" of package name. Can take value gtk, qt4, etc. or can be empty.
 # It shouldn't be modified.
 E_TRANSM_TAIL=${PN#transmission}
 E_TRANSM_TAIL=${E_TRANSM_TAIL#-}
@@ -25,7 +25,7 @@ E_TRANSM_TAIL=${E_TRANSM_TAIL#-}
 # @FUNCTION: _transmission_is
 # @DESCRIPTION:
 # Function used to check which variant of Transmission are we working on.
-# Argument should be one of these: (none), gtk+, qt4, daemon, cli, base.
+# Argument should be one of these: (none), gtk, qt4, daemon, cli, base.
 # If argument is empty or omitted, true value means that it is
 # net-p2p/transmission (metapackage).
 # Consider it private.
@@ -35,7 +35,7 @@ _transmission_is() {
 }
 
 MY_ECLASSES=""
-_transmission_is gtk+ && MY_ECLASSES+="fdo-mime gnome2-utils"
+_transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
 _transmission_is qt4 && MY_ECLASSES+="fdo-mime qt4-r2"
 _transmission_is "" || MY_ECLASSES+=" autotools"
 # eutils must be here (for in_iuse)
@@ -79,7 +79,7 @@ _transmission_is "" || \
 
 DEPEND="${RDEPEND}"
 _transmission_is base && \
-	DEPEND+=" !<net-p2p/transmission-gtk+-${PV}
+	DEPEND+=" !<net-p2p/transmission-gtk-${PV}
 	!<net-p2p/transmission-qt-${PV}
 	!<net-p2p/transmission-daemon-${PV}
 	!<net-p2p/transmission-cli-${PV}"
@@ -169,7 +169,7 @@ transmission-2.42_src_configure() {
 			--enable-daemon
 			--without-gtk
 		)
-	elif _transmission_is gtk+; then
+	elif _transmission_is gtk; then
 		# nls is required for Gtk+ client
 		econfargs+=(
 			--disable-cli
@@ -203,15 +203,15 @@ transmission-2.42_src_compile() {
 # which would only clutter this pretty eclass.
 
 transmission-2.42_pkg_preinst() {
-	_transmission_is gtk+ && gnome2_icon_savelist
+	_transmission_is gtk && gnome2_icon_savelist
 }
 
 transmission-2.42_pkg_postinst() {
-	if _transmission_is gtk+ || _transmission_is qt4; then
+	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
 
-	_transmission_is gtk+ && gnome2_icon_cache_update
+	_transmission_is gtk && gnome2_icon_cache_update
 
 	if _transmission_is daemon; then
 		ewarn "If you use transmission-daemon, please, set 'rpc-username' and"
@@ -220,8 +220,8 @@ transmission-2.42_pkg_postinst() {
 		ewarn "any other appropriate config directory."
 	fi
 
-	if _transmission_is gtk+; then
-		# in -gtk+ only?
+	if _transmission_is gtk; then
+		# in -gtk only?
 		elog
 		elog "To enable sound emerge media-libs/libcanberra and check that at least"
 		elog "some sound them is selected. For this go:"
@@ -238,9 +238,9 @@ transmission-2.42_pkg_postinst() {
 }
 
 transmission-2.42_pkg_postrm() {
-	if _transmission_is gtk+ || _transmission_is qt4; then
+	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
 
-	_transmission_is gtk+ && gnome2_icon_cache_update
+	_transmission_is gtk && gnome2_icon_cache_update
 }

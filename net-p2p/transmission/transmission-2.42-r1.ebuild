@@ -16,5 +16,5 @@ IUSE="ayatana gtk kde nls qt4"
 
 RDEPEND="
 	gtk? (
-		~net-p2p/transmission-gtk+-${PV}[ayatana=]
+		~net-p2p/transmission-gtk-${PV}[ayatana=]
 	)"

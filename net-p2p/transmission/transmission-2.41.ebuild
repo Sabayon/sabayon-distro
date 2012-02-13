@@ -16,5 +16,5 @@ IUSE="gtk kde nls qt4 utp"
 
 RDEPEND="
 	gtk? (
-		~net-p2p/transmission-gtk+-${PV}[utp=]
+		~net-p2p/transmission-gtk-${PV}[utp=]
 	)"

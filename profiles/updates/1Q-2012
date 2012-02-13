@@ -1,2 +1,3 @@
 move sys-kernel/linux-beagleboard sys-kernel/linux-beaglebone
 move sys-kernel/beagleboard-sources sys-kernel/beaglebone-sources
+move net-p2p/transmission-gtk+ net-p2p/transmission-gtk
