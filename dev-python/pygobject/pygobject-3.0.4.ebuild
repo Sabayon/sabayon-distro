@@ -16,3 +16,4 @@ COMMON_DEPEND="
 	~dev-python/pygobject-base-${PV}[threads=,examples=,test=]
 	cairo? ( ~dev-python/pygobject-cairo-${PV}[threads=] )"
 DEPEND="${COMMON_DEPEND}"
+RDEPEND="${COMMON_DEPEND}"
