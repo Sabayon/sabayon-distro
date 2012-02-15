@@ -7,7 +7,6 @@ EAPI=4
 PYTHON_DEPEND="2:2.7"
 SUPPORT_PYTHON_ABIS="1"
 RESTRICT_PYTHON_ABIS="2.4 2.5 2.6 3.*"
-PYTHON_USE_WITH="tk"
 PYTHON_MODNAME="${PN} chempy pmg_tk pmg_wx"
 
 inherit distutils eutils fdo-mime prefix versionator
