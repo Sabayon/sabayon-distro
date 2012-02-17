@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit eutils multilib versionator flag-o-matic
+inherit eutils unpacker multilib portability versionator flag-o-matic
 
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
