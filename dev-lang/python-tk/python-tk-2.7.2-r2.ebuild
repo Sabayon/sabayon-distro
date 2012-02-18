@@ -19,7 +19,7 @@ fi
 
 PATCHSET_REVISION="0"
 
-DESCRIPTION="Tk libraries for Python."
+DESCRIPTION="Tk libraries for Python (also provides IDLE)"
 HOMEPAGE="http://www.python.org/"
 if [[ "${PV}" == *_pre* ]]; then
 	SRC_URI=""
