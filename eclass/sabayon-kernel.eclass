@@ -228,7 +228,7 @@ _is_kernel_binary() {
 
 # provide extra virtual pkg
 if _is_kernel_binary; then
-	PROVIDE="${PROVIDE} virtual/linux-binary"
+	PROVIDE="virtual/linux-binary"
 fi
 
 if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
@@ -547,8 +547,8 @@ _kernel_src_install() {
 	doins "${S}/include/linux/version.h" || die "cannot copy version.h"
 
 	insinto "/boot"
-	doins "${WORKDIR}"/boot/*
-	cp -Rp "${WORKDIR}"/lib/* "${D}/"
+	doins "${WORKDIR}"/boot/* || die "cannot copy /boot over"
+	cp -Rp "${WORKDIR}"/lib/* "${D}/" || die "cannot copy /lib over"
 
 	# This doesn't always work because KV_FULL (when K_NOSETEXTRAVERSION=1) doesn't
 	# reflect the real value used in Makefile
