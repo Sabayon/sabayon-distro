@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-17.0.963.44.ebuild,v 1.1 2012/01/26 04:17:23 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-18.0.1025.33.ebuild,v 1.1 2012/02/16 02:47:09 floppym Exp $
 
 EAPI="4"
 PYTHON_DEPEND="2:2.6"
@@ -19,7 +19,7 @@ IUSE="bindist cups custom-cflags gnome gnome-keyring kerberos pulseaudio"
 
 # en_US is ommitted on purpose from the list below. It must always be available.
 LANGS="am ar bg bn ca cs da de el en_GB es es_LA et fa fi fil fr gu he hi hr
-hu id it ja kn ko lt lv ml mr nb nl pl pt_BR pt_PT ro ru sk sl sr sv sw ta te th
+hu id it ja kn ko lt lv ml mr ms nb nl pl pt_BR pt_PT ro ru sk sl sr sv sw ta te th
 tr uk vi zh_CN zh_TW"
 for lang in ${LANGS}; do
 	IUSE+=" linguas_${lang}"
@@ -30,7 +30,7 @@ RDEPEND="app-arch/bzip2
 		dev-libs/libgcrypt
 		>=net-print/cups-1.3.11
 	)
-	>=dev-lang/v8-3.7.6
+	>=dev-lang/v8-3.8.9.4
 	dev-libs/dbus-glib
 	dev-libs/elfutils
 	>=dev-libs/icu-4.4.1
@@ -44,9 +44,10 @@ RDEPEND="app-arch/bzip2
 	media-libs/flac
 	virtual/jpeg
 	media-libs/libpng
-	>=media-libs/libwebp-0.1.2
+	>=media-libs/libwebp-0.1.3
 	media-libs/speex
 	pulseaudio? ( media-sound/pulseaudio )
+	sys-fs/udev
 	sys-libs/zlib
 	x11-libs/gtk+:2
 	x11-libs/libXinerama
@@ -187,7 +188,17 @@ src_prepare() {
 
 	epatch "${FILESDIR}"/${PN}-sabayon-user-agent-16.0.x.patch
 	# Revert WebKit changeset responsible for Gentoo bug #393471.
-	epatch "${FILESDIR}/${PN}-revert-jpeg-swizzle-r0.patch"
+	epatch "${FILESDIR}/${PN}-revert-jpeg-swizzle-r2.patch"
+
+	# Prevent gyp failures caused by target type 'settings' instead of 'none'.
+	epatch "${FILESDIR}/${PN}-gyp-settings-r0.patch"
+
+	# Prevent compilation failures caused by missing zlib #include
+	# and dependency.
+	epatch "${FILESDIR}/${PN}-webkit-zlib-r0.patch"
+
+	# Fix crashes on illegal instructions, bug #401537.
+	epatch "${FILESDIR}/${PN}-media-no-sse-r0.patch"
 
 	epatch_user
 
@@ -211,7 +222,9 @@ src_prepare() {
 		\! -path 'third_party/leveldatabase/*' \
 		\! -path 'third_party/libjingle/*' \
 		\! -path 'third_party/libphonenumber/*' \
+		\! -path 'third_party/libsrtp/*' \
 		\! -path 'third_party/libvpx/*' \
+		\! -path 'third_party/libyuv/*' \
 		\! -path 'third_party/lss/*' \
 		\! -path 'third_party/mesa/*' \
 		\! -path 'third_party/modp_b64/*' \
@@ -379,10 +392,9 @@ src_test() {
 	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/media_unittests virtualmake
 
 	# NetUtilTest: bug #361885.
-	# NetUtilTest.GenerateFileName: some locale-related mismatch.
-	# UDP: unstable, active development. We should revisit this later.
+	# DnsConfigServiceTest.GetSystemConfig: bug #394883.
 	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/net_unittests virtualmake \
-		'--gtest_filter=-NetUtilTest.IDNToUnicode*:NetUtilTest.FormatUrl*:NetUtilTest.GenerateFileName:*UDP*'
+		'--gtest_filter=-NetUtilTest.IDNToUnicode*:NetUtilTest.FormatUrl*:DnsConfigServiceTest.GetSystemConfig'
 
 	LC_ALL="${mylocale}" VIRTUALX_COMMAND=out/Release/printing_unittests virtualmake
 }
