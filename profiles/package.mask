@@ -62,5 +62,3 @@ dev-libs/libdbusmenu
 
 # example
 # -~sys-boot/grub-1.99
-
--media-video/nvidia-settings
