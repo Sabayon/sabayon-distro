@@ -7,7 +7,7 @@ EAPI="1"
 inherit eutils flag-o-matic multilib toolchain-funcs linux-info systemd
 
 PATCHSET=${P}-gentoo-patchset-v1
-scriptversion=v4
+scriptversion=7
 scriptname=udev-gentoo-scripts-${scriptversion}
 
 if [[ ${PV} == "9999" ]]; then
