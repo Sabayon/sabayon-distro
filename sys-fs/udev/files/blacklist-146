@@ -34,6 +34,3 @@ blacklist b43
 
 # keep nvidia-drivers working, sorry nouveau
 blacklist nouveau
-
-# Ralink RT2800 PCI known to not work well and blocking other staging drivers
-blacklist rt2800pci
