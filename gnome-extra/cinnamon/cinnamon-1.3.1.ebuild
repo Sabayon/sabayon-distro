@@ -17,7 +17,7 @@ SRC_URI="https://github.com/linuxmint/Cinnamon/tarball/${PV} -> ${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="+bluetooth +networkmanager"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 
 # gnome-desktop-2.91.2 is needed due to header changes, db82a33 in gnome-desktop
 # latest gsettings-desktop-schemas is needed due to commit 602fa1c6
