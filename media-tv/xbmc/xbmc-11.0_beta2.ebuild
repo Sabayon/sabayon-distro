@@ -28,7 +28,7 @@ HOMEPAGE="http://xbmc.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="airplay alsa altivec avahi bluray css debug goom joystick midi profile +projectm pulseaudio +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr system-ffmpeg optimize"
+IUSE="airplay alsa altivec avahi bluray css debug goom joystick midi profile +projectm pulseaudio +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr"
 
 COMMON_DEPEND="
 	app-arch/bzip2
@@ -92,8 +92,7 @@ COMMON_DEPEND="
 		media-video/ffmpeg[vdpau]
 	)
 	webserver? ( net-libs/libmicrohttpd )
-	xrandr? ( x11-libs/libXrandr )
-	system-ffmpeg? ( virtual/ffmpeg )"
+	xrandr? ( x11-libs/libXrandr )"
 
 RDEPEND="${COMMON_DEPEND}
 	udev? (	sys-fs/udisks sys-power/upower )"
@@ -191,9 +190,9 @@ src_configure() {
 	econf \
 		--docdir=/usr/share/doc/${PF} \
 		--disable-ccache \
-		$( use_enable optimize optimizations ) \
+		--disable-optimizations \
 		--disable-external-python \
-		$( use_enable system-ffmpeg external-ffmpeg ) \
+		--disable-external-ffmpeg \
 		--disable-external-libdts \
 		--disable-external-liba52 \
 		--enable-gl \
