@@ -24,7 +24,7 @@ HOMEPAGE="http://xbmc.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="alsa altivec avahi css debug joystick midi profile pulseaudio rtmp sse sse2 udev vaapi vdpau webserver +xrandr"
+IUSE="alsa altivec avahi css debug joystick midi profile pulseaudio rtmp sse sse2 udev vaapi vdpau webserver +xrandr system-ffmpeg optimize"
 
 COMMON_DEPEND="virtual/opengl
 	app-arch/bzip2
@@ -83,7 +83,8 @@ COMMON_DEPEND="virtual/opengl
 	)
 	x11-libs/libXinerama
 	xrandr? ( x11-libs/libXrandr )
-	x11-libs/libXrender"
+	x11-libs/libXrender
+	system-ffmpeg? ( virtual/ffmpeg )"
 RDEPEND="${COMMON_DEPEND}
 	udev? (	sys-fs/udisks sys-power/upower )"
 DEPEND="${COMMON_DEPEND}
@@ -183,12 +184,11 @@ src_configure() {
 	econf \
 		--docdir=/usr/share/doc/${PF} \
 		--disable-ccache \
-		--disable-optimizations \
+		$(use_enable optimize optimizations) \
 		--disable-external-python \
-		--disable-external-ffmpeg \
+		$(use_enable system-ffmpeg external-ffmpeg) \
 		--disable-external-libdts \
 		--disable-external-liba52 \
-		--enable-goom \
 		--enable-gl \
 		--disable-liba52 \
 		--disable-libdts \
