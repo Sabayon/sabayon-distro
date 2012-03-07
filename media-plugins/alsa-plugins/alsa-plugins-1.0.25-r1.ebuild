@@ -87,6 +87,18 @@ src_install() {
 		doins "${FILESDIR}"/pulse-default.conf
 		insinto /usr/share/alsa/alsa.conf.d
 		doins "${FILESDIR}"/51-pulseaudio-probe.conf
+
+		# since our ebuild works in multilib environments
+		# we reference PA lib using just the soname (and not
+		# the full path). This means we have to provide
+		# proper LDPATHs.
+		local ldpath=""
+		for libdir in $(get_all_libdirs); do
+			ldpath="${ldpath}:/usr/${libdir}/alsa-lib"
+		done
+		ldpath="${ldpath:1}"
+		echo "LDPATH=\"${ldpath}\"" > "${S}/40-alsa-plugin-pulse"
+		doenvd "${S}/40-alsa-plugin-pulse"
 	fi
 
 }
