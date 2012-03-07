@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-base/oxygen-icons/oxygen-icons-4.7.2.ebuild,v 1.1 2011/10/06 18:11:13 alexxy Exp $
+# $Header: Exp $
 
 EAPI=4
 
@@ -8,7 +8,7 @@ if [[ ${PV} == *9999 ]]; then
 	KMNAME="kdesupport"
 else
 	# Upstream does not ship releases properly so we dont want all versions
-	MY_PV="4.7.2"
+	MY_PV="4.8.1"
 	MY_P="${PN}-${MY_PV}"
 fi
 KDE_REQUIRED="never"
@@ -24,18 +24,15 @@ SRC_URI="
 	!bindist? ( http://dev.gentoo.org/~alexxy/distfiles/${MY_P}.tar.xz )
 	bindist? ( ${SRC_URI//${PV}/${MY_PV}} )
 "
-
 SLREV=4
 SRC_URI="${SRC_URI} mirror://sabayon/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz"
 
 LICENSE="LGPL-3"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="aqua bindist"
 
-DEPEND="
-	!bindist? ( app-arch/xz-utils )
-"
-RDEPEND=""
+DEPEND=""
+RDEPEND="${DEPEND}"
 
 [[ ${PV} == *9999 ]] || S=${WORKDIR}/${MY_P}
 
