@@ -1,4 +1,4 @@
-# Copyright 2004-2011 Sabayon
+# Copyright 2004-2012 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 inherit eutils
@@ -81,4 +81,3 @@ src_install() {
 	newinitd cdeject cdeject
 
 }
-

@@ -1,94 +1,105 @@
-#!/bin/bash 
+#!/bin/bash
 
-# 3.09.2010 Enlik <sn at ubucentrum.net>
-# Some fixes for sabutil script from app-misc/sabayonlive-tools-2.2-r5.
-# Feel free to remove this notice, any part of it or any line I made.
+# Initial version by wolfden.
+# Later changes by Enlik <poczta-sn at gazeta.pl>.
 
-USER=$(users)
-HOMEDIR=/home/`cat /etc/passwd | grep 1000 | cut -d: -f1`/
-echo "$HOMEDIR"
+# last change: 9.03.2012
+# most important changes to last version:
+# - abort if non root where needs root permissions
+# - fix fdisk -l pasting
+# - support for xorg.conf.d
+# - reorder options and add rcupdate_pastebin
 
-SYS=/sbin
-echo "$SYS"
- 
- function menu
+USER=$(whoami)
+HOMEDIR=${HOME:-/tmp}
+
+function menu
 {
-     clear
-     selection=""
-     until  [[ "$selection" = "0" ]] ; do
-	 echo ""
-         echo "Current Operating System:" $(cat /etc/sabayon-release)
-         echo "Current Edition:" $(cat /etc/sabayon-edition)
-         echo
-	 echo "$myname"
-         
- 
-	 echo ""
-	 echo "1 - Backup & edit xorg.conf "
-	 echo "2 - Restore original xorg.conf"
-	 echo "3 - Regenerate Sabayon xorg.conf"
-	 echo "4 - Backup & edit grub.cfg"
-	 echo "5 - Restore original grub.cfg"
-	 echo "6 - Package Management."
-         echo "----------------------------------------"
-         echo "View and AutoPaste:"
-         echo " "
-         echo "01 - Pastebin Xorg.0.log"
-         echo "02 - Pastebin .xsession-errors"
-         echo "03 - Pastebin dmesg"
-         echo "04 - Pastebin messages"
-         echo "05 - Pastebin rc.log"
-         echo "06 - Pastebin grub.cfg" 
-         echo "07 - Pastebin fdisk -l"
-         echo "08 - Pastebin kdm.log"
-         echo "09 - Pastebin Hardware Info"
-         echo ""
-	 echo "0 - Exit"
-	 echo ""
-	 echo -n "Enter selection: "
-	 read selection
-	 echo ""
- 
- 
-	 case "$selection" in
-	     1 ) xorg_backup ; press_enter ; nano /etc/X11/xorg.conf; press_enter ;;
-	     2 ) xorg_restore ; press_enter ;;
-	     3 ) xorg_regen ; press_enter ;;
-	     4 ) grub_backup ; press_enter ; nano /boot/grub/grub.cfg; press_enter ;;
-	     5 ) grub_restore ; press_enter ;;
-	     6 ) packages ; press_enter ;;
-             01 ) xorglog ; press_enter ;;
-	     02 ) xsessionerrors ; press_enter ;;
-             03 ) dmesg ; press_enter ;;
-             04 ) messages ; press_enter ;;
-             05 ) rclog ; press_enter ;;
-             06 ) grub ; press_enter ;;
-             07 ) fdisk ; press_enter ;;
-             08 ) kdm ; press_enter ;;
-             09 ) system ; press_enter ;;
+    local selection=""
+    until  [[ "$selection" = "0" ]] ; do
+        echo "Current Operating System:"
+	cat /etc/sabayon-release
+	echo ""
+        echo "Current Edition:"
+	cat /etc/sabayon-edition
+        echo
+        echo "Pick a choice from menu below:"
 
+        echo ""
+        echo "1 - Backup & edit xorg.conf and xorg.conf.d"
+        echo "2 - Restore xorg.conf and xorg.conf.d from backup"
+        echo "3 - Regenerate Sabayon xorg.conf"
+        echo "4 - Backup & edit grub.cfg"
+        echo "5 - Restore grub.cfg from backup"
+        echo "----------------------------------------"
+        echo "View and AutoPaste:"
+        echo " "
+        echo "01 - Pastebin Xorg configuration files"
+        echo "02 - Pastebin Xorg.0.log"
+        echo "03 - Pastebin ~/.xsession-errors"
+        echo "04 - Pastebin grub.cfg (bootmanager settings)"
+        echo "05 - Pastebin /var/log/dmesg"
+        echo "06 - Pastebin system and hardware info"
+        echo "07 - Pastebin fdisk -l (list the partition tables)"
+        echo "08 - Pastebin rc-update show (show enabled services and the runlevels)"
+        echo "09 - Pastebin rc.log"
+        echo "10 - Pastebin /var/log/messages"
+        echo "11 - Pastebin kdm.log"
+        echo ""
+        echo "0 - Exit"
+        echo ""
+        echo -n "Enter selection: "
+        read selection
+        echo ""
 
-             0 ) exit ;;
-	     * ) echo "Please be sensible - choose a number that exists in the menu"; press_enter
-	 esac
-     done
- 
- }
- 
- 
- 
- function press_enter
-{ 
-     echo ""
-     echo -n "Press Enter to continue"
-     read
-     clear
- }
- 
- function xorg_regen
+        case $selection in
+            1 ) xorg_backup ; press_enter ; xorg_edit; press_enter ;;
+            2 ) xorg_restore ; press_enter ;;
+            3 ) xorg_regen ; press_enter ;;
+            4 ) grub_backup ; press_enter ; nano -w /boot/grub/grub.cfg; press_enter ;;
+            5 ) grub_restore ; press_enter ;;
+            01 ) xorg_pastebin ; press_enter ;;
+            02 ) xorg0log_pastebin ; press_enter ;;
+            03 ) xsessionerrors_pastebin ; press_enter ;;
+            04 ) grub_pastebin ; press_enter ;;
+            05 ) dmesg_pastebin ; press_enter ;;
+            06 ) system_pastebin ; press_enter ;;
+            07 ) fdisk_pastebin ; press_enter ;;
+            08 ) rcupdate_pastebin ; press_enter ;;
+            09 ) rclog_pastebin ; press_enter ;;
+            10 ) messages_pastebin ; press_enter ;;
+            11 ) kdm_pastebin ; press_enter ;;
+
+            0 ) ;;
+            * ) echo "Please be sensible - choose a number that exists in the menu"; press_enter
+        esac
+    done
+
+}
+
+function press_enter
 {
+    echo ""
+    echo -n "Press Enter to continue"
+    read
+    clear
+}
+
+function is_root
+{
+    if [[ $USER != "root" ]]; then
+        echo "You need to be root to do this." >&2
+        return 1
+    fi
+    return 0
+}
+
+function xorg_regen
+{
+    is_root || return
+
     if [[ ! -f "/etc/X11/xorg.conf.sabayon" ]]; then
-	cat > /etc/X11/xorg.conf.sabayon <<EOF
+        cat > /etc/X11/xorg.conf.sabayon <<EOF
 Section "Module"
     SubSection  "extmod"
        Option    "omit xfree86-dga"
@@ -229,371 +240,428 @@ Section "Extensions"
 EndSection
 EOF
     fi
-	
-	mv -f /etc/X11/xorg.conf /etc/X11/xorg.conf.old
-	/usr/sbin/x-setup-configuration
 
+    mv -f /etc/X11/xorg.conf /etc/X11/xorg.conf.old
+    /usr/sbin/x-setup-configuration
+
+    echo "Note: you may want to look to /etc/X11/xorg.conf.d (if it exists), too."
 }
- 
- function xorg_backup
- { 
-     if [[ -f /etc/X11/xorg.conf.BKUP ]]; then 
-	 echo "xorg.conf backup already exists, so the new one wasn't made."
-	 echo "Now off we go to edit the file...."
-     else
-	 cp /etc/X11/xorg.conf /etc/X11/xorg.conf.BKUP
-	 echo "Making backup of xorg.conf as /etc/X11/xorg.conf.BKUP"
-	 echo ""
-	 echo "INTEL graphics users please read the url below before proceding"
-	 echo ""
-	 echo "http://gentoo-wiki.com/HOWTO_Intel_Onboard_Graphics_Notebooks_Native_Resolution"
-	 
-     fi
- 
- }
- 
- 
- function xorg_restore
- { 
-     if [[ -f /etc/X11/xorg.conf.BKUP ]]; then
-	 echo "xorg.conf backup (/etc/X11/xorg.conf.BKUP) exists, whew!"
-	 cp /etc/X11/xorg.conf.BKUP /etc/X11/xorg.conf
-	 echo ""
-	 echo "The original xorg.conf has been restored"
-     else
-         echo "UH OH!! The backup /etc/X11/xorg.conf.BKUP hasn't been made."
-	 echo "Don't panic, you can copy the file from the Live DVD/CD."
-     fi
- 
- }
- 
- 
- 
- function grub_backup
- {
-     if [[ -f /boot/grub/grub.cfg.BKUP ]]; then
-	 echo "grub.cfg backup already exists, so the new one wasn't made."
-	 echo "Now off we go to edit the file...."
-     else
-	 cp /boot/grub/grub.cfg /boot/grub/grub.cfg.BKUP
-	 echo "Making backup of grub.cfg as /boot/grub/grub.cfg.BKUP"
-	 echo ""
-     fi
- 
- }
- 
- 
- function grub_restore
- {
-     if [[ -f /boot/grub/grub.cfg.BKUP ]]
-     then
-	 echo "grub.cfg backup (/boot/grub/grub.cfg.BKUP) exists, whew!"
-	 cp /boot/grub/grub.cfg.BKUP /boot/grub/grub.cfg
-	 echo ""
-	 echo "The original grub.cfg has been restored"
-     else
-	 echo "UH OH!! The backup script /boot/grub/grub.cfg.BKUP hasn't been made."
-	 echo "Don't panic, you can use the Sabayon installer to repair GRUB."
-     fi
- 
- }
 
- function horner
- {
- 
- # Quick system info gatherer written for Sabayon GNU/Linux
- #(http://sabayonlinux.org)
- # Copyright 2008 Richard Edward Horner
- # Last modified 2008-11-26
- # Please send all comments, suggestions, bugs and patches to (rich AT
- #richhorner DOT com)
- 
- # This program is free software: you can redistribute it and/or modify
- # it under the terms of the GNU General Public License as published by
- # the Free Software Foundation, either version 3 of the License, or
- # (at your option) any later version.
- #
- # This program is distributed in the hope that it will be useful,
- # but WITHOUT ANY WARRANTY; without even the implied warranty of
- # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- # GNU General Public License for more details.
- #
- # You should have received a copy of the GNU General Public License
- # along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
- HOSTNAME=`hostname`
- RELEASE=`cat /etc/sabayon-release`
- CPU=`uname -p`
- KERNEL=`uname -r`
- KERN_ARCH=`uname -m`
- DISK=`df -lT --exclude-type=tmpfs --exclude-type=rootfs | awk 'BEGIN { total = 0; used = 0 } { if (NR > 1) { total += $3; used += $4 } } END { printf "%.1f/%.1fGB", used / 1000000, total / 1000000 }'`
- MEMORY=`cat /proc/meminfo | awk '{ if ($1 == "MemTotal:") { memtot = $2/1000 } else if ($1 == "MemFree:") { memfree = $2/1000 } } END { printf "%d/%dM", memfree, memtot }'`
- DAYS=`cat /proc/uptime | awk '{ printf "%.1f", $1/86400 }'`
- PROCS=`ps aux | awk 'END { print NR - 2 }'`
- RENDERER=`glxinfo | awk -F : '{ if ($1 == "OpenGL renderer string") print $2 }'`
- 
- echo "Sysinfo for '$HOSTNAME': $RELEASE with $KERN_ARCH kernel $KERNEL
- on $CPU, HD: $DISK, MEM: $MEMORY, Renderer: $RENDERER, $PROCS procs,
- up $DAYS days"
+function xorg_backup
+{
+    is_root || return
 
- } 
+    if [[ -f /etc/X11/xorg.conf.BKUP ]]; then
+        echo "/etc/X11/xorg.conf.BKUP already exists, so new backup wasn't made - aborting."
+        echo "Now off we go to edit the file...."
+        return
+    elif [[ -e /etc/X11/xorg.conf.d.BKUP ]]; then
+        echo "/etc/X11/xorg.conf.d.BKUP backup already exists, so new backup wasn't made - aborting."
+        return
+    fi
 
- # pastebunz seems to have some limit on max pasted lines, so this would be handy...
- function files_pastebin_linelimit
- {
-     # args: limit file(s) to pastebin
-     # example: file_pastebin_linelimit file1 "file name" file3 ...
-     # first arg: 0 means no limit
-     # By Enlik <sn at ubucentrum.net>
-     local TMPFILE=~/newbietmp
-     local LINESLIMIT
-     local LLIMIT_H
-     
-     if [[ $# -le 1 ]]; then
-         echo "Warning: no files to paste (in files_pastebin_linelimit)." >&2
-         return 2
-     fi
-     
-     let LINESLIMIT=$1
-     shift
-     # If there is a limit of lines, we need to make space for file name and blank
-     # lines to be pasted. Otherwise we have as much space as we want.
-     if [[ $LINESLIMIT -eq 0 ]]; then
-         LLIMIT_H="+1"
-     else
-         LLIMIT_H=$(( LINESLIMIT - 3 ))
-     fi
-     
-     >"$TMPFILE" || {
-         echo "Oh no! I can't create temporary file... Aborting." >&2
-         return 3
-     }
-     
-     for file in "$@"; do
-	echo " $file"
-	echo ""
-	if [[ -r $file ]]; then
-	     # This tail guarantees that LAST file name is visible (unless the limit is really small, <= 2 lines)
-	     # (previous one(s) can be wiped by tail due to limit of lines).
-	     # The file name is always visible if there's only one specified
-	     # as argument (unless the limit value is really small, as above).
-	     # All file names are always visible if there's no limit
-	     # of lines, or the limit is big enough.
-	     cat "$file" | tail -n $LLIMIT_H
-	else
-	     echo "THIS FILE COULDN'T BE READ." 
+    # Delete backup file. If there's no xorg.conf, no stale xorg.conf.BKUP will be kept.
+    # So xorg_restore will not made new (unexpected) xorg.conf from xorg.conf.BKUP.
+    rm -f /etc/X11/xorg.conf.BKUP
+    if [[ -f /etc/X11/xorg.conf ]]; then
+	echo "Making backup of xorg.conf as /etc/X11/xorg.conf.BKUP"
+	cp /etc/X11/xorg.conf /etc/X11/xorg.conf.BKUP
+    else
+	echo "There's no /etc/X11/xorg.conf so it couldn't be backed up."
+    fi
+
+    if [[ -e /etc/X11/xorg.conf.d ]]; then
+	echo "Making backup of /etc/X11/xorg.conf.d/*"
+	if [[ ! -d /etc/X11/xorg.conf.d ]]; then
+	    echo "!!!"
+	    echo "/etc/X11/xorg.conf.d is not a directory!"
+	    return
 	fi
-	echo ""
-     done >> "$TMPFILE"
-     if [[ $LINESLIMIT -eq 0 ]]; then
-	cat "$TMPFILE" | pastebunz
-     else
-	cat "$TMPFILE" | tail -n $LINESLIMIT | pastebunz
-     fi
-     echo "** Please see the link above! **"
-     
-     rm "$TMPFILE"
-     return 0
- }
- 
- function files_pastebin
- {
-     files_pastebin_linelimit 0 "$@"
- }
+        mkdir -p /etc/X11/xorg.conf.d.BKUP
+        rm -f /etc/X11/xorg.conf.d.BKUP/* # dotfiles and subdirectories (who keeps them there?!) are left untouched
+        cp /etc/X11/xorg.conf.d/* /etc/X11/xorg.conf.d.BKUP/ # and not copied (that's fine)
+        echo "/etc/X11/xorg.conf.d/* files are backed up in /etc/X11/xorg.conf.d.BKUP/"
+    else
+	echo "There's no /etc/X11/xorg.conf.d (directory) so it couldn't be backed up."
+    fi
 
- function pastebinner
- {
-     >~/newbietmp || {
-	 echo "Oh no! I can't create temporary file... Aborting."
-	 return 1
-     }
-     horner >> ~/newbietmp
- 
-    echo "
- /usr/sbin/lspci
- " >> ~/newbietmp
-     lspci >> ~/newbietmp
-
-     echo "
- /usr/sbin/lsusb
- " >> ~/newbietmp
-     lsusb >> ~/newbietmp
-
-     echo "
- 
- /bin/lsmod
- " >> ~/newbietmp
-     lsmod >> ~/newbietmp
-     
-     echo "
- uname -r
- " >> ~/newbietmp
-     uname -r >> ~/newbietmp
-    
-     echo "
- eselect kernel list
- " >> ~/newbietmp
-     eselect --no-color kernel list >> ~/newbietmp
-    
-     echo "
- eselect opengl list
- " >> ~/newbietmp
-     eselect --no-color opengl list >> ~/newbietmp
-    
-     echo "
- eselect java-vm list
- " >> ~/newbietmp
-     eselect --no-color java-vm list >> ~/newbietmp
-    
-     echo "
- xorg.conf
- " >> ~/newbietmp
-     
-     
-     cat /etc/X11/xorg.conf >> ~/newbietmp
-     
-     cat ~/newbietmp
-     cat ~/newbietmp | pastebunz
-     echo "*** Please see the link above. ***"
-     rm ~/newbietmp
- }
- 
- function packages
- {
-     clear
-     echo "Warning - this function is not implemented."
-     echo "You may play with the menu though. ;)"
-     pack_sel=
-     until [[ "$pack_sel" = "3" ]]; do
- 
-	 echo "PACKAGE MANAGEMENT SUB-MENU"
-	 echo ""
-	 echo "1 - Portage - Source based packages"
-	 echo "2 - Entropy - Binary based packages"
-	 echo ""
-	 echo "3 - MAIN MENU"
- 
-	 echo ""
-	 echo -n "Enter selection: "
-	 read pack_sel
-	 echo ""
-	 case "$pack_sel" in
-	     1 ) echo "portage"; press_enter ;;
-	     2 ) echo "entropy"; press_enter ;;
-	     3 ) echo "returning to MAIN MENU" ;;
-	     * ) echo "Please be sensible - choose a number that exists in the menu"; press_enter ;;
-	 esac
-     done
- 
- }
-
-function system
- {
-     local PASTE_TMP=/tmp/sabutil-tmp
-     
-     >"$PASTE_TMP" || {
-	     echo "Oh no! I can't create temporary file... Aborting."
-	     return 1
-	 }
-    
-     echo "
-     sh $SYS/logscript.sh
-     " >> "$PASTE_TMP"
-     sh "$SYS/logscript.sh" >> "$PASTE_TMP"
-    
-     cat "$PASTE_TMP"
-     cat "$PASTE_TMP" | pastebunz
-     echo "*** Please see the link above. ***"
-     rm "$PASTE_TMP"
-    
+    echo ""
+    echo "INTEL graphics users please read the url below before proceding"
+    echo ""
+    echo "http://gentoo-wiki.com/HOWTO_Intel_Onboard_Graphics_Notebooks_Native_Resolution"
 }
 
-function xorglog
- {
-     cat /var/log/Xorg.0.log
-     files_pastebin_linelimit 150 /var/log/Xorg.0.log
- } 
- 
-function xsessionerrors
- {
-     cat "$HOMEDIR/.xsession-errors" | tail -n 10
-     files_pastebin_linelimit 150 "$HOMEDIR/.xsession-errors"
- }
+function xorg_restore
+{
+    is_root || return
 
- function dmesg
- {
-     cat /var/log/dmesg
-     files_pastebin_linelimit 150 /var/log/dmesg
- }
- 
- function grub
- {
-     cat /boot/grub/grub.cfg
-     files_pastebin /boot/grub/grub.cfg
- }
- 
-function fdisk
- {
-     local FDISK_TMP=/tmp/sabutil-tmp
+    echo "Are you sure? This will replace your /etc/X11/xorg.conf and /etc/X11/xorg.conf.d/*.conf."
+    echo "[Y/n]"
+    local reply
+    read reply
+    if [[ $reply != "" && $reply != "y" && $reply != "Y" ]]; then
+        echo "OK, aborting."
+        return
+    fi
 
-     >"$FDISK_TMP" || {
-	     echo "Oh no! I can't create temporary file... Aborting."
-	     return 1
-	 }
-	 
-     (
-     echo "
-     fdisk -l
-     ";
-     fdisk -l;
-     ) > "$FDISK_TMP"
-     
-     cat "$FDISK_TMP"
-     cat "$FDISK_TMP" | pastebunz
-     echo "*** Please see the link above. ***"
-     rm "$FDISK_TMP"
- }
- 
-function messages
- {
-     cat /var/log/messages
-     files_pastebin_linelimit 150 /var/log/messages
- }
- 
-function kdm
- {
-     cat /var/log/kdm.log
-     files_pastebin_linelimit 150 /var/log/kdm.log
- }
+    if [[ -f /etc/X11/xorg.conf.BKUP ]]; then
+        echo "xorg.conf backup (/etc/X11/xorg.conf.BKUP) exists, whew!"
+        cp /etc/X11/xorg.conf.BKUP /etc/X11/xorg.conf
+        echo ""
+        echo "The original xorg.conf has been restored"
+    else
+        echo "UH OH!! The backup /etc/X11/xorg.conf.BKUP hasn't been made."
+        echo "If you think you need the file, don't panic, you can copy it from the Live DVD/CD."
+    fi
 
-function rclog
- {
-     if [[ -f /var/log/rc.log ]]; then
-	 cat /var/log/rc.log | tail -n 10
-	 files_pastebin_linelimit 150 /var/log/rc.log
-     else
-         echo "You Don't Have rc.log enabled in your /etc/rc.log"
-         echo " To enable, edit /etc/rc.log change NO to YES for rc_logger= "
-         echo ""
-     fi
- }
+    echo ""
 
- clear
- myname="Pick A Choice From Menu Below"
+    if [[ -d /etc/X11/xorg.conf.d.BKUP ]] \
+	&& (shopt -s nullglob; f=(/etc/X11/xorg.conf.d.BKUP/*.conf); [[ ${#f[*]} -ne 0 ]] )
+    then
+        echo "The backup /etc/X11/xorg.conf.d.BKUP (directory) exists and contails .conf files."
+        mkdir -p /etc/X11/xorg.conf.d
+	# similar notes as for xorg_backup, but files like .disabled are not removed
+        rm -f /etc/X11/xorg.conf.d/*.conf
+        cp /etc/X11/xorg.conf.d.BKUP/* /etc/X11/xorg.conf.d/
+        echo "Your settings are now restored to /etc/X11/xorg.conf.d/."
+    fi
+}
 
- if [[ $1 = "menu" ]]; then
-     if [[ $EUID -ne 0 ]] && [[ $EUID -ne 1000 ]]; then
-         echo "$myname"
-         echo ""
-         echo "This script should be run as root, or by someone in the root group.  Some commands will not work for you." 1>&2
-     fi
-     menu
- elif [[ $1 = "--help" || $1 = "-h" ]]; then
+function grub_backup
+{
+    is_root || return
+
+    echo "Note: to modify GRUB configuration, you should edit /etc/default/grub"
+    echo " or a file in /etc/grub.d and then run grub-mkconfig -o /boot/grub/grub.cfg"
+    echo " (/boot/grub/grub.cfg shouldn't be edited by hand)."
+    echo ""
+
+    if [[ -f /boot/grub/grub.cfg.BKUP ]]; then
+        echo "grub.cfg backup already exists, so the new one wasn't made."
+        echo "Now off we go to edit the file...."
+    else
+	echo "Making backup of grub.cfg as /boot/grub/grub.cfg.BKUP"
+        cp /boot/grub/grub.cfg /boot/grub/grub.cfg.BKUP
+        echo ""
+    fi
+}
+
+function grub_restore
+{
+    is_root || return
+
+    echo "Are you sure? This will replace your /boot/grub/grub.cfg."
+    echo "[Y/n]"
+    local reply
+    read reply
+    if [[ $reply != "" && $reply != "y" && $reply != "Y" ]]; then
+        echo "OK, aborting."
+        return
+    fi
+
+    if [[ -f /boot/grub/grub.cfg.BKUP ]]
+    then
+        echo "grub.cfg backup (/boot/grub/grub.cfg.BKUP) exists, whew!"
+        cp /boot/grub/grub.cfg.BKUP /boot/grub/grub.cfg
+        echo ""
+        echo "The original grub.cfg has been restored"
+    else
+        echo "UH OH!! The backup script /boot/grub/grub.cfg.BKUP hasn't been made."
+        echo "Don't panic, you can use the Sabayon installer to repair GRUB."
+    fi
+}
+
+function horner
+{
+
+# Quick system info gatherer written for Sabayon GNU/Linux
+#(http://sabayonlinux.org)
+# Copyright 2008 Richard Edward Horner
+# Last modified 2008-11-26
+# Please send all comments, suggestions, bugs and patches to (rich AT
+#richhorner DOT com)
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+HOSTNAME=`hostname`
+RELEASE=`cat /etc/sabayon-release`
+CPU=`uname -p`
+KERNEL=`uname -r`
+KERN_ARCH=`uname -m`
+DISK=`df -lT --exclude-type=tmpfs --exclude-type=rootfs | awk 'BEGIN { total = 0; used = 0 } { if (NR > 1) { total += $3; used += $4 } } END { printf "%.1f/%.1fGB", used / 1000000, total / 1000000 }'`
+MEMORY=`cat /proc/meminfo | awk '{ if ($1 == "MemTotal:") { memtot = $2/1000 } else if ($1 == "MemFree:") { memfree = $2/1000 } } END { printf "%d/%dM", memfree, memtot }'`
+DAYS=`cat /proc/uptime | awk '{ printf "%.1f", $1/86400 }'`
+PROCS=`ps aux | awk 'END { print NR - 2 }'`
+RENDERER=`glxinfo | awk -F : '{ if ($1 == "OpenGL renderer string") print $2 }'`
+
+echo "Sysinfo for '$HOSTNAME': $RELEASE with $KERN_ARCH kernel $KERNEL
+on $CPU, HD: $DISK, MEM: $MEMORY, Renderer: $RENDERER, $PROCS procs,
+up $DAYS days"
+
+}
+
+# echo -e "\a[pastebunz debug ON]" >&2;
+# function pastebunz { sed 's/^/[pb] '/ | less; }
+
+# pastebunz seems to have some limit on max pasted lines, so this would be handy...
+function files_pastebin_linelimit
+{
+    # args: limit file_to_pastebin [file_to_pastebin] ...
+    # example: file_pastebin_linelimit 30 file1 "file name2" file3
+    # first arg: 0 means no limit
+    # By Enlik <sn at ubucentrum.net>
+    local TMPFILE=~/newbietmp
+    local LINESLIMIT
+    local LLIMIT_H
+
+    if [[ $# -le 1 ]]; then
+        echo "Error: no files to paste (in files_pastebin_linelimit)." >&2
+        return 2
+    fi
+
+    let LINESLIMIT=$1
+    shift
+    # If there is a limit of lines, we need to make space for file name and blank
+    # lines to be pasted. Otherwise we have as much space as we want.
+    if [[ $LINESLIMIT -eq 0 ]]; then
+        LLIMIT_H="+1"
+    else
+        LLIMIT_H=$(( LINESLIMIT - 3 ))
+    fi
+
+    >"$TMPFILE" || {
+        echo "Oh no! I can't create temporary file... Aborting." >&2
+        return 3
+    }
+
+    for file in "$@"; do
+        echo " --- file: $file ---"
+        echo " "
+        if [[ -r $file ]]; then
+            # This tail guarantees that LAST file name is visible (unless the limit is really small, <= 2 lines)
+            # (previous one(s) can be wiped by tail due to limit of lines).
+            # The file name is always visible if there's only one specified
+            # as argument (unless the limit value is really small, as above).
+            # All file names are always visible if there's no limit
+            # of lines, or the limit is big enough.
+            cat "$file" 2>&1 | tail -n $LLIMIT_H
+    elif [[ -e $file ]]; then
+	    echo "THIS FILE COULDN'T BE READ."
+	else
+	    echo "THIS FILE DOESN'T EXIST."
+	fi
+        echo " "
+    done >> "$TMPFILE"
+    if [[ $LINESLIMIT -eq 0 ]]; then
+        cat "$TMPFILE" | pastebunz
+    else
+        tail -n $LINESLIMIT "$TMPFILE" | pastebunz
+    fi
+    echo "** Please see the link above! **"
+
+    rm "$TMPFILE"
+    return 0
+}
+
+function files_pastebin
+{
+    files_pastebin_linelimit 0 "$@"
+}
+
+function system_pastebin
+{
+    echo -n "Please wait, it is going to take a while..."
+    local PASTE_TMP=/tmp/sabutil-tmp
+
+    >"$PASTE_TMP" || {
+	echo "Oh no! I can't create temporary file... Aborting."
+        return 1
+    }
+
+    echo "
+    sh /sbin/logscript.sh
+    " >> "$PASTE_TMP"
+    sh "/sbin/logscript.sh" >> "$PASTE_TMP"
+
+    cat "$PASTE_TMP"
+    cat "$PASTE_TMP" | pastebunz
+    echo "*** Please see the link above. ***"
+    rm "$PASTE_TMP"
+}
+
+function xorg0log_pastebin
+{
+    tail -n 150 /var/log/Xorg.0.log
+    files_pastebin_linelimit 150 /var/log/Xorg.0.log
+}
+
+function xsessionerrors_pastebin
+{
+    cat "$HOMEDIR/.xsession-errors" | tail -n 10
+    files_pastebin_linelimit 150 "$HOMEDIR/.xsession-errors"
+    if [[ $USER = "root" ]]; then
+        echo
+        echo "Notice: root's .xsession-errors file has been pasted."
+        echo "To get .xsession-errors from your regular account on which"
+        echo "you are logged using GDM, KDM or so (which is probably what you want),"
+        echo "run this script as that user, not root, or pastebin .xsession-errors"
+        echo "from YOUR home directory manually."
+        echo
+    fi
+}
+
+function dmesg_pastebin
+{
+    cat /var/log/dmesg
+    files_pastebin_linelimit 150 /var/log/dmesg
+}
+
+function grub_pastebin
+{
+    cat /boot/grub/grub.cfg
+    files_pastebin /boot/grub/grub.cfg
+}
+
+function fdisk_pastebin
+{
+    is_root || return # fdisk -l
+
+    local PASTE_TMP=/tmp/sabutil-tmp
+
+    >"$PASTE_TMP" || {
+	echo "Oh no! I can't create temporary file... Aborting."
+	return 1
+    }
+
+    (
+    echo "
+    fdisk -l
+    ";
+    fdisk -l;
+    ) > "$PASTE_TMP"
+
+    cat "$PASTE_TMP"
+    cat "$PASTE_TMP" | pastebunz
+    echo "*** Please see the link above. ***"
+    rm "$PASTE_TMP"
+}
+
+function messages_pastebin
+{
+    tail -n 150 /var/log/messages
+    files_pastebin_linelimit 150 /var/log/messages
+}
+
+function kdm_pastebin
+{
+    cat /var/log/kdm.log
+    files_pastebin_linelimit 150 /var/log/kdm.log
+}
+
+function rclog_pastebin
+{
+    if [[ -f /var/log/rc.log ]]; then
+        cat /var/log/rc.log | tail -n 10
+        files_pastebin_linelimit 150 /var/log/rc.log
+    else
+        echo "You Don't Have rc.log enabled in your /etc/rc.log"
+        echo " To enable, edit /etc/rc.log change NO to YES for rc_logger= "
+        echo ""
+    fi
+}
+
+function rcupdate_pastebin
+{
+    local PASTE_TMP=/tmp/sabutil-tmp
+
+    >"$PASTE_TMP" || {
+	echo "Oh no! I can't create temporary file... Aborting."
+	return 1
+    }
+
+    (
+    echo "
+    rc-update show
+    ";
+    rc-update show
+    ) > "$PASTE_TMP"
+
+    cat "$PASTE_TMP"
+    cat "$PASTE_TMP" | pastebunz
+    echo "*** Please see the link above. ***"
+    rm "$PASTE_TMP"
+}
+
+function xorg_pastebin
+{
+    echo "These files will be pasted (don't worry if any of them don't exist):"
+    ls -l /etc/X11/xorg.conf /etc/X11/xorg.conf.d/*
+    files_pastebin /etc/X11/xorg.conf.d/* /etc/X11/xorg.conf
+}
+
+function xorg_edit
+{
+    is_root &> /dev/null || echo "You are not root. You will only be able to view files."
+
+    local xorgfiles=() file
+    if (shopt -s nullglob; f=(/etc/X11/xorg.conf.d/*.conf); [[ ${#f[*]} -ne 0 ]] ); then
+	xorgfiles=( /etc/X11/xorg.conf.d/* ) # let's put all non-dot files; warning for non-conf is below
+    fi
+
+    if [[ -f /etc/X11/xorg.conf ]]; then
+            xorgfiles+=( /etc/X11/xorg.conf )
+    fi
+
+    if [[ ${#xorgfiles[*]} -eq 0 ]]; then
+        echo "I can't find any Xorg configuration files."
+        echo "There's no /etc/X11/xorg.conf or .conf files in /etc/X11/xorg.conf.d/ directory."
+        echo "Xorg uses autodected settings."
+    else
+        echo "These files affect your Xorg configuration."
+        echo "See http://fedoraproject.org/wiki/Input_device_configuration#xorg.conf.d for more informations."
+        echo "Select a file to edit or type q and press Enter to quit."
+        select file in "${xorgfiles[@]}"; do
+            if [[ -n $file ]]; then
+            # Not sure about files that don't start with a number and a hyphen - are they used?
+                if [[ ${file##*.} != "conf" ]]; then
+                    echo "Warning: this file has no .conf suffix and thus will be ignored by Xorg."
+                    press_enter
+                fi
+                nano -w "$file"
+                echo "Select a file to edit or type q and press Enter to quit."
+            elif [[ $REPLY = "q" || $REPLY = "Q" ]]; then
+                break
+            fi
+        done
+    fi
+}
+
+clear
+
+if [[ $1 = "menu" ]]; then
+    if [[ $EUID -ne 0 ]]; then
+        echo "This script should be run as root, or by someone in the root group. Some commands will not work for you." 1>&2
+	echo ""
+    fi
+    menu
+elif [[ $1 = "--help" || $1 = "-h" ]]; then
     echo "usage:"
     echo "$0 - will print some basic system infos"
     echo "$0 menu - will show you menu"
- else
-     horner
+else
+    horner
+    echo ""
+    echo "Specify --help or -h to get help."
  fi
-
-
