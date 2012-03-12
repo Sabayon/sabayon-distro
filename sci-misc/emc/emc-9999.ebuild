@@ -11,7 +11,7 @@ EGIT_REPO_URI="git://git.linuxcnc.org/git/emc2.git"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE="+X +gtk nls +python +doc-pdf doc-html simulator"
 
 RDEPEND="        
