@@ -31,6 +31,12 @@ app-emulation/qemu-gui
 # Gentoo #260441
 ~x11-drivers/nvidia-drivers-180.35
 
+# Fabio Erculiani <lxnay@sabayon.org>
+# Gnome Shell crashes when using the search bar
+~x11-drivers/nvidia-drivers-295.20
+~x11-drivers/nvidia-userspace-295.20
+~media-video/nvidia-settings-295.20
+
 # Ian Whyman <ian.whyman@sabayonlinux.org>
 # Breaks many apps, see: #575
 =x11-libs/libxcb-1.1.93-r1
@@ -62,3 +68,4 @@ dev-libs/libdbusmenu
 
 # example
 # -~sys-boot/grub-1.99
+
