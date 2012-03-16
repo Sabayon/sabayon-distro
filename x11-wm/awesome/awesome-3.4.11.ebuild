@@ -17,7 +17,13 @@ IUSE="dbus doc elibc_FreeBSD"
 
 SABAYON_RDEPEND="x11-themes/sabayon-artwork-core"
 
-COMMON_DEPEND=">=dev-lang/lua-5.1
+# Sabayon bug 2736
+SABAYON_C_DEPEND="
+	x11-libs/xcb-util-keysyms
+	x11-libs/xcb-util-wm"
+
+COMMON_DEPEND="${SABAYON_C_DEPEND}
+	>=dev-lang/lua-5.1
 	dev-libs/libev
 	>=dev-libs/libxdg-basedir-1
 	media-libs/imlib2[png]
