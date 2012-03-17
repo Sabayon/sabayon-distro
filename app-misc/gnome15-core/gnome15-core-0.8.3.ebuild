@@ -30,6 +30,7 @@ RDEPEND="dev-python/pygtk
 		 dev-python/libwnck-python
 		 dev-python/pyusb
 		 dev-python/python-uinput
+		 dev-python/python-virtkey
 		 sys-fs/udev
 		!app-misc/gnome15-indicator
 		!app-misc/gnome15-panel-applet
