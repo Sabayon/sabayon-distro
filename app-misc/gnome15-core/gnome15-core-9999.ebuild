@@ -6,8 +6,7 @@ inherit autotools bzr # python
 DESCRIPTION="Gnome tools for the Logitech G Series Keyboards And Z-10 Speakers"
 HOMEPAGE="http://www.gnome15.org/"
 
-#EBZR_REPO_URI="lp:gnome15"
-EBZR_REPO_URI="/home/cipi/src/g19/gnome15"
+EBZR_REPO_URI="lp:gnome15"
 
 LICENSE="GPL-3"
 SLOT="0"
