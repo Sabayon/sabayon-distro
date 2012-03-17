@@ -7,7 +7,7 @@ MY_S="${WORKDIR}/${MY_P}"
 
 DESCRIPTION="Gnome tools for the Logitech G Series Keyboards And Z-10 Speakers"
 HOMEPAGE="http://www.gnome15.org/"
-SRC_URI="http://www.gnome15.org/downloads/Gnome15/Required/${MY_P}.tar.gz"
+SRC_URI="http://www.gnome15.org/downloads/Gnome15/Old/${MY_P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -30,7 +30,6 @@ RDEPEND="dev-python/pygtk
 		 dev-python/libwnck-python
 		 dev-python/pyusb
 		 dev-python/python-uinput
-		 dev-python/python-virtkey
 		 sys-fs/udev
 		!app-misc/gnome15-indicator
 		!app-misc/gnome15-panel-applet
@@ -64,3 +63,6 @@ src_compile() {
 src_install() {
 	cd ${MY_S} && emake DESTDIR="${D}" install || die "emake install failed"
 }
+
+
+
