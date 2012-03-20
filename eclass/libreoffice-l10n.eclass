@@ -23,26 +23,17 @@ L10N_LANG="${L10N_LANG:-${MY_LANG}}"
 # Set this to "0" if help pack package is not available
 HELPPACK_AVAIL="${HELPPACK_AVAIL:-1}"
 
+# @ECLASS-VARIABLE: LANGPACK_AVAIL
+# @DESCRIPTION:
+# Set this to "0" if lang pack package is not available
+LANGPACK_AVAIL="${LANGPACK_AVAIL:-1}"
+
 DESCRIPTION="LibreOffice.org ${L10N_LANG} localisation"
 HOMEPAGE="http://www.documentfoundation.org"
 RESTRICT="nomirror"
 OOVER="${PV}"
 OODLVER="${PV}"
-if [[ "${PV}" = "3.3.1" ]]; then
-	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz
-		http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
-elif [[ "${PV}" = "3.3.2" ]]; then
-	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz
-		http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
-elif [[ "${PV}" = "3.3.3" ]]; then
-	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz
-		http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
-elif [[ "${PV}" = "3.4.1" ]]; then
-	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
-	if [ "${HELPPACK_AVAIL}" = "1" ]; then
-		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/${OOVER}/rpm/x86/LibO_${OODLVER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
-	fi
-elif [[ "${PV}" = "3.4.2.3" ]] || [[ "${PV}" = "3.4.3.2" ]]; then
+if [[ "${PV}" = "3.4.2.3" ]] || [[ "${PV}" = "3.4.3.2" ]]; then
 	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/3.4.2/rpm/x86/LibO_3.4.2_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
 	if [ "${HELPPACK_AVAIL}" = "1" ]; then
 		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/3.4.2/rpm/x86/LibO_3.4.2_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
@@ -61,7 +52,9 @@ elif [[ "${PV}" = "3.4.5.2" ]]; then
 		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/3.4.5/rpm/x86/LibO_3.4.5_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 	fi
 elif [[ "${PV}" = "3.5.1.2" ]]; then
-	SRC_URI="http://download.documentfoundation.org/libreoffice/stable/3.5.1/rpm/x86/LibO_3.5.1_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
+	if [ "${LANGPACK_AVAIL}" = "1" ]; then
+		SRC_URI="http://download.documentfoundation.org/libreoffice/stable/3.5.1/rpm/x86/LibO_3.5.1_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
+	fi
 	if [ "${HELPPACK_AVAIL}" = "1" ]; then
 		SRC_URI+=" http://download.documentfoundation.org/libreoffice/stable/3.5.1/rpm/x86/LibO_3.5.1_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
 	fi
@@ -88,6 +81,13 @@ libreoffice-l10n_src_unpack() {
 	mkdir "${WORKDIR}/unpack"
 	cd "${WORKDIR}/unpack"
 	rpm_unpack ${S}/*.rpm
+
+	# fix crappy rpms containing
+	# duplicated dirs
+	if [ "${PKG_PV:0:3}" = "3.5" ]; then
+		dict_en_dir="${WORKDIR}/unpack"/opt/libreoffice${PKG_PV:0:3}/share/extensions/dict-en
+		rm -rf "${dict_en_dir}"
+	fi
 }
 
 libreoffice-l10n_src_prepare() {
