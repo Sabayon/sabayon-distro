@@ -1,0 +1,25 @@
+From 07fc748fb1b242859913df178a0c41dc95a9f3e7 Mon Sep 17 00:00:00 2001
+From: Bjoern Michaelsen <bjoern.michaelsen@canonical.com>
+Date: Wed, 21 Dec 2011 22:29:02 +0100
+Subject: [PATCH] propagate gb_FULLDEPS
+
+---
+ solenv/gbuild/source_and_rerun.mk |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/solenv/gbuild/source_and_rerun.mk b/solenv/gbuild/source_and_rerun.mk
+index a2aaea0..27de233 100644
+--- a/solenv/gbuild/source_and_rerun.mk
++++ b/solenv/gbuild/source_and_rerun.mk
+@@ -2,7 +2,7 @@
+ gb_MAKEFILEDIR:=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+ 
+ define gb_SourceEnvAndRecurse_recurse
+-$(MAKE) -f $(firstword $(MAKEFILE_LIST)) -j $${GMAKE_PARALLELISM} $(1) gb_SourceEnvAndRecurse_STAGE=$(2)
++$(MAKE) -f $(firstword $(MAKEFILE_LIST)) -j $${GMAKE_PARALLELISM} $(1) gb_SourceEnvAndRecurse_STAGE=$(2) gb_FULLDEPS=$(gb_FULLDEPS)
+ endef
+ 
+ ifneq ($(strip $(gb_PARTIALBUILD)),)
+-- 
+1.7.5.4
+
