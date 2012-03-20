@@ -149,10 +149,6 @@ RDEPEND="${COMMON_DEPEND}
 	java? ( >=virtual/jre-1.6 )
 "
 
-PDEPEND="
-	>=app-office/libreoffice-l10n-3.5.0
-"
-
 # FIXME: cppunit should be moved to test conditional
 #        after everything upstream is under gbuild
 #        as dmake execute tests right away
