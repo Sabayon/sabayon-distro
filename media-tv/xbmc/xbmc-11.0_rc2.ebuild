@@ -1,8 +1,8 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-tv/xbmc/xbmc-9999.ebuild,v 1.94 2011/12/21 03:42:04 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-tv/xbmc/xbmc-11.0_rc2.ebuild,v 1.3 2012/03/19 00:10:16 vapier Exp $
 
-EAPI="2"
+EAPI="4"
 
 inherit autotools eutils python flag-o-matic
 
@@ -10,14 +10,7 @@ EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
 if [[ ${PV} == "9999" ]] ; then
 	inherit git-2
 else
-	if [[ ${PV} == *beta* ]] ; then
-		inherit versionator
-		CODENAME="Eden"
-		MY_PV=`get_version_component_range 1-2`-${CODENAME}_`get_version_component_range 3`
-		MY_P="${PN}-${MY_PV}"
-	else
-		MY_P=${P/_/-}
-	fi
+	MY_P=${P/_/-Eden_}
 	SRC_URI="http://mirrors.xbmc.org/releases/source/${MY_P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~x86"
 	S=${WORKDIR}/${MY_P}
@@ -28,13 +21,14 @@ HOMEPAGE="http://xbmc.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="airplay alsa altivec avahi bluray css debug goom joystick midi profile +projectm pulseaudio +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr"
+IUSE="airplay alsa altivec avahi bluetooth bluray css debug goom joystick midi mysql profile +projectm pulseaudio pvr +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr"
 
 COMMON_DEPEND="
 	app-arch/bzip2
 	app-arch/unzip
 	app-arch/zip
 	app-i18n/enca
+	airplay? ( app-pda/libplist )
 	dev-libs/boost
 	dev-libs/fribidi
 	dev-libs/libcdio[-minimal]
@@ -47,52 +41,52 @@ COMMON_DEPEND="
 	media-libs/flac
 	media-libs/fontconfig
 	media-libs/freetype
-	media-libs/glew
+	>=media-libs/glew-1.5.6
 	media-libs/jasper
 	media-libs/jbigkit
-	media-libs/libass
+	virtual/jpeg
+	>=media-libs/libass-0.9.7
+	bluray? ( media-libs/libbluray )
+	css? ( media-libs/libdvdcss )
 	media-libs/libmad
 	media-libs/libmodplug
 	media-libs/libmpeg2
 	media-libs/libogg
 	media-libs/libpng
+	projectm? ( media-libs/libprojectm )
 	media-libs/libsamplerate
 	media-libs/libsdl[audio,opengl,video,X]
+	alsa? ( media-libs/libsdl[alsa] )
 	media-libs/libvorbis
 	media-libs/sdl-gfx
-	media-libs/sdl-image[gif,jpeg,png]
+	>=media-libs/sdl-image-1.2.10[gif,jpeg,png]
 	media-libs/sdl-mixer
 	media-libs/sdl-sound
 	media-libs/tiff
+	pulseaudio? ( media-sound/pulseaudio )
 	media-sound/wavpack
-	>=virtual/ffmpeg-0.6
+	>=virtual/ffmpeg-0.6[encode]
+	rtmp? ( media-video/rtmpdump )
+	avahi? ( net-dns/avahi )
+	webserver? ( net-libs/libmicrohttpd )
 	net-misc/curl
-	=net-wireless/bluez-4.96
+	samba? ( >=net-fs/samba-3.4.6[smbclient] )
+	bluetooth? ( net-wireless/bluez )
 	sys-apps/dbus
 	sys-libs/zlib
-	virtual/jpeg
-	virtual/opengl
-	virtual/mysql
+	mysql? ( virtual/mysql )
 	x11-apps/xdpyinfo
 	x11-apps/mesa-progs
 	x11-libs/libXinerama
 	x11-libs/libXrender
-	airplay? ( app-pda/libplist )
-	alsa? ( media-libs/libsdl[alsa] )
-	avahi? ( net-dns/avahi )
-	bluray? ( media-libs/libbluray )
-	css? ( media-libs/libdvdcss )
-	pulseaudio? ( media-sound/pulseaudio )
-	projectm? ( media-libs/libprojectm )
-	rtmp? ( media-video/rtmpdump )
-	samba? ( >=net-fs/samba-3.4.6[smbclient] )
 	vaapi? ( x11-libs/libva )
 	vdpau? (
 		|| ( x11-libs/libvdpau >=x11-drivers/nvidia-drivers-180.51 )
-		media-video/ffmpeg[vdpau]
+		virtual/ffmpeg[vdpau]
 	)
-	webserver? ( net-libs/libmicrohttpd )
-	xrandr? ( x11-libs/libXrandr )"
+	x11-libs/libXinerama
+	xrandr? ( x11-libs/libXrandr )
+	x11-libs/libXrender"
 
 RDEPEND="${COMMON_DEPEND}
 	udev? (	sys-fs/udisks sys-power/upower )"
@@ -107,6 +101,7 @@ pkg_setup() {
 	# /usr/lib64/xbmc/system/players/dvdplayer/avcodec-52-x86_64-linux.so:
 	# undefined symbol: NeAACDecSetConfiguration
 	append-ldflags $(no-as-needed)
+	python_set_active_version 2
 	python_pkg_setup
 }
 
@@ -126,10 +121,12 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-headers.patch
-	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5.patch
-	epatch "${FILESDIR}"/xbmc-11.0_beta1-libpng-1.5-fix-plt-trn-get.patch
-	epatch "${FILESDIR}"/xbmc-9999-no-arm-flags.patch
+	epatch "${FILESDIR}"/${PN}-11.0-libpng-1.5.patch #380127
+	epatch "${FILESDIR}"/${PN}-9999-nomythtv.patch
+	epatch "${FILESDIR}"/${PN}-9999-no-arm-flags.patch #400617
+	epatch "${FILESDIR}"/${PN}-9999-no-exec-stack.patch
+	# The mythtv patch touches configure.ac, so force a regen
+	rm -f configure
 
 	epatch_user
 
@@ -141,9 +138,8 @@ src_prepare() {
 		xbmc/screensavers/rsxs-* \
 		xbmc/visualizations/Goom/goom2k4-0
 	do
-		# [[ -e ${d}/configure ]] && continue
+		[[ -e ${d}/configure ]] && continue
 		pushd ${d} >/dev/null
-		einfo "Generating autotools in ${d}"
 		eautoreconf
 		popd >/dev/null
 	done
@@ -171,6 +167,8 @@ src_prepare() {
 		-e '/dbus_connection_send_with_reply_and_block/s:-1:3000:' \
 		xbmc/linux/*.cpp || die
 
+	epatch_user #293109
+
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
 }
@@ -180,6 +178,9 @@ src_configure() {
 	export ac_cv_path_LATEX=no
 	# Avoid help2man
 	export HELP2MAN=$(type -P help2man || echo true)
+
+	# No configure flage for this #403561
+	export ac_cv_lib_bluetooth_hci_devid=$(usex bluetooth)
 
 	# XBMC python mods only work with internal Python 2.4
 	# ffmpeg is a moving target and newer version may
@@ -196,8 +197,6 @@ src_configure() {
 		--disable-external-libdts \
 		--disable-external-liba52 \
 		--enable-gl \
-		--disable-liba52 \
-		--disable-libdts \
 		$(use_enable airplay) \
 		$(use_enable avahi) \
 		$(use_enable bluray libbluray) \
@@ -206,10 +205,12 @@ src_configure() {
 		$(use_enable goom) \
 		--disable-hal \
 		$(use_enable joystick) \
+		$(use_enable mysql) \
 		$(use_enable midi mid) \
 		$(use_enable profile profiling) \
 		$(use_enable projectm) \
 		$(use_enable pulseaudio pulse) \
+		$(use_enable pvr mythtv) \
 		$(use_enable rsxs) \
 		$(use_enable rtmp) \
 		$(use_enable samba) \
@@ -220,8 +221,8 @@ src_configure() {
 }
 
 src_install() {
-	emake install DESTDIR="${D}" || die
-	prepalldocs
+	default
+	rm "${ED}"/usr/share/doc/*/{LICENSE.GPL,copying.txt}*
 
 	insinto /usr/share/applications
 	doins tools/Linux/xbmc.desktop
