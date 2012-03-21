@@ -127,6 +127,9 @@ src_prepare() {
 		# Add support for the 'x86' unified kernel arch in conftest.sh
 		epatch "${FILESDIR}"/256.35-unified-arch.patch
 
+		# Linux 3.2.8+ and 3.3 patches
+		epatch "${FILESDIR}/${PN}-290.10-3.2.8+.patch"
+
 		# If you set this then it's your own fault when stuff breaks :)
 		use custom-cflags && sed -i "s:-O:${CFLAGS}:" "${NV_SRC}"/Makefile.*
 
