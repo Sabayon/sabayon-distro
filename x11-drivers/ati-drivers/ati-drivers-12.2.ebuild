@@ -191,6 +191,9 @@ src_prepare() {
 	# fix needed for at least hardened-sources, see bug #392753
 	use pax_kernel && epatch "${FILESDIR}"/ati-drivers-12.2-redefine-WARN.patch
 
+	# Fix compilation with 3.2.8 and 3.3 kernels
+	epatch "${FILESDIR}/ati-drivers-3.2.8+.patch"
+
 	cd "${MODULE_DIR}"
 	# bugged fglrx build system, this file should be copied by hand
 	cp "${ARCH_DIR}"/lib/modules/fglrx/build_mod/libfglrx_ip.a 2.6.x
