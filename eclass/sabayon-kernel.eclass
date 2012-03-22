@@ -273,7 +273,7 @@ if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	DEPEND="sys-apps/sed"
 	RDEPEND="${RDEPEND}"
 else
-	IUSE="dmraid dracut grub splash"
+	IUSE="dmraid dracut grub iscsi luks lvm mdadm splash"
 	DEPEND="app-arch/xz-utils
 		sys-apps/sed
 		sys-devel/make
@@ -415,6 +415,11 @@ _kernel_src_compile() {
 	use dracut && GKARGS="${GKARGS} --dracut"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
 	use dmraid && GKARGS="${GKARGS} --dmraid"
+	use iscsi && GKARGS="${GKARGS} --iscsi"
+	use mdadm && GKARGS="${GKARGS} --mdadm"
+	use luks && GKARGS="${GKARGS} --luks"
+	use lvm && GKARGS="${GKARGS} --lvm"
+
 	export DEFAULT_KERNEL_SOURCE="${S}"
 	export CMD_KERNEL_DIR="${S}"
 	for opt in ${MAKEOPTS}; do
@@ -456,10 +461,6 @@ _kernel_src_compile() {
 		--logfile="${WORKDIR}"/genkernel.log \
 		--bootdir="${WORKDIR}"/boot \
 		--mountboot \
-		--lvm \
-		--luks \
-		--iscsi \
-		--mdadm \
 		--module-prefix="${WORKDIR}"/lib \
 		all || die "genkernel failed"
 	ARCH=${OLDARCH}
