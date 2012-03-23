@@ -18,7 +18,7 @@ IUSE="debug gtk3 nls pam"
 
 RDEPEND="sys-auth/consolekit
 	x11-libs/libxcb
-	>=x11-themes/sabayon-artwork-lxde-6_beta2
+	>=x11-themes/sabayon-artwork-lxde-8-r1
 	gtk3? ( x11-libs/gtk+:3 )
 	!gtk3? ( x11-libs/gtk+:2 )
 	nls? ( sys-devel/gettext )
@@ -26,18 +26,6 @@ RDEPEND="sys-auth/consolekit
 DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
 	dev-util/pkgconfig"
-
-src_configure() {
-	econf	--enable-password \
-		--with-x \
-		--with-xconn=xcb \
-		$(use_with pam) \
-		$(use_enable gtk3) \
-		$(use_enable nls) \
-		$(use_enable debug) \
-		|| die "econf failed"
-
-}
 
 src_prepare() {
 	# Upstream bug, tarball contains pre-made lxdm.conf
@@ -48,9 +36,15 @@ src_prepare() {
 	# Backported, drop it when 0.4.2
 	epatch "${FILESDIR}/${P}-git-fix-null-pointer-deref.patch"
 	# Sabayon specific theme patch
-	epatch "${FILESDIR}/${P}-sabayon-6-theme.patch"
+	epatch "${FILESDIR}/${P}-sabayon-8-theme.patch"
+	# Fix sessions with arguments, see:
+	# http://lists.sabayon.org/pipermail/devel/2012-January/007582.html
+	epatch "${FILESDIR}/${P}-fix-session-args.patch"
 
-	epatch "${FILESDIR}/${P}-Fix-configure.ac-test-for-pam-libs.patch"
+	epatch "${FILESDIR}"/${P}-configure-add-pam.patch
+
+	# 403999
+	epatch "${FILESDIR}"/${P}-missing-pam-defines.patch
 
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
@@ -61,6 +55,15 @@ src_prepare() {
 		intltoolize --force --copy --automake || die
 		strip-linguas -i "${S}/po" || die
 	fi
+}
+src_configure() {
+	econf	--enable-password \
+		--with-x \
+		--with-xconn=xcb \
+		$(use_enable gtk3) \
+		$(use_enable nls) \
+		$(use_enable debug) \
+		$(use_with pam)
 }
 
 src_install() {
