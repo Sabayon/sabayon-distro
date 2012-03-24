@@ -6,10 +6,6 @@
 		<email>patrick@gentoo.org</email>
 	</maintainer>
 	<maintainer>
-		<email>scarabeus@gentoo.org</email>
-		<name>Tomáš Chvátal</name>
-	</maintainer>
-	<maintainer>
 		<email>sputnick@quassel-irc.org</email>
 		<description>Upstream author, please CC on bugs</description>
 	</maintainer>
@@ -31,10 +27,6 @@
 			disabled, the GUI is not built, and cannot be used. You might
 			want to disable this on the server, but you need it enabled on
 			the client.
-		</flag>
-		<flag name="ayatana">
-			Build in support for Ayatana notification using the libindicate-qt
-			plugin.
 		</flag>
 		<flag name="crypt">
 			Support core->network per-channel and per-query blowfish
