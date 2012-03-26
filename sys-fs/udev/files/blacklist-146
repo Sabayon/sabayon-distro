@@ -35,3 +35,6 @@ blacklist b43
 
 # keep nvidia-drivers working, sorry nouveau
 blacklist nouveau
+
+# Known to cause kernel OOPS at boot
+blacklist ite_cir
