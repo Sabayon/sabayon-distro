@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -12,7 +12,7 @@ MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 MY_SVN_CATEGORY="${CATEGORY}"
 
 # note: java-pkg-2, not java-pkt-opt-2
-inherit autotools base flag-o-matic java-pkg-2 libtool multilib
+inherit autotools flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
 HOMEPAGE="http://subversion.apache.org/"
@@ -21,7 +21,7 @@ S="${WORKDIR}/${MY_SVN_P/_/-}"
 
 LICENSE="Subversion"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 
 IUSE="debug doc nls"
 
@@ -32,15 +32,6 @@ RDEPEND="
 DEPEND="${COMMON_DEPEND}
 	>=virtual/jdk-1.5"
 
-PATCHES=(
-		"${FILESDIR}/${MY_SVN_PN}-1.6.0-disable_linking_against_unneeded_libraries.patch"
-		"${FILESDIR}/${MY_SVN_PN}-1.6.2-local_library_preloading.patch"
-		"${FILESDIR}/${MY_SVN_PN}-1.6.3-kwallet_window.patch"
-		"${FILESDIR}/${MY_SVN_PN}-1.5.4-interix.patch"
-		"${FILESDIR}/${MY_SVN_PN}-1.5.6-aix-dso.patch"
-		"${FILESDIR}/${MY_SVN_PN}-1.6.3-hpux-dso.patch"
-)
-
 pkg_setup() {
 	java-pkg-2_pkg_setup
 
@@ -50,7 +41,10 @@ pkg_setup() {
 }
 
 src_prepare() {
-	base_src_prepare
+	epatch "${FILESDIR}"/${MY_SVN_PN}-1.5.4-interix.patch \
+		"${FILESDIR}"/${MY_SVN_PN}-1.5.6-aix-dso.patch \
+		"${FILESDIR}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch
+
 	fperms +x build/transform_libtool_scripts.sh
 
 	sed -i \
@@ -82,19 +76,18 @@ src_configure() {
 	fi
 
 	case ${CHOST} in
-		*-solaris*)
-			# -lintl isn't added for some reason (makes Neon check fail)
-			use nls && append-libs -lintl
-		;;
 		*-aix*)
 			# avoid recording immediate path to sharedlibs into executables
 			append-ldflags -Wl,-bnoipath
 		;;
 		*-interix*)
 			# loader crashes on the LD_PRELOADs...
-			myconf="${myconf} --disable-local-library-preloading"
+			myconf+=" --disable-local-library-preloading"
 		;;
 	esac
+
+	#workaround for bug 387057
+	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
 
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--without-apxs \
@@ -130,7 +123,7 @@ src_compile() {
 
 src_install() {
 	emake DESTDIR="${D}" install-javahl || die "Installation of Subversion JavaHL library failed"
-	java-pkg_regso "${ED}"usr/$(get_libdir)/libsvnjavahl*.so
+	java-pkg_regso "${ED}"usr/$(get_libdir)/libsvnjavahl*$(get_libname)
 	java-pkg_jarinto /usr/share/"${MY_SVN_PN}"/lib
 	java-pkg_dojar "${ED}"usr/$(get_libdir)/svn-javahl/svn-javahl.jar
 	rm -fr "${ED}"usr/$(get_libdir)/svn-javahl/*.jar
