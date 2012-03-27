@@ -147,6 +147,7 @@ RDEPEND="${COMMON_DEPEND}
 	media-fonts/urw-fonts
 	cups? ( net-print/cups )
 	java? ( >=virtual/jre-1.6 )
+	x11-themes/sabayon-artwork-loo
 "
 
 # FIXME: cppunit should be moved to test conditional
