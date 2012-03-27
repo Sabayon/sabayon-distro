@@ -1,0 +1,20 @@
+--- build/build.xml	2007-04-13 21:00:32.000000000 +0000
++++ build/build.xml	2007-04-16 23:11:05.000000000 +0000
+@@ -1133,7 +1133,7 @@
+ 
+     </target>
+     <target name="-plugins-impl" if="dirlist">
+-
++	<taskdef classname="net.sf.antcontrib.logic.For" name="for"/>
+         <!-- For each plugin in the main src dir, call the 'buildplugin' macro -->
+         <for list="${dirlist}" param="plugin" trim="true">
+             <sequential>
+@@ -1143,7 +1143,7 @@
+ 
+     </target>
+     <target name="-plugins-impl-dev" if="plugin.dev.dir">
+-
++	<taskdef classname="net.sf.antcontrib.logic.For" name="for"/>
+         <!-- Get a list of plugins in the optional dev dir -->
+         <subdirinfo dir="${plugin.dev.dir}" property="dirlist2" ifexists="plugin.xml"/>
+ 

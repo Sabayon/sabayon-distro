@@ -1,0 +1,10 @@
+--- build/build.xml	2010-06-27 23:37:11.000000000 +0200
++++ build/build.xml	2010-06-27 23:37:29.000000000 +0200
+@@ -235,7 +235,6 @@
+                 </or>
+             </not>
+         </condition>
+-        <fail if="ant.not.ok" message="Must use Ant 1.6.x or 1.7.x to build Openfire"/>
+         <fail if="java.not.ok" message="Must use JDK 1.5.x or higher to build Openfire"/>
+ 
+         <tstamp/>
