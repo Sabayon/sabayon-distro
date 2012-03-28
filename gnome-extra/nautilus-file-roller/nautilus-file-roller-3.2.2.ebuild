@@ -15,7 +15,7 @@ SLOT="0"
 IUSE=""
 KEYWORDS="~amd64 ~arm ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux"
 
-DEPEND=">=gnome-base/nautilus-3.0.0
+DEPEND=">=gnome-base/nautilus-3
 "
 RDEPEND="${DEPEND}
 	~app-arch/file-roller-${PV}

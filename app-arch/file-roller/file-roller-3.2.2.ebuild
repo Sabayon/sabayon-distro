@@ -34,6 +34,7 @@ DEPEND="${RDEPEND}
 	app-text/gnome-doc-utils"
 # eautoreconf needs:
 #	gnome-base/gnome-common
+PDEPEND="nautilus? ( ~gnome-extra/nautilus-file-roller-${PV} )"
 
 pkg_setup() {
 	# --disable-debug because enabling it adds -O0 to CFLAGS
@@ -83,9 +84,4 @@ pkg_postinst() {
 	elog "  rpm     - app-arch/rpm"
 	elog "  unstuff - app-arch/stuffit"
 	elog "  zoo     - app-arch/zoo"
-	if use nautilus; then
-		elog
-		elog "For context menu with archiving options in Nautilus"
-		elog "install gnome-extra/nautilus-file-roller"
-	fi
 }
