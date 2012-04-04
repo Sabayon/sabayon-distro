@@ -1,10 +1,12 @@
-sys-apps/entropy
-kde-misc/magneto-kde
 app-misc/magneto-loader
-x11-misc/magneto-gtk
-kde-misc/entropy-kioslaves
+app-admin/rigo
 app-admin/sulfur
-sys-apps/entropy-server
 app-admin/equo
+kde-misc/entropy-kioslaves
+kde-misc/magneto-kde
+sys-apps/entropy
 sys-apps/magneto-core
 sys-apps/entropy-client-services
+sys-apps/entropy-server
+sys-apps/rigo-daemon
+x11-misc/magneto-gtk
