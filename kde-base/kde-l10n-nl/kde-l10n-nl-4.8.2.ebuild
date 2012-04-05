@@ -2,5 +2,5 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-L10N_NAME="Kannada"
+L10N_NAME="Dutch"
 inherit kde-l10n

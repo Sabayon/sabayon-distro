@@ -20,33 +20,11 @@ KEYWORDS="~amd64 ~x86"
 DEPEND=">=sys-devel/gettext-0.15"
 RDEPEND=""
 IUSE="+handbook"
-# Have to get kdepim l10n locales because they're missing in recent
-# packages
-KDEPIM_PV="4.5.0"
-SRC_URI="${SRC_URI/-${MY_LANG}-${PV}.tar.bz2/}/${PN}-${PV}.tar.bz2"
-if [[ "${PV}" = 4.6.* ]]; then
-	SRC_URI="mirror://sabayon/${CATEGORY}/kdepim-l10n/kdepim-4.4.5-l10n.tar.bz2"
-fi
 
 kde-l10n_src_prepare() {
     # override kde4-base_src_prepare which
     # fails at enable_selected_doc_linguas
     base_src_prepare
-
-    # kdepim locale support
-    if [[ "${PV}" = 4.6.* ]]; then
-        PIM_S="${WORKDIR}/${PN}-${KDEPIM_PV}"
-        if [[ -d "${PIM_S}" ]]; then
-	    # kdepim 4.5.0 docbook xmls are currently broken, no big deal
-	    # we care more about package localization rather than handbooks
-            # echo "add_subdirectory( kdepim )" >> "${S}"/docs/CMakeLists.txt
-            # cp "${PIM_S}/docs/kdepim" "${S}"/docs/ -rp || die
-	    if [[ -d "${PIM_S}/messages/kdepim" ]]; then
-                echo "add_subdirectory( kdepim )" >> "${S}"/messages/CMakeLists.txt
-                cp "${PIM_S}/messages/kdepim" "${S}"/messages/ -rp || die
-            fi
-        fi
-    fi
 }
 
 kde-l10n_src_configure() {
