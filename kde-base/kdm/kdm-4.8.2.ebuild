@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-base/kdm/kdm-4.7.4.ebuild,v 1.1 2011/12/11 18:52:39 alexxy Exp $
+# $Header: Exp $
 
 EAPI=4
 
@@ -9,7 +9,7 @@ KMNAME="kde-workspace"
 inherit kde4-meta flag-o-matic
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86 ~amd64-linux ~x86-linux"
 IUSE="+consolekit debug kerberos pam"
 
 DEPEND="
@@ -39,7 +39,6 @@ KMEXTRA="
 "
 
 PATCHES=(
-	"${FILESDIR}/kdebase-4.0.2-pam-optional.patch"
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
 	"${FILESDIR}/${PN}-4.7.3-revertcrashlogic.patch"
 )
@@ -86,7 +85,7 @@ src_install() {
 		-e "/#TerminateServer=/s/^.*$/TerminateServer=true/" \
 		-e "s|^.*DataDir=.*$|#&\nDataDir=${EPREFIX}${KDM_HOME}|" \
 		-e "s|^.*FaceDir=.*$|#&\nFaceDir=${EPREFIX}${KDM_HOME}/faces|" \
-		-e "s|themes/horos$|themes/sabayon|" \
+		-e "s|themes/ariya$|themes/sabayon|" \
 		-i "${ED}"/usr/share/config/kdm/kdmrc \
 		|| die "Failed to set ServerTimeout and SessionsDirs correctly in kdmrc."
 
