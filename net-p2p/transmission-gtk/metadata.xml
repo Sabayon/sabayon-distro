@@ -3,15 +3,10 @@
 <pkgmetadata>
   <maintainer>
     <email>slawomir.nizio@sabayon.org</email>
-    <description>maintainer for split Transmission ebuilds, please bugs about them here</description>
+    <description>maintainer for split Transmission ebuilds based on Gentoo one</description>
   </maintainer>	
-  <maintainer>
-    <email>pva@gentoo.org</email>
-    <name>Peter Volkov</name>
-    <description>maintainer of Gentoo (non-split) ebuild</description>
-  </maintainer>
   <use>
-    <flag name='ayatana'>Enable Ayatana support with <pkg>dev-libs/libappindicator</pkg></flag>
-	<flag name="utp">Adds support for µTP (Micro Transport Protocol)</flag>
+    <flag name='lightweight'>Optimize transmission for low-resource systems (smaller cache size, prefer unencrypted peer connections, etc.)</flag>
+    <flag name='xfs'>Enable XFS filesystem capabilities by using <pkg>sys-fs/xfsprogs</pkg> headers (in building of fdlimit(.c))</flag>
   </use>
 </pkgmetadata>

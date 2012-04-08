@@ -1,0 +1,18 @@
+Transmission configured with --enable-external-natpmp and system with 
+installed snapshot from 20110808 fails as following:
+
+natpmp.c: In function ‘tr_natpmpPulse’:
+natpmp.c:123:9: error: too few arguments to function ‘initnatpmp’
+/usr/include/natpmp.h:144:13: note: declared here
+
+--- libtransmission/natpmp.c
++++ libtransmission/natpmp.c
+@@ -120,7 +120,7 @@
+ 
+     if( is_enabled && ( nat->state == TR_NATPMP_DISCOVER ) )
+     {
+-        int val = initnatpmp( &nat->natpmp );
++        int val = initnatpmp( &nat->natpmp, 0, NULL );
+         logVal( "initnatpmp", val );
+         val = sendpublicaddressrequest( &nat->natpmp );
+         logVal( "sendpublicaddressrequest", val );

@@ -2,15 +2,11 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
   <maintainer>
-  	<email>slawomir.nizio@sabayon.org</email>
-    <description>maintainer for split Transmission ebuilds, please bugs about them here</description>
-  </maintainer>	
-  <maintainer>
-  	<email>pva@gentoo.org</email>
-	<name>Peter Volkov</name>
-    <description>maintainer of Gentoo (non-split) ebuild</description>
+    <email>slawomir.nizio@sabayon.org</email>
+    <description>maintainer for split Transmission ebuilds based on Gentoo one</description>
   </maintainer>	
   <use>
-	<flag name="utp">Adds support for µTP (Micro Transport Protocol)</flag>
+    <flag name='lightweight'>Optimize transmission for low-resource systems (smaller cache size, prefer unencrypted peer connections, etc.)</flag>
+    <flag name='xfs'>Enable XFS filesystem capabilities by using <pkg>sys-fs/xfsprogs</pkg> headers (in building of fdlimit(.c))</flag>
   </use>
 </pkgmetadata>

@@ -1,9 +1,9 @@
 #!/sbin/runscript
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-p2p/transmission/files/transmission-daemon.initd.8,v 1.1 2011/06/16 09:13:27 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-p2p/transmission/files/transmission-daemon.initd.8,v 1.2 2011/12/04 10:35:07 swegener Exp $
 
-opts="start stop reload"
+extra_started_commands="reload"
 description="Transmission is a fast, easy and free bittorrent client"
 description_start="Start transmission-daemon server and web interface"
 description_stop="Stop transmission-daemon server and web interface"

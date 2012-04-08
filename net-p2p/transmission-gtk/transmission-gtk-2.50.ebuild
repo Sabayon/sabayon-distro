@@ -1,28 +1,25 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=4
-inherit transmission-2.41
+inherit transmission-2.50
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Gtk+ UI"
-LICENSE="MIT GPL-2"
 KEYWORDS="~amd64 ~x86"
-IUSE="utp"
+IUSE="ayatana"
 
 RDEPEND="
-	>=net-libs/miniupnpc-1.6
-	>=dev-libs/glib-2.28:2
-	>=x11-libs/gtk+-2.22:2
-	>=dev-libs/dbus-glib-0.70"
-DEPEND="${RDEPEND}
-	sys-devel/gettext
-	>=dev-util/intltool-0.40"
+	>=dev-libs/dbus-glib-0.98
+	>=dev-libs/glib-2.28
+	>=x11-libs/gtk+-3.2:3
+	ayatana? ( dev-libs/libappindicator:3 )
+"
 
 src_prepare() {
 	# https://trac.transmissionbt.com/ticket/4573
 	epatch "${FILESDIR}"/gtk-conf-set-correct-download-dir-default.patch
-	transmission-2.41_src_prepare
+	transmission-2.50_src_prepare
 }
 
 src_install() {
