@@ -6,8 +6,10 @@ fi
 
 OLD=$1
 NEW=$2
-PACKAGES="sys-kernel/sabayon-sources sys-kernel/linux-sabayon \
-	sys-kernel/server-sources sys-kernel/linux-server"
+PACKAGES="sys-kernel/sabayon-sources sys-kernel/linux-sabayon
+	sys-kernel/server-sources sys-kernel/linux-server
+	sys-kernel/panda-sources sys-kernel/linux-panda
+	sys-kernel/beagle-sources sys-kernel/linux-beagle"
 
 for package in ${PACKAGES}; do
 	name=$(echo ${package} | cut -d/ -f2)
