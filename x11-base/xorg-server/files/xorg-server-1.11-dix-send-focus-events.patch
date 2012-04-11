@@ -1,0 +1,48 @@
+From a125aabda3a5cf27aa98cb61f16e49280b66f451 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 05 Jan 2012 12:02:51 +0000
+Subject: dix: send focus events to the immediate parent (#44079)
+
+For a transition from windows A to B, A->parent did not receive an event.
+DeviceFocusOutEvents sends to windows ]from, to[, so start with the actual
+window, not it's parent.
+
+X.Org Bug 44079 <http://bugs.freedesktop.org/show_bug.cgi?id=44079>
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
+Reviewed-by: Keith Packard <keithp@keithp.com>
+---
+diff --git a/dix/enterleave.c b/dix/enterleave.c
+index a39e640..2b8c7c5 100644
+--- a/dix/enterleave.c
++++ b/dix/enterleave.c
+@@ -1292,7 +1292,7 @@ DeviceFocusEvents(DeviceIntPtr dev,
+                         NotifyPointer);
+             DeviceFocusEvent(dev, XI_FocusOut, mode, NotifyNonlinear, from);
+             /* next call catches the root too, if the screen changed */
+-            DeviceFocusOutEvents(dev, from->parent, NullWindow, mode,
++            DeviceFocusOutEvents(dev, from, NullWindow, mode,
+                     NotifyNonlinearVirtual);
+         }
+         /* Notify all the roots */
+@@ -1321,7 +1321,7 @@ DeviceFocusEvents(DeviceIntPtr dev,
+             if (IsParent(to, from))
+             {
+                 DeviceFocusEvent(dev, XI_FocusOut, mode, NotifyAncestor, from);
+-                DeviceFocusOutEvents(dev, from->parent, to, mode,
++                DeviceFocusOutEvents(dev, from, to, mode,
+                         NotifyVirtual);
+                 DeviceFocusEvent(dev, XI_FocusIn, mode, NotifyInferior, to);
+                 if ((IsParent(to, sprite->win)) &&
+@@ -1353,7 +1353,7 @@ DeviceFocusEvents(DeviceIntPtr dev,
+                                 NotifyPointer);
+                     DeviceFocusEvent(dev, XI_FocusOut, mode, NotifyNonlinear, from);
+                     if (from->parent != NullWindow)
+-                        DeviceFocusOutEvents(dev, from->parent, common, mode,
++                        DeviceFocusOutEvents(dev, from, common, mode,
+                                 NotifyNonlinearVirtual);
+                     if (to->parent != NullWindow)
+                         DeviceFocusInEvents(dev, common, to, mode, NotifyNonlinearVirtual);
+--
+cgit v0.9.0.2-2-gbebe

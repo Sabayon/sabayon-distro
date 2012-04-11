@@ -1,0 +1,64 @@
+diff -ur a/test/Makefile.am b/test/Makefile.am
+--- a/test/Makefile.am	2011-07-15 15:26:40.000000000 +0200
++++ b/test/Makefile.am	2012-01-02 01:03:15.232740535 +0100
+@@ -1,21 +1,32 @@
+ if ENABLE_UNIT_TESTS
+ if HAVE_LD_WRAP
+-SUBDIRS= . xi2
+-noinst_PROGRAMS = xkb input xtest list misc fixes
++SUBDIRS= .
++noinst_PROGRAMS = list
++if XORG
++# Tests that require at least some DDX functions in order to fully link
++# For now, requires xf86 ddx, could be adjusted to use another
++SUBDIRS += xi2
++noinst_PROGRAMS += xkb input xtest misc fixes
++endif
+ check_LTLIBRARIES = libxservertest.la
+ 
+ TESTS=$(noinst_PROGRAMS)
+ 
+ AM_CFLAGS = $(DIX_CFLAGS) @XORG_CFLAGS@
+-INCLUDES = $(XORG_INCS) -I$(top_srcdir)/hw/xfree86/parser \
+-	-I$(top_srcdir)/miext/cw -I$(top_srcdir)/hw/xfree86/ddc \
++INCLUDES = $(XORG_INCS) -I$(top_srcdir)/miext/cw
++if XORG
++INCLUDES += -I$(top_srcdir)/hw/xfree86/parser \
++	-I$(top_srcdir)/hw/xfree86/ddc \
+ 	-I$(top_srcdir)/hw/xfree86/i2c -I$(top_srcdir)/hw/xfree86/modes \
+ 	-I$(top_srcdir)/hw/xfree86/ramdac
++endif
+ TEST_LDADD=libxservertest.la $(XORG_SYS_LIBS) $(XSERVER_SYS_LIBS)
+ 
++if XORG
+ if SPECIAL_DTRACE_OBJECTS
+ TEST_LDADD += $(OS_LIB) $(DIX_LIB)
+ endif
++endif
+ 
+ xkb_LDADD=$(TEST_LDADD)
+ input_LDADD=$(TEST_LDADD)
+@@ -24,9 +35,10 @@
+ misc_LDADD=$(TEST_LDADD)
+ fixes_LDADD=$(TEST_LDADD)
+ 
++libxservertest_la_LIBADD = $(XSERVER_LIBS)
++if XORG
+ nodist_libxservertest_la_SOURCES = $(top_builddir)/hw/xfree86/sdksyms.c
+-libxservertest_la_LIBADD = \
+-            $(XSERVER_LIBS) \
++libxservertest_la_LIBADD += \
+             $(top_builddir)/hw/xfree86/loader/libloader.la \
+             $(top_builddir)/hw/xfree86/os-support/libxorgos.la \
+             $(top_builddir)/hw/xfree86/common/libcommon.la \
+@@ -36,7 +48,9 @@
+             $(top_builddir)/hw/xfree86/ramdac/libramdac.la \
+             $(top_builddir)/hw/xfree86/ddc/libddc.la \
+             $(top_builddir)/hw/xfree86/i2c/libi2c.la \
+-            $(top_builddir)/hw/xfree86/dixmods/libxorgxkb.la \
++            $(top_builddir)/hw/xfree86/dixmods/libxorgxkb.la
++endif
++libxservertest_la_LIBADD += \
+             $(top_builddir)/mi/libmi.la \
+             $(top_builddir)/os/libos.la \
+             @XORG_LIBS@
