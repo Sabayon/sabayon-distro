@@ -7,5 +7,6 @@ kde-misc/magneto-kde
 sys-apps/entropy
 sys-apps/magneto-core
 sys-apps/entropy-server
+sys-apps/entropy-client-services
 sys-apps/rigo-daemon
 x11-misc/magneto-gtk
