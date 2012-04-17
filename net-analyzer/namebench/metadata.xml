@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer>
+		<email>spatz@gentoo.org</email>
+		<name>Dror Levin</name>
+		<description>original Gentoo maintainer</description>
+	</maintainer>
+	<maintainer>
+		<email>slawomir.nizio@sabayon.org</email>
+		<description>maintainer of modified ebuild(s) for Sabayon</description>
+	</maintainer>
+	<upstream>
+		<remote-id type="google-code">namebench</remote-id>
+	</upstream>
+</pkgmetadata>
