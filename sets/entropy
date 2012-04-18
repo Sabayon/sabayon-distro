@@ -2,7 +2,6 @@ app-misc/magneto-loader
 app-admin/rigo
 app-admin/sulfur
 app-admin/equo
-kde-misc/entropy-kioslaves
 kde-misc/magneto-kde
 sys-apps/entropy
 sys-apps/magneto-core
