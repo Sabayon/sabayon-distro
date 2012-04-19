@@ -1,0 +1,31 @@
+diff -Nurp openrc-0.9.9.3.orig/conf.d/hwclock openrc-0.9.9.3/conf.d/hwclock
+--- openrc-0.9.9.3.orig/conf.d/hwclock	2012-03-11 21:04:51.000000000 +0100
++++ openrc-0.9.9.3/conf.d/hwclock	2012-04-19 18:50:12.000000000 +0200
+@@ -2,7 +2,7 @@
+ # Greenwich Mean Time).  If that clock is set to the local time, then
+ # set CLOCK to "local".  Note that if you dual boot with Windows, then
+ # you should set it to "local".
+-clock="UTC"
++clock="local"
+ 
+ # If you want the hwclock script to set the system time (software clock)
+ # to match the current hardware clock during bootup, leave this
+diff -Nurp openrc-0.9.9.3.orig/etc/rc.conf.in openrc-0.9.9.3/etc/rc.conf.in
+--- openrc-0.9.9.3.orig/etc/rc.conf.in	2012-03-11 21:04:51.000000000 +0100
++++ openrc-0.9.9.3/etc/rc.conf.in	2012-04-19 18:49:46.000000000 +0200
+@@ -39,13 +39,13 @@
+ # This allows net.wlan and any service not matching net.* to be plugged.
+ # Example - rc_hotplug="*"
+ # This allows all services to be hotplugged
+-#rc_hotplug="*"
++rc_hotplug="!net.*"
+ 
+ # rc_logger launches a logging daemon to log the entire rc process to
+ # /var/log/rc.log
+ # NOTE: Linux systems require the devfs service to be started before
+ # logging can take place and as such cannot log the sysinit runlevel.
+-#rc_logger="YES"
++rc_logger="YES"
+ 
+ # Through rc_log_path you can specify a custom log file.
+ # The default value is: /var/log/rc.log
