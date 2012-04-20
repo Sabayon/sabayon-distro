@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="nls"
 
 RDEPEND="media-gfx/sane-backends
-	=media-gfx/xsane-${PV}[-gimp]
+	~media-gfx/xsane-${PV}[-gimp]
 	media-gfx/gimp"
 
 DEPEND="${RDEPEND}
