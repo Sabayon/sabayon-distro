@@ -1,0 +1,177 @@
+diff --git a/dom/ipc/ContentChild.cpp b/dom/ipc/ContentChild.cpp
+--- a/dom/ipc/ContentChild.cpp
++++ b/dom/ipc/ContentChild.cpp
+@@ -43,27 +43,31 @@
+ 
+ #ifdef MOZ_WIDGET_QT
+ #include "nsQAppInstance.h"
+ #endif
+ 
+ #include "ContentChild.h"
+ #include "CrashReporterChild.h"
+ #include "TabChild.h"
++#if defined(MOZ_SYDNEYAUDIO)
+ #include "AudioChild.h"
++#endif
+ 
+ #include "mozilla/ipc/TestShellChild.h"
+ #include "mozilla/net/NeckoChild.h"
+ #include "mozilla/ipc/XPCShellEnvironment.h"
+ #include "mozilla/jsipc/PContextWrapperChild.h"
+ #include "mozilla/dom/ExternalHelperAppChild.h"
+ #include "mozilla/dom/StorageChild.h"
+ #include "mozilla/dom/PCrashReporterChild.h"
+ 
++#if defined(MOZ_SYDNEYAUDIO)
+ #include "nsAudioStream.h"
++#endif
+ #include "nsIMemoryReporter.h"
+ #include "nsIObserverService.h"
+ #include "nsTObserverArray.h"
+ #include "nsIObserver.h"
+ #include "nsIPrefService.h"
+ #include "nsServiceManagerUtils.h"
+ #include "nsXULAppAPI.h"
+ #include "nsWeakReference.h"
+@@ -379,26 +383,32 @@ ContentChild::RecvPTestShellConstructor(
+     return true;
+ }
+ 
+ PAudioChild*
+ ContentChild::AllocPAudio(const PRInt32& numChannels,
+                           const PRInt32& rate,
+                           const PRInt32& format)
+ {
++#if defined(MOZ_SYDNEYAUDIO)
+     AudioChild *child = new AudioChild();
+     NS_ADDREF(child);
+     return child;
++#else
++    return nsnull;
++#endif
+ }
+ 
+ bool
+ ContentChild::DeallocPAudio(PAudioChild* doomed)
+ {
++#if defined(MOZ_SYDNEYAUDIO)
+     AudioChild *child = static_cast<AudioChild*>(doomed);
+     NS_RELEASE(child);
++#endif
+     return true;
+ }
+ 
+ PNeckoChild* 
+ ContentChild::AllocPNecko()
+ {
+     return new NeckoChild();
+ }
+diff --git a/dom/ipc/ContentParent.cpp b/dom/ipc/ContentParent.cpp
+--- a/dom/ipc/ContentParent.cpp
++++ b/dom/ipc/ContentParent.cpp
+@@ -63,17 +63,19 @@
+ #include "nsCExternalHandlerService.h"
+ #include "nsFrameMessageManager.h"
+ #include "nsIAlertsService.h"
+ #include "nsToolkitCompsCID.h"
+ #include "nsIDOMGeoGeolocation.h"
+ #include "nsIConsoleService.h"
+ #include "nsIScriptError.h"
+ #include "nsConsoleMessage.h"
++#if defined(MOZ_SYDNEYAUDIO)
+ #include "AudioParent.h"
++#endif
+ 
+ #if defined(ANDROID) || defined(LINUX)
+ #include <sys/time.h>
+ #include <sys/resource.h>
+ #endif
+ 
+ #ifdef MOZ_PERMISSIONS
+ #include "nsPermissionManager.h"
+@@ -682,26 +684,32 @@ ContentParent::DeallocPTestShell(PTestSh
+   return true;
+ }
+  
+ PAudioParent*
+ ContentParent::AllocPAudio(const PRInt32& numChannels,
+                            const PRInt32& rate,
+                            const PRInt32& format)
+ {
++#if defined(MOZ_SYDNEYAUDIO)
+     AudioParent *parent = new AudioParent(numChannels, rate, format);
+     NS_ADDREF(parent);
+     return parent;
++#else
++    return nsnull;
++#endif
+ }
+ 
+ bool
+ ContentParent::DeallocPAudio(PAudioParent* doomed)
+ {
++#if defined(MOZ_SYDNEYAUDIO)
+     AudioParent *parent = static_cast<AudioParent*>(doomed);
+     NS_RELEASE(parent);
++#endif
+     return true;
+ }
+ 
+ PNeckoParent* 
+ ContentParent::AllocPNecko()
+ {
+     return new NeckoParent();
+ }
+diff --git a/dom/ipc/Makefile.in b/dom/ipc/Makefile.in
+--- a/dom/ipc/Makefile.in
++++ b/dom/ipc/Makefile.in
+@@ -51,38 +51,45 @@ DIRS = tests
+ DIRS = tests
+ endif
+ 
+ EXPORTS = TabMessageUtils.h PCOMContentPermissionRequestChild.h
+ 
+ EXPORTS_NAMESPACES = mozilla/dom
+ 
+ EXPORTS_mozilla/dom = \
+-  AudioChild.h \
+-  AudioParent.h \
+   ContentChild.h \
+   ContentParent.h \
+   ContentProcess.h \
+   CrashReporterChild.h \
+   CrashReporterParent.h \
+   TabParent.h \
+   TabChild.h \
+   $(NULL)
+ 
+ CPPSRCS = \
+-  AudioChild.cpp \
+-  AudioParent.cpp \
+   ContentProcess.cpp \
+   ContentParent.cpp \
+   ContentChild.cpp \
+   CrashReporterParent.cpp \
+   TabParent.cpp \
+   TabChild.cpp \
+   TabMessageUtils.cpp \
+   $(NULL)
++
++ifdef MOZ_SYDNEYAUDIO
++EXPORTS_mozilla/dom += \
++  AudioChild.h \
++  AudioParent.h \
++  $(NULL)
++CPPSRCS += \
++  AudioChild.cpp \
++  AudioParent.cpp \
++  $(NULL)
++endif
+ 
+ include $(topsrcdir)/config/config.mk
+ include $(topsrcdir)/ipc/chromium/chromium-config.mk
+ include $(topsrcdir)/config/rules.mk
+ 
+ LOCAL_INCLUDES += \
+ 		-I$(srcdir)/../../content/base/src \
+ 		-I$(srcdir)/../../content/events/src \
