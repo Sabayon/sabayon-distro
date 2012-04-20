@@ -14,6 +14,7 @@ RDEPEND="
 	>=dev-libs/glib-2.28
 	>=x11-libs/gtk+-3.2:3
 	ayatana? ( dev-libs/libappindicator:3 )
+	!net-p2p/transmission-gtk+
 "
 
 src_prepare() {
