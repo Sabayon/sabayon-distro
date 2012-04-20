@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 
@@ -32,6 +32,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-0.5.1-sandbox.patch
 	epatch "${FILESDIR}"/${PN}-0.5.6-broken-apps.patch
 	epatch "${FILESDIR}"/${P}-battery-meter.patch
+	epatch "${FILESDIR}"/${P}-thermal-plugin.patch
 	eautoreconf
 }
 
