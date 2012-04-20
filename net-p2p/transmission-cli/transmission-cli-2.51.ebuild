@@ -3,16 +3,14 @@
 # $Header: $
 
 EAPI=4
-inherit transmission-2.42
+inherit transmission-2.51
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - command line (CLI) version"
 KEYWORDS="~amd64 ~x86"
-IUSE="nls"
+IUSE=""
 
 RDEPEND=""
-DEPEND="${RDEPEND}
-	nls? ( sys-devel/gettext
-		>=dev-util/intltool-0.40 )"
+DEPEND="${RDEPEND}"
 
 src_install() {
 	dobin cli/transmission-cli
