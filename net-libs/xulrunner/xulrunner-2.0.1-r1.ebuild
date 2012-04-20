@@ -37,7 +37,7 @@ RDEPEND="
 	>=dev-libs/glib-2.26
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	media-libs/libpng[apng]
-	dev-libs/libffi
+	virtual/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib
@@ -76,6 +76,9 @@ src_prepare() {
 	# Patches needed for ARM, bug 362237
 	epatch "${FILESDIR}/arm-bug-644136.patch"
 	epatch "${FILESDIR}/mozilla-2.0_arm_respect_cflags.patch"
+
+	# Allow to build without alsa USE-flag,bug #360163
+	epatch "${FILESDIR}/bug-626229.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
