@@ -23,7 +23,6 @@ DESCRIPTION="The GNU Compiler Collection"
 
 LICENSE="GPL-3 LGPL-3 || ( GPL-3 libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.2"
 KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
-IUSE="${IUSE} libffi"
 
 RDEPEND=">=sys-libs/zlib-1.1.4
 	>=sys-devel/gcc-config-1.4
@@ -82,15 +81,6 @@ src_install() {
 			install-toolexeclibLTLIBRARIES || die
 		if use multilib; then
 			S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libmudflap" DESTDIR="${D}" \
-				install-toolexeclibLTLIBRARIES || die
-		fi
-	fi
-
-	if use libffi; then
-		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libffi" DESTDIR="${D}" \
-			install-toolexeclibLTLIBRARIES || die
-		if use multilib; then
-			S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libffi" DESTDIR="${D}" \
 				install-toolexeclibLTLIBRARIES || die
 		fi
 	fi
