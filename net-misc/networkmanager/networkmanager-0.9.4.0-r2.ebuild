@@ -159,17 +159,12 @@ src_install() {
 	# /var/run/NetworkManager is used by some distros, but not by Gentoo
 	rmdir -v "${ED}/var/run/NetworkManager" || die "rmdir failed"
 
-	# Install script in /etc/NetworkManager/dispatcher.d to make netmount
-	# users (and init service) a bit more happy when NM is in use.
-	# In this way, at least network mounts are magically mounted
-	doexe "${FILESDIR}"/01-netmount-up-down.rc
-	fperms 0744 /etc/NetworkManager/dispatcher.d/01-netmount-up-down.rc
-
 	# Sabayon Live boot support, make possible to turn off networkmanager
 	# See bug 2400
 	doinitd "${FILESDIR}/NetworkManager-setup"
 
 	# Need to keep the /etc/NetworkManager/dispatched.d for dispatcher scripts
+	dodir /etc/NetworkManager/dispatcher.d
 	keepdir /etc/NetworkManager/dispatcher.d
 
 	# Provide openrc net dependency only when nm is connected
@@ -177,6 +172,12 @@ src_install() {
 	newexe "${FILESDIR}/10-openrc-status-r1" 10-openrc-status
 	sed -e "s:@EPREFIX@:${EPREFIX}:g" \
 		-i "${ED}/etc/NetworkManager/dispatcher.d/10-openrc-status" || die
+
+	# Install script in /etc/NetworkManager/dispatcher.d to make netmount
+	# users (and init service) a bit more happy when NM is in use.
+	# In this way, at least network mounts are magically mounted
+	doexe "${FILESDIR}"/01-netmount-up-down.rc
+	fperms 0744 /etc/NetworkManager/dispatcher.d/01-netmount-up-down.rc
 
 	# Add keyfile plugin support
 	keepdir /etc/NetworkManager/system-connections
