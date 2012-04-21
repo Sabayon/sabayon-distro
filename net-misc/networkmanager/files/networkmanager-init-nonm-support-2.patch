@@ -1,0 +1,15 @@
+--- NetworkManager-0.9.4.0.orig/initscript/Gentoo/NetworkManager.in
++++ NetworkManager-0.9.4.0/initscript/Gentoo/NetworkManager.in
+@@ -12,6 +12,12 @@ depend() {
+ }
+ 
+ start() {
++   if [ -f /etc/.nonm ]; then
++      einfo "Skipping NetworkManager, /etc/.nonm found or \"nonm\" bootparam passed."
++      rm /etc/.nonm
++      return 0
++   fi
++
+    # If we are re-called by a dispatcher event, we want to mark the service
+    # as started without starting the daemon again
+    yesno "${IN_BACKGROUND}" && return 0

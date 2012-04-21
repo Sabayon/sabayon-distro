@@ -1,0 +1,30 @@
+From 8f3c3242a762d77fedd745273a1cdca7f9a2b2f6 Mon Sep 17 00:00:00 2001
+From: Alexandre Rostovtsev <tetromino@gentoo.org>
+Date: Tue, 31 Jan 2012 21:10:01 -0500
+Subject: [PATCH] ifnet: properly unquote hostnames with g_shell_unquote()
+
+If /etc/conf.d/hostname contains "hostname='foo'", then the hostname
+needs to be set to "foo", not "'foo'".
+
+https://bugzilla.gnome.org/show_bug.cgi?id=669148
+---
+ src/settings/plugins/ifnet/net_utils.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/src/settings/plugins/ifnet/net_utils.c b/src/settings/plugins/ifnet/net_utils.c
+index b533ae3..36b465d 100644
+--- a/src/settings/plugins/ifnet/net_utils.c
++++ b/src/settings/plugins/ifnet/net_utils.c
+@@ -242,8 +242,7 @@ read_hostname (const char *path)
+ 		if (g_str_has_prefix (all_lines[i], "hostname")) {
+ 			tmp = strstr (all_lines[i], "=");
+ 			tmp++;
+-			tmp = strip_string (tmp, '"');
+-			result = g_strdup (tmp);
++			result = g_shell_unquote (tmp, NULL);
+ 			break;
+ 		}
+ 
+-- 
+1.7.8.4
+
