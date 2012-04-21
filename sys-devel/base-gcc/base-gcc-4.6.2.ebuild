@@ -96,6 +96,13 @@ src_install() {
 		fi
 	fi
 
+	S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libffi" DESTDIR="${D}" \
+		install-toolexeclibLTLIBRARIES || die
+	if use multilib; then
+		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libffi" DESTDIR="${D}" \
+			install-toolexeclibLTLIBRARIES || die
+	fi
+
 	if use openmp; then
 		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" \
 			install-toolexeclibLTLIBRARIES || die
