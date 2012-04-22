@@ -1,0 +1,2 @@
+# See https://bugzilla.gnome.org/show_bug.cgi?id=664858
+CLUTTER_PAINT=disable-clipped-redraws:disable-culling

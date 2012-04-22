@@ -360,6 +360,10 @@ src_install() {
 	fi
 
 	is_final_abi || die "failed to iterate through all ABIs"
+
+	# GNOME3 gnome-terminal redraw bug workaround,
+	# see: https://bugzilla.gnome.org/show_bug.cgi?id=664858
+	doenvd "${FILESDIR}/90mutter-disable-culling"
 }
 
 # Install nvidia library:
