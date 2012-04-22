@@ -46,6 +46,8 @@ src_prepare() {
 	# 403999
 	epatch "${FILESDIR}"/${P}-missing-pam-defines.patch
 
+	epatch "${FILESDIR}"/${P}-fix-event-check-bug.patch
+
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
 
