@@ -1,0 +1,25 @@
+From c40c21fe0670c6fb58bc82e4df2825e23c7406bb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tom=C3=A1=C5=A1=20Chv=C3=A1tal?= <tchvatal@suse.cz>
+Date: Tue, 3 Apr 2012 14:40:12 +0200
+Subject: [PATCH] Do not run build again during the install phase.
+
+---
+ solenv/gbuild/extensions/post_AuxTargets.mk |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/solenv/gbuild/extensions/post_AuxTargets.mk b/solenv/gbuild/extensions/post_AuxTargets.mk
+index 72414b7..825b130 100644
+--- a/solenv/gbuild/extensions/post_AuxTargets.mk
++++ b/solenv/gbuild/extensions/post_AuxTargets.mk
+@@ -83,7 +83,7 @@ distclean: clean
+ 	desktop/scripts/soffice.sh ooo.lst post_download post_download.log \
+ 	set_soenv set_soenv.last set_soenv.stamp src.downloaded warn
+ 
+-install: build
++install:
+ 	echo "Installing in $(INSTALLDIR)..." && \
+ 	ooinstall "$(INSTALLDIR)" && \
+ 	echo "" && \
+-- 
+1.7.7
+
