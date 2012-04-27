@@ -52,7 +52,8 @@ COMMON_DEPEND=">=sys-apps/dbus-1.2
 	wimax? ( >=net-wireless/wimax-1.5.1 )"
 
 RDEPEND="${COMMON_DEPEND}
-	sys-auth/consolekit"
+	sys-auth/consolekit
+	virtual/logger"
 
 DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig
