@@ -17,7 +17,6 @@ inherit base rpm multilib versionator office-ext
 
 MY_LANG=${PN/libreoffice-l10n-/}
 MY_LANG=${MY_LANG/_/-}
-PKG_PV="${PV}"
 
 # export all the available functions here
 EXPORT_FUNCTIONS src_unpack src_prepare src_configure src_compile src_install pkg_postinst pkg_prerm
@@ -40,11 +39,10 @@ LANGPACK_AVAIL="${LANGPACK_AVAIL:-1}"
 DESCRIPTION="LibreOffice.org ${L10N_LANG} localisation"
 HOMEPAGE="http://www.documentfoundation.org"
 RESTRICT="nomirror"
-OOVER="${PV}"
-OODLVER="${PV}"
 
 L10N_VER="$(get_version_component_range 1-3)"
 L10N_RC_VERSION="rc2"
+LO_BRANCH=$(get_version_component_range 1-2)
 
 BASE_SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${L10N_VER}/rpm"
 SRC_URI=""
@@ -72,7 +70,7 @@ LICENSE="LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-RDEPEND="~app-office/libreoffice-${PV}"
+RDEPEND="=app-office/libreoffice-${LO_BRANCH}*"
 DEPEND="dev-util/pkgconfig
 	dev-util/intltool"
 
@@ -121,7 +119,7 @@ libreoffice-l10n-2_src_configure() { :; }
 libreoffice-l10n-2_src_compile() { :; }
 
 libreoffice-l10n-2_src_install() {
-	local dir="${S}"/opt/libreoffice$(get_version_component_range 1-2 ${PV})/
+	local dir="${S}"/opt/libreoffice${LO_BRANCH}/
 	# Condition required for people that do not install anything eg no linguas
 	# or just english with no offlinehelp.
 	if [[ -d "${dir}" ]] ; then
