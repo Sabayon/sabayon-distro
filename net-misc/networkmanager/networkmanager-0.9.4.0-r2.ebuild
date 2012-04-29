@@ -54,7 +54,8 @@ COMMON_DEPEND=">=sys-apps/dbus-1.2
 RDEPEND="${COMMON_DEPEND}
 	modemmanager? ( >=net-misc/modemmanager-0.4 )
 	systemd? ( >=sys-apps/systemd-31 )
-	!systemd? ( sys-auth/consolekit )"
+	!systemd? ( sys-auth/consolekit )
+	virtual/logger"
 
 DEPEND="${COMMON_DEPEND}
 	dev-util/pkgconfig

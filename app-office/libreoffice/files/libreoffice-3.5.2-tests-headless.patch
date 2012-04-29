@@ -1,0 +1,37 @@
+From b8ec5464300a0c909166197a09a80c837b90fef5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tom=C3=A1=C5=A1=20Chv=C3=A1tal?= <tchvatal@suse.cz>
+Date: Tue, 3 Apr 2012 14:21:23 +0200
+Subject: [PATCH] always pass --headless to cppunits
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+They should not need any actual UI anyway, and most of them already
+pass the option manually.
+http://lists.freedesktop.org/archives/libreoffice/2012-March/029109.html
+
+This is partial code grab as cherry-pick had the test-mk files collisions
+all over the place. I pick only the additional define which results in some
+tests adding --headless twice, which does no harm.
+
+Author: Luboš Luňák <l.lunak@suse.cz>
+Signed-off-by: Tomáš Chvátal <tchvatal@suse.cz>
+---
+ solenv/gbuild/CppunitTest.mk |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/solenv/gbuild/CppunitTest.mk b/solenv/gbuild/CppunitTest.mk
+index 0d8959e..826d3f5 100644
+--- a/solenv/gbuild/CppunitTest.mk
++++ b/solenv/gbuild/CppunitTest.mk
+@@ -61,6 +61,7 @@ gb_CppunitTarget__make_url = file://$(if $(filter WNT,$(OS_FOR_BUILD)),/)$(1)
+ gb_CppunitTest__get_uno_type_target = $(OUTDIR)/bin/$(1).rdb
+ define gb_CppunitTest__make_args
+ $(ARGS) \
++--headless \
+ $(if $(strip $(UNO_TYPES)),\
+ 	"-env:UNO_TYPES=$(foreach rdb,udkapi $(UNO_TYPES),\
+ 		$(call gb_CppunitTarget__make_url,$(call gb_CppunitTest__get_uno_type_target,$(rdb))))") \
+-- 
+1.7.7
+
