@@ -28,7 +28,7 @@ RDEPEND="virtual/libiconv
 	fam? ( virtual/fam )
 	utils? ( >=dev-util/gdbus-codegen-${PV} )"
 # Sabayon hack to force libffi install, drop after July 2012
-COMMON_DEPEND="${COMMON_DEPEND} >=dev-libs/libffi-3.0.11"
+RDEPEND="${RDEPEND} >=dev-libs/libffi-3.0.11"
 DEPEND="${RDEPEND}
 	>=sys-devel/gettext-0.11
 	>=dev-util/gtk-doc-am-1.15
