@@ -1,15 +1,15 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-gfx/splashutils/splashutils-1.5.4.3-r2.ebuild,v 1.5 2010/04/04 15:20:23 spock Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-gfx/splashutils/splashutils-1.5.4.4.ebuild,v 1.7 2011/11/13 14:53:58 maekke Exp $
 
 EAPI="2"
 
 inherit autotools eutils multilib toolchain-funcs
 
 MISCSPLASH="miscsplashutils-0.1.8"
-GENTOOSPLASH="splashutils-gentoo-1.0.16"
+GENTOOSPLASH="splashutils-gentoo-1.0.17"
 V_JPEG="8a"
-V_PNG="1.2.43"
+V_PNG="1.4.3"
 V_ZLIB="1.2.3"
 V_FT="2.3.12"
 
@@ -33,12 +33,17 @@ SRC_URI="mirror://berlios/fbsplash/${PN}-lite-${PV}.tar.bz2
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ppc x86"
+KEYWORDS="amd64 ~ppc x86"
 RDEPEND="gpm? ( sys-libs/gpm )
-	truetype? ( >=media-libs/freetype-2 )
-	png? ( >=media-libs/libpng-1.2.7 )
-	mng? ( media-libs/lcms media-libs/libmng )
-	>=media-libs/jpeg-6b:0
+	truetype? ( >=media-libs/freetype-2[static-libs]
+		|| ( <app-arch/bzip2-1.0.6-r3 app-arch/bzip2[static-libs] )
+		|| ( <sys-libs/zlib-1.2.5.1-r2 sys-libs/zlib[static-libs] ) )
+	png? ( >=media-libs/libpng-1.4.3[static-libs] )
+	mng? (
+		media-libs/lcms:0[static-libs]
+		|| ( media-libs/libmng[static-libs] <media-libs/libmng-1.0.10-r1 )
+		)
+	virtual/jpeg[static-libs]
 	>=sys-apps/baselayout-1.9.4-r5
 	app-arch/cpio
 	media-gfx/fbgrab
@@ -67,6 +72,16 @@ src_prepare() {
 	# helper.
 	rm "${S}/libs/zlib-${V_ZLIB}/Makefile"
 
+	cd "${SG}"
+	epatch "${FILESDIR}/splashutils-1.5.4.4-gentoo-typo-fix.patch"
+
+	if use truetype ; then
+		cd "${SM}"
+		epatch "${FILESDIR}/splashutils-1.5.4.4-freetype-bz2.patch"
+		cd "${S}"
+		epatch "${FILESDIR}/splashutils-1.5.4.4-freetype-bz2-2.patch"
+	fi
+
 	cd "${S}"
 	ln -sf "${S}/src" "${WORKDIR}/core"
 
@@ -83,23 +98,11 @@ src_prepare() {
 		sed -i -e 's/fbtruetype kbd/kbd/' "${SM}/Makefile"
 	fi
 
-	epatch "${FILESDIR}"/splashutils-1.5.4.3-makefile.patch
-	epatch "${FILESDIR}"/splashutils-1.5.4.3-splash_geninitramfs.patch
-	epatch "${FILESDIR}"/splashutils-1.5.4.3-libjpeg.patch
-	epatch "${FILESDIR}"/splashutils-1.5.4.3-daemon-exit-signal.patch
-
-	cd "${SG}"
-	if has_version ">=sys-apps/openrc-0.4.0"; then
-		epatch "${FILESDIR}"/splashutils-openrc-0.4-fix.patch
-		if has_version ">=sys-apps/openrc-0.4.3"; then
-			epatch "${FILESDIR}"/splashutils-openrc-0.4.3-runlevel-fix.patch
-		fi
+	# Latest version of klibc defined its own version of ferror, so there is
+	# not need for the hack in klibc_compat.h
+	if has_version ">=dev-libs/klibc-1.5.20"; then
+		echo > "libs/klibc_compat.h"
 	fi
-	epatch "${FILESDIR}"/splashutils-1.5.4.3-fix_rc_var.patch
-	epatch "${FILESDIR}"/splashutils-1.5.4.3-openrc-umount-fix.patch
-	epatch "${FILESDIR}"/splashutils-1.5.4.3-nondefault-runlevel.patch
-	epatch "${FILESDIR}"/splashutils-1.5.4.3-openrc-effects.patch
-	cd "${S}"
 
 	rm -f m4/*
 	eautoreconf
@@ -176,10 +179,8 @@ src_install() {
 	fi
 
 	sed -i -e "s#/lib/splash#/${LIB}/splash#" "${D}"/sbin/splash-functions.sh
-	keepdir /${LIB}/splash/{tmp,cache,bin}
+	keepdir /${LIB}/splash/{tmp,cache,bin,sys}
 	dosym /${LIB}/splash/bin/fbres /sbin/fbres
-
-
 }
 
 pkg_preinst() {
