@@ -167,6 +167,10 @@ src_prepare() {
 			  EPATCH_FORCE="yes" epatch
 	fi
 
+	# Upstream bug, /dev/snd/{seq,timer} permission issues
+	epatch "${FILESDIR}/${PN}-171-fix-static-node-perms.patch"
+	epatch "${FILESDIR}/${PN}-171-rules-apply-audio-group.patch"
+
 	# change rules back to group uucp instead of dialout for now
 	sed -e 's/GROUP="dialout"/GROUP="uucp"/' \
 		-i rules/{rules.d,arch}/*.rules \
@@ -178,7 +182,7 @@ src_prepare() {
 		# (more for my own needs than anything else ...)
 		MD5=$(md5sum < "${S}/rules/rules.d/50-udev-default.rules")
 		MD5=${MD5/  -/}
-		if [[ ${MD5} != a9954d57e97aa0ad2e0ed53899d9559a ]]
+		if [[ ${MD5} != a62859fb0699b4ca49a8f8da34298465 ]]
 		then
 			eerror "50-udev-default.rules has been updated, please validate!"
 			eerror "md5sum: ${MD5}"
