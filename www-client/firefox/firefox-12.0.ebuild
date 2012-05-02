@@ -1,10 +1,11 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-11.0.ebuild,v 1.1 2012/03/16 02:20:11 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-12.0.ebuild,v 1.1 2012/04/30 06:43:36 polynomial-c Exp $
 
 EAPI="3"
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
+MOZ_ESR=""
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(af ak ar as ast be bg bn-BD bn-IN br bs ca cs csb cy da de el en
@@ -18,10 +19,15 @@ MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 MOZ_PV="${MOZ_PV/_beta/b}" # Handle beta for SRC_URI
 MOZ_PV="${MOZ_PV/_rc/rc}" # Handle rc for SRC_URI
 
+if [[ ${MOZ_ESR} == 1 ]]; then
+	# ESR releases have slightly version numbers
+	MOZ_PV="${MOZ_PV}esr"
+fi
+
 # Changeset for alpha snapshot
 CHANGESET="e56ecd8b3a68"
 # Patch version
-PATCH="${PN}-11.0-patches-0.1"
+PATCH="${PN}-12.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -34,7 +40,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +crashreporter +ipc +minimal neon pgo selinux system-sqlite +webm"
+IUSE="bindist +crashreporter +ipc +minimal pgo selinux system-sqlite +webm"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -76,9 +82,13 @@ elif [[ ${PV} =~ beta ]]; then
 	SRC_URI="${SRC_URI}
 		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 else
-	S="${WORKDIR}/mozilla-release"
 	SRC_URI="${SRC_URI}
-	${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
+		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
+	if [[ ${MOZ_ESR} == 1 ]]; then
+		S="${WORKDIR}/mozilla-esr${PV%%.*}"
+	else
+		S="${WORKDIR}/mozilla-release"
+	fi
 fi
 
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
@@ -215,9 +225,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
-	# Taken from Debian
-	use arm && mozconfig_annotate '' --disable-methodjit
-	use arm && append-cflags "-D__ARM_PCS"
+	mozconfig_annotate 'Missing fetures' --disable-system-cairo
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
