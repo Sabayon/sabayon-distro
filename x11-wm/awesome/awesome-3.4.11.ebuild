@@ -84,7 +84,8 @@ DOCS="AUTHORS BUGS PATCHES README STYLE"
 src_prepare() {
 	epatch \
 		"${FILESDIR}/${PN}-3.4.2-backtrace.patch" \
-		"${FILESDIR}/sabayon-background.patch"
+		"${FILESDIR}/sabayon-background.patch" \
+		"${FILESDIR}"/${P}-glib-2.32.patch
 }
 
 src_configure() {
