@@ -20,7 +20,9 @@ SABAYON_RDEPEND="x11-themes/sabayon-artwork-core"
 # Sabayon bug 2736
 SABAYON_C_DEPEND="
 	x11-libs/xcb-util-keysyms
-	x11-libs/xcb-util-wm"
+	x11-libs/xcb-util-wm
+	x11-libs/xcb-util-image
+"
 
 COMMON_DEPEND="${SABAYON_C_DEPEND}
 	>=dev-lang/lua-5.1
