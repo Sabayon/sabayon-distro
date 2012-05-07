@@ -196,7 +196,7 @@ src_install() {
 		case "${myrelfile}" in
 			*lib-tk*)
 				true ;;
-			*_tkinter.so)
+			*_tkinter*.so)
 				true ;;
 			*/idlelib/*)
 				true ;;
