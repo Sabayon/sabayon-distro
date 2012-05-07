@@ -112,9 +112,9 @@ src_prepare() {
 
 	# Sabayon patch, require logger, avoid modemmanager or other plugins
 	# output on VT
-	epatch "${FILESDIR}/${PN}-init-need-logger-2.patch"
+	epatch "${FILESDIR}/${PN}-init-need-logger.patch"
 	# Sabayon gentoo=nonm support, see bug 2400
-	epatch "${FILESDIR}/${PN}-init-nonm-support-2.patch"
+	epatch "${FILESDIR}/${PN}-init-nonm-support.patch"
 
 	eautoreconf
 	default
