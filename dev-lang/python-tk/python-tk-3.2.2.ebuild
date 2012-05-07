@@ -226,5 +226,5 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	python_mod_cleanup $(python_get_libdir)
+	:;
 }
