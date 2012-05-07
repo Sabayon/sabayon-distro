@@ -222,7 +222,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	python_mod_optimize -f -x "/(site-packages|test|tests)/" $(python_get_libdir)
+	:;
 }
 
 pkg_postrm() {
