@@ -1,8 +1,8 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI=4
 
 inherit base eutils libtool multilib
 
@@ -21,8 +21,10 @@ COMMON_DEPEND="x11-libs/qt-core:4
 RDEPEND="${COMMON_DEPEND}
 	~app-text/poppler-base-${PV}"
 DEPEND="${COMMON_DEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	x11-libs/qt-test"
+
+PATCHES=( "${FILESDIR}/poppler-0.18.4-newline.patch" )
 
 src_prepare() {
 	base_src_prepare

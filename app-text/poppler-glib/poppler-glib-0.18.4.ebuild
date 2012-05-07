@@ -1,8 +1,8 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI=4
 
 inherit base eutils libtool multilib
 
@@ -13,18 +13,20 @@ SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
-IUSE="+cairo doc"
+IUSE="+cairo +introspection doc"
 S="${WORKDIR}/poppler-${PV}"
 
-COMMON_DEPEND=">=dev-libs/glib-2.16
+COMMON_DEPEND="dev-libs/glib:2
 	cairo? (
-		>=x11-libs/cairo-1.8.4
+		>=x11-libs/cairo-1.10.0
 		>=x11-libs/gtk+-2.14.0:2
 	)"
 RDEPEND="${COMMON_DEPEND}
 	~app-text/poppler-base-${PV}"
 DEPEND="${COMMON_DEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
+
+PATCHES=( "${FILESDIR}/poppler-0.18.4-newline.patch" )
 
 src_prepare() {
 	base_src_prepare
@@ -33,7 +35,7 @@ src_prepare() {
 
 src_configure() {
 	econf \
-		--enable-introspection=no \
+		--enable-introspection=$(use introspection && echo "yes" || echo "no") \
 		--enable-poppler-glib \
 		--enable-zlib \
 		--disable-gtk-test \
