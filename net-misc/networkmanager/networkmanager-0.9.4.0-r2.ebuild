@@ -116,6 +116,10 @@ src_prepare() {
 	# Sabayon gentoo=nonm support, see bug 2400
 	epatch "${FILESDIR}/${PN}-init-nonm-support.patch"
 
+	# Bug 402085, see above
+	# replacement patch, requiring "provide net"
+	epatch "${FILESDIR}/${PN}-0.9.2.0-init-provide-net-r1-plain.patch"
+
 	eautoreconf
 	default
 }

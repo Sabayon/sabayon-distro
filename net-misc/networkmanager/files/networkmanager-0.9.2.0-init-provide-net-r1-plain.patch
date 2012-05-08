@@ -1,0 +1,11 @@
+diff -Nurp NetworkManager-0.9.4.0.orig/initscript/Gentoo/NetworkManager.in NetworkManager-0.9.4.0/initscript/Gentoo/NetworkManager.in
+--- NetworkManager-0.9.4.0.orig/initscript/Gentoo/NetworkManager.in	2012-05-08 05:01:41.000000000 +0200
++++ NetworkManager-0.9.4.0/initscript/Gentoo/NetworkManager.in	2012-05-08 05:02:36.000000000 +0200
+@@ -5,6 +5,7 @@
+ 
+ depend() {
+    need dbus logger
++   provide net
+ }
+ 
+ start() {
