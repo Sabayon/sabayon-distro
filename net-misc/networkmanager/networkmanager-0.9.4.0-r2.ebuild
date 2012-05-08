@@ -100,8 +100,7 @@ src_prepare() {
 	# Build against libnl:1.1 for net-wireless/wimax-1.5.2 compatibility
 	epatch "${FILESDIR}/${PN}-0.9.4.0-force-libnl1.1-r1.patch"
 	# Update init.d script to provide net and use inactive status if not connected
-	# Buggy patch, see: https://bugs.gentoo.org/show_bug.cgi?id=410661
-	# epatch "${FILESDIR}/${PN}-0.9.2.0-init-provide-net-r1.patch"
+	epatch "${FILESDIR}/${PN}-0.9.2.0-init-provide-net-r1.patch"
 	# Bug #402085, https://bugzilla.gnome.org/show_bug.cgi?id=387832
 	epatch "${FILESDIR}/${PN}-0.9.2.0-pre-sleep.patch"
 	# Fix quote handling for global data (Bug #410821)
