@@ -3,5 +3,7 @@
 
 HELPPACK_AVAIL="0"
 L10N_LANG="Kinyarwanda"
+
+EAPI=4
 inherit libreoffice-l10n-2
 
