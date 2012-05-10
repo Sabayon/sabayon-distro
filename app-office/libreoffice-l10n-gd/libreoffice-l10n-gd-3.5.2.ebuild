@@ -3,7 +3,5 @@
 
 L10N_LANG="Gaelic"
 HELPPACK_AVAIL="0"
-
-EAPI=4
 inherit libreoffice-l10n-2
 

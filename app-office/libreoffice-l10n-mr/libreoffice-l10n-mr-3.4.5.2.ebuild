@@ -3,7 +3,5 @@
 
 HELPPACK_AVAIL="0"
 L10N_LANG="Marathi"
-
-EAPI=4
 inherit libreoffice-l10n
 
