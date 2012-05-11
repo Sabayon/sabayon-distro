@@ -2,8 +2,6 @@
 # Distributed under the terms of the GNU General Public License v2
 # $
 
-EAPI=4
-
 OO_EXTENSIONS=(
 	"472ffb92d82cf502be039203c606643d-Sun-ODF-Template-Pack-en-US_1.0.0.oxt"
 	"53ca5e56ccd4cab3693ad32c6bd13343-Sun-ODF-Template-Pack-de_1.0.0.oxt"

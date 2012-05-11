@@ -1,6 +1,8 @@
 # Copyright 2004-2008 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=4
+
 DESCRIPTION="LibreOffice.org localisation meta-package"
 HOMEPAGE="http://www.documentfoundation.org"
 LICENSE="LGPL-2"

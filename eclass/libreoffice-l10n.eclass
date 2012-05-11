@@ -2,8 +2,6 @@
 # Distributed under the terms of the GNU General Public License v2
 # $
 
-EAPI="3"
-
 inherit base rpm multilib
 
 MY_LANG=${PN/libreoffice-l10n-/}
