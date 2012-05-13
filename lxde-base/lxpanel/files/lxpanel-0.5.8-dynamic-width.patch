@@ -1,0 +1,40 @@
+# See https://bugs.gentoo.org/show_bug.cgi?id=408541
+diff -urN lxpanel-0.5.8.bak/src/panel.c lxpanel-0.5.8/src/panel.c
+--- lxpanel-0.5.8.bak/src/panel.c	2012-03-16 18:09:33.000000000 +0800
++++ lxpanel-0.5.8/src/panel.c	2012-03-16 22:38:58.000000000 +0800
+@@ -484,13 +484,29 @@
+ {
+     ENTER;
+ 
+-    if (p->widthtype == WIDTH_REQUEST)
+-        p->width = (p->orientation == ORIENT_HORIZ) ? req->width : req->height;
+-    if (p->heighttype == HEIGHT_REQUEST)
+-        p->height = (p->orientation == ORIENT_HORIZ) ? req->height : req->width;
++    if (p->autohide && !p->visible)
++    {
++        /* When the panel is in invisible state, the content box also got hidden, thus always
++         * report 0 size.  Ask the content box instead for its size. */
++        GtkRequisition req_box;
++        gtk_widget_size_request(p->box, &req_box);
++        if (p->widthtype == WIDTH_REQUEST)
++            p->width = (p->orientation == ORIENT_HORIZ) ? req_box.width : req_box.height;
++        if (p->heighttype == HEIGHT_REQUEST)
++        p->height = (p->orientation == ORIENT_HORIZ) ? req_box.height : req_box.width;
++    }
++    else
++    {
++        if (p->widthtype == WIDTH_REQUEST)
++            p->width = (p->orientation == ORIENT_HORIZ) ? req->width : req->height;
++        if (p->heighttype == HEIGHT_REQUEST)
++            p->height = (p->orientation == ORIENT_HORIZ) ? req->height : req->width;
++    }
+     calculate_position(p);
+-    req->width  = p->aw;
+-    req->height = p->ah;
++
++    gtk_widget_set_size_request( widget, p->aw, p->ah );
++//    req->width  = p->aw;
++//    req->height = p->ah;
+ 
+     RET( TRUE );
+ }
