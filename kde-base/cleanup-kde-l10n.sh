@@ -8,8 +8,8 @@
 # SURVIVOR_VERSION: A survivor version to be used
 #                   for rebuilding the manifests
 
-DEL_VERSIONS="4.8.0"
-SURVIVOR_VERSION="4.8.1"
+DEL_VERSIONS="4.8.1 4.8.2"
+SURVIVOR_VERSION="4.8.3"
 
 # Remove/Delete the old versions.
 for one_del_ver in $DEL_VERSIONS; do
