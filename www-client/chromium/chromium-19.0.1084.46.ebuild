@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-19.0.1084.30.ebuild,v 1.2 2012/04/22 20:08:00 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-19.0.1084.46.ebuild,v 1.3 2012/05/15 16:49:02 phajdan.jr Exp $
 
 EAPI="4"
 PYTHON_DEPEND="2:2.6"
@@ -18,7 +18,7 @@ SRC_URI="http://commondatastorage.googleapis.com/chromium-browser-official/${P}.
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 x86"
 IUSE="bindist cups gnome gnome-keyring kerberos pulseaudio"
 
 RDEPEND="app-arch/bzip2
@@ -29,8 +29,7 @@ RDEPEND="app-arch/bzip2
 	>=dev-lang/v8-3.9.13
 	dev-libs/dbus-glib
 	dev-libs/elfutils
-	>=dev-libs/icu-4.4.1
-	<dev-libs/icu-49
+	>=dev-libs/icu-49.1.1-r1
 	>=dev-libs/libevent-1.4.13
 	dev-libs/libxml2[icu]
 	dev-libs/libxslt
@@ -58,10 +57,10 @@ DEPEND="${RDEPEND}
 	dev-python/ply
 	dev-python/simplejson
 	>=dev-util/gperf-3.0.3
-	>=dev-util/pkgconfig-0.23
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	>=sys-devel/make-3.81-r2
+	virtual/pkgconfig
 	test? (
 		dev-python/pyftpdlib
 	)"
@@ -106,6 +105,9 @@ src_prepare() {
 	sed -i '1i#define OF(x) x' \
 		third_party/zlib/contrib/minizip/{ioapi,{,un}zip}.c \
 		chrome/common/zip*.cc || die
+
+	# Backport upstream fix for Gentoo bug #415601.
+	epatch "${FILESDIR}/${PN}-unistd-r0.patch"
 
 	epatch "${FILESDIR}"/${PN}-sabayon-user-agent-16.0.x.patch
 

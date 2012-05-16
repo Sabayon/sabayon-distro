@@ -1,0 +1,12 @@
+Index: base/message_pump_libevent.cc
+===================================================================
+--- base/message_pump_libevent.cc	(revision 136854)
++++ base/message_pump_libevent.cc	(working copy)
+@@ -6,6 +6,7 @@
+ 
+ #include <errno.h>
+ #include <fcntl.h>
++#include <unistd.h>
+ 
+ #include "base/auto_reset.h"
+ #include "base/compiler_specific.h"
