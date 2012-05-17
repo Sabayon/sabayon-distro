@@ -1,0 +1,115 @@
+From 3af53231970861564c01c5f64fe18fe128d2e246 Mon Sep 17 00:00:00 2001
+From: Lukas Elsner <open@mindrunner.de>
+Date: Sun, 15 Apr 2012 14:33:34 +0200
+Subject: [PATCH] implemented rat4's patch
+
+---
+ data/org.cinnamon.gschema.xml    |    6 ++++
+ data/org.cinnamon.gschema.xml.in |    5 ++++
+ js/ui/windowAttentionHandler.js  |   48 +++++++++++++++++++++++++++++++++++--
+ 3 files changed, 56 insertions(+), 3 deletions(-)
+
+diff --git a/data/org.cinnamon.gschema.xml b/data/org.cinnamon.gschema.xml
+index a413619..28ad28b 100644
+--- a/data/org.cinnamon.gschema.xml
++++ b/data/org.cinnamon.gschema.xml
+@@ -127,6 +127,12 @@
+       <description>Layout styles: traditional (1 panel at the bottom), flipped (1 panel on top), classic (1 panel on top, 1 panel at the bottom)</description>
+     </key>
+     
++    <key type="i" name="notification-style">
++      <range min="0" max="2"/>
++      <default>2</default>
++      <summary>Notification style</summary>
++    </key>
++    
+     <key type="s" name="date-format">
+       <default>"YYYY-MM-DD"</default>
+       <summary>Auto-hide panel</summary>
+diff --git a/data/org.cinnamon.gschema.xml.in b/data/org.cinnamon.gschema.xml.in
+index c496c3d..e598146 100644
+--- a/data/org.cinnamon.gschema.xml.in
++++ b/data/org.cinnamon.gschema.xml.in
+@@ -175,6 +175,11 @@
+       </_description>
+     </key>
+     
++    <key type="i" name="notification-style">
++      <default>2</default>
++      <_summary>Notification style</_summary>
++    </key>
++    
+     <key name="date-format" type="s">
+       <default>"YYYY-MM-DD"</default>
+       <_summary>Auto-hide panel</_summary>
+diff --git a/js/ui/windowAttentionHandler.js b/js/ui/windowAttentionHandler.js
+index a81f10c..7594ed0 100644
+--- a/js/ui/windowAttentionHandler.js
++++ b/js/ui/windowAttentionHandler.js
+@@ -12,8 +12,18 @@ function WindowAttentionHandler() {
+ 
+ WindowAttentionHandler.prototype = {
+     _init : function() {
+-        this._tracker = Cinnamon.WindowTracker.get_default();
+-        global.display.connect('window-demands-attention', Lang.bind(this, this._onWindowDemandsAttention));
++      this.notification_style = global.settings.get_int("notification-style");
++      global.settings.connect("changed::notification-style", Lang.bind(this, function() {
++        this.notification_style = global.settings.get_int("notification-style");
++      }));
++      this._tracker = Cinnamon.WindowTracker.get_default();
++      global.display.connect('window-demands-attention', Lang.bind(this, this._onWindowDemandsAttention));
++    },
++
++    _getTitleAndBanner: function(app, window) {
++        let title = app.get_name();
++        let banner = _("'%s' is ready").format(window.get_title());
++        return [title, banner]
+     },
+ 
+     _onWindowDemandsAttention : function(display, window) {
+@@ -28,9 +38,41 @@ WindowAttentionHandler.prototype = {
+         if (!window || window.has_focus() || window.is_skip_taskbar())
+             return;
+ 
+-        if (this._tracker.is_window_interesting(window)) {
++        switch (this.notification_style) {
++            case 0:
++                break;
++            case 1:
++                this.bringToFront(window);
++                break;
++            case 2:
++                this.showBanner(window);
++                break;
++            default:
++                global.log('Unknown notification style: ' + this.notification_style);
++        }
++
++    },
++
++    bringToFront : function(window) {
++         if (this._tracker.is_window_interesting(window)) {
+             window.activate(global.get_current_time());
+         }
++    },
++
++    showBanner : function(window) {
++        let app = this._tracker.get_window_app(window);
++        let source = new Source(app, window);
++        if (Main.messageTray) Main.messageTray.add(source);
++
++        let [title, banner] = this._getTitleAndBanner(app, window);
++
++        let notification = new MessageTray.Notification(source, title, banner);
++        source.notify(notification);
++
++        source.signalIDs.push(window.connect('notify::title', Lang.bind(this, function() {
++            let [title, banner] = this._getTitleAndBanner(app, window);
++            notification.update(title, banner);
++        })));
+     }
+ };
+ 
+-- 
+1.7.8.5
+

@@ -6,6 +6,7 @@ EAPI="4"
 GCONF_DEBUG="no"
 GNOME2_LA_PUNT="yes"
 PYTHON_DEPEND="2:2.5"
+PYTHON_USE_WITH="xml"
 
 inherit autotools eutils gnome2 multilib pax-utils python
 
@@ -33,7 +34,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.29.10:2
 	app-misc/ca-certificates
 	>=dev-libs/folks-0.5.2
 	>=dev-libs/json-glib-0.13.2
-	>=gnome-base/gnome-desktop-2.91.2:3
+	>=gnome-base/gnome-desktop-2.91.2:3[introspection]
 	>=gnome-base/gsettings-desktop-schemas-2.91.91
 	>=gnome-extra/evolution-data-server-2.91.6
 	>=media-libs/gstreamer-0.10.16:0.10
@@ -42,7 +43,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.29.10:2
 	net-libs/libsoup:2.4[introspection]
 	>=net-libs/telepathy-glib-0.15.5[introspection]
 	>=sys-auth/polkit-0.100[introspection]
-	>=x11-wm/muffin-1.0.1[introspection]
+	>=x11-wm/muffin-1.0.2[introspection]
 
 	dev-libs/dbus-glib
 	dev-libs/libxml2:2
@@ -75,6 +76,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.29.10:2
 # 7. xdg-utils needed for xdg-open, used by extension tool
 # 8. gconf-python needed for cinnamon-settings
 # 9. gnome-icon-theme-symbolic needed for various icons
+# 10. pygtk and gnome-menus:0 needed for menu editor
 RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/dconf-0.4.1
 	>=gnome-base/libgnomekbd-2.91.4[introspection]
@@ -96,6 +98,9 @@ RDEPEND="${COMMON_DEPEND}
 
 	x11-themes/gnome-icon-theme-symbolic
 
+	dev-python/pygtk
+	gnome-base/gnome-menus:0[python]
+
 	networkmanager? (
 		net-misc/mobile-broadband-provider-info
 		sys-libs/timezone-data )"
@@ -108,7 +113,7 @@ DEPEND="${COMMON_DEPEND}
 # libmozjs.so is picked up from /usr/lib while compiling, so block at build-time
 # https://bugs.gentoo.org/show_bug.cgi?id=360413
 
-S="${WORKDIR}/linuxmint-Cinnamon-2ceab78"
+S="${WORKDIR}/linuxmint-Cinnamon-a8b1a03"
 
 pkg_setup() {
 	DOCS="AUTHORS NEWS README"
@@ -128,7 +133,7 @@ pkg_setup() {
 src_prepare() {
 	# Use Sabayon branding
 	cp "${FILESDIR}"/start-here.png data/theme/menu.png \
-		|| die "Could not copy image."
+	        || die "Could not copy image."
 
 	# Fix automagic gnome-bluetooth dep, bug #398145
 	epatch "${FILESDIR}/${PN}-1.1.3-automagic-gnome-bluetooth.patch"
@@ -136,20 +141,21 @@ src_prepare() {
 	# Make networkmanager optional, bug #398593
 	epatch "${FILESDIR}/${PN}-1.3.1-optional-networkmanager.patch"
 
-	# Do not depend on libgnome (patch from gnome-shell 3.3.x)
-	epatch "${FILESDIR}/${PN}-1.1.3-extensionjs_path.patch"
-	epatch "${FILESDIR}/${PN}-1.1.3-xdg-open.patch"
+	# Fix notification issue
+	epatch "${FILESDIR}/${PN}-1.4-notification.patch"
 
 	# Gentoo uses /usr/libexec
 	sed -e "s:/usr/lib/gnome-session/gnome-session-check-accelerated:${EPREFIX}/usr/libexec/gnome-session-check-accelerated:" \
 		-i "files/usr/share/gnome-session/sessions/cinnamon.session" || die "sed 1 failed"
 
 	# Gentoo uses /usr/$(get_libdir), not /usr/lib even for python
-	sed -e "s:/usr/lib/cinnamon-settings:/usr/$(get_libdir)/cinnamon-settings:" \
+	sed -e "s:/usr/lib/:/usr/$(get_libdir)/:" \
+		-e 's:"/usr/lib":"/usr/'"$(get_libdir)"'":' \
+		-i files/usr/bin/cinnamon-menu-editor \
+		-i files/usr/bin/cinnamon-settings \
+		-i files/usr/lib/cinnamon-menu-editor/Alacarte/config.py \
 		-i files/usr/lib/cinnamon-settings/cinnamon-settings.py \
-		   files/usr/bin/cinnamon-settings \
-		   files/cinnamon-settings.pot \
-		   files/makepot || die "sed 2 failed"
+		-i files/generate_desktop_files || die "sed 2 failed"
 	if [[ "$(get_libdir)" != lib ]]; then
 		mv files/usr/lib "files/usr/$(get_libdir)" || die "mv failed"
 	fi
@@ -174,6 +180,7 @@ src_prepare() {
 src_install() {
 	gnome2_src_install
 	python_convert_shebangs 2 "${ED}usr/bin/cinnamon-extension-tool" \
+		"${ED}usr/bin/cinnamon-menu-editor" \
 		"${ED}usr/bin/cinnamon-settings" \
 		"${ED}usr/$(get_libdir)/cinnamon-settings/cinnamon-settings.py"
 
@@ -183,7 +190,7 @@ src_install() {
 
 pkg_postinst() {
 	gnome2_pkg_postinst
-	python_mod_optimize /usr/$(get_libdir)/cinnamon-settings
+	python_mod_optimize "/usr/$(get_libdir)/"cinnamon-{menu-editor,settings}
 
 	if ! has_version '>=media-libs/gst-plugins-good-0.10.23' || \
 	   ! has_version 'media-plugins/gst-plugins-vp8'; then
@@ -226,5 +233,5 @@ pkg_postinst() {
 
 pkg_postrm() {
 	gnome2_pkg_postrm
-	python_mod_cleanup /usr/$(get_libdir)/cinnamon-settings
+	python_mod_cleanup "/usr/$(get_libdir)/"cinnamon-{menu-editor,settings}
 }
