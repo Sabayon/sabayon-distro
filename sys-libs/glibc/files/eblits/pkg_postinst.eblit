@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/pkg_postinst.eblit,v 1.1 2009/03/01 21:06:22 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/pkg_postinst.eblit,v 1.2 2012/04/15 20:04:44 vapier Exp $
 
 eblit-glibc-pkg_postinst() {
 	# nothing to do if just installing headers
@@ -22,8 +22,6 @@ eblit-glibc-pkg_postinst() {
 			ewarn "Generating all locales; edit /etc/locale.gen to save time/space"
 			locale_list="${ROOT}usr/share/i18n/SUPPORTED"
 		fi
-		local x jobs
-		for x in ${MAKEOPTS} ; do [[ ${x} == -j* ]] && jobs=${x#-j} ; done
-		locale-gen -j ${jobs:-1} --config "${locale_list}"
+		locale-gen -j $(makeopts_jobs) --config "${locale_list}"
 	fi
 }

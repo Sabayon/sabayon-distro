@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_unpack.eblit,v 1.13 2011/08/23 18:37:57 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_unpack.eblit,v 1.16 2012/02/16 00:27:08 vapier Exp $
 
 int_to_KV() {
 	local version=$1 major minor micro
@@ -69,8 +69,12 @@ unpack_pkg() {
 			a="${a}-${RELEASE_VER}"
 		fi
 	fi
-	unpack ${a}.tar.bz2
-	[[ -n $1 ]] && mv ${a} $1
+	if has ${a}.tar.xz ${A} ; then
+		unpacker ${a}.tar.xz
+	else
+		unpack ${a}.tar.bz2
+	fi
+	[[ -n $1 ]] && { mv ${a} $1 || die ; }
 }
 
 toolchain-glibc_src_unpack() {
@@ -162,22 +166,6 @@ eblit-glibc-src_unpack() {
 	setup_env
 
 	toolchain-glibc_src_unpack
-
-	# Backwards SSP support
-	cd "${S}"
-# For now, we force everyone to have the extra symbols
-#	einfon "Scanning system for __guard to see if we need SSP compat ... "
-#	if [[ -n $(scanelf -qyls__guard -F'#s%F' | grep -v '^/lib.*/libc-2.*.so$') ]] ; then
-		echo "yes" > "${T}"/.ssp.compat
-#	else
-#		# ok, a quick scan didnt find it, so lets do a deep scan ...
-#		if [[ -n $(scanelf -qyRlps__guard -F'#s%F' | grep -v '^/lib.*/libc-2.*.so$') ]] ; then
-#			echo "yes" > "${T}"/.ssp.compat
-#		else
-#			echo "no" > "${T}"/.ssp.compat
-#		fi
-#	fi
-#	cat "${T}"/.ssp.compat
 
 	# Glibc is stupid sometimes, and doesn't realize that with a
 	# static C-Only gcc, -lgcc_eh doesn't exist.

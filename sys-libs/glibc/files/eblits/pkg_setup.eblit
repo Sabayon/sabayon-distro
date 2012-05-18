@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/pkg_setup.eblit,v 1.6 2011/03/20 22:23:47 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/pkg_setup.eblit,v 1.10 2011/12/14 16:42:46 vapier Exp $
 
 glibc_compile_test() {
 	local ret save_cflags=${CFLAGS}
@@ -87,13 +87,6 @@ eblit-glibc-pkg_setup() {
 		die "please fix your CHOST"
 	fi
 
-	if [[ -n ${LT_VER} ]] ; then
-		if use nptlonly && ! use nptl ; then
-			eerror "If you want nptlonly, add nptl to your USE too ;p"
-			die "nptlonly without nptl"
-		fi
-	fi
-
 	if [[ -e /proc/xen ]] && [[ $(tc-arch) == "x86" ]] && ! is-flag -mno-tls-direct-seg-refs ; then
 		ewarn "You are using Xen but don't have -mno-tls-direct-seg-refs in your CFLAGS."
 		ewarn "This will result in a 50% performance penalty when running with a 32bit"
@@ -102,4 +95,28 @@ eblit-glibc-pkg_setup() {
 
 	use hardened && ! gcc-specs-pie && \
 		ewarn "PIE hardening not applied, as your compiler doesn't default to PIE"
+
+	# Make sure host system is up to date #394453
+	if has_version '<sys-libs/glibc-2.13' && \
+	   [[ -n $(scanelf -qys__guard -F'#s%F' "${ROOT}"/lib*/l*-*.so) ]]
+	then
+		ebegin "Scanning system for __guard to see if you need to rebuild first ..."
+		local files=$(
+			scanelf -qys__guard -F'#s%F' \
+				"${ROOT}"/*bin/ \
+				"${ROOT}"/lib* \
+				"${ROOT}"/usr/*bin/ \
+				"${ROOT}"/usr/lib* | \
+				egrep -v \
+					-e "^${ROOT}/lib.*/(libc|ld)-2.*.so$" \
+					-e "^${ROOT}/sbin/(ldconfig|sln)$"
+		)
+		[[ -z ${files} ]]
+		if ! eend $? ; then
+			eerror "Your system still has old SSP __guard symbols.  You need to"
+			eerror "rebuild all the packages that provide these files first:"
+			eerror "${files}"
+			die "old __guard detected"
+		fi
+	fi
 }

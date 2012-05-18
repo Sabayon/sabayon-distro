@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/pkg_preinst.eblit,v 1.3 2010/10/08 15:33:13 flameeyes Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/pkg_preinst.eblit,v 1.4 2011/11/16 16:07:46 vapier Exp $
 
 fix_lib64_symlinks() {
 	# the original Gentoo/AMD64 devs decided that since 64bit is the native
@@ -51,13 +51,6 @@ eblit-glibc-pkg_preinst() {
 	# 2004.3 -> 2005.0 upgrade script.
 	# It can be removed after 2004.3 has been purged from portage.
 	{ use amd64 || use ppc64; } && [ "$(get_libdir)" == "lib64" ] && ! has_multilib_profile && fix_lib64_symlinks
-
-	# it appears that /lib/tls is sometimes not removed.  See bug
-	# 69258 for more info.
-	if [[ -d ${ROOT}/$(alt_libdir)/tls ]] && [[ ! -d ${D}/$(alt_libdir)/tls ]] ; then
-		ewarn "nptlonly or -nptl in USE, removing /${ROOT}$(alt_libdir)/tls..."
-		rm -r "${ROOT}"/$(alt_libdir)/tls || die
-	fi
 
 	# prepare /etc/ld.so.conf.d/ for files
 	mkdir -p "${ROOT}"/etc/ld.so.conf.d
