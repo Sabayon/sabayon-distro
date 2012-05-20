@@ -39,12 +39,12 @@ if [[ ${PV} == 9999* ]]
 then
 	EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/${PN}.git
 		http://git.overlays.gentoo.org/gitroot/proj/${PN}.git"
-	inherit git-2 bash-completion eutils
+	inherit git-2 bash-completion-r1 eutils
 	S="${WORKDIR}/${PN}"
 	SRC_URI="${COMMON_URI}"
 	KEYWORDS=""
 else
-	inherit bash-completion eutils
+	inherit bash-completion-r1 eutils
 	SRC_URI="mirror://gentoo/${P}.tar.bz2
 		${MY_HOME}/sources/genkernel/${P}.tar.bz2
 		${COMMON_URI}"
@@ -79,6 +79,8 @@ src_unpack() {
 
 	cd "${S}"
 	epatch "${FILESDIR}"/${PN}-crypt-config-3.patch
+	# Sabayon Bug 2836, can be upstreamed
+	epatch "${FILESDIR}"/${PN}-virtio-support-bug-2836.patch
 }
 
 src_compile() {
@@ -133,7 +135,7 @@ src_install() {
 		"${DISTDIR}"/open-iscsi-${VERSION_ISCSI}.tar.gz \
 		"${D}"/var/cache/genkernel/src || die "Copying distfiles..."
 
-	dobashcompletion "${FILESDIR}"/genkernel.bash
+	newbashcomp "${FILESDIR}"/genkernel.bash "${PN}"
 }
 
 pkg_postinst() {
