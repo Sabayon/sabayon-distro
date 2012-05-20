@@ -154,6 +154,4 @@ pkg_postinst() {
 	ewarn "The LUKS support has changed from versions prior to 3.4.4.  Now,"
 	ewarn "you use crypt_root=/dev/blah instead of real_root=luks:/dev/blah."
 	echo
-
-	bash-completion_pkg_postinst
 }
