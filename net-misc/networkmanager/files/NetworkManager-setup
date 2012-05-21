@@ -10,6 +10,9 @@ depend() {
 
 start() {
 	if get_bootparam "nonm" ; then
-		touch /etc/.nonm
+		local nmfile=/etc/NetworkManager/NetworkManager.conf
+		ebegin "Setting managed=false in ${nmfile}"
+		sed -i "s:^managed=.*:managed=false:" "${nmfile}" || eend 1
+		eend 0
 	fi
 }
