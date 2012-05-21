@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=4
-inherit transmission-2.51
+inherit eutils transmission-2.51
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Qt4 UI"
 KEYWORDS="~amd64 ~x86"
