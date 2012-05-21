@@ -58,7 +58,7 @@ RDEPEND="${COMMON_DEPEND}
 	virtual/logger"
 
 DEPEND="${COMMON_DEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	>=dev-util/intltool-0.40
 	>=sys-devel/gettext-0.17
 	>=sys-kernel/linux-headers-2.6.29
@@ -114,6 +114,7 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-init-need-logger-2.patch"
 
 	eautoreconf
+	intltoolize --force --copy --automake || die "intltoolize failed"
 	default
 }
 
