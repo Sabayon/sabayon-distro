@@ -18,7 +18,7 @@ for package in ${PACKAGES}; do
 	else
 		cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
 	fi
-	ebuild ${package}/${name}-${NEW}.ebuild manifest --force clean install
+	ebuild ${package}/${name}-${NEW}.ebuild manifest --force clean install clean
 	git add ${package}/${name}-${NEW}.ebuild
 	git add ${package}/Manifest
 done
