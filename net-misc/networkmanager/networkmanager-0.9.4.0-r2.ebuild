@@ -58,7 +58,7 @@ RDEPEND="${COMMON_DEPEND}
 	virtual/logger"
 
 DEPEND="${COMMON_DEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	>=dev-util/intltool-0.40
 	>=sys-devel/gettext-0.17
 	>=sys-kernel/linux-headers-2.6.29
@@ -112,10 +112,9 @@ src_prepare() {
 	# Sabayon patch, require logger, avoid modemmanager or other plugins
 	# output on VT
 	epatch "${FILESDIR}/${PN}-init-need-logger-2.patch"
-	# Sabayon gentoo=nonm support, see bug 2400
-	epatch "${FILESDIR}/${PN}-init-nonm-support-2.patch"
 
 	eautoreconf
+	intltoolize --force --copy --automake || die "intltoolize failed"
 	default
 }
 

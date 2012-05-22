@@ -6,7 +6,7 @@ EAPI=2
 
 MY_P="${P/_/}"
 
-inherit autotools multilib flag-o-matic
+inherit autotools eutils multilib flag-o-matic
 
 DESCRIPTION="ALSA extra plugins"
 HOMEPAGE="http://www.alsa-project.org/"

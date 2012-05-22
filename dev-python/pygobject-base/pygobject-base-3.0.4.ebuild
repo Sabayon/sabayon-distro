@@ -13,7 +13,7 @@ REAL_PN="${PN/-base}"
 GNOME_ORG_MODULE="${REAL_PN}"
 
 # XXX: Is the alternatives stuff needed anymore?
-inherit alternatives autotools gnome2 python virtualx
+inherit alternatives autotools eutils gnome2 python virtualx
 
 DESCRIPTION="GLib's GObject library bindings for Python"
 HOMEPAGE="http://www.pygtk.org/"

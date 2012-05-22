@@ -12,7 +12,7 @@ RESTRICT_PYTHON_ABIS="2.4 2.5 3.0 *-jython *-pypy-*"
 REAL_PN="${PN/-base}"
 GNOME_ORG_MODULE="${REAL_PN}"
 
-inherit autotools gnome2 python virtualx
+inherit autotools eutils gnome2 python virtualx
 
 DESCRIPTION="GLib's GObject library bindings for Python"
 HOMEPAGE="http://www.pygtk.org/"
