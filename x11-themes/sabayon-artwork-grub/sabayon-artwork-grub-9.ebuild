@@ -4,7 +4,7 @@
 
 EAPI=4
 
-inherit base
+inherit base mount-boot
 
 DESCRIPTION="Sabayon GRUB2 background images"
 HOMEPAGE="http://www.sabayon.org/"
