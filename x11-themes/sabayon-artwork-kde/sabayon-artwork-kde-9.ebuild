@@ -3,6 +3,7 @@
 #
 
 EAPI=4
+CMAKE_REQUIRED="never"
 inherit eutils kde4-base
 
 DESCRIPTION="Sabayon Linux Official KDE Artwork"
