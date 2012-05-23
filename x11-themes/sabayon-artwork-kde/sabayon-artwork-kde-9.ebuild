@@ -1,8 +1,8 @@
-# Copyright 1999-2009 Sabayon Linux
+# Copyright 1999-2012 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 #
 
-EAPI=3
+EAPI=4
 inherit eutils kde4-base
 
 DESCRIPTION="Sabayon Linux Official KDE Artwork"
@@ -10,19 +10,11 @@ HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${PN}-${PVR}.tar.xz"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE="+ksplash"
 RDEPEND=""
 
 S="${WORKDIR}/${PN}"
-
-src_configure() {
-	einfo "nothing to configure"
-}
-
-src_compile() {
-	einfo "nothing to compile"
-}
 
 src_install() {
 	# KDM
@@ -44,12 +36,4 @@ src_install() {
 		insinto ${KDEDIR}/share/apps/ksplash/Themes
 		doins -r ./
 	fi
-}
-
-pkg_postinst()
-{
-	einfo "Clearing Plasma Wallpaper Cache"
-	for i in /home/*; do
-		rm -rf /home/$i/.kde4/cache-*/plasma-wallpapers/usr/share/backgrounds/sabayon*
-	done
 }
