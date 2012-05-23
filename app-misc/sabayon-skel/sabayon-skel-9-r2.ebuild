@@ -1,23 +1,22 @@
-# Copyright 1999-2009 SabayonLinux
+# Copyright 1999-2012 SabayonLinux
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI=4
 EGIT_COMMIT="${PVR}"
 EGIT_REPO_URI="git://git.sabayon.org/projects/skel.git"
-inherit eutils git fdo-mime
+
+inherit eutils git-2 fdo-mime
 
 DESCRIPTION="Sabayon Linux skel tree"
 HOMEPAGE="http://www.sabayon.org"
-RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6"
 
 src_install () {
-
 	dodir /etc/xdg/menus
 	cp "${S}"/* "${D}"/etc/ -Ra
 
@@ -29,11 +28,9 @@ src_install () {
 	doicon "${FILESDIR}"/4.0.97/img/sabayon-weblink.png
 
 	chown root:root "${D}"/etc/skel -R
-
 }
 
 pkg_postinst () {
-
 	if [ -x "/usr/bin/xdg-desktop-menu" ]; then
 		# Manual install otherwise it wont be set up correctly
 		xdg-desktop-menu install \
