@@ -451,6 +451,13 @@ _kernel_src_compile() {
 		K_GENKERNEL_ARGS+=" --kernel-target=uImage --kernel-binary=arch/arm/boot/uImage"
 	fi
 
+	# Workaround bug in splash_geninitramfs corrupting the initramfs
+	# if xz compression is used (newer genkernel >3.4.24)
+	local support_comp=$(genkernel --help | grep compress-initramfs-type)
+	if [ -n "${support_comp}" ]; then
+		GKARGS+=" --compress-initramfs-type=gzip"
+	fi
+
 	unset LDFLAGS
 	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} ${K_GENKERNEL_ARGS} \
 		--kerneldir="${S}" \
