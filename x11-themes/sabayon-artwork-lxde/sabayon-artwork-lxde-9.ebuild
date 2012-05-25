@@ -23,6 +23,6 @@ src_install () {
 	insinto /usr/share/lxdm/themes/Sabayon
 	doins Sabayon/*
 
-	dosym /usr/share/backgrounds/kgdm.jpg \
-		/usr/share/lxdm/themes/Sabayon/kgdm.jpg
+	dosym /usr/share/backgrounds/kgdm.png \
+		/usr/share/lxdm/themes/Sabayon/kgdm.png
 }
