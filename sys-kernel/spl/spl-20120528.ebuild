@@ -8,7 +8,7 @@ AT_M4DIR="config"
 AUTOTOOLS_AUTORECONF="1"
 AUTOTOOLS_IN_SOURCE_BUILD="1"
 
-inherit flag-o-matic git-2 linux-mod autotools-utils
+inherit eutils flag-o-matic git-2 linux-mod autotools-utils
 
 DESCRIPTION="The Solaris Porting Layer is a Linux kernel module which provides many of the Solaris kernel APIs"
 HOMEPAGE="http://zfsonlinux.org/"
@@ -23,6 +23,10 @@ KEYWORDS="~amd64 ~x86"
 IUSE="custom-cflags debug"
 
 RDEPEND="!sys-devel/spl"
+
+PATCHES=(
+	"${FILESDIR}/${P}-linux-3.4.patch"
+)
 
 pkg_setup() {
 	CONFIG_CHECK="
