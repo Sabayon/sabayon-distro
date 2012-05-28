@@ -49,6 +49,10 @@ DEPEND+="
 	test? ( sys-fs/mdadm )
 "
 
+PATCHES=(
+	"${FILESDIR}/${P}-linux-3.4.patch"
+)
+
 pkg_setup() {
 	CONFIG_CHECK="!DEBUG_LOCK_ALLOC
 		BLK_DEV_LOOP
