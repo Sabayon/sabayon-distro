@@ -1,0 +1,11 @@
+--- spl.orig/module/splat/splat-vnode.c
++++ spl/module/splat/splat-vnode.c
+@@ -414,7 +414,7 @@
+                 goto out_unlock;
+
+         rcu_assign_pointer(fdt->fd[fd], NULL);
+-        FD_CLR(fd, fdt->close_on_exec);
++        __clear_close_on_exec(fd, fdt);
+ #else
+         spin_lock(&files->file_lock);
+         if (fd >= files->max_fds)

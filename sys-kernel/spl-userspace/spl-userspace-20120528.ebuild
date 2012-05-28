@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI="4"
-SPL_TARGET="kernel"
+SPL_TARGET="userspace"
 
 inherit eutils linux-info spl-snapshot
 
