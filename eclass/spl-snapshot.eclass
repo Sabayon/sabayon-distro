@@ -84,6 +84,10 @@ spl-snapshot_src_install() {
 	autotools-utils_src_install
 	if [ "${SPL_TARGET}" = "kernel" ]; then
 		rm -rf "${ED}/usr" # make sure
+	else
+		# Install /usr/src/spl-*
+		cd "${S}/include" && \
+			emake DESTDIR="${ED}" install || die "include make install failed"
 	fi
 }
 
