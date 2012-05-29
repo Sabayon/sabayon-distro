@@ -38,7 +38,7 @@ RDEPEND=
 
 if [ "${ZFS_TARGET}" = "kernel" ]; then
 	IUSE="custom-cflags debug test"
-	RDEPEND+=" ~sys-kernel/spl-${PV} ~sys-kernel/zfs-userspace-${PV}"
+	RDEPEND+=" ~sys-kernel/spl-${PV} ~sys-fs/zfs-userspace-${PV}"
 else
 	IUSE="custom-cflags debug dracut +rootfs test test-suite static-libs"
 	DEPEND+=" sys-apps/util-linux[static-libs?]
