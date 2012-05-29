@@ -94,6 +94,9 @@ zfs-snapshot_src_configure() {
 	else
 		what_config="user"
 	fi
+	spl_dir=$(ls -1 ${EROOT}/usr/src/spl-*/$(basename ${KV_DIR}))
+	with_spl_stmt=
+	[[ -d "${spl_dir}" ]] && with_spl_stmt="${spl_dir}"
 	local myeconfargs=(
 		--bindir="${EPREFIX}/bin"
 		--sbindir="${EPREFIX}/sbin"
@@ -102,6 +105,7 @@ zfs-snapshot_src_configure() {
 		--with-linux-obj="${KV_OUT_DIR}"
 		--with-udevdir="${EPREFIX}/lib/udev"
 		$(use_enable debug)
+		"${with_spl_stmt}"
 	)
 	autotools-utils_src_configure
 }
