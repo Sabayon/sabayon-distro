@@ -88,7 +88,7 @@ spl-snapshot_src_install() {
 			local spl_dirname=$(basename "${spl_src}")
 			# avoid collisions
 			mv "${spl_src}" "${ED}/usr/src/${spl_dirname}-$(basename ${KV_DIR})" || die
-		fi
+		done
 		rm -rf "${ED}"/usr/{lib,share} # make sure
 	fi
 }
