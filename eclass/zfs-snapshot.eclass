@@ -91,12 +91,13 @@ zfs-snapshot_src_configure() {
 	if [ "${ZFS_TARGET}" = "kernel" ]; then
 		what_config="kernel"
 		set_arch_to_kernel
+
+		spl_dir=$(ls -1 ${EROOT}/usr/src/spl-*/$(basename ${KV_DIR}))
+		with_spl_stmt=
+		[[ -d "${spl_dir}" ]] && with_spl_stmt="${spl_dir}"
 	else
 		what_config="user"
 	fi
-	spl_dir=$(ls -1 ${EROOT}/usr/src/spl-*/$(basename ${KV_DIR}))
-	with_spl_stmt=
-	[[ -d "${spl_dir}" ]] && with_spl_stmt="${spl_dir}"
 	local myeconfargs=(
 		--bindir="${EPREFIX}/bin"
 		--sbindir="${EPREFIX}/sbin"
