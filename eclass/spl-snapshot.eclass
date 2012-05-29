@@ -83,10 +83,12 @@ spl-snapshot_src_configure() {
 spl-snapshot_src_install() {
 	autotools-utils_src_install
 	if [ "${SPL_TARGET}" = "kernel" ]; then
-		local spl_src="${ED}/usr/src/spl-"*
-		local spl_dirname=$(basename "${spl_src}")
-		# avoid collisions
-		mv "${spl_src}" "${ED}/usr/src/${spl_dirname}-$(basename ${KV_DIR})" || die
+		local spl_src=
+		for spl_src in "${ED}/usr/src/spl-"* ; do
+			local spl_dirname=$(basename "${spl_src}")
+			# avoid collisions
+			mv "${spl_src}" "${ED}/usr/src/${spl_dirname}-$(basename ${KV_DIR})" || die
+		fi
 		rm -rf "${ED}"/usr/{lib,share} # make sure
 	fi
 }
