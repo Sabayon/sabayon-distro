@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI="4"
-ZFS_TARGET="kernel"
+ZFS_TARGET="userspace"
 
 inherit eutils linux-info zfs-snapshot
 
