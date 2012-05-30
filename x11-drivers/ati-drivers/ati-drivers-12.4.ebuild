@@ -195,7 +195,7 @@ src_prepare() {
 	epatch "${FILESDIR}/ati-drivers-3.2.8+.patch"
 
 	# see http://ati.cchtml.com/show_bug.cgi?id=495
-	kernel_is gt 3 4 0 && epatch "${FILESDIR}/ati-drivers-old_rsp.patch"
+	kernel_is ge 3 4 0 && epatch "${FILESDIR}/ati-drivers-old_rsp.patch"
 
 	cd "${MODULE_DIR}"
 	# bugged fglrx build system, this file should be copied by hand
