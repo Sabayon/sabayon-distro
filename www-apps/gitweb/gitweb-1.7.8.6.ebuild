@@ -1,8 +1,8 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=4
 
 GENTOO_DEPEND_ON_PERL=no
 
@@ -39,6 +39,7 @@ CDEPEND="
 	~dev-vcs/git-${PV}
 	sys-libs/zlib
 	dev-lang/perl[-build]
+	dev-libs/libpcre
 	dev-lang/tk"
 
 RDEPEND="${CDEPEND}
@@ -93,6 +94,7 @@ src_prepare() {
 
 git_emake() {
 	# PYTHON_PATH="$(PYTHON -a)"
+	local MY_MAKEOPTS="INSTALLDIRS=vendor"
 	emake ${MY_MAKEOPTS} \
 		DESTDIR="${D}" \
 		OPTCFLAGS="${CFLAGS}" \
@@ -113,7 +115,9 @@ src_configure() {
 }
 
 src_compile() {
-	git_emake gitweb || die "emake gitweb failed"
+	git_emake \
+		gitweb \
+		|| die "emake gitweb failed"
 }
 
 src_install() {
