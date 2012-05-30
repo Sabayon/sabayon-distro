@@ -194,6 +194,9 @@ src_prepare() {
 	# Fix compilation with 3.2.8 and 3.3 kernels
 	epatch "${FILESDIR}/ati-drivers-3.2.8+.patch"
 
+	# see http://ati.cchtml.com/show_bug.cgi?id=495
+	kernel_is gt 3 4 0 && epatch "${FILESDIR}/ati-drivers-old_rsp.patch"
+
 	cd "${MODULE_DIR}"
 	# bugged fglrx build system, this file should be copied by hand
 	cp "${ARCH_DIR}"/lib/modules/fglrx/build_mod/libfglrx_ip.a 2.6.x
