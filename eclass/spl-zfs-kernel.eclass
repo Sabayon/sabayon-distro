@@ -51,7 +51,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="custom-cflags debug"
 
-RDEPEND+="!sys-devel/spl ~sys-kernel/zfs-userspace-${PV}"
+RDEPEND+="!sys-devel/spl ~sys-fs/zfs-userspace-${PV}"
 
 SPL_S="${S}/spl-src"
 ZFS_S="${S}/zfs-src"
