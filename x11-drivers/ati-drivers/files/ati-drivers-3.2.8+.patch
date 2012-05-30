@@ -1,6 +1,16 @@
 --- a/common/lib/modules/fglrx/build_mod/firegl_public.c
 +++ b/common/lib/modules/fglrx/build_mod/firegl_public.c
-@@ -5797,10 +5797,16 @@ void ATI_API_CALL KCL_fpu_begin(void)
+@@ -187,6 +187,9 @@
+ #include <linux/gfp.h>
+ #include <linux/swap.h>
+ #include "asm/i387.h"
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0)
++#include <asm/fpu-internal.h>
++#endif
+ 
+ #include "firegl_public.h"
+ #include "kcl_osconfig.h"
+@@ -5807,10 +5810,16 @@ void ATI_API_CALL KCL_fpu_begin(void)
  #ifdef CONFIG_X86_64
      kernel_fpu_begin();
  #else
