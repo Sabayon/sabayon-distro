@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=4
-inherit eutils transmission-2.50
+inherit eutils transmission-2.52
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Gtk+ UI"
 KEYWORDS="~amd64 ~x86"
@@ -13,15 +13,9 @@ RDEPEND="
 	>=dev-libs/dbus-glib-0.98
 	>=dev-libs/glib-2.28
 	>=x11-libs/gtk+-3.2:3
-	ayatana? ( dev-libs/libappindicator:3 )
+	ayatana? ( >=dev-libs/libappindicator-0.4.90:3 )
 	!net-p2p/transmission-gtk+
 "
-
-src_prepare() {
-	# https://trac.transmissionbt.com/ticket/4573
-	epatch "${FILESDIR}"/gtk-conf-set-correct-download-dir-default.patch
-	transmission-2.50_src_prepare
-}
 
 src_install() {
 	# avoid file conflicts with transmission-base

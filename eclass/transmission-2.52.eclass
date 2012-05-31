@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-# @ECLASS: transmission-2.50.eclass
+# @ECLASS: transmission-2.52.eclass
 # @MAINTAINER:
 # slawomir.nizio@sabayon.org
 # @AUTHOR:
@@ -52,8 +52,8 @@ MY_ECLASSES=""
 _transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
 _transmission_is qt4 && MY_ECLASSES+="fdo-mime qt4-r2"
 _transmission_is "" || MY_ECLASSES+=" autotools"
-# eutils must be here (for in_iuse and use_if_iuse)
-inherit eutils ${MY_ECLASSES} ${_live_inherits}
+
+inherit eutils multilib ${MY_ECLASSES} ${_live_inherits}
 
 unset MY_ECLASSES
 
@@ -82,8 +82,6 @@ SRC_URI="http://download.transmissionbt.com/${MY_PN}/files/${MY_P}.tar.xz"
 LICENSE="GPL-2 MIT"
 SLOT="0"
 IUSE=""
-# used in libtransmission, so it's useful to set here
-_transmission_is "" || IUSE="lightweight xfs"
 
 # only common dependencies plus blockers
 RDEPEND=""
@@ -92,7 +90,7 @@ if ! _transmission_is ""; then
 	RDEPEND+="
 	>=dev-libs/libevent-2.0.10
 	dev-libs/openssl:0
-	>=net-libs/miniupnpc-1.6
+	>=net-libs/miniupnpc-1.6.20120509
 	>=net-misc/curl-7.16.3[ssl]
 	net-libs/libnatpmp
 	sys-libs/zlib"
@@ -101,29 +99,28 @@ fi
 DEPEND="${RDEPEND}"
 if _transmission_is base; then
 	RDEPEND+=" !<net-p2p/transmission-gtk-${PV}
-	!<net-p2p/transmission-qt-${PV}
+	!<net-p2p/transmission-qt4-${PV}
 	!<net-p2p/transmission-daemon-${PV}
 	!<net-p2p/transmission-cli-${PV}"
 fi
 if ! _transmission_is ""; then
 	DEPEND+=" dev-util/intltool
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	sys-devel/gettext
-	virtual/os-headers
-	xfs? ( sys-fs/xfsprogs )"
+	virtual/os-headers"
 fi
 
 S="${WORKDIR}/${MY_P}"
 _transmission_is "" && S="${WORKDIR}"
 
-transmission-2.50_pkg_setup() {
+transmission-2.52_pkg_setup() {
 	if _transmission_is base; then
 		enewgroup transmission
 		enewuser transmission -1 -1 -1 transmission
 	fi
 }
 
-transmission-2.50_src_unpack() {
+transmission-2.52_src_unpack() {
 	if [[ ${PV} == *9999* ]]; then
 		subversion_src_unpack
 	else
@@ -131,7 +128,7 @@ transmission-2.50_src_unpack() {
 	fi
 }
 
-transmission-2.50_src_prepare() {
+transmission-2.52_src_prepare() {
 	_transmission_is "" && return
 
 	if [[ ${PV} == *9999* ]]; then
@@ -139,20 +136,18 @@ transmission-2.50_src_prepare() {
 		./update-version-h.sh
 	fi
 
-	epatch "${FILESDIR}"/${MY_PN}-2.50-build-with-natpmp1.patch #376647
-	epatch "${FILESDIR}"/${MY_PN}-2.50-punt_broken_CXX_check.patch #407137
+	sed -i -e '/CFLAGS/s:-ggdb3::' configure.ac || die
 
 	if ! use_if_iuse ayatana; then
 		sed -i -e '/^LIBAPPINDICATOR_MINIMUM/s:=.*:=9999:' configure.ac || die
 	fi
 
-	sed -i -e '/CFLAGS/s:-ggdb3::' configure.ac || die
-
 	# http://trac.transmissionbt.com/ticket/4324
 	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
 
+	# [eclass] patch for FreeBSD skipped
+
 	eautoreconf
-	intltoolize --copy --force --automake || die
 
 	if _transmission_is qt4; then
 		cat <<-EOF > "${T}"/${MY_PN}-magnet.protocol
@@ -170,23 +165,34 @@ transmission-2.50_src_prepare() {
 		deleting=false
 		EOF
 	fi
-}
- 
-transmission-2.50_src_configure() {
-	_transmission_is "" && return
 
-	export ac_cv_header_xfs_xfs_h=$(usex xfs)
+	if ! _transmission_is base; then
+		local sedcmd="s:\$(top_builddir)/libtransmission/libtransmission.a:"
+		sedcmd+="${EROOT}usr/$(get_libdir)/libtransmission.a:"
+		find . -name Makefile.in -exec sed -i -e "${sedcmd}" {} \; || die
+		sed -i -e '/libtransmission \\/d' Makefile.in || die
+		if _transmission_is qt4; then
+			sedcmd="s:\$\${TRANSMISSION_TOP}/libtransmission/libtransmission.a:"
+			sedcmd+="${EROOT}usr/$(get_libdir)/libtransmission.a:"
+			sed -i -e "${sedcmd}" qt/qtr.pro || die
+		fi
+	fi
+}
+
+transmission-2.52_src_configure() {
+	_transmission_is "" && return
 
 	local econfargs=(
 		--enable-external-natpmp
-		$(use_enable lightweight)
 	)
 
 	if _transmission_is base; then
+		export ac_cv_header_xfs_xfs_h=$(usex xfs)
 		econfargs+=(
 			--disable-cli
 			--disable-daemon
 			--without-gtk
+			$(use_enable lightweight)
 		)
 	elif _transmission_is cli; then
 		econfargs+=(
@@ -224,10 +230,10 @@ transmission-2.50_src_configure() {
 	fi
 }
 
-transmission-2.50_src_compile() {
+transmission-2.52_src_compile() {
 	_transmission_is "" && return
 
-	default
+	emake
 	if _transmission_is qt4; then
 		pushd qt >/dev/null
 		emake
@@ -242,15 +248,15 @@ transmission-2.50_src_compile() {
 	fi
 }
 
- 
+
 # Note: not providing src_install. Too many differences and too much code
 # which would only clutter this pretty eclass.
 
-transmission-2.50_pkg_preinst() {
+transmission-2.52_pkg_preinst() {
 	_transmission_is gtk && gnome2_icon_savelist
 }
 
-transmission-2.50_pkg_postinst() {
+transmission-2.52_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
@@ -280,7 +286,7 @@ transmission-2.50_pkg_postinst() {
 	elog "and run sysctl -p"
 }
 
-transmission-2.50_pkg_postrm() {
+transmission-2.52_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi

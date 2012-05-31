@@ -3,11 +3,13 @@
 # $Header: $
 
 EAPI=4
-inherit transmission-2.50
+inherit transmission-2.52
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - base files"
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="lightweight xfs"
+
+DEPEND="xfs? ( sys-fs/xfsprogs )"
 
 DOCS="AUTHORS NEWS"
 
@@ -17,4 +19,5 @@ src_install() {
 
 	keepdir /var/{${MY_PN}/{config,downloads},log/${MY_PN}}
 	fowners -R ${MY_PN}:${MY_PN} /var/{${MY_PN}/{,config,downloads},log/${MY_PN}}
+	dolib.a "${S}/libtransmission/libtransmission.a"
 }
