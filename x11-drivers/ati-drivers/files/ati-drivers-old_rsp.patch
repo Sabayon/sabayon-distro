@@ -15,9 +15,9 @@
   *  \param size [in] Number of bytes to allocate
   *  \return Pointer to allocated memory
   */
-+#ifndef CONFIG_X86_X32
++
 +DEFINE_PER_CPU(unsigned long, old_rsp);
-+#endif
++
 +
  void* ATI_API_CALL KCL_IOCTL_AllocUserSpace32(long size)
  {
