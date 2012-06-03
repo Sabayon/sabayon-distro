@@ -78,6 +78,9 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-0.5.3-disable_warns_until_migrated.patch
 	epatch "${FILESDIR}/${PN}-netmount-fix.patch"
 	epatch "${FILESDIR}/${PN}-0.6.1-fix-clockskew-error-handling.patch"
+
+	# Sabayon bug fixes
+	epatch "${FILESDIR}/${PN}-0.9.9.3-do-not-print-error-if-tmplog-cannot-be-read.patch"
 }
 
 src_compile() {

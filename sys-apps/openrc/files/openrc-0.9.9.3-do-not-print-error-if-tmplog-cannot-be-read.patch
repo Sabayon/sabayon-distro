@@ -1,0 +1,25 @@
+During boot, if /lib64/rc/init.d/ is a tmpfs mount
+and rc.log can be either unavailable or no longer
+available at some point in the future.
+This patch makes rc-logger deal with ENOENT if
+rc.log cannot be opened for reading.
+--- openrc-0.9.9.3.orig/src/rc/rc-logger.c
++++ openrc-0.9.9.3/src/rc/rc-logger.c
+@@ -268,7 +268,7 @@ rc_logger_open(const char *level)
+ 						break;
+ 					}
+ 				}
+-			} else {
++			} else if (errno != ENOENT) {
+ 				log_error = 1;
+ 				eerror("Error: fopen(%s) failed: %s", TMPLOG, strerror(errno));
+ 			}
+@@ -280,7 +280,7 @@ rc_logger_open(const char *level)
+ 			 * logfile or its basedir may be read-only during sysinit and
+ 			 * shutdown so skip the error in this case
+ 			 */
+-			if (errno != EROFS && ((strcmp(level, RC_LEVEL_SHUTDOWN) != 0) && (strcmp(level, RC_LEVEL_SYSINIT) != 0))) {
++			if (errno != EROFS && errno != ENOENT && ((strcmp(level, RC_LEVEL_SHUTDOWN) != 0) && (strcmp(level, RC_LEVEL_SYSINIT) != 0))) {
+ 				log_error = 1;
+ 				eerror("Error: fopen(%s) failed: %s", logfile, strerror(errno));
+ 			}
