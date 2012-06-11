@@ -1,0 +1,441 @@
+Description: extreme backport of upstream log format fixes (CVE-2012-2118).
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/xorg-server/+bug/996250
+Origin: http://patchwork.freedesktop.org/patch/10001/
+
+Index: xorg-server-1.11.4/os/log.c
+===================================================================
+--- xorg-server-1.11.4.orig/os/log.c	2012-05-06 11:03:17.621808123 -0700
++++ xorg-server-1.11.4/os/log.c	2012-05-06 11:03:18.057814189 -0700
+@@ -167,6 +167,12 @@
+ #ifndef X_NOT_IMPLEMENTED_STRING
+ #define X_NOT_IMPLEMENTED_STRING	"(NI)"
+ #endif
++#ifndef X_DEBUG_STRING
++#define X_DEBUG_STRING          "(DB)"
++#endif
++#ifndef X_NONE_STRING
++#define X_NONE_STRING           ""
++#endif
+ 
+ /*
+  * LogInit is called to start logging to a file.  It is also called (with
+@@ -223,7 +229,7 @@
+      * needed.
+      */
+     if (saveBuffer && bufferSize > 0) {
+-	free(saveBuffer);	/* Must be free(), not free() */
++	free(saveBuffer);
+ 	saveBuffer = NULL;
+ 	bufferSize = 0;
+     }
+@@ -265,36 +271,19 @@
+ }
+ 
+ /* This function does the actual log message writes. */
+-
+-void
+-LogVWrite(int verb, const char *f, va_list args)
++static void
++LogSWrite(int verb, const char *buf, size_t len, Bool end_line)
+ {
+-    static char tmpBuffer[1024];
+-    int len = 0;
+     static Bool newline = TRUE;
+ 
+-    if (newline) {
+-	sprintf(tmpBuffer, "[%10.3f] ", GetTimeInMillis() / 1000.0);
+-	len = strlen(tmpBuffer);
+-	if (logFile)
+-	    fwrite(tmpBuffer, len, 1, logFile);
+-    }
+-
+-    /*
+-     * Since a va_list can only be processed once, write the string to a
+-     * buffer, and then write the buffer out to the appropriate output
+-     * stream(s).
+-     */
+-    if (verb < 0 || logFileVerbosity >= verb || logVerbosity >= verb) {
+-	vsnprintf(tmpBuffer, sizeof(tmpBuffer), f, args);
+-	len = strlen(tmpBuffer);
+-    }
+-    newline = (tmpBuffer[len-1] == '\n');
+-    if ((verb < 0 || logVerbosity >= verb) && len > 0)
+-	fwrite(tmpBuffer, len, 1, stderr);
+-    if ((verb < 0 || logFileVerbosity >= verb) && len > 0) {
++    if (verb < 0 || logVerbosity >= verb)
++        fwrite(buf, len, 1, stderr);
++    if (verb < 0 || logFileVerbosity >= verb) {
+ 	if (logFile) {
+-	    fwrite(tmpBuffer, len, 1, logFile);
++            if (newline)
++                fprintf(logFile, "[%10.3f] ", GetTimeInMillis() / 1000.0);
++            newline = end_line;
++            fwrite(buf, len, 1, logFile);
+ 	    if (logFlush) {
+ 		fflush(logFile);
+ #ifndef WIN32
+@@ -311,13 +300,19 @@
+ 		    FatalError("realloc() failed while saving log messages\n");
+ 	    }
+ 	    bufferUnused -= len;
+-	    memcpy(saveBuffer + bufferPos, tmpBuffer, len);
++            memcpy(saveBuffer + bufferPos, buf, len);
+ 	    bufferPos += len;
+ 	}
+     }
+ }
+ 
+ void
++LogVWrite(int verb, const char *f, va_list args)
++{
++    return LogVMessageVerb(X_NONE, verb, f, args);
++}
++
++void
+ LogWrite(int verb, const char *f, ...)
+ {
+     va_list args;
+@@ -327,60 +322,75 @@
+     va_end(args);
+ }
+ 
+-void
+-LogVMessageVerb(MessageType type, int verb, const char *format, va_list args)
++/* Returns the Message Type string to prepend to a logging message, or NULL
++ * if the message will be dropped due to insufficient verbosity. */
++static const char *
++LogMessageTypeVerbString(MessageType type, int verb)
+ {
+-    const char *s  = X_UNKNOWN_STRING;
+-    char tmpBuf[1024];
++    if (type == X_ERROR)
++        verb = 0;
+ 
+-    /* Ignore verbosity for X_ERROR */
+-    if (logVerbosity >= verb || logFileVerbosity >= verb || type == X_ERROR) {
+-	switch (type) {
+-	case X_PROBED:
+-	    s = X_PROBE_STRING;
+-	    break;
+-	case X_CONFIG:
+-	    s = X_CONFIG_STRING;
+-	    break;
+-	case X_DEFAULT:
+-	    s = X_DEFAULT_STRING;
+-	    break;
+-	case X_CMDLINE:
+-	    s = X_CMDLINE_STRING;
+-	    break;
+-	case X_NOTICE:
+-	    s = X_NOTICE_STRING;
+-	    break;
+-	case X_ERROR:
+-	    s = X_ERROR_STRING;
+-	    if (verb > 0)
+-		verb = 0;
+-	    break;
+-	case X_WARNING:
+-	    s = X_WARNING_STRING;
+-	    break;
+-	case X_INFO:
+-	    s = X_INFO_STRING;
+-	    break;
+-	case X_NOT_IMPLEMENTED:
+-	    s = X_NOT_IMPLEMENTED_STRING;
+-	    break;
+-	case X_UNKNOWN:
+-	    s = X_UNKNOWN_STRING;
+-	    break;
+-	case X_NONE:
+-	    s = NULL;
+-	    break;
+-	}
++    if (logVerbosity < verb && logFileVerbosity < verb)
++        return NULL;
+ 
+-        /* if s is not NULL we need a space before format */
+-        snprintf(tmpBuf, sizeof(tmpBuf), "%s%s%s", s ? s : "",
+-                                                   s ? " " : "",
+-                                                   format);
+-        LogVWrite(verb, tmpBuf, args);
++    switch (type) {
++    case X_PROBED:
++        return X_PROBE_STRING;
++    case X_CONFIG:
++        return X_CONFIG_STRING;
++    case X_DEFAULT:
++        return X_DEFAULT_STRING;
++    case X_CMDLINE:
++        return X_CMDLINE_STRING;
++    case X_NOTICE:
++        return X_NOTICE_STRING;
++    case X_ERROR:
++        return X_ERROR_STRING;
++    case X_WARNING:
++        return X_WARNING_STRING;
++    case X_INFO:
++        return X_INFO_STRING;
++    case X_NOT_IMPLEMENTED:
++        return X_NOT_IMPLEMENTED_STRING;
++    case X_UNKNOWN:
++        return X_UNKNOWN_STRING;
++    case X_NONE:
++        return X_NONE_STRING;
++    case X_DEBUG:
++        return X_DEBUG_STRING;
++    default:
++        return X_UNKNOWN_STRING;
+     }
+ }
+ 
++void
++LogVMessageVerb(MessageType type, int verb, const char *format, va_list args)
++{
++    const char *type_str;
++    char buf[1024];
++    const size_t size = sizeof(buf);
++    Bool newline;
++    size_t len = 0;
++
++    type_str = LogMessageTypeVerbString(type, verb);
++    if (!type_str)
++        return;
++
++    /* if type_str is not "", prepend it and ' ', to message */
++    if (type_str[0] != '\0')
++        len += Xscnprintf(&buf[len], size - len, "%s ", type_str);
++
++    if (size - len > 1)
++        len += Xvscnprintf(&buf[len], size - len, format, args);
++
++    /* Force '\n' at end of truncated line */
++    if (size - len == 1)
++        buf[len - 1] = '\n';
++
++    newline = (buf[len - 1] == '\n');
++    LogSWrite(verb, buf, len, newline);
++}
++
+ /* Log message with verbosity level specified. */
+ void
+ LogMessageVerb(MessageType type, int verb, const char *format, ...)
+@@ -404,6 +414,49 @@
+ }
+ 
+ void
++LogVHdrMessageVerb(MessageType type, int verb, const char *msg_format,
++                   va_list msg_args, const char *hdr_format, va_list hdr_args)
++{
++    const char *type_str;
++    char buf[1024];
++    const size_t size = sizeof(buf);
++    Bool newline;
++    size_t len = 0;
++
++    type_str = LogMessageTypeVerbString(type, verb);
++    if (!type_str)
++        return;
++
++    /* if type_str is not "", prepend it and ' ', to message */
++    if (type_str[0] != '\0')
++        len += Xscnprintf(&buf[len], size - len, "%s ", type_str);
++
++    if (hdr_format && size - len > 1)
++        len += Xvscnprintf(&buf[len], size - len, hdr_format, hdr_args);
++
++    if (msg_format && size - len > 1)
++        len += Xvscnprintf(&buf[len], size - len, msg_format, msg_args);
++
++    /* Force '\n' at end of truncated line */
++    if (size - len == 1)
++        buf[len - 1] = '\n';
++
++    newline = (buf[len - 1] == '\n');
++    LogSWrite(verb, buf, len, newline);
++}
++
++void
++LogHdrMessageVerb(MessageType type, int verb, const char *msg_format,
++                  va_list msg_args, const char *hdr_format, ...)
++{
++    va_list hdr_args;
++
++    va_start(hdr_args, hdr_format);
++    LogVHdrMessageVerb(type, verb, msg_format, msg_args, hdr_format, hdr_args);
++    va_end(hdr_args);
++}
++
++void
+ AbortServer(void) _X_NORETURN;
+ void
+ SigAbortServer(int signo) _X_NORETURN;
+Index: xorg-server-1.11.4/include/Xprintf.h
+===================================================================
+--- xorg-server-1.11.4.orig/include/Xprintf.h	2012-05-06 10:32:42.436348011 -0700
++++ xorg-server-1.11.4/include/Xprintf.h	2012-05-06 11:03:18.057814189 -0700
+@@ -66,4 +66,16 @@
+ # define vasprintf Xvasprintf
+ #endif
+ 
++/*
++ * These functions provide a portable implementation of the linux kernel
++ * scnprintf & vscnprintf routines that return the number of bytes actually
++ * copied during a snprintf, (excluding the final '\0').
++ */
++extern _X_EXPORT int
++Xscnprintf(char *s, int n, const char * _X_RESTRICT_KYWD fmt, ...)
++_X_ATTRIBUTE_PRINTF(3,4);
++extern _X_EXPORT int
++Xvscnprintf(char *s, int n, const char * _X_RESTRICT_KYWD fmt, va_list va)
++_X_ATTRIBUTE_PRINTF(3,0);
++
+ #endif /* XPRINTF_H */
+Index: xorg-server-1.11.4/os/xprintf.c
+===================================================================
+--- xorg-server-1.11.4.orig/os/xprintf.c	2012-05-06 10:32:42.472348510 -0700
++++ xorg-server-1.11.4/os/xprintf.c	2012-05-06 11:03:18.057814189 -0700
+@@ -182,6 +182,50 @@
+     return size;
+ }
+ 
++/**
++ * Varargs snprintf that returns the actual number of bytes (excluding final
++ * '\0') that were copied into the buffer.
++ * This is opposed to the normal sprintf() usually returns the number of bytes
++ * that would have been written.
++ *
++ * @param s       buffer to copy into
++ * @param n       size of buffer s
++ * @param format  printf style format string
++ * @param va      variable argument list
++ * @return        number of bytes actually copied, excluding final '\0'
++ */
++int
++Xvscnprintf(char *s, int n, const char *format, va_list args)
++{
++    int x;
++    if (n == 0)
++        return 0;
++    x = vsnprintf(s, n , format, args);
++    return (x >= n) ? (n - 1) : x;
++}
++
++/**
++ * snprintf that returns the actual number of bytes (excluding final '\0') that
++ * were copied into the buffer.
++ * This is opposed to the normal sprintf() usually returns the number of bytes
++ * that would have been written.
++ *
++ * @param s       buffer to copy into
++ * @param n       size of buffer s
++ * @param format  printf style format string
++ * @param ...     arguments for specified format
++ * @return        number of bytes actually copied, excluding final '\0'
++ */
++int Xscnprintf(char *s, int n, const char *format, ...)
++{
++    int x;
++    va_list ap;
++    va_start(ap, format);
++    x = Xvscnprintf(s, n, format, ap);
++    va_end(ap);
++    return x;
++}
++
+ /* Old api, now deprecated, may be removed in the future */
+ char *
+ Xvprintf(const char *format, va_list va)
+Index: xorg-server-1.11.4/hw/xfree86/common/xf86Helper.c
+===================================================================
+--- xorg-server-1.11.4.orig/hw/xfree86/common/xf86Helper.c	2012-05-06 10:32:42.488348731 -0700
++++ xorg-server-1.11.4/hw/xfree86/common/xf86Helper.c	2012-05-06 11:03:18.057814189 -0700
+@@ -1036,25 +1036,13 @@
+ xf86VDrvMsgVerb(int scrnIndex, MessageType type, int verb, const char *format,
+ 		va_list args)
+ {
+-    char *tmpFormat;
+-
+     /* Prefix the scrnIndex name to the format string. */
+     if (scrnIndex >= 0 && scrnIndex < xf86NumScreens &&
+-	xf86Screens[scrnIndex]->name) {
+-	tmpFormat = malloc(strlen(format) +
+-			   strlen(xf86Screens[scrnIndex]->name) +
+-			   PREFIX_SIZE + 1);
+-	if (!tmpFormat)
+-	    return;
+-
+-	snprintf(tmpFormat, PREFIX_SIZE + 1, "%s(%d): ",
+-		 xf86Screens[scrnIndex]->name, scrnIndex);
+-
+-	strcat(tmpFormat, format);
+-	LogVMessageVerb(type, verb, tmpFormat, args);
+-	free(tmpFormat);
+-    } else
+-	LogVMessageVerb(type, verb, format, args);
++        xf86Screens[scrnIndex]->name)
++        LogHdrMessageVerb(type, verb, format, args, "%s(%d): ",
++                          xf86Screens[scrnIndex]->name, scrnIndex);
++    else
++        LogVMessageVerb(type, verb, format, args);
+ }
+ #undef PREFIX_SIZE
+ 
+@@ -1087,15 +1075,18 @@
+ xf86VIDrvMsgVerb(InputInfoPtr dev, MessageType type, int verb, const char *format,
+ 		 va_list args)
+ {
+-    char *msg;
++    const char *driverName = NULL;
++    const char *deviceName = NULL;
+ 
+-    if (asprintf(&msg, "%s: %s: %s", dev->drv->driverName, dev->name, format)
+-	== -1) {
+-	LogVMessageVerb(type, verb, "%s", args);
+-    } else {
+-	LogVMessageVerb(type, verb, msg, args);
+-	free(msg);
++    /* Prefix driver and device names to formatted message. */
++    if (dev) {
++        deviceName = dev->name;
++        if (dev->drv)
++            driverName = dev->drv->driverName;
+     }
++
++    LogHdrMessageVerb(type, verb, format, args, "%s: %s: ", driverName,
++                      deviceName);
+ }
+ 
+ /* Print input driver message, with verbose level specified directly */
+Index: xorg-server-1.11.4/include/os.h
+===================================================================
+--- xorg-server-1.11.4.orig/include/os.h	2012-05-06 11:03:17.621808123 -0700
++++ xorg-server-1.11.4/include/os.h	2012-05-06 11:03:29.353971366 -0700
+@@ -514,6 +514,7 @@
+     X_INFO,			/* Informational message */
+     X_NONE,			/* No prefix */
+     X_NOT_IMPLEMENTED,		/* Not implemented */
++    X_DEBUG,            /* Debug message */
+     X_UNKNOWN = -1		/* unknown -- this must always be last */
+ } MessageType;
+ 
+@@ -528,6 +529,20 @@
+ 			   ...) _X_ATTRIBUTE_PRINTF(3,4);
+ extern _X_EXPORT void LogMessage(MessageType type, const char *format, ...)
+ 			_X_ATTRIBUTE_PRINTF(2,3);
++
++extern _X_EXPORT void
++LogVHdrMessageVerb(MessageType type, int verb,
++                   const char *msg_format, va_list msg_args,
++                   const char *hdr_format, va_list hdr_args)
++_X_ATTRIBUTE_PRINTF(3, 0)
++_X_ATTRIBUTE_PRINTF(5, 0);
++extern _X_EXPORT void
++LogHdrMessageVerb(MessageType type, int verb,
++                  const char *msg_format, va_list msg_args,
++                  const char *hdr_format, ...)
++_X_ATTRIBUTE_PRINTF(3, 0)
++_X_ATTRIBUTE_PRINTF(5, 6);
++
+ extern _X_EXPORT void FreeAuditTimer(void);
+ extern _X_EXPORT void AuditF(const char *f, ...) _X_ATTRIBUTE_PRINTF(1,2);
+ extern _X_EXPORT void VAuditF(const char *f, va_list args) _X_ATTRIBUTE_PRINTF(1,0);

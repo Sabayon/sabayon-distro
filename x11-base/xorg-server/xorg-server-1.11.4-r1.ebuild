@@ -1,16 +1,19 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-server/xorg-server-1.11.4.ebuild,v 1.2 2012/03/02 18:02:14 swift Exp $
+# $Header: $
+
+# made using "/var/cvsroot/gentoo-x86/x11-base/xorg-server/xorg-server-1.11.4.ebuild,v 1.2 2012/03/02 18:02:14 swift Exp"
+# on top of which applied changes introduced up to 1.11.4-r1 v. 1.8
 
 EAPI=4
 
 XORG_DOC=doc
 XORG_EAUTORECONF=yes
-inherit xorg-2 multilib versionator
+inherit flag-o-matic xorg-2 multilib versionator
 EGIT_REPO_URI="git://anongit.freedesktop.org/git/xorg/xserver"
 
 DESCRIPTION="X.Org X servers"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 sh sparc x86 ~x86-fbsd"
 
 IUSE_SERVERS="dmx kdrive xnest xorg xvfb"
 IUSE="${IUSE_SERVERS} ipv6 minimal nptl selinux tslib +udev"
@@ -117,6 +120,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.11-disable-tests-without-ddx.patch
 	"${FILESDIR}"/${PN}-1.11-dix-pointerrootwin-send-focusin.patch
 	"${FILESDIR}"/${PN}-1.11-dix-send-focus-events.patch
+	"${FILESDIR}"/${PN}-1.11-log-format-fix.patch
 )
 
 pkg_pretend() {
@@ -176,6 +180,9 @@ pkg_setup() {
 		ln -s "${EROOT}usr/$(get_libdir)/opengl/global/include/$i.h" "${T}/mesa-symlinks/GL/$i.h" || die
 	done
 	append-cppflags "-I${T}/mesa-symlinks"
+
+	# Make breakage less obvious, bug #402285.
+	replace-flags -O3 -O2
 }
 
 src_install() {
