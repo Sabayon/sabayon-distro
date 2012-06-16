@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/gnome-base/nautilus/nautilus-3.2.1.ebuild,v 1.1 2011/11/02 16:51:46 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/gnome-base/nautilus/nautilus-3.4.2.ebuild,v 1.1 2012/05/20 10:57:43 tetromino Exp $
 
 EAPI="4"
 GCONF_DEBUG="no"
@@ -18,9 +18,9 @@ IUSE="doc exif gnome +introspection packagekit +previewer sendto tracker xmp"
 
 # Require {glib,gdbus-codegen}-2.30.0 due to GDBus API changes between 2.29.92
 # and 2.30.0
-COMMON_DEPEND=">=dev-libs/glib-2.30.0:2
+COMMON_DEPEND=">=dev-libs/glib-2.31.9:2
 	>=x11-libs/pango-1.28.3
-	>=x11-libs/gtk+-3.1.6:3[introspection?]
+	>=x11-libs/gtk+-3.3.17:3[introspection?]
 	>=dev-libs/libxml2-2.7.8:2
 	>=gnome-base/gnome-desktop-3.0.0:3
 
@@ -37,10 +37,10 @@ COMMON_DEPEND=">=dev-libs/glib-2.30.0:2
 	xmp? ( >=media-libs/exempi-2.1.0 )"
 DEPEND="${COMMON_DEPEND}
 	>=dev-lang/perl-5
-	>=dev-util/gdbus-codegen-2.30.0
-	>=dev-util/pkgconfig-0.9
+	>=dev-util/gdbus-codegen-2.31.0
 	>=dev-util/intltool-0.40.1
 	sys-devel/gettext
+	virtual/pkgconfig
 	x11-proto/xproto
 	doc? ( >=dev-util/gtk-doc-1.4 )"
 RDEPEND="${COMMON_DEPEND}
@@ -59,7 +59,6 @@ PDEPEND="gnome? (
 
 pkg_setup() {
 	G2CONF="${G2CONF}
-		--disable-maintainer-mode
 		--disable-update-mimedb
 		$(use_enable exif libexif)
 		$(use_enable introspection)
@@ -71,11 +70,19 @@ pkg_setup() {
 }
 
 src_prepare() {
+	gnome2_src_prepare
+
 	# Sabayon, fix icons setup during Live system autostart (first boot only)
 	epatch "${FILESDIR}/${PN}-3.0.2-fix-autostart-live-boot.patch"
 	# Sabayon bug #2797
 	epatch "${FILESDIR}/${PN}-3.2.1-startup-notify.patch"
-	gnome2_src_prepare
+
+	# Restore the nautilus-2.x Delete shortcut (Ctrl+Delete will still work);
+	# bug #393663
+	epatch "${FILESDIR}/${PN}-3.2.1-delete.patch"
+
+	# https://bugzilla.gnome.org/show_bug.cgi?id=664573
+	epatch "${FILESDIR}/${PN}-3.2.1-key-press-forwarding.patch"
 
 	# Remove crazy CFLAGS
 	sed 's:-DG.*DISABLE_DEPRECATED::g' -i configure.in configure \
@@ -87,7 +94,9 @@ src_test() {
 	unset SESSION_MANAGER
 	unset ORBIT_SOCKETDIR
 	unset DBUS_SESSION_BUS_ADDRESS
-	Xemake check || die "Test phase failed"
+	export GSETTINGS_BACKEND="memory"
+	Xemake check
+	unset GSETTINGS_BACKEND
 }
 
 pkg_postinst() {
