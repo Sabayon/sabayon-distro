@@ -1,0 +1,30 @@
+From 73f565d27166420bbf4a7bb49a30ea5bf5d98566 Mon Sep 17 00:00:00 2001
+From: "Owen W. Taylor" <otaylor@fishsoup.net>
+Date: Wed, 4 Apr 2012 17:48:47 -0400
+Subject: [PATCH] Link the gnome-shell binary to libgnome-shell-js.so
+
+Depending on the exact linker options and versions, rpath's written
+into the binary may, or may not, be honored by dlopen(). Work around
+this by simply linking the gnome-shell binary to gnome-shell-js, since
+then dlopen() doesn't need to search paths.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=670477
+---
+ src/Makefile.am |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 95f1a41..7bafb6a 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -187,7 +187,7 @@ libgnome_shell_la_gir_sources = \
+ gnome_shell_real_SOURCES =		\
+ 	main.c
+ gnome_shell_real_CPPFLAGS = $(gnome_shell_cflags)
+-gnome_shell_real_LDADD = libgnome-shell.la $(libgnome_shell_la_LIBADD)
++gnome_shell_real_LDADD = libgnome-shell.la libgnome-shell-js.la $(libgnome_shell_la_LIBADD)
+ gnome_shell_real_DEPENDENCIES = libgnome-shell.la
+ 
+ EXTRA_DIST += test-gapplication.js
+-- 
+1.7.9.3

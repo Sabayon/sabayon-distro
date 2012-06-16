@@ -1,0 +1,43 @@
+From 6fa762baaee77c9d1a8aacc758ab5c3c3c33df43 Mon Sep 17 00:00:00 2001
+From: Alexandre Rostovtsev <tetromino@gentoo.org>
+Date: Fri, 6 Apr 2012 14:00:48 -0400
+Subject: [PATCH] Prevent the link to libgnome-shell-js.so from being removed
+
+Add a dummy call to shell_js_add_extension_importer() to ensure that the
+link to libgnome-shell-js.so is not removed when using -Wl,--as-needed,
+which is the default on many distros.
+---
+ src/main.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
+
+diff --git a/src/main.c b/src/main.c
+index bac9524..c11c8d7 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -24,6 +24,7 @@
+ #include "shell-a11y.h"
+ #include "shell-global.h"
+ #include "shell-global-private.h"
++#include "shell-js.h"
+ #include "shell-perf-log.h"
+ #include "st.h"
+ 
+@@ -342,3 +343,15 @@ main (int argc, char **argv)
+ 
+   return ecode;
+ }
++
++/* HACK:
++   Add a dummy function that calls into libgnome-shell-js.so to ensure it's
++   linked to /usr/bin/gnome-shell even when linking with --as-needed.
++   This function is never actually called.
++   https://bugzilla.gnome.org/show_bug.cgi?id=670477
++*/
++
++void _shell_link_to_shell_js(void) {
++  shell_js_add_extension_importer (NULL, NULL, NULL, NULL);
++}
++
+-- 
+1.7.8.5
+
