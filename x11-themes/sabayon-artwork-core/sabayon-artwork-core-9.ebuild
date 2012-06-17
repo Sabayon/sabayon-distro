@@ -12,8 +12,8 @@ LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~arm ~x86 ~amd64"
 IUSE=""
-RDEPEND="sys-apps/findutils
-	!<sys-boot/grub-0.97-r22
+RDEPEND="
+	sys-apps/findutils
 "
 
 S="${WORKDIR}/${PN}"
@@ -45,5 +45,5 @@ pkg_postinst() {
 	update_sabayon_kernel_initramfs_splash
 
 	einfo "Please report bugs or glitches to"
-	einfo "bugs.sabayon.org"
+	einfo "http://bugs.sabayon.org"
 }
