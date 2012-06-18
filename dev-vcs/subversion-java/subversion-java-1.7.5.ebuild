@@ -12,7 +12,7 @@ MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 MY_SVN_CATEGORY="${CATEGORY}"
 
 # note: java-pkg-2, not java-pkt-opt-2
-inherit autotools base flag-o-matic java-pkg-2 libtool multilib
+inherit autotools eutils flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
 HOMEPAGE="http://subversion.apache.org/"
@@ -32,12 +32,6 @@ RDEPEND="
 DEPEND="${COMMON_DEPEND}
 	>=virtual/jdk-1.5"
 
-PATCHES=(
-		"${FILESDIR}/${MY_SVN_PN}-1.5.4-interix.patch"
-		"${FILESDIR}/${MY_SVN_PN}-1.5.6-aix-dso.patch"
-		"${FILESDIR}/${MY_SVN_PN}-1.6.3-hpux-dso.patch"
-)
-
 pkg_setup() {
 	java-pkg-2_pkg_setup
 
@@ -47,7 +41,10 @@ pkg_setup() {
 }
 
 src_prepare() {
-	base_src_prepare
+	epatch "${FILESDIR}"/${MY_SVN_PN}-1.5.4-interix.patch \
+		"${FILESDIR}"/${MY_SVN_PN}-1.5.6-aix-dso.patch \
+		"${FILESDIR}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch
+
 	fperms +x build/transform_libtool_scripts.sh
 
 	sed -i \
@@ -79,19 +76,18 @@ src_configure() {
 	fi
 
 	case ${CHOST} in
-		*-solaris*)
-			# -lintl isn't added for some reason (makes Neon check fail)
-			use nls && append-libs -lintl
-		;;
 		*-aix*)
 			# avoid recording immediate path to sharedlibs into executables
 			append-ldflags -Wl,-bnoipath
 		;;
 		*-interix*)
 			# loader crashes on the LD_PRELOADs...
-			myconf="${myconf} --disable-local-library-preloading"
+			myconf+=" --disable-local-library-preloading"
 		;;
 	esac
+
+	#workaround for bug 387057
+	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
 
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--without-apxs \
