@@ -144,6 +144,9 @@ src_prepare() {
 	# Fix notification issue
 	epatch "${FILESDIR}/${PN}-1.4-notification.patch"
 
+	# Fix gnome-bluetooth-applet.so path
+	epatch "${FILESDIR}/${PN}-1.4-gnome-bluetooth-applet.patch"
+
 	# Gentoo uses /usr/libexec
 	sed -e "s:/usr/lib/gnome-session/gnome-session-check-accelerated:${EPREFIX}/usr/libexec/gnome-session-check-accelerated:" \
 		-i "files/usr/share/gnome-session/sessions/cinnamon.session" || die "sed 1 failed"
