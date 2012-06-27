@@ -26,7 +26,7 @@ RDEPEND="!!<x11-misc/lightdm-1.1.1
 src_prepare() {
 	# Apply custom Sabayon theme
 	sed -i \
-		-e 's/#background=.*/background=\/usr\/share\/backgrounds\/kgdm.png"/' \
+		-e 's/#background=.*/background=\/usr\/share\/backgrounds\/kgdm.png/' \
 		-e 's/#show-language-selector=.*/show-language-selector=true/' \
 		-e 's/#xft-hintstyle=.*/xft-hintstyle=hintfull/' \
 		-e 's/#xft-antialias=.*/xft-antialias=true/' \
