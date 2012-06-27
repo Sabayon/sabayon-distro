@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-misc/lightdm-gtk-greeter/lightdm-gtk-greeter-1.1.5.ebuild,v 1.1 2012/04/28 14:52:26 hwoarang Exp $
+# $Header: $
 
 EAPI=4
 
@@ -26,9 +26,9 @@ RDEPEND="!!<x11-misc/lightdm-1.1.1
 src_prepare() {
 	# Apply custom Sabayon theme
 	sed -i \
-		-e 's/#background=.*/background=\/usr\/share\/backgrounds\/kgdm.png/' \
-		-e 's/#show-language-selector=.*/show-language-selector=true/' \
-		-e 's/#xft-hintstyle=.*/xft-hintstyle=hintfull/' \
-		-e 's/#xft-antialias=.*/xft-antialias=true/' \
-		-e 's/#xft-rgba=.*/xft-rgba=rgb/' "data/${PN}.conf" || die
+		-e 's:#background=.*:background=/usr/share/backgrounds/kgdm.png:' \
+		-e 's:#show-language-selector=.*:show-language-selector=true:' \
+		-e 's:#xft-hintstyle=.*:xft-hintstyle=hintfull:' \
+		-e 's:#xft-antialias=.*:xft-antialias=true:' \
+		-e 's:#xft-rgba=.*:xft-rgba=rgb:' "data/${PN}.conf" || die
 }
