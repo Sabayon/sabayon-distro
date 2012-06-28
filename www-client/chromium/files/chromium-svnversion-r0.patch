@@ -1,0 +1,11 @@
+--- third_party/webrtc/build/common.gypi.orig	2012-05-04 18:32:52.126703414 +0200
++++ third_party/webrtc/build/common.gypi	2012-05-04 18:35:14.186709933 +0200
+@@ -98,7 +98,7 @@
+     'defines': [
+       # TODO(leozwang): Most of team use git-svn, need to add
+       # git-svn support as well.
+-      'WEBRTC_SVNREVISION="<!(svnversion -n)"',
++      'WEBRTC_SVNREVISION="<!(svnversion -n 2>/dev/null || echo -n 0)"',
+     ],
+     'conditions': [
+       ['build_with_chromium==1', {
