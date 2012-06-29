@@ -1,8 +1,8 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI="4"
 PYTHON_DEPEND="2"
 
 inherit eutils flag-o-matic python
@@ -15,7 +15,7 @@ SRC_URI="http://nmap.org/dist/${MY_P/zenmap/nmap}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
 DEPEND=">=x11-libs/gtk+-2.6:2
@@ -37,6 +37,9 @@ src_prepare() {
 	# epatch "${FILESDIR}"/${PN}-5.10_beta1-string.patch
 	epatch "${FILESDIR}"/${PN/zenmap/nmap}-5.21-python.patch
 	sed -i -e 's/-m 755 -s ncat/-m 755 ncat/' ncat/Makefile.in
+
+	## bug #416987
+	#epatch "${FILESDIR}"/${P}-make.patch
 }
 
 src_configure() {
@@ -45,6 +48,8 @@ src_configure() {
 	econf --with-libdnet=included \
 		--with-zenmap \
 		--without-ncat \
+		--without-ndiff \
+		--without-nmap-update \
 		--without-nping \
 		--without-ndiff \
 		|| die "configure failed!"

@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<herd>netmon</herd>
-<maintainer>
-  <email>spock@gentoo.org</email>
-  <description>original nmap ebuild maintainer</description>
-</maintainer>
 <maintainer>
   <email>slawomir.nizio@sabayonlinux.org</email>
-  <description>maintainer of split nmap ebuild, please bugs about this one here</description>
+  <description>maintainer of split nmap ebuild</description>
 </maintainer>
 </pkgmetadata>

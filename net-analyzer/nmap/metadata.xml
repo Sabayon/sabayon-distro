@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<herd>netmon</herd>
-<maintainer>
-  <email>spock@gentoo.org</email>
-  <description>original nmap ebuild maintainer</description>
-</maintainer>
 <maintainer>
   <email>slawomir.nizio@sabayonlinux.org</email>
-  <description>maintainer of split nmap ebuild, please bugs about this one here</description>
+  <description>maintainer of split nmap ebuild (based on Gentoo one)</description>
 </maintainer>
+<use>
+<flag name="ncat">Install the ncat utility</flag>
+<flag name="ndiff">Install the ndiff utility</flag>
+<flag name="nmap-update">Install nmap-update, which uses
+<pkg>dev-vcs/subversion</pkg> to update nmap scripts in your home
+directory</flag>
+<flag name="nping">Install the nping utility</flag>
+</use>
 </pkgmetadata>
