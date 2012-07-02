@@ -89,9 +89,7 @@ src_unpack() {
 	toolchain_src_unpack
 
 	use vanilla && return 0
-}
 
-src_prepare() {
 	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
 }
 
