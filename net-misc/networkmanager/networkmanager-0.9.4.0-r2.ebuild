@@ -5,7 +5,7 @@
 EAPI="4"
 GNOME_ORG_MODULE="NetworkManager"
 
-inherit autotools eutils gnome.org linux-info systemd
+inherit autotools eutils gnome.org linux-info systemd user
 
 DESCRIPTION="Network configuration and management in an easy way. Desktop environment independent."
 HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
@@ -108,6 +108,8 @@ src_prepare() {
 	# Fix uninitialized variables in libnm-glib
 	epatch "${FILESDIR}/${P}-libnm-glib-ensure_inited.patch"
 	epatch "${FILESDIR}/${P}-libnm-glib-init-gerror.patch"
+	# Fix building against linux-headers-3.4, #417055
+	epatch "${FILESDIR}/${P}-ip_ppp.h.patch"
 
 	# Sabayon patch, require logger, avoid modemmanager or other plugins
 	# output on VT
