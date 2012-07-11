@@ -8,11 +8,10 @@ inherit eutils multilib toolchain-funcs versionator
 
 DESCRIPTION="AMD X11 drivers for radeon r600 (HD Series) and newer chipsets"
 HOMEPAGE="http://www.amd.com"
-# 8.ble will be used for beta releases.
-if [[ $(get_major_version) -gt 8 ]]; then
-	ATI_URL="http://www2.ati.com/drivers/hotfix/catalyst_12.6_hotfixes"
-	ZIP_NAME="amd-driver-installer-8.98-x86.x86_64.zip"
-	SRC_URI="${ATI_URL}/${ZIP_NAME}"
+MY_V=( $(get_version_components) )
+if [[ ${MY_V[2]} != beta ]]; then
+	ATI_URL="http://www2.ati.com/drivers/linux/"
+	SRC_URI="${ATI_URL}/amd-driver-installer-${PV/./-}-x86.x86_64.run"
 	FOLDER_PREFIX="common/"
 else
 	SRC_URI="https://launchpad.net/ubuntu/natty/+source/fglrx-installer/2:${PV}-0ubuntu1/+files/fglrx-installer_${PV}.orig.tar.gz"
@@ -23,8 +22,9 @@ IUSE="debug multilib static-libs"
 LICENSE="AMD GPL-2 as-is"
 KEYWORDS="~amd64 ~x86"
 SLOT="1"
+RESTRICT="bindist"
 
-RDEPEND="<=x11-base/xorg-server-1.11.49[-minimal]
+RDEPEND="<=x11-base/xorg-server-1.12.49[-minimal]
 	!x11-drivers/ati-drivers:0
 	!x11-apps/ati-drivers-extra
 	>=app-admin/eselect-opengl-1.0.7
@@ -140,15 +140,13 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [[ $(get_major_version) -gt 8 ]]; then
+	if [[ ${MY_V[2]} == beta ]]; then
 		unpack ${A}
-		# Switching to a standard way to extract the files since otherwise no signature file
-		# would be created
-		local src="${S}/${ZIP_NAME/.zip/.run}"
-		sh "${src}" --extract "${S}"  2&>1 /dev/null
+		RUN="${S}/${A/%.zip/.run}"
 	else
-		unpack ${A}
+		RUN="${DISTDIR}/${A}"
 	fi
+	sh ${RUN} --extract "${S}" # 2>&1 > /dev/null || die
 }
 
 src_prepare() {
@@ -180,6 +178,15 @@ src_prepare() {
 	mkdir extra || die "mkdir failed"
 	cd extra
 	unpack ./../${FOLDER_PREFIX}usr/src/ati/fglrx_sample_source.tgz
+
+	# Get rid of watermark. Oldest known reference:
+	# http://phoronix.com/forums/showthread.php?19875-Unsupported-Hardware-watermark
+	ebegin "Disabling watermark"
+	driver="${MY_BASE_DIR}"/usr/X11R6/${PKG_LIBDIR}/modules/drivers/fglrx_drv.so
+	for x in $(objdump -d ${driver}|awk '/call/&&/EnableLogo/{print "\\x"$2"\\x"$3"\\x"$4"\\x"$5"\\x"$6}'); do
+		sed -i "s/${x}/\x90\x90\x90\x90\x90/g" ${driver} || break 1
+	done
+	eend $? || die "Disabling watermark failed"
 }
 
 src_compile() {

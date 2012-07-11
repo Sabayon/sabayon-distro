@@ -8,11 +8,10 @@ inherit eutils versionator
 
 DESCRIPTION="AMD Catalyst Control Center Linux Edition"
 HOMEPAGE="http://www.amd.com"
-# 8.ble will be used for beta releases.
-if [[ $(get_major_version) -gt 8 ]]; then
-	ATI_URL="http://www2.ati.com/drivers/hotfix/catalyst_12.6_hotfixes"
-	ZIP_NAME="amd-driver-installer-8.98-x86.x86_64.zip"
-	SRC_URI="${ATI_URL}/${ZIP_NAME}"
+MY_V=( $(get_version_components) )
+if [[ ${MY_V[2]} != beta ]]; then
+	ATI_URL="http://www2.ati.com/drivers/linux/"
+	SRC_URI="${ATI_URL}/amd-driver-installer-${PV/./-}-x86.x86_64.run"
 	FOLDER_PREFIX="common/"
 else
 	SRC_URI="https://launchpad.net/ubuntu/natty/+source/fglrx-installer/2:${PV}-0ubuntu1/+files/fglrx-installer_${PV}.orig.tar.gz"
@@ -35,15 +34,13 @@ S="${WORKDIR}"
 QA_EXECSTACK="opt/bin/amdcccle"
 
 src_unpack() {
-	if [[ $(get_major_version) -gt 8 ]]; then
+	if [[ ${MY_V[2]} == beta ]]; then
 		unpack ${A}
-		# Switching to a standard way to extract the files since otherwise no signature file
-		# would be created
-		local src="${S}/${ZIP_NAME/.zip/.run}"
-		sh "${src}" --extract "${S}"  2&>1 /dev/null
+		RUN="${S}/${A/%.zip/.run}"
 	else
-		unpack ${A}
+		RUN="${DISTDIR}/${A}"
 	fi
+	sh ${RUN} --extract "${S}" # 2>&1 > /dev/null || die
 }
 
 src_compile() {
