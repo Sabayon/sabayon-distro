@@ -190,6 +190,9 @@ src_prepare() {
 	# fix needed for at least hardened-sources, see bug #392753
 	use pax_kernel && epatch "${FILESDIR}"/ati-drivers-12.2-redefine-WARN.patch
 
+	# Fix compilation with 3.2.8 and 3.3 kernels
+	epatch "${FILESDIR}/ati-drivers-3.2.8+-2.patch"
+
 	# see http://ati.cchtml.com/show_bug.cgi?id=495
 	kernel_is ge 3 4 0 && epatch "${FILESDIR}/ati-drivers-old_rsp.patch"
 
