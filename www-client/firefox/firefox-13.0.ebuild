@@ -141,6 +141,11 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
+	# We have this on ARM chroots, but I think other arches
+	# are affected, see:
+	# https://bugzilla.mozilla.org/show_bug.cgi?id=760795
+	epatch "${FILESDIR}/firefox-13.0-fix-arm-compilation.patch"
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
