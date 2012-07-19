@@ -1,0 +1,70 @@
+diff -urNp mozilla-aurora-7f3c5dd8e78f.old/content/html/content/public/nsHTMLMediaElement.h mozilla-aurora-7f3c5dd8e78f/content/html/content/public/nsHTMLMediaElement.h
+--- mozilla-aurora-7f3c5dd8e78f.old/content/html/content/public/nsHTMLMediaElement.h	2012-06-04 11:37:25.791017257 +0530
++++ mozilla-aurora-7f3c5dd8e78f/content/html/content/public/nsHTMLMediaElement.h	2012-06-04 11:38:22.259014896 +0530
+@@ -305,8 +305,10 @@ public:
+ #ifdef MOZ_GSTREAMER
+   static bool IsH264Enabled();
+   static bool IsH264Type(const nsACString& aType);
++  static bool IsSupportedAudioType(const nsACString& aType);
+   static const char gH264Types[3][17];
+   static char const *const gH264Codecs[6];
++  static const char gSupportedAudioTypes[2][11];
+ #endif
+ 
+   /**
+diff -urNp mozilla-aurora-7f3c5dd8e78f.old/content/html/content/src/nsHTMLMediaElement.cpp mozilla-aurora-7f3c5dd8e78f/content/html/content/src/nsHTMLMediaElement.cpp
+--- mozilla-aurora-7f3c5dd8e78f.old/content/html/content/src/nsHTMLMediaElement.cpp	2012-06-04 11:37:25.834017256 +0530
++++ mozilla-aurora-7f3c5dd8e78f/content/html/content/src/nsHTMLMediaElement.cpp	2012-06-04 11:40:04.358010627 +0530
+@@ -1865,6 +1865,11 @@ char const *const nsHTMLMediaElement::gH
+   nsnull
+ };
+ 
++const char nsHTMLMediaElement::gSupportedAudioTypes[2][11] = {
++  "audio/mp4",
++  "audio/mpeg",
++};
++
+ bool
+ nsHTMLMediaElement::IsH264Enabled()
+ {
+@@ -1886,6 +1891,18 @@ nsHTMLMediaElement::IsH264Type(const nsA
+ 
+   return false;
+ }
++
++bool
++nsHTMLMediaElement::IsSupportedAudioType(const nsACString& aType)
++{
++  for (PRUint32 i = 0; i < ArrayLength(gSupportedAudioTypes); ++i) {
++    if (aType.EqualsASCII(gSupportedAudioTypes[i])) {
++      return true;
++    }
++  }
++
++  return false;
++}
+ #endif
+ 
+ /* static */
+@@ -1919,6 +1936,11 @@ nsHTMLMediaElement::CanHandleMediaType(c
+ #endif
+ 
+ #ifdef MOZ_GSTREAMER
++  if (IsSupportedAudioType(nsDependentCString(aMIMEType))) {
++    *aCodecList = NULL;
++    return CANPLAY_MAYBE;
++  }
++
+   if (IsH264Type(nsDependentCString(aMIMEType))) {
+     *aCodecList = gH264Codecs;
+     return CANPLAY_YES;
+@@ -1992,7 +2014,8 @@ nsHTMLMediaElement::GetCanPlay(const nsA
+   while (tokenizer.hasMoreTokens()) {
+     const nsSubstring& token = tokenizer.nextToken();
+ 
+-    if (!CodecListContains(supportedCodecs, token)) {
++    if (supportedCodecs == NULL ||
++        !CodecListContains(supportedCodecs, token)) {
+       // Totally unsupported codec
+       return CANPLAY_NO;
+     }
