@@ -285,7 +285,9 @@ else
 	RDEPEND="arm? ( >=app-admin/eselect-uimage-0.1.1 )
 		grub? ( || ( >=sys-boot/grub-1.98 ( <sys-boot/grub-1 sys-boot/grub-handler ) ) )
 		sys-apps/sed
-		sys-kernel/linux-firmware"
+		sys-kernel/linux-firmware
+		x86? ( app-admin/eselect-bzimage )
+		amd64? ( app-admin/eselect-bzimage )"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
 	fi
@@ -656,6 +658,43 @@ sabayon-kernel_uimage_config() {
 	fi
 }
 
+sabayon-kernel_uimage_config() {
+	# Two cases here:
+	# 1. /boot/bzImage symlink is broken (pkg_postrm)
+	# 2. /boot/bzImage symlink doesn't exist (pkg_postinst)
+	local kern_arch
+	use x86 && kern_arch="x86"
+	use amd64 && kern_arch="amd64"
+
+	local bzimage_file=$(eselect bzimage show --quiet 2> /dev/null)
+	if [ -z "${bzimage_file}" ]; then
+		# try to pic what's being installed
+		local eselect_list=$(eselect bzimage list --quiet 2> /dev/null)
+		if [ -n "${eselect_list}" ]; then
+			eselect bzimage set "kernel-genkernel-${kern_arch}-${KV_FULL}"
+			if [ "${?}" != "0"]; then
+				# pick the first available, sorry!
+				echo
+				eselect bzimage set 1
+				ewarn "Unable to select the right kernel, falling back"
+				ewarn "to the first available entry. You have been warned"
+				echo
+			fi
+		else
+			echo
+			ewarn "No more kernels available, you might not be able to boot"
+			echo
+		fi
+	else
+		echo
+		ewarn "You are currently booting with kernel:"
+		ewarn "${bzimage_file}"
+		ewarn
+		ewarn "Use 'eselect bzimage' in order to switch between the available ones"
+		echo
+	fi
+}
+
 sabayon-kernel_pkg_postinst() {
 	if _is_kernel_binary; then
 		fstab_file="${ROOT}etc/fstab"
@@ -688,6 +727,12 @@ sabayon-kernel_pkg_postinst() {
 		# Setup newly installed kernel on ARM
 		if use arm; then
 			sabayon-kernel_uimage_config
+		fi
+		# Setup newly installed kernel on x86/amd64
+		# This is quite handy for static grub1/grub2
+		# configurations (like on Amazon EC2)
+		if use x86 || use amd64; then
+			sabayon-kernel_bzimage_config
 		fi
 
 		kernel-2_pkg_postinst
@@ -735,6 +780,12 @@ sabayon-kernel_pkg_postrm() {
 		# Setup newly installed kernel on ARM
 		if use arm; then
 			sabayon-kernel_uimage_config
+		fi
+		# Setup newly installed kernel on x86/amd64
+		# This is quite handy for static grub1/grub2
+		# configurations (like on Amazon EC2)
+		if use x86 || use amd64; then
+			sabayon-kernel_bzimage_config
 		fi
 	fi
 }
