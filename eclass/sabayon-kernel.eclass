@@ -635,10 +635,10 @@ sabayon-kernel_uimage_config() {
 	# Two cases here:
 	# 1. /boot/uImage symlink is broken (pkg_postrm)
 	# 2. /boot/uImage symlink doesn't exist (pkg_postinst)
-	uimage_file=$(eselect uimage show --quiet 2> /dev/null)
+	local uimage_file=$(eselect uimage show --quiet 2> /dev/null)
 	if [ -z "${uimage_file}" ]; then
 		# pick the first listed, sorry!
-		eselect_list=$(eselect uimage list --quiet 2> /dev/null)
+		local eselect_list=$(eselect uimage list --quiet 2> /dev/null)
 		if [ -n "${eselect_list}" ]; then
 			eselect uimage set 1
 		else
