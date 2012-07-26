@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-# @ECLASS: transmission-2.51.eclass
+# @ECLASS: transmission-2.61.eclass
 # @MAINTAINER:
 # slawomir.nizio@sabayon.org
 # @AUTHOR:
@@ -39,23 +39,23 @@ _transmission_is() {
 	[[ ${what} = "${E_TRANSM_TAIL}" ]]
 }
 
-LANGS="en es kk lt pt_BR ru" # used only for -qt
-
-unset _live_inherits
-if [[ ${PV} == *9999* ]]; then
-	# not tested in the eclass
-	ESVN_REPO_URI="svn://svn.transmissionbt.com/Transmission/trunk"
-	_live_inherits=subversion
-fi
+LANGS="en es eu kk lt pt_BR ru" # used only for -qt
 
 MY_ECLASSES=""
 _transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
 _transmission_is qt4 && MY_ECLASSES+="fdo-mime qt4-r2"
 _transmission_is "" || MY_ECLASSES+=" autotools"
+_transmission_is base && MY_ECLASSES+=" user"
 
-inherit eutils multilib ${MY_ECLASSES} ${_live_inherits}
+inherit eutils multilib ${MY_ECLASSES}
 
 unset MY_ECLASSES
+
+if [[ ${PV} == *9999* ]]; then
+	# not tested in the eclass
+	ESVN_REPO_URI="svn://svn.transmissionbt.com/Transmission/trunk"
+	inherit subversion
+fi
 
 case ${EAPI:-0} in
 	4|3) EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile \
@@ -90,7 +90,7 @@ if ! _transmission_is ""; then
 	RDEPEND+="
 	>=dev-libs/libevent-2.0.10
 	dev-libs/openssl:0
-	>=net-libs/miniupnpc-1.6
+	>=net-libs/miniupnpc-1.6.20120509
 	>=net-misc/curl-7.16.3[ssl]
 	net-libs/libnatpmp
 	sys-libs/zlib"
@@ -105,7 +105,7 @@ if _transmission_is base; then
 fi
 if ! _transmission_is ""; then
 	DEPEND+=" dev-util/intltool
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	sys-devel/gettext
 	virtual/os-headers"
 fi
@@ -113,14 +113,14 @@ fi
 S="${WORKDIR}/${MY_P}"
 _transmission_is "" && S="${WORKDIR}"
 
-transmission-2.51_pkg_setup() {
+transmission-2.61_pkg_setup() {
 	if _transmission_is base; then
 		enewgroup transmission
 		enewuser transmission -1 -1 -1 transmission
 	fi
 }
 
-transmission-2.51_src_unpack() {
+transmission-2.61_src_unpack() {
 	if [[ ${PV} == *9999* ]]; then
 		subversion_src_unpack
 	else
@@ -128,7 +128,7 @@ transmission-2.51_src_unpack() {
 	fi
 }
 
-transmission-2.51_src_prepare() {
+transmission-2.61_src_prepare() {
 	_transmission_is "" && return
 
 	if [[ ${PV} == *9999* ]]; then
@@ -145,7 +145,6 @@ transmission-2.51_src_prepare() {
 	# http://trac.transmissionbt.com/ticket/4324
 	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
 
-	intltoolize --copy --force --automake || die
 	eautoreconf
 
 	if _transmission_is qt4; then
@@ -178,7 +177,7 @@ transmission-2.51_src_prepare() {
 	fi
 }
 
-transmission-2.51_src_configure() {
+transmission-2.61_src_configure() {
 	_transmission_is "" && return
 
 	local econfargs=(
@@ -229,7 +228,7 @@ transmission-2.51_src_configure() {
 	fi
 }
 
-transmission-2.51_src_compile() {
+transmission-2.61_src_compile() {
 	_transmission_is "" && return
 
 	emake
@@ -251,11 +250,11 @@ transmission-2.51_src_compile() {
 # Note: not providing src_install. Too many differences and too much code
 # which would only clutter this pretty eclass.
 
-transmission-2.51_pkg_preinst() {
+transmission-2.61_pkg_preinst() {
 	_transmission_is gtk && gnome2_icon_savelist
 }
 
-transmission-2.51_pkg_postinst() {
+transmission-2.61_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
@@ -285,7 +284,7 @@ transmission-2.51_pkg_postinst() {
 	elog "and run sysctl -p"
 }
 
-transmission-2.51_pkg_postrm() {
+transmission-2.61_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi

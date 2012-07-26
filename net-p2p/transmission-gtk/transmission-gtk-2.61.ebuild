@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=4
-inherit eutils transmission-2.51
+inherit eutils transmission-2.61
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Gtk+ UI"
 KEYWORDS="~amd64 ~x86"
@@ -13,7 +13,7 @@ RDEPEND="
 	>=dev-libs/dbus-glib-0.98
 	>=dev-libs/glib-2.28
 	>=x11-libs/gtk+-3.2:3
-	ayatana? ( dev-libs/libappindicator:3 )
+	ayatana? ( >=dev-libs/libappindicator-0.4.90:3 )
 	!net-p2p/transmission-gtk+
 "
 
