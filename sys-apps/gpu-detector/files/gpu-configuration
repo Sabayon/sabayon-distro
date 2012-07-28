@@ -325,11 +325,7 @@ def opengl_activate(profile):
 	current = opengl_show()
 	default_profile = "xorg-x11"
 	if (not dryrun):
-		if (livecd):
-			if (profile != default_profile) or (profile == default_profile and current != default_profile):
-				os.system("opengl-activator "+profile+" &> /dev/null")
-		else:
-			os.system("eselect opengl set "+profile+" &> /dev/null")
+		os.system("eselect opengl set "+profile+" &> /dev/null")
 	else:
 		print("I was about to set opengl subsystem to: "+profile)
 
