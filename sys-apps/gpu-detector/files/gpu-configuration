@@ -330,8 +330,6 @@ def opengl_activate(profile):
 		print("I was about to set opengl subsystem to: "+profile)
 
 def opengl_show():
-	if livecd:
-		return getoutput("opengl-activator show").split("\n")[0].strip()
 	return getoutput("eselect opengl show").split("\n")[0].strip()
 
 def fix_possible_opengl_misconfiguration(profile):
