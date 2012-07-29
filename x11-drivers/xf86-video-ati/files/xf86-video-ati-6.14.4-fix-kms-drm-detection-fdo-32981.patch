@@ -1,0 +1,66 @@
+diff -Nurp xf86-video-ati-6.14.4.orig/src/radeon_probe.c xf86-video-ati-6.14.4/src/radeon_probe.c
+--- xf86-video-ati-6.14.4.orig/src/radeon_probe.c	2011-10-31 13:39:22.000000000 +0100
++++ xf86-video-ati-6.14.4/src/radeon_probe.c	2012-07-30 00:26:09.000000000 +0200
+@@ -32,6 +32,8 @@
+ 
+ #include <string.h>
+ #include <stdlib.h>
++#include <errno.h>
++#include <unistd.h>
+ 
+ /*
+  * Authors:
+@@ -110,6 +112,40 @@ RADEONIdentify(int flags)
+ 
+ 
+ #ifdef XF86DRM_MODE
++static Bool radeon_check_kernel_module_is_loaded(ScrnInfoPtr pScrn, char *busIdString)
++{
++    drmSetVersion saveSv, sv;
++    int fd = -1, err;   
++    int count = 10;
++
++    sv.drm_di_major = 1;
++    sv.drm_di_minor = 1;
++    sv.drm_dd_major = -1;
++
++    saveSv = sv;
++    while (count--) {
++	fd = drmOpen(RADEON_DRIVER_NAME, busIdString);
++
++	if (fd < 0) {
++	    xf86DrvMsgVerb(pScrn->scrnIndex, X_ERROR, 0,
++			    "[KMS] drmOpen failed.\n");
++	    return FALSE;
++	}
++
++	err = drmSetInterfaceVersion(fd, &sv);
++
++	if (err != -EPERM)
++	    break;
++
++	sv = saveSv;
++	drmClose(fd);
++	fd = -1;
++	usleep(100000);
++    }
++
++    return fd != -1 ? TRUE : FALSE;
++}
++
+ static Bool radeon_kernel_mode_enabled(ScrnInfoPtr pScrn, struct pci_device *pci_dev)
+ {
+     char *busIdString;
+@@ -122,6 +158,12 @@ static Bool radeon_kernel_mode_enabled(S
+     }
+ 
+     busIdString = DRICreatePCIBusID(pci_dev);
++
++    if (!radeon_check_kernel_module_is_loaded(pScrn, busIdString)) {		
++      xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 0,
++		   "[KMS] drm kernel module is not loaded, no kernel modesetting.\n");
++	return FALSE;
++    }
+     ret = drmCheckModesettingSupported(busIdString);
+     free(busIdString);
+     if (ret) {

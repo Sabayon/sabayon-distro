@@ -20,6 +20,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-6.14.4-exa-solid-accel-evergreen.patch
 	"${FILESDIR}"/${PN}-6.14.4-exa-solid-accel-r100.patch
 	"${FILESDIR}"/${PN}-6.14.4-exa-solid-accel-r200.patch
+	"${FILESDIR}"/${PN}-6.14.4-fix-kms-drm-detection-fdo-32981.patch
 )
 
 pkg_setup() {
