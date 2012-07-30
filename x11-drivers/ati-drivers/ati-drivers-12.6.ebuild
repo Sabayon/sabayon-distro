@@ -157,7 +157,7 @@ pkg_setup() {
 
 	elog
 	elog "Please note that this driver supports only graphic cards based on"
-	elog "r600 chipset and newer."
+	elog "Evergreen chipset and newer."
 	elog "This represent the AMD Radeon HD series at this moment."
 	elog
 	elog "If your card is older then usage of ${CATEGORY}/xf86-video-ati"
@@ -195,6 +195,9 @@ src_prepare() {
 
 	# see http://ati.cchtml.com/show_bug.cgi?id=495
 	kernel_is ge 3 4 0 && epatch "${FILESDIR}/ati-drivers-old_rsp.patch"
+
+	#fixes bug #420751
+	epatch "${FILESDIR}"/ati-drivers-do_mmap.patch
 
 	cd "${MODULE_DIR}"
 	# bugged fglrx build system, this file should be copied by hand
