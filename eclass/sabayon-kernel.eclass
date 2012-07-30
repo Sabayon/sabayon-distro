@@ -658,7 +658,7 @@ sabayon-kernel_uimage_config() {
 	fi
 }
 
-sabayon-kernel_uimage_config() {
+sabayon-kernel_bzimage_config() {
 	# Two cases here:
 	# 1. /boot/bzImage symlink is broken (pkg_postrm)
 	# 2. /boot/bzImage symlink doesn't exist (pkg_postinst)
