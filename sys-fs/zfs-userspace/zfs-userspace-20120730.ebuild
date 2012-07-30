@@ -16,8 +16,4 @@ inherit eutils linux-info spl-zfs-userspace
 
 src_prepare() {
 	spl-zfs-userspace_src_prepare
-	cd "${ZFS_S}" && \
-		kernel_is gt 3 3 0 && epatch "${FILESDIR}/zfs-${PV}-linux-3.4.patch"
-	cd "${SPL_S}" && \
-		kernel_is gt 3 3 0 && epatch "${FILESDIR}/spl-${PV}-linux-3.4.patch"
 }
