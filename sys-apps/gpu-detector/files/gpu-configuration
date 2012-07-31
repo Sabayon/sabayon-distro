@@ -189,6 +189,15 @@ def remove_proprietary_opengl():
 	else:
 		print("I was about to remove proprietary OpenGL libraries")
 
+def setup_radeon_kms():
+	if (not dryrun):
+		os.system("""
+		modprobe -r radeon &> /dev/null
+		modprobe radeon modeset=1 && touch /tmp/.radeon.kms
+		""")
+	else:
+	    print("I was about to modprobe radeon modeset=1")
+
 def remove_tar_members_from_sys(tarpath):
 	import tarfile
 	tar = tarfile.open(tarpath)
@@ -215,7 +224,7 @@ def check_if_driver_is_available(xdriver):
 
 def check_if_proprietary_driver_system_is_healthy(kernelmod):
 	rc = os.system('modprobe '+kernelmod+' &> /dev/null')
-	if (rc == 0):
+	if rc == 0:
 		if kernelmod == "nvidia":
 			if os.path.exists('/usr/lib/opengl/nvidia/lib'):
 				print("check_if_proprietary_driver_system_is_healthy: nvidia healthy")
@@ -237,7 +246,7 @@ def deploy_nvidia_xxxxxx_drivers(ver):
 		if not os.path.isdir("/install-data/drivers"):
 			print("No /install-data/drivers available")
 			return False
-		
+
 		packages = os.listdir("/install-data/drivers")
 		packages = [x for x in packages if x.startswith("x11-drivers:nvidia-drivers-"+ver) and x.endswith(".tbz2")]
 		if not packages:
@@ -248,26 +257,20 @@ def deploy_nvidia_xxxxxx_drivers(ver):
 			return False
 
 		from entropy.client.interfaces import Client
-		from entropy.const import const_kill_threads
-		Equo = Client()
+		_entropy = Client()
 
 		# prepare system
-		idpackage, result = Equo.installed_repository().atomMatch('x11-drivers/nvidia-drivers')
+		inst_repo = _entropy.installed_repository()
+		idpackage, result = inst_repo.atomMatch('x11-drivers/nvidia-drivers')
 		if idpackage != -1:
-			content = Equo.installed_repository().retrieveContent(idpackage)
-			for myfile in content:
-				if os.path.isfile(myfile) and os.access(myfile,os.W_OK):
-					try:
-						os.remove(myfile)
-					except OSError:
-						pass
-			del content
-
-		if hasattr(Equo,'destroy'):
-			Equo.destroy()
-		del Equo
-		# Entropy Cacher still running
-                const_kill_threads()
+			content = inst_repo.retrieveContentIter(idpackage)
+			for myfile, ftype in content:
+				try:
+					os.remove(myfile)
+				except (OSError, IOError):
+					pass
+		if hasattr(_entropy,'destroy'):
+			_entropy.destroy()
 
 		# remove old garbage - copy over - create module
 		os.system("tar xjf %s -C / &> /dev/null" % (package_file,))
@@ -345,7 +348,7 @@ def fix_possible_opengl_misconfiguration(profile):
 			opengl_activate(profile)
 	else:
 		print("I was about to fix OpenGL subsystem to: "+profile+" while the current implementation is: "+current)
-	
+
 def copy_nvidia_settings_on_desktop():
 	if os.path.isfile(nvidia_settings):
 		homes = os.listdir("/home")
@@ -514,7 +517,7 @@ for videocard in videocards:
 				steps.append(('fix_possible_opengl_misconfiguration','ati'))
 				steps.append(('copy_ati_settings_on_desktop',))
 				steps.append(('opengl_activate','ati'))
-				
+
 		elif forced_xdriver == "nvidia" and (not noproprietary):
 			generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id)
 		elif forced_xdriver == "vesa":
@@ -538,56 +541,56 @@ for videocard in videocards:
 			generate_generic_steps()
 			steps.append(('set_xorg_device','neomagic',cardnumber,total_cards,bus_id,))
 			print("Neomagic!")
-	
+
 		elif company_id == "1078": # Cyrix
 			generate_generic_steps()
 			print("Cyrix!")
-	
+
 		elif company_id == "105d": # Number 9
 			generate_generic_steps()
 			steps.append(('set_xorg_device','i128',cardnumber,total_cards,bus_id,))
 			print("i128!")
-	
+
 		elif company_id == "1163": # Rendition
 			generate_generic_steps()
 			steps.append(('set_xorg_device','rendition',cardnumber,total_cards,bus_id,))
 			print("Rendition!")
-	
+
 		elif company_id == "100c": # Tseng!
 			generate_generic_steps()
 			steps.append(('set_xorg_device','tseng',cardnumber,total_cards,bus_id,))
 			print("Tseng!")
-	
+
 		elif company_id == "121a": # 3dfx
 			generate_generic_steps()
 			steps.append(('set_xorg_device','tdfx',cardnumber,total_cards,bus_id,))
 			print("3Dfx!")
-	
+
 		elif company_id == "1023": # Trident
 			generate_generic_steps()
 			steps.append(('set_xorg_device','trident',cardnumber,total_cards,bus_id,))
 			print("Trident!")
-	
+
 		elif company_id == "102b": # Matrox
 			generate_generic_steps()
 			steps.append(('set_xorg_device','mga',cardnumber,total_cards,bus_id,))
 			print("Matrox!")
-	
+
 		elif company_id == "1013": # Cirrus
 			generate_generic_steps()
 			steps.append(('set_xorg_device','cirrus',cardnumber,total_cards,bus_id,))
 			print("Cirrus!")
-		
+
 		elif company_id == "1039": # SiS
 			generate_generic_steps()
 			steps.append(('set_xorg_device','sis',cardnumber,total_cards,bus_id,))
 			print("SiS!")
-	
+
 		elif company_id == "18ca": # XGI
 			generate_generic_steps()
 			steps.append(('set_xorg_device','sis',cardnumber,total_cards,bus_id,))
 			print("XGI Volari!")
-	
+
 		elif company_id in ["15ad", "fffe"]: # VMware
 			generate_generic_steps()
 			steps.append(('set_xorg_device','vmware',cardnumber,total_cards,bus_id,))
@@ -606,7 +609,7 @@ for videocard in videocards:
 			else:
 				steps.append(('set_xorg_device','s3virge',cardnumber,total_cards,bus_id,))
 				print("S3Virge!")
-	
+
 		elif company_id == "1106": # Via Tech.
 			generate_generic_steps()
 			if card_id in unichrome_supported:
@@ -618,12 +621,12 @@ for videocard in videocards:
 			else:
 				steps.append(('set_xorg_device','via',cardnumber,total_cards,bus_id,))
 				print("VIA Tech!")
-	
+
 		elif company_id == "126f": # Silicon Motion
 			generate_generic_steps()
 			steps.append(('set_xorg_device','siliconmotion',cardnumber,total_cards,bus_id,))
 			print("Silicon Motion!")
-	
+
 		elif company_id == "8086":
 			if card_id == "7800": # i740
 				generate_generic_steps()
@@ -632,14 +635,14 @@ for videocard in videocards:
 				generate_generic_steps()
 				steps.append(('set_xorg_device','intel',cardnumber,total_cards,bus_id,))
 				print("Intel >= 810!")
-	
+
 		elif company_id == "10de": # NVIDIA
 			if noproprietary:
 				steps.append(('set_xorg_device','nv',cardnumber,total_cards,bus_id,))
 			else:
 				generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id)
 			print("NVIDIA!")
-		
+
 		elif company_id == "1002":
 			print("ATI/AMD!")
 			print("total supported ATI cards: %s" % (len(fglrx_supported),))
@@ -649,6 +652,7 @@ for videocard in videocards:
 				if noproprietary:
 					steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
 					steps.append(('drop_kernel_mod','fglrx',))
+					steps.append(('setup_radeon_kms',))
 				else:
 					if not noopengl:
 						steps.append(('fix_possible_opengl_misconfiguration','ati'))
@@ -662,6 +666,7 @@ for videocard in videocards:
 				# This works for Mach64, Rage128, Radeon and in future RadeonHD driver
 				steps.append(('set_xorg_device','ati',cardnumber,total_cards,bus_id,))
 				steps.append(('drop_kernel_mod','fglrx',))
+				steps.append(('setup_radeon_kms',))
 
 		else:
 			steps.append(('set_xorg_device','vesa',cardnumber,total_cards,bus_id,))
@@ -671,7 +676,7 @@ for videocard in videocards:
 			print("--> Video Card undetected: "+videocard)
 			print("SETTING TO VESA")
 			print("Please report this output to Sabayon Linux developers or mail to LXNAY <at> SABAYON <dot> ORG")
-	
+
 	# now create the file
 	for step in steps:
 		if len(step) == 1:
