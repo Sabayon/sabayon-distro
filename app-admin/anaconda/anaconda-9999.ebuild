@@ -23,11 +23,12 @@ HOMEPAGE="http://gitweb.sabayon.org/?p=anaconda.git;a=summary"
 if [ "${PV}" = "9999" ]; then
 	SRC_URI="${AUDIT_SRC_URI} ${LSELINUX_SRC_URI}"
 	KEYWORDS=""
+	S="${WORKDIR}"/${PN}-${PVR}
 else
-	SRC_URI="mirror://sabayon/${CATEGORY}/${PN}-${PVR}.tar.bz2 ${AUDIT_SRC_URI} ${LSELINUX_SRC_URI}"
+	SRC_URI="mirror://sabayon/${CATEGORY}/${PN}-sabayon-${PVR}.tar.bz2 ${AUDIT_SRC_URI} ${LSELINUX_SRC_URI}"
 	KEYWORDS="~amd64 ~x86"
+	S="${WORKDIR}"/${PN}-sabayon-${PVR}
 fi
-S="${WORKDIR}"/${PN}-${PVR}
 AUDIT_S="${WORKDIR}/audit-${AUDIT_VER}"
 LSELINUX_S="${WORKDIR}/libselinux-${LSELINUX_VER}"
 
