@@ -1,3 +1,0 @@
-#!/bin/sh
-unset PYTHONPATH
-exec @GENTOO_PORTAGE_EPREFIX@/usr/LIBDIR/libreoffice/program/soffice  "$@"

@@ -36,7 +36,7 @@ LANGPACK_AVAIL="${LANGPACK_AVAIL:-1}"
 
 DESCRIPTION="LibreOffice.org ${L10N_LANG} localisation"
 HOMEPAGE="http://www.documentfoundation.org"
-RESTRICT="nomirror"
+RESTRICT="mirror"
 
 L10N_VER="$(get_version_component_range 1-3)"
 L10N_RC_VERSION="rc2"
