@@ -65,10 +65,6 @@ src_install() {
 	#insinto /etc/X11
 	#doins xorg.conf.sabayon
 
-	dodir /usr/share/X11/xorg.conf.d
-	insinto /usr/share/X11/xorg.conf.d
-	doins "${FILESDIR}/${PV}/xorg.conf.d/90-synaptics.conf"
-
 	dodir /usr/share/sabayonlive-tools/xorg.conf.d
 	insinto /usr/share/sabayonlive-tools/xorg.conf.d
 	# fglrx <12.2 Xv workaround, enabled at runtime
