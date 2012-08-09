@@ -1,0 +1,30 @@
+From c921fc0ae2b20de1953e7558fce6b9ddb94c56d3 Mon Sep 17 00:00:00 2001
+From: Luboš Luňák <l.lunak@suse.cz>
+Date: Wed, 01 Aug 2012 09:11:44 +0000
+Subject: do not let LO's autoextension handling interfere with KFileDialog's(fdo#52546)
+
+Change-Id: I73263a74d7b9bbf4a99e86773854e69f747e19d5
+Signed-off-by: Tomas Chvatal <tchvatal@suse.cz>
+---
+diff --git a/vcl/unx/kde4/KDE4FilePicker.cxx b/vcl/unx/kde4/KDE4FilePicker.cxx
+index df08ed7..4917bf7 100644
+--- a/vcl/unx/kde4/KDE4FilePicker.cxx
++++ b/vcl/unx/kde4/KDE4FilePicker.cxx
+@@ -398,9 +398,12 @@ uno::Any SAL_CALL KDE4FilePicker::getValue( sal_Int16 controlId, sal_Int16 )
+         switch (controlId)
+         {
+             case ExtendedFilePickerElementIds::CHECKBOX_AUTOEXTENSION:
+-            // we ignore this one and rely on KFileDialog to provide the function,
+-            // always return true, here meaning "it's been taken care of"
+-                res = uno::Any( true );
++            // We ignore this one and rely on KFileDialog to provide the function.
++            // Always return false, to pretend we do not support this, otherwise
++            // LO core would try to be smart and cut the extension in some places,
++            // interfering with KFileDialog's handling of it. KFileDialog also
++            // saves the value of the setting, so LO core is not needed for that either.
++                res = uno::Any( false );
+                 break;
+             case ExtendedFilePickerElementIds::CHECKBOX_PASSWORD:
+             case ExtendedFilePickerElementIds::CHECKBOX_FILTEROPTIONS:
+--
+cgit v0.9.0.2-2-gbebe

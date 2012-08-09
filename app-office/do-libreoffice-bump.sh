@@ -1,15 +1,14 @@
 #!/bin/sh
 
-FROM_PV="3.5.3"
-TO_PV="3.5.4"
+FROM_PV="3.5.4"
+TO_PV="3.6.0"
 FAILED_LANGS=""
 DONE_LANGS=""
 for item in `find -name libreoffice-l10n-*${FROM_PV}*.ebuild`; do
 
 	echo $item
 	newfile=${item/${FROM_PV}/${TO_PV}}
-	cp "${item}" "${newfile}"
-	sed -i "/^inherit libreoffice-l10n$/ s/libreoffice-l10n/libreoffice-l10n-2/" "${newfile}" || exit 1
+	cp "${item}" "${newfile}" || exit 1
 
 	# do manifest
 	ebuild "${newfile}" manifest
