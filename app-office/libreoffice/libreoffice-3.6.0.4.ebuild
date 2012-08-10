@@ -562,6 +562,7 @@ src_install() {
 
 	# Remove files provided by x11-themes/sabayon-artwork-loo
 	rm "${ED}"/usr/$(get_libdir)/libreoffice/program/sofficerc || die "sofficerc rm failed"
+	rm "${ED}"/usr/$(get_libdir)/libreoffice/program/intro.png || die "sofficerc rm failed"
 }
 
 pkg_preinst() {
