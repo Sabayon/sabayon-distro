@@ -34,13 +34,26 @@ HELPPACK_AVAIL="${HELPPACK_AVAIL:-1}"
 # Set this to "0" if lang pack package is not available
 LANGPACK_AVAIL="${LANGPACK_AVAIL:-1}"
 
+# @ECLASS-VARIABLE: L10N_RC_VERSION
+# @DESCRIPTION:
+# Set this to some string, it will be added to the
+# RPM file names in the unpack phase.
+L10N_RC_VERSION="${L10N_RC_VERSION:-}"
+
 DESCRIPTION="LibreOffice.org ${L10N_LANG} localisation"
 HOMEPAGE="http://www.documentfoundation.org"
 RESTRICT="mirror"
 
 L10N_VER="$(get_version_component_range 1-3)"
-L10N_RC_VERSION="rc2"
 LO_BRANCH=$(get_version_component_range 1-2)
+
+# Upstream moving target hacks:
+# Automatically setup L10N_RC_VERSION if unset
+if [ -z "${L10N_RC_VERSION}" ]; then
+	if [ "${L10N_VER}" = "3.5.4" ]; then
+		L10N_RC_VERSION=rc2
+	fi
+fi
 
 BASE_SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${L10N_VER}/rpm"
 SRC_URI=""
@@ -83,18 +96,16 @@ libreoffice-l10n-2_src_unpack() {
 	local dir=${lang/_/-}
 	# for english we provide just helppack, as translation is always there
 	if [[ "${LANGPACK_AVAIL}" == "1" ]]; then
-		rpmdir="LibO_${L10N_VER}${L10N_RC_VERSION}_Linux_x86_langpack-rpm_${dir}/RPMS/"
-		[[ -d ${rpmdir} ]] || die "Missing directory: \"${rpmdir}\""
+		rpmdir="LibO_${L10N_VER}"*"${L10N_RC_VERSION}_Linux_x86_langpack-rpm_${dir}/RPMS/"
 		# First remove dictionaries, we want to use system ones.
 		rm -rf "${S}/${rpmdir}/"*dict*.rpm
 		einfo "Unpacking Langpack"
-		rpm_unpack "./${rpmdir}/"*.rpm
+		rpm_unpack ./${rpmdir}/*.rpm
 	fi
 	if [[ "${HELPPACK_AVAIL}" == "1" ]]; then
-		rpmdir="LibO_${L10N_VER}${L10N_RC_VERSION}_Linux_x86_helppack-rpm_${dir}/RPMS/"
-		[[ -d ${rpmdir} ]] || die "Missing directory: \"${rpmdir}\""
+		rpmdir="LibO_${L10N_VER}"*"${L10N_RC_VERSION}_Linux_x86_helppack-rpm_${dir}/RPMS/"
 		einfo "Unpacking Helppack"
-		rpm_unpack ./"${rpmdir}/"*.rpm
+		rpm_unpack ./${rpmdir}/*.rpm
 	fi
 	if [[ -n "${TDEPEND}" ]]; then
 		if use templates; then
