@@ -17,3 +17,8 @@ DEPEND="${DEPEND}
 	sources_standalone? ( !=sys-kernel/linux-sabayon-${PVR} )
 	!sources_standalone? ( =sys-kernel/linux-sabayon-${PVR} )"
 
+
+src_unpack() {
+	sabayon-kernel_src_unpack
+	sed -i "s:CONFIG_AUFS_FS=m:CONFIG_AUFS_FS=y:" "${S}"/sabayon/config/*.config || die
+}

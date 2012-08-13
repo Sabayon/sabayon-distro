@@ -10,3 +10,8 @@ inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Standard kernel image"
 RESTRICT="mirror"
+
+src_unpack() {
+	sabayon-kernel_src_unpack
+	sed -i "s:CONFIG_AUFS_FS=m:CONFIG_AUFS_FS=y:" "${S}"/sabayon/config/*.config || die
+}
