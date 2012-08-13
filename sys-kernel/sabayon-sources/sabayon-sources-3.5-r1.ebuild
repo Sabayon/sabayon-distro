@@ -17,11 +17,3 @@ DEPEND="${DEPEND}
 	sources_standalone? ( !=sys-kernel/linux-sabayon-${PVR} )
 	!sources_standalone? ( =sys-kernel/linux-sabayon-${PVR} )"
 
-src_unpack() {
-	sabayon-kernel_src_unpack
-
-	# workaround for bug in tarball file, missing Makefiles, please remove
-	# on next revision
-	touch "${S}/spl/spl/Makefile" || die
-	touch "${S}/spl/splat/Makefile" || die
-}
