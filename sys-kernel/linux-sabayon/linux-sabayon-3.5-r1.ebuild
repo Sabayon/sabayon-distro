@@ -10,3 +10,12 @@ inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Standard kernel image"
 RESTRICT="mirror"
+
+src_unpack() {
+	sabayon-kernel_src_unpack
+
+	# workaround for bug in tarball file, missing Makefiles, please remove
+	# on next revision
+	touch "${S}/spl/spl/Makefile" || die
+	touch "${S}/spl/splat/Makefile" || die
+}
