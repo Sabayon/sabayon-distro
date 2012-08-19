@@ -672,7 +672,7 @@ sabayon-kernel_bzimage_config() {
 		local eselect_list=$(eselect bzimage list --quiet 2> /dev/null)
 		if [ -n "${eselect_list}" ]; then
 			eselect bzimage set "kernel-genkernel-${kern_arch}-${KV_FULL}"
-			if [ "${?}" != "0"]; then
+			if [ "${?}" != "0" ]; then
 				# pick the first available, sorry!
 				echo
 				eselect bzimage set 1
