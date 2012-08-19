@@ -664,7 +664,7 @@ sabayon-kernel_bzimage_config() {
 	# 2. /boot/bzImage symlink doesn't exist (pkg_postinst)
 	local kern_arch
 	use x86 && kern_arch="x86"
-	use amd64 && kern_arch="amd64"
+	use amd64 && kern_arch="x86_64"
 
 	local bzimage_file=$(eselect bzimage show --quiet 2> /dev/null)
 	if [ -z "${bzimage_file}" ]; then
