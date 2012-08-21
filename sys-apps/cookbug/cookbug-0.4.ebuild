@@ -12,9 +12,9 @@ IUSE=""
 
 DEPEND=""
 RDEPEND="sys-apps/coreutils
-	sys-apps/module-init-tools
 	sys-apps/pciutils
-	sys-apps/usbutils"
+	sys-apps/usbutils
+	virtual/modutils"
 
 S="${WORKDIR}"
 
