@@ -219,7 +219,7 @@ src_install() {
 
 	insinto /usr/share/applications
 	doins tools/Linux/xbmc.desktop
-	doicon tools/Linux/xbmc.png
+	newicon tools/Linux/xbmc-48x48.png xbmc.png
 
 	insinto "$(python_get_sitedir)" #309885
 	doins tools/EventClients/lib/python/xbmcclient.py || die
