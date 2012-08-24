@@ -15,3 +15,11 @@ IUSE="sources_standalone"
 DEPEND="${DEPEND}
 	sources_standalone? ( !=sys-kernel/linux-ec2-${PVR} )
 	!sources_standalone? ( =sys-kernel/linux-ec2-${PVR} )"
+
+src_unpack() {
+	sabayon-kernel_src_unpack
+	if use x86; then
+		# workaround config bug
+		echo "CONFIG_SPL=n" >> "${S}"/sabayon/config/*.config || die
+	fi
+}

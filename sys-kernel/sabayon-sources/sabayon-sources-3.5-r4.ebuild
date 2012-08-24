@@ -17,3 +17,10 @@ DEPEND="${DEPEND}
 	sources_standalone? ( !=sys-kernel/linux-sabayon-${PVR} )
 	!sources_standalone? ( =sys-kernel/linux-sabayon-${PVR} )"
 
+src_unpack() {
+	sabayon-kernel_src_unpack
+	if use x86; then
+		# workaround config bug
+		echo "CONFIG_SPL=n" >> "${S}"/sabayon/config/*.config || die
+	fi
+}
