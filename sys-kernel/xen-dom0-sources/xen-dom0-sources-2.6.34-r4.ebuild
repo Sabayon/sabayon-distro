@@ -1,7 +1,6 @@
 # Copyright 2004-2011 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-ETYPE="sources"
 UNIPATCH_STRICTORDER="1"
 K_WANT_GENPATCHES="base extras"
 K_GENPATCHES_VER="13"

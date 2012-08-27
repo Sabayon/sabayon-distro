@@ -1,7 +1,6 @@
 # Copyright 2004-2009 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-ETYPE="sources"
 K_SABPATCHES_VER="12"
 K_KERNEL_PATCH_VER="10"
 K_KERNEL_SOURCES_PKG="sys-kernel/server-sources-${PVR}"

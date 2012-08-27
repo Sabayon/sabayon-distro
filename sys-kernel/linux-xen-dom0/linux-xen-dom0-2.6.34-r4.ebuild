@@ -2,7 +2,6 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-ETYPE="sources"
 UNIPATCH_STRICTORDER="1"
 K_WANT_GENPATCHES="base extras"
 K_GENPATCHES_VER="13"

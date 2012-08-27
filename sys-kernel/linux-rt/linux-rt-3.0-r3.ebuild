@@ -5,7 +5,6 @@
 K_PREPATCHED="yes"
 UNIPATCH_STRICTORDER="yes"
 
-ETYPE="sources"
 K_KERNEL_SOURCES_PKG="sys-kernel/rt-sources-${PVR}"
 K_NOSETEXTRAVERSION="don't_set_it"
 inherit sabayon-kernel

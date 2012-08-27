@@ -9,7 +9,6 @@ OVZ_KV="0$(get_version_component_range 4).$(get_version_component_range 5)"
 CKV=$(get_version_component_range 1-3)
 OKV=${OKV:-${CKV}}
 EXTRAVERSION=-${PN/-*}-${OVZ_KV}
-ETYPE="sources"
 KV_FULL=${CKV}${EXTRAVERSION}
 if [[ ${PR} != "r0" ]]; then
 	KV_FULL+=-${PR}

@@ -131,6 +131,7 @@ KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${
 
 # Disable deblobbing feature
 K_DEBLOB_AVAILABLE=0
+ETYPE="sources"
 
 inherit eutils kernel-2 sabayon-artwork mount-boot linux-info
 

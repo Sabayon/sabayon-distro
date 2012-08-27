@@ -7,7 +7,6 @@
 #   - Linux VServer options enabled
 #   - More Security frameworks enabled by default
 
-ETYPE="sources"
 CKV="2.6.35"
 K_USEPV="1"
 K_NOSETEXTRAVERSION="1"

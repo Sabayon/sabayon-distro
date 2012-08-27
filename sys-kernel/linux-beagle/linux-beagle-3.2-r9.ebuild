@@ -1,7 +1,6 @@
 # Copyright 2004-2012 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-ETYPE="sources"
 K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
 K_KERNEL_SOURCES_PKG="sys-kernel/beagle-sources-${PVR}"
 K_REQUIRED_LINUX_FIRMWARE_VER="20111025"

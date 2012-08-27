@@ -6,7 +6,6 @@ inherit versionator
 
 OVZ_KV="0$(get_version_component_range 4).$(get_version_component_range 5)"
 
-ETYPE="sources"
 
 CKV=$(get_version_component_range 1-3)
 OKV=${OKV:-${CKV}}
