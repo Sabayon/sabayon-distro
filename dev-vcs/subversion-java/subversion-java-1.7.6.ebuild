@@ -19,7 +19,7 @@ HOMEPAGE="http://subversion.apache.org/"
 SRC_URI="http://subversion.tigris.org/downloads/${MY_SVN_P}.tar.bz2"
 S="${WORKDIR}/${MY_SVN_P/_/-}"
 
-LICENSE="Subversion GPL-2"
+LICENSE="Subversion"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 
