@@ -19,7 +19,7 @@ HOMEPAGE="http://subversion.apache.org/"
 SRC_URI="http://subversion.tigris.org/downloads/${MY_SVN_P}.tar.bz2"
 S="${WORKDIR}/${MY_SVN_P/_/-}"
 
-LICENSE="Subversion"
+LICENSE="Subversion GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 
@@ -43,7 +43,8 @@ pkg_setup() {
 src_prepare() {
 	epatch "${FILESDIR}"/${MY_SVN_PN}-1.5.4-interix.patch \
 		"${FILESDIR}"/${MY_SVN_PN}-1.5.6-aix-dso.patch \
-		"${FILESDIR}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch
+		"${FILESDIR}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch \
+		"${FILESDIR}"/${MY_SVN_PN}-${PV}-revert-mod_dontdothat-move.patch
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -109,8 +110,7 @@ src_configure() {
 		--enable-local-library-preloading \
 		--disable-mod-activation \
 		--disable-neon-version-check \
-		--disable-static \
-		--with-sqlite="${EPREFIX}/usr"
+		--disable-static
 }
 
 src_compile() {

@@ -15,9 +15,9 @@ HOMEPAGE="http://subversion.apache.org/"
 SRC_URI="http://www.apache.org/dist/${PN}/${MY_P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
 
-LICENSE="Subversion"
+LICENSE="Subversion GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~x86-fbsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring java kde nls perl python ruby sasl vim-syntax +webdav-neon webdav-serf"
 
 CDEPEND=">=dev-db/sqlite-3.4
@@ -28,7 +28,7 @@ CDEPEND=">=dev-db/sqlite-3.4
 	berkdb? ( >=sys-libs/db-4.0.14 )
 	ctypes-python? ( =dev-lang/python-2* )
 	gnome-keyring? ( dev-libs/glib:2 sys-apps/dbus gnome-base/gnome-keyring )
-	kde? ( sys-apps/dbus x11-libs/qt-core x11-libs/qt-dbus x11-libs/qt-gui >=kde-base/kdelibs-4 )
+	kde? ( sys-apps/dbus x11-libs/qt-core:4 x11-libs/qt-dbus:4 x11-libs/qt-gui:4 >=kde-base/kdelibs-4:4 )
 	perl? ( dev-lang/perl )
 	python? ( =dev-lang/python-2* )
 	ruby? ( >=dev-lang/ruby-1.8.2:1.8 )
@@ -44,10 +44,10 @@ DEPEND="${CDEPEND}
 	!!<sys-apps/sandbox-1.6
 	ctypes-python? ( dev-python/ctypesgen )
 	doc? ( app-doc/doxygen )
-	gnome-keyring? ( dev-util/pkgconfig )
-	kde? ( dev-util/pkgconfig )
+	gnome-keyring? ( virtual/pkgconfig )
+	kde? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
-	webdav-neon? ( dev-util/pkgconfig )"
+	webdav-neon? ( virtual/pkgconfig )"
 PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
 
 want_apache
@@ -105,7 +105,9 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.5.4-interix.patch \
 		"${FILESDIR}"/${PN}-1.5.6-aix-dso.patch \
 		"${FILESDIR}"/${PN}-1.6.3-hpux-dso.patch \
-		"${FILESDIR}"/${PN}-fix-parallel-build-support-for-perl-bindings.patch
+		"${FILESDIR}"/${PN}-fix-parallel-build-support-for-perl-bindings.patch \
+		"${FILESDIR}"/${P}-revert-mod_dontdothat-move.patch \
+		"${FILESDIR}"/${P}-kwallet.patch
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -175,8 +177,7 @@ src_configure() {
 		--enable-local-library-preloading \
 		--disable-mod-activation \
 		--disable-neon-version-check \
-		--disable-static \
-		--with-sqlite="${EPREFIX}/usr"
+		--disable-static
 }
 
 src_compile() {
@@ -328,6 +329,7 @@ EOF
 		rm -fr tools/{buildbot,dev,diff,po}
 
 		insinto /usr/share/${PN}
+		python_convert_shebangs -r 2 tools
 		doins -r tools
 	fi
 
