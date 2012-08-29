@@ -5,9 +5,6 @@
     <email>robbat2@gentoo.org</email>
     <name>Robin H. Johnson</name>
   </maintainer>
-  <maintainer>
-    <email>ricmm@gentoo.org</email>
-  </maintainer>
   <longdescription lang="en">
     Git - Fast Version Control System. Official titled
     "GIT - the stupid content tracker". 
@@ -24,10 +21,12 @@
   </longdescription>
   <use>
     <flag name="cgi">Install gitweb too</flag>
+    <flag name="gpg">Pull in gnupg for signing -- without gnupg, attempts at signing will fail at runtime!</flag>
     <flag name="blksha1">Use the new optimized SHA1 implementation.</flag>
     <flag name="ppcsha1">Make use of a bundled routine that is optimized for the PPC arch.</flag>
     <flag name="webdav">Adds support for push'ing to HTTP repositories via DAV.</flag>
     <flag name="gtk">Include the gitview contrib tool.</flag>
     <flag name="subversion">Include git-svn for <pkg>dev-vcs/subversion</pkg> support.</flag>
+	<flag name="highlight">GitWeb support for app-text/highlight.</flag>
   </use>
 </pkgmetadata>

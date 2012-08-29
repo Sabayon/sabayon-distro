@@ -32,7 +32,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE=""
+IUSE="highlight"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
@@ -46,9 +46,8 @@ RDEPEND="${CDEPEND}
 	dev-vcs/git[-cgi]
 	dev-perl/Error
 	dev-perl/Net-SMTP-SSL
-	dev-perl/Authen-SASL"
-# this is shipped with dev-lang/perl
-#virtual/perl-CGI
+	dev-perl/Authen-SASL
+	virtual/perl-CGI highlight? ( app-text/highlight )"
 
 DEPEND="${CDEPEND}
 	app-arch/cpio
@@ -70,12 +69,8 @@ src_unpack() {
 }
 
 src_prepare() {
-	# JS install fixup
-	# Merged in 1.7.5.x
-	# epatch "${FILESDIR}"/git-1.7.2-always-install-js.patch
-
-	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${FILESDIR}"/git-1.7.3.5-optional-cvs.patch
+	## bug #350330 - automagic CVS when we don't want it is bad.
+	#epatch "${FILESDIR}"/git-...-optional-cvs.patch
 
 	sed -i \
 		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -115,6 +110,9 @@ src_configure() {
 }
 
 src_compile() {
+	git_emake perl/PM.stamp || die "emake perl/PM.stamp failed"
+	git_emake perl/perl.mak || die "emake perl/perl.mak failed"
+
 	git_emake \
 		gitweb \
 		|| die "emake gitweb failed"
