@@ -40,7 +40,7 @@ SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-optional-cvs.patch.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="nls"
+IUSE=""
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
@@ -90,8 +90,8 @@ exportmakeopts() {
 	# can't define this to null, since the entire makefile depends on it
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
-	use nls \
-		|| myopts="${myopts} NO_GETTEXT=YesPlease"
+	#use nls \
+	#	|| myopts="${myopts} NO_GETTEXT=YesPlease"
 	# use tk \
 	#	|| myopts="${myopts} NO_TCLTK=YesPlease"
 	#use perl \
