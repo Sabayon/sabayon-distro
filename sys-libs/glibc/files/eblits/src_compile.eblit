@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_compile.eblit,v 1.27 2012/05/10 05:24:53 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_compile.eblit,v 1.28 2012/07/03 20:07:34 vapier Exp $
 
 glibc_do_configure() {
 	local myconf
@@ -81,6 +81,8 @@ glibc_do_configure() {
 		--infodir=/usr/share/info
 		--libexecdir=/usr/$(get_libdir)/misc/glibc
 		$(use_multiarch || echo --disable-multi-arch)
+		--enable-obsolete-rpc
+		$(in_iuse systemtap && use_enable systemtap)
 		${EXTRA_ECONF}"
 
 	# There is no configure option for this and we need to export it

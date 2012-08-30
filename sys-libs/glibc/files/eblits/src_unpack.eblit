@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_unpack.eblit,v 1.16 2012/02/16 00:27:08 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_unpack.eblit,v 1.18 2012/08/14 16:06:06 vapier Exp $
 
 int_to_KV() {
 	local version=$1 major minor micro
@@ -171,9 +171,13 @@ eblit-glibc-src_unpack() {
 	# static C-Only gcc, -lgcc_eh doesn't exist.
 	# http://sources.redhat.com/ml/libc-alpha/2003-09/msg00100.html
 	# http://sourceware.org/ml/libc-alpha/2005-02/msg00042.html
-	echo 'int main(){}' > "${T}"/gcc_eh_test.c
-	if ! $(tc-getCC ${CTARGET}) "${T}"/gcc_eh_test.c -lgcc_eh 2>/dev/null ; then
-		sed -i -e 's:-lgcc_eh::' Makeconfig || die "sed gcc_eh"
+	# But! Finally fixed in recent versions:
+	# http://sourceware.org/ml/libc-alpha/2012-05/msg01865.html
+	if ! version_is_at_least 2.17 ; then
+		echo 'int main(){}' > "${T}"/gcc_eh_test.c
+		if ! $(tc-getCC ${CTARGET}) "${T}"/gcc_eh_test.c -lgcc_eh 2>/dev/null ; then
+			sed -i -e 's:-lgcc_eh::' Makeconfig || die "sed gcc_eh"
+		fi
 	fi
 
 	cd "${WORKDIR}"

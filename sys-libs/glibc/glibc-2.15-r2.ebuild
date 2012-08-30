@@ -1,38 +1,44 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.13-r4.ebuild,v 1.2 2011/09/29 21:13:44 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.15-r2.ebuild,v 1.23 2012/08/27 14:17:53 vapier Exp $
 
-inherit eutils versionator libtool toolchain-funcs flag-o-matic gnuconfig multilib
+inherit eutils versionator libtool toolchain-funcs flag-o-matic gnuconfig multilib unpacker multiprocessing
 
 DESCRIPTION="GNU libc6 (also called glibc2) C library"
 HOMEPAGE="http://www.gnu.org/software/libc/libc.html"
 
 LICENSE="LGPL-2"
-KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86"
+KEYWORDS="~alpha amd64 arm ia64 ~mips ~ppc ppc64 s390 ~sh sparc x86"
 RESTRICT="strip" # strip ourself #46186
 EMULTILIB_PKG="true"
 
 # Configuration variables
-if [[ ${PV} == *_p* ]] ; then
-RELEASE_VER=${PV%_p*}
-BRANCH_UPDATE=""
-SNAP_VER=${PV#*_p}
-else
-RELEASE_VER=${PV}
+RELEASE_VER=""
 BRANCH_UPDATE=""
 SNAP_VER=""
-fi
+case ${PV} in
+9999*)
+	EGIT_REPO_URIS=( "git://sourceware.org/git/glibc.git" "git://sourceware.org/git/glibc-ports.git" )
+	EGIT_SOURCEDIRS=( "${S}" "${S}/ports" )
+	inherit git-2
+	;;
+*_p*)
+	RELEASE_VER=${PV%_p*}
+	SNAP_VER=${PV#*_p}
+	;;
+*)
+	RELEASE_VER=${PV}
+	;;
+esac
 MANPAGE_VER=""                                 # pregenerated manpages
 INFOPAGE_VER=""                                # pregenerated infopages
 LIBIDN_VER=""                                  # it's integrated into the main tarball now
-PATCH_VER="8"                                  # Gentoo patchset
-PORTS_VER="2.13"                               # version of glibc ports addon
-LT_VER=""                                      # version of linuxthreads addon
+PATCH_VER="21"                                 # Gentoo patchset
+PORTS_VER=${RELEASE_VER}                       # version of glibc ports addon
 NPTL_KERN_VER=${NPTL_KERN_VER:-"2.6.9"}        # min kernel version nptl requires
-#LT_KERN_VER=${LT_KERN_VER:-"2.4.1"}           # min kernel version linuxthreads requires
 
-IUSE="debug gd glibc-omitfp hardened multilib nls selinux profile vanilla crosscompile_opts_headers-only ${LT_VER:+glibc-compat20 nptl nptlonly}"
-S=${WORKDIR}/glibc-${RELEASE_VER}${SNAP_VER:+-${SNAP_VER}}
+IUSE="debug gd hardened multilib selinux profile vanilla crosscompile_opts_headers-only"
+[[ -n ${RELEASE_VER} ]] && S=${WORKDIR}/glibc-${RELEASE_VER}${SNAP_VER:+-${SNAP_VER}}
 
 # Here's how the cross-compile logic breaks down ...
 #  CTARGET - machine that will target the binaries
@@ -51,8 +57,8 @@ S=${WORKDIR}/glibc-${RELEASE_VER}${SNAP_VER:+-${SNAP_VER}}
 export CBUILD=${CBUILD:-${CHOST}}
 export CTARGET=${CTARGET:-${CHOST}}
 if [[ ${CTARGET} == ${CHOST} ]] ; then
-	if [[ ${CATEGORY/cross-} != ${CATEGORY} ]] ; then
-		export CTARGET=${CATEGORY/cross-}
+	if [[ ${CATEGORY} == cross-* ]] ; then
+		export CTARGET=${CATEGORY#cross-}
 	fi
 fi
 
@@ -61,21 +67,10 @@ fi
 is_crosscompile() {
 	[[ ${CHOST} != ${CTARGET} ]]
 }
-alt_libdir() {
-	if is_crosscompile ; then
-		echo /usr/${CTARGET}/$(get_libdir)
-	else
-		echo /$(get_libdir)
-	fi
-}
 
-if is_crosscompile ; then
-	SLOT="${CTARGET}-2.2"
-else
-	# Why SLOT 2.2 you ask yourself while sippin your tea ?
-	# Everyone knows 2.2 > 0, duh.
-	SLOT="2.2"
-fi
+# Why SLOT 2.2 you ask yourself while sippin your tea ?
+# Everyone knows 2.2 > 0, duh.
+SLOT="2.2"
 
 # General: We need a new-enough binutils for as-needed
 # arch: we need to make sure our binutils/gcc supports TLS
@@ -86,18 +81,17 @@ DEPEND=">=sys-devel/gcc-3.4.4
 	ppc? ( >=sys-devel/gcc-4.1.0 )
 	ppc64? ( >=sys-devel/gcc-4.1.0 )
 	>=sys-devel/binutils-2.15.94
-	${LT_VER:+nptl? (} >=sys-kernel/linux-headers-${NPTL_KERN_VER} ${LT_VER:+)}
 	>=app-misc/pax-utils-0.1.10
 	virtual/os-headers
-	nls? ( sys-devel/gettext )
 	!<sys-apps/sandbox-1.2.18.1-r2
 	!<sys-apps/portage-2.1.2
+	!<sys-devel/patch-2.6
 	selinux? ( sys-libs/libselinux )"
 RDEPEND="!sys-kernel/ps3-sources
-	nls? ( sys-devel/gettext )
-	selinux? ( sys-libs/libselinux )"
+	selinux? ( sys-libs/libselinux )
+	!sys-libs/nss-db"
 
-if [[ ${CATEGORY/cross-} != ${CATEGORY} ]] ; then
+if [[ ${CATEGORY} == cross-* ]] ; then
 	DEPEND="${DEPEND} !crosscompile_opts_headers-only? ( ${CATEGORY}/gcc )"
 	[[ ${CATEGORY} == *-linux* ]] && DEPEND="${DEPEND} ${CATEGORY}/linux-headers"
 else
@@ -122,12 +116,11 @@ SRC_URI=$(
 		TARNAME="${PN}-${RELEASE_VER}"
 		[[ -n ${PORTS_VER} ]] && PORTS_VER=${SNAP_VER}
 		upstream_uris ${TARNAME}-${SNAP_VER}.tar.bz2
-	else
-		upstream_uris ${TARNAME}-${RELEASE_VER}.tar.bz2
+	elif [[ -z ${EGIT_REPO_URIS} ]] ; then
+		upstream_uris ${TARNAME}-${RELEASE_VER}.tar.xz
 	fi
 	[[ -n ${LIBIDN_VER}    ]] && upstream_uris glibc-libidn-${LIBIDN_VER}.tar.bz2
-	[[ -n ${PORTS_VER}     ]] && upstream_uris ${TARNAME}-ports-${PORTS_VER}.tar.bz2
-	[[ -n ${LT_VER}        ]] && upstream_uris ${TARNAME}-linuxthreads-${LT_VER}.tar.bz2
+	[[ -n ${PORTS_VER}     ]] && upstream_uris ${TARNAME}-ports-${PORTS_VER}.tar.xz
 	[[ -n ${BRANCH_UPDATE} ]] && gentoo_uris glibc-${RELEASE_VER}-branch-update-${BRANCH_UPDATE}.patch.bz2
 	[[ -n ${PATCH_VER}     ]] && gentoo_uris glibc-${RELEASE_VER}-patches-${PATCH_VER}.tar.bz2
 	[[ -n ${MANPAGE_VER}   ]] && gentoo_uris glibc-manpages-${MANPAGE_VER}.tar.bz2
@@ -183,20 +176,6 @@ for x in setup {pre,post}inst ; do
 	fi
 done
 
-pkg_setup() {
-	eblit-run pkg_setup
-
-	# Static binary sanity check #332927
-	if [[ ${ROOT} == "/" ]] && \
-	   has_version "<${CATEGORY}/${P}" && \
-	   built_with_use sys-apps/coreutils static
-	then
-		eerror "Please rebuild coreutils with USE=-static, then install"
-		eerror "glibc, then you may rebuild coreutils with USE=static."
-		die "Avoiding system meltdown #332927"
-	fi
-}
-
 eblit-src_unpack-post() {
 	if use hardened ; then
 		cd "${S}"
@@ -231,26 +210,25 @@ eblit-src_unpack-post() {
 			nscd/Makefile \
 			|| die "Failed to ensure nscd builds with ssp-all"
 	fi
-	cd "${S}"
+
 	# See Sabayon bug 2699
+	cd "${S}"
 	einfo "Fixing first workday and weekday for it_IT"
 	epatch "${FILESDIR}"/glibc-it_IT-workday-upstream-bug-13197.patch
 }
 
-maint_pkg_create() {
-	local base="/usr/local/src/gnu/glibc/glibc-${PV:0:1}_${PV:2:1}"
-	cd ${base}
-	local stamp=$(date +%Y%m%d)
-	local d
-	for d in libc ports ; do
-		#(cd ${d} && cvs up)
-		case ${d} in
-			libc)  tarball="${P}";;
-			ports) tarball="${PN}-ports-${PV}";;
-		esac
-		rm -f ${tarball}*
-		ln -sf ${d} ${tarball}
-		tar hcf - ${tarball} --exclude-vcs | lzma > "${T}"/${tarball}.tar.lzma
-		du -b "${T}"/${tarball}.tar.lzma
-	done
+eblit-pkg_preinst-post() {
+	if [[ ${CTARGET} == arm* ]] ; then
+		# Backwards compat support for renaming hardfp ldsos #417287
+		local oldso='/lib/ld-linux.so.3'
+		local nldso='/lib/ld-linux-armhf.so.3'
+		if [[ -e ${D}${nldso} ]] ; then
+			if scanelf -qRyi "${ROOT}$(alt_prefix)"/*bin/ | grep -s "^${oldso}" ; then
+				ewarn "Symlinking old ldso (${oldso}) to new ldso (${nldso})."
+				ewarn "Please rebuild all packages using this old ldso as compat"
+				ewarn "support will be dropped in the future."
+				ln -s "${nldso##*/}" "${D}$(alt_prefix)${oldso}"
+			fi
+		fi
+	fi
 }
