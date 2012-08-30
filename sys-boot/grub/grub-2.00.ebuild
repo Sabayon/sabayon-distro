@@ -58,7 +58,7 @@ RDEPEND="
 		sdl? ( media-libs/libsdl )
 	)
 	device-mapper? ( >=sys-fs/lvm2-2.02.45 )
-	libzfs? ( sys-fs/zfs )
+	libzfs? ( sys-fs/zfs-userspace )
 	mount? ( sys-fs/fuse )
 	truetype? (
 		media-libs/freetype
