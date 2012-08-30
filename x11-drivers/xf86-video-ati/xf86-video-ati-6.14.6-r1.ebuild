@@ -5,6 +5,7 @@
 EAPI=4
 
 XORG_DRI=always
+XORG_EAUTORECONF=yes
 inherit xorg-2
 
 DESCRIPTION="ATI video driver"
@@ -14,6 +15,12 @@ IUSE=""
 
 RDEPEND=">=x11-libs/libdrm-2.4.36[video_cards_radeon]"
 DEPEND="${RDEPEND}"
+
+src_prepare() {
+	# disable XAA to allow building against >=xorg-server-1.12.99.902, bug #428094
+	sed -i '/USE_XAA, 1/d' configure.ac || die
+	xorg-2_src_prepare
+}
 
 pkg_setup() {
 	xorg-2_pkg_setup
