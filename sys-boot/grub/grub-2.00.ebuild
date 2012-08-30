@@ -285,7 +285,7 @@ src_configure() {
 
 src_compile() {
 	# Used for pax marking in grub_src_compile
-	# NOTE: grub-mkdevicemap and grub-script-check
+	# NOTE: grub-mkdevicemap, grub-script-check, grub-setup
 	# MUST be PaX-marked as well
 	local grub_binaries=(
 		grub-editenv
@@ -301,6 +301,7 @@ src_compile() {
 		grub-ofpathname
 		grub-probe
 		grub-script-check
+		grub-setup
 		grub-sparc64-setup
 	)
 	use mount && grub_binaries+=( grub-mount )
