@@ -1,0 +1,11 @@
+--- grub-2.00.orig/util/grub.d/10_linux.in
++++ grub-2.00/util/grub.d/10_linux.in
+@@ -243,7 +243,7 @@ while [ "x$list" != "x" ] ; do
+               "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
+   if [ "x${GRUB_DISABLE_RECOVERY}" != "xtrue" ]; then
+     linux_entry "${OS}" "${version}" recovery \
+-                "single ${GRUB_CMDLINE_LINUX}"
++                "single init_opts=single ${GRUB_CMDLINE_LINUX/splash=silent/splash=verbose}"
+   fi
+ 
+   list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`

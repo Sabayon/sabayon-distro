@@ -1,0 +1,14 @@
+--- grub-2.00.orig/util/grub-mkconfig.in
++++ grub-2.00/util/grub-mkconfig.in
+@@ -216,7 +216,10 @@ export GRUB_DEFAULT \
+   GRUB_INIT_TUNE \
+   GRUB_SAVEDEFAULT \
+   GRUB_ENABLE_CRYPTODISK \
+-  GRUB_BADRAM
++  GRUB_BADRAM \
++  GRUB_WALLPAPER \
++  GRUB_COLOR_NORMAL \
++  GRUB_COLOR_HIGHLIGHT
+ 
+ if test "x${grub_cfg}" != "x"; then
+   rm -f "${grub_cfg}.new"
