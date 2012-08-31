@@ -175,13 +175,14 @@ grub_src_configure() {
 			;;
 	esac
 
+	# Sabayon: backward compatibility, do not change --with-grubdir
 	ECONF_SOURCE="${S}" \
 	econf \
 		--htmldir="${EPREFIX}/usr/share/doc/${PF}/html" \
 		--disable-werror \
 		--program-prefix= \
 		--program-transform-name="s,grub,grub2," \
-		--with-grubdir=grub2 \
+		--with-grubdir=grub \
 		${with_platform} \
 		$(use_enable debug mm-debug) \
 		$(use_enable debug grub-emu-usb) \
@@ -329,7 +330,7 @@ src_install() {
 	# Install fonts setup hook
 	exeinto /etc/grub.d
 	doexe "${FILESDIR}/00_fonts"
-	doexe "${FILESDIR}/05_distro_theme"
+	doexe "${FILESDIR}/06_distro_theme"
 
 	# TODO: still needed?
 	cat <<-EOF >> "${ED}"/lib*/grub/grub-mkconfig_lib
@@ -340,7 +341,8 @@ EOF
 	newins "${FILESDIR}"/grub.default-2 grub
 
 	# Backward compatibility with Grub 1.99 executables
-	dosym grub2-mkconfig /sbin/grub-mkconfig
+	dosym /usr/sbin/grub2-mkconfig /sbin/grub-mkconfig
+	dosym /usr/sbin/grub2-install /sbin/grub2-install
 }
 
 pkg_postinst() {
