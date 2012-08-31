@@ -222,7 +222,6 @@ src_prepare() {
 	# Sabayon crufty patchset
 	epatch "${FILESDIR}"/${PN}-1.99-genkernel.patch #256335
 	epatch "${FILESDIR}"/${PN}-1.99-vga-deprecated.patch
-	epatch "${FILESDIR}"/${PN}-2.00-wallpaper-settings-support.patch
 	# vga= not yet deprecated for us
 	epatch "${FILESDIR}"/${PN}-2.00-vga-deprecated-not-yet.patch
 	epatch "${FILESDIR}"/${PN}-1.99-disable-floppies.patch
@@ -330,7 +329,6 @@ src_install() {
 	# Install fonts setup hook
 	exeinto /etc/grub.d
 	doexe "${FILESDIR}/00_fonts"
-	doexe "${FILESDIR}/06_distro_theme"
 
 	# TODO: still needed?
 	cat <<-EOF >> "${ED}"/lib*/grub/grub-mkconfig_lib
@@ -346,6 +344,11 @@ EOF
 }
 
 pkg_postinst() {
+	# install Sabayon splash here, cannot touch boot/grub inside
+	# src_install
+	cp "${ROOT}/usr/share/grub/default-splash.png" "${ROOT}boot/grub/default-splash.png" || \
+		ewarn "cannot install default splash file!"
+
 	# display the link to guide
 	elog "For information on how to configure grub-2 please refer to the guide:"
 	elog "    http://wiki.gentoo.org/wiki/GRUB2_Quick_Start"
