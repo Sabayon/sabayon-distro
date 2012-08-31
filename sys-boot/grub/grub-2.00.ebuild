@@ -338,6 +338,9 @@ EOF
 
 	insinto /etc/default
 	newins "${FILESDIR}"/grub.default-2 grub
+
+	# Backward compatibility with Grub 1.99 executables
+	dosym grub2-mkconfig /sbin/grub-mkconfig
 }
 
 pkg_postinst() {
