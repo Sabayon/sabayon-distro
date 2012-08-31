@@ -21,7 +21,7 @@ RDEPEND="app-admin/system-config-date
 	dev-libs/libnl
 	dev-libs/libxml2[python]
 	dev-python/pyblock
-	dev-python/python-cryptsetup
+	>=dev-python/python-cryptsetup-0.1.4
 	dev-python/python-meh
 	dev-python/python-nss
 	dev-python/python-report
