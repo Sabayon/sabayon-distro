@@ -1,0 +1,25 @@
+nm-udev-manager: add driver name fixup code for Klink
+
+At some point after udev 171, Klink tun/tap device stopped
+playing nicely with NetworkManager forcing users to manually
+issue dhclient/dhcpcd calls.
+The automatic configuration bails out in net_add() with
+the following message:
+
+  <warn> /sys/devices/virtual/net/klink0: couldn't determine device driver; ignoring...
+
+Klink is similar to EasyTether and a quirk for it is already
+in place. This commit adds a quirk for klink which makes it
+working out of the box again.
+
+--- a/src/nm-udev-manager.c
++++ b/src/nm-udev-manager.c
+@@ -416,6 +416,8 @@ net_add (NMUdevManager *self, GUdevDevic
+ 		default:
+ 			if (g_str_has_prefix (ifname, "easytether"))
+ 				driver = "easytether";
++			else if (g_str_has_prefix (ifname, "klink"))
++				driver = "klink";
+ 			break;
+ 		}
+ 		

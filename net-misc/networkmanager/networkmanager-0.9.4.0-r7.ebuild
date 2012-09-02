@@ -120,6 +120,8 @@ src_prepare() {
 	# Sabayon patch, require logger, avoid modemmanager or other plugins
 	# output on VT
 	epatch "${FILESDIR}/${PN}-init-need-logger-2.patch"
+	# Restore Klink functionality
+	epatch "${FILESDIR}/${PN}-0.9.4.0-restore-klink-support.patch"
 
 	epatch_user
 
