@@ -6,7 +6,7 @@ EAPI="4"
 
 SPL_GIT_REPO="git://github.com/ryao/spl.git"
 SPL_GIT_BRANCH="gentoo"
-SPL_GIT_COMMIT="ab05695dad1f13ff037bbb7376e6207d62248888"
+SPL_GIT_COMMIT="6576a1a70dedfc7d5a5e1533a9e3e56074de4c79"
 
 ZFS_GIT_REPO="git://github.com/ryao/zfs.git"
 ZFS_GIT_BRANCH="gentoo"
