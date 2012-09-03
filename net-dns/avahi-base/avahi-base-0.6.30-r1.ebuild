@@ -4,6 +4,7 @@
 
 EAPI="3"
 
+WANT_AUTOMAKE=1.11
 PYTHON_DEPEND="python? 2"
 PYTHON_USE_WITH="gdbm"
 PYTHON_USE_WITH_OPT="python"
@@ -34,6 +35,14 @@ AVAHI_MODULE_RDEPEND="${COMMON_DEPEND}
 	howl-compat? ( !net-misc/howl )
 	mdnsresponder-compat? ( !net-misc/mDNSResponder )"
 
+AVAHI_PATCHES=(
+	# Fix init scripts for >=openrc-0.9.0 (bug #383641)
+	"${FILESDIR}/avahi-0.6.x-openrc-0.9.x-init-scripts-fixes.patch"
+	#397477
+	"${FILESDIR}"/${P/-base}-automake-1.11.2.patch
+	#411351
+	"${FILESDIR}"/${P/-base}-parallel.patch
+)
 inherit eutils multilib python avahi
 
 pkg_setup() {
@@ -60,6 +69,7 @@ src_prepare() {
 			-e s/use-ipv6=no/use-ipv6=yes/ \
 			avahi-daemon/avahi-daemon.conf || die
 	fi
+	avahi_src_prepare
 }
 
 src_configure() {

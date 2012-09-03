@@ -70,6 +70,12 @@ avahi_src_prepare() {
 		-e "s:\\.\\./\\.\\./\\.\\./doc/avahi-docs/html/:../../../doc/${PF}/html/:" \
 		doxygen_to_devhelp.xsl || die
 
+	# Drop DEPRECATED flags, bug #384743
+	sed -i -e 's:-D[A-Z_]*DISABLE_DEPRECATED=1::g' avahi-ui/Makefile.am || die
+
+	# Prevent .pyc files in DESTDIR
+	>py-compile
+
 	for i in ${!AVAHI_PATCHES[@]}; do
 		epatch "${AVAHI_PATCHES[i]}"
 	done

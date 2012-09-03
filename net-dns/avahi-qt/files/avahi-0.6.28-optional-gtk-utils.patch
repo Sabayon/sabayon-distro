@@ -1,0 +1,61 @@
+--- avahi-discover-standalone/Makefile.am
++++ avahi-discover-standalone/Makefile.am
+@@ -23,7 +23,7 @@
+ # This cool debug trap works on i386/gcc only
+ AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
+ 
+-if HAVE_GTK2OR3
++if ENABLE_GTK_UTILS
+ if HAVE_GLIB
+ bin_PROGRAMS = \
+ 	avahi-discover-standalone
+--- avahi-ui/Makefile.am
++++ avahi-ui/Makefile.am
+@@ -76,6 +76,7 @@
+ libavahi_ui_gtk3_la_CFLAGS += -DDATABASE_FILE=\"$(pkglibdir)/service-types.db\"
+ endif
+ 
++if ENABLE_GTK_UTILS
+ bin_PROGRAMS = bssh
+ desktop_DATA += bssh.desktop bvnc.desktop
+ @INTLTOOL_DESKTOP_RULE@
+@@ -102,6 +103,7 @@
+ bvnc.desktop.in: bvnc.desktop.in.in
+ 	$(AM_V_GEN)sed -e 's,@bindir\@,$(bindir),g' $< > $@
+ 
++endif # ENABLE_GTK_UTILS
+ endif # HAVE_GLIB
+ endif
+ endif
+--- configure.ac
++++ configure.ac
+@@ -564,7 +564,20 @@
+ fi
+ AM_CONDITIONAL(HAVE_GTK3, test "x$HAVE_GTK3" = "xyes")
+ 
++#
++# Check for GTK+ Utils
++#
++AC_ARG_ENABLE(gtk-utils,
++        AS_HELP_STRING([--disable-gtk-utils],[Disable GTK+ utilities]),
++        [case "${enableval}" in
++                yes) ENABLE_GTK_UTILS=yes ;;
++                no)  ENABLE_GTK_UTILS=no ;;
++                *) AC_MSG_ERROR(bad value ${enableval} for --enable-gtk-utils) ;;
++        esac],
++        [ENABLE_GTK_UTILS=yes])
++
+ AM_CONDITIONAL(HAVE_GTK2OR3, test "x$HAVE_GTK3" = "xyes" -o "x$HAVE_GTK" = "xyes" )
++AM_CONDITIONAL(ENABLE_GTK_UTILS, test "$HAVE_GTK2OR3" -a "x$ENABLE_GTK_UTILS" = "xyes" )
+ 
+ #
+ # D-Bus
+@@ -1223,7 +1236,7 @@
+     Building avahi-python:              ${BUILD_PYTHON}
+     Building libavahi-glib:             ${HAVE_GLIB}
+     Building libavahi-gobject:          ${BUILD_GOBJECT}
+-    Building avahi-discover-standalone: ${HAVE_GTK2OR3}
++    Building avahi-discover-standalone: ${ENABLE_GTK_UTILS}
+     Building libavahi-qt3:              ${HAVE_QT3}
+     Building libavahi-qt4:              ${HAVE_QT4}
+     Building avahi-sharp:               ${HAVE_MONO}

@@ -10,6 +10,12 @@ COMMON_DEPEND="=net-dns/avahi-base-${PVR}
 AVAHI_MODULE_DEPEND="${COMMON_DEPEND}"
 AVAHI_MODULE_RDEPEND="${COMMON_DEPEND}"
 
+WANT_AUTOMAKE=1.11
+AVAHI_PATCHES=(
+	"${FILESDIR}/avahi-0.6.28-optional-gtk-utils.patch"
+	"${FILESDIR}"/${P/-gtk3}-automake-1.11.2.patch #397477
+	"${FILESDIR}"/${P/-gtk3}-parallel.patch #411351
+)
 inherit eutils avahi
 
 src_configure() {
