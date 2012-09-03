@@ -76,16 +76,7 @@ SPL_S="${S}/spl-src"
 ZFS_S="${S}/zfs-src"
 
 spl-zfs-userspace_pkg_setup() {
-	CONFIG_CHECK="
-		!DEBUG_LOCK_ALLOC
-		BLK_DEV_LOOP
-		EFI_PARTITION
-		MODULES
-		KALLSYMS
-		ZLIB_DEFLATE
-		ZLIB_INFLATE"
-	kernel_is ge 2 6 26 || die "Linux 2.6.26 or newer required"
-	check_extra_config
+	:;
 }
 
 spl-zfs-userspace_src_unpack() {
@@ -119,6 +110,16 @@ _spl_src_prepare() {
 }
 
 spl-zfs-userspace_src_prepare() {
+	CONFIG_CHECK="
+		!DEBUG_LOCK_ALLOC
+		BLK_DEV_LOOP
+		EFI_PARTITION
+		MODULES
+		KALLSYMS
+		ZLIB_DEFLATE
+		ZLIB_INFLATE"
+	kernel_is ge 2 6 26 || die "Linux 2.6.26 or newer required"
+	check_extra_config
 	_spl_src_prepare
 	_zfs_src_prepare
 }
