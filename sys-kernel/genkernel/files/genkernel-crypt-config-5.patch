@@ -1,0 +1,27 @@
+--- genkernel-3.4.41.orig/arch/x86/modules_load
++++ genkernel-3.4.41/arch/x86/modules_load
+@@ -29,3 +29,6 @@ MODULES_FS="ext2 ext3 ext4 btrfs reiserf
+ 
+ # Crypto
+ MODULES_CRYPTO="sha256_generic cbc aes_generic aes_586 aesni-intel xts"
++
++# Crypto stuff, required for Sabayon crypt installs
++MODULES_CRYPT="aes-x86_64 sha1_generic ${MODULES_CRYPTO} sha512_generic"
+--- genkernel-3.4.41.orig/arch/x86_64/modules_load
++++ genkernel-3.4.41/arch/x86_64/modules_load
+@@ -28,3 +28,6 @@ MODULES_FS="ext2 ext3 ext4 btrfs reiserf
+ 
+ # Crypto
+ MODULES_CRYPTO="sha256_generic cbc aes_generic aes-x86_64 aesni-intel xts"
++
++# Crypto stuff, required for Sabayon crypt installs
++MODULES_CRYPT="aes-x86_64 sha1_generic ${MODULES_CRYPTO} sha512_generic"
+--- genkernel-3.4.41.orig/defaults/modules_load
++++ genkernel-3.4.41/defaults/modules_load
+@@ -28,3 +28,6 @@ MODULES_FS="ext2 ext3 ext4 btrfs reiserf
+ 
+ # Crypto
+ MODULES_CRYPTO="sha256_generic cbc aes_generic xts"
++
++# Crypto stuff, required for Sabayon crypt installs
++MODULES_CRYPT="aes-x86_64 sha1_generic ${MODULES_CRYPTO} sha512_generic"

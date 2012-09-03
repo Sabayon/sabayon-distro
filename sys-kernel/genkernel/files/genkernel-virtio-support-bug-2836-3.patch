@@ -1,0 +1,37 @@
+--- genkernel-3.4.33.1.orig/arch/x86/modules_load
++++ genkernel-3.4.33.1/arch/x86/modules_load
+@@ -32,3 +32,6 @@ MODULES_CRYPTO="sha256_generic"
+ 
+ # Crypto stuff, required for Sabayon crypt installs
+ MODULES_CRYPT="aes-x86_64 sha1_generic ${MODULES_CRYPTO} sha512_generic"
++
++# Virtio support (KVM mainly)
++MODULES_VIRTIO="virtio virtio_balloon virtio_console virtio_net virtio_blk virtio_pci virtio_ring"
+--- genkernel-3.4.33.1.orig/arch/x86_64/modules_load
++++ genkernel-3.4.33.1/arch/x86_64/modules_load
+@@ -31,3 +31,6 @@ MODULES_CRYPTO="sha256_generic"
+ 
+ # Crypto stuff, required for Sabayon crypt installs
+ MODULES_CRYPT="aes-x86_64 sha1_generic ${MODULES_CRYPTO} sha512_generic"
++
++# Virtio support (KVM mainly)
++MODULES_VIRTIO="virtio virtio_balloon virtio_console virtio_net virtio_blk virtio_pci virtio_ring"
+--- genkernel-3.4.33.1.orig/defaults/initrd.defaults
++++ genkernel-3.4.33.1/defaults/initrd.defaults
+@@ -80,5 +80,5 @@ DEFAULT_NFSOPTIONS="ro,nolock,rsize=1024
+ 
+ # Only sections that are in by default or those that
+ # are not module groups need to be defined here...
+-HWOPTS='keymap cache modules pata sata scsi usb firewire waitscan slowusb lvm dmraid mdadm fs net'
+-MY_HWOPTS='modules pata sata scsi slowusb usb firewire waitscan dmraid mdadm fs net iscsi crypto'
++HWOPTS='keymap cache modules pata sata scsi usb firewire waitscan slowusb lvm dmraid mdadm fs net virtio'
++MY_HWOPTS='modules pata sata scsi slowusb usb firewire waitscan dmraid mdadm fs net iscsi crypto virtio'
+--- genkernel-3.4.33.1.orig/defaults/modules_load
++++ genkernel-3.4.33.1/defaults/modules_load
+@@ -31,3 +31,6 @@ MODULES_CRYPTO="sha256_generic"
+ 
+ # Crypto stuff, required for Sabayon crypt installs
+ MODULES_CRYPT="aes-x86_64 sha1_generic ${MODULES_CRYPTO} sha512_generic"
++
++# Virtio support (KVM mainly)
++MODULES_VIRTIO="virtio virtio_balloon virtio_console virtio_net virtio_blk virtio_pci virtio_ring"
