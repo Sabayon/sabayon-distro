@@ -171,10 +171,6 @@ RDEPEND="${COMMON_DEPEND}
 	java? ( >=virtual/jre-1.6 )
 "
 
-PDEPEND="
-	x11-themes/sabayon-artwork-loo
-"
-
 # FIXME: cppunit should be moved to test conditional
 #        after everything upstream is under gbuild
 #        as dmake execute tests right away
@@ -212,7 +208,8 @@ DEPEND="${COMMON_DEPEND}
 # Force libreoffice-l10n-en_US installation
 # This will install LibreOffice templates
 L10N_VER="3.6.0"
-PDEPEND="~app-office/libreoffice-l10n-en_US-${L10N_VER}"
+PDEPEND="~app-office/libreoffice-l10n-en_US-${L10N_VER}
+	x11-themes/sabayon-artwork-loo"
 
 PATCHES=(
 	"${FILESDIR}/libreoffice-3.6.0-kde-fpicker.patch"
