@@ -36,6 +36,9 @@ src_install () {
 	insinto /etc
 	doins sabayon-release
 	dosym /etc/sabayon-release /etc/system-release
+	# Bug 3459 - reduce the risk of fork bombs
+	insinto /etc/security/limits.d
+	doins "${FILESDIR}/00-sabayon-anti-fork-bomb.conf"
 }
 
 pkg_postinst() {
