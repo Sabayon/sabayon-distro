@@ -22,12 +22,12 @@ SRC_URI="x86? ( http://us.download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_P
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
-IUSE="acpi custom-cflags multilib kernel_FreeBSD kernel_linux tools X"
+IUSE="acpi custom-cflags x-multilib kernel_FreeBSD kernel_linux tools X"
 RESTRICT="strip"
 
 DEPEND="kernel_linux? ( virtual/linux-sources )"
 RDEPEND="~x11-drivers/nvidia-userspace-${PV}
-	multilib? ( ~x11-drivers/nvidia-userspace-${PV}[multilib] )
+	x-multilib? ( ~x11-drivers/nvidia-userspace-${PV}[x-multilib] )
 	~x11-drivers/nvidia-userspace-${PV}[tools=]
 	~x11-drivers/nvidia-userspace-${PV}[X=]"
 PDEPEND=""
