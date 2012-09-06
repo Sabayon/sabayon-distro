@@ -17,7 +17,7 @@ else
 	SRC_URI="https://launchpad.net/ubuntu/natty/+source/fglrx-installer/2:${PV}-0ubuntu1/+files/fglrx-installer_${PV}.orig.tar.gz"
 	FOLDER_PREFIX=""
 fi
-IUSE="debug multilib static-libs"
+IUSE="debug x-multilib static-libs"
 
 LICENSE="AMD GPL-2 as-is"
 KEYWORDS="~amd64 ~x86"
@@ -35,7 +35,7 @@ RDEPEND="<=x11-base/xorg-server-1.12.49[-minimal]
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	x11-libs/libXrender
-	multilib? (
+	x-multilib? (
 			app-emulation/emul-linux-x86-opengl
 			app-emulation/emul-linux-x86-xlibs
 	)
@@ -237,7 +237,7 @@ src_install() {
 	# under a "native multilib" portage ((precursor of)
 	# http://dev.gentoo.org/~kanaka/auto-multilib/). I removed that, it
 	# should just work (only doing some duplicate work). --marienz
-	if has_multilib_profile; then
+	if has_multilib_profile && use x-multilib; then
 		local OABI=${ABI}
 		for ABI in $(get_install_abis); do
 			src_install-libs
