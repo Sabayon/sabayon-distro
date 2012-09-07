@@ -1,0 +1,26 @@
+From 83bf5e3f853918583e519fbba455a79242be9c7c Mon Sep 17 00:00:00 2001
+From: Brenden Matthews <brenden@diddyinc.com>
+Date: Wed, 7 Mar 2012 11:11:12 -0800
+Subject: [PATCH] Build fix for Lua >=5.2.
+
+See Gentoo bug at https://bugs.gentoo.org/show_bug.cgi?id=407089.
+---
+ src/llua.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/llua.c b/src/llua.c
+index 8f1df3c..383c279 100644
+--- a/src/llua.c
++++ b/src/llua.c
+@@ -92,7 +92,7 @@ void llua_init(void)
+ 	const char *libs = PACKAGE_LIBDIR"/lib?.so;";
+ 	char *old_path, *new_path;
+ 	if (lua_L) return;
+-	lua_L = lua_open();
++	lua_L = luaL_newstate();
+ 
+ 	/* add our library path to the lua package.cpath global var */
+ 	luaL_openlibs(lua_L);
+-- 
+1.7.0.4
+

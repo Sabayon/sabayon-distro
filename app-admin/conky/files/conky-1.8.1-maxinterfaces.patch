@@ -1,0 +1,41 @@
+From f6aac5981e70118dc28b3c7a1fe6065955fe3dcb Mon Sep 17 00:00:00 2001
+From: Pavel Labath <pavelo@centrum.sk>
+Date: Tue, 25 Oct 2011 18:53:09 +0200
+Subject: [PATCH] Increase MAX_NET_INTERFACES to 64
+
+also change a magic constant in net_stat.h to reflect the fact that it depends on
+MAX_NET_INTERFACES. For more info, see sf.net #2872682 and gentoo bug #384505
+---
+ configure.ac.in |    2 +-
+ src/net_stat.h  |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac.in b/configure.ac.in
+index 0f00237..d52d998 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -802,7 +802,7 @@ AC_DEFINE(CONFIG_FILE, "$HOME/.conkyrc", [Configfile of the user])
+ AC_DEFINE(MAX_SPECIALS_DEFAULT, 512, [Default maximum number of special things, e.g. fonts, offsets, aligns, etc.])
+ AC_DEFINE(MAX_USER_TEXT_DEFAULT, 16384, [Default maximum size of config TEXT buffer, i.e. below TEXT line.])
+ AC_DEFINE(DEFAULT_TEXT_BUFFER_SIZE, 256, [Default size used for temporary, static text buffers])
+-AC_DEFINE(MAX_NET_INTERFACES, 16, [Maximum number of network devices])
++AC_DEFINE(MAX_NET_INTERFACES, 64, [Maximum number of network devices])
+ 
+ dnl
+ dnl Some functions
+diff --git a/src/net_stat.h b/src/net_stat.h
+index 463e7db..6f5533c 100644
+--- a/src/net_stat.h
++++ b/src/net_stat.h
+@@ -41,7 +41,7 @@ struct net_stat {
+         double recv_speed, trans_speed;
+         struct sockaddr addr;
+ #if defined(__linux__)
+-        char addrs[273];
++        char addrs[17 * MAX_NET_INTERFACES + 1];
+ #endif /* __linux__ */
+         double net_rec[15], net_trans[15];
+         // wireless extensions
+-- 
+1.7.0.4
+
