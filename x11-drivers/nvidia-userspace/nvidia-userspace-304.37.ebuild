@@ -29,6 +29,7 @@ EMULTILIB_PKG="true"
 COMMON="app-admin/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	x-multilib? ( app-emulation/emul-linux-x86-xlibs )
+	multilib? ( app-emulation/emul-linux-x86-baselibs )
 	X? (
 		<x11-base/xorg-server-1.12.99
 		>=app-admin/eselect-opengl-1.0.9
