@@ -17,13 +17,14 @@ else
 	SRC_URI="https://launchpad.net/ubuntu/natty/+source/fglrx-installer/2:${PV}-0ubuntu1/+files/fglrx-installer_${PV}.orig.tar.gz"
 	FOLDER_PREFIX=""
 fi
-IUSE="debug x-multilib pax_kernel"
+IUSE="debug multilib x-multilib pax_kernel"
 
 LICENSE="AMD GPL-2 as-is"
 KEYWORDS="~amd64 ~x86"
 SLOT="1"
 
 RDEPEND="x-multilib? ( ~x11-drivers/ati-userspace-${PV}[x-multilib] )
+	multilib? ( ~x11-drivers/ati-userspace-${PV}[multilib] )
 	~x11-drivers/ati-userspace-${PV}
 	sys-power/acpid"
 DEPEND="${RDEPEND}"
