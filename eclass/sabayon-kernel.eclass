@@ -274,7 +274,7 @@ if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	DEPEND="sys-apps/sed"
 	RDEPEND="${RDEPEND}"
 else
-	IUSE="dmraid dracut grub iscsi luks lvm mdadm splash"
+	IUSE="dmraid dracut iscsi luks lvm mdadm splash"
 	DEPEND="app-arch/xz-utils
 		sys-apps/sed
 		sys-devel/make
@@ -282,9 +282,7 @@ else
 		arm? ( dev-embedded/u-boot-tools )
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
-	# FIXME: when grub-legacy will be removed, remove sys-boot/grub-handler
 	RDEPEND="arm? ( >=app-admin/eselect-uimage-0.1.1 )
-		grub? ( || ( >=sys-boot/grub-1.98 ( <sys-boot/grub-1 sys-boot/grub-handler ) ) )
 		sys-apps/sed
 		sys-kernel/linux-firmware
 		x86? ( app-admin/eselect-bzimage )
@@ -614,6 +612,11 @@ sabayon-kernel_grub2_mkconfig() {
 		# Grub 1.99
 		"${ROOT}sbin/grub-mkdevicemap" --device-map="${ROOT}boot/grub/device.map"
 		"${ROOT}sbin/grub-mkconfig" -o "${ROOT}boot/grub/grub.cfg"
+	else
+		echo
+		ewarn "Attention, Grub2 is not installed !!!"
+		ewarn "Grub2 bootloader configuration won't be updated"
+		echo
 	fi
 }
 
@@ -713,7 +716,7 @@ sabayon-kernel_pkg_postinst() {
 		update_sabayon_kernel_initramfs_splash
 
 		# Add kernel to grub.conf
-		if use grub && ( use amd64 || use x86 ); then
+		if use amd64 || use x86; then
 			if use amd64; then
 				local kern_arch="x86_64"
 			else
@@ -767,7 +770,7 @@ sabayon-kernel_pkg_prerm() {
 sabayon-kernel_pkg_postrm() {
 	if _is_kernel_binary; then
 		# Remove kernel from grub.conf
-		if use grub && ( use amd64 || use x86 ); then
+		if use amd64 || use x86; then
 			if use amd64; then
 				local kern_arch="x86_64"
 			else
