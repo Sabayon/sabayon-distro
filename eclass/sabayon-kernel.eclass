@@ -282,8 +282,7 @@ else
 		arm? ( dev-embedded/u-boot-tools )
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
-	RDEPEND="arm? ( >=app-admin/eselect-uimage-0.1.1 )
-		sys-apps/sed
+	RDEPEND="sys-apps/sed
 		sys-kernel/linux-firmware"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
@@ -643,6 +642,13 @@ sabayon-kernel_uimage_config() {
 	# Two cases here:
 	# 1. /boot/uImage symlink is broken (pkg_postrm)
 	# 2. /boot/uImage symlink doesn't exist (pkg_postinst)
+
+	if ! has_version app-admin/eselect-uimage; then
+		ewarn "app-admin/eselect-uimage not installed"
+		ewarn "If you are using this tool, please install it"
+		return 0
+	fi
+
 	local uimage_file=$(eselect uimage show --quiet 2> /dev/null)
 	if [ -z "${uimage_file}" ]; then
 		# pick the first listed, sorry!
