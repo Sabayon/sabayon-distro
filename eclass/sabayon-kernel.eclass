@@ -284,9 +284,7 @@ else
 		dracut? ( sys-kernel/dracut )"
 	RDEPEND="arm? ( >=app-admin/eselect-uimage-0.1.1 )
 		sys-apps/sed
-		sys-kernel/linux-firmware
-		x86? ( app-admin/eselect-bzimage )
-		amd64? ( app-admin/eselect-bzimage )"
+		sys-kernel/linux-firmware"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
 	fi
@@ -673,6 +671,12 @@ sabayon-kernel_bzimage_config() {
 	local kern_arch
 	use x86 && kern_arch="x86"
 	use amd64 && kern_arch="x86_64"
+
+	if ! has_version app-admin/eselect-bzimage; then
+		ewarn "app-admin/eselect-bzimage not installed"
+		ewarn "If you are using this tool, please install it"
+		return 0
+	fi
 
 	local bzimage_file=$(eselect bzimage show --quiet 2> /dev/null)
 	if [ -z "${bzimage_file}" ]; then
