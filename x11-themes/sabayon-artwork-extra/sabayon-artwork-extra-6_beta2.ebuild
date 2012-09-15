@@ -4,7 +4,7 @@
 
 EAPI=3
 
-DESCRIPTION="Offical Sabayon Linux Artwork Extras"
+DESCRIPTION="Official Sabayon Linux Artwork Extras"
 HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"

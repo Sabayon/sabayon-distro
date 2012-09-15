@@ -5,7 +5,7 @@
 EAPI=3
 inherit eutils mount-boot sabayon-artwork
 
-DESCRIPTION="Offical Sabayon Linux Core Artwork"
+DESCRIPTION="Official Sabayon Linux Core Artwork"
 HOMEPAGE="http://www.sabayon.org/"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
