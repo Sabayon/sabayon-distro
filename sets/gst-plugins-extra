@@ -1,4 +1,5 @@
 media-libs/gst-plugins-dvdread
 media-libs/gst-plugins-dts
 media-libs/gst-plugins-good
+media-libs/gst-plugins-pulse
 media-libs/gst-plugins-soup
