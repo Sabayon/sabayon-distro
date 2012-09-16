@@ -14,8 +14,9 @@ if [[ ${MY_V[2]} != beta ]]; then
 	SRC_URI="${ATI_URL}/amd-driver-installer-${PV/./-}-x86.x86_64.run"
 	FOLDER_PREFIX="common/"
 else
-	SRC_URI="https://launchpad.net/ubuntu/natty/+source/fglrx-installer/2:${PV}-0ubuntu1/+files/fglrx-installer_${PV}.orig.tar.gz"
-	FOLDER_PREFIX=""
+	#SRC_URI="https://launchpad.net/ubuntu/natty/+source/fglrx-installer/2:${PV}-0ubuntu1/+files/fglrx-installer_${PV}.orig.tar.gz"
+	SRC_URI="http://www2.ati.com/drivers/legacy/amd-driver-installer-12.6-legacy-x86.x86_64.zip"
+	FOLDER_PREFIX="common/"
 fi
 IUSE="debug multilib pax_kernel"
 
@@ -119,14 +120,6 @@ _check_kernel_config() {
 		failed=1
 	fi
 
-	if linux_chkconfig_present X86_X32; then
-		eerror "You've enabled x32 in the kernel."
-		eerror "Unfortunately, this option is not supported yet and prevents the fglrx"
-		eerror "kernel module from loading."
-		error+=" X86_32 enabled;"
-		failed=1
-	fi
-
 	[[ ${failed} -ne 0 ]] && die "${error}"
 }
 
@@ -179,9 +172,9 @@ pkg_setup() {
 src_unpack() {
 	if [[ ${MY_V[2]} == beta ]]; then
 		unpack ${A}
-		RUN="${S}/${A/%.zip/.run}"
+		RUN=${A/%.zip/.run}
 	else
-		RUN="${DISTDIR}/${A}"
+		RUN=${A}
 	fi
 	sh ${RUN} --extract "${S}" # 2>&1 > /dev/null || die
 }
@@ -197,12 +190,6 @@ src_prepare() {
 
 	# fix needed for at least hardened-sources, see bug #392753
 	use pax_kernel && epatch "${FILESDIR}"/ati-drivers-12.2-redefine-WARN.patch
-
-	# Fix compilation with 3.2.8 and 3.3 kernels
-	epatch "${FILESDIR}/ati-drivers-3.2.8+-2.patch"
-
-	# see http://ati.cchtml.com/show_bug.cgi?id=495
-	kernel_is ge 3 4 0 && epatch "${FILESDIR}/ati-drivers-old_rsp.patch"
 
 	#fixes bug #420751
 	epatch "${FILESDIR}"/ati-drivers-do_mmap.patch
