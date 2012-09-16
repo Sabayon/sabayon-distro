@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-base/kde-l10n/kde-l10n-4.6.2.ebuild,v 1.2 2011/04/11 18:58:24 dilfridge Exp $
+# $Header: $
 
 EAPI=4
 
@@ -14,9 +14,9 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 # ignored: ca@valencia
-MY_LANGS="ar bg ca cs da de el en_GB es et eu fi fr ga gl 
-hr hu ia id is it ja kk km ko lt lv mai nb nds nl nn pa pl pt pt_BR ro ru sk
-sl sr sv th tr uk wa zh_CN zh_TW"
+MY_LANGS="ar bg bs ca cs da de el en_GB es et eu fa fi fr ga gl he
+hi hr hu ia is it ja kk km ko lt lv nb nds nl nn pa pl pt pt_BR ro ru si sk sl
+sr sv tg th tr ug uk vi wa zh_CN zh_TW"
 
 DEPEND=""
 RDEPEND="${DEPEND}
