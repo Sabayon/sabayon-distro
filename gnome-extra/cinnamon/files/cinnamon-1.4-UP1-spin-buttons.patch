@@ -1,0 +1,66 @@
+From 2a099e8be78db1c7fd0617daf54190ba65b84619 Mon Sep 17 00:00:00 2001
+From: Clement Lefebvre <clement.lefebvre@linuxmint.com>
+Date: Fri, 18 May 2012 18:33:14 +0100
+Subject: [PATCH] Fix a regression in GTK3's SpinButtons (non-editable now
+ means non-changeable at all now.. eventually we'll need to
+ port Cinnamon-settings to GTK2)
+
+---
+ debian/changelog                                     |  6 ++++++
+ files/usr/lib/cinnamon-settings/cinnamon-settings.py | 12 ++++++------
+ 2 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/debian/changelog b/debian/changelog
+index 726780c..5914cd4 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -1,3 +1,9 @@
++cinnamon (1.4-UP1) maya; urgency=low
++
++  * 1.4 UP1
++
++ -- Clement Lefebvre <root@linuxmint.com>  Sun, 13 May 2012 23:43:22 +0100
++
+ cinnamon (1.4.0) lisa; urgency=low
+ 
+   * New Cinnamon release
+diff --git a/files/usr/lib/cinnamon-settings/cinnamon-settings.py b/files/usr/lib/cinnamon-settings/cinnamon-settings.py
+index 7310ec9..fa1e212 100755
+--- a/files/usr/lib/cinnamon-settings/cinnamon-settings.py
++++ b/files/usr/lib/cinnamon-settings/cinnamon-settings.py
+@@ -537,7 +537,7 @@ class GSettingsSpinButton(Gtk.HBox):
+         
+         self.content_widget.set_range(min, max)
+         self.content_widget.set_increments(step, page)
+-        self.content_widget.set_editable(False)
++        #self.content_widget.set_editable(False)
+         
+         self.settings = Gio.Settings.new(schema)        
+         self.content_widget.set_value(self.settings.get_int(self.key))
+@@ -687,7 +687,7 @@ class GSettingsRangeSpin(Gtk.HBox):
+ 
+         self.content_widget.set_range(_min, _max)
+         self.content_widget.set_increments(_increment, _increment)
+-        self.content_widget.set_editable(False)
++        #self.content_widget.set_editable(False)
+         self.content_widget.set_digits(1)
+         self.content_widget.set_value(self.settings.get_double(self.key))
+ 
+@@ -862,10 +862,10 @@ class ChangeTimeWidget(Gtk.HBox):
+         self.minSpin.configure(minAdj, 0.5, 0)
+         self.yearSpin.configure(yearAdj, 0.5, 0)
+         self.daySpin.configure(dayAdj, 0.5, 0)
+-        self.hourSpin.set_editable(False)
+-        self.minSpin.set_editable(False)
+-        self.yearSpin.set_editable(False)
+-        self.daySpin.set_editable(False)
++        #self.hourSpin.set_editable(False)
++        #self.minSpin.set_editable(False)
++        #self.yearSpin.set_editable(False)
++        #self.daySpin.set_editable(False)
+         
+         self.update_time()
+         GObject.timeout_add(1000, self.update_time)
+-- 
+1.7.12
+
