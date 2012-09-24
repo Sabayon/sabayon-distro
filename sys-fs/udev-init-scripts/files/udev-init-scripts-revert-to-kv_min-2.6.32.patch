@@ -1,0 +1,11 @@
+--- udev-init-scripts-16.orig/init.d/udev
++++ udev-init-scripts-16/init.d/udev
+@@ -13,7 +13,7 @@ udev_debug="${udev_debug:-no}"
+ udev_monitor="${udev_monitor:-no}"
+ udev_monitor_keep_running="${udev_monitor_keep_running:-no}"
+ udev_settle_timeout="${udev_settle_timeout:-60}"
+-kv_min="${kv_min:-2.6.34}"
++kv_min="${kv_min:-2.6.32}"
+ 
+ depend()
+ {
