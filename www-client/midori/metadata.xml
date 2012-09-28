@@ -3,7 +3,8 @@
 <pkgmetadata>
   <herd>xfce</herd>
   <use>
-    <flag name="unique">Optional libunique support</flag>
-    <flag name="vala">Enable support for <pkg>dev-lang/vala</pkg> based extensions</flag>
+    <flag name='deprecated'>Enable GTK+-2 instead of GTK+-3 because of external plugins like adobe-flash</flag>
+    <flag name='unique'>Enable single instance support using <pkg>dev-libs/libunique</pkg></flag>
+    <flag name='zeitgeist'>Add support for Zeitgeist event tracking system</flag>
   </use>
 </pkgmetadata>
