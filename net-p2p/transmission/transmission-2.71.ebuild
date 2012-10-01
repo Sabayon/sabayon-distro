@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=4
-inherit transmission-2.52
+inherit transmission-2.71
 
 DESCRIPTION="A BitTorrent client (meta package)"
 #HOMEPAGE="http://www.transmissionbt.com/"

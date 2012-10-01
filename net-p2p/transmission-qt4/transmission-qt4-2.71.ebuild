@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=4
-inherit eutils transmission-2.52
+inherit eutils transmission-2.71
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Qt4 UI"
 KEYWORDS="~amd64 ~x86"
@@ -33,11 +33,6 @@ src_install() {
 	doins "${T}"/${MY_PN}-magnet.protocol
 
 	insinto /usr/share/qt4/translations
-	local l
-	for l in ${LANGS}; do
-		if use linguas_${l}; then
-			doins translations/${MY_PN}_${l}.qm
-		fi
-	done
+	doins translations/*.qm
 	popd >/dev/null
 }
