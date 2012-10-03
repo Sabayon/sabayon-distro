@@ -3,5 +3,5 @@
 # $Header: $
 
 EAPI=3
-L10N_NAME="Indonesian"
+L10N_NAME="Lithuanian"
 inherit kde-l10n
