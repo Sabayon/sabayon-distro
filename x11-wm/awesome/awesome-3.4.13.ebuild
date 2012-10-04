@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-wm/awesome/awesome-3.4.10.ebuild,v 1.2 2011/06/11 21:07:32 maekke Exp $
+# $Header: $
 
 EAPI="3"
 CMAKE_MIN_VERSION="2.8"
@@ -12,19 +12,19 @@ SRC_URI="http://awesome.naquadah.org/download/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd"
-IUSE="dbus doc elibc_FreeBSD"
+KEYWORDS="~amd64 ~arm ~x86"
+IUSE="dbus doc elibc_FreeBSD gnome"
 
 SABAYON_RDEPEND="x11-themes/sabayon-artwork-core"
 
 # Sabayon bug 2736
-SABAYON_C_DEPEND="
+SABAYON_CDEPEND="
 	x11-libs/xcb-util-keysyms
 	x11-libs/xcb-util-wm
 	x11-libs/xcb-util-image
 "
 
-COMMON_DEPEND="${SABAYON_C_DEPEND}
+COMMON_DEPEND="${SABAYON_CDEPEND}
 	>=dev-lang/lua-5.1
 	dev-libs/libev
 	>=dev-libs/libxdg-basedir-1
@@ -43,7 +43,7 @@ DEPEND="${COMMON_DEPEND}
 	>=app-text/asciidoc-8.4.5
 	app-text/xmlto
 	dev-util/gperf
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	media-gfx/imagemagick[png]
 	>=x11-proto/xcb-proto-1.5
 	>=x11-proto/xproto-7.0.15
@@ -67,7 +67,7 @@ RDEPEND="${COMMON_DEPEND}
 RDEPEND="${RDEPEND}
 	|| (
 	( x11-apps/xwininfo
-	  || ( media-gfx/imagemagick media-gfx/graphicsmagick[imagemagick] )
+	  || ( media-gfx/imagemagick[X] media-gfx/graphicsmagick[imagemagick,X] )
 	)
 	x11-misc/habak
 	media-gfx/feh
@@ -83,9 +83,12 @@ DOCS="AUTHORS BUGS PATCHES README STYLE"
 
 src_prepare() {
 	epatch \
-		"${FILESDIR}/${PN}-3.4.2-backtrace.patch" \
-		"${FILESDIR}/sabayon-background.patch" \
-		"${FILESDIR}"/${P}-glib-2.32.patch
+		"${FILESDIR}/${PN}-3.4.2-backtrace.patch"
+
+	# bug  #408025
+	epatch "${FILESDIR}/${PN}-3.4.11-convert-path.patch"
+
+	epatch "${FILESDIR}/sabayon-background.patch"
 }
 
 src_configure() {
@@ -123,4 +126,17 @@ src_install() {
 
 	exeinto /etc/X11/Sessions
 	newexe "${FILESDIR}"/${PN}-session ${PN} || die
+
+	# GNOME-based awesome
+	if use gnome ; then
+		# GNOME session
+		insinto /usr/share/gnome-session/sessions
+		doins "${FILESDIR}/${PN}-gnome.session" || die
+		# Application launcher
+		insinto /usr/share/applications
+		doins "${FILESDIR}/${PN}-gnome.desktop" || die
+		# X Session
+		insinto /usr/share/xsessions/
+		doins "${FILESDIR}/${PN}-gnome-xsession.desktop" || die
+	fi
 }
