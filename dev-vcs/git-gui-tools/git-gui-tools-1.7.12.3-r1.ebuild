@@ -36,6 +36,8 @@ else
 	KEYWORDS=""
 fi
 
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-optional-cvs.patch.bz2"
+
 LICENSE="GPL-2"
 SLOT="0"
 IUSE=""
@@ -82,17 +84,20 @@ exportmakeopts() {
 	myopts="${myopts} OLD_ICONV="
 	myopts="${myopts} NO_EXTERNAL_GREP="
 
+	# split ebuild: avoid collisions with dev-vcs/git's .mo files
+	myopts="${myopts} NO_GETTEXT=YesPlease"
+
 	# can't define this to null, since the entire makefile depends on it
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
-	use !elibc_glibc && myopts="${myopts} NEEDS_LIBICONV=YesPlease"
-
+	#use nls \
+	#	|| myopts="${myopts} NO_GETTEXT=YesPlease"
 	# use tk \
 	#	|| myopts="${myopts} NO_TCLTK=YesPlease"
 	#use perl \
 	#	&& myopts="${myopts} INSTALLDIRS=vendor" \
 	#	|| myopts="${myopts} NO_PERL=YesPlease"
-	myopts="${myopts} INSTALLDIRS=vendor"
+	myopts="${myopts} NO_PERL=YesPlease"
 	#use python \
 	#	|| myopts="${myopts} NO_PYTHON=YesPlease"
 
@@ -117,8 +122,12 @@ src_unpack() {
 }
 
 src_prepare() {
+	## bug #418431 - stated for upstream 1.7.13. Developed by Michael Schwern,
+	## funded as a bounty by the Gentoo Foundation.
+	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch
+
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${FILESDIR}"/git-1.7.3.5-optional-cvs.patch
+	epatch "${DISTDIR}"/git-1.7.12-optional-cvs.patch.bz2
 
 	sed -i \
 		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -172,9 +181,9 @@ src_install() {
 	dodoc "${S}"/contrib/gitview/gitview.txt
 	#fi
 
-	find "${ED}"/usr/lib64/perl5/ \
-		-name .packlist \
-		-exec rm \{\} \;
+	#find "${ED}"/usr/lib64/perl5/ \
+	#	-name .packlist \
+	#	-exec rm \{\} \;
 
 	rm -rf "${ED}"usr/share/gitweb
 	rm -rf "${ED}"usr/share/git/contrib
