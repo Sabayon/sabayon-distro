@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import string
 import subprocess
 try:
     from subprocess import getoutput
@@ -101,16 +100,12 @@ noproprietary = False
 nvidia_forcefail = False
 nvidia_disablelegacy = False
 legacy = False
-noopengl = False
-noexa = False
 livecd = False
 steps = []
 forced_xdriver = ''
 current_arch = os.uname()[4]
-if current_arch == "x86_64":
-    ld_arch = "elf_x86_64"
-else:
-    ld_arch = "elf_i386"
+nomodeset = False
+autogpu = False
 
 fglrx_supported = sorted(getoutput("""/sbin/modinfo fglrx | grep alias | grep pci | cut -d':' -f 3 | cut -d'*' -f 1 | sed 's/.*1002d//' | sed 's/^0000//' | sed 's/sv$//'""").lower().split())
 
@@ -139,18 +134,18 @@ for option in options:
         dryrun = True
     elif option.startswith('--with-lspci=') and len(option.split("=")) >= 2:
         option = option.split("=")[1:]
-        option = string.join(option,"=")
-        if option.startswith('"'): option = option[1:]
-        if option.startswith("'"): option = option[1:]
-        if option.endswith("'"): option = option[:len(option)-1]
-        if option.endswith('"'): option = option[:len(option)-1]
+        option = "=".join(option)
+        if option.startswith('"'):
+            option = option[1:]
+        if option.startswith("'"):
+            option = option[1:]
+        if option.endswith("'"):
+            option = option[:len(option)-1]
+        if option.endswith('"'):
+            option = option[:len(option)-1]
         lspci_output = option
     elif option.startswith('--forced-xdriver=') and len(option.split("=")) == 2:
         forced_xdriver = option.split("=")[1]
-    elif option == "--noopengl":
-        noopengl = True
-    elif option == "--noexa":
-        noexa = True
 
 if not lspci_output:
     lspci_output = getoutput(lspci+' -mm -n')
@@ -162,18 +157,18 @@ f.close()
 for cmd in cmdline:
     if cmd == "noproprietary":
         noproprietary = True
+    elif cmd == "nomodeset":
+        nomodeset = True
+    elif cmd == "autogpu":
+        autogpu = True
     elif cmd == "nvidia=forcefail":
         nvidia_forcefail = True
     elif cmd == "nvidia=disablelegacy":
         nvidia_disablelegacy = True
     elif cmd == "legacy":
         legacy = True
-    elif cmd == "noopengl":
-        noopengl = True
     elif cmd == "cdroot":
         livecd = True
-    elif cmd == "noexa":
-        noexa = True
     elif cmd.startswith("xdriver=") and (len(cmd.split("=")) == 2):
         if not forced_xdriver:
             forced_xdriver = cmd.split("=")[1] # --forced-xdriver= owns
@@ -191,8 +186,19 @@ def remove_proprietary_opengl():
     else:
         print("I was about to remove proprietary OpenGL libraries")
 
+def get_kernel_version():
+    try:
+        return int(os.uname()[2].replace(".", "")[:3])
+    except (ValueError, TypeError) as err:
+        print("get_kernel_version: ouch: %s" % (err,))
+        return None
+
 def setup_radeon_kms():
-    if not dryrun:
+    # Starting from kernel 3.6, we have CONFIG_DRM_RADEON_KMS=y
+    kver = get_kernel_version()
+    if kver is None:
+        kver = 360 # assume new kernel
+    if not dryrun and kver < 360:
         os.system("""
         modprobe -r radeon &> /dev/null
         modprobe radeon modeset=1 && touch /tmp/.radeon.kms
@@ -217,6 +223,49 @@ def remove_tar_members_from_sys(tarpath):
                     pass
     tar.close()
 
+def generate_fglrx_steps(videocard, cardnumber, total_cards, bus_id):
+    print("AMD!")
+    print("total supported AMD cards: %s" % (len(fglrx_supported),))
+    print("supported list:", fglrx_supported)
+    supported = card_id in fglrx_supported
+    if supported:
+        print("fglrx driver supports this card")
+    # check if nomodeset is enabled for >=3.6.0 kernel
+    kver = get_kernel_version()
+    if kver is None:
+        kver = 360 # assume new kernel
+    if not nomodeset and kver >= 360:
+        print("however, nomodeset is not set, though KMS is active,"
+              " defaulting to OSS driver")
+        supported = False
+
+    if supported:
+        if noproprietary:
+            if not autogpu:
+                steps.append(('set_xorg_device', 'ati',
+                              cardnumber, total_cards, bus_id,))
+            steps.append(('drop_kernel_mod', 'fglrx',))
+            steps.append(('setup_radeon_kms',))
+        else:
+            steps.append(('fix_possible_opengl_misconfiguration',
+                          'ati'))
+            steps.append(('copy_ati_settings_on_desktop',))
+            steps.append(('opengl_activate', 'ati'))
+            if not autogpu:
+                steps.append(('set_xorg_device', 'fglrx',
+                              cardnumber, total_cards, bus_id,))
+    else:
+        # video card not supported by fglrx
+        print("using OSS 'ati' drivers")
+        generate_generic_steps()
+        # This works for Mach64, Rage128
+        # Radeon and in future RadeonHD driver
+        if not autogpu:
+            steps.append(('set_xorg_device', 'ati',
+                          cardnumber, total_cards, bus_id,))
+        steps.append(('drop_kernel_mod', 'fglrx',))
+        steps.append(('setup_radeon_kms',))
+
 def check_if_driver_is_available(xdriver):
     if os.path.isfile('/usr/lib/xorg/modules/drivers/'+xdriver+'_drv.so'):
         print("check_if_driver_is_available for "+xdriver+": available")
@@ -236,12 +285,20 @@ def check_if_proprietary_driver_system_is_healthy(kernelmod):
                   " nvidia NOT healthy")
             return False
         if kernelmod == "fglrx":
+            kver = get_kernel_version()
+            if kver is None:
+                kver = 360 # assume new kernel
+            if not nomodeset and kver >= 360:
+                print("check_if_proprietary_driver_system_is_healthy:"
+                      " fglrx (ati) NOT healthy, 'nomodeset' boot argument"
+                      " is mising")
+                return False
             if os.path.exists('/usr/lib/opengl/ati/lib'):
                 print("check_if_proprietary_driver_system_is_healthy:"
-                      " ati healthy")
+                      " fglrx (ati) healthy")
                 return True
             print("check_if_proprietary_driver_system_is_healthy:"
-                  " ati NOT healthy")
+                  " fglrx (ati) NOT healthy")
             return False
         return False
 
@@ -449,8 +506,8 @@ def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
             print("NVIDIA proprietary driver %s is loaded" % (drv_string,))
             if done_legacy:
                 # then activate nvidia opengl subsystem after resetting it
-                steps.append(('opengl_activate','xorg-x11'))
-                steps.append(('opengl_activate','nvidia'))
+                steps.append(('opengl_activate', 'xorg-x11'))
+                steps.append(('opengl_activate', 'nvidia'))
                 os.makedirs("/lib/nvidia/legacy")
 
                 f = open("/lib/nvidia/legacy/running","w")
@@ -458,29 +515,30 @@ def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
                 f.flush()
                 f.close()
 
-                steps.append(('set_xorg_device', 'nvidia',
-                              cardnumber, total_cards, bus_id,))
-                steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
+                if not autogpu:
+                    steps.append(('set_xorg_device', 'nvidia',
+                                  cardnumber, total_cards, bus_id,))
+                steps.append(('fix_possible_opengl_misconfiguration', 'nvidia'))
                 steps.append(('copy_nvidia_settings_on_desktop',))
 
             else:
 
-                steps.append(('fix_possible_opengl_misconfiguration','nvidia'))
+                steps.append(('fix_possible_opengl_misconfiguration', 'nvidia'))
                 steps.append(('copy_nvidia_settings_on_desktop',))
-                steps.append(('opengl_activate','nvidia'))
-                steps.append(('set_xorg_device', 'nvidia',
-                              cardnumber, total_cards, bus_id,))
+                steps.append(('opengl_activate', 'nvidia'))
+                if not autogpu:
+                    steps.append(('set_xorg_device', 'nvidia',
+                                  cardnumber, total_cards, bus_id,))
         else:
             print("NVIDIA drivers couldn't be loaded, switchting to nv driver")
-            steps.append(('opengl_activate','xorg-x11'))
-            steps.append(('set_xorg_device', 'nv',
-                          cardnumber, total_cards, bus_id,))
+            steps.append(('opengl_activate', 'xorg-x11'))
+            if not autogpu:
+                steps.append(('set_xorg_device', 'nv',
+                              cardnumber, total_cards, bus_id,))
 
 def generate_generic_steps():
-    if noopengl:
-        return
     steps.append(('remove_proprietary_opengl',))
-    steps.append(('opengl_activate','xorg-x11',))
+    steps.append(('opengl_activate', 'xorg-x11',))
 
 def drop_kernel_mod(kmod):
     return subprocess.call(["modprobe", "-r", kmod])
@@ -523,26 +581,27 @@ for videocard in videocards:
 
     # setup card number
     cardnumber += 1
-    print("Card Number: "+str(cardnumber))
+    print("Card Number: " + str(cardnumber))
     try:
-        bus_id = "PCI:%s" % (videocard.split()[0].split(".",1)[0],)
+        bus_id = "PCI:%s" % (
+                videocard.split()[0].split(".", 1)[0]
+            )
     except (IndexError,ValueError,TypeError,):
         bus_id = None
 
     steps = []
     if forced_xdriver:
-        print("You have chosen to force X driver: "+forced_xdriver)
+        print("You have chosen to force the X driver: " + forced_xdriver)
         if forced_xdriver == "fglrx":
-            if noopengl \
-                    or check_if_proprietary_driver_system_is_healthy("fglrx") \
+            if check_if_proprietary_driver_system_is_healthy("fglrx") \
                     or noproprietary:
-                steps.append(('opengl_activate','xorg-x11'))
+                steps.append(('opengl_activate', 'xorg-x11'))
                 forced_xdriver = "ati"
-                steps.append(('drop_kernel_mod','fglrx',))
+                steps.append(('drop_kernel_mod', 'fglrx',))
             else:
-                steps.append(('fix_possible_opengl_misconfiguration','ati'))
+                steps.append(('fix_possible_opengl_misconfiguration', 'ati'))
                 steps.append(('copy_ati_settings_on_desktop',))
-                steps.append(('opengl_activate','ati'))
+                steps.append(('opengl_activate', 'ati'))
 
         elif forced_xdriver == "nvidia" and (not noproprietary):
             generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id)
@@ -554,6 +613,19 @@ for videocard in videocards:
             generate_generic_steps()
             steps.append(('set_xorg_device', forced_xdriver,
                           cardnumber, total_cards, bus_id,))
+
+    elif autogpu:
+        print("Automatic GPU detection is enabled.")
+        if company_id == "10de": # NVIDIA
+            print("NVIDIA (autogpu on)")
+            # check if we should switch to nvidia OpenGL
+            generate_nvidia_steps(
+                videocard, cardnumber, total_cards, bus_id)
+        elif company_id == "1002":
+            print("AMD (autogpu on)")
+            generate_fglrx_steps(
+                videocard, cardnumber, total_cards, bus_id)
+
     else:
         company_id, card_id = extract_pci_ids(videocard)
         print("[%s] company_id: %s | card_id: %s" % (
@@ -577,7 +649,7 @@ for videocard in videocards:
 
         elif company_id == "105d": # Number 9
             generate_generic_steps()
-            steps.append(('set_xorg_device','i128',
+            steps.append(('set_xorg_device', 'i128',
                           cardnumber, total_cards, bus_id,))
             print("i128!")
 
@@ -619,7 +691,7 @@ for videocard in videocards:
 
         elif company_id == "1039": # SiS
             generate_generic_steps()
-            steps.append(('set_xorg_device','sis',
+            steps.append(('set_xorg_device', 'sis',
                           cardnumber, total_cards, bus_id,))
             print("SiS!")
 
@@ -694,43 +766,16 @@ for videocard in videocards:
                 print("NVIDIA!")
 
         elif company_id == "1002":
-            print("ATI/AMD!")
-            print("total supported ATI cards: %s" % (len(fglrx_supported),))
-            print("supported list:", fglrx_supported)
-            if card_id in fglrx_supported: # fglrx supported
-                print("fglrx driver SUPPORTS this card")
-                if noproprietary:
-                    steps.append(('set_xorg_device', 'ati',
-                                  cardnumber, total_cards, bus_id,))
-                    steps.append(('drop_kernel_mod','fglrx',))
-                    steps.append(('setup_radeon_kms',))
-                else:
-                    if not noopengl:
-                        steps.append(('fix_possible_opengl_misconfiguration',
-                                      'ati'))
-                        steps.append(('copy_ati_settings_on_desktop',))
-                        steps.append(('opengl_activate','ati'))
-                        steps.append(('set_xorg_device', 'fglrx',
-                                      cardnumber, total_cards, bus_id,))
-                    else:
-                        # video card not supported by fglrx
-                        print("NOT supported by fglrx")
-                        generate_generic_steps()
-                        # This works for Mach64, Rage128
-                        # Radeon and in future RadeonHD driver
-                        steps.append(('set_xorg_device', 'ati',
-                                      cardnumber, total_cards, bus_id,))
-                        steps.append(('drop_kernel_mod','fglrx',))
-                        steps.append(('setup_radeon_kms',))
-
-            else:
-                steps.append(('set_xorg_device', 'vesa',
-                              cardnumber, total_cards, bus_id,))
-                print("ATTENTION !!!")
-                print("ATTENTION !!!")
-                print("ATTENTION !!!")
-                print("--> Video Card undetected: " + videocard)
-                print("SETTING TO AUTODETECT")
+            generate_fglrx_steps(
+                videocard, cardnumber, total_cards, bus_id)
+        else:
+            steps.append(('set_xorg_device', 'vesa',
+                          cardnumber, total_cards, bus_id,))
+            print("ATTENTION !!!")
+            print("ATTENTION !!!")
+            print("ATTENTION !!!")
+            print("--> Video Card undetected: " + videocard)
+            print("SETTING TO VESA")
 
     # now create the file
     for step in steps:
@@ -751,7 +796,7 @@ xorg_conf_structure = xorg_conf_structure.replace(
     '__screen_layout_section__',
     '\n    '.join(screen_layout_sections))
 if forced_monitor_modes:
-    xorg_conf_structure = xorg_conf_structure.replace('#Modes','Modes')
+    xorg_conf_structure = xorg_conf_structure.replace('#Modes', 'Modes')
 if not dryrun:
     f = open(xorgfile,"w")
     g = open(xorgfile_backup,"w")
