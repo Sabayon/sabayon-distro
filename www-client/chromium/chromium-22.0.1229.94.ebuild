@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-22.0.1229.14.ebuild,v 1.1 2012/08/23 19:20:30 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/chromium/chromium-22.0.1229.94.ebuild,v 1.3 2012/10/11 21:10:34 ago Exp $
 
 EAPI="4"
 PYTHON_DEPEND="2:2.6"
@@ -18,7 +18,7 @@ SRC_URI="http://commondatastorage.googleapis.com/chromium-browser-official/${P}.
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="bindist cups gnome gnome-keyring kerberos pulseaudio selinux"
 
 RDEPEND="app-arch/bzip2
@@ -44,15 +44,18 @@ RDEPEND="app-arch/bzip2
 	>=media-libs/libwebp-0.2.0_rc1
 	media-libs/speex
 	pulseaudio? ( media-sound/pulseaudio )
+	sys-apps/dbus
 	sys-fs/udev
-	sys-libs/zlib
 	virtual/libusb:1
 	x11-libs/gtk+:2
 	x11-libs/libXinerama
 	x11-libs/libXScrnSaver
 	x11-libs/libXtst
 	kerberos? ( virtual/krb5 )
-	selinux? ( sys-libs/libselinux )"
+	selinux? (
+		sec-policy/selinux-chromium
+		sys-libs/libselinux
+	)"
 DEPEND="${RDEPEND}
 	>=dev-lang/nacl-toolchain-newlib-0_p9093
 	dev-lang/perl
@@ -107,8 +110,8 @@ src_prepare() {
 		native_client/toolchain/linux_x86_newlib || die
 
 	# zlib-1.2.5.1-r1 renames the OF macro in zconf.h, bug 383371.
-	sed -i '1i#define OF(x) x' \
-		third_party/zlib/contrib/minizip/{ioapi,{,un}zip}.h || die
+	#sed -i '1i#define OF(x) x' \
+	#	third_party/zlib/contrib/minizip/{ioapi,{,un}zip}.h || die
 
 	# Fix build without NaCl glibc toolchain.
 	epatch "${FILESDIR}/${PN}-ppapi-r0.patch"
@@ -167,7 +170,7 @@ src_prepare() {
 		\! -path 'third_party/webdriver/*' \
 		\! -path 'third_party/webgl_conformance/*' \
 		\! -path 'third_party/webrtc/*' \
-		\! -path 'third_party/zlib/contrib/minizip/*' \
+		\! -path 'third_party/zlib/*' \
 		-delete || die
 
 	local v8_bundled="$(chromium_bundled_v8_version)"
@@ -227,7 +230,7 @@ src_configure() {
 		-Duse_system_v8=1
 		-Duse_system_xdg_utils=1
 		-Duse_system_yasm=1
-		-Duse_system_zlib=1"
+		-Duse_system_zlib=0"
 
 	# Optional dependencies.
 	# TODO: linux_link_kerberos, bug #381289.
@@ -349,7 +352,11 @@ src_test() {
 	runtest out/Release/crypto_unittests
 	runtest out/Release/googleurl_unittests
 	runtest out/Release/gpu_unittests
-	runtest out/Release/media_unittests
+
+	local excluded_media_unittests=(
+		"ChunkDemuxerTest.TestDurationChangeTimestampOffset" # bug #431042
+	)
+	runtest out/Release/media_unittests "${excluded_media_unittests[@]}"
 
 	local excluded_net_unittests=(
 		"NetUtilTest.IDNToUnicode*" # bug 361885
@@ -357,6 +364,7 @@ src_test() {
 		"DnsConfigServiceTest.GetSystemConfig" # bug #394883
 		"CertDatabaseNSSTest.ImportServerCert_SelfSigned" # bug #399269
 		"URLFetcher*" # bug #425764
+		"SpdyFramer*" # bug #436370
 	)
 	runtest out/Release/net_unittests "${excluded_net_unittests[@]}"
 
