@@ -3,6 +3,7 @@
 
 import os
 import string
+import subprocess
 try:
     from subprocess import getoutput
 except ImportError:
@@ -241,48 +242,62 @@ def check_if_proprietary_driver_system_is_healthy(kernelmod):
 		return False
 
 def deploy_nvidia_xxxxxx_drivers(ver):
-	if (not dryrun):
-		# are they available ? we're on livecd...
-		if not os.path.isdir("/install-data/drivers"):
-			print("No /install-data/drivers available")
-			return False
+    if dryrun:
+        print("I was about to run deploy_nvidia_xxxxxx_drivers"
+              ", ver: %s" % (ver,))
+        return False
 
-		packages = os.listdir("/install-data/drivers")
-		packages = [x for x in packages if x.startswith("x11-drivers:nvidia-drivers-"+ver) and x.endswith(".tbz2")]
-		if not packages:
-			return False
-		package_file = "/install-data/drivers/"+packages[0]
-		if not os.path.isfile(package_file):
-			print(package_file+" does not exist???")
-			return False
+    drivers_dir = "/install-data/drivers"
+    # are they available ? we're on livecd...
+    if not os.path.isdir(drivers_dir):
+        print("drivers_dir not available")
+        return False
 
-		from entropy.client.interfaces import Client
-		_entropy = Client()
+    packages = os.listdir(drivers_dir)
+    _packages = []
+    for pkg in packages:
+        if not pkg.endswith(".tbz2"):
+            continue
+        if pkg.startswith("x11-drivers:nvidia-drivers-" + ver):
+            _packages.append(pkg)
+        elif pkg.startswith("x11-drivers:nvidia-userspace" + ver):
+            _packages.append(pkg)
 
-		# prepare system
-		inst_repo = _entropy.installed_repository()
-		idpackage, result = inst_repo.atomMatch('x11-drivers/nvidia-drivers')
-		if idpackage != -1:
-			content = inst_repo.retrieveContentIter(idpackage)
-			for myfile, ftype in content:
-				try:
-					os.remove(myfile)
-				except (OSError, IOError):
-					pass
-		if hasattr(_entropy,'destroy'):
-			_entropy.destroy()
+    packages = [os.path.join(drivers_dir, x) for x in _packages]
+    package_names = ["x11-drivers/nvidia-drivers",
+                     "x11-drivers/nvidia-userspace"]
+    if not packages:
+        return False
 
-		# remove old garbage - copy over - create module
-		os.system("tar xjf %s -C / &> /dev/null" % (package_file,))
+    from entropy.client.interfaces import Client
+    _entropy = Client()
 
-		# try to check driver status now
-		rc = check_if_proprietary_driver_system_is_healthy("nvidia")
-		if not rc:
-			remove_tar_members_from_sys(package_file)
-		return rc
-	else:
-		print("I was about to run deploy_nvidia_xxxxxx_drivers, ver: %s" % (ver,))
-		return False
+    # prepare system
+    for package_name in package_names:
+        inst_repo = _entropy.installed_repository()
+        package_id, result = inst_repo.atomMatch(package_name)
+        if package_id == -1:
+            continue
+        content = inst_repo.retrieveContentIter(package_id)
+        for myfile, ftype in content:
+            try:
+                os.remove(myfile)
+            except (OSError, IOError):
+                pass
+
+    if hasattr(_entropy,'destroy'):
+        _entropy.destroy()
+
+    for package_file in packages:
+        # remove old garbage - copy over - create module
+        subprocess.call(
+            ["tar", "xjf", package_file, "-C", "/"])
+        # try to check driver status now
+        rc = check_if_proprietary_driver_system_is_healthy("nvidia")
+        if not rc:
+            remove_tar_members_from_sys(package_file)
+        return rc
+
 
 def set_xorg_device(xdriver, cardnum, total_cards, bus_id):
 	if (xdriver not in ("nvidia", "fglrx",)) and \
