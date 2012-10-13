@@ -615,6 +615,7 @@ for videocard in videocards:
                           cardnumber, total_cards, bus_id,))
 
     elif autogpu:
+        company_id, card_id = extract_pci_ids(videocard)
         print("Automatic GPU detection is enabled.")
         if company_id == "10de": # NVIDIA
             print("NVIDIA (autogpu on)")
