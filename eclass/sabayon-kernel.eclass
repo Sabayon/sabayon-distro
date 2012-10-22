@@ -238,36 +238,53 @@ else
 	HOMEPAGE="http://www.sabayon.org"
 fi
 
-
-# Setup kernel configuration file name
+# set SRC_URI
 if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
-		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
-		SRC_URI="${SRC_URI}
-			amd64? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
-			x86? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
-		use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
-		use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+		tmp_K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
 		# ARM not supported, if put in SRC_URI it tries to fetch it
-	else
-		use arm && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-arm.config}"
-		use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-amd64.config}"
-		use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-x86.config}"
-	fi
-else
-	K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
-	K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PV}-__ARCH__.config}"
-	if use amd64; then
-		K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
-		K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/amd64}
-	elif use x86; then
-		K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
-		K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/x86}
-	elif use arm; then
-		K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/arm}
-		K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/arm}
+		SRC_URI="${SRC_URI}
+			amd64? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${tmp_K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
+			x86? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${tmp_K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
+		# K_SABKERNEL_CONFIG_FILE will be set in _set_config_file_vars
+		unset tmp_K_SABKERNEL_CONFIG_FILE
 	fi
 fi
+
+# Returns success if _set_config_file_vars was called.
+_is_config_file_set() {
+	[[ ${_config_file_set} = 1 ]]
+}
+
+_set_config_file_vars() {
+	# Setup kernel configuration file name
+	if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+		if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
+			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
+			use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
+			use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+		else
+			use arm && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-arm.config}"
+			use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-amd64.config}"
+			use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-x86.config}"
+		fi
+	else
+		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
+		K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PV}-__ARCH__.config}"
+		if use amd64; then
+			K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
+			K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/amd64}
+		elif use x86; then
+			K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+			K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/x86}
+		elif use arm; then
+			K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/arm}
+			K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/arm}
+		fi
+	fi
+
+	_config_file_set=1
+}
 
 if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	IUSE="${IUSE}"
@@ -340,6 +357,15 @@ sabayon-kernel_src_unpack() {
 		sed -i "s/^EXTRAVERSION :=.*//" "${S}/Makefile" || die
 	fi
 	OKV="${okv}"
+
+	# Let's handle EAPIs 0 and 1...
+	case ${EAPI:-0} in
+		0|1) sabayon-kernel_src_prepare ;;
+	esac
+}
+
+sabayon-kernel_src_prepare() {
+	_set_config_file_vars
 }
 
 sabayon-kernel_src_compile() {
@@ -365,6 +391,9 @@ _firmwares_src_compile() {
 }
 
 _kernel_copy_config() {
+	_is_config_file_set \
+		|| die "Kernel configuration file not set. Was sabayon-kernel_src_prepare() called?"
+
 	if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 		local base_path="${S}/sabayon/config"
 		if [ -f "${base_path}/${K_SABKERNEL_ALT_CONFIG_FILE}" ]; then
@@ -809,5 +838,10 @@ sabayon-kernel_pkg_postrm() {
 }
 
 # export all the available functions here
-EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_install pkg_preinst pkg_postinst pkg_prerm pkg_postrm
+case ${EAPI:-0} in
+	0|1) extra_export_funcs= ;;
+	*) extra_export_funcs=src_prepare ;;
+esac
 
+EXPORT_FUNCTIONS pkg_setup src_unpack ${extra_export_funcs} \
+	src_compile src_install pkg_preinst pkg_postinst pkg_prerm pkg_postrm
