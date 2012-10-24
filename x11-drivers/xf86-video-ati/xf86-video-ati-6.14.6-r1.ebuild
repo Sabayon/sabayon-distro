@@ -31,16 +31,13 @@ pkg_setup() {
 	)
 }
 
-src_install() {
-	xorg-2_src_install
+pkg_preinst() {
+	# "untrack" radeon.conf, starting from kernel 3.6, this is
+	# no longer needed. However, we don't want to break the current
+	# status-quo.
+	cp "${EROOT}/etc/modprobe.d/"{radeon.conf,radeon.conf.untracked} || die
+}
 
-	# install a modprobe.d file to make sure that KMS
-	# is enabled for the radeon kernel driver
-	# if this package is installed. KMS is now mandatory
-	# but current Sabayon kernels have it disabled to
-	# allow fglrx to work
-	dodir /etc/modprobe.d
-	echo "options radeon modeset=1" > radeon.conf
-	insinto /etc/modprobe.d
-	doins radeon.conf
+pkg_postinst() {
+	mv "${EROOT}/etc/modprobe.d/"{radeon.conf.untracked,radeon.conf} || die
 }
