@@ -631,9 +631,9 @@ sabayon-kernel_pkg_preinst() {
 	fi
 }
 sabayon-kernel_grub2_mkconfig() {
-	if [ -x "${ROOT}sbin/grub2-mkconfig" ]; then
+	if [ -x "${ROOT}usr/sbin/grub2-mkconfig" ]; then
 		# Grub 2.00
-		"${ROOT}sbin/grub2-mkconfig" -o "${ROOT}boot/grub/grub.cfg"
+		"${ROOT}usr/sbin/grub2-mkconfig" -o "${ROOT}boot/grub/grub.cfg"
 	elif [ -x "${ROOT}sbin/grub-mkconfig" ]; then
 		# Grub 1.99
 		"${ROOT}sbin/grub-mkdevicemap" --device-map="${ROOT}boot/grub/device.map"
