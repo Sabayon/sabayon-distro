@@ -102,7 +102,8 @@ if _transmission_is base; then
 	!<net-p2p/transmission-cli-${PV}"
 fi
 if ! _transmission_is ""; then
-	DEPEND+=" dev-util/intltool
+	DEPEND+=" >=dev-libs/glib-2
+	dev-util/intltool
 	virtual/pkgconfig
 	sys-devel/gettext
 	virtual/os-headers"
