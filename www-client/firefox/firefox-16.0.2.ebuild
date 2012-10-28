@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-16.0.1.ebuild,v 1.2 2012/10/21 19:33:59 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-16.0.2.ebuild,v 1.1 2012/10/28 01:04:54 anarchy Exp $
 
 EAPI="3"
 VIRTUALX_REQUIRED="pgo"
@@ -54,17 +54,18 @@ RDEPEND="
 	>=dev-libs/nspr-4.9.2
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
-	>=media-libs/libpng-1.5.9[apng]
+	>=media-libs/libpng-1.5.11[apng]
 	virtual/libffi
 	gstreamer? (
 		>=media-libs/gstreamer-0.10.33:0.10
 		>=media-libs/gst-plugins-base-0.10.33:0.10 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.12.1[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.13[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	webm? ( >=media-libs/libvpx-1.0.0
 		media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"
 # We don't use PYTHON_DEPEND/PYTHON_USE_WITH for some silly reason
 DEPEND="${RDEPEND}
+	dev-python/pysqlite
 	virtual/pkgconfig
 	pgo? (
 		=dev-lang/python-2*[sqlite]
