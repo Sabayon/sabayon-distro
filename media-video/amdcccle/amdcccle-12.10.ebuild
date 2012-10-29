@@ -60,5 +60,4 @@ src_install() {
         into /opt
         dobin arch/${ARCH_BASE}/usr/X11R6/bin/amdcccle
 	dosbin arch/${ARCH_BASE}/usr/sbin/amdnotifyui
-	dosbin arch/${ARCH_BASE}/usr/sbin/atieventsd
 }
