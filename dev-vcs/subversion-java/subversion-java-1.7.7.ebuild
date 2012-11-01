@@ -16,7 +16,7 @@ inherit autotools eutils flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="http://subversion.tigris.org/downloads/${MY_SVN_P}.tar.bz2"
+SRC_URI="mirror://apache/${PN}/${MY_SVN_P}.tar.bz2"
 S="${WORKDIR}/${MY_SVN_P/_/-}"
 
 LICENSE="Subversion"
@@ -84,10 +84,19 @@ src_configure() {
 			# loader crashes on the LD_PRELOADs...
 			myconf+=" --disable-local-library-preloading"
 		;;
+		*-solaris*)
+			# need -lintl to link
+			use nls && append-libs intl
+		;;
 	esac
 
 	#workaround for bug 387057
 	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
+
+	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
+	#compile for x86 on amd64, so workaround this issue again
+	#check newer versions, if this is still/again needed
+	myconf+=" --disable-disallowing-of-undefined-references"
 
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--without-apxs \
@@ -109,8 +118,7 @@ src_configure() {
 		--enable-local-library-preloading \
 		--disable-mod-activation \
 		--disable-neon-version-check \
-		--disable-static \
-		--with-sqlite="${EPREFIX}/usr"
+		--disable-static
 }
 
 src_compile() {

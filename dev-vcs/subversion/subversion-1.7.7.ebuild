@@ -12,10 +12,10 @@ inherit autotools bash-completion-r1 db-use depend.apache elisp-common eutils fl
 
 DESCRIPTION="Advanced version control system"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="http://www.apache.org/dist/${PN}/${MY_P}.tar.bz2"
+SRC_URI="mirror://apache/${PN}/${MY_P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
 
-LICENSE="Subversion"
+LICENSE="Subversion GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring java kde nls perl python ruby sasl vim-syntax +webdav-neon webdav-serf"
@@ -28,7 +28,7 @@ CDEPEND=">=dev-db/sqlite-3.4
 	berkdb? ( >=sys-libs/db-4.0.14 )
 	ctypes-python? ( =dev-lang/python-2* )
 	gnome-keyring? ( dev-libs/glib:2 sys-apps/dbus gnome-base/gnome-keyring )
-	kde? ( sys-apps/dbus x11-libs/qt-core x11-libs/qt-dbus x11-libs/qt-gui >=kde-base/kdelibs-4 )
+	kde? ( sys-apps/dbus x11-libs/qt-core:4 x11-libs/qt-dbus:4 x11-libs/qt-gui:4 >=kde-base/kdelibs-4:4 )
 	perl? ( dev-lang/perl )
 	python? ( =dev-lang/python-2* )
 	ruby? ( >=dev-lang/ruby-1.8.2:1.8 )
@@ -105,7 +105,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.5.4-interix.patch \
 		"${FILESDIR}"/${PN}-1.5.6-aix-dso.patch \
 		"${FILESDIR}"/${PN}-1.6.3-hpux-dso.patch \
-		"${FILESDIR}"/${PN}-fix-parallel-build-support-for-perl-bindings.patch
+		"${FILESDIR}"/${PN}-fix-parallel-build-support-for-perl-bindings.patch \
+		"${FILESDIR}"/${PN}-1.7.6-kwallet.patch
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -149,10 +150,19 @@ src_configure() {
 			# loader crashes on the LD_PRELOADs...
 			myconf+=" --disable-local-library-preloading"
 		;;
+		*-solaris*)
+			# need -lintl to link
+			use nls && append-libs intl
+		;;
 	esac
 
 	#workaround for bug 387057
 	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
+
+	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
+	#compile for x86 on amd64, so workaround this issue again
+	#check newer versions, if this is still/again needed
+	myconf+=" --disable-disallowing-of-undefined-references"
 
 	#force ruby-1.8 for bug 399105
 	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby18 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc18 \
@@ -175,8 +185,7 @@ src_configure() {
 		--enable-local-library-preloading \
 		--disable-mod-activation \
 		--disable-neon-version-check \
-		--disable-static \
-		--with-sqlite="${EPREFIX}/usr"
+		--disable-static
 }
 
 src_compile() {
@@ -328,13 +337,12 @@ EOF
 		rm -fr tools/{buildbot,dev,diff,po}
 
 		insinto /usr/share/${PN}
+		python_convert_shebangs -r 2 tools
 		doins -r tools
 	fi
 
 	if use doc; then
 		dohtml -r doc/doxygen/html/* || die "Installation of Subversion HTML documentation failed"
-
-		dodoc notes/*
 	fi
 
 	find "${ED}" '(' -name '*.la' ')' -print0 | xargs -0 rm -f
