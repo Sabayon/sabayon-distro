@@ -1,0 +1,435 @@
+From: Neil Roberts <neil@linux.intel.com>
+Subject: Remove shell-screen-grabber
+
+The screen grabber was a workaround for an extremely slow path in Mesa
+when reading back pixel data from the frame buffer. It was using pixel
+buffer objects by directly calling into GL to hit a fast blit path in
+Intel's driver. This should no longer be necessary with the latest
+Mesa because the normal read pixels path now has a fast path to just
+memcpy the data. Using PBOs in that case just adds an extra
+indirection because the data is read into an intermediate buffer and
+then copied back out again.
+
+We want to be able to remove the dependency on linking against libGL
+directly from Gnome Shell because that will not work if Cogl is
+actually using GLES. Also libGL includes GLX which means gnome-shell
+ends up with a hard dependency on Xlib which hinders the goal of
+getting Gnome Shell to be a Wayland compositor.
+
+Origin: http://git.gnome.org/browse/gnome-shell/commit/?h=wip/wayland&id=beada1ca12a68cebca8cf627b93e04922f134ebb
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/935124
+Forwarded: not-needed
+
+Index: gnome-shell-3.3.92/src/shell-recorder.c
+===================================================================
+--- gnome-shell-3.3.92.orig/src/shell-recorder.c	2012-03-01 13:19:56.000000000 -0300
++++ gnome-shell-3.3.92/src/shell-recorder.c	2012-03-23 18:02:06.568161680 -0300
+@@ -12,7 +12,6 @@
+ 
+ #include "shell-recorder-src.h"
+ #include "shell-recorder.h"
+-#include "shell-screen-grabber.h"
+ 
+ #include <clutter/x11/clutter-x11.h>
+ #include <X11/extensions/Xfixes.h>
+@@ -48,8 +47,6 @@
+   int stage_width;
+   int stage_height;
+ 
+-  ShellScreenGrabber *grabber;
+-
+   gboolean have_pointer;
+   int pointer_x;
+   int pointer_y;
+@@ -267,8 +264,6 @@
+   recorder->recording_icon = create_recording_icon ();
+   recorder->memory_target = get_memory_target();
+ 
+-  recorder->grabber = shell_screen_grabber_new ();
+-
+   recorder->state = RECORDER_STATE_CLOSED;
+   recorder->framerate = DEFAULT_FRAMES_PER_SECOND;
+ }
+@@ -300,8 +295,6 @@
+   recorder_set_pipeline (recorder, NULL);
+   recorder_set_filename (recorder, NULL);
+ 
+-  g_object_unref (recorder->grabber);
+-
+   cogl_handle_unref (recorder->recording_icon);
+ 
+   G_OBJECT_CLASS (shell_recorder_parent_class)->finalize (object);
+@@ -545,8 +538,13 @@
+ 
+   size = recorder->stage_width * recorder->stage_height * 4;
+ 
+-  data = shell_screen_grabber_grab (recorder->grabber,
+-                                    0, 0, recorder->stage_width, recorder->stage_height);
++  data = g_malloc (recorder->stage_width * 4 * recorder->stage_height);
++  cogl_read_pixels (0, 0, /* x/y */
++                    recorder->stage_width,
++                    recorder->stage_height,
++                    COGL_READ_PIXELS_COLOR_BUFFER,
++                    CLUTTER_CAIRO_FORMAT_ARGB32,
++                    data);
+ 
+   buffer = gst_buffer_new();
+   GST_BUFFER_SIZE(buffer) = size;
+Index: gnome-shell-3.3.92/src/shell-screen-grabber.c
+===================================================================
+--- gnome-shell-3.3.92.orig/src/shell-screen-grabber.c	2012-03-02 09:28:41.000000000 -0300
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,210 +0,0 @@
+-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+-
+-#include <string.h>
+-
+-#include <clutter/clutter.h>
+-#include <cogl/cogl.h>
+-#include <GL/gl.h>
+-#include <GL/glx.h>
+-#include <GL/glext.h>
+-
+-#include "shell-screen-grabber.h"
+-
+-PFNGLBINDBUFFERARBPROC pf_glBindBufferARB;
+-PFNGLBUFFERDATAARBPROC pf_glBufferDataARB;
+-PFNGLDELETEBUFFERSARBPROC pf_glDeleteBuffersARB;
+-PFNGLGENBUFFERSARBPROC pf_glGenBuffersARB;
+-PFNGLMAPBUFFERARBPROC pf_glMapBufferARB;
+-PFNGLUNMAPBUFFERARBPROC pf_glUnmapBufferARB;
+-
+-struct _ShellScreenGrabberClass
+-{
+-  GObjectClass parent_class;
+-};
+-
+-struct _ShellScreenGrabber
+-{
+-  GObject parent_instance;
+-
+-  int have_pixel_buffers;
+-  int have_pack_invert;
+-  int width, height;
+-  GLuint pixel_buffer;
+-};
+-
+-G_DEFINE_TYPE(ShellScreenGrabber, shell_screen_grabber, G_TYPE_OBJECT);
+-
+-static void
+-shell_screen_grabber_finalize (GObject *gobject)
+-{
+-  ShellScreenGrabber *grabber = SHELL_SCREEN_GRABBER (gobject);
+-
+-  if (grabber->pixel_buffer != 0)
+-    pf_glDeleteBuffersARB (1, &grabber->pixel_buffer);
+-}
+-
+-static void
+-shell_screen_grabber_class_init (ShellScreenGrabberClass *grabber_class)
+-{
+-  GObjectClass *gobject_class = G_OBJECT_CLASS (grabber_class);
+-
+-  gobject_class->finalize = shell_screen_grabber_finalize;
+-}
+-
+-static void
+-shell_screen_grabber_init (ShellScreenGrabber *grabber)
+-{
+-  grabber->have_pixel_buffers = -1;
+-  grabber->width = -1;
+-  grabber->height= -1;
+-  grabber->pixel_buffer = 0;
+-}
+-
+-ShellScreenGrabber *
+-shell_screen_grabber_new  (void)
+-{
+-  return g_object_new (SHELL_TYPE_SCREEN_GRABBER, NULL);
+-}
+-
+-/**
+- * shell_screen_grabber_grab:
+- * x: X coordinate of the rectangle to grab
+- * y: Y coordinate of the rectangle to grab
+- * width: width of the rectangle to grab
+- * height: heigth of the rectangle to grab
+- *
+- * Grabs pixel data from a portion of the screen.
+- *
+- * Return value: buffer holding the grabbed data. The data is stored as 32-bit
+- *  words with native-endian xRGB pixels (i.e., the same as CAIRO_FORMAT_RGB24)
+- *  with no padding on the rows. So, the size of the buffer is width * height * 4
+- *  bytes. Free with g_free().
+- **/
+-guchar *
+-shell_screen_grabber_grab (ShellScreenGrabber *grabber,
+-                           int                 x,
+-                           int                 y,
+-                           int                 width,
+-                           int                 height)
+-{
+-  guchar *data;
+-  gsize row_bytes;
+-  gsize data_size;
+-
+-  row_bytes = width * 4;
+-  data_size = row_bytes * height;
+-  data = g_malloc (data_size);
+-
+-  if (grabber->have_pixel_buffers == -1)
+-    {
+-      const GLubyte* extensions = glGetString (GL_EXTENSIONS);
+-      grabber->have_pixel_buffers = strstr ((const char *)extensions, "GL_EXT_pixel_buffer_object") != NULL;
+-      grabber->have_pack_invert = strstr ((const char *)extensions, "GL_MESA_pack_invert") != NULL;
+-    }
+-
+-  if (grabber->have_pixel_buffers)
+-    {
+-      GLubyte *mapped_data;
+-      GLint old_swap_bytes, old_lsb_first, old_row_length, old_skip_pixels, old_skip_rows, old_alignment;
+-      GLint old_pack_invert = GL_FALSE;
+-      GLint vp_size[4];
+-      guchar *src_row, *dest_row;
+-      int i;
+-
+-      cogl_flush ();
+-
+-      if (pf_glBindBufferARB == NULL)
+-        {
+-          pf_glBindBufferARB = (PFNGLBINDBUFFERARBPROC) cogl_get_proc_address ("glBindBufferARB");
+-          pf_glBufferDataARB = (PFNGLBUFFERDATAARBPROC) cogl_get_proc_address ("glBufferDataARB");
+-          pf_glDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC) cogl_get_proc_address ("glDeleteBuffersARB");
+-          pf_glGenBuffersARB = (PFNGLGENBUFFERSARBPROC) cogl_get_proc_address ("glGenBuffersARB");
+-          pf_glMapBufferARB = (PFNGLMAPBUFFERARBPROC) cogl_get_proc_address ("glMapBufferARB");
+-          pf_glUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC) cogl_get_proc_address ("glUnmapBufferARB");
+-        }
+-
+-      glGetIntegerv (GL_PACK_SWAP_BYTES, &old_swap_bytes);
+-      glGetIntegerv (GL_PACK_LSB_FIRST, &old_lsb_first);
+-      glGetIntegerv (GL_PACK_ROW_LENGTH, &old_row_length);
+-      glGetIntegerv (GL_PACK_SKIP_PIXELS, &old_skip_pixels);
+-      glGetIntegerv (GL_PACK_SKIP_ROWS, &old_skip_rows);
+-      glGetIntegerv (GL_PACK_ALIGNMENT, &old_alignment);
+-
+-      glPixelStorei (GL_PACK_SWAP_BYTES, GL_FALSE);
+-      glPixelStorei (GL_PACK_LSB_FIRST, GL_FALSE);
+-      glPixelStorei (GL_PACK_ROW_LENGTH, 0);
+-      glPixelStorei (GL_PACK_SKIP_PIXELS, 0);
+-      glPixelStorei (GL_PACK_SKIP_ROWS, 0);
+-      glPixelStorei (GL_PACK_ALIGNMENT, 1);
+-
+-      if (grabber->have_pack_invert)
+-        {
+-          glGetIntegerv (GL_PACK_INVERT_MESA, &old_pack_invert);
+-          glPixelStorei (GL_PACK_INVERT_MESA, GL_FALSE);
+-        }
+-
+-      if (grabber->pixel_buffer != 0 &&
+-          (grabber->width != width ||
+-           grabber->height != height))
+-        {
+-          pf_glDeleteBuffersARB (1, &grabber->pixel_buffer);
+-          grabber->pixel_buffer = 0;
+-        }
+-
+-      if (grabber->pixel_buffer == 0)
+-        {
+-          pf_glGenBuffersARB (1, &grabber->pixel_buffer);
+-
+-          pf_glBindBufferARB (GL_PIXEL_PACK_BUFFER_ARB, grabber->pixel_buffer);
+-          pf_glBufferDataARB (GL_PIXEL_PACK_BUFFER_ARB, data_size, 0, GL_STREAM_READ_ARB);
+-
+-          grabber->width = width;
+-          grabber->height = height;
+-        }
+-      else
+-        {
+-          pf_glBindBufferARB (GL_PIXEL_PACK_BUFFER_ARB, grabber->pixel_buffer);
+-        }
+-
+-      /* In OpenGL, (x,y) specifies the bottom-left corner rather than the
+-       * top-left */
+-      glGetIntegerv (GL_VIEWPORT, vp_size);
+-      y = vp_size[3] - (y + height);
+-      glReadPixels (x, y, width, height, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+-
+-      mapped_data = pf_glMapBufferARB (GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
+-
+-      src_row = mapped_data + (height - 1) * row_bytes;
+-      dest_row = data;
+-
+-      for (i = 0; i < height; i++)
+-        {
+-          memcpy (dest_row, src_row, row_bytes);
+-          src_row -= row_bytes;
+-          dest_row += row_bytes;
+-        }
+-
+-      pf_glUnmapBufferARB (GL_PIXEL_PACK_BUFFER_ARB);
+-      pf_glBindBufferARB (GL_PIXEL_PACK_BUFFER_ARB, 0);
+-
+-      glPixelStorei (GL_PACK_SWAP_BYTES, old_swap_bytes);
+-      glPixelStorei (GL_PACK_LSB_FIRST, old_lsb_first);
+-      glPixelStorei (GL_PACK_ROW_LENGTH, old_row_length);
+-      glPixelStorei (GL_PACK_SKIP_PIXELS, old_skip_pixels);
+-      glPixelStorei (GL_PACK_SKIP_ROWS, old_skip_rows);
+-      glPixelStorei (GL_PACK_ALIGNMENT, old_alignment);
+-
+-      if (grabber->have_pack_invert)
+-        glPixelStorei (GL_PACK_INVERT_MESA, old_pack_invert);
+-    }
+-  else
+-    {
+-      cogl_read_pixels (x, y,
+-                        width, height,
+-                        COGL_READ_PIXELS_COLOR_BUFFER,
+-                        CLUTTER_CAIRO_FORMAT_ARGB32,
+-                        data);
+-    }
+-
+-  return data;
+-}
+Index: gnome-shell-3.3.92/src/shell-screen-grabber.h
+===================================================================
+--- gnome-shell-3.3.92.orig/src/shell-screen-grabber.h	2012-01-31 12:47:19.000000000 -0300
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,44 +0,0 @@
+-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+-#ifndef __SHELL_SCREEN_GRABBER_H__
+-#define __SHELL_SCREEN_GRABBER_H__
+-
+-#include <glib-object.h>
+-
+-G_BEGIN_DECLS
+-
+-/**
+- * SECTION:shell-screen-grabber
+- * @short_description: Grab pixel data from the screen
+- *
+- * The #ShellScreenGrabber object is used to download previous drawn
+- * content to the screen. It internally uses pixel-buffer objects if
+- * available, otherwise falls back to cogl_read_pixels().
+- *
+- * If you are repeatedly grabbing images of the same size from the
+- * screen, it makes sense to create one #ShellScreenGrabber and keep
+- * it around. Otherwise, it's fine to simply create one as needed and
+- * then get rid of it.
+- */
+-
+-typedef struct _ShellScreenGrabber      ShellScreenGrabber;
+-typedef struct _ShellScreenGrabberClass ShellScreenGrabberClass;
+-
+-#define SHELL_TYPE_SCREEN_GRABBER              (shell_screen_grabber_get_type ())
+-#define SHELL_SCREEN_GRABBER(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), SHELL_TYPE_SCREEN_GRABBER, ShellScreenGrabber))
+-#define SHELL_SCREEN_GRABBER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), SHELL_TYPE_SCREEN_GRABBER, ShellScreenGrabberClass))
+-#define SHELL_IS_SCREEN_GRABBER(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), SHELL_TYPE_SCREEN_GRABBER))
+-#define SHELL_IS_SCREEN_GRABBER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), SHELL_TYPE_SCREEN_GRABBER))
+-#define SHELL_SCREEN_GRABBER_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), SHELL_TYPE_SCREEN_GRABBER, ShellScreenGrabberClass))
+-
+-GType shell_screen_grabber_get_type (void) G_GNUC_CONST;
+-
+-ShellScreenGrabber *shell_screen_grabber_new  (void);
+-guchar *            shell_screen_grabber_grab (ShellScreenGrabber *grabber,
+-                                               int                 x,
+-                                               int                 y,
+-                                               int                 width,
+-                                               int                 height);
+-
+-G_END_DECLS
+-
+-#endif /* __SHELL_SCREEN_GRABBER_H__ */
+Index: gnome-shell-3.3.92/src/shell-screenshot.c
+===================================================================
+--- gnome-shell-3.3.92.orig/src/shell-screenshot.c	2012-02-16 14:17:56.000000000 -0300
++++ gnome-shell-3.3.92/src/shell-screenshot.c	2012-03-23 18:02:06.568161680 -0300
+@@ -1,5 +1,8 @@
+ /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+ 
++#define COGL_ENABLE_EXPERIMENTAL_API
++#define CLUTTER_ENABLE_EXPERIMENTAL_API
++
+ #include <X11/extensions/Xfixes.h>
+ #include <clutter/x11/clutter-x11.h>
+ #include <clutter/clutter.h>
+@@ -10,7 +13,6 @@
+ #include <meta/meta-shaped-texture.h>
+ 
+ #include "shell-global.h"
+-#include "shell-screen-grabber.h"
+ #include "shell-screenshot.h"
+ 
+ struct _ShellScreenshotClass
+@@ -97,18 +99,33 @@
+                     int               width,
+                     int               height)
+ {
+-  ShellScreenGrabber *grabber;
+-  static const cairo_user_data_key_t key;
++  CoglBitmap *bitmap;
++  ClutterBackend *backend;
++  CoglContext *context;
++  int stride;
+   guchar *data;
+ 
+-  grabber = shell_screen_grabber_new ();
+-  data = shell_screen_grabber_grab (grabber, x, y, width, height);
+-  g_object_unref (grabber);
+-
+-  screenshot_data->image = cairo_image_surface_create_for_data (data, CAIRO_FORMAT_RGB24,
+-                                                               width, height, width * 4);
+-  cairo_surface_set_user_data (screenshot_data->image, &key,
+-                               data, (cairo_destroy_func_t)g_free);
++  backend = clutter_get_default_backend ();
++  context = clutter_backend_get_cogl_context (backend);
++
++  screenshot_data->image = cairo_image_surface_create (CAIRO_FORMAT_RGB24,
++                                                       width, height);
++
++
++  data = cairo_image_surface_get_data (screenshot_data->image);
++  stride = cairo_image_surface_get_stride (screenshot_data->image);
++
++  bitmap = cogl_bitmap_new_for_data (context,
++                                     width,
++                                     height,
++                                     CLUTTER_CAIRO_FORMAT_ARGB32,
++                                     stride,
++                                     data);
++  cogl_framebuffer_read_pixels_into_bitmap (cogl_get_draw_framebuffer (),
++                                            x, y,
++                                            COGL_READ_PIXELS_COLOR_BUFFER,
++                                            bitmap);
++  cogl_object_unref (bitmap);
+ }
+ 
+ static void
+Index: gnome-shell-3.3.92/src/Makefile.am
+===================================================================
+--- gnome-shell-3.3.92.orig/src/Makefile.am	2012-03-23 18:02:06.100159361 -0300
++++ gnome-shell-3.3.92/src/Makefile.am	2012-03-23 18:03:21.352532519 -0300
+@@ -115,7 +115,6 @@
+ 	shell-network-agent.h		\
+ 	shell-perf-log.h		\
+ 	shell-screenshot.h		\
+-	shell-screen-grabber.h		\
+ 	shell-slicer.h			\
+ 	shell-stack.h			\
+ 	shell-tp-client.h		\
+@@ -164,7 +163,6 @@
+ 	shell-polkit-authentication-agent.h	\
+ 	shell-polkit-authentication-agent.c	\
+ 	shell-screenshot.c		\
+-	shell-screen-grabber.c		\
+ 	shell-slicer.c			\
+ 	shell-stack.c			\
+ 	shell-tp-client.c			\
+@@ -230,8 +228,6 @@
+ 
+ test_recorder_SOURCES =     \
+ 	$(shell_recorder_sources) $(shell_recorder_private_sources) \
+-	shell-screen-grabber.c	\
+-	shell-screen-grabber.h	\
+ 	test-recorder.c
+ endif BUILD_RECORDER
+ 

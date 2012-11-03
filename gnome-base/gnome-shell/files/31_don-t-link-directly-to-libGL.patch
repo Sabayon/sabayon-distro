@@ -1,0 +1,32 @@
+From: Neil Roberts <neil@linux.intel.com>
+Subject: Don't link directly to libGL
+
+Nothing in the Gnome Shell plugin now directly uses symbols from libGL
+so we don't need to link to it. This helps to make the plugin support
+other Cogl drivers and winsys's than GL+GLX (such as GLES+EGL).
+
+Origin: http://git.gnome.org/browse/gnome-shell/commit/?h=wip/wayland&id=7992acaebc67f3eec62920a3549a1459fe383faf
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/935124
+Forwarded: not-needed
+
+Index: gnome-shell-3.3.92/configure.ac
+===================================================================
+--- gnome-shell-3.3.92.orig/configure.ac	2012-03-23 19:16:57.906433028 -0300
++++ gnome-shell-3.3.92/configure.ac	2012-03-23 19:17:24.762566200 -0300
+@@ -50,7 +50,7 @@
+    AC_MSG_RESULT(yes)
+    build_recorder=true
+    recorder_modules="gstreamer-0.10 gstreamer-base-0.10 x11"
+-   PKG_CHECK_MODULES(TEST_SHELL_RECORDER, $recorder_modules clutter-1.0 xfixes gl)
++   PKG_CHECK_MODULES(TEST_SHELL_RECORDER, $recorder_modules clutter-1.0 xfixes)
+ else
+    AC_MSG_RESULT(no)
+ fi
+@@ -81,7 +81,6 @@
+                                gjs-internals-1.0 >= $GJS_MIN_VERSION
+ 			       libgnome-menu-3.0 $recorder_modules
+                                gdk-x11-3.0 libsoup-2.4
+-                               gl
+ 			       clutter-x11-1.0 >= $CLUTTER_MIN_VERSION
+ 			       clutter-glx-1.0 >= $CLUTTER_MIN_VERSION
+                                libstartup-notification-1.0 >= $STARTUP_NOTIFICATION_MIN_VERSION

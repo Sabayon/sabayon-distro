@@ -1,0 +1,25 @@
+From: Ricardo Salveti de Araujo <ricardo.salveti@linaro.org>
+Subject: Don't generically include the GL headers.
+
+The patch "Don't try to use GLX if Cogl isn't using that Winsys" removes
+the direct symbol usage of GLX elements, but the header is still being
+included by default. At an environment with both GL and GLES headers
+available, the build option for GLES will fail because of headers
+conflict between them.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/935124
+Forwarded: not-needed
+
+diff --git a/src/gnome-shell-plugin.c b/src/gnome-shell-plugin.c
+index d6680ed..69c0df5 100644
+--- a/src/gnome-shell-plugin.c
++++ b/src/gnome-shell-plugin.c
+@@ -32,8 +32,6 @@
+ #define COGL_ENABLE_EXPERIMENTAL_API
+ #include <clutter/clutter.h>
+ #include <clutter/x11/clutter-x11.h>
+-#include <GL/glx.h>
+-#include <GL/glxext.h>
+ #include <gjs/gjs.h>
+ #include <meta/display.h>
+ #include <meta/meta-plugin.h>
