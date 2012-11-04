@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sci-chemistry/pymol/pymol-1.5.0.3-r1.ebuild,v 1.2 2012/03/29 10:41:22 jlec Exp $
+# $Header: /var/cvsroot/gentoo-x86/sci-chemistry/pymol/pymol-1.5.0.3-r1.ebuild,v 1.9 2012/10/15 17:22:52 jlec Exp $
 
 EAPI=4
 
@@ -20,7 +20,7 @@ SRC_URI="
 
 LICENSE="PSF-2.2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux" # ~ppc
+KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="apbs numpy vmd web"
 
 DEPEND="
@@ -65,6 +65,11 @@ src_prepare() {
 
 	echo "site_packages = \'$(python_get_sitedir -f)\'" > setup3.py || die
 
+	sed \
+		-e "s:/opt/local:${EPREFIX}/usr:g" \
+		-e '/ext_comp_args/s:\[.*\]:[]:g' \
+		-i setup.py || die
+
 	# python 3.* fix
 	# sed '452,465d' -i setup.py
 	distutils_src_prepare
@@ -103,13 +108,16 @@ src_install() {
 	dodoc DEVELOPERS README
 
 	doicon "${WORKDIR}"/${PN}.{xpm,png}
-	make_desktop_entry pymol PyMol ${PN} "Graphics;Science;Chemistry"
+	make_desktop_entry pymol PyMol ${PN} "Graphics;Education;Science;Chemistry" "MimeType=chemical/x-pdb;"
 }
 
 pkg_postinst() {
 	elog "\t USE=shaders was removed,"
-	elog "please use pymol config settings"
+	elog "please use pymol config settings (~/.pymolrc)"
 	elog "\t set use_shaders, 1"
+	elog "in case of crashes, please deactivate this experimental feature by setting"
+	elog "\t set use_shaders, 0"
+	elog "\t set sphere_mode, 0"
 	distutils_pkg_postinst
 	fdo-mime_desktop_database_update
 	fdo-mime_mime_database_update
