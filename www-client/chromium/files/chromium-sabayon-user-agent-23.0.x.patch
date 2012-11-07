@@ -1,0 +1,13 @@
+diff -Nurp chromium-23.0.1271.64.orig/webkit/user_agent/user_agent_util.cc chromium-23.0.1271.64/webkit/user_agent/user_agent_util.cc
+--- chromium-23.0.1271.64.orig/webkit/user_agent/user_agent_util.cc	2012-10-31 14:01:22.000000000 -0500
++++ chromium-23.0.1271.64/webkit/user_agent/user_agent_util.cc	2012-11-07 13:22:41.275180600 -0600
+@@ -169,7 +169,8 @@ std::string BuildUserAgentFromOSAndProdu
+   std::string user_agent;
+   base::StringAppendF(
+       &user_agent,
+-      "Mozilla/5.0 (%s) AppleWebKit/%d.%d (KHTML, like Gecko) %s Safari/%d.%d",
++      "Mozilla/5.0 (%s) AppleWebKit/%d.%d "
++      "(KHTML, like Gecko) Sabayon %s Safari/%d.%d",
+       os_info.c_str(),
+       WEBKIT_VERSION_MAJOR,
+       WEBKIT_VERSION_MINOR,
