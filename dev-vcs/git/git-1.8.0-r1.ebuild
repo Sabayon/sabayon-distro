@@ -32,18 +32,17 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_GOOG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 else
 	SRC_URI=""
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-git-svn-backport.patch.bz2"
 SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-optional-cvs.patch.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs +gpg gtk highlight +iconv +nls +pcre +perl +python ppcsha1 tk threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
@@ -52,11 +51,12 @@ CDEPEND="
 	pcre? ( dev-libs/libpcre )
 	perl? ( dev-lang/perl[-build] )
 	tk? ( dev-lang/tk )
-	curl?   (
+	curl? (
 		net-misc/curl
 		webdav? ( dev-libs/expat )
 	)
-	emacs?  ( virtual/emacs )"
+	emacs? ( virtual/emacs )
+	gnome-keyring? ( gnome-base/gnome-keyring )"
 
 RDEPEND="${CDEPEND}
 	gpg? ( app-crypt/gnupg )
@@ -211,8 +211,8 @@ src_unpack() {
 
 src_prepare() {
 	# bug #418431 - stated for upstream 1.7.13. Developed by Michael Schwern,
-	# funded as a bounty by the Gentoo Foundation.
-	epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch.bz2
+	# funded as a bounty by the Gentoo Foundation. Merged upstream in 1.8.0.
+	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch.bz2
 
 	# bug #350330 - automagic CVS when we don't want it is bad.
 	epatch "${DISTDIR}"/git-1.7.12-optional-cvs.patch.bz2
@@ -234,6 +234,12 @@ src_prepare() {
 	# Fix docbook2texi command
 	sed -i 's/DOCBOOK2X_TEXI=docbook2x-texi/DOCBOOK2X_TEXI=docbook2texi.pl/' \
 		Documentation/Makefile || die "sed failed"
+
+	# Fix git-subtree missing DESTDIR
+	sed -i \
+		-e '/$(INSTALL)/s/ $(libexecdir)/ $(DESTDIR)$(libexecdir)/g' \
+		-e '/$(INSTALL)/s/ $(man1dir)/ $(DESTDIR)$(man1dir)/g'  \
+		contrib/subtree/Makefile
 }
 
 git_emake() {
@@ -283,7 +289,7 @@ src_compile() {
 
 	if [[ ${CHOST} == *-darwin* ]]; then
 		cd "${S}"/contrib/credential/osxkeychain || die "cd credential/osxkeychain"
-		git_emake || die "email credential-osxkeychain"
+		git_emake || die "emake credential-osxkeychain"
 	fi
 
 	cd "${S}"/Documentation
@@ -300,6 +306,24 @@ src_compile() {
 				|| die "emake info html failed"
 		fi
 	fi
+
+	if use subversion ; then
+		cd "${S}"/contrib/svn-fe
+		git_emake || die "emake svn-fe failed"
+		if use doc ; then
+			git_emake svn-fe.{1,html} || die "emake svn-fe.1 svn-fe.html failed"
+		fi
+		cd "${S}"
+	fi
+
+	if use gnome-keyring ; then
+		cd "${S}"/contrib/credential/gnome-keyring
+		git_emake || die "emake git-credential-gnome-keyring failed"
+	fi
+
+	cd "${S}"/contrib/subtree
+	git_emake
+	use doc && git_emake doc
 }
 
 src_install() {
@@ -354,20 +378,62 @@ src_install() {
 	newbin contrib/fast-import/import-tars.perl import-tars
 	newbin contrib/git-resurrect.sh git-resurrect
 
+	# git-subtree
+	cd "${S}"/contrib/subtree
+	git_emake install || die "Failed to emake install git-subtree"
+	if use doc ; then
+		git_emake install-man install-doc || die "Failed to emake install-doc install-mangit-subtree"
+	fi
+	newdoc README README.git-subtree
+	dodoc git-subtree.txt
+	cd "${S}"
+
+	# git-diffall
+	dobin contrib/diffall/git-diffall
+	newdoc contrib/diffall/README git-diffall.txt
+
+	# diff-highlight
+	dobin contrib/diff-highlight/diff-highlight
+	newdoc contrib/diff-highlight/README README.diff-highlight
+
+	# git-jump
+	dobin contrib/git-jump/git-jump
+	newdoc contrib/git-jump/README git-jump.txt
+
+	if use gnome-keyring ; then
+		cd "${S}"/contrib/credential/gnome-keyring
+		dobin git-credential-gnome-keyring
+	fi
+
+	if use subversion ; then
+		cd "${S}"/contrib/svn-fe
+		dobin svn-fe
+		dodoc svn-fe.txt
+		use doc && doman svn-fe.1 && dohtml svn-fe.html
+		cd "${S}"
+	fi
+
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
 	# completion - installed above
+	# credential/gnome-keyring TODO
+	# diff-highlight - done above
+	# diffall - done above
 	# emacs - installed above
 	# examples - these are stuff that is not used in Git anymore actually
+	# git-jump - done above
 	# gitview - installed above
 	# p4import - excluded because fast-import has a better one
 	# patches - stuff the Git guys made to go upstream to other places
+	# persistent-https - TODO
+	# mw-to-git - TODO
+	# subtree - build  seperately
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
 	for i in \
 		blameview buildsystems ciabot continuous convert-objects fast-import \
-		hg-to-git hooks remotes2config.sh remotes2config.sh rerere-train.sh \
-		stats svn-fe vim workdir \
+		hg-to-git hooks remotes2config.sh rerere-train.sh \
+		stats vim workdir \
 		; do
 		cp -rf \
 			"${S}"/contrib/${i} \

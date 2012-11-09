@@ -38,7 +38,6 @@ else
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-git-svn-backport.patch.bz2"
 SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-optional-cvs.patch.bz2"
 
 LICENSE="GPL-2"
@@ -118,8 +117,8 @@ src_unpack() {
 
 src_prepare() {
 	# bug #418431 - stated for upstream 1.7.13. Developed by Michael Schwern,
-	# funded as a bounty by the Gentoo Foundation.
-	epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch.bz2
+	# funded as a bounty by the Gentoo Foundation. Merged upstream in 1.8.0.
+	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch.bz2
 
 	# bug #350330 - automagic CVS when we don't want it is bad.
 	epatch "${DISTDIR}"/git-1.7.12-optional-cvs.patch.bz2
@@ -191,6 +190,12 @@ src_compile() {
 				|| die "emake info html failed"
 		fi
 	fi
+
+	cd "${S}"/contrib/svn-fe
+	git_emake || die "emake svn-fe failed"
+	if use doc ; then
+		git_emake svn-fe.{1,html} || die "emake svn-fe.1 svn-fe.html failed"
+	fi
 }
 
 src_install() {
@@ -224,11 +229,12 @@ src_install() {
 		dohtml -p / Documentation/*svn*.html
 	fi
 
-	# kill empty dirs from ${ED}
-	for mydir in `find "${ED}" -type d -empty`; do
-		if [ -d "${mydir}" ]; then
-			rmdir "${mydir}" || die
-		fi
-	done
+	cd "${S}"/contrib/svn-fe
+	dobin svn-fe
+	dodoc svn-fe.txt
+	use doc && doman svn-fe.1 && dohtml svn-fe.html
+	cd "${S}"
 
+	# kill empty dirs from ${ED}
+	find "${ED}" -type d -empty -delete || die
 }
