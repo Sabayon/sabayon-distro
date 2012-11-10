@@ -112,6 +112,11 @@ K_WORKAROUND_SOURCES_COLLISION="${K_WORKAROUND_SOURCES_COLLISION:-}"
 # this variable and depmod will work correctly.
 K_WORKAROUND_USE_REAL_EXTRAVERSION="${K_WORKAROUND_USE_REAL_EXTRAVERSION:-}"
 
+# @ECLASS-VARIABLE: K_SABKERNEL_ZFS
+# @DESCRIPTION:
+# If set, this kernel features ZFS.
+K_SABKERNEL_ZFS="${K_SABKERNEL_ZFS:-}"
+
 # @ECLASS-VARIABLE: K_GENKERNEL_ARGS
 # @DESCRIPTION:
 # Provide extra genkernel arguments using K_GENKERNEL_ARGS
@@ -292,6 +297,9 @@ if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	RDEPEND="${RDEPEND}"
 else
 	IUSE="dmraid dracut iscsi luks lvm mdadm splash"
+	if [ -n "${K_SABKERNEL_ZFS}" ]; then
+		IUSE="${IUSE} zfs"
+	fi
 	DEPEND="app-arch/xz-utils
 		sys-apps/sed
 		sys-devel/make
@@ -446,6 +454,9 @@ _kernel_src_compile() {
 	use mdadm && GKARGS="${GKARGS} --mdadm"
 	use luks && GKARGS="${GKARGS} --luks"
 	use lvm && GKARGS="${GKARGS} --lvm"
+	if [ -n "${K_SABKERNEL_ZFS}" ]; then
+		use zfs && GKARGS="${GKARGS} --zfs"
+	fi
 
 	export DEFAULT_KERNEL_SOURCE="${S}"
 	export CMD_KERNEL_DIR="${S}"
