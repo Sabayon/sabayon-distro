@@ -85,6 +85,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-bind-mount-cdrom.patch
 	# This is upstream, drop when bumping
 	epatch "${FILESDIR}"/${P}-upstream-zfs-build.patch
+	# This is upstreamed as well
+	epatch "${FILESDIR}"/0001-Unquote-ZPOOL_FORCE-variable-usage.patch
 
 	# Update software.sh
 	sed -i \
