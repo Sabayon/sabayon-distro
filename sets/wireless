@@ -6,8 +6,6 @@ net-wireless/bcm43xx-fwcutter
 net-wireless/broadcom-sta
 net-wireless/ipw2100-firmware
 net-wireless/ipw2200-firmware
-net-wireless/linux-wlan-ng-firmware
-net-wireless/linux-wlan-ng-utils
 net-wireless/ndiswrapper
 net-wireless/prism54-firmware:0
 net-wireless/prism54-firmware
