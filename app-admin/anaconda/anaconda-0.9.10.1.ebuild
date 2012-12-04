@@ -45,6 +45,7 @@ LSELINUX_CONFLICT="!sys-libs/libselinux" # due to pythonX.Y/site-packages+/usr/s
 COMMON_DEPEND="app-admin/system-config-keyboard
 	>=app-arch/libarchive-2.8
 	app-cdr/isomd5sum
+	app-crypt/sbsigntool
 	dev-libs/newt
 	nfs? ( net-fs/nfs-utils )
 	sys-fs/lvm2
