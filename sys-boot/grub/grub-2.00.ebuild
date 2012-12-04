@@ -330,11 +330,6 @@ src_install() {
 	exeinto /etc/grub.d
 	doexe "${FILESDIR}/00_fonts"
 
-	# Sabayon: install EFI SecureBoot chainloader grub.cfg generator
-	# This has /boot/grub hardcoded btw
-	exeinto /etc/grub.d
-	doexe "${FILESDIR}/50_sabayon_efi"
-
 	# TODO: still needed?
 	cat <<-EOF >> "${ED}"/lib*/grub/grub-mkconfig_lib
 	GRUB_DISTRIBUTOR="Sabayon"
