@@ -50,7 +50,9 @@ REQUIRED_USE="grub_platforms_qemu? ( truetype )"
 
 # os-prober: Used on runtime to detect other OSes
 # xorriso (dev-libs/libisoburn): Used on runtime for mkrescue
+# sbsigntool is Sabayon specific
 RDEPEND="
+	app-crypt/sbsigntool
 	x11-themes/sabayon-artwork-grub
 	app-arch/xz-utils
 	>=sys-libs/ncurses-5.2-r5
@@ -228,6 +230,8 @@ src_prepare() {
 	# Genkernel doesn't support "single" for rescue mode
 	# but rather init_opts=single
 	epatch "${FILESDIR}"/${PN}-2.00-genkernel-initramfs-single.patch
+	# Down with SecureBoot
+	epatch "${FILESDIR}"/${PN}-2.00-secureboot-user-sign.patch
 
 	if [[ ${PV} != 9999 ]]; then
 		epatch "${FILESDIR}/${P}-parallel-make.patch" #424231

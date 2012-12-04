@@ -1,0 +1,42 @@
+--- a/util/grub-install.in
++++ b/util/grub-install.in
+@@ -821,12 +821,39 @@ elif [ x"${grub_modinfo_target_cpu}-${gr
+     gettext "You will have to set \`SystemPartition' and \`OSLoader' manually." 1>&2
+     echo 1>&2
+ elif [ x"$grub_modinfo_platform" = xefi ]; then
++
++    # sign the efi file with the User SecureBoot key
++    _sign_grub_efi() {
++	local _image="${1}"
++	case "$host_os" in
++	    linux*)
++		modprobe -q efivars 2>/dev/null || true ;;
++	esac
++
++	local _private="/boot/SecureBoot/user-private.key"
++	local _public="/boot/SecureBoot/user-public.crt"
++	if test -f "${_private}" && test -f "${_public}"; then
++            echo "SecureBoot signing ${_image}"
++            sbsign --key "${_private}" --cert "${_public}" \
++                --output "${_image}.signed" \
++                "${_image}" && \
++                mv "${_image}.signed" "${_image}"
++	else
++	    echo "Cannot sign ${_image} for SecureBoot" 1>&2
++	    echo "Sabayon keypair at $(basename ${_private}) not found" 1>&2
++	fi
++    }
++
+     cp "${grubdir}/${grub_modinfo_target_cpu}-$grub_modinfo_platform/core.${imgext}" "${efidir}/${efi_file}"
++    _efi_grub_file="${efidir}/${efi_file}"
+     # For old macs. Suggested by Peter Jones.
+     if [ x$grub_modinfo_target_cpu = xi386 ]; then
+ 	cp "${grubdir}/${grub_modinfo_target_cpu}-$grub_modinfo_platform/core.${imgext}" "${efidir}/boot.efi"
++	_efi_grub_file="${efidir}/boot.efi"
+     fi
+ 
++    _sign_grub_efi "${_efi_grub_file}"
++
+     # Try to make this image bootable using the EFI Boot Manager, if available.
+     efibootmgr="`which efibootmgr`"
+     if test "$removable" = no && test -n "$efi_distributor" && \
