@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# If stdout is a file, then it means that grub.cfg is being
+# redirected to a valid file and not just stdouted
+if [ ! -t 1 ]; then
+	set -e
+
+	. "/usr/share/grub/grub-mkconfig_lib"
+
+	GRUB_BOOT_DIR="/boot/grub"
+	EFI_BOOT_DIR="/boot/efi"
+	EFI_DIR="${EFI_BOOT_DIR}/EFI"
+	EFI_SABAYON="${EFI_BOOT_DIR}/boot/sabayon"
+
+	if [ ! -d "${EFI_DIR}" ]; then
+		echo "Not an EFI system, ignoring EFI setup" >&2
+		exit 0
+	fi
+
+	mkdir -p "${EFI_SABAYON}"
+
+	grub_cfg="${EFI_SABAYON}/grub.cfg"
+	echo "Writing SecureBoot chainloader config to: ${grub_cfg}" >&2
+	prepare_grub_to_access_device $(${grub_probe} --target=device "${GRUB_BOOT_DIR}") > "${grub_cfg}"
+	echo "set prefix=(\$root)${GRUB_BOOT_DIR}" >> "${grub_cfg}"
+	echo "configfile (\$root)${GRUB_BOOT_DIR}/grub.cfg" >> "${grub_cfg}"
+
+	# Now, if we got hd0 as the first disk, this is probably wrong since the
+	# first disk is always the EFI Boot Partition (tested under VBox).
+	# So, let's sed the damn grub_cfg and replace hd0 with hd1.
+	sed -i "s:hd0,:hd1,:g" "${grub_cfg}"
+	sed -i "s:ahci0,:ahci1,:g" "${grub_cfg}"
+
+fi
+
