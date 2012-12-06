@@ -11,7 +11,7 @@ mail-client/claws-mail-notification
 mail-client/claws-mail-perl
 mail-client/claws-mail-python
 mail-client/claws-mail-rssyl
-mail-client/claws-mail-spam_report
-mail-client/claws-mail-tnef_parse
+mail-client/claws-mail-spam-report
+mail-client/claws-mail-tnef-parse
 mail-client/claws-mail-vcalendar
 x11-themes/claws-mail-themes
