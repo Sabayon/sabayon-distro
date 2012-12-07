@@ -1,40 +1,41 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=5
 
-inherit multilib
+inherit multilib eutils flag-o-matic
 
 MY_PN=${PN/-qt4}
 MY_P=${P/-qt4}
 DESCRIPTION="Qt4 frontend for pinentry"
 HOMEPAGE="http://gnupg.org/aegypten2/index.html"
-SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.gz"
+SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm ~amd64 ~x86"
-IUSE="caps static"
+IUSE="caps"
 
-RDEPEND="~app-crypt/pinentry-base-${PV}
-	caps? ( ~app-crypt/pinentry-base-${PV}[caps] )
-	static? ( ~app-crypt/pinentry-base-${PV}[static] )
-	>=x11-libs/qt-gui-4.4.1"
+RDEPEND="
+	~app-crypt/pinentry-base-${PV}
+	!app-crypt/pinentry-base[static]
+	caps? ( sys-libs/libcap )
+	>=x11-libs/qt-gui-4.4.1:4
+"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig
+"
 
-S="${WORKDIR}/${MY_P}"
-
-pkg_setup() {
-	use static && append-ldflags -static
-}
+S=${WORKDIR}/${MY_P}
 
 src_prepare() {
-	local file
-	for file in qt4/*.moc; do
-		"${EPREFIX}"/usr/bin/moc ${file/.moc/.h} > ${file} || die
-	done
+	#if use qt4; then
+		local f
+		for f in qt4/*.moc; do
+			"${EPREFIX}"/usr/bin/moc ${f/.moc/.h} > ${f} || die
+		done
+	#fi
 }
 
 src_configure() {
@@ -50,15 +51,21 @@ src_configure() {
 		--disable-pinentry-curses \
 		--disable-fallback-curses \
 		--enable-pinentry-qt4 \
-		$(use_with caps libcap)
+		$(use_with caps libcap) \
+		--without-x
+}
+
+src_compile() {
+	emake AR="$(tc-getAR)"
 }
 
 src_install() {
-	cd qt4 && emake DESTDIR="${D}" install || die "make install failed"
+	cd qt4 && emake DESTDIR="${D}" install
 }
 
 pkg_postinst() {
-	eselect pinentry update ifunset
+	eselect pinentry set pinentry-qt4
+	# eselect pinentry update ifunset
 }
 
 pkg_postrm() {

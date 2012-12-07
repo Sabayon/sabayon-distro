@@ -1,33 +1,32 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=5
 
-inherit multilib eutils flag-o-matic
+inherit eutils flag-o-matic
 
 MY_PN=${PN/-gtk2}
 MY_P=${P/-gtk2}
-DESCRIPTION="Gtk+2 frontend for pinentry" # less than 100 chars!
+DESCRIPTION="Gtk+2 frontend for pinentry"
 HOMEPAGE="http://gnupg.org/aegypten2/index.html"
-SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.gz"
+SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm ~amd64 ~x86"
-IUSE="caps static"
+IUSE="caps"
 
-RDEPEND="~app-crypt/pinentry-base-${PV}
-	caps? ( ~app-crypt/pinentry-base-${PV}[caps] )
-	x11-libs/gtk+:2"
+RDEPEND="
+	~app-crypt/pinentry-base-${PV}
+	!app-crypt/pinentry-base[static]
+	caps? ( sys-libs/libcap )
+	x11-libs/gtk+:2
+"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 
 S="${WORKDIR}/${MY_P}"
-
-pkg_setup() {
-	use static && append-ldflags -static
-}
 
 src_configure() {
 	econf \
@@ -39,11 +38,16 @@ src_configure() {
 		--disable-pinentry-curses \
 		--disable-fallback-curses \
 		--disable-pinentry-qt4 \
-		$(use_with caps libcap)
+		$(use_with caps libcap) \
+		--without-x
+}
+
+src_compile() {
+	emake AR="$(tc-getAR)"
 }
 
 src_install() {
-	cd gtk+-2 && emake DESTDIR="${D}" install || die "make install failed"
+	cd gtk+-2 && emake DESTDIR="${D}" install
 }
 
 pkg_postinst() {
