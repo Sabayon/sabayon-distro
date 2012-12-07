@@ -29,7 +29,8 @@ SLOT="0"
 IUSE="airplay alsa altivec avahi bluetooth bluray cec css debug goom joystick midi mysql profile +projectm pulseaudio pvr +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr"
 REQUIRED_USE="pvr? ( mysql )"
 
-COMMON_DEPEND="virtual/opengl
+COMMON_DEPEND="virtual/glu
+	virtual/opengl
 	app-arch/bzip2
 	app-arch/unzip
 	app-arch/zip
