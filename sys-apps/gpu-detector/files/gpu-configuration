@@ -474,6 +474,7 @@ def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
     comp_id, card_id = extract_pci_ids(videocard)
     drv_string = ''
     done_legacy = False
+
     if card_id in nvidia_173xx_supported:
         print("NVIDIA 173.xx driver selected")
         drv_string = "17x.xx.xx"
@@ -482,59 +483,60 @@ def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
             if rc:
                 print("NVIDIA 17x.xx deployed correctly")
                 done_legacy = True
-        elif card_id in nvidia_96xx_supported:
-            print("NVIDIA 96.xx driver selected")
-            drv_string = "9x.xx.xx"
-            if livecd:
-                rc = deploy_nvidia_xxxxxx_drivers("9")
-                if rc:
-                    print("NVIDIA 96.xx deployed correctly")
-                    done_legacy = True
-        elif card_id in nvidia_71xx_supported:
-            print("NVIDIA 7x.xx driver selected")
-            drv_string = "7x.xx.xx"
-            if livecd:
-                rc = deploy_nvidia_xxxxxx_drivers("7")
-                if rc:
-                    print("NVIDIA 7x.xx deployed correctly")
-                    done_legacy = True
-        else:
-            print("latest and greatest NVIDIA driver selected or unsupported")
+    elif card_id in nvidia_96xx_supported:
+        print("NVIDIA 96.xx driver selected")
+        drv_string = "9x.xx.xx"
+        if livecd:
+            rc = deploy_nvidia_xxxxxx_drivers("9")
+            if rc:
+                print("NVIDIA 96.xx deployed correctly")
+                done_legacy = True
+    elif card_id in nvidia_71xx_supported:
+        print("NVIDIA 7x.xx driver selected")
+        drv_string = "7x.xx.xx"
+        if livecd:
+            rc = deploy_nvidia_xxxxxx_drivers("7")
+            if rc:
+                print("NVIDIA 7x.xx deployed correctly")
+                done_legacy = True
+    else:
+        drv_string = 'latest'
+        print("latest and greatest NVIDIA driver selected or unsupported")
 
-        if check_if_proprietary_driver_system_is_healthy("nvidia"):
+    if check_if_proprietary_driver_system_is_healthy("nvidia"):
 
-            print("NVIDIA proprietary driver %s is loaded" % (drv_string,))
-            if done_legacy:
-                # then activate nvidia opengl subsystem after resetting it
-                steps.append(('opengl_activate', 'xorg-x11'))
-                steps.append(('opengl_activate', 'nvidia'))
-                os.makedirs("/lib/nvidia/legacy")
-
-                f = open("/lib/nvidia/legacy/running","w")
-                f.write("NVIDIA %s\n" % (drv_string,))
-                f.flush()
-                f.close()
-
-                if not autogpu:
-                    steps.append(('set_xorg_device', 'nvidia',
-                                  cardnumber, total_cards, bus_id,))
-                steps.append(('fix_possible_opengl_misconfiguration', 'nvidia'))
-                steps.append(('copy_nvidia_settings_on_desktop',))
-
-            else:
-
-                steps.append(('fix_possible_opengl_misconfiguration', 'nvidia'))
-                steps.append(('copy_nvidia_settings_on_desktop',))
-                steps.append(('opengl_activate', 'nvidia'))
-                if not autogpu:
-                    steps.append(('set_xorg_device', 'nvidia',
-                                  cardnumber, total_cards, bus_id,))
-        else:
-            print("NVIDIA drivers couldn't be loaded, switchting to nv driver")
+        print("NVIDIA proprietary driver %s is loaded" % (drv_string,))
+        if done_legacy:
+            # then activate nvidia opengl subsystem after resetting it
             steps.append(('opengl_activate', 'xorg-x11'))
+            steps.append(('opengl_activate', 'nvidia'))
+            os.makedirs("/lib/nvidia/legacy")
+
+            f = open("/lib/nvidia/legacy/running","w")
+            f.write("NVIDIA %s\n" % (drv_string,))
+            f.flush()
+            f.close()
+
             if not autogpu:
-                steps.append(('set_xorg_device', 'nv',
+                steps.append(('set_xorg_device', 'nvidia',
                               cardnumber, total_cards, bus_id,))
+            steps.append(('fix_possible_opengl_misconfiguration', 'nvidia'))
+            steps.append(('copy_nvidia_settings_on_desktop',))
+
+        else:
+
+            steps.append(('fix_possible_opengl_misconfiguration', 'nvidia'))
+            steps.append(('copy_nvidia_settings_on_desktop',))
+            steps.append(('opengl_activate', 'nvidia'))
+            if not autogpu:
+                steps.append(('set_xorg_device', 'nvidia',
+                              cardnumber, total_cards, bus_id,))
+    else:
+        print("NVIDIA drivers couldn't be loaded, switchting to nv driver")
+        steps.append(('opengl_activate', 'xorg-x11'))
+        if not autogpu:
+            steps.append(('set_xorg_device', 'nv',
+                          cardnumber, total_cards, bus_id,))
 
 def generate_generic_steps():
     steps.append(('remove_proprietary_opengl',))
