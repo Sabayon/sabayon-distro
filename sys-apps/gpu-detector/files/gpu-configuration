@@ -107,7 +107,7 @@ current_arch = os.uname()[4]
 nomodeset = False
 autogpu = False
 
-fglrx_supported = sorted(getoutput("""/sbin/modinfo fglrx | grep alias | grep pci | cut -d':' -f 3 | cut -d'*' -f 1 | sed 's/.*1002d//' | sed 's/^0000//' | sed 's/sv$//'""").lower().split())
+fglrx_supported = sorted(getoutput("""modinfo fglrx | grep alias | grep pci | cut -d':' -f 3 | cut -d'*' -f 1 | sed 's/.*1002d//' | sed 's/^0000//' | sed 's/sv$//'""").lower().split())
 
 nvidia_71xx_supported = ['0020', '0028', '0029', '002c', '002d', '00a0',
     '0100', '0101', '0103', '0150', '0151', '0152', '0153']
