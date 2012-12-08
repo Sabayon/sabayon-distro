@@ -123,6 +123,24 @@ nvidia_173xx_supported = ['00fa', '00fb', '00fc', '00fd', '00fe', '0301',
     '032a', '032b', '032c', '032d', '0330', '0331', '0332', '0333', '0334',
     '0338', '033f', '0341', '0342', '0343', '0344', '0347', '0348', '034c',
     '034e']
+# Taken from here:
+# http://www.nvidia.com/object/IO_32667.html
+nvidia_304xx_supported = ['0040', '0041', '0042', '0043', '0044', '0045',
+    '0046', '0047', '0048', '004e', '0090', '0091', '0092', '0093', '0095',
+    '0098', '0099', '009d', '00c0', '00c1', '00c2', '00c3', '00c8', '00c9',
+    '00cc', '00cd', '00ce', '00f1', '00f2', '00f3', '00f4', '00f5', '00f6',
+    '00f8', '00f9', '0140', '0141', '0142', '0143', '0144', '0145', '0146',
+    '0147', '0148', '0149', '014a', '014c', '014d', '014e', '014f', '0160',
+    '0161', '0162', '0163', '0164', '0165', '0166', '0167', '0168', '0169',
+    '016a', '01d0', '01d1', '01d2', '01d3', '01d6', '01d7', '01d8', '01da',
+    '01db', '01dc', '01dd', '01de', '01df', '0211', '0212', '0215', '0218',
+    '0221', '0222', '0240', '0241', '0242', '0244', '0245', '0247', '0290',
+    '0291', '0292', '0293', '0294', '0295', '0297', '0298', '0299', '029a',
+    '029b', '029c', '029d', '029e', '029f', '02e0', '02e1', '02e2', '02e3',
+    '02e4', '038b', '0390', '0391', '0392', '0393', '0394', '0395', '0397',
+    '0398', '0399', '039c', '039e', '03d0', '03d1', '03d2', '03d5', '03d6',
+    '0531', '0533', '053a', '053b', '053e', '07e0', '07e1', '07e2', '07e3',
+    '07e5']
 savage_supported = ['8a20', '8a21', '8a22', '9102', '8c10', '8c11', '8c12',
     '8c13', '8c22', '8c24', '8c26', '8c2a', '8c2b', '8c2c', '8c2d', '8c2e',
     '8c2f', '8a25', '8a26', '8d01', '8d02', '8d03', '8d04']
@@ -475,32 +493,26 @@ def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
     drv_string = ''
     done_legacy = False
 
-    if card_id in nvidia_173xx_supported:
-        print("NVIDIA 173.xx driver selected")
-        drv_string = "17x.xx.xx"
+    drivers_map = (
+        ("304", nvidia_304xx_supported,),
+        ("173", nvidia_173xx_supported,),
+        ("96", nvidia_173xx_supported,),
+        ("71", nvidia_173xx_supported,),
+        )
+    for ver, lst in drivers_map:
+        if card_id not in lst:
+            continue
+        print("NVIDIA %s driver selected" % (ver,))
+        drv_string = ver
         if livecd:
-            rc = deploy_nvidia_xxxxxx_drivers("17")
+            rc = deploy_nvidia_xxxxxx_drivers(ver)
             if rc:
-                print("NVIDIA 17x.xx deployed correctly")
+                print("NVIDIA %s deployed correctly" % (ver,))
                 done_legacy = True
-    elif card_id in nvidia_96xx_supported:
-        print("NVIDIA 96.xx driver selected")
-        drv_string = "9x.xx.xx"
-        if livecd:
-            rc = deploy_nvidia_xxxxxx_drivers("9")
-            if rc:
-                print("NVIDIA 96.xx deployed correctly")
-                done_legacy = True
-    elif card_id in nvidia_71xx_supported:
-        print("NVIDIA 7x.xx driver selected")
-        drv_string = "7x.xx.xx"
-        if livecd:
-            rc = deploy_nvidia_xxxxxx_drivers("7")
-            if rc:
-                print("NVIDIA 7x.xx deployed correctly")
-                done_legacy = True
-    else:
-        drv_string = 'latest'
+                break
+
+    if not done_legacy:
+        drv_string = '[latest]'
         print("latest and greatest NVIDIA driver selected or unsupported")
 
     if check_if_proprietary_driver_system_is_healthy("nvidia"):
@@ -512,10 +524,8 @@ def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
             steps.append(('opengl_activate', 'nvidia'))
             os.makedirs("/lib/nvidia/legacy")
 
-            f = open("/lib/nvidia/legacy/running","w")
-            f.write("NVIDIA %s\n" % (drv_string,))
-            f.flush()
-            f.close()
+            with open("/lib/nvidia/legacy/running","w") as f:
+                f.write("%s" % (drv_string,))
 
             if not autogpu:
                 steps.append(('set_xorg_device', 'nvidia',
