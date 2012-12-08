@@ -27,11 +27,16 @@ blacklist eth1394
 # hplip and cups 1.4+ use raw USB devices, so it requires usblp not be loaded
 blacklist usblp
 
-# make broadcom-sta happy
-blacklist ssb
-blacklist bcma
-blacklist brcmsmac
-blacklist b43
+## make broadcom-sta happy
+## <2012-12-08.
+#blacklist ssb
+#blacklist bcma
+#blacklist brcmsmac
+#blacklist b43
+
+# make b43 happy (ditch broadcom-sta)
+# 2012-12-08. Testing needed.
+blacklist wl
 
 # keep nvidia-drivers working, sorry nouveau
 blacklist nouveau
