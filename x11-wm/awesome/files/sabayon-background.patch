@@ -1,11 +1,11 @@
---- themes/default/theme.lua.in.orig	2011-08-28 12:49:11.450652081 +0200
-+++ themes/default/theme.lua.in	2011-08-28 12:53:55.612767626 +0200
-@@ -74,7 +74,7 @@
+--- themes/default/theme.lua.in.orig	2012-11-24 14:51:33.000000000 +0100
++++ themes/default/theme.lua.in	2012-12-11 19:10:13.980499384 +0100
+@@ -72,7 +72,7 @@
+ theme.titlebar_maximized_button_normal_active = "@AWESOME_THEMES_PATH@/default/titlebar/maximized_normal_active.png"
  theme.titlebar_maximized_button_focus_active  = "@AWESOME_THEMES_PATH@/default/titlebar/maximized_focus_active.png"
  
- -- You can use your own command to set your wallpaper
--theme.wallpaper_cmd = { "awsetbg @AWESOME_THEMES_PATH@/default/background.png" }
-+theme.wallpaper_cmd = { "awsetbg @CMAKE_INSTALL_PREFIX@/share/backgrounds/sabayonlinux.png" }
+-theme.wallpaper = "@AWESOME_THEMES_PATH@/default/background.png"
++theme.wallpaper = "@CMAKE_INSTALL_PREFIX@/share/backgrounds/sabayonlinux.png"
  
  -- You can use your own layout icons like this:
  theme.layout_fairh = "@AWESOME_THEMES_PATH@/default/layouts/fairhw.png"

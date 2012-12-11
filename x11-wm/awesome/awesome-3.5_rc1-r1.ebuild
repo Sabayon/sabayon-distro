@@ -8,7 +8,9 @@ inherit cmake-utils eutils
 
 DESCRIPTION="A dynamic floating and tiling window manager"
 HOMEPAGE="http://awesome.naquadah.org/"
-SRC_URI="http://awesome.naquadah.org/download/${P}.tar.bz2"
+MY_PV="${PV/_/-}"
+MY_P="${PN}-${MY_PV}"
+SRC_URI="http://awesome.naquadah.org/download/${MY_P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -36,7 +38,8 @@ COMMON_DEPEND="${SABAYON_CDEPEND}
 	>=x11-libs/startup-notification-0.10_p20110426
 	>=x11-libs/xcb-util-0.3.8
 	dbus? ( >=sys-apps/dbus-1 )
-	elibc_FreeBSD? ( dev-libs/libexecinfo )"
+	elibc_FreeBSD? ( dev-libs/libexecinfo )
+	>=dev-lua/lgi-0.6.1"
 
 # graphicsmagick's 'convert -channel' has no Alpha support, bug #352282
 DEPEND="${COMMON_DEPEND}
@@ -81,12 +84,15 @@ RDEPEND="${RDEPEND}
 
 DOCS="AUTHORS BUGS PATCHES README STYLE"
 
+S="${WORKDIR}/${MY_P}"
+
 src_prepare() {
-	epatch \
-		"${FILESDIR}/${PN}-3.4.2-backtrace.patch"
+	# Upstreamed
+	#epatch \
+	#	"${FILESDIR}/${PN}-3.4.2-backtrace.patch"
 
 	# bug  #408025
-	epatch "${FILESDIR}/${PN}-3.4.11-convert-path.patch"
+	epatch "${FILESDIR}/${PN}-3.5_rc1-convert-path.patch"
 
 	epatch "${FILESDIR}/sabayon-background.patch"
 }
@@ -96,8 +102,11 @@ src_configure() {
 		-DPREFIX="${EPREFIX}"/usr
 		-DSYSCONFDIR="${EPREFIX}"/etc
 		$(cmake-utils_use_with dbus DBUS)
-		$(cmake-utils_use doc GENERATE_LUADOC)
 		)
+
+	# The lua docs now officially require ldoc.lua and NOT luadoc
+	# As the modules documentation has been updated to the Lua 5.2 style
+	has_version >=dev-lang/lua-5.2 && mycmakeargs+="$(cmake-utils_use doc GENERATE_LUADOC)"
 
 	cmake-utils_src_configure
 }
@@ -120,9 +129,8 @@ src_install() {
 			mv html doxygen
 			dohtml -r doxygen || die
 		)
-		mv "${ED}"/usr/share/doc/${PN}/luadoc "${ED}"/usr/share/doc/${PF}/html/luadoc || die
 	fi
-	rm -rf "${ED}"/usr/share/doc/${PN} || die
+	rm -rf "${ED}"/usr/share/doc/${PN} || die "Cleanup of dupe docs failed"
 
 	exeinto /etc/X11/Sessions
 	newexe "${FILESDIR}"/${PN}-session ${PN} || die
