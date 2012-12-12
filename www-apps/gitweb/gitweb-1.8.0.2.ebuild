@@ -124,8 +124,8 @@ src_install() {
 
 	# INSTALL discusses configuration issues, not just installation
 	docinto /
-	newdoc  "${S}"/gitweb/INSTALL INSTALL.gitweb
-	newdoc  "${S}"/gitweb/README README.gitweb
+	newdoc "${S}"/gitweb/INSTALL INSTALL.gitweb
+	newdoc "${S}"/gitweb/README README.gitweb
 
 	find "${ED}"/usr/lib64/perl5/ \
 		-name .packlist \
@@ -141,6 +141,9 @@ src_install() {
 	doins "${S}"/gitweb/static/*.png
 	doins "${S}"/gitweb/static/*.css
 	doins "${S}"/gitweb/static/*.js
+
+	# Maybe not needed, but it's created when non-split ebuild is used too.
+	dosym /usr/share/gitweb /usr/share/git/gitweb
 
 	# fixlocalpod from perl-module: not needed
 }

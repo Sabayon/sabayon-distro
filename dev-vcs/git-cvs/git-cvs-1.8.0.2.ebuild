@@ -54,13 +54,13 @@ DEPEND="app-arch/cpio
 		app-text/asciidoc
 		app-text/docbook2X
 		sys-apps/texinfo
+		app-text/xmlto
 	)"
 
 # Live ebuild builds man pages and HTML docs, additionally
 if [[ ${PV} == *9999 ]]; then
 	DEPEND="${DEPEND}
-		app-text/asciidoc
-		app-text/xmlto"
+		app-text/asciidoc"
 fi
 
 S="${WORKDIR}/${MY_P}"

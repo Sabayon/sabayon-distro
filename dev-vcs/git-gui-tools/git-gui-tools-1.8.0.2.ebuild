@@ -123,7 +123,7 @@ src_unpack() {
 
 src_prepare() {
 	## bug #418431 - stated for upstream 1.7.13. Developed by Michael Schwern,
-	## funded as a bounty by the Gentoo Foundation.
+	## funded as a bounty by the Gentoo Foundation. Merged upstream in 1.8.0.
 	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch
 
 	# bug #350330 - automagic CVS when we don't want it is bad.
