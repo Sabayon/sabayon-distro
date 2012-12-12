@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
-K_REQUIRED_LINUX_FIRMWARE_VER="20120924"
+K_REQUIRED_LINUX_FIRMWARE_VER="20121030"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
 K_SABKERNEL_ZFS="1"
 inherit sabayon-kernel
