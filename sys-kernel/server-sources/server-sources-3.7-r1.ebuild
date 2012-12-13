@@ -14,3 +14,12 @@ IUSE="sources_standalone"
 DEPEND="${DEPEND}
 	sources_standalone? ( !=sys-kernel/linux-server-${PVR} )
 	!sources_standalone? ( =sys-kernel/linux-server-${PVR} )"
+
+src_install() {
+	# Drop this workaround on the next bump
+	local base_path="${S}/sabayon/config"
+	for config in "${base_path}"/*x86.config; do
+		echo "# CONFIG_SPL is not set" >> "${config}"
+	done
+	sabayon-kernel_src_install
+}
