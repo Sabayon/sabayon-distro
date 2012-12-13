@@ -543,13 +543,19 @@ _firmwares_src_install() {
 }
 
 _kernel_sources_src_install() {
-	local version_h_name="${KV_OUT_DIR/\//}/include/linux"
-	local version_h="${ROOT}${version_h_name}"
-	if [ -f "${version_h}" ]; then
-		einfo "Discarding previously installed version.h to avoid collisions"
-		addwrite "/${version_h_name}"
-		rm -f "${version_h}"
-	fi
+	local version_h_dir="${KV_OUT_DIR/\//}/include/linux"
+	local version_h_dir2="${KV_OUT_DIR/\//}/include/generated/uapi/linux"
+	local version_h=
+	for ver_dir in "${version_h_dir}" "${version_h_dir2}"; do
+		version_h="${ROOT}${ver_dir}/version.h"
+		version_h_dir="$(dirname "${version_h}")"
+		if [ -f "${version_h}" ]; then
+			einfo "Discarding previously installed version.h to avoid collisions"
+			einfo "from: ${version_h}"
+			addwrite "/${version_h_dir}"
+			rm -f "${version_h}"
+		fi
+	done
 
 	_kernel_copy_config ".config"
 	kernel-2_src_install
@@ -560,7 +566,8 @@ _kernel_sources_src_install() {
 		make modules_prepare || die "failed to run modules_prepare"
 		rm .config || die "cannot remove .config"
 		rm Makefile || die "cannot remove Makefile"
-		rm include/linux/version.h || die "cannot remove include/linux/version.h"
+		rm -f include/linux/version.h
+		rm -f include/generated/uapi/linux/version.h
 	fi
 	ARCH="${oldarch}"
 }
@@ -579,18 +586,26 @@ _kernel_src_install() {
 
 	# NOTE: this is a workaround caused by linux-info.eclass not
 	# being ported to EAPI=2 yet
-	local version_h_name="${KV_OUT_DIR/\//}/include/linux"
-	local version_h="${ROOT}${version_h_name}/version.h"
-	if [ -f "${version_h}" ]; then
-		einfo "Discarding previously installed version.h to avoid collisions"
-		addwrite "${version_h}"
-		rm -f "${version_h}"
-	fi
+	local version_h_dir="include/linux"
+	local version_h_dir2="include/generated/uapi/linux"
+	local version_h=
+	local version_h_src=
+	for ver_dir in "${version_h_dir}" "${version_h_dir2}"; do
+		version_h="${ROOT}${KV_OUT_DIR/\//}/${ver_dir}/version.h"
+		if [ -f "${version_h}" ]; then
+			einfo "Discarding previously installed version.h to avoid collisions"
+			addwrite "${version_h}"
+			rm -f "${version_h}"
+		fi
 
-	# Include include/linux/version.h to make Portage happy
-	dodir "${KV_OUT_DIR}/include/linux"
-	insinto "${KV_OUT_DIR}/include/linux"
-	doins "${S}/include/linux/version.h" || die "cannot copy version.h"
+		# Include include/linux/version.h to make Portage happy
+		version_h_src="${S}/${ver_dir}/version.h"
+		if [ -f "${version_h_src}" ]; then
+			dodir "${KV_OUT_DIR}/${ver_dir}"
+			insinto "${KV_OUT_DIR}/${ver_dir}"
+			doins "${version_h_src}" || die "cannot copy version.h"
+		fi
+	done
 
 	insinto "/boot"
 	doins "${WORKDIR}"/boot/* || die "cannot copy /boot over"
