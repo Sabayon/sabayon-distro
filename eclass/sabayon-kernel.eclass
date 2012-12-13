@@ -543,20 +543,6 @@ _firmwares_src_install() {
 }
 
 _kernel_sources_src_install() {
-	local version_h_dir="${KV_OUT_DIR/\//}/include/linux"
-	local version_h_dir2="${KV_OUT_DIR/\//}/include/generated/uapi/linux"
-	local version_h=
-	for ver_dir in "${version_h_dir}" "${version_h_dir2}"; do
-		version_h="${ROOT}${ver_dir}/version.h"
-		version_h_dir="$(dirname "${version_h}")"
-		if [ -f "${version_h}" ]; then
-			einfo "Discarding previously installed version.h to avoid collisions"
-			einfo "from: ${version_h}"
-			addwrite "/${version_h_dir}"
-			rm -f "${version_h}"
-		fi
-	done
-
 	_kernel_copy_config ".config"
 	kernel-2_src_install
 	cd "${D}${KV_OUT_DIR}" || die
