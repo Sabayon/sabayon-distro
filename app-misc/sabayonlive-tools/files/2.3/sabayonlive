@@ -194,6 +194,12 @@ my_setup_locale() {
 
 start() {
 
+	# Perform configuration only in live mode
+	if ! sabayon_is_live; then
+		einfo "Skipping live mode configuration"
+		return 0
+	fi
+
 	my_setup_desktop
 	my_setup_password
 	my_setup_keymap
