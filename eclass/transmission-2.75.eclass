@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-# @ECLASS: transmission-2.61.eclass
+# @ECLASS: transmission-2.71.eclass
 # @MAINTAINER:
 # slawomir.nizio@sabayon.org
 # @AUTHOR:
@@ -39,8 +39,6 @@ _transmission_is() {
 	[[ ${what} = "${E_TRANSM_TAIL}" ]]
 }
 
-LANGS="en es eu kk lt pt_BR ru" # used only for -qt
-
 MY_ECLASSES=""
 _transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
 _transmission_is qt4 && MY_ECLASSES+="fdo-mime qt4-r2"
@@ -51,14 +49,14 @@ inherit eutils multilib ${MY_ECLASSES}
 
 unset MY_ECLASSES
 
-if [[ ${PV} == *9999* ]]; then
-	# not tested in the eclass
-	ESVN_REPO_URI="svn://svn.transmissionbt.com/Transmission/trunk"
-	inherit subversion
-fi
+#if [[ ${PV} == *9999* ]]; then
+#	# not tested in the eclass
+#	ESVN_REPO_URI="svn://svn.transmissionbt.com/Transmission/trunk"
+#	inherit subversion
+#fi
 
 case ${EAPI:-0} in
-	4|3) EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile \
+	4|5) EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile \
 		pkg_preinst pkg_postinst pkg_postrm ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
@@ -104,7 +102,8 @@ if _transmission_is base; then
 	!<net-p2p/transmission-cli-${PV}"
 fi
 if ! _transmission_is ""; then
-	DEPEND+=" dev-util/intltool
+	DEPEND+=" >=dev-libs/glib-2
+	dev-util/intltool
 	virtual/pkgconfig
 	sys-devel/gettext
 	virtual/os-headers"
@@ -113,28 +112,28 @@ fi
 S="${WORKDIR}/${MY_P}"
 _transmission_is "" && S="${WORKDIR}"
 
-transmission-2.61_pkg_setup() {
+transmission-2.75_pkg_setup() {
 	if _transmission_is base; then
 		enewgroup transmission
 		enewuser transmission -1 -1 -1 transmission
 	fi
 }
 
-transmission-2.61_src_unpack() {
-	if [[ ${PV} == *9999* ]]; then
-		subversion_src_unpack
-	else
+transmission-2.75_src_unpack() {
+#	if [[ ${PV} == *9999* ]]; then
+#		subversion_src_unpack
+#	else
 		default
-	fi
+#	fi
 }
 
-transmission-2.61_src_prepare() {
+transmission-2.75_src_prepare() {
 	_transmission_is "" && return
 
-	if [[ ${PV} == *9999* ]]; then
-		subversion_src_prepare
-		./update-version-h.sh
-	fi
+#	if [[ ${PV} == *9999* ]]; then
+#		subversion_src_prepare
+#		./update-version-h.sh
+#	fi
 
 	sed -i -e '/CFLAGS/s:-ggdb3::' configure.ac || die
 
@@ -177,7 +176,7 @@ transmission-2.61_src_prepare() {
 	fi
 }
 
-transmission-2.61_src_configure() {
+transmission-2.75_src_configure() {
 	_transmission_is "" && return
 
 	local econfargs=(
@@ -228,20 +227,14 @@ transmission-2.61_src_configure() {
 	fi
 }
 
-transmission-2.61_src_compile() {
+transmission-2.75_src_compile() {
 	_transmission_is "" && return
 
 	emake
 	if _transmission_is qt4; then
 		pushd qt >/dev/null
 		emake
-
-		local l
-		for l in ${LANGS}; do
-			if use linguas_${l}; then
-				lrelease translations/${MY_PN}_${l}.ts
-			fi
-		done
+		lrelease translations/*.ts
 		popd >/dev/null
 	fi
 }
@@ -250,11 +243,11 @@ transmission-2.61_src_compile() {
 # Note: not providing src_install. Too many differences and too much code
 # which would only clutter this pretty eclass.
 
-transmission-2.61_pkg_preinst() {
+transmission-2.75_pkg_preinst() {
 	_transmission_is gtk && gnome2_icon_savelist
 }
 
-transmission-2.61_pkg_postinst() {
+transmission-2.75_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
@@ -284,7 +277,7 @@ transmission-2.61_pkg_postinst() {
 	elog "and run sysctl -p"
 }
 
-transmission-2.61_pkg_postrm() {
+transmission-2.75_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi

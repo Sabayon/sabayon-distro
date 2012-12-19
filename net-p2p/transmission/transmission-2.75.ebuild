@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
-inherit transmission-2.71
+EAPI=5
+inherit transmission-2.75
 
 DESCRIPTION="A BitTorrent client (meta package)"
 #HOMEPAGE="http://www.transmissionbt.com/"

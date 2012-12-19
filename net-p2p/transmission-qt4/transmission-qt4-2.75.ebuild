@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
-inherit eutils transmission-2.71
+EAPI=5
+inherit eutils transmission-2.75
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Qt4 UI"
 KEYWORDS="~amd64 ~x86"
@@ -25,8 +25,7 @@ src_install() {
 
 	local res
 	for res in 16 22 24 32 48; do
-		insinto /usr/share/icons/hicolor/${res}x${res}/apps
-		newins icons/hicolor_apps_${res}x${res}_${MY_PN}.png ${MY_PN}-qt.png
+		newicon -s ${res} icons/hicolor_apps_${res}x${res}_${PN}.png ${PN}-qt.png
 	done
 
 	insinto /usr/share/kde4/services

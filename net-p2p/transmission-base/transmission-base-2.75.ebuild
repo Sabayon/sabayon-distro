@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
-inherit transmission-2.71
+EAPI=5
+inherit transmission-2.75
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - base files"
 KEYWORDS="~amd64 ~x86"
