@@ -25,7 +25,7 @@ src_install() {
 
 	local res
 	for res in 16 22 24 32 48; do
-		newicon -s ${res} icons/hicolor_apps_${res}x${res}_${PN}.png ${PN}-qt.png
+		newicon -s ${res} icons/hicolor_apps_${res}x${res}_${MY_PN}.png ${MY_PN}-qt.png
 	done
 
 	insinto /usr/share/kde4/services
