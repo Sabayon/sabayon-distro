@@ -129,8 +129,10 @@ src_prepare() {
 	EOF
 
 	# Linux 3.7 support
+	pushd "${S}/kernel"
 	epatch "${FILESDIR}/make-use-of-the-new-uapi-framework.patch"
 	epatch "${FILESDIR}/replace-VM_RESERVED-with-VM_DONTEXPAND-and-VM_DONTDU.patch"
+	popd
 
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
