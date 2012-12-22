@@ -128,6 +128,10 @@ src_prepare() {
 		/usr/$(get_libdir)/libcuda.so
 	EOF
 
+	# Linux 3.7 support
+	epatch "${FILESDIR}/make-use-of-the-new-uapi-framework.patch"
+	epatch "${FILESDIR}/replace-VM_RESERVED-with-VM_DONTEXPAND-and-VM_DONTDU.patch"
+
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
 }
