@@ -234,11 +234,11 @@ def remove_tar_members_from_sys(tarpath):
                 os.remove(el)
             except OSError:
                 pass
-            if os.path.isdir(el):
-                try:
-                    os.rmdir(el)
-                except OSError:
-                    pass
+        if os.path.isdir(el):
+            try:
+                os.rmdir(el)
+            except OSError:
+                pass
     tar.close()
 
 def generate_fglrx_steps(videocard, cardnumber, total_cards, bus_id):
@@ -302,7 +302,7 @@ def check_if_proprietary_driver_system_is_healthy(kernelmod):
             print("check_if_proprietary_driver_system_is_healthy:"
                   " nvidia NOT healthy")
             return False
-        if kernelmod == "fglrx":
+        elif kernelmod == "fglrx":
             kver = get_kernel_version()
             if kver is None:
                 kver = 360 # assume new kernel
@@ -318,7 +318,7 @@ def check_if_proprietary_driver_system_is_healthy(kernelmod):
             print("check_if_proprietary_driver_system_is_healthy:"
                   " fglrx (ati) NOT healthy")
             return False
-        return False
+    return False
 
 def deploy_nvidia_xxxxxx_drivers(ver):
     if dryrun:
@@ -431,46 +431,54 @@ def opengl_show():
 def fix_possible_opengl_misconfiguration(profile):
     # get current subsystem
     current = opengl_show()
-    if (not dryrun):
+    if not dryrun:
         if (profile in ("ati","nvidia","xorg-x11")) and (profile != current):
             if profile == "ati" or profile == "nvidia":
                 subprocess.call(["umount", "/usr/lib/opengl/" + profile])
                 subprocess.call(["umount", "/usr/lib/opengl/" + profile])
                 opengl_activate(profile)
-        else:
-            print("I was about to fix OpenGL subsystem to: " + \
-                      profile + " while the current implementation is: " + \
-                      current)
+    else:
+        print("I was about to fix OpenGL subsystem to: " + \
+                  profile + " while the current implementation is: " + \
+                  current)
 
 def copy_nvidia_settings_on_desktop():
+    homes = []
     if os.path.isfile(nvidia_settings):
-        homes = os.listdir("/home")
-        homes = [x for x in homes if os.path.isdir("/home/"+x+"/Desktop")]
-        for home in homes:
-            try:
-                full_home = os.path.join("/home", home)
-                st = os.stat(full_home)
-                dest_path = "/home/" + home + "/Desktop/" + \
-                    os.path.basename(nvidia_settings)
-                shutil.copy2(nvidia_settings, dest_path)
-                os.chmod(dest_path, 0o755)
-                os.chown(dest_path, st.st_uid, st.st_gid)
-            except:
-                pass
+        _homes = os.listdir("/home")
+        homes += [x for x in os.listdir("/home") \
+                      if os.path.isdir("/home/" + x + "/Desktop")]
+
+    for home in homes:
+        try:
+
+            full_home = os.path.join("/home", home)
+            st = os.stat(full_home)
+            dest_path = "/home/" + home + "/Desktop/" + \
+                os.path.basename(nvidia_settings)
+            shutil.copy2(nvidia_settings, dest_path)
+            os.chmod(dest_path, 0o755)
+            os.chown(dest_path, st.st_uid, st.st_gid)
+
             if os.path.isdir("/etc/skel/Desktop"):
-                dest_path = "/etc/skel/Desktop/" + \
-                    os.path.basename(nvidia_settings)
+                dest_path = os.path.join(
+                    "/etc/skel/Desktop",
+                    os.path.basename(nvidia_settings))
                 shutil.copy2(nvidia_settings, dest_path)
                 os.chmod(dest_path, 0o755)
+
+        except Exception:
+            pass
 
 def copy_ati_settings_on_desktop():
     desktop_files = getoutput(
         'equo query files ati-drivers --quiet | grep ".desktop"').split("\n")
     desktop_files = [x for x in desktop_files if os.path.isfile(x)]
     print("copy_ati_settings_on_desktop: found files: "+str(desktop_files))
+
     for ati_settings in desktop_files:
         homes = os.listdir("/home")
-        homes = [x for x in homes if os.path.isdir("/home/"+x+"/Desktop")]
+        homes = [x for x in homes if os.path.isdir("/home/" + x + "/Desktop")]
         for home in homes:
             try:
                 full_home = os.path.join("/home", home)
@@ -480,12 +488,15 @@ def copy_ati_settings_on_desktop():
                 shutil.copy2(ati_settings, dest_path)
                 os.chmod(dest_path, 0o755)
                 os.chown(dest_path, st.st_uid, st.st_gid)
-            except:
+
+                if os.path.isdir("/etc/skel/Desktop"):
+                    dest_path = os.path.join(
+                        "/etc/skel/Desktop",
+                        os.path.basename(ati_settings))
+                    shutil.copy2(ati_settings, dest_path)
+                    os.chmod(dest_path, 0o755)
+            except Exception:
                 pass
-            if os.path.isdir("/etc/skel/Desktop"):
-                dest_path = "/etc/skel/Desktop/"+os.path.basename(ati_settings)
-                shutil.copy2(nvidia_settings, dest_path)
-                os.chmod(dest_path, 0o755)
 
 
 def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
@@ -562,12 +573,13 @@ def extract_pci_ids(videocard_str):
         card_id = videocard_split[3].split()[-1].lower().strip("[]")
     except IndexError:
         card_id = None
-        try:
-            company_id = videocard_split[2].split()[-1].lower().strip("[]")
-        except IndexError:
-            company_id = None
 
-        return company_id, card_id
+    try:
+        company_id = videocard_split[2].split()[-1].lower().strip("[]")
+    except IndexError:
+        company_id = None
+
+    return company_id, card_id
 
 def extract_vga_cards(lspci_list):
     cards = []
