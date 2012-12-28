@@ -86,7 +86,7 @@ DEPEND="${RDEPEND}
 "
 RDEPEND+="
 	grub_platforms_efi-32? ( sys-boot/efibootmgr )
-	grub_platforms_efi-64? ( sys-boot/efibootmgr )
+	grub_platforms_efi-64? ( app-crypt/shim-signed sys-boot/efibootmgr )
 "
 if [[ -n ${DO_AUTORECONF} ]] ; then
 	DEPEND+=" >=sys-devel/autogen-5.10"
@@ -231,7 +231,7 @@ src_prepare() {
 	# but rather init_opts=single
 	epatch "${FILESDIR}"/${PN}-2.00-genkernel-initramfs-single.patch
 	# Down with SecureBoot
-	epatch "${FILESDIR}"/${PN}-2.00-secureboot-user-sign.patch
+	epatch "${FILESDIR}"/${PN}-2.00-secureboot-user-sign-2.patch
 
 	if [[ ${PV} != 9999 ]]; then
 		epatch "${FILESDIR}/${P}-parallel-make.patch" #424231

@@ -1,0 +1,64 @@
+diff -Nurp grub-2.00.orig/util/grub-install.in grub-2.00/util/grub-install.in
+--- grub-2.00.orig/util/grub-install.in	2012-06-26 23:31:03.000000000 +0200
++++ grub-2.00/util/grub-install.in	2012-12-28 10:11:09.515872080 +0100
+@@ -821,12 +821,60 @@ elif [ x"${grub_modinfo_target_cpu}-${gr
+     gettext "You will have to set \`SystemPartition' and \`OSLoader' manually." 1>&2
+     echo 1>&2
+ elif [ x"$grub_modinfo_platform" = xefi ]; then
++
++    # sign the efi file with the User SecureBoot key
++    _sign_grub_efi() {
++	local _image="${1}"
++        local _image_dir="$(dirname "${_image}")"
++        local _image_name="$(basename "${_image}")"
++
++	case "$host_os" in
++	    linux*)
++		modprobe -q efivars 2>/dev/null || true ;;
++	esac
++
++	local _private="/boot/SecureBoot/user-private.key"
++	local _public="/boot/SecureBoot/user-public.crt"
++	local _shim_dir="/usr/share/shim-signed-*"
++	if test -f "${_private}" && test -f "${_public}"; then
++            echo "SecureBoot signing ${_image}"
++            sbsign --key "${_private}" --cert "${_public}" \
++                --output "${_image}.signed" \
++                "${_image}" && \
++                mv "${_image}.signed" "${_image}" && \
++		cp ${_shim_dir}/*.efi "${_image_dir}/"
++
++	    # if the image is called bootx64.efi, we need to rename it into
++	    # grubx64.efi and place shim.efi there.
++	    if test "${_image_name}" = "bootx64.efi" || test "${_image_name}" = "BOOTX64.EFI"; then
++		mv "${_image}" "${_image_dir}/grubx64.efi"
++		mv "${_image_dir}/shim.efi" "${_image_dir}/${_image_name}"
++	    else
++    	        # otherwise, if it's named grubx64.efi, we just need to move
++	        # shim.efi to bootx64.efi
++		mv "${_image_dir}/shim.efi" "${_image_dir}/bootx64.efi"
++		if test "${_image_name}" != "grubx64.efi" && test "${_image_name}" != "GRUBX64.EFI"; then
++		    mv "${_image_dir}/${_image_name}" "${_image_dir}/grubx64.efi"
++		fi
++		# and then change efi_file
++		efi_file="bootx64.efi"
++	    fi
++	else
++	    echo "Cannot sign ${_image} for SecureBoot" 1>&2
++	    echo "Sabayon keypair at $(basename ${_private}) not found" 1>&2
++	fi
++    }
++
+     cp "${grubdir}/${grub_modinfo_target_cpu}-$grub_modinfo_platform/core.${imgext}" "${efidir}/${efi_file}"
++    _efi_grub_file="${efidir}/${efi_file}"
+     # For old macs. Suggested by Peter Jones.
+     if [ x$grub_modinfo_target_cpu = xi386 ]; then
+ 	cp "${grubdir}/${grub_modinfo_target_cpu}-$grub_modinfo_platform/core.${imgext}" "${efidir}/boot.efi"
++	_efi_grub_file="${efidir}/boot.efi"
+     fi
+ 
++    _sign_grub_efi "${_efi_grub_file}"
++
+     # Try to make this image bootable using the EFI Boot Manager, if available.
+     efibootmgr="`which efibootmgr`"
+     if test "$removable" = no && test -n "$efi_distributor" && \
