@@ -82,6 +82,14 @@ K_KERNEL_DISABLE_PR_EXTRAVERSION="${K_KERNEL_DISABLE_PR_EXTRAVERSION:-1}"
 # firmware pkgs.
 K_KERNEL_SLOT_USEPVR="${K_KERNEL_SLOT_USEPVR:-0}"
 
+# @ECLASS-VARIABLE: K_KERNEL_NEW_VERSIONING
+# @DESCRIPTION:
+# Set this to "1" if your kernel ebuild uses the new Linux kernel upstream
+# versioning and ${PV} contains the stable revision, like 3.7.1.
+# In the example above, this makes the SLOT variable contain only "3.7".
+# The sublevel version can be forced using K_SABKERNEL_FORCE_SUBLEVEL
+K_KERNEL_NEW_VERSIONING="${K_KERNEL_NEW_VERSIONING:-0}"
+
 # @ECLASS-VARIABLE: K_SABKERNEL_FIRMWARE
 # @DESCRIPTION:
 # Set this to "1" if your ebuild is a kernel firmware package
@@ -137,6 +145,11 @@ KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${
 # Disable deblobbing feature
 K_DEBLOB_AVAILABLE=0
 ETYPE="sources"
+
+inherit versionator
+if [ "${K_KERNEL_NEW_VERSIONING}" = "1" ]; then
+	CKV="$(get_version_component_range 1-2)"
+fi
 
 inherit eutils kernel-2 sabayon-artwork mount-boot linux-info
 
@@ -218,6 +231,8 @@ if [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	SLOT="0"
 elif [ "${K_KERNEL_SLOT_USEPVR}" = "1" ]; then
 	SLOT="${PVR}"
+elif [ "${K_KERNEL_NEW_VERSIONING}" = "1" ]; then
+	SLOT="$(get_version_component_range 1-2)"
 else
 	SLOT="${PV}"
 fi
@@ -263,19 +278,28 @@ _is_config_file_set() {
 
 _set_config_file_vars() {
 	# Setup kernel configuration file name
+	local pvr="${PVR}"
+	local pv="${PV}"
+	if [ "${K_KERNEL_NEW_VERSIONING}" = "1" ]; then
+		pvr="$(get_version_component_range 1-2)"
+		pv="${pvr}"
+		if [ "${PR}" != "r0" ]; then
+			pvr+="-${PR}"
+		fi
+	fi
 	if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 		if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
-			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
+			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-__ARCH__.config}"
 			use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
 			use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
 		else
-			use arm && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-arm.config}"
-			use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-amd64.config}"
-			use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-x86.config}"
+			use arm && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-arm.config}"
+			use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-amd64.config}"
+			use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-x86.config}"
 		fi
 	else
-		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
-		K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PV}-__ARCH__.config}"
+		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-__ARCH__.config}"
+		K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pv}-__ARCH__.config}"
 		if use amd64; then
 			K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
 			K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/amd64}
@@ -353,7 +377,12 @@ sabayon-kernel_src_unpack() {
 	if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 		OKV="${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}"
 	fi
-	kernel-2_src_unpack
+	if [ "${K_KERNEL_NEW_VERSIONING}" = "1" ]; then
+		# workaround for kernel-2's universal_unpack assumptions
+		UNIPATCH_LIST_DEFAULT= KV_MAJOR=0 kernel-2_src_unpack
+	else
+		kernel-2_src_unpack
+	fi
 	if [ -n "${K_SABKERNEL_FORCE_SUBLEVEL}" ]; then
 		# patch out Makefile with proper sublevel
 		sed -i "s:^SUBLEVEL = .*:SUBLEVEL = ${K_SABKERNEL_FORCE_SUBLEVEL}:" \
@@ -406,16 +435,17 @@ _kernel_copy_config() {
 		local base_path="${S}/sabayon/config"
 		if [ -f "${base_path}/${K_SABKERNEL_ALT_CONFIG_FILE}" ]; then
 			# new path, without revision
-			cp "${base_path}/${K_SABKERNEL_ALT_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
+			cp "${base_path}/${K_SABKERNEL_ALT_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 1"
 		else
 			# PVR path (old)
-			cp "${base_path}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
+			cp "${base_path}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 2"
 		fi
 	else
 		if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
-			cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${1}" || die "cannot copy kernel config"
+			# Legacy stuff, not supporting K_KERNEL_NEW_VERSIONING
+			cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${1}" || die "cannot copy kernel config 3"
 		else
-			cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config"
+			cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 4"
 		fi
 	fi
 }
