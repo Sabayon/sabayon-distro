@@ -564,6 +564,9 @@ sabayon-kernel_src_install() {
 	else
 		_kernel_src_install
 	fi
+	# File collisions between slots, debug stuff
+	# not really needed for a kernel
+	rm -rf "${D}/usr/lib/debug"
 }
 
 _firmwares_src_install() {
