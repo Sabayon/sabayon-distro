@@ -326,6 +326,7 @@ else
 	fi
 	DEPEND="app-arch/xz-utils
 		sys-apps/sed
+		sys-devel/autoconf
 		sys-devel/make
 		>=sys-kernel/genkernel-3.4.16-r1
 		arm? ( dev-embedded/u-boot-tools )
