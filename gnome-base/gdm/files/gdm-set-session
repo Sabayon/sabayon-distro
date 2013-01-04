@@ -1,0 +1,43 @@
+#!/usr/bin/python
+"""Simple script that updates the default session in AccountServices"""
+
+import sys
+
+from gi.repository import GLib as glib
+
+import dbus
+from dbus.mainloop.glib import DBusGMainLoop
+
+ACCOUNTS_DBUS_NAME = "org.freedesktop.Accounts"
+ACCOUNTS_DBUS_PATH = "/org/freedesktop/Accounts"
+ACCOUNTS_USER_DBUS_NAME = "org.freedesktop.Accounts.User"
+
+if __name__ == "__main__":
+
+    try:
+        username = sys.argv[1]
+        session = sys.argv[2]
+    except IndexError:
+        sys.stderr.write("%s <username> <default session>\n")
+        raise SystemExit(1)
+
+    dbus_loop = DBusGMainLoop(set_as_default = True)
+    loop = glib.MainLoop()
+    glib.threads_init()
+
+    system_bus = dbus.SystemBus(mainloop=dbus_loop)
+    dbus_object = system_bus.get_object(
+        ACCOUNTS_DBUS_NAME, ACCOUNTS_DBUS_PATH)
+
+    iface = dbus.Interface(
+        dbus_object, dbus_interface=ACCOUNTS_DBUS_NAME)
+
+    user_path = iface.FindUserByName(username)
+
+    dbus_object = system_bus.get_object(
+        ACCOUNTS_DBUS_NAME, user_path)
+
+    iface = dbus.Interface(
+        dbus_object, dbus_interface=ACCOUNTS_USER_DBUS_NAME)
+
+    iface.SetXSession(session)
