@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -83,6 +83,7 @@ DEPEND="${CDEPEND}
 		app-text/asciidoc
 		app-text/docbook2X
 		sys-apps/texinfo
+		app-text/xmlto
 	)
 	test? (
 		app-crypt/gnupg
@@ -91,8 +92,7 @@ DEPEND="${CDEPEND}
 # Live ebuild builds man pages and HTML docs, additionally
 if [[ ${PV} == *9999 ]]; then
 	DEPEND="${DEPEND}
-		app-text/asciidoc
-		app-text/xmlto"
+		app-text/asciidoc"
 fi
 
 SITEFILE=50${PN}-gentoo.el
@@ -178,6 +178,9 @@ exportmakeopts() {
 	fi
 	if [[ ${CHOST} == *-*-aix* ]]; then
 		myopts="${myopts} NO_FNMATCH_CASEFOLD=YesPlease"
+	fi
+	if [[ ${CHOST} == *-solaris* ]]; then
+		myopts="${myopts} NEEDS_LIBICONV=YesPlease"
 	fi
 
 	has_version '>=app-text/asciidoc-8.0' \
