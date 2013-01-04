@@ -201,18 +201,23 @@ src_compile() {
 src_install() {
 	git_emake install || die "make install failed"
 
-	rm -rf "${ED}"usr/share/gitweb || die
-	rm -rf "${ED}"usr/bin || die
-	rm -rf "${ED}"usr/share/git-core/templates || die
-	rm -rf "${ED}"usr/share/git-gui || die
-	rm -rf "${ED}"usr/share/gitk || die
+	rm -r "${ED}"usr/share/gitweb || die
+	rm -r "${ED}"usr/bin || die
+	rm -r "${ED}"usr/share/git-core/templates || die
+	rm -r "${ED}"usr/share/git-gui || die
+	rm -r "${ED}"usr/share/gitk || die
+
+	# avoid conflict with dev-vcs/git
+	# it looks weird but this binary is installed by git ebuild
+	# so removing in git-subversion
+	rm "${ED}"usr/libexec/git-core/git-remote-testsvn
 
 	for myfile in "${ED}"usr/libexec/git-core/* "${ED}"usr/$(get_libdir)/* "${ED}"usr/share/man/*/*; do
 		case "$myfile" in
 		*svn*)
 			true ;;
 		*)
-			rm -rf "${myfile}" || die ;;
+			rm -r "${myfile}" || die ;;
 		esac
 	done
 
