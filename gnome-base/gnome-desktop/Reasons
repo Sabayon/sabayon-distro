@@ -1,8 +1,0 @@
-gnome-base/gnome-desktop 2010/01/01
-
-Ian Whyman <ian.whyman@sabayon.org>
-Adds a patch to fix gnome-desktop slideshows.
-
-Forum Thread: http://forum.sabayon.org/viewtopic.php?t=19273
-Sabayon Bug: #1127
-GNOME Bug: #601753
