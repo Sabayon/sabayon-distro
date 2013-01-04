@@ -22,7 +22,8 @@ IUSE="+threads"
 
 COMMON_DEPEND="
 	~dev-python/pygobject-base-${PV}[threads=]
-	>=dev-python/pycairo-1.10.0"
+	>=dev-python/pycairo-1.10.0
+	${PYTHON_DEPS}"
 DEPEND="${COMMON_DEPEND}
 	x11-libs/cairo[glib]
 	sys-apps/findutils"
