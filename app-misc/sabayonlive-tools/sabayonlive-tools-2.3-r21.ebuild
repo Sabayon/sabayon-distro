@@ -19,7 +19,8 @@ RDEPEND="!app-misc/livecd-tools
 	dev-util/dialog
 	sys-apps/gawk
 	sys-apps/pciutils
-	>=sys-apps/keyboard-configuration-helpers-2.6"
+	>=sys-apps/keyboard-configuration-helpers-2.6
+	sys-apps/sed"
 
 S="${WORKDIR}"
 

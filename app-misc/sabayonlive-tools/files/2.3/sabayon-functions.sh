@@ -152,6 +152,10 @@ sabayon_setup_gui_installer() {
 		# cross fingers
 		/usr/libexec/gdm-set-default-session fluxbox
 	fi
+	if [ -x "/usr/libexec/gdm-set-session" ]; then
+		# GDM 3.6 support
+		/usr/libexec/gdm-set-session sabayonuser fluxbox
+	fi
 }
 
 # This function reads /etc/skel/.dmrc and properly
@@ -159,12 +163,31 @@ sabayon_setup_gui_installer() {
 # Blame the idiots who broke de-facto standards
 # and created this fugly thing called AccountsService
 sabayon_fixup_gnome_autologin_session() {
-	if [ -x "/usr/libexec/gdm-set-default-session" ] && [ -f "/etc/skel/.dmrc" ]; then
-		local cur_session=$(cat /etc/skel/.dmrc | grep ^Session | cut -d"=" -f 2)
-		if [ -n "${cur_session}" ] && [ -f "/usr/share/xsessions/${cur_session}.desktop" ]; then
-			# this edits /etc/gdm/custom.conf adding [daemon]\nDefaultSession=${cur_session}
-			/usr/libexec/gdm-set-default-session "${cur_session}"
-		fi
+	local cur_session=
+
+	if [ -f "/etc/skel/.dmrc" ]; then
+		cur_session=$(cat /etc/skel/.dmrc | grep ^Session | cut -d"=" -f 2)
+	fi
+	if [ -z "${cur_session}" ]; then
+		return 0
+	fi
+
+	local sess_file="/usr/share/xsessions/${cur_session}.desktop"
+	if [ ! -f "${sess_file}" ]; then
+		return 0
+	fi
+
+	if [ -x "/usr/libexec/gdm-set-default-session" ]; then
+		# this edits /etc/gdm/custom.conf adding [daemon]\nDefaultSession=${cur_session}
+		/usr/libexec/gdm-set-default-session "${cur_session}"
+	fi
+
+	if [ -x "/usr/libexec/gdm-set-session" ]; then
+		# GDM 3.6 support
+		local users_in_users=$(cat /etc/group | grep "^users" | awk -F':' '{ print $4 }' | sed "s:,: :g")
+		for usr in ${users_in_users}; do
+			/usr/libexec/gdm-set-session "${usr}" "${cur_session}"
+		done
 	fi
 }
 
