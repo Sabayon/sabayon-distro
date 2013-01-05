@@ -10,7 +10,7 @@ inherit eutils gnome.org
 DESCRIPTION="Provides context menu for Nautilus"
 HOMEPAGE="http://fileroller.sourceforge.net/"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 IUSE=""
 KEYWORDS="~amd64 ~arm ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux"
