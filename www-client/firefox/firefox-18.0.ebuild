@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-17.0.1.ebuild,v 1.4 2012/12/10 20:19:42 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-18.0.ebuild,v 1.1 2013/01/09 23:27:19 anarchy Exp $
 
 EAPI="3"
 VIRTUALX_REQUIRED="pgo"
@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-17.0-patches-0.3"
+PATCH="${PN}-18.0-patches-0.5"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -50,8 +50,8 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.13.6
-	>=dev-libs/nspr-4.9.2
+	>=dev-libs/nss-3.14.1
+	>=dev-libs/nspr-4.9.4
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.11[apng]
@@ -176,11 +176,6 @@ src_prepare() {
 			"${S}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
 
-	# Disable gnomevfs extension
-	sed -i -e "s:gnomevfs::" "${S}/"browser/confvars.sh \
-		-e "s:gnomevfs::" "${S}/"xulrunner/confvars.sh \
-		|| die "Failed to remove gnomevfs extension"
-
 	# Ensure that are plugins dir is enabled as default
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
 		"${S}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path!"
@@ -191,13 +186,6 @@ src_prepare() {
 		-i "${S}"/js/src/config/rules.mk \
 		-i "${S}"/nsprpub/configure{.in,} \
 		|| die
-
-	#Fix compilation with curl-7.21.7 bug 376027
-	sed -e '/#include <curl\/types.h>/d'  \
-		-i "${S}"/toolkit/crashreporter/google-breakpad/src/common/linux/http_upload.cc \
-		-i "${S}"/toolkit/crashreporter/google-breakpad/src/common/linux/libcurl_wrapper.cc \
-		-i "${S}"/config/system-headers \
-		-i "${S}"/js/src/config/system-headers || die "Sed failed"
 
 	# Don't exit with error when some libs are missing which we have in
 	# system.
@@ -245,7 +233,7 @@ src_configure() {
 
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite
-	# Both methodjit and tracejit conflict with PaX
+	# Feature is know to cause problems on hardened
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
 
@@ -317,6 +305,14 @@ src_install() {
 
 	# Add our default prefs for firefox
 	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
+		"${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js" || die
+
+	if ! use libnotify; then
+		echo "pref(\"browser.download.manager.showAlertOnComplete\", false);" \
+			>> "${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js"
+	fi
+
+	echo "pref("extensions.autoDisableScopes", 3);" >> \
 		"${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js" || die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
