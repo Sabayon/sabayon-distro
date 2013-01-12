@@ -306,14 +306,6 @@ src_configure() {
 		myconf+=" -Dproprietary_codecs=1 -Dffmpeg_branding=Chrome"
 	fi
 
-	# Set up Google API keys, see http://www.chromium.org/developers/how-tos/api-keys .
-	# Note: these are for Gentoo use ONLY. For your own distribution,
-	# please get your own set of keys. Feel free to contact chromium@gentoo.org
-	# for more info.
-	myconf+=" -Dgoogle_api_key=AIzaSyDEAOvatFo0eTgsV_ZlEzx0ObmepsMzfAc
-		-Dgoogle_default_client_id=329227923882.apps.googleusercontent.com
-		-Dgoogle_default_client_secret=vgKG0NNv7GoDpbtoFNLxCUXu"
-
 	local myarch="$(tc-arch)"
 	if [[ $myarch = amd64 ]] ; then
 		myconf+=" -Dtarget_arch=x64"
