@@ -13,16 +13,22 @@ SRC_URI="mirror://sourceforge/caledonia/${MY_PN}%20%28Plasma-KDE%20Theme%29/${MY
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="branding"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${MY_PN}"
 
-src_install() {
-	rm INSTALL
+src_prepare() {
+	if use branding; then
+		cp "${FILESDIR}/branding.svgz" widgets/branding.svgz || die "Could not apply branding"
+	fi
+	rm INSTALL || die "Failed to remove install file"
+}
 
+
+src_install() {
 	insinto /usr/share/apps/desktoptheme
 	doins -r "${S}"
 }
