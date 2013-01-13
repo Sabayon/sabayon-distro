@@ -1,0 +1,10 @@
+# ChangeLog for x11-themes/caledonia-plasma-theme
+# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*caledonia-plasma-theme-2012.09.28 (13 Jan 2013)
+
+  13 Jan 2013; Ian Whyman <thev00d00@gentoo.org>
+  +caledonia-plasma-theme-2012.09.28.ebuild, +metadata.xml:
+  Inital commit
+
