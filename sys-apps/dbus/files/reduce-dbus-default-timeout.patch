@@ -1,12 +1,15 @@
-diff --git a/bus/system.conf.in b/bus/system.conf.in
-index 92f4cc4..1880808 100644
---- a/bus/system.conf.in
-+++ b/bus/system.conf.in
-@@ -80,4 +80,7 @@
+diff --git a/dbus/dbus-connection-internal.h b/dbus/dbus-connection-internal.h
+index 3d37f18..72be897 100644
+--- a/dbus/dbus-connection-internal.h
++++ b/dbus/dbus-connection-internal.h
+@@ -41,8 +41,8 @@ typedef enum
+   DBUS_ITERATION_BLOCK      = 1 << 2  /**< Block if nothing to do. */
+ } DBusIterationFlags;
  
-   <include if_selinux_enabled="yes" selinux_root_relative="yes">contexts/dbus_contexts</include>
+-/** default timeout value when waiting for a message reply, 25 seconds */
+-#define _DBUS_DEFAULT_TIMEOUT_VALUE (25 * 1000)
++/** default timeout value when waiting for a message reply, 10 seconds */
++#define _DBUS_DEFAULT_TIMEOUT_VALUE (10 * 1000)
  
-+  <!-- Workaround for buggy application freezing due to using sync calls improperly -->
-+  <limit name="reply_timeout">5000</limit>
-+
- </busconfig>
+ void              _dbus_connection_lock                        (DBusConnection     *connection);
+ void              _dbus_connection_unlock                      (DBusConnection     *connection);
