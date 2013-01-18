@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-18.0.ebuild,v 1.1 2013/01/09 23:27:19 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-18.0-r1.ebuild,v 1.3 2013/01/16 19:02:15 mgorny Exp $
 
 EAPI="3"
 VIRTUALX_REQUIRED="pgo"
@@ -25,12 +25,12 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-18.0-patches-0.5"
+PATCH="${PN}-18.0-patches-0.7"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 multilib pax-utils fdo-mime autotools python virtualx nsplugins mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 multilib pax-utils fdo-mime autotools virtualx nsplugins mozlinguas
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -38,7 +38,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gstreamer +jit +minimal neon pgo selinux system-sqlite"
+IUSE="bindist gstreamer +jit +minimal pgo selinux system-jpeg system-sqlite"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -57,16 +57,14 @@ RDEPEND="
 	>=media-libs/libpng-1.5.11[apng]
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
+	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.13[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	>=media-libs/libvpx-1.0.0
 	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"
-# We don't use PYTHON_DEPEND/PYTHON_USE_WITH for some silly reason
 DEPEND="${RDEPEND}
-	dev-python/pysqlite
 	virtual/pkgconfig
 	pgo? (
-		=dev-lang/python-2*[sqlite]
 		>=sys-devel/gcc-4.5 )
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
@@ -146,30 +144,6 @@ src_prepare() {
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
-	# NEON (ARM SIMD) support is broken in Firefox at linker level
-	# undefined symbol arm_private::neon_enabled
-	# Upstream should really take care of it, since compilation
-	# fails on ARMv7.
-	# So, here we force it on and off getting rid of the fugly
-	# macro hackery.
-	# Besides this, emerge via qemu-user fails if USE=neon
-	# due to unsupported instruction set at src_install (xpcshell)
-	if use arm && use neon; then
-		einfo "Enabling NEON SIMD"
-		# HAVE_ARM_NEON=1 should be actually set by
-		# configure basing on compiler support
-		append-cppflags "-DMOZILLA_PRESUME_NEON"
-	elif use arm && ! use neon; then
-		einfo "Disabling NEON SIMD"
-		# eautoreconf is called below
-		for conf in "${S}"/configure.in "${S}"/js/src/configure.in; do
-			sed -i "s:AC_DEFINE(HAVE_ARM_NEON)::" "${conf}" \
-				|| die "cannot turn off NEON (AC_DEFINE)"
-			sed -i "s:HAVE_ARM_NEON=1:true:" "${conf}" \
-				|| die "cannot turn off NEON (HAVE_ARM_NEON)"
-		done
-	fi
-
 	# Enable gnomebreakpad
 	if use debug ; then
 		sed -i -e "s:GNOME_DISABLE_CRASH_DIALOG=1:GNOME_DISABLE_CRASH_DIALOG=0:g" \
@@ -233,6 +207,7 @@ src_configure() {
 
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_with system-jpeg
 	# Feature is know to cause problems on hardened
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
