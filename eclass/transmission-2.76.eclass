@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Sabayon
+# Copyright 1999-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -49,14 +49,8 @@ inherit eutils multilib ${MY_ECLASSES}
 
 unset MY_ECLASSES
 
-if [[ ${PV} == *9999* ]]; then
-	# not tested in the eclass
-	ESVN_REPO_URI="svn://svn.transmissionbt.com/Transmission/trunk"
-	inherit subversion
-fi
-
 case ${EAPI:-0} in
-	4|3) EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile \
+	4|5) EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile \
 		pkg_preinst pkg_postinst pkg_postrm ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
@@ -112,28 +106,15 @@ fi
 S="${WORKDIR}/${MY_P}"
 _transmission_is "" && S="${WORKDIR}"
 
-transmission-2.71_pkg_setup() {
+transmission-2.76_pkg_setup() {
 	if _transmission_is base; then
 		enewgroup transmission
 		enewuser transmission -1 -1 -1 transmission
 	fi
 }
 
-transmission-2.71_src_unpack() {
-	if [[ ${PV} == *9999* ]]; then
-		subversion_src_unpack
-	else
-		default
-	fi
-}
-
-transmission-2.71_src_prepare() {
+transmission-2.76_src_prepare() {
 	_transmission_is "" && return
-
-	if [[ ${PV} == *9999* ]]; then
-		subversion_src_prepare
-		./update-version-h.sh
-	fi
 
 	sed -i -e '/CFLAGS/s:-ggdb3::' configure.ac || die
 
@@ -145,23 +126,6 @@ transmission-2.71_src_prepare() {
 	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
 
 	eautoreconf
-
-	if _transmission_is qt4; then
-		cat <<-EOF > "${T}"/${MY_PN}-magnet.protocol
-		[Protocol]
-		exec=transmission-qt '%u'
-		protocol=magnet
-		Icon=transmission
-		input=none
-		output=none
-		helper=true
-		listing=
-		reading=false
-		writing=false
-		makedir=false
-		deleting=false
-		EOF
-	fi
 
 	if ! _transmission_is base; then
 		local sedcmd="s:\$(top_builddir)/libtransmission/libtransmission.a:"
@@ -176,7 +140,7 @@ transmission-2.71_src_prepare() {
 	fi
 }
 
-transmission-2.71_src_configure() {
+transmission-2.76_src_configure() {
 	_transmission_is "" && return
 
 	local econfargs=(
@@ -227,7 +191,7 @@ transmission-2.71_src_configure() {
 	fi
 }
 
-transmission-2.71_src_compile() {
+transmission-2.76_src_compile() {
 	_transmission_is "" && return
 
 	emake
@@ -243,11 +207,11 @@ transmission-2.71_src_compile() {
 # Note: not providing src_install. Too many differences and too much code
 # which would only clutter this pretty eclass.
 
-transmission-2.71_pkg_preinst() {
+transmission-2.76_pkg_preinst() {
 	_transmission_is gtk && gnome2_icon_savelist
 }
 
-transmission-2.71_pkg_postinst() {
+transmission-2.76_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
@@ -270,14 +234,16 @@ transmission-2.71_pkg_postinst() {
 		elog
 	fi
 
-	elog "Since µTP is enabled by default, ${MY_PN} needs large kernel buffers for"
-	elog "the UDP socket. You can append following lines into /etc/sysctl.conf:"
-	elog " net.core.rmem_max = 4194304"
-	elog " net.core.wmem_max = 1048576"
-	elog "and run sysctl -p"
+	if _transmission_is base; then
+		elog "Since µTP is enabled by default, ${MY_PN} needs large kernel buffers for"
+		elog "the UDP socket. You can append following lines into /etc/sysctl.conf:"
+		elog " net.core.rmem_max = 4194304"
+		elog " net.core.wmem_max = 1048576"
+		elog "and run sysctl -p"
+	fi
 }
 
-transmission-2.71_pkg_postrm() {
+transmission-2.76_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi

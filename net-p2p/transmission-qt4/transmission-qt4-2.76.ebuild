@@ -1,10 +1,9 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
-TRANSMISSION_ECLASS_VERSION_OK=2.71
-inherit eutils transmission-2.71
+EAPI=5
+inherit eutils transmission-2.76
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Qt4 UI"
 KEYWORDS="~amd64 ~x86"
@@ -26,12 +25,8 @@ src_install() {
 
 	local res
 	for res in 16 22 24 32 48; do
-		insinto /usr/share/icons/hicolor/${res}x${res}/apps
-		newins icons/hicolor_apps_${res}x${res}_${MY_PN}.png ${MY_PN}-qt.png
+		newicon -s ${res} icons/hicolor_apps_${res}x${res}_${MY_PN}.png ${MY_PN}-qt.png
 	done
-
-	insinto /usr/share/kde4/services
-	doins "${T}"/${MY_PN}-magnet.protocol
 
 	insinto /usr/share/qt4/translations
 	doins translations/*.qm
