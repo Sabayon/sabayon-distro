@@ -4,6 +4,8 @@
 
 EAPI=4
 
+inherit eutils
+
 if [ "${PV}" = "9999" ]; then
 	EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/udev-gentoo-scripts.git"
 	inherit git-2
