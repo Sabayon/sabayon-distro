@@ -1,0 +1,19 @@
+# ChangeLog for x11-misc/primus
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  23 Oct 2012; Vadim A. Misbakh-Soloviov <mva@mva.name> primus-9999.ebuild:
+  bumblebee,virtualgl] some build fixes
+
+  Signed-off-by: Vadim A. Misbakh-Soloviov <mva@mva.name>
+
+  23 Oct 2012; Vadim A. Misbakh-Soloviov <mva@mva.name> primus-9999.ebuild:
+  fix 32bit build
+
+  Signed-off-by: Vadim A. Misbakh-Soloviov <mva@mva.name>
+
+*primus-9999 (20 Oct 2012)
+
+  20 Oct 2012; Alexander Monakov <amonakov@ispras.ru> +primus-9999.ebuild:
+  Draft ebuild for primus
+
