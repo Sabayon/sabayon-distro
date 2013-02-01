@@ -136,6 +136,9 @@ src_prepare() {
 	# automagic selinux :/
 	epatch "${FILESDIR}/${PN}-3.6.0-selinux-automagic.patch"
 
+	# fixup autologin, patch has been backported
+	epatch "${FILESDIR}/${P}-fixup-autologin.patch"
+
 	# spurious unicode characters causing build failure, bug #449062
 	# https://bugzilla.gnome.org/show_bug.cgi?id=690842
 	LC_ALL=C epatch "${FILESDIR}/${PN}-3.6.2-gdm-slave.xml-unicode.patch"
