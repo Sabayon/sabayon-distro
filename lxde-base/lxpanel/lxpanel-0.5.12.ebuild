@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: Exp $
+# $Header: /var/cvsroot/gentoo-x86/lxde-base/lxpanel/lxpanel-0.5.12.ebuild,v 1.1 2013/01/26 17:46:58 hwoarang Exp $
 
 EAPI="4"
 
@@ -30,10 +30,11 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	cp "${FILESDIR}"/start-here.png data/images/my-computer.png \
 		|| die "Could not copy image."
-	epatch "${FILESDIR}"/${PN}-0.5.8-dynamic-width.patch
-	epatch "${FILESDIR}"/${P}-sandbox.patch
+	epatch "${FILESDIR}"/${PN}-0.5.9-sandbox.patch
 	#bug #415595
-	epatch "${FILESDIR}"/${P}-libwnck-check.patch
+	epatch "${FILESDIR}"/${PN}-0.5.9-libwnck-check.patch
+	#bug #420583
+	sed -i "s:-Werror::" configure.ac || die
 	eautoreconf
 }
 
