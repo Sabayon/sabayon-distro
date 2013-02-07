@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="4"
+EAPI="5"
 
 GNOME_ORG_MODULE="file-roller"
 inherit eutils gnome.org
@@ -13,7 +13,7 @@ HOMEPAGE="http://fileroller.sourceforge.net/"
 LICENSE="GPL-2+"
 SLOT="0"
 IUSE=""
-KEYWORDS="~amd64 ~arm ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~x86"
 
 RDEPEND="
 	~app-arch/file-roller-${PV}
@@ -22,23 +22,23 @@ RDEPEND="
 DEPEND=">=gnome-base/nautilus-3
 	>=dev-libs/glib-2.29.14:2
 	sys-devel/gettext
+	>=app-arch/libarchive-3:=
+	>=dev-libs/json-glib-0.14
 	virtual/pkgconfig
-	>=x11-libs/gtk+-3.0.2:3
+	>=x11-libs/gtk+-3.4:3
 "
 
 src_configure() {
-	# --disable-debug because enabling it adds -O0 to CFLAGS
-	G2CONF="${G2CONF}
-		--disable-dependency-tracking
-		--disable-scrollkeeper
-		--disable-run-in-place
-		--disable-static
-		--disable-schemas-compile
-		--disable-debug
-		--enable-magic
-		--enable-nautilus-actions
-		--disable-packagekit"
-	econf $G2CONF
+	econf \
+		--disable-run-in-place \
+		--disable-static \
+		--disable-debug \
+		--enable-magic \
+		--enable-libarchive \
+		--with-smclient=xsmp \
+		--enable-nautilus-actions \
+		--disable-packagekit \
+		ITSTOOL=$(type -P true)
 }
 
 src_compile() {
