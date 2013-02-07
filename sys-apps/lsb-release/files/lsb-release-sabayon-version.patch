@@ -1,0 +1,12 @@
+diff -Nurp lsb-release-1.4.orig/lsb_release lsb-release-1.4/lsb_release
+--- lsb-release-1.4.orig/lsb_release	2000-12-15 08:19:16.000000000 +0100
++++ lsb-release-1.4/lsb_release	2013-02-07 13:57:00.085819790 +0100
+@@ -47,7 +47,7 @@ INFO_LSB_FILE="lsb-release"
+ INFO_DISTRIB_SUFFIX="release"                 # <distrib>-<suffix>
+ ALTERNATE_DISTRIB_FILE="/etc/debian_version"  # for Debian [based distrib]
+ ALTERNATE_DISTRIB_NAME="Debian"               #     "
+-CHECKFIRST="/etc/redhat-release"              # check it before file search
++CHECKFIRST="/etc/sabayon-release"              # check it before file search
+ 
+ # Defines our exit codes
+ EXIT_STATUS="0"                           # default = Ok :)
