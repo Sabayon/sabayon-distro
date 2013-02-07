@@ -1,0 +1,16 @@
+--- baselayout-2.2.orig/etc.Linux/os-release
++++ baselayout-2.2/etc.Linux/os-release
+@@ -1,7 +1,7 @@
+-NAME=Gentoo
+-ID=gentoo
+-PRETTY_NAME="Gentoo/Linux"
++NAME=Sabayon
++ID=sabayon
++PRETTY_NAME="Sabayon/Linux"
+ ANSI_COLOR="1;32"
+-HOME_URL="http://www.gentoo.org/"
+-SUPPORT_URL="http://www.gentoo.org/main/en/support.xml"
+-BUG_REPORT_URL="https://bugs.gentoo.org/"
++HOME_URL="http://www.sabayon.org/"
++SUPPORT_URL="http://forum.sabayon.org/"
++BUG_REPORT_URL="https://bugs.sabayon.org/"

@@ -154,6 +154,14 @@ pkg_preinst() {
 	fi
 }
 
+src_unpack() {
+	unpack ${A}
+
+	cd "${S}"
+	# We are Sabayon!
+	epatch "${FILESDIR}/${PN}-sabayon-os-release.patch"
+}
+
 src_install() {
 	# Setup /run directory, this is missing from original baselayout
 	dodir /run
