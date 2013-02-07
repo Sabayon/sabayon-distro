@@ -68,8 +68,10 @@ COMMON_DEPEND="
 # at-spi:1 is needed for at-spi-registryd (spawned by simple-chooser)
 # fprintd is used via dbus by gdm-fingerprint-extension
 # gnome-session-3.6 needed to avoid freezing with orca
+# lsb-release is used to print the Operating System name
 RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/gnome-session-3.6
+	sys-apps/lsb-release
 	x11-apps/xhost
 	x11-themes/gnome-icon-theme-symbolic
 
