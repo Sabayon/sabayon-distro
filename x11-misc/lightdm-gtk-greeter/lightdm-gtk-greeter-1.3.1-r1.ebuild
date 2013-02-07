@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -6,18 +6,17 @@ EAPI=4
 
 DESCRIPTION="LightDM GTK+ Greeter"
 HOMEPAGE="http://launchpad.net/lightdm-gtk-greeter"
-SRC_URI="http://launchpad.net/lightdm-gtk-greeter/trunk/${PV}/+download/${P}.tar.gz"
+SRC_URI="http://launchpad.net/lightdm-gtk-greeter/1.4/${PV}/+download/${P}.tar.gz"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~x86"
+KEYWORDS="amd64 arm ~ppc x86"
 IUSE=""
 
 # This ebuild needs custom Sabayon themes, thus it must depend on sabayon-artwork-core
 DEPEND="x11-libs/gtk+:3
 	>=x11-misc/lightdm-base-1.2.2"
-RDEPEND="!!<x11-misc/lightdm-1.1.1
-	x11-libs/gtk+:3
+RDEPEND="x11-libs/gtk+:3
 	>=x11-misc/lightdm-base-1.2.2
 	x11-themes/gnome-themes-standard
 	x11-themes/gnome-icon-theme
