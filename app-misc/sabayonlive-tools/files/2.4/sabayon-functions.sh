@@ -4,6 +4,7 @@ GDM_FILE="/usr/share/gdm/defaults.conf"
 CUSTOM_GDM_FILE="/etc/gdm/custom.conf"
 KDM_FILE="/usr/share/config/kdm/kdmrc"
 LXDM_FILE="/etc/lxdm/lxdm.conf"
+LIGHTDM_FILE="/etc/lightdm/lightdm.conf"
 OEM_FILE="/etc/oemlive.sh"
 OEM_FILE_NEW="/etc/oem/liveboot.sh"
 LIVE_USER_GROUPS="audio bumblebee cdrom cdrw clamav console entropy games \
@@ -57,6 +58,12 @@ sabayon_setup_autologin() {
 		sed -i "/^#.*autologin=/ s/^#//" $LXDM_FILE
 	fi
 
+	# LightDM
+	if [ -f "$LIGHTDM_FILE" ]; then
+		sed -i "s/autologin-user=.*/autologin-user=${LIVE_USER}/" $LIGHTDM_FILE
+		sed -i "/^#.*autologin-user=/ s/^#//" $LIGHTDM_FILE
+	fi
+
 	# Setup correct login session
 	sabayon_is_normal_boot && sabayon_fixup_gnome_autologin_session
 }
@@ -71,6 +78,16 @@ sabayon_disable_autologin() {
 	KDM_FILE="/usr/share/config/kdm/kdmrc"
 	if [ -f "$KDM_FILE" ]; then
 		sed -i "s/AutoLoginEnable=.*/AutoLoginEnable=false/" $KDM_FILE
+	fi
+
+	# LXDM
+	if [ -f "$LXDM_FILE" ]; then
+		sed -i "s/^autologin=.*/autologin=/" $LXDM_FILE
+	fi
+
+	# LightDM
+	if [ -f "$LIGHTDM_FILE" ]; then
+		sed -i "s/^autologin-user=.*/#autologin-user=/" $LIGHTDM_FILE
 	fi
 }
 
