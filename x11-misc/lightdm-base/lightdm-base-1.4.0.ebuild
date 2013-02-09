@@ -54,10 +54,18 @@ src_prepare() {
 }
 
 src_configure() {
+	# Set default values if global vars unset
+	local _user
+	_user=${LIGHTDM_USER:=root}
+	# Let user know how lightdm is configured
+	einfo "Sabayon configuration"
+	einfo "Greeter user: ${_user}"
+
 	econf \
 		--localstatedir=/var \
 		--disable-static \
 		--disable-liblightdm-qt \
+		--with-greeter-user=${_user} \
 		$(use_enable introspection) \
 		--with-html-dir="${EPREFIX}"/usr/share/doc/${PF}/html
 }
