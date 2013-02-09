@@ -15,9 +15,10 @@ IUSE=""
 
 # This ebuild needs custom Sabayon themes, thus it must depend on sabayon-artwork-core
 DEPEND="x11-libs/gtk+:3
-	>=x11-misc/lightdm-base-1.2.2"
-RDEPEND="x11-libs/gtk+:3
-	>=x11-misc/lightdm-base-1.2.2
+	>=x11-misc/lightdm-1.2.2"
+RDEPEND="app-admin/eselect-lightdm
+	x11-libs/gtk+:3
+	>=x11-misc/lightdm-1.2.2
 	x11-themes/gnome-themes-standard
 	x11-themes/gnome-icon-theme
 	x11-themes/sabayon-artwork-core"
@@ -31,3 +32,13 @@ src_prepare() {
 		-e 's:#xft-antialias=.*:xft-antialias=true:' \
 		-e 's:#xft-rgba=.*:xft-rgba=rgb:' "data/${PN}.conf" || die
 }
+
+pkg_postinst() {
+	# Make sure to have a greeter properly configured
+	eselect lightdm set lightdm-gtk-greeter --use-old
+}
+
+pkg_postrm() {
+	eselect lightdm set 1  # hope some other greeter is installed
+}
+
