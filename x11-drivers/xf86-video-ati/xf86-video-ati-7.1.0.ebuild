@@ -29,9 +29,13 @@ pkg_preinst() {
 	# "untrack" radeon.conf, starting from kernel 3.6, this is
 	# no longer needed. However, we don't want to break the current
 	# status-quo.
-	cp "${EROOT}/etc/modprobe.d/"{radeon.conf,radeon.conf.untracked} || die
+	if [ -f "${EROOT}/etc/modprobe.d/radeon.conf" ]; then
+		cp "${EROOT}/etc/modprobe.d/"{radeon.conf,radeon.conf.untracked} || die
+	fi
 }
 
 pkg_postinst() {
-	mv "${EROOT}/etc/modprobe.d/"{radeon.conf.untracked,radeon.conf} || die
+	if [ -f "${EROOT}/etc/modprobe.d/radeon.conf.untracked" ]; then
+		mv "${EROOT}/etc/modprobe.d/"{radeon.conf.untracked,radeon.conf} || die
+	fi
 }
