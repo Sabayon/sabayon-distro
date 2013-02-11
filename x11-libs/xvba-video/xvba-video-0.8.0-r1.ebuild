@@ -9,7 +9,7 @@ DESCRIPTION="xvba-video"
 HOMEPAGE="http://www.splitted-desktop.com/~gbeauchesne/xvba-video/"
 SRC_URI="http://www.splitted-desktop.com/~gbeauchesne/xvba-video/${P}.tar.gz"
 
-LICENSE=""
+LICENSE="GPL-2+ MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
