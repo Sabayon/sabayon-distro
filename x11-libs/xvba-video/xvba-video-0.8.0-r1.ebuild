@@ -2,32 +2,54 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
-inherit base
+EAPI=5
 
-DESCRIPTION="xvba-video"
-HOMEPAGE="http://www.splitted-desktop.com/~gbeauchesne/xvba-video/"
-SRC_URI="http://www.splitted-desktop.com/~gbeauchesne/xvba-video/${P}.tar.gz"
+EGIT_REPO_URI="git://anongit.freedesktop.org/vaapi/xvba-driver"
+[[ ${PV} = 9999 ]] && inherit git-2
+inherit eutils autotools
+
+DESCRIPTION="XVBA Backend for Video Acceleration (VA) API"
+HOMEPAGE="http://www.freedesktop.org/wiki/Software/vaapi"
+SRC_URI="http://dev.gentooexperimental.org/~scarabeus/xvba-driver-${PV}.tar.bz2"
+# No source release yet, the src_uri is theoretical at best right now
+#[[ ${PV} = 9999 ]] || SRC_URI="http://www.freedesktop.org/software/vaapi/releases/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2+ MIT"
 SLOT="0"
+# newline is needed for broken ekeyword
+[[ ${PV} = 9999 ]] || \
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="debug opengl"
 
-COMMON_DEPEND="x11-libs/libva
-	virtual/opengl"
-DEPEND="${COMMON_DEPEND}
-	>=x11-drivers/ati-userspace-10.12"
-RDEPEND="${DEPEND}"
+RDEPEND="
+	>=x11-libs/libva-1.1.0[X,opengl?]
+	x11-libs/libvdpau
+"
+DEPEND="${DEPEND}
+	virtual/pkgconfig"
+
+DOCS=( NEWS README AUTHORS )
+
+S="${WORKDIR}/xvba-driver-${PV}"
+
+src_prepare() {
+	eautoreconf
+}
 
 src_configure() {
-	base_src_configure --enable-libxvba-dlopen \
-		--enable-glx
+	econf \
+		$(use_enable debug) \
+		$(use_enable opengl glx)
+}
+
+src_install() {
+	default
+	prune_libtool_files --all
 }
 
 pkg_postinst() {
 	echo
-	elog "This version of xvba-video requires >=x11-drivers/ati-drivers-10.12"
+	elog "This version of xvba-video requires >=x11-drivers/ati-userspace-10.12"
 	elog "at runtime."
 	echo
 }
