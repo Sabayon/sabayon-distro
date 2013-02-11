@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -6,7 +6,8 @@ EAPI=5
 
 EGIT_REPO_URI="git://anongit.freedesktop.org/vaapi/xvba-driver"
 [[ ${PV} = 9999 ]] && inherit git-2
-inherit eutils autotools
+PYTHON_COMPAT=( python{2_5,2_6,2_7} )
+inherit eutils autotools python-any-r1
 
 DESCRIPTION="XVBA Backend for Video Acceleration (VA) API"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/vaapi"
@@ -26,13 +27,20 @@ RDEPEND="
 	x11-libs/libvdpau
 "
 DEPEND="${DEPEND}
+	${PYTHON_DEPS}
 	virtual/pkgconfig"
 
 DOCS=( NEWS README AUTHORS )
 
 S="${WORKDIR}/xvba-driver-${PV}"
 
+pkg_setup() {
+	python-any-r1_pkg_setup
+}
+
 src_prepare() {
+	epatch \
+		"${FILESDIR}"/${PN}-fix-mesa-gl.h.patch
 	eautoreconf
 }
 
