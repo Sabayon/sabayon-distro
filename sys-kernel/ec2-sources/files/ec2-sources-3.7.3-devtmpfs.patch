@@ -1,0 +1,26 @@
+diff -Nurp sabayon/config.old/ec2-3.7-amd64.config sabayon/config/ec2-3.7-amd64.config
+--- sabayon/config.old/ec2-3.7-amd64.config	2013-01-20 15:17:20.000000000 +0000
++++ sabayon/config/ec2-3.7-amd64.config	2013-02-11 13:16:15.000000000 +0000
+@@ -785,7 +785,8 @@ CONFIG_HAVE_BPF_JIT=y
+ # Generic Driver Options
+ #
+ CONFIG_UEVENT_HELPER_PATH=""
+-# CONFIG_DEVTMPFS is not set
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
+ CONFIG_STANDALONE=y
+ CONFIG_PREVENT_FIRMWARE_BUILD=y
+ CONFIG_FW_LOADER=y
+diff -Nurp sabayon/config.old/ec2-3.7-x86.config sabayon/config/ec2-3.7-x86.config
+--- sabayon/config.old/ec2-3.7-x86.config	2013-01-20 15:17:20.000000000 +0000
++++ sabayon/config/ec2-3.7-x86.config	2013-02-11 13:16:27.000000000 +0000
+@@ -808,7 +808,8 @@ CONFIG_WIRELESS=y
+ # Generic Driver Options
+ #
+ CONFIG_UEVENT_HELPER_PATH=""
+-# CONFIG_DEVTMPFS is not set
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
+ CONFIG_STANDALONE=y
+ CONFIG_PREVENT_FIRMWARE_BUILD=y
+ CONFIG_FW_LOADER=y

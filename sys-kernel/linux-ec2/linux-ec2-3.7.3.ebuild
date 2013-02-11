@@ -6,6 +6,7 @@ K_KERNEL_SOURCES_PKG="sys-kernel/ec2-sources-${PVR}"
 K_REQUIRED_LINUX_FIRMWARE_VER="20121030"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
 K_KERNEL_NEW_VERSIONING="1"
+K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/${P}-devtmpfs.patch"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Server kernel image"
