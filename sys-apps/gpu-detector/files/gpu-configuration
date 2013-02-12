@@ -106,6 +106,7 @@ forced_xdriver = ''
 current_arch = os.uname()[4]
 nomodeset = False
 autogpu = False
+noefi = False
 
 fglrx_supported = sorted(getoutput(
         "modinfo fglrx | grep alias | grep pci | "
@@ -190,6 +191,8 @@ for cmd in cmdline:
         legacy = True
     elif cmd == "cdroot":
         livecd = True
+    elif cmd == "noefi":
+        noefi = True
     elif cmd.startswith("xdriver=") and (len(cmd.split("=")) == 2):
         if not forced_xdriver:
             forced_xdriver = cmd.split("=")[1] # --forced-xdriver= owns
@@ -264,17 +267,17 @@ def generate_fglrx_steps(videocard, cardnumber, total_cards, bus_id):
     if supported:
         if noproprietary:
             if not autogpu:
-                steps.append((set_xorg_device, 'ati',
+                steps.append((set_xorg_device, "ati",
                               cardnumber, total_cards, bus_id,))
-            steps.append((drop_kernel_mod, 'fglrx',))
+            steps.append((drop_kernel_mod, "fglrx",))
             steps.append((setup_radeon_kms,))
         else:
             steps.append((fix_possible_opengl_misconfiguration,
-                          'ati'))
+                          "ati"))
             steps.append((copy_ati_settings_on_desktop,))
-            steps.append((opengl_activate, 'ati'))
+            steps.append((opengl_activate, "ati"))
             if not autogpu:
-                steps.append((set_xorg_device, 'fglrx',
+                steps.append((set_xorg_device, "fglrx",
                               cardnumber, total_cards, bus_id,))
     else:
         # video card not supported by fglrx
@@ -283,9 +286,9 @@ def generate_fglrx_steps(videocard, cardnumber, total_cards, bus_id):
         # This works for Mach64, Rage128
         # Radeon and in future RadeonHD driver
         if not autogpu:
-            steps.append((set_xorg_device, 'ati',
+            steps.append((set_xorg_device, "ati",
                           cardnumber, total_cards, bus_id,))
-        steps.append((drop_kernel_mod, 'fglrx',))
+        steps.append((drop_kernel_mod, "fglrx",))
         steps.append((setup_radeon_kms,))
 
 def check_if_driver_is_available(xdriver):
@@ -382,11 +385,36 @@ def deploy_nvidia_xxxxxx_drivers(ver):
             remove_tar_members_from_sys(package_file)
         return rc
 
+efivars_loaded = False
+def is_efi():
+    """
+    Return whether the system boots from EFI
+    """
+    global efivars_loaded
+
+    if noefi:
+        return False
+
+    if not efivars_loaded:
+        subprocess.call(["modprobe", "efivars"])
+        efivars_loaded = True
+
+    return os.path.exists("/sys/firmware/efi")
+
+def get_vesa_driver():
+    """
+    Return either "vesa" or "fbdev" as the fallback
+    vesa-like X driver.
+    """
+    if is_efi():
+        # vesa does not work
+        return "fbdev"
+    return "vesa"
 
 def set_xorg_device(xdriver, cardnum, total_cards, bus_id):
     if (xdriver not in ("nvidia", "fglrx",)) and \
             (not check_if_driver_is_available(xdriver)):
-        xdriver = "vesa" # fallback to vesa
+        xdriver = get_vesa_driver() # fallback to vesa
     bus_id_mark = "#"
     if total_cards > 1:
         bus_id_mark = ""
@@ -849,7 +877,7 @@ for videocard in videocards:
             generate_fglrx_steps(
                 videocard, cardnumber, total_cards, bus_id)
         else:
-            steps.append((set_xorg_device, "vesa",
+            steps.append((set_xorg_device, get_vesa_driver(),
                           cardnumber, total_cards, bus_id,))
             print("ATTENTION !!!")
             print("ATTENTION !!!")
