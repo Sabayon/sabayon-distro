@@ -1,15 +1,15 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: Exp $
+# $Header: $
 
-EAPI=4
+EAPI=5
 
 KDE_HANDBOOK="optional"
 KMNAME="kde-workspace"
 inherit kde4-meta flag-o-matic user
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
 IUSE="+consolekit debug kerberos pam"
 
 DEPEND="
@@ -31,7 +31,7 @@ RDEPEND="${DEPEND}
 	$(add_kdebase_dep kdepasswd)
 	>=x11-apps/xinit-1.0.5-r2
 	x11-apps/xmessage
-	>=x11-themes/sabayon-artwork-kde-5.4_beta1
+	x11-themes/sabayon-artwork-kde
 "
 
 KMEXTRA="
@@ -40,7 +40,6 @@ KMEXTRA="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
-	"${FILESDIR}/${PN}-4.7.3-revertcrashlogic.patch"
 )
 
 pkg_setup() {
