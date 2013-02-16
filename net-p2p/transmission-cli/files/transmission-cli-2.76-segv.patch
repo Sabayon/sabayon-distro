@@ -1,0 +1,30 @@
+backport of upstream rev. 13793 for transmission 2.76:
+(cli) #5212 'cli fails when download directory doesn't exist' -- fix 2.76 regression introduced in r13764 (trunk) / r13772 (branches/2.7x)
+Backported-by: Sławomir Nizio
+diff -urp transmission-2.76/cli/cli.c transmission-2.76.new/cli/cli.c
+--- transmission-2.76/cli/cli.c	2013-01-09 01:32:11.854138234 +0000
++++ transmission-2.76.new/cli/cli.c	2013-02-16 21:02:28.338422270 +0000
+@@ -267,16 +267,14 @@ main (int argc, char ** argv)
+   if (tr_bencDictFindStr (&settings, TR_PREFS_KEY_DOWNLOAD_DIR, &str))
+     {
+       if (!tr_fileExists (str, NULL))
+-        tr_mkdirp (str, 0700);
+-
+-      if (tr_fileExists (str, NULL))
+-        {
+-          tr_bencDictAddStr (&settings, TR_PREFS_KEY_DOWNLOAD_DIR, str);
+-        }
+-      else
+         {
+-          fprintf (stderr, "Unable to create download directory \"%s\"!\n", str);
+-          return EXIT_FAILURE;
++          tr_mkdirp (str, 0700);
++
++          if (!tr_fileExists (str, NULL))
++            {
++              fprintf (stderr, "Unable to create download directory \"%s\"!\n", str);
++              return EXIT_FAILURE;
++            }
+         }
+     }
+ 
