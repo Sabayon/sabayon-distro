@@ -5,7 +5,6 @@ net-wireless/broadcom-sta
 sys-firmware/ipw2100-firmware
 sys-firmware/ipw2200-firmware
 net-wireless/ndiswrapper
-net-wireless/prism54-firmware:0
 net-wireless/prism54-firmware
 sys-firmware/zd1201-firmware
 sys-firmware/zd1211-firmware
