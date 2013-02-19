@@ -8,7 +8,7 @@ net-wireless/ndiswrapper
 net-wireless/prism54-firmware
 sys-firmware/zd1201-firmware
 sys-firmware/zd1211-firmware
-sys-firmware/rtl8192su-firmware
+net-wireless/rtl8192su-firmware
 net-wireless/wireless-tools
 sys-apps/usb_modeswitch
 sys-kernel/linux-firmware
