@@ -57,12 +57,21 @@ fi
 
 BASE_SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${L10N_VER}/rpm"
 SRC_URI=""
+if [ "$(get_version_component_range 1)" = "3" ]; then
+	URI_PREFIX="LibO"
+	RPM_SUFFIX_LANG="langpack-rpm"
+	RPM_SUFFIX_HELP="helppack-rpm"
+else
+	URI_PREFIX="LibreOffice"
+	RPM_SUFFIX_LANG="rpm_langpack"
+	RPM_SUFFIX_HELP="rpm_helppack"
+fi
 # try guessing
 if [ "${LANGPACK_AVAIL}" = "1" ]; then
-	SRC_URI+="${BASE_SRC_URI}/x86/LibO_${L10N_VER}_Linux_x86_langpack-rpm_${MY_LANG}.tar.gz"
+	SRC_URI+="${BASE_SRC_URI}/x86/${URI_PREFIX}_${L10N_VER}_Linux_x86_${RPM_SUFFIX_LANG}_${MY_LANG}.tar.gz"
 fi
 if [ "${HELPPACK_AVAIL}" = "1" ]; then
-	SRC_URI+=" ${BASE_SRC_URI}/x86/LibO_${L10N_VER}_Linux_x86_helppack-rpm_${MY_LANG}.tar.gz"
+	SRC_URI+=" ${BASE_SRC_URI}/x86/${URI_PREFIX}_${L10N_VER}_Linux_x86_${RPM_SUFFIX_HELP}_${MY_LANG}.tar.gz"
 fi
 
 IUSE=""
@@ -96,14 +105,14 @@ libreoffice-l10n-2_src_unpack() {
 	local dir=${lang/_/-}
 	# for english we provide just helppack, as translation is always there
 	if [[ "${LANGPACK_AVAIL}" == "1" ]]; then
-		rpmdir="LibO_${L10N_VER}"*"${L10N_RC_VERSION}_Linux_x86_langpack-rpm_${dir}/RPMS/"
+		rpmdir="${URI_PREFIX}_${L10N_VER}"*"${L10N_RC_VERSION}_Linux_x86_${RPM_SUFFIX_LANG}_${dir}/RPMS/"
 		# First remove dictionaries, we want to use system ones.
 		rm -rf "${S}/${rpmdir}/"*dict*.rpm
 		einfo "Unpacking Langpack"
 		rpm_unpack ./${rpmdir}/*.rpm
 	fi
 	if [[ "${HELPPACK_AVAIL}" == "1" ]]; then
-		rpmdir="LibO_${L10N_VER}"*"${L10N_RC_VERSION}_Linux_x86_helppack-rpm_${dir}/RPMS/"
+		rpmdir="${URI_PREFIX}_${L10N_VER}"*"${L10N_RC_VERSION}_Linux_x86_${RPM_SUFFIX_HELP}_${dir}/RPMS/"
 		einfo "Unpacking Helppack"
 		rpm_unpack ./${rpmdir}/*.rpm
 	fi
