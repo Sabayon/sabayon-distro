@@ -1,0 +1,81 @@
+From 395c9e17089a7e4ed46a747904b36b1fec94fab3 Mon Sep 17 00:00:00 2001
+From: Michel Dänzer <michel.daenzer@amd.com>
+Date: Mon, 29 Oct 2012 11:57:54 +0000
+Subject: EXA: Track source/mask pixmaps more explicitly for Composite fallback regions.
+
+In particular, make sure pExaScr->src/maskPix are cleared when the
+corresponding pictures aren't associated with drawables, i.e. solid or gradient
+pictures. Without this, we would in some cases associate the source/mask region
+with unrelated pixmaps from previous Composite fallbacks, resulting in random
+corruption.
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=47266
+
+Signed-off-by: Michel Dänzer <michel.daenzer@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Keith Packard <keithp@keithp.com>
+(cherry picked from commit 1ca096d5e07221025c4c4110528772b7d94f15ee)
+---
+diff --git a/exa/exa_priv.h b/exa/exa_priv.h
+index ea7e7fa..2e4759d 100644
+--- a/exa/exa_priv.h
++++ b/exa/exa_priv.h
+@@ -209,6 +209,7 @@ typedef struct {
+     RegionRec srcReg;
+     RegionRec maskReg;
+     PixmapPtr srcPix;
++    PixmapPtr maskPix;
+ 
+     DevPrivateKeyRec pixmapPrivateKeyRec;
+     DevPrivateKeyRec gcPrivateKeyRec;
+diff --git a/exa/exa_unaccel.c b/exa/exa_unaccel.c
+index 5716138..b0a0011 100644
+--- a/exa/exa_unaccel.c
++++ b/exa/exa_unaccel.c
+@@ -442,6 +442,13 @@ ExaSrcValidate(DrawablePtr pDrawable,
+     RegionPtr dst;
+     int xoff, yoff;
+ 
++    if (pExaScr->srcPix == pPix)
++        dst = &pExaScr->srcReg;
++    else if (pExaScr->maskPix == pPix)
++        dst = &pExaScr->maskReg;
++    else
++        return;
++
+     exaGetDrawableDeltas(pDrawable, pPix, &xoff, &yoff);
+ 
+     box.x1 = x + xoff;
+@@ -449,8 +456,6 @@ ExaSrcValidate(DrawablePtr pDrawable,
+     box.x2 = box.x1 + width;
+     box.y2 = box.y1 + height;
+ 
+-    dst = (pExaScr->srcPix == pPix) ? &pExaScr->srcReg : &pExaScr->maskReg;
+-
+     RegionInit(&reg, &box, 1);
+     RegionUnion(dst, dst, &reg);
+     RegionUninit(&reg);
+@@ -495,16 +500,19 @@ ExaPrepareCompositeReg(ScreenPtr pScreen,
+         if (pSrc != pDst)
+             RegionTranslate(pSrc->pCompositeClip,
+                             -pSrc->pDrawable->x, -pSrc->pDrawable->y);
+-    }
++    } else
++        pExaScr->srcPix = NULL;
+ 
+     if (pMask && pMask->pDrawable) {
+         pMaskPix = exaGetDrawablePixmap(pMask->pDrawable);
+         RegionNull(&pExaScr->maskReg);
+         maskReg = &pExaScr->maskReg;
++        pExaScr->maskPix = pMaskPix;
+         if (pMask != pDst && pMask != pSrc)
+             RegionTranslate(pMask->pCompositeClip,
+                             -pMask->pDrawable->x, -pMask->pDrawable->y);
+-    }
++    } else
++        pExaScr->maskPix = NULL;
+ 
+     RegionTranslate(pDst->pCompositeClip,
+                     -pDst->pDrawable->x, -pDst->pDrawable->y);
+--
+cgit v0.9.0.2-2-gbebe
