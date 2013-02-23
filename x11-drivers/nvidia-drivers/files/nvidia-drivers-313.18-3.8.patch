@@ -1,0 +1,24 @@
+From 9100c380c0a8c15b658b3153c107cd99e7110a7b Mon Sep 17 00:00:00 2001
+From: Alberto Milone <alberto.milone@canonical.com>
+Date: Wed, 9 Jan 2013 11:42:03 +0100
+Subject: [PATCH 1/1] Add support for Linux 3.8
+
+---
+ conftest.sh |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/conftest.sh b/conftest.sh
+index 9720cab..1bfbe6f 100755
+--- a/kernel/conftest.sh
++++ b/kernel/conftest.sh
+@@ -160,6 +160,7 @@ build_cflags() {
+ 
+     if [ "$ARCH" = "i386" -o "$ARCH" = "x86_64" ]; then
+         CFLAGS="$CFLAGS -I$SOURCES/arch/x86/include"
++        CFLAGS="$CFLAGS -I$SOURCES/arch/x86/include/uapi"
+         CFLAGS="$CFLAGS -I$OUTPUT/arch/x86/include/generated"
+         CFLAGS="$CFLAGS -I$OUTPUT/arch/x86/include/generated/uapi"
+     elif [ "$ARCH" = "arm" ]; then
+-- 
+1.7.9.5
+
