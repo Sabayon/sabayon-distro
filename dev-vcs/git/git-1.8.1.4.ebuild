@@ -473,8 +473,10 @@ src_install() {
 		newins "${FILESDIR}"/git-daemon.xinetd git-daemon
 	fi
 
-	newinitd "${FILESDIR}"/git-daemon.initd git-daemon
-	newconfd "${FILESDIR}"/git-daemon.confd git-daemon
+	if use !prefix; then
+		newinitd "${FILESDIR}"/git-daemon.initd git-daemon
+		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
+	fi
 
 	fixlocalpod
 
