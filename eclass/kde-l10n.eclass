@@ -1,8 +1,8 @@
-# Copyright 2004-2012 Sabayon
+# Copyright 2004-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 # $
 
-inherit base kde4-base
+inherit kde4-base
 
 MY_LANG="${PN/kde-l10n-/}"
 
@@ -18,6 +18,9 @@ KEYWORDS="~amd64 ~x86"
 DEPEND=">=sys-devel/gettext-0.15"
 RDEPEND=""
 IUSE="+handbook"
+
+URI_BASE="${SRC_URI/-${MY_LANG}-${PV}.tar.xz/}"
+SRC_URI="${SRC_URI} ${URI_BASE}/${PN}-${PV}.tar.xz"
 
 kde-l10n_src_prepare() {
     # override kde4-base_src_prepare which
