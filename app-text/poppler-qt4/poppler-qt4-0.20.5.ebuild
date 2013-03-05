@@ -20,8 +20,8 @@ S="${WORKDIR}/poppler-${PV}"
 RESTRICT="test"
 
 COMMON_DEPEND="
-		x11-libs/qt-core:4
-		x11-libs/qt-gui:4
+		dev-qt/qtcore:4
+		dev-qt/qtgui:4
 "
 
 DEPEND="${COMMON_DEPEND}

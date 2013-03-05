@@ -16,13 +16,13 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86
 IUSE=""
 S="${WORKDIR}/poppler-${PV}"
 
-COMMON_DEPEND="x11-libs/qt-core:4
-	x11-libs/qt-gui:4"
+COMMON_DEPEND="dev-qt/qtcore:4
+	dev-qt/qtgui:4"
 RDEPEND="${COMMON_DEPEND}
 	~app-text/poppler-base-${PV}"
 DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
-	x11-libs/qt-test"
+	dev-qt/qttest"
 
 PATCHES=(
 	"${FILESDIR}/${PN/-qt4}-0.20.1-lcms-automagic.patch"
