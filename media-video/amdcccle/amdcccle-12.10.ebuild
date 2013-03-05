@@ -20,8 +20,8 @@ SLOT="1"
 
 RDEPEND="~x11-drivers/ati-drivers-${PV}[-qt4(-)]
 	~x11-drivers/ati-userspace-${PV}
-	x11-libs/qt-core
-	x11-libs/qt-gui"
+	dev-qt/qtcore
+	dev-qt/qtgui"
 
 DEPEND=""
 S="${WORKDIR}"

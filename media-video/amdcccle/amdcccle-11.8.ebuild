@@ -24,8 +24,8 @@ KEYWORDS="~amd64 ~x86"
 SLOT="1"
 
 RDEPEND="x11-drivers/ati-drivers[-qt4(-)]
-	x11-libs/qt-core
-	x11-libs/qt-gui"
+	dev-qt/qtcore
+	dev-qt/qtgui"
 
 DEPEND=""
 S="${WORKDIR}"
