@@ -29,8 +29,8 @@ RDEPEND="
 	bzip2? ( app-arch/bzip2 )
 	lzo? ( dev-libs/lzo )
 
-	x11-libs/qt-core:4
-	x11-libs/qt-gui:4
+	dev-qt/qtcore:4
+	dev-qt/qtgui:4
 	x11-libs/wxGTK:2.8[X]
 	~media-video/mkvtoolnix-${PV}[-wxwidgets,-qt4]
 "
