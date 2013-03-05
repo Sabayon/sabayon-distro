@@ -25,23 +25,23 @@ SLOT="0"
 IUSE="ayatana crypt dbus debug -kde -phonon +ssl webkit X"
 
 GUI_RDEPEND="
-	>=x11-libs/qt-gui-${QT_MINIMAL}:4
+	>=dev-qt/qtgui-${QT_MINIMAL}:4
 	ayatana? ( dev-libs/libindicate-qt )
 	dbus? (
-		>=x11-libs/qt-dbus-${QT_MINIMAL}:4
+		>=dev-qt/qtdbus-${QT_MINIMAL}:4
 		dev-libs/libdbusmenu-qt
 	)
 	kde? (
 		>=kde-base/kdelibs-${KDE_MINIMAL}
 		ayatana? ( kde-misc/plasma-widget-message-indicator )
 	)
-	phonon? ( || ( media-libs/phonon >=x11-libs/qt-phonon-${QT_MINIMAL} ) )
-	webkit? ( >=x11-libs/qt-webkit-${QT_MINIMAL}:4 )
+	phonon? ( || ( media-libs/phonon >=dev-qt/qtphonon-${QT_MINIMAL} ) )
+	webkit? ( >=dev-qt/qtwebkit-${QT_MINIMAL}:4 )
 	"
 
 RDEPEND="
 	~net-irc/quassel-common-${PV}
-	>=x11-libs/qt-core-${QT_MINIMAL}:4[ssl?]
+	>=dev-qt/qtcore-${QT_MINIMAL}:4[ssl?]
 	${GUI_RDEPEND}
 	"
 DEPEND="${RDEPEND}"
