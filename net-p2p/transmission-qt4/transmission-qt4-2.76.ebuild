@@ -9,8 +9,8 @@ DESCRIPTION="A Fast, Easy and Free BitTorrent client - Qt4 UI"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-RDEPEND="x11-libs/qt-core:4
-	x11-libs/qt-gui:4[dbus]
+RDEPEND="dev-qt/qtcore:4
+	dev-qt/qtgui:4[dbus]
 "
 DEPEND="${RDEPEND}"
 
