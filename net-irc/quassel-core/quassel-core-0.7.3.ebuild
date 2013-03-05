@@ -29,13 +29,13 @@ SERVER_RDEPEND="
 		app-crypt/qca:2
 		app-crypt/qca-ossl
 	)
-	!postgres? ( >=x11-libs/qt-sql-${QT_MINIMAL}:4[sqlite] dev-db/sqlite[threadsafe,-secure-delete] )
-	postgres? ( >=x11-libs/qt-sql-${QT_MINIMAL}:4[postgres] )
-	>=x11-libs/qt-script-${QT_MINIMAL}:4
+	!postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[sqlite] dev-db/sqlite[threadsafe,-secure-delete] )
+	postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[postgres] )
+	>=dev-qt/qtscript-${QT_MINIMAL}:4
 "
 
 RDEPEND="
-	>=x11-libs/qt-core-${QT_MINIMAL}:4[ssl?]
+	>=dev-qt/qtcore-${QT_MINIMAL}:4[ssl?]
 	${SERVER_RDEPEND}
 	"
 DEPEND="
