@@ -21,7 +21,7 @@ RDEPEND="
 	~app-crypt/pinentry-base-${PV}
 	!app-crypt/pinentry-base[static]
 	caps? ( sys-libs/libcap )
-	>=x11-libs/qt-gui-4.4.1:4
+	>=dev-qt/qtgui-4.4.1:4
 "
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
