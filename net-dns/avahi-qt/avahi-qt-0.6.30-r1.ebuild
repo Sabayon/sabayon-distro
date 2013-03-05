@@ -8,7 +8,7 @@ inherit multilib
 
 IUSE=""
 COMMON_DEPEND="=net-dns/avahi-base-${PVR}
-	x11-libs/qt-core:4"
+	dev-qt/qtcore:4"
 AVAHI_MODULE_DEPEND="${COMMON_DEPEND}"
 AVAHI_MODULE_RDEPEND="${COMMON_DEPEND}"
 
