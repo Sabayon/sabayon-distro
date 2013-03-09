@@ -130,6 +130,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	epatch "${FILESDIR}/${P}-linux-3.7.patch"
+
 	# Please add a brief description for every added patch
 	use x86-fbsd && cd doc
 
