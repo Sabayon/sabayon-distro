@@ -5,7 +5,7 @@
 EAPI=4
 
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
-	portability toolchain-funcs unpacker user versionator
+	portability toolchain-funcs unpacker user versionator udev
 
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
@@ -196,15 +196,11 @@ src_install() {
 		insinto /etc/modprobe.d
 		newins "${WORKDIR}"/nvidia nvidia.conf || die
 
-		local udevdir=/lib/udev
-		has_version sys-fs/udev && udevdir="$($(tc-getPKG_CONFIG) --variable=udevdir udev)"
-
 		# Ensures that our device nodes are created when not using X
-		exeinto "${udevdir}"
+		exeinto "$(udev_get_udevdir)"
 		doexe "${FILESDIR}"/nvidia-udev.sh
+		udev_newrules "${FILESDIR}"/nvidia.udev-rule 99-nvidia.rules
 
-		insinto "${udevdir}"/rules.d
-		newins "${FILESDIR}"/nvidia.udev-rule 99-nvidia.rules
 	elif use kernel_FreeBSD; then
 		if use x86-fbsd; then
 			insinto /boot/modules
