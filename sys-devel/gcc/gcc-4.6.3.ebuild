@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=2
-PATCH_VER="1.3"
+PATCH_VER="1.11"
 UCLIBC_VER="1.0"
 
 # Hardened gcc 4 stuff
