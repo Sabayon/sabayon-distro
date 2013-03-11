@@ -1,0 +1,15 @@
+Fix path for finding locale-specific files:
+QCoreApplication::applicationDirPath() transforms to '/usr/bin'
+and locale files are in '/usr/share/qt4/translations'
+
+--- qt/app.cc.orig	2013-02-27 05:23:30.512860807 +0400
++++ qt/app.cc	2013-02-27 05:23:56.424861629 +0400
+@@ -97,7 +97,7 @@
+     installTranslator( &qtTranslator );
+ 
+     // install the transmission translator
+-    appTranslator.load( QString(MY_CONFIG_NAME) + "_" + QLocale::system().name(), QCoreApplication::applicationDirPath() + "/translations" );
++    appTranslator.load( QString(MY_CONFIG_NAME) + "_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath) );
+     installTranslator( &appTranslator );
+ 
+     Formatter::initUnits( );

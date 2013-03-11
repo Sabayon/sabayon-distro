@@ -14,6 +14,11 @@
 # because the eclass will change often when needed to follow changes
 # in Gentoo ebuild.
 
+# @ECLASS-VARIABLE: TRANSMISSION_PATCHES
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Array that contains patches to apply just before eautoreconf.
+
 # @ECLASS-VARIABLE: TRANSMISSION_ECLASS_VERSION_OK
 # @DESCRIPTION:
 # Set this to x.y if you want to use transmission-x.y.eclass from ebuild
@@ -21,19 +26,19 @@
 : ${TRANSMISSION_ECLASS_VERSION_OK:=${PV}}
 
 # @ECLASS-VARIABLE: E_TRANSM_TAIL
+# @INTERNAL
 # @DESCRIPTION:
 # "Tail" of package name. Can take value gtk, qt4, etc. or can be empty.
-# It shouldn't be modified.
 E_TRANSM_TAIL=${PN#transmission}
 E_TRANSM_TAIL=${E_TRANSM_TAIL#-}
 
 # @FUNCTION: _transmission_is
+# @INTERNAL
 # @DESCRIPTION:
 # Function used to check which variant of Transmission are we working on.
 # Argument should be one of these: (none), gtk, qt4, daemon, cli, base.
 # If argument is empty or omitted, true value means that it is
 # net-p2p/transmission (metapackage).
-# Consider it private.
 _transmission_is() {
 	local what=$1
 	[[ ${what} = "${E_TRANSM_TAIL}" ]]
@@ -80,12 +85,12 @@ RDEPEND=""
 _transmission_is base || RDEPEND+="~net-p2p/transmission-base-${PV}"
 if ! _transmission_is ""; then
 	RDEPEND+="
-	>=dev-libs/libevent-2.0.10
-	dev-libs/openssl:0
-	>=net-libs/miniupnpc-1.6.20120509
-	>=net-misc/curl-7.16.3[ssl]
-	net-libs/libnatpmp
-	sys-libs/zlib"
+	>=dev-libs/libevent-2.0.10:=
+	dev-libs/openssl:0=
+	net-libs/libnatpmp:=
+	>=net-libs/miniupnpc-1.6.20120509:=
+	>=net-misc/curl-7.16.3:=[ssl]
+	sys-libs/zlib:="
 fi
 
 DEPEND="${RDEPEND}"
@@ -96,7 +101,7 @@ if _transmission_is base; then
 	!<net-p2p/transmission-cli-${PV}"
 fi
 if ! _transmission_is ""; then
-	DEPEND+=" >=dev-libs/glib-2
+	DEPEND+=" dev-libs/glib:2
 	dev-util/intltool
 	virtual/pkgconfig
 	sys-devel/gettext
@@ -124,6 +129,10 @@ transmission-2.76_src_prepare() {
 
 	# http://trac.transmissionbt.com/ticket/4324
 	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
+
+	if [[ ${#TRANSMISSION_PATCHES[@]} -gt 0 ]]; then
+		epatch "${TRANSMISSION_PATCHES[@]}"
+	fi
 
 	eautoreconf
 
