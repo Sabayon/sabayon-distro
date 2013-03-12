@@ -195,7 +195,24 @@ src_install() {
 	newins "${FILESDIR}"/xorg-sets.conf xorg.conf
 }
 
+CONFD_XDM="${ROOT}/etc/conf.d/xdm"
+pkg_preinst() {
+	# backup user /etc/conf.d/xdm
+	if [ -f "${CONFD_XDM}" ]; then
+		cp -p "${CONFD_XDM}" "${CONFD_XDM}.backup"
+	fi
+}
+
 pkg_postinst() {
+	# Copy config file over
+	if [ -f "${CONFD_XDM}.backup" ]; then
+		cp ${CONFD_XDM}.backup ${CONFD_XDM} -p
+	else
+		if [ -f "${CONFD_XDM}.example" ] && [ ! -f "${CONFD_XDM}" ]; then
+			cp ${CONFD_XDM}.example ${CONFD_XDM} -p
+		fi
+	fi
+
 	# sets up libGL and DRI2 symlinks if needed (ie, on a fresh install)
 	eselect opengl set xorg-x11 --use-old
 
@@ -211,6 +228,11 @@ pkg_postinst() {
 		ewarn "or using sets from portage-2.2:"
 		ewarn "	emerge @x11-module-rebuild"
 	fi
+
+	echo
+	ewarn "/etc/conf.d/xdm is no longer provided, /etc/conf.d/xdm.example is"
+	ewarn "Your current /etc/conf.d/xdm has been used as new default"
+	echo
 
 	if use udev && has_version virtual/udev[-keymap]; then
 		ewarn "virtual/udev was built without keymap support. This may cause input device"
