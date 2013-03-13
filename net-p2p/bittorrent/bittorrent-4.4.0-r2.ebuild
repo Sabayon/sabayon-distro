@@ -71,6 +71,8 @@ src_install() {
 	# Used by ALLOWED_DIR=
 	dodir /var/www/torrents
 	keepdir /var/www/torrents
+	dodir /usr/share/bittorrent
+	keepdir /usr/share/bittorrent
 
 	newinitd "${FILESDIR}"/bittorrent-tracker.initd bittorrent-tracker
 	newconfd "${FILESDIR}"/bittorrent-tracker.confd bittorrent-tracker
