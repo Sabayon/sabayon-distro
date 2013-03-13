@@ -13,7 +13,7 @@ start() {
 	--pidfile /var/run/bttrack.pid \
 	--exec /usr/bin/bttrack.py -- --port ${PORT} \
 	--dfile ${DFILE} --favicon ${FAVICON} --logfile ${LOGFILE} \
-	--allowed_dir "${ALLOWED_DIR}"
+	--allowed_dir "${ALLOWED_DIR}" --allow_get ${ALLOW_GET}
 	eend $?
 }
 
