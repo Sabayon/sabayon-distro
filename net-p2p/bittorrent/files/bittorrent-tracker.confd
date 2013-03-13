@@ -10,6 +10,10 @@ DFILE=/usr/share/bittorrent/tracker.dfile
 # Where torrents are stored
 ALLOWED_DIR=/var/www/torrents
 
+# use  with allowed_dir; adds a /file?hash=hash URL that allows
+# users to download the torrent file (defaults to 0) (0 or 1)
+ALLOW_GET=0
+
 # path to favicon.ico which many popular web browsers can use
 FAVICON=/usr/share/pixmaps/bittorrent.ico
 
