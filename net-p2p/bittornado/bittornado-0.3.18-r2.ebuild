@@ -53,6 +53,8 @@ src_install() {
 	# Used by ALLOWED_DIR=
 	dodir /var/www/torrents
 	keepdir /var/www/torrents
+	dodir /usr/share/bittorrent
+	keepdir /usr/share/bittorrent
 
 	newconfd "${FILESDIR}"/bttrack.conf bttrack
 	newinitd "${FILESDIR}"/bttrack.rc bttrack
