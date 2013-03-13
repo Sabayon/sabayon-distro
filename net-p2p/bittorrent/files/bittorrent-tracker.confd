@@ -7,6 +7,9 @@ PORT=8082
 # where to store recent downloader info
 DFILE=/usr/share/bittorrent/tracker.dfile
 
+# Where torrents are stored
+ALLOWED_DIR=/var/www/torrents
+
 # path to favicon.ico which many popular web browsers can use
 FAVICON=/usr/share/pixmaps/bittorrent.ico
 

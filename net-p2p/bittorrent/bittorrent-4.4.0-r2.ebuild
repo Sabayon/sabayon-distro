@@ -68,6 +68,10 @@ src_install() {
 	insinto /etc/pki/bittorrent/
 	doins public.key
 
+	# Used by ALLOWED_DIR=
+	dodir /var/www/torrents
+	keepdir /var/www/torrents
+
 	newinitd "${FILESDIR}"/bittorrent-tracker.initd bittorrent-tracker
 	newconfd "${FILESDIR}"/bittorrent-tracker.confd bittorrent-tracker
 }

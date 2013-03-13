@@ -12,7 +12,8 @@ start() {
 	start-stop-daemon --start --quiet --background --make-pidfile \
 		--pidfile /var/run/bttrack.pid \
 		--exec /usr/bin/bittorrent-tracker -- --port ${PORT} \
-		--dfile ${DFILE} --favicon ${FAVICON} --logfile ${LOGFILE}
+		--dfile ${DFILE} --favicon ${FAVICON} --logfile ${LOGFILE} \
+		--allowed_dir "${ALLOWED_DIR}"
 	eend $?
 }
 
