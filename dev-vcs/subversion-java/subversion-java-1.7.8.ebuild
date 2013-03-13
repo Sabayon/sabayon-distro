@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI=5
 WANT_AUTOMAKE="none"
 MY_P="${P/_/-}"
 
@@ -16,7 +16,7 @@ inherit autotools eutils flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="http://subversion.tigris.org/downloads/${MY_SVN_P}.tar.bz2"
+SRC_URI="mirror://apache/${PN}/${MY_SVN_P}.tar.bz2"
 S="${WORKDIR}/${MY_SVN_P/_/-}"
 
 LICENSE="Subversion"
@@ -43,16 +43,14 @@ pkg_setup() {
 src_prepare() {
 	epatch "${FILESDIR}"/${MY_SVN_PN}-1.5.4-interix.patch \
 		"${FILESDIR}"/${MY_SVN_PN}-1.5.6-aix-dso.patch \
-		"${FILESDIR}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch \
-		"${FILESDIR}"/${MY_SVN_PN}-${PV}-revert-mod_dontdothat-move.patch
+		"${FILESDIR}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch
+	epatch_user
 
 	fperms +x build/transform_libtool_scripts.sh
 
 	sed -i \
 		-e "s/\(BUILD_RULES=.*\) bdb-test\(.*\)/\1\2/g" \
 		-e "s/\(BUILD_RULES=.*\) test\(.*\)/\1\2/g" configure.ac
-
-	sed -e "/SWIG_PY_INCLUDES=/s/\$ac_cv_python_includes/\\\\\$(PYTHON_INCLUDES)/" -i build/ac-macros/swig.m4 || die "sed failed"
 
 	# this bites us in particular on Solaris
 	sed -i -e '1c\#!/usr/bin/env sh' build/transform_libtool_scripts.sh || \
@@ -61,7 +59,8 @@ src_prepare() {
 	eautoconf
 	elibtoolize
 
-	sed -e "s/libsvn_swig_py-1\.la/libsvn_swig_py-\$(PYTHON_VERSION)-1.la/" -i build-outputs.mk || die "sed failed"
+	sed -e 's/\(libsvn_swig_py\)-\(1\.la\)/\1-$(EPYTHON)-\2/g' \
+		-i build-outputs.mk || die "sed failed"
 }
 
 src_configure() {
@@ -85,10 +84,28 @@ src_configure() {
 			# loader crashes on the LD_PRELOADs...
 			myconf+=" --disable-local-library-preloading"
 		;;
+		*-solaris*)
+			# need -lintl to link
+			use nls && append-libs intl
+			# this breaks installation, on x64 echo replacement is 32-bits
+			myconf+=" --disable-local-library-preloading"
+		;;
+		*-mint*)
+			myconf+=" --enable-all-static --disable-local-library-preloading"
+		;;
+		*)
+			# inject LD_PRELOAD entries for easy in-tree development
+			myconf+=" --enable-local-library-preloading"
+		;;
 	esac
 
 	#workaround for bug 387057
 	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
+
+	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
+	#compile for x86 on amd64, so workaround this issue again
+	#check newer versions, if this is still/again needed
+	myconf+=" --disable-disallowing-of-undefined-references"
 
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--without-apxs \
@@ -107,22 +124,21 @@ src_configure() {
 		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
 		--disable-experimental-libtool \
 		--without-jikes \
-		--enable-local-library-preloading \
 		--disable-mod-activation \
 		--disable-neon-version-check \
 		--disable-static
 }
 
 src_compile() {
-	emake -j1 JAVAC_FLAGS="$(java-pkg_javac-args) -encoding iso8859-1" javahl || die "Building of Subversion JavaHL library failed"
+	emake -j1 JAVAC_FLAGS="$(java-pkg_javac-args) -encoding iso8859-1" javahl
 
 	if use doc; then
-		emake doc-javahl || die "Building of Subversion JavaHL library HTML documentation failed"
+		emake doc-javahl
 	fi
 }
 
 src_install() {
-	emake DESTDIR="${D}" install-javahl || die "Installation of Subversion JavaHL library failed"
+	emake DESTDIR="${D}" install-javahl
 	java-pkg_regso "${ED}"usr/$(get_libdir)/libsvnjavahl*$(get_libname)
 	java-pkg_jarinto /usr/share/"${MY_SVN_PN}"/lib
 	java-pkg_dojar "${ED}"usr/$(get_libdir)/svn-javahl/svn-javahl.jar
