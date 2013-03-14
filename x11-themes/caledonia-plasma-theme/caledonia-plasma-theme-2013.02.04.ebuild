@@ -27,7 +27,6 @@ src_prepare() {
 	rm INSTALL || die "Failed to remove install file"
 }
 
-
 src_install() {
 	insinto /usr/share/apps/desktoptheme
 	doins -r "${S}"
