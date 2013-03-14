@@ -13,7 +13,8 @@ start() {
 		--pidfile /var/run/bttrack.pid \
 		--exec /usr/bin/bittorrent-tracker -- --port ${PORT} \
 		--dfile ${DFILE} --favicon ${FAVICON} --logfile ${LOGFILE} \
-		--allowed_dir "${ALLOWED_DIR}" --allow_get ${ALLOW_GET}
+		--allowed_dir "${ALLOWED_DIR}" --allow_get ${ALLOW_GET} \
+		--css_url "${CSS_URL}"
 	eend $?
 }
 

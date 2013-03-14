@@ -1,0 +1,20 @@
+--- a/BitTorrent/track.py
++++ b/BitTorrent/track.py
+@@ -40,6 +40,8 @@ defaults = [
+      _("Port to listen on.")),
+     ('dfile', None,
+      _("file to store recent downloader info in")),
++    ('css_url', None,
++     _("URL to the css file to use in the info page")),
+     ('bind', '',
+      _("ip to bind to locally")),
+     ('socket_timeout', 15,
+@@ -365,6 +367,8 @@ class Tracker(object):
+                 '<html><head><title>BitTorrent download info</title>\n')
+             if self.favicon is not None:
+                 s.write('<link rel="shortcut icon" href="/favicon.ico">\n')
++            if self.config['css_url']:
++                s.write('<link rel="stylesheet" href="%s">' % (self.config['css_url'],))
+             s.write('</head>\n<body>\n' \
+                 '<h3>BitTorrent download info</h3>\n'\
+                 '<ul>\n'

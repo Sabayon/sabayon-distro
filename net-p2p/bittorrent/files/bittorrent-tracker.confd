@@ -14,6 +14,9 @@ ALLOWED_DIR=/var/www/torrents
 # users to download the torrent file (defaults to 0) (0 or 1)
 ALLOW_GET=0
 
+# CSS URL that will be used in the HTML info page
+CSS_URL=
+
 # path to favicon.ico which many popular web browsers can use
 FAVICON=/usr/share/pixmaps/bittorrent.ico
 

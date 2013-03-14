@@ -52,6 +52,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${P}-bencode-float.patch
 	epatch "${FILESDIR}"/${P}-keyerror.patch
 	epatch "${FILESDIR}"/${P}-hashlib.patch
+	epatch "${FILESDIR}"/${P}-css-support.patch
 
 	# fix doc path #109743
 	sed -i -e "/dp.*appdir/ s:appdir:'${PF}':" BitTorrent/platform.py
