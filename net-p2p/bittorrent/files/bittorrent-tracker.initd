@@ -10,11 +10,11 @@ depend() {
 start() {
 	ebegin "Starting bttrack"
 	start-stop-daemon --start --quiet --background --make-pidfile \
-		--pidfile /var/run/bttrack.pid \
+		--pidfile /var/run/bttrack.pid --user bttrack --group bttrack \
 		--exec /usr/bin/bittorrent-tracker -- --port ${PORT} \
 		--dfile ${DFILE} --favicon ${FAVICON} --logfile ${LOGFILE} \
 		--allowed_dir "${ALLOWED_DIR}" --allow_get ${ALLOW_GET} \
-		--css_url "${CSS_URL}"
+		--css_url "${CSS_URL}" --pid /dev/null
 	eend $?
 }
 

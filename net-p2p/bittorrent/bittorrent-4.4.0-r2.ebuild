@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI="5"
 
 PYTHON_DEPEND="2:2.5"
 PYTHON_USE_WITH="threads"
@@ -14,7 +14,7 @@ PYTHON_USE_WITH="threads"
 # Fedora has also frozen bittorrent at 4.4.0 and is a good source of patches
 # http://pkgs.fedoraproject.org/gitweb/?p=bittorrent.git
 
-inherit distutils eutils fdo-mime python
+inherit distutils eutils fdo-mime python user
 
 MY_P="${P/bittorrent/BitTorrent}"
 
@@ -37,6 +37,8 @@ DOCS="README.txt TRACKERLESS.txt"
 PYTHON_MODNAME="BitTorrent khashmir"
 
 pkg_setup() {
+	enewgroup bttrack
+	enewuser bttrack -1 -1 /dev/null bttrack
 	python_set_active_version 2
 	python_pkg_setup
 }
@@ -74,6 +76,8 @@ src_install() {
 	keepdir /var/www/torrents
 	dodir /usr/share/bittorrent
 	keepdir /usr/share/bittorrent
+	dodir /var/log/bittorrent
+	keepdir /var/log/bittorrent
 
 	newinitd "${FILESDIR}"/bittorrent-tracker.initd bittorrent-tracker
 	newconfd "${FILESDIR}"/bittorrent-tracker.confd bittorrent-tracker
@@ -82,6 +86,10 @@ src_install() {
 pkg_postinst() {
 	distutils_pkg_postinst
 	fdo-mime_desktop_database_update
+
+	for dir in "/usr/share/bittorrent" "/var/www/torrents" "/var/log/bittorrent"; do
+		chown bttrack:bttrack "${EROOT}${dir}"
+	done
 }
 
 pkg_postrm() {

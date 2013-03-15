@@ -22,4 +22,4 @@ FAVICON=/usr/share/pixmaps/bittorrent.ico
 
 # Connection logs are sent to stdout by default, so they should be sent to a
 # file when using this script.
-LOGFILE=/var/log/bttrack.log
+LOGFILE=/var/log/bittorrent/bttrack.log
