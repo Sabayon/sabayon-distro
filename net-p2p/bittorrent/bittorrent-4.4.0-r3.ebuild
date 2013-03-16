@@ -88,7 +88,7 @@ pkg_postinst() {
 	fdo-mime_desktop_database_update
 
 	for dir in "/usr/share/bittorrent" "/var/www/torrents" "/var/log/bittorrent"; do
-		chown bttrack:bttrack "${EROOT}${dir}"
+		chown -R bttrack:bttrack "${EROOT}${dir}"
 	done
 }
 
