@@ -188,7 +188,7 @@ src_install() {
 
 	newinitd "${FILESDIR}"/xdm-setup.initd-1 xdm-setup
 	newinitd "${FILESDIR}"/xdm.initd-9 xdm
-	newconfd "${FILESDIR}"/xdm.confd-4 xdm
+	newconfd "${FILESDIR}"/xdm.confd-4 xdm.example
 
 	# install the @x11-module-rebuild set for Portage
 	insinto /usr/share/portage/config/sets
