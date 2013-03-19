@@ -87,6 +87,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${P}-upstream-zfs-build.patch
 	# This is upstreamed as well
 	epatch "${FILESDIR}"/0001-Unquote-ZPOOL_FORCE-variable-usage.patch
+	# Upstreamed.
+	epatch "${FILESDIR}"/genkernel-linux-3.8.patch
 
 	# Update software.sh
 	sed -i \
