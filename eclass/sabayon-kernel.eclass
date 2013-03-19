@@ -30,7 +30,7 @@ K_SABKERNEL_URI_CONFIG="${K_SABKERNEL_URI_CONFIG:-no}"
 # Example:
 #   K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
 #   This would generate:
-#   SRC_URI="mirror://sabayon/sys-kernel/linux-${PV}+sabayon.tar.bz2"
+#   SRC_URI="mirror://sabayon/sys-kernel/linux-${PV}+sabayon.tar.${K_TARBALL_EXT}"
 K_SABKERNEL_SELF_TARBALL_NAME="${K_SABKERNEL_SELF_TARBALL_NAME:-}"
 
 # @ECLASS-VARIABLE: K_SABKERNEL_FORCE_SUBLEVEL
@@ -56,7 +56,7 @@ K_KERNEL_SOURCES_PKG="${K_KERNEL_SOURCES_PKG:-${CATEGORY}/${PN/*-}-sources-${PVR
 # @ECLASS-VARIABLE: K_KERNEL_PATCH_VER
 # @DESCRIPTION:
 # If set to "3" for example, it applies the upstream kernel
-# patch corresponding to patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.3.bz2
+# patch corresponding to patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.3.${K_TARBALL_EXT}
 # @TODO: deprecate and remove once 2.6.x kernels are retired
 K_KERNEL_PATCH_VER="${K_KERNEL_PATCH_VER:-}"
 
@@ -145,6 +145,7 @@ KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${
 # Disable deblobbing feature
 K_DEBLOB_AVAILABLE=0
 ETYPE="sources"
+K_TARBALL_EXT="${K_TARBALL_EXT:-xz}"
 
 inherit versionator
 if [ "${K_KERNEL_NEW_VERSIONING}" = "1" ]; then
@@ -167,10 +168,10 @@ fi
 
 ## kernel-2 eclass settings
 if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
-	SRC_URI="mirror://sabayon/${CATEGORY}/linux-${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}.tar.bz2"
+	SRC_URI="mirror://sabayon/${CATEGORY}/linux-${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}.tar.${K_TARBALL_EXT}"
 elif [ -n "${K_SABPATCHES_VER}" ]; then
 	UNIPATCH_STRICTORDER="yes"
-	K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.bz2"
+	K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.${K_TARBALL_EXT}"
 	UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
 	SRC_URI="${KERNEL_URI}
 		mirror://sabayon/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
@@ -180,7 +181,7 @@ fi
 
 if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	if [ -n "${K_KERNEL_PATCH_VER}" ]; then
-		K_PATCH_NAME="patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.${K_KERNEL_PATCH_VER}.bz2"
+		K_PATCH_NAME="patch-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}.${K_KERNEL_PATCH_VER}.${K_TARBALL_EXT}"
 		SRC_URI="${SRC_URI}
 			mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}${K_LONGTERM_URL_STR}/${K_PATCH_NAME}"
 		UNIPATCH_LIST="${DISTDIR}/${K_PATCH_NAME}
