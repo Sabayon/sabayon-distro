@@ -7,8 +7,11 @@
 # because the new names will be drastically different from the eth*, wlan*, etc
 # names you are used to working with.
 #
-# To activate this function, move this file to a name that doesn't end in.rules,
-# or remove it then reboot your system.
+# To activate this function, copy 80-net-name-slot.rules from /lib/udev/rules.d/
+# to /etc/udev/rules.d/
+# Deleting the file from /etc/udev/rules.d/ works too but when you re-emerge
+# the current stable udev it will restore this dummy file there if it isn't there
+# already!
 #
 # If you want to deactivate this function, install a udev rules file as
 # /etc/udev/rules.d/80-net-name-slot.rules then reboot your system.
@@ -22,7 +25,7 @@
 # If you do want to activate and help us come up with a migration plan, feel
 # free to do so and report bugs.
 # Your bugs should block the following tracker:
-# https://bugs.gentoo.org/show_bug.cgi?id=450938
+# http://bugs.gentoo.org/show_bug.cgi?id=454224
 #
 # Before you activate this function, it is important that you fully understand
 # the following documentation:
