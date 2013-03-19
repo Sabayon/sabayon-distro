@@ -1,6 +1,8 @@
 # Copyright 2004-2012 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=5
+
 K_SABKERNEL_SELF_TARBALL_NAME="efikamx"
 K_SABKERNEL_NAME="efikamx"
 K_ONLY_SOURCES="1"

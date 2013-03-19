@@ -1,6 +1,8 @@
 # Copyright 2004-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=5
+
 K_SABKERNEL_SELF_TARBALL_NAME="hardened"
 K_SABKERNEL_NAME="hardened"
 K_KERNEL_SOURCES_PKG="sys-kernel/hardened-sources-${PVR}"
