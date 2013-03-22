@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/openvz-sources/openvz-sources-2.6.32.53.5.ebuild,v 1.1 2012/05/03 17:43:52 pva Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/openvz-sources/openvz-sources-2.6.32.75.2.ebuild,v 1.1 2013/03/13 08:35:44 maksbotan Exp $
 
-EAPI=5
+EAPI="5"
 
 inherit versionator
 
@@ -45,4 +45,14 @@ K_EXTRAEINFO="This openvz kernel uses RHEL6 patchset instead of vanilla kernel.
 This patchset considered to be more stable and security supported by upstream,
 but for us RHEL6 patchset is very fragile and fails to build in many
 configurations so if you have problems use config files from openvz team
-http://wiki.openvz.org/Download/kernel/rhel6/042stab${OVZ_KV}"
+http://wiki.openvz.org/Download/kernel/rhel6/042stab${OVZ_KV}
+
+For info in next paragraph, see
+http://bugzilla.openvz.org/show_bug.cgi?id=2012#1
+
+In general, RHEL kernels are very sensitive to compiler version and therefore
+should be compiled by RHEL compiler, otherwise there might be stability issues,
+sometimes as bad as this case."
+
+K_EXTRAEWARN="This kernel is stable only when built with gcc-4.4.x and is known
+to oops in random places if built with newer compilers."

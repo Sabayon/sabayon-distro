@@ -11,6 +11,7 @@ OVZ_KV="0$(get_version_component_range 4).$(get_version_component_range 5)"
 CKV=$(get_version_component_range 1-3)
 OKV=${OKV:-${CKV}}
 EXTRAVERSION=-${PN/-*}-${OVZ_KV}
+ETYPE="sources"
 KV_FULL=${CKV}${EXTRAVERSION}
 if [[ ${PR} != "r0" ]]; then
 	KV_FULL+=-${PR}
@@ -23,7 +24,7 @@ KV_MAJOR=$(get_version_component_range 1 ${OKV})
 KV_MINOR=$(get_version_component_range 2 ${OKV})
 KV_PATCH=$(get_version_component_range 3 ${OKV})
 
-KERNEL_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/linux-${OKV}.tar.bz2"
+KERNEL_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}/linux-${OKV}.tar.xz"
 
 K_KERNEL_SOURCES_PKG="sys-kernel/openvz-sources-${PVR}"
 K_KERNEL_DISABLE_PR_EXTRAVERSION="0"
