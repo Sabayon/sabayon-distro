@@ -197,8 +197,9 @@ pkg_preinst() {
 	# manager doesnt go throwing etc-update crap at us -- postinst is
 	# too late to prevent that.  this behavior also lets us keep the
 	# file in the CONTENTS for binary packages.
+	# Sabayon, use cp -d as per Gentoo bug #462674
 	[[ -e "${EROOT}"etc/conf.d/net ]] && \
-		cp "${EROOT}"etc/conf.d/net "${ED}"/etc/conf.d/
+		cp -d "${EROOT}"etc/conf.d/net "${ED}"/etc/conf.d/
 
 	# avoid default thrashing in conf.d files when possible #295406
 	if [[ -e "${EROOT}"etc/conf.d/hostname ]] ; then
