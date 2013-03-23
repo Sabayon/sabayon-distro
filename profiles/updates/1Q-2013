@@ -19,3 +19,4 @@ move x11-libs/qt-svg dev-qt/qtsvg
 move x11-libs/qt-test dev-qt/qttest
 move x11-libs/qt-webkit dev-qt/qtwebkit
 move x11-libs/qt-xmlpatterns dev-qt/qtxmlpatterns
+move net-wireless/b43-firmware sys-firmware/b43-firmware
