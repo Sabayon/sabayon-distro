@@ -20,7 +20,7 @@ fi
 XVBA_SDK_URI="http://developer.amd.com/wordpress/media/2012/10/xvba-sdk-0.74-404001.tar.gz"
 SRC_URI="${DRIVERS_URI} ${XVBA_SDK_URI}"
 FOLDER_PREFIX="common/"
-IUSE="debug multilib x-multilib static-libs disable-watermark pax_kernel"
+IUSE="debug multilib x-multilib static-libs +disable-watermark pax_kernel"
 
 LICENSE="AMD GPL-2 QPL-1.0"
 KEYWORDS="-* ~amd64 ~x86"
