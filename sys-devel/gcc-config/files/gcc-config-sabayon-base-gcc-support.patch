@@ -1,0 +1,30 @@
+--- a/gcc-config
++++ b/gcc-config
+@@ -209,6 +209,14 @@ update_wrappers() {
+ 		)
+ 	) )
+ 
++	# Sabayon: base-gcc does not bring any gcc executables. Return 1
++	# if ${ROOT}${GCC_PATH} does not exist without even trying to
++	# `cd` it.
++	if [[ ! -d "${ROOT}${GCC_PATH}" ]]; then
++		ewarn "The GCC compiler for ${CTARGET} is not installed."
++		return 1
++	fi
++
+ 	# See what new stuff we need to wrap up.
+ 	local new_wrappers=( $(
+ 		uniq_wrapper_list "${CC_COMP_VERSION}" $(
+@@ -331,6 +339,12 @@ handle_split_usr() {
+ 
+ 	gcc="${ROOT}${LATEST_GCC_PATH}/gcc"
+ 
++	# Sabayon: base-gcc does not carry the GCC executable, so
++	# skip this part
++	if [[ ! -x "${gcc}" ]]; then
++		return 0
++	fi
++
+ 	local multilib
+ 	for multilib in $("${gcc}" -print-multi-lib); do
+ 		local multiarg=${multilib#*;}
