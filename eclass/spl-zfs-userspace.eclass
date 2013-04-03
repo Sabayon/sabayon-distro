@@ -6,7 +6,7 @@ AT_M4DIR="config"
 AUTOTOOLS_AUTORECONF="1"
 AUTOTOOLS_IN_SOURCE_BUILD="1"
 
-inherit eutils flag-o-matic git-2 linux-mod autotools-utils
+inherit eutils flag-o-matic git-2 linux-mod autotools-utils udev
 
 # export all the available functions here
 EXPORT_FUNCTIONS pkg_setup src_unpack src_prepare src_configure src_compile src_install src_test
@@ -134,7 +134,7 @@ _zfs_src_configure() {
 		--with-config=user
 		--with-linux="${KV_DIR}"
 		--with-linux-obj="${KV_OUT_DIR}"
-		--with-udevdir="${EPREFIX}/lib/udev"
+		--with-udevdir="$(get_udevdir)"
 		$(use_enable debug)
 		--with-spl="${SPL_S}"
 	)
