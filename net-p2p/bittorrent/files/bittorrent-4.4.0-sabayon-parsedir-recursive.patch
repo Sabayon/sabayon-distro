@@ -1,0 +1,38 @@
+--- BitTorrent-4.4.0.orig/BitTorrent/parsedir.py
++++ BitTorrent-4.4.0/BitTorrent/parsedir.py
+@@ -28,27 +28,27 @@ def parsedir(directory, parsed, files, b
+     dirs_to_check = [directory]
+     new_files = {}
+     new_blocked = {}
++    dirs_cache = set()
+     while dirs_to_check:    # first, recurse directories and gather torrents
+         directory = dirs_to_check.pop()
+-        newtorrents = False
++        # cut circular links
++        if directory in dirs_cache:
++            continue
++        dirs_cache.add(directory)
+         try:
+             dir_contents = os.listdir(directory)
+         except (IOError, OSError), e:
+             errfunc(_("Could not read directory ") + directory)
+             continue
+         for f in dir_contents:
++            p = os.path.join(directory, f)
+             if f.endswith('.torrent'):
+-                newtorrents = True
+-                p = os.path.join(directory, f)
+                 try:
+                     new_files[p] = [(os.path.getmtime(p),os.path.getsize(p)),0]
+                 except (IOError, OSError), e:
+                     errfunc(_("Could not stat ") + p + " : " + str(e))
+-        if not newtorrents:
+-            for f in dir_contents:
+-                p = os.path.join(directory, f)
+-                if os.path.isdir(p):
+-                    dirs_to_check.append(p)
++            elif os.path.isdir(p):
++                dirs_to_check.append(p)
+ 
+     new_parsed = {}
+     to_add = []
