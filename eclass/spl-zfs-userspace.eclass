@@ -55,7 +55,7 @@ DEPEND+=" sys-apps/util-linux[static-libs?]
 	sys-libs/zlib[static-libs(+)?]"
 RDEPEND+=" ${DEPEND}
 	!sys-fs/zfs-fuse
-	!prefix? ( sys-fs/udev )
+	!prefix? ( virtual/udev )
 	test-suite? (
 		sys-apps/gawk
 		sys-apps/util-linux
