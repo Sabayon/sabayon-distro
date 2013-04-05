@@ -141,6 +141,16 @@ K_MKIMAGE_RAMDISK_ADDRESS="${K_MKIMAGE_RAMDISK_ADDRESS:-}"
 # [ARM ONLY] Provide the ramdisk entry point address to be used with mkimage
 K_MKIMAGE_RAMDISK_ENTRYPOINT="${K_MKIMAGE_RAMDISK_ENTRYPOINT:-}"
 
+# @ECLASS-VARIABLE: K_MKIMAGE_KERNEL_ADDRESS
+# @DESCRIPTION:
+# [ARM ONLY] Provide the kernel load address to be used with mkimage
+K_MKIMAGE_KERNEL_ADDRESS="${K_MKIMAGE_KERNEL_ADDRESS:-}"
+
+# @ECLASS-VARIABLE: K_MKIMAGE_KERNEL_ENTRYPOINT
+# @DESCRIPTION:
+# [ARM ONLY] Provide the kernel entry point address to be used with mkimage
+K_MKIMAGE_KERNEL_ENTRYPOINT="${K_MKIMAGE_KERNEL_ENTRYPOINT:-${K_MKIMAGE_KERNEL_ADDRESS}}"
+
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
 # Disable deblobbing feature
@@ -536,12 +546,29 @@ _setup_mkimage_ramdisk() {
 		ewarn "No initramfs at ${initramfs}, cannot run mkimage on it!"
 	else
 		einfo "Setting up u-boot initramfs for: ${initramfs}"
-		/usr/bin/mkimage -A arm -O linux -T ramdisk -C none -a "${K_MKIMAGE_RAMDISK_ADDRESS}" \
+		mkimage -A arm -O linux -T ramdisk -C none -a \
+			"${K_MKIMAGE_RAMDISK_ADDRESS}" \
 			-e "${K_MKIMAGE_RAMDISK_ENTRYPOINT}" -d "${initramfs}" \
 			"${initramfs}.u-boot" || return 1
 		mv "${initramfs}.u-boot" "${initramfs}" || return 1
 	fi
 	return 0
+}
+
+_generate_uImage() {
+	local zImage="${1}"
+	local uImage="${2}"
+
+	echo
+	einfo "Setting up u-boot uImage, calling mkimage with:"
+	einfo "- load address: ${K_MKIMAGE_KERNEL_ADDRESS}"
+	einfo "- entry point: ${K_MKIMAGE_KERNEL_ENTRYPOINT}"
+	echo
+
+	mkimage -A arm -O linux -T kernel -C none -a \
+		"${K_MKIMAGE_KERNEL_ADDRESS}" \
+		-e "${K_MKIMAGE_KERNEL_ENTRYPOINT}" \
+		-d "${zImage}" "${uImage}"
 }
 
 sabayon-kernel_src_install() {
@@ -581,7 +608,18 @@ _kernel_sources_src_install() {
 }
 
 _kernel_src_install() {
-	use arm && { _setup_mkimage_ramdisk || die "cannot setup mkimage"; }
+	if use arm; then
+		_setup_mkimage_ramdisk || die "cannot setup mkimage";
+		local zImage="${S}/arch/arm/boot/zImage"
+		local uImage="${S}/arch/arm/boot/uImage"
+		if [ ! -e "${zImage}" ]; then
+			die "cannot find ${zImage}"
+		fi
+		if [ -n "${K_MKIMAGE_KERNEL_ADDRESS}" ]; then
+			_generate_uImage "${zImage}" "${uImage}" \
+				|| die "cannot generate uImage"
+		fi
+	fi
 
 	dodir "${KV_OUT_DIR}"
 	insinto "${KV_OUT_DIR}"
