@@ -13,7 +13,7 @@ HOMEPAGE="http://fileroller.sourceforge.net/"
 LICENSE="GPL-2+"
 SLOT="0"
 IUSE=""
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 
 RDEPEND="
 	~app-arch/file-roller-${PV}
@@ -22,26 +22,23 @@ RDEPEND="
 DEPEND=">=gnome-base/nautilus-3
 	>=dev-libs/glib-2.29.14:2
 	sys-devel/gettext
-	>=app-arch/libarchive-3.0.0:=
-	>=dev-libs/json-glib-0.14.0
+	>=app-arch/libarchive-3:=
+	>=dev-libs/json-glib-0.14
 	virtual/pkgconfig
-	>=x11-libs/gtk+-3.4.0:3
+	>=x11-libs/gtk+-3.6:3
 "
 
 src_configure() {
-	# --disable-debug because enabling it adds -O0 to CFLAGS
-	G2CONF="${G2CONF}
-		--disable-dependency-tracking
-		--disable-run-in-place
-		--disable-static
-		--disable-debug
-		--enable-magic
-		--enable-libarchive
-		--with-smclient=xsmp
-		--enable-nautilus-actions
-		--disable-packagekit
-		ITSTOOL=$(type -P true)"
-	econf $G2CONF
+	econf \
+		--disable-run-in-place \
+		--disable-static \
+		--disable-debug \
+		--enable-magic \
+		--enable-libarchive \
+		--with-smclient=xsmp \
+		--enable-nautilus-actions \
+		--disable-packagekit \
+		ITSTOOL=$(type -P true)
 }
 
 src_compile() {
