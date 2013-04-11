@@ -237,6 +237,12 @@ src_prepare() {
 		epatch "${FILESDIR}/${P}-parallel-make.patch" #424231
 		epatch "${FILESDIR}/${P}-no-gets.patch" #424703
 		epatch "${FILESDIR}/${P}-config-quoting.patch" #426364
+		epatch "${FILESDIR}/${P}-tftp-endian.patch" # 438612
+		epatch "${FILESDIR}/${P}-hardcoded-awk.patch" #424137
+		epatch "${FILESDIR}/${P}-freebsd.patch" #442050
+		epatch "${FILESDIR}/${P}-compression.patch" #424527
+		epatch "${FILESDIR}/${P}-zfs-feature-flag-support.patch" #455358
+		epatch "${FILESDIR}/${P}-20_linux_xen.patch" #463992
 	fi
 
 	# fix texinfo file name, bug 416035
