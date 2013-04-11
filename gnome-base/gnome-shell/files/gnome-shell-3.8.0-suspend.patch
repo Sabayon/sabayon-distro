@@ -1,0 +1,55 @@
+From b91d9c2867952520e685d689f75bc019befcaaf3 Mon Sep 17 00:00:00 2001
+From: Florian Müllner <fmuellner@gnome.org>
+Date: Sun, 03 Feb 2013 20:53:33 +0000
+Subject: loginManager: Make suspend() a NOP in the ConsoleKit path
+
+UPower will remove its suspend support eventually, and g-s-d already
+depends on logind for power management.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=693162
+
+Index: gnome-shell-3.7.90/js/misc/loginManager.js
+===================================================================
+--- gnome-shell-3.7.90.orig/js/misc/loginManager.js	2013-02-23 15:17:56.532244380 -0500
++++ gnome-shell-3.7.90/js/misc/loginManager.js	2013-02-23 15:19:29.800240480 -0500
+@@ -5,6 +5,7 @@
+ const Lang = imports.lang;
+ const Mainloop = imports.mainloop;
+ const Shell = imports.gi.Shell;
++const UPowerGlib = imports.gi.UPowerGlib;
+ const Signals = imports.signals;
+ 
+ const SystemdLoginManagerIface = <interface name='org.freedesktop.login1.Manager'>
+@@ -137,12 +138,10 @@
+     },
+ 
+     canSuspend: function(asyncCallback) {
+-        this._proxy.CanSuspendRemote(function(result, error) {
+-            if (error)
+-                asyncCallback(false);
+-            else
+-                asyncCallback(result[0] != 'no');
+-        });
++        Mainloop.idle_add(Lang.bind(this, function() {
++            asyncCallback(this._upClient.get_can_suspend());
++            return false;
++        }));
+     },
+ 
+     listSessions: function(asyncCallback) {
+@@ -199,6 +198,7 @@
+         this._proxy = new ConsoleKitManager(Gio.DBus.system,
+                                             'org.freedesktop.ConsoleKit',
+                                             '/org/freedesktop/ConsoleKit/Manager');
++        this._upClient = new UPowerGlib.Client();
+     },
+ 
+     // Having this function is a bit of a hack since the Systemd and ConsoleKit
+@@ -252,6 +252,7 @@
+     suspend: function() {
+         this.emit('prepare-for-sleep', true);
+         this.emit('prepare-for-sleep', false);
++        this._upClient.suspend_sync(null);
+     },
+ 
+     inhibit: function(reason, callback) {

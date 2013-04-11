@@ -15,7 +15,7 @@ HOMEPAGE="http://live.gnome.org/GnomeShell"
 LICENSE="GPL-2+ LGPL-2+"
 SLOT="0"
 IUSE="+bluetooth +i18n +networkmanager systemd"
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 
 # libXfixes-5.0 needed for pointer barriers
 # TODO: gstreamer support is currently automagical:
@@ -42,7 +42,7 @@ COMMON_DEPEND="
 	>=net-libs/telepathy-glib-0.19[introspection]
 	>=sys-auth/polkit-0.100[introspection]
 	>=x11-libs/libXfixes-5.0
-	>=x11-wm/mutter-${PV}[introspection]
+	>=x11-wm/mutter-3.6.3[introspection]
 	>=x11-libs/startup-notification-0.11
 
 	${PYTHON_DEPS}
@@ -54,7 +54,7 @@ COMMON_DEPEND="
 	media-libs/libcanberra
 	media-libs/mesa
 	media-sound/pulseaudio
-	net-libs/libsoup:2.4[introspection]
+	>=net-libs/libsoup-2.40:2.4[introspection]
 	x11-libs/libX11
 	x11-libs/gdk-pixbuf:2[introspection]
 	x11-libs/pango[introspection]
@@ -129,15 +129,14 @@ src_prepare() {
 
 src_configure() {
 	# Do not error out on warnings
-	G2CONF="${G2CONF}
-		--enable-man
-		--enable-compile-warnings=maximum
-		--disable-jhbuild-wrapper-script
-		$(use_with bluetooth)
-		$(use_enable networkmanager)
-		$(use_with systemd)
-		BROWSER_PLUGIN_DIR=${EPREFIX}/usr/$(get_libdir)/nsbrowser/plugins"
-	gnome2_src_configure
+	gnome2_src_configure \
+		--enable-man \
+		--enable-compile-warnings=maximum \
+		--disable-jhbuild-wrapper-script \
+		$(use_with bluetooth) \
+		$(use_enable networkmanager) \
+		$(use_with systemd) \
+		BROWSER_PLUGIN_DIR="${EPREFIX}"/usr/$(get_libdir)/nsbrowser/plugins
 }
 
 src_install() {
