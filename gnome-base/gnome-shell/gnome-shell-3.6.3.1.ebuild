@@ -60,9 +60,9 @@ COMMON_DEPEND="
 	x11-libs/pango[introspection]
 	x11-apps/mesa-progs
 
+	systemd? ( sys-apps/systemd )
 	bluetooth? ( >=net-wireless/gnome-bluetooth-3.5[introspection] )
 	networkmanager? ( >=net-misc/networkmanager-0.8.999[introspection] )
-	systemd? ( >=sys-apps/systemd-31 )
 "
 # Runtime-only deps are probably incomplete and approximate.
 # Introspection deps generated using:
@@ -100,7 +100,7 @@ RDEPEND="${COMMON_DEPEND}
 		net-misc/mobile-broadband-provider-info
 		sys-libs/timezone-data )
 
-	!systemd? ( sys-auth/consolekit )
+	|| ( sys-auth/consolekit sys-apps/systemd )
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/libxslt
