@@ -52,7 +52,7 @@ COMMON_DEPEND="
 	>=x11-misc/xdg-utils-1.0.2-r3
 
 	virtual/pam
-	sys-auth/pambase[consolekit?,systemd?]
+	sys-auth/pambase
 
 	accessibility? ( x11-libs/libXevie )
 	audit? ( sys-process/audit )
@@ -247,14 +247,6 @@ pkg_postinst() {
 	elog "you need to use pam_env.so in /etc/pam.d/gdm-welcome; see"
 	elog "the pam_env man page for more information."
 	elog
-
-	if has_version sys-auth/pambase[gnome-keyring]; then
-		elog "For passwordless login to unlock your keyring, you need to set an"
-		elog "empty password on your keyring. Use app-crypt/seahorse for that."
-	else
-		elog "To unlock your keyring on login, install sys-auth/pambase"
-		elog "with USE=gnome-keyring"
-	fi
 
 	if [[ -f "/etc/X11/gdm/gdm.conf" ]]; then
 		elog "You had /etc/X11/gdm/gdm.conf which is the old configuration"
