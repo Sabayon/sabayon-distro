@@ -37,4 +37,11 @@ src_install () {
 pkg_postinst() {
 	# Setup Python 2.7
 	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3 --ignore 3.4
+
+	# Improve systemd support
+	if [[ ! -L /etc/mtab ]] && [[ -e /proc/self/mounts ]]; then
+		rm -f /etc/mtab
+		einfo "Migrating /etc/mtab to a /proc/self/mounts symlink"
+		ln -sf /proc/self/mounts /etc/mtab
+	fi
 }
