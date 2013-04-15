@@ -6,7 +6,7 @@ EAPI=5
 
 KDE_HANDBOOK="optional"
 KMNAME="kde-workspace"
-inherit kde4-meta flag-o-matic user
+inherit kde4-meta flag-o-matic user systemd
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
 KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
@@ -99,6 +99,8 @@ src_install() {
 	# install logrotate file
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/kdm-logrotate kdm
+
+	systemd_dounit "${FILESDIR}/${PN}.service"
 }
 
 pkg_postinst() {
