@@ -1,0 +1,8 @@
+[Unit]
+Description=Name Service Cache Daemon Socket
+
+[Socket]
+ListenDatagram=/var/run/nscd/socket
+
+[Install]
+WantedBy=sockets.target

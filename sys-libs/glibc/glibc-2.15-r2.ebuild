@@ -1,8 +1,8 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/glibc-2.15-r2.ebuild,v 1.23 2012/08/27 14:17:53 vapier Exp $
+# $Header: $
 
-inherit eutils versionator libtool toolchain-funcs flag-o-matic gnuconfig multilib unpacker multiprocessing
+inherit eutils versionator libtool toolchain-funcs flag-o-matic gnuconfig multilib unpacker multiprocessing systemd
 
 DESCRIPTION="GNU libc6 (also called glibc2) C library"
 HOMEPAGE="http://www.gnu.org/software/libc/libc.html"
@@ -215,6 +215,9 @@ eblit-src_unpack-post() {
 	cd "${S}"
 	einfo "Fixing first workday and weekday for it_IT"
 	epatch "${FILESDIR}"/glibc-it_IT-workday-upstream-bug-13197.patch
+
+	# Install nscd ssytemd unit
+	systemd_dounit "${FILESDIR}"/nscd.{service,socket}
 }
 
 eblit-pkg_preinst-post() {
