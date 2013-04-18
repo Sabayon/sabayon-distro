@@ -32,18 +32,6 @@ runtime_linking_proprietary_drivers() {
 	fi
 }
 
-buggy_fglrx_xv_fixup_code() {
-	# This is a workaround for xv being broken
-	# on fglrx <12.2, disable Xv in xorg.conf.d
-	local workaround_file=/usr/share/sabayonlive-tools/xorg.conf.d/90-fglrx-12.1-and-older-workaround.conf
-	if [ -f "${workaround_file}" ]; then
-		is_fglrx=$(/bin/lsmod | grep ^fglrx)
-		if [ -n "${is_fglrx}" ]; then
-			cp "${workaround_file}" /usr/share/X11/xorg.conf.d
-		fi
-	fi
-}
-
 # create seed
 rm -f /etc/x-setup-configuration-running
 touch /etc/x-setup-configuration-running
@@ -53,8 +41,6 @@ if sabayon_is_live; then
 	runtime_linking_proprietary_drivers
 fi
 /sbin/gpu-configuration &> /dev/null
-
-# buggy_fglrx_xv_fixup_code
 
 # delete seed
 rm -f /etc/x-setup-configuration-running

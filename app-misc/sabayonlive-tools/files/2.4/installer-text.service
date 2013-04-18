@@ -1,0 +1,11 @@
+[Unit]
+Description=Sabayon text installer setup
+Before=systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/libexec/installer-text.sh
+
+[Install]
+WantedBy=multi-user.target

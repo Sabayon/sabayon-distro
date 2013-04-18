@@ -1,0 +1,13 @@
+[Unit]
+Description=Eject CD/DVD before power off or reboot
+DefaultDependencies=no
+After=shutdown.target
+Before=final.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/libexec/cdeject.sh
+
+[Install]
+WantedBy=multi-user.target

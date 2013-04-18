@@ -1,0 +1,12 @@
+[Unit]
+Description=Sabayon installer setup
+Before=display-manager.service
+After=sabayonlive.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/libexec/installer-gui.sh
+
+[Install]
+WantedBy=multi-user.target

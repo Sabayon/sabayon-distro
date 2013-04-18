@@ -209,11 +209,17 @@ sabayon_fixup_gnome_autologin_session() {
 }
 
 sabayon_setup_text_installer() {
-	# switch to verbose mode
-	splash_manager -c set -t default -m v &> /dev/null
-	reset
-	chvt 1
-	clear
+	if openrc_running; then
+		# switch to verbose mode
+		splash_manager -c set -t default -m v &> /dev/null
+		reset
+		chvt 1
+		clear
+	fi
+	sabayon_setup_text_installer_motd
+}
+
+sabayon_setup_text_installer_motd() {
 	echo "Welcome to Sabayon Linux Text installation." >> /etc/motd
 	echo "root password: root" >> /etc/motd
 	echo "to run the installation type: installer <and PRESS ENTER>" >> /etc/motd
@@ -257,4 +263,12 @@ sabayon_is_normal_boot() {
 	else
 		return 1
 	fi
+}
+
+systemd_running() {
+	test -d /run/systemd/system
+}
+
+openrc_running() {
+	test -d /run/openrc/softlevel
 }
