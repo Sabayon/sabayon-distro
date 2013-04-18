@@ -1,10 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="2"
 
-inherit eutils autotools
+inherit eutils autotools systemd
 
 DESCRIPTION="LXDE Display Manager"
 HOMEPAGE="http://lxde.org"
@@ -71,6 +71,8 @@ src_configure() {
 src_install() {
 	emake DESTDIR="${D}" install || die
 	dodoc AUTHORS README TODO || die
+
+	systemd_dounit "${FILESDIR}/lxdm.service"
 }
 
 pkg_postinst() {

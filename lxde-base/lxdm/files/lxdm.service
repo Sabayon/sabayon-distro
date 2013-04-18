@@ -1,0 +1,14 @@
+[Unit]
+Description=LXDM (Lightweight X11 Display Manager)
+#Documentation=man:lxdm(8)
+Conflicts=getty@tty1.service
+After=systemd-user-sessions.service
+
+[Service]
+ExecStart=/usr/sbin/lxdm
+Restart=always
+IgnoreSIGPIPE=no
+#BusName=org.freedesktop.lxdm
+
+[Install]
+Alias=display-manager.service
