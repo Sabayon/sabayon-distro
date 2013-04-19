@@ -1,7 +1,9 @@
-# Copyright 2004-2012 Sabayon
+# Copyright 2004-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils
+EAPI=5
+
+inherit eutils systemd
 
 DESCRIPTION="Sabayon Linux Media Center Infrastructure"
 HOMEPAGE="http://www.sabayon.org/"
@@ -10,7 +12,7 @@ SRC_URI=""
 RESTRICT="nomirror"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm x86"
+KEYWORDS="amd64 arm x86"
 IUSE=""
 
 RDEPEND="media-tv/xbmc
@@ -19,38 +21,35 @@ DEPEND=""
 
 S="${WORKDIR}"
 
-src_unpack() {
-	cp "${FILESDIR}"/${PV}/* "${WORKDIR}"/ -Rp || die "cannot unpack"
-}
-
 src_install () {
+	local dir="${FILESDIR}/${PV}"
 
-	cd "${WORKDIR}"/init.d
-	newinitd sabayon-mce sabayon-mce
+	doinitd "${dir}/init.d/sabayon-mce"
+	systemd_dounit "${dir}"/systemd/*
 
-	cd "${WORKDIR}"/bin
+	dodir /usr/bin
 	exeinto /usr/bin
-	doexe *
+	doexe "${dir}"/bin/*
 
-	cd "${WORKDIR}"/xsession
+	dodir /usr/libexec
+	exeinto /usr/libexec
+	doexe "${dir}"/libexec/*
+
 	dodir /usr/share/xsessions
 	insinto /usr/share/xsessions
-	doins *.desktop
-
+	doins "${dir}"/xsession/*.desktop
 }
 
 pkg_postinst() {
 	# create new user sabayonmce
 	local mygroups="users"
-	for mygroup in lp wheel uucp audio cdrom scanner video cdrw usb plugdev polkituser; do
+	local gr="lp wheel uucp audio cdrom scanner video "
+	gr+="cdrw usb plugdev polkituser"
+
+	for mygroup in ${gr}; do
 		if [[ -n $(egetent group "${mygroup}") ]]; then
-        		mygroups+=",${mygroup}"
+			mygroups+=",${mygroup}"
 		fi
 	done
 	enewuser sabayonmce -1 /bin/sh /var/sabayonmce "${mygroups}"
-
-	elog "For those who are using <=Sabayon-5.1 as Media Center:"
-	elog "PLEASE update DISPLAYMANAGER= in /etc/conf.d/xdm"
-	elog "setting it to gdm or kdm."
-
 }
