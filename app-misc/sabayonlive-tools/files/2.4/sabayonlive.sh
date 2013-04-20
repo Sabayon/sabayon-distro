@@ -86,8 +86,10 @@ setup_keymap() {
                 keymap_toset="${word/*=}"
                 ;;
             keymap=*)
-                keymap_toset_model="-${word/*=}"
+                keymap_toset="${word/*=}"
                 ;;
+            vconsole.keymap=*)
+                keymap_toset="${word/*=}"
         esac
     done
 
