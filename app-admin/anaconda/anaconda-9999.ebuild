@@ -45,6 +45,7 @@ LSELINUX_CONFLICT="!sys-libs/libselinux" # due to pythonX.Y/site-packages+/usr/s
 COMMON_DEPEND="app-admin/system-config-keyboard
 	>=app-arch/libarchive-2.8
 	app-cdr/isomd5sum
+	app-crypt/sbsigntool
 	dev-libs/newt
 	nfs? ( net-fs/nfs-utils )
 	sys-fs/lvm2
@@ -69,10 +70,14 @@ src_unpack() {
 }
 
 src_prepare() {
-
 	# Setup CFLAGS, LDFLAGS
 	append-cppflags "-I${D}/usr/include/anaconda-runtime"
 	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
+	append-cflags "-fexceptions"
+
+	# drop after 0.9.11
+	sed -i "s:-O2 -g -pipe -Wp,-D_FORTIFY_SOURCE=2 -fexceptions::g" \
+		"${S}/configure.ac" || die
 
 	# Setup anaconda
 	cd "${S}"
@@ -101,7 +106,6 @@ src_prepare() {
                         "${AUDIT_S}"/audisp/plugins/Makefile.am || die "cannot sed libaudit Makefile.am (ldap)"
         fi
 	eautoreconf
-
 }
 
 copy_audit_data_over() {
