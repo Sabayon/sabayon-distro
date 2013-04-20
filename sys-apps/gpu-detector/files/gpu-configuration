@@ -199,6 +199,12 @@ for cmd in cmdline:
         if not forced_xdriver:
             forced_xdriver = cmd.split("=")[1] # --forced-xdriver= owns
 
+def openrc_running():
+    return os.path.isfile("/run/openrc/softlevel")
+
+def systemd_running():
+    return os.path.isdir("/run/systemd/system")
+
 def remove_proprietary_opengl(bumblebee):
     if not dryrun:
         if not bumblebee:
@@ -577,7 +583,7 @@ def generate_nvidia_bumblebee_steps(v3dcard, company_id, card_id):
         return
 
     if dryrun:
-        print("Was about to start /etc/init.d/bumblebee")
+        print("Was about to start bumblebee")
         return
 
     if not livecd:
@@ -587,7 +593,11 @@ def generate_nvidia_bumblebee_steps(v3dcard, company_id, card_id):
     # This is used by our Installer
     with open("/tmp/.bumblebee.enabled", "w") as f:
         pass
-    os.system("/etc/init.d/bumblebee start")
+
+    if openrc_running():
+        os.system("/etc/init.d/bumblebee start")
+    elif systemd_running():
+        os.system("/usr/bin/systemctl start bumblebeed")
 
 def generate_nvidia_steps(videocard, cardnumber, total_cards, bus_id):
     comp_id, card_id = extract_pci_ids(videocard)
