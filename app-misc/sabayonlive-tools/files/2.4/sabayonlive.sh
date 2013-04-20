@@ -90,6 +90,10 @@ setup_keymap() {
                 ;;
             vconsole.keymap=*)
                 keymap_toset="${word/*=}"
+                ;;
+            vconsole.keymap.model=*)
+                keymap_toset_model="-${word/*=}"
+                ;;
         esac
     done
 
