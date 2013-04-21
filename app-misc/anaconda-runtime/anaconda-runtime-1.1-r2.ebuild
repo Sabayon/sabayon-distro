@@ -32,7 +32,6 @@ RDEPEND="app-admin/system-config-date
 	net-misc/fcoe-utils
 	>=net-misc/networkmanager-0.7.2
 	sys-apps/dmidecode
-	sys-apps/language-configuration-helpers
 	>=sys-boot/grub-1.98
 	sys-boot/makebootfat
 	sys-fs/btrfs-progs
