@@ -1,6 +1,6 @@
 [Unit]
 Description=Sabayon live system setup
-Before=display-manager.service systemd-vconsole-setup.service
+Before=display-manager.service systemd-vconsole-setup.service getty.target
 
 [Service]
 Type=oneshot

@@ -128,9 +128,23 @@ sabayon_setup_motd() {
 }
 
 sabayon_setup_vt_autologin() {
-	source /sbin/livecd-functions.sh
-	export CDBOOT=1
-	livecd_fix_inittab
+	if openrc_running; then
+		. /sbin/livecd-functions.sh
+		export CDBOOT=1
+		livecd_fix_inittab
+	elif systemd_running; then
+		cp /usr/lib/systemd/system/getty@.service \
+			/etc/systemd/system/autologin@.service
+		sed -i "/^ExecStart=/ s:/sbin/agetty:/sbin/agetty --autologin root:g" \
+			/etc/systemd/system/autologin@.service
+		sed -i "/^ExecStart=/ s:--noclear::g" \
+			/etc/systemd/system/autologin@.service
+		for n in $(seq 1 6); do
+			ln -sf /etc/systemd/system/autologin@.service \
+				/etc/systemd/system/getty.target.wants/getty@tty${n}.service
+		done
+		systemctl daemon-reload
+	fi
 }
 
 sabayon_setup_oem_livecd() {
