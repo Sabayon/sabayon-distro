@@ -118,7 +118,21 @@ setup_locale() {
         esac
     done
     if [ -n "${lang_toset}" ]; then
-        /sbin/language-setup "${lang_toset}" > /dev/null
+        files=(
+            "/etc/env.d/02locale"
+            "/etc/profile.env"
+            "/etc/locale.conf"
+        )
+        for path in "${files[@]}"; do
+            if [ -e "$path" ]; then
+                sed -i "s/^LANG=.*/LANG=\"${lang_toset}.UTF-8\"/g" "${path}"
+                sed -i "s/^LANGUAGE=.*/LANGUAGE=\"${lang_toset}.UTF-8\"/g" \
+                    "${path}"
+            else
+                echo "LANG=\"${lang_toset}.UTF-8\"" > "${path}"
+                echo "LANGUAGE=\"${lang_toset}.UTF-8\"" > "${path}"
+            fi
+        done
     fi
 }
 
