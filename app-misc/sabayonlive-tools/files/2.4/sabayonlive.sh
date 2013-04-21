@@ -13,17 +13,13 @@ setup_password() {
     fi
 }
 
-wait_opengl_config() {
-    while [ -e "/etc/x-setup-configuration-running" ]; do
-        sleep 1
-    done
-}
-
 setup_x() {
     if systemd_running; then
-        /sbin/gpu-configuration
+        [ -x /sbin/gpu-configuration ] && /sbin/gpu-configuration
     else
-        wait_opengl_config
+        while [ -e "/etc/x-setup-configuration-running" ]; do
+            sleep 1
+        done
     fi
 }
 
