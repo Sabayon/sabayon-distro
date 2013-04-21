@@ -1,0 +1,30 @@
+From e0e17a459a04051159a263331ca62a7f9d7cce23 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Sun, 21 Apr 2013 13:53:24 +0100
+Subject: [PATCH] gdm-display: fix get_timed_login_details when systemd is
+ enabled but not running
+
+---
+ daemon/gdm-display.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/daemon/gdm-display.c b/daemon/gdm-display.c
+index 435dc1c..2a621df 100644
+--- a/daemon/gdm-display.c
++++ b/daemon/gdm-display.c
+@@ -361,8 +365,10 @@ gdm_display_real_get_timed_login_details (GdmDisplay *display,
+          * can support auto/timed login on auxilliary seats in the
+          * systemd path.
+          */
+-        if (g_strcmp0 (display->priv->seat_id, "seat0") != 0) {
+-                goto out;
++        if (LOGIND_RUNNING()) {
++                if (g_strcmp0 (display->priv->seat_id, "seat0") != 0) {
++                        goto out;
++                }
+         }
+ #endif
+ 
+-- 
+1.8.1.5
+
