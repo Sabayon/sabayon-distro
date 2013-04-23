@@ -1,0 +1,28 @@
+From 26e818cd633ed6092881f09d3130934e627ad341 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Tue, 23 Apr 2013 16:36:09 +0100
+Subject: [PATCH 3/7] Remove hotplug events serialization
+
+It doesn't make sense to serialize hotplug events. There is no evidence
+whether this fixes some corner cases or not though.
+---
+ defaults/linuxrc | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/defaults/linuxrc b/defaults/linuxrc
+index 0fe05ef..a1144fe 100755
+--- a/defaults/linuxrc
++++ b/defaults/linuxrc
+@@ -326,9 +326,6 @@ mount_sysfs
+ # Initialize mdev
+ good_msg 'Activating mdev'
+ 
+-# Serialize hotplug events
+-touch /dev/mdev.seq
+-
+ # Setup hotplugging for firmware loading
+ echo /sbin/mdev > /proc/sys/kernel/hotplug
+ 
+-- 
+1.8.1.5
+
