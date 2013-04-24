@@ -125,14 +125,22 @@ setup_locale() {
         )
         for path in "${files[@]}"; do
             if [ -e "$path" ]; then
+                sed -i "s/^LC_ALL=.*/LC_ALL=\"${lang_toset}.UTF-8\"/g" \
+                    "${path}"
                 sed -i "s/^LANG=.*/LANG=\"${lang_toset}.UTF-8\"/g" "${path}"
                 sed -i "s/^LANGUAGE=.*/LANGUAGE=\"${lang_toset}.UTF-8\"/g" \
                     "${path}"
             else
-                echo "LANG=\"${lang_toset}.UTF-8\"" > "${path}"
-                echo "LANGUAGE=\"${lang_toset}.UTF-8\"" > "${path}"
+                echo "LC_ALL=\"${lang_toset}.UTF-8\"" > "${path}"
+                echo "LANG=\"${lang_toset}.UTF-8\"" >> "${path}"
+                echo "LANGUAGE=\"${lang_toset}.UTF-8\"" >> "${path}"
             fi
         done
+
+	# Set a default font that makes unicode working (ru_RU would use
+	# a different font btw...).
+        echo "SYSFONT=latarcyrheb-sun16" >> /etc/env.d/02locale
+        echo "export SYSFONT=latarcyrheb-sun16" >> /etc/profile.env
     fi
 }
 
