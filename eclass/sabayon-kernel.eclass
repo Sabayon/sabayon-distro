@@ -35,8 +35,7 @@ K_SABKERNEL_SELF_TARBALL_NAME="${K_SABKERNEL_SELF_TARBALL_NAME:-}"
 
 # @ECLASS-VARIABLE: K_SABKERNEL_FORCE_SUBLEVEL
 # @DESCRIPTION:
-# Force the rewrite of SUBLEVEL in kernel sources Makefile. If the value is
-# "clear", the current SUBLEVEL = value will be reset to empty string.
+# Force the rewrite of SUBLEVEL in kernel sources Makefile
 K_SABKERNEL_FORCE_SUBLEVEL="${K_SABKERNEL_FORCE_SUBLEVEL:-}"
 
 # @ECLASS-VARIABLE: K_SABKERNEL_RESET_EXTRAVERSION
@@ -203,6 +202,18 @@ if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
 	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
 fi
 
+_get_real_kv_full() {
+	if [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
+		echo "${ORIGINAL_KV_FULL}"
+	elif [[ "${OKV/.*}" = "3" ]]; then
+		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
+		# need to add another final .0 to the version part
+		echo "${ORIGINAL_KV_FULL/-/.0-}"
+	else
+		echo "${ORIGINAL_KV_FULL}"
+	fi
+}
+
 # replace "linux" with K_SABKERNEL_NAME, usually replaces
 # "linux" with "sabayon" or "server" or "openvz"
 KV_FULL="${KV_FULL/${PN/-*}/${K_SABKERNEL_NAME}}"
@@ -214,6 +225,9 @@ if [[ -n "${PR//r0}" ]] && [[ "${K_KERNEL_DISABLE_PR_EXTRAVERSION}" = "1" ]] \
 	KV_FULL="${KV_FULL%-r*}"
 	KV="${KV%-r*}"
 fi
+# rewrite it
+ORIGINAL_KV_FULL="${KV_FULL}"
+KV_FULL="$(_get_real_kv_full)"
 
 # Starting from linux-3.0, we still have to install
 # sources stuff into /usr/src/linux-3.0.0-sabayon (example)
@@ -382,9 +396,8 @@ sabayon-kernel_src_unpack() {
 		kernel-2_src_unpack
 	fi
 	if [ -n "${K_SABKERNEL_FORCE_SUBLEVEL}" ]; then
-		local repl="${K_SABKERNEL_FORCE_SUBLEVEL/clear}"
 		# patch out Makefile with proper sublevel
-		sed -i "s:^SUBLEVEL = .*:SUBLEVEL = ${repl}:" \
+		sed -i "s:^SUBLEVEL = .*:SUBLEVEL = ${K_SABKERNEL_FORCE_SUBLEVEL}:" \
 			"${S}/Makefile" || die
 	fi
 	if [ -n "${K_SABKERNEL_RESET_EXTRAVERSION}" ]; then
@@ -730,6 +743,10 @@ _get_release_level() {
 		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
 	elif [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
 		echo "${KV_FULL}"
+	elif [[ "${OKV/.*}" = "3" ]] && [[ "${KV_PATCH}" = "0" ]]; then
+		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
+		# need to add another final .0 to the version part
+		echo "${KV_FULL/-/.0-}"
 	else
 		echo "${KV_FULL}"
 	fi
