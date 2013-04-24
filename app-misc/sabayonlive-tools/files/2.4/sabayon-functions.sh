@@ -284,5 +284,5 @@ systemd_running() {
 }
 
 openrc_running() {
-	test -d /run/openrc/softlevel
+	test -e /run/openrc/softlevel
 }
