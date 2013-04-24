@@ -136,14 +136,11 @@ sabayon_setup_vt_autologin() {
 		cp /usr/lib/systemd/system/getty@.service \
 			/etc/systemd/system/autologin@.service
 		sed -i "/^ExecStart=/ s:/sbin/agetty:/sbin/agetty --autologin root:g" \
-			/etc/systemd/system/autologin@.service
+			/usr/lib/systemd/system/getty@.service
 		sed -i "/^ExecStart=/ s:--noclear::g" \
-			/etc/systemd/system/autologin@.service
-		for n in $(seq 1 6); do
-			ln -sf /etc/systemd/system/autologin@.service \
-				/etc/systemd/system/getty.target.wants/getty@tty${n}.service
-		done
+			/usr/lib/systemd/system/getty@.service
 		systemctl daemon-reload
+		systemctl restart getty@tty1
 	fi
 }
 
