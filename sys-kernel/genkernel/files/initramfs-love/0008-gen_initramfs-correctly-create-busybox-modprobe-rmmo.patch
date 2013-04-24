@@ -1,0 +1,26 @@
+From a0fe7e299a0edf5b7f9b648171bf266d9766946a Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Wed, 24 Apr 2013 15:50:26 +0100
+Subject: [PATCH 8/8] gen_initramfs: correctly create busybox modprobe, rmmod,
+ insmod symlinks
+
+---
+ gen_initramfs.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index 72e005f..784c0cc 100755
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -134,6 +134,8 @@ append_busybox() {
+ 		dir=$(dirname $i)
+ 		name=$(basename $i)
+ 		rm -f ${TEMP}/initramfs-busybox-temp/$dir/$name
++		mkdir -p ${TEMP}/initramfs-busybox-temp/$dir ||
++			gen_die "Busybox error: could not create dir: $dir"
+ 		ln -s ../bin/busybox ${TEMP}/initramfs-busybox-temp/$dir/$name ||
+ 			gen_die "Busybox error: could not link ${i}!"
+ 	done
+-- 
+1.8.1.5
+
