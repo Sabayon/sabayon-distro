@@ -84,6 +84,8 @@ src_prepare() {
 
 	# Backport some git patches
 	epatch "${FILESDIR}"/backports/*.patch
+	# Add some more improvements that ease debugging
+	epatch "${FILESDIR}"/debug-improvements/*.patch
 
 	# Update software.sh
 	sed -i \
