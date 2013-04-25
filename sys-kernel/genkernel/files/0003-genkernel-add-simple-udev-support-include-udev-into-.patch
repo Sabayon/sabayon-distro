@@ -1,0 +1,195 @@
+From 4a582f6a33532d40a1be49f6bfbd2e4ef5caa070 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Fri, 26 Apr 2013 00:21:01 +0100
+Subject: [PATCH 3/3] genkernel: add simple udev support, include udev into
+ initramfs if --udev
+
+---
+ defaults/linuxrc     | 38 +++++++++++++++++++++++++++++---------
+ doc/genkernel.8.txt  |  4 ++++
+ gen_cmdline.sh       |  6 ++++++
+ gen_determineargs.sh |  1 +
+ gen_initramfs.sh     | 38 ++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 78 insertions(+), 9 deletions(-)
+
+diff --git a/defaults/linuxrc b/defaults/linuxrc
+index ba9c5d5..7171e5e 100755
+--- a/defaults/linuxrc
++++ b/defaults/linuxrc
+@@ -88,6 +88,9 @@ do
+ 		isoboot=*)
+ 			ISOBOOT=${x#*=}
+ 		;;
++		domdev)
++			USE_MDEV=1
++		;;
+ 		# Start Volume manager options
+ 		dolvm)
+ 			USE_LVM_NORMAL=1
+@@ -323,14 +326,18 @@ mount_devfs
+ # Mount sysfs
+ mount_sysfs
+ 
+-# Initialize mdev
+-good_msg 'Activating mdev'
+-
+-# Serialize hotplug events
+-touch /dev/mdev.seq
+-
+ # Setup hotplugging for firmware loading
+-echo /sbin/mdev > /proc/sys/kernel/hotplug
++if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
++then
++	good_msg 'Activating udev'
++	echo /sbin/udevd > /proc/sys/kernel/hotplug
++	echo "" > /sys/kernel/uevent_helper
++else
++	good_msg 'Activating mdev'
++	# Serialize hotplug events
++	touch /dev/mdev.seq
++	echo /sbin/mdev > /proc/sys/kernel/hotplug
++fi
+ 
+ # Load modules listed in MY_HWOPTS if /lib/modules exists for the running kernel
+ if [ -z "${DO_modules}" ]
+@@ -353,8 +360,16 @@ else
+ 	good_msg 'Skipping module load; no modules in the ramdisk!'
+ fi
+ 
+-# Ensure that device nodes are properly configured
+-mdev -s || bad_msg "mdev -s failed"
++if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
++then
++	# Initialize udev
++	/sbin/udevd --daemon --resolve-names=never && \
++		udevadm trigger --action=add && \
++		udevadm settle || bad_msg "udevd failed to run"
++else
++	# Ensure that device nodes are properly configured
++	mdev -s || bad_msg "mdev -s failed"
++fi
+ 
+ # Apply scan delay if specified
+ sdelay
+@@ -915,6 +930,11 @@ cd "${CHROOT}"
+ mkdir "${CHROOT}/proc" "${CHROOT}/sys" "${CHROOT}/run" 2>/dev/null
+ echo -ne "${BOLD}.${NORMAL}"
+ 
++if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
++then
++	udevadm control --exit || bad_msg "Unable to terminate udevd"
++fi
++
+ # If devtmpfs is mounted, try move it to the new root
+ # If that fails, try to unmount all possible mounts of devtmpfs as stuff breaks otherwise
+ for fs in /dev /sys /proc
+diff --git a/doc/genkernel.8.txt b/doc/genkernel.8.txt
+index 54d26d2..2dc3740 100644
+--- a/doc/genkernel.8.txt
++++ b/doc/genkernel.8.txt
+@@ -247,6 +247,10 @@ INITIALIZATION
+ *--*[*no-*]*keymap*::
+     Enables or disables keymap selection at boot.
+ 
++*--*[*no-*]*udev*::
++        Adds or exclude in udev support from static binaries if they exist on
++        the system.
++
+ *--*[*no-*]*lvm*::
+ 	Adds or skips in LVM support from static binaries if they exist on the
+ 	system,  or compile static LVM binaries if static ones do not exist.
+diff --git a/gen_cmdline.sh b/gen_cmdline.sh
+index 5503bb5..2cb3410 100755
+--- a/gen_cmdline.sh
++++ b/gen_cmdline.sh
+@@ -86,6 +86,8 @@ longusage() {
+   echo "	--do-keymap-auto	Forces keymap selection at boot"
+   echo "	--keymap		Enables keymap selection support"
+   echo "	--no-keymap		Disables keymap selection support"
++  echo "	--udev			Include udev and use it instead of mdev"
++  echo "	--no-udev		Exclude udev and use it instead of mdev"
+   echo "	--lvm			Include LVM support"
+   echo "	--no-lvm		Exclude LVM support"
+   echo "	--mdadm			Include MDADM/MDMON support"
+@@ -270,6 +272,10 @@ parse_cmdline() {
+ 			CMD_KEYMAP=`parse_optbool "$*"`
+ 			print_info 2 "CMD_KEYMAP: ${CMD_KEYMAP}"
+ 			;;
++		--udev|--no-udev)
++			CMD_UDEV=`parse_optbool "$*"`
++			print_info 2 "CMD_UDEV: ${CMD_UDEV}"
++			;;
+ 		--lvm|--no-lvm)
+ 			CMD_LVM=`parse_optbool "$*"`
+ 			print_info 2 "CMD_LVM: ${CMD_LVM}"
+diff --git a/gen_determineargs.sh b/gen_determineargs.sh
+index afc6fe3..1394995 100755
+--- a/gen_determineargs.sh
++++ b/gen_determineargs.sh
+@@ -111,6 +111,7 @@ determine_real_args() {
+ 	set_config_with_override BOOL   SYMLINK              CMD_SYMLINK
+ 	set_config_with_override STRING INSTALL_MOD_PATH     CMD_INSTALL_MOD_PATH
+ 	set_config_with_override BOOL   OLDCONFIG            CMD_OLDCONFIG
++	set_config_with_override BOOL   UDEV                 CMD_UDEV
+ 	set_config_with_override BOOL   LVM                  CMD_LVM
+ 	set_config_with_override BOOL   DMRAID               CMD_DMRAID
+ 	set_config_with_override BOOL   ISCSI                CMD_ISCSI
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index 784c0cc..b80779c 100755
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -563,6 +563,43 @@ append_gpg() {
+ 	rm -rf "${TEMP}/initramfs-gpg-temp" > /dev/null
+ }
+ 
++append_udev() {
++	if [ -d "${TEMP}/initramfs-udev-temp" ]
++	then
++		rm -r "${TEMP}/initramfs-udev-temp"
++	fi
++
++	udev_files="
++		/lib/udev/rules.d/50-udev-default.rules
++		/lib/udev/rules.d/60-persistent-storage.rules
++		/lib/udev/rules.d/64-md-raid.rules
++		/lib/udev/rules.d/80-drivers.rules
++		/lib/udev/rules.d/99-systemd.rules
++		/etc/udev/udev.conf
++	"
++	for f in ${udev_files}; do
++		mkdir -p "${TEMP}/initramfs-udev-temp"/$(dirname "${f}") || \
++			gen_die "cannot create rules.d directory"
++		[ -f "${f}" ] && \
++			cp "${f}" "${TEMP}/initramfs-udev-temp/${f}" || \
++			gen_die "cannot copy ${f} from system"
++		[ -f "${f}" ] && \
++			print_warning 2 "Warning: ${f} not found! Skipping..."
++	done
++
++	# Copy binaries
++	copy_binaries "${TEMP}/initramfs-udev-temp" \
++		/sbin/udevd /bin/udevadm /lib/udev/scsi_id \
++		/lib/udev/ata_id /lib/udev/mtd_probe
++
++	cd "${TEMP}/initramfs-udev-temp/"
++	log_future_cpio_content
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}" \
++			|| gen_die "compressing udev cpio"
++	cd "${TEMP}"
++	rm -rf "${TEMP}/initramfs-udev-temp" > /dev/null
++}
++
+ print_list()
+ {
+ 	local x
+@@ -773,6 +810,7 @@ create_initramfs() {
+ 		|| gen_die "Could not create empty cpio at ${CPIO}"
+ 
+ 	append_data 'base_layout'
++	append_data 'udev' "${UDEV}"
+ 	append_data 'auxilary' "${BUSYBOX}"
+ 	append_data 'busybox' "${BUSYBOX}"
+ 	isTrue "${CMD_E2FSPROGS}" && append_data 'e2fsprogs'
+-- 
+1.8.1.5
+
