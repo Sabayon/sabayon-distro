@@ -1,0 +1,218 @@
+From bbdca773fb0f4d4c465e76da27b5b86dae72fb5c Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Thu, 25 Apr 2013 11:45:19 +0100
+Subject: [PATCH 14/14] linuxrc: use "quiet" cmdline argument for a really
+ quiet initramfs initialization
+
+"quiet" is already used by the kernel to avoid printing messages on the
+console unless they are errors or warnings. Genkernel should do the same
+wrt its initramfs initialization code.
+This has also the advantage of improving the boot speed.
+---
+ defaults/initrd.scripts | 34 ++++++++++++++++++++++------------
+ defaults/linuxrc        | 30 ++++++++++++++----------------
+ doc/genkernel.8.txt     |  4 ++++
+ 3 files changed, 40 insertions(+), 28 deletions(-)
+
+diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
+index ff724b5..365eeca 100755
+--- a/defaults/initrd.scripts
++++ b/defaults/initrd.scripts
+@@ -16,15 +16,16 @@ modules_scan() {
+ 	local loaded
+ 
+ 	MODS=$(cat /etc/modules/${1} 2>/dev/null)
+-	[ -n "${MODS}" ] && echo -ne "${BOLD}   ::${NORMAL} "
+-	[ -n "${MODS}" ] && echo -ne "Loading from ${1}: "
++	[ -n "${MODS}" ] && [ -z "${QUIET}" ] && \
++		echo -ne "${BOLD}   ::${NORMAL} Loading from ${1}: "
+ 
+ 	for x in ${MODS}
+ 	do
+ 		MLOAD=$(echo ${MLIST} | sed -e "s/.*${x}.*/${x}/")
+ 		if [ "${MLOAD}" = "${x}" ] # Only module to no-load
+ 		then
+-			echo -e "${BOLD}   ::${NORMAL} Skipping ${x}..."
++			[ -z "${QUIET}" ] && \
++				echo -e "${BOLD}   ::${NORMAL} Skipping ${x}..."
+ 		elif [ "${MLOAD}" = "${MLIST}" ]
+ 		then
+ 			if [ -n "${DEBUG}" ]; then
+@@ -33,17 +34,21 @@ modules_scan() {
+ 			fi
+ 			modprobe ${x} > /dev/null 2>&1
+ 			loaded=${?}
++
+ 			[ -n "${DEBUG}" -a "${loaded}" = "0" ] && \
+ 				echo "loaded"
+ 			[ -n "${DEBUG}" -a "${loaded}" != "0" ] && \
+ 				echo "not loaded"
++
+ 			[ -z "${DEBUG}" -a "${loaded}" = "0" ] && \
++				[ -z "${QUIET}" ] && \
+ 				echo -en "${x} "
+ 		else
+-			echo -e "${BOLD}   ::${NORMAL} Skipping ${x}..."
++			[ -z "${QUIET}" ] && \
++				echo -e "${BOLD}   ::${NORMAL} Skipping ${x}..."
+ 		fi
+ 	done
+-	[ -n "${MODS}" ] && echo
++	[ -n "${MODS}" ] && [ -z "${QUIET}" ] && echo
+ }
+ 
+ uppercase(){
+@@ -377,7 +382,9 @@ test_success() {
+ # $1 string
+ # $2 hide flag
+ 
+-good_msg() {	
++good_msg() {
++	[ -n "${QUIET}" ] && return 0
++
+ 	msg_string=$1
+ 	msg_string="${msg_string:-...}"
+ 	[ "$2" != 1 ] && echo -e "${GOOD}>>${NORMAL}${BOLD} ${msg_string} ${NORMAL}"
+@@ -424,12 +431,15 @@ prompt_user(){
+ 	eval local oldvalue='$'${1}
+ 
+ 	[ $# != 2 -a $# != 3 ] && \
+-		bad_msg "Bad invocation of function prompt_user, please file a bug \
+-		report with this message" && exit 1
++		bad_msg "Bad invocation of function prompt_user."
++		bad_msg "Please file a bug report with this message" && exit 1
+ 	[ -n "${3}" ] && local explnt=" or : ${3}" || local explnt="."
+-	
++
+ 	bad_msg "Could not find the ${2} in ${oldvalue}${explnt}"
+-	echo '   Please specify another value or: press Enter for the same, type "shell" for a shell, or "q" to skip...'
++	bad_msg "Please specify another value or:"
++	bad_msg "- press Enter for the same"
++	bad_msg '- type "shell" for a shell'
++	bad_msg '- type "q" to skip...'
+ 	echo -n "${2}(${oldvalue}) :: "
+ 	read ${1}
+ 	case `eval echo '$'${1}` in
+@@ -440,7 +450,7 @@ prompt_user(){
+ 			;;
+ 		'shell')
+ 			eval ${1}'='${oldvalue}
+-			echo "To leave and try again just press <Ctrl>+D"
++			warn_msg "To leave and try again just press <Ctrl>+D"
+ 			run_shell
+ 			;;
+ 		'')
+@@ -600,7 +610,7 @@ chooseKeymap() {
+ 		splash set_msg "Set keymap to ${keymap}"
+ 	elif [ -z "${keymap}" ]
+ 	then
+-		echo
++		good_msg
+ 		good_msg "Keeping default keymap"
+ 		splash set_msg "Keeping default keymap"
+ 	else
+diff --git a/defaults/linuxrc b/defaults/linuxrc
+index ba9c5d5..f6f91f7 100755
+--- a/defaults/linuxrc
++++ b/defaults/linuxrc
+@@ -118,6 +118,9 @@ do
+ 				ZPOOL_FORCE=-f
+ 			fi
+ 		;;
++		quiet)
++			QUIET=1
++		;;
+ 		# Debug Options
+ 		debug)
+ 			DEBUG='yes'
+@@ -457,17 +460,13 @@ then
+ 
+ 	if [ "${REAL_ROOT}" = '' ]
+ 	then
+-		echo -n -e "${WARN}>>${NORMAL}${BOLD} No bootable medium found. Waiting for new devices"
+-
++		warn_msg "No bootable medium found. Waiting for new devices..."
+ 		COUNTER=0
+ 		while [ ${COUNTER} -lt 3 ]; do
+ 			sleep 3
+-			echo -n '.'
+ 			let COUNTER=${COUNTER}+1
+ 		done
+-
+ 		sleep 1
+-		echo -e "${NORMAL}"
+ 		bootstrapCD
+ 	fi
+ 
+@@ -909,43 +908,42 @@ fi
+ 
+ verbose_kmsg
+ 
+-echo -ne "${GOOD}>>${NORMAL}${BOLD} Booting (initramfs)${NORMAL}"
++good_msg "Booting (initramfs)"
+ 
+ cd "${CHROOT}"
+ mkdir "${CHROOT}/proc" "${CHROOT}/sys" "${CHROOT}/run" 2>/dev/null
+-echo -ne "${BOLD}.${NORMAL}"
+ 
+ # If devtmpfs is mounted, try move it to the new root
+-# If that fails, try to unmount all possible mounts of devtmpfs as stuff breaks otherwise
++# If that fails, try to unmount all possible mounts of
++# devtmpfs as stuff breaks otherwise
+ for fs in /dev /sys /proc
+ do
+ 	if grep -qs "$fs" /proc/mounts
+ 	then
+ 		if ! mount --move $fs "${CHROOT}"$fs
+ 		then
+-			umount $fs || echo '*: Failed to move and unmount the ramdisk $fs!'
++			umount $fs || \
++			bad_msg "Failed to move and unmount the ramdisk $fs!"
+ 		fi
+ 	fi
+ done
+ 
+ if [ ! -e "${CHROOT}/dev/console" ] || [ ! -e "${CHROOT}/dev/null" ]
+ then
+-	echo -ne "${BAD}>>${NORMAL}${BOLD} ERROR: your real /dev is missing files required to boot (console and null)${NORMAL}"
++	bad_msg "ERROR: your real /dev is missing console and null"
+ elif [ -e /etc/initrd.splash -a ! -e "${CHROOT}/dev/tty1" ]
+ then
+-	echo -ne "${BAD}>>${NORMAL}${BOLD} ERROR: your real /dev is missing tty1, which is required for splash${NORMAL}"
++	bad_msg "ERROR: your real /dev is missing tty1, required for splash"
+ fi
+ 
+-echo -e "${BOLD}.${NORMAL}"
+-
+ exec /sbin/switch_root -c "/dev/console" "${CHROOT}" "${REAL_INIT:-/sbin/init}" "${INIT_OPTS}"
+ 
+ # If we get here, something bad has happened
+ splash 'verbose'
+ 
+-echo "A fatal error has probably occured since ${REAL_INIT:-/sbin/init} did not"
+-echo "boot correctly. Trying to open a shell..."
+-echo
++bad_msg "A fatal error has occured since ${REAL_INIT:-/sbin/init} did not"
++bad_msg "boot correctly. Trying to open a shell..."
++
+ exec /bin/bash
+ exec /bin/sh
+ exec /bin/ash
+diff --git a/doc/genkernel.8.txt b/doc/genkernel.8.txt
+index 54d26d2..f1cc814 100644
+--- a/doc/genkernel.8.txt
++++ b/doc/genkernel.8.txt
+@@ -493,6 +493,10 @@ which the ramdisk scripts would recognize.
+     switch_root into "<CHROOT>/<SUBDIR>" instead of "<CHROOT>/".
+     <CHROOT> is "/newroot" (or "/union") usually.
+ 
++*quiet*::
++    Do not print anything but error and warning messages during
++    the execution of the initramfs init scripts.
++
+ *debug*::
+     Drop into a debug shell early in the process.
+ 
+-- 
+1.8.1.5
+

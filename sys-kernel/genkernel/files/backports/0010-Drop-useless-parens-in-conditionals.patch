@@ -1,0 +1,47 @@
+From a408d4a5135fed4507333925713736368a2bf279 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Tue, 23 Apr 2013 16:41:22 +0100
+Subject: [PATCH 10/14] Drop useless parens in conditionals
+
+---
+ defaults/initrd.scripts | 2 +-
+ defaults/linuxrc        | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
+index 7ec5c94..e614064 100755
+--- a/defaults/initrd.scripts
++++ b/defaults/initrd.scripts
+@@ -420,7 +420,7 @@ prompt_user(){
+ 
+ 	eval local oldvalue='$'${1}
+ 
+-	[ \( $# != 2 \) -a \( $# != 3 \) ] && \
++	[ $# != 2 -a $# != 3 ] && \
+ 		bad_msg "Bad invocation of function prompt_user, please file a bug \
+ 		report with this message" && exit 1
+ 	[ -n "${3}" ] && local explnt=" or : ${3}" || local explnt="."
+diff --git a/defaults/linuxrc b/defaults/linuxrc
+index 0fe05ef..805515b 100755
+--- a/defaults/linuxrc
++++ b/defaults/linuxrc
+@@ -270,13 +270,13 @@ do
+ 	esac
+ done
+ 
+-if [ \( "${CDROOT}" = '0' \) ]
++if [ "${CDROOT}" = '0' ]
+ then
+-	if [ -z "${REAL_ROOT}" -a \( "${FAKE_ROOT}" != "/dev/ram0" \) ]
++	if [ -z "${REAL_ROOT}" -a "${FAKE_ROOT}" != "/dev/ram0" ]
+ 	then
+ 		REAL_ROOT="${FAKE_ROOT}"
+ 	fi
+-	if [ -z "${REAL_INIT}" -a \( "${FAKE_INIT}" != "/linuxrc" \) ]
++	if [ -z "${REAL_INIT}" -a "${FAKE_INIT}" != "/linuxrc" ]
+ 	then
+ 		REAL_INIT="${FAKE_INIT}"
+ 	fi
+-- 
+1.8.1.5
+

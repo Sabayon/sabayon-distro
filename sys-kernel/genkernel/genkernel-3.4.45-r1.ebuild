@@ -60,7 +60,6 @@ RDEPEND="${DEPEND}
 		cryptsetup? ( sys-fs/cryptsetup )
 		app-arch/cpio
 		>=app-misc/pax-utils-0.2.1
-		<app-misc/pax-utils-0.6
 		!<sys-apps/openrc-0.9.9"
 # pax-utils is used for lddtree
 
@@ -82,13 +81,9 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-crypt-config-5.patch
 	# Sabayon Bug 2836, can be upstreamed
 	epatch "${FILESDIR}"/${PN}-virtio-support-bug-2836-3.patch
-	# This is upstreamed as well
-	epatch "${FILESDIR}"/0001-Unquote-ZPOOL_FORCE-variable-usage.patch
-	# Upstreamed.
-	epatch "${FILESDIR}"/genkernel-linux-3.8.patch
 
-	# Add speed improvement patches to genkernel initramfs
-	epatch "${FILESDIR}"/initramfs-love/*.patch
+	# Backport some git patches
+	epatch "${FILESDIR}"/backports/*.patch
 
 	# Update software.sh
 	sed -i \

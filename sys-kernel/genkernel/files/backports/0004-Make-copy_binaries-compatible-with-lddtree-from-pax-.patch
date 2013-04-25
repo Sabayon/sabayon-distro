@@ -1,0 +1,46 @@
+From 6cc7e382d6f5755257bce6f734e8991871dc7b02 Mon Sep 17 00:00:00 2001
+From: Peter Hjalmarsson <xake@rymdraket.net>
+Date: Thu, 7 Feb 2013 13:31:14 +0100
+Subject: [PATCH 04/14] Make copy_binaries compatible with lddtree from
+ pax-utils-0.6
+
+On some system the output from the new lddtree does not match with what
+genkernel expects, however lddtree have insted gained a new option that
+essentially gives what we want with less code.
+
+Signed-off-by: Peter Hjalmarsson <xake@rymdraket.net>
+---
+ gen_initramfs.sh | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index 99bd3f3..3ae9d7a 100755
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -33,13 +33,22 @@ copy_binaries() {
+ 		fi
+ 	done
+ 	# This must be OUTSIDE the for loop, we only want to run lddtree etc ONCE.
+-	lddtree "$@" \
++	# lddtree does not have the -V (version) nor the -l (list) options prior to version 1.18
++	if lddtree -V > /dev/null 2>&1 ; then
++		lddtree -l "$@" \
++			| sort \
++			| uniq \
++			| cpio -p --make-directories --dereference --quiet "${destdir}" \
++			|| gen_die "Binary ${f} or some of its library dependencies could not be copied"
++	else
++		lddtree "$@" \
+ 			| tr ')(' '\n' \
+ 			| awk  '/=>/{ if($3 ~ /^\//){print $3}}' \
+ 			| sort \
+ 			| uniq \
+ 			| cpio -p --make-directories --dereference --quiet "${destdir}" \
+ 			|| gen_die "Binary ${f} or some of its library dependencies could not be copied"
++	fi
+ }
+ 
+ log_future_cpio_content() {
+-- 
+1.8.1.5
+

@@ -1,0 +1,68 @@
+From 421b210c67a59b5a92ce5a92c6d49254cf1ec07a Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Tue, 23 Apr 2013 16:26:24 +0100
+Subject: [PATCH 09/14] Drop KV_2_6_OR_GREATER
+
+Linux 2.2 and 2.4 are no longer supported. RIP old kernels.
+---
+ defaults/initrd.defaults |  5 -----
+ defaults/linuxrc         | 18 ++++++------------
+ 2 files changed, 6 insertions(+), 17 deletions(-)
+
+diff --git a/defaults/initrd.defaults b/defaults/initrd.defaults
+index 8ff5510..e70beab 100755
+--- a/defaults/initrd.defaults
++++ b/defaults/initrd.defaults
+@@ -50,11 +50,6 @@ KMINOR=`echo $KV | cut -f2 -d.`
+ KVER="${KMAJOR}.${KMINOR}"
+ MISCOPTS='debug detect'
+ 
+-if [ "${KMAJOR}" -ge 3 ] || [ "${KMAJOR}" -eq 2 -a "${KMINOR}" -eq '6' ]
+-then
+-	KV_2_6_OR_GREATER="yes"
+-fi
+-
+ QUIET='1'
+ ROOT_LINKS='bin sbin lib lib32 lib64 boot usr opt emul'
+ ROOT_TREES='etc root home var'
+diff --git a/defaults/linuxrc b/defaults/linuxrc
+index 703652d..0fe05ef 100755
+--- a/defaults/linuxrc
++++ b/defaults/linuxrc
+@@ -324,16 +324,13 @@ mount_devfs
+ mount_sysfs
+ 
+ # Initialize mdev
+-if [ "${KV_2_6_OR_GREATER}" ]
+-then
+-	good_msg 'Activating mdev'
++good_msg 'Activating mdev'
+ 
+-	# Serialize hotplug events
+-	touch /dev/mdev.seq
++# Serialize hotplug events
++touch /dev/mdev.seq
+ 
+-	# Setup hotplugging for firmware loading
+-	echo /sbin/mdev > /proc/sys/kernel/hotplug
+-fi
++# Setup hotplugging for firmware loading
++echo /sbin/mdev > /proc/sys/kernel/hotplug
+ 
+ # Load modules listed in MY_HWOPTS if /lib/modules exists for the running kernel
+ if [ -z "${DO_modules}" ]
+@@ -357,10 +354,7 @@ else
+ fi
+ 
+ # Ensure that device nodes are properly configured
+-if [ "${KV_2_6_OR_GREATER}" ]
+-then
+-	mdev -s || bad_msg "mdev -s failed"
+-fi
++mdev -s || bad_msg "mdev -s failed"
+ 
+ # Apply scan delay if specified
+ sdelay
+-- 
+1.8.1.5
+

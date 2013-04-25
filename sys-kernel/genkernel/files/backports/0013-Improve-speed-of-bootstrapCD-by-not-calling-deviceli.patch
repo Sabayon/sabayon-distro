@@ -1,0 +1,37 @@
+From 499f2d98b60588987b8e0a9e3a59a182c83d5785 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Tue, 23 Apr 2013 17:31:51 +0100
+Subject: [PATCH 13/14] Improve speed of bootstrapCD by not calling devicelist
+ unless needed
+
+---
+ defaults/initrd.scripts | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
+index a216b84..ff724b5 100755
+--- a/defaults/initrd.scripts
++++ b/defaults/initrd.scripts
+@@ -157,12 +157,15 @@ devicelist(){
+ }
+ 
+ bootstrapCD() {
+-	local DEVICES=`devicelist`
+-	# The device was specified on the command line, so there's no need to scan
+-	# a bunch of extra devices
++	local DEVICES=
++
++	# The device was specified on the command line, so there's no need
++	# to scan a bunch of extra devices
+ 	[ -n "${CDROOT_DEV}" ] && DEVICES="${CDROOT_DEV}"
++	[ -z "${CDROOT_DEV}" ] && DEVICES=$(devicelist)
+ 
+-	findmediamount "cdrom" "${SUBDIR}/${CDROOT_MARKER}" "REAL_ROOT" "${CDROOT_PATH}" ${DEVICES}
++	findmediamount "cdrom" "${SUBDIR}/${CDROOT_MARKER}" \
++		"REAL_ROOT" "${CDROOT_PATH}" ${DEVICES}
+ }
+ 
+ bootstrapKey() {
+-- 
+1.8.1.5
+

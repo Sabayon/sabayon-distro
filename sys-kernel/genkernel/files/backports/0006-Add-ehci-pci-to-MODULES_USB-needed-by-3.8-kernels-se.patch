@@ -1,0 +1,195 @@
+From 4c93a5adb7dd45cfeddba111f5c51902f5eac3a8 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Tue, 19 Mar 2013 22:21:51 +0000
+Subject: [PATCH 06/14] Add ehci-pci to MODULES_USB, needed by 3.8 kernels, see
+ bug #458606
+
+Thanks to Adrian.Bassett@hotmail.co.uk for reporting this.
+---
+ arch/alpha/modules_load    | 2 +-
+ arch/arm/modules_load      | 2 +-
+ arch/ia64/modules_load     | 2 +-
+ arch/mips/modules_load     | 2 +-
+ arch/parisc/modules_load   | 2 +-
+ arch/parisc64/modules_load | 2 +-
+ arch/ppc/modules_load      | 2 +-
+ arch/ppc64/modules_load    | 2 +-
+ arch/sparc/modules_load    | 2 +-
+ arch/sparc64/modules_load  | 2 +-
+ arch/um/modules_load       | 2 +-
+ arch/x86/modules_load      | 2 +-
+ arch/x86_64/modules_load   | 2 +-
+ 13 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/arch/alpha/modules_load b/arch/alpha/modules_load
+index ea1e52e..ae18ebf 100644
+--- a/arch/alpha/modules_load
++++ b/arch/alpha/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/arm/modules_load b/arch/arm/modules_load
+index ea1e52e..ae18ebf 100644
+--- a/arch/arm/modules_load
++++ b/arch/arm/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/ia64/modules_load b/arch/ia64/modules_load
+index b9f527d..b6fca13 100644
+--- a/arch/ia64/modules_load
++++ b/arch/ia64/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/mips/modules_load b/arch/mips/modules_load
+index ea1e52e..ae18ebf 100644
+--- a/arch/mips/modules_load
++++ b/arch/mips/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/parisc/modules_load b/arch/parisc/modules_load
+index ea1e52e..ae18ebf 100644
+--- a/arch/parisc/modules_load
++++ b/arch/parisc/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/parisc64/modules_load b/arch/parisc64/modules_load
+index b9f527d..b6fca13 100644
+--- a/arch/parisc64/modules_load
++++ b/arch/parisc64/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/ppc/modules_load b/arch/ppc/modules_load
+index ea1e52e..ae18ebf 100644
+--- a/arch/ppc/modules_load
++++ b/arch/ppc/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/ppc64/modules_load b/arch/ppc64/modules_load
+index b9f527d..b6fca13 100644
+--- a/arch/ppc64/modules_load
++++ b/arch/ppc64/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/sparc/modules_load b/arch/sparc/modules_load
+index ea1e52e..ae18ebf 100644
+--- a/arch/sparc/modules_load
++++ b/arch/sparc/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/sparc64/modules_load b/arch/sparc64/modules_load
+index b9f527d..b6fca13 100644
+--- a/arch/sparc64/modules_load
++++ b/arch/sparc64/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/um/modules_load b/arch/um/modules_load
+index ce3847f..479ee4b 100644
+--- a/arch/um/modules_load
++++ b/arch/um/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/x86/modules_load b/arch/x86/modules_load
+index 7980177..3469170 100644
+--- a/arch/x86/modules_load
++++ b/arch/x86/modules_load
+@@ -23,7 +23,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+diff --git a/arch/x86_64/modules_load b/arch/x86_64/modules_load
+index 9d623fb..c202c30 100644
+--- a/arch/x86_64/modules_load
++++ b/arch/x86_64/modules_load
+@@ -22,7 +22,7 @@ MODULES_ISCSI="scsi_transport_iscsi libiscsi iscsi_tcp"
+ # Hardware (Pluggable)
+ MODULES_FIREWIRE="ieee1394 ohci1394 sbp2"
+ MODULES_PCMCIA="pcmcia pcmcia_core yenta_socket pd6729 i82092 i82365 tcic ds ide-cs firmware_class"
+-MODULES_USB="ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
++MODULES_USB="ehci-pci ehci-hcd uhci usb-ohci hid usb-storage uhci-hcd ohci-hcd xhci-hcd usbhid hid-generic sl811-hcd hid-a4tech hid-apple hid-belkin hid-cherry hid-chicony hid-cypress hid-dummy hid-ezkey hid-gyration hid-logitech hid-microsoft hid-monterey hid-petalynx hid-pl hid-samsung hid-sony hid-sunplus"
+ 
+ # Filesystems
+ MODULES_FS="ext2 ext3 ext4 btrfs reiserfs jfs nfs xfs zfs fuse"
+-- 
+1.8.1.5
+

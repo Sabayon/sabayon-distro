@@ -1,0 +1,52 @@
+From 32a9b007bf24be899272a782a9f33d007b1e3c07 Mon Sep 17 00:00:00 2001
+From: "Robin H. Johnson" <robbat2@gentoo.org>
+Date: Tue, 20 Nov 2012 00:47:38 +0000
+Subject: [PATCH 02/14] linuxrc: part keyword
+
+Clean up documentation and functionality of "part" argument to
+initramfs. It is meant to imitate the same option to the kernel.
+
+Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+---
+ defaults/linuxrc    |  3 +++
+ doc/genkernel.8.txt | 10 ++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/defaults/linuxrc b/defaults/linuxrc
+index 1bc09a7..4166396 100755
+--- a/defaults/linuxrc
++++ b/defaults/linuxrc
+@@ -156,6 +156,9 @@ do
+ 		part=*)
+ 			MDPART=${x#*=}
+ 		;;
++		part|partitionable)
++			MDPART=1
++		;;
+ 		# NFS
+ 		ip=*)
+ 			IP=${x#*=}
+diff --git a/doc/genkernel.8.txt b/doc/genkernel.8.txt
+index dc04240..4691a98 100644
+--- a/doc/genkernel.8.txt
++++ b/doc/genkernel.8.txt
+@@ -520,12 +520,10 @@ which the ramdisk scripts would recognize.
+ *console*=<...>::
+     Override location of console, default is "/dev/console".
+ 
+-*part*=<...>::
+-    Specify part for mdadm to start.  This is the relevant code in mdstart:
+-------------------------------------------
+-    fd = open("/dev/md<MD_NUMBER>", 0, 0);
+-    ioctl(fd, RAID_AUTORUN, <MDPART>);
+-------------------------------------------
++*part*[=<0,1>]::
++*partitionable*::
++	Enable/Disable partitionable RAIDs (metadata 0.x) during auto-run.
++	Standalone *part* and *partitionable* keywords for kernel compatability.
+ 
+ *iscsi_initiatorname*=<...>::
+ *iscsi_target*=<...>::
+-- 
+1.8.1.5
+

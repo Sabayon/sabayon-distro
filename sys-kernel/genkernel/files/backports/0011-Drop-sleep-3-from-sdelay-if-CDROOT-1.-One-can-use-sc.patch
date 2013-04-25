@@ -1,0 +1,41 @@
+From 682d0b0d0aaf30e4236809bcf87fc674e6e88c8c Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Tue, 23 Apr 2013 16:54:10 +0100
+Subject: [PATCH 11/14] Drop "sleep 3" from sdelay if CDROOT=1. One can use
+ scandelay=secs if needed.
+
+While this makes out of the box booting a bit harder on some ancient CD/DVD
+drives, it really speeds up the common use case by not sleeping for 3 seconds.
+---
+ defaults/initrd.scripts | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
+index e614064..abd8fad 100755
+--- a/defaults/initrd.scripts
++++ b/defaults/initrd.scripts
+@@ -991,19 +991,13 @@ startLUKS() {
+ 
+ sdelay() {
+ 	# Sleep a specific number of seconds if SDELAY is set
+-	if [ "${SDELAY}" ]
++	if [ -n "${SDELAY}" ]
+ 	then
+ 		good_msg "Waiting ${SDELAY} seconds..."
+ 		sleep ${SDELAY}
+ 	elif [ "${CDROOT}" = '1' ]
+ 	then
+-		# many CD/DVD drives require extra sleep, especially when
+-		# connected via USB. Many people reported that 1 second sleep
+-		# is not enough on their notebooks, that's why sleep 3, when booting
+-		# off a livecd is a better default.
+-		sleep 3
+-	else
+-		good_msg 'Hint: Use parameter scandelay[=seconds] if you need waiting here'
++		good_msg 'Hint: Use scandelay[=seconds] if your live medium is slowand boot fails'
+ 	fi
+ }
+ 
+-- 
+1.8.1.5
+
