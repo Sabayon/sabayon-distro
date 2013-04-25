@@ -339,7 +339,7 @@ else
 		sys-apps/sed
 		sys-devel/autoconf
 		sys-devel/make
-		>=sys-kernel/genkernel-3.4.16-r1
+		>=sys-kernel/genkernel-3.4.45
 		arm? ( dev-embedded/u-boot-tools )
 		splash? ( x11-themes/sabayon-artwork-core )
 		dracut? ( sys-kernel/dracut )"
@@ -488,7 +488,7 @@ _kernel_src_compile() {
 	mkdir "${S}"/temp
 
 	cd "${S}" || die
-	GKARGS="--no-save-config --disklabel"
+	GKARGS="--no-save-config --disklabel --e2fsprogs"
 	use dracut && GKARGS="${GKARGS} --dracut"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
 	use dmraid && GKARGS="${GKARGS} --dmraid"
