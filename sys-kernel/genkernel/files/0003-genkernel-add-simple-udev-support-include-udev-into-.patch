@@ -1,19 +1,19 @@
-From 4a582f6a33532d40a1be49f6bfbd2e4ef5caa070 Mon Sep 17 00:00:00 2001
+From 3c6a2614804ef3ffc799fdbab0c04a0cbaa4ccc1 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 00:21:01 +0100
-Subject: [PATCH 3/3] genkernel: add simple udev support, include udev into
+Subject: [PATCH 3/4] genkernel: add simple udev support, include udev into
  initramfs if --udev
 
 ---
- defaults/linuxrc     | 38 +++++++++++++++++++++++++++++---------
+ defaults/linuxrc     | 43 ++++++++++++++++++++++++++++++++++---------
  doc/genkernel.8.txt  |  4 ++++
  gen_cmdline.sh       |  6 ++++++
  gen_determineargs.sh |  1 +
  gen_initramfs.sh     | 38 ++++++++++++++++++++++++++++++++++++++
- 5 files changed, 78 insertions(+), 9 deletions(-)
+ 5 files changed, 83 insertions(+), 9 deletions(-)
 
 diff --git a/defaults/linuxrc b/defaults/linuxrc
-index ba9c5d5..7171e5e 100755
+index 03cbf1d..aef537d 100755
 --- a/defaults/linuxrc
 +++ b/defaults/linuxrc
 @@ -88,6 +88,9 @@ do
@@ -26,7 +26,7 @@ index ba9c5d5..7171e5e 100755
  		# Start Volume manager options
  		dolvm)
  			USE_LVM_NORMAL=1
-@@ -323,14 +326,18 @@ mount_devfs
+@@ -326,14 +329,18 @@ mount_devfs
  # Mount sysfs
  mount_sysfs
  
@@ -52,7 +52,7 @@ index ba9c5d5..7171e5e 100755
  
  # Load modules listed in MY_HWOPTS if /lib/modules exists for the running kernel
  if [ -z "${DO_modules}" ]
-@@ -353,8 +360,16 @@ else
+@@ -356,8 +363,16 @@ else
  	good_msg 'Skipping module load; no modules in the ramdisk!'
  fi
  
@@ -71,20 +71,25 @@ index ba9c5d5..7171e5e 100755
  
  # Apply scan delay if specified
  sdelay
-@@ -915,6 +930,11 @@ cd "${CHROOT}"
+@@ -913,6 +928,16 @@ good_msg "Booting (initramfs)"
+ cd "${CHROOT}"
  mkdir "${CHROOT}/proc" "${CHROOT}/sys" "${CHROOT}/run" 2>/dev/null
- echo -ne "${BOLD}.${NORMAL}"
  
 +if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
 +then
 +	udevadm control --exit || bad_msg "Unable to terminate udevd"
 +fi
 +
++if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
++then
++	udevadm control --exit || bad_msg "Unable to terminate udevd"
++fi
++
  # If devtmpfs is mounted, try move it to the new root
- # If that fails, try to unmount all possible mounts of devtmpfs as stuff breaks otherwise
- for fs in /dev /sys /proc
+ # If that fails, try to unmount all possible mounts of
+ # devtmpfs as stuff breaks otherwise
 diff --git a/doc/genkernel.8.txt b/doc/genkernel.8.txt
-index 54d26d2..2dc3740 100644
+index f1cc814..ef50542 100644
 --- a/doc/genkernel.8.txt
 +++ b/doc/genkernel.8.txt
 @@ -247,6 +247,10 @@ INITIALIZATION
@@ -135,7 +140,7 @@ index afc6fe3..1394995 100755
  	set_config_with_override BOOL   DMRAID               CMD_DMRAID
  	set_config_with_override BOOL   ISCSI                CMD_ISCSI
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index 784c0cc..b80779c 100755
+index 784c0cc..cfd563b 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
 @@ -563,6 +563,43 @@ append_gpg() {

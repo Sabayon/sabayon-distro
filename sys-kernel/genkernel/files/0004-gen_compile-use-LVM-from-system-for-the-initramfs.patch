@@ -1,0 +1,355 @@
+From 653359171bf03866710554a40fad42782a56d325 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Fri, 26 Apr 2013 08:47:06 +0100
+Subject: [PATCH 4/4] gen_compile: use LVM from system for the initramfs
+
+---
+ defaults/software.sh                               |  5 --
+ gen_compile.sh                                     | 48 ----------------
+ gen_determineargs.sh                               |  2 -
+ gen_funcs.sh                                       |  2 +-
+ gen_initramfs.sh                                   | 64 ++++++++--------------
+ .../lvm/2.02.28/filter-sysfs-inc-sys-stat.patch    | 11 ----
+ patches/lvm/2.02.28/no-export-dynamic.patch        | 22 --------
+ .../2.02.74/lvm2-2.02.72-no-export-dynamic.patch   | 37 -------------
+ .../2.02.88/lvm2-2.02.72-no-export-dynamic.patch   | 37 -------------
+ 9 files changed, 23 insertions(+), 205 deletions(-)
+ delete mode 100644 patches/lvm/2.02.28/filter-sysfs-inc-sys-stat.patch
+ delete mode 100644 patches/lvm/2.02.28/no-export-dynamic.patch
+ delete mode 100644 patches/lvm/2.02.74/lvm2-2.02.72-no-export-dynamic.patch
+ delete mode 100644 patches/lvm/2.02.88/lvm2-2.02.72-no-export-dynamic.patch
+
+diff --git a/defaults/software.sh b/defaults/software.sh
+index fe2962e..0e2820f 100644
+--- a/defaults/software.sh
++++ b/defaults/software.sh
+@@ -14,11 +14,6 @@ BUSYBOX_SRCTAR="${BUSYBOX_SRCTAR:-${DISTDIR}/busybox-${BUSYBOX_VER}.tar.bz2}"
+ BUSYBOX_DIR="${BUSYBOX_DIR:-busybox-${BUSYBOX_VER}}"
+ BUSYBOX_BINCACHE="${BUSYBOX_BINCACHE:-%%CACHE%%/busybox-${BUSYBOX_VER}-%%ARCH%%.tar.bz2}"
+ 
+-LVM_VER="${LVM_VER:-VERSION_LVM}"
+-LVM_DIR="${LVM_DIR:-LVM2.${LVM_VER}}"
+-LVM_SRCTAR="${LVM_SRCTAR:-${DISTDIR}/LVM2.${LVM_VER}.tgz}"
+-LVM_BINCACHE="${LVM_BINCACHE:-%%CACHE%%/LVM2.${LVM_VER}-%%ARCH%%.tar.bz2}"
+-
+ MDADM_VER="${MDADM_VER:-VERSION_MDADM}"
+ MDADM_DIR="${MDADM_DIR:-mdadm-${MDADM_VER}}"
+ MDADM_SRCTAR="${MDADM_SRCTAR:-${DISTDIR}/mdadm-${MDADM_VER}.tar.bz2}"
+diff --git a/gen_compile.sh b/gen_compile.sh
+index ccc8b8d..d0f6609 100755
+--- a/gen_compile.sh
++++ b/gen_compile.sh
+@@ -440,49 +440,6 @@ compile_busybox() {
+ 	fi
+ }
+ 
+-compile_lvm() {
+-	if [ -f "${LVM_BINCACHE}" ]
+-	then
+-		print_info 1 "lvm: >> Using cache"
+-	else
+-		[ -f "${LVM_SRCTAR}" ] ||
+-			gen_die "Could not find LVM source tarball: ${LVM_SRCTAR}! Please place it there, or place another version, changing /etc/genkernel.conf as necessary!"
+-		cd "${TEMP}"
+-		rm -rf ${LVM_DIR} > /dev/null
+-		/bin/tar -zxpf ${LVM_SRCTAR} ||
+-			gen_die 'Could not extract LVM source tarball!'
+-		[ -d "${LVM_DIR}" ] ||
+-			gen_die "LVM directory ${LVM_DIR} is invalid!"
+-		cd "${LVM_DIR}"
+-		apply_patches lvm ${LVM_VER}
+-		print_info 1 'lvm: >> Configuring...'
+-			CFLAGS="-fPIC" \
+-			./configure --enable-static_link --prefix=/ \
+-				--with-lvm1=internal --with-clvmd=none --with-cluster=none \
+-				--disable-readline --disable-selinux --with-mirrors=internal \
+-				--with-snapshots=internal --with-pool=internal \
+-				>> ${LOGFILE} 2>&1 || \
+-				gen_die 'Configure of lvm failed!'
+-		print_info 1 'lvm: >> Compiling...'
+-		compile_generic '' utils
+-		compile_generic "install DESTDIR=${TEMP}/lvm/" utils
+-
+-		cd "${TEMP}/lvm"
+-		print_info 1 '      >> Copying to bincache...'
+-		${UTILS_CROSS_COMPILE}strip "sbin/lvm.static" ||
+-			gen_die 'Could not strip lvm.static!'
+-		# See bug 382555
+-		${UTILS_CROSS_COMPILE}strip "sbin/dmsetup.static" ||
+-			gen_die 'Could not strip dmsetup.static'
+-		/bin/tar -cjf "${LVM_BINCACHE}" . ||
+-			gen_die 'Could not create binary cache'
+-
+-		cd "${TEMP}"
+-		rm -rf "${TEMP}/lvm" > /dev/null
+-		rm -rf "${LVM_DIR}" lvm
+-	fi
+-}
+-
+ compile_mdadm() {
+ 	if [ -f "${MDADM_BINCACHE}" ]
+ 	then
+@@ -523,7 +480,6 @@ compile_mdadm() {
+ }
+ 
+ compile_dmraid() {
+-	compile_device_mapper
+ 	if [ ! -f "${DMRAID_BINCACHE}" ]
+ 	then
+ 		[ -f "${DMRAID_SRCTAR}" ] ||
+@@ -572,10 +528,6 @@ compile_dmraid() {
+ 	fi
+ }
+ 
+-compile_device_mapper() {
+-	compile_lvm
+-}
+-
+ compile_fuse() {
+ 	if [ ! -f "${FUSE_BINCACHE}" ]
+ 	then
+diff --git a/gen_determineargs.sh b/gen_determineargs.sh
+index 1394995..cdcf057 100755
+--- a/gen_determineargs.sh
++++ b/gen_determineargs.sh
+@@ -144,7 +144,6 @@ determine_real_args() {
+ 
+ 	CACHE_DIR=`arch_replace "${CACHE_DIR}"`
+ 	BUSYBOX_BINCACHE=`cache_replace "${BUSYBOX_BINCACHE}"`
+-	LVM_BINCACHE=`cache_replace "${LVM_BINCACHE}"`
+ 	MDADM_BINCACHE=`cache_replace "${MDADM_BINCACHE}"`
+ 	DMRAID_BINCACHE=`cache_replace "${DMRAID_BINCACHE}"`
+ 	ISCSI_BINCACHE=`cache_replace "${ISCSI_BINCACHE}"`
+@@ -156,7 +155,6 @@ determine_real_args() {
+ 	DEFAULT_KERNEL_CONFIG=`arch_replace "${DEFAULT_KERNEL_CONFIG}"`
+ 	BUSYBOX_CONFIG=`arch_replace "${BUSYBOX_CONFIG}"`
+ 	BUSYBOX_BINCACHE=`arch_replace "${BUSYBOX_BINCACHE}"`
+-	LVM_BINCACHE=`arch_replace "${LVM_BINCACHE}"`
+ 	MDADM_BINCACHE=`arch_replace "${MDADM_BINCACHE}"`
+ 	DMRAID_BINCACHE=`arch_replace "${DMRAID_BINCACHE}"`
+ 	ISCSI_BINCACHE=`arch_replace "${ISCSI_BINCACHE}"`
+diff --git a/gen_funcs.sh b/gen_funcs.sh
+index 4f0a0fc..a26eb9b 100755
+--- a/gen_funcs.sh
++++ b/gen_funcs.sh
+@@ -496,7 +496,7 @@ set_config_with_override() {
+ }
+ 
+ check_distfiles() {
+-	for i in $BUSYBOX_SRCTAR $MULTIPATH_SRCTAR $LVM_SRCTAR $DMRAID_SRCTAR $ISCSI_SRCTAR $GPG_SRCTAR
++	for i in $BUSYBOX_SRCTAR $MULTIPATH_SRCTAR $DMRAID_SRCTAR $ISCSI_SRCTAR $GPG_SRCTAR
+ 	do
+ 		if [ ! -f "${i}" ]
+ 		then
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index cfd563b..d877c11 100755
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -320,51 +320,31 @@ append_lvm(){
+ 		rm -r "${TEMP}/initramfs-lvm-temp/"
+ 	fi
+ 	cd ${TEMP}
+-	mkdir -p "${TEMP}/initramfs-lvm-temp/bin/"
++	mkdir -p "${TEMP}/initramfs-lvm-temp"/{bin,sbin}
+ 	mkdir -p "${TEMP}/initramfs-lvm-temp/etc/lvm/"
+-	if false && [ -e '/sbin/lvm.static' ]
+-	then
+-		print_info 1 '          LVM: Adding support (using local static binary /sbin/lvm.static)...'
+-		cp /sbin/lvm.static "${TEMP}/initramfs-lvm-temp/bin/lvm" ||
+-			gen_die 'Could not copy over lvm!'
+-		# See bug 382555
+-		if [ -e '/sbin/dmsetup.static' ]
+-		then
+-			cp /sbin/dmsetup.static "${TEMP}/initramfs-lvm-temp/bin/dmsetup"
+-		fi
+-	elif false && [ -e '/sbin/lvm' ] && LC_ALL="C" ldd /sbin/lvm|grep -q 'not a dynamic executable'
+-	then
+-		print_info 1 '          LVM: Adding support (using local static binary /sbin/lvm)...'
+-		cp /sbin/lvm "${TEMP}/initramfs-lvm-temp/bin/lvm" ||
+-			gen_die 'Could not copy over lvm!'
+-		# See bug 382555
+-		if [ -e '/sbin/dmsetup' ] && LC_ALL="C" ldd /sbin/dmsetup | grep -q 'not a dynamic executable'
+-		then
+-			cp /sbin/dmsetup "${TEMP}/initramfs-lvm-temp/bin/dmsetup"
+-		fi
+-	else
+-		print_info 1 '          LVM: Adding support (compiling binaries)...'
+-		compile_lvm
+-		/bin/tar -jxpf "${LVM_BINCACHE}" -C "${TEMP}/initramfs-lvm-temp" ||
+-			gen_die "Could not extract lvm binary cache!";
+-		mv ${TEMP}/initramfs-lvm-temp/sbin/lvm.static ${TEMP}/initramfs-lvm-temp/bin/lvm ||
+-			gen_die 'LVM error: Could not move lvm.static to lvm!'
+-		# See bug 382555
+-		mv ${TEMP}/initramfs-lvm-temp/sbin/dmsetup.static ${TEMP}/initramfs-lvm-temp/bin/dmsetup ||
+-			gen_die 'LVM error: Could not move dmsetup.static to dmsetup!'
+-		rm -rf ${TEMP}/initramfs-lvm-temp/{lib,share,man,include,sbin/{lvm,dmsetup}}
+-	fi
++	print_info 1 '          LVM: Adding support (copying binaries from system)...'
++
++	udev_files="
++		/lib/udev/rules.d/95-dm-notify.rules
++		/lib/udev/rules.d/13-dm-disk.rules
++		/lib/udev/rules.d/10-dm.rules
++		/lib/udev/rules.d/69-dm-lvm-metad.rules
++		/lib/udev/rules.d/11-dm-lvm.rules
++	"
++	for f in ${udev_files}; do
++		mkdir -p "${TEMP}/initramfs-lvm-temp"/$(dirname "${f}") || \
++			gen_die "cannot create rules.d directory"
++		cp "${f}" "${TEMP}/initramfs-lvm-temp/${f}" || \
++			gen_die "cannot copy ${f} from system"
++	done
++
++	copy_binaries "${TEMP}/initramfs-lvm-temp" \
++		/sbin/lvm /sbin/dmsetup
++
+ 	if [ -x /sbin/lvm -o -x /bin/lvm ]
+ 	then
+-#		lvm dumpconfig 2>&1 > /dev/null || gen_die 'Could not copy over lvm.conf!'
+-#		ret=$?
+-#		if [ ${ret} != 0 ]
+-#		then
+-			cp /etc/lvm/lvm.conf "${TEMP}/initramfs-lvm-temp/etc/lvm/" ||
+-				gen_die 'Could not copy over lvm.conf!'
+-#		else
+-#			gen_die 'Could not copy over lvm.conf!'
+-#		fi
++		cp /etc/lvm/lvm.conf "${TEMP}/initramfs-lvm-temp/etc/lvm/" ||
++			gen_die 'Could not copy over lvm.conf!'
+ 	fi
+ 	cd "${TEMP}/initramfs-lvm-temp/"
+ 	log_future_cpio_content
+diff --git a/patches/lvm/2.02.28/filter-sysfs-inc-sys-stat.patch b/patches/lvm/2.02.28/filter-sysfs-inc-sys-stat.patch
+deleted file mode 100644
+index 2988e92..0000000
+--- a/patches/lvm/2.02.28/filter-sysfs-inc-sys-stat.patch
++++ /dev/null
+@@ -1,11 +0,0 @@
+-diff -ur LVM2.2.02.28/lib/filters/filter-sysfs.c LVM2.2.02.28.new/lib/filters/filter-sysfs.c
+---- LVM2.2.02.28/lib/filters/filter-sysfs.c	2007-08-22 16:38:16.000000000 +0200
+-+++ LVM2.2.02.28.new/lib/filters/filter-sysfs.c	2011-01-13 20:45:38.751542669 +0100
+-@@ -15,6 +15,7 @@
+- #include "lib.h"
+- #include "filter-sysfs.h"
+- #include "lvm-string.h"
+-+#include <sys/stat.h>
+- 
+- #ifdef linux
+- 
+diff --git a/patches/lvm/2.02.28/no-export-dynamic.patch b/patches/lvm/2.02.28/no-export-dynamic.patch
+deleted file mode 100644
+index 19a4e13..0000000
+--- a/patches/lvm/2.02.28/no-export-dynamic.patch
++++ /dev/null
+@@ -1,22 +0,0 @@
+-diff -ur LVM2.2.02.28/configure LVM2.2.02.28.new/configure
+---- LVM2.2.02.28/configure	2007-08-14 20:58:30.000000000 +0200
+-+++ LVM2.2.02.28.new/configure	2011-01-13 20:45:08.429184861 +0100
+-@@ -1949,7 +1949,6 @@
+- 		CLDWHOLEARCHIVE="-Wl,-whole-archive"
+- 		CLDNOWHOLEARCHIVE="-Wl,-no-whole-archive"
+- 		LDDEPS="$LDDEPS .export.sym"
+--		LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+- 		LIB_SUFFIX="so"
+- 		DEVMAPPER=yes
+- 		ODIRECT=yes
+-diff -ur LVM2.2.02.28/configure.in LVM2.2.02.28.new/configure.in
+---- LVM2.2.02.28/configure.in	2007-08-14 20:58:31.000000000 +0200
+-+++ LVM2.2.02.28.new/configure.in	2011-01-13 20:45:14.365688659 +0100
+-@@ -38,7 +38,6 @@
+- 		CLDWHOLEARCHIVE="-Wl,-whole-archive"
+- 		CLDNOWHOLEARCHIVE="-Wl,-no-whole-archive"
+- 		LDDEPS="$LDDEPS .export.sym"
+--		LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+- 		LIB_SUFFIX="so"
+- 		DEVMAPPER=yes
+- 		ODIRECT=yes
+diff --git a/patches/lvm/2.02.74/lvm2-2.02.72-no-export-dynamic.patch b/patches/lvm/2.02.74/lvm2-2.02.72-no-export-dynamic.patch
+deleted file mode 100644
+index 05c7bf3..0000000
+--- a/patches/lvm/2.02.74/lvm2-2.02.72-no-export-dynamic.patch
++++ /dev/null
+@@ -1,37 +0,0 @@
+-X-Gentoo-Bug: 332905
+-X-Patch-URL: https://bugs.gentoo.org/attachment.cgi?id=243283&action=view
+-X-Gentoo-Bug-URL: https://bugs.gentoo.org/show_bug.cgi?id=332905
+-
+-diff -ur LVM2.2.02.72.orig/daemons/dmeventd/Makefile.in LVM2.2.02.72/daemons/dmeventd/Makefile.in
+---- LVM2.2.02.72.orig/daemons/dmeventd/Makefile.in	2010-05-14 16:36:56.000000000 +0300
+-+++ LVM2.2.02.72/daemons/dmeventd/Makefile.in	2010-08-17 03:00:24.000000000 +0300
+-@@ -61,7 +61,7 @@
+- 	$(DL_LIBS) $(LVMLIBS) $(LIBS) -rdynamic
+- 
+- dmeventd.static: $(LIB_STATIC) dmeventd.o $(interfacebuilddir)/libdevmapper.a
+--	$(CC) $(CFLAGS) $(LDFLAGS) -static -L. -L$(interfacebuilddir) -o $@ \
+-+	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,--no-export-dynamic -static -L. -L$(interfacebuilddir) -o $@ \
+- 	dmeventd.o $(DL_LIBS) $(LVMLIBS) $(LIBS) $(STATIC_LIBS)
+- 
+- ifeq ("@PKGCONFIG@", "yes")
+-diff -ur LVM2.2.02.72.orig/tools/Makefile.in LVM2.2.02.72/tools/Makefile.in
+---- LVM2.2.02.72.orig/tools/Makefile.in	2010-06-25 21:23:10.000000000 +0300
+-+++ LVM2.2.02.72/tools/Makefile.in	2010-08-17 03:01:07.000000000 +0300
+-@@ -126,7 +126,7 @@
+- 	      -o $@ dmsetup.o -ldevmapper $(LIBS)
+- 
+- dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
+--	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
+-+	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,--no-export-dynamic -static -L$(interfacebuilddir) \
+- 	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS)
+- 
+- all: device-mapper
+-@@ -136,7 +136,7 @@
+- 		$(LVMLIBS) $(READLINE_LIBS) $(LIBS) -rdynamic
+- 
+- lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
+--	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) -o $@ \
+-+	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,--no-export-dynamic -static -L$(interfacebuilddir) -o $@ \
+- 	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS)
+- 
+- liblvm2cmd.a: $(top_builddir)/lib/liblvm-internal.a $(OBJECTS) lvmcmdlib.o lvm2cmd.o
+diff --git a/patches/lvm/2.02.88/lvm2-2.02.72-no-export-dynamic.patch b/patches/lvm/2.02.88/lvm2-2.02.72-no-export-dynamic.patch
+deleted file mode 100644
+index 05c7bf3..0000000
+--- a/patches/lvm/2.02.88/lvm2-2.02.72-no-export-dynamic.patch
++++ /dev/null
+@@ -1,37 +0,0 @@
+-X-Gentoo-Bug: 332905
+-X-Patch-URL: https://bugs.gentoo.org/attachment.cgi?id=243283&action=view
+-X-Gentoo-Bug-URL: https://bugs.gentoo.org/show_bug.cgi?id=332905
+-
+-diff -ur LVM2.2.02.72.orig/daemons/dmeventd/Makefile.in LVM2.2.02.72/daemons/dmeventd/Makefile.in
+---- LVM2.2.02.72.orig/daemons/dmeventd/Makefile.in	2010-05-14 16:36:56.000000000 +0300
+-+++ LVM2.2.02.72/daemons/dmeventd/Makefile.in	2010-08-17 03:00:24.000000000 +0300
+-@@ -61,7 +61,7 @@
+- 	$(DL_LIBS) $(LVMLIBS) $(LIBS) -rdynamic
+- 
+- dmeventd.static: $(LIB_STATIC) dmeventd.o $(interfacebuilddir)/libdevmapper.a
+--	$(CC) $(CFLAGS) $(LDFLAGS) -static -L. -L$(interfacebuilddir) -o $@ \
+-+	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,--no-export-dynamic -static -L. -L$(interfacebuilddir) -o $@ \
+- 	dmeventd.o $(DL_LIBS) $(LVMLIBS) $(LIBS) $(STATIC_LIBS)
+- 
+- ifeq ("@PKGCONFIG@", "yes")
+-diff -ur LVM2.2.02.72.orig/tools/Makefile.in LVM2.2.02.72/tools/Makefile.in
+---- LVM2.2.02.72.orig/tools/Makefile.in	2010-06-25 21:23:10.000000000 +0300
+-+++ LVM2.2.02.72/tools/Makefile.in	2010-08-17 03:01:07.000000000 +0300
+-@@ -126,7 +126,7 @@
+- 	      -o $@ dmsetup.o -ldevmapper $(LIBS)
+- 
+- dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
+--	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
+-+	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,--no-export-dynamic -static -L$(interfacebuilddir) \
+- 	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS)
+- 
+- all: device-mapper
+-@@ -136,7 +136,7 @@
+- 		$(LVMLIBS) $(READLINE_LIBS) $(LIBS) -rdynamic
+- 
+- lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
+--	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) -o $@ \
+-+	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,--no-export-dynamic -static -L$(interfacebuilddir) -o $@ \
+- 	      $(OBJECTS) lvm-static.o $(LVMLIBS) $(STATIC_LIBS) $(LIBS)
+- 
+- liblvm2cmd.a: $(top_builddir)/lib/liblvm-internal.a $(OBJECTS) lvmcmdlib.o lvm2cmd.o
+-- 
+1.8.1.5
+

@@ -8,23 +8,15 @@
 EAPI="3"
 
 VERSION_BUSYBOX='1.20.2'
-VERSION_DMRAID='1.0.0.rc16-3'
-VERSION_MDADM='3.1.5'
 VERSION_FUSE='2.8.6'
 VERSION_ISCSI='2.0-872'
-VERSION_LVM='2.02.88'
 VERSION_UNIONFS_FUSE='0.24'
 VERSION_GPG='1.4.11'
 
 RH_HOME="ftp://sources.redhat.com/pub"
-DM_HOME="http://people.redhat.com/~heinzm/sw/dmraid/src"
 BB_HOME="http://www.busybox.net/downloads"
 
-COMMON_URI="${DM_HOME}/dmraid-${VERSION_DMRAID}.tar.bz2
-		${DM_HOME}/old/dmraid-${VERSION_DMRAID}.tar.bz2
-		mirror://kernel/linux/utils/raid/mdadm/mdadm-${VERSION_MDADM}.tar.bz2
-		${RH_HOME}/lvm2/LVM2.${VERSION_LVM}.tgz
-		${RH_HOME}/lvm2/old/LVM2.${VERSION_LVM}.tgz
+COMMON_URI="
 		${BB_HOME}/busybox-${VERSION_BUSYBOX}.tar.bz2
 		http://www.open-iscsi.org/bits/open-iscsi-${VERSION_ISCSI}.tar.gz
 		mirror://sourceforge/fuse/fuse-${VERSION_FUSE}.tar.gz
@@ -60,7 +52,9 @@ RDEPEND="${DEPEND}
 		cryptsetup? ( sys-fs/cryptsetup )
 		app-arch/cpio
 		>=app-misc/pax-utils-0.2.1
-		!<sys-apps/openrc-0.9.9"
+		!<sys-apps/openrc-0.9.9
+		sys-fs/dmraid
+		sys-fs/lvm2"
 # pax-utils is used for lddtree
 
 if [[ ${PV} == 9999* ]]; then
@@ -88,15 +82,15 @@ src_prepare() {
 	epatch "${FILESDIR}"/debug-improvements/*.patch
 	# Add systemd-udev support as device manager
 	epatch "${FILESDIR}"/0003-genkernel-add-simple-udev-support-include-udev-into-.patch
+	epatch "${FILESDIR}"/0004-gen_compile-use-LVM-from-system-for-the-initramfs.patch
+	epatch "${FILESDIR}"/0005-gen_compile-use-DMRAID-from-system-don-t-compile-our.patch
+	epatch "${FILESDIR}"/0006-gen_compile-use-MDADM-from-system.patch
 
 	# Update software.sh
 	sed -i \
 		-e "s:VERSION_BUSYBOX:$VERSION_BUSYBOX:" \
-		-e "s:VERSION_MDADM:$VERSION_MDADM:" \
-		-e "s:VERSION_DMRAID:$VERSION_DMRAID:" \
 		-e "s:VERSION_FUSE:$VERSION_FUSE:" \
 		-e "s:VERSION_ISCSI:$VERSION_ISCSI:" \
-		-e "s:VERSION_LVM:$VERSION_LVM:" \
 		-e "s:VERSION_UNIONFS_FUSE:$VERSION_UNIONFS_FUSE:" \
 		-e "s:VERSION_GPG:$VERSION_GPG:" \
 		"${S}"/defaults/software.sh \
@@ -129,9 +123,6 @@ src_install() {
 	elog "Copying files to /var/cache/genkernel/src..."
 	mkdir -p "${D}"/var/cache/genkernel/src
 	cp -f \
-		"${DISTDIR}"/mdadm-${VERSION_MDADM}.tar.bz2 \
-		"${DISTDIR}"/dmraid-${VERSION_DMRAID}.tar.bz2 \
-		"${DISTDIR}"/LVM2.${VERSION_LVM}.tgz \
 		"${DISTDIR}"/busybox-${VERSION_BUSYBOX}.tar.bz2 \
 		"${DISTDIR}"/fuse-${VERSION_FUSE}.tar.gz \
 		"${DISTDIR}"/unionfs-fuse-${VERSION_UNIONFS_FUSE}.tar.bz2 \

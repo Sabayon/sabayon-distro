@@ -1,0 +1,361 @@
+From 07e217b20cb9f81af15e9d8655a767f9717b7d71 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Fri, 26 Apr 2013 11:31:06 +0100
+Subject: [PATCH 5/5] gen_compile: use DMRAID from system, don't compile our
+ own
+
+---
+ defaults/software.sh                               |   5 -
+ gen_compile.sh                                     |  49 ---------
+ gen_determineargs.sh                               |   2 -
+ gen_funcs.sh                                       |   2 +-
+ gen_initramfs.sh                                   |  20 ++--
+ .../dmraid/dmraid-1.0.0.rc16-3-staticlink.patch    |  18 ----
+ patches/dmraid/dmraid-1.0.0_rc16-as-needed2.patch  |  11 ---
+ .../dmraid/dmraid-1.0.0_rc16-return-all-sets.patch |  11 ---
+ .../dmraid-1.0.0_rc16-static-build-fixes.patch     | 110 ---------------------
+ .../dmraid/dmraid-1.0.0_rc16-undo-p-rename.patch   |  13 ---
+ 10 files changed, 8 insertions(+), 233 deletions(-)
+ delete mode 100644 patches/dmraid/dmraid-1.0.0.rc16-3-staticlink.patch
+ delete mode 100644 patches/dmraid/dmraid-1.0.0_rc16-as-needed2.patch
+ delete mode 100644 patches/dmraid/dmraid-1.0.0_rc16-return-all-sets.patch
+ delete mode 100644 patches/dmraid/dmraid-1.0.0_rc16-static-build-fixes.patch
+ delete mode 100644 patches/dmraid/dmraid-1.0.0_rc16-undo-p-rename.patch
+
+diff --git a/defaults/software.sh b/defaults/software.sh
+index 0e2820f..dbae78e 100644
+--- a/defaults/software.sh
++++ b/defaults/software.sh
+@@ -19,11 +19,6 @@ MDADM_DIR="${MDADM_DIR:-mdadm-${MDADM_VER}}"
+ MDADM_SRCTAR="${MDADM_SRCTAR:-${DISTDIR}/mdadm-${MDADM_VER}.tar.bz2}"
+ MDADM_BINCACHE="${MDADM_BINCACHE:-%%CACHE%%/mdadm-${MDADM_VER}-%%ARCH%%.tar.bz2}"
+ 
+-DMRAID_VER="${DMRAID_VER:-VERSION_DMRAID}"
+-DMRAID_DIR="${DMRAID_DIR:-dmraid/${DMRAID_VER}/dmraid}"
+-DMRAID_SRCTAR="${DMRAID_SRCTAR:-${DISTDIR}/dmraid-${DMRAID_VER}.tar.bz2}"
+-DMRAID_BINCACHE="${DMRAID_BINCACHE:-%%CACHE%%/dmraid-${DMRAID_VER}-%%ARCH%%.tar.bz2}"
+-
+ ISCSI_VER="${ISCSI_VER:-VERSION_ISCSI}"
+ ISCSI_DIR="${ISCSI_DIR:-open-iscsi-${ISCSI_VER}}"
+ ISCSI_SRCTAR="${ISCSI_SRCTAR:-${DISTDIR}/open-iscsi-${ISCSI_VER}.tar.gz}"
+diff --git a/gen_compile.sh b/gen_compile.sh
+index d0f6609..e4c67a6 100755
+--- a/gen_compile.sh
++++ b/gen_compile.sh
+@@ -479,55 +479,6 @@ compile_mdadm() {
+ 	fi
+ }
+ 
+-compile_dmraid() {
+-	if [ ! -f "${DMRAID_BINCACHE}" ]
+-	then
+-		[ -f "${DMRAID_SRCTAR}" ] ||
+-			gen_die "Could not find DMRAID source tarball: ${DMRAID_SRCTAR}! Please place it there, or place another version, changing /etc/genkernel.conf as necessary!"
+-		cd "${TEMP}"
+-		rm -rf ${DMRAID_DIR} > /dev/null
+-		/bin/tar -jxpf ${DMRAID_SRCTAR} ||
+-			gen_die 'Could not extract DMRAID source tarball!'
+-		[ -d "${DMRAID_DIR}" ] ||
+-			gen_die "DMRAID directory ${DMRAID_DIR} is invalid!"
+-		rm -rf "${TEMP}/lvm" > /dev/null
+-		mkdir -p "${TEMP}/lvm"
+-		/bin/tar -jxpf "${LVM_BINCACHE}" -C "${TEMP}/lvm" ||
+-			gen_die "Could not extract LVM2 binary cache!";
+-
+-		cd "${DMRAID_DIR}"
+-		apply_patches dmraid ${DMRAID_VER}
+-		print_info 1 'dmraid: >> Configuring...'
+-
+-		LDFLAGS="-L${TEMP}/lvm/lib" \
+-		CFLAGS="-I${TEMP}/lvm/include" \
+-		CPPFLAGS="-I${TEMP}/lvm/include" \
+-		LIBS="-ldevmapper" \
+-		./configure --enable-static_link --prefix=${TEMP}/dmraid >> ${LOGFILE} 2>&1 ||
+-			gen_die 'Configure of dmraid failed!'
+-
+-		# We dont necessarily have selinux installed yet... look into
+-		# selinux global support in the future.
+-		sed -i tools/Makefile -e "/DMRAID_LIBS +=/s|-lselinux||g"
+-		###echo "DMRAIDLIBS += -lselinux -lsepol" >> tools/Makefile
+-		mkdir -p "${TEMP}/dmraid"
+-		print_info 1 'dmraid: >> Compiling...'
+-		# Force dmraid to be built with -j1 for bug #188273
+-		MAKEOPTS="${MAKEOPTS} -j1" compile_generic '' utils
+-		#compile_generic 'install' utils
+-		mkdir ${TEMP}/dmraid/sbin
+-		install -m 0755 -s tools/dmraid "${TEMP}/dmraid/sbin/dmraid"
+-		print_info 1 '      >> Copying to bincache...'
+-		cd "${TEMP}/dmraid"
+-		/bin/tar -cjf "${DMRAID_BINCACHE}" sbin/dmraid ||
+-			gen_die 'Could not create binary cache'
+-
+-		cd "${TEMP}"
+-		rm -rf "${TEMP}/lvm" > /dev/null
+-		rm -rf "${DMRAID_DIR}" dmraid
+-	fi
+-}
+-
+ compile_fuse() {
+ 	if [ ! -f "${FUSE_BINCACHE}" ]
+ 	then
+diff --git a/gen_determineargs.sh b/gen_determineargs.sh
+index cdcf057..e5371ad 100755
+--- a/gen_determineargs.sh
++++ b/gen_determineargs.sh
+@@ -145,7 +145,6 @@ determine_real_args() {
+ 	CACHE_DIR=`arch_replace "${CACHE_DIR}"`
+ 	BUSYBOX_BINCACHE=`cache_replace "${BUSYBOX_BINCACHE}"`
+ 	MDADM_BINCACHE=`cache_replace "${MDADM_BINCACHE}"`
+-	DMRAID_BINCACHE=`cache_replace "${DMRAID_BINCACHE}"`
+ 	ISCSI_BINCACHE=`cache_replace "${ISCSI_BINCACHE}"`
+ 	BLKID_BINCACHE=`cache_replace "${BLKID_BINCACHE}"`
+ 	FUSE_BINCACHE=`cache_replace "${FUSE_BINCACHE}"`
+@@ -156,7 +155,6 @@ determine_real_args() {
+ 	BUSYBOX_CONFIG=`arch_replace "${BUSYBOX_CONFIG}"`
+ 	BUSYBOX_BINCACHE=`arch_replace "${BUSYBOX_BINCACHE}"`
+ 	MDADM_BINCACHE=`arch_replace "${MDADM_BINCACHE}"`
+-	DMRAID_BINCACHE=`arch_replace "${DMRAID_BINCACHE}"`
+ 	ISCSI_BINCACHE=`arch_replace "${ISCSI_BINCACHE}"`
+ 	BLKID_BINCACHE=`arch_replace "${BLKID_BINCACHE}"`
+ 	FUSE_BINCACHE=`arch_replace "${FUSE_BINCACHE}"`
+diff --git a/gen_funcs.sh b/gen_funcs.sh
+index a26eb9b..6721d62 100755
+--- a/gen_funcs.sh
++++ b/gen_funcs.sh
+@@ -496,7 +496,7 @@ set_config_with_override() {
+ }
+ 
+ check_distfiles() {
+-	for i in $BUSYBOX_SRCTAR $MULTIPATH_SRCTAR $DMRAID_SRCTAR $ISCSI_SRCTAR $GPG_SRCTAR
++	for i in $BUSYBOX_SRCTAR $MULTIPATH_SRCTAR $ISCSI_SRCTAR $GPG_SRCTAR
+ 	do
+ 		if [ ! -f "${i}" ]
+ 		then
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index d877c11..a60544d 100755
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -274,19 +274,13 @@ append_dmraid(){
+ 	then
+ 		rm -r "${TEMP}/initramfs-dmraid-temp/"
+ 	fi
+-	print_info 1 'DMRAID: Adding support (compiling binaries)...'
+-	compile_dmraid
+-	mkdir -p "${TEMP}/initramfs-dmraid-temp/"
+-	/bin/tar -jxpf "${DMRAID_BINCACHE}" -C "${TEMP}/initramfs-dmraid-temp" ||
+-		gen_die "Could not extract dmraid binary cache!";
+-	cd "${TEMP}/initramfs-dmraid-temp/"
+-	RAID456=`find . -type f -name raid456.ko`
+-	if [ -n "${RAID456}" ]
+-	then
+-		cd "${RAID456/raid456.ko/}"
+-		ln -sf raid456.kp raid45.ko
+-		cd "${TEMP}/initramfs-dmraid-temp/"
+-	fi
++	print_info 1 'DMRAID: Adding support (copying binaries from system)...'
++
++	mkdir -p "${TEMP}/initramfs-dmraid-temp/sbin"
++
++	copy_binaries "${TEMP}/initramfs-dmraid-temp" \
++		/usr/sbin/dmraid /usr/sbin/dmevent_tool
++
+ 	log_future_cpio_content
+ 	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}" \
+ 			|| gen_die "compressing dmraid cpio"
+diff --git a/patches/dmraid/dmraid-1.0.0.rc16-3-staticlink.patch b/patches/dmraid/dmraid-1.0.0.rc16-3-staticlink.patch
+deleted file mode 100644
+index a80870f..0000000
+--- a/patches/dmraid/dmraid-1.0.0.rc16-3-staticlink.patch
++++ /dev/null
+@@ -1,18 +0,0 @@
+-diff -ruN dmraid-vanilla/1.0.0.rc16-3/dmraid/tools/Makefile.in dmraid/1.0.0.rc16-3/dmraid/tools/Makefile.in
+---- dmraid-vanilla/1.0.0.rc16-3/dmraid/tools/Makefile.in	2010-05-31 13:18:31.000000000 +0200
+-+++ dmraid/1.0.0.rc16-3/dmraid/tools/Makefile.in	2012-01-03 10:14:01.665000034 +0100
+-@@ -46,10 +46,10 @@
+- 			DMEVENTTOOLLIBS = -ldevmapper-event_dietc
+- 		endif
+- 	else
+--#		DMRAIDLIBS += -ldevmapper
+--#		ifeq ("@STATIC_LINK@", "no")
+--#			DMEVENTTOOLLIBS = -ldevmapper-event
+--#		endif
+-+		DMRAIDLIBS += -ldevmapper
+-+		ifeq ("@STATIC_LINK@", "no")
+-+			DMEVENTTOOLLIBS = -ldevmapper-event
+-+		endif
+- 	endif
+- 
+- #	DMRAIDLIBS += -lselinux
+diff --git a/patches/dmraid/dmraid-1.0.0_rc16-as-needed2.patch b/patches/dmraid/dmraid-1.0.0_rc16-as-needed2.patch
+deleted file mode 100644
+index cf30188..0000000
+--- a/patches/dmraid/dmraid-1.0.0_rc16-as-needed2.patch
++++ /dev/null
+@@ -1,11 +0,0 @@
+---- 1.0.0.rc16/make.tmpl.in	2010-08-16 10:22:32.000000000 -0400
+-+++ 1.0.0.rc16/make.tmpl.in	2010-08-16 10:42:49.000000000 -0400
+-@@ -136,7 +136,7 @@
+- 
+- %.so: $(OBJECTS)
+- 	$(CC) -shared -Wl,-soname,$(notdir $@).$(DMRAID_LIB_VERSION) \
+--	-Wl,--version-script,.export.sym $(OBJECTS) -o $@ -ldevmapper-event
+-+	$(LDFLAGS) -Wl,--version-script,.export.sym $(OBJECTS) -o $@ -ldevmapper-event -ldl
+- 
+- $(LIB_STATIC): $(OBJECTS)
+- 	$(RM) $@
+diff --git a/patches/dmraid/dmraid-1.0.0_rc16-return-all-sets.patch b/patches/dmraid/dmraid-1.0.0_rc16-return-all-sets.patch
+deleted file mode 100644
+index 1e6c713..0000000
+--- a/patches/dmraid/dmraid-1.0.0_rc16-return-all-sets.patch
++++ /dev/null
+@@ -1,11 +0,0 @@
+---- a/1.0.0.rc16/lib/metadata/metadata.c	2009-11-27 21:57:50.182129589 -0800
+-+++ b/1.0.0.rc16/lib/metadata/metadata.c	2009-11-27 21:57:58.950964293 -0800
+-@@ -839,7 +839,7 @@
+- 		 */
+- 		if (T_GROUP(rs)) {
+- 			_discover_partitions(lc, &rs->sets);
+--			return;
+-+			continue;
+- 		}
+- 
+- 		/*
+diff --git a/patches/dmraid/dmraid-1.0.0_rc16-static-build-fixes.patch b/patches/dmraid/dmraid-1.0.0_rc16-static-build-fixes.patch
+deleted file mode 100644
+index 2988117..0000000
+--- a/patches/dmraid/dmraid-1.0.0_rc16-static-build-fixes.patch
++++ /dev/null
+@@ -1,110 +0,0 @@
+---- tools/Makefile.in.old	2010-05-31 07:18:31.000000000 -0400
+-+++ tools/Makefile.in	2010-12-13 13:15:22.000000000 -0500
+-@@ -60,17 +60,23 @@
+- ifeq ("@KLIBC@", "no")
+- 	ifeq ("@STATIC_LINK@", "no")
+- 		LDFLAGS += -rdynamic
+-+		MYLIBOBJ=$(top_builddir)/lib/libdmraid.so
+- 	else
+- 		LDFLAGS += -static
+-+		MYLIBOBJ=$(top_builddir)/lib/libdmraid.a
+-+		DMRAIDLIBS += \
+-+			$(DEVMAPPEREVENT_LIBS) \
+-+			$(DEVMAPPER_LIBS) \
+-+			$(DL_LIBS)
+- 	endif
+- endif
+- 
+- .PHONY: install_dmraid_tools
+- 
+--dmraid: $(OBJECTS) $(top_builddir)/lib/libdmraid.a
+-+dmraid: $(OBJECTS) $(MYLIBOBJ)
+- 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) -L$(top_builddir)/lib $(DMRAIDLIBS) $(LIBS)
+- 
+--dmevent_tool: $(OBJECTS2) $(top_builddir)/lib/libdmraid.a
+-+dmevent_tool: $(OBJECTS2) $(MYLIBOBJ)
+- 	$(CC) -o $@ $(OBJECTS2) $(INCLUDES) $(LDFLAGS) -L$(top_builddir)/lib \
+- 		$(DMEVENTTOOLLIBS) $(DMRAIDLIBS) $(LIBS)
+- 
+---- lib/Makefile.in.old	2010-10-27 07:31:46.000000000 -0400
+-+++ lib/Makefile.in	2010-12-13 13:04:16.000000000 -0500
+-@@ -60,11 +60,11 @@
+- USRLIB_RELPATH = $(shell echo $(abspath $(usrlibdir) $(libdir)) | \
+-   $(AWK) -f $(top_srcdir)/tools/relpath.awk)
+- 
+--TARGETS = $(LIB_STATIC)
+-+TARGETS = $(LIB_STATIC) $(LIB_SHARED) $(LIB_EVENTS_SHARED)
+- 
+- ifeq ("@KLIBC@", "no")
+- 	ifeq ("@STATIC_LINK@", "no")
+--		TARGETS += $(LIB_SHARED) $(LIB_EVENTS_SHARED)
+-+		TARGETS = $(LIB_SHARED) $(LIB_EVENTS_SHARED)
+- 	endif
+- endif
+- 
+---- configure.in	2010-05-31 07:18:30.000000000 -0400
+-+++ configure.in.new	2010-12-07 13:30:40.000000000 -0500
+-@@ -155,6 +155,15 @@
+-     Default is dynamic linking]),
+-   [STATIC_LINK=$enableval], [STATIC_LINK=no])
+- 
+-+if test "x$STATIC_LINK" != "xno"; then
+-+  if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+-+        AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+-+  fi
+-+  PKG_CONFIG="${PKG_CONFIG} --static"
+-+  ac_cv_env_PKG_CONFIG_set=set
+-+fi
+-+PKG_PROG_PKG_CONFIG([0.2])
+-+
+- dnl Enables shared libdmraid
+- AC_ARG_ENABLE(shared_lib,
+-   AC_HELP_STRING([--enable-shared_lib], [Use this to generate shared
+-@@ -248,23 +257,31 @@
+- 	AC_HELP_STRING([--with-devmapper-prefix=PFX],
+- 		[Where is devmapper library installed]),
+- 	[DEVMAPPER_LIBS="-L$withval/lib"
+--	 DEVMAPPER_CFLAGS="-I$withval/include"],
+-+	 DEVMAPPER_CFLAGS="-I$withval/include"
+-+	 dmprefix=$withval],
+- 	[DEVMAPPER_LIBS=
+--	 DEVMAPPER_CFLAGS=])
+--save_LDFLAGS=$LDFLAGS
+--save_CPPFLAGS=$CPPFLAGS
+--LDFLAGS="$LDFLAGS $DEVMAPPER_LIBS"
+--CPPFLAGS="$CPPFLAGS $DEVMAPPER_CFLAGS"
+--AC_CHECK_LIB(devmapper-event, dm_event_handler_create,
+--	[DEVMAPPEREVENT_LIBS="$DEVMAPPER_LIBS -ldevmapper-event"],
+--	[AC_MSG_ERROR([device-mapper-event library is either missing or is too old and badly linked])])
+--AC_CHECK_LIB(devmapper, dm_task_set_name,
+--	[DEVMAPPER_LIBS="$DEVMAPPER_LIBS -ldevmapper"],
+--	[AC_MSG_ERROR([device-mapper library is missing])])
+--AC_CHECK_HEADERS(libdevmapper.h libdevmapper-event.h,,
+--	[AC_MSG_ERROR([Missing headers device-mapper headers])])
+--CPPFLAGS=$save_CPPFLAGS
+--LDFLAGS=$save_LDFLAGS
+-+	 DEVMAPPER_CFLAGS=
+-+	 dmprefix=no])
+-+if test "x$dmprefix" = xno ; then
+-+	PKG_CHECK_MODULES([DEVMAPPER],[devmapper],
+-+		[PKG_CHECK_MODULES([DEVMAPPEREVENT],[devmapper-event])
+-+		])
+-+else
+-+	save_LDFLAGS=$LDFLAGS
+-+	save_CPPFLAGS=$CPPFLAGS
+-+	LDFLAGS="$LDFLAGS $DEVMAPPER_LIBS"
+-+	CPPFLAGS="$CPPFLAGS $DEVMAPPER_CFLAGS"
+-+	AC_CHECK_LIB(devmapper-event, dm_event_handler_create,
+-+		[DEVMAPPEREVENT_LIBS="$DEVMAPPER_LIBS -ldevmapper-event"],
+-+		[AC_MSG_ERROR([device-mapper-event library is either missing or is too old and badly linked])])
+-+	AC_CHECK_LIB(devmapper, dm_task_set_name,
+-+		[DEVMAPPER_LIBS="$DEVMAPPER_LIBS -ldevmapper"],
+-+		[AC_MSG_ERROR([device-mapper library is missing])])
+-+	AC_CHECK_HEADERS(libdevmapper.h libdevmapper-event.h,,
+-+		[AC_MSG_ERROR([Missing headers device-mapper headers])])
+-+	CPPFLAGS=$save_CPPFLAGS
+-+	LDFLAGS=$save_LDFLAGS
+-+fi
+- 
+- VERSION=$srcdir/tools/VERSION
+- DMRAID_LIB_MAJOR=$(cut -d. -f1 $VERSION)
+\ No newline at end of file
+diff --git a/patches/dmraid/dmraid-1.0.0_rc16-undo-p-rename.patch b/patches/dmraid/dmraid-1.0.0_rc16-undo-p-rename.patch
+deleted file mode 100644
+index 6636b05..0000000
+--- a/patches/dmraid/dmraid-1.0.0_rc16-undo-p-rename.patch
++++ /dev/null
+@@ -1,13 +0,0 @@
+-Author: Giuseppe Iuculano <giuseppe@iuculano.it>
+-Description: Removed "p" from device name. A proper upgrade script is needed before using it.
+---- a/1.0.0.rc15/lib/format/partition/dos.c
+-+++ b/1.0.0.rc15/lib/format/partition/dos.c
+-@@ -31,7 +31,7 @@ _name(struct lib_context *lc, struct rai
+- {
+- 	const char *base = get_basename(lc, rd->di->path);
+- 
+--	return type ? snprintf(str, len, "%s%s%u", base, OPT_STR_PARTCHAR(lc),
+-+	return type ? snprintf(str, len, "%s%u", base,
+- 			       partition) : snprintf(str, len, "%s", base);
+- }
+- 
+-- 
+1.8.1.5
+
