@@ -1,7 +1,7 @@
-From b80c6f935eb236b4d8dc3cda0f2f23a62df1faaa Mon Sep 17 00:00:00 2001
+From 60a2f6f587ae31837640ff8e958984c9f3c9247f Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 11:41:35 +0100
-Subject: [PATCH 6/6] gen_compile: use MDADM from system
+Subject: [PATCH 6/7] gen_compile: use MDADM from system
 
 ---
  defaults/software.sh                        |  5 ----
@@ -99,7 +99,7 @@ index e5371ad..6d006a6 100755
  	BLKID_BINCACHE=`arch_replace "${BLKID_BINCACHE}"`
  	FUSE_BINCACHE=`arch_replace "${FUSE_BINCACHE}"`
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index a60544d..48bb7c3 100755
+index dd8ae64..dcf3afa 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
 @@ -356,34 +356,24 @@ append_mdadm(){

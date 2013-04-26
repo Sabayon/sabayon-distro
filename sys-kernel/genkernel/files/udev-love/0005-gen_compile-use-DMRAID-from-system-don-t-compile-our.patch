@@ -1,7 +1,7 @@
-From 07e217b20cb9f81af15e9d8655a767f9717b7d71 Mon Sep 17 00:00:00 2001
+From 97cd446e8512ddec511b7c14bb86f825fa582cb8 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 11:31:06 +0100
-Subject: [PATCH 5/5] gen_compile: use DMRAID from system, don't compile our
+Subject: [PATCH 5/7] gen_compile: use DMRAID from system, don't compile our
  own
 
 ---
@@ -132,7 +132,7 @@ index a26eb9b..6721d62 100755
  		if [ ! -f "${i}" ]
  		then
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index d877c11..a60544d 100755
+index eecb46d..dd8ae64 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
 @@ -274,19 +274,13 @@ append_dmraid(){

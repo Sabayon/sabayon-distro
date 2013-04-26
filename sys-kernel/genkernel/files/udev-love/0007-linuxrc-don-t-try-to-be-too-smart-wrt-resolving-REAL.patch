@@ -1,0 +1,28 @@
+From 6d422bde524a25af3f2da92780e4d97d45628408 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Fri, 26 Apr 2013 13:01:40 +0100
+Subject: [PATCH 7/7] linuxrc: don't try to be too smart wrt resolving
+ REAL_ROOT symlink
+
+This breaks LVM support with udev, don't do it, there is absolutely no reason
+---
+ defaults/linuxrc | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/defaults/linuxrc b/defaults/linuxrc
+index 210831f..90631c8 100644
+--- a/defaults/linuxrc
++++ b/defaults/linuxrc
+@@ -643,9 +643,6 @@ do
+ 		if [ "${REAL_ROOT}" = '/dev/nfs' ]; then
+ 			findnfsmount
+ 		else
+-			# If $REAL_ROOT is a symlink
+-			# Resolve it like util-linux mount does
+-			[ -L ${REAL_ROOT} ] && REAL_ROOT=`readlink ${REAL_ROOT}`
+ 			# mount ro so fsck doesn't barf later
+ 			if [ "${REAL_ROOTFLAGS}" = '' ]; then
+ 				good_msg "Using mount -t ${ROOTFSTYPE} -o ${MOUNT_STATE}"
+-- 
+1.8.1.5
+

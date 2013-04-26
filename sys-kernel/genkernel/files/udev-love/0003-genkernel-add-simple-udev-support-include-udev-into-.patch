@@ -1,22 +1,78 @@
-From 3c6a2614804ef3ffc799fdbab0c04a0cbaa4ccc1 Mon Sep 17 00:00:00 2001
+From 0f888085581b44f3151915523b41b1e93b98426d Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 00:21:01 +0100
-Subject: [PATCH 3/4] genkernel: add simple udev support, include udev into
+Subject: [PATCH 3/7] genkernel: add simple udev support, include udev into
  initramfs if --udev
 
 ---
- defaults/linuxrc     | 43 ++++++++++++++++++++++++++++++++++---------
- doc/genkernel.8.txt  |  4 ++++
- gen_cmdline.sh       |  6 ++++++
- gen_determineargs.sh |  1 +
- gen_initramfs.sh     | 38 ++++++++++++++++++++++++++++++++++++++
- 5 files changed, 83 insertions(+), 9 deletions(-)
+ defaults/initrd.defaults |  2 ++
+ defaults/initrd.scripts  | 15 +++++++++++++++
+ defaults/linuxrc         | 46 +++++++++++++++++++++++++++++++++++++---------
+ doc/genkernel.8.txt      |  4 ++++
+ gen_cmdline.sh           |  6 ++++++
+ gen_determineargs.sh     |  1 +
+ gen_initramfs.sh         | 35 +++++++++++++++++++++++++++++++++++
+ 7 files changed, 100 insertions(+), 9 deletions(-)
 
+diff --git a/defaults/initrd.defaults b/defaults/initrd.defaults
+index cbf18f3..217a413 100755
+--- a/defaults/initrd.defaults
++++ b/defaults/initrd.defaults
+@@ -55,6 +55,8 @@ ROOT_LINKS='bin sbin lib lib32 lib64 boot usr opt emul'
+ ROOT_TREES='etc root home var'
+ KSUFF='.ko'
+ 
++UDEVD='/sbin/udevd'
++MDEVD='/sbin/mdev'
+ REAL_ROOT=''
+ CONSOLE='/dev/console'
+ NEW_ROOT='/newroot'
+diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
+index 970d3e7..c5c5930 100644
+--- a/defaults/initrd.scripts
++++ b/defaults/initrd.scripts
+@@ -344,6 +344,19 @@ fs_type_in_use() {
+ 	cut -d ' ' -f 3 < /proc/mounts | fgrep -q "${fs_type}"
+ }
+ 
++is_udev() {
++	[ -x "${UDEVD}" ] && [ -z "${USE_MDEV}" ] && return 0
++	return 1
++}
++
++is_mdev() {
++	if [ ! -x "${UDEVD}" ] || [ -n "${USE_MDEV}" ]
++	then
++		return 0
++	fi
++	return 1
++}
++
+ mount_devfs () {
+ 	# Use devtmpfs if enabled in kernel,
+ 	# else tmpfs. Always run mdev just in case
+@@ -736,6 +749,8 @@ startVolumes() {
+ 			fi
+ 		fi
+ 	fi
++
++	is_udev && udevadm settle
+ }
+ 
+ startiscsi() {
 diff --git a/defaults/linuxrc b/defaults/linuxrc
-index 03cbf1d..aef537d 100755
+index 4bbe5e2..210831f 100644
 --- a/defaults/linuxrc
 +++ b/defaults/linuxrc
-@@ -88,6 +88,9 @@ do
+@@ -22,6 +22,7 @@ fi
+ 
+ mount -t proc -o noexec,nosuid,nodev proc /proc >/dev/null 2>&1
+ mount -o remount,rw / >/dev/null 2>&1
++mount -t tmpfs -o rw,nosuid,nodev,relatime,mode=755 none /run 2>&1
+ 
+ # Set up symlinks
+ /bin/busybox --install -s
+@@ -87,6 +88,9 @@ do
  		isoboot=*)
  			ISOBOOT=${x#*=}
  		;;
@@ -26,7 +82,7 @@ index 03cbf1d..aef537d 100755
  		# Start Volume manager options
  		dolvm)
  			USE_LVM_NORMAL=1
-@@ -326,14 +329,18 @@ mount_devfs
+@@ -327,14 +331,18 @@ mount_devfs
  # Mount sysfs
  mount_sysfs
  
@@ -38,51 +94,53 @@ index 03cbf1d..aef537d 100755
 -
  # Setup hotplugging for firmware loading
 -echo /sbin/mdev > /proc/sys/kernel/hotplug
-+if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
++if is_udev
 +then
 +	good_msg 'Activating udev'
-+	echo /sbin/udevd > /proc/sys/kernel/hotplug
++	echo "${UDEVD}" > /proc/sys/kernel/hotplug
 +	echo "" > /sys/kernel/uevent_helper
 +else
 +	good_msg 'Activating mdev'
 +	# Serialize hotplug events
 +	touch /dev/mdev.seq
-+	echo /sbin/mdev > /proc/sys/kernel/hotplug
++	echo "${MDEVD}" > /proc/sys/kernel/hotplug
 +fi
  
  # Load modules listed in MY_HWOPTS if /lib/modules exists for the running kernel
  if [ -z "${DO_modules}" ]
-@@ -356,8 +363,16 @@ else
+@@ -357,8 +365,19 @@ else
  	good_msg 'Skipping module load; no modules in the ramdisk!'
  fi
  
 -# Ensure that device nodes are properly configured
 -mdev -s || bad_msg "mdev -s failed"
-+if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
++if is_udev
 +then
 +	# Initialize udev
-+	/sbin/udevd --daemon --resolve-names=never && \
++	"${UDEVD}" --daemon --resolve-names=never && \
 +		udevadm trigger --action=add && \
 +		udevadm settle || bad_msg "udevd failed to run"
-+else
++elif is_mdev
++then
 +	# Ensure that device nodes are properly configured
-+	mdev -s || bad_msg "mdev -s failed"
++	"${MDEVD}" -s || bad_msg "mdev -s failed"
++else
++	bad_msg "Cannot find either udev or mdev"
 +fi
  
  # Apply scan delay if specified
  sdelay
-@@ -913,6 +928,16 @@ good_msg "Booting (initramfs)"
+@@ -914,6 +933,15 @@ good_msg "Booting (initramfs)"
  cd "${CHROOT}"
  mkdir "${CHROOT}/proc" "${CHROOT}/sys" "${CHROOT}/run" 2>/dev/null
  
-+if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
-+then
-+	udevadm control --exit || bad_msg "Unable to terminate udevd"
-+fi
++is_udev && udevadm settle
 +
-+if [ -x /sbin/udevd ] && [ -z "${USE_MDEV}" ]
++mount --move /run "$CHROOT"/run || bad_msg "Unable to move /run"
++
++if is_udev
 +then
-+	udevadm control --exit || bad_msg "Unable to terminate udevd"
++	killall udevd || bad_msg "Unable to terminate udevd"
 +fi
 +
  # If devtmpfs is mounted, try move it to the new root
@@ -140,10 +198,10 @@ index afc6fe3..1394995 100755
  	set_config_with_override BOOL   DMRAID               CMD_DMRAID
  	set_config_with_override BOOL   ISCSI                CMD_ISCSI
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index 784c0cc..cfd563b 100755
+index 784c0cc..836c85f 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
-@@ -563,6 +563,43 @@ append_gpg() {
+@@ -563,6 +563,40 @@ append_gpg() {
  	rm -rf "${TEMP}/initramfs-gpg-temp" > /dev/null
  }
  
@@ -164,11 +222,8 @@ index 784c0cc..cfd563b 100755
 +	for f in ${udev_files}; do
 +		mkdir -p "${TEMP}/initramfs-udev-temp"/$(dirname "${f}") || \
 +			gen_die "cannot create rules.d directory"
-+		[ -f "${f}" ] && \
-+			cp "${f}" "${TEMP}/initramfs-udev-temp/${f}" || \
++		cp "${f}" "${TEMP}/initramfs-udev-temp/${f}" || \
 +			gen_die "cannot copy ${f} from system"
-+		[ -f "${f}" ] && \
-+			print_warning 2 "Warning: ${f} not found! Skipping..."
 +	done
 +
 +	# Copy binaries
@@ -187,7 +242,7 @@ index 784c0cc..cfd563b 100755
  print_list()
  {
  	local x
-@@ -773,6 +810,7 @@ create_initramfs() {
+@@ -773,6 +807,7 @@ create_initramfs() {
  		|| gen_die "Could not create empty cpio at ${CPIO}"
  
  	append_data 'base_layout'

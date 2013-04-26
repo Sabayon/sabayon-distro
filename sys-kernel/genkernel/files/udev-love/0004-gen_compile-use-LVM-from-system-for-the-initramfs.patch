@@ -1,24 +1,72 @@
-From 653359171bf03866710554a40fad42782a56d325 Mon Sep 17 00:00:00 2001
+From 83b4a0ef1a2ec07d3ae14f1a35186112192ee31a Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 08:47:06 +0100
-Subject: [PATCH 4/4] gen_compile: use LVM from system for the initramfs
+Subject: [PATCH 4/7] gen_compile: use LVM from system for the initramfs
 
 ---
+ defaults/initrd.scripts                            | 21 ++++---
  defaults/software.sh                               |  5 --
  gen_compile.sh                                     | 48 ----------------
  gen_determineargs.sh                               |  2 -
  gen_funcs.sh                                       |  2 +-
- gen_initramfs.sh                                   | 64 ++++++++--------------
+ gen_initramfs.sh                                   | 66 ++++++++--------------
  .../lvm/2.02.28/filter-sysfs-inc-sys-stat.patch    | 11 ----
  patches/lvm/2.02.28/no-export-dynamic.patch        | 22 --------
- .../2.02.74/lvm2-2.02.72-no-export-dynamic.patch   | 37 -------------
- .../2.02.88/lvm2-2.02.72-no-export-dynamic.patch   | 37 -------------
- 9 files changed, 23 insertions(+), 205 deletions(-)
+ .../2.02.74/lvm2-2.02.72-no-export-dynamic.patch   | 37 ------------
+ .../2.02.88/lvm2-2.02.72-no-export-dynamic.patch   | 37 ------------
+ 10 files changed, 36 insertions(+), 215 deletions(-)
  delete mode 100644 patches/lvm/2.02.28/filter-sysfs-inc-sys-stat.patch
  delete mode 100644 patches/lvm/2.02.28/no-export-dynamic.patch
  delete mode 100644 patches/lvm/2.02.74/lvm2-2.02.72-no-export-dynamic.patch
  delete mode 100644 patches/lvm/2.02.88/lvm2-2.02.72-no-export-dynamic.patch
 
+diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
+index c5c5930..d585935 100644
+--- a/defaults/initrd.scripts
++++ b/defaults/initrd.scripts
+@@ -680,30 +680,33 @@ startVolumes() {
+ 
+ 	if [ "${USE_LVM_NORMAL}" = '1' ]
+ 	then
+-		if [ -e '/bin/lvm' ]
++		if [ -e '/sbin/lvm' ]
+ 		then
+ 			for dev in ${RAID_DEVICES}
+ 			do
+ 				setup_md_device "${dev}"
+ 			done
+ 
+-			# This is needed for /bin/lvm to accept the following logic
+-			lvm_commands="#! /bin/lvm"
++			# This is needed for /sbin/lvm to accept the following logic
++			lvm_commands="#! /sbin/lvm"
+ 
+ 			# If there is a cahe, update it. Unbreak at least dmcrypt
+ 			[ -d /etc/lvm/cache ] && lvm_commands="${lvm_commands} \nvgscan"
+ 
+ 			# To activate volumegroups on all devices in the cache
+ 			lvm_commands="${lvm_commands} \nvgchange -ay --sysinit"
+-			
+-			# To create symlinks so users can use real_root=/dev/vg/root
+-			# This needs to run after vgchange, using vgchange --mknodes is too
+-			# early.
+-			lvm_commands="${lvm_commands} \nvgmknodes --ignorelockingfailure"
++			if [ ! -x /sbin/udevd ] || [ -n "${USE_MDEV}" ]
++			then
++				# To create symlinks so users can use
++				# real_root=/dev/vg/root
++				# This needs to run after vgchange, using
++				# vgchange --mknodes is too early.
++				lvm_commands="${lvm_commands} \nvgmknodes --ignorelockingfailure"
++			fi
+ 
+ 			# And finally execute it all (/proc/... needed if lvm is compiled without readline)
+ 			good_msg "Scanning for and activating Volume Groups"
+-			printf "%b\n" "${lvm_commands}" | /bin/lvm /proc/self/fd/0
++			printf "%b\n" "${lvm_commands}" | /sbin/lvm /proc/self/fd/0
+ 		else
+ 			bad_msg "vgscan or vgchange not found: skipping LVM volume group activation!"
+ 		fi
 diff --git a/defaults/software.sh b/defaults/software.sh
 index fe2962e..0e2820f 100644
 --- a/defaults/software.sh
@@ -142,7 +190,7 @@ index 4f0a0fc..a26eb9b 100755
  		if [ ! -f "${i}" ]
  		then
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index cfd563b..d877c11 100755
+index 836c85f..eecb46d 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
 @@ -320,51 +320,31 @@ append_lvm(){
@@ -163,7 +211,27 @@ index cfd563b..d877c11 100755
 -			cp /sbin/dmsetup.static "${TEMP}/initramfs-lvm-temp/bin/dmsetup"
 -		fi
 -	elif false && [ -e '/sbin/lvm' ] && LC_ALL="C" ldd /sbin/lvm|grep -q 'not a dynamic executable'
--	then
++	print_info 1 '          LVM: Adding support (copying binaries from system)...'
++
++	udev_files="
++		/lib/udev/rules.d/95-dm-notify.rules
++		/lib/udev/rules.d/13-dm-disk.rules
++		/lib/udev/rules.d/10-dm.rules
++		/lib/udev/rules.d/69-dm-lvm-metad.rules
++		/lib/udev/rules.d/11-dm-lvm.rules
++	"
++	for f in ${udev_files}; do
++		mkdir -p "${TEMP}/initramfs-lvm-temp"/$(dirname "${f}") || \
++			gen_die "cannot create rules.d directory"
++		cp "${f}" "${TEMP}/initramfs-lvm-temp/${f}" || \
++			gen_die "cannot copy ${f} from system"
++	done
++
++	copy_binaries "${TEMP}/initramfs-lvm-temp" \
++		/sbin/lvm /sbin/dmsetup
++
++	if [ -x /sbin/lvm ]
+ 	then
 -		print_info 1 '          LVM: Adding support (using local static binary /sbin/lvm)...'
 -		cp /sbin/lvm "${TEMP}/initramfs-lvm-temp/bin/lvm" ||
 -			gen_die 'Could not copy over lvm!'
@@ -184,27 +252,8 @@ index cfd563b..d877c11 100755
 -			gen_die 'LVM error: Could not move dmsetup.static to dmsetup!'
 -		rm -rf ${TEMP}/initramfs-lvm-temp/{lib,share,man,include,sbin/{lvm,dmsetup}}
 -	fi
-+	print_info 1 '          LVM: Adding support (copying binaries from system)...'
-+
-+	udev_files="
-+		/lib/udev/rules.d/95-dm-notify.rules
-+		/lib/udev/rules.d/13-dm-disk.rules
-+		/lib/udev/rules.d/10-dm.rules
-+		/lib/udev/rules.d/69-dm-lvm-metad.rules
-+		/lib/udev/rules.d/11-dm-lvm.rules
-+	"
-+	for f in ${udev_files}; do
-+		mkdir -p "${TEMP}/initramfs-lvm-temp"/$(dirname "${f}") || \
-+			gen_die "cannot create rules.d directory"
-+		cp "${f}" "${TEMP}/initramfs-lvm-temp/${f}" || \
-+			gen_die "cannot copy ${f} from system"
-+	done
-+
-+	copy_binaries "${TEMP}/initramfs-lvm-temp" \
-+		/sbin/lvm /sbin/dmsetup
-+
- 	if [ -x /sbin/lvm -o -x /bin/lvm ]
- 	then
+-	if [ -x /sbin/lvm -o -x /bin/lvm ]
+-	then
 -#		lvm dumpconfig 2>&1 > /dev/null || gen_die 'Could not copy over lvm.conf!'
 -#		ret=$?
 -#		if [ ${ret} != 0 ]
