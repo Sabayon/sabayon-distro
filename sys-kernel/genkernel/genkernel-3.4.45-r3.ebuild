@@ -13,7 +13,6 @@ VERSION_ISCSI='2.0-872'
 VERSION_UNIONFS_FUSE='0.24'
 VERSION_GPG='1.4.11'
 
-RH_HOME="ftp://sources.redhat.com/pub"
 BB_HOME="http://www.busybox.net/downloads"
 
 COMMON_URI="
