@@ -1,6 +1,6 @@
 [Unit]
 Description=Sabayon text installer setup
-Before=systemd-user-sessions.service
+After=sabayonlive.service
 
 [Service]
 Type=oneshot
