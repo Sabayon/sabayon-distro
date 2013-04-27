@@ -1,0 +1,14 @@
+# This unit is meant to run only after install.
+
+[Unit]
+Description=GPUs and input devices setup
+ConditionKernelCommandLine=!cdroot
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/libexec/x-setup.sh
+
+[Install]
+WantedBy=multi-user.target

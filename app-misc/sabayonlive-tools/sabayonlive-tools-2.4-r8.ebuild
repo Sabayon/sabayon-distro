@@ -33,6 +33,7 @@ src_install() {
 	doexe "${dir}/installer-text.sh"
 	doexe "${dir}/installer-gui.sh"
 	doexe "${dir}/sabayonlive.sh"
+	doexe "${dir}/x-setup.sh"
 	doexe "${dir}/cdeject.sh"
 
 	dosbin "${dir}/x-setup-configuration"
@@ -58,15 +59,16 @@ src_install() {
 	dodir /usr/share/sabayonlive-tools/xorg.conf.d
 	insinto /usr/share/sabayonlive-tools/xorg.conf.d
 
-	newinitd "${dir}/sabayonlive" sabayonlive
+	doinitd "${dir}/sabayonlive"
 	systemd_dounit "${dir}/sabayonlive.service"
+	systemd_dounit "${dir}/x-setup.service"
 
-	newinitd "${dir}/installer-gui" installer-gui
+	doinitd "${dir}/installer-gui"
 	systemd_dounit "${dir}/installer-gui.service"
 
-	newinitd "${dir}/installer-text" installer-text
+	doinitd "${dir}/installer-text"
 	systemd_dounit "${dir}/installer-text.service"
 
-	newinitd "${dir}/cdeject" cdeject
+	doinitd "${dir}/cdeject"
 	systemd_dounit "${dir}/cdeject.service"
 }
