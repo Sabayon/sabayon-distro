@@ -78,35 +78,9 @@ src_prepare() {
 }
 
 src_configure() {
-	if use build; then
-		# Disable extraneous modules with extra dependencies.
-		export PYTHON_DISABLE_MODULES="dbm _bsddb gdbm _curses _curses_panel readline _sqlite3 _tkinter _elementtree pyexpat"
-		export PYTHON_DISABLE_SSL="1"
-	else
-		# dbm module can be linked against berkdb or gdbm.
-		# Defaults to gdbm when both are enabled, #204343.
-		local disable
-		use berkdb   || use gdbm || disable+=" dbm"
-		use berkdb   || disable+=" _bsddb"
-		use gdbm     || disable+=" gdbm"
-		use ncurses  || disable+=" _curses _curses_panel"
-		use readline || disable+=" readline"
-		use sqlite   || disable+=" _sqlite3"
-		use ssl      || export PYTHON_DISABLE_SSL="1"
-		use tk       || disable+=" _tkinter"
-		use xml      || disable+=" _elementtree pyexpat" # _elementtree uses pyexpat.
-		export PYTHON_DISABLE_MODULES="${disable}"
-
-		if ! use xml; then
-			ewarn "You have configured Python without XML support."
-			ewarn "This is NOT a recommended configuration as you"
-			ewarn "may face problems parsing any XML documents."
-		fi
-	fi
-
-	if [[ -n "${PYTHON_DISABLE_MODULES}" ]]; then
-		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
-	fi
+	# Disable extraneous modules with extra dependencies.
+	export PYTHON_DISABLE_MODULES="dbm _bsddb gdbm _curses _curses_panel readline _sqlite3 _elementtree pyexpat"
+	export PYTHON_DISABLE_SSL="1"
 
 	if [[ "$(gcc-major-version)" -ge 4 ]]; then
 		append-flags -fwrapv
@@ -149,14 +123,6 @@ src_configure() {
 	# Needed on FreeBSD unless Python 2.7 is already installed.
 	# Please query BSD team before removing this!
 	append-ldflags "-L."
-
-	local dbmliborder
-	if use gdbm; then
-		dbmliborder+="${dbmliborder:+:}gdbm"
-	fi
-	if use berkdb; then
-		dbmliborder+="${dbmliborder:+:}bdb"
-	fi
 
 	OPT="" econf \
 		--with-fpectl \
@@ -224,4 +190,8 @@ src_install() {
 		done
 		[[ "${dropped}" = "0" ]] && break
 	done
+
+	# QA check that we have _tkinter.so
+	local found=$(find "${ED}" -name "_tkinter.so")
+	[ -z "${found}" ] && die "_tkinter.so not installed"
 }
