@@ -1,38 +1,34 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
-inherit base eutils libtool multilib autotools
+inherit eutils libtool multilib autotools
 
 DESCRIPTION="Qt4 bindings for poppler"
 HOMEPAGE="http://poppler.freedesktop.org/"
 SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz"
 
 LICENSE="GPL-2"
-SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+SLOT="0/36"
 IUSE=""
 S="${WORKDIR}/poppler-${PV}"
 
-COMMON_DEPEND="dev-qt/qtcore:4
-	dev-qt/qtgui:4"
-RDEPEND="${COMMON_DEPEND}
-	~app-text/poppler-base-${PV}"
+# No test data provided
+RESTRICT="test"
+
+COMMON_DEPEND="
+		dev-qt/qtcore:4
+		dev-qt/qtgui:4
+"
+
 DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
-	dev-qt/qttest"
-
-PATCHES=(
-	"${FILESDIR}/${PN/-qt4}-0.20.1-lcms-automagic.patch"
-	"${FILESDIR}/${PN/-qt4}-0.20.2-xyscale.patch"
-)
-
-src_prepare() {
-	base_src_prepare
-	eautoreconf
-}
+"
+RDEPEND="${COMMON_DEPEND}
+	~app-text/poppler-base-${PV}"
 
 src_configure() {
 	econf \
@@ -48,12 +44,9 @@ src_configure() {
 		--disable-utils || die "econf failed"
 }
 
-src_compile() {
-	( cd "${S}" && base_src_compile ) || die "cannot run src_compile"
-}
-
 src_install() {
-	( cd "${S}/qt4" && base_src_install ) || die "cannot run base_src_install"
+	cd "${S}/qt4" || die
+	emake DESTDIR="${ED}" install || die "cannot install"
 
 	# install pkg-config data
 	insinto /usr/$(get_libdir)/pkgconfig
