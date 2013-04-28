@@ -90,7 +90,7 @@ unset lo_xt
 
 LICENSE="|| ( LGPL-3 MPL-1.1 )"
 SLOT="0"
-[[ ${PV} == *9999* ]] || KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
+[[ ${PV} == *9999* ]] || KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
 
 COMMON_DEPEND="
 	${PYTHON_DEPS}
@@ -104,14 +104,14 @@ COMMON_DEPEND="
 	app-text/libwpd:0.9[tools]
 	app-text/libwpg:0.2
 	>=app-text/libwps-0.2.2
-	>=app-text/poppler-0.16[xpdf-headers(+),cxx]
+	>=app-text/poppler-0.16:=[xpdf-headers(+),cxx]
 	>=dev-cpp/clucene-2.3.3.4-r2
 	>=dev-cpp/libcmis-0.3.1:0.3
 	dev-db/unixODBC
 	dev-libs/expat
 	>=dev-libs/hyphen-2.7.1
 	>=dev-libs/icu-4.8.1.1:=
-	>=dev-libs/liborcus-0.3
+	=dev-libs/liborcus-0.3*
 	>=dev-libs/nspr-4.8.8
 	>=dev-libs/nss-3.12.9
 	>=dev-lang/perl-5.0
@@ -183,7 +183,7 @@ RDEPEND="${COMMON_DEPEND}
 
 # Force libreoffice-l10n-en_US installation
 # This will install LibreOffice templates
-L10N_VER="4.0.0"
+L10N_VER="4.0.2"
 PDEPEND="~app-office/libreoffice-l10n-en_US-${L10N_VER}
 	x11-themes/sabayon-artwork-loo"
 
@@ -227,8 +227,6 @@ PATCHES=(
 	# not upstreamable stuff
 	"${FILESDIR}/${PN}-3.7-system-pyuno.patch"
 	"${FILESDIR}/${PN}-3.7-separate-checks.patch"
-	# bug 454274
-	"${FILESDIR}/${PN}-4.0.0.3-boost-1.53.0.patch"
 )
 
 REQUIRED_USE="
@@ -313,10 +311,17 @@ src_unpack() {
 }
 
 src_prepare() {
+	# fixed in master, flags order in bridges compilation
+	filter-flags -fomit-frame-pointer
+
 	# optimization flags
 	export ARCH_FLAGS="${CXXFLAGS}"
 	export LINKFLAGSOPTIMIZE="${LDFLAGS}"
 	export GMAKE_OPTIONS="${MAKEOPTS}"
+	# System python 2.7 enablement:
+	export PYTHON="${PYTHON}"
+	export PYTHON_CFLAGS=$(python_get_CFLAGS)
+	export PYTHON_LIBS=$(python_get_LIBS)
 
 	# patchset
 	if [[ -n ${PATCHSET} ]]; then
@@ -339,6 +344,11 @@ src_prepare() {
 		-e "s:%libdir%:$(get_libdir):g" \
 		-i pyuno/source/module/uno.py \
 		-i scripting/source/pyprov/officehelper.py || die
+
+	if use branding; then
+		# hack...
+		mv -v "${WORKDIR}/branding-intro.png" "${S}/icon-themes/galaxy/brand/intro.png" || die
+	fi
 }
 
 src_configure() {
@@ -397,16 +407,6 @@ src_configure() {
 			"
 		fi
 	fi
-
-	if use branding; then
-		# hack...
-		mv -v "${WORKDIR}/branding-intro.png" "${S}/icon-themes/galaxy/brand/intro.png" || die
-	fi
-
-	# System python 2.7 enablement:
-	export PYTHON="${PYTHON}"
-	export PYTHON_CFLAGS=`pkg-config --cflags ${EPYTHON}`
-	export PYTHON_LIBS=`pkg-config --libs ${EPYTHON}`
 
 	# system headers/libs/...: enforce using system packages
 	# --enable-unix-qstart-libpng: use libpng splashscreen that is faster
