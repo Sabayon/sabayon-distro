@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=5
-inherit autotools eutils pam readme.gentoo
+inherit autotools eutils pam readme.gentoo systemd
 
 TRUNK_VERSION="1.4"
 REAL_PN="${PN/-base}"
@@ -86,4 +86,6 @@ src_install() {
 	dopamd "${FILESDIR}"/${REAL_PN}-autologin #390863, #423163
 
 	readme.gentoo_create_doc
+
+	systemd_dounit "${FILESDIR}/lightdm.service"
 }
