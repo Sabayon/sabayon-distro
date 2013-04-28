@@ -179,6 +179,6 @@ src_install() {
 	done
 
 	# QA check that we have _tkinter.so
-	local found=$(find "${ED}" -name "_tkinter.so")
+	local found=$(find "${ED}" -name "_tkinter*.so")
 	[ -z "${found}" ] && die "_tkinter.so not installed"
 }
