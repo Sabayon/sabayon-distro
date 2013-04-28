@@ -11,6 +11,8 @@ depend() {
 
 
 start() {
+    . /sbin/sabayon-functions.sh
+
     ebegin "Configuring GPUs and input devices"
     if sabayon_is_live; then
         start-stop-daemon --start --background --pidfile /var/run/x-setup.pid \
