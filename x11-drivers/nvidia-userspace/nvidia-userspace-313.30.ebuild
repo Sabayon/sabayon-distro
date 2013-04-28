@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user udev
@@ -31,7 +31,7 @@ COMMON="app-admin/eselect-opencl
 	x-multilib? ( app-emulation/emul-linux-x86-xlibs )
 	multilib? ( app-emulation/emul-linux-x86-baselibs )
 	X? (
-		<x11-base/xorg-server-1.13.99
+		<x11-base/xorg-server-1.14.99
 		>=app-admin/eselect-opengl-1.0.9
 	)"
 DEPEND="${COMMON}"
@@ -193,14 +193,10 @@ src_install() {
 		insinto /etc/modprobe.d
 		newins "${WORKDIR}"/nvidia nvidia.conf || die
 
-		local udevdir=$(udev_get_udevdir)
-
 		# Ensures that our device nodes are created when not using X
-		exeinto "${udevdir}"
+		exeinto "$(udev_get_udevdir)"
 		doexe "${FILESDIR}"/nvidia-udev.sh
-
-		insinto "${udevdir}"/rules.d
-		newins "${FILESDIR}"/nvidia.udev-rule 99-nvidia.rules
+		udev_newrules "${FILESDIR}"/nvidia.udev-rule 99-nvidia.rules
 	elif use kernel_FreeBSD; then
 		if use x86-fbsd; then
 			insinto /boot/modules
