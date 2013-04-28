@@ -120,7 +120,6 @@ setup_locale() {
     if [ -n "${lang_toset}" ]; then
         files=(
             "/etc/env.d/02locale"
-            "/etc/profile.env"
             "/etc/locale.conf"
         )
         for path in "${files[@]}"; do
@@ -136,6 +135,14 @@ setup_locale() {
                 echo "LANGUAGE=${lang_toset}.UTF-8" >> "${path}"
             fi
         done
+
+        sed -i "s/^export LC_ALL=.*/export LC_ALL=${lang_toset}.UTF-8/g" \
+            "/etc/profile.env"
+        sed -i "s/^export LANG=.*/export LANG=${lang_toset}.UTF-8/g" \
+            "/etc/profile.env"
+        sed -i "s/^export LANGUAGE=.*/export LANGUAGE=${lang_toset}.UTF-8/g" \
+            "/etc/profile.env"
+
     fi
 }
 
