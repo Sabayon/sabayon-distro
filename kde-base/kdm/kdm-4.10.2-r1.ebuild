@@ -86,6 +86,7 @@ src_install() {
 		-e "s|^.*DataDir=.*$|#&\nDataDir=${EPREFIX}${KDM_HOME}|" \
 		-e "s|^.*FaceDir=.*$|#&\nFaceDir=${EPREFIX}${KDM_HOME}/faces|" \
 		-e "s|themes/elarun$|themes/sabayon|" \
+		-e "s|#BootManager=Grub|BootManager=Grub2|" \
 		-i "${ED}"/usr/share/config/kdm/kdmrc \
 		|| die "Failed to set ServerTimeout and SessionsDirs correctly in kdmrc."
 
