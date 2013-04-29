@@ -114,6 +114,9 @@ src_install() {
 	local srv_cmdar=( ${srv_cmd} )
 	local srv_args="${srv_cmdar[@]:1}"
 	sed -i "s;%SERVER_ARGS%;${srv_args};g" "${ED}/usr/libexec/kdm-servercmd.sh" || die
+
+	sed -i "s;^ServerCmd=.*;ServerCmd=/usr/libexec/kdm-servercmd.sh;" \
+		"${ED}"/usr/share/config/kdm/kdmrc
 }
 
 pkg_postinst() {
