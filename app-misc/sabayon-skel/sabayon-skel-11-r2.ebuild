@@ -4,7 +4,7 @@
 
 EAPI=4
 EGIT_COMMIT="${PVR}"
-EGIT_REPO_URI="git://git.sabayon.org/projects/skel.git"
+EGIT_REPO_URI="git://github.com/Sabayon/skel.git"
 
 inherit eutils git-2 fdo-mime
 
