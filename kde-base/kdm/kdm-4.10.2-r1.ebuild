@@ -111,6 +111,8 @@ src_install() {
 	local srv_cmd=$(grep "^ServerCmd=" "${ED}"/usr/share/config/kdm/kdmrc | cut -d= -f2-)
 	[ -z "${srv_cmd}" ] && die "Cannot determine ServerCmd="
 	sed -i "s;%SERVER_CMD%;${srv_cmd};g" "${ED}/usr/libexec/kdm-servercmd.sh" || die
+	local srv_args=( ${srv_cmd} )
+	sed -i "s;%SERVER_ARGS%;${srv_args[@]:1};g" "${ED}/usr/libexec/kdm-servercmd.sh" || die
 }
 
 pkg_postinst() {
