@@ -104,6 +104,13 @@ src_install() {
 	newins "${FILESDIR}"/kdm-logrotate kdm
 
 	systemd_dounit "${FILESDIR}/${PN}.service"
+	exeinto /usr/libexec
+	doexe "${FILESDIR}/kdm-servercmd.sh"
+
+	# Complete systemd-logind runtime support
+	local srv_cmd=$(grep "^ServerCmd=" "${ED}"/usr/share/config/kdm/kdmrc | cut -d= -f2-)
+	[ -z "${srv_cmd}" ] && die "Cannot determine ServerCmd="
+	sed -i "s;%SERVER_CMD%;${srv_cmd};g" "${ED}/usr/libexec/kdm-servercmd.sh" || die
 }
 
 pkg_postinst() {
