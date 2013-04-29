@@ -40,6 +40,7 @@ KMEXTRA="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
+	"${FILESDIR}/0001-Detect-logind-at-runtime.patch"
 )
 
 pkg_setup() {
@@ -49,12 +50,6 @@ pkg_setup() {
 	KDM_HOME=/var/lib/kdm
 	enewgroup kdm
 	enewuser kdm -1 -1 "${KDM_HOME}" kdm
-}
-
-src_prepare() {
-	default
-
-	epatch "${FILESDIR}/0001-Detect-logind-at-runtime.patch"
 }
 
 src_configure() {
