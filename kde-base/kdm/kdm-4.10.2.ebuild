@@ -6,7 +6,7 @@ EAPI=5
 
 KDE_HANDBOOK="optional"
 KMNAME="kde-workspace"
-inherit kde4-meta flag-o-matic user systemd
+inherit eutils kde4-meta flag-o-matic user systemd
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
 KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
@@ -49,6 +49,12 @@ pkg_setup() {
 	KDM_HOME=/var/lib/kdm
 	enewgroup kdm
 	enewuser kdm -1 -1 "${KDM_HOME}" kdm
+}
+
+src_prepare() {
+	default
+
+	epatch "${FILESDIR}/0001-Detect-logind-at-runtime.patch"
 }
 
 src_configure() {

@@ -1,0 +1,87 @@
+From 40203d4e97c93d7df53dda3214db61a833a41260 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Mon, 29 Apr 2013 10:46:23 +0100
+Subject: [PATCH] Detect logind at runtime
+
+---
+ kdm/backend/client.c | 40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
+
+diff --git a/kdm/backend/client.c b/kdm/backend/client.c
+index bdff6da..b126d63 100644
+--- a/kdm/backend/client.c
++++ b/kdm/backend/client.c
+@@ -88,6 +88,9 @@ extern int loginsuccess(const char *User, const char *Host, const char *Tty, cha
+ #endif
+ #include <signal.h>
+ 
++#include <unistd.h>
++#define LOGIND_RUNNING() (access("/run/systemd/seats/", F_OK) >= 0)
++
+ /*
+  * Session data, mostly what struct verify_info was for
+  */
+@@ -1342,11 +1345,12 @@ startClient(volatile int *pid)
+     strcpy(curuser, p->pw_name); /* Use normalized login name. */
+ 
+ #ifdef HAVE_CKCONNECTOR
+-    if (!(ckConnector = ck_connector_new())) {
+-        logOutOfMem();
+-        V_RET;
++    if (!LOGIND_RUNNING()) {
++        if (!(ckConnector = ck_connector_new())) {
++            logOutOfMem();
++            V_RET;
++        }
+     }
+-    
+ # ifdef HAVE_VTS
+     if (td->serverVT > 0)
+         sprintf(ckDeviceBuf, "/dev/tty%d", td->serverVT);
+@@ -1452,8 +1456,10 @@ startClient(volatile int *pid)
+         env = setEnv(env, "KRBTKFILE", krbtkfile);
+ #endif
+ #ifdef HAVE_CKCONNECTOR
+-    env = setEnv(env, "XDG_SESSION_COOKIE",
+-                      ck_connector_get_cookie(ckConnector));
++    if (!LOGIND_RUNNING()) {
++        env = setEnv(env, "XDG_SESSION_COOKIE",
++                          ck_connector_get_cookie(ckConnector));
++    }
+ #endif
+     userEnviron = inheritEnv(env, envvars);
+     env = systemEnv(0, curuser);
+@@ -1949,18 +1955,20 @@ clientExited(void)
+ #endif
+ 
+ #ifdef HAVE_CKCONNECTOR
+-    if (ckConnector) {
+-        dbus_error_init(&error);
+-        if (!ck_connector_close_session(ckConnector, &error)) {
+-            if (dbus_error_is_set(&error)) {
+-                logError("Cannot close ConsoleKit session: %s\n", error.message);
+-                dbus_error_free(&error);
+-            } else {
+-                logError("Cannot close ConsoleKit session, likely OOM\n");
++    if (!LOGIND_RUNNING()) {
++        if (ckConnector) {
++            dbus_error_init(&error);
++            if (!ck_connector_close_session(ckConnector, &error)) {
++                if (dbus_error_is_set(&error)) {
++                    logError("Cannot close ConsoleKit session: %s\n", error.message);
++                    dbus_error_free(&error);
++                } else {
++                    logError("Cannot close ConsoleKit session, likely OOM\n");
++                }
+             }
++            ck_connector_unref(ckConnector);
++            ckConnector = 0;
+         }
+-        ck_connector_unref(ckConnector);
+-        ckConnector = 0;
+     }
+ #endif
+ }
+-- 
+1.8.1.5
+
