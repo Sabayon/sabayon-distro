@@ -23,6 +23,16 @@ setup_x() {
     fi
 }
 
+setup_settingsd() {
+    if [ -e /usr/share/eselect/modules/settingsd.eselect ]; then
+        if systemd_running; then
+            eselect settingsd set systemd > /dev/null
+        elif openrc_running; then
+            eselect settingsd set openrc > /dev/null
+        fi
+    fi
+}
+
 setup_desktop() {
     # create LIVE_USER if it does not exist
     sabayon_setup_live_user "${LIVE_USER}" "1000"
@@ -156,6 +166,7 @@ main() {
         return 0
     fi
 
+    setup_settingsd
     setup_desktop
     setup_password
     setup_keymap
