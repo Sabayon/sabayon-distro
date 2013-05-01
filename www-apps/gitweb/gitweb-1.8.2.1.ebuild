@@ -102,6 +102,7 @@ git_emake() {
 		PERL_PATH="${EPREFIX}/usr/bin/env perl" \
 		PERL_MM_OPT="" \
 		GIT_TEST_OPTS="--no-color" \
+		V=1 \
 		"$@"
 }
 

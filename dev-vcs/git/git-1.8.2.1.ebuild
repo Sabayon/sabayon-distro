@@ -38,7 +38,7 @@ else
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-optional-cvs.patch.bz2"
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.2-Gentoo-patches.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -142,6 +142,9 @@ exportmakeopts() {
 	myopts="${myopts} OLD_ICONV="
 	myopts="${myopts} NO_EXTERNAL_GREP="
 
+	# For svn-fe
+	extlibs="-lz -lssl ${S}/xdiff/lib.a $(usex threads -lpthread '')"
+
 	# can't define this to null, since the entire makefile depends on it
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
@@ -152,7 +155,8 @@ exportmakeopts() {
 	use tk \
 		|| myopts="${myopts} NO_TCLTK=YesPlease"
 	use pcre \
-		&& myopts="${myopts} USE_LIBPCRE=yes"
+		&& myopts="${myopts} USE_LIBPCRE=yes" \
+		&& extlibs="${extlibs} -lpcre"
 	use perl \
 		&& myopts="${myopts} INSTALLDIRS=vendor" \
 		|| myopts="${myopts} NO_PERL=YesPlease"
@@ -193,6 +197,7 @@ exportmakeopts() {
 		myopts="${myopts} NO_NSEC=YesPlease"
 
 	export MY_MAKEOPTS="${myopts}"
+	export EXTLIBS="${extlibs}"
 }
 
 src_unpack() {
@@ -210,6 +215,7 @@ src_unpack() {
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
 
+	cd "${WORKDIR}" && unpack git-1.8.2-Gentoo-patches.tgz
 }
 
 src_prepare() {
@@ -218,7 +224,10 @@ src_prepare() {
 	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch.bz2
 
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${DISTDIR}"/git-1.7.12-optional-cvs.patch.bz2
+	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-optional-cvs.patch
+
+	# bug #464210 - texinfo anchors
+	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-texinfo.patch
 
 	sed -i \
 		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -227,7 +236,7 @@ src_prepare() {
 		-e 's:^\(AR = \).*$:\1$(OPTAR):' \
 		-e "s:\(PYTHON_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
 		-e "s:\(PERL_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
-		Makefile || die "sed failed"
+		Makefile contrib/svn-fe/Makefile || die "sed failed"
 
 	# Never install the private copy of Error.pm (bug #296310)
 	sed -i \
@@ -262,6 +271,7 @@ git_emake() {
 		PYTHON_PATH="${PYTHON_PATH}" \
 		PERL_MM_OPT="" \
 		GIT_TEST_OPTS="--no-color" \
+		V=1 \
 		"$@"
 	# This is the fix for bug #326625, but it also causes breakage, see bug
 	# #352693.
@@ -312,7 +322,7 @@ src_compile() {
 
 	if use subversion ; then
 		cd "${S}"/contrib/svn-fe
-		git_emake || die "emake svn-fe failed"
+		git_emake EXTLIBS="${EXTLIBS}" || die "emake svn-fe failed"
 		if use doc ; then
 			git_emake svn-fe.{1,html} || die "emake svn-fe.1 svn-fe.html failed"
 		fi

@@ -36,7 +36,7 @@ else
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-optional-cvs.patch.bz2"
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.2-Gentoo-patches.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -119,6 +119,7 @@ src_unpack() {
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
 
+	cd "${WORKDIR}" && unpack git-1.8.2-Gentoo-patches.tgz
 }
 
 src_prepare() {
@@ -127,7 +128,10 @@ src_prepare() {
 	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch
 
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${DISTDIR}"/git-1.7.12-optional-cvs.patch.bz2
+	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-optional-cvs.patch
+
+	# bug #464210 - texinfo anchors
+	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-texinfo.patch
 
 	sed -i \
 		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -136,7 +140,7 @@ src_prepare() {
 		-e 's:^\(AR = \).*$:\1$(OPTAR):' \
 		-e "s:\(PYTHON_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
 		-e "s:\(PERL_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
-		Makefile || die "sed failed"
+		Makefile contrib/svn-fe/Makefile || die "sed failed"
 
 	# Never install the private copy of Error.pm (bug #296310)
 	sed -i \
@@ -159,6 +163,7 @@ git_emake() {
 		PERL_PATH="${EPREFIX}/usr/bin/env perl" \
 		PERL_MM_OPT="" \
 		GIT_TEST_OPTS="--no-color" \
+		V=1 \
 		"$@"
 }
 

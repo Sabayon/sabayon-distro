@@ -13,12 +13,12 @@ EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 inherit toolchain-funcs eutils multilib python ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
-MY_PN="${PN/-cvs}"
+MY_PN="${PN/-subversion}"
 MY_P="${MY_PN}-${MY_PV}"
 
 DOC_VER=${MY_PV}
 
-DESCRIPTION="CVS module for GIT, the stupid content tracker"
+DESCRIPTION="Subversion module for GIT, the stupid content tracker"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="gz"
@@ -38,17 +38,17 @@ else
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.7.12-optional-cvs.patch.bz2"
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.2-Gentoo-patches.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="doc"
+IUSE="doc +threads"
 
-RDEPEND="~dev-vcs/git-${PV}[-cvs,perl]
+RDEPEND="~dev-vcs/git-${PV}[-subversion,perl]
 	dev-perl/Error
 	dev-perl/Net-SMTP-SSL
 	dev-perl/Authen-SASL
-	>=dev-vcs/cvsps-2.1 dev-perl/DBI dev-perl/DBD-SQLite"
+	dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey"
 DEPEND="app-arch/cpio
 	doc? (
 		app-text/asciidoc
@@ -81,11 +81,16 @@ exportmakeopts() {
 	# split ebuild: avoid collisions with dev-vcs/git's .mo files
 	myopts="${myopts} NO_GETTEXT=YesPlease"
 
+	# For svn-fe
+	#extlibs="-lz -lssl ${S}/xdiff/lib.a $(usex threads -lpthread '')"
+	extlibs="-lz -lssl -lcrypto ${S}/xdiff/lib.a $(usex threads -lpthread '')"
+
 	# can't define this to null, since the entire makefile depends on it
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
 	myopts="${myopts} INSTALLDIRS=vendor"
 	myopts="${myopts} NO_SVN_TESTS=YesPlease"
+	myopts="${myopts} NO_CVS=YesPlease"
 
 	has_version '>=app-text/asciidoc-8.0' \
 		&& myopts="${myopts} ASCIIDOC8=YesPlease"
@@ -97,6 +102,7 @@ exportmakeopts() {
 		myopts="${myopts} NO_NSEC=YesPlease"
 
 	export MY_MAKEOPTS="${myopts}"
+	export EXTLIBS="${extlibs}"
 }
 
 src_unpack() {
@@ -112,11 +118,19 @@ src_unpack() {
 		git-2_src_unpack
 	fi
 
+	cd "${WORKDIR}" && unpack git-1.8.2-Gentoo-patches.tgz
 }
 
 src_prepare() {
+	# bug #418431 - stated for upstream 1.7.13. Developed by Michael Schwern,
+	# funded as a bounty by the Gentoo Foundation. Merged upstream in 1.8.0.
+	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch.bz2
+
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${DISTDIR}"/git-1.7.12-optional-cvs.patch.bz2
+	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-optional-cvs.patch
+
+	# bug #464210 - texinfo anchors
+	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-texinfo.patch
 
 	sed -i \
 		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -125,7 +139,7 @@ src_prepare() {
 		-e 's:^\(AR = \).*$:\1$(OPTAR):' \
 		-e "s:\(PYTHON_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
 		-e "s:\(PERL_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
-		Makefile || die "sed failed"
+		Makefile contrib/svn-fe/Makefile || die "sed failed"
 
 	# Fix docbook2texi command
 	sed -i 's/DOCBOOK2X_TEXI=docbook2x-texi/DOCBOOK2X_TEXI=docbook2texi.pl/' \
@@ -153,6 +167,7 @@ git_emake() {
 		PYTHON_PATH="${PYTHON_PATH}" \
 		PERL_MM_OPT="" \
 		GIT_TEST_OPTS="--no-color" \
+		V=1 \
 		"$@"
 	# This is the fix for bug #326625, but it also causes breakage, see bug
 	# #352693.
@@ -168,6 +183,7 @@ src_compile() {
 	git_emake perl/PM.stamp || die "emake perl/PM.stamp failed"
 	git_emake perl/perl.mak || die "emake perl/perl.mak failed"
 	#fi
+
 	git_emake || die "emake failed"
 
 	cd "${S}"/Documentation
@@ -184,25 +200,34 @@ src_compile() {
 				|| die "emake info html failed"
 		fi
 	fi
+
+	cd "${S}"/contrib/svn-fe
+	git_emake EXTLIBS="${EXTLIBS}" || die "emake svn-fe failed"
+	if use doc ; then
+		git_emake svn-fe.{1,html} || die "emake svn-fe.1 svn-fe.html failed"
+	fi
 }
 
 src_install() {
 	git_emake install || die "make install failed"
 
-	rm -rf "${ED}"usr/share/gitweb || die
-	rm -rf "${ED}"usr/share/git-core/templates || die
-	rm -rf "${ED}"usr/share/git-gui || die
-	rm -rf "${ED}"usr/share/gitk || die
+	rm -r "${ED}"usr/share/gitweb || die
+	rm -r "${ED}"usr/bin || die
+	rm -r "${ED}"usr/share/git-core/templates || die
+	rm -r "${ED}"usr/share/git-gui || die
+	rm -r "${ED}"usr/share/gitk || die
 
-	local myrelfile=""
-	for myfile in "${ED}"usr/libexec/git-core/* "${ED}"usr/$(get_libdir)/* "${ED}"usr/share/man/*/* "${ED}"usr/bin/* ; do
-		# image dir contains the keyword "cvs"
-		myrelfile="${myfile/${ED}}"
-		case "${myrelfile}" in
-			*cvs*)
-				true ;;
-			*)
-				rm -rf "${myfile}" || die ;;
+	# avoid conflict with dev-vcs/git
+	# it looks weird but this binary is installed by git ebuild
+	# so removing in git-subversion
+	rm "${ED}"usr/libexec/git-core/git-remote-testsvn
+
+	for myfile in "${ED}"usr/libexec/git-core/* "${ED}"usr/$(get_libdir)/* "${ED}"usr/share/man/*/*; do
+		case "$myfile" in
+		*svn*)
+			true ;;
+		*)
+			rm -r "${myfile}" || die ;;
 		esac
 	done
 
@@ -212,12 +237,18 @@ src_install() {
 		rmdir "${libdir}" || die
 	fi
 
-	doman man*/*cvs* || die
+	doman man*/*svn* || die
 	if use doc; then
 		docinto /
-		dodoc Documentation/*cvs*.txt
-		dohtml -p / Documentation/*cvs*.html
+		dodoc Documentation/*svn*.txt
+		dohtml -p / Documentation/*svn*.html
 	fi
+
+	cd "${S}"/contrib/svn-fe
+	dobin svn-fe
+	dodoc svn-fe.txt
+	use doc && doman svn-fe.1 && dohtml svn-fe.html
+	cd "${S}"
 
 	# kill empty dirs from ${ED}
 	find "${ED}" -type d -empty -delete || die
