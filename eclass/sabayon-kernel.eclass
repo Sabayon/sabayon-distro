@@ -491,7 +491,6 @@ _kernel_src_compile() {
 
 	cd "${S}" || die
 	GKARGS="--no-save-config --disklabel --e2fsprogs --udev"
-	use dracut && GKARGS="${GKARGS} --dracut"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
 	use dmraid && GKARGS="${GKARGS} --dmraid"
 	use iscsi && GKARGS="${GKARGS} --iscsi"
