@@ -701,15 +701,13 @@ _kernel_src_install() {
 
 	# Install kernel configuration information
 	# useful for Entropy kernel-switcher
-	if _is_kernel_binary; then
-		# release level is enough for now
-		base_dir="/etc/kernels/${P}"
-		dodir "${base_dir}"
-		insinto "${base_dir}"
-		echo "${KV_FULL}" > "RELEASE_LEVEL"
-		doins "RELEASE_LEVEL"
-		einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${KV_FULL}"
-	fi
+	# release level is enough for now
+	base_dir="/etc/kernels/${P}"
+	dodir "${base_dir}"
+	insinto "${base_dir}"
+	echo "${KV_FULL}" > "RELEASE_LEVEL"
+	doins "RELEASE_LEVEL"
+	einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${KV_FULL}"
 }
 
 sabayon-kernel_pkg_preinst() {
