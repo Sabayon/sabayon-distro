@@ -344,7 +344,7 @@ else
 		amd64? ( sys-apps/v86d )
 		x86? ( sys-apps/v86d )
 		splash? ( x11-themes/sabayon-artwork-core )
-		dracut? ( sys-kernel/dracut )"
+		dracut? ( sys-apps/v86d sys-kernel/dracut )"
 	RDEPEND="sys-apps/sed
 		sys-kernel/linux-firmware"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
@@ -708,6 +708,9 @@ _kernel_src_install() {
 	echo "${KV_FULL}" > "RELEASE_LEVEL"
 	doins "RELEASE_LEVEL"
 	einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${KV_FULL}"
+
+	use dracut && \
+		_dracut_initramfs_create "${KV_FULL}"
 }
 
 sabayon-kernel_pkg_preinst() {
@@ -825,6 +828,13 @@ sabayon-kernel_bzimage_config() {
 		ewarn "Use 'eselect bzimage' in order to switch between the available ones"
 		echo
 	fi
+}
+
+_dracut_initramfs_create() {
+	local kver="${1}"
+
+	elog "Creating dracut initramfs for ${kver}"
+	dracut -q -N -f --kver="${kver}" "${D}/boot/initramfs-dracut-${kver}"
 }
 
 sabayon-kernel_pkg_postinst() {
