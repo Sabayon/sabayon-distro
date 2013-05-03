@@ -48,6 +48,9 @@ src_prepare() {
 
 	epatch "${FILESDIR}"/${P}-fix-event-check-bug.patch
 
+	# Also see #422495
+	epatch "${FILESDIR}"/${P}-pam-use-system-local-login.patch
+
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
 
