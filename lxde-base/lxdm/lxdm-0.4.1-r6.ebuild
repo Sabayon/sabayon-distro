@@ -51,6 +51,9 @@ src_prepare() {
 	# Also see #422495
 	epatch "${FILESDIR}"/${P}-pam-use-system-local-login.patch
 
+	# See https://bugs.launchpad.net/ubuntu/+source/lxdm/+bug/922363
+	epatch "${FILESDIR}/${P}-fix-pam-100-cpu.patch"
+
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
 
