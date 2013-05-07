@@ -1,1 +1,2 @@
 move sys-fs/zfs-userspace sys-fs/zfs
+move sys-kernel/genkernel sys-kernel/genkernel-next
