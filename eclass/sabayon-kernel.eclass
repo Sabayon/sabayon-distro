@@ -331,7 +331,7 @@ if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	DEPEND="sys-apps/sed"
 	RDEPEND="${RDEPEND}"
 else
-	IUSE="dmraid dracut iscsi luks lvm mdadm splash"
+	IUSE="dmraid dracut iscsi luks lvm mdadm plymouth splash"
 	if [ -n "${K_SABKERNEL_ZFS}" ]; then
 		IUSE="${IUSE} zfs"
 	fi
@@ -344,6 +344,10 @@ else
 		amd64? ( sys-apps/v86d )
 		x86? ( sys-apps/v86d )
 		splash? ( x11-themes/sabayon-artwork-core )
+		plymouth? (
+			sys-boot/plymouth
+			>=sys-kernel/genkernel-5
+		)
 		dracut? ( sys-apps/v86d sys-kernel/dracut )"
 	RDEPEND="sys-apps/sed
 		sys-kernel/linux-firmware"
@@ -492,6 +496,7 @@ _kernel_src_compile() {
 	cd "${S}" || die
 	GKARGS="--no-save-config --disklabel --e2fsprogs --udev"
 	use splash && GKARGS="${GKARGS} --splash=sabayon"
+	use plymouth && GKARGS="${GKARGS} --plymouth --plymouth-theme=${PLYMOUTH_THEME}"
 	use dmraid && GKARGS="${GKARGS} --dmraid"
 	use iscsi && GKARGS="${GKARGS} --iscsi"
 	use mdadm && GKARGS="${GKARGS} --mdadm"
