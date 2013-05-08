@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Sabayon
+# Copyright 1999-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -10,7 +10,7 @@ PYTHON_USE_WITH="gdbm"
 PYTHON_USE_WITH_OPT="python"
 
 DBUS_DEPEND=">=sys-apps/dbus-0.30"
-IUSE="autoipd bookmarks dbus doc gdbm howl-compat introspection ipv6
+IUSE="autoipd bookmarks dbus doc gdbm howl-compat +introspection ipv6
 	mdnsresponder-compat python test"
 COMMON_DEPEND=">=dev-libs/libdaemon-0.14
 	dev-libs/expat
@@ -38,10 +38,10 @@ AVAHI_MODULE_RDEPEND="${COMMON_DEPEND}
 AVAHI_PATCHES=(
 	# Fix init scripts for >=openrc-0.9.0 (bug #383641)
 	"${FILESDIR}/avahi-0.6.x-openrc-0.9.x-init-scripts-fixes.patch"
-	#397477
-	"${FILESDIR}"/${P/-base}-automake-1.11.2.patch
-	#411351
-	"${FILESDIR}"/${P/-base}-parallel.patch
+	# install-exec-local -> install-exec-hook
+	"${FILESDIR}"/${P/-base}-install-exec-hook.patch
+	# Backport host-name-from-machine-id patch, bug #466134
+	"${FILESDIR}"/${P/-base}-host-name-from-machine-id.patch
 )
 inherit eutils multilib python avahi
 
@@ -112,11 +112,11 @@ src_compile() {
 }
 
 src_install() {
-	emake install py_compile=true DESTDIR="${D}" || die "make install failed"
-	use bookmarks || rm -f "${D}"/usr/bin/avahi-bookmarks
+	emake install DESTDIR="${ED}" || die "make install failed"
+	use bookmarks || rm -f "${ED}"/usr/bin/avahi-bookmarks
 
-	use howl-compat && ln -s avahi-compat-howl.pc "${D}"/usr/$(get_libdir)/pkgconfig/howl.pc
-	use mdnsresponder-compat && ln -s avahi-compat-libdns_sd/dns_sd.h "${D}"/usr/include/dns_sd.h
+	use howl-compat && ln -s avahi-compat-howl.pc "${ED}"/usr/$(get_libdir)/pkgconfig/howl.pc
+	use mdnsresponder-compat && ln -s avahi-compat-libdns_sd/dns_sd.h "${ED}"/usr/include/dns_sd.h
 
 	if use autoipd; then
 		insinto /$(get_libdir)/rcscripts/net

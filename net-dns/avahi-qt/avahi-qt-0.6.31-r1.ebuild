@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Sabayon
+# Copyright 1999-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -14,9 +14,12 @@ AVAHI_MODULE_RDEPEND="${COMMON_DEPEND}"
 
 WANT_AUTOMAKE=1.11
 AVAHI_PATCHES=(
-	"${FILESDIR}/avahi-0.6.28-optional-gtk-utils.patch"
-	"${FILESDIR}"/${P/-qt}-automake-1.11.2.patch #397477
-	"${FILESDIR}"/${P/-qt}-parallel.patch #411351
+	# Fix init scripts for >=openrc-0.9.0 (bug #383641)
+	"${FILESDIR}/avahi-0.6.x-openrc-0.9.x-init-scripts-fixes.patch"
+	# install-exec-local -> install-exec-hook
+	"${FILESDIR}"/${P/-qt}-install-exec-hook.patch
+	# Backport host-name-from-machine-id patch, bug #466134
+	"${FILESDIR}"/${P/-qt}-host-name-from-machine-id.patch
 )
 inherit eutils avahi
 
@@ -37,7 +40,7 @@ src_compile() {
 
 src_install() {
 	cd "${S}"/avahi-qt || die
-	emake install DESTDIR="${D}" || die
+	emake install DESTDIR="${ED}" || die
 
 	cd "${S}" || die
 	dodir /usr/$(get_libdir)/pkgconfig
