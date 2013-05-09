@@ -42,6 +42,8 @@ DEPEND="app-portage/portage-utils"
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-systemd-2.patch
 	epatch "${FILESDIR}"/${P}-lastlog-silent.patch
+	# Drop pam_motd for now, since it breaks DEs autologin
+	epatch "${FILESDIR}"/${P}-drop-motd-for-now.patch
 }
 
 src_compile() {

@@ -1,0 +1,12 @@
+--- pambase-20120417.orig/system-login.in
++++ pambase-20120417/system-login.in
+@@ -56,9 +56,6 @@ session		optional	pam_gnome_keyring.so a
+ #if HAVE_SELINUX
+ session		required	pam_selinux.so multiple open
+ #endif
+-#if HAVE_MOTD
+-session		optional	pam_motd.so motd=/etc/motd
+-#endif
+ #if HAVE_MAIL
+ session		optional	pam_mail.so
+ #endif
