@@ -28,8 +28,6 @@ IUSE="aqua bindist"
 DEPEND=""
 RDEPEND="${DEPEND}"
 
-[[ ${PV} == *9999 ]] || S=${WORKDIR}/${MY_P}
-
 src_prepare() {
 	kde4-base_src_prepare
 	cp -r "${WORKDIR}"/fdo-icons-sabayon/* "${S}" || die
