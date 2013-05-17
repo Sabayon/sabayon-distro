@@ -1,0 +1,285 @@
+From 064ebd55bb838a4225e8cb525717e315c29d4d8b Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martinpitt@gnome.org>
+Date: Thu, 21 Mar 2013 11:47:56 +0100
+Subject: [PATCH 01/21] Fix checks for logind
+
+It is possible to build systemd without logind or run logind without systemd
+init, in both cases testing for systemd init is wrong.  Check for
+/run/systemd/seats in the parts which talk to logind instead, as recommended by
+systemd upstream.
+
+For details, see:
+<https://mail.gnome.org/archives/desktop-devel-list/2013-March/msg00092.html>
+
+https://bugzilla.gnome.org/show_bug.cgi?id=696266
+---
+ common/gdm-common.h                |  3 +++
+ daemon/gdm-local-display-factory.c |  7 ++-----
+ daemon/gdm-manager.c               |  9 ++++-----
+ daemon/gdm-server.c                | 12 ++++--------
+ daemon/gdm-session-worker.c        |  4 ++--
+ daemon/gdm-slave.c                 |  9 ++++-----
+ gui/libgdm/gdm-user-switching.c    |  4 ++--
+ utils/gdmflexiserver.c             |  5 +++--
+ 8 files changed, 24 insertions(+), 29 deletions(-)
+
+diff --git a/common/gdm-common.h b/common/gdm-common.h
+index 0001274..f9033aa 100644
+--- a/common/gdm-common.h
++++ b/common/gdm-common.h
+@@ -33,6 +33,9 @@
+ 
+ #define GDM_CUSTOM_SESSION  "custom"
+ 
++/* check if logind is running */
++#define LOGIND_RUNNING() (access("/run/systemd/seats/", F_OK) >= 0)
++
+ G_BEGIN_DECLS
+ 
+ gboolean       gdm_is_version_unstable            (void);
+diff --git a/daemon/gdm-local-display-factory.c b/daemon/gdm-local-display-factory.c
+index 90950f9..7457fc3 100644
+--- a/daemon/gdm-local-display-factory.c
++++ b/daemon/gdm-local-display-factory.c
+@@ -28,10 +28,7 @@
+ #include <glib-object.h>
+ #include <gio/gio.h>
+ 
+-#ifdef WITH_SYSTEMD
+-#include <systemd/sd-daemon.h>
+-#endif
+-
++#include "gdm-common.h"
+ #include "gdm-manager.h"
+ #include "gdm-display-factory.h"
+ #include "gdm-local-display-factory.h"
+@@ -521,7 +518,7 @@ gdm_local_display_factory_start (GdmDisplayFactory *base_factory)
+         g_return_val_if_fail (GDM_IS_LOCAL_DISPLAY_FACTORY (factory), FALSE);
+ 
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 gdm_local_display_factory_start_monitor (factory);
+                 return gdm_local_display_factory_sync_seats (factory);
+         }
+diff --git a/daemon/gdm-manager.c b/daemon/gdm-manager.c
+index 5888f35..6e1eaba 100644
+--- a/daemon/gdm-manager.c
++++ b/daemon/gdm-manager.c
+@@ -35,7 +35,6 @@
+ #include <glib-object.h>
+ 
+ #ifdef WITH_SYSTEMD
+-#include <systemd/sd-daemon.h>
+ #include <systemd/sd-login.h>
+ #endif
+ 
+@@ -166,7 +165,7 @@ get_session_id_for_pid (GDBusConnection  *connection,
+                         GError          **error)
+ {
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return get_session_id_for_pid_systemd (pid, error);
+         }
+ #endif
+@@ -242,7 +241,7 @@ get_uid_for_session_id (GDBusConnection  *connection,
+                         GError          **error)
+ {
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return get_uid_for_systemd_session_id (session_id, uid, error);
+         }
+ #endif
+@@ -487,7 +486,7 @@ get_session_id_for_user_on_seat (GDBusConnection  *connection,
+                                  GError          **error)
+ {
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return get_session_id_for_user_on_seat_systemd (username, seat, error);
+         }
+ #endif
+@@ -601,7 +600,7 @@ get_seat_id_for_pid (GDBusConnection  *connection,
+                      GError          **error)
+ {
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return get_seat_id_for_pid_systemd (pid, error);
+         }
+ #endif
+diff --git a/daemon/gdm-server.c b/daemon/gdm-server.c
+index 01fc5d4..91a04e6 100644
+--- a/daemon/gdm-server.c
++++ b/daemon/gdm-server.c
+@@ -39,10 +39,6 @@
+ #include <sys/prctl.h>
+ #endif
+ 
+-#ifdef WITH_SYSTEMD
+-#include <systemd/sd-daemon.h>
+-#endif
+-
+ #ifdef WITH_PLYMOUTH
+ #include <linux/vt.h>
+ #endif
+@@ -173,7 +169,7 @@ char *
+ gdm_server_get_display_device (GdmServer *server)
+ {
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 /* systemd finds the display device out on its own based on the display */
+                 return NULL;
+         }
+@@ -275,7 +271,7 @@ gdm_server_init_command (GdmServer *server)
+          * wasn't booted using systemd, or b) the wrapper tool is
+          * missing, or c) we are running for the main seat 'seat0'. */
+ 
+-        if (sd_booted () <= 0) {
++        if (!LOGIND_RUNNING()) {
+                 goto fallback;
+         }
+ 
+@@ -345,7 +341,7 @@ gdm_server_resolve_command_line (GdmServer  *server,
+         }
+ 
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0 && server->priv->display_seat_id != NULL) {
++        if (LOGIND_RUNNING() && server->priv->display_seat_id != NULL) {
+                 argv[len++] = g_strdup ("-seat");
+                 argv[len++] = g_strdup (server->priv->display_seat_id);
+         }
+@@ -745,7 +741,7 @@ gdm_server_start (GdmServer *server)
+ 
+ #ifdef WITH_SYSTEMD
+                 /* undo the hardcoding if we are an auxillary seat */
+-                if (sd_booted () > 0) {
++                if (LOGIND_RUNNING()) {
+                      if (strcmp (server->priv->display_seat_id, "seat0") != 0) {
+                          vtarg = NULL;
+                      }
+diff --git a/daemon/gdm-session-worker.c b/daemon/gdm-session-worker.c
+index ab84182..da90197 100644
+--- a/daemon/gdm-session-worker.c
++++ b/daemon/gdm-session-worker.c
+@@ -1089,7 +1089,7 @@ gdm_session_worker_initialize_pam (GdmSessionWorker *worker,
+ 
+ #ifdef WITH_SYSTEMD
+         /* set seat ID */
+-        if (seat_id != NULL && seat_id[0] != '\0' && sd_booted() > 0) {
++        if (seat_id != NULL && seat_id[0] != '\0' && LOGIND_RUNNING()) {
+                 gdm_session_worker_set_environment_variable (worker, "XDG_SEAT", seat_id);
+         }
+ #endif
+@@ -1556,7 +1556,7 @@ static void
+ register_ck_session (GdmSessionWorker *worker)
+ {
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted() > 0) {
++        if (LOGIND_RUNNING()) {
+                 return;
+         }
+ #endif
+diff --git a/daemon/gdm-slave.c b/daemon/gdm-slave.c
+index 9474772..ba292a3 100644
+--- a/daemon/gdm-slave.c
++++ b/daemon/gdm-slave.c
+@@ -46,7 +46,6 @@
+ 
+ #ifdef WITH_SYSTEMD
+ #include <systemd/sd-login.h>
+-#include <systemd/sd-daemon.h>
+ #endif
+ 
+ #include "gdm-common.h"
+@@ -1411,7 +1410,7 @@ gdm_slave_get_primary_session_id_for_user (GdmSlave   *slave,
+         }
+ 
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return gdm_slave_get_primary_session_id_for_user_from_systemd (slave, username);
+         }
+ #endif
+@@ -1496,7 +1495,7 @@ activate_session_id (GdmSlave   *slave,
+ {
+ 
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return activate_session_id_for_systemd (slave, seat_id, session_id);
+         }
+ #endif
+@@ -1549,7 +1548,7 @@ session_is_active (GdmSlave   *slave,
+                    const char *session_id)
+ {
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return sd_session_is_active (session_id) > 0;
+         }
+ #endif
+@@ -1633,7 +1632,7 @@ session_unlock (GdmSlave   *slave,
+         g_debug ("Unlocking session %s", ssid);
+ 
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return session_unlock_for_systemd (slave, ssid);
+         }
+ #endif
+diff --git a/gui/libgdm/gdm-user-switching.c b/gui/libgdm/gdm-user-switching.c
+index c4342f2..ebfef1c 100644
+--- a/gui/libgdm/gdm-user-switching.c
++++ b/gui/libgdm/gdm-user-switching.c
+@@ -32,10 +32,10 @@
+ #include <gio/gio.h>
+ 
+ #ifdef WITH_SYSTEMD
+-#include <systemd/sd-daemon.h>
+ #include <systemd/sd-login.h>
+ #endif
+ 
++#include "common/gdm-common.h"
+ #include "gdm-user-switching.h"
+ #include "gdm-client.h"
+ 
+@@ -578,7 +578,7 @@ gdm_goto_login_session_sync (GCancellable  *cancellable,
+                 return FALSE;
+ 
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 retval = goto_login_session_for_systemd (connection,
+                                                          cancellable,
+                                                          error);
+diff --git a/utils/gdmflexiserver.c b/utils/gdmflexiserver.c
+index d1b72fe..cfeb175 100644
+--- a/utils/gdmflexiserver.c
++++ b/utils/gdmflexiserver.c
+@@ -29,8 +29,9 @@
+ #include <glib/gi18n.h>
+ #include <gtk/gtk.h>
+ 
++#include "common/gdm-common.h"
++
+ #ifdef WITH_SYSTEMD
+-#include <systemd/sd-daemon.h>
+ #include <systemd/sd-login.h>
+ #endif
+ 
+@@ -680,7 +681,7 @@ goto_login_session (GError **error)
+         }
+ 
+ #ifdef WITH_SYSTEMD
+-        if (sd_booted () > 0) {
++        if (LOGIND_RUNNING()) {
+                 return goto_login_session_for_systemd (connection, error);
+         }
+ #endif
+-- 
+1.8.2.1
+

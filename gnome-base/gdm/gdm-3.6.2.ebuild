@@ -142,6 +142,7 @@ src_prepare() {
 	epatch "${FILESDIR}/${P}-fixup-autologin.patch"
 
 	# Fix timed login setup when systemd is enabled but system is using openrc
+	epatch "${FILESDIR}/0001-Fix-checks-for-logind.patch"
 	epatch "${FILESDIR}/0001-gdm-display-fix-get_timed_login_details-when-systemd.patch"
 
 	# spurious unicode characters causing build failure, bug #449062
