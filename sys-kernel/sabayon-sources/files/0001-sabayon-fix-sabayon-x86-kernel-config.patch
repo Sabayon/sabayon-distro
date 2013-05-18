@@ -1,0 +1,24 @@
+From 6b9dcdf4fa6f7bffb0d4e55678503a1f1dfa3a37 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Sat, 18 May 2013 11:56:08 +0200
+Subject: [PATCH] sabayon: fix sabayon-x86 kernel config
+
+---
+ sabayon/config/sabayon-3.8-x86.config | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sabayon/config/sabayon-3.8-x86.config b/sabayon/config/sabayon-3.8-x86.config
+index d2adaeb..7e15d66 100644
+--- a/sabayon/config/sabayon-3.8-x86.config
++++ b/sabayon/config/sabayon-3.8-x86.config
+@@ -346,6 +346,7 @@ CONFIG_LGUEST_GUEST=y
+ CONFIG_PARAVIRT=y
+ # CONFIG_PARAVIRT_SPINLOCKS is not set
+ CONFIG_PARAVIRT_CLOCK=y
++# CONFIG_PARAVIRT_DEBUG is not set
+ CONFIG_NO_BOOTMEM=y
+ CONFIG_MEMTEST=y
+ CONFIG_X86_SUMMIT_NUMA=y
+-- 
+1.8.1.1
+
