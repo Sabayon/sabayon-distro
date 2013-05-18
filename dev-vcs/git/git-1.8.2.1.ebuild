@@ -496,8 +496,8 @@ src_install() {
 			"${ED}"/usr/libexec/git-core/git-cvs* || die
 	fi
 
-	systemd_newunit "${FILESDIR}/git_at.service" "git@.service"
-	systemd_dounit "${FILESDIR}/git.socket"
+	systemd_newunit "${FILESDIR}/git-daemon_at.service" "git-daemon@.service"
+	systemd_dounit "${FILESDIR}/git-daemon.socket"
 }
 
 src_test() {
