@@ -11,7 +11,7 @@ PYTHON_DEPEND="python? 2"
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 
-inherit toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python ${SCM}
+inherit toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_P="${PN}-${MY_PV}"
@@ -495,6 +495,9 @@ src_install() {
 		rm -rf "${ED}"/usr/bin/git-cvsserver \
 			"${ED}"/usr/libexec/git-core/git-cvs* || die
 	fi
+
+	systemd_newunit "${FILESDIR}/git_at.service" "git@.service"
+	systemd_dounit "${FILESDIR}/git.socket"
 }
 
 src_test() {
