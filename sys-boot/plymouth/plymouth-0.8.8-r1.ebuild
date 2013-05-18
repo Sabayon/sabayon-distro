@@ -30,6 +30,7 @@ DEPEND="${CDEPEND}
 RDEPEND="${CDEPEND}
 	>=sys-kernel/dracut-008-r1[dracut_modules_plymouth]
 	openrc? ( sys-boot/plymouth-openrc-plugin !sys-apps/systemd )
+	>=x11-themes/sabayon-artwork-core-11-r3
 	"
 
 DOCS=(AUTHORS README TODO)
@@ -65,9 +66,6 @@ src_install() {
 			"${D}/usr/$(get_libdir)"/ || die 'mv *.a files failed'
 		gen_usr_ldscript libply.so libply-splash-core.so
 	fi
-
-	insinto /usr/share/plymouth
-	doins "${FILESDIR}"/bizcom.png
 }
 
 pkg_postinst() {
