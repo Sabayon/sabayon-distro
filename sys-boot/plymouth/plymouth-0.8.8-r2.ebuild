@@ -66,6 +66,9 @@ src_install() {
 			"${D}/usr/$(get_libdir)"/ || die 'mv *.a files failed'
 		gen_usr_ldscript libply.so libply-splash-core.so
 	fi
+
+	# Provided by sabayon-artwork-core
+	rm "${D}/usr/share/plymouth/bizcom.png"
 }
 
 pkg_postinst() {
