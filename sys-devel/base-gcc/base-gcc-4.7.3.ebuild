@@ -81,7 +81,7 @@ src_unpack() {
 		eerror "The active gcc-profile is for sys-devel/gcc slot ${SLOT}."
 		eerror "Sabayon's split sys-devel/gcc package MUST be built"
 		eerror "with another slotted version of sys-devel/gcc active."
-		die "Invalid gcc profile selected!"
+		ebeep 10
 	fi
 
 	# drop the x32 stuff once 4.7 goes stable
