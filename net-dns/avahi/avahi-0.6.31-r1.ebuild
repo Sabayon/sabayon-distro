@@ -8,6 +8,8 @@ DESCRIPTION="System which facilitates service discovery on a local network (meta
 HOMEPAGE="http://avahi.org/"
 SRC_URI=""
 
+KEYWORDS="~amd64 ~arm ~x86"
+
 LICENSE="LGPL-2.1"
 SLOT="0"
 IUSE="autoipd bookmarks dbus doc gdbm gtk gtk3 howl-compat +introspection ipv6
