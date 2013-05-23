@@ -10,7 +10,7 @@ K_ONLY_SOURCES="1"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
 K_KERNEL_NEW_VERSIONING="1"
 inherit sabayon-kernel
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 DESCRIPTION="Official Sabayon Linux Standard kernel sources"
 RESTRICT="mirror"
 IUSE="sources_standalone"

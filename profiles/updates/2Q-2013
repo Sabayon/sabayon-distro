@@ -1,2 +1,6 @@
 move sys-fs/zfs-userspace sys-fs/zfs
 move sys-kernel/genkernel sys-kernel/genkernel-next
+move sys-kernel/beagle-sources sys-kernel/sabayon-sources
+move sys-kernel/panda-sources sys-kernel/sabayon-sources
+move sys-kernel/linux-beagle sys-kernel/linux-sabayon
+move sys-kernel/linux-panda sys-kernel/linux-sabayon
