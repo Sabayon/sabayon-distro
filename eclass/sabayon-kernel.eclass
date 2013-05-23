@@ -162,7 +162,7 @@ if [ "${K_KERNEL_NEW_VERSIONING}" = "1" ]; then
 	CKV="$(get_version_component_range 1-2)"
 fi
 
-inherit eutils kernel-2 sabayon-artwork mount-boot linux-info
+inherit eutils multilib kernel-2 sabayon-artwork mount-boot linux-info
 
 # from kernel-2 eclass
 detect_version
@@ -264,7 +264,7 @@ if _is_kernel_binary; then
 fi
 
 if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
-	HOMEPAGE="http://gitweb.sabayon.org/?p=linux/kernel/sabayon.git;a=summary"
+	HOMEPAGE="https://github.com/Sabayon/kernel"
 else
 	HOMEPAGE="http://www.sabayon.org"
 fi
@@ -287,6 +287,18 @@ _is_config_file_set() {
 	[[ ${_config_file_set} = 1 ]]
 }
 
+# Returns the arm kernel config file extension for the current subarch
+_get_arm_subarch() {
+	local arm_arch=${CTARGET%%-*}
+	if [[ ${arm_arch} == armv7? ]]; then
+		echo "armv7"
+	elif [[ ${arm_arch} == armv6? ]]; then
+		echo "armv6"
+	elif [[ ${arm_arch} == armv5? ]]; then
+		echo "armv5"
+	fi
+}
+
 _set_config_file_vars() {
 	# Setup kernel configuration file name
 	local pvr="${PVR}"
@@ -301,10 +313,10 @@ _set_config_file_vars() {
 	if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 		if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
 			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-__ARCH__.config}"
-			use amd64 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
-			use x86 && K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
+			use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}"
+			use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}"
 		else
-			use arm && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-arm.config}"
+			use arm && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-$(_get_arm_subarch).config}"
 			use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-amd64.config}"
 			use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-x86.config}"
 		fi
@@ -312,14 +324,14 @@ _set_config_file_vars() {
 		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-__ARCH__.config}"
 		K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pv}-__ARCH__.config}"
 		if use amd64; then
-			K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}
-			K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/amd64}
+			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}"
+			K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/amd64}"
 		elif use x86; then
-			K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}
-			K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/x86}
+			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}"
+			K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/x86}"
 		elif use arm; then
-			K_SABKERNEL_CONFIG_FILE=${K_SABKERNEL_CONFIG_FILE/__ARCH__/arm}
-			K_SABKERNEL_ALT_CONFIG_FILE=${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/arm}
+			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/$(_get_arm_subarch)}"
+			K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/$(_get_arm_subarch)}"
 		fi
 	fi
 
