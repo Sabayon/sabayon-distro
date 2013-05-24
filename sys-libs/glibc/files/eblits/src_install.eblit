@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_install.eblit,v 1.24 2012/08/28 02:34:25 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_install.eblit,v 1.30 2013/04/10 17:36:54 vapier Exp $
 
 toolchain-glibc_src_install() {
 	local GBUILDDIR
@@ -95,7 +95,7 @@ toolchain-glibc_src_install() {
 	if [[ ${SYMLINK_LIB} == "yes" ]] && [[ ! -e ${D}/$(alt_prefix)/lib ]] ; then
 		dosym $(get_abi_LIBDIR ${DEFAULT_ABI}) $(alt_prefix)/lib
 	fi
-	for (( i = 0; i < ${#ldso_abi_list[@]}; ++i )) ; do
+	for (( i = 0; i < ${#ldso_abi_list[@]}; i += 2 )) ; do
 		ldso_abi=${ldso_abi_list[i]}
 		has ${ldso_abi} $(get_install_abis) || continue
 
@@ -104,6 +104,13 @@ toolchain-glibc_src_install() {
 			dosym ../$(get_abi_LIBDIR ${ldso_abi})/${ldso_name##*/} ${ldso_name}
 		fi
 	done
+
+	# With devpts under Linux mounted properly, we do not need the pt_chown
+	# binary to be setuid.  This is because the default owners/perms will be
+	# exactly what we want.
+	if in_iuse suid && ! use suid ; then
+		find "${D}" -name pt_chown -exec chmod -s {} +
+	fi
 
 	#################################################################
 	# EVERYTHING AFTER THIS POINT IS FOR NATIVE GLIBC INSTALLS ONLY #
@@ -148,36 +155,25 @@ toolchain-glibc_src_install() {
 		fi
 	done
 
-	if ! has noinfo ${FEATURES} && [[ -n ${INFOPAGE_VER} ]] ; then
-		einfo "Installing info pages..."
-
-		emake \
-			-C "${GBUILDDIR}" \
-			install_root="${install_root}" \
-			info -i || die
-	fi
-
-	if [[ -n ${MANPAGE_VER} ]] ; then
-		einfo "Installing man pages..."
-
-		# Install linuxthreads man pages even if nptl is enabled
-		cd "${WORKDIR}"/man
-		doman *.3thr
-	fi
-
 	cd "${S}"
 
 	# Install misc network config files
 	insinto /etc
 	doins nscd/nscd.conf posix/gai.conf nss/nsswitch.conf || die
 	doins "${WORKDIR}"/extra/etc/*.conf || die
-	doinitd "${WORKDIR}"/extra/etc/nscd || die
 
-	local nscd_args=(
-		-e "s:@PIDFILE@:$(strings "${D}"/usr/sbin/nscd | grep nscd.pid):"
-	)
-	version_is_at_least 2.16 || nscd_args+=( -e 's: --foreground : :' )
-	sed -i "${nscd_args[@]}" "${D}"/etc/init.d/nscd
+	if ! in_iuse nscd || use nscd ; then
+		doinitd "${WORKDIR}"/extra/etc/nscd || die
+
+		local nscd_args=(
+			-e "s:@PIDFILE@:$(strings "${D}"/usr/sbin/nscd | grep nscd.pid):"
+		)
+		version_is_at_least 2.16 || nscd_args+=( -e 's: --foreground : :' )
+		sed -i "${nscd_args[@]}" "${D}"/etc/init.d/nscd
+	else
+		# Do this since extra/etc/*.conf above might have nscd.conf.
+		rm -f "${D}"/etc/nscd.conf
+	fi
 
 	echo 'LDPATH="include ld.so.conf.d/*.conf"' > "${T}"/00glibc
 	doenvd "${T}"/00glibc || die
@@ -195,10 +191,10 @@ toolchain-glibc_headers_install() {
 	local GBUILDDIR=${WORKDIR}/build-${ABI}-${CTARGET}-headers
 	cd "${GBUILDDIR}"
 	emake install_root="${D}$(alt_prefix)" install-headers || die
-	# Copy over headers that are not part of install-headers ... these
-	# are pretty much taken verbatim from crosstool, see it for more details
-	insinto $(alt_headers)/bits
-	doins misc/syscall-list.h bits/stdio_lim.h || die "doins include bits"
+	if ! version_is_at_least 2.16 ; then
+		insinto $(alt_headers)/bits
+		doins bits/stdio_lim.h || die
+	fi
 	insinto $(alt_headers)/gnu
 	doins "${S}"/include/gnu/stubs.h || die "doins include gnu"
 	# Make sure we install the sys-include symlink so that when
