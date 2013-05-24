@@ -17,8 +17,8 @@ DESCRIPTION="Linux kernel sources for the Odroid {U,X}{2,} boards"
 IUSE="sources_standalone"
 
 DEPEND="${DEPEND}
-	sources_standalone? ( !=sys-kernel/linux-efikamx-${PVR} )
-	!sources_standalone? ( =sys-kernel/linux-efikamx-${PVR} )"
+	sources_standalone? ( !=sys-kernel/linux-odroid-${PVR} )
+	!sources_standalone? ( =sys-kernel/linux-odroid-${PVR} )"
 
 
 src_unpack() {
