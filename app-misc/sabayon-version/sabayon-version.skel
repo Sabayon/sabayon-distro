@@ -2,7 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=4
+
+inherit multilib
 
 DESCRIPTION="Sabayon system release virtual package"
 HOMEPAGE="http://www.sabayon.org"
@@ -14,15 +16,18 @@ KEYWORDS="~amd64 ~arm ~x86"
 
 IUSE=""
 DEPEND=""
+GCC_VER="4.7"
+PYTHON_VER="2.7"
 # Listing default packages for the current release
 RDEPEND="app-admin/eselect-python
-	dev-lang/python:2.7
+	dev-lang/python:${PYTHON_VER}
 	sys-apps/systemd
-	sys-devel/base-gcc:4.7
+	sys-devel/base-gcc:${GCC_VER}
 	sys-devel/gcc-config"
 
 src_unpack () {
 	echo "Sabayon Linux ${ARCH} ${PV}" > "${T}/sabayon-release"
+	mkdir -p "${S}" || die
 }
 
 src_install () {
@@ -35,8 +40,23 @@ src_install () {
 }
 
 pkg_postinst() {
-	# Setup Python 2.7
-	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3 --ignore 3.4
+	# Setup Python ${PYTHON_VER}
+	eselect python set python${PYTHON_VER}
+
+	# Setup GCC profile
+	local find_target="${CHOST}-${GCC_VER}*"
+	elog "Trying to find: ${find_target} in /etc/env.d/gcc"
+	local gcc_profile=$( find "${ROOT}/etc/env.d/gcc" -name "${find_target}-vanilla" -print )
+	[[ -z "${gcc_profile}" ]] && \
+		gcc_profile=$( find "${ROOT}/etc/env.d/gcc" -name "${find_target}" -print )
+
+	if [[ -n "${gcc_profile}" ]]; then
+		gcc_profile=$(basename ${gcc_profile})
+		echo "Found GCC profile: ${gcc_profile}, switching"
+		gcc-config "${gcc_profile}"
+	else
+		eerror "GCC profile for ${GCC_VER} not found"
+	fi
 
 	# Improve systemd support
 	if [[ ! -L /etc/mtab ]] && [[ -e /proc/self/mounts ]]; then
