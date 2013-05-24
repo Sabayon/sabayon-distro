@@ -9,7 +9,11 @@ K_SABKERNEL_SELF_TARBALL_NAME="beaglebone"
 K_ONLY_SOURCES="1"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
 K_KERNEL_NEW_VERSIONING="1"
+
+K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/${P}-config.patch"
+
 inherit sabayon-kernel
+
 KEYWORDS="~arm"
 DESCRIPTION="Linux Kernel sources for the BeagleBone"
 RESTRICT="mirror"
