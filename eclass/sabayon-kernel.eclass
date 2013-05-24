@@ -303,7 +303,8 @@ _is_config_file_set() {
 
 # Returns the arm kernel config file extension for the current subarch
 _get_arm_subarch() {
-	local arm_arch=${CTARGET%%-*}
+	local target="${CTARGET:-${CHOST}}"
+	local arm_arch=${target%%-*}
 	if [[ ${arm_arch} == armv7? ]]; then
 		echo "armv7"
 	elif [[ ${arm_arch} == armv6? ]]; then
