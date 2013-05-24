@@ -90,6 +90,20 @@ K_KERNEL_SLOT_USEPVR="${K_KERNEL_SLOT_USEPVR:-0}"
 # The sublevel version can be forced using K_SABKERNEL_FORCE_SUBLEVEL
 K_KERNEL_NEW_VERSIONING="${K_KERNEL_NEW_VERSIONING:-0}"
 
+# @ECLASS-VARIABLE: K_KERNEL_IMAGE_NAME
+# @DESCRIPTION:
+# Set this to a custom kernel image make target if the default does not
+# fit your needs. This value if set, is passed to genkernel through the
+# --kernel-target= flag.
+K_KERNEL_IMAGE_NAME="${K_KERNEL_IMAGE_NAME:-}"
+
+# @ECLASS-VARIABLE: K_KERNEL_IMAGE_PATH
+# @DESCRIPTION:
+# Set this to a custom relative kernel image path to override the default
+# one. This value if set, is passed to genkernel through the
+# --kernel-binary= flag.
+K_KERNEL_IMAGE_PATH="${K_KERNEL_IMAGE_PATH:-}"
+
 # @ECLASS-VARIABLE: K_SABKERNEL_FIRMWARE
 # @DESCRIPTION:
 # Set this to "1" if your ebuild is a kernel firmware package
@@ -528,9 +542,17 @@ _kernel_src_compile() {
 	done
 	[ -z "${mkopts}" ] && mkopts="-j3"
 
-	# If ARM, build the uImage directly
-	if use arm; then
-		K_GENKERNEL_ARGS+=" --kernel-target=uImage --kernel-binary=arch/arm/boot/uImage"
+	if [ -n "${K_KERNEL_IMAGE_NAME}" ]; then
+		GKARGS+=" --kernel-target=${K_KERNEL_IMAGE_NAME}"
+	elif use arm; then
+		# backward compat + provide sane defaults.
+		GKARGS+=" --kernel-target=uImage"
+	fi
+	if [ -n "${K_KERNEL_IMAGE_PATH}" ]; then
+		GKARGS+=" --kernel-binary=${K_KERNEL_IMAGE_PATH}"
+	elif use arm; then
+		# backward compat + provide sane defaults.
+		GKARGS+=" --kernel-binary=arch/arm/boot/uImage"
 	fi
 
 	# Workaround bug in splash_geninitramfs corrupting the initramfs
