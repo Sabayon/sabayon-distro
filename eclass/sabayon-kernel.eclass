@@ -649,15 +649,6 @@ _kernel_sources_src_install() {
 _kernel_src_install() {
 	if use arm; then
 		_setup_mkimage_ramdisk || die "cannot setup mkimage";
-		local zImage="${S}/arch/arm/boot/zImage"
-		local uImage="${S}/arch/arm/boot/uImage"
-		if [ ! -e "${zImage}" ]; then
-			die "cannot find ${zImage}"
-		fi
-		if [ -n "${K_MKIMAGE_KERNEL_ADDRESS}" ]; then
-			_generate_uImage "${zImage}" "${uImage}" \
-				|| die "cannot generate uImage"
-		fi
 	fi
 
 	dodir "${KV_OUT_DIR}"
