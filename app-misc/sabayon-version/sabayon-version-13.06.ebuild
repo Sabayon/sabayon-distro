@@ -42,21 +42,7 @@ src_install () {
 pkg_postinst() {
 	# Setup Python ${PYTHON_VER}
 	eselect python set python${PYTHON_VER}
-
-	# Setup GCC profile
-	local find_target="${CHOST}-${GCC_VER}*"
-	elog "Trying to find: ${find_target} in /etc/env.d/gcc"
-	local gcc_profile=$( find "${ROOT}/etc/env.d/gcc" -name "${find_target}-vanilla" -print )
-	[[ -z "${gcc_profile}" ]] && \
-		gcc_profile=$( find "${ROOT}/etc/env.d/gcc" -name "${find_target}" -print )
-
-	if [[ -n "${gcc_profile}" ]]; then
-		gcc_profile=$(basename ${gcc_profile})
-		echo "Found GCC profile: ${gcc_profile}, switching"
-		gcc-config "${gcc_profile}"
-	else
-		eerror "GCC profile for ${GCC_VER} not found"
-	fi
+	# No need to set the GCC profile here, since it's done in base-gcc
 
 	# Improve systemd support
 	if [[ ! -L /etc/mtab ]] && [[ -e /proc/self/mounts ]]; then
