@@ -544,13 +544,13 @@ _kernel_src_compile() {
 	[ -z "${mkopts}" ] && mkopts="-j3"
 
 	if [ -n "${K_KERNEL_IMAGE_NAME}" ]; then
-		GKARGS+=" --kernel-target=${K_KERNEL_IMAGE_NAME}"
+		GKARGS+=" --kernel-target=\"${K_KERNEL_IMAGE_NAME}\""
 	elif use arm; then
 		# backward compat + provide sane defaults.
 		GKARGS+=" --kernel-target=uImage"
 	fi
 	if [ -n "${K_KERNEL_IMAGE_PATH}" ]; then
-		GKARGS+=" --kernel-binary=${K_KERNEL_IMAGE_PATH}"
+		GKARGS+=" --kernel-binary=\"${K_KERNEL_IMAGE_PATH}\""
 	elif use arm; then
 		# backward compat + provide sane defaults.
 		GKARGS+=" --kernel-binary=arch/arm/boot/uImage"
