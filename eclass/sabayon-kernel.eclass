@@ -521,16 +521,17 @@ _kernel_src_compile() {
 	mkdir "${S}"/temp
 
 	cd "${S}" || die
-	GKARGS="--no-save-config --disklabel --e2fsprogs --udev"
-	use splash && GKARGS="${GKARGS} --splash=sabayon"
-	use plymouth && GKARGS="${GKARGS} --plymouth --plymouth-theme=${PLYMOUTH_THEME}"
-	use dmraid && GKARGS="${GKARGS} --dmraid"
-	use iscsi && GKARGS="${GKARGS} --iscsi"
-	use mdadm && GKARGS="${GKARGS} --mdadm"
-	use luks && GKARGS="${GKARGS} --luks"
-	use lvm && GKARGS="${GKARGS} --lvm"
+	local GKARGS=()
+	GKARGS+=( "--no-save-config" "--disklabel" "--e2fsprogs" "--udev" )
+	use splash && GKARGS+=( "--splash=sabayon" )
+	use plymouth && GKARGS+=( "--plymouth" "--plymouth-theme=${PLYMOUTH_THEME}" )
+	use dmraid && GKARGS+=( "--dmraid" )
+	use iscsi && GKARGS+=( "--iscsi" )
+	use mdadm && GKARGS+=( "--mdadm" )
+	use luks && GKARGS+=( "--luks" )
+	use lvm && GKARGS+=( "--lvm" )
 	if [ -n "${K_SABKERNEL_ZFS}" ]; then
-		use zfs && GKARGS="${GKARGS} --zfs"
+		use zfs && GKARGS+=( "--zfs" )
 	fi
 
 	export DEFAULT_KERNEL_SOURCE="${S}"
@@ -544,29 +545,29 @@ _kernel_src_compile() {
 	[ -z "${mkopts}" ] && mkopts="-j3"
 
 	if [ -n "${K_KERNEL_IMAGE_NAME}" ]; then
-		GKARGS+=" --kernel-target=\"${K_KERNEL_IMAGE_NAME}\""
+		GKARGS+=( "--kernel-target=${K_KERNEL_IMAGE_NAME}" )
 	elif use arm; then
 		# backward compat + provide sane defaults.
-		GKARGS+=" --kernel-target=uImage"
+		GKARGS+=( "--kernel-target=uImage" )
 	fi
 	if [ -n "${K_KERNEL_IMAGE_PATH}" ]; then
-		GKARGS+=" --kernel-binary=\"${K_KERNEL_IMAGE_PATH}\""
+		GKARGS+=( "--kernel-binary=${K_KERNEL_IMAGE_PATH}" )
 	elif use arm; then
 		# backward compat + provide sane defaults.
-		GKARGS+=" --kernel-binary=arch/arm/boot/uImage"
+		GKARGS+=( "--kernel-binary=arch/arm/boot/uImage" )
 	fi
 
 	# Workaround bug in splash_geninitramfs corrupting the initramfs
 	# if xz compression is used (newer genkernel >3.4.24)
 	local support_comp=$(genkernel --help | grep compress-initramfs-type)
 	if [ -n "${support_comp}" ]; then
-		GKARGS+=" --compress-initramfs-type=gzip"
+		GKARGS+=( "--compress-initramfs-type=gzip" )
 	fi
 
 	OLDARCH="${ARCH}"
 	unset ARCH
 	unset LDFLAGS
-	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} ${K_GENKERNEL_ARGS} \
+	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel "${GKARGS[@]}" ${K_GENKERNEL_ARGS} \
 		--kerneldir="${S}" \
 		--kernel-config="${WORKDIR}"/config \
 		--cachedir="${WORKDIR}"/cache \
