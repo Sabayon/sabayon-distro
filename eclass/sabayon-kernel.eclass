@@ -689,6 +689,18 @@ _kernel_src_install() {
 	doins "${WORKDIR}"/boot/* || die "cannot copy /boot over"
 	cp -Rp "${WORKDIR}"/lib/* "${D}/" || die "cannot copy /lib over"
 
+	# Install dtbs if found
+	if use arm; then
+		local dtb_dir="/lib/dts/${KV_FULL}"
+		elog "Installing .dtbs (if any) into ${dtb_dir}"
+		insinto "${dtb_dir}"
+		local dtb=
+		for dtb in "${S}/arch/arm/boot/dts"/*.dtb; do
+			elog "Installing dtb: ${dtb}"
+			doins "${dtb}"
+		done
+	fi
+
 	# This doesn't always work because KV_FULL (when K_NOSETEXTRAVERSION=1) doesn't
 	# reflect the real value used in Makefile
 	#dosym "../../..${KV_OUT_DIR}" "/lib/modules/${KV_FULL}/source" || die "cannot install source symlink"
