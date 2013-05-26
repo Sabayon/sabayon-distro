@@ -683,8 +683,10 @@ _kernel_src_install() {
 		insinto "${dtb_dir}"
 		local dtb=
 		for dtb in "${S}/arch/arm/boot/dts"/*.dtb; do
-			elog "Installing dtb: ${dtb}"
-			doins "${dtb}"
+			if [ -f "${dtb}" ]; then
+				elog "Installing dtb: ${dtb}"
+				doins "${dtb}"
+			fi
 		done
 	fi
 
