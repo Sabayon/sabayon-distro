@@ -1,0 +1,10 @@
+app-misc/magneto-loader
+app-admin/rigo
+app-admin/equo
+sys-apps/entropy
+sys-apps/magneto-core
+sys-apps/entropy-server
+app-admin/matter
+sys-apps/rigo-daemon
+x11-misc/magneto-gtk
+x11-misc/magneto-gtk3
