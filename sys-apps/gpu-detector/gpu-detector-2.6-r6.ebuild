@@ -9,7 +9,7 @@ SLOT="0"
 KEYWORDS="x86 amd64 ppc"
 IUSE=""
 
-RDEPEND=">=app-misc/sabayonlive-tools-1.6.0"
+RDEPEND="app-misc/sabayon-live"
 DEPEND=""
 
 src_unpack () {

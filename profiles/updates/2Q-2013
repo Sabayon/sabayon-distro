@@ -4,3 +4,4 @@ move sys-kernel/beagle-sources sys-kernel/sabayon-sources
 move sys-kernel/panda-sources sys-kernel/sabayon-sources
 move sys-kernel/linux-beagle sys-kernel/linux-sabayon
 move sys-kernel/linux-panda sys-kernel/linux-sabayon
+move app-misc/sabayonlive-tools app-misc/sabayon-live

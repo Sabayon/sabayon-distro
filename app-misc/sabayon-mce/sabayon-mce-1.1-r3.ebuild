@@ -15,8 +15,7 @@ SLOT="0"
 KEYWORDS="amd64 arm x86"
 IUSE=""
 
-RDEPEND="media-tv/xbmc
-	>=app-misc/sabayonlive-tools-2.3-r12"
+RDEPEND="media-tv/xbmc app-misc/sabayon-live"
 DEPEND=""
 
 S="${WORKDIR}"
