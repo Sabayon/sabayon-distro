@@ -1,6 +1,0 @@
-#!/bin/bash
-
-cat /etc/motd 2>/dev/null
-cd /root
-[[ -e .bash_profile ]] && source .bash_profile
-exec -l /bin/bash -i

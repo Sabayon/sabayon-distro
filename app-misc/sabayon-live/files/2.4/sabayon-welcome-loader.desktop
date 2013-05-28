@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=sabayon-loader
-Exec=sabayon-welcome-loader
-Icon=system-run
-Comment=Sabayon Linux post-install Welcome Screen
-Terminal=false
