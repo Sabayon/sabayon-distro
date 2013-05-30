@@ -7,7 +7,6 @@ fi
 OLD=$1
 NEW=$2
 PACKAGES="sys-kernel/sabayon-sources sys-kernel/linux-sabayon
-	sys-kernel/server-sources sys-kernel/linux-server
 	sys-kernel/ec2-sources sys-kernel/linux-ec2"
 
 for package in ${PACKAGES}; do
