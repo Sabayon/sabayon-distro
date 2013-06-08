@@ -1,0 +1,255 @@
+--- a/usr/local/Brother/cupswrapper/cupswrapperHL5340D-2.0.4
++++ b/usr/local/Brother/cupswrapper/cupswrapperHL5340D-2.0.4
+@@ -17,53 +17,56 @@
+ # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ # Place, Suite 330, Boston, MA  02111-1307  USA
+ #
++# 
++# if [ "$1" = '-e' ]; then
++#   lpadmin -x HL5340D
++#   rm -f /usr/share/cups/model/HL5340D.ppd
++#   rm -f /usr/lib/cups/filter/brlpdwrapperHL5340D
++#   rm -f /usr/lib64/cups/filter/brlpdwrapperHL5340D
++#   rm -f /usr/local/Brother/cupswrapper/brcupsconfig3
++#   if [ -f /usr/share/ppd/HL5340D.ppd ];then
++#   rm -f /usr/share/ppd/HL5340D.ppd
++#   fi
++#   if [ -e /etc/init.d/cups ]; then
++#     /etc/init.d/cups restart
++#   fi
++#   if [ -e /etc/init.d/cupsys ]; then
++#     /etc/init.d/cupsys restart
++#   fi
++#   exit 0 
++# fi
++# if [ "$1" = "-r" ]; then
++#   lpadmin -x HL5340D
++#   if [ -e /etc/init.d/cups ]; then
++#     /etc/init.d/cups restart
++#   fi
++#   if [ -e /etc/init.d/cupsys ]; then
++#     /etc/init.d/cupsys restart
++#   fi
++#   exit 0 
++# fi
++# if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
++#   echo   'option -h : help'
++#   echo   '       -i : install'
++#   echo   '       -e : uninstall'
++#   echo   '       -r : remove printer'
++#   exit 0
++# fi
++# mkdir -p /usr/lib/cups/filter
++# 
++# if [ -e "/usr/local/Brother/lpd/filterHL5340D" ]; then
++#   :
++# else
++#   echo "ERROR : Brother LPD filter is not installed."
++# fi
++# rm -f /usr/share/cups/model/HL5340D.ppd
++# ppd_file_name=/usr/share/cups/model/HL5340D.ppd
++# if [ ! -e /usr/share/cups/model ]; then
++#    ppd_file_name=/usr/share/ppd/HL5340D.ppd
++# fi
+ 
+-if [ "$1" = '-e' ]; then
+-  lpadmin -x HL5340D
+-  rm -f /usr/share/cups/model/HL5340D.ppd
+-  rm -f /usr/lib/cups/filter/brlpdwrapperHL5340D
+-  rm -f /usr/lib64/cups/filter/brlpdwrapperHL5340D
+-  rm -f /usr/local/Brother/cupswrapper/brcupsconfig3
+-  if [ -f /usr/share/ppd/HL5340D.ppd ];then
+-  rm -f /usr/share/ppd/HL5340D.ppd
+-  fi
+-  if [ -e /etc/init.d/cups ]; then
+-    /etc/init.d/cups restart
+-  fi
+-  if [ -e /etc/init.d/cupsys ]; then
+-    /etc/init.d/cupsys restart
+-  fi
+-  exit 0 
+-fi
+-if [ "$1" = "-r" ]; then
+-  lpadmin -x HL5340D
+-  if [ -e /etc/init.d/cups ]; then
+-    /etc/init.d/cups restart
+-  fi
+-  if [ -e /etc/init.d/cupsys ]; then
+-    /etc/init.d/cupsys restart
+-  fi
+-  exit 0 
+-fi
+-if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+-  echo   'option -h : help'
+-  echo   '       -i : install'
+-  echo   '       -e : uninstall'
+-  echo   '       -r : remove printer'
+-  exit 0
+-fi
+-mkdir -p /usr/lib/cups/filter
+-
+-if [ -e "/usr/local/Brother/lpd/filterHL5340D" ]; then
+-  :
+-else
+-  echo "ERROR : Brother LPD filter is not installed."
+-fi
+-rm -f /usr/share/cups/model/HL5340D.ppd
+-ppd_file_name=/usr/share/cups/model/HL5340D.ppd
+-if [ ! -e /usr/share/cups/model ]; then
+-   ppd_file_name=/usr/share/ppd/HL5340D.ppd
+-fi
++# Write PPD file into CWD
++ppd_file_name=HL5340D.ppd
+ 
+ cat <<ENDOFPPDFILE >$ppd_file_name
+ *PPD-Adobe: "4.3"
+@@ -370,23 +373,25 @@
+ *End
+ 
+ ENDOFPPDFILE
++# 
++# chmod 755  $ppd_file_name
++# if [ -e '/usr/share/ppd' ];then
++#   if [ -e '/usr/share/cups/model' ];then
++#     cp  $ppd_file_name  /usr/share/ppd
++#   fi
++# fi
++# 
++# brotherlpdwrapper=/usr/lib/cups/filter/brlpdwrapperHL5340D
++# brotherlpdwrapper64=/usr/lib64/cups/filter/brlpdwrapperHL5340D
++# rm -f  $brotherlpdwrapper
++# if [ ! -e /usr/lib/cups/filter ];then
++#   if [ -e /usr/lib64/cups/filter ];then
++#     brotherlpdwrapper=/usr/lib64/cups/filter/brlpdwrapperHL5340D
++#   fi
++# fi
+ 
+-chmod 755  $ppd_file_name
+-if [ -e '/usr/share/ppd' ];then
+-  if [ -e '/usr/share/cups/model' ];then
+-    cp  $ppd_file_name  /usr/share/ppd
+-  fi
+-fi
+-
+-brotherlpdwrapper=/usr/lib/cups/filter/brlpdwrapperHL5340D
+-brotherlpdwrapper64=/usr/lib64/cups/filter/brlpdwrapperHL5340D
+-rm -f  $brotherlpdwrapper
+-if [ ! -e /usr/lib/cups/filter ];then
+-  if [ -e /usr/lib64/cups/filter ];then
+-    brotherlpdwrapper=/usr/lib64/cups/filter/brlpdwrapperHL5340D
+-  fi
+-fi
+-
++# Write brlpdwrapper into CWD
++brotherlpdwrapper=brlpdwrapperHL5340D
+ 
+ cat <<!ENDOFWFILTER! >$brotherlpdwrapper
+ #! /bin/sh
+@@ -517,25 +522,25 @@
+ fi
+ 
+ 
+-if [ -e "/usr/local/Brother/lpd/filter\$PRINTER" ]; then
++if [ -e "/usr/share/brother/lpd/filter\$PRINTER" ]; then
+        :
+ else
+-    echo "ERROR: /usr/local/Brother/lpd/filter\$PRINTER does not exist"   >>\$LOGFILE
++    echo "ERROR: /usr/share/brother/lpd/filter\$PRINTER does not exist"   >>\$LOGFILE
+     errorcode=30
+     exit $errorcode
+ fi
+ 
+-if [ -e "/usr/local/Brother/cupswrapper/brcupsconfig3" ]; then
++if [ -e "/usr/share/brother/cupswrapper/brcupsconfig3" ]; then
+   if [ \$DEBUG = 0 ]; then
+-     /usr/local/Brother/cupswrapper/brcupsconfig3  \$PRINTER  \$PPD 0 "\$options" >> /dev/null
++     /usr/share/brother/cupswrapper/brcupsconfig3  \$PRINTER  \$PPD 0 "\$options" >> /dev/null
+   else
+-     /usr/local/Brother/cupswrapper/brcupsconfig3  \$PRINTER  \$PPD \$LOGCLEVEL "\$options" >>\$LOGFILE
++     /usr/share/brother/cupswrapper/brcupsconfig3  \$PRINTER  \$PPD \$LOGCLEVEL "\$options" >>\$LOGFILE
+   fi
+ fi
+ 
+ 
+ if [ \$DEBUG -le 2 ]; then
+-    cat    \$INPUT_TEMP_PS | /usr/local/Brother/lpd/filter\$PRINTER
++    cat    \$INPUT_TEMP_PS | /usr/share/brother/lpd/filter\$PRINTER
+ fi
+ 
+ if [ \$DEBUG -ge 2 ];  then
+@@ -551,39 +556,39 @@
+ 
+ !ENDOFWFILTER!
+ 
+-
+-chmod 755 $brotherlpdwrapper
+-if [ -e /usr/lib/cups/filter ]; then
+- if [ -e /usr/lib64/cups/filter ]; then
+-   cp $brotherlpdwrapper  $brotherlpdwrapper64
+- fi
+-fi
+-
+-chmod a+w /usr/local/Brother/inf/brHL5340Drc
+-chmod a+w /usr/local/Brother/inf
+-if [ -e /etc/init.d/lpd ]; then
+-   /etc/init.d/lpd stop
+-fi
+-if [  -e /etc/init.d/lprng ]; then
+-   /etc/init.d/lprng stop
+-fi
+-  if [ -e /etc/init.d/cups ]; then
+-    /etc/init.d/cups restart
+-  fi
+-  if [ -e /etc/init.d/cupsys ]; then
+-    /etc/init.d/cupsys restart
+-  fi
+-sleep 2s
+-port2=`lpinfo -v | grep -i 'usb://Brother/HL5340D' | head -1`
+-if [ "$port2" = '' ];then
+-  port2=`lpinfo -v | grep -i 'usb://Brother/' | head -1`
+-  if [ "$port2" = '' ];then
+-	   port2=`lpinfo -v | grep 'usb://' | head -1`
+-  fi
+-fi
+-port=`echo $port2| sed s/direct//g`
+-if [ "$port" = '' ];then
+-	port=usb:/dev/usb/lp0
+-fi
+-lpadmin -p HL5340D -E -v $port -P $ppd_file_name
+-  exit 0 
++# 
++# chmod 755 $brotherlpdwrapper
++# if [ -e /usr/lib/cups/filter ]; then
++#  if [ -e /usr/lib64/cups/filter ]; then
++#    cp $brotherlpdwrapper  $brotherlpdwrapper64
++#  fi
++# fi
++# 
++# chmod a+w /usr/share/brother/inf/brHL5340Drc
++# chmod a+w /usr/share/brother/inf
++# if [ -e /etc/init.d/lpd ]; then
++#    /etc/init.d/lpd stop
++# fi
++# if [  -e /etc/init.d/lprng ]; then
++#    /etc/init.d/lprng stop
++# fi
++#   if [ -e /etc/init.d/cups ]; then
++#     /etc/init.d/cups restart
++#   fi
++#   if [ -e /etc/init.d/cupsys ]; then
++#     /etc/init.d/cupsys restart
++#   fi
++# sleep 2s
++# port2=`lpinfo -v | grep -i 'usb://Brother/HL5340D' | head -1`
++# if [ "$port2" = '' ];then
++#   port2=`lpinfo -v | grep -i 'usb://Brother/' | head -1`
++#   if [ "$port2" = '' ];then
++# 	   port2=`lpinfo -v | grep 'usb://' | head -1`
++#   fi
++# fi
++# port=`echo $port2| sed s/direct//g`
++# if [ "$port" = '' ];then
++# 	port=usb:/dev/usb/lp0
++# fi
++# lpadmin -p HL5340D -E -v $port -P $ppd_file_name
++#   exit 0 
