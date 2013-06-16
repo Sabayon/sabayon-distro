@@ -10,6 +10,7 @@ K_KERNEL_NEW_VERSIONING="1"
 
 K_KERNEL_IMAGE_NAME="Image"
 K_KERNEL_IMAGE_PATH="arch/arm/boot/Image"
+K_MKIMAGE_WRAP_INITRAMFS="0"
 
 inherit sabayon-kernel
 
