@@ -154,6 +154,11 @@ K_MKIMAGE_RAMDISK_ADDRESS="${K_MKIMAGE_RAMDISK_ADDRESS:-}"
 # [ARM ONLY] Provide the ramdisk entry point address to be used with mkimage
 K_MKIMAGE_RAMDISK_ENTRYPOINT="${K_MKIMAGE_RAMDISK_ENTRYPOINT:-}"
 
+# @ECLASS-VARIABLE: K_MKIMAGE_WRAP_INITRAMFS
+# @DESCRIPTION:
+# [ARM ONLY] Execute mkimage against the generated initramfs Default is yes ("1").
+K_MKIMAGE_WRAP_INITRAMFS="${K_MKIMAGE_WRAP_INITRAMFS:-1}"
+
 # @ECLASS-VARIABLE: K_MKIMAGE_KERNEL_ADDRESS
 # @DESCRIPTION:
 # [ARM ONLY] Provide the kernel load address to be used with mkimage
@@ -589,13 +594,15 @@ _setup_mkimage_ramdisk() {
 	local initramfs=$(ls "${WORKDIR}"/boot/${KERN_INITRAMFS_SEARCH_NAME}* 2> /dev/null)
 	if [ ! -e "${initramfs}" ] || [ ! -f "${initramfs}" ]; then
 		ewarn "No initramfs at ${initramfs}, cannot run mkimage on it!"
-	else
+	elif [ "${K_MKIMAGE_WRAP_INITRAMFS}" = "1" ]; then
 		einfo "Setting up u-boot initramfs for: ${initramfs}"
 		mkimage -A arm -O linux -T ramdisk -C none -a \
 			"${K_MKIMAGE_RAMDISK_ADDRESS}" \
 			-e "${K_MKIMAGE_RAMDISK_ENTRYPOINT}" -d "${initramfs}" \
 			"${initramfs}.u-boot" || return 1
 		mv "${initramfs}.u-boot" "${initramfs}" || return 1
+	else
+		einfo "mkimage won't be called for: ${initramfs}"
 	fi
 	return 0
 }
@@ -638,7 +645,7 @@ _kernel_sources_src_install() {
 
 _kernel_src_install() {
 	if use arm; then
-		_setup_mkimage_ramdisk || die "cannot setup mkimage";
+		_setup_mkimage_ramdisk || die "cannot setup mkimage"
 	fi
 
 	dodir "${KV_OUT_DIR}"
