@@ -53,7 +53,7 @@ depend() {
 	before alsasound
 
 	# Start before X
-	use consolekit dbus xfs
+	use consolekit dbus logind xfs
 }
 
 setup_dm() {
