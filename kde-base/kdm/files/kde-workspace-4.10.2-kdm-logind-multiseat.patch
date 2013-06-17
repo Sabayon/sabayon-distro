@@ -128,8 +128,8 @@
 +static int
 +systemdMonitorInit(void)
 +{
-+    if (sd_booted() <= 0) {
-+        logError("Didn't boot with systemd, automatic multiseat won't be enabled\n");
++    if (access("/run/systemd/seats/", F_OK) < 0) {
++        logError("Doesn't use logind, automatic multiseat won't be enabled\n");
 +        return False;
 +    }
 +
