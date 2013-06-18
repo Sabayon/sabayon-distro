@@ -43,7 +43,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
 	"${FILESDIR}/kdebase-workspace-4.4.92-kdm_plymouth081.patch"
 	"${FILESDIR}/kde-workspace-4.10.2-kdm-logind-multiseat.patch"
-	"${FILESDIR}/0001-Detect-logind-at-runtime.patch"
 	"${FILESDIR}/kde-workspace-4.8.0-bug796969.patch"
 )
 
