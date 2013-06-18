@@ -12,7 +12,8 @@ LPR_VER="2.0.3-1"
 DESCRIPTION="CUPS filters and drivers for Brother HL-5340D"
 HOMEPAGE="http://welcome.solutions.brother.com/bsc/public_s/id/linux/en/download_prn.html"
 SRC_URI="http://www.brother.com/pub/bsc/linux/dlf/hl5340dlpr-${LPR_VER}.i386.rpm
-	http://www.brother.com/pub/bsc/linux/dlf/cupswrapperHL5340D-${WRAPPER_VER}.i386.rpm"
+	http://www.brother.com/pub/bsc/linux/dlf/cupswrapperHL5340D-${WRAPPER_VER}.i386.rpm
+	http://www.brother.com/pub/bsc/linux/dlf/BR5340_2_GPL.ppd.gz"
 LICENSE="as-is"
 SLOT="0"
 KEYWORDS="amd64 x86"
@@ -46,11 +47,11 @@ src_install() {
 	mkdir -p "${S}/usr/share/brother/inf" || die
 	echo "HL5340D" > "${S}/usr/share/brother/inf/brPrintList" || die
 
-	# Generate the PPD and the cups filter
+	# Generate the cups filter
 	cd "${S}" || die
 	./usr/share/brother/cupswrapper/cupswrapperHL5340D-2.0.4 || die
 	insinto /usr/share/cups/model
-	doins HL5340D.ppd || die
+	newins "${WORKDIR}/BR5340_2_GPL.ppd" HL5340D.ppd
 	exeinto /usr/libexec/cups/filter
 	doexe brlpdwrapperHL5340D || die
 
