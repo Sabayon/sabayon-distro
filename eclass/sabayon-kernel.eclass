@@ -860,6 +860,7 @@ _dracut_initramfs_create() {
 	local kver="${1}"
 
 	elog "Creating dracut initramfs for ${kver}"
+	addpredict /etc/ld.so.cache~
 	dracut -q -N -f --kver="${kver}" "${D}/boot/initramfs-dracut-${kver}"
 }
 
