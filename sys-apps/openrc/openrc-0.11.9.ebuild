@@ -13,6 +13,7 @@ if [[ ${PV} == "0.11.9" ]]; then
 	EGIT_REPO_URI="git://github.com/OpenRC/openrc.git"
 	EGIT_COMMIT="9f14fd7ae10d8ae724045a57a2eb25c1d4290a3b"
 	inherit git-2
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 else
 	SRC_URI="http://dev.gentoo.org/~williamh/dist/${P}.tar.bz2"
 	KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
