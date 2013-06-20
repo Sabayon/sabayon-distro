@@ -9,7 +9,7 @@ inherit eutils flag-o-matic multilib pam toolchain-funcs
 DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
 HOMEPAGE="http://www.gentoo.org/proj/en/base/openrc/"
 
-if [[ ${PV} == "0.11.9" ]]; then
+if [[ ${PV} == "0.12_pre1" ]]; then
 	EGIT_REPO_URI="git://github.com/OpenRC/openrc.git"
 	EGIT_COMMIT="9f14fd7ae10d8ae724045a57a2eb25c1d4290a3b"
 	inherit git-2
@@ -42,7 +42,7 @@ src_prepare() {
 	sed -i 's:0444:0644:' mk/sys.mk || die
 	sed -i "/^DIR/s:/openrc:/${PF}:" doc/Makefile || die #241342
 
-	if [[ ${PV} == "0.11.9" ]] ; then
+	if [[ ${PV} == "0.12_pre1" ]] ; then
 		local ver="git-${EGIT_VERSION:0:6}"
 		sed -i "/^GITVER[[:space:]]*=/s:=.*:=${ver}:" mk/git.mk || die
 	fi
