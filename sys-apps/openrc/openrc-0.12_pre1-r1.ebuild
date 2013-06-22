@@ -58,6 +58,9 @@ src_prepare() {
 
 	# Sabayon bug fixes
 	epatch "${FILESDIR}/${PN}-0.9.9.3-do-not-print-error-if-tmplog-cannot-be-read.patch"
+
+	# Fix pam_systemd + logind support
+	epatch "${FILESDIR}/0001-Filter-the-systemd-cgroup-from-the-current-process.patch"
 }
 
 src_compile() {
