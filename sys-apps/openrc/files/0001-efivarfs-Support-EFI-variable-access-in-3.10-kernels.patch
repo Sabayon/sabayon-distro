@@ -1,0 +1,41 @@
+From 29f0f55c0e7debef879674ed288c1d3af0f84772 Mon Sep 17 00:00:00 2001
+From: "Robin H. Johnson" <robbat2@gentoo.org>
+Date: Mon, 24 Jun 2013 19:31:58 +0000
+Subject: [PATCH] efivarfs: Support EFI variable access in 3.10 kernels.
+
+In the 3.10 kernel, EFI variables are now provided by a dedicated
+filesystem that needs to be mounted.
+
+Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+---
+ init.d/sysfs.in | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/init.d/sysfs.in b/init.d/sysfs.in
+index 114a653..7658cb5 100644
+--- a/init.d/sysfs.in
++++ b/init.d/sysfs.in
+@@ -81,6 +81,20 @@ mount_misc()
+ 			eend $?
+ 		fi
+ 	fi
++
++	# setup up kernel support for efivarfs
++	# slightly complicated, as if it's build as a module but NOT yet loaded,
++	# it will NOT appear in /proc/filesystems yet
++	if [ -d /sys/firmware/efi/efivars ] \
++		&& ! mountinfo -q /sys/firmware/efi/efivars; then
++		modprobe -q efivarfs
++		if grep -qs efivarfs /proc/filesystems; then
++			ebegin "Mounting efivarfs filesystem"
++			mount -n -t efivarfs -o ${sysfs_opts} \
++				efivarfs /sys/firmware/efi/efivars
++			eend $?
++		fi
++	fi
+ }
+ 
+ mount_cgroups()
+-- 
+1.8.2.1
+

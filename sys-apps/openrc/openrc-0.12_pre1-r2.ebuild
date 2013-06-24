@@ -61,6 +61,9 @@ src_prepare() {
 
 	# Fix pam_systemd + logind support
 	epatch "${FILESDIR}/0001-Filter-the-systemd-cgroup-from-the-current-process.patch"
+
+	# Linux 3.10 and EFI
+	epatch "${FILESDIR}/0001-efivarfs-Support-EFI-variable-access-in-3.10-kernels.patch"
 }
 
 src_compile() {
