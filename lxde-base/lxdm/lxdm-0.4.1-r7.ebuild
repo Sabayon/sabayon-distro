@@ -54,6 +54,9 @@ src_prepare() {
 	# See https://bugs.launchpad.net/ubuntu/+source/lxdm/+bug/922363
 	epatch "${FILESDIR}/${P}-fix-pam-100-cpu.patch"
 
+	# Make consolekit optional
+	epatch "${FILESDIR}/${P}-optional-consolekit.patch"
+
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
 
@@ -68,6 +71,7 @@ src_configure() {
 	econf	--enable-password \
 		--with-x \
 		--with-xconn=xcb \
+		$(use_enable consolekit) \
 		$(use_enable gtk3) \
 		$(use_enable nls) \
 		$(use_enable debug) \
