@@ -10,7 +10,7 @@ inherit kde4-meta flag-o-matic user systemd
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
 KEYWORDS=" ~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="+consolekit debug kerberos pam"
+IUSE="+consolekit debug kerberos logind pam"
 
 DEPEND="
 	$(add_kdebase_dep libkworkspace)
@@ -152,4 +152,14 @@ pkg_postinst() {
 	# gotten this wrong
 	use prefix || chown root:kdm "${EROOT}${KDM_HOME}"
 	chmod 1770 "${EROOT}${KDM_HOME}"
+
+	# kdm 4.10 and logind have troubles if xdm is in the boot runlevel
+	if ! use consolekit && use logind; then
+		local xdm_boot="${EROOT}/etc/runlevels/boot/xdm"
+		local xdm_default="${EROOT}/etc/runlevels/default/xdm"
+		if [ -e "${xdm_boot}" ]; then
+			einfo "Moving xdm from boot runlevel to default (due to logind)"
+			mv "${xdm_boot}" "${xdm_default}" || die
+		fi
+	fi
 }
