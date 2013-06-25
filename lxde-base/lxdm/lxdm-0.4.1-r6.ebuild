@@ -14,9 +14,9 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~amd64 ~x86"
 
-IUSE="debug gtk3 nls pam"
+IUSE="consolekit debug gtk3 nls pam"
 
-RDEPEND="sys-auth/consolekit
+RDEPEND="consolekit? ( sys-auth/consolekit )
 	x11-libs/libxcb
 	>=x11-themes/sabayon-artwork-lxde-8-r1
 	gtk3? ( x11-libs/gtk+:3 )
