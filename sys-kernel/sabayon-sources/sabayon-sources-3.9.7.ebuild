@@ -9,7 +9,6 @@ K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
 K_ONLY_SOURCES="1"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
 K_KERNEL_NEW_VERSIONING="1"
-K_KERNEL_PATCH_HOTFIXES="${FILESDIR}/0001-sabayon-update-armv7-config-add-more-stuff.patch"
 
 inherit sabayon-kernel
 
