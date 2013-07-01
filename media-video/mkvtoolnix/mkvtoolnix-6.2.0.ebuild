@@ -1,22 +1,22 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 inherit eutils multilib toolchain-funcs versionator wxwidgets multiprocessing autotools
 
 DESCRIPTION="Tools to create, alter, and inspect Matroska files"
 HOMEPAGE="http://www.bunkus.org/videotools/mkvtoolnix"
-SRC_URI="http://www.bunkus.org/videotools/mkvtoolnix/sources/${P}.tar.bz2"
+SRC_URI="http://www.bunkus.org/videotools/mkvtoolnix/sources/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
-IUSE="bzip2 debug lzo pch qt4 wxwidgets"
+IUSE="debug pch qt4 wxwidgets"
 
 RDEPEND="
-	>=dev-libs/libebml-1.2.2
-	>=media-libs/libmatroska-1.3.0
+	>=dev-libs/libebml-1.3.0:=
+	>=media-libs/libmatroska-1.4.0:=
 	>=dev-libs/boost-1.46.0
 	dev-libs/pugixml
 	media-libs/flac
@@ -25,8 +25,6 @@ RDEPEND="
 	sys-apps/file
 	>=sys-devel/gcc-4.6
 	sys-libs/zlib
-	bzip2? ( app-arch/bzip2 )
-	lzo? ( dev-libs/lzo )
 	qt4? (
 		dev-qt/qtcore:4
 		dev-qt/qtgui:4
@@ -39,7 +37,7 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 "
 
-pkg_setup() {
+pkg_pretend() {
 	# http://bugs.gentoo.org/419257
 	local ver=4.6
 	local msg="You need at least GCC ${ver}.x for C++11 range-based 'for' and nullptr support."
@@ -50,28 +48,25 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-system-pugixml.patch \
-		"${FILESDIR}"/${P}-boost-configure.patch
+	epatch "${FILESDIR}"/${PN}-5.8.0-system-pugixml.patch \
+		"${FILESDIR}"/${PN}-5.8.0-boost-configure.patch
 	eautoreconf
 }
 
 src_configure() {
 	local myconf
 
-	use pch || myconf+=" --disable-precompiled-headers"
-
 	if use wxwidgets ; then
 		WX_GTK_VER="2.8"
 		need-wxwidgets unicode
-		myconf+=" --with-wx-config=${WX_CONFIG}"
+		myconf="--with-wx-config=${WX_CONFIG}"
 	fi
 
 	econf \
-		$(use_enable bzip2 bz2) \
 		$(use_enable debug) \
-		$(use_enable lzo) \
 		$(use_enable qt4 qt) \
 		$(use_enable wxwidgets) \
+		$(usex pch "" --disable-precompiled-headers) \
 		${myconf} \
 		--disable-optimization \
 		--docdir="${EPREFIX}"/usr/share/doc/${PF} \
@@ -91,10 +86,9 @@ src_install() {
 	doman doc/man/*.1
 
 	use wxwidgets && docompress -x /usr/share/doc/${PF}/guide
-	use wxwidgets || rm "${ED}usr/share/man/man1/mmg."* || die
 }
 
 pkg_postinst() {
-	einfo \
-		"On Sabayon the GUI is provided by media-video/mkvtoolnix-gui package."
+	default
+	einfo "On Sabayon the GUI is provided by media-video/mkvtoolnix-gui package."
 }
