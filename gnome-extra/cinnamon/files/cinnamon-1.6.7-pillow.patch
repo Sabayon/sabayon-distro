@@ -1,0 +1,30 @@
+Replace deprecated PIL imports
+https://bugs.gentoo.org/show_bug.cgi?id=471518
+--- a/files/usr/lib/cinnamon-settings/cinnamon-settings.py
++++ b/files/usr/lib/cinnamon-settings/cinnamon-settings.py
+@@ -20,7 +20,7 @@
+     import lxml.etree
+     import locale    
+     import imtools
+-    import Image
++    from PIL import Image
+     import tempfile
+     import math
+     import cgi
+--- a/files/usr/lib/cinnamon-settings/imtools.py
++++ b/files/usr/lib/cinnamon-settings/imtools.py
+@@ -18,10 +18,10 @@
+ from itertools import cycle
+ from urllib import urlopen
+ 
+-import Image
+-import ImageDraw
+-import ImageEnhance
+-import ImageOps, ImageChops, ImageFilter
++from PIL import Image
++from PIL import ImageDraw
++from PIL import ImageEnhance
++from PIL import ImageOps, ImageChops, ImageFilter
+ 
+ ALL_PALETTE_INDICES = set(range(256))
+ CHECKBOARD = {}
