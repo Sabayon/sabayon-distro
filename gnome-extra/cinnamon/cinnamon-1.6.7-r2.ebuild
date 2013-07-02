@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/gnome-extra/cinnamon/cinnamon-1.6.7.ebuild,v 1.1 2012/12/30 02:39:06 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/gnome-extra/cinnamon/cinnamon-1.6.7-r2.ebuild,v 1.1 2013/06/10 16:16:41 floppym Exp $
 
 EAPI="5"
 GCONF_DEBUG="no"
@@ -99,7 +99,7 @@ RDEPEND="${COMMON_DEPEND}
 
 	dev-python/dbus-python[${PYTHON_USEDEP}]
 	dev-python/gconf-python:2
-	dev-python/imaging
+	virtual/python-imaging
 	dev-python/lxml
 
 	x11-themes/gnome-icon-theme-symbolic
@@ -132,14 +132,17 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# Use Sabayon branding
-	cp "${FILESDIR}"/start-here.png data/theme/menu.png || die "Could not copy image."
-
 	# Fix automagic gnome-bluetooth dep, bug #398145
 	epatch "${FILESDIR}/${PN}-1.6.1-automagic-gnome-bluetooth.patch"
 
 	# Make networkmanager optional, bug #398593
 	epatch "${FILESDIR}/${PN}-1.6.1-optional-networkmanager.patch"
+
+	# Replace deprecated PIL imports, bug #471518
+	epatch "${FILESDIR}/${P}-pillow.patch"
+
+	# Use Sabayon branding
+	cp "${FILESDIR}"/start-here.png data/theme/menu.png || die "Could not copy image."
 
 	# Gentoo uses /usr/libexec
 	sed -e "s:/usr/lib/gnome-session/gnome-session-check-accelerated:${EPREFIX}/usr/libexec/gnome-session-check-accelerated:" \
@@ -191,10 +194,12 @@ src_install() {
 	python_optimize "${ED}usr/$(get_libdir)/cinnamon-"{settings,menu-editor}
 	# Fix broken shebangs
 	sed -e "s%#!.*python%#!$(python_get_PYTHON)%" \
-		-i "${ED}usr/bin/cinnamon-"{launcher,menu-editor,settings} || die
+		-i "${ED}usr/bin/cinnamon-"{launcher,menu-editor,settings} \
+		-i "${ED}usr/$(get_libdir)/cinnamon-settings/cinnamon-settings.py" || die
 
-	# Required for gnome-shell on hardened/PaX, bug #398941
-	pax-mark mr "${ED}usr/bin/cinnamon"
+	# Required for gnome-shell on hardened/PaX, bug #398941 and #457194
+	# PaX EMUTRAMP need to be on
+	pax-mark mrE "${ED}usr/bin/cinnamon"
 }
 
 pkg_postinst() {
