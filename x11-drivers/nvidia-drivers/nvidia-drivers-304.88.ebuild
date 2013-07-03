@@ -128,6 +128,10 @@ src_prepare() {
 		/usr/$(get_libdir)/libnvidia-opencl.so
 	EOF
 
+	if kernel_is ge 3 10 0; then
+		epatch "${FILESDIR}/${PN}-319.23-3.10.patch"
+	fi
+
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
 }
