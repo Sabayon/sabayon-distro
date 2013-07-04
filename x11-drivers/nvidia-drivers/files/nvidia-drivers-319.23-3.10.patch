@@ -69,11 +69,11 @@ diff -ur -X - NVIDIA-Linux-x86_64-319.17-no-compat32.orig/kernel/nv-procfs.c NVI
          __entry;                                               \
      })
  
-+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,9,255)
-+static inline void *PDE_DATA(const struct inode *inode) {
-+	return PDE(inode)->data;
-+}
-+#endif
++//#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,9,255)
++//static inline void *PDE_DATA(const struct inode *inode) {
++//	return PDE(inode)->data;
++//}
++//#endif
 +
  #define NV_PROC_WRITE_BUFFER_SIZE   (64 * RM_PAGE_SIZE)
  
