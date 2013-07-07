@@ -8,8 +8,8 @@
 # SURVIVOR_VERSION: A survivor version to be used
 #                   for rebuilding the manifests
 
-DEL_VERSIONS="4.9.0"
-SURVIVOR_VERSION="4.9.1"
+DEL_VERSIONS="4.9.5 4.10.0 4.10.1 4.10.2 4.10.3"
+SURVIVOR_VERSION="4.10.4"
 
 # Remove/Delete the old versions.
 for one_del_ver in $DEL_VERSIONS; do
@@ -19,15 +19,12 @@ for one_del_ver in $DEL_VERSIONS; do
 	    continue
     fi
 
-    for X in `find -name kde-l10n-*${one_del_ver}*.ebuild`; do
-	    echo ""
-	    echo " ________ Removing ${X} ________"
-	    rm "${X}"
+    for X in $(find -name kde-l10n-*${one_del_ver}*.ebuild); do
+        git rm -f "${X}"
     done
 done
 
 # Regenerate the manifests based on a survivor version
-for X in `find -name kde-l10n-*${SURVIVOR_VERSION}*.ebuild`; do
-	echo " ________ Re-manifesting ${X} ________"
+for X in $(find -name kde-l10n-*${SURVIVOR_VERSION}*.ebuild); do
 	ebuild "${X}" manifest
 done
