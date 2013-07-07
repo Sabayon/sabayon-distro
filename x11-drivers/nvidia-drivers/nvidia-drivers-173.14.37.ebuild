@@ -133,6 +133,9 @@ src_prepare() {
 	# Please add a brief description for every added patch
 	use x86-fbsd && cd doc
 
+	# Linux 3.10 support
+	kernel_is ge 3 10 0 && epatch "${FILESDIR}/${PN}-173-3.10.patch"
+
 	if use kernel_linux; then
 		# Quiet down warnings the user does not need to see
 		sed -i \
