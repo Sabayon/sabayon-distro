@@ -106,8 +106,6 @@ RDEPEND="${COMMON_DEPEND}
 
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
 
-	gnome-extra/nemo
-
 	|| (
 		app-admin/openrc-settingsd
 		>=sys-apps/systemd-30
