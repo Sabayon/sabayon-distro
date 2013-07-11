@@ -1,12 +1,9 @@
 sys-firmware/b43-firmware
 net-wireless/b43-fwcutter
 net-wireless/bcm43xx-fwcutter
-net-wireless/broadcom-sta
 sys-firmware/ipw2100-firmware
 sys-firmware/ipw2200-firmware
-net-wireless/ndiswrapper
 sys-firmware/zd1201-firmware
 sys-firmware/zd1211-firmware
 net-wireless/wireless-tools
-sys-apps/usb_modeswitch
 sys-kernel/linux-firmware
