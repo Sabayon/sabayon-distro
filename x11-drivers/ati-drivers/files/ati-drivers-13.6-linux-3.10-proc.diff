@@ -246,8 +246,7 @@ index d3ad3ce..890a0aa 100755
 +			if (!tempdata)
 +				return NULL;
 +		}
-+		//printk(KERN_NOTICE "name %s, dev %p, func %p, data %p\n", list->name, (dev->pubdev.signature == FGL_DEVICE_SIGNATURE)? firegl_find_device(minor) : (dev), list->f, 
-tempdata);
++		//printk(KERN_NOTICE "name %s, dev %p, func %p, data %p\n", list->name, (dev->pubdev.signature == FGL_DEVICE_SIGNATURE)? firegl_find_device(minor) : (dev), list->f, tempdata);
 +        ent = proc_create_data(list->name, S_IFREG|S_IRUGO, *dev_root, my_fops, tempdata);
 +
 +        if (!ent)
