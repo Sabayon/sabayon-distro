@@ -144,6 +144,9 @@ src_prepare() {
 	# compile fix for AGP-less kernel, bug #435322
 	epatch "${FILESDIR}"/ati-drivers-12.9-KCL_AGP_FindCapsRegisters-stub.patch
 
+	# Compile fix for kernel typesafe uid types #469160
+	epatch "${FILESDIR}/typesafe-kuid.diff"
+
 	# Linux 3.10 support
 	epatch "${FILESDIR}"/ati-drivers-13.6-linux-3.10-proc.diff
 
