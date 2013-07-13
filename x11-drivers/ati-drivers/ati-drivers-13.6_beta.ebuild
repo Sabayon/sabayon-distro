@@ -145,7 +145,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/ati-drivers-12.9-KCL_AGP_FindCapsRegisters-stub.patch
 
 	# Linux 3.10 support
-	epatch "${FILESDIR}"/linux-3.10-proc.diff
+	epatch "${FILESDIR}"/ati-drivers-13.6-linux-3.10-proc.diff
 
 	# Compile fix, https://bugs.gentoo.org/show_bug.cgi?id=454870
 	use pax_kernel && epatch "${FILESDIR}/const-notifier-block.patch"
