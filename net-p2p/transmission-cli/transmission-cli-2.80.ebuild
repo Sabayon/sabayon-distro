@@ -3,16 +3,11 @@
 # $Header: $
 
 EAPI=5
-inherit eutils transmission-2.76
+inherit eutils transmission-2.80
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - command line (CLI) version"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
-
-src_prepare() {
-	epatch "${FILESDIR}/${P}-segv.patch"
-	transmission-2.76_src_prepare
-}
 
 src_install() {
 	dobin cli/transmission-cli

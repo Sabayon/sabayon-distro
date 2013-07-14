@@ -3,14 +3,18 @@
 # $Header: $
 
 EAPI=5
-inherit eutils transmission-2.76
+TRANSMISSION_PATCHES=(
+	# fix for broken translations path
+	"${FILESDIR}/${P}-translations-path-fix.patch"
+)
+inherit eutils transmission-2.80
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Qt4 UI"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-RDEPEND="dev-qt/qtcore:4
-	dev-qt/qtgui:4[dbus]
+RDEPEND="dev-qt/qtcore:4=
+	dev-qt/qtgui:4=[dbus(+)]
 "
 DEPEND="${RDEPEND}"
 
@@ -24,9 +28,10 @@ src_install() {
 	domenu ${MY_PN}-qt.desktop || die
 
 	local res
-	for res in 16 22 24 32 48; do
-		newicon -s ${res} icons/hicolor_apps_${res}x${res}_${MY_PN}.png ${MY_PN}-qt.png
+	for res in 16 22 24 32 48 64 72 96 128 192 256; do
+		doicon -s ${res} icons/hicolor/${res}x${res}/${MY_PN}-qt.png
 	done
+	doicon -s scalable icons/hicolor/scalable/${MY_PN}-qt.svg
 
 	insinto /usr/share/qt4/translations
 	doins translations/*.qm

@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Sabayon
+# Copyright 1999-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-# @ECLASS: transmission-2.71.eclass
+# @ECLASS: transmission-2.xx.eclass
 # @MAINTAINER:
 # slawomir.nizio@sabayon.org
 # @AUTHOR:
@@ -14,6 +14,11 @@
 # because the eclass will change often when needed to follow changes
 # in Gentoo ebuild.
 
+# @ECLASS-VARIABLE: TRANSMISSION_PATCHES
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Array that contains patches to apply just before eautoreconf.
+
 # @ECLASS-VARIABLE: TRANSMISSION_ECLASS_VERSION_OK
 # @DESCRIPTION:
 # Set this to x.y if you want to use transmission-x.y.eclass from ebuild
@@ -21,19 +26,19 @@
 : ${TRANSMISSION_ECLASS_VERSION_OK:=${PV}}
 
 # @ECLASS-VARIABLE: E_TRANSM_TAIL
+# @INTERNAL
 # @DESCRIPTION:
 # "Tail" of package name. Can take value gtk, qt4, etc. or can be empty.
-# It shouldn't be modified.
 E_TRANSM_TAIL=${PN#transmission}
 E_TRANSM_TAIL=${E_TRANSM_TAIL#-}
 
 # @FUNCTION: _transmission_is
+# @INTERNAL
 # @DESCRIPTION:
 # Function used to check which variant of Transmission are we working on.
 # Argument should be one of these: (none), gtk, qt4, daemon, cli, base.
 # If argument is empty or omitted, true value means that it is
 # net-p2p/transmission (metapackage).
-# Consider it private.
 _transmission_is() {
 	local what=$1
 	[[ ${what} = "${E_TRANSM_TAIL}" ]]
@@ -48,12 +53,6 @@ _transmission_is base && MY_ECLASSES+=" user"
 inherit eutils multilib ${MY_ECLASSES}
 
 unset MY_ECLASSES
-
-#if [[ ${PV} == *9999* ]]; then
-#	# not tested in the eclass
-#	ESVN_REPO_URI="svn://svn.transmissionbt.com/Transmission/trunk"
-#	inherit subversion
-#fi
 
 case ${EAPI:-0} in
 	4|5) EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile \
@@ -86,12 +85,12 @@ RDEPEND=""
 _transmission_is base || RDEPEND+="~net-p2p/transmission-base-${PV}"
 if ! _transmission_is ""; then
 	RDEPEND+="
-	>=dev-libs/libevent-2.0.10
-	dev-libs/openssl:0
-	>=net-libs/miniupnpc-1.6.20120509
-	>=net-misc/curl-7.16.3[ssl]
-	net-libs/libnatpmp
-	sys-libs/zlib"
+	>=dev-libs/libevent-2.0.10:=
+	dev-libs/openssl:0=
+	net-libs/libnatpmp:=
+	>=net-libs/miniupnpc-1.6.20120509:=
+	>=net-misc/curl-7.16.3:=[ssl]
+	sys-libs/zlib:="
 fi
 
 DEPEND="${RDEPEND}"
@@ -102,7 +101,7 @@ if _transmission_is base; then
 	!<net-p2p/transmission-cli-${PV}"
 fi
 if ! _transmission_is ""; then
-	DEPEND+=" >=dev-libs/glib-2
+	DEPEND+=" dev-libs/glib:2
 	dev-util/intltool
 	virtual/pkgconfig
 	sys-devel/gettext
@@ -112,28 +111,15 @@ fi
 S="${WORKDIR}/${MY_P}"
 _transmission_is "" && S="${WORKDIR}"
 
-transmission-2.75_pkg_setup() {
+transmission-2.80_pkg_setup() {
 	if _transmission_is base; then
 		enewgroup transmission
 		enewuser transmission -1 -1 -1 transmission
 	fi
 }
 
-transmission-2.75_src_unpack() {
-#	if [[ ${PV} == *9999* ]]; then
-#		subversion_src_unpack
-#	else
-		default
-#	fi
-}
-
-transmission-2.75_src_prepare() {
+transmission-2.80_src_prepare() {
 	_transmission_is "" && return
-
-#	if [[ ${PV} == *9999* ]]; then
-#		subversion_src_prepare
-#		./update-version-h.sh
-#	fi
 
 	sed -i -e '/CFLAGS/s:-ggdb3::' configure.ac || die
 
@@ -144,24 +130,11 @@ transmission-2.75_src_prepare() {
 	# http://trac.transmissionbt.com/ticket/4324
 	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
 
-	eautoreconf
-
-	if _transmission_is qt4; then
-		cat <<-EOF > "${T}"/${MY_PN}-magnet.protocol
-		[Protocol]
-		exec=transmission-qt '%u'
-		protocol=magnet
-		Icon=transmission
-		input=none
-		output=none
-		helper=true
-		listing=
-		reading=false
-		writing=false
-		makedir=false
-		deleting=false
-		EOF
+	if [[ ${#TRANSMISSION_PATCHES[@]} -gt 0 ]]; then
+		epatch "${TRANSMISSION_PATCHES[@]}"
 	fi
+
+	eautoreconf
 
 	if ! _transmission_is base; then
 		local sedcmd="s:\$(top_builddir)/libtransmission/libtransmission.a:"
@@ -176,7 +149,7 @@ transmission-2.75_src_prepare() {
 	fi
 }
 
-transmission-2.75_src_configure() {
+transmission-2.80_src_configure() {
 	_transmission_is "" && return
 
 	local econfargs=(
@@ -202,6 +175,7 @@ transmission-2.75_src_configure() {
 			--disable-cli
 			--enable-daemon
 			--without-gtk
+			$(use_with systemd systemd-daemon)
 		)
 	elif _transmission_is gtk; then
 		econfargs+=(
@@ -227,7 +201,7 @@ transmission-2.75_src_configure() {
 	fi
 }
 
-transmission-2.75_src_compile() {
+transmission-2.80_src_compile() {
 	_transmission_is "" && return
 
 	emake
@@ -243,11 +217,11 @@ transmission-2.75_src_compile() {
 # Note: not providing src_install. Too many differences and too much code
 # which would only clutter this pretty eclass.
 
-transmission-2.75_pkg_preinst() {
+transmission-2.80_pkg_preinst() {
 	_transmission_is gtk && gnome2_icon_savelist
 }
 
-transmission-2.75_pkg_postinst() {
+transmission-2.80_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
@@ -270,14 +244,16 @@ transmission-2.75_pkg_postinst() {
 		elog
 	fi
 
-	elog "Since µTP is enabled by default, ${MY_PN} needs large kernel buffers for"
-	elog "the UDP socket. You can append following lines into /etc/sysctl.conf:"
-	elog " net.core.rmem_max = 4194304"
-	elog " net.core.wmem_max = 1048576"
-	elog "and run sysctl -p"
+	if _transmission_is base; then
+		elog "Since µTP is enabled by default, ${MY_PN} needs large kernel buffers for"
+		elog "the UDP socket. You can append following lines into /etc/sysctl.conf:"
+		elog " net.core.rmem_max = 4194304"
+		elog " net.core.wmem_max = 1048576"
+		elog "and run sysctl -p"
+	fi
 }
 
-transmission-2.75_pkg_postrm() {
+transmission-2.80_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi

@@ -3,11 +3,14 @@
 # $Header: $
 
 EAPI=5
-inherit transmission-2.76
+inherit transmission-2.80
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - daemon"
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="systemd"
+
+RDEPEND="systemd? ( sys-apps/systemd )"
+DEPEND="${RDEPEND}"
 
 src_install() {
 	dobin daemon/transmission-daemon

@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=5
-inherit transmission-2.76
+inherit transmission-2.80
 
 DESCRIPTION="A BitTorrent client (meta package)"
 #HOMEPAGE="http://www.transmissionbt.com/"
@@ -11,7 +11,7 @@ SRC_URI=""
 
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="ayatana gtk lightweight qt4 xfs"
+IUSE="ayatana gtk lightweight systemd qt4 xfs"
 
 RDEPEND="
 	~net-p2p/transmission-base-${PV}[lightweight=,xfs=]
