@@ -1,17 +1,21 @@
-#!/bin/sh
-if [ -z "$2" ]; then
-	echo do-kernel-bump.sh OLDVER NEWVER
-	exit
+#!/bin/bash
+if [ -z "$1" ]; then
+	echo do-kernel-bump.sh ver
+	exit 1
 fi
 
-OLD=$1
-NEW=$2
-PACKAGES="sys-kernel/sabayon-sources sys-kernel/linux-sabayon
-	sys-kernel/ec2-sources sys-kernel/linux-ec2"
+ver=$1
+packages=(
+	"sys-kernel/sabayon-sources"
+	"sys-kernel/linux-sabayon"
+	"sys-kernel/ec2-sources"
+	"sys-kernel/linux-ec2"
+)
 
-for package in ${PACKAGES}; do
-	name=$(echo ${package} | cut -d/ -f2)
-	cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
-	git add ${package}/${name}-${NEW}.ebuild
-	ebuild ${package}/${name}-${NEW}.ebuild manifest
+for package in "${packages[@]}"; do
+	name="${package/*\/}"
+	eb_name="${package}/${name}-${ver}.ebuild"
+	cp "${package}/${name}.skel" "${eb_name}" || exit 1
+	git add "${eb_name}" || exit 1
+	ebuild "${eb_name}" manifest || exit 1
 done
