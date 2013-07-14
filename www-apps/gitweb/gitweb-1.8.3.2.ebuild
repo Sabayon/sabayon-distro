@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 GENTOO_DEPEND_ON_PERL=no
 
@@ -69,9 +69,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	## bug #350330 - automagic CVS when we don't want it is bad.
-	#epatch "${FILESDIR}"/git-...-optional-cvs.patch
-
 	sed -i \
 		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
 		-e 's:^\(LDFLAGS =\).*$:\1 $(OPTLDFLAGS):' \
@@ -88,7 +85,6 @@ src_prepare() {
 }
 
 git_emake() {
-	# PYTHON_PATH="$(PYTHON -a)"
 	local MY_MAKEOPTS="INSTALLDIRS=vendor"
 	emake ${MY_MAKEOPTS} \
 		DESTDIR="${D}" \
@@ -102,6 +98,7 @@ git_emake() {
 		PERL_PATH="${EPREFIX}/usr/bin/env perl" \
 		PERL_MM_OPT="" \
 		GIT_TEST_OPTS="--no-color" \
+		V=1 \
 		"$@"
 }
 
