@@ -18,4 +18,5 @@ for package in "${packages[@]}"; do
 	cp "${package}/${name}.skel" "${eb_name}" || exit 1
 	git add "${eb_name}" || exit 1
 	ebuild "${eb_name}" manifest || exit 1
+	git add "${package}/Manifest" || exit 1
 done
