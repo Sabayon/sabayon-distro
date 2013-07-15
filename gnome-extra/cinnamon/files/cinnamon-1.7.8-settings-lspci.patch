@@ -1,0 +1,21 @@
+diff -urN a/files/usr/lib/cinnamon-settings/modules/cs_info.py b/files/usr/lib/cinnamon-settings/modules/cs_info.py
+--- a/files/usr/lib/cinnamon-settings/modules/cs_info.py	2013-04-30 18:01:56.000000000 +0200
++++ b/files/usr/lib/cinnamon-settings/modules/cs_info.py	2013-05-01 22:30:03.725733012 +0200
+@@ -27,7 +27,7 @@
+         "T": 1024*1024*1024*1024,
+     }
+     count = 0
+-    for card in getProcessOut(("lspci")):
++    for card in getProcessOut(("/usr/sbin/lspci")):
+         if not "VGA" in card:
+             continue
+         cardId = card.split()[0]
+@@ -35,7 +35,7 @@
+         cardUnitName = ""
+         cardName = None
+         cardSize = 0
+-        for line in getProcessOut(("lspci", "-v", "-s", cardId)):
++        for line in getProcessOut(("/usr/sbin/lspci", "-v", "-s", cardId)):
+             if line.startswith(cardId):
+                 cardName = (line.split(":")[2].split("(rev")[0].strip())
+             else:
