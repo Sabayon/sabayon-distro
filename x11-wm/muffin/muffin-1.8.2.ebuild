@@ -14,7 +14,7 @@ HOMEPAGE="http://cinnamon.linuxmint.com/"
 MY_PV="${PV/_p/-UP}"
 MY_P="${PN}-${MY_PV}"
 
-SRC_URI="https://github.com/linuxmint/muffin/tarball/${MY_PV} -> ${MY_P}.tar.gz"
+SRC_URI="https://github.com/linuxmint/muffin/archive/${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
 
 LICENSE="GPL-2+"
 SLOT="0"
@@ -59,8 +59,6 @@ DEPEND="${COMMON_DEPEND}
 	x11-proto/xproto"
 RDEPEND="${COMMON_DEPEND}
 	!x11-misc/expocity"
-
-S="${WORKDIR}/linuxmint-muffin-aa1ef1d"
 
 src_prepare() {
 	# Regenerate obsolete Makefile.in
