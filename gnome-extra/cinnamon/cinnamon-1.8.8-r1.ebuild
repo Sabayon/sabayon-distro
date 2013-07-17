@@ -140,7 +140,6 @@ src_prepare() {
 	epatch "${FILESDIR}/keyboard_applet.patch"
 	epatch "${FILESDIR}/screensaver.patch"
 	epatch "${FILESDIR}/bluetooth_obex_transfer.patch"
-	epatch "${FILESDIR}/autostart_nemo.patch"
 	epatch "${FILESDIR}/remove_GC.patch"
 	epatch "${FILESDIR}/menu_editor.patch"
 
