@@ -1,0 +1,815 @@
+diff --git a/files/usr/bin/cinnamon-launcher-creator b/files/usr/bin/cinnamon-launcher-creator
+new file mode 100755
+index 0000000..6f51401
+--- /dev/null
++++ b/files/usr/bin/cinnamon-launcher-creator
+@@ -0,0 +1,21 @@
++#! /usr/bin/python -OOt
++
++import sys
++sys.path.insert(0,'/usr/lib/cinnamon-menu-editor')
++from cme import ItemEditor, MenuEditor
++
++def main():
++    try:
++        from MenuEditor import config
++        datadir = config.pkgdatadir
++        version = config.VERSION
++    except:
++        datadir = '.'
++        version = '0.9'
++    if len(sys.argv) > 1:
++        app = ItemEditor.DesktopLauncherCreator(sys.argv[1])
++    else:
++        print "Missing path argument for launcher location"
++
++if __name__ == '__main__':
++    main()
+diff --git a/files/usr/lib/cinnamon-menu-editor/cme/ItemEditor.py b/files/usr/lib/cinnamon-menu-editor/cme/ItemEditor.py
+new file mode 100644
+index 0000000..80c2acd
+--- /dev/null
++++ b/files/usr/lib/cinnamon-menu-editor/cme/ItemEditor.py
+@@ -0,0 +1,247 @@
++# -*- coding: utf-8 -*-
++#   Alacarte Menu Editor - Simple fd.o Compliant Menu Editor
++#   Copyright (C) 2013  Red Hat, Inc.
++#
++#   This library is free software; you can redistribute it and/or
++#   modify it under the terms of the GNU Library General Public
++#   License as published by the Free Software Foundation; either
++#   version 2 of the License, or (at your option) any later version.
++#
++#   This library is distributed in the hope that it will be useful,
++#   but WITHOUT ANY WARRANTY; without even the implied warranty of
++#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++#   Library General Public License for more details.
++#
++#   You should have received a copy of the GNU Library General Public
++#   License along with this library; if not, write to the Free Software
++#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++import gettext
++import os
++import gi
++from gi.repository import GLib, Gtk
++from cme import config, util
++
++_ = gettext.gettext
++
++EXTENSIONS = (".png", ".xpm", ".svg")
++
++def try_icon_name(filename):
++    # Detect if the user picked an icon, and make
++    # it into an icon name.
++    if not filename.endswith(EXTENSIONS):
++        return filename
++
++    filename = filename[:-4]
++
++    theme = Gtk.IconTheme.get_default()
++    resolved_path = None
++    for path in theme.get_search_path():
++        if filename.startswith(path):
++            resolved_path = filename[len(path):].lstrip(os.sep)
++            break
++
++    if resolved_path is None:
++        return filename
++
++    parts = resolved_path.split(os.sep)
++    # icon-theme/size/category/icon
++    if len(parts) != 4:
++        return filename
++
++    return parts[3]
++
++def get_icon_string(image):
++    filename = image.props.file
++    if filename is not None:
++        return try_icon_name(filename)
++
++    return image.props.icon_name
++
++def strip_extensions(icon):
++    if icon.endswith(EXTENSIONS):
++        return icon[:-4]
++    else:
++        return icon
++
++def set_icon_string(image, icon):
++    if GLib.path_is_absolute(icon):
++        image.props.file = icon
++    else:
++        image.props.icon_name = strip_extensions(icon)
++
++DESKTOP_GROUP = GLib.KEY_FILE_DESKTOP_GROUP
++
++# XXX - replace with a better UI eventually
++class IconPicker(object):
++    def __init__(self, dialog, button, image):
++        self.dialog = dialog
++        self.button = button
++        self.button.connect('clicked', self.pick_icon)
++        self.image = image
++
++    def pick_icon(self, button):
++        chooser = Gtk.FileChooserDialog(title=_("Choose an icon"),
++                                        parent=self.dialog,
++                                        buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
++                                        Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
++        response = chooser.run()
++        if response == Gtk.ResponseType.ACCEPT:
++            self.image.props.file = chooser.get_filename()
++        chooser.destroy()
++
++class ItemEditor(object):
++    ui_file = None
++
++    def __init__(self, item_path, parent=None):
++        self.builder = Gtk.Builder()
++        self.builder.add_from_file(self.ui_file)
++
++        self.dialog = self.builder.get_object('editor')
++        if parent:
++            self.dialog.set_transient_for(parent)
++        self.dialog.connect('response', self.on_response)
++
++        self.build_ui()
++
++        self.item_path = item_path
++        self.load()
++        self.resync_validity()
++
++    def build_ui(self):
++        raise NotImplementedError()
++
++    def get_keyfile_edits(self):
++        raise NotImplementedError()
++
++    def set_text(self, ctl, name):
++        try:
++            val = self.keyfile.get_string(DESKTOP_GROUP, name)
++        except GLib.GError:
++            pass
++        else:
++            self.builder.get_object(ctl).set_text(val)
++
++    def set_check(self, ctl, name):
++        try:
++            val = self.keyfile.get_boolean(DESKTOP_GROUP, name)
++        except GLib.GError:
++            pass
++        else:
++            self.builder.get_object(ctl).set_active(val)
++
++    def set_icon(self, ctl, name):
++        try:
++            val = self.keyfile.get_string(DESKTOP_GROUP, name)
++        except GLib.GError:
++            pass
++        else:
++            set_icon_string(self.builder.get_object(ctl), val)
++
++    def load(self):
++        self.keyfile = GLib.KeyFile()
++        try:
++            self.keyfile.load_from_file(self.item_path, util.KEY_FILE_FLAGS)
++        except GLib.GError:
++            pass
++
++    def save(self):
++        util.fillKeyFile(self.keyfile, self.get_keyfile_edits())
++        contents, length = self.keyfile.to_data()
++        need_exec = False
++        if ".desktop" not in self.item_path and ".directory" not in self.item_path:
++            need_exec = True
++            self.item_path = os.path.join(self.item_path, (self.builder.get_object('name-entry').get_text() + ".desktop"))
++        with open(self.item_path, 'w') as f:
++            f.write(contents)
++        if need_exec:
++            os.system("chmod a+x " + self.item_path)
++
++
++    def run(self):
++        self.dialog.present()
++
++    def on_response(self, dialog, response):
++        if response == Gtk.ResponseType.OK:
++            self.save()
++        self.dialog.destroy()
++
++class LauncherEditor(ItemEditor):
++    ui_file = '/usr/lib/cinnamon-menu-editor/launcher-editor.ui'
++
++    def build_ui(self):
++        self.icon_picker = IconPicker(self.dialog,
++                                      self.builder.get_object('icon-button'),
++                                      self.builder.get_object('icon-image'))
++
++        self.builder.get_object('exec-browse').connect('clicked', self.pick_exec)
++
++        self.builder.get_object('name-entry').connect('changed', self.resync_validity)
++        self.builder.get_object('exec-entry').connect('changed', self.resync_validity)
++
++    def resync_validity(self, *args):
++        name_text = self.builder.get_object('name-entry').get_text()
++        exec_text = self.builder.get_object('exec-entry').get_text()
++        valid = (name_text is not None and exec_text is not None)
++        self.builder.get_object('ok').set_sensitive(valid)
++
++    def load(self):
++        super(LauncherEditor, self).load()
++        self.set_text('name-entry', "Name")
++        self.set_text('exec-entry', "Exec")
++        self.set_text('comment-entry', "Comment")
++        self.set_check('terminal-check', "Terminal")
++        self.set_icon('icon-image', "Icon")
++
++    def get_keyfile_edits(self):
++        return dict(Name=self.builder.get_object('name-entry').get_text(),
++                    Exec=self.builder.get_object('exec-entry').get_text(),
++                    Comment=self.builder.get_object('comment-entry').get_text(),
++                    Terminal=self.builder.get_object('terminal-check').get_active(),
++                    Icon=get_icon_string(self.builder.get_object('icon-image')),
++                    Type="Application")
++
++    def pick_exec(self, button):
++        chooser = Gtk.FileChooserDialog(title=_("Choose a command"),
++                                        parent=self.dialog,
++                                        buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
++                                        Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
++        response = chooser.run()
++        if response == Gtk.ResponseType.ACCEPT:
++            self.builder.get_object('exec-entry').set_text(chooser.get_filename())
++        chooser.destroy()
++
++class DirectoryEditor(ItemEditor):
++    ui_file = '/usr/lib/cinnamon-menu-editor/directory-editor.ui'
++
++    def build_ui(self):
++        self.icon_picker = IconPicker(self.dialog,
++                                      self.builder.get_object('icon-button'),
++                                      self.builder.get_object('icon-image'))
++
++        self.builder.get_object('name-entry').connect('changed', self.resync_validity)
++
++    def resync_validity(self, *args):
++        name_text = self.builder.get_object('name-entry').get_text()
++        valid = (name_text is not None)
++        self.builder.get_object('ok').set_sensitive(valid)
++
++    def load(self):
++        super(DirectoryEditor, self).load()
++        self.set_text('name-entry', "Name")
++        self.set_text('comment-entry', "Comment")
++        self.set_icon('icon-image', "Icon")
++
++    def get_keyfile_edits(self):
++        return dict(Name=self.builder.get_object('name-entry').get_text(),
++                    Comment=self.builder.get_object('comment-entry').get_text(),
++                    Icon=get_icon_string(self.builder.get_object('icon-image')),
++                    Type="Directory")
++
++def DesktopLauncherCreator(path):
++    Gtk.Window.set_default_icon_name('alacarte')
++    editor = LauncherEditor(path, None)
++    editor.dialog.connect('destroy', Gtk.main_quit)
++    editor.dialog.show_all()
++    Gtk.main()
++
+diff --git a/files/usr/lib/cinnamon-menu-editor/cme/MainWindow.py b/files/usr/lib/cinnamon-menu-editor/cme/MainWindow.py
+index 33106a9..735d420 100644
+--- a/files/usr/lib/cinnamon-menu-editor/cme/MainWindow.py
++++ b/files/usr/lib/cinnamon-menu-editor/cme/MainWindow.py
+@@ -22,6 +22,7 @@ import cgi
+ import os
+ import gettext
+ import subprocess
++import shutil
+ 
+ from cme import config
+ gettext.bindtextdomain(config.GETTEXT_PACKAGE, config.localedir)
+@@ -29,6 +30,7 @@ gettext.textdomain(config.GETTEXT_PACKAGE)
+ 
+ _ = gettext.gettext
+ from cme.MenuEditor import MenuEditor
++from cme.ItemEditor import LauncherEditor, DirectoryEditor
+ from cme import util
+ 
+ class MainWindow(object):
+@@ -58,6 +60,7 @@ class MainWindow(object):
+         self.cut_copy_buffer = None
+         self.file_id = None
+         self.last_tree = None
++        self.main_window = self.tree.get_object('mainwindow')
+ 
+     def run(self):
+         self.loadMenus()
+@@ -261,8 +264,8 @@ class MainWindow(object):
+         else:
+             parent = menus[iter][3]
+         file_path = os.path.join(util.getUserDirectoryPath(), util.getUniqueFileId('alacarte-made', '.directory'))
+-        process = subprocess.Popen(['gnome-desktop-item-edit', file_path], env=os.environ)
+-        GObject.timeout_add(100, self.waitForNewMenuProcess, process, parent.get_menu_id(), file_path)
++        editor = DirectoryEditor(file_path, self.main_window)
++        editor.run()
+ 
+     def on_new_item_button_clicked(self, button):
+         menu_tree = self.tree.get_object('menu_tree')
+@@ -274,8 +277,8 @@ class MainWindow(object):
+         else:
+             parent = menus[iter][3]
+         file_path = os.path.join(util.getUserItemPath(), util.getUniqueFileId('alacarte-made', '.desktop'))
+-        process = subprocess.Popen(['gnome-desktop-item-edit', file_path], env=os.environ)
+-        GObject.timeout_add(100, self.waitForNewItemProcess, process, parent.get_menu_id(), file_path)
++        editor = LauncherEditor(file_path, self.main_window)
++        editor.run()
+ 
+     def on_edit_delete_activate(self, menu):
+         item_tree = self.tree.get_object('item_tree')
+@@ -302,18 +305,17 @@ class MainWindow(object):
+         if isinstance(item, GMenu.TreeEntry):
+             file_path = os.path.join(util.getUserItemPath(), item.get_desktop_file_id())
+             file_type = 'Item'
++            Editor = LauncherEditor
+         elif isinstance(item, GMenu.TreeDirectory):
+             file_path = os.path.join(util.getUserDirectoryPath(), os.path.split(item.get_desktop_file_path())[1])
+             file_type = 'Menu'
++            Editor = DirectoryEditor
+ 
+         if not os.path.isfile(file_path):
+-            data = open(item.get_desktop_file_path()).read()
+-            open(file_path, 'w').write(data)
++            shutil.copy(item.get_desktop_file_path(), file_path)
+ 
+-        if file_path not in self.edit_pool:
+-            self.edit_pool.append(file_path)
+-            process = subprocess.Popen(['gnome-desktop-item-edit', file_path], env=os.environ)
+-            GObject.timeout_add(100, self.waitForEditProcess, process, file_path)
++        editor = Editor(file_path, self.main_window)
++        editor.run()
+ 
+     def on_edit_cut_activate(self, menu):
+         item_tree = self.tree.get_object('item_tree')
+diff --git a/files/usr/lib/cinnamon-menu-editor/cme/util.py b/files/usr/lib/cinnamon-menu-editor/cme/util.py
+index 237f03b..459c222 100644
+--- a/files/usr/lib/cinnamon-menu-editor/cme/util.py
++++ b/files/usr/lib/cinnamon-menu-editor/cme/util.py
+@@ -32,10 +32,10 @@ def fillKeyFile(keyfile, items):
+ 
+         if isinstance(item, bool):
+             keyfile.set_boolean(DESKTOP_GROUP, key, item)
+-        elif isinstance(item, Sequence):
+-            keyfile.set_string_list(DESKTOP_GROUP, key, item)
+         elif isinstance(item, basestring):
+             keyfile.set_string(DESKTOP_GROUP, key, item)
++        elif isinstance(item, Sequence):
++            keyfile.set_string_list(DESKTOP_GROUP, key, item)
+ 
+ def getNameFromKeyFile(keyfile):
+     return keyfile.get_string(DESKTOP_GROUP, "Name")
+diff --git a/files/usr/lib/cinnamon-menu-editor/directory-editor.ui b/files/usr/lib/cinnamon-menu-editor/directory-editor.ui
+new file mode 100644
+index 0000000..9228c49
+--- /dev/null
++++ b/files/usr/lib/cinnamon-menu-editor/directory-editor.ui
+@@ -0,0 +1,178 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <!-- interface-requires gtk+ 3.0 -->
++  <object class="GtkDialog" id="editor">
++    <property name="can_focus">False</property>
++    <property name="border_width">4</property>
++    <property name="title" translatable="yes">Directory Properties</property>
++    <property name="modal">True</property>
++    <property name="type_hint">dialog</property>
++    <child internal-child="vbox">
++      <object class="GtkBox" id="dialog-box">
++        <property name="can_focus">False</property>
++        <property name="orientation">vertical</property>
++        <property name="spacing">4</property>
++        <child internal-child="action_area">
++          <object class="GtkButtonBox" id="dialog-action_area">
++            <property name="can_focus">False</property>
++            <property name="layout_style">end</property>
++            <child>
++              <object class="GtkButton" id="cancel">
++                <property name="label">gtk-cancel</property>
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="receives_default">True</property>
++                <property name="use_stock">True</property>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="position">0</property>
++              </packing>
++            </child>
++            <child>
++              <object class="GtkButton" id="ok">
++                <property name="label">gtk-ok</property>
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="receives_default">True</property>
++                <property name="use_stock">True</property>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="position">1</property>
++              </packing>
++            </child>
++          </object>
++          <packing>
++            <property name="expand">False</property>
++            <property name="fill">True</property>
++            <property name="pack_type">end</property>
++            <property name="position">0</property>
++          </packing>
++        </child>
++        <child>
++          <object class="GtkBox" id="hbox">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <property name="spacing">10</property>
++            <child>
++              <object class="GtkAlignment" id="alignment1">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="xalign">1</property>
++                <property name="yalign">0</property>
++                <property name="yscale">0</property>
++                <child>
++                  <object class="GtkButton" id="icon-button">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="receives_default">True</property>
++                    <child>
++                      <object class="GtkImage" id="icon-image">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="pixel_size">64</property>
++                        <property name="icon_name">folder</property>
++                      </object>
++                    </child>
++                  </object>
++                </child>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="position">0</property>
++              </packing>
++            </child>
++            <child>
++              <object class="GtkGrid" id="grid1">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="row_spacing">6</property>
++                <property name="column_spacing">10</property>
++                <child>
++                  <object class="GtkLabel" id="label2">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="xalign">1</property>
++                    <property name="label" translatable="yes">Name:</property>
++                    <attributes>
++                      <attribute name="weight" value="bold"/>
++                    </attributes>
++                  </object>
++                  <packing>
++                    <property name="left_attach">0</property>
++                    <property name="top_attach">0</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkLabel" id="label4">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="xalign">1</property>
++                    <property name="label" translatable="yes">Comment:</property>
++                    <attributes>
++                      <attribute name="weight" value="bold"/>
++                    </attributes>
++                  </object>
++                  <packing>
++                    <property name="left_attach">0</property>
++                    <property name="top_attach">1</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="name-entry">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="has_focus">True</property>
++                    <property name="invisible_char">●</property>
++                  </object>
++                  <packing>
++                    <property name="left_attach">1</property>
++                    <property name="top_attach">0</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="comment-entry">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="invisible_char">●</property>
++                  </object>
++                  <packing>
++                    <property name="left_attach">1</property>
++                    <property name="top_attach">1</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++              </object>
++              <packing>
++                <property name="expand">True</property>
++                <property name="fill">True</property>
++                <property name="pack_type">end</property>
++                <property name="position">1</property>
++              </packing>
++            </child>
++          </object>
++          <packing>
++            <property name="expand">True</property>
++            <property name="fill">True</property>
++            <property name="position">1</property>
++          </packing>
++        </child>
++      </object>
++    </child>
++    <action-widgets>
++      <action-widget response="-6">cancel</action-widget>
++      <action-widget response="-5">ok</action-widget>
++    </action-widgets>
++  </object>
++</interface>
+\ No newline at end of file
+diff --git a/files/usr/lib/cinnamon-menu-editor/launcher-editor.ui b/files/usr/lib/cinnamon-menu-editor/launcher-editor.ui
+new file mode 100644
+index 0000000..a643c63
+--- /dev/null
++++ b/files/usr/lib/cinnamon-menu-editor/launcher-editor.ui
+@@ -0,0 +1,252 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <!-- interface-requires gtk+ 3.0 -->
++  <object class="GtkDialog" id="editor">
++    <property name="can_focus">False</property>
++    <property name="border_width">4</property>
++    <property name="title" translatable="yes">Launcher Properties</property>
++    <property name="modal">True</property>
++    <property name="type_hint">dialog</property>
++    <child internal-child="vbox">
++      <object class="GtkBox" id="dialog-box">
++        <property name="can_focus">False</property>
++        <property name="orientation">vertical</property>
++        <property name="spacing">4</property>
++        <child internal-child="action_area">
++          <object class="GtkButtonBox" id="dialog-action_area">
++            <property name="can_focus">False</property>
++            <property name="layout_style">end</property>
++            <child>
++              <object class="GtkButton" id="cancel">
++                <property name="label">gtk-cancel</property>
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="receives_default">True</property>
++                <property name="use_stock">True</property>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="position">0</property>
++              </packing>
++            </child>
++            <child>
++              <object class="GtkButton" id="ok">
++                <property name="label">gtk-ok</property>
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="receives_default">True</property>
++                <property name="use_stock">True</property>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="position">1</property>
++              </packing>
++            </child>
++          </object>
++          <packing>
++            <property name="expand">False</property>
++            <property name="fill">True</property>
++            <property name="pack_type">end</property>
++            <property name="position">0</property>
++          </packing>
++        </child>
++        <child>
++          <object class="GtkBox" id="hbox">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <property name="spacing">10</property>
++            <child>
++              <object class="GtkAlignment" id="alignment1">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="xalign">1</property>
++                <property name="yalign">0</property>
++                <property name="yscale">0</property>
++                <child>
++                  <object class="GtkButton" id="icon-button">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="receives_default">True</property>
++                    <child>
++                      <object class="GtkImage" id="icon-image">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="pixel_size">64</property>
++                        <property name="icon_name">gnome-panel-launcher</property>
++                      </object>
++                    </child>
++                  </object>
++                </child>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="position">0</property>
++              </packing>
++            </child>
++            <child>
++              <object class="GtkGrid" id="grid1">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="row_spacing">6</property>
++                <property name="column_spacing">10</property>
++                <child>
++                  <object class="GtkLabel" id="label2">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="xalign">1</property>
++                    <property name="label" translatable="yes">Name:</property>
++                    <attributes>
++                      <attribute name="weight" value="bold"/>
++                    </attributes>
++                  </object>
++                  <packing>
++                    <property name="left_attach">0</property>
++                    <property name="top_attach">0</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkLabel" id="label3">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="xalign">1</property>
++                    <property name="label" translatable="yes">Command:</property>
++                    <attributes>
++                      <attribute name="weight" value="bold"/>
++                    </attributes>
++                  </object>
++                  <packing>
++                    <property name="left_attach">0</property>
++                    <property name="top_attach">1</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkLabel" id="label4">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="xalign">1</property>
++                    <property name="label" translatable="yes">Comment:</property>
++                    <attributes>
++                      <attribute name="weight" value="bold"/>
++                    </attributes>
++                  </object>
++                  <packing>
++                    <property name="left_attach">0</property>
++                    <property name="top_attach">2</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="name-entry">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="has_focus">True</property>
++                    <property name="invisible_char">●</property>
++                  </object>
++                  <packing>
++                    <property name="left_attach">1</property>
++                    <property name="top_attach">0</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkBox" id="command-box">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="spacing">10</property>
++                    <child>
++                      <object class="GtkEntry" id="exec-entry">
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="invisible_char">●</property>
++                      </object>
++                      <packing>
++                        <property name="expand">True</property>
++                        <property name="fill">True</property>
++                        <property name="position">0</property>
++                      </packing>
++                    </child>
++                    <child>
++                      <object class="GtkButton" id="exec-browse">
++                        <property name="label" translatable="yes">Browse</property>
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="receives_default">True</property>
++                      </object>
++                      <packing>
++                        <property name="expand">False</property>
++                        <property name="fill">True</property>
++                        <property name="position">1</property>
++                      </packing>
++                    </child>
++                  </object>
++                  <packing>
++                    <property name="left_attach">1</property>
++                    <property name="top_attach">1</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="comment-entry">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="invisible_char">●</property>
++                  </object>
++                  <packing>
++                    <property name="left_attach">1</property>
++                    <property name="top_attach">2</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkCheckButton" id="terminal-check">
++                    <property name="label" translatable="yes">Launch in Terminal?</property>
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="receives_default">False</property>
++                    <property name="xalign">0</property>
++                    <property name="draw_indicator">True</property>
++                  </object>
++                  <packing>
++                    <property name="left_attach">1</property>
++                    <property name="top_attach">3</property>
++                    <property name="width">1</property>
++                    <property name="height">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <placeholder/>
++                </child>
++              </object>
++              <packing>
++                <property name="expand">True</property>
++                <property name="fill">True</property>
++                <property name="pack_type">end</property>
++                <property name="position">1</property>
++              </packing>
++            </child>
++          </object>
++          <packing>
++            <property name="expand">True</property>
++            <property name="fill">True</property>
++            <property name="position">1</property>
++          </packing>
++        </child>
++      </object>
++    </child>
++    <action-widgets>
++      <action-widget response="-6">cancel</action-widget>
++      <action-widget response="-5">ok</action-widget>
++    </action-widgets>
++  </object>
++</interface>
+\ No newline at end of file

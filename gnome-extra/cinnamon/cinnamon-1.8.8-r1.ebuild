@@ -86,7 +86,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/libgnomekbd-2.91.4[introspection]
 	sys-power/upower[introspection]
 
-	>=gnome-base/gnome-session-3.2.1-r1
+	>=gnome-base/gnome-session-3.8
 
 	>=gnome-base/gnome-settings-daemon-2.91
 	>=gnome-base/gnome-control-center-2.91.92-r1
@@ -132,13 +132,24 @@ pkg_setup() {
 }
 
 src_prepare() {
+	# Fix GNOME 3.8 support
+	epatch "${FILESDIR}/gnome-3.8.patch"
+	epatch "${FILESDIR}/background.patch"
+	epatch "${FILESDIR}/idle-dim.patch"
+	# https://github.com/linuxmint/Cinnamon/issues/1337
+	epatch "${FILESDIR}/keyboard_applet.patch"
+	epatch "${FILESDIR}/gjs.patch"
+	epatch "${FILESDIR}/screensaver.patch"
+	epatch "${FILESDIR}/bluetooth_obex_transfer.patch"
+	epatch "${FILESDIR}/autostart_nemo.patch"
+	epatch "${FILESDIR}/remove_GC.patch"
+	epatch "${FILESDIR}/menu_editor.patch"
+
+
 	# Fix cinnamon-settings lspci path
 #	epatch "${FILESDIR}/${PN}-1.7.8-settings-lspci.patch"
 	# Fix automagic gnome-bluetooth dep, bug #398145
 	epatch "${FILESDIR}/${PN}-1.6.1-automagic-gnome-bluetooth.patch"
-
-	# Make networkmanager optional, bug #398593
-	epatch "${FILESDIR}/${PN}-1.7.8-optional-networkmanager.patch"
 
 	# Use Sabayon branding
 	cp "${FILESDIR}"/start-here.png data/theme/menu.png || die "Could not copy image."

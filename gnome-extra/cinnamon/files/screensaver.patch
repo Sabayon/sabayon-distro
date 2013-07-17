@@ -1,0 +1,36 @@
+--- a/files/usr/lib/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.py
++++ b/files/usr/lib/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.py
+@@ -57,9 +57,9 @@ class MainWindow:
+     def lock_screen(self, data):
+         message = self.entry.get_text()
+         if (message != ""):
+-            os.system("cinnamon-screensaver-command --lock --away-message \"%s\" &" % self.entry.get_text())
++            os.system("gnome-screensaver-command --lock --away-message \"%s\" &" % self.entry.get_text())
+         else:
+-            os.system("cinnamon-screensaver-command --lock &")
++            os.system("gnome-screensaver-command --lock &")
+         gtk.main_quit()
+    
+ if __name__ == "__main__":    
+--- a/files/usr/lib/cinnamon-settings/modules/cs_screensaver.py
++++ b/files/usr/lib/cinnamon-settings/modules/cs_screensaver.py
+@@ -5,15 +5,15 @@ from SettingsWidgets import *
+ 
+ class Module:
+     def __init__(self, content_box):
+-        keywords = _("screensaver, brightness, lock, password, away, message")
++        keywords = _("screensaver, brightness, lock, password, user, switching")
+         advanced = False
+         sidePage = SidePage(_("Screensaver & Lock Settings"), "screensaver.svg", keywords, advanced, content_box)
+         self.sidePage = sidePage
+         self.name = "screensaver"
+         self.category = "prefs"
+-        if os.path.exists("/usr/bin/cinnamon-screensaver-command"):
+-            sidePage.add_widget(GSettingsCheckButton(_("Ask for an away message when locking the screen from the menu"), "org.cinnamon.screensaver", "ask-for-away-message", None))
+-            sidePage.add_widget(GSettingsEntry(_("Default away message"), "org.cinnamon.screensaver", "default-message", None))
++        if os.path.exists("/usr/bin/gnome-screensaver-command"):
++            self.sidePage.add_widget(GSettingsCheckButton(_("Ask for password when unlocking"), "org.gnome.desktop.screensaver", "lock-enabled", None))
++            self.sidePage.add_widget(GSettingsCheckButton(_("Enable user switching"), "org.gnome.desktop.screensaver", "user-switch-enabled", None))
+ 
+         widget = content_box.c_manager.get_c_widget("screen")
+         if widget is not None:
