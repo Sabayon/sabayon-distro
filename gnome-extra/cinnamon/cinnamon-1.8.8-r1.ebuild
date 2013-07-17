@@ -138,7 +138,6 @@ src_prepare() {
 	epatch "${FILESDIR}/idle-dim.patch"
 	# https://github.com/linuxmint/Cinnamon/issues/1337
 	epatch "${FILESDIR}/keyboard_applet.patch"
-	epatch "${FILESDIR}/gjs.patch"
 	epatch "${FILESDIR}/screensaver.patch"
 	epatch "${FILESDIR}/bluetooth_obex_transfer.patch"
 	epatch "${FILESDIR}/autostart_nemo.patch"
