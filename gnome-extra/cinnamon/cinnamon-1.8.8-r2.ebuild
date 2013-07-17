@@ -81,6 +81,8 @@ COMMON_DEPEND=">=dev-libs/glib-2.29.10:2
 # 10. pygobject needed for menu editor
 # 11. nemo - default file manager, tightly integrated with cinnamon
 # 12. timedated or DateTimeMechanism implementation for cinnamon-settings
+# TODO(lxnay): fix error: libgnome-desktop/gnome-rr-labeler.h: No such file or directory
+# 	=gnome-extra/cinnamon-control-center-1.8*
 RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/dconf-0.4.1
 	>=gnome-base/libgnomekbd-2.91.4[introspection]
@@ -89,7 +91,6 @@ RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/gnome-session-3.8
 
 	>=gnome-base/gnome-settings-daemon-2.91
-	=gnome-extra/cinnamon-control-center-1.8*
 
 	>=sys-apps/accountsservice-0.6.14[introspection]
 
