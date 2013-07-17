@@ -89,7 +89,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/gnome-session-3.8
 
 	>=gnome-base/gnome-settings-daemon-2.91
-	>=gnome-base/gnome-control-center-2.91.92-r1
+	=gnome-base/cinnamon-control-center-1.8*
 
 	>=sys-apps/accountsservice-0.6.14[introspection]
 
