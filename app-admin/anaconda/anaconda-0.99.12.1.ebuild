@@ -70,6 +70,9 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Merged upstream
+	epatch "${FILESDIR}/0001-sabayon-g_type_init-has-been-deprecated-in-glib-2.35.patch"
+
 	# XXX update mtime, in case the tarball has been just created
 	find "${S}" -exec touch {} \;
 
