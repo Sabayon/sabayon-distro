@@ -205,6 +205,10 @@ src_install() {
 		-i "${ED}usr/bin/cinnamon-"{launcher,menu-editor,settings} \
 		-i "${ED}usr/$(get_libdir)/cinnamon-settings/cinnamon-settings.py" || die
 
+	insinto /usr/share/applications
+	doins "${FILESDIR}/cinnamon-screensaver.desktop"
+	doins "${FILESDIR}/cinnamon2d-screensaver.desktop"
+
 	# Required for gnome-shell on hardened/PaX, bug #398941
 	pax-mark mr "${ED}usr/bin/cinnamon"
 }
