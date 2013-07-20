@@ -13,7 +13,7 @@ HOMEPAGE="http://fileroller.sourceforge.net/"
 LICENSE="GPL-2+"
 SLOT="0"
 IUSE=""
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 
 RDEPEND="
 	~app-arch/file-roller-${PV}
@@ -25,7 +25,7 @@ DEPEND=">=gnome-base/nautilus-3
 	>=app-arch/libarchive-3:=
 	>=dev-libs/json-glib-0.14
 	virtual/pkgconfig
-	>=x11-libs/gtk+-3.4:3
+	>=x11-libs/gtk+-3.6:3
 "
 
 src_configure() {

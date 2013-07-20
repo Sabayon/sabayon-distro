@@ -6,15 +6,15 @@ EAPI="5"
 GCONF_DEBUG="no"
 GNOME2_LA_PUNT="yes"
 
-inherit eutils gnome2
+inherit eutils gnome2 readme.gentoo
 
 DESCRIPTION="Archive manager for GNOME"
 HOMEPAGE="http://fileroller.sourceforge.net/"
 
-LICENSE="GPL-2+ CCPL-Attribution-ShareAlike-3.0"
+LICENSE="GPL-2+ CC-BY-SA-3.0"
 SLOT="0"
 IUSE="nautilus packagekit"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 
 # gdk-pixbuf used extensively in the source
 # cairo used in eggtreemultidnd.c
@@ -23,7 +23,7 @@ RDEPEND="
 	>=app-arch/libarchive-3:=
 	>=dev-libs/glib-2.29.14:2
 	>=dev-libs/json-glib-0.14
-	>=x11-libs/gtk+-3.4:3
+	>=x11-libs/gtk+-3.6:3
 	>=x11-libs/libnotify-0.4.3:=
 	sys-apps/file
 	x11-libs/cairo
@@ -38,9 +38,29 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 	virtual/pkgconfig
 "
+PDEPEND="nautilus? ( ~gnome-extra/nautilus-file-roller-${PV} )"
+
 # eautoreconf needs:
 #	gnome-base/gnome-common
-PDEPEND="nautilus? ( ~gnome-extra/nautilus-file-roller-${PV} )"
+
+DISABLE_AUTOFORMATTING="yes"
+DOC_CONTENTS="
+${PN} is a frontend for several archiving utilities. If you want a
+particular achive format support, see ${HOMEPAGE}
+and install the relevant package. For example:
+7-zip   - app-arch/p7zip
+ace     - app-arch/unace
+arj     - app-arch/arj
+cpio    - app-arch/cpio
+deb     - app-arch/dpkg
+iso     - app-cdr/cdrtools
+jar,zip - app-arch/zip and app-arch/unzip
+lha     - app-arch/lha
+lzop    - app-arch/lzop
+rar     - app-arch/unrar or app-arch/unar
+rpm     - app-arch/rpm
+unstuff - app-arch/stuffit
+zoo     - app-arch/zoo"
 
 src_prepare() {
 	# Use absolute path to GNU tar since star doesn't have the same
@@ -68,25 +88,12 @@ src_configure() {
 		ITSTOOL=$(type -P true)
 }
 
+src_install() {
+	gnome2_src_install
+	readme.gentoo_create_doc
+}
+
 pkg_postinst() {
 	gnome2_pkg_postinst
-
-	elog "${PN} is a frontend for several archiving utilities. If you want a"
-	elog "particular achive format support, see ${HOMEPAGE}"
-	elog "and install the relevant package."
-	elog
-	elog "for example:"
-	elog "  7-zip   - app-arch/p7zip"
-	elog "  ace     - app-arch/unace"
-	elog "  arj     - app-arch/arj"
-	elog "  cpio    - app-arch/cpio"
-	elog "  deb     - app-arch/dpkg"
-	elog "  iso     - app-cdr/cdrtools"
-	elog "  jar,zip - app-arch/zip and app-arch/unzip"
-	elog "  lha     - app-arch/lha"
-	elog "  lzop    - app-arch/lzop"
-	elog "  rar     - app-arch/unrar or app-arch/unar"
-	elog "  rpm     - app-arch/rpm"
-	elog "  unstuff - app-arch/stuffit"
-	elog "  zoo     - app-arch/zoo"
+	readme.gentoo_print_elog
 }
