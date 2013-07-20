@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 #
 
-EAPI=4
+EAPI=5
 inherit eutils mount-boot sabayon-artwork
 
 DESCRIPTION="Official Sabayon Linux Core Artwork"
@@ -40,6 +40,8 @@ src_install() {
 	cd "${S}/plymouth" || die
 	insinto /usr/share/plymouth
 	doins bizcom.png
+	insinto /usr/share/plymouth/themes
+	doins -r sabayon
 }
 
 pkg_postinst() {
