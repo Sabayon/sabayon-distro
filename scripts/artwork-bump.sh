@@ -14,7 +14,7 @@ PACKAGES="x11-themes/sabayon-artwork-core x11-themes/sabayon-artwork-extra \
 for package in ${PACKAGES}; do
 	name=$(echo ${package} | cut -d/ -f2)
 	if [ -a ${package}/${name}-${NEW}.ebuild ]; then
-		echo "${NEW} ebuild found, not overwriting"
+		echo "${name}-${NEW}.ebuild found, not overwriting"
 	else
 		cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
 	fi
