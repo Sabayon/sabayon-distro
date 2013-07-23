@@ -18,7 +18,7 @@ GFX_SPLASH_NAME="${GFX_SPLASH_NAME:-sabayon}"
 # @ECLASS-VARIABLE: PLYMOUTH_THEME
 # @DESCRIPTION:
 # Default plymouth theme name to use
-PLYMOUTH_THEME="${PLYMOUTH_THEME:-solar}"
+PLYMOUTH_THEME="${PLYMOUTH_THEME:-sabayon}"
 
 # @FUNCTION: update_kernel_initramfs_splash
 # @USAGE: update_kernel_initramfs_splash [splash_theme] [splash_file]
