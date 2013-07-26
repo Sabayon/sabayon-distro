@@ -22,6 +22,7 @@ PYTHON_VER="2.7"
 RDEPEND="app-admin/eselect-python
 	dev-lang/python:${PYTHON_VER}
 	sys-apps/systemd[logind]
+	!sys-apps/hal
 	!sys-auth/consolekit
 	sys-devel/base-gcc:${GCC_VER}
 	sys-devel/gcc-config"
@@ -66,4 +67,7 @@ pkg_postinst() {
 			mv -f "${xdm_boot_runlevel}" "${xdm_default_runlevel}"
 		fi
 	fi
+
+	# remove old hal udev rules.d file, if found. sys-apps/hal is long gone.
+	rm -f "${ROOT}/lib/udev/rules.d/90-hal.rules"
 }
