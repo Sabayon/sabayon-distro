@@ -27,6 +27,7 @@ BRANDING="${PN}-branding-gentoo-0.7.tar.xz"
 # PATCHSET="${P}-patchset-01.tar.xz"
 
 [[ ${PV} == *9999* ]] && SCM_ECLASS="git-2"
+inherit versionator
 inherit base autotools bash-completion-r1 check-reqs eutils java-pkg-opt-2 kde4-base pax-utils python-single-r1 multilib toolchain-funcs flag-o-matic nsplugins ${SCM_ECLASS}
 unset SCM_ECLASS
 
@@ -186,8 +187,8 @@ RDEPEND="${COMMON_DEPEND}
 
 # Force libreoffice-l10n-en_US installation
 # This will install LibreOffice templates
-L10N_VER="4.0.4"
-PDEPEND="~app-office/libreoffice-l10n-en_US-${L10N_VER}
+L10N_VER="$(get_version_component_range 1-2)*"
+PDEPEND="=app-office/libreoffice-l10n-en_US-${L10N_VER}
 	x11-themes/sabayon-artwork-loo"
 
 # FIXME: cppunit should be moved to test conditional
