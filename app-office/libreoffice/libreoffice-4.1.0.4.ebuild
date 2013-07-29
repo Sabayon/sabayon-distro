@@ -553,6 +553,10 @@ src_install() {
 	# Remove desktop files for support to old installs that can't parse mime
 	rm -rf "${ED}"/usr/share/mimelnk/
 
+	# Remove files owned by libreoffice-l10n
+	rm "${ED}"/usr/$(get_libdir)/libreoffice/share/wordbook/en-GB.dic || die
+	rm "${ED}"/usr/$(get_libdir)/libreoffice/share/wordbook/en-US.dic || die
+
 	# Remove files provided by x11-themes/sabayon-artwork-loo
 	rm "${ED}"/usr/$(get_libdir)/libreoffice/program/sofficerc || die "sofficerc rm failed"
 	rm "${ED}"/usr/$(get_libdir)/libreoffice/program/intro.png || die "sofficerc rm failed"
