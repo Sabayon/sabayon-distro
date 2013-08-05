@@ -1,16 +1,16 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=4
 
+inherit cmake-utils eutils
+
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
 EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && GIT_ECLASS="git-2"
+[[ "${PV}" == "9999" ]] && inherit git-2
 
 KDE_MINIMAL="4.4"
-
-inherit cmake-utils eutils ${GIT_ECLASS}
 
 DESCRIPTION="Qt4/KDE4 IRC client suppporting a remote daemon for 24/7 connectivity (common files)."
 HOMEPAGE="http://quassel-irc.org/"
@@ -59,8 +59,11 @@ src_install() {
 	# /usr/share/apps/quassel/icons/oxygen
 	if ! use kde; then
 		dodoc icons/README.Oxygen
-		newdoc icons/oxygen/COPYING COPYING.Oxygen
 		local mydest
+		for mydest in COPYING AUTHORS CONTRIBUTING; do
+			newdoc "icons/oxygen/${mydest}" "${mydest}.Oxygen"
+		done
+
 		for mypath in icons/oxygen{,_kde}/*/*/*.{svgz,png}; do
 			if [ -f "${mypath}" ]; then
 				mydest=${mypath/oxygen_kde/oxygen}
@@ -69,6 +72,8 @@ src_install() {
 			fi
 		done
 	fi
+
+	doicon icons/oxygen_kde/48x48/apps/quassel.png
 
 	# /usr/share/apps/quassel/stylesheets
 	for mypath in data/stylesheets/*.qss; do
@@ -94,5 +99,6 @@ src_install() {
 
 	insinto /usr/share/apps/quassel
 	doins data/networks.ini
-	doins data/quassel.notifyrc
+
+	use kde && doins data/quassel.notifyrc
 }
