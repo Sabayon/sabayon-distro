@@ -1,0 +1,7 @@
+So, hello!
+Good that you opened this file.
+Python here is a verbatim copy of the portage version,
+with just one exception: IUSE=tk is disabled and not
+even redirected to python-tk. This way we can satisfy
+the use deps constraints on our chroots and then rewrite
+the dependency to point to dev-lang/python-tk
