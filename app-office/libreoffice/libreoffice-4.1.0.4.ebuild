@@ -329,6 +329,9 @@ src_prepare() {
 		epatch
 	fi
 
+	# Fix compilation with neon-0.30.0, bug #479604
+	epatch "${FILESDIR}/libreoffice-4.1-disable-broken-neon-code.patch"
+
 	base_src_prepare
 
 	AT_M4DIR="m4" eautoreconf
