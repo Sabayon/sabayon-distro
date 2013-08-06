@@ -23,7 +23,7 @@ KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~
 IUSE="ipv6 +threads +wide-unicode"
 
 RDEPEND="
-	=dev-lang/python-${PVR}[-tk]
+	=dev-lang/python-${PVR}
 	ipv6? ( =dev-lang/python-${PVR}[ipv6] )
 	threads? ( =dev-lang/python-${PVR}[threads] )
 	wide-unicode? ( =dev-lang/python-${PVR}[wide-unicode] )
