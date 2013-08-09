@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI=5
 WANT_AUTOMAKE="none"
 MY_P="${P/_/-}"
 
@@ -15,7 +15,7 @@ inherit autotools db-use depend.apache flag-o-matic libtool multilib eutils
 DESCRIPTION="Subversion WebDAV support"
 HOMEPAGE="http://subversion.apache.org/"
 SRC_URI="mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2
-	mirror://sabayon/dev-vcs/${MY_SVN_PN}-${PV}-Gentoo-patches.tar.gz"
+	mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.7.7-Gentoo-patches.tar.gz"
 S="${WORKDIR}/${MY_SVN_P}"
 
 LICENSE="Subversion"
@@ -42,7 +42,7 @@ IUSE="berkdb debug +dso nls sasl +webdav-neon webdav-serf"
 # variable specific to www-apache/mod_dav_svn
 MY_CDEPS="
 	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,webdav-neon=,webdav-serf=]
-	>=dev-db/sqlite-3.4
+	>=dev-db/sqlite-3.4[threadsafe(+)]
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
@@ -113,21 +113,20 @@ pkg_setup() {
 }
 
 src_prepare() {
-	local d=${WORKDIR}/${PV}-Gentoo-patches
+	local d=${WORKDIR}/1.7.7-Gentoo-patches
 
 	epatch "${d}"/${MY_SVN_PN}-1.5.4-interix.patch \
 		"${d}"/${MY_SVN_PN}-1.5.6-aix-dso.patch \
 		"${d}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch \
-		"${d}"/${MY_SVN_PN}-fix-parallel-build-support-for-perl-bindings.patch \
-		"${d}"/${MY_SVN_PN}-1.7.6-kwallet.patch
+		"${d}"/${MY_SVN_PN}-fix-parallel-build-support-for-perl-bindings.patch
+		# "${d}"/${MY_SVN_PN}-1.7.6-kwallet.patch
+	epatch_user
 
 	fperms +x build/transform_libtool_scripts.sh
 
 	sed -i \
 		-e "s/\(BUILD_RULES=.*\) bdb-test\(.*\)/\1\2/g" \
 		-e "s/\(BUILD_RULES=.*\) test\(.*\)/\1\2/g" configure.ac
-
-	#sed -e "/SWIG_PY_INCLUDES=/s/\$ac_cv_python_includes/\\\\\$(PYTHON_INCLUDES)/" -i build/ac-macros/swig.m4 || die "sed failed"
 
 	# this bites us in particular on Solaris
 	sed -i -e '1c\#!/usr/bin/env sh' build/transform_libtool_scripts.sh || \
@@ -136,7 +135,8 @@ src_prepare() {
 	eautoconf
 	elibtoolize
 
-	#sed -e "s/libsvn_swig_py-1\.la/libsvn_swig_py-\$(PYTHON_VERSION)-1.la/" -i build-outputs.mk || die "sed failed"
+	#sed -e 's/\(libsvn_swig_py\)-\(1\.la\)/\1-$(EPYTHON)-\2/g' \
+	#-i build-outputs.mk || die "sed failed"
 }
 
 src_configure() {
@@ -167,6 +167,15 @@ src_configure() {
 		*-solaris*)
 			# need -lintl to link
 			use nls && append-libs intl
+			# this breaks installation, on x64 echo replacement is 32-bits
+			myconf+=" --disable-local-library-preloading"
+		;;
+		*-mint*)
+			myconf+=" --enable-all-static --disable-local-library-preloading"
+		;;
+		*)
+			# inject LD_PRELOAD entries for easy in-tree development
+			myconf+=" --enable-local-library-preloading"
 		;;
 	esac
 
@@ -179,7 +188,9 @@ src_configure() {
 	myconf+=" --disable-disallowing-of-undefined-references"
 
 	#force ruby-1.8 for bug 399105
+	#allow overriding Python include directory
 	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby18 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc18 \
+	ac_cv_python_includes='-I$(PYTHON_INCLUDEDIR)' \
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--with-apxs="${APXS}" \
 		$(use_with berkdb berkeley-db "db.h:${EPREFIX}/usr/include/db${SVN_BDB_VERSION}::db-${SVN_BDB_VERSION}") \
@@ -197,18 +208,17 @@ src_configure() {
 		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
 		--disable-experimental-libtool \
 		--without-jikes \
-		--enable-local-library-preloading \
 		--disable-mod-activation \
 		--disable-neon-version-check \
 		--disable-static
 }
 
 src_compile() {
-	emake apache-mod || die
+	emake apache-mod
 }
 
 src_install() {
-	emake DESTDIR="${D}" install-mods-shared || die
+	emake DESTDIR="${D}" install-mods-shared
 
 	# Install Apache module configuration.
 	#use apache2
