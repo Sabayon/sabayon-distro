@@ -3,8 +3,8 @@
 # $Header: $
 
 EAPI=5
-TRANSMISSION_ECLASS_VERSION_OK=2.76
-inherit transmission-2.76
+TRANSMISSION_ECLASS_VERSION_OK=2.80
+inherit transmission-2.80
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - base files"
 KEYWORDS="~amd64 ~x86"
