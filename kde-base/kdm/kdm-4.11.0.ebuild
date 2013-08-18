@@ -6,11 +6,11 @@ EAPI=5
 
 KDE_HANDBOOK="optional"
 KMNAME="kde-workspace"
-inherit kde4-meta flag-o-matic user systemd
+inherit systemd kde4-meta flag-o-matic user
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS=" ~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="+consolekit debug kerberos logind pam"
+KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
+IUSE="debug +consolekit kerberos pam"
 
 DEPEND="
 	$(add_kdebase_dep libkworkspace)
@@ -32,7 +32,6 @@ RDEPEND="${DEPEND}
 	$(add_kdebase_dep kdepasswd)
 	>=x11-apps/xinit-1.0.5-r2
 	x11-apps/xmessage
-	x11-themes/sabayon-artwork-kde
 "
 
 KMEXTRA="
@@ -42,7 +41,7 @@ KMEXTRA="
 PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
 	"${FILESDIR}/kdebase-workspace-4.4.92-kdm_plymouth081.patch"
-	"${FILESDIR}/kde-workspace-4.10.2-kdm-logind-multiseat.patch"
+	"${FILESDIR}/kde-workspace-4.10.90-kdm-logind-multiseat.patch"
 	"${FILESDIR}/kde-workspace-4.8.0-bug796969.patch"
 )
 
@@ -85,7 +84,6 @@ src_install() {
 		-e "s|^.*DataDir=.*$|#&\nDataDir=${EPREFIX}${KDM_HOME}|" \
 		-e "s|^.*FaceDir=.*$|#&\nFaceDir=${EPREFIX}${KDM_HOME}/faces|" \
 		-e "s|themes/elarun$|themes/sabayon|" \
-		-e "s|#BootManager=Grub|BootManager=Grub2|" \
 		-i "${ED}"/usr/share/config/kdm/kdmrc \
 		|| die "Failed to set ServerTimeout and SessionsDirs correctly in kdmrc."
 
@@ -101,7 +99,7 @@ src_install() {
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/kdm-logrotate kdm
 
-	systemd_dounit "${FILESDIR}/${PN}.service"
+	systemd_dounit "${FILESDIR}"/kdm.service
 }
 
 pkg_postinst() {

@@ -1,0 +1,405 @@
+diff -up kde-workspace-4.10.90/CMakeLists.txt.kdm_logind kde-workspace-4.10.90/CMakeLists.txt
+--- kde-workspace-4.10.90/CMakeLists.txt.kdm_logind	2013-06-27 16:27:30.199895076 -0500
++++ kde-workspace-4.10.90/CMakeLists.txt	2013-06-27 16:30:25.167008304 -0500
+@@ -128,6 +128,13 @@ if(Q_WS_X11)
+   endif()
+ endif(Q_WS_X11)
+ 
++macro_optional_find_package(Systemd)
++set_package_properties(Systemd PROPERTIES DESCRIPTION "Init and service manager for Linux"
++                       URL "http://www.freedesktop.org/wiki/Software/systemd"
++                       TYPE OPTIONAL
++                       PURPOSE "Provides automatic multi-seat, session and power management features"
++                      )
++
+ macro_optional_find_package(GLIB2 2.0)
+ set_package_properties(GLIB2 PROPERTIES DESCRIPTION "Low-level core library for data structure handling, portability wrappers, etc."
+                        URL "http://www.gtk.org"
+diff -up kde-workspace-4.10.90/cmake/modules/CMakeLists.txt.kdm_logind kde-workspace-4.10.90/cmake/modules/CMakeLists.txt
+--- kde-workspace-4.10.90/cmake/modules/CMakeLists.txt.kdm_logind	2013-06-10 13:51:11.000000000 -0500
++++ kde-workspace-4.10.90/cmake/modules/CMakeLists.txt	2013-06-27 16:27:30.199895076 -0500
+@@ -8,6 +8,7 @@ set(cmakeFiles FindCkConnector.cmake
+                FindOpenGLES.cmake
+                FindPAM.cmake
+                FindSensors.cmake
++               FindSystemd.cmake
+                PkgConfigGetVar.cmake
+                UnixAuth.cmake )
+ 
+diff -up kde-workspace-4.10.90/cmake/modules/FindSystemd.cmake.kdm_logind kde-workspace-4.10.90/cmake/modules/FindSystemd.cmake
+--- kde-workspace-4.10.90/cmake/modules/FindSystemd.cmake.kdm_logind	2013-06-27 16:27:30.200895065 -0500
++++ kde-workspace-4.10.90/cmake/modules/FindSystemd.cmake	2013-06-27 16:27:30.200895065 -0500
+@@ -0,0 +1,39 @@
++# Finds systemd and its libraries
++# Not a huge module but sufficient for now
++# Uses the same semantics as pkg_check_modules, i.e. ${LIB}{_FOUND,_INCLUDE_DIR,_LIBRARIES}
++# where ${LIB} can be one of the following:
++#     LIBSYSTEMD_JOURNAL, SYSTEMD, LIBSYSTEMD_DAEMON, LIBSYSTEMD_LOGIN, LIBSYSTEMD_ID128
++#
++# Copyright: Red Hat, Inc. 2013
++# Author: Martin Briza <mbriza@redhat.com>
++#
++# Distributed under the BSD license. See COPYING-CMAKE-SCRIPTS for details.
++
++#defining any of these disables systemd support
++if (NOT LIBSYSTEMD_JOURNAL_FOUND AND
++    NOT SYSTEMD_FOUND AND
++    NOT LIBSYSTEMD_DAEMON_FOUND AND
++    NOT LIBSYSTEMD_LOGIN_FOUND AND
++    NOT LIBSYSTEMD_ID128_FOUND)
++find_package(PkgConfig)
++if (PKG_CONFIG_FOUND)
++    pkg_check_modules(LIBSYSTEMD_JOURNAL QUIET "libsystemd-journal")
++    pkg_check_modules(SYSTEMD QUIET "systemd")
++    pkg_check_modules(LIBSYSTEMD_DAEMON QUIET "libsystemd-daemon")
++    pkg_check_modules(LIBSYSTEMD_LOGIN QUIET "libsystemd-login")
++    pkg_check_modules(LIBSYSTEMD_ID128 QUIET "libsystemd-id128")
++endif (PKG_CONFIG_FOUND)
++
++if (SYSTEMD_FOUND)
++    message(STATUS "Found systemd")
++endif(SYSTEMD_FOUND)
++
++mark_as_advanced(LIBSYSTEMD_JOURNAL_FOUND       SYSTEMD_FOUND       LIBSYSTEMD_DAEMON_FOUND       LIBSYSTEMD_LOGIN_FOUND       LIBSYSTEMD_ID128_FOUND)
++mark_as_advanced(LIBSYSTEMD_JOURNAL_INCLUDE_DIR SYSTEMD_INCLUDE_DIR LIBSYSTEMD_DAEMON_INCLUDE_DIR LIBSYSTEMD_LOGIN_INCLUDE_DIR LIBSYSTEMD_ID128_INCLUDE_DIR)
++mark_as_advanced(LIBSYSTEMD_JOURNAL_LIBRARIES   SYSTEMD_LIBRARIES   LIBSYSTEMD_DAEMON_LIBRARIES   LIBSYSTEMD_LOGIN_LIBRARIES   LIBSYSTEMD_ID128_LIBRARIES)
++
++endif (NOT LIBSYSTEMD_JOURNAL_FOUND AND
++       NOT SYSTEMD_FOUND AND
++       NOT LIBSYSTEMD_DAEMON_FOUND AND
++       NOT LIBSYSTEMD_LOGIN_FOUND AND
++       NOT LIBSYSTEMD_ID128_FOUND)
+diff -up kde-workspace-4.10.90/kdm/backend/CMakeLists.txt.kdm_logind kde-workspace-4.10.90/kdm/backend/CMakeLists.txt
+--- kde-workspace-4.10.90/kdm/backend/CMakeLists.txt.kdm_logind	2013-05-28 13:38:21.000000000 -0500
++++ kde-workspace-4.10.90/kdm/backend/CMakeLists.txt	2013-06-27 16:27:30.201895054 -0500
+@@ -45,6 +45,10 @@ if (SECURE_RPC)
+ 		rpcauth.c
+ 	)
+ endif (SECURE_RPC)
++if(LIBSYSTEMD_LOGIN_FOUND AND LIBSYSTEMD_DAEMON_FOUND)
++    add_definitions( -DWITH_SYSTEMD=1 )
++    set(KDM_SYSTEMD_LIBRARIES ${LIBSYSTEMD_DAEMON_LIBRARIES} ${LIBSYSTEMD_LOGIN_LIBRARIES} )
++endif(LIBSYSTEMD_LOGIN_FOUND AND LIBSYSTEMD_DAEMON_FOUND)
+ macro_add_file_dependencies(dm.h ${confci})
+ macro_add_file_dependencies(error.c ${CMAKE_CURRENT_SOURCE_DIR}/printf.c)
+ kde4_add_executable(kdm NOGUI ${kdm_SRCS})
+@@ -60,6 +64,7 @@ target_link_libraries( kdm
+ 	${NSL_LIBRARIES}
+ 	${RESOLV_LIBRARIES}
+ 	${SOCKET_LIBRARIES}
++	${KDM_SYSTEMD_LIBRARIES}
+ )
+ if (CKCONNECTOR_FOUND)
+ 	include_directories(${CKCONNECTOR_INCLUDE_DIR} ${DBUS_INCLUDE_DIR} ${DBUS_ARCH_INCLUDE_DIR})
+diff -up kde-workspace-4.10.90/kdm/backend/dm.c.kdm_logind kde-workspace-4.10.90/kdm/backend/dm.c
+--- kde-workspace-4.10.90/kdm/backend/dm.c.kdm_logind	2013-06-27 16:27:30.184895241 -0500
++++ kde-workspace-4.10.90/kdm/backend/dm.c	2013-06-27 16:27:30.201895054 -0500
+@@ -50,6 +50,23 @@ from the copyright holder.
+ # include <sys/vt.h>
+ #endif
+ 
++#ifdef WITH_SYSTEMD
++# include <systemd/sd-login.h>
++# include <systemd/sd-daemon.h>
++
++#define SYSTEMD_FAILURE_LIMIT 25
++
++ static int systemdMonitorInit(void);
++ static void systemdMonitorDeinit();
++ static int systemdStartDisplay(char *);
++ static void systemdCheckAdded(char **);
++ static void systemdCheckRemoved(char **);
++ static void systemdHandleChange();
++
++ sd_login_monitor *systemd_monitor = NULL;
++ int systemd_monitor_fd = -1;
++#endif
++
+ static void sigHandler(int n);
+ static int scanConfigs(int force);
+ static void startDisplay(struct display *d);
+@@ -308,7 +325,16 @@ main(int argc, char **argv)
+ #ifdef XDMCP
+     updateListenSockets();
+ #endif
++
++#ifdef WITH_SYSTEMD
++    if (systemdMonitorInit())
++        systemdHandleChange();
++#endif
++
+     mainLoop();
++#ifdef WITH_SYSTEMD
++    systemdMonitorDeinit();
++#endif
+     closeCtrl(0);
+     if (sdRec.how) {
+         int pid;
+@@ -1280,6 +1306,14 @@ mainLoop(void)
+                 }
+                 continue;
+             }
++                logError("STARTING");
++#ifdef WITH_SYSTEMD
++            if (systemd_monitor_fd >= 0 && FD_ISSET(systemd_monitor_fd, &reads)) {
++                systemdHandleChange();
++                sd_login_monitor_flush(systemd_monitor);
++                continue;
++            }
++#endif
+ #ifdef XDMCP
+             if (processListenSockets(&reads))
+                 continue;
+@@ -1304,6 +1338,151 @@ mainLoop(void)
+     }
+ }
+ 
++#ifdef WITH_SYSTEMD
++static int
++systemdMonitorInit(void)
++{
++    if (access("/run/systemd/seats/", F_OK) < 0) {
++        logError("Didn't boot with systemd, automatic multiseat won't be enabled\n");
++        return False;
++    }
++
++    int check = sd_login_monitor_new("seat", &systemd_monitor);
++    if (check < 0) {
++        logError("Can't get systemd monitor: %d, automatic multiseat won't be enabled\n", check);
++        return False;
++    }
++
++    systemd_monitor_fd = sd_login_monitor_get_fd(systemd_monitor);
++    if (systemd_monitor_fd < 0) {
++        logError("Can't retrieve file descriptor from the systemd monitor: %d, automatic multiseat won't be enabled\n", systemd_monitor_fd);
++        sd_login_monitor_unref(systemd_monitor);
++        systemd_monitor_fd = -1;
++        return False;
++    }
++
++    registerInput(systemd_monitor_fd);
++    return True;
++}
++
++static void
++systemdMonitorDeinit(void)
++{
++    if (systemd_monitor) {
++        sd_login_monitor_unref(systemd_monitor);
++    }
++    systemd_monitor_fd = -1;
++}
++
++static int
++systemdStartDisplay(char *seat)
++{
++    struct display *link = NULL;
++    for (link = displays; link; link = link-> next) {
++        if (link->status == reserve)
++            break;
++    }
++    if (!link) {
++        logError("There's not enough reserve displays for all your seats/sessions");
++        return False;
++    }
++    if (!strDup((&link->systemd_seat), seat)) {
++        return False;
++    }
++#ifdef HAVE_VTS
++    link->serverVT = 0;
++#endif
++    link->status = notRunning;
++    link->stillThere = True;
++    link->authorize = True;
++    link->displayType = dLocal | dPermanent;
++    link->reqSrvVT = -1;
++    link->serverPid = -1;
++    return True;
++}
++
++static void
++systemdCheckAdded(char **seat_names) 
++{
++    char **iter_name;
++    struct display *link;
++    for (iter_name = seat_names; *iter_name; iter_name++) {
++        if (strcmp(*iter_name, "seat0") == 0)
++            continue; /* ignore the main seat */
++        int can_graphical = sd_seat_can_graphical(*iter_name);
++        for (link = displays; link; link = link->next) {
++            if (!link->systemd_seat)
++                continue;
++            /* see if the can_graphical property didn't change */
++            if (strcmp(*iter_name, link->systemd_seat) == 0) {
++                if (!can_graphical) {
++                    free(link->systemd_seat);
++                    link->systemd_seat = NULL;
++                    rStopDisplay(link, DS_RESERVE);
++                }
++                break;
++            }
++        }
++        /* the display wasn't found */
++        if (!link) {
++            if (can_graphical) {
++                /* if starting the display failed, skip this round until the next change */
++                if (!systemdStartDisplay(*iter_name))
++                    break;
++            }
++        }
++    }
++}
++
++static void
++systemdCheckRemoved(char **seat_names)
++{
++    char **iter_name;
++    struct display *link;
++    for (link = displays; link; link = link->next) {
++        for (iter_name = seat_names; *iter_name; iter_name++) {
++            if (strcmp(*iter_name, "seat0") == 0)
++                continue; /* ignore the main seat */
++            if (link->systemd_seat && strcmp(*iter_name, link->systemd_seat) == 0)
++                break;
++        }
++        if (!(*iter_name) && link->systemd_seat) { /* was not found, stop this one */
++            free(link->systemd_seat);
++            link->systemd_seat = NULL;
++            rStopDisplay(link, DS_RESERVE);
++        }
++    }
++}
++
++static void
++systemdHandleChange(void)
++{
++    static int failures = 0;
++    char **seat_names;
++    char **iter_name;
++    int check;
++    if ((check = sd_get_seats(&seat_names)) < 0) {
++        logError("Can't obtain systemd seats, error %d\n", -check);
++        failures++;
++        if (failures >= SYSTEMD_FAILURE_LIMIT) {
++            logError("%u failed calls to sd_get_seats, disabling systemd multi-seat support\n", SYSTEMD_FAILURE_LIMIT);
++            systemdMonitorDeinit();
++        }
++        return;
++    }
++
++    if (!check)
++        return;
++
++    systemdCheckAdded(seat_names);
++    systemdCheckRemoved(seat_names);
++
++    for (iter_name = seat_names; *iter_name; iter_name++)
++        free(*iter_name);
++    free(seat_names);
++}
++#endif
++
+ static void
+ checkDisplayStatus(struct display *d)
+ {
+diff -up kde-workspace-4.10.90/kdm/backend/dm.h.kdm_logind kde-workspace-4.10.90/kdm/backend/dm.h
+--- kde-workspace-4.10.90/kdm/backend/dm.h.kdm_logind	2013-06-27 16:27:30.184895241 -0500
++++ kde-workspace-4.10.90/kdm/backend/dm.h	2013-06-27 16:27:30.201895054 -0500
+@@ -306,6 +306,9 @@ struct display {
+     char *greeterAuthFile;      /* file to store authorization for greeter in */
+     
+     int plymouth_is_running;    /* Plymouth's status */
++#ifdef WITH_SYSTEMD
++    char *systemd_seat;
++#endif
+ };
+ 
+ #define d_location   1
+diff -up kde-workspace-4.10.90/kdm/backend/server.c.kdm_logind kde-workspace-4.10.90/kdm/backend/server.c
+--- kde-workspace-4.10.90/kdm/backend/server.c.kdm_logind	2013-06-27 16:27:30.184895241 -0500
++++ kde-workspace-4.10.90/kdm/backend/server.c	2013-06-27 16:27:30.201895054 -0500
+@@ -43,6 +43,7 @@ from the copyright holder.
+ #include <stdio.h>
+ #include <signal.h>
+ 
++#define SYSTEMD_X_WRAPPER "/lib/systemd/systemd-multi-seat-x"
+ 
+ struct display *startingServer;
+ time_t serverTimeout = TO_INF;
+@@ -55,9 +56,18 @@ prepareServerArgv(struct display *d, con
+     char vtstr[8];
+ #endif
+ 
+-    if (!(argv = parseArgs(0, d->serverCmd)) ||
+-        !(argv = addStrArr(argv, d->name, -1)))
++#if WITH_SYSTEMD
++    FILE *tmpFile = NULL;
++    if ((tmpFile = fopen(SYSTEMD_X_WRAPPER, "rb")) != NULL && fclose(tmpFile) == 0) {
++        if (!(argv = parseArgs(0, SYSTEMD_X_WRAPPER)) || !(argv = addStrArr(argv, d->name, -1))) {
++            exit(47);
++        }
++    }
++    else
++#endif
++    if (!(argv = parseArgs(0, d->serverCmd)) || !(argv = addStrArr(argv, d->name, -1))) {
+         exit(47);
++    }
+ #ifdef HAVE_VTS
+     if (d->serverVT &&
+         !(argv = addStrArr(argv, vtstr,
+@@ -70,6 +80,25 @@ prepareServerArgv(struct display *d, con
+     if (!changeUser(d->serverUID, d->authFile))
+         exit(47);
+ 
++#ifdef WITH_SYSTEMD
++    if (d->systemd_seat) {
++        if (!(argv = parseArgs(argv, "-seat")))
++            exit(47);
++        if (!(argv = parseArgs(argv, d->systemd_seat)))
++            exit(47);
++        if (!(argv = parseArgs(argv, "-layout")))
++            exit(47);
++        if (!(argv = parseArgs(argv, d->systemd_seat)))
++            exit(47);
++    }
++    else {
++        if (!(argv = parseArgs(argv, "-seat")))
++            exit(47);
++        if (!(argv = parseArgs(argv, "seat0")))
++            exit(47);
++    }
++#endif
++
+     return argv;
+ }
+ 
+--- kde-workspace-4.10.2/kdm/backend/client.c.kdm_logind
++++ kde-workspace-4.10.2/kdm/backend/client.c
+@@ -1461,6 +1461,14 @@ startClient(volatile int *pid)
+ #endif
+     userEnviron = inheritEnv(env, envvars);
+     env = systemEnv(0, curuser);
++#ifdef WITH_SYSTEMD
++    if (td->systemd_seat) {
++        char *envbuf;
++        ASPrintf(&envbuf, "XDG_SEAT=%s", td->systemd_seat);
++        pam_putenv(pamh, envbuf);
++        env = setEnv(env, "XDG_SEAT", td->systemd_seat);
++    }
++#endif
+     systemEnviron = setEnv(env, "HOME", p->pw_dir);
+     debug("user environment:\n%[|''>'\n's"
+           "system environment:\n%[|''>'\n's"
+--- kde-workspace-4.10.2/kdm/backend/session.c.kdm_logind
++++ kde-workspace-4.10.2/kdm/backend/session.c
+@@ -437,6 +437,10 @@ openGreeter()
+ 
+     grttalk.pipe = &grtproc.pipe;
+     env = systemEnv(dupEnv(), 0);
++#ifdef WITH_SYSTEMD
++    if (td->systemd_seat)
++        env = setEnv(env, "XDG_SEAT", td->systemd_seat);
++#endif
+     if (gOpen(&grtproc, (char **)0, "_greet", env, name,
+               greeterUID, td->greeterAuthFile, &td->gpipe))
+         sessionExit(EX_UNMANAGE_DPY);
