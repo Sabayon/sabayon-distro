@@ -10,7 +10,7 @@ inherit systemd kde4-meta flag-o-matic user
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
 KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="debug +consolekit kerberos pam"
+IUSE="debug +consolekit kerberos logind pam"
 
 DEPEND="
 	$(add_kdebase_dep libkworkspace)
