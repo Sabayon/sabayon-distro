@@ -523,7 +523,7 @@ _kernel_src_compile() {
 
 	cd "${S}" || die
 	local GKARGS=()
-	GKARGS+=( "--no-save-config" "--disklabel" "--e2fsprogs" "--udev" )
+	GKARGS+=( "--no-save-config" "--e2fsprogs" "--udev" )
 	use splash && GKARGS+=( "--splash=sabayon" )
 	use plymouth && GKARGS+=( "--plymouth" "--plymouth-theme=${PLYMOUTH_THEME}" )
 	use dmraid && GKARGS+=( "--dmraid" )
@@ -563,6 +563,12 @@ _kernel_src_compile() {
 	local support_comp=$(genkernel --help | grep compress-initramfs-type)
 	if [ -n "${support_comp}" ]; then
 		GKARGS+=( "--compress-initramfs-type=gzip" )
+	fi
+
+	# Use --disklabel if genkernel supports it
+	local support_disklabel=$(genkernel --help | grep -- --disklabel)
+	if [ -n "${support_disklabel}" ]; then
+		GKARGS+=( "--disklabel" )
 	fi
 
 	if [ -n "${K_MKIMAGE_KERNEL_ADDRESS}" ]; then
