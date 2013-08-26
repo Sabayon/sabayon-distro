@@ -19,11 +19,11 @@ SRC_URI="http://www.python.org/ftp/python/${PV}/${MY_P}.tar.xz
 LICENSE="PSF-2"
 SLOT="3.2"
 PYTHON_ABI="${SLOT}"
-KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE="ipv6 +threads +wide-unicode"
 
 RDEPEND="
-	=dev-lang/python-${PVR}[-tk]
+	=dev-lang/python-${PVR}
 	ipv6? ( =dev-lang/python-${PVR}[ipv6] )
 	threads? ( =dev-lang/python-${PVR}[threads] )
 	wide-unicode? ( =dev-lang/python-${PVR}[wide-unicode] )
@@ -54,7 +54,9 @@ src_prepare() {
 
 	EPATCH_EXCLUDE="${excluded_patches}" EPATCH_SUFFIX="patch" \
 		epatch "${WORKDIR}/${PV}-${PATCHSET_REVISION}"
+
 	epatch "${FILESDIR}/python-3.2-CVE-2013-2099.patch"
+	epatch "${FILESDIR}/CVE-2013-4238_py33.patch"
 
 	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" \
 		Lib/distutils/command/install.py \
@@ -83,10 +85,6 @@ src_configure() {
 
 	if [[ "$(gcc-major-version)" -ge 4 ]]; then
 		append-flags -fwrapv
-
-		# The configure script assumes it's buggy when cross-compiling.
-		export ac_cv_buggy_getaddrinfo=no
-		export ac_cv_have_long_long_format=yes
 	fi
 
 	filter-flags -malign-double

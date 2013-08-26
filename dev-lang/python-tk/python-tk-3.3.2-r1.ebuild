@@ -23,7 +23,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~spar
 IUSE="ipv6 +threads"
 
 RDEPEND="
-	=dev-lang/python-${PVR}[-tk]
+	=dev-lang/python-${PVR}
 	ipv6? ( =dev-lang/python-${PVR}[ipv6] )
 	threads? ( =dev-lang/python-${PVR}[threads] )
 	>=dev-lang/tk-8.0
