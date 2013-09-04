@@ -213,6 +213,9 @@ src_prepare() {
 	epatch "${FILESDIR}/check-for-iommu-only-if-iommu-is-supported.patch"
 	epatch "${FILESDIR}/ati-drivers-13.8-proc-permissions.diff"
 
+	# Mesa 9.2 support
+	epatch "${FILESDIR}/ati-drivers-13.8-mesa-9.2-debug.patch"
+
 	# Compile fix, https://bugs.gentoo.org/show_bug.cgi?id=454870
 	use pax_kernel && epatch "${FILESDIR}/const-notifier-block.patch"
 
