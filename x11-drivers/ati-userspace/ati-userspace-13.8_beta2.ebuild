@@ -213,8 +213,12 @@ src_prepare() {
 	epatch "${FILESDIR}/check-for-iommu-only-if-iommu-is-supported.patch"
 	epatch "${FILESDIR}/ati-drivers-13.8-proc-permissions.diff"
 
-	# Mesa 9.2 support
-	epatch "${FILESDIR}/ati-drivers-13.8-mesa-9.2-debug.patch"
+	# Mesa 9.2 compatibility. This is a hack, has_version shouldn't be
+	# used this way. But it seems to work because only fgl_glxinfo is
+	# affected
+	if has_version ">=media-libs/mesa-9.2"; then
+		epatch "${FILESDIR}/ati-drivers-13.8-mesa-9.2-debug.patch"
+	fi
 
 	# Compile fix, https://bugs.gentoo.org/show_bug.cgi?id=454870
 	use pax_kernel && epatch "${FILESDIR}/const-notifier-block.patch"

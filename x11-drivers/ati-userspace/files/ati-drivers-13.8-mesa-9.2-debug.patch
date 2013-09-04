@@ -1,11 +1,10 @@
-diff -Nurp work.orig/common/usr/include/GL/glATI.h work/common/usr/include/GL/glATI.h
---- work.orig/common/usr/include/GL/glATI.h	2013-08-19 16:58:55.000000000 +0200
-+++ work/common/usr/include/GL/glATI.h	2013-09-04 20:25:21.179064399 +0200
+--- work.orig/common/usr/include/GL/glATI.h
++++ work/common/usr/include/GL/glATI.h
 @@ -6006,6 +6006,7 @@ typedef GLvoid (APIENTRY * PFNGLDEBUGMES
  typedef GLvoid (APIENTRY * PFNGLDEBUGMESSAGECALLBACKARB)(GLvoid* callback, GLvoid* userParam);
  typedef GLuint (APIENTRY * PFNGLGETDEBUGMESSAGELOGARB)(GLuint count, GLsizei bufsize, GLenum* sources, GLenum* types, GLuint* ids, GLenum* severities, GLsizei* lengths, GLchar* messageLog);
  
-+#ifndef GLDEBUGPROCARB
++#if 0
  typedef void (APIENTRY *GLDEBUGPROCARB)(GLenum source,
                                          GLenum type,
                                          GLuint id,
