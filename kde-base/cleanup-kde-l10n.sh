@@ -19,12 +19,12 @@ for one_del_ver in $DEL_VERSIONS; do
 	    continue
     fi
 
-    for X in $(find -name kde-l10n-*${one_del_ver}*.ebuild); do
+    for X in $(find -name "kde-l10n-*${one_del_ver}*.ebuild"); do
         git rm -f "${X}"
     done
 done
 
 # Regenerate the manifests based on a survivor version
-for X in $(find -name kde-l10n-*${SURVIVOR_VERSION}*.ebuild); do
+for X in $(find -name "kde-l10n-*${SURVIVOR_VERSION}*.ebuild"); do
 	ebuild "${X}" manifest
 done
