@@ -131,6 +131,8 @@ src_prepare() {
 	if kernel_is ge 3 10 0; then
 		epatch "${FILESDIR}/${PN}-304-3.10.patch"
 	fi
+	# Linux 3.11 support
+	epatch "${FILESDIR}/${PN}-319.49-3.11.patch"
 
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user

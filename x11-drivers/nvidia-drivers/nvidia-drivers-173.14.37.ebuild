@@ -136,6 +136,9 @@ src_prepare() {
 	# Linux 3.10 support
 	kernel_is ge 3 10 0 && epatch "${FILESDIR}/${PN}-173-3.10.patch"
 
+	# Linux 3.11 support
+	epatch "${FILESDIR}/${PN}-173.14.37-3.11.patch"
+
 	if use kernel_linux; then
 		# Quiet down warnings the user does not need to see
 		sed -i \
