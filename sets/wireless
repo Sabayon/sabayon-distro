@@ -1,9 +1,10 @@
-sys-firmware/b43-firmware
 net-wireless/b43-fwcutter
 net-wireless/bcm43xx-fwcutter
+net-wireless/rfkill
+net-wireless/wireless-tools
+sys-firmware/b43-firmware
 sys-firmware/ipw2100-firmware
 sys-firmware/ipw2200-firmware
 sys-firmware/zd1201-firmware
 sys-firmware/zd1211-firmware
-net-wireless/wireless-tools
 sys-kernel/linux-firmware
