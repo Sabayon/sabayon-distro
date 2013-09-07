@@ -17,18 +17,23 @@ HOMEPAGE="http://www.pygtk.org/"
 
 LICENSE="LGPL-2.1+"
 SLOT="3"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="+threads"
+
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPEND="
 	~dev-python/pygobject-base-${PV}[threads=]
 	>=dev-python/pycairo-1.10.0[${PYTHON_USEDEP}]
 	${PYTHON_DEPS}"
 DEPEND="${COMMON_DEPEND}
-	x11-libs/cairo[glib]"
+	x11-libs/cairo[glib]
+	gnome-base/gnome-common"
 RDEPEND="${COMMON_DEPEND}
 	!<dev-python/pygtk-2.13
 	!<dev-python/pygobject-2.28.6-r50:2[introspection]"
+
+# gnome-base/gnome-common required by eautoreconf
 
 src_prepare() {
 	DOCS="AUTHORS ChangeLog* NEWS README"
