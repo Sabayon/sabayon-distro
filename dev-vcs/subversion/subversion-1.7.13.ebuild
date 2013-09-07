@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=5
-PYTHON_COMPAT=( python{2_5,2_6,2_7} )
+PYTHON_COMPAT=( python{2_6,2_7} )
 DISTUTILS_OPTIONAL=1
 WANT_AUTOMAKE="none"
 MY_P="${P/_/-}"
@@ -18,9 +18,9 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="Subversion GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring java kde nls perl python ruby sasl vim-syntax +webdav-neon webdav-serf"
+IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring java kde nls perl python ruby sasl test vim-syntax +webdav-neon webdav-serf"
 
-COMMON_DEPEND=">=dev-db/sqlite-3.4
+COMMON_DEPEND=">=dev-db/sqlite-3.4[threadsafe(+)]
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
@@ -31,7 +31,8 @@ COMMON_DEPEND=">=dev-db/sqlite-3.4
 	kde? ( sys-apps/dbus dev-qt/qtcore:4 dev-qt/qtdbus:4 dev-qt/qtgui:4 >=kde-base/kdelibs-4:4 )
 	perl? ( dev-lang/perl )
 	python? ( ${PYTHON_DEPS} )
-	ruby? ( >=dev-lang/ruby-1.8.2:1.8 )
+	ruby? ( >=dev-lang/ruby-1.8.2:1.8
+		dev-ruby/rubygems[ruby_targets_ruby18] )
 	sasl? ( dev-libs/cyrus-sasl )
 	webdav-neon? ( >=net-libs/neon-0.28 )
 	webdav-serf? ( >=net-libs/serf-0.3.0 )"
@@ -42,7 +43,7 @@ RDEPEND="${COMMON_DEPEND}
 	perl? ( dev-perl/URI )"
 # Note: ctypesgen doesn't need PYTHON_USEDEP, it's used once
 DEPEND="${COMMON_DEPEND}
-	${PYTHON_DEPS}
+	test? ( ${PYTHON_DEPS} )
 	!!<sys-apps/sandbox-1.6
 	ctypes-python? ( dev-python/ctypesgen )
 	doc? ( app-doc/doxygen )
@@ -51,6 +52,11 @@ DEPEND="${COMMON_DEPEND}
 	nls? ( sys-devel/gettext )
 	webdav-neon? ( virtual/pkgconfig )"
 PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
+
+REQUIRED_USE="
+	ctypes-python? ( ${PYTHON_REQUIRED_USE} )
+	python? ( ${PYTHON_REQUIRED_USE} )
+	test? ( ${PYTHON_REQUIRED_USE} )"
 
 want_apache
 
@@ -177,7 +183,9 @@ src_configure() {
 	myconf+=" --disable-disallowing-of-undefined-references"
 
 	# for build-time scripts
-	python_export_best
+	if use ctypes-python || use python || use test; then
+		python_export_best
+	fi
 
 	#force ruby-1.8 for bug 399105
 	#allow overriding Python include directory
