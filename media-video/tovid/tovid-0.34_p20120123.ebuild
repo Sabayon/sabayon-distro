@@ -27,7 +27,6 @@ RDEPEND="app-cdr/cdrdao
 	app-cdr/dvd+rw-tools
 	|| ( =dev-lang/python-tk-2.7* =dev-lang/python-tk-2.6* )
 	dev-python/pycairo
-	dev-python/imaging
 	dev-tcltk/tix
 	|| ( media-gfx/imagemagick[png] media-gfx/graphicsmagick[imagemagick,png] )
 	media-sound/normalize
