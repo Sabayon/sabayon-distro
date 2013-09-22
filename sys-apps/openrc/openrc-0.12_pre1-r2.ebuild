@@ -24,8 +24,7 @@ SLOT="0"
 IUSE="debug elibc_glibc ncurses pam newnet prefix selinux static-libs unicode
 	kernel_linux kernel_FreeBSD"
 
-RDEPEND="virtual/init
-	kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-ubin-9.0_rc sys-process/fuser-bsd ) )
+RDEPEND="kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-ubin-9.0_rc sys-process/fuser-bsd ) )
 	elibc_glibc? ( >=sys-libs/glibc-2.5 )
 	ncurses? ( sys-libs/ncurses )
 	pam? ( sys-auth/pambase )
