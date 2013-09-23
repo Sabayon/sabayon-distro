@@ -23,8 +23,10 @@ DEPEND="${PYTHON_DEPS}"
 RDEPEND="${PYTHON_DEPS}
 	>=app-misc/sabayon-live-8
 	|| ( dev-python/pygobject-cairo:3 dev-python/pygobject:3[cairo] )
+	x11-apps/xsetroot
 	x11-libs/gtk+:3
-	x11-libs/vte:2.90"
+	x11-libs/vte:2.90
+	x11-wm/metacity"
 
 src_install() {
 	emake DESTDIR="${D}" SYSV_INITDIR="/etc/init.d" \
