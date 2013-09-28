@@ -1,10 +1,11 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-server/xorg-server-1.14.2.ebuild,v 1.1 2013/06/25 18:10:00 chithanh Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-base/xorg-server/xorg-server-1.14.3-r1.ebuild,v 1.1 2013/09/26 15:23:33 axs Exp $
 
 EAPI=5
 
 XORG_DOC=doc
+# avoid maintainer mode, bug #484634
 XORG_EAUTORECONF=yes
 inherit xorg-2 multilib versionator flag-o-matic
 EGIT_REPO_URI="git://anongit.freedesktop.org/git/xorg/xserver"
@@ -113,6 +114,8 @@ REQUIRED_USE="!minimal? (
 PATCHES=(
 	"${UPSTREAMED_PATCHES[@]}"
 	"${FILESDIR}"/${PN}-1.12-disable-acpi.patch
+	"${FILESDIR}"/${PN}-1.12-ia64-fix_inx_outx.patch
+	"${FILESDIR}"/${PN}-1.12-unloadsubmodule.patch
 )
 
 pkg_pretend() {
@@ -187,7 +190,7 @@ src_install() {
 	fi
 
 	newinitd "${FILESDIR}"/xdm-setup.initd-1 xdm-setup
-	newinitd "${FILESDIR}"/xdm.initd-9 xdm
+	newinitd "${FILESDIR}"/xdm.initd-10 xdm
 	newconfd "${FILESDIR}"/xdm.confd-4 xdm.example
 
 	# install the @x11-module-rebuild set for Portage
