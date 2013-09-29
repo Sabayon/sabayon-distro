@@ -26,6 +26,8 @@ LICENSE="AMD GPL-2 QPL-1.0"
 KEYWORDS="-* ~amd64 ~x86"
 RESTRICT="bindist test"
 
+# Note: do not add !>ati-userspace-ver or !<ati-userspace-ver
+# because it would cause pkg_postrm to set the wrong opengl implementation
 RDEPEND="<=x11-base/xorg-server-1.13.49[-minimal]
 	!x11-drivers/ati-drivers:0
 	!x11-apps/ati-drivers-extra
@@ -41,9 +43,7 @@ RDEPEND="<=x11-base/xorg-server-1.13.49[-minimal]
 	x-multilib? (
 			app-emulation/emul-linux-x86-opengl
 			app-emulation/emul-linux-x86-xlibs
-	)
-	!<x11-drivers/ati-userspace-${PV}
-	!>x11-drivers/ati-userspace-${PV}"
+	)"
 
 DEPEND="${RDEPEND}
 	x11-proto/inputproto
