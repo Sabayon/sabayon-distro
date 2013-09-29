@@ -35,10 +35,10 @@ COMMON="app-admin/eselect-opencl
 		>=app-admin/eselect-opengl-1.0.9
 	)"
 DEPEND="${COMMON}"
+# Note: do not add !>nvidia-userspace-ver or !<nvidia-userspace-ver
+# because it would cause pkg_postrm to set the wrong opengl implementation
 RDEPEND="${COMMON}
 	X? ( x11-libs/libXvMC )
-        !<x11-drivers/nvidia-userspace-${PV}
-        !>x11-drivers/nvidia-userspace-${PV}
 	acpi? ( sys-power/acpid )
 	tools? ( media-video/nvidia-settings )"
 PDEPEND="X? ( >=x11-libs/libvdpau-0.3-r1 )"

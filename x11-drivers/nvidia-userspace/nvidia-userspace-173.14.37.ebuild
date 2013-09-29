@@ -29,9 +29,9 @@ COMMON="x11-base/xorg-server
 	>=app-admin/eselect-opengl-1.0.9"
 DEPEND="${COMMON}
 	kernel_linux? ( virtual/linux-sources )"
-RDEPEND="${COMMON}
-        !<x11-drivers/nvidia-userspace-${PV}
-        !>x11-drivers/nvidia-userspace-${PV}"
+# Note: do not add !>nvidia-userspace-ver or !<nvidia-userspace-ver
+# because it would cause pkg_postrm to set the wrong opengl implementation
+RDEPEND="${COMMON}"
 PDEPEND=""
 
 QA_TEXTRELS_x86="usr/lib/opengl/nvidia/lib/libnvidia-tls.so.${PV}
