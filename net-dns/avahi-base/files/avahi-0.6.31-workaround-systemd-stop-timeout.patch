@@ -1,0 +1,10 @@
+--- a/avahi-daemon/avahi-daemon.service.in
++++ b/avahi-daemon/avahi-daemon.service.in
+@@ -24,6 +24,7 @@ Type=dbus
+ BusName=org.freedesktop.Avahi
+ ExecStart=@sbindir@/avahi-daemon -s
+ ExecReload=@sbindir@/avahi-daemon -r
++TimeoutStopSec=5
+ NotifyAccess=main
+ 
+ [Install]
