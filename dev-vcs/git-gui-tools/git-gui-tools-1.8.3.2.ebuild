@@ -12,7 +12,7 @@ GENTOO_DEPEND_ON_PERL=no
 PYTHON_COMPAT=( python2_{5,6,7} )
 
 inherit toolchain-funcs eutils python-single-r1
-[ "$PV" == "9999" ] && inherit git
+[ "$PV" == "9999" ] && inherit git-2
 
 MY_PV="${PV/_rc/.rc}"
 MY_PV="${MY_PV/-gui-tools}"

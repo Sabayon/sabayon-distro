@@ -12,7 +12,7 @@ GENTOO_DEPEND_ON_PERL=no
 PYTHON_DEPEND="2"
 
 inherit toolchain-funcs eutils python
-[ "$PV" == "9999" ] && inherit git
+[ "$PV" == "9999" ] && inherit git-2
 
 MY_PV="${PV/_rc/.rc}"
 MY_PV="${MY_PV/-gui-tools}"
