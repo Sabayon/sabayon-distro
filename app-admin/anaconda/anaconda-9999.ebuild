@@ -7,7 +7,7 @@ EAPI="3"
 if [ "${PV}" = "9999" ]; then
 	EGIT_COMMIT="master"
 	EGIT_REPO_URI="git://sabayon.org/projects/anaconda.git"
-	MY_ECLASS="git"
+	MY_ECLASS="git-2"
 fi
 inherit flag-o-matic base python libtool autotools eutils ${MY_ECLASS}
 
