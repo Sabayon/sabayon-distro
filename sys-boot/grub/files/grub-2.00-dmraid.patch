@@ -1,0 +1,28 @@
+Fix DMRAID partition handling
+
+https://bugs.gentoo.org/show_bug.cgi?id=430748
+https://savannah.gnu.org/bugs/?37073
+http://bzr.savannah.gnu.org/lh/grub/trunk/grub/revision/4858
+
+=== modified file 'util/getroot.c'
+--- util/getroot.c	2013-04-12 20:37:59 +0000
++++ util/getroot.c	2013-04-15 06:37:13 +0000
+@@ -1956,6 +1956,7 @@
+ 	      grub_util_info ("dm_tree_find_node failed");
+ 	      goto devmapper_out;
+ 	    }
++	reiterate:
+ 	  node_uuid = dm_tree_node_get_uuid (node);
+ 	  if (! node_uuid)
+ 	    {
+@@ -2030,6 +2031,9 @@
+ 	      goto devmapper_out;
+ 	    }
+ 	  mapper_name = child_name;
++	  *is_part = 1;
++	  node = child;
++	  goto reiterate;
+ 
+ devmapper_out:
+ 	  if (! mapper_name && node)
+

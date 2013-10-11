@@ -1,13 +1,13 @@
 # Create required fonts, otherwise graphic mode won't be loaded
-if [ -x "/bin/grub-mkfont" ]; then
+if [ -x "/usr/bin/grub2-mkfont" ]; then
 	# This is the bare minimum
-	grub-mkfont --output=/boot/grub/unifont.pf2 \
+	/usr/bin/grub2-mkfont --output=/boot/grub/unifont.pf2 \
 		/usr/share/fonts/unifont/unifont.pcf.gz
 
 	# let's load DejaVu if exists, no deps against it
 	# to avoid crazy deps on critical pkg
 	if [ -x "/usr/share/fonts/dejavu/DejaVuSans.ttf" ]; then
-		grub-mkfont --output=/boot/grub/dejavu.pf2 \
+		/usr/bin/grub2-mkfont --output=/boot/grub/dejavu.pf2 \
 			/usr/share/fonts/dejavu/DejaVuSans.ttf
 	fi
 

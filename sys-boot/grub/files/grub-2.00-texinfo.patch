@@ -1,0 +1,16 @@
+Fix for texinfo-5.1
+
+=== modified file 'docs/grub-dev.texi'
+--- docs/grub-dev.texi	2012-05-22 07:15:28 +0000
++++ docs/grub-dev.texi	2013-04-08 13:23:07 +0000
+@@ -1394,8 +1394,8 @@
+ 
+ @node Bitmap API
+ @section Bitmap API
+-@itemize
+ @subsection grub_video_bitmap_create
++@itemize
+ @item Prototype:
+ @example
+ grub_err_t grub_video_bitmap_create (struct grub_video_bitmap **bitmap, unsigned int width, unsigned int height, enum grub_video_blit_format blit_format)
+
