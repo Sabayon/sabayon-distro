@@ -1,88 +1,8 @@
---- grub-2.00.orig/util/grub.d/10_hurd.in	2012-03-04 21:10:04.000000000 +0100
-+++ grub-2.00/util/grub.d/10_hurd.in	2012-08-30 15:37:25.000000000 +0200
-@@ -117,7 +117,7 @@ EOF
-       opts=
-   fi
-   sed "s/^/$submenu_indentation/" << EOF
--	echo		'$message'
-+	echo		'$(echo "$message" | grub_quote)'
- 	multiboot	${kernel} root=device:${GRUB_DEVICE#/dev/} $opts ${GRUB_CMDLINE_GNUMACH}
- EOF
- 
-@@ -133,7 +133,7 @@ EOF
-   fi
- 
-   sed "s/^/$submenu_indentation/" << EOF
--	echo		'$message'
-+	echo		'$(echo "$message" | grub_quote)'
- 	module		/hurd/${hurd_fs}.static ${hurd_fs} $opts \\
- 			--multiboot-command-line='\${kernel-command-line}' \\
- 			--host-priv-port='\${host-port}' \\
---- grub-2.00.orig/util/grub.d/10_illumos.in	2012-03-04 20:03:38.000000000 +0100
-+++ grub-2.00/util/grub.d/10_illumos.in	2012-08-30 15:37:25.000000000 +0200
-@@ -46,6 +46,7 @@ message="$(gettext_printf "Loading kerne
- 		ISADIR=
- 	fi
- 	zfs-bootfs $($grub_mkrelpath /) ZFS_BOOTFS
-+        echo '$(echo "$message" | grub_quote)'
- 	multiboot $($grub_mkrelpath /platform/i86pc/kernel)/\$ISADIR/unix /platform/i86pc/kernel/\$ISADIR/unix -B \$ZFS_BOOTFS,console=text
- 	module $($grub_mkrelpath /platform/i86pc)/\$ISADIR/boot_archive /platform/i86pc/\$ISADIR/boot_archive
- }
---- grub-2.00.orig/util/grub.d/10_kfreebsd.in	2012-03-04 22:02:30.000000000 +0100
-+++ grub-2.00/util/grub.d/10_kfreebsd.in	2012-08-30 15:37:25.000000000 +0200
-@@ -100,7 +100,7 @@ kfreebsd_entry ()
-   printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
-   message="$(gettext_printf "Loading kernel of FreeBSD %s ..." ${version})"
-   sed "s/^/$submenu_indentation/" << EOF
--	echo			'$message'
-+	echo			'$(echo "$message" | grub_quote)'
- 	kfreebsd		${rel_dirname}/${basename} ${args}
- EOF
- 
---- grub-2.00.orig/util/grub.d/10_linux.in	2012-08-30 15:35:40.000000000 +0200
-+++ grub-2.00/util/grub.d/10_linux.in	2012-08-30 15:38:40.000000000 +0200
-@@ -134,14 +134,14 @@ linux_entry ()
-   fi
-   message="$(gettext_printf "Loading Linux %s ..." ${version})"
-   sed "s/^/$submenu_indentation/" << EOF
--	echo	'$message'
-+	echo	'$(echo "$message" | grub_quote)'
- 	linux	${rel_dirname}/${basename} ro ${args}
- EOF
-   if test -n "${initrd}" ; then
-     # TRANSLATORS: ramdisk isn't identifier. Should be translated.
-     message="$(gettext_printf "Loading initial ramdisk ...")"
-     sed "s/^/$submenu_indentation/" << EOF
--	echo	'$message'
-+	echo	'$(echo "$message" | grub_quote)'
- 	initrd	${rel_dirname}/${initrd}
- EOF
-   fi
---- grub-2.00.orig/util/grub.d/20_linux_xen.in	2012-06-03 21:57:42.000000000 +0200
-+++ grub-2.00/util/grub.d/20_linux_xen.in	2012-08-30 15:37:25.000000000 +0200
-@@ -120,16 +120,16 @@ linux_entry ()
-   xmessage="$(gettext_printf "Loading Xen %s ..." ${xen_version})"
-   lmessage="$(gettext_printf "Loading Linux %s ..." ${version})"
-   sed "s/^/$submenu_indentation/" << EOF
--	echo	'$xmessage'
-+	echo	'$(echo "$xmessage" | grub_quote)'
- 	multiboot	${rel_xen_dirname}/${xen_basename} placeholder ${xen_args}
--	echo	'$lmessage'
-+	echo	'$(echo "$lmessage" | grub_quote)'
- 	module	${rel_dirname}/${basename} placeholder root=${linux_root_device_thisversion} ro ${args}
- EOF
-   if test -n "${initrd}" ; then
-     # TRANSLATORS: ramdisk isn't identifier. Should be translated.
-     message="$(gettext_printf "Loading initial ramdisk ...")"
-     sed "s/^/$submenu_indentation/" << EOF
--	echo	'$message'
-+	echo	'$(echo "$message" | grub_quote)'
- 	module	${rel_dirname}/${initrd}
- EOF
-   fi
---- grub-2.00.orig/util/grub-mkconfig_lib.in	2012-06-27 17:27:53.000000000 +0200
-+++ grub-2.00/util/grub-mkconfig_lib.in	2012-08-30 15:37:25.000000000 +0200
-@@ -255,19 +255,19 @@ version_find_latest ()
+https://bugs.gentoo.org/show_bug.cgi?id=426364
+https://savannah.gnu.org/bugs/index.php?36839
+--- util/grub-mkconfig_lib.in
++++ util/grub-mkconfig_lib.in
+@@ -255,19 +255,19 @@
    echo "$version_find_latest_a"
  }
  
@@ -107,3 +27,87 @@
  # remaining arguments to printf.  This is a useful abbreviation and tends to
  # be easier to type.
  gettext_printf () {
+
+=== modified file 'util/grub.d/10_hurd.in'
+--- util/grub.d/10_hurd.in
++++ util/grub.d/10_hurd.in
+@@ -117,7 +117,7 @@
+       opts=
+   fi
+   sed "s/^/$submenu_indentation/" << EOF
+-	echo		'$message'
++	echo		'$(echo "$message" | grub_quote)'
+ 	multiboot	${kernel} root=device:${GRUB_DEVICE#/dev/} $opts ${GRUB_CMDLINE_GNUMACH}
+ EOF
+ 
+@@ -133,7 +133,7 @@
+   fi
+ 
+   sed "s/^/$submenu_indentation/" << EOF
+-	echo		'$message'
++	echo		'$(echo "$message" | grub_quote)'
+ 	module		/hurd/${hurd_fs}.static ${hurd_fs} $opts \\
+ 			--multiboot-command-line='\${kernel-command-line}' \\
+ 			--host-priv-port='\${host-port}' \\
+--- util/grub.d/10_illumos.in
++++ util/grub.d/10_illumos.in
+@@ -46,6 +46,7 @@
+ 		ISADIR=
+ 	fi
+ 	zfs-bootfs $($grub_mkrelpath /) ZFS_BOOTFS
++        echo '$(echo "$message" | grub_quote)'
+ 	multiboot $($grub_mkrelpath /platform/i86pc/kernel)/\$ISADIR/unix /platform/i86pc/kernel/\$ISADIR/unix -B \$ZFS_BOOTFS,console=text
+ 	module $($grub_mkrelpath /platform/i86pc)/\$ISADIR/boot_archive /platform/i86pc/\$ISADIR/boot_archive
+ }
+--- util/grub.d/10_kfreebsd.in
++++ util/grub.d/10_kfreebsd.in
+@@ -100,7 +100,7 @@
+   printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
+   message="$(gettext_printf "Loading kernel of FreeBSD %s ..." ${version})"
+   sed "s/^/$submenu_indentation/" << EOF
+-	echo			'$message'
++	echo			'$(echo "$message" | grub_quote)'
+ 	kfreebsd		${rel_dirname}/${basename} ${args}
+ EOF
+ 
+--- util/grub.d/10_linux.in
++++ util/grub.d/10_linux.in
+@@ -134,14 +134,14 @@
+   fi
+   message="$(gettext_printf "Loading Linux %s ..." ${version})"
+   sed "s/^/$submenu_indentation/" << EOF
+-	echo	'$message'
++	echo	'$(echo "$message" | grub_quote)'
+ 	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro ${args}
+ EOF
+   if test -n "${initrd}" ; then
+     # TRANSLATORS: ramdisk isn't identifier. Should be translated.
+     message="$(gettext_printf "Loading initial ramdisk ...")"
+     sed "s/^/$submenu_indentation/" << EOF
+-	echo	'$message'
++	echo	'$(echo "$message" | grub_quote)'
+ 	initrd	${rel_dirname}/${initrd}
+ EOF
+   fi
+--- util/grub.d/20_linux_xen.in
++++ util/grub.d/20_linux_xen.in
+@@ -120,16 +120,16 @@
+   xmessage="$(gettext_printf "Loading Xen %s ..." ${xen_version})"
+   lmessage="$(gettext_printf "Loading Linux %s ..." ${version})"
+   sed "s/^/$submenu_indentation/" << EOF
+-	echo	'$xmessage'
++	echo	'$(echo "$xmessage" | grub_quote)'
+ 	multiboot	${rel_xen_dirname}/${xen_basename} placeholder ${xen_args}
+-	echo	'$lmessage'
++	echo	'$(echo "$lmessage" | grub_quote)'
+ 	module	${rel_dirname}/${basename} placeholder root=${linux_root_device_thisversion} ro ${args}
+ EOF
+   if test -n "${initrd}" ; then
+     # TRANSLATORS: ramdisk isn't identifier. Should be translated.
+     message="$(gettext_printf "Loading initial ramdisk ...")"
+     sed "s/^/$submenu_indentation/" << EOF
+-	echo	'$message'
++	echo	'$(echo "$message" | grub_quote)'
+ 	module	${rel_dirname}/${initrd}
+ EOF
+   fi

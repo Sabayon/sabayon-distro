@@ -18,8 +18,6 @@ if [[ ${PV} != 9999 ]]; then
 	KEYWORDS="~amd64 ~x86"
 	S=${WORKDIR}/${MY_P}
 	PATCHES=(
-		# Sabayon crufty patchset
-		# 2013-10-11 dropped -> "${FILESDIR}"/${PN}-1.99-genkernel.patch #256335
 		"${FILESDIR}"/${PN}-1.99-vga-deprecated.patch
 		# vga= not yet deprecated for us
 		"${FILESDIR}"/${PN}-2.00-vga-deprecated-not-yet.patch
