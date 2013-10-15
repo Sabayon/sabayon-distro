@@ -4,17 +4,20 @@
 
 EAPI=5
 TRANSMISSION_PATCHES=(
-	# fix for broken translations path
-	"${FILESDIR}/${P}-translations-path-fix.patch"
+	# Fix for broken translations path
+	"${FILESDIR}"/${PN}-2.80-translations-path-fix.patch
+	# Restore support for Qt 4.x using upstream patch
+	"${FILESDIR}"/transmission-${PV}-qt4.patch
 )
-inherit eutils transmission-2.80
+inherit eutils transmission-2.82
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Qt4 UI"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="dev-qt/qtcore:4=
-	dev-qt/qtgui:4=[dbus(+)]
+	dev-qt/qtgui:4=
+	dev-qt/qtdbus:4=
 "
 DEPEND="${RDEPEND}"
 

@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-# @ECLASS: transmission-2.71.eclass
+# @ECLASS: transmission-2.xx.eclass
 # @MAINTAINER:
 # slawomir.nizio@sabayon.org
 # @AUTHOR:
@@ -13,6 +13,8 @@
 # Its name contains a version that corresponds to net-p2p/transmission one,
 # because the eclass will change often when needed to follow changes
 # in Gentoo ebuild.
+# Always call phase functions using their public names, such like:
+# transmission-2.82_src_configure, and never _transmission_src_configure.
 
 # @ECLASS-VARIABLE: TRANSMISSION_PATCHES
 # @DEFAULT_UNSET
@@ -43,6 +45,22 @@ _transmission_is() {
 	local what=$1
 	[[ ${what} = "${E_TRANSM_TAIL}" ]]
 }
+
+# @FUNCTION: _transmission_eclass_setup_functions
+# @INTERNAL
+# @DESCRIPTION:
+# Function to setup functions. The eval uses strictly controlled variables,
+# so it's OK.
+_transmission_eclass_setup_functions() {
+	local v=2.82
+	local func
+	for func in pkg_setup src_prepare src_configure src_compile \
+			pkg_preinst pkg_postinst pkg_postrm; do
+		eval "transmission-${v}_${func}() { _transmission_${func}; }"
+	done
+}
+
+_transmission_eclass_setup_functions
 
 MY_ECLASSES=""
 _transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
@@ -111,21 +129,25 @@ fi
 S="${WORKDIR}/${MY_P}"
 _transmission_is "" && S="${WORKDIR}"
 
-transmission-2.76_pkg_setup() {
+_transmission_pkg_setup() {
 	if _transmission_is base; then
 		enewgroup transmission
 		enewuser transmission -1 -1 -1 transmission
 	fi
 }
 
-transmission-2.76_src_prepare() {
+_transmission_src_prepare() {
 	_transmission_is "" && return
 
 	sed -i -e '/CFLAGS/s:-ggdb3::' configure.ac || die
 
 	if ! use_if_iuse ayatana; then
+		# Trick to avoid automagic dependency
 		sed -i -e '/^LIBAPPINDICATOR_MINIMUM/s:=.*:=9999:' configure.ac || die
 	fi
+
+	# Pass our configuration dir to systemd unit file
+	sed -i '/ExecStart/ s|$| -g /var/lib/transmission/config|' daemon/transmission-daemon.service || die
 
 	# http://trac.transmissionbt.com/ticket/4324
 	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
@@ -149,7 +171,7 @@ transmission-2.76_src_prepare() {
 	fi
 }
 
-transmission-2.76_src_configure() {
+_transmission_src_configure() {
 	_transmission_is "" && return
 
 	local econfargs=(
@@ -175,6 +197,7 @@ transmission-2.76_src_configure() {
 			--disable-cli
 			--enable-daemon
 			--without-gtk
+			$(use_with systemd systemd-daemon)
 		)
 	elif _transmission_is gtk; then
 		econfargs+=(
@@ -200,7 +223,7 @@ transmission-2.76_src_configure() {
 	fi
 }
 
-transmission-2.76_src_compile() {
+_transmission_src_compile() {
 	_transmission_is "" && return
 
 	emake
@@ -216,11 +239,11 @@ transmission-2.76_src_compile() {
 # Note: not providing src_install. Too many differences and too much code
 # which would only clutter this pretty eclass.
 
-transmission-2.76_pkg_preinst() {
+_transmission_pkg_preinst() {
 	_transmission_is gtk && gnome2_icon_savelist
 }
 
-transmission-2.76_pkg_postinst() {
+_transmission_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
@@ -252,7 +275,7 @@ transmission-2.76_pkg_postinst() {
 	fi
 }
 
-transmission-2.76_pkg_postrm() {
+_transmission_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi

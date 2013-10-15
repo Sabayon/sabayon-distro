@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=5
-inherit eutils transmission-2.80
+inherit eutils transmission-2.82
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - command line (CLI) version"
 KEYWORDS="~amd64 ~x86"
