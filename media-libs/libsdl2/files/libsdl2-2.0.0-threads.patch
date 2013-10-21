@@ -1,0 +1,64 @@
+
+# HG changeset patch
+# User Sam Lantinga <slouken@libsdl.org>
+# Date 1378390526 25200
+# Node ID e928464b98ec679471ea80d0d5fefe8b3406eef1
+# Parent  384d5ba7ee44f4c90ecb5b581113918a66b8371e
+Fixed bug 2076 - OpenGL doesn't work with --disable-threads
+
+stepik-777
+
+Thread local storage is used to store current window and current opengl context. OpenGL worked before this changeset: 7596 (45e5c263c096)
+
+diff -r 384d5ba7ee44 -r e928464b98ec src/thread/SDL_systhread.h
+--- a/src/thread/SDL_systhread.h	Thu Sep 05 07:02:27 2013 -0700
++++ b/src/thread/SDL_systhread.h	Thu Sep 05 07:15:26 2013 -0700
+@@ -26,6 +26,7 @@
+ #define _SDL_systhread_h
+ 
+ #include "SDL_thread.h"
++#include "SDL_thread_c.h"
+ 
+ /* This function creates a thread, passing args to SDL_RunThread(),
+    saves a system-dependent thread id in thread->id, and returns 0
+diff -r 384d5ba7ee44 -r e928464b98ec src/thread/SDL_thread.c
+--- a/src/thread/SDL_thread.c	Thu Sep 05 07:02:27 2013 -0700
++++ b/src/thread/SDL_thread.c	Thu Sep 05 07:15:26 2013 -0700
+@@ -125,6 +125,7 @@
+     SDL_TLSEntry *entry;
+     SDL_TLSData *storage = NULL;
+ 
++#if !SDL_THREADS_DISABLED
+     if (!SDL_generic_TLS_mutex) {
+         static SDL_SpinLock tls_lock;
+         SDL_AtomicLock(&tls_lock);
+@@ -139,6 +140,7 @@
+         }
+         SDL_AtomicUnlock(&tls_lock);
+     }
++#endif /* SDL_THREADS_DISABLED */
+ 
+     SDL_MemoryBarrierAcquire();
+     SDL_LockMutex(SDL_generic_TLS_mutex);
+@@ -148,7 +150,9 @@
+             break;
+         }
+     }
++#if !SDL_THREADS_DISABLED
+     SDL_UnlockMutex(SDL_generic_TLS_mutex);
++#endif
+ 
+     return storage;
+ }
+diff -r 384d5ba7ee44 -r e928464b98ec src/thread/SDL_thread_c.h
+--- a/src/thread/SDL_thread_c.h	Thu Sep 05 07:02:27 2013 -0700
++++ b/src/thread/SDL_thread_c.h	Thu Sep 05 07:15:26 2013 -0700
+@@ -23,6 +23,8 @@
+ #ifndef _SDL_thread_c_h
+ #define _SDL_thread_c_h
+ 
++#include "SDL_thread.h"
++
+ /* Need the definitions of SYS_ThreadHandle */
+ #if SDL_THREADS_DISABLED
+ #include "generic/SDL_systhread_c.h"
