@@ -18,7 +18,7 @@ SRC_URI="http://www.python.org/ftp/python/${PV}/${MY_P}.tar.xz
 
 LICENSE="PSF-2"
 SLOT="3.2"
-KEYWORDS="~alpha ~amd64 ~arm hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE="build doc elibc_uclibc examples gdbm hardened ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -36,7 +36,7 @@ RDEPEND="app-arch/bzip2
 			>=sys-libs/ncurses-5.2
 			readline? ( >=sys-libs/readline-4.1 )
 		)
-		sqlite? ( >=dev-db/sqlite-3.3.8:3[extensions] )
+		sqlite? ( >=dev-db/sqlite-3.3.8:3 )
 		ssl? ( dev-libs/openssl )
 		xml? ( >=dev-libs/expat-2.1 )
 	)"
