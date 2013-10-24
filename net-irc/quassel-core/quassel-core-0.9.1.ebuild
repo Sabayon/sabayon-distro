@@ -1,17 +1,17 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=4
 
+inherit cmake-utils eutils pax-utils user
+
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
 EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && GIT_ECLASS="git-2"
+[[ "${PV}" == "9999" ]] && inherit git-2
 
 QT_MINIMAL="4.6.0"
 KDE_MINIMAL="4.4"
-
-inherit cmake-utils eutils pax-utils ${GIT_ECLASS}
 
 DESCRIPTION="Qt4/KDE4 IRC client. This provides the \"core\" (server) component."
 HOMEPAGE="http://quassel-irc.org/"
@@ -22,16 +22,17 @@ MY_PN=${PN/-core}
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE="crypt dbus +ssl postgres"
+IUSE="crypt dbus postgres +ssl syslog"
 
 SERVER_RDEPEND="
+	>=dev-qt/qtscript-${QT_MINIMAL}:4
 	crypt? (
 		app-crypt/qca:2
 		app-crypt/qca-ossl
 	)
 	!postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[sqlite] dev-db/sqlite[-secure-delete] )
 	postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[postgres] )
-	>=dev-qt/qtscript-${QT_MINIMAL}:4
+	syslog? ( virtual/logger )
 "
 
 RDEPEND="
@@ -66,6 +67,7 @@ src_configure() {
 		"-DWITH_KDE=OFF"
 		$(cmake-utils_use_with dbus)
 		$(cmake-utils_use_with ssl OPENSSL)
+		$(cmake-utils_use_with syslog)
 		"-DWITH_OXYGEN=OFF"
 		$(cmake-utils_use_with crypt)
 		"-DEMBED_DATA=OFF"
@@ -84,25 +86,29 @@ src_install() {
 
 	# server stuff
 
-	# bug 346255
-	pax-mark m "${ED}/usr/bin/quasselcore" || die
+	# needs PAX marking wrt bug#346255
+	pax-mark m "${ED}/usr/bin/quasselcore"
 
 	# prepare folders in /var/
 	keepdir "${QUASSEL_DIR}"
 	fowners "${QUASSEL_USER}":"${QUASSEL_USER}" "${QUASSEL_DIR}"
 
 	# init scripts
-	newinitd "${FILESDIR}"/quasselcore.init quasselcore || die "newinitd failed"
-	newconfd "${FILESDIR}"/quasselcore.conf quasselcore || die "newconfd failed"
+	newinitd "${FILESDIR}"/quasselcore.init quasselcore
+	newconfd "${FILESDIR}"/quasselcore.conf quasselcore
 
 	# logrotate
 	insinto /etc/logrotate.d
-	newins "${FILESDIR}/quassel.logrotate" quassel || die "newins failed"
+	newins "${FILESDIR}/quassel.logrotate" quassel
 }
 
 pkg_postinst() {
 	einfo "If you want to generate SSL certificate remember to run:"
 	einfo "	emerge --config =${CATEGORY}/${PF}"
+
+	# server || monolithic
+	einfo "Quassel can use net-misc/oidentd package if installed on your system."
+	einfo "Consider installing it if you want to run quassel within identd daemon."
 
 	# temporary info mesage
 	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]]; then
