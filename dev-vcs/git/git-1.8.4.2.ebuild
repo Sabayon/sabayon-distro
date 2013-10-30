@@ -2,16 +2,16 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_DEPEND="python? 2"
+PYTHON_COMPAT=( python2_{6,7} )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 
-inherit toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python systemd ${SCM}
+inherit toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_P="${PN}-${MY_PV}"
@@ -38,7 +38,7 @@ else
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.2-Gentoo-patches.tgz"
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.4-optional-cvs.patch.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -49,7 +49,7 @@ CDEPEND="
 	dev-libs/openssl
 	sys-libs/zlib
 	pcre? ( dev-libs/libpcre )
-	perl? ( dev-lang/perl[-build] )
+	perl? ( dev-lang/perl[-build(-)] )
 	tk? ( dev-lang/tk )
 	curl? (
 		net-misc/curl
@@ -69,9 +69,10 @@ RDEPEND="${CDEPEND}
 			)
 	python? ( gtk?
 	(
-		>=dev-python/pygtk-2.8
-		dev-python/pygtksourceview:2
-	) )"
+		>=dev-python/pygtk-2.8[${PYTHON_USEDEP}]
+		>=dev-python/pygtksourceview-2.10.1-r1:2[${PYTHON_USEDEP}]
+	)
+		${PYTHON_DEPS} )"
 
 # This is how info docs are created with Git:
 #   .txt/asciidoc --(asciidoc)---------> .xml/docbook
@@ -103,17 +104,18 @@ REQUIRED_USE="
 	cvs? ( perl )
 	subversion? ( perl )
 	webdav? ( curl )
+	gtk? ( python )
+	python? ( ${PYTHON_REQUIRED_USE} )
 "
 
 pkg_setup() {
-	if use subversion && has_version dev-vcs/subversion && built_with_use --missing false dev-vcs/subversion dso ; then
+	if use subversion && has_version "dev-vcs/subversion[dso]"; then
 		ewarn "Per Gentoo bugs #223747, #238586, when subversion is built"
 		ewarn "with USE=dso, there may be weird crashes in git-svn. You"
 		ewarn "have been warned."
 	fi
 	if use python ; then
-		python_set_active_version 2
-		python_pkg_setup
+		python-single-r1_pkg_setup
 	fi
 }
 
@@ -165,7 +167,8 @@ exportmakeopts() {
 	use subversion \
 		|| myopts="${myopts} NO_SVN_TESTS=YesPlease"
 	use threads \
-		&& myopts="${myopts} THREADED_DELTA_SEARCH=YesPlease"
+		&& myopts="${myopts} THREADED_DELTA_SEARCH=YesPlease" \
+		|| myopts="${myopts} NO_PTHREADS=YesPlease"
 	use cvs \
 		|| myopts="${myopts} NO_CVS=YesPlease"
 # Disabled until ~m68k-mint can be keyworded again
@@ -215,27 +218,20 @@ src_unpack() {
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
 
-	cd "${WORKDIR}" && unpack git-1.8.2-Gentoo-patches.tgz
+	cd "${WORKDIR}" && unpack git-1.8.4-optional-cvs.patch.gz
 }
 
 src_prepare() {
-	# bug #418431 - stated for upstream 1.7.13. Developed by Michael Schwern,
-	# funded as a bounty by the Gentoo Foundation. Merged upstream in 1.8.0.
-	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch.bz2
-
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-optional-cvs.patch
-
-	# bug #464210 - texinfo anchors
-	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-texinfo.patch
+	epatch "${WORKDIR}"/git-1.8.4-optional-cvs.patch
 
 	sed -i \
-		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
-		-e 's:^\(LDFLAGS =\).*$:\1 $(OPTLDFLAGS):' \
-		-e 's:^\(CC = \).*$:\1$(OPTCC):' \
-		-e 's:^\(AR = \).*$:\1$(OPTAR):' \
-		-e "s:\(PYTHON_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
-		-e "s:\(PERL_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
+		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
+		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
+		-e 's:^\(CC[[:space:]]* =\).*$:\1$(OPTCC):' \
+		-e 's:^\(AR[[:space:]]* =\).*$:\1$(OPTAR):' \
+		-e "s:\(PYTHON_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
+		-e "s:\(PERL_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
 		Makefile contrib/svn-fe/Makefile || die "sed failed"
 
 	# Never install the private copy of Error.pm (bug #296310)
@@ -244,7 +240,7 @@ src_prepare() {
 		perl/Makefile.PL
 
 	# Fix docbook2texi command
-	sed -i 's/DOCBOOK2X_TEXI=docbook2x-texi/DOCBOOK2X_TEXI=docbook2texi.pl/' \
+	sed -r -i 's/DOCBOOK2X_TEXI[[:space:]]*=[[:space:]]*docbook2x-texi/DOCBOOK2X_TEXI = docbook2texi.pl/' \
 		Documentation/Makefile || die "sed failed"
 
 	# Fix git-subtree missing DESTDIR
@@ -258,7 +254,7 @@ git_emake() {
 	# bug #326625: PERL_PATH, PERL_MM_OPT
 	# bug #320647: PYTHON_PATH
 	PYTHON_PATH=""
-	use python && PYTHON_PATH="$(PYTHON -a)"
+	use python && PYTHON_PATH="${PYTHON}"
 	emake ${MY_MAKEOPTS} \
 		DESTDIR="${D}" \
 		OPTCFLAGS="${CFLAGS}" \
@@ -290,8 +286,7 @@ src_compile() {
 	git_emake || die "emake failed"
 
 	if use emacs ; then
-		elisp-compile contrib/emacs/git{,-blame}.el \
-			|| die "emacs modules failed"
+		elisp-compile contrib/emacs/git{,-blame}.el
 	fi
 
 	if use perl && use cgi ; then
@@ -371,25 +366,25 @@ src_install() {
 	newbashcomp contrib/completion/git-prompt.sh ${PN}-prompt
 
 	if use emacs ; then
-		elisp-install ${PN} contrib/emacs/git.{el,elc} || die
-		elisp-install ${PN} contrib/emacs/git-blame.{el,elc} || die
-		#elisp-install ${PN}/compat contrib/emacs/vc-git.{el,elc} || die
+		elisp-install ${PN} contrib/emacs/git.{el,elc}
+		elisp-install ${PN} contrib/emacs/git-blame.{el,elc}
+		#elisp-install ${PN}/compat contrib/emacs/vc-git.{el,elc}
 		# don't add automatically to the load-path, so the sitefile
 		# can do a conditional loading
 		touch "${ED}${SITELISP}/${PN}/compat/.nosearch"
-		elisp-site-file-install "${FILESDIR}"/${SITEFILE} || die
+		elisp-site-file-install "${FILESDIR}"/${SITEFILE}
 	fi
 
 	if use python && use gtk ; then
-		dobin "${S}"/contrib/gitview/gitview
-		python_convert_shebangs ${PYTHON_ABI} "${ED}"/usr/bin/gitview
+		python_doscript "${S}"/contrib/gitview/gitview
 		dodoc "${S}"/contrib/gitview/gitview.txt
 	fi
 
 	#dobin contrib/fast-import/git-p4 # Moved upstream
 	#dodoc contrib/fast-import/git-p4.txt # Moved upstream
 	newbin contrib/fast-import/import-tars.perl import-tars
-	newbin contrib/git-resurrect.sh git-resurrect
+	exeinto /usr/libexec/git-core/
+	newexe contrib/git-resurrect.sh git-resurrect
 
 	# git-subtree
 	cd "${S}"/contrib/subtree
@@ -410,8 +405,14 @@ src_install() {
 	newdoc contrib/diff-highlight/README README.diff-highlight
 
 	# git-jump
-	dobin contrib/git-jump/git-jump
+	exeinto /usr/libexec/git-core/
+	doexe contrib/git-jump/git-jump
 	newdoc contrib/git-jump/README git-jump.txt
+
+	# git-contacts
+	exeinto /usr/libexec/git-core/
+	doexe contrib/contacts/git-contacts
+	dodoc contrib/contacts/git-contacts.txt
 
 	if use gnome-keyring ; then
 		cd "${S}"/contrib/credential/gnome-keyring
@@ -424,6 +425,13 @@ src_install() {
 		dodoc svn-fe.txt
 		use doc && doman svn-fe.1 && dohtml svn-fe.html
 		cd "${S}"
+	fi
+
+	# remote-helpers
+	if use python ; then
+		python_scriptinto /usr/libexec/git-core/
+		python_doscript "${S}"/contrib/remote-helpers/git-remote-{bzr,hg}
+		python_optimize
 	fi
 
 	dodir /usr/share/${PN}/contrib
@@ -444,7 +452,7 @@ src_install() {
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
 	for i in \
-		blameview buildsystems ciabot continuous convert-objects fast-import \
+		buildsystems ciabot convert-objects fast-import \
 		hg-to-git hooks remotes2config.sh rerere-train.sh \
 		stats vim workdir \
 		; do
@@ -486,6 +494,8 @@ src_install() {
 	if use !prefix; then
 		newinitd "${FILESDIR}"/git-daemon.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
+		systemd_newunit "${FILESDIR}/git-daemon_at.service" "git-daemon@.service"
+		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
 	fixlocalpod
@@ -495,9 +505,6 @@ src_install() {
 		rm -rf "${ED}"/usr/bin/git-cvsserver \
 			"${ED}"/usr/libexec/git-core/git-cvs* || die
 	fi
-
-	systemd_newunit "${FILESDIR}/git-daemon_at.service" "git-daemon@.service"
-	systemd_dounit "${FILESDIR}/git-daemon.socket"
 }
 
 src_test() {
@@ -509,9 +516,12 @@ src_test() {
 					t9601-cvsimport-vendor-branch.sh \
 					t9602-cvsimport-branches-tags.sh \
 					t9603-cvsimport-patchsets.sh"
-	local tests_perl="t5502-quickfetch.sh \
+	local tests_perl="t3701-add-interactive.sh \
+					t5502-quickfetch.sh \
 					t5512-ls-remote.sh \
-					t5520-pull.sh"
+					t5520-pull.sh \
+					t7106-reset-unborn-branch.sh \
+					t7501-commit.sh"
 	# Bug #225601 - t0004 is not suitable for root perm
 	# Bug #219839 - t1004 is not suitable for root perm
 	# t0001-init.sh - check for init notices EPERM*  fails
@@ -545,7 +555,7 @@ src_test() {
 			has_version dev-vcs/cvs && \
 			let cvs=$cvs+1
 		[[ $cvs -gt 1 ]] && \
-			built_with_use dev-vcs/cvs server && \
+			has_version "dev-vcs/cvs[server]" && \
 			let cvs=$cvs+1
 		if [[ $cvs -lt 3 ]]; then
 			einfo "Disabling CVS tests (needs dev-vcs/cvs[USE=server])"
@@ -603,7 +613,6 @@ showpkgdeps() {
 
 pkg_postinst() {
 	use emacs && elisp-site-regen
-	use python && python_mod_optimize git_remote_helpers
 	einfo "Please read /usr/share/bash-completion/git for Git bash command completion"
 	einfo "Please read /usr/share/bash-completion/git-prompt for Git bash prompt"
 	einfo "Note that the prompt bash code is now in the seperate script"
@@ -617,5 +626,4 @@ pkg_postinst() {
 
 pkg_postrm() {
 	use emacs && elisp-site-regen
-	use python && python_mod_cleanup git_remote_helpers
 }

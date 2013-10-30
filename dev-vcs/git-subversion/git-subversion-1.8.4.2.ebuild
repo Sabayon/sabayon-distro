@@ -2,15 +2,15 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 GENTOO_DEPEND_ON_PERL=no
 
-PYTHON_DEPEND="2"
+PYTHON_COMPAT=( python2_{6,7} )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 
-inherit toolchain-funcs eutils multilib python ${SCM}
+inherit toolchain-funcs eutils multilib python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_PN="${PN/-subversion}"
@@ -38,7 +38,7 @@ else
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.2-Gentoo-patches.tgz"
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.4-optional-cvs.patch.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -48,8 +48,10 @@ RDEPEND="~dev-vcs/git-${PV}[-subversion,perl]
 	dev-perl/Error
 	dev-perl/Net-SMTP-SSL
 	dev-perl/Authen-SASL
-	dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey"
+	dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey
+	${PYTHON_DEPS}"
 DEPEND="app-arch/cpio
+	dev-lang/perl[-build(-)]
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X
@@ -64,6 +66,10 @@ if [[ ${PV} == *9999 ]]; then
 fi
 
 S="${WORKDIR}/${MY_P}"
+
+REQUIRED_USE="
+	${PYTHON_REQUIRED_USE}
+"
 
 # This is needed because for some obscure reasons future calls to make don't
 # pick up these exports if we export them in src_unpack()
@@ -118,31 +124,24 @@ src_unpack() {
 		git-2_src_unpack
 	fi
 
-	cd "${WORKDIR}" && unpack git-1.8.2-Gentoo-patches.tgz
+	cd "${WORKDIR}" && unpack git-1.8.4-optional-cvs.patch.gz
 }
 
 src_prepare() {
-	# bug #418431 - stated for upstream 1.7.13. Developed by Michael Schwern,
-	# funded as a bounty by the Gentoo Foundation. Merged upstream in 1.8.0.
-	#epatch "${DISTDIR}"/git-1.7.12-git-svn-backport.patch.bz2
-
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-optional-cvs.patch
-
-	# bug #464210 - texinfo anchors
-	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-texinfo.patch
+	epatch "${WORKDIR}"/git-1.8.4-optional-cvs.patch
 
 	sed -i \
-		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
-		-e 's:^\(LDFLAGS =\).*$:\1 $(OPTLDFLAGS):' \
-		-e 's:^\(CC = \).*$:\1$(OPTCC):' \
-		-e 's:^\(AR = \).*$:\1$(OPTAR):' \
-		-e "s:\(PYTHON_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
-		-e "s:\(PERL_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
+		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
+		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
+		-e 's:^\(CC[[:space:]]* =\).*$:\1$(OPTCC):' \
+		-e 's:^\(AR[[:space:]]* =\).*$:\1$(OPTAR):' \
+		-e "s:\(PYTHON_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
+		-e "s:\(PERL_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
 		Makefile contrib/svn-fe/Makefile || die "sed failed"
 
 	# Fix docbook2texi command
-	sed -i 's/DOCBOOK2X_TEXI=docbook2x-texi/DOCBOOK2X_TEXI=docbook2texi.pl/' \
+	sed -r -i 's/DOCBOOK2X_TEXI[[:space:]]*=[[:space:]]*docbook2x-texi/DOCBOOK2X_TEXI = docbook2texi.pl/' \
 		Documentation/Makefile || die "sed failed"
 
 	# Never install the private copy of Error.pm (bug #296310)
@@ -154,7 +153,7 @@ src_prepare() {
 git_emake() {
 	# bug #326625: PERL_PATH, PERL_MM_OPT
 	# bug #320647: PYTHON_PATH
-	PYTHON_PATH="$(PYTHON -a)"
+	PYTHON_PATH="${PYTHON}"
 	emake ${MY_MAKEOPTS} \
 		DESTDIR="${D}" \
 		OPTCFLAGS="${CFLAGS}" \
@@ -209,7 +208,9 @@ src_compile() {
 }
 
 src_install() {
-	git_emake install || die "make install failed"
+	git_emake \
+		install || \
+		die "make install failed"
 
 	rm -r "${ED}"usr/share/gitweb || die
 	rm -r "${ED}"usr/bin || die

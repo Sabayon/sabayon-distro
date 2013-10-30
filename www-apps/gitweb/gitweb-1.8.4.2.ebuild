@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 GENTOO_DEPEND_ON_PERL=no
 
@@ -38,7 +38,7 @@ IUSE="highlight"
 CDEPEND="
 	~dev-vcs/git-${PV}
 	sys-libs/zlib
-	dev-lang/perl[-build]
+	dev-lang/perl[-build(-)]
 	dev-libs/libpcre
 	dev-lang/tk"
 
@@ -69,16 +69,13 @@ src_unpack() {
 }
 
 src_prepare() {
-	## bug #350330 - automagic CVS when we don't want it is bad.
-	#epatch "${FILESDIR}"/git-...-optional-cvs.patch
-
 	sed -i \
-		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
-		-e 's:^\(LDFLAGS =\).*$:\1 $(OPTLDFLAGS):' \
-		-e 's:^\(CC = \).*$:\1$(OPTCC):' \
-		-e 's:^\(AR = \).*$:\1$(OPTAR):' \
-		-e "s:\(PYTHON_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
-		-e "s:\(PERL_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
+		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
+		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
+		-e 's:^\(CC[[:space:]]* =\).*$:\1$(OPTCC):' \
+		-e 's:^\(AR[[:space:]]* =\).*$:\1$(OPTAR):' \
+		-e "s:\(PYTHON_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
+		-e "s:\(PERL_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
 		Makefile || die "sed failed"
 
 	# Never install the private copy of Error.pm (bug #296310)
@@ -88,7 +85,6 @@ src_prepare() {
 }
 
 git_emake() {
-	# PYTHON_PATH="$(PYTHON -a)"
 	local MY_MAKEOPTS="INSTALLDIRS=vendor"
 	emake ${MY_MAKEOPTS} \
 		DESTDIR="${D}" \
