@@ -2,13 +2,13 @@
 if [ -x "/usr/bin/grub2-mkfont" ]; then
 	# This is the bare minimum
 	/usr/bin/grub2-mkfont --output=/boot/grub/unifont.pf2 \
-		/usr/share/fonts/unifont/unifont.pcf.gz
+		/usr/share/fonts/unifont/unifont.pcf.gz > /dev/null
 
 	# let's load DejaVu if exists, no deps against it
 	# to avoid crazy deps on critical pkg
-	if [ -x "/usr/share/fonts/dejavu/DejaVuSans.ttf" ]; then
+	if [ -r "/usr/share/fonts/dejavu/DejaVuSans.ttf" ]; then
 		/usr/bin/grub2-mkfont --output=/boot/grub/dejavu.pf2 \
-			/usr/share/fonts/dejavu/DejaVuSans.ttf
+			/usr/share/fonts/dejavu/DejaVuSans.ttf > /dev/null
 	fi
 
 fi
