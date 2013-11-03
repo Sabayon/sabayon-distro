@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>kde</herd>
+<maintainer>
+	<email>thev00d00@gentoo.org</email>
+	<name>Ian Whyman</name>
+</maintainer>
+<use>
+	<flag name="imagemagick">Create splash images compatible with GRUB2</flag>
+	<flag name="hwinfo">Used to work out supported framebuffer resolutions</flag>
+	<flag name="packagekit">Add support for packagekit integration</flag>
+</use>
+</pkgmetadata>
+
