@@ -811,7 +811,7 @@ sabayon-kernel_uimage_config() {
 		fi
 	else
 		echo
-		elog "You are currently booting with kernel:"
+		elog "If you use eselect-bzimage, you are currently booting with kernel:"
 		elog "${uimage_file}"
 		elog
 		elog "Use 'eselect uimage' in order to switch between the available ones"
