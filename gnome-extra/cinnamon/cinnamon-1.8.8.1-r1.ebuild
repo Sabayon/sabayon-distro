@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/gnome-extra/cinnamon/cinnamon-1.8.8.1-r1.ebuild,v 1.1 2013/10/20 08:18:14 pacho Exp $
 
 EAPI="5"
 GCONF_DEBUG="no"
@@ -16,7 +16,8 @@ HOMEPAGE="http://cinnamon.linuxmint.com/"
 MY_PV="${PV/_p/-UP}"
 MY_P="${PN}-${MY_PV}"
 
-SRC_URI="https://github.com/linuxmint/Cinnamon/archive/${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
+SRC_URI="https://github.com/linuxmint/Cinnamon/archive/${MY_PV}.tar.gz -> ${MY_P}.tar.gz
+	http://dev.gentoo.org/~pacho/gnome/cinnamon-1.8/gnome-3.8.patch"
 
 LICENSE="GPL-2+"
 SLOT="0"
@@ -28,7 +29,8 @@ KEYWORDS="~amd64 ~x86"
 # latest g-c-c is needed due to https://bugs.gentoo.org/show_bug.cgi?id=360057
 # libXfixes-5.0 needed for pointer barriers
 # gnome-menus-3.2.0.1-r1 needed for new 10-xdg-menu-gnome
-COMMON_DEPEND=">=dev-libs/glib-2.29.10:2
+COMMON_DEPEND="
+	>=dev-libs/glib-2.29.10:2
 	>=dev-libs/gjs-1.29.18
 	>=dev-libs/gobject-introspection-0.10.1
 	x11-libs/gdk-pixbuf:2[introspection]
@@ -37,7 +39,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.29.10:2
 	media-libs/cogl:1.0=[introspection]
 	app-misc/ca-certificates
 	>=dev-libs/json-glib-0.13.2
-	>=gnome-base/gnome-desktop-2.91.2:3=[introspection]
+	>=gnome-base/gnome-desktop-3.0.0:3=[introspection]
 	>=gnome-base/gsettings-desktop-schemas-2.91.91
 	>=media-libs/gstreamer-0.10.16:0.10
 	>=media-libs/gst-plugins-base-0.10.16:0.10
@@ -66,7 +68,8 @@ COMMON_DEPEND=">=dev-libs/glib-2.29.10:2
 	bluetooth? ( >=net-wireless/gnome-bluetooth-3.4:=[introspection] )
 	networkmanager? (
 		gnome-base/libgnome-keyring
-		>=net-misc/networkmanager-0.8.999[introspection] )"
+		>=net-misc/networkmanager-0.8.999[introspection] )
+"
 # Runtime-only deps are probably incomplete and approximate.
 # Each block:
 # 2. Introspection stuff + dconf needed via imports.gi.*
@@ -100,7 +103,7 @@ RDEPEND="${COMMON_DEPEND}
 
 	dev-python/dbus-python[${PYTHON_USEDEP}]
 	dev-python/gconf-python:2
-	dev-python/imaging
+	virtual/python-imaging
 	dev-python/lxml
 
 	x11-themes/gnome-icon-theme-symbolic
@@ -108,6 +111,7 @@ RDEPEND="${COMMON_DEPEND}
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
 
 	gnome-extra/nemo
+	gnome-extra/gnome-screensaver
 
 	|| (
 		app-admin/openrc-settingsd
@@ -116,13 +120,18 @@ RDEPEND="${COMMON_DEPEND}
 
 	networkmanager? (
 		net-misc/mobile-broadband-provider-info
-		sys-libs/timezone-data )"
+		sys-libs/timezone-data )
+"
+# gnome-extra/gnome-screensaver due screensaver patch, otherwise it uses
+# cinnamon-screensaver
+
 DEPEND="${COMMON_DEPEND}
 	>=sys-devel/gettext-0.17
 	virtual/pkgconfig
 	>=dev-util/intltool-0.40
 	gnome-base/gnome-common
-	!!=dev-lang/spidermonkey-1.8.2*"
+	!!=dev-lang/spidermonkey-1.8.2*
+"
 # libmozjs.so is picked up from /usr/lib while compiling, so block at build-time
 # https://bugs.gentoo.org/show_bug.cgi?id=360413
 
@@ -134,7 +143,7 @@ pkg_setup() {
 
 src_prepare() {
 	# Fix GNOME 3.8 support
-	epatch "${FILESDIR}/gnome-3.8.patch"
+	epatch "${DISTDIR}/gnome-3.8.patch"
 	epatch "${FILESDIR}/background.patch"
 	epatch "${FILESDIR}/idle-dim.patch"
 	# https://github.com/linuxmint/Cinnamon/issues/1337
@@ -144,11 +153,11 @@ src_prepare() {
 	epatch "${FILESDIR}/remove_GC.patch"
 	epatch "${FILESDIR}/menu_editor.patch"
 
-
-	# Fix cinnamon-settings lspci path
-#	epatch "${FILESDIR}/${PN}-1.7.8-settings-lspci.patch"
 	# Fix automagic gnome-bluetooth dep, bug #398145
 	epatch "${FILESDIR}/${PN}-1.6.1-automagic-gnome-bluetooth.patch"
+
+	# Optional NetworkManager, bug #488684
+	epatch "${FILESDIR}/${PN}-1.8.8.1-optional-networkmanager.patch"
 
 	# Use Sabayon branding
 	cp "${FILESDIR}"/start-here.png data/theme/menu.png || die "Could not copy image."
@@ -179,18 +188,11 @@ src_prepare() {
 
 	eautoreconf
 	gnome2_src_prepare
-
-	# Drop G_DISABLE_DEPRECATED for sanity on glib upgrades; bug #384765
-	# Note: sed Makefile.in because it is generated from several Makefile.ams
-	sed -e 's/-DG_DISABLE_DEPRECATED//g' \
-		-i src/Makefile.in browser-plugin/Makefile.in || die "sed 3 failed"
 }
 
 src_configure() {
 	# Don't error out on warnings
 	gnome2_src_configure \
-		--enable-compile-warnings=maximum \
-		--disable-schemas-compile \
 		--disable-jhbuild-wrapper-script \
 		$(use_with bluetooth) \
 		$(use_enable networkmanager) \
@@ -202,7 +204,7 @@ src_install() {
 	gnome2_src_install
 	python_optimize "${ED}usr/$(get_libdir)/cinnamon-"{settings,menu-editor}
 	# Fix broken shebangs
-	sed -e "s%#!.*python%#!$(python_get_PYTHON)%" \
+	sed -e "s%#!.*python%#!${PYTHON}%" \
 		-i "${ED}usr/bin/cinnamon-"{launcher,menu-editor,settings} \
 		-i "${ED}usr/$(get_libdir)/cinnamon-settings/cinnamon-settings.py" || die
 
@@ -212,6 +214,9 @@ src_install() {
 
 	# Required for gnome-shell on hardened/PaX, bug #398941
 	pax-mark mr "${ED}usr/bin/cinnamon"
+
+	# Doesn't exist on Gentoo, causing this to be a dead symlink
+	rm -f "${ED}etc/xdg/menus/cinnamon-applications-merged" || die
 }
 
 pkg_postinst() {
@@ -233,8 +238,8 @@ pkg_postinst() {
 
 	if has_version "<x11-drivers/ati-drivers-12"; then
 		ewarn "Cinnamon has been reported to show graphical corruption under"
-		ewarn "x11-drivers/ati-drivers-11.*; you may want to use GNOME in"
-		ewarn "fallback mode, or switch to open-source drivers."
+		ewarn "x11-drivers/ati-drivers-11.*; you may want to switch to"
+		ewarn "open-source drivers."
 	fi
 
 	if has_version "media-libs/mesa[video_cards_radeon]"; then
@@ -243,15 +248,6 @@ pkg_postinst() {
 		elog "selected using 'eselect mesa'."
 		if ! has_version "media-libs/mesa[gallium]"; then
 			ewarn "You will need to emerge media-libs/mesa with USE=gallium."
-		fi
-	fi
-
-	if has_version "media-libs/mesa[video_cards_intel]"; then
-		elog "Cinnamon is unstable under gallium-mode i915/i965 mesa drivers."
-		elog "Make sure that classic architecture for i915 and i965 drivers is"
-		elog "selected using 'eselect mesa'."
-		if ! has_version "media-libs/mesa[classic]"; then
-			ewarn "You will need to emerge media-libs/mesa with USE=classic."
 		fi
 	fi
 }
