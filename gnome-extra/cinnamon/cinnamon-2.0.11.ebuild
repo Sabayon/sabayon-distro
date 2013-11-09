@@ -168,6 +168,9 @@ src_install() {
 	# Required for gnome-shell on hardened/PaX, bug #398941
 	pax-mark mr "${ED}usr/bin/cinnamon"
 
+	# Avoid collisions with cinnamon-screensaver, upstream bug
+	rm -f "${ED}usr/share/applications/cinnamon-screensaver.desktop"
+
 	# Doesn't exist on Gentoo, causing this to be a dead symlink
 	rm -f "${ED}etc/xdg/menus/cinnamon-applications-merged" || die
 }
