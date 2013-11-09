@@ -64,6 +64,12 @@ dev-libs/libdbusmenu
 ~x11-drivers/ati-userspace-11.9
 ~media-video/amdcccle-11.9
 
+# Fabio Erculiani <lxnay@sabayon.org>
+# GNOME 3.10 mask
+=dev-python/pygobject-3.10*
+=dev-python/pygobject-base-3.10*
+=dev-python/pygobject-cairo-3.10*
+
 ##### unmask ####
 
 # example
