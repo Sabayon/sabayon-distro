@@ -107,7 +107,7 @@ src_prepare() {
 	epatch "${FILESDIR}/background.patch"
 	epatch "${FILESDIR}/screensaver.patch"
 	epatch "${FILESDIR}/remove_GC.patch"
-	epatch "${FILESDIR}/keyboard_applet.patch"
+	epatch "${FILESDIR}/keyboard_applet-2.patch"
 	epatch "${FILESDIR}/input_keybindings.patch"
 
 	# Use Sabayon branding
