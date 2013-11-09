@@ -69,6 +69,7 @@ dev-libs/libdbusmenu
 =dev-python/pygobject-3.10*
 =dev-python/pygobject-base-3.10*
 =dev-python/pygobject-cairo-3.10*
+=gnome-base/nautilus-3.10*
 
 ##### unmask ####
 
