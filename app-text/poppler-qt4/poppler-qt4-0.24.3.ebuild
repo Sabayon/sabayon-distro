@@ -8,11 +8,11 @@ inherit eutils libtool multilib autotools
 
 DESCRIPTION="Qt4 bindings for poppler"
 HOMEPAGE="http://poppler.freedesktop.org/"
-SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.gz"
+SRC_URI="http://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-SLOT="0/36"
+KEYWORDS="alpha amd64 arm hppa ~ia64 ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+SLOT="0/43"
 IUSE=""
 S="${WORKDIR}/poppler-${PV}"
 
@@ -37,6 +37,7 @@ src_configure() {
 		--enable-splash-output \
 		--disable-gtk-test \
 		--enable-poppler-qt4 \
+		--disable-poppler-qt5 \
 		--disable-xpdf-headers \
 		--disable-libjpeg \
 		--disable-libopenjpeg \

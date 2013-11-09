@@ -8,11 +8,11 @@ inherit eutils autotools toolchain-funcs
 
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="http://poppler.freedesktop.org/"
-SRC_URI="http://poppler.freedesktop.org/${P/-base}.tar.gz"
+SRC_URI="http://poppler.freedesktop.org/${P/-base}.tar.xz"
 
 LICENSE="GPL-2"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-SLOT="0/36"
+KEYWORDS="alpha amd64 arm hppa ~ia64 ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+SLOT="0/43"
 IUSE="cjk curl cxx debug doc +jpeg jpeg2k +lcms png tiff +utils"
 
 # No test data provided
@@ -23,8 +23,8 @@ COMMON_DEPEND="
 	>=media-libs/freetype-2.3.9
 	sys-libs/zlib
 	curl? ( net-misc/curl )
-	jpeg? ( virtual/jpeg )
-	jpeg2k? ( media-libs/openjpeg )
+	jpeg? ( virtual/jpeg:0 )
+	jpeg2k? ( media-libs/openjpeg:0 )
 	lcms? ( media-libs/lcms:2 )
 	png? ( media-libs/libpng:0= )
 	tiff? ( media-libs/tiff:0 )
@@ -33,13 +33,6 @@ DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 "
 RDEPEND="${COMMON_DEPEND}
-	!dev-libs/poppler
-	!dev-libs/poppler-glib
-	!dev-libs/poppler-qt3
-	!dev-libs/poppler-qt4
-	!app-text/poppler-utils
-	!<app-text/poppler-qt4-${PV}
-	!<app-text/poppler-glib-${PV}
 	cjk? ( >=app-text/poppler-data-0.4.4 )
 "
 
@@ -58,6 +51,7 @@ src_configure() {
 	econf \
 		--disable-cairo-output \
 		--disable-gtk-test \
+		--disable-poppler-qt4 \
 		--disable-poppler-qt4 \
 		--disable-poppler-glib \
 		--enable-introspection=no \
