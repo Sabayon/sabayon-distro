@@ -111,7 +111,6 @@ RDEPEND="${COMMON_DEPEND}
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
 
 	gnome-extra/nemo
-	gnome-extra/gnome-screensaver
 
 	|| (
 		app-admin/openrc-settingsd
