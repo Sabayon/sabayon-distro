@@ -82,6 +82,9 @@ RDEPEND="${COMMON_DEPEND}
 	virtual/python-imaging
 	dev-python/lxml
 
+	dev-python/pypam
+	dev-python/pexpect
+
 	x11-themes/gnome-icon-theme-symbolic
 
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
