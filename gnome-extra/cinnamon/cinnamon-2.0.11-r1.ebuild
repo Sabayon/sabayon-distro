@@ -112,6 +112,7 @@ src_prepare() {
 	epatch "${FILESDIR}/remove_GC.patch"
 	epatch "${FILESDIR}/keyboard_applet-2.patch"
 	epatch "${FILESDIR}/input_keybindings.patch"
+	epatch "${FILESDIR}/lspci.patch"
 
 	# Use Sabayon branding
 	cp "${FILESDIR}"/start-here.png data/theme/menu.png || die "Could not copy image."
