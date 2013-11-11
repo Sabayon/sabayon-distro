@@ -14,7 +14,6 @@ IUSE="debug +consolekit kerberos logind pam"
 
 DEPEND="
 	$(add_kdebase_dep libkworkspace)
-	media-libs/qimageblitz
 	x11-libs/libX11
 	x11-libs/libXau
 	x11-libs/libXdmcp
