@@ -23,11 +23,10 @@ DEV_URI="
 EXT_URI="http://ooo.itc.hu/oxygenoffice/download/libreoffice"
 ADDONS_URI="http://dev-www.libreoffice.org/src/"
 
-BRANDING="${PN}-branding-gentoo-0.7.tar.xz"
+BRANDING="${PN}-branding-gentoo-0.8.tar.xz"
 # PATCHSET="${P}-patchset-01.tar.xz"
 
 [[ ${PV} == *9999* ]] && SCM_ECLASS="git-2"
-inherit versionator
 inherit base autotools bash-completion-r1 check-reqs eutils java-pkg-opt-2 kde4-base pax-utils python-single-r1 multilib toolchain-funcs flag-o-matic nsplugins ${SCM_ECLASS}
 unset SCM_ECLASS
 
@@ -119,7 +118,7 @@ COMMON_DEPEND="
 	>=dev-libs/nss-3.12.9
 	>=dev-lang/perl-5.0
 	>=dev-libs/openssl-1.0.0d
-	>=dev-libs/redland-1.0.14[ssl]
+	>=dev-libs/redland-1.0.16[ssl]
 	media-gfx/graphite2
 	>=media-libs/fontconfig-2.8.0
 	media-libs/freetype:2
@@ -131,7 +130,7 @@ COMMON_DEPEND="
 	>=net-misc/curl-7.21.4
 	net-nds/openldap
 	sci-mathematics/lpsolve
-	virtual/jpeg
+	virtual/jpeg:0
 	>=x11-libs/cairo-1.10.0[X]
 	x11-libs/libXinerama
 	x11-libs/libXrandr
@@ -329,9 +328,6 @@ src_prepare() {
 		epatch
 	fi
 
-	# Fix compilation with neon-0.30.0, bug #479604
-	epatch "${FILESDIR}/libreoffice-4.1-disable-broken-neon-code.patch"
-
 	base_src_prepare
 
 	AT_M4DIR="m4" eautoreconf
@@ -344,7 +340,6 @@ src_prepare() {
 		-e "s:%libdir%:$(get_libdir):g" \
 		-i pyuno/source/module/uno.py \
 		-i scripting/source/pyprov/officehelper.py || die
-
 	# sed in the tests
 	sed -i \
 		-e 's#all : build unitcheck#all : build#g' \
@@ -485,6 +480,7 @@ src_configure() {
 		$(use_enable gnome gconf) \
 		$(use_enable gnome gio) \
 		$(use_enable gnome lockdown) \
+		$(use_enable gstreamer) \
 		$(use_enable gtk) \
 		$(use_enable gtk3) \
 		$(use_enable kde kde4) \
@@ -522,8 +518,11 @@ src_compile() {
 		[[ -s "${path}/helpimg.ilst" ]] || ewarn "The help images list is empty, something is fishy, report a bug."
 	)
 
+	local target
+	use test && target="build" || target="build-nocheck"
+
 	# this is not a proper make script
-	make build || die
+	make ${target} || die
 }
 
 src_test() {
@@ -545,7 +544,7 @@ src_install() {
 	fi
 
 	# symlink the nsplugin to proper location
-	use gtk && inst_plugin /usr/$(get_libdir)/libreoffice/program/libnpsoplugin.so
+	# use gtk && inst_plugin /usr/$(get_libdir)/libreoffice/program/libnpsoplugin.so
 
 	# Hack for offlinehelp, this needs fixing upstream at some point.
 	# It is broken because we send --without-help
