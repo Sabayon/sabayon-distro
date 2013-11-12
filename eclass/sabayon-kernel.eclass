@@ -97,6 +97,12 @@ K_KERNEL_NEW_VERSIONING="${K_KERNEL_NEW_VERSIONING:-0}"
 # --kernel-target= flag.
 K_KERNEL_IMAGE_NAME="${K_KERNEL_IMAGE_NAME:-}"
 
+# @ECLASS-VARIABLE: K_KERNEL_LTS
+# @DESCRIPTION:
+# Set this to 1 to mark the kernel as Long Term Stable. "virtual/linux-binary-lts"
+# shall be appended to ${PROVIDE}.
+K_KERNEL_LTS="${K_KERNEL_LTS:-}"
+
 # @ECLASS-VARIABLE: K_KERNEL_IMAGE_PATH
 # @DESCRIPTION:
 # Set this to a custom relative kernel image path to override the default
@@ -272,9 +278,22 @@ _is_kernel_binary() {
 	fi
 }
 
+_is_kernel_lts() {
+	local _ver="$(get_version_component_range 1-2)"
+	[ "${_ver}" = "3.0" ] && return 0
+	[ "${_ver}" = "3.2" ] && return 0
+	[ "${_ver}" = "3.4" ] && return 0
+	[ "${_ver}" = "3.10" ] && return 0
+	return 1
+}
+
 # provide extra virtual pkg
 if _is_kernel_binary; then
 	PROVIDE="virtual/linux-binary"
+# LTS support
+	fi [ "${K_KERNEL_LTS}" = "1" ] || _is_kernel_lts; then
+		PROVIDE+=" virtual/linux-binary-lts"
+	fi
 fi
 
 if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
