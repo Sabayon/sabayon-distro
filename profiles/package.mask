@@ -1,11 +1,3 @@
-# Fabio Erculiani <lxnay@sabayon.org>
-# GNOME 3.10 mask
-=dev-python/pygobject-3.10*
-=dev-python/pygobject-base-3.10*
-=dev-python/pygobject-cairo-3.10*
-=gnome-base/nautilus-3.10*
-=gnome-base/gdm-3.10*
-
 ##### unmask ####
 
 # example
