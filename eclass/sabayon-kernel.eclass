@@ -291,7 +291,7 @@ _is_kernel_lts() {
 if _is_kernel_binary; then
 	PROVIDE="virtual/linux-binary"
 # LTS support
-	fi [ "${K_KERNEL_LTS}" = "1" ] || _is_kernel_lts; then
+	if [ "${K_KERNEL_LTS}" = "1" ] || _is_kernel_lts; then
 		PROVIDE+=" virtual/linux-binary-lts"
 	fi
 fi
