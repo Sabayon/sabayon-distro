@@ -1,6 +1,7 @@
 [Unit]
 Description=Sabayon installer setup
 Before=display-manager.service
+Wants=smbd.service nmbd.service
 After=sabayonlive.service network.target
 
 [Service]
