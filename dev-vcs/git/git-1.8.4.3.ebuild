@@ -7,7 +7,7 @@ EAPI=5
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python2_{5,6,7} )
+PYTHON_COMPAT=( python2_{6,7} )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 
@@ -38,7 +38,7 @@ else
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.2-Gentoo-patches.tgz"
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.4-optional-cvs.patch.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -49,7 +49,7 @@ CDEPEND="
 	dev-libs/openssl
 	sys-libs/zlib
 	pcre? ( dev-libs/libpcre )
-	perl? ( dev-lang/perl[-build] )
+	perl? ( dev-lang/perl[-build(-)] )
 	tk? ( dev-lang/tk )
 	curl? (
 		net-misc/curl
@@ -69,8 +69,8 @@ RDEPEND="${CDEPEND}
 			)
 	python? ( gtk?
 	(
-		>=dev-python/pygtk-2.8
-		dev-python/pygtksourceview:2
+		>=dev-python/pygtk-2.8[${PYTHON_USEDEP}]
+		>=dev-python/pygtksourceview-2.10.1-r1:2[${PYTHON_USEDEP}]
 	)
 		${PYTHON_DEPS} )"
 
@@ -105,11 +105,11 @@ REQUIRED_USE="
 	subversion? ( perl )
 	webdav? ( curl )
 	gtk? ( python )
-	${PYTHON_REQUIRED_USE}
+	python? ( ${PYTHON_REQUIRED_USE} )
 "
 
 pkg_setup() {
-	if use subversion && has_version dev-vcs/subversion && built_with_use --missing false dev-vcs/subversion dso ; then
+	if use subversion && has_version "dev-vcs/subversion[dso]"; then
 		ewarn "Per Gentoo bugs #223747, #238586, when subversion is built"
 		ewarn "with USE=dso, there may be weird crashes in git-svn. You"
 		ewarn "have been warned."
@@ -167,7 +167,8 @@ exportmakeopts() {
 	use subversion \
 		|| myopts="${myopts} NO_SVN_TESTS=YesPlease"
 	use threads \
-		&& myopts="${myopts} THREADED_DELTA_SEARCH=YesPlease"
+		&& myopts="${myopts} THREADED_DELTA_SEARCH=YesPlease" \
+		|| myopts="${myopts} NO_PTHREADS=YesPlease"
 	use cvs \
 		|| myopts="${myopts} NO_CVS=YesPlease"
 # Disabled until ~m68k-mint can be keyworded again
@@ -217,20 +218,20 @@ src_unpack() {
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
 
-	cd "${WORKDIR}" && unpack git-1.8.2-Gentoo-patches.tgz
+	cd "${WORKDIR}" && unpack git-1.8.4-optional-cvs.patch.gz
 }
 
 src_prepare() {
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${WORKDIR}"/1.8.2-patches/git-1.8.2-optional-cvs.patch
+	epatch "${WORKDIR}"/git-1.8.4-optional-cvs.patch
 
 	sed -i \
-		-e 's:^\(CFLAGS =\).*$:\1 $(OPTCFLAGS) -Wall:' \
-		-e 's:^\(LDFLAGS =\).*$:\1 $(OPTLDFLAGS):' \
-		-e 's:^\(CC = \).*$:\1$(OPTCC):' \
-		-e 's:^\(AR = \).*$:\1$(OPTAR):' \
-		-e "s:\(PYTHON_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
-		-e "s:\(PERL_PATH = \)\(.*\)$:\1${EPREFIX}\2:" \
+		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
+		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
+		-e 's:^\(CC[[:space:]]* =\).*$:\1$(OPTCC):' \
+		-e 's:^\(AR[[:space:]]* =\).*$:\1$(OPTAR):' \
+		-e "s:\(PYTHON_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
+		-e "s:\(PERL_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
 		Makefile contrib/svn-fe/Makefile || die "sed failed"
 
 	# Never install the private copy of Error.pm (bug #296310)
@@ -239,7 +240,7 @@ src_prepare() {
 		perl/Makefile.PL
 
 	# Fix docbook2texi command
-	sed -i 's/DOCBOOK2X_TEXI=docbook2x-texi/DOCBOOK2X_TEXI=docbook2texi.pl/' \
+	sed -r -i 's/DOCBOOK2X_TEXI[[:space:]]*=[[:space:]]*docbook2x-texi/DOCBOOK2X_TEXI = docbook2texi.pl/' \
 		Documentation/Makefile || die "sed failed"
 
 	# Fix git-subtree missing DESTDIR
@@ -253,7 +254,7 @@ git_emake() {
 	# bug #326625: PERL_PATH, PERL_MM_OPT
 	# bug #320647: PYTHON_PATH
 	PYTHON_PATH=""
-	use python && PYTHON_PATH="$(python_get_PYTHON)"
+	use python && PYTHON_PATH="${PYTHON}"
 	emake ${MY_MAKEOPTS} \
 		DESTDIR="${D}" \
 		OPTCFLAGS="${CFLAGS}" \
@@ -382,7 +383,8 @@ src_install() {
 	#dobin contrib/fast-import/git-p4 # Moved upstream
 	#dodoc contrib/fast-import/git-p4.txt # Moved upstream
 	newbin contrib/fast-import/import-tars.perl import-tars
-	newbin contrib/git-resurrect.sh git-resurrect
+	exeinto /usr/libexec/git-core/
+	newexe contrib/git-resurrect.sh git-resurrect
 
 	# git-subtree
 	cd "${S}"/contrib/subtree
@@ -403,8 +405,14 @@ src_install() {
 	newdoc contrib/diff-highlight/README README.diff-highlight
 
 	# git-jump
-	dobin contrib/git-jump/git-jump
+	exeinto /usr/libexec/git-core/
+	doexe contrib/git-jump/git-jump
 	newdoc contrib/git-jump/README git-jump.txt
+
+	# git-contacts
+	exeinto /usr/libexec/git-core/
+	doexe contrib/contacts/git-contacts
+	dodoc contrib/contacts/git-contacts.txt
 
 	if use gnome-keyring ; then
 		cd "${S}"/contrib/credential/gnome-keyring
@@ -421,6 +429,7 @@ src_install() {
 
 	# remote-helpers
 	if use python ; then
+		python_scriptinto /usr/libexec/git-core/
 		python_doscript "${S}"/contrib/remote-helpers/git-remote-{bzr,hg}
 		python_optimize
 	fi
@@ -443,7 +452,7 @@ src_install() {
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
 	for i in \
-		blameview buildsystems ciabot continuous convert-objects fast-import \
+		buildsystems ciabot convert-objects fast-import \
 		hg-to-git hooks remotes2config.sh rerere-train.sh \
 		stats vim workdir \
 		; do
@@ -546,7 +555,7 @@ src_test() {
 			has_version dev-vcs/cvs && \
 			let cvs=$cvs+1
 		[[ $cvs -gt 1 ]] && \
-			built_with_use dev-vcs/cvs server && \
+			has_version "dev-vcs/cvs[server]" && \
 			let cvs=$cvs+1
 		if [[ $cvs -lt 3 ]]; then
 			einfo "Disabling CVS tests (needs dev-vcs/cvs[USE=server])"
