@@ -26,6 +26,7 @@ COMMON_DEPEND="
 	>=x11-libs/pango-1.19.3[introspection]
 	>=x11-libs/startup-notification-0.10_p20110426
 	>=x11-libs/xcb-util-0.3.8
+	x11-libs/xcb-util-cursor
 	x11-libs/libXcursor
 	|| ( <x11-libs/libX11-1.3.99.901[xcb] >=x11-libs/libX11-1.3.99.901 )
 	dbus? ( >=sys-apps/dbus-1 )
@@ -96,7 +97,7 @@ src_install() {
 	if use gnome ; then
 		# GNOME session
 		insinto /usr/share/gnome-session/sessions
-		doins "${FILESDIR}/${PN}-gnome.session" || die
+		newins "${FILESDIR}/${PN}-gnome-3.session" "${PN}-gnome.session" || die
 		# Application launcher
 		insinto /usr/share/applications
 		doins "${FILESDIR}/${PN}-gnome.desktop" || die
