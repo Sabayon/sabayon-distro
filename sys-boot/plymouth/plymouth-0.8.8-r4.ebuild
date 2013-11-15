@@ -41,6 +41,9 @@ DOC_CONTENTS="
 "
 
 src_prepare() {
+	# Sabayon: setup our default settings
+	epatch "${FILESDIR}/${PN}-sabayon-defaults.patch"
+
 	sed -i 's:/bin/systemd-tty-ask-password-agent:/usr/bin/systemd-tty-ask-password-agent:g' \
 		systemd-units/systemd-ask-password-plymouth.service.in || die \
 		'ask-password sed failed'
@@ -69,7 +72,7 @@ src_configure() {
 src_install() {
 	autotools-utils_src_install
 
-	# Provided by sabayon-artwork-core
+	# Sabayon: provided by sabayon-artwork-core
 	rm "${D}/usr/share/plymouth/bizcom.png"
 
 	# Install compatibility symlinks as some rdeps hardcode the paths

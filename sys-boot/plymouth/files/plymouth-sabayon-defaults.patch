@@ -1,0 +1,9 @@
+diff -Nurp plymouth-0.8.8.orig/src/plymouthd.defaults plymouth-0.8.8/src/plymouthd.defaults
+--- plymouth-0.8.8.orig/src/plymouthd.defaults	2012-09-26 18:50:53.000000000 +0200
++++ plymouth-0.8.8/src/plymouthd.defaults	2013-11-15 14:10:58.638895827 +0100
+@@ -1,4 +1,4 @@
+ # Distribution defaults. Changes to this file will get overwritten during
+ # upgrades.
+ [Daemon]
+-Theme=spinner
++Theme=sabayon
