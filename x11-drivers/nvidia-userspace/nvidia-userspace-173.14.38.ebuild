@@ -207,19 +207,10 @@ src_compile() {
 
 src_install() {
 	if use kernel_linux; then
-		VIDEOGROUP="$(egetent group video | cut -d ':' -f 3)"
-		if [ -z "$VIDEOGROUP" ]; then
-			eerror "Failed to determine the video group gid."
-			die "Failed to determine the video group gid."
-		fi
-
 		# Add the aliases
-		[ -f "${FILESDIR}/nvidia-169.07" ] || die "nvidia missing in FILESDIR"
-		sed -e 's:PACKAGE:'${PF}':g' \
-			-e 's:VIDEOGID:'${VIDEOGROUP}':' "${FILESDIR}"/nvidia-169.07 > \
-			"${WORKDIR}"/nvidia
-		insinto /etc/modprobe.d
-		newins "${WORKDIR}"/nvidia nvidia.conf || die
+		# This file is tweaked with the appropriate video group in
+		# pkg_postinst, see bug #491414
+		newins "${FILESDIR}"/nvidia-169.07 nvidia.conf
 	fi
 
 	# NVIDIA kernel <-> userspace driver config lib
@@ -373,6 +364,15 @@ pkg_preinst() {
 	# Make sure we nuke the old nvidia-glx's env.d file
 	if [ -e "${ROOT}"/etc/env.d/09nvidia ] ; then
 		rm -f "${ROOT}"/etc/env.d/09nvidia
+	fi
+
+	local videogroup="$(egetent group video | cut -d ':' -f 3)"
+	if [ -n "${videogroup}" ]; then
+		sed -i -e "s:PACKAGE:${PF}:g" \
+			-e "s:VIDEOGID:${videogroup}:" "${ROOT}"/etc/modprobe.d/nvidia.conf
+	else
+		eerror "Failed to determine the video group gid."
+		die "Failed to determine the video group gid."
 	fi
 }
 
