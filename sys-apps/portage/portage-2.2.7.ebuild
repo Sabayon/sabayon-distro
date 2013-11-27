@@ -469,6 +469,18 @@ new_config_protect() {
 
 pkg_postinst() {
 
+	# Sabayon, add "masters = gentoo" to /usr/local/portage/metadata/layout.conf if missing
+	# This avoids annoying messages to the user
+	local local_overlay="${EROOT:-${ROOT}}usr/local/portage"
+	if [ -d "${local_overlay}" ]; then
+		local layout_conf="${local_overlay}/metadata/layout.conf"
+		if [ ! -e "${layout_conf}" ]; then
+			einfo "Setting masters = gentoo into ${layout_conf}"
+			mkdir -p "$(dirname ${layout_conf})" && \
+				echo "masters = gentoo" > "${layout_conf}"
+		fi
+	fi
+
 	if ${REPOS_CONF_UPGRADE} ; then
 
 		# Sabayon, keep it for a quarter, starting from Dec. 2013
