@@ -151,6 +151,9 @@ src_configure() {
 	# they don't have any corresponding code.
 	# --with-at-spi-registryd-directory= needs to be passed explicitly because
 	# of https://bugzilla.gnome.org/show_bug.cgi?id=607643#c4
+	# If plymouth integration is enabled, gdm expects to be always run
+	# on vt1. If using VT7 worked with 3.8, with 3.10 we incur in an almost deadlock
+	# at boot. See Gentoo bug #453392
 	gnome2_src_configure \
 		--with-run-dir=/run/gdm \
 		--localstatedir="${EPREFIX}"/var \
@@ -159,6 +162,7 @@ src_configure() {
 		--enable-authentication-scheme=pam \
 		--with-default-pam-config=exherbo \
 		--with-at-spi-registryd-directory="${EPREFIX}"/usr/libexec \
+		$(use plymouth || echo -n --with-initial-vt=7) \
 		--with-systemd \
 		--enable-systemd-journal \
 		--without-console-kit \
