@@ -183,12 +183,8 @@ src_install() {
 	#	-name .packlist \
 	#	-exec rm \{\} \;
 
-	rm -r "${ED}"usr/share/gitweb
-	rm -r "${ED}"usr/share/git/contrib
-	rm -r "${ED}"usr/share/git-core
-	rm -r "${ED}"usr/share/man/
-	rm -r "${ED}"usr/lib{,64}/perl5/
-	rm -r "${ED}"usr/libexec/git-core/mergetools
+	rm -r "${ED}"usr/share/git-core || die
+	rm -r "${ED}"usr/libexec/git-core/mergetools || die
 
 	local myfile
 
