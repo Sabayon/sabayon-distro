@@ -42,7 +42,7 @@ IUSE="berkdb debug +dso nls sasl +webdav-neon webdav-serf"
 # variable specific to www-apache/mod_dav_svn
 MY_CDEPS="
 	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,webdav-neon=,webdav-serf=]
-	>=dev-db/sqlite-3.4[threadsafe(+)]
+	>=dev-db/sqlite-3.6.18[threadsafe(+)]
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
