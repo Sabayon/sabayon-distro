@@ -1,0 +1,12 @@
+--- a/data/gdm.service.in
++++ b/data/gdm.service.in
+@@ -1,7 +1,7 @@
+ [Unit]
+ Description=GNOME Display Manager
+-Conflicts=getty@tty@GDM_INITIAL_VT@.service plymouth-quit.service
+-After=systemd-user-sessions.service getty@tty@GDM_INITIAL_VT@.service plymouth-quit.service
++Conflicts=getty@tty@GDM_INITIAL_VT@.service
++After=systemd-user-sessions.service getty@tty@GDM_INITIAL_VT@.service plymouth-quit.service plymouth-quit-wait.service
+ 
+ [Service]
+ ExecStart=@sbindir@/gdm

@@ -138,6 +138,10 @@ src_prepare() {
 	# don't load accessibility support at runtime when USE=-accessibility
 	use accessibility || epatch "${FILESDIR}/${PN}-3.7.3.1-disable-accessibility.patch"
 
+	# Correctly set systemd unit dependencies if plymouth is disabled
+	# This avoids screwing up VT1
+	use plymouth || epatch "${FILESDIR}/gdm-3.10.0.1-fix-systemd-unit-if-plymouth-disabled.patch"
+
 	mkdir -p "${S}"/m4
 	sed -i 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/g' configure.ac || die
 	eautoreconf
