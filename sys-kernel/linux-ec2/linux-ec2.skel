@@ -10,5 +10,5 @@ K_SABKERNEL_FORCE_SUBLEVEL="0"
 K_KERNEL_NEW_VERSIONING="1"
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
-DESCRIPTION="Official Sabayon Linux Server kernel image"
+DESCRIPTION="Official Sabayon Linux kernel image for Amazon EC2"
 RESTRICT="mirror"
