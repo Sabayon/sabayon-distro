@@ -20,7 +20,7 @@ MY_PN=${PN/-core}
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
 
 LICENSE="GPL-3"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE="crypt dbus postgres +ssl syslog"
 
