@@ -2,6 +2,7 @@
 """Simple script that updates the default session in AccountServices"""
 
 import sys
+import time
 
 from gi.repository import GLib as glib
 
@@ -25,19 +26,27 @@ if __name__ == "__main__":
     loop = glib.MainLoop()
     glib.threads_init()
 
-    system_bus = dbus.SystemBus(mainloop=dbus_loop)
-    dbus_object = system_bus.get_object(
-        ACCOUNTS_DBUS_NAME, ACCOUNTS_DBUS_PATH)
+    def setup():
+        try:
+            system_bus = dbus.SystemBus(mainloop=dbus_loop)
+            dbus_object = system_bus.get_object(
+                ACCOUNTS_DBUS_NAME, ACCOUNTS_DBUS_PATH)
 
-    iface = dbus.Interface(
-        dbus_object, dbus_interface=ACCOUNTS_DBUS_NAME)
+            iface = dbus.Interface(
+                dbus_object, dbus_interface=ACCOUNTS_DBUS_NAME)
 
-    user_path = iface.FindUserByName(username)
+            user_path = iface.FindUserByName(username)
 
-    dbus_object = system_bus.get_object(
-        ACCOUNTS_DBUS_NAME, user_path)
+            dbus_object = system_bus.get_object(
+                ACCOUNTS_DBUS_NAME, user_path)
 
-    iface = dbus.Interface(
-        dbus_object, dbus_interface=ACCOUNTS_USER_DBUS_NAME)
+            iface_usr = dbus.Interface(
+                dbus_object, dbus_interface=ACCOUNTS_USER_DBUS_NAME)
 
-    iface.SetXSession(session)
+            iface_usr.SetXSession(session)
+
+        finally:
+            loop.quit()
+
+    glib.timeout_add(0, setup)
+    loop.run()
