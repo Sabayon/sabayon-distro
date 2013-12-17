@@ -1,8 +1,8 @@
 [Unit]
-Description=Sabayon installer setup
+Description=Sabayon Media Center setup
 Before=display-manager.service
-Wants=smbd.service nmbd.service
-After=sabayonlive.service network.target
+Wants=polkit.service smbd.service nmbd.service accounts-daemon.service
+After=smbd.service nmbd.service polkit.service accounts-daemon.service sabayonlive.service network.target
 
 [Service]
 Type=oneshot
