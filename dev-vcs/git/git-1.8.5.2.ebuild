@@ -32,13 +32,13 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_GOOG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~amd64 ~x86"
 else
 	SRC_URI=""
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.4-optional-cvs.patch.gz"
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.5-optional-cvs.patch.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -218,12 +218,12 @@ src_unpack() {
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
 
-	cd "${WORKDIR}" && unpack git-1.8.4-optional-cvs.patch.gz
+	cd "${WORKDIR}" && unpack git-1.8.5-optional-cvs.patch.gz
 }
 
 src_prepare() {
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${WORKDIR}"/git-1.8.4-optional-cvs.patch
+	epatch "${WORKDIR}"/git-1.8.5-optional-cvs.patch
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -452,7 +452,7 @@ src_install() {
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
 	for i in \
-		buildsystems ciabot convert-objects fast-import \
+		buildsystems convert-objects fast-import \
 		hg-to-git hooks remotes2config.sh rerere-train.sh \
 		stats vim workdir \
 		; do
@@ -502,7 +502,7 @@ src_install() {
 
 	# burn CVS with fire, see #373439
 	if ! use cvs; then
-		rm -rf "${ED}"/usr/bin/git-cvsserver \
+		rm -r "${ED}"/usr/bin/git-cvsserver \
 			"${ED}"/usr/libexec/git-core/git-cvs* || die
 	fi
 }
@@ -512,10 +512,12 @@ src_test() {
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
+					t9402-git-cvsserver-refs.sh \
 					t9600-cvsimport.sh \
 					t9601-cvsimport-vendor-branch.sh \
 					t9602-cvsimport-branches-tags.sh \
-					t9603-cvsimport-patchsets.sh"
+					t9603-cvsimport-patchsets.sh \
+					t9604-cvsimport-timestamps.sh"
 	local tests_perl="t3701-add-interactive.sh \
 					t5502-quickfetch.sh \
 					t5512-ls-remote.sh \

@@ -38,7 +38,7 @@ else
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.4-optional-cvs.patch.gz"
+SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.5-optional-cvs.patch.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -118,12 +118,12 @@ src_unpack() {
 		git-2_src_unpack
 	fi
 
-	cd "${WORKDIR}" && unpack git-1.8.4-optional-cvs.patch.gz
+	cd "${WORKDIR}" && unpack git-1.8.5-optional-cvs.patch.gz
 }
 
 src_prepare() {
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${WORKDIR}"/git-1.8.4-optional-cvs.patch
+	epatch "${WORKDIR}"/git-1.8.5-optional-cvs.patch
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
