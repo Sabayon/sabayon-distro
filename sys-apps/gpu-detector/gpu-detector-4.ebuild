@@ -9,8 +9,8 @@ SLOT="0"
 KEYWORDS="x86 amd64 ppc"
 IUSE=""
 
-RDEPEND="app-misc/sabayon-live"
-DEPEND=""
+RDEPEND="!>=app-misc/sabayon-live-11 <app-misc/sabayon-live-11"
+DEPEND="${RDEPEND}"
 
 src_unpack () {
         cd "${WORKDIR}"
