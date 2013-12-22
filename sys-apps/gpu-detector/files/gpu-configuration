@@ -236,23 +236,6 @@ def setup_radeon_kms():
     else:
         print("I was about to modprobe radeon modeset=1")
 
-def remove_tar_members_from_sys(tarpath):
-    import tarfile
-    tar = tarfile.open(tarpath)
-    for el in sorted(tar.getnames(), reverse = True):
-        el = "/%s" % (el,)
-        if os.path.isfile(el):
-            try:
-                os.remove(el)
-            except OSError:
-                pass
-        if os.path.isdir(el):
-            try:
-                os.rmdir(el)
-            except OSError:
-                pass
-    tar.close()
-
 def generate_fglrx_steps(videocard, cardnumber, total_cards, bus_id):
     print("AMD!")
     print("total supported AMD cards: %s" % (len(fglrx_supported),))
