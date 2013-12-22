@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import errno
 import subprocess
 try:
     from subprocess import getoutput
@@ -344,43 +345,19 @@ def deploy_nvidia_xxxxxx_drivers(ver):
             continue
         if pkg.startswith("x11-drivers:nvidia-drivers-" + ver):
             _packages.append(pkg)
-        elif pkg.startswith("x11-drivers:nvidia-userspace" + ver):
+        elif pkg.startswith("x11-drivers:nvidia-userspace-" + ver):
             _packages.append(pkg)
 
     packages = [os.path.join(drivers_dir, x) for x in _packages]
-    package_names = ["x11-drivers/nvidia-drivers",
-                     "x11-drivers/nvidia-userspace"]
     if not packages:
         return False
 
-    from entropy.client.interfaces import Client
-    _entropy = Client()
+    rc = subprocess.call(["/usr/bin/equo", "install", "--nodeps"] + packages)
+    if rc:
+        return False
 
-    # prepare system
-    for package_name in package_names:
-        inst_repo = _entropy.installed_repository()
-        package_id, result = inst_repo.atomMatch(package_name)
-        if package_id == -1:
-            continue
-        content = inst_repo.retrieveContentIter(package_id)
-        for myfile, ftype in content:
-            try:
-                os.remove(myfile)
-            except (OSError, IOError):
-                pass
-
-    if hasattr(_entropy,"destroy"):
-        _entropy.destroy()
-
-    for package_file in packages:
-        # remove old garbage - copy over - create module
-        subprocess.call(
-            ["tar", "xjf", package_file, "-C", "/"])
-        # try to check driver status now
-        rc = check_if_proprietary_driver_system_is_healthy("nvidia")
-        if not rc:
-            remove_tar_members_from_sys(package_file)
-        return rc
+    # try to check driver status now
+    return check_if_proprietary_driver_system_is_healthy("nvidia")
 
 efivars_loaded = False
 def is_efi():
@@ -541,17 +518,19 @@ def setup_nvidia_drivers(card_id):
         ("96", nvidia_173xx_supported,),
         ("71", nvidia_173xx_supported,),
         )
-    for ver, lst in drivers_map:
-        if card_id not in lst:
-            continue
-        print("NVIDIA %s driver selected" % (ver,))
-        drv_string = ver
-        if livecd:
-            rc = deploy_nvidia_xxxxxx_drivers(ver)
-            if rc:
-                print("NVIDIA %s deployed correctly" % (ver,))
-                done_legacy = True
-                break
+
+    if not nvidia_disablelegacy:
+        for ver, lst in drivers_map:
+            if card_id not in lst:
+                continue
+            print("NVIDIA %s driver selected" % (ver,))
+            drv_string = ver
+            if livecd:
+                rc = deploy_nvidia_xxxxxx_drivers(ver)
+                if rc:
+                    print("NVIDIA %s deployed correctly" % (ver,))
+                    done_legacy = True
+                    break
 
     if not done_legacy:
         drv_string = '[latest]'
@@ -562,7 +541,11 @@ def setup_nvidia_drivers(card_id):
         print("NVIDIA proprietary driver %s is loaded" % (drv_string,))
 
         if done_legacy:
-            os.makedirs("/lib/nvidia/legacy")
+            try:
+                os.makedirs("/lib/nvidia/legacy")
+            except OSError  as err:
+                if err.errno != errno.EEXIST:
+                    raise
             with open("/lib/nvidia/legacy/running", "w") as f:
                 f.write("%s" % (drv_string,))
 
