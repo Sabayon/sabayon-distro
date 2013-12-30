@@ -71,7 +71,7 @@ MULTILIB_WRAPPED_HEADERS=(
 
 src_prepare() {
 	# https://bugzilla.libsdl.org/show_bug.cgi?id=1431
-	epatch "${FILESDIR}"/${P}-static-libs.patch
+	epatch "${FILESDIR}"/${PN}-2.0.0-static-libs.patch
 	AT_M4DIR="/usr/share/aclocal acinclude" eautoreconf
 
 	multilib_copy_sources
