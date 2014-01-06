@@ -88,6 +88,7 @@ src_unpack() {
 
 	use vanilla && return 0
 
+	cd "${S}" || die
 	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
 }
 
