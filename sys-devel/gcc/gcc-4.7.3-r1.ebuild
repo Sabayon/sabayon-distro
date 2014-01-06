@@ -27,7 +27,7 @@ LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-excepti
 KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 -amd64-fbsd -x86-fbsd"
 
 ## Make sure we share all the USE flags in sys-devel/base-gcc
-BASE_GCC_USE="fortran gcj gtk mudflap multilib nls nptl openmp altivec
+BASE_GCC_USE="fortran gcj mudflap multilib nls nptl openmp altivec
 	bootstrap build doc fixed-point graphite hardened
 	multislot cxx nopie nossp objc objc++ objc-gc test vanilla"
 for base_use in ${BASE_GCC_USE}; do
