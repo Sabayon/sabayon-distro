@@ -1,0 +1,17 @@
+[Unit]
+Description=BitTorrent Tracker
+After=networking.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/conf.d/bittorrent-tracker
+Environment=APPDATA=/usr/share/bittorrent
+ExecStart=/usr/bin/bittorrent-tracker --port ${PORT} --dfile ${DFILE} --favicon ${FAVICON} --logfile ${LOGFILE} --allowed_dir "${ALLOWED_DIR}" --allow_get ${ALLOW_GET} --css_url "${CSS_URL}" --pid /dev/null
+PIDFile=/run/bttrack.pid
+User=bttrack
+Group=bttrack
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

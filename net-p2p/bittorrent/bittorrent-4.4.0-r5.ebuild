@@ -14,7 +14,7 @@ PYTHON_USE_WITH="threads"
 # Fedora has also frozen bittorrent at 4.4.0 and is a good source of patches
 # http://pkgs.fedoraproject.org/gitweb/?p=bittorrent.git
 
-inherit distutils eutils fdo-mime python user
+inherit distutils eutils fdo-mime python user systemd
 
 MY_P="${P/bittorrent/BitTorrent}"
 
@@ -85,6 +85,8 @@ src_install() {
 
 	newinitd "${FILESDIR}"/bittorrent-tracker.initd bittorrent-tracker
 	newconfd "${FILESDIR}"/bittorrent-tracker.confd bittorrent-tracker
+
+	systemd_dounit "${FILESDIR}"/bittorrent-tracker.service
 }
 
 pkg_postinst() {
