@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -45,8 +45,8 @@ src_configure() {
 		--disable-jpeg \
 		--disable-png \
 		--disable-tiff \
-		--disable-lcms \
-		--disable-sanetest
+		--enable-gimp \
+		--disable-lcms
 }
 
 src_install() {
@@ -60,12 +60,6 @@ src_install() {
 		die "Can't find GIMP plugin directory."
 	fi
 	dodir "${plugindir#${EPREFIX}}"
-	dosym /usr/bin/xsane "${plugindir#${EPREFIX}}"/xsane
-}
-
-pkg_postinst() {
-	elog "If a new scanner is added or the device of the the scanner has"
-	elog "changed, it is recommended to rebuild the cache:"
-	elog "issue \"touch /usr/bin/xsane-gimp\" or delete the plugin cache"
-	elog "(~/.gimp*/pluginrc)."
+	newbin src/xsane xsane-gimp
+	dosym /usr/bin/xsane-gimp "${plugindir#${EPREFIX}}"/xsane
 }
