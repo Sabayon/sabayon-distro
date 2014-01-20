@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -51,7 +51,7 @@ RDEPEND="~dev-vcs/git-${PV}[-subversion,perl]
 	dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey
 	${PYTHON_DEPS}"
 DEPEND="app-arch/cpio
-	dev-lang/perl[-build(-)]
+	dev-lang/perl:=[-build(-)]
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X

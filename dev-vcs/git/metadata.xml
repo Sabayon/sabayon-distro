@@ -5,6 +5,10 @@
     <email>robbat2@gentoo.org</email>
     <name>Robin H. Johnson</name>
   </maintainer>
+  <maintainer>
+    <email>polynomial-c@gentoo.org</email>
+    <name>Lars Wendler</name>
+  </maintainer>
   <longdescription lang="en">
     Git - Fast Version Control System. Official titled
     "GIT - the stupid content tracker". 
@@ -20,13 +24,15 @@
     server.
   </longdescription>
   <use>
+    <flag name="blksha1">Use the new optimized SHA1 implementation</flag>
     <flag name="cgi">Install gitweb too</flag>
+    <flag name="curl">Support fetching and pushing (requires webdav too) over http:// and https:// protocols</flag>
     <flag name="gpg">Pull in gnupg for signing -- without gnupg, attempts at signing will fail at runtime!</flag>
-    <flag name="blksha1">Use the new optimized SHA1 implementation.</flag>
-    <flag name="ppcsha1">Make use of a bundled routine that is optimized for the PPC arch.</flag>
-    <flag name="webdav">Adds support for push'ing to HTTP repositories via DAV.</flag>
-    <flag name="gtk">Include the gitview contrib tool.</flag>
-    <flag name="subversion">Include git-svn for <pkg>dev-vcs/subversion</pkg> support.</flag>
-	<flag name="highlight">GitWeb support for app-text/highlight.</flag>
+    <flag name="gtk">Include the gitview contrib tool</flag>
+    <flag name="highlight">GitWeb support for app-text/highlight</flag>
+    <flag name="mediawiki">Support pulling and pushing from MediaWiki</flag>
+    <flag name="ppcsha1">Make use of a bundled routine that is optimized for the PPC arch</flag>
+    <flag name="subversion">Include git-svn for <pkg>dev-vcs/subversion</pkg> support</flag>
+    <flag name="webdav">Adds support for push'ing to HTTP/HTTPS repositories via DAV</flag>
   </use>
 </pkgmetadata>

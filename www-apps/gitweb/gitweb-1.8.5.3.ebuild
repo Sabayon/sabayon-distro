@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -38,7 +38,7 @@ IUSE="highlight"
 CDEPEND="
 	~dev-vcs/git-${PV}
 	sys-libs/zlib
-	dev-lang/perl[-build(-)]
+	dev-lang/perl:=[-build(-)]
 	dev-libs/libpcre
 	dev-lang/tk"
 
