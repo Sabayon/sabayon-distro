@@ -28,7 +28,7 @@ DESCRIPTION="Official Sabayon Linux Standard kernel image"
 RESTRICT="mirror"
 
 pkg_postinst() {
-	default
+	sabayon-kernel_pkg_postinst
 	elog "This is the last 3.4 LTS version offered by Sabayon."
 	elog "Please migrate to 3.10 LTS kernels, like for instance:"
 	elog "- sys-kernel/linux-sabayon:3.10"
