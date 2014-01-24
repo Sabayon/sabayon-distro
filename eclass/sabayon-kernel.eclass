@@ -313,6 +313,16 @@ _get_arm_subarch() {
 	fi
 }
 
+_get_arch() {
+	if use arm; then
+		_get_arm_subarch
+	elif use amd64; then
+		echo "amd64"
+	elif use x86; then
+		echo "x86"
+	fi
+}
+
 _set_config_file_vars() {
 	# Setup kernel configuration file name
 	local pvr="${PVR}"
@@ -324,30 +334,11 @@ _set_config_file_vars() {
 			pvr+="-${PR}"
 		fi
 	fi
-	if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
-		if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
-			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-__ARCH__.config}"
-			use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}"
-			use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}"
-		else
-			use arm && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-$(_get_arm_subarch).config}"
-			use amd64 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-amd64.config}"
-			use x86 && K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-x86.config}"
-		fi
-	else
-		K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pvr}-__ARCH__.config}"
-		K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE:-${K_SABKERNEL_NAME}-${pv}-__ARCH__.config}"
-		if use amd64; then
-			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64}"
-			K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/amd64}"
-		elif use x86; then
-			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/x86}"
-			K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/x86}"
-		elif use arm; then
-			K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE/__ARCH__/$(_get_arm_subarch)}"
-			K_SABKERNEL_ALT_CONFIG_FILE="${K_SABKERNEL_ALT_CONFIG_FILE/__ARCH__/$(_get_arm_subarch)}"
-		fi
-	fi
+
+	K_SABKERNEL_CONFIG_FILES=()
+	K_SABKERNEL_CONFIG_FILES+=( "${K_SABKERNEL_NAME}-${pvr}-$(_get_arch).config" )
+	K_SABKERNEL_CONFIG_FILES+=( "${K_SABKERNEL_NAME}-${pv}-$(_get_arch).config" )
+	K_SABKERNEL_CONFIG_FILES+=( "${K_SABKERNEL_NAME}-$(_get_arch).config" )
 
 	_config_file_set=1
 }
@@ -476,18 +467,22 @@ _kernel_copy_config() {
 	_is_config_file_set \
 		|| die "Kernel configuration file not set. Was sabayon-kernel_src_prepare() called?"
 
+	local base_path="${DISTDIR}"
 	if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
-		local base_path="${S}/sabayon/config"
-		if [ -f "${base_path}/${K_SABKERNEL_ALT_CONFIG_FILE}" ]; then
-			# new path, without revision
-			cp "${base_path}/${K_SABKERNEL_ALT_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 1"
-		else
-			# PVR path (old)
-			cp "${base_path}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 2"
-		fi
-	else
-		cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 4"
+		base_path="${S}/sabayon/config"
 	fi
+
+	local found= cfg=
+	for cfg in "${K_SABKERNEL_CONFIG_FILES[@]}"; do
+		cfg="${base_path}/${cfg}"
+		if [ -f "${cfg}" ]; then
+			cp "${cfg}" "${1}" || die "cannot copy kernel config ${cfg} -> ${1}"
+			elog "Using kernel config: ${cfg}"
+			found=1
+			break
+		fi
+	done
+	[[ -z "${found}" ]] && die "cannot find kernel configs among: ${K_SABKERNEL_CONFIG_FILES[*]}"
 }
 
 _kernel_src_compile() {
