@@ -13,20 +13,13 @@
 # for example, of linux-sabayon it is "${PN/${PN/-*}-}" (sabayon)
 K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-${PN/${PN/-*}-}}"
 
-# @ECLASS-VARIABLE: K_SABKERNEL_URI_CONFIG
-# @DESCRIPTION:
-# Set this either to "no" or "yes" depending on the location of the
-# kernel config files.  If they are inside FILESDIR (old location)
-# leave this option set to "no", otherwise set this to "yes"
-K_SABKERNEL_URI_CONFIG="${K_SABKERNEL_URI_CONFIG:-no}"
-
 # @ECLASS-VARIABLE: K_SABKERNEL_SELF_TARBALL_NAME
 # @DESCRIPTION:
 # If the main kernel sources tarball is generated in-house and available
 # on the "sabayon" mirror, set this variable to the extension name (see example
 # below). This will disable ALL the extra/local patches (since they have to
-# be applied inside the tarball). Moreover, K_SABKERNEL_URI_CONFIG,
-# K_SABPATCHES_VER, K_SABKERNEL_NAME, K_KERNEL_PATCH_VER will be ignored.
+# be applied inside the tarball). Moreover, K_SABPATCHES_VER, K_SABKERNEL_NAME,
+# K_KERNEL_PATCH_VER will be ignored.
 # Example:
 #   K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
 #   This would generate:
@@ -493,12 +486,7 @@ _kernel_copy_config() {
 			cp "${base_path}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 2"
 		fi
 	else
-		if [ "${K_SABKERNEL_URI_CONFIG}" = "no" ]; then
-			# Legacy stuff, not supporting K_KERNEL_NEW_VERSIONING
-			cp "${FILESDIR}/${PF/-r0/}-${ARCH}.config" "${1}" || die "cannot copy kernel config 3"
-		else
-			cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 4"
-		fi
+		cp "${DISTDIR}/${K_SABKERNEL_CONFIG_FILE}" "${1}" || die "cannot copy kernel config 4"
 	fi
 }
 
