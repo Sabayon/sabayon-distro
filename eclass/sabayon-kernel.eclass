@@ -302,19 +302,6 @@ else
 	HOMEPAGE="http://www.sabayon.org"
 fi
 
-# set SRC_URI
-if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
-	if [ "${K_SABKERNEL_URI_CONFIG}" = "yes" ]; then
-		tmp_K_SABKERNEL_CONFIG_FILE="${K_SABKERNEL_CONFIG_FILE:-${K_SABKERNEL_NAME}-${PVR}-__ARCH__.config}"
-		# ARM not supported, if put in SRC_URI it tries to fetch it
-		SRC_URI="${SRC_URI}
-			amd64? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${tmp_K_SABKERNEL_CONFIG_FILE/__ARCH__/amd64} )
-			x86? ( mirror://sabayon/${CATEGORY}/linux-sabayon-patches/config/${tmp_K_SABKERNEL_CONFIG_FILE/__ARCH__/x86} )"
-		# K_SABKERNEL_CONFIG_FILE will be set in _set_config_file_vars
-		unset tmp_K_SABKERNEL_CONFIG_FILE
-	fi
-fi
-
 # Returns success if _set_config_file_vars was called.
 _is_config_file_set() {
 	[[ ${_config_file_set} = 1 ]]
