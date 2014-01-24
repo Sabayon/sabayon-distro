@@ -23,6 +23,6 @@ K_MKIMAGE_KERNEL_ADDRESS="0x80008000"
 
 inherit sabayon-kernel
 
-KEYWORDS="~amd64 ~arm ~x86"
+KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux Standard kernel image"
 RESTRICT="mirror"
