@@ -1,12 +1,13 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
-	portability toolchain-funcs unpacker user versionator
+	portability toolchain-funcs unpacker user
 
+NV_URI="http://us.download.nvidia.com/XFree86/"
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
 X86_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86-${PV}"
@@ -14,16 +15,18 @@ AMD64_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86_64-${PV}"
 
 DESCRIPTION="NVIDIA GPUs kernel drivers"
 HOMEPAGE="http://www.nvidia.com/"
-SRC_URI="x86? ( ftp://download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKAGE}.run )
-	amd64? ( ftp://download.nvidia.com/XFree86/Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}.run )
-	amd64-fbsd? ( ftp://download.nvidia.com/XFree86/FreeBSD-x86_64/${PV}/${AMD64_FBSD_NV_PACKAGE}.tar.gz )
-	x86-fbsd? ( ftp://download.nvidia.com/XFree86/FreeBSD-x86/${PV}/${X86_FBSD_NV_PACKAGE}.tar.gz )"
+SRC_URI="
+	amd64-fbsd? ( ${NV_URI}FreeBSD-x86_64/${PV}/${AMD64_FBSD_NV_PACKAGE}.tar.gz )
+	amd64? ( ${NV_URI}Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}.run )
+	x86-fbsd? ( ${NV_URI}FreeBSD-x86/${PV}/${X86_FBSD_NV_PACKAGE}.tar.gz )
+	x86? ( ${NV_URI}Linux-x86/${PV}/${X86_NV_PACKAGE}.run )
+"
 
-LICENSE="NVIDIA"
+LICENSE="NVIDIA-r1"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="acpi custom-cflags multilib x-multilib kernel_FreeBSD kernel_linux pax_kernel tools X"
-RESTRICT="strip"
+RESTRICT="bindist mirror strip"
 
 DEPEND="kernel_linux? ( virtual/linux-sources )"
 RDEPEND="~x11-drivers/nvidia-userspace-${PV}
@@ -33,25 +36,15 @@ RDEPEND="~x11-drivers/nvidia-userspace-${PV}
 	~x11-drivers/nvidia-userspace-${PV}[X=]"
 PDEPEND=""
 
-S="${WORKDIR}/"
+S=${WORKDIR}/
 
-mtrr_check() {
-	ebegin "Checking for MTRR support"
-	linux_chkconfig_present MTRR
-	eend $?
+pkg_pretend() {
+	# Since Nvidia ships 3 different series of drivers, we need to give the user
+	# some kind of guidance as to what version they should install. This tries
+	# to point the user in the right direction but can't be perfect. check
+	# nvidia-driver.eclass
+	nvidia-driver-check-warning
 
-	if [[ $? -ne 0 ]] ; then
-		eerror "Please enable MTRR support in your kernel config, found at:"
-		eerror
-		eerror "  Processor type and features"
-		eerror "    [*] MTRR (Memory Type Range Register) support"
-		eerror
-		eerror "and recompile your kernel ..."
-		die "MTRR support not detected!"
-	fi
-}
-
-lockdep_check() {
 	# Kernel features/options to check for
 	CONFIG_CHECK="~ZONE_DMA ~MTRR ~SYSVIPC ~!LOCKDEP"
 	use x86 && CONFIG_CHECK+=" ~HIGHMEM"
@@ -76,12 +69,6 @@ pkg_setup() {
 		# later on in the build process
 		BUILD_FIXES="ARCH=$(uname -m | sed -e 's/i.86/i386/')"
 	fi
-
-	# Since Nvidia ships 3 different series of drivers, we need to give the user
-	# some kind of guidance as to what version they should install. This tries
-	# to point the user in the right direction but can't be perfect. check
-	# nvidia-driver.eclass
-	nvidia-driver-check-warning
 
 	# set variables to where files are in the package structure
 	if use kernel_FreeBSD; then
@@ -115,21 +102,14 @@ src_prepare() {
 		fi
 
 		# If greater than 2.6.5 use M= instead of SUBDIR=
-		convert_to_m "${NV_SRC}"/Makefile.kbuild
+#		convert_to_m "${NV_SRC}"/Makefile.kbuild
 	fi
 	if use pax_kernel; then
 		ewarn "Using PAX patches is not supported. You will be asked to"
 		ewarn "use a standard kernel should you have issues. Should you"
 		ewarn "need support with these patches, contact the PaX team."
-		epatch "${FILESDIR}"/nvidia-drivers-pax-const.patch
-		epatch "${FILESDIR}"/nvidia-drivers-pax-usercopy.patch
+		epatch "${FILESDIR}"/${P}-pax-usercopy.patch
 	fi
-	cat <<- EOF > "${S}"/nvidia.icd
-		/usr/$(get_libdir)/libnvidia-opencl.so
-	EOF
-
-	# Linux 3.11 support
-	epatch "${FILESDIR}/${PN}-319.49-3.11.patch"
 
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
@@ -155,11 +135,11 @@ src_install() {
 	elif use kernel_FreeBSD; then
 		if use x86-fbsd; then
 			insinto /boot/modules
-			doins "${S}/src/nvidia.kld" || die
+			doins "${S}/src/nvidia.kld"
 		fi
 
 		exeinto /boot/modules
-		doexe "${S}/src/nvidia.ko" || die
+		doexe "${S}/src/nvidia.ko"
 	fi
 
 	is_final_abi || die "failed to iterate through all ABIs"
