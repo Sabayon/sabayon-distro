@@ -23,7 +23,7 @@ IUSE="acpi custom-cflags multilib kernel_linux"
 RESTRICT="strip"
 
 DEPEND="kernel_linux? ( virtual/linux-sources )"
-RDEPEND="<x11-base/xorg-server-1.14.99
+RDEPEND="<x11-base/xorg-server-1.15.99
 	~x11-drivers/nvidia-userspace-${PV}
 	multilib? ( ~x11-drivers/nvidia-userspace-${PV}[multilib] )
 	acpi? ( sys-power/acpid )"
