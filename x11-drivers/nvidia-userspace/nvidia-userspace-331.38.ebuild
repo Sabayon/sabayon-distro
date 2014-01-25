@@ -52,7 +52,7 @@ RDEPEND="${COMMON}
 	acpi? ( sys-power/acpid )
 	tools? ( media-video/nvidia-settings )"
 PDEPEND="X? (
-		<x11-base/xorg-server-1.14.99
+		<x11-base/xorg-server-1.15.99
 		>=x11-libs/libvdpau-0.3-r1
 	)"
 
