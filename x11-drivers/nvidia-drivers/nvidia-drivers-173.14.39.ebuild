@@ -146,6 +146,9 @@ src_prepare() {
 		# If greater than 2.6.5 use M= instead of SUBDIR=
 		convert_to_m "${NV_SRC}"/Makefile.kbuild
 	fi
+
+	# Linux 3.13 support
+	epatch "${FILESDIR}/nvidia-drivers-173-3.13.patch"
 }
 
 src_compile() {

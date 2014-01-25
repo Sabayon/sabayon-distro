@@ -128,6 +128,9 @@ src_prepare() {
 		/usr/$(get_libdir)/libnvidia-opencl.so
 	EOF
 
+	# Linux 3.13 support
+	epatch "${FILESDIR}/nvidia-drivers-304-3.13.patch"
+
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
 }
