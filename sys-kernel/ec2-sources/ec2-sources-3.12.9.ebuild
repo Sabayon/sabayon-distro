@@ -8,6 +8,8 @@ K_SABKERNEL_NAME="ec2"
 K_ONLY_SOURCES="1"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
 K_KERNEL_NEW_VERSIONING="1"
+K_SABKERNEL_PATCH_UPSTREAM_TARBALL="1"
+
 inherit sabayon-kernel
 KEYWORDS="~amd64 ~x86"
 DESCRIPTION="Official Sabayon Linux kernel sources for Amazon EC2"
