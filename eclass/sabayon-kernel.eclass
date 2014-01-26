@@ -2,11 +2,6 @@
 # Distributed under the terms of the GNU General Public License v2
 # $
 
-# @ECLASS-VARIABLE: K_SABPATCHES_VER
-# @DESCRIPTION:
-# The version of the sabayon patches tarball(s) to apply.
-# A value of "5" would apply 2.6.12-5 to my-sources-2.6.12.ebuild
-
 # @ECLASS-VARIABLE: K_SABKERNEL_NAME
 # @DESCRIPTION:
 # The kernel name used by the ebuild, it should be the ending ${PN} part
@@ -18,7 +13,7 @@ K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-${PN/${PN/-*}-}}"
 # If the main kernel sources tarball is generated in-house and available
 # on the "sabayon" mirror, set this variable to the extension name (see example
 # below). This will disable ALL the extra/local patches (since they have to
-# be applied inside the tarball). Moreover, K_SABPATCHES_VER, K_SABKERNEL_NAME,
+# be applied inside the tarball). Moreover, K_SABKERNEL_NAME,
 # K_KERNEL_PATCH_VER will be ignored.
 # Example:
 #   K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
@@ -206,12 +201,6 @@ if [ "${K_SABKERNEL_PATCH_UPSTREAM_TARBALL}" = "1" ]; then
 	unset _patch_name
 elif [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	SRC_URI="mirror://sabayon/${CATEGORY}/linux-${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}.tar.${K_TARBALL_EXT}"
-elif [ -n "${K_SABPATCHES_VER}" ]; then
-	UNIPATCH_STRICTORDER="yes"
-	K_SABPATCHES_PKG="${PV}-${K_SABPATCHES_VER}.tar.${K_TARBALL_EXT}"
-	UNIPATCH_LIST="${DISTFILES}/${K_SABPATCHES_PKG}"
-	SRC_URI="${KERNEL_URI}
-		mirror://sabayon/${CATEGORY}/linux-sabayon-patches/${K_SABPATCHES_PKG}"
 else
 	SRC_URI="${KERNEL_URI}"
 fi
