@@ -26,6 +26,13 @@ K_SABKERNEL_NAME="${K_SABKERNEL_NAME:-${PN/${PN/-*}-}}"
 #   SRC_URI="mirror://sabayon/sys-kernel/linux-${PV}+sabayon.tar.${K_TARBALL_EXT}"
 K_SABKERNEL_SELF_TARBALL_NAME="${K_SABKERNEL_SELF_TARBALL_NAME:-}"
 
+# @ECLASS-VARIABLE: K_SABKERNEL_PATCH_UPSTREAM_TARBALL
+# @DESCRIPTION:
+# If set to 1, the ebuild will fetch the upstream kernel tarball and
+# apply the Sabayon patch against it. This strategy avoids the need of
+# creating complete kernel source tarballs. The default value is 0.
+K_SABKERNEL_PATCH_UPSTREAM_TARBALL="${K_SABKERNEL_PATCH_UPSTREAM_TARBALL:-0}"
+
 # @ECLASS-VARIABLE: K_SABKERNEL_FORCE_SUBLEVEL
 # @DESCRIPTION:
 # Force the rewrite of SUBLEVEL in kernel sources Makefile
@@ -190,7 +197,14 @@ if [ -n "${K_SABKERNEL_LONGTERM}" ]; then
 fi
 
 ## kernel-2 eclass settings
-if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+if [ "${K_SABKERNEL_PATCH_UPSTREAM_TARBALL}" = "1" ]; then
+	_patch_name="$(get_version_component_range 1-2)-${K_SABKERNEL_SELF_TARBALL_NAME}-${PVR}.patch.xz"
+	SRC_URI="${KERNEL_URI}
+		mirror://sabayon/${CATEGORY}/${_patch_name}
+	"
+	UNIPATCH_LIST="${UNIPATCH_LIST} ${DISTDIR}/${_patch_name}"
+	unset _patch_name
+elif [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	SRC_URI="mirror://sabayon/${CATEGORY}/linux-${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}.tar.${K_TARBALL_EXT}"
 elif [ -n "${K_SABPATCHES_VER}" ]; then
 	UNIPATCH_STRICTORDER="yes"
@@ -212,7 +226,7 @@ if [ -z "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
 	fi
 fi
 if [ -n "${K_KERNEL_PATCH_HOTFIXES}" ]; then
-	UNIPATCH_LIST="${K_KERNEL_PATCH_HOTFIXES} ${UNIPATCH_LIST}"
+	UNIPATCH_LIST="${UNIPATCH_LIST} ${K_KERNEL_PATCH_HOTFIXES}"
 fi
 
 _get_real_kv_full() {
@@ -410,7 +424,7 @@ sabayon-kernel_pkg_setup() {
 
 sabayon-kernel_src_unpack() {
 	local okv="${OKV}"
-	if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ]; then
+	if [ -n "${K_SABKERNEL_SELF_TARBALL_NAME}" ] && [ "${K_SABKERNEL_PATCH_UPSTREAM_TARBALL}" != "1" ]; then
 		OKV="${PVR}+${K_SABKERNEL_SELF_TARBALL_NAME}"
 	fi
 	if [ "${K_KERNEL_NEW_VERSIONING}" = "1" ]; then
