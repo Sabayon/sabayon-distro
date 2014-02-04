@@ -87,8 +87,3 @@ src_install() {
 
 	use wxwidgets && docompress -x /usr/share/doc/${PF}/guide
 }
-
-pkg_postinst() {
-	default
-	einfo "On Sabayon the GUI is provided by media-video/mkvtoolnix-gui package."
-}
