@@ -46,7 +46,6 @@ MY_CDEPS="
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
-	app-arch/bzip2
 	sys-libs/zlib
 	app-arch/bzip2
 	berkdb? ( >=sys-libs/db-4.0.14 )
@@ -58,7 +57,8 @@ DEPEND="${MY_CDEPS}
 	virtual/pkgconfig
 
 	!!<sys-apps/sandbox-1.6
-	nls? ( sys-devel/gettext )"
+	nls? ( sys-devel/gettext )
+	sys-apps/file"
 RDEPEND="${MY_CDEPS}
 	!dev-vcs/subversion[apache2]
 
