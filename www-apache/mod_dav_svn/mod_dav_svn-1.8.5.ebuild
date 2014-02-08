@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -10,23 +10,23 @@ MY_SVN_PN="subversion"
 MY_SVN_P="${MY_SVN_PN}-${PV}"
 MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 
-inherit autotools db-use depend.apache flag-o-matic libtool multilib eutils
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.5-Gentoo-patches.tar.gz )
+inherit sab-patches autotools db-use depend.apache flag-o-matic libtool multilib eutils
 
 DESCRIPTION="Subversion WebDAV support"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2
-	mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.7.7-Gentoo-patches.tar.gz"
+SRC_URI+=" mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2"
 S="${WORKDIR}/${MY_SVN_P}"
 
 LICENSE="Subversion"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="berkdb debug +dso nls sasl +webdav-neon webdav-serf"
-# w/o: apache2 ctypes-python doc extras gnome-keyring java kde perl python ruby
-# vim-syntax
+IUSE="berkdb debug +dso nls sasl"
+# w/o: ctypes-python doc extras gnome-keyring java kde perl python ruby
+# test vim-syntax; implicit: apache2, http
 
 # This is an ebuild that provides mod_dav_svn and friends (it does more or
-# less the same as when USE=apache2 is added to dev-vcs/subversion - basically
+# less the same as when USE="apache2 http" is added to dev-vcs/subversion - basically
 # provides three Apache modules and a configuration file), suitable for binary
 # packages.
 # Some flags in IUSE and their handling are only used to enforce the code be
@@ -41,20 +41,21 @@ IUSE="berkdb debug +dso nls sasl +webdav-neon webdav-serf"
 
 # variable specific to www-apache/mod_dav_svn
 MY_CDEPS="
-	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,webdav-neon=,webdav-serf=]
-	>=dev-db/sqlite-3.4[threadsafe(+)]
+	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,http]
+	>=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
-	sys-apps/file
+	app-arch/bzip2
 	sys-libs/zlib
+	app-arch/bzip2
 	berkdb? ( >=sys-libs/db-4.0.14 )
 "
 
 DEPEND="${MY_CDEPS}
 	sasl? ( dev-libs/cyrus-sasl )
-	webdav-neon? ( >=net-libs/neon-0.28 virtual/pkgconfig )
-	webdav-serf? ( >=net-libs/serf-0.3.0 )
+	>=net-libs/serf-1.2.1
+	virtual/pkgconfig
 
 	!!<sys-apps/sandbox-1.6
 	nls? ( sys-devel/gettext )"
@@ -95,31 +96,19 @@ pkg_setup() {
 
 	# depend.apache_pkg_setup
 
-	if ! use webdav-neon && ! use webdav-serf; then
-		ewarn "WebDAV support is disabled. You need WebDAV to"
-		ewarn "access repositories through the HTTP protocol."
-		ewarn "Consider enabling one of the following USE-flags:"
-		ewarn "  webdav-neon webdav-serf"
-		# echo -ne "\a"
-		die "needed option not enabled in USE"
-	fi
-
 	if use debug; then
 		append-cppflags -DSVN_DEBUG -DAP_DEBUG
 	fi
+
+	# http://mail-archives.apache.org/mod_mbox/subversion-dev/201306.mbox/%3C51C42014.3060700@wandisco.com%3E
+	[[ ${CHOST} == *-solaris2* ]] && append-cppflags -D__EXTENSIONS__
 
 	# Allow for custom repository locations.
 	SVN_REPOS_LOC="${SVN_REPOS_LOC:-${EPREFIX}/var/svn}"
 }
 
 src_prepare() {
-	local d=${WORKDIR}/1.7.7-Gentoo-patches
-
-	epatch "${d}"/${MY_SVN_PN}-1.5.4-interix.patch \
-		"${d}"/${MY_SVN_PN}-1.5.6-aix-dso.patch \
-		"${d}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch \
-		"${d}"/${MY_SVN_PN}-fix-parallel-build-support-for-perl-bindings.patch
-		# "${d}"/${MY_SVN_PN}-1.7.6-kwallet.patch
+	sab-patches_apply_all
 	epatch_user
 
 	fperms +x build/transform_libtool_scripts.sh
@@ -147,13 +136,6 @@ src_configure() {
 
 	#use java
 	myconf+=" --without-junit"
-
-	#use kde || use nls
-	if use nls; then
-		myconf+=" --enable-nls"
-	else
-		myconf+=" --disable-nls"
-	fi
 
 	case ${CHOST} in
 		*-aix*)
@@ -189,9 +171,10 @@ src_configure() {
 
 	#force ruby-1.8 for bug 399105
 	#allow overriding Python include directory
-	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby18 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc18 \
+	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby19 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc19 \
 	ac_cv_python_includes='-I$(PYTHON_INCLUDEDIR)' \
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
+		--with-apache-libexecdir \
 		--with-apxs="${APXS}" \
 		$(use_with berkdb berkeley-db "db.h:${EPREFIX}/usr/include/db${SVN_BDB_VERSION}::db-${SVN_BDB_VERSION}") \
 		--without-ctypesgen \
@@ -200,16 +183,15 @@ src_configure() {
 		--disable-javahl \
 		--without-jdk \
 		--without-kwallet \
+		$(use_enable nls) \
 		$(use_with sasl) \
-		$(use_with webdav-neon neon) \
-		$(use_with webdav-serf serf "${EPREFIX}/usr") \
+		--with-serf \
 		${myconf} \
 		--with-apr="${EPREFIX}/usr/bin/apr-1-config" \
 		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
 		--disable-experimental-libtool \
 		--without-jikes \
 		--disable-mod-activation \
-		--disable-neon-version-check \
 		--disable-static
 }
 

@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -6,36 +6,38 @@ EAPI=5
 PYTHON_COMPAT=( python{2_6,2_7} )
 DISTUTILS_OPTIONAL=1
 WANT_AUTOMAKE="none"
+GENTOO_DEPEND_ON_PERL="no"
+
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${PN}-1.8.5-Gentoo-patches.tar.gz )
+inherit sab-patches autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common flag-o-matic libtool multilib perl-module eutils
+
 MY_P="${P/_/-}"
-
-inherit autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common flag-o-matic libtool multilib perl-module eutils
-
 DESCRIPTION="Advanced version control system"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="mirror://apache/${PN}/${MY_P}.tar.bz2"
+SRC_URI+=" mirror://apache/${PN}/${MY_P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="Subversion GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring java kde nls perl python ruby sasl test vim-syntax +webdav-neon webdav-serf"
+IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring +http java kde nls perl python ruby sasl test vim-syntax"
 
-COMMON_DEPEND=">=dev-db/sqlite-3.4[threadsafe(+)]
+COMMON_DEPEND=">=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
 	sys-libs/zlib
+	app-arch/bzip2
 	berkdb? ( >=sys-libs/db-4.0.14 )
 	ctypes-python? ( ${PYTHON_DEPS} )
 	gnome-keyring? ( dev-libs/glib:2 sys-apps/dbus gnome-base/gnome-keyring )
 	kde? ( sys-apps/dbus dev-qt/qtcore:4 dev-qt/qtdbus:4 dev-qt/qtgui:4 >=kde-base/kdelibs-4:4 )
 	perl? ( dev-lang/perl )
 	python? ( ${PYTHON_DEPS} )
-	ruby? ( >=dev-lang/ruby-1.8.2:1.8
-		dev-ruby/rubygems[ruby_targets_ruby18] )
+	ruby? ( >=dev-lang/ruby-1.9.3:1.9
+		dev-ruby/rubygems[ruby_targets_ruby19] )
 	sasl? ( dev-libs/cyrus-sasl )
-	webdav-neon? ( >=net-libs/neon-0.28 )
-	webdav-serf? ( >=net-libs/serf-0.3.0 )"
+	http? ( >=net-libs/serf-1.2.1 )"
 RDEPEND="${COMMON_DEPEND}
 	apache2? ( www-servers/apache[apache2_modules_dav] )
 	kde? ( kde-base/kwalletd )
@@ -50,7 +52,7 @@ DEPEND="${COMMON_DEPEND}
 	gnome-keyring? ( virtual/pkgconfig )
 	kde? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
-	webdav-neon? ( virtual/pkgconfig )"
+	http? ( virtual/pkgconfig )"
 PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
 
 REQUIRED_USE="
@@ -89,11 +91,10 @@ pkg_setup() {
 
 	depend.apache_pkg_setup
 
-	if ! use webdav-neon && ! use webdav-serf; then
+	if ! use http ; then
 		ewarn "WebDAV support is disabled. You need WebDAV to"
 		ewarn "access repositories through the HTTP protocol."
-		ewarn "Consider enabling one of the following USE-flags:"
-		ewarn "  webdav-neon webdav-serf"
+		ewarn "Consider enabling \"http\" USE flag"
 		echo -ne "\a"
 	fi
 
@@ -101,15 +102,15 @@ pkg_setup() {
 		append-cppflags -DSVN_DEBUG -DAP_DEBUG
 	fi
 
+	# http://mail-archives.apache.org/mod_mbox/subversion-dev/201306.mbox/%3C51C42014.3060700@wandisco.com%3E
+	[[ ${CHOST} == *-solaris2* ]] && append-cppflags -D__EXTENSIONS__
+
 	# Allow for custom repository locations.
 	SVN_REPOS_LOC="${SVN_REPOS_LOC:-${EPREFIX}/var/svn}"
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-1.5.4-interix.patch \
-		"${FILESDIR}"/${PN}-1.5.6-aix-dso.patch \
-		"${FILESDIR}"/${PN}-1.6.3-hpux-dso.patch \
-		"${FILESDIR}"/${PN}-fix-parallel-build-support-for-perl-bindings.patch
+	sab-patches_apply_all
 	epatch_user
 
 	fperms +x build/transform_libtool_scripts.sh
@@ -129,6 +130,14 @@ src_prepare() {
 		-i build-outputs.mk || die "sed failed"
 
 	if use python; then
+		if [[ ${CHOST} == *-darwin* ]] ; then
+			# http://mail-archives.apache.org/mod_mbox/subversion-dev/201306.mbox/%3C20130614113003.GA19257@tarsus.local2%3E
+			# in short, we don't have gnome-keyring stuff here, patch
+			# borrowed from MacPorts
+			die "Darwin not supported; use Gentoo ebuild" # no need to bother with the patch for our needs
+			#epatch "${FILESDIR}"/${P}-swig-python-no-gnome-keyring.patch
+		fi
+
 		# XXX: make python_copy_sources accept path
 		S=${S}/subversion/bindings/swig/python python_copy_sources
 		rm -r "${S}"/subversion/bindings/swig/python || die
@@ -142,12 +151,6 @@ src_configure() {
 		myconf+=" --with-swig"
 	else
 		myconf+=" --without-swig"
-	fi
-
-	if use kde || use nls; then
-		myconf+=" --enable-nls"
-	else
-		myconf+=" --disable-nls"
 	fi
 
 	case ${CHOST} in
@@ -187,11 +190,18 @@ src_configure() {
 		python_export_best
 	fi
 
+	if use python && [[ ${CHOST} == *-darwin* ]] ; then
+		export ac_cv_python_link="$(tc-getCC) "'$(PYTHON_CFLAGS) -bundle -undefined dynamic_lookup $(PYTHON_LIBS)'
+		export ac_cv_python_libs='$(PYTHON_CFLAGS) -bundle -undefined dynamic_lookup $(PYTHON_LIBS)'
+		export ac_cv_python_compile="$(tc-getCC)"
+	fi
+
 	#force ruby-1.8 for bug 399105
 	#allow overriding Python include directory
-	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby18 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc18 \
+	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby19 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc19 \
 	ac_cv_python_includes='-I$(PYTHON_INCLUDEDIR)' \
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
+		$(use_with apache2 apache-libexecdir) \
 		$(use_with apache2 apxs "${APXS}") \
 		$(use_with berkdb berkeley-db "db.h:${EPREFIX}/usr/include/db${SVN_BDB_VERSION}::db-${SVN_BDB_VERSION}") \
 		$(use_with ctypes-python ctypesgen "${EPREFIX}/usr") \
@@ -199,16 +209,15 @@ src_configure() {
 		$(use_with gnome-keyring) \
 		--disable-javahl \
 		$(use_with kde kwallet) \
+		$(use_enable nls) \
 		$(use_with sasl) \
-		$(use_with webdav-neon neon) \
-		$(use_with webdav-serf serf "${EPREFIX}/usr") \
+		$(use_with http serf) \
 		${myconf} \
 		--with-apr="${EPREFIX}/usr/bin/apr-1-config" \
 		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
 		--disable-experimental-libtool \
 		--without-jikes \
 		--disable-mod-activation \
-		--disable-neon-version-check \
 		--disable-static
 }
 
