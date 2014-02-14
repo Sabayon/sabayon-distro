@@ -26,7 +26,9 @@ KEYWORDS="~amd64 ~arm ~x86"
 
 IUSE="debug doc nls"
 
-COMMON_DEPEND="~dev-vcs/subversion-${PV}"
+COMMON_DEPEND="~dev-vcs/subversion-${PV}
+	>=dev-libs/apr-1.3:1
+	>=dev-libs/apr-util-1.3:1"
 RDEPEND="
 	${COMMON_DEPEND}
 	app-arch/bzip2
