@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=5
 
-inherit eutils flag-o-matic
+inherit autotools multilib eutils flag-o-matic
 
 MY_PN=${PN/-base}
 MY_P=${P/-base}
@@ -22,6 +22,7 @@ RDEPEND="
 	caps? ( sys-libs/libcap )
 	sys-libs/ncurses
 	static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] )
+	ppc-aix? ( dev-libs/gnulib )
 "
 DEPEND="${RDEPEND}"
 
@@ -29,8 +30,21 @@ S=${WORKDIR}/${MY_P}
 
 DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 
+src_prepare() {
+	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	epatch "${FILESDIR}/${MY_PN}-0.8.2-texi.patch"
+	sed -i 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/g' configure.ac || die
+	eautoreconf
+}
+
 src_configure() {
 	use static && append-ldflags -static
+
+	if [[ ${CHOST} == *-aix* ]] ; then
+		append-flags -I"${EPREFIX}/usr/$(get_libdir)/gnulib/include"
+		append-ldflags -L"${EPREFIX}/usr/$(get_libdir)/gnulib/$(get_libdir)"
+		append-libs -lgnu
+	fi
 
 	econf \
 		--disable-dependency-tracking \
