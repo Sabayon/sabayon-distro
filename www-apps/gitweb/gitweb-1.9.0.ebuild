@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -38,7 +38,7 @@ IUSE="highlight"
 CDEPEND="
 	~dev-vcs/git-${PV}
 	sys-libs/zlib
-	dev-lang/perl[-build(-)]
+	dev-lang/perl:=[-build(-)]
 	dev-libs/libpcre
 	dev-lang/tk"
 
@@ -69,6 +69,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	epatch_user
+
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
 		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
@@ -156,6 +158,6 @@ pkg_postinst() {
 	echo
 	showpkgdeps git-quiltimport "dev-util/quilt"
 	showpkgdeps git-instaweb \
-		"|| ( www-servers/lighttpd www-servers/apache )"
+		"|| ( www-servers/lighttpd www-servers/apache www-servers/nginx )"
 	echo
 }

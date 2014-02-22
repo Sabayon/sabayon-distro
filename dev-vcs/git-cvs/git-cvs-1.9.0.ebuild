@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -10,7 +10,8 @@ PYTHON_COMPAT=( python2_{6,7} )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 
-inherit toolchain-funcs eutils multilib python-single-r1 ${SCM}
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-1.9.0_rc3-optional-cvs.patch.gz" )
+inherit sab-patches toolchain-funcs eutils multilib python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_PN="${PN/-cvs}"
@@ -24,7 +25,7 @@ if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="gz"
 	SRC_URI_GOOG="http://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
-	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
+	SRC_URI+=" ${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_GOOG}/${MY_PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
@@ -34,11 +35,9 @@ if [[ ${PV} != *9999 ]]; then
 			)"
 	KEYWORDS="~amd64 ~x86"
 else
-	SRC_URI=""
+	#SRC_URI=""
 	KEYWORDS=""
 fi
-
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.5-optional-cvs.patch.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -51,7 +50,7 @@ RDEPEND="~dev-vcs/git-${PV}[-cvs,perl]
 	>=dev-vcs/cvsps-2.1 dev-perl/DBI dev-perl/DBD-SQLite
 	${PYTHON_DEPS}"
 DEPEND="app-arch/cpio
-	dev-lang/perl[-build(-)]
+	dev-lang/perl:=[-build(-)]
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X
@@ -117,13 +116,13 @@ src_unpack() {
 	else
 		git-2_src_unpack
 	fi
-
-	cd "${WORKDIR}" && unpack git-1.8.5-optional-cvs.patch.gz
 }
 
 src_prepare() {
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${WORKDIR}"/git-1.8.5-optional-cvs.patch
+	sab-patches_apply_all
+
+	epatch_user
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \

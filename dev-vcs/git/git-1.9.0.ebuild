@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -11,7 +11,8 @@ PYTHON_COMPAT=( python2_{6,7} )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 
-inherit toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-1.9.0_rc3-optional-cvs.patch.gz" )
+inherit sab-patches toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_P="${PN}-${MY_PV}"
@@ -24,7 +25,7 @@ if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="gz"
 	SRC_URI_GOOG="http://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
-	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
+	SRC_URI+=" ${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_GOOG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
@@ -34,22 +35,20 @@ if [[ ${PV} != *9999 ]]; then
 			)"
 	KEYWORDS="~amd64 ~x86"
 else
-	SRC_URI=""
+	#SRC_URI=""
 	KEYWORDS=""
 fi
 
-SRC_URI+=" mirror://sabayon/dev-vcs/git/git-1.8.5-optional-cvs.patch.gz"
-
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv mediawiki +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
 	dev-libs/openssl
 	sys-libs/zlib
 	pcre? ( dev-libs/libpcre )
-	perl? ( dev-lang/perl[-build(-)] )
+	perl? ( dev-lang/perl:=[-build(-)] )
 	tk? ( dev-lang/tk )
 	curl? (
 		net-misc/curl
@@ -60,6 +59,10 @@ CDEPEND="
 
 RDEPEND="${CDEPEND}
 	gpg? ( app-crypt/gnupg )
+	mediawiki? (
+		dev-perl/HTML-Tree
+		dev-perl/MediaWiki-API
+	)
 	perl? ( dev-perl/Error
 			dev-perl/Net-SMTP-SSL
 			dev-perl/Authen-SASL
@@ -86,9 +89,8 @@ DEPEND="${CDEPEND}
 		sys-apps/texinfo
 		app-text/xmlto
 	)
-	test? (
-		app-crypt/gnupg
-	)"
+	nls? ( sys-devel/gettext )
+	test? (	app-crypt/gnupg )"
 
 # Live ebuild builds man pages and HTML docs, additionally
 if [[ ${PV} == *9999 ]]; then
@@ -102,6 +104,7 @@ S="${WORKDIR}/${MY_P}"
 REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
+	mediawiki? ( perl )
 	subversion? ( perl )
 	webdav? ( curl )
 	gtk? ( python )
@@ -217,13 +220,22 @@ src_unpack() {
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
-
-	cd "${WORKDIR}" && unpack git-1.8.5-optional-cvs.patch.gz
 }
 
 src_prepare() {
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${WORKDIR}"/git-1.8.5-optional-cvs.patch
+	# git-...-optional-cvs.patch
+	sab-patches_apply_all
+
+	# we won't be using it (at least for now), so I don't see the reason
+	# to carry the patches (they are mediawiki specific)
+	use mediawiki && die "USE=mediawiki not supported, use Portage ebuild"
+
+	# install mediawiki perl modules also in vendor_dir
+	# hack, needs better upstream solution
+	#epatch "${FILESDIR}"/git-1.8.5-mw-vendor.patch
+
+	epatch_user
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -332,6 +344,11 @@ src_compile() {
 	cd "${S}"/contrib/subtree
 	git_emake
 	use doc && git_emake doc
+
+	if use mediawiki ; then
+		cd "${S}"/contrib/mw-to-git
+		git_emake
+	fi
 }
 
 src_install() {
@@ -363,7 +380,8 @@ src_install() {
 	use doc && doinfo Documentation/{git,gitman}.info
 
 	newbashcomp contrib/completion/git-completion.bash ${PN}
-	newbashcomp contrib/completion/git-prompt.sh ${PN}-prompt
+	# Not really a bash-completion file (bug #477920)
+	dodoc contrib/completion/git-prompt.sh
 
 	if use emacs ; then
 		elisp-install ${PN} contrib/emacs/git.{el,elc}
@@ -395,6 +413,12 @@ src_install() {
 	newdoc README README.git-subtree
 	dodoc git-subtree.txt
 	cd "${S}"
+
+	if use mediawiki ; then
+		cd "${S}"/contrib/mw-to-git
+		git_emake install
+		cd "${S}"
+	fi
 
 	# git-diffall
 	dobin contrib/diffall/git-diffall
@@ -492,7 +516,7 @@ src_install() {
 	fi
 
 	if use !prefix; then
-		newinitd "${FILESDIR}"/git-daemon.initd git-daemon
+		newinitd "${FILESDIR}"/git-daemon-r1.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
 		systemd_newunit "${FILESDIR}/git-daemon_at.service" "git-daemon@.service"
 		systemd_dounit "${FILESDIR}/git-daemon.socket"
@@ -622,7 +646,7 @@ pkg_postinst() {
 	echo
 	showpkgdeps git-quiltimport "dev-util/quilt"
 	showpkgdeps git-instaweb \
-		"|| ( www-servers/lighttpd www-servers/apache )"
+		"|| ( www-servers/lighttpd www-servers/apache www-servers/nginx )"
 	echo
 }
 
