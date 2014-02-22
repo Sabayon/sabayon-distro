@@ -7,11 +7,10 @@
 # slawomir.nizio@sabayon.org
 # @AUTHOR:
 # Sławomir Nizio <slawomir.nizio@sabayon.org>
-# @BLURB: eclass that makes it easier to apply patches from tarballs
+# @BLURB: eclass that makes it easier to apply patches from multiple packages
 # @DESCRIPTION:
-# Adds a patch or patches to SRC_URI and makes it easy to apply them.
-# It is intended to work with tarballs containing patches, and is
-# made to make it easier for Sabayon split ebuilds.
+# Adds a patch or patches to SRC_URI and makes it easy to apply them,
+# with the intention to make the task easier for Sabayon split ebuilds.
 # (Plain patches kept in a VCS are very nice, but in the case of split
 # ebuilds, duplicating the patches is not effective.)
 # The eclass does not define any phase function.
@@ -39,18 +38,26 @@ unset _sab_patch
 
 # @FUNCTION: sab-patches_apply_all
 # @DESCRIPTION:
-# Applies patches that can be found under
-# ${WORKDIR}/<name of the patch tarball without ext.>, for each tarball.
-# Order of patching is specified by the 'order' file, which must exist in
-# each tarball.
-# Patch names that are listed in SAB_PATCHES_SKIP are skipped
-# by _sab-patches_apply_from_dir.
+# Applies patches specified using SAB_PATCHES_SRC, skipping patches
+# with names matched in SAB_PATCHES_SKIP.
+# Two possible cases are supported.
+# 1. A patch path which is a tarball (assumed file name: *.tar*).
+# Such a tarball must unpack to ${WORKDIR}/<tarball name without *.tar*>
+# and must contain a file 'order,' which is used to determine order
+# of patches to apply.
+# 2. A patch which is not a tarball, which will be simply applied (if
+# it is not skipped).
 sab-patches_apply_all() {
 	local p
 	for p in "${SAB_PATCHES_SRC[@]}"; do
-		local dir=${p##*/}
-		dir=${dir%.tar*}
-		_sab-patches_apply_from_dir "${WORKDIR}/${dir}"
+		if [[ ${p} = *.tar* ]]; then
+			local dir=${p##*/}
+			dir=${dir%.tar*}
+			_sab-patches_apply_from_dir "${WORKDIR}/${dir}"
+		else
+			local name=${p##*/}
+			_sab-patches_apply_nonskipped "${DISTDIR}" "${name}"
+		fi
 	done
 }
 
@@ -65,6 +72,36 @@ sab-patches_apply() {
 	local patch
 	for patch; do
 		epatch "${dir}/${patch}"
+	done
+}
+
+# @FUNCTION: _sab-patches_apply_nonskipped
+# @INTERNAL
+# @DESCRIPTION:
+# Apply selected patches - only those which should not be skipped.
+# Arguments are the directory containing the patch, followed by
+# one or more patch names.
+# This function is not intended to be used by ebuilds because there
+# is a better way: use sab-patches_apply and skip the unwanted ones.
+_sab-patches_apply_nonskipped() {
+	if [[ $# -lt 2 ]]; then
+		die "_sab-patches_apply_nonskipped: missing arguments"
+	fi
+
+	local dir=$1
+	shift
+
+	local patch
+	for patch; do
+		if [[ ${patch} = */* ]]; then
+			die "_sab-patches_apply_nonskipped: '${patch}' contains slashes"
+		fi
+
+		if _sab-patches_is_skipped "${patch}"; then
+			einfo "(skipping ${patch})"
+		else
+			epatch "${dir}/${patch}"
+		fi
 	done
 }
 
@@ -90,11 +127,7 @@ _sab-patches_apply_from_dir() {
 			die "Problems with the patch '${patch}', see ${order_file}."
 		fi
 
-		if _sab-patches_is_skipped "${patch}"; then
-			einfo "(skipping ${patch})"
-		else
-			epatch "${patch_path}"
-		fi
+		_sab-patches_apply_nonskipped "${dir}" "${patch}"
 	done < "${order_file}"
 
 	[[ $? -ne 0 ]] && die "_sab-patches_apply_from_dir: loop failed"
