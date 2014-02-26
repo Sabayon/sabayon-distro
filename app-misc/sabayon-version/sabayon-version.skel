@@ -21,7 +21,7 @@ PYTHON_VER="2.7"
 # Listing default packages for the current release
 RDEPEND="app-admin/eselect-python
 	dev-lang/python:${PYTHON_VER}
-	sys-apps/systemd[logind]
+	sys-apps/systemd
 	!sys-apps/hal
 	!sys-auth/consolekit
 	sys-devel/base-gcc:${GCC_VER}
