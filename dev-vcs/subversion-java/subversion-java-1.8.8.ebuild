@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -12,11 +12,12 @@ MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 MY_SVN_CATEGORY="${CATEGORY}"
 
 # note: java-pkg-2, not java-pkt-opt-2
-inherit autotools eutils flag-o-matic java-pkg-2 libtool multilib
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.5-Gentoo-patches.tar.gz )
+inherit sab-patches autotools eutils flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="mirror://apache/${PN}/${MY_SVN_P}.tar.bz2"
+SRC_URI+=" mirror://apache/${PN}/${MY_SVN_P}.tar.bz2"
 S="${WORKDIR}/${MY_SVN_P/_/-}"
 
 LICENSE="Subversion"
@@ -25,9 +26,12 @@ KEYWORDS="~amd64 ~arm ~x86"
 
 IUSE="debug doc nls"
 
-COMMON_DEPEND="~dev-vcs/subversion-${PV}"
+COMMON_DEPEND="~dev-vcs/subversion-${PV}
+	>=dev-libs/apr-1.3:1
+	>=dev-libs/apr-util-1.3:1"
 RDEPEND="
 	${COMMON_DEPEND}
+	app-arch/bzip2
 	>=virtual/jre-1.5"
 DEPEND="${COMMON_DEPEND}
 	>=virtual/jdk-1.5"
@@ -35,15 +39,15 @@ DEPEND="${COMMON_DEPEND}
 pkg_setup() {
 	java-pkg-2_pkg_setup
 
-	if use debug; then
+	if use debug ; then
 		append-cppflags -DSVN_DEBUG -DAP_DEBUG
 	fi
+	# http://mail-archives.apache.org/mod_mbox/subversion-dev/201306.mbox/%3C51C42014.3060700@wandisco.com%3E
+	[[ ${CHOST} == *-solaris2* ]] && append-cppflags -D__EXTENSIONS__
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${MY_SVN_PN}-1.5.4-interix.patch \
-		"${FILESDIR}"/${MY_SVN_PN}-1.5.6-aix-dso.patch \
-		"${FILESDIR}"/${MY_SVN_PN}-1.6.3-hpux-dso.patch
+	sab-patches_apply_all
 	epatch_user
 
 	fperms +x build/transform_libtool_scripts.sh
@@ -69,12 +73,6 @@ src_configure() {
 	myconf+=" --without-swig"
 	myconf+=" --without-junit"
 
-	if use nls; then
-		myconf+=" --enable-nls"
-	else
-		myconf+=" --disable-nls"
-	fi
-
 	case ${CHOST} in
 		*-aix*)
 			# avoid recording immediate path to sharedlibs into executables
@@ -99,15 +97,13 @@ src_configure() {
 		;;
 	esac
 
-	#workaround for bug 387057
-	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
-
 	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
 	myconf+=" --disable-disallowing-of-undefined-references"
 
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
+		--without-apache-libexecdir \
 		--without-apxs \
 		--without-berkeley-db \
 		--without-ctypesgen \
@@ -116,8 +112,8 @@ src_configure() {
 		--enable-javahl \
 		--with-jdk="${JAVA_HOME}" \
 		--without-kwallet \
+		$(use_enable nls) \
 		--without-sasl \
-		--without-neon \
 		--without-serf \
 		${myconf} \
 		--with-apr="${EPREFIX}/usr/bin/apr-1-config" \
@@ -125,14 +121,13 @@ src_configure() {
 		--disable-experimental-libtool \
 		--without-jikes \
 		--disable-mod-activation \
-		--disable-neon-version-check \
 		--disable-static
 }
 
 src_compile() {
 	emake -j1 JAVAC_FLAGS="$(java-pkg_javac-args) -encoding iso8859-1" javahl
 
-	if use doc; then
+	if use doc ; then
 		emake doc-javahl
 	fi
 }
@@ -146,9 +141,9 @@ src_install() {
 
 	mv "${ED}usr/share/${PN}/package.env" "${ED}/usr/share/${MY_SVN_PN}/" || die
 
-	if use doc; then
+	if use doc ; then
 		java-pkg_dojavadoc doc/javadoc
 	fi
 
-	find "${D}" '(' -name '*.la' ')' -print0 | xargs -0 rm -f
+	prune_libtool_files --all
 }
