@@ -873,7 +873,7 @@ sabayon-kernel_pkg_postinst() {
 		fi
 
 		# Update kernel initramfs to match user customizations
-		update_sabayon_kernel_initramfs_splash
+		use splash && update_sabayon_kernel_initramfs_splash
 
 		# Add kernel to grub.conf
 		if use amd64 || use x86; then
