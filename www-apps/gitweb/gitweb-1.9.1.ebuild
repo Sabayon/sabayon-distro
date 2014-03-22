@@ -69,6 +69,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	epatch_user
+
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
 		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
@@ -156,6 +158,6 @@ pkg_postinst() {
 	echo
 	showpkgdeps git-quiltimport "dev-util/quilt"
 	showpkgdeps git-instaweb \
-		"|| ( www-servers/lighttpd www-servers/apache )"
+		"|| ( www-servers/lighttpd www-servers/apache www-servers/nginx )"
 	echo
 }
