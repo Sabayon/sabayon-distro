@@ -74,6 +74,7 @@ pkg_postinst() {
 	# remove old hal udev rules.d file, if found. sys-apps/hal is long gone.
 	rm -f "${ROOT}/lib/udev/rules.d/90-hal.rules"
 
-	# make sure that systemd is the default init system
-	eselect init set systemd || true
+	# make sure that systemd is correctly linked to /sbin/init
+	# Drop this in 2015, keep in sync with systemd-sysv-utils
+	ln -sf ../usr/lib/systemd/systemd "${ROOT}/sbin/init" || true
 }
