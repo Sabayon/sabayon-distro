@@ -1,5 +1,0 @@
-# Fabio Erculiani <lxnay@sabayonlinux.org>
-- rebrand boot string
-- disable deprecated addons warnings
-- do not let /etc/conf.d/keymaps to be overwritten, provide .example files
-- fix Gentoo bug #299633
