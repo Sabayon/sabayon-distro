@@ -19,10 +19,13 @@ DEPEND=""
 GCC_VER="4.7"
 PYTHON_VER="2.7"
 # Listing default packages for the current release
-RDEPEND="app-admin/eselect-python
-	dev-lang/python:${PYTHON_VER}
-	sys-apps/systemd[logind]
+RDEPEND="!sys-apps/sysvinit
+	!sys-apps/hal
 	!sys-auth/consolekit
+	app-admin/eselect-python
+	dev-lang/python:${PYTHON_VER}
+	sys-apps/systemd
+	sys-apps/systemd-sysv-utils
 	sys-devel/base-gcc:${GCC_VER}
 	sys-devel/gcc-config"
 
@@ -66,4 +69,10 @@ pkg_postinst() {
 			mv -f "${xdm_boot_runlevel}" "${xdm_default_runlevel}"
 		fi
 	fi
+
+	# remove old hal udev rules.d file, if found. sys-apps/hal is long gone.
+	rm -f "${ROOT}/lib/udev/rules.d/90-hal.rules"
+
+	# make sure that systemd is the default init system
+	eselect init set systemd || true
 }
