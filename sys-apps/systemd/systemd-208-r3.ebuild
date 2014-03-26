@@ -47,6 +47,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
+	!app-admin/eselect-init
 	>=sys-apps/baselayout-2.2
 	|| (
 		>=sys-apps/util-linux-2.22
