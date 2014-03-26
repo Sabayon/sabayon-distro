@@ -19,11 +19,14 @@ DEPEND=""
 GCC_VER="4.7"
 PYTHON_VER="2.7"
 # Listing default packages for the current release
-RDEPEND="app-admin/eselect-python
-	dev-lang/python:${PYTHON_VER}
-	sys-apps/systemd
+RDEPEND="!app-admin/eselect-init
+	!<sys-apps/sysvinit-1000
 	!sys-apps/hal
 	!sys-auth/consolekit
+	app-admin/eselect-python
+	dev-lang/python:${PYTHON_VER}
+	sys-apps/systemd
+	sys-apps/systemd-sysv-utils
 	sys-devel/base-gcc:${GCC_VER}
 	sys-devel/gcc-config"
 
@@ -70,4 +73,8 @@ pkg_postinst() {
 
 	# remove old hal udev rules.d file, if found. sys-apps/hal is long gone.
 	rm -f "${ROOT}/lib/udev/rules.d/90-hal.rules"
+
+	# make sure that systemd is correctly linked to /sbin/init
+	# Drop this in 2015, keep in sync with systemd-sysv-utils
+	ln -sf ../usr/lib/systemd/systemd "${ROOT}/sbin/init" || true
 }
