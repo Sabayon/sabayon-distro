@@ -149,6 +149,9 @@ src_prepare() {
 
 	# Linux 3.13 support
 	epatch "${FILESDIR}/nvidia-drivers-173-3.13.patch"
+
+        # Linux 3.14 support
+        kernel_is ge 3 14 0 && epatch "${FILESDIR}/${PN}-173-3.14.patch"
 }
 
 src_compile() {

@@ -1,0 +1,12 @@
+--- a/kernel/nv-linux.h
++++ b/kernel/nv-linux.h
+@@ -273,8 +273,7 @@
+ #endif
+ 
+ #if !defined(NV_VMWARE) && defined(CONFIG_ACPI)
+-#include <acpi/acpi.h>
+-#include <acpi/acpi_drivers.h>
++#include <linux/acpi.h>
+ #if defined(NV_ACPI_DEVICE_OPS_HAS_MATCH) || defined(ACPI_VIDEO_HID)
+ #define NV_LINUX_ACPI_EVENTS_SUPPORTED 1
+ #endif

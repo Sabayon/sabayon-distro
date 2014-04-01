@@ -1,0 +1,12 @@
+--- a/usr/src/nv/nv-linux.h
++++ b/usr/src/nv/nv-linux.h
+@@ -206,8 +206,7 @@ extern int nv_pat_mode;
+ #endif
+ 
+ #if defined(CONFIG_ACPI) 
+-#include <acpi/acpi.h>
+-#include <acpi/acpi_drivers.h>
++#include <linux/acpi.h>
+ #if defined(NV_ACPI_DEVICE_OPS_HAS_MATCH) || defined(ACPI_VIDEO_HID)
+ #define NV_LINUX_ACPI_EVENTS_SUPPORTED 1
+ #endif
