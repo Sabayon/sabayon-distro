@@ -1,18 +1,15 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 inherit cmake-utils eutils
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
-EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && inherit git-2
+EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
+[[ "${PV}" == "9999" ]] && inherit git-r3
 
-KDE_MINIMAL="4.4"
-
-DESCRIPTION="Qt4/KDE4 IRC client supporting a remote daemon for 24/7 connectivity (common files)."
+DESCRIPTION="Qt4/KDE IRC client supporting a remote daemon for 24/7 connectivity (common files)"
 HOMEPAGE="http://quassel-irc.org/"
 MY_P=${P/-common}
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
@@ -22,7 +19,7 @@ KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE="kde"
 
-RDEPEND="kde? ( >=kde-base/oxygen-icons-${KDE_MINIMAL} )"
+RDEPEND="kde? ( kde-base/oxygen-icons )"
 DEPEND="${RDEPEND}
 		!<net-irc/quassel-${PV}
 		!<net-irc/quassel-client-${PV}"
@@ -42,9 +39,6 @@ src_install() {
 	# cmake-utils_src_install
 
 	local mypath
-
-	# some of the goods are in $ED already, remove what's unneeded here
-	rm -f "${ED}"usr/bin/quasselcore
 
 	dodoc ChangeLog AUTHORS
 

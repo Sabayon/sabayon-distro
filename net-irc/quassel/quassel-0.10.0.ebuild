@@ -1,19 +1,15 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 inherit cmake-utils eutils
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
-EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && inherit git-2
+EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
+[[ "${PV}" == "9999" ]] && inherit git-r3
 
-QT_MINIMAL="4.6.0"
-KDE_MINIMAL="4.4"
-
-DESCRIPTION="Qt4/KDE4 IRC client - monolithic client only (no remote daemon)."
+DESCRIPTION="Qt4/KDE IRC client - monolithic client only (no remote daemon)"
 HOMEPAGE="http://quassel-irc.org/"
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${P/_/-}.tar.bz2"
 
@@ -25,38 +21,39 @@ SLOT="0"
 IUSE="ayatana crypt dbus debug -kde monolithic -phonon postgres +server +ssl syslog webkit X"
 
 SERVER_RDEPEND="
-	>=dev-qt/qtscript-${QT_MINIMAL}:4
+	dev-qt/qtscript:4
 	crypt? (
 		app-crypt/qca:2
 		app-crypt/qca-ossl
 	)
-	!postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[sqlite] dev-db/sqlite[-secure-delete] )
-	postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[postgres] )
+	!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
+	postgres? ( dev-qt/qtsql:4[postgres] )
 	syslog? ( virtual/logger )
 "
 
 GUI_RDEPEND="
-	>=dev-qt/qtgui-${QT_MINIMAL}:4
+	dev-qt/qtgui:4
 	ayatana? ( dev-libs/libindicate-qt )
 	dbus? (
-		>=dev-qt/qtdbus-${QT_MINIMAL}:4
+		dev-qt/qtdbus:4
 		dev-libs/libdbusmenu-qt
 	)
 	kde? (
-		>=kde-base/kdelibs-${KDE_MINIMAL}
+		kde-base/kdelibs:4
 		ayatana? ( kde-misc/plasma-widget-message-indicator )
 	)
-	phonon? ( || ( media-libs/phonon >=dev-qt/qtphonon-${QT_MINIMAL} ) )
-	webkit? ( >=dev-qt/qtwebkit-${QT_MINIMAL}:4 )
+	phonon? ( || ( media-libs/phonon dev-qt/qtphonon:4 ) )
+	webkit? ( dev-qt/qtwebkit:4 )
 "
 
 RDEPEND="
 	~net-irc/quassel-common-${PV}
-	>=dev-qt/qtcore-${QT_MINIMAL}:4[ssl?]
+	dev-qt/qtcore:4[ssl?]
 	${SERVER_RDEPEND}
 	${GUI_RDEPEND}
 	"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	kde? ( dev-util/automoc )"
 
 S="${WORKDIR}/${P/_/-}"
 
@@ -83,10 +80,10 @@ src_configure() {
 src_install() {
 	cmake-utils_src_install
 
-	rm -rf "${ED}"usr/share/apps
-	rm -rf "${ED}"usr/share/pixmaps
-	rm -rf "${ED}"usr/share/icons
-	rm -rf "${ED}"usr/share/applications
+	rm -r "${ED}"usr/share/apps
+	rm -r "${ED}"usr/share/pixmaps
+	rm -r "${ED}"usr/share/icons
+	rm -r "${ED}"usr/share/applications
 
 	insinto /usr/share/applications
 	doins data/quassel.desktop

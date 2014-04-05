@@ -1,19 +1,15 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 inherit cmake-utils eutils pax-utils user
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
-EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && inherit git-2
+EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
+[[ "${PV}" == "9999" ]] && inherit git-r3
 
-QT_MINIMAL="4.6.0"
-KDE_MINIMAL="4.4"
-
-DESCRIPTION="Qt4/KDE4 IRC client. This provides the \"core\" (server) component."
+DESCRIPTION="Qt4/KDE IRC client - the \"core\" (server) component"
 HOMEPAGE="http://quassel-irc.org/"
 MY_P=${P/-core}
 MY_PN=${PN/-core}
@@ -25,18 +21,18 @@ SLOT="0"
 IUSE="crypt dbus postgres +ssl syslog"
 
 SERVER_RDEPEND="
-	>=dev-qt/qtscript-${QT_MINIMAL}:4
+	dev-qt/qtscript:4
 	crypt? (
 		app-crypt/qca:2
 		app-crypt/qca-ossl
 	)
-	!postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[sqlite] dev-db/sqlite[-secure-delete] )
-	postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[postgres] )
+	!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
+	postgres? ( dev-qt/qtsql:4[postgres] )
 	syslog? ( virtual/logger )
 "
 
 RDEPEND="
-	>=dev-qt/qtcore-${QT_MINIMAL}:4[ssl?]
+	dev-qt/qtcore:4[ssl?]
 	${SERVER_RDEPEND}
 	"
 DEPEND="

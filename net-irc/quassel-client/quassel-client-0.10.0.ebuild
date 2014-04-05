@@ -1,21 +1,17 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 inherit cmake-utils eutils
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
-EGIT_BRANCH="master"
+EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
+[[ "${PV}" == "9999" ]] && inherit git-r3
 MY_P=${P/-client}
 # MY_PN=${PN/-client}
-[[ "${PV}" == "9999" ]] && inherit git-2
 
-QT_MINIMAL="4.6.0"
-KDE_MINIMAL="4.4"
-
-DESCRIPTION="Qt4/KDE4 IRC client supporting a remote daemon for 24/7 connectivity (client only)."
+DESCRIPTION="Qt4/KDE IRC client supporting a remote daemon for 24/7 connectivity (client only)"
 HOMEPAGE="http://quassel-irc.org/"
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
 
@@ -25,26 +21,27 @@ SLOT="0"
 IUSE="ayatana crypt dbus debug -kde -phonon +ssl webkit X"
 
 GUI_RDEPEND="
-	>=dev-qt/qtgui-${QT_MINIMAL}:4
+	dev-qt/qtgui:4
 	ayatana? ( dev-libs/libindicate-qt )
 	dbus? (
-		>=dev-qt/qtdbus-${QT_MINIMAL}:4
+		dev-qt/qtdbus:4
 		dev-libs/libdbusmenu-qt
 	)
 	kde? (
-		>=kde-base/kdelibs-${KDE_MINIMAL}
+		kde-base/kdelibs:4
 		ayatana? ( kde-misc/plasma-widget-message-indicator )
 	)
-	phonon? ( || ( media-libs/phonon >=dev-qt/qtphonon-${QT_MINIMAL} ) )
-	webkit? ( >=dev-qt/qtwebkit-${QT_MINIMAL}:4 )
-	"
+	phonon? ( || ( media-libs/phonon dev-qt/qtphonon:4 ) )
+	webkit? ( dev-qt/qtwebkit:4 )
+"
 
 RDEPEND="
 	~net-irc/quassel-common-${PV}
-	>=dev-qt/qtcore-${QT_MINIMAL}:4[ssl?]
+	dev-qt/qtcore:4[ssl?]
 	${GUI_RDEPEND}
 	"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	kde? ( dev-util/automoc )"
 
 S="${WORKDIR}/${MY_P/_/-}"
 
@@ -69,9 +66,9 @@ src_configure() {
 src_install() {
 	cmake-utils_src_install
 
-	rm -rf "${ED}"usr/share/apps/
-	rm -rf "${ED}"usr/share/pixmaps
-	rm -rf "${ED}"usr/share/icons
+	rm -r "${ED}"usr/share/apps/
+	rm -r "${ED}"usr/share/pixmaps
+	rm -r "${ED}"usr/share/icons
 
 	insinto /usr/share/applications
 	doins data/quasselclient.desktop
