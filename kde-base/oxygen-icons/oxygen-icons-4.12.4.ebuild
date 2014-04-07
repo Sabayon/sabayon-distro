@@ -16,14 +16,14 @@ DESCRIPTION="Oxygen SVG icon theme."
 HOMEPAGE="http://www.oxygen-icons.org/"
 [[ ${PV} == *9999 ]] || \
 SRC_URI="
-	!bindist? ( http://dev.gentoo.org/~mrueg/distfiles/${P}.repacked.tar.xz )
+	!bindist? ( http://dev.gentoo.org/~kensington/distfiles/${P}.repacked.tar.xz )
 	mirror://sabayon/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz
 	bindist? ( ${SRC_URI} )
 "
 
 LICENSE="LGPL-3"
 KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux"
-IUSE="aqua bindist"
+IUSE="bindist"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
