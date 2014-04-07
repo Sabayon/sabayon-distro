@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -9,8 +9,10 @@ KMNAME="kde-workspace"
 inherit systemd kde4-meta flag-o-matic user
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="debug +consolekit kerberos logind pam"
+KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
+IUSE="debug +consolekit kerberos pam systemd"
+
+REQUIRED_USE="consolekit? ( !systemd ) systemd? ( !consolekit )"
 
 DEPEND="
 	$(add_kdebase_dep libkworkspace)
@@ -27,6 +29,10 @@ DEPEND="
 	pam? (
 		$(add_kdebase_dep kcheckpass)
 		virtual/pam
+	)
+	systemd? (
+		sys-apps/systemd
+		sys-apps/systemd-sysv-utils
 	)
 "
 RDEPEND="${DEPEND}
@@ -152,13 +158,12 @@ pkg_postinst() {
 	use prefix || chown root:kdm "${EROOT}${KDM_HOME}"
 	chmod 1770 "${EROOT}${KDM_HOME}"
 
-	# kdm 4.10 and logind have troubles if xdm is in the boot runlevel
-	if ! use consolekit && use logind; then
-		local xdm_boot="${EROOT}/etc/runlevels/boot/xdm"
-		local xdm_default="${EROOT}/etc/runlevels/default/xdm"
-		if [ -e "${xdm_boot}" ]; then
-			einfo "Moving xdm from boot runlevel to default (due to logind)"
-			mv "${xdm_boot}" "${xdm_default}" || die
-		fi
+	if use consolekit; then
+		echo
+		elog "You have compiled 'kdm' with consolekit support. If you want to use kdm,"
+		elog "make sure consolekit daemon is running and started at login time"
+		elog
+		elog "rc-update add consolekit default && /etc/init.d/consolekit start"
+		echo
 	fi
 }
