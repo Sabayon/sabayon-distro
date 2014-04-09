@@ -8,7 +8,7 @@ else:
     import urllib2 as urlmod
     from urllib import urlencode
 
-MDL = 1024 * 100
+MDL = 1000000 * 2
 
 class Callable:
     def __init__(self, anycallable):
@@ -41,11 +41,6 @@ class MultipartPostHandler(urlmod.BaseHandler):
                 boundary, data = self.multipart_encode(v_vars, v_files)
 
                 contenttype = 'multipart/form-data; boundary=%s' % boundary
-                '''
-                if (request.has_header('Content-Type')
-                   and request.get_header('Content-Type').find('multipart/form-data') != 0):
-                    print "Replacing %s with %s" % (request.get_header('content-type'), 'multipart/form-data')
-                '''
                 request.add_unredirected_header('Content-Type', contenttype)
             request.add_data(data)
         return request
@@ -131,6 +126,10 @@ class PastieInterface:
 
         data = f_obj.read()
         if len(data) > MDL:
+            sys.stderr.write("Doge said that it can't handle it.\n")
+            sys.stderr.write("%d bytes are way too much, "
+                             "expecting at most %d bytes.\n" % (
+                                 len(data), MDL,))
             raise SystemExit(1)
         self.params['pastebin_syntax_id'] = "-1"
         self.params['pastebin_doctypes_id'] = "-1"
