@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/x11-wm/awesome/awesome-3.5.5.ebuild,v 1.1 2014/04/18 17:41:39 maksbotan Exp $
 
 EAPI="5"
 CMAKE_MIN_VERSION="2.8"
@@ -19,7 +19,7 @@ COMMON_DEPEND="
 	>=dev-lang/lua-5.1
 	dev-libs/glib:2
 	>=dev-libs/libxdg-basedir-1
-	>=dev-lua/lgi-0.6.1
+	>=dev-lua/lgi-0.7
 	x11-libs/cairo[xcb]
 	x11-libs/gdk-pixbuf:2
 	>=x11-libs/libxcb-1.6
@@ -53,6 +53,10 @@ DOCS="AUTHORS BUGS PATCHES README STYLE"
 src_prepare() {
 	# bug #408025
 	epatch "${FILESDIR}/${PN}-3.5_rc1-convert-path.patch"
+	epatch "${FILESDIR}/${PN}-xsession.patch"
+
+	# bug #507604
+	epatch "${FILESDIR}/${P}-util.lua-xdg-icons-fix.patch"
 
 	# Sabayon stuff
 	epatch "${FILESDIR}/sabayon-background.patch"
@@ -99,8 +103,7 @@ src_install() {
 		insinto /usr/share/gnome-session/sessions
 		newins "${FILESDIR}/${PN}-gnome-3.session" "${PN}-gnome.session" || die
 		# Application launcher
-		insinto /usr/share/applications
-		doins "${FILESDIR}/${PN}-gnome.desktop" || die
+		domenu "${FILESDIR}/${PN}-gnome.desktop" || die
 		# X Session
 		insinto /usr/share/xsessions/
 		doins "${FILESDIR}/${PN}-gnome-xsession.desktop" || die
