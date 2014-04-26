@@ -1,0 +1,12 @@
+--- work.orig/common/lib/modules/fglrx/build_mod/kcl_acpi.c
++++ work/common/lib/modules/fglrx/build_mod/kcl_acpi.c
+@@ -981,7 +981,7 @@ int ATI_API_CALL KCL_ACPI_ParseTable(cha
+     {
+         return KCL_ACPI_ERROR;
+     }
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,1)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0)
+     ((acpi_tbl_table_handler)handler)(hdr);
+ #else
+     ((acpi_table_handler)handler)(hdr);
+

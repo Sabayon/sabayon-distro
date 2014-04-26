@@ -154,6 +154,9 @@ src_prepare() {
 	# Fix #483400
 	epatch "${FILESDIR}/fgl_glxgears-do-not-include-glATI.patch"
 
+	# Sabayon 3.9 kernels are versioned 3.9.0
+	epatch "${FILESDIR}/ati-drivers-14.4-acpi.patch"
+
 	# Compile fix, https://bugs.gentoo.org/show_bug.cgi?id=454870
 	use pax_kernel && epatch "${FILESDIR}/const-notifier-block.patch"
 
