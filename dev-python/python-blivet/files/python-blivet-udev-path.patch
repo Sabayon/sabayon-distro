@@ -1,0 +1,11 @@
+--- a/blivet/pyudev.py
++++ b/blivet/pyudev.py
+@@ -9,7 +9,7 @@ from ctypes import CDLL, c_char_p, c_int
+ # XXX this one may need some tweaking...
+ def find_library(name, somajor=0):
+     env = os.environ.get("LD_LIBRARY_PATH")
+-    common = ["/lib64", "/lib"]
++    common = ["/lib64", "/lib", "/usr/lib64", "/usr/lib"]
+ 
+     if env:
+         libdirs = env.split(":") + common

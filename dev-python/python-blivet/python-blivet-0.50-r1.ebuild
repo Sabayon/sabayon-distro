@@ -1,7 +1,11 @@
-EAPI="3"
+# Copyright 1999-2014 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+EAPI="5"
 SUPPORT_PYTHON_ABIS="1"
 
-inherit distutils
+inherit eutils distutils
 
 REAL_PN="${PN/python-}"
 if [ "${PR}" != "r0" ]; then
@@ -33,3 +37,10 @@ RDEPEND=">=dev-util/pykickstart-1.99.22
 DEPEND="${RDEPEND}"
 
 S="${WORKDIR}/${REAL_PN}-${REAL_PN}-${PV}${REAL_PR}"
+
+src_prepare() {
+	# libudev in Gentoo is in /usr/lib64 if systemd
+	epatch "${FILESDIR}/${PN}-udev-path.patch"
+
+	distutils_src_prepare
+}
