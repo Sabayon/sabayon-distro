@@ -27,9 +27,9 @@ DEPEND="dev-libs/glib:2
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf
 	x11-libs/gtk+:3"
-
-#S="${WORKDIR}/timezonemap"
+RDEPEND="${DEPEND}"
 
 src_prepare() {
 	eautoreconf
+	default
 }
