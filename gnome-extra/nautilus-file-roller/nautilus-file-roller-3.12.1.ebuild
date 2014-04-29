@@ -20,12 +20,12 @@ RDEPEND="
 	>=gnome-base/nautilus-3
 "
 DEPEND=">=gnome-base/nautilus-3
-	>=dev-libs/glib-2.29.14:2
+	>=dev-libs/glib-2.36:2
 	sys-devel/gettext
 	>=app-arch/libarchive-3:=
 	>=dev-libs/json-glib-0.14
 	virtual/pkgconfig
-	>=x11-libs/gtk+-3.6:3
+	>=x11-libs/gtk+-3.9.3:3
 "
 
 src_configure() {
