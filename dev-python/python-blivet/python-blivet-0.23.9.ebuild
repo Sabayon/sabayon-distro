@@ -8,13 +8,10 @@ SUPPORT_PYTHON_ABIS="1"
 inherit eutils distutils
 
 REAL_PN="${PN/python-}"
-if [ "${PR}" != "r0" ]; then
-	REAL_PR="-${PR/r}"
-fi
 
 DESCRIPTION="python module for examining and modifying storage configuration."
 HOMEPAGE="https://fedoraproject.org/wiki/Blivet"
-SRC_URI="https://github.com/Sabayon/${REAL_PN}/archive/${REAL_PN}-${PV}${REAL_PR}.tar.gz"
+SRC_URI="https://github.com/Sabayon/${REAL_PN}/archive/${REAL_PN}-${PV}-1.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -36,7 +33,7 @@ RDEPEND=">=dev-util/pykickstart-1.99.22
 	"
 DEPEND="${RDEPEND}"
 
-S="${WORKDIR}/${REAL_PN}-${REAL_PN}-${PV}${REAL_PR}"
+S="${WORKDIR}/${REAL_PN}-${REAL_PN}-${PV}-1"
 
 src_prepare() {
 	# libudev in Gentoo is in /usr/lib64 if systemd
