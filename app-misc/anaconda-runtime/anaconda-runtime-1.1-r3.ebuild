@@ -24,7 +24,7 @@ RDEPEND="app-admin/system-config-date
 	>=dev-python/python-cryptsetup-0.1.4
 	dev-python/python-meh
 	dev-python/python-nss
-	dev-python/python-report
+	|| ( dev-python/python-report dev-libs/libreport )
 	dev-python/urlgrabber
 	dev-util/pykickstart
 	net-misc/curl
