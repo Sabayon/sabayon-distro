@@ -5,7 +5,7 @@
 EAPI="5"
 GCONF_DEBUG="no"
 GNOME2_LA_PUNT="yes"
-PYTHON_COMPAT=( python{2_6,2_7,3_1,3_2,3_3} )
+PYTHON_COMPAT=( python{2_7,3_2,3_3} )
 
 REAL_PN="${PN/-base}"
 GNOME_ORG_MODULE="${REAL_PN}"
@@ -23,8 +23,8 @@ IUSE="+cairo examples test +threads"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPEND="
-	>=dev-libs/glib-2.34.2:2
-	>=dev-libs/gobject-introspection-1.34.2
+	>=dev-libs/glib-2.38:2
+	>=dev-libs/gobject-introspection-1.38
 	virtual/libffi:=
 	${PYTHON_DEPS}
 "
@@ -38,10 +38,7 @@ DEPEND="${COMMON_DEPEND}
 		x11-libs/gdk-pixbuf:2[introspection]
 		x11-libs/gtk+:3[introspection]
 		x11-libs/pango[introspection] )
-	gnome-base/gnome-common
 "
-
-# gnome-base/gnome-common required by eautoreconf
 
 # We now disable introspection support in slot 2 per upstream recommendation
 # (see https://bugzilla.gnome.org/show_bug.cgi?id=642048#c9); however,
@@ -52,24 +49,14 @@ RDEPEND="${COMMON_DEPEND}
 	!<dev-python/pygobject-2.28.6-r50:2[introspection]"
 
 src_prepare() {
-	DOCS="AUTHORS ChangeLog* NEWS README"
-
-	# Do not build tests if unneeded, bug #226345, upstream bug #698444
-	epatch "${FILESDIR}/${REAL_PN}-3.7.90-make_check.patch"
-
-	eautoreconf
 	gnome2_src_prepare
-
 	python_copy_sources
 }
 
 src_configure() {
-	# Hard-enable libffi support since both gobject-introspection and
-	# glib-2.29.x rdepend on it anyway
 	# docs disabled by upstream default since they are very out of date
 	python_foreach_impl run_in_build_dir \
 		gnome2_src_configure \
-			--with-ffi \
 			--disable-cairo \
 			$(use_enable threads thread)
 }
@@ -81,6 +68,7 @@ src_compile() {
 src_test() {
 	unset DBUS_SESSION_BUS_ADDRESS
 	export GIO_USE_VFS="local" # prevents odd issues with deleting ${T}/.gvfs
+	export GIO_USE_VOLUME_MONITOR="unix" # prevent udisks-related failures in chroots, bug #449484
 
 	testing() {
 		export XDG_CACHE_HOME="${T}/${EPYTHON}"
@@ -92,6 +80,8 @@ src_test() {
 }
 
 src_install() {
+	DOCS="AUTHORS ChangeLog* NEWS README"
+
 	python_foreach_impl run_in_build_dir gnome2_src_install
 
 	if use examples; then
