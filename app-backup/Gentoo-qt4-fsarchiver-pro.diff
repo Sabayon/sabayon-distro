@@ -1,0 +1,4 @@
+138c138
+<  icon.path = /usr/share/qt4-fsarchiver
+---
+>  icon.path = /usr/share/app-install/icons
