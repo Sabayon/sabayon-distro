@@ -315,6 +315,15 @@ pkg_preinst() {
 	if [ -e "${ROOT}"/etc/env.d/09nvidia ] ; then
 		rm -f "${ROOT}"/etc/env.d/09nvidia
 	fi
+
+	local videogroup="$(egetent group video | cut -d ':' -f 3)"
+	if [ -n "${videogroup}" ]; then
+		sed -i -e "s:PACKAGE:${PF}:g" \
+			-e "s:VIDEOGID:${videogroup}:" "${ROOT}"/etc/modprobe.d/nvidia.conf
+	else
+		eerror "Failed to determine the video group gid."
+		die "Failed to determine the video group gid."
+	fi
 }
 
 pkg_postinst() {
@@ -332,15 +341,6 @@ pkg_postinst() {
 		elog "Use the 'nvidia-smi' init script to have your card and fan"
 		elog "speed scale appropriately."
 		elog
-	fi
-
-	local videogroup="$(egetent group video | cut -d ':' -f 3)"
-	if [ -n "${videogroup}" ]; then
-		sed -i -e "s:PACKAGE:${PF}:g" \
-			-e "s:VIDEOGID:${videogroup}:" "${ROOT}"/etc/modprobe.d/nvidia.conf
-	else
-		eerror "Failed to determine the video group gid."
-		die "Failed to determine the video group gid."
 	fi
 }
 
