@@ -1,4 +1,4 @@
-# Copyright 1999-2012 SabayonLinux
+# Copyright 1999-2014 SabayonLinux
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
