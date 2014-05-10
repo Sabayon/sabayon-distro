@@ -39,5 +39,8 @@ src_prepare() {
 	# libudev in Gentoo is in /usr/lib64 if systemd
 	epatch "${FILESDIR}/${PN}-udev-path.patch"
 
+	# Fix package names
+	epatch "${FILESDIR}/0001-Update-package-names-to-reflect-Gentoo-ones.patch"
+
 	distutils_src_prepare
 }
