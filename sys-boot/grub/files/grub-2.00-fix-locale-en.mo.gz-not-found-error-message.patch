@@ -1,0 +1,38 @@
+From e7500166b343874447e6abf385a791998c77f4c4 Mon Sep 17 00:00:00 2001
+From: Michael Chang <mchang@suse.com>
+Date: Wed, 26 Sep 2012 15:55:44 +0800
+Subject: [PATCH] Silence error messages when translations are unavailable
+
+From: Colin Watson <cjwatson@ubuntu.com>
+
+References: bnc#771393
+            https://savannah.gnu.org/bugs/?35880
+Patch-Mainline: no
+
+Signed-off-by: Michael Chang <mchang@suse.com>
+---
+ grub-core/gettext/gettext.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/grub-core/gettext/gettext.c b/grub-core/gettext/gettext.c
+index 569f985..eb4bb5d 100644
+--- a/grub-core/gettext/gettext.c
++++ b/grub-core/gettext/gettext.c
+@@ -412,6 +412,14 @@ grub_gettext_init_ext (struct grub_gettext_context *ctx,
+ 
+       grub_free (lang);
+     }
++
++  /* If no translations are available, fall back to untranslated text. */
++  if (err == GRUB_ERR_FILE_NOT_FOUND)
++    {
++      grub_errno = GRUB_ERR_NONE;
++      return 0;
++    }
++
+   return err;
+ }
+ 
+-- 
+1.7.3.4
+
