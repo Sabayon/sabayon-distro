@@ -41,6 +41,7 @@ if [[ ${PV} != 9999 ]]; then
 		"${FILESDIR}/${P}-texinfo.patch"
 		"${FILESDIR}/${P}-os-prober-efi-system.patch" #477314
 		"${FILESDIR}/${P}-fix-locale-en.mo.gz-not-found-error-message.patch" #408599
+		"${FILESDIR}/101-freetype2_fix_mkfont.patch"
 	)
 else
 	inherit bzr
