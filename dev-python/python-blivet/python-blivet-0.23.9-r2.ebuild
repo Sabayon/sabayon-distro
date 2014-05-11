@@ -41,6 +41,8 @@ src_prepare() {
 
 	# Fix package names
 	epatch "${FILESDIR}/0001-Update-package-names-to-reflect-Gentoo-ones.patch"
+	# enable UUID= support for dm-based devices (dmcrypt, md, etc)
+	epatch "${FILESDIR}/0001-devices-enable-UUID-for-dm-based-devices-in-fstab.patch"
 
 	distutils_src_prepare
 }
