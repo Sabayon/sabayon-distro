@@ -1,0 +1,32 @@
+From 2a5a6a02f5df0a6acf480f3c8118afd9f457369b Mon Sep 17 00:00:00 2001
+From: "Andreas K. Huettel (dilfridge)" <dilfridge@gentoo.org>
+Date: Thu, 1 May 2014 23:55:22 +0200
+Subject: [PATCH] Revert "kdm: read DesktopNames from session file and export
+ XDG_CURRENT_DESKTOP from it"
+
+This reverts commit e7ce8adc506068491c8545a1990992267598bd33.
+---
+ kdm/backend/client.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/kdm/backend/client.c b/kdm/backend/client.c
+index 335cc3e..26bb0b4 100644
+--- a/kdm/backend/client.c
++++ b/kdm/backend/client.c
+@@ -1809,13 +1809,6 @@ startClient(volatile int *pid)
+                     if (!strCmp(iniEntry(str, "Desktop Entry", "Hidden", 0), "true") ||
+                             !(sessargs = iniEntry(str, "Desktop Entry", "Exec", 0)))
+                         sessargs = "";
+-                    buf = iniEntry(str, "Desktop Entry", "DesktopNames", 0);
+-                    for (buf2 = buf; *buf2; ++buf2) {
+-                        if (*buf2 == ';')
+-                            *buf2 = ':';
+-                    }
+-                    userEnviron = setEnv(userEnviron, "XDG_CURRENT_DESKTOP", buf);
+-                    free(buf);
+                     free(str);
+                     free(fname);
+                     goto gotit;
+-- 
+1.9.2
+

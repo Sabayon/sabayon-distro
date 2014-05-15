@@ -9,7 +9,7 @@ KMNAME="kde-workspace"
 inherit systemd kde4-meta flag-o-matic user
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="amd64 ~arm ppc ppc64 x86 ~amd64-linux ~x86-linux"
 IUSE="debug +consolekit kerberos pam systemd"
 
 REQUIRED_USE="consolekit? ( !systemd ) systemd? ( !consolekit )"
@@ -30,10 +30,7 @@ DEPEND="
 		$(add_kdebase_dep kcheckpass)
 		virtual/pam
 	)
-	systemd? (
-		sys-apps/systemd
-		sys-apps/systemd-sysv-utils
-	)
+	systemd? ( sys-apps/systemd )
 "
 RDEPEND="${DEPEND}
 	$(add_kdebase_dep kdepasswd)
@@ -47,6 +44,7 @@ KMEXTRA="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
+	"${FILESDIR}/${PN}-4.11.9-desktopnamescrash.patch"
 	"${FILESDIR}/kdebase-workspace-4.4.92-kdm_plymouth081.patch"
 	"${FILESDIR}/kde-workspace-4.10.90-kdm-logind-multiseat.patch"
 	"${FILESDIR}/kde-workspace-4.8.0-bug796969.patch"
