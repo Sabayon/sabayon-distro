@@ -25,7 +25,7 @@ LSELINUX_S="${WORKDIR}/libselinux-${LSELINUX_VER}"
 
 LICENSE="GPL-2 public-domain"
 SLOT="0"
-IUSE="+ipv6 +nfs ldap selinux"
+IUSE="gtk-dep +ipv6 +nfs ldap selinux"
 RESTRICT="nomirror"
 
 AUDIT_DEPEND="dev-lang/swig"
@@ -90,7 +90,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	sys-auth/realmd
 	sys-block/open-iscsi
 	sys-libs/libuser
-	x11-libs/gtk+:3"
+	gtk-dep? ( x11-libs/gtk+:3 )"
 
 src_prepare() {
 	# Setup CFLAGS, LDFLAGS
