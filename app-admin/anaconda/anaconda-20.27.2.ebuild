@@ -69,7 +69,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	>=dev-libs/libreport-2.0.20
 	dev-python/ipy
 	>=dev-python/pyparted-2.5
-	=dev-python/python-blivet-0.23.9
+	=dev-python/python-blivet-0.23*
 	dev-python/python-bugzilla
 	>=dev-python/python-meh-0.30-r1
 	dev-python/python-nss
