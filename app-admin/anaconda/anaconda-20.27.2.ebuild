@@ -40,7 +40,7 @@ COMMON_DEPEND="
 	dev-python/pygobject-base
 	dev-util/intltool
 	gnome-base/libgnomekbd
-	>=net-misc/networkmanager-0.9.9.0
+	>=net-misc/networkmanager-0.9.8.0
 	>=sys-apps/dbus-1.2.3
 	sys-apps/systemd
 	>=sys-apps/util-linux-2.15.1
