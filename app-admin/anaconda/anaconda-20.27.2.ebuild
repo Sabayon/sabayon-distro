@@ -244,4 +244,7 @@ src_install() {
 
 	# Cleanup .pyc .pyo
 	find "${D}" -name "*.py[co]" -type f -delete
+
+	# Fix analog collision
+	mv "${D}"/usr/bin/{analog,anaconda-analog} || die
 }
