@@ -230,7 +230,7 @@ src_install() {
 	# install liveinst for user
 	dodir /usr/bin
 	exeinto /usr/bin
-	newexe "${FILESDIR}"/liveinst-future liveinst
+	doexe "${FILESDIR}"/liveinst
 	dosym liveinst /usr/bin/installer
 
 	cd "${S}" || die
