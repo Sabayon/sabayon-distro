@@ -82,7 +82,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	gnome-extra/zenity
 	net-firewall/firewalld
 	net-misc/chrony
-	net-misc/dhclient
+	net-misc/dhcp
 	net-misc/fcoe-utils
 	>=net-misc/libteam-1.10
 	net-misc/tightvnc
