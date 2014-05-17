@@ -46,7 +46,6 @@ COMMON_DEPEND="
 	>=sys-apps/util-linux-2.15.1
 	>=sys-block/parted-1.8.1
 	sys-devel/gettext
-	sys-process/audit
 	x11-libs/libxklavier
 	x11-libs/pango
 	virtual/pkgconfig
