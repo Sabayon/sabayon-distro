@@ -117,7 +117,7 @@ COMMON_DEPEND="
 	>=dev-libs/hyphen-2.7.1
 	>=dev-libs/icu-4.8.1.1:=
 	>=dev-libs/libatomic_ops-7.2d
-	>=dev-libs/liborcus-0.5.1:=
+	=dev-libs/liborcus-0.5*:=
 	>=dev-libs/nspr-4.8.8
 	>=dev-libs/nss-3.12.9
 	>=dev-lang/perl-5.0
@@ -238,6 +238,9 @@ PATCHES=(
 
 	# staged for git master
 	"${FILESDIR}/${PN}-4.2.0.4-curl-config.patch"
+
+	# kde mutexes
+	"${FILESDIR}/${PN}-4.2.3.3-kde4-startup.patch"
 )
 
 REQUIRED_USE="
@@ -402,7 +405,7 @@ src_configure() {
 			--without-system-hsqldb
 			--with-ant-home="${ANT_HOME}"
 			--with-jdk-home=$(java-config --jdk-home 2>/dev/null)
-			--with-jvm-path="${EPREFIX}/usr/$(get_libdir)/"
+			--with-jvm-path="${EPREFIX}/usr/lib/"
 		"
 
 		use libreoffice_extensions_scripting-beanshell && \
