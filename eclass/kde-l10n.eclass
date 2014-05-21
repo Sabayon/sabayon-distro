@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $
 
-inherit kde4-base
+inherit base kde4-base
 
 MY_LANG="${PN/kde-l10n-/}"
 
