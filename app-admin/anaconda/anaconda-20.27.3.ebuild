@@ -90,6 +90,9 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	sys-auth/realmd
 	sys-block/open-iscsi
 	sys-libs/libuser
+	x11-themes/gnome-icon-theme
+	x11-themes/gnome-icon-theme-symbolic
+	x11-themes/gnome-themes-standard
 	gtk-dep? ( x11-libs/gtk+:3 )"
 
 src_prepare() {
