@@ -1,0 +1,9 @@
+--- a/blivet/devicelibs/mpath.py
++++ b/blivet/devicelibs/mpath.py
+@@ -11,4 +11,5 @@ def flush_mpaths():
+         log.error("multipath: some devices could not be flushed")
+ 
+ def is_multipath_member(path):
+-    return (util.run_program(["multipath", "-c", path]) == 0)
++    return False
++    # return (util.run_program(["multipath", "-c", path]) == 0)

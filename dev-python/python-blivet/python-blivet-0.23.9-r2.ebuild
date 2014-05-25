@@ -39,6 +39,10 @@ src_prepare() {
 	# libudev in Gentoo is in /usr/lib64 if systemd
 	epatch "${FILESDIR}/${PN}-udev-path.patch"
 
+	# multipath -c hangs on x86 due to a libc bug
+	# Temporarily disable this
+	use x86 && epatch "${FILESDIR}/${PN}-workaround-disable-multipath.patch"
+
 	# Fix package names
 	epatch "${FILESDIR}/0001-Update-package-names-to-reflect-Gentoo-ones.patch"
 	# enable UUID= support for dm-based devices (dmcrypt, md, etc)
