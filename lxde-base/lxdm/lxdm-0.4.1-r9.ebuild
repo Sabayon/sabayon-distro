@@ -1,9 +1,10 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="2"
 
+WANT_AUTOMAKE="1.12" #493996
 inherit eutils autotools systemd
 
 DESCRIPTION="LXDE Display Manager"
@@ -12,7 +13,7 @@ SRC_URI="mirror://sourceforge/lxde/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~arm ~amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 
 IUSE="consolekit debug gtk3 nls pam"
 
@@ -25,7 +26,7 @@ RDEPEND="consolekit? ( sys-auth/consolekit )
 	pam? ( virtual/pam )"
 DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 
 src_prepare() {
 	# Upstream bug, tarball contains pre-made lxdm.conf
@@ -33,8 +34,9 @@ src_prepare() {
 
 	# There is consolekit
 	epatch "${FILESDIR}/${P}-pam_console-disable.patch"
-	# Backported, drop it when 0.4.2
+	# Fix null pointer dereference, backported from git
 	epatch "${FILESDIR}/${P}-git-fix-null-pointer-deref.patch"
+
 	# Sabayon specific theme patch
 	epatch "${FILESDIR}/${P}-sabayon-8-theme.patch"
 	# Fix sessions with arguments, see:
@@ -46,16 +48,20 @@ src_prepare() {
 	# 403999
 	epatch "${FILESDIR}"/${P}-missing-pam-defines.patch
 
-	epatch "${FILESDIR}"/${P}-fix-event-check-bug.patch
+	# 412025
+	epatch "${FILESDIR}"/${P}-event-check.patch
 
-	# Also see #422495
-	epatch "${FILESDIR}"/${P}-pam-use-system-local-login.patch
+	# 393329 Selinux support
+	epatch "${FILESDIR}"/${P}-selinux-support.patch
 
 	# See https://bugs.launchpad.net/ubuntu/+source/lxdm/+bug/922363
 	epatch "${FILESDIR}/${P}-fix-pam-100-cpu.patch"
 
-	# Make consolekit optional
-	epatch "${FILESDIR}/${P}-optional-consolekit.patch"
+	# Optional Consolekit support. bug #443666
+	epatch "${FILESDIR}"/${P}-optional-consolekit.patch
+
+	# 469512
+	epatch "${FILESDIR}"/${P}-fix-optional-pam.patch
 
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
@@ -81,12 +87,11 @@ src_configure() {
 src_install() {
 	emake DESTDIR="${D}" install || die
 	dodoc AUTHORS README TODO || die
-
-	systemd_dounit "${FILESDIR}/lxdm.service"
+	systemd_dounit "${FILESDIR}"/${PN}.service
 }
 
 pkg_postinst() {
 	echo
-	elog "LXDM in the early stages of development!"
+	elog "Take into consideration that LXDM is in the early stages of development!"
 	echo
 }

@@ -1,7 +1,7 @@
 From d4e41ecb36a1ea29482b75674d804bb0f05540b2 Mon Sep 17 00:00:00 2001
 From: dgod <dgod.osa@gmail.com>
 Date: Sun, 25 Dec 2011 15:23:19 +0800
-Subject: [PATCH] fix event check bug caused cpu 100%
+Subject: [PATCH 1/1] fix event check bug caused cpu 100%
 
 ---
  src/lxcom.c |    2 +-
