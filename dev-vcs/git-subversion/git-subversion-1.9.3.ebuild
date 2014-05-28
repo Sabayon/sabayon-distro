@@ -221,7 +221,7 @@ src_install() {
 	# avoid conflict with dev-vcs/git
 	# it looks weird but this binary is installed by git ebuild
 	# so removing in git-subversion
-	rm "${ED}"usr/libexec/git-core/git-remote-testsvn
+	rm "${ED}"usr/libexec/git-core/git-remote-testsvn || die
 
 	for myfile in "${ED}"usr/libexec/git-core/* "${ED}"usr/$(get_libdir)/* "${ED}"usr/share/man/*/*; do
 		case "$myfile" in

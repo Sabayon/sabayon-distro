@@ -381,7 +381,9 @@ src_install() {
 
 	newbashcomp contrib/completion/git-completion.bash ${PN}
 	# Not really a bash-completion file (bug #477920)
-	dodoc contrib/completion/git-prompt.sh
+	# but still needed uncompressed (bug #507480)
+	insinto /usr/share/${PN}
+	doins contrib/completion/git-prompt.sh
 
 	if use emacs ; then
 		elisp-install ${PN} contrib/emacs/git.{el,elc}
