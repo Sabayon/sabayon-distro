@@ -12,7 +12,7 @@ MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 MY_SVN_CATEGORY="${CATEGORY}"
 
 # note: java-pkg-2, not java-pkt-opt-2
-SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.5-Gentoo-patches.tar.gz )
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.9-Gentoo-patches.tar.gz )
 inherit sab-patches autotools eutils flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
@@ -39,7 +39,7 @@ DEPEND="${COMMON_DEPEND}
 pkg_setup() {
 	java-pkg-2_pkg_setup
 
-	if use debug; then
+	if use debug ; then
 		append-cppflags -DSVN_DEBUG -DAP_DEBUG
 	fi
 	# http://mail-archives.apache.org/mod_mbox/subversion-dev/201306.mbox/%3C51C42014.3060700@wandisco.com%3E
@@ -97,9 +97,6 @@ src_configure() {
 		;;
 	esac
 
-	#workaround for bug 387057
-	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
-
 	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
@@ -130,7 +127,7 @@ src_configure() {
 src_compile() {
 	emake -j1 JAVAC_FLAGS="$(java-pkg_javac-args) -encoding iso8859-1" javahl
 
-	if use doc; then
+	if use doc ; then
 		emake doc-javahl
 	fi
 }
@@ -144,9 +141,9 @@ src_install() {
 
 	mv "${ED}usr/share/${PN}/package.env" "${ED}/usr/share/${MY_SVN_PN}/" || die
 
-	if use doc; then
+	if use doc ; then
 		java-pkg_dojavadoc doc/javadoc
 	fi
 
-	find "${D}" '(' -name '*.la' ')' -print0 | xargs -0 rm -f
+	prune_libtool_files --all
 }
