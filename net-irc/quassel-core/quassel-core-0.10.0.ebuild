@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit cmake-utils eutils pax-utils user
+inherit cmake-utils eutils pax-utils systemd user versionator
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 [[ "${PV}" == "9999" ]] && inherit git-r3
@@ -89,9 +89,10 @@ src_install() {
 	keepdir "${QUASSEL_DIR}"
 	fowners "${QUASSEL_USER}":"${QUASSEL_USER}" "${QUASSEL_DIR}"
 
-	# init scripts
+	# init scripts & systemd unit
 	newinitd "${FILESDIR}"/quasselcore.init quasselcore
 	newconfd "${FILESDIR}"/quasselcore.conf quasselcore
+	systemd_dounit "${FILESDIR}"/quasselcore.service
 
 	# logrotate
 	insinto /etc/logrotate.d
