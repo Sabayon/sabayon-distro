@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -8,7 +8,7 @@ GNOME_ORG_MODULE="file-roller"
 inherit eutils gnome.org
 
 DESCRIPTION="Provides context menu for Nautilus"
-HOMEPAGE="http://fileroller.sourceforge.net/"
+HOMEPAGE="http://fileroller.sourceforge.net/ https://wiki.gnome.org/Apps/FileRoller"
 
 LICENSE="GPL-2+"
 SLOT="0"
@@ -20,7 +20,7 @@ RDEPEND="
 	>=gnome-base/nautilus-3
 "
 DEPEND=">=gnome-base/nautilus-3
-	>=dev-libs/glib-2.36.0:2
+	>=dev-libs/glib-2.36:2
 	sys-devel/gettext
 	>=app-arch/libarchive-3:=
 	>=dev-libs/json-glib-0.14
