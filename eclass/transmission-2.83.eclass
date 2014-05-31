@@ -13,6 +13,8 @@
 # Its name contains a version that corresponds to net-p2p/transmission one,
 # because the eclass will change often when needed to follow changes
 # in Gentoo ebuild.
+# Always call phase functions using their public names, such like:
+# transmission-2.83_src_configure, and never _transmission_src_configure.
 
 # @ECLASS-VARIABLE: TRANSMISSION_PATCHES
 # @DEFAULT_UNSET
@@ -43,6 +45,22 @@ _transmission_is() {
 	local what=$1
 	[[ ${what} = "${E_TRANSM_TAIL}" ]]
 }
+
+# @FUNCTION: _transmission_eclass_setup_functions
+# @INTERNAL
+# @DESCRIPTION:
+# Function to setup functions. The eval uses strictly controlled variables,
+# so it's OK.
+_transmission_eclass_setup_functions() {
+	local v=2.83
+	local func
+	for func in pkg_setup src_prepare src_configure src_compile \
+			pkg_preinst pkg_postinst pkg_postrm; do
+		eval "transmission-${v}_${func}() { _transmission_${func}; }"
+	done
+}
+
+_transmission_eclass_setup_functions
 
 MY_ECLASSES=""
 _transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
@@ -88,7 +106,7 @@ if ! _transmission_is ""; then
 	>=dev-libs/libevent-2.0.10:=
 	dev-libs/openssl:0=
 	net-libs/libnatpmp:=
-	>=net-libs/miniupnpc-1.6.20120509:=
+	>=net-libs/miniupnpc-1.7:=
 	>=net-misc/curl-7.16.3:=[ssl]
 	sys-libs/zlib:="
 fi
@@ -101,7 +119,7 @@ if _transmission_is base; then
 	!<net-p2p/transmission-cli-${PV}"
 fi
 if ! _transmission_is ""; then
-	DEPEND+=" dev-libs/glib:2
+	DEPEND+=" >=dev-libs/glib-2.32
 	dev-util/intltool
 	virtual/pkgconfig
 	sys-devel/gettext
@@ -111,21 +129,25 @@ fi
 S="${WORKDIR}/${MY_P}"
 _transmission_is "" && S="${WORKDIR}"
 
-transmission-2.80_pkg_setup() {
+_transmission_pkg_setup() {
 	if _transmission_is base; then
 		enewgroup transmission
 		enewuser transmission -1 -1 -1 transmission
 	fi
 }
 
-transmission-2.80_src_prepare() {
+_transmission_src_prepare() {
 	_transmission_is "" && return
 
 	sed -i -e '/CFLAGS/s:-ggdb3::' configure.ac || die
 
 	if ! use_if_iuse ayatana; then
+		# Trick to avoid automagic dependency
 		sed -i -e '/^LIBAPPINDICATOR_MINIMUM/s:=.*:=9999:' configure.ac || die
 	fi
+
+	# Pass our configuration dir to systemd unit file
+	sed -i '/ExecStart/ s|$| -g /var/lib/transmission/config|' daemon/${MY_PN}-daemon.service || die
 
 	# http://trac.transmissionbt.com/ticket/4324
 	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
@@ -133,6 +155,9 @@ transmission-2.80_src_prepare() {
 	if [[ ${#TRANSMISSION_PATCHES[@]} -gt 0 ]]; then
 		epatch "${TRANSMISSION_PATCHES[@]}"
 	fi
+
+	# http://trac.transmissionbt.com/ticket/5700
+	sed -i -e '1iQMAKE_CXXFLAGS += -std=c++11' qt/qtr.pro || die
 
 	eautoreconf
 
@@ -149,7 +174,7 @@ transmission-2.80_src_prepare() {
 	fi
 }
 
-transmission-2.80_src_configure() {
+_transmission_src_configure() {
 	_transmission_is "" && return
 
 	local econfargs=(
@@ -201,7 +226,7 @@ transmission-2.80_src_configure() {
 	fi
 }
 
-transmission-2.80_src_compile() {
+_transmission_src_compile() {
 	_transmission_is "" && return
 
 	emake
@@ -217,11 +242,11 @@ transmission-2.80_src_compile() {
 # Note: not providing src_install. Too many differences and too much code
 # which would only clutter this pretty eclass.
 
-transmission-2.80_pkg_preinst() {
+_transmission_pkg_preinst() {
 	_transmission_is gtk && gnome2_icon_savelist
 }
 
-transmission-2.80_pkg_postinst() {
+_transmission_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
@@ -253,7 +278,7 @@ transmission-2.80_pkg_postinst() {
 	fi
 }
 
-transmission-2.80_pkg_postrm() {
+_transmission_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt4; then
 		fdo-mime_desktop_database_update
 	fi
