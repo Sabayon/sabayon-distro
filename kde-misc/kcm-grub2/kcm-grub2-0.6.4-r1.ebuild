@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-misc/kcm-grub2/kcm-grub2-0.6.4.ebuild,v 1.1 2013/10/12 17:44:47 johu Exp $
+# $Header: $
 
 EAPI=5
 
