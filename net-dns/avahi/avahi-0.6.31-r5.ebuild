@@ -18,7 +18,7 @@ IUSE="autoipd bookmarks dbus doc gdbm gtk gtk3 howl-compat +introspection ipv6 k
 
 COMMON_DEPEND="=net-dns/avahi-base-${PVR}[autoipd=,bookmarks=,dbus=,doc=,gdbm=,howl-compat=,introspection=,ipv6=,mdnsresponder-compat=,python=,test=,nls=,selinux=,${MULTILIB_USEDEP}]
 	gtk? ( =net-dns/avahi-gtk-${PVR}[bookmarks=,gdbm=,nls=,python=,dbus=,${MULTILIB_USEDEP}] )
-	utils? ( =net-dns/avahi-gtk-${PVR}[utils,${MULTILIB_USEDEP}] )
+	utils? ( =net-dns/avahi-gtk3-${PVR}[utils,${MULTILIB_USEDEP}] )
 	gtk3? ( =net-dns/avahi-gtk3-${PVR}[${MULTILIB_USEDEP}] )
 	mono? ( =net-dns/avahi-mono-${PVR}[${MULTILIB_USEDEP}] )
 	qt4? ( =net-dns/avahi-qt-${PVR}[${MULTILIB_USEDEP}] )"

@@ -23,12 +23,12 @@ SRC_URI="http://avahi.org/download/${MY_P}.tar.gz"
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
-IUSE="dbus gdbm introspection nls python utils"
+IUSE="bookmarks dbus gdbm introspection nls python utils"
 
 S="${WORKDIR}/${MY_P}"
 
 COMMON_DEPEND="
-	~net-dns/avahi-base-${PV}[dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
+	~net-dns/avahi-base-${PV}[bookmarks=,dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
 	x11-libs/gtk+:3
 "
 
@@ -118,8 +118,8 @@ multilib_src_configure() {
 		$(multilib_native_use_enable introspection) \
 		--disable-qt3 \
 		--disable-qt4 \
-		--disable-gtk --disable-gtk-utils \
-		$(multilib_is_native_abi && echo -n --enable-gtk3 || echo -n --disable-gtk3) \
+		--disable-gtk \
+		$(multilib_is_native_abi && echo -n --enable-gtk3 --enable-utils || echo -n --disable-gtk3 --disable-utils) \
 		$(use_enable gdbm) \
 		$(systemd_with_unitdir) \
 		"${myconf[@]}"
@@ -145,15 +145,11 @@ multilib_src_install() {
 		dodir /usr/$(get_libdir)/pkgconfig
 		insinto /usr/$(get_libdir)/pkgconfig
 		doins avahi-ui-gtk3.pc
-
-		# Workaround for avahi-ui.h collision between avahi-gtk and avahi-gtk3
-		root_avahi_ui="${ROOT}usr/include/avahi-ui/avahi-ui.h"
-		if [ -e "${root_avahi_ui}" ]; then
-			rm -f "${D}usr/include/avahi-ui/avahi-ui.h"
-		fi
 	fi
 }
 
 multilib_src_install_all() {
 	prune_libtool_files --all
+	use bookmarks && use python && use dbus || \
+		rm -f "${D}"/usr/bin/avahi-bookmarks
 }

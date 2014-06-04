@@ -23,23 +23,18 @@ SRC_URI="http://avahi.org/download/${MY_P}.tar.gz"
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
-IUSE="bookmarks dbus gdbm introspection nls python utils"
+IUSE="dbus gdbm introspection nls python utils"
 
 S="${WORKDIR}/${MY_P}"
 
 COMMON_DEPEND="
-	~net-dns/avahi-base-${PV}[bookmarks=,dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
+	~net-dns/avahi-base-${PV}[dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
 	x11-libs/gtk+:2
 	python? ( dev-python/pygtk )
 "
 
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
-
-MULTILIB_WRAPPED_HEADERS=(
-	# necessary until the UI libraries are ported
-	/usr/include/avahi-ui/avahi-ui.h
-)
 
 src_prepare() {
 	# Make gtk utils optional
@@ -154,11 +149,22 @@ multilib_src_install() {
 		dodir /usr/$(get_libdir)/pkgconfig
 		insinto /usr/$(get_libdir)/pkgconfig
 		doins avahi-ui.pc
+
+		# Workaround for avahi-ui.h collision between avahi-gtk and avahi-gtk3
+		root_avahi_ui="${ROOT}usr/include/avahi-ui/avahi-ui.h"
+		if [ -e "${root_avahi_ui}" ]; then
+			rm -f "${D}usr/include/avahi-ui/avahi-ui.h"
+		fi
+
+		# provided by avahi-gtk3
+		rm "${D}"usr/bin/bshell || die
+		rm "${D}"usr/bin/bssh || die
+		rm "${D}"usr/bin/bvnc || die
+		rm "${D}"usr/share/applications/bssh.desktop || die
+		rm "${D}"usr/share/applications/bvnc.desktop || die
 	fi
 }
 
 multilib_src_install_all() {
 	prune_libtool_files --all
-	use bookmarks && use python && use dbus || \
-		rm -f "${D}"/usr/bin/avahi-bookmarks
 }
