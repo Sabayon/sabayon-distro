@@ -159,6 +159,7 @@ multilib_src_configure() {
 		--disable-pygtk \
 		--disable-xmltoman \
 		--disable-monodoc \
+		--disable-mono \
 		--enable-glib \
 		--enable-gobject \
 		$(multilib_native_use_enable test tests) \
