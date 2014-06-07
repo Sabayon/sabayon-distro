@@ -100,6 +100,9 @@ src_prepare() {
 	append-cppflags "-I${D}/usr/include/anaconda-runtime"
 	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
 
+	# Upstreamed patches
+	epatch "${FILESDIR}/0001-bootloader-fix-UEFI-install.patch"
+
 	##
 	## Setup libaudit
 	##
