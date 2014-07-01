@@ -9,7 +9,7 @@ QT_MINIMAL="4.7.4"
 KDE_SCM="git"
 CMAKE_REQUIRED="never"
 
-PYTHON_COMPAT=( python2_7 python3_3 )
+PYTHON_COMPAT=( python2_7 python3_3 python3_4 )
 PYTHON_REQ_USE="threads,xml"
 
 # experimental ; release ; old
@@ -238,9 +238,6 @@ PATCHES=(
 
 	# staged for git master
 	"${FILESDIR}/${PN}-4.2.0.4-curl-config.patch"
-
-	# kde mutexes
-	"${FILESDIR}/${P}-kde4-timer-mutex.patch"
 )
 
 REQUIRED_USE="
