@@ -20,7 +20,7 @@ SLOT="0"
 KEYWORDS="alpha amd64 ia64 ppc sparc x86 ~amd64-linux ~x86-linux"
 IUSE="doc examples"
 
-DEPEND="dev-lang/python-tk"
+DEPEND="dev-lang/python[tk]"
 RDEPEND=""
 
 S="${WORKDIR}/${MY_P}/src"
