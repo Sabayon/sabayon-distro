@@ -24,7 +24,7 @@ KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="apbs numpy vmd web"
 
 DEPEND="
-	>=dev-lang/python-tk-2.7 <dev-lang/python-tk-3
+	>=dev-lang/python-2.7[tk] <dev-lang/python-3[tk]
 	dev-python/numpy
 	dev-python/pmw
 	media-libs/freetype:2
