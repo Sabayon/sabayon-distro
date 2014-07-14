@@ -29,8 +29,7 @@ CDEPEND="
 	>=media-libs/libpng-1.2.16
 	gtk? (
 		dev-libs/glib:2
-		>=x11-libs/gtk+-2.12:2
-		x11-libs/cairo )
+		>=x11-libs/gtk+-2.12:2 )
 	libkms? ( x11-libs/libdrm[libkms] )
 	pango? ( >=x11-libs/pango-1.21 )
 "
