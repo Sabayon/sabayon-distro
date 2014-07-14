@@ -1,0 +1,9 @@
+--- a/src/plymouthd.defaults
++++ b/src/plymouthd.defaults
+@@ -1,5 +1,5 @@
+ # Distribution defaults. Changes to this file will get overwritten during
+ # upgrades.
+ [Daemon]
+-Theme=spinner
++Theme=sabayon
+ ShowDelay=5
