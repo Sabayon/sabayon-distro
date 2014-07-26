@@ -382,7 +382,9 @@ src_install() {
 
 	newbashcomp contrib/completion/git-completion.bash ${PN}
 	# Not really a bash-completion file (bug #477920)
-	dodoc contrib/completion/git-prompt.sh
+	# but still needed uncompressed (bug #507480)
+	insinto /usr/share/${PN}
+	doins contrib/completion/git-prompt.sh
 
 	if use emacs ; then
 		elisp-install ${PN} contrib/emacs/git.{el,elc}
@@ -640,8 +642,9 @@ showpkgdeps() {
 
 pkg_postinst() {
 	use emacs && elisp-site-regen
+	einfo "Please read /usr/share/bash-completion/git for Git bash command completion"
 	einfo "Please read /usr/share/git/git-prompt.sh for Git bash prompt"
-	einfo "Note that the prompt bash code is now in the seperate script"
+	einfo "Note that the prompt bash code is now in that separate script"
 	elog "These additional scripts need some dependencies:"
 	echo
 	showpkgdeps git-quiltimport "dev-util/quilt"
