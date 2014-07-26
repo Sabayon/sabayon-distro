@@ -8,6 +8,7 @@ GENTOO_DEPEND_ON_PERL=no
 
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
+EGIT_MASTER=pu
 
 inherit toolchain-funcs eutils ${SCM}
 
@@ -19,7 +20,7 @@ MY_P="${MY_P/gitweb/git}"
 DESCRIPTION="A web interface to git"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ "$PV" != *9999 ]]; then
-	SRC_URI_SUFFIX="gz"
+	SRC_URI_SUFFIX="xz"
 	SRC_URI_GOOG="http://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
 	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}

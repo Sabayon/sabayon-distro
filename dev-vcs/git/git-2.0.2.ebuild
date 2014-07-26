@@ -10,8 +10,9 @@ GENTOO_DEPEND_ON_PERL=no
 PYTHON_COMPAT=( python2_{6,7} )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
+EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-1.9.0_rc3-optional-cvs.patch.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.0.0-r2-optional-cvs.patch.gz" )
 inherit sab-patches toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -22,7 +23,7 @@ DOC_VER=${MY_PV}
 DESCRIPTION="GIT - the stupid content tracker, the revision control system heavily used by the Linux kernel team"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
-	SRC_URI_SUFFIX="gz"
+	SRC_URI_SUFFIX="xz"
 	SRC_URI_GOOG="http://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
 	SRC_URI+=" ${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
@@ -55,7 +56,7 @@ CDEPEND="
 		webdav? ( dev-libs/expat )
 	)
 	emacs? ( virtual/emacs )
-	gnome-keyring? ( gnome-base/gnome-keyring )"
+	gnome-keyring? ( gnome-base/libgnome-keyring )"
 
 RDEPEND="${CDEPEND}
 	gpg? ( app-crypt/gnupg )
@@ -381,9 +382,7 @@ src_install() {
 
 	newbashcomp contrib/completion/git-completion.bash ${PN}
 	# Not really a bash-completion file (bug #477920)
-	# but still needed uncompressed (bug #507480)
-	insinto /usr/share/${PN}
-	doins contrib/completion/git-prompt.sh
+	dodoc contrib/completion/git-prompt.sh
 
 	if use emacs ; then
 		elisp-install ${PN} contrib/emacs/git.{el,elc}
@@ -641,8 +640,7 @@ showpkgdeps() {
 
 pkg_postinst() {
 	use emacs && elisp-site-regen
-	einfo "Please read /usr/share/bash-completion/git for Git bash command completion"
-	einfo "Please read /usr/share/bash-completion/git-prompt for Git bash prompt"
+	einfo "Please read /usr/share/git/git-prompt.sh for Git bash prompt"
 	einfo "Note that the prompt bash code is now in the seperate script"
 	elog "These additional scripts need some dependencies:"
 	echo
