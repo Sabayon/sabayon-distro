@@ -188,7 +188,7 @@ src_install() {
 		newins "${FILESDIR}"/nvidia-169.07 nvidia.conf
 
 		# Ensures that our device nodes are created when not using X
-		exeinto "$(udev_get_udevdir)"
+		exeinto "$(get_udevdir)"
 		doexe "${FILESDIR}"/nvidia-udev.sh
 		udev_newrules "${FILESDIR}"/nvidia.udev-rule 99-nvidia.rules
 
@@ -332,7 +332,6 @@ pkg_preinst() {
 	if [ -e "${ROOT}"/etc/env.d/09nvidia ] ; then
 		rm -f "${ROOT}"/etc/env.d/09nvidia
 	fi
-
 
 	local videogroup="$(egetent group video | cut -d ':' -f 3)"
 	if [ -n "${videogroup}" ]; then
