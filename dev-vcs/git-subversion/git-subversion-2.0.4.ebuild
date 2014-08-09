@@ -42,7 +42,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="doc +threads"
+IUSE="doc iconv nls +threads"
 
 RDEPEND="~dev-vcs/git-${PV}[-subversion,perl]
 	dev-perl/Error
