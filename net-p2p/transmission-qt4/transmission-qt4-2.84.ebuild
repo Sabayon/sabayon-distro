@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -6,10 +6,8 @@ EAPI=5
 TRANSMISSION_PATCHES=(
 	# Fix for broken translations path
 	"${FILESDIR}"/${PN}-2.80-translations-path-fix.patch
-	# Restore support for Qt 4.x using upstream patch
-	"${FILESDIR}"/transmission-${PV}-qt4.patch
 )
-inherit eutils transmission-2.82
+inherit eutils transmission-2.84
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Qt4 UI"
 KEYWORDS="~amd64 ~x86"

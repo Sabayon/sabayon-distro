@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Sabayon
+# Copyright 1999-2014 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -14,7 +14,7 @@
 # because the eclass will change often when needed to follow changes
 # in Gentoo ebuild.
 # Always call phase functions using their public names, such like:
-# transmission-2.82_src_configure, and never _transmission_src_configure.
+# transmission-2.83_src_configure, and never _transmission_src_configure.
 
 # @ECLASS-VARIABLE: TRANSMISSION_PATCHES
 # @DEFAULT_UNSET
@@ -52,7 +52,7 @@ _transmission_is() {
 # Function to setup functions. The eval uses strictly controlled variables,
 # so it's OK.
 _transmission_eclass_setup_functions() {
-	local v=2.82
+	local v=2.84
 	local func
 	for func in pkg_setup src_prepare src_configure src_compile \
 			pkg_preinst pkg_postinst pkg_postrm; do
@@ -94,7 +94,10 @@ DESCRIPTION="A Fast, Easy and Free BitTorrent client"
 HOMEPAGE="http://www.transmissionbt.com/"
 SRC_URI="http://download.transmissionbt.com/${MY_PN}/files/${MY_P}.tar.xz"
 
-LICENSE="GPL-2 MIT"
+# web/LICENSE is always GPL-2 whereas COPYING allows either GPL-2 or GPL-3 for the rest
+# transmission in licenses/ is for mentioning OpenSSL linking exception
+# MIT is in several libtransmission/ headers
+LICENSE="|| ( GPL-2 GPL-3 Transmission-OpenSSL-exception ) GPL-2 MIT"
 SLOT="0"
 IUSE=""
 
@@ -106,7 +109,7 @@ if ! _transmission_is ""; then
 	>=dev-libs/libevent-2.0.10:=
 	dev-libs/openssl:0=
 	net-libs/libnatpmp:=
-	>=net-libs/miniupnpc-1.6.20120509:=
+	>=net-libs/miniupnpc-1.7:=
 	>=net-misc/curl-7.16.3:=[ssl]
 	sys-libs/zlib:="
 fi
@@ -119,7 +122,7 @@ if _transmission_is base; then
 	!<net-p2p/transmission-cli-${PV}"
 fi
 if ! _transmission_is ""; then
-	DEPEND+=" dev-libs/glib:2
+	DEPEND+=" >=dev-libs/glib-2.32
 	dev-util/intltool
 	virtual/pkgconfig
 	sys-devel/gettext
@@ -147,7 +150,7 @@ _transmission_src_prepare() {
 	fi
 
 	# Pass our configuration dir to systemd unit file
-	sed -i '/ExecStart/ s|$| -g /var/lib/transmission/config|' daemon/transmission-daemon.service || die
+	sed -i '/ExecStart/ s|$| -g /var/lib/transmission/config|' daemon/${MY_PN}-daemon.service || die
 
 	# http://trac.transmissionbt.com/ticket/4324
 	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
@@ -156,6 +159,10 @@ _transmission_src_prepare() {
 		epatch "${TRANSMISSION_PATCHES[@]}"
 	fi
 
+	# http://trac.transmissionbt.com/ticket/5700
+	sed -i -e '1iQMAKE_CXXFLAGS += -std=c++11' qt/qtr.pro || die
+
+	epatch_user
 	eautoreconf
 
 	if ! _transmission_is base; then
