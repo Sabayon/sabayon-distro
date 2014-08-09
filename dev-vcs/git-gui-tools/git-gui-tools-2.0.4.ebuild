@@ -12,8 +12,9 @@ GENTOO_DEPEND_ON_PERL=no
 PYTHON_COMPAT=( python2_{6,7} )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
+EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-1.9.0_rc3-optional-cvs.patch.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.0.0-r2-optional-cvs.patch.gz" )
 inherit sab-patches toolchain-funcs eutils python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -24,7 +25,7 @@ MY_P="${MY_P/-gui-tools}"
 DESCRIPTION="GUI tools derived from git: gitk, git-gui and gitview"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
-	SRC_URI_SUFFIX="gz"
+	SRC_URI_SUFFIX="xz"
 	SRC_URI_GOOG="http://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
 	SRC_URI+=" ${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
