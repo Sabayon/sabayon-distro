@@ -1,0 +1,13 @@
+diff --git a/bin/pithos b/bin/pithos
+index 725ad7b..62ddd88 100755
+--- a/bin/pithos
++++ b/bin/pithos
+@@ -204,7 +204,7 @@ class PithosWindow(gtk.Window):
+         bus.connect("message::eos", self.on_gst_eos)
+         bus.connect("message::buffering", self.on_gst_buffering)
+         bus.connect("message::error", self.on_gst_error)
+-        self.player.connect("notify::volume", self.on_gst_volume)
++        #self.player.connect("notify::volume", self.on_gst_volume)
+         self.player.connect("notify::source", self.on_gst_source)
+         self.time_format = gst.Format(gst.FORMAT_TIME)
+ 
