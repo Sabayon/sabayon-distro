@@ -8,7 +8,7 @@ DISTUTILS_OPTIONAL=1
 WANT_AUTOMAKE="none"
 GENTOO_DEPEND_ON_PERL="no"
 
-SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${PN}-1.8.5-Gentoo-patches.tar.gz )
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${PN}-1.8.9-Gentoo-patches.tar.gz )
 inherit sab-patches autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common flag-o-matic libtool multilib perl-module eutils
 
 MY_P="${P/_/-}"
@@ -58,7 +58,10 @@ PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
 REQUIRED_USE="
 	ctypes-python? ( ${PYTHON_REQUIRED_USE} )
 	python? ( ${PYTHON_REQUIRED_USE} )
-	test? ( ${PYTHON_REQUIRED_USE} )"
+	test? (
+		${PYTHON_REQUIRED_USE}
+		!dso
+	)"
 
 want_apache
 
@@ -265,31 +268,33 @@ src_compile() {
 }
 
 src_test() {
-	if ! has_version ~${CATEGORY}/${P} ; then
+	if has_version ~${CATEGORY}/${P} ; then
+		default
+
+		if use ctypes-python ; then
+			python_test() {
+				"${PYTHON}" subversion/bindings/ctypes-python/test/run_all.py \
+					|| die "ctypes-python tests fail with ${EPYTHON}"
+			}
+
+			distutils-r1_src_test
+		fi
+
+		if use python ; then
+			swig_py_test() {
+				pushd "${BUILD_DIR}" >/dev/null || die
+				"${PYTHON}" tests/run_all.py || die "swig-py tests fail with ${EPYTHON}"
+				popd >/dev/null || die
+			}
+
+			BUILD_DIR=subversion/bindings/swig/python \
+			python_foreach_impl swig_py_test
+		fi
+	else
 		ewarn "The test suite shows errors when there is an older version of"
-		ewarn "${CATEGORY}/${PN} installed."
-	fi
-
-	default
-
-	if use ctypes-python ; then
-		python_test() {
-			"${PYTHON}" subversion/bindings/ctypes-python/test/run_all.py \
-				|| die "ctypes-python tests fail with ${EPYTHON}"
-		}
-
-		distutils-r1_src_test
-	fi
-
-	if use python ; then
-		swig_py_test() {
-			pushd "${BUILD_DIR}" >/dev/null || die
-			"${PYTHON}" tests/run_all.py || die "swig-py tests fail with ${EPYTHON}"
-			popd >/dev/null || die
-		}
-
-		BUILD_DIR=subversion/bindings/swig/python \
-		python_foreach_impl swig_py_test
+		ewarn "${CATEGORY}/${PN} installed. Please install =${CATEGORY}/${P}*"
+		ewarn "before running the test suite."
+		ewarn "Test suite skipped."
 	fi
 }
 
