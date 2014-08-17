@@ -13,7 +13,7 @@ K_KERNEL_NEW_VERSIONING="1"
 
 inherit sabayon-kernel
 
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64"
 DESCRIPTION="Official Sabayon Linux Standard kernel image"
 RESTRICT="mirror"
 

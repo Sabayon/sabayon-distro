@@ -11,7 +11,7 @@ K_KERNEL_NEW_VERSIONING="1"
 K_SABKERNEL_PATCH_UPSTREAM_TARBALL="1"
 
 inherit sabayon-kernel
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64"
 DESCRIPTION="Official Sabayon Linux kernel sources for Amazon EC2"
 RESTRICT="mirror"
 IUSE="sources_standalone"
