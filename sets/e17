@@ -2,3 +2,5 @@ lxde-base/lxdm
 x11-wm/enlightenment:0.17
 app-misc/sabayon-skel
 media-plugins/alsa-plugins
+@wireless
+@X
