@@ -68,7 +68,7 @@ RDEPEND="${CDEPEND}
 			dev-perl/Net-SMTP-SSL
 			dev-perl/Authen-SASL
 			cgi? ( virtual/perl-CGI highlight? ( app-text/highlight ) )
-			cvs? ( >=dev-vcs/cvsps-2.1 dev-perl/DBI dev-perl/DBD-SQLite )
+			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)
 	python? ( gtk?
@@ -111,6 +111,8 @@ REQUIRED_USE="
 	gtk? ( python )
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
+
+RESTRICT="test" # 520270
 
 pkg_setup() {
 	if use subversion && has_version "dev-vcs/subversion[dso]"; then
@@ -330,7 +332,12 @@ src_compile() {
 
 	if use subversion ; then
 		cd "${S}"/contrib/svn-fe
-		git_emake EXTLIBS="${EXTLIBS}" || die "emake svn-fe failed"
+		# by defining EXTLIBS we override the detection for libintl and
+		# libiconv, bug #516168
+		local nlsiconv=
+		use nls && use !elibc_glibc && nlsiconv+=" -lintl"
+		use iconv && use !elibc_glibc && nlsiconv+=" -liconv"
+		git_emake EXTLIBS="${EXTLIBS} ${nlsiconv}" || die "emake svn-fe failed"
 		if use doc ; then
 			git_emake svn-fe.{1,html} || die "emake svn-fe.1 svn-fe.html failed"
 		fi
@@ -423,10 +430,6 @@ src_install() {
 		cd "${S}"
 	fi
 
-	# git-diffall
-	dobin contrib/diffall/git-diffall
-	newdoc contrib/diffall/README git-diffall.txt
-
 	# diff-highlight
 	dobin contrib/diff-highlight/diff-highlight
 	newdoc contrib/diff-highlight/README README.diff-highlight
@@ -466,7 +469,6 @@ src_install() {
 	# completion - installed above
 	# credential/gnome-keyring TODO
 	# diff-highlight - done above
-	# diffall - done above
 	# emacs - installed above
 	# examples - these are stuff that is not used in Git anymore actually
 	# git-jump - done above
@@ -481,7 +483,7 @@ src_install() {
 	for i in \
 		buildsystems convert-objects fast-import \
 		hg-to-git hooks remotes2config.sh rerere-train.sh \
-		stats vim workdir \
+		stats workdir \
 		; do
 		cp -rf \
 			"${S}"/contrib/${i} \
