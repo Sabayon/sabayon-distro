@@ -50,10 +50,6 @@ LINGUAS=""
 
 ver=
 
-if [[ $1 = --add-firefox ]]; then
-	packages+=( www-client/firefox )
-fi
-
 for p in firefox-l10n-*; do
 	if [[ ! -e ${p} ]]; then
 		e "${p} does not exist - no packages in the current directory?"
