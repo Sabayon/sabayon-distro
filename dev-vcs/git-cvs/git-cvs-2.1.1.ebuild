@@ -48,7 +48,7 @@ RDEPEND="~dev-vcs/git-${PV}[-cvs,perl]
 	dev-perl/Error
 	dev-perl/Net-SMTP-SSL
 	dev-perl/Authen-SASL
-	>=dev-vcs/cvsps-2.1 dev-perl/DBI dev-perl/DBD-SQLite
+	>=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite
 	${PYTHON_DEPS}"
 DEPEND="app-arch/cpio
 	dev-lang/perl:=[-build(-)]
