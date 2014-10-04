@@ -112,8 +112,6 @@ REQUIRED_USE="
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
 
-RESTRICT="test" # 520270
-
 pkg_setup() {
 	if use subversion && has_version "dev-vcs/subversion[dso]"; then
 		ewarn "Per Gentoo bugs #223747, #238586, when subversion is built"
@@ -457,13 +455,6 @@ src_install() {
 		cd "${S}"
 	fi
 
-	# remote-helpers
-	if use python ; then
-		python_scriptinto /usr/libexec/git-core/
-		python_doscript "${S}"/contrib/remote-helpers/git-remote-{bzr,hg}
-		python_optimize
-	fi
-
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
 	# completion - installed above
@@ -537,7 +528,7 @@ src_install() {
 }
 
 src_test() {
-	local disabled=""
+	local disabled="t7004-tag.sh" #520270
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
