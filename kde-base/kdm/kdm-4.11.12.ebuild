@@ -59,7 +59,7 @@ pkg_setup() {
 }
 
 src_configure() {
-	mycmakeargs=(
+	local mycmakeargs=(
 		$(cmake-utils_use kerberos KDE4_KRB5AUTH)
 		$(cmake-utils_use_with pam)
 		$(cmake-utils_use_with consolekit CkConnector)
