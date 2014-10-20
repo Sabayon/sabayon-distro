@@ -1,19 +1,15 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
-inherit cmake-utils eutils pax-utils user
+inherit cmake-utils eutils pax-utils systemd user versionator
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel.git"
-EGIT_BRANCH="master"
-[[ "${PV}" == "9999" ]] && inherit git-2
+EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
+[[ "${PV}" == "9999" ]] && inherit git-r3
 
-QT_MINIMAL="4.6.0"
-KDE_MINIMAL="4.4"
-
-DESCRIPTION="Qt4/KDE4 IRC client. This provides the \"core\" (server) component."
+DESCRIPTION="Qt/KDE IRC client - the \"core\" (server) component"
 HOMEPAGE="http://quassel-irc.org/"
 MY_P=${P/-core}
 MY_PN=${PN/-core}
@@ -22,29 +18,41 @@ MY_PN=${PN/-core}
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE="crypt dbus postgres +ssl syslog"
+IUSE="crypt postgres qt5 +ssl syslog"
 
 SERVER_RDEPEND="
-	>=dev-qt/qtscript-${QT_MINIMAL}:4
-	crypt? (
-		app-crypt/qca:2
-		app-crypt/qca-ossl
+	qt5? (
+		dev-qt/qtscript:5
+		postgres? ( dev-qt/qtsql:5[postgres] )
+		!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	)
-	!postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[sqlite] dev-db/sqlite[-secure-delete] )
-	postgres? ( >=dev-qt/qtsql-${QT_MINIMAL}:4[postgres] )
+	!qt5? (
+		dev-qt/qtscript:4
+		crypt? (
+			app-crypt/qca:2
+			app-crypt/qca-ossl
+		)
+		postgres? ( dev-qt/qtsql:4[postgres] )
+		!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
+	)
 	syslog? ( virtual/logger )
 "
 
 RDEPEND="
-	>=dev-qt/qtcore-${QT_MINIMAL}:4[ssl?]
+	sys-libs/zlib
+	qt5? (
+		dev-qt/qtcore:5
+		dev-qt/qtnetwork:5[ssl?]
+	)
+	!qt5? ( dev-qt/qtcore:4[ssl?] )
 	${SERVER_RDEPEND}
-	"
+"
 DEPEND="
 	${RDEPEND}
 	!net-irc/quassel-core-bin
 	"
 
-DOCS="AUTHORS ChangeLog README"
+DOCS=( AUTHORS ChangeLog README )
 
 S="${WORKDIR}/${MY_P/_/-}"
 
@@ -58,31 +66,35 @@ pkg_setup() {
 
 src_configure() {
 	local mycmakeargs=(
-		"-DWITH_LIBINDICATE=OFF"
-		"-DWANT_CORE=ON"
-		"-DWANT_QTCLIENT=OFF"
-		"-DWANT_MONO=OFF"
-		"-DWITH_WEBKIT=OFF"
-		"-DWITH_PHONON=OFF"
+		"CMAKE_DISABLE_FIND_PACKAGE_IndicateQt=ON"
+		$(cmake-utils_use_find_package crypt QCA2)
+		# $(cmake-utils_use_find_package dbus dbusmenu-qt)
+		# $(cmake-utils_use_find_package dbus dbusmenu-qt5)
 		"-DWITH_KDE=OFF"
-		$(cmake-utils_use_with dbus)
-		$(cmake-utils_use_with ssl OPENSSL)
-		$(cmake-utils_use_with syslog)
 		"-DWITH_OXYGEN=OFF"
-		$(cmake-utils_use_with crypt)
+		"-DWANT_MONO=OFF"
+
+		"CMAKE_DISABLE_FIND_PACKAGE_phonon=ON"
+		"CMAKE_DISABLE_FIND_PACKAGE_Phonon=ON"
+		"CMAKE_DISABLE_FIND_PACKAGE_PHONON=ON"
+
+		"CMAKE_DISABLE_FIND_PACKAGE_Phonon4Qt5=ON"
+		$(cmake-utils_use_use qt5)
+		"-DWANT_CORE=ON"
+		"-DWITH_WEBKIT=OFF"
+		"-DWANT_QTCLIENT=OFF"
 		"-DEMBED_DATA=OFF"
 	)
 
-	# -DSTATIC=ON
 	cmake-utils_src_configure
 }
 
 src_install() {
 	cmake-utils_src_install
 
-	rm -rf "${ED}"usr/share/apps/quassel/
-	rm -f "${ED}"usr/share/pixmaps/quassel.png
-	rm -f "${ED}"usr/share/icons/hicolor/48x48/apps/quassel.png
+	rm -rf "${ED}"usr/share/apps/quassel/ || die
+	rm -f "${ED}"usr/share/pixmaps/quassel.png || die
+	rm -f "${ED}"usr/share/icons/hicolor/48x48/apps/quassel.png || die
 
 	# server stuff
 
@@ -93,9 +105,10 @@ src_install() {
 	keepdir "${QUASSEL_DIR}"
 	fowners "${QUASSEL_USER}":"${QUASSEL_USER}" "${QUASSEL_DIR}"
 
-	# init scripts
+	# init scripts & systemd unit
 	newinitd "${FILESDIR}"/quasselcore.init quasselcore
 	newconfd "${FILESDIR}"/quasselcore.conf quasselcore
+	systemd_dounit "${FILESDIR}"/quasselcore.service
 
 	# logrotate
 	insinto /etc/logrotate.d
