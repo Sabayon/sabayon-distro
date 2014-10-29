@@ -60,13 +60,23 @@ else
 	RPM_SUFFIX_LANG="rpm_langpack"
 	RPM_SUFFIX_HELP="rpm_helppack"
 fi
+
+# remove "name_part" when not needed
+if [[ ${PV} = 4.2.6.* || ${PV} = 4.2.6 ]]; then
+	name_part=-secfix
+else
+	name_part=
+fi
+
 # try guessing
 if [ "${LANGPACK_AVAIL}" = "1" ]; then
-	SRC_URI+="${BASE_SRC_URI}/x86/${URI_PREFIX}_${TARBALL_VERSION}_Linux_x86_${RPM_SUFFIX_LANG}_${MY_LANG}.tar.gz"
+	SRC_URI+="${BASE_SRC_URI}/x86/${URI_PREFIX}_${TARBALL_VERSION}${name_part}_Linux_x86_${RPM_SUFFIX_LANG}_${MY_LANG}.tar.gz"
 fi
 if [ "${HELPPACK_AVAIL}" = "1" ]; then
-	SRC_URI+=" ${BASE_SRC_URI}/x86/${URI_PREFIX}_${TARBALL_VERSION}_Linux_x86_${RPM_SUFFIX_HELP}_${MY_LANG}.tar.gz"
+	SRC_URI+=" ${BASE_SRC_URI}/x86/${URI_PREFIX}_${TARBALL_VERSION}${name_part}_Linux_x86_${RPM_SUFFIX_HELP}_${MY_LANG}.tar.gz"
 fi
+
+unset name_part
 
 IUSE=""
 
