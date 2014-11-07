@@ -386,6 +386,7 @@ src_install() {
 	use doc && doinfo Documentation/{git,gitman}.info
 
 	newbashcomp contrib/completion/git-completion.bash ${PN}
+	bashcomp_alias git gitk
 	# Not really a bash-completion file (bug #477920)
 	# but still needed uncompressed (bug #507480)
 	insinto /usr/share/${PN}
