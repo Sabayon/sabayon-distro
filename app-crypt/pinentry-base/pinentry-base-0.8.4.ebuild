@@ -33,7 +33,6 @@ DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 src_prepare() {
 	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
 	epatch "${FILESDIR}/${MY_PN}-0.8.2-texi.patch"
-	sed -i 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/g' configure.ac || die
 	eautoreconf
 }
 
@@ -47,11 +46,10 @@ src_configure() {
 	fi
 
 	econf \
-		--disable-dependency-tracking \
-		--enable-maintainer-mode \
 		--disable-pinentry-gtk \
-		--disable-pinentry-gtk2 \
 		--disable-pinentry-qt \
+		--enable-pinentry-tty \
+		--disable-pinentry-gtk2 \
 		--enable-pinentry-curses \
 		--enable-fallback-curses \
 		--disable-pinentry-qt4 \
