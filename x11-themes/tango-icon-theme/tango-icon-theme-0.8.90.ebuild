@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/x11-themes/tango-icon-theme/tango-icon-theme-0.8.90.ebuild,v 1.10 2010/07/08 02:01:01 ssuominen Exp $
 
-EAPI=2
+EAPI=4
 SLREV=4
 inherit gnome2-utils
 
@@ -27,6 +27,12 @@ DEPEND="${RDEPEND}
 
 RESTRICT="binchecks strip"
 
+DOCS="AUTHORS ChangeLog README"
+
+src_prepare() {
+	sed -i -e '/svgconvert_prog/s:rsvg:&-convert:' configure || die #413183
+}
+
 src_configure() {
 	econf \
 		$(use_enable png png-creation) \
@@ -35,8 +41,7 @@ src_configure() {
 
 src_install() {
 	addwrite /root/.gnome2
-	emake DESTDIR="${D}" install || die
-	dodoc AUTHORS ChangeLog README
+	default
 
 	if use branding; then
 		# replace tango icon start-here.{png,svg} with Sabayon ones
