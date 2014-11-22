@@ -20,6 +20,8 @@ else
 	SRC_URI="mirror://sourceforge/pyqt/${MY_P}.tar.gz"
 fi
 
+ORIG_PN=${PN%-pyqtconfig}
+
 LICENSE="|| ( GPL-2 GPL-3 )"
 SLOT="0"
 KEYWORDS=""
@@ -75,7 +77,7 @@ S=${WORKDIR}/${MY_P}
 
 src_prepare() {
 	# Support qreal on arm architecture (bug 322349).
-	use arm && epatch "${FILESDIR}/${PN}-4.7.3-qreal_float_support.patch"
+	use arm && epatch "${FILESDIR}/${ORIG_PN}-4.7.3-qreal_float_support.patch"
 
 	# Allow building against KDE's phonon (bug 433944 and others).
 	sed -i \
@@ -185,7 +187,7 @@ src_compile() {
 src_install() {
 	installation() {
 		python_export PYTHON_SITEDIR
-		insinto "${PYTHON_SITEDIR}/${PN}"
+		insinto "${PYTHON_SITEDIR}/${ORIG_PN}"
 		doins pyqtconfig.py
 	}
 	python_foreach_impl run_in_build_dir installation
