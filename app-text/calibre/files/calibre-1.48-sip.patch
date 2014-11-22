@@ -1,0 +1,11 @@
+--- setup/extensions.py.orig	2014-11-22 14:47:47.636474362 +0100
++++ setup/extensions.py	2014-11-22 14:48:17.556594759 +0100
+@@ -630,7 +630,7 @@
+         if self.newer(sbf, [sipf]+ext.headers):
+             exe = '.exe' if iswindows else ''
+             cmd = [pyqt.sip_bin+exe, '-w', '-c', src_dir, '-b', sbf, '-I'+
+-                    pyqt.pyqt_sip_dir] + shlex.split(pyqt.pyqt_sip_flags) + [sipf]
++                    pyqt.pyqt_sip_dir, '-I/usr/share/sip/PyQt4'] + shlex.split(pyqt.pyqt_sip_flags) + [sipf]
+             self.info(' '.join(cmd))
+             self.check_call(cmd)
+         module = self.j(src_dir, self.b(dest))
