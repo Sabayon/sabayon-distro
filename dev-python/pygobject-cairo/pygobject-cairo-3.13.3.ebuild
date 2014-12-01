@@ -1,11 +1,11 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="5"
 GCONF_DEBUG="no"
 GNOME2_LA_PUNT="yes"
-PYTHON_COMPAT=( python{2_6,2_7,3_2,3_3} )
+PYTHON_COMPAT=( python{2_7,3_2,3_3,3_4} )
 
 REAL_PN="${PN/-cairo}"
 GNOME_ORG_MODULE="${REAL_PN}"
@@ -36,11 +36,7 @@ RDEPEND="${COMMON_DEPEND}
 # gnome-base/gnome-common required by eautoreconf
 
 src_prepare() {
-	DOCS="AUTHORS ChangeLog* NEWS README"
-
-	eautoreconf
 	gnome2_src_prepare
-
 	python_copy_sources
 }
 
@@ -50,7 +46,6 @@ src_configure() {
 	# docs disabled by upstream default since they are very out of date
 	python_foreach_impl run_in_build_dir \
 		gnome2_src_configure \
-			--with-ffi \
 			--enable-cairo \
 			$(use_enable threads thread)
 }
@@ -60,6 +55,8 @@ src_compile() {
 }
 
 src_install() {
+	DOCS="AUTHORS ChangeLog* NEWS README"
+
 	python_foreach_impl run_in_build_dir gnome2_src_install
 	# just keep /usr/$(get_libdir)/*/site-packages/gi/_gi_cairo.so
 	# discard the rest
