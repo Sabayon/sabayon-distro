@@ -336,6 +336,11 @@ multilib_src_install() {
 	dosym libsystemd.so "/usr/$(get_libdir)/libsystemd-id128.so"
 	dosym libsystemd.so "/usr/$(get_libdir)/libsystemd-journal.so"
 	dosym libsystemd.so "/usr/$(get_libdir)/libsystemd-login.so"
+
+	# Sabayon: create systemd-run symlink in /bin. lvm2 lvmetad has a
+	# udev rule that expects systemd-run to be in /bin. And lvmetad is
+	# used by Anaconda.
+	dosym "../usr/bin/systemd-run" "/bin/systemd-run"
 }
 
 multilib_src_install_all() {
