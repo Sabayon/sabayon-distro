@@ -1,0 +1,12 @@
+diff --git a/blivet/formats/disklabel.py b/blivet/formats/disklabel.py
+index 5015548..9071596 100644
+--- a/blivet/formats/disklabel.py
++++ b/blivet/formats/disklabel.py
+@@ -304,6 +304,7 @@ class DiskLabel(DeviceFormat):
+             raise DiskLabelCommitError(msg)
+         else:
+             self.updateOrigPartedDisk()
++            udev_settle()
+ 
+     def addPartition(self, *args, **kwargs):
+         partition = kwargs.get("partition", None)

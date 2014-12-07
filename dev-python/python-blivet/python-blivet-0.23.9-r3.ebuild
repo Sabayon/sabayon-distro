@@ -48,5 +48,8 @@ src_prepare() {
 	# enable UUID= support for dm-based devices (dmcrypt, md, etc)
 	epatch "${FILESDIR}/0001-devices-enable-UUID-for-dm-based-devices-in-fstab.patch"
 
+	# Sabayon: commitToDisk should wait on udev. There is a missing udev_settle() call.
+	epatch "${FILESDIR}/${PN}-commit-to-disk-settle.patch"
+
 	distutils_src_prepare
 }
