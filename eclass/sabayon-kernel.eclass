@@ -353,7 +353,7 @@ if [ -n "${K_ONLY_SOURCES}" ] || [ -n "${K_FIRMWARE_PACKAGE}" ]; then
 	DEPEND="sys-apps/sed"
 	RDEPEND="${RDEPEND}"
 else
-	IUSE="dmraid dracut iscsi luks lvm mdadm plymouth splash"
+	IUSE="btrfs dmraid dracut iscsi luks lvm mdadm plymouth splash"
 	if [ -n "${K_SABKERNEL_ZFS}" ]; then
 		IUSE="${IUSE} zfs"
 	fi
@@ -365,6 +365,7 @@ else
 		arm? ( dev-embedded/u-boot-tools )
 		amd64? ( sys-apps/v86d )
 		x86? ( sys-apps/v86d )
+		btrfs? ( sys-fs/btrfs-progs )
 		splash? ( x11-themes/sabayon-artwork-core )
 		lvm? ( sys-fs/lvm2 sys-block/thin-provisioning-tools )
 		plymouth? (
@@ -518,6 +519,7 @@ _kernel_src_compile() {
 	cd "${S}" || die
 	local GKARGS=()
 	GKARGS+=( "--no-save-config" "--e2fsprogs" "--udev" )
+	use btrfs && GKARGS+=( "--btrfs" )
 	use splash && GKARGS+=( "--splash=sabayon" )
 	use plymouth && GKARGS+=( "--plymouth" "--plymouth-theme=${PLYMOUTH_THEME}" )
 	use dmraid && GKARGS+=( "--dmraid" )
