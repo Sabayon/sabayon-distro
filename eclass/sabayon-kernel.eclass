@@ -518,7 +518,7 @@ _kernel_src_compile() {
 
 	cd "${S}" || die
 	local GKARGS=()
-	GKARGS+=( "--no-save-config" "--e2fsprogs" "--udev" )
+	GKARGS+=( "--no-menuconfig" "--no-save-config" "--e2fsprogs" "--udev" )
 	use btrfs && GKARGS+=( "--btrfs" )
 	use splash && GKARGS+=( "--splash=sabayon" )
 	use plymouth && GKARGS+=( "--plymouth" "--plymouth-theme=${PLYMOUTH_THEME}" )
