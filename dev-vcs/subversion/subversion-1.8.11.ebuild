@@ -32,7 +32,7 @@ COMMON_DEPEND=">=dev-db/sqlite-3.7.12
 	ctypes-python? ( ${PYTHON_DEPS} )
 	gnome-keyring? ( dev-libs/glib:2 sys-apps/dbus gnome-base/gnome-keyring )
 	kde? ( sys-apps/dbus dev-qt/qtcore:4 dev-qt/qtdbus:4 dev-qt/qtgui:4 >=kde-base/kdelibs-4:4 )
-	perl? ( dev-lang/perl )
+	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
 	ruby? ( >=dev-lang/ruby-1.9.3:1.9
 		dev-ruby/rubygems[ruby_targets_ruby19] )
@@ -40,7 +40,7 @@ COMMON_DEPEND=">=dev-db/sqlite-3.7.12
 	http? ( >=net-libs/serf-1.2.1 )"
 RDEPEND="${COMMON_DEPEND}
 	apache2? ( www-servers/apache[apache2_modules_dav] )
-	kde? ( kde-base/kwalletd )
+	kde? ( || ( kde-apps/kwalletd:4 kde-base/kwalletd ) )
 	nls? ( virtual/libintl )
 	perl? ( dev-perl/URI )"
 # Note: ctypesgen doesn't need PYTHON_USEDEP, it's used once
@@ -58,7 +58,10 @@ PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
 REQUIRED_USE="
 	ctypes-python? ( ${PYTHON_REQUIRED_USE} )
 	python? ( ${PYTHON_REQUIRED_USE} )
-	test? ( ${PYTHON_REQUIRED_USE} )"
+	test? (
+		${PYTHON_REQUIRED_USE}
+		!dso
+	)"
 
 want_apache
 
@@ -265,31 +268,33 @@ src_compile() {
 }
 
 src_test() {
-	if ! has_version ~${CATEGORY}/${P} ; then
+	if has_version ~${CATEGORY}/${P} ; then
+		default
+
+		if use ctypes-python ; then
+			python_test() {
+				"${PYTHON}" subversion/bindings/ctypes-python/test/run_all.py \
+					|| die "ctypes-python tests fail with ${EPYTHON}"
+			}
+
+			distutils-r1_src_test
+		fi
+
+		if use python ; then
+			swig_py_test() {
+				pushd "${BUILD_DIR}" >/dev/null || die
+				"${PYTHON}" tests/run_all.py || die "swig-py tests fail with ${EPYTHON}"
+				popd >/dev/null || die
+			}
+
+			BUILD_DIR=subversion/bindings/swig/python \
+			python_foreach_impl swig_py_test
+		fi
+	else
 		ewarn "The test suite shows errors when there is an older version of"
-		ewarn "${CATEGORY}/${PN} installed."
-	fi
-
-	default
-
-	if use ctypes-python ; then
-		python_test() {
-			"${PYTHON}" subversion/bindings/ctypes-python/test/run_all.py \
-				|| die "ctypes-python tests fail with ${EPYTHON}"
-		}
-
-		distutils-r1_src_test
-	fi
-
-	if use python ; then
-		swig_py_test() {
-			pushd "${BUILD_DIR}" >/dev/null || die
-			"${PYTHON}" tests/run_all.py || die "swig-py tests fail with ${EPYTHON}"
-			popd >/dev/null || die
-		}
-
-		BUILD_DIR=subversion/bindings/swig/python \
-		python_foreach_impl swig_py_test
+		ewarn "${CATEGORY}/${PN} installed. Please install =${CATEGORY}/${P}*"
+		ewarn "before running the test suite."
+		ewarn "Test suite skipped."
 	fi
 }
 
@@ -321,7 +326,7 @@ src_install() {
 
 	if use perl ; then
 		emake DESTDIR="${D}" INSTALLDIRS="vendor" install-swig-pl
-		fixlocalpod
+		perl_delete_localpod
 		find "${ED}" "(" -name .packlist -o -name "*.bs" ")" -delete
 	fi
 
@@ -337,7 +342,8 @@ src_install() {
 	fi
 
 	# Install Bash Completion, bug 43179.
-	newbashcomp tools/client-side/bash_completion subversion
+	newbashcomp tools/client-side/bash_completion svn
+	bashcomp_alias svn svn{admin,dumpfilter,look,sync,version}
 	rm -f tools/client-side/bash_completion
 
 	# Install hot backup script, bug 54304.
@@ -407,8 +413,6 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	use perl && perl-module_pkg_postinst
-
 	if [[ -n "${CHANGED_BDB_VERSION}" ]] ; then
 		ewarn "You upgraded from an older version of Berkeley DB and may experience"
 		ewarn "problems with your repository. Run the following commands as root to fix it:"
@@ -420,7 +424,7 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	use perl && perl-module_pkg_postrm
+	:
 }
 
 pkg_config() {
