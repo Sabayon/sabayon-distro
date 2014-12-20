@@ -35,7 +35,7 @@ RDEPEND="${PYTHON_DEPS}
 	>=mate-base/mate-panel-1.8:0
 	>=mate-base/mate-settings-daemon-1.6:0
 	>=sys-apps/dbus-1.1.2:0
-	sys-power/cpupower
+	sys-power/cpufrequtils
 	upower? ( || ( >=sys-power/upower-0.9.23 >=sys-power/upower-pm-utils-0.9.23 ) )
 	x11-libs/gdk-pixbuf:2
 	>=x11-libs/gtk+-2.24:2
@@ -60,7 +60,8 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig:*"
 
 src_prepare() {
-	## Sabayon: removal of this patch is the only difference
+	## Sabayon: removal of this patch and sys-power/cpupower replaced by sys-power/cpufrequtils
+	## are the only dependencies
 	#epatch "${FILESDIR}"/${PN}-1.6.2-r1-replace-cpufreq-by-cpupower.patch
 
 	eautoreconf
