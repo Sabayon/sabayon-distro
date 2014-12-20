@@ -75,6 +75,21 @@ sab-patches_apply() {
 	done
 }
 
+# @FUNCTION: sab-patches_unpack
+# @DESCRIPTION:
+# Unpack every file provided in SAB_PATCHES_SRC.
+sab-patches_unpack() {
+	local p
+	pushd "${WORKDIR}" > /dev/null || die
+
+	for p in "${SAB_PATCHES_SRC[@]}"; do
+		local name=${p##*/}
+		unpack "${name}"
+	done
+
+	popd > /dev/null || die
+}
+
 # @FUNCTION: _sab-patches_apply_nonskipped
 # @INTERNAL
 # @DESCRIPTION:
