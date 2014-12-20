@@ -14,7 +14,7 @@ PYTHON_COMPAT=( python2_{6,7} )
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.0.0-r2-optional-cvs.patch.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.2.1-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -120,10 +120,12 @@ src_unpack() {
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
+
+	sab-patches_unpack
 }
 
 src_prepare() {
-	# bug #350330 - automagic CVS when we don't want it is bad.
+	# see the git ebuild for the list of patches
 	sab-patches_apply_all
 
 	epatch_user

@@ -145,7 +145,7 @@ src_install() {
 	# Maybe not needed, but it's created when non-split ebuild is used too.
 	dosym /usr/share/gitweb /usr/share/git/gitweb
 
-	# fixlocalpod from perl-module: not needed
+	# perl_delete_localpod from perl-module: not needed
 }
 
 showpkgdeps() {

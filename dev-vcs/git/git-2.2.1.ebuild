@@ -12,7 +12,7 @@ PYTHON_COMPAT=( python2_{6,7} )
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.0.0-r2-optional-cvs.patch.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.2.1-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -221,20 +221,17 @@ src_unpack() {
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
+
+	sab-patches_unpack
 }
 
 src_prepare() {
 	# bug #350330 - automagic CVS when we don't want it is bad.
 	# git-...-optional-cvs.patch
+
+	# git-...-mw-vendor.patch
+	# git-...-svn-fe-linking.patch
 	sab-patches_apply_all
-
-	# we won't be using it (at least for now), so I don't see the reason
-	# to carry the patches (they are mediawiki specific)
-	use mediawiki && die "USE=mediawiki not supported, use Portage ebuild"
-
-	# install mediawiki perl modules also in vendor_dir
-	# hack, needs better upstream solution
-	#epatch "${FILESDIR}"/git-1.8.5-mw-vendor.patch
 
 	epatch_user
 
@@ -386,6 +383,7 @@ src_install() {
 	use doc && doinfo Documentation/{git,gitman}.info
 
 	newbashcomp contrib/completion/git-completion.bash ${PN}
+	bashcomp_alias git gitk
 	# Not really a bash-completion file (bug #477920)
 	# but still needed uncompressed (bug #507480)
 	insinto /usr/share/${PN}
@@ -518,7 +516,7 @@ src_install() {
 		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
-	fixlocalpod
+	perl_delete_localpod
 
 	# burn CVS with fire, see #373439
 	if ! use cvs; then
@@ -528,7 +526,7 @@ src_install() {
 }
 
 src_test() {
-	local disabled="t7004-tag.sh" #520270
+	local disabled="" #t7004-tag.sh" #520270
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
