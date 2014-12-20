@@ -113,6 +113,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	local SAB_PATCHES_SKIP=( subversion-1.8.9-po_fixes.patch )
 	sab-patches_apply_all
 	epatch_user
 
