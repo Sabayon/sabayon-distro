@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-wm/awesome/awesome-3.5.5-r1.ebuild,v 1.1 2014/08/25 03:32:27 prometheanfire Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-wm/awesome/awesome-3.5.6.ebuild,v 1.1 2015/01/11 19:28:57 maksbotan Exp $
 
 EAPI="5"
 CMAKE_MIN_VERSION="2.8"
@@ -56,9 +56,9 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-xsession.patch"
 
 	# bug #507604
-	epatch "${FILESDIR}/${P}-util.lua-xdg-icons-fix.patch"
+	epatch "${FILESDIR}/${PN}-3.5.5-util.lua-xdg-icons-fix.patch"
 	# bug #509658
-	epatch "${FILESDIR}/${P}-cflag-cleanup.patch"
+	epatch "${FILESDIR}/${PN}-3.5.5-cflag-cleanup.patch"
 	# Sabayon stuff
 	epatch "${FILESDIR}/sabayon-background.patch"
 }
