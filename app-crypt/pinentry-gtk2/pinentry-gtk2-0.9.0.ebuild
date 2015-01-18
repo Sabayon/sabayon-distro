@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -30,15 +30,12 @@ S="${WORKDIR}/${MY_P}"
 
 src_configure() {
 	econf \
-		--disable-pinentry-gtk \
-		--disable-pinentry-qt \
 		--disable-pinentry-tty \
 		--enable-pinentry-gtk2 \
 		--disable-pinentry-curses \
 		--disable-fallback-curses \
 		--disable-pinentry-qt4 \
-		$(use_with caps libcap) \
-		--without-x
+		$(use_with caps libcap)
 }
 
 src_compile() {
