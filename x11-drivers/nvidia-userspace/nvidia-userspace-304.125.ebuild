@@ -31,7 +31,7 @@ COMMON="app-admin/eselect-opencl
 	x-multilib? ( app-emulation/emul-linux-x86-xlibs )
 	multilib? ( app-emulation/emul-linux-x86-baselibs )
 	X? (
-		<x11-base/xorg-server-1.15.99
+		<x11-base/xorg-server-1.16.99
 		>=app-admin/eselect-opengl-1.0.9
 	)"
 DEPEND="${COMMON}"
