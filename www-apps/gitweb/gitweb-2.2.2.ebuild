@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -26,9 +26,6 @@ if [[ "$PV" != *9999 ]]; then
 	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}"
 	KEYWORDS="~amd64 ~x86"
-else
-	SRC_URI=""
-	KEYWORDS=""
 fi
 
 LICENSE="GPL-2"
@@ -145,7 +142,7 @@ src_install() {
 	# Maybe not needed, but it's created when non-split ebuild is used too.
 	dosym /usr/share/gitweb /usr/share/git/gitweb
 
-	# fixlocalpod from perl-module: not needed
+	# perl_delete_localpod from perl-module: not needed
 }
 
 showpkgdeps() {
