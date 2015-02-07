@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -14,7 +14,7 @@ PYTHON_COMPAT=( python2_{6,7} )
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.2.1-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.2.2-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -31,9 +31,6 @@ if [[ ${PV} != *9999 ]]; then
 	SRC_URI+=" ${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}"
 	KEYWORDS="~amd64 ~x86"
-else
-	#SRC_URI=""
-	KEYWORDS=""
 fi
 
 LICENSE="GPL-2"
@@ -76,37 +73,28 @@ pkg_setup() {
 exportmakeopts() {
 	local myopts
 
-	myopts="${myopts} NO_EXPAT=YesPlease"
-	myopts="${myopts} NO_CURL=YesPlease"
+	myopts+=" NO_EXPAT=YesPlease"
+	myopts+=" NO_CURL=YesPlease"
 	# broken assumptions, because of broken build system ...
-	myopts="${myopts} NO_FINK=YesPlease NO_DARWIN_PORTS=YesPlease"
-	myopts="${myopts} INSTALL=install TAR=tar"
-	myopts="${myopts} SHELL_PATH=${EPREFIX}/bin/sh"
-	myopts="${myopts} SANE_TOOL_PATH="
-	myopts="${myopts} OLD_ICONV="
-	myopts="${myopts} NO_EXTERNAL_GREP="
+	myopts+=" NO_FINK=YesPlease NO_DARWIN_PORTS=YesPlease"
+	myopts+=" INSTALL=install TAR=tar"
+	myopts+=" SHELL_PATH=${EPREFIX}/bin/sh"
+	myopts+=" SANE_TOOL_PATH="
+	myopts+=" OLD_ICONV="
+	myopts+=" NO_EXTERNAL_GREP="
 
 	# split ebuild: avoid collisions with dev-vcs/git's .mo files
-	myopts="${myopts} NO_GETTEXT=YesPlease"
+	myopts+=" NO_GETTEXT=YesPlease"
 
 	# can't define this to null, since the entire makefile depends on it
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
-	#use nls \
-	#	|| myopts="${myopts} NO_GETTEXT=YesPlease"
-	# use tk \
-	#	|| myopts="${myopts} NO_TCLTK=YesPlease"
-	#use perl \
-	#	&& myopts="${myopts} INSTALLDIRS=vendor" \
-	#	|| myopts="${myopts} NO_PERL=YesPlease"
-	myopts="${myopts} NO_PERL=YesPlease"
-	#use python \
-	#	|| myopts="${myopts} NO_PYTHON=YesPlease"
+	myopts+=" NO_PERL=YesPlease"
 
 	# Bug 290465:
 	# builtin-fetch-pack.c:816: error: 'struct stat' has no member named 'st_mtim'
 	[[ "${CHOST}" == *-uclibc* ]] && \
-		myopts="${myopts} NO_NSEC=YesPlease"
+		myopts+=" NO_NSEC=YesPlease"
 
 	export MY_MAKEOPTS="${myopts}"
 }

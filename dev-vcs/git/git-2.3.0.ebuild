@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -12,7 +12,7 @@ PYTHON_COMPAT=( python2_{6,7} )
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.2.1-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.2.2-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -35,9 +35,6 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_GOOG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	KEYWORDS="~amd64 ~x86"
-else
-	#SRC_URI=""
-	KEYWORDS=""
 fi
 
 LICENSE="GPL-2"
@@ -91,7 +88,7 @@ DEPEND="${CDEPEND}
 		app-text/xmlto
 	)
 	nls? ( sys-devel/gettext )
-	test? (	app-crypt/gnupg )"
+	test? (	app-crypt/gnupg	)"
 
 # Live ebuild builds man pages and HTML docs, additionally
 if [[ ${PV} == *9999 ]]; then
@@ -129,24 +126,24 @@ exportmakeopts() {
 	local myopts
 
 	if use blksha1 ; then
-		myopts="${myopts} BLK_SHA1=YesPlease"
+		myopts+=" BLK_SHA1=YesPlease"
 	elif use ppcsha1 ; then
-		myopts="${myopts} PPC_SHA1=YesPlease"
+		myopts+=" PPC_SHA1=YesPlease"
 	fi
 
 	if use curl ; then
-		use webdav || myopts="${myopts} NO_EXPAT=YesPlease"
+		use webdav || myopts+=" NO_EXPAT=YesPlease"
 	else
-		myopts="${myopts} NO_CURL=YesPlease"
+		myopts+=" NO_CURL=YesPlease"
 	fi
 
 	# broken assumptions, because of broken build system ...
-	myopts="${myopts} NO_FINK=YesPlease NO_DARWIN_PORTS=YesPlease"
-	myopts="${myopts} INSTALL=install TAR=tar"
-	myopts="${myopts} SHELL_PATH=${EPREFIX}/bin/sh"
-	myopts="${myopts} SANE_TOOL_PATH="
-	myopts="${myopts} OLD_ICONV="
-	myopts="${myopts} NO_EXTERNAL_GREP="
+	myopts+=" NO_FINK=YesPlease NO_DARWIN_PORTS=YesPlease"
+	myopts+=" INSTALL=install TAR=tar"
+	myopts+=" SHELL_PATH=${EPREFIX}/bin/sh"
+	myopts+=" SANE_TOOL_PATH="
+	myopts+=" OLD_ICONV="
+	myopts+=" NO_EXTERNAL_GREP="
 
 	# For svn-fe
 	extlibs="-lz -lssl ${S}/xdiff/lib.a $(usex threads -lpthread '')"
@@ -155,53 +152,53 @@ exportmakeopts() {
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
 	use iconv \
-		|| myopts="${myopts} NO_ICONV=YesPlease"
+		|| myopts+=" NO_ICONV=YesPlease"
 	use nls \
-		|| myopts="${myopts} NO_GETTEXT=YesPlease"
+		|| myopts+=" NO_GETTEXT=YesPlease"
 	use tk \
-		|| myopts="${myopts} NO_TCLTK=YesPlease"
+		|| myopts+=" NO_TCLTK=YesPlease"
 	use pcre \
-		&& myopts="${myopts} USE_LIBPCRE=yes" \
-		&& extlibs="${extlibs} -lpcre"
+		&& myopts+=" USE_LIBPCRE=yes" \
+		&& extlibs+=" -lpcre"
 	use perl \
-		&& myopts="${myopts} INSTALLDIRS=vendor" \
-		|| myopts="${myopts} NO_PERL=YesPlease"
+		&& myopts+=" INSTALLDIRS=vendor" \
+		|| myopts+=" NO_PERL=YesPlease"
 	use python \
-		|| myopts="${myopts} NO_PYTHON=YesPlease"
+		|| myopts+=" NO_PYTHON=YesPlease"
 	use subversion \
-		|| myopts="${myopts} NO_SVN_TESTS=YesPlease"
+		|| myopts+=" NO_SVN_TESTS=YesPlease"
 	use threads \
-		&& myopts="${myopts} THREADED_DELTA_SEARCH=YesPlease" \
-		|| myopts="${myopts} NO_PTHREADS=YesPlease"
+		&& myopts+=" THREADED_DELTA_SEARCH=YesPlease" \
+		|| myopts+=" NO_PTHREADS=YesPlease"
 	use cvs \
-		|| myopts="${myopts} NO_CVS=YesPlease"
+		|| myopts+=" NO_CVS=YesPlease"
 # Disabled until ~m68k-mint can be keyworded again
 #	if [[ ${CHOST} == *-mint* ]] ; then
-#		myopts="${myopts} NO_MMAP=YesPlease"
-#		myopts="${myopts} NO_IPV6=YesPlease"
-#		myopts="${myopts} NO_STRLCPY=YesPlease"
-#		myopts="${myopts} NO_MEMMEM=YesPlease"
-#		myopts="${myopts} NO_MKDTEMP=YesPlease"
-#		myopts="${myopts} NO_MKSTEMPS=YesPlease"
+#		myopts+=" NO_MMAP=YesPlease"
+#		myopts+=" NO_IPV6=YesPlease"
+#		myopts+=" NO_STRLCPY=YesPlease"
+#		myopts+=" NO_MEMMEM=YesPlease"
+#		myopts+=" NO_MKDTEMP=YesPlease"
+#		myopts+=" NO_MKSTEMPS=YesPlease"
 #	fi
 	if [[ ${CHOST} == ia64-*-hpux* ]]; then
-		myopts="${myopts} NO_NSEC=YesPlease"
+		myopts+=" NO_NSEC=YesPlease"
 	fi
 	if [[ ${CHOST} == *-*-aix* ]]; then
-		myopts="${myopts} NO_FNMATCH_CASEFOLD=YesPlease"
+		myopts+=" NO_FNMATCH_CASEFOLD=YesPlease"
 	fi
 	if [[ ${CHOST} == *-solaris* ]]; then
-		myopts="${myopts} NEEDS_LIBICONV=YesPlease"
+		myopts+=" NEEDS_LIBICONV=YesPlease"
 	fi
 
 	has_version '>=app-text/asciidoc-8.0' \
-		&& myopts="${myopts} ASCIIDOC8=YesPlease"
-	myopts="${myopts} ASCIIDOC_NO_ROFF=YesPlease"
+		&& myopts+=" ASCIIDOC8=YesPlease"
+	myopts+=" ASCIIDOC_NO_ROFF=YesPlease"
 
 	# Bug 290465:
 	# builtin-fetch-pack.c:816: error: 'struct stat' has no member named 'st_mtim'
 	[[ "${CHOST}" == *-uclibc* ]] && \
-		myopts="${myopts} NO_NSEC=YesPlease"
+		myopts+=" NO_NSEC=YesPlease"
 
 	export MY_MAKEOPTS="${myopts}"
 	export EXTLIBS="${extlibs}"
@@ -509,7 +506,7 @@ src_install() {
 		newins "${FILESDIR}"/git-daemon.xinetd git-daemon
 	fi
 
-	if use !prefix; then
+	if use !prefix ; then
 		newinitd "${FILESDIR}"/git-daemon-r1.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
 		systemd_newunit "${FILESDIR}/git-daemon_at.service" "git-daemon@.service"
