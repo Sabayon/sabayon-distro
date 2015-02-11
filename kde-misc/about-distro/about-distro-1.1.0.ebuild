@@ -1,11 +1,11 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/kde-misc/about-distro/about-distro-1.0.1.ebuild,v 1.2 2014/03/14 09:12:58 johu Exp $
+# $Header: $
 
 EAPI=5
 
-KDE_LINGUAS="bs cs da de el es fi fr gl hu lt nl pl pt pt_BR ro ru sk sl sv tr
-ug uk"
+KDE_LINGUAS="bg bs ca cs da de el es fi fr gl hu ja ko lt nl pl pt pt_BR ro ru
+sk sl sv tr ug uk"
 inherit kde4-base
 
 DESCRIPTION="KCM displaying distribution and system information"
