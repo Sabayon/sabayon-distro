@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout/baselayout-2.1.ebuild,v 1.6 2011/12/09 03:48:47 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout/baselayout-2.2.ebuild,v 1.17 2014/01/18 09:05:09 vapier Exp $
 
 inherit eutils multilib
 
@@ -11,10 +11,8 @@ SRC_URI="mirror://gentoo/${P}.tar.bz2
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd"
-IUSE="build"
-
-PDEPEND="sys-apps/openrc"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+IUSE="build kernel_linux"
 
 pkg_setup() {
 	multilib_layout
@@ -85,6 +83,7 @@ multilib_layout() {
 				mkdir -p "${prefix}" || die
 				rm -f "${prefix}lib" || die
 				ln -s ${def_libdir} "${prefix}lib" || die
+				mkdir -p "${prefix}${def_libdir}" #423571
 			fi
 		else
 			# we need to make sure "lib" is a dir
@@ -103,6 +102,7 @@ multilib_layout() {
 				# only symlinked the lib dir on systems where we moved it
 				# to "lib32" ...
 				case ${CHOST} in
+				*-gentoo-freebsd*) ;; # We want it the other way on fbsd.
 				i?86*|x86_64*|powerpc*|sparc*|s390*)
 					if [ -d "${prefix}lib32" ] ; then
 						rm -f "${prefix}lib32"/.keep
@@ -153,6 +153,14 @@ pkg_preinst() {
 	fi
 }
 
+src_unpack() {
+	unpack ${A}
+
+	cd "${S}"
+	# We are Sabayon!
+	epatch "${FILESDIR}/${PN}-sabayon-os-release.patch"
+}
+
 src_install() {
 	# Setup /run directory, this is missing from original baselayout
 	dodir /run
@@ -184,6 +192,7 @@ src_install() {
 
 	# Sabayon customization, install /etc/hosts separately (to .example)
 	mv "${D}"/etc/hosts "${D}"/etc/hosts.example || die "cannot move /etc/hosts"
+
 }
 
 pkg_postinst() {
@@ -242,4 +251,14 @@ pkg_postinst() {
 		cp -p "${etc_hosts}.example" "${etc_hosts}" # don't die
 	fi
 	chown root:root "${etc_hosts}" # don't die
+
+	# http://bugs.gentoo.org/361349
+	if use kernel_linux; then
+		mkdir -p "${ROOT}"/run
+
+		if ! grep -qs "^tmpfs.*/run " "${ROOT}"/proc/mounts ; then
+			echo
+			ewarn "You should reboot the system now to get /run mounted with tmpfs!"
+		fi
+	fi
 }
