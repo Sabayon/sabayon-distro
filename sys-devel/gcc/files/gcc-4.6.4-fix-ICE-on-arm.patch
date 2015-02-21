@@ -1,0 +1,24 @@
+--- gcc-4.6.4/gcc/config/arm/arm.md
++++ gcc-4.6.4/gcc/config/arm/arm.md
+@@ -4202,7 +4202,9 @@
+    #
+    ldr%(h%)\\t%0, %1"
+   [(set_attr "type" "alu_shift,load_byte")
+-   (set_attr "predicable" "yes")]
++   (set_attr "predicable" "yes")
++   (set_attr "pool_range" "*,256")
++   (set_attr "neg_pool_range" "*,244")]
+ )
+ 
+ (define_insn "*arm_zero_extendhisi2_v6"
+@@ -4213,7 +4215,9 @@
+    uxth%?\\t%0, %1
+    ldr%(h%)\\t%0, %1"
+   [(set_attr "type" "alu_shift,load_byte")
+-   (set_attr "predicable" "yes")]
++   (set_attr "predicable" "yes")
++   (set_attr "pool_range" "*,256")
++   (set_attr "neg_pool_range" "*,244")]
+ )
+ 
+ (define_insn "*arm_zero_extendhisi2addsi"
