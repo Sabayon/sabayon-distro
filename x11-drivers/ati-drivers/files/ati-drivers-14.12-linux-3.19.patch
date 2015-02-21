@@ -1,0 +1,28 @@
+--- a/common/lib/modules/fglrx/build_mod/firegl_public.c
++++ b/common/lib/modules/fglrx/build_mod/firegl_public.c
+@@ -4823,8 +4823,13 @@
+ {
+     unsigned long orig_level;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,19,0)
++    orig_level = __this_cpu_read(kasExecutionLevel);
++    __this_cpu_write(kasExecutionLevel,level);
++#else
+     orig_level = __get_cpu_var(kasExecutionLevel);
+     __get_cpu_var(kasExecutionLevel) = level;
++#endif
+ 
+     return orig_level;
+ }
+@@ -4836,7 +4841,11 @@
+  */
+ static unsigned long kas_GetExecutionLevel(void)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,19,0)
++    return __this_cpu_read(kasExecutionLevel);
++#else
+     return __get_cpu_var(kasExecutionLevel);
++#endif
+ }
+ 
+ /** \brief Type definition for kas_spin_lock() parameter */

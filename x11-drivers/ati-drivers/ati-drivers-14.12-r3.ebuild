@@ -164,6 +164,9 @@ src_prepare() {
 	# Compile fix, #526602
 	epatch "${FILESDIR}/use-kernel_fpu_begin.patch"
 
+	# Linux 3.19 support
+	epatch "${FILESDIR}/${P}-linux-3.19.patch"
+
 	cd "${MODULE_DIR}"
 	# bugged fglrx build system, this file should be copied by hand
 	cp ${ARCH_DIR}/lib/modules/fglrx/build_mod/libfglrx_ip.a 2.6.x
