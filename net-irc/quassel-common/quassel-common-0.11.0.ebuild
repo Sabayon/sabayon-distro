@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -19,7 +19,8 @@ KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE="kde"
 
-RDEPEND="kde? ( kde-base/oxygen-icons )"
+RDEPEND="kde? (
+	|| ( kde-apps/oxygen-icons kde-base/oxygen-icons:4 ) )"
 DEPEND="${RDEPEND}
 		!<net-irc/quassel-${PV}
 		!<net-irc/quassel-client-${PV}"
