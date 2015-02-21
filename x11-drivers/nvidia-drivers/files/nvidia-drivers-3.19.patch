@@ -1,0 +1,20 @@
+--- a/kernel/nv.c
++++ b/kernel/nv.c
+@@ -2026,7 +2026,7 @@ long nv_kern_unlocked_ioctl(
+     unsigned long i_arg
+ )
+ {
+-    return nv_kern_ioctl(file->f_dentry->d_inode, file, cmd, i_arg);
++    return nv_kern_ioctl(file->f_path.dentry->d_inode, file, cmd, i_arg);
+ }
+ 
+ long nv_kern_compat_ioctl(
+@@ -2035,7 +2035,7 @@ long nv_kern_compat_ioctl(
+     unsigned long i_arg
+ )
+ {
+-    return nv_kern_ioctl(file->f_dentry->d_inode, file, cmd, i_arg);
++    return nv_kern_ioctl(file->f_path.dentry->d_inode, file, cmd, i_arg);
+ }
+ 
+ /*
