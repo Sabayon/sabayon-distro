@@ -1,0 +1,76 @@
+--- a/vboxsf/dirops.c
++++ b/vboxsf/dirops.c
+@@ -127,13 +127,11 @@
+     TRACE();
+ 
+-    sf_g = GET_GLOB_INFO(dir->f_dentry->d_inode->i_sb);
++    inode = GET_F_DENTRY(dir)->d_inode;
++    sf_i = GET_INODE_INFO(inode);
++    sf_g = GET_GLOB_INFO(inode->i_sb);
+     sf_d = dir->private_data;
+ 
+     BUG_ON(!sf_g);
+     BUG_ON(!sf_d);
+-
+-    inode = dir->f_dentry->d_inode;
+-    sf_i = GET_INODE_INFO(inode);
+-
+     BUG_ON(!sf_i);
+
+--- a/vboxsf/regops.c
++++ b/vboxsf/regops.c
+@@ -109,5 +109,5 @@
+     size_t left = size;
+     ssize_t total_bytes_read = 0;
+-    struct inode *inode = file->f_dentry->d_inode;
++    struct inode *inode = GET_F_DENTRY(file)->d_inode;
+     struct sf_glob_info *sf_g = GET_GLOB_INFO(inode->i_sb);
+     struct sf_reg_info *sf_r = file->private_data;
+@@ -184,5 +184,5 @@
+     size_t left = size;
+     ssize_t total_bytes_written = 0;
+-    struct inode *inode = file->f_dentry->d_inode;
++    struct inode *inode = GET_F_DENTRY(file)->d_inode;
+     struct sf_inode_info *sf_i = GET_INODE_INFO(inode);
+     struct sf_glob_info *sf_g = GET_GLOB_INFO(inode->i_sb);
+@@ -455,5 +455,5 @@
+ static struct page *sf_reg_nopage(struct vm_area_struct *vma, unsigned long vaddr, int *type)
+ # define SET_TYPE(t) *type = (t)
+-#else /* LINUX_VERSION_CODE < KERNEL_VERSION (2, 6, 0) */
++#else /* LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0) */
+ static struct page *sf_reg_nopage(struct vm_area_struct *vma, unsigned long vaddr, int unused)
+ # define SET_TYPE(t)
+@@ -466,5 +466,5 @@
+     int err;
+     struct file *file = vma->vm_file;
+-    struct inode *inode = file->f_dentry->d_inode;
++    struct inode *inode = GET_F_DENTRY(file)->d_inode;
+     struct sf_glob_info *sf_g = GET_GLOB_INFO(inode->i_sb);
+     struct sf_reg_info *sf_r = file->private_data;
+@@ -606,5 +606,5 @@
+ static int sf_readpage(struct file *file, struct page *page)
+ {
+-    struct inode *inode = file->f_dentry->d_inode;
++    struct inode *inode = GET_F_DENTRY(file)->d_inode;
+     struct sf_glob_info *sf_g = GET_GLOB_INFO(inode->i_sb);
+     struct sf_reg_info *sf_r = file->private_data;
+--- a/vboxsf/vfsmod.h
++++ b/vboxsf/vfsmod.h
+@@ -146,5 +146,5 @@
+ #endif
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION (2, 6, 19) || defined(KERNEL_FC6)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 19) || defined(KERNEL_FC6)
+ /* FC6 kernel 2.6.18, vanilla kernel 2.6.19+ */
+ # define GET_INODE_INFO(i)       ((struct sf_inode_info *) (i)->i_private)
+@@ -156,4 +156,10 @@
+ #endif
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)
++# define GET_F_DENTRY(f)        (f->f_path.dentry)
++#else
++# define GET_F_DENTRY(f)        (f->f_dentry)
+ #endif
+ 
++#endif
++
