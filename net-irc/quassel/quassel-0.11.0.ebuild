@@ -4,7 +4,8 @@
 
 EAPI=5
 
-inherit cmake-utils eutils
+SAB_PATCHES_SRC=( "mirror://sabayon/${CATEGORY}/quassel-DOS-sec.patch.gz" )
+inherit sab-patches cmake-utils eutils
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 [[ "${PV}" == "9999" ]] && inherit git-r3
@@ -12,6 +13,8 @@ EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 DESCRIPTION="Qt/KDE IRC client - monolithic client only (no remote daemon)"
 HOMEPAGE="http://quassel-irc.org/"
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${P/_/-}.tar.bz2"
+
+sab-patches_update_SRC_URI
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
@@ -27,10 +30,7 @@ SERVER_RDEPEND="
 	)
 	!qt5? (
 		dev-qt/qtscript:4
-		crypt? (
-			app-crypt/qca:2[qt4(+)]
-			|| ( app-crypt/qca-ossl:2 app-crypt/qca:2[openssl] )
-		)
+		crypt? ( app-crypt/qca:2[openssl,qt4(+)] )
 		postgres? ( dev-qt/qtsql:4[postgres] )
 		!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	)
@@ -105,6 +105,11 @@ REQUIRED_USE="
 pkg_setup() {
 	# sanity check for the split ebuild
 	use monolithic || die "The 'monolithic' flag must be enabled!"
+}
+
+src_prepare() {
+	sab-patches_apply_all
+	cmake-utils_src_prepare
 }
 
 src_configure() {

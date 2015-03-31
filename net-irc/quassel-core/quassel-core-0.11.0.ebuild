@@ -4,7 +4,8 @@
 
 EAPI=5
 
-inherit cmake-utils eutils pax-utils systemd user versionator
+SAB_PATCHES_SRC=( "mirror://sabayon/${CATEGORY}/quassel-DOS-sec.patch.gz" )
+inherit sab-patches cmake-utils eutils pax-utils systemd user versionator
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 [[ "${PV}" == "9999" ]] && inherit git-r3
@@ -14,6 +15,8 @@ HOMEPAGE="http://quassel-irc.org/"
 MY_P=${P/-core}
 MY_PN=${PN/-core}
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
+
+sab-patches_update_SRC_URI
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
@@ -28,10 +31,7 @@ SERVER_RDEPEND="
 	)
 	!qt5? (
 		dev-qt/qtscript:4
-		crypt? (
-			app-crypt/qca:2[qt4(+)]
-			|| ( app-crypt/qca-ossl:2 app-crypt/qca:2[openssl] )
-		)
+		crypt? ( app-crypt/qca:2[openssl,qt4(+)] )
 		postgres? ( dev-qt/qtsql:4[postgres] )
 		!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	)
@@ -62,6 +62,11 @@ pkg_setup() {
 	# create quassel:quassel user
 	enewgroup "${QUASSEL_USER}"
 	enewuser "${QUASSEL_USER}" -1 -1 "${QUASSEL_DIR}" "${QUASSEL_USER}"
+}
+
+src_prepare() {
+	sab-patches_apply_all
+	cmake-utils_src_prepare
 }
 
 src_configure() {

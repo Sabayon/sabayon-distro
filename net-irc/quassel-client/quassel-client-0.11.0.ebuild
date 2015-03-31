@@ -4,7 +4,8 @@
 
 EAPI=5
 
-inherit cmake-utils eutils
+SAB_PATCHES_SRC=( "mirror://sabayon/${CATEGORY}/quassel-DOS-sec.patch.gz" )
+inherit sab-patches cmake-utils eutils
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 [[ "${PV}" == "9999" ]] && inherit git-r3
@@ -14,6 +15,8 @@ MY_P=${P/-client}
 DESCRIPTION="Qt/KDE IRC client supporting a remote daemon for 24/7 connectivity (client only)"
 HOMEPAGE="http://quassel-irc.org/"
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
+
+sab-patches_update_SRC_URI
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
@@ -62,6 +65,11 @@ DEPEND="${RDEPEND}
 "
 
 S="${WORKDIR}/${MY_P/_/-}"
+
+src_prepare() {
+	sab-patches_apply_all
+	cmake-utils_src_prepare
+}
 
 src_configure() {
 	local mycmakeargs=(
