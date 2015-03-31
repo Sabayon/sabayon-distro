@@ -15,8 +15,10 @@ inherit sab-patches autotools db-use depend.apache flag-o-matic libtool multilib
 
 DESCRIPTION="Subversion WebDAV support"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI+=" mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2"
+SRC_URI="mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2"
 S="${WORKDIR}/${MY_SVN_P}"
+
+sab-patches_update_SRC_URI
 
 LICENSE="Subversion"
 SLOT="0"

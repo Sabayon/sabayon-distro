@@ -14,8 +14,10 @@ inherit sab-patches autotools bash-completion-r1 db-use depend.apache distutils-
 MY_P="${P/_/-}"
 DESCRIPTION="Advanced version control system"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI+=" mirror://apache/${PN}/${MY_P}.tar.bz2"
+SRC_URI="mirror://apache/${PN}/${MY_P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
+
+sab-patches_update_SRC_URI
 
 LICENSE="Subversion GPL-2"
 SLOT="0"

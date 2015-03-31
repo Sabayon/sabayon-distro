@@ -9,10 +9,13 @@
 # Sławomir Nizio <slawomir.nizio@sabayon.org>
 # @BLURB: eclass that makes it easier to apply patches from multiple packages
 # @DESCRIPTION:
-# Adds a patch or patches to SRC_URI and makes it easy to apply them,
+# Makes it easy to apply patches stored in a remote location
 # with the intention to make the task easier for Sabayon split ebuilds.
 # (Plain patches kept in a VCS are very nice, but in the case of split
 # ebuilds, duplicating the patches is not effective.)
+# Patches are not added to SRC_URI by default, because it makes ebuilds
+# use "SRC_URI+=..." which makes them more diverged from the original
+# one than necessary.
 # The eclass does not define any phase function.
 
 # @ECLASS-VARIABLE: SAB_PATCHES_SRC
@@ -31,10 +34,16 @@ if [[ ${#SAB_PATCHES_SRC[@]} -eq 0 ]]; then
 	die "SAB_PATCHES_SRC is not set"
 fi
 
-for _sab_patch in "${SAB_PATCHES_SRC[@]}"; do
-	SRC_URI=${_sab_patch}
-done
-unset _sab_patch
+# @FUNCTION: sab-patches_update_SRC_URI
+# @DESCRIPTION:
+# Appends patches entries to SRC_URI. If it is not done, an error will
+# occur later on.
+sab-patches_update_SRC_URI() {
+	local p
+	for p in "${SAB_PATCHES_SRC[@]}"; do
+		SRC_URI+=${SRC_URI:+ }${p}
+	done
+}
 
 # @FUNCTION: sab-patches_apply_all
 # @DESCRIPTION:

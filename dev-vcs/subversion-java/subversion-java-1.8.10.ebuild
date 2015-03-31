@@ -17,8 +17,10 @@ inherit sab-patches autotools eutils flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
 HOMEPAGE="http://subversion.apache.org/"
-SRC_URI+=" mirror://apache/${PN}/${MY_SVN_P}.tar.bz2"
+SRC_URI="mirror://apache/${PN}/${MY_SVN_P}.tar.bz2"
 S="${WORKDIR}/${MY_SVN_P/_/-}"
+
+sab-patches_update_SRC_URI
 
 LICENSE="Subversion"
 SLOT="0"
