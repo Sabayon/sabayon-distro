@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Sabayon Linux
+# Copyright 1999-2015 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 #
 
-EAPI=4
+EAPI=5
 CMAKE_REQUIRED="never"
 inherit eutils kde4-base
 
