@@ -38,7 +38,7 @@ CDEPEND="
 	sys-libs/zlib
 	dev-lang/perl:=[-build(-)]
 	dev-libs/libpcre
-	dev-lang/tk"
+	dev-lang/tk:="
 
 RDEPEND="${CDEPEND}
 	dev-vcs/git[-cgi]

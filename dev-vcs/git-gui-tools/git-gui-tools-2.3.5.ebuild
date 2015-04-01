@@ -42,7 +42,7 @@ IUSE=""
 # Common to both DEPEND and RDEPEND
 CDEPEND="
 	sys-libs/zlib
-	dev-lang/tk"
+	dev-lang/tk:="
 
 RDEPEND="${CDEPEND}
 	~dev-vcs/git-${PV}
