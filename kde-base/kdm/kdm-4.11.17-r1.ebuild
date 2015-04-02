@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -9,7 +9,7 @@ KMNAME="kde-workspace"
 inherit systemd kde4-meta flag-o-matic user
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS=" ~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="debug +consolekit kerberos pam systemd"
 
 REQUIRED_USE="consolekit? ( !systemd ) systemd? ( !consolekit )"
@@ -34,19 +34,17 @@ DEPEND="
 "
 RDEPEND="${DEPEND}
 	$(add_kdebase_dep kdepasswd)
+	$(add_kdebase_dep libkgreeter)
 	>=x11-apps/xinit-1.0.5-r2
 	x11-apps/xmessage
 "
 
-KMEXTRA="
-	libs/kdm/
+KMEXTRACTONLY="
+	libs/kdm/kgreeterplugin.h
 "
 
 PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
-	"${FILESDIR}/kdebase-workspace-4.4.92-kdm_plymouth081.patch"
-	"${FILESDIR}/kde-workspace-4.10.90-kdm-logind-multiseat.patch"
-	"${FILESDIR}/kde-workspace-4.8.0-bug796969.patch"
 )
 
 pkg_setup() {
