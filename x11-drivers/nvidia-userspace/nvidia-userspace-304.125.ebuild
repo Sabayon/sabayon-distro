@@ -26,13 +26,13 @@ IUSE="acpi multilib x-multilib kernel_FreeBSD kernel_linux tools +X"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
-COMMON="app-admin/eselect-opencl
+COMMON="app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	x-multilib? ( app-emulation/emul-linux-x86-xlibs )
 	multilib? ( app-emulation/emul-linux-x86-baselibs )
 	X? (
 		<x11-base/xorg-server-1.16.99
-		>=app-admin/eselect-opengl-1.0.9
+		>=app-eselect/eselect-opengl-1.0.9
 	)"
 DEPEND="${COMMON}"
 # Note: do not add !>nvidia-userspace-ver or !<nvidia-userspace-ver

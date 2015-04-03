@@ -26,7 +26,7 @@ EMULTILIB_PKG="true"
 COMMON="x11-base/xorg-server
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	multilib? ( app-emulation/emul-linux-x86-opengl )
-	>=app-admin/eselect-opengl-1.0.9"
+	>=app-eselect/eselect-opengl-1.0.9"
 DEPEND="${COMMON}
 	kernel_linux? ( virtual/linux-sources )"
 # Note: do not add !>nvidia-userspace-ver or !<nvidia-userspace-ver

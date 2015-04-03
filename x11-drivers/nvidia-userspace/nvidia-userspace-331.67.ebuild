@@ -29,7 +29,7 @@ IUSE="acpi multilib x-multilib kernel_FreeBSD kernel_linux tools +X"
 RESTRICT="bindist mirror strip"
 EMULTILIB_PKG="true"
 
-COMMON="app-admin/eselect-opencl
+COMMON="app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	x-multilib? (
 		|| (
@@ -42,7 +42,7 @@ COMMON="app-admin/eselect-opencl
 	)
 	multilib? ( app-emulation/emul-linux-x86-baselibs )
 	X? (
-		>=app-admin/eselect-opengl-1.0.9
+		>=app-eselect/eselect-opengl-1.0.9
 	)"
 DEPEND="${COMMON}"
 # Note: do not add !>nvidia-userspace-ver or !<nvidia-userspace-ver
