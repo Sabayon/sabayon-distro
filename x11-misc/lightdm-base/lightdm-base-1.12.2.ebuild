@@ -34,7 +34,7 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/intltool
 	sys-devel/gettext
 	virtual/pkgconfig"
-PDEPEND="app-admin/eselect-lightdm"
+PDEPEND="app-eselect/eselect-lightdm"
 
 DOCS=( NEWS )
 
