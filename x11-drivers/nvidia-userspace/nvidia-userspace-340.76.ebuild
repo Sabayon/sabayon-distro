@@ -29,7 +29,7 @@ IUSE="acpi multilib x-multilib kernel_FreeBSD kernel_linux tools +X uvm"
 RESTRICT="bindist mirror strip"
 EMULTILIB_PKG="true"
 
-COMMON="app-admin/eselect-opencl
+COMMON="app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	x-multilib? (
 		|| (
