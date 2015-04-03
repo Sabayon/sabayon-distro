@@ -24,7 +24,7 @@ DEPEND="x11-libs/libX11
 	>=x11-misc/lightdm-1.3.2[qt4]
 "
 RDEPEND="${DEPEND}
-	app-admin/eselect-lightdm"
+	app-eselect/eselect-lightdm"
 
 S=${WORKDIR}/${PN/-kde}-${PV}
 
