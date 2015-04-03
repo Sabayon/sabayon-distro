@@ -18,7 +18,7 @@ KEYWORDS="~arm ~amd64 ~x86"
 IUSE="gtk qt4 caps static"
 
 RDEPEND="
-	app-admin/eselect-pinentry
+	app-eselect/eselect-pinentry
 	caps? ( sys-libs/libcap )
 	sys-libs/ncurses
 	static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] )
