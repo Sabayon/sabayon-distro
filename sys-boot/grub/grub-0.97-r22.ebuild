@@ -7,6 +7,8 @@
 #      we never updated any of the source code (it still all wants menu.lst),
 #      and there is no indication that upstream is making the transition.
 
+EAPI="4"
+
 inherit mount-boot eutils flag-o-matic toolchain-funcs autotools multilib
 
 PATCHVER="1.9" # Should match the revision ideally
@@ -23,7 +25,10 @@ IUSE="custom-cflags ncurses netboot static"
 
 DEPEND="ncurses? (
 		>=sys-libs/ncurses-5.2-r5
-		amd64? ( app-emulation/emul-linux-x86-baselibs )
+		amd64? ( || (
+			>=sys-libs/ncurses-5.9-r3[abi_x86_32(-)]
+			app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
+		) )
 	)"
 PROVIDE="virtual/bootloader"
 
