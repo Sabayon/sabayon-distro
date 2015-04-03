@@ -19,7 +19,7 @@ IUSE=""
 DEPEND="x11-libs/gtk+:3
 	>=x11-misc/lightdm-1.2.2"
 RDEPEND="!!<x11-misc/lightdm-1.1.1
-	app-admin/eselect-lightdm
+	app-eselect/eselect-lightdm
 	x11-libs/gtk+:3
 	>=x11-misc/lightdm-1.2.2
 	x11-themes/gnome-themes-standard
