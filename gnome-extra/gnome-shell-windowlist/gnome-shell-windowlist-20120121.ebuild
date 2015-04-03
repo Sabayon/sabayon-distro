@@ -18,7 +18,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
-RDEPEND="app-admin/eselect-gnome-shell-extensions
+RDEPEND="app-eselect/eselect-gnome-shell-extensions
 	gnome-base/gnome-shell"
 DEPEND=""
 
