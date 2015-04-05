@@ -19,7 +19,7 @@ DEPEND=""
 GCC_VER="4.7"
 PYTHON_VER="2.7"
 # Listing default packages for the current release
-RDEPEND="app-admin/eselect-python
+RDEPEND="app-eselect/eselect-python
 	dev-lang/python:${PYTHON_VER}
 	sys-apps/systemd
 	!sys-apps/hal

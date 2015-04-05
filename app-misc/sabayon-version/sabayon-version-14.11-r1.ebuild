@@ -23,7 +23,7 @@ RDEPEND="!app-admin/eselect-init
 	!<sys-apps/sysvinit-1000
 	!sys-apps/hal
 	!sys-auth/consolekit
-	app-admin/eselect-python
+	app-eselect/eselect-python
 	dev-lang/python:${PYTHON_VER}
 	sys-apps/systemd
 	sys-apps/systemd-sysv-utils
