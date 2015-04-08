@@ -27,7 +27,11 @@ e() {
 }
 
 inst_cmd() {
-	time emerge -a "$@"
+	if [[ ${use_pkgcore} = yep ]]; then
+		time pmerge -a "$@"
+	else
+		time emerge -a "$@"
+	fi
 }
 
 determine_ver() {
@@ -49,6 +53,12 @@ packages=()
 LINGUAS=""
 
 ver=
+
+if [[ $1 = --pkgcore ]]; then
+	use_pkgcore=yep
+else
+	use_pkgcore=no
+fi
 
 for p in firefox-l10n-*; do
 	if [[ ! -e ${p} ]]; then
