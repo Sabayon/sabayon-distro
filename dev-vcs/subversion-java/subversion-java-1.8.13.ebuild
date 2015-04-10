@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -30,7 +30,8 @@ IUSE="debug doc nls"
 
 COMMON_DEPEND="~dev-vcs/subversion-${PV}
 	>=dev-libs/apr-1.3:1
-	>=dev-libs/apr-util-1.3:1"
+	>=dev-libs/apr-util-1.3:1
+	sys-apps/file"
 RDEPEND="
 	${COMMON_DEPEND}
 	app-arch/bzip2
@@ -49,6 +50,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	local SAB_PATCHES_SKIP=( subversion-1.8.9-po_fixes.patch )
 	sab-patches_apply_all
 	epatch_user
 
