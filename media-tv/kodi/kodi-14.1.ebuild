@@ -84,7 +84,6 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	media-libs/tiff
 	pulseaudio? ( media-sound/pulseaudio )
 	media-sound/wavpack
-	>=media-video/ffmpeg-2.4:=[encode]
 	rtmp? ( media-video/rtmpdump )
 	avahi? ( net-dns/avahi )
 	nfs? ( net-fs/libnfs )
@@ -109,8 +108,8 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	)
 	vaapi? ( x11-libs/libva[opengl] )
 	vdpau? (
-		|| ( x11-libs/libvdpau >=x11-drivers/nvidia-drivers-180.51 )
-		media-video/ffmpeg[vdpau]
+		x11-libs/libvdpau
+		>=x11-drivers/nvidia-drivers-180.51
 	)
 	X? (
 		x11-apps/xdpyinfo
