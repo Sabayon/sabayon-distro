@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="amd64 arm x86"
 IUSE=""
 
-RDEPEND="media-tv/xbmc app-misc/sabayon-live"
+RDEPEND="media-tv/kodi app-misc/sabayon-live"
 DEPEND=""
 
 S="${WORKDIR}"
