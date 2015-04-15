@@ -1,12 +1,12 @@
-# Copyright 1999-2014 SabayonLinux
+# Copyright 1999-2015 SabayonLinux
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
+inherit eutils git-2 fdo-mime
+
 EGIT_COMMIT="${PVR}"
 EGIT_REPO_URI="git://github.com/Sabayon/skel.git"
-
-inherit eutils git-2 fdo-mime
 
 DESCRIPTION="Sabayon Linux skel tree"
 HOMEPAGE="http://www.sabayon.org"
