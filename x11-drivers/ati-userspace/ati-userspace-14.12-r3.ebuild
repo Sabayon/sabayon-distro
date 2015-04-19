@@ -29,29 +29,13 @@ RDEPEND="
 	app-eselect/eselect-opencl
 	sys-power/acpid
 	x11-apps/xauth
-	x11-libs/libX11
-	x11-libs/libXext
-	x11-libs/libXinerama
-	x11-libs/libXrandr
-	x11-libs/libXrender
-	virtual/glu
+	virtual/glu[${MULTILIB_USEDEP}]
+	x11-libs/libX11[${MULTILIB_USEDEP}]
+	x11-libs/libXext[${MULTILIB_USEDEP}]
+	x11-libs/libXinerama[${MULTILIB_USEDEP}]
+	x11-libs/libXrandr[${MULTILIB_USEDEP}]
+	x11-libs/libXrender[${MULTILIB_USEDEP}]
 	!x11-libs/xvba-video
-	abi_x86_32? (
-			|| (
-				virtual/glu[abi_x86_32]
-				app-emulation/emul-linux-x86-opengl
-			)
-			|| (
-				(
-					x11-libs/libX11[abi_x86_32]
-					x11-libs/libXext[abi_x86_32]
-					x11-libs/libXinerama[abi_x86_32]
-					x11-libs/libXrandr[abi_x86_32]
-					x11-libs/libXrender[abi_x86_32]
-				)
-				app-emulation/emul-linux-x86-xlibs
-			)
-	)
 "
 
 DEPEND="${RDEPEND}
