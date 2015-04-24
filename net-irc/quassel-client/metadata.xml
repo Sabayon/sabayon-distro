@@ -22,12 +22,6 @@
 			Use qt-webkit rendering engine for showing URL thumbnails and
 			for other things that need web browser integration.
 		</flag>
-		<flag name="X">
-			Build the Qt 4 GUI client for quassel. If this USE flag is
-			disabled, the GUI is not built, and cannot be used. You might
-			want to disable this on the server, but you need it enabled on
-			the client.
-		</flag>
 		<flag name="crypt">
 			Support core->network per-channel and per-query blowfish
 			encryption via <pkg>app-crypt/qca:2</pkg>.
