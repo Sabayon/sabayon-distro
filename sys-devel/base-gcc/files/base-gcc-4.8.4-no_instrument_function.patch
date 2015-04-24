@@ -1,0 +1,15 @@
+--- trunk/gcc/c-family/c-common.c	2014/01/02 22:23:26	206289
++++ trunk/gcc/c-family/c-common.c	2014/01/15 19:37:35	206643
+@@ -7985,12 +7985,6 @@
+ 		"%qE attribute applies only to functions", name);
+       *no_add_attrs = true;
+     }
+-  else if (DECL_INITIAL (decl))
+-    {
+-      error_at (DECL_SOURCE_LOCATION (decl),
+-		"can%'t set %qE attribute after definition", name);
+-      *no_add_attrs = true;
+-    }
+   else
+     DECL_NO_INSTRUMENT_FUNCTION_ENTRY_EXIT (decl) = 1;
+ 
