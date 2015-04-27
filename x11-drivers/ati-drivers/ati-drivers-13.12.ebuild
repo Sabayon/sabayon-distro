@@ -156,6 +156,11 @@ src_prepare() {
 	# Linux 3.13 support
 	epatch "${FILESDIR}/buildfix_kernel_3.13.patch"
 
+        # Linux 4.0 support
+        if kernel_is ge 4 0; then
+                epatch "${FILESDIR}/${PN}-linux-4.0.patch"
+        fi
+
 	# Compile fix, https://bugs.gentoo.org/show_bug.cgi?id=454870
 	use pax_kernel && epatch "${FILESDIR}/const-notifier-block.patch"
 
