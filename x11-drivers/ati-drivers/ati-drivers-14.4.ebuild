@@ -160,6 +160,11 @@ src_prepare() {
 	# Compile fix, https://bugs.gentoo.org/show_bug.cgi?id=454870
 	use pax_kernel && epatch "${FILESDIR}/const-notifier-block.patch"
 
+        # Linux 4.0 support
+        if kernel_is ge 4 0; then
+                epatch "${FILESDIR}/${PN}-linux-4.0.patch"
+        fi
+
 	cd "${MODULE_DIR}"
 	# bugged fglrx build system, this file should be copied by hand
 	cp ${ARCH_DIR}/lib/modules/fglrx/build_mod/libfglrx_ip.a 2.6.x
