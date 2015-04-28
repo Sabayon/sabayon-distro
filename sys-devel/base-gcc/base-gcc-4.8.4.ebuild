@@ -186,7 +186,7 @@ pkg_postinst() {
 	local gcc_ver=
 	if [ -n "${gcc_atom}" ]; then
 		elog "Found latest base-gcc to be: ${gcc_atom}, forcing this profile"
-		gcc_ver=$(portageq metadata "${ROOT}" installed "${gcc_atom}" PV)
+		gcc_ver=$(/usr/bin/portageq metadata "${ROOT}" installed "${gcc_atom}" PV)
 	else
 		eerror "No sys-devel/base-gcc installed"
 	fi
