@@ -38,10 +38,6 @@ RDEPEND=">=sys-libs/zlib-1.1.4
 	>=dev-libs/gmp-4.3.2
 	>=dev-libs/mpfr-2.4.2
 	>=dev-libs/mpc-0.8.1
-	graphite? (
-		>=dev-libs/cloog-ppl-0.15.10
-		>=dev-libs/ppl-0.11
-	)
 	!build? (
 		nls? ( sys-devel/gettext )
 	)"
