@@ -9,7 +9,7 @@ EAPI=5
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python2_{6,7} )
+PYTHON_COMPAT=( python2_7 )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
@@ -42,7 +42,7 @@ IUSE=""
 # Common to both DEPEND and RDEPEND
 CDEPEND="
 	sys-libs/zlib
-	dev-lang/tk"
+	dev-lang/tk:="
 
 RDEPEND="${CDEPEND}
 	~dev-vcs/git-${PV}
@@ -53,9 +53,7 @@ RDEPEND="${CDEPEND}
 	>=dev-python/pygtksourceview-2.10.1-r1:2[${PYTHON_USEDEP}]
 	${PYTHON_DEPS}"
 
-DEPEND="${CDEPEND}
-	app-arch/cpio
-	"
+DEPEND="${CDEPEND}"
 
 SITEFILE=50${PN}-gentoo.el
 S="${WORKDIR}/${MY_P}"

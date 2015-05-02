@@ -38,7 +38,7 @@ CDEPEND="
 	sys-libs/zlib
 	dev-lang/perl:=[-build(-)]
 	dev-libs/libpcre
-	dev-lang/tk"
+	dev-lang/tk:="
 
 RDEPEND="${CDEPEND}
 	dev-vcs/git[-cgi]
@@ -47,9 +47,7 @@ RDEPEND="${CDEPEND}
 	dev-perl/Authen-SASL
 	virtual/perl-CGI highlight? ( app-text/highlight )"
 
-DEPEND="${CDEPEND}
-	app-arch/cpio
-	"
+DEPEND="${CDEPEND}"
 
 SITEFILE=50${PN}-gentoo.el
 S="${WORKDIR}/${MY_P}"
