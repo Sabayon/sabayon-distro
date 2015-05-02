@@ -4,17 +4,14 @@
 
 EAPI=5
 
-SAB_PATCHES_SRC=( "mirror://sabayon/${CATEGORY}/quassel-DOS-sec.patch.gz" )
-inherit sab-patches cmake-utils eutils
+inherit cmake-utils eutils
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 [[ "${PV}" == "9999" ]] && inherit git-r3
 
 DESCRIPTION="Qt/KDE IRC client - monolithic client only (no remote daemon)"
 HOMEPAGE="http://quassel-irc.org/"
-[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${P/_/-}.tar.bz2"
-
-sab-patches_update_SRC_URI
+[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${P}.tar.bz2"
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
@@ -25,6 +22,7 @@ IUSE="ayatana crypt dbus debug kde monolithic phonon postgres qt5 +server +ssl s
 SERVER_RDEPEND="
 	qt5? (
 		dev-qt/qtscript:5
+		crypt? ( app-crypt/qca:2[openssl,qt5] )
 		postgres? ( dev-qt/qtsql:5[postgres] )
 		!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	)
@@ -44,6 +42,16 @@ GUI_RDEPEND="
 		dbus? (
 			dev-libs/libdbusmenu-qt[qt5]
 			dev-qt/qtdbus:5
+		)
+		kde? (
+			kde-frameworks/kconfigwidgets:5
+			kde-frameworks/kcoreaddons:5
+			kde-frameworks/knotifications:5
+			kde-frameworks/knotifyconfig:5
+			kde-frameworks/ktextwidgets:5
+			kde-frameworks/kwidgetsaddons:5
+			kde-frameworks/kxmlgui:5
+			kde-frameworks/sonnet:5
 		)
 		phonon? ( media-libs/phonon[qt5] )
 		webkit? ( dev-qt/qtwebkit:5 )
@@ -82,22 +90,23 @@ RDEPEND="
 	)
 "
 DEPEND="${RDEPEND}
-	qt5? ( dev-qt/linguist-tools:5 )
+	qt5? (
+		dev-qt/linguist-tools:5
+		kde-frameworks/extra-cmake-modules
+	)
 "
 
 DOCS=( AUTHORS ChangeLog README )
-
-S="${WORKDIR}/${P/_/-}"
 
 REQUIRED_USE="
 	|| ( X server monolithic )
 	ayatana? ( || ( X monolithic ) )
 	crypt? ( || ( server monolithic ) )
 	dbus? ( || ( X monolithic ) )
-	kde? ( phonon || ( X monolithic ) )
+	kde? ( || ( X monolithic ) )
 	phonon? ( || ( X monolithic ) )
 	postgres? ( || ( server monolithic ) )
-	qt5? ( !ayatana !crypt !kde phonon )
+	qt5? ( !ayatana )
 	syslog? ( || ( server monolithic ) )
 	webkit? ( || ( X monolithic ) )
 "
@@ -107,15 +116,12 @@ pkg_setup() {
 	use monolithic || die "The 'monolithic' flag must be enabled!"
 }
 
-src_prepare() {
-	sab-patches_apply_all
-	cmake-utils_src_prepare
-}
-
 src_configure() {
 	local mycmakeargs=(
+		-DCMAKE_SKIP_RPATH=ON # added in Sabayon's split ebuild
 		$(cmake-utils_use_find_package ayatana IndicateQt)
 		$(cmake-utils_use_find_package crypt QCA2)
+		$(cmake-utils_use_find_package crypt QCA2-QT5)
 		$(cmake-utils_use_find_package dbus dbusmenu-qt)
 		$(cmake-utils_use_find_package dbus dbusmenu-qt5)
 		$(cmake-utils_use_with kde)
@@ -136,7 +142,8 @@ src_configure() {
 src_install() {
 	cmake-utils_src_install
 
-	rm -r "${ED}"usr/share/apps || die
+	rm -r "${ED}"usr/share/quassel/{networks.ini,scripts,stylesheets,translations} || die
+	rmdir "${ED}"usr/share/quassel || die # should be empty
 	rm -r "${ED}"usr/share/pixmaps || die
 	rm -r "${ED}"usr/share/icons || die
 	rm -r "${ED}"usr/share/applications || die

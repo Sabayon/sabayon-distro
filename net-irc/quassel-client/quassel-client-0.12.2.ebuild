@@ -4,8 +4,7 @@
 
 EAPI=5
 
-SAB_PATCHES_SRC=( "mirror://sabayon/${CATEGORY}/quassel-DOS-sec.patch.gz" )
-inherit sab-patches cmake-utils eutils
+inherit cmake-utils eutils
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 [[ "${PV}" == "9999" ]] && inherit git-r3
@@ -14,9 +13,7 @@ MY_P=${P/-client}
 
 DESCRIPTION="Qt/KDE IRC client supporting a remote daemon for 24/7 connectivity (client only)"
 HOMEPAGE="http://quassel-irc.org/"
-[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
-
-sab-patches_update_SRC_URI
+[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
@@ -30,6 +27,16 @@ GUI_RDEPEND="
 		dbus? (
 			dev-libs/libdbusmenu-qt[qt5]
 			dev-qt/qtdbus:5
+		)
+		kde? (
+			kde-frameworks/kconfigwidgets:5
+			kde-frameworks/kcoreaddons:5
+			kde-frameworks/knotifications:5
+			kde-frameworks/knotifyconfig:5
+			kde-frameworks/ktextwidgets:5
+			kde-frameworks/kwidgetsaddons:5
+			kde-frameworks/kxmlgui:5
+			kde-frameworks/sonnet:5
 		)
 		phonon? ( media-libs/phonon[qt5] )
 		webkit? ( dev-qt/qtwebkit:5 )
@@ -61,20 +68,20 @@ RDEPEND="
 	${GUI_RDEPEND}
 "
 DEPEND="${RDEPEND}
-	qt5? ( dev-qt/linguist-tools:5 )
+	qt5? (
+		dev-qt/linguist-tools:5
+		kde-frameworks/extra-cmake-modules
+	)
 "
 
-S="${WORKDIR}/${MY_P/_/-}"
-
-src_prepare() {
-	sab-patches_apply_all
-	cmake-utils_src_prepare
-}
+S="${WORKDIR}/${MY_P}"
 
 src_configure() {
 	local mycmakeargs=(
+		-DCMAKE_SKIP_RPATH=ON # added in Sabayon's split ebuild
 		$(cmake-utils_use_find_package ayatana IndicateQt)
 		$(cmake-utils_use_find_package crypt QCA2)
+		$(cmake-utils_use_find_package crypt QCA2-QT5)
 		$(cmake-utils_use_find_package dbus dbusmenu-qt)
 		$(cmake-utils_use_find_package dbus dbusmenu-qt5)
 		$(cmake-utils_use_with kde)
@@ -95,7 +102,8 @@ src_configure() {
 src_install() {
 	cmake-utils_src_install
 
-	rm -r "${ED}"usr/share/apps/ || die
+	rm -r "${ED}"usr/share/quassel/translations || die
+	rmdir "${ED}"usr/share/quassel || die # should be empty
 	rm -r "${ED}"usr/share/pixmaps || die
 	rm -r "${ED}"usr/share/icons || die
 
