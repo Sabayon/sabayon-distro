@@ -102,7 +102,7 @@ src_configure() {
 src_install() {
 	cmake-utils_src_install
 
-	rm -r "${ED}"usr/share/quassel/translations || die
+	rm -r "${ED}"usr/share/quassel/{networks.ini,scripts,stylesheets,translations} || die
 	rmdir "${ED}"usr/share/quassel || die # should be empty
 	rm -r "${ED}"usr/share/pixmaps || die
 	rm -r "${ED}"usr/share/icons || die
