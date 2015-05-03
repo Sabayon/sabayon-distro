@@ -44,7 +44,7 @@ src_install() {
 	dodoc ChangeLog AUTHORS
 
 	# /usr/share/icons/hicolor
-	for mypath in icons/hicolor/*/*/quassel*.png; do
+	for mypath in icons/hicolor/*/*/*.{svgz,png}; do
 		if [ -f "${mypath}" ]; then
 			insinto "/usr/share/${mypath%/*}"
 			doins "${mypath}"
@@ -65,6 +65,9 @@ src_install() {
 				doins "${mypath}"
 			fi
 		done
+
+		insinto /usr/share/quassel/icons/oxygen
+		doins icons/oxygen/index.theme
 	fi
 
 	doicon icons/oxygen/48x48/apps/quassel.png
