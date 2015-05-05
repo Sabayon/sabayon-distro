@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=5
-
+inherit  multilib multilib-minimal
 MY_PV="1.01"
 
 DESCRIPTION="CUPS filters and drivers for Xerox Phaser 6000B and 6010"
@@ -13,10 +13,9 @@ LICENSE="as-is"
 SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE=""
-
+REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )"
 DEPEND="app-arch/unzip app-arch/rpm2targz sys-apps/findutils"
-RDEPEND="amd64? ( app-emulation/emul-linux-x86-baselibs )
-	net-print/cups"
+RDEPEND="net-print/cups"
 
 S="${WORKDIR}/rpm_${MY_PV}_${PV}"
 RESTRICT="strip"
