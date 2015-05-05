@@ -1,0 +1,13 @@
+6c6
+< 
+---
+> inherit  multilib multilib-minimal
+16c16
+< 
+---
+> REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )"
+18,19c18
+< RDEPEND="amd64? ( app-emulation/emul-linux-x86-baselibs )
+< 	net-print/cups"
+---
+> RDEPEND="net-print/cups"
