@@ -221,8 +221,8 @@ fi
 _get_real_kv_full() {
 	if [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
 		echo "${ORIGINAL_KV_FULL}"
-	elif [[ "${OKV/.*}" = "3" ]]; then
-		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
+	elif [[ "${OKV/.*}" -ge "3" ]]; then
+		# Linux 3.x+ support, KV_FULL is set to: 3.0-sabayon
 		# need to add another final .0 to the version part
 		echo "${ORIGINAL_KV_FULL/-/.0-}"
 	else
@@ -774,8 +774,8 @@ _get_release_level() {
 		echo "${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}$(_get_real_extraversion)"
 	elif [[ "${KV_MAJOR}${KV_MINOR}" -eq 26 ]]; then
 		echo "${KV_FULL}"
-	elif [[ "${OKV/.*}" = "3" ]] && [[ "${KV_PATCH}" = "0" ]]; then
-		# Linux 3.x support, KV_FULL is set to: 3.0-sabayon
+	elif [[ "${OKV/.*}" -ge "3" ]] && [[ "${KV_PATCH}" = "0" ]]; then
+		# Linux 3.x+ support, KV_FULL is set to: 3.0-sabayon
 		# need to add another final .0 to the version part
 		echo "${KV_FULL/-/.0-}"
 	else
