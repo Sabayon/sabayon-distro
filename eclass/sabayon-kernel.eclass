@@ -361,7 +361,7 @@ else
 		sys-apps/sed
 		sys-devel/autoconf
 		sys-devel/make
-		|| ( >=sys-kernel/genkernel-next-5 >=sys-kernel/genkernel-3.4.45-r2 )
+		|| ( >=sys-kernel/genkernel-next-5[dmraid(+)?,mdadm(+)?] >=sys-kernel/genkernel-3.4.45-r2 )
 		arm? ( dev-embedded/u-boot-tools )
 		amd64? ( sys-apps/v86d )
 		x86? ( sys-apps/v86d )
