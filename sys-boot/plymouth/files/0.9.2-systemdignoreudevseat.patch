@@ -1,0 +1,11 @@
+--- src/libply-splash-core/ply-device-manager.c~	2015-05-11 22:06:07.137737274 +0200
++++ src/libply-splash-core/ply-device-manager.c	2015-05-11 22:06:48.613402954 +0200
+@@ -329,7 +329,7 @@
+                         /* We only care about devices assigned to a (any) seat. Floating
+                          * devices should be ignored.
+                          */
+-                        if (udev_device_has_tag (device, "seat")) {
++                        if (true) {
+                                 const char *node;
+                                 node = udev_device_get_devnode (device);
+                                 if (node != NULL) {
