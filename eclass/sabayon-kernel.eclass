@@ -1,4 +1,4 @@
-# Copyright 2004-2010 Sabayon Project
+# Copyright 2004-2015 Sabayon Project
 # Distributed under the terms of the GNU General Public License v2
 # $
 
@@ -436,11 +436,6 @@ sabayon-kernel_src_unpack() {
 		sed -i "s/^EXTRAVERSION :=.*//" "${S}/Makefile" || die
 	fi
 	OKV="${okv}"
-
-	# Let's handle EAPIs 0 and 1...
-	case ${EAPI:-0} in
-		0|1) sabayon-kernel_src_prepare ;;
-	esac
 }
 
 sabayon-kernel_src_prepare() {
@@ -961,11 +956,10 @@ sabayon-kernel_pkg_postrm() {
 	fi
 }
 
-# export all the available functions here
 case ${EAPI:-0} in
-	0|1) extra_export_funcs= ;;
-	*) extra_export_funcs=src_prepare ;;
+	[01234])
+		die "EAPI ${EAPI:-0} is not supported"
 esac
 
-EXPORT_FUNCTIONS pkg_setup src_unpack ${extra_export_funcs} \
+EXPORT_FUNCTIONS pkg_setup src_unpack src_prepare \
 	src_compile src_install pkg_preinst pkg_postinst pkg_prerm pkg_postrm
