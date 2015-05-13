@@ -49,7 +49,6 @@ DOC_CONTENTS="
 
 PATCHES=(
 	"${FILESDIR}/0.9.2-systemdsystemunitdir.patch"
-	"${FILESDIR}/0.9.2-systemdignoreudevseat.patch"
 )
 
 src_prepare() {
