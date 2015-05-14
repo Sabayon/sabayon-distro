@@ -33,9 +33,6 @@ pkg_postinst() {
 	# mount boot first
 	mount-boot_mount_boot_partition
 
-	# Update Sabayon initramfs images
-	update_sabayon_kernel_initramfs_splash
-
 	einfo "Please report bugs or glitches to"
 	einfo "http://bugs.sabayon.org"
 }
