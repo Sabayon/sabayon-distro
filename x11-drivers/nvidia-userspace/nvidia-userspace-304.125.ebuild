@@ -1,9 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
+MULTILIB_COMPAT=( abi_x86_{32,64} )
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user versionator udev
 
@@ -28,12 +29,20 @@ EMULTILIB_PKG="true"
 
 COMMON="app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
-	x-multilib? ( app-emulation/emul-linux-x86-xlibs )
-	multilib? ( app-emulation/emul-linux-x86-baselibs )
+
 	X? (
-		<x11-base/xorg-server-1.16.99
 		>=app-eselect/eselect-opengl-1.0.9
-	)"
+	        multilib? (
+	                || (
+	                         (
+	                                >=x11-libs/libX11-1.6.2[abi_x86_32]
+	                                >=x11-libs/libXext-1.3.2[abi_x86_32]
+	                         )
+	                        app-emulation/emul-linux-x86-xlibs
+	                )
+	        )
+	)
+"
 DEPEND="${COMMON}"
 # Note: do not add !>nvidia-userspace-ver or !<nvidia-userspace-ver
 # because it would cause pkg_postrm to set the wrong opengl implementation

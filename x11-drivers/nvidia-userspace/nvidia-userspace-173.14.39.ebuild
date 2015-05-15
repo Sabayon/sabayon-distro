@@ -1,9 +1,10 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=5
 
+MULTILIB_COMPAT=( abi_x86_{32,64} )
 inherit eutils unpacker multilib portability versionator flag-o-matic
 
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
@@ -23,10 +24,22 @@ IUSE="multilib kernel_linux"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
-COMMON="x11-base/xorg-server
+COMMON="app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
-	multilib? ( app-emulation/emul-linux-x86-opengl )
-	>=app-eselect/eselect-opengl-1.0.9"
+
+	X? (
+		>=app-eselect/eselect-opengl-1.0.9
+	        multilib? (
+	                || (
+	                         (
+	                                >=x11-libs/libX11-1.6.2[abi_x86_32]
+	                                >=x11-libs/libXext-1.3.2[abi_x86_32]
+	                         )
+	                        app-emulation/emul-linux-x86-xlibs
+	                )
+	        )
+	)
+"
 DEPEND="${COMMON}
 	kernel_linux? ( virtual/linux-sources )"
 # Note: do not add !>nvidia-userspace-ver or !<nvidia-userspace-ver
