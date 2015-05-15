@@ -27,7 +27,7 @@ DESCRIPTION="The GNU Compiler Collection"
 KEYWORDS="alpha amd64 ~arm arm64 hppa ~ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd"
 
 ## Make sure we share all the USE flags in sys-devel/base-gcc
-BASE_GCC_USE="fortran gcj mudflap multilib nls nptl openmp altivec
+BASE_GCC_USE="fortran gcj multilib nls nptl openmp altivec
 	bootstrap build doc fixed-point graphite hardened
 	multislot cxx nopie nossp objc objc++ objc-gc test vanilla"
 for base_use in ${BASE_GCC_USE}; do
@@ -85,9 +85,6 @@ src_prepare() {
 
 	#Use -r1 for newer piepatchet that use DRIVER_SELF_SPECS for the hardened specs.
 	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env-r1.patch
-
-	# Sabayon, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=49718
-	epatch "${FILESDIR}/${P}-no_instrument_function.patch"
 }
 
 ## Just install libgcc stuff

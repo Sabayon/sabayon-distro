@@ -83,9 +83,6 @@ src_prepare() {
 
 	#Use -r1 for newer piepatchet that use DRIVER_SELF_SPECS for the hardened specs.
 	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env-r1.patch
-
-	# Sabayon, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=49718
-	epatch "${FILESDIR}/${P}-no_instrument_function.patch"
 }
 
 ## Just install libgcc stuff
