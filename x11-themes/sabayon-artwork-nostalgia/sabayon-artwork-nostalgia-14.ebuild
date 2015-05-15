@@ -3,7 +3,7 @@
 #
 
 EAPI=5
-inherit eutils mount-boot sabayon-artwork
+inherit eutils sabayon-artwork
 
 DESCRIPTION="Official Sabayon Linux Nostalgia Wallpapers Artwork"
 HOMEPAGE="http://www.sabayon.org/"
