@@ -19,9 +19,9 @@ S="${WORKDIR}/${PN}"
 
 src_install() {
 	# KDM
-	dodir ${KDEDIR}/share/apps/kdm/themes
+	dodir /usr/share/apps/kdm/themes
 	cd ${S}/kdm
-	insinto ${KDEDIR}/share/apps/kdm/themes
+	insinto /usr/share/apps/kdm/themes
 	doins -r ./
 
 	# Kwin
@@ -29,12 +29,4 @@ src_install() {
 	cd ${S}/kwin
 	insinto ${KDEDIR}/share/apps/aurorae/themes/
 	doins -r ./
-
-	# KSplash
-	if use ksplash; then
-		dodir ${KDEDIR}/share/apps/ksplash/Themes
-		cd ${S}/ksplash
-		insinto ${KDEDIR}/share/apps/ksplash/Themes
-		doins -r ./
-	fi
 }
