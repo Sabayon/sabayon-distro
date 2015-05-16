@@ -3,8 +3,7 @@
 app-editors/leafpad
 app-misc/sabayon-skel
 media-plugins/alsa-plugins
-x11-themes/numix-icon-theme
-x11-themes/greybird
+x11-themes/elementary-icon-theme
 xfce-base/xfce4-meta
 xfce-base/xfce4-appfinder
 xfce-extra/xfce4-power-manager
