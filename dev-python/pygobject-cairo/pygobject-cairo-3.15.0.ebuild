@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -58,9 +58,14 @@ src_install() {
 	DOCS="AUTHORS ChangeLog* NEWS README"
 
 	python_foreach_impl run_in_build_dir gnome2_src_install
-	# just keep /usr/$(get_libdir)/*/site-packages/gi/_gi_cairo.so
+	# just keep /usr/$(get_libdir)/*/site-packages/gi/_gi_cairo*.so
 	# discard the rest
-	rm $(find "${ED}" -type f | grep -v "gi/_gi_cairo.so") \
-		$(find "${ED}" -type l | grep -v "gi/_gi_cairo.so") || die
+
+	# /usr/lib64/python2.7/site-packages/gi/_gi_cairo.so
+	# /usr/lib64/python3.3/site-packages/gi/_gi_cairo.cpython-33.so
+	# /usr/lib64/python3.4/site-packages/gi/_gi_cairo.cpython-34.so
+
+	rm $(find "${ED}" -type f | grep -v "gi/_gi_cairo.*\.so") \
+		$(find "${ED}" -type l | grep -v "gi/_gi_cairo.*\.so") || die
 	find "${ED}" -depth -type d -empty -exec rmdir {} \; || die
 }
