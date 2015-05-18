@@ -8,7 +8,7 @@ menus-have-icons = false
 
 [org.mate.background]
 color-shading-type = "solid"
-picture-filename = "/usr/share/backgrounds/sabayonlinux.png"
+picture-filename = "sabayonlinux"
 picture-options = "scaled"
 
 [org.mate.font-rendering]
