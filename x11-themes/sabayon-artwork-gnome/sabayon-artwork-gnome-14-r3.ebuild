@@ -16,7 +16,7 @@ IUSE=""
 RDEPEND="x11-themes/sabayon-artwork-core
 	x11-themes/equinox-themes
 	x11-themes/elementary-icon-theme[monochrome,branding]
-	x11-themes/ozon-shell-theme
+	x11-themes/korora-shell-theme
 	x11-themes/numix-icon-theme-circle
 	x11-themes/numix-icon-theme
 	>=gnome-extra/gnome-shell-extensions-3.12"

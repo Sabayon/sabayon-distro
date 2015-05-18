@@ -15,7 +15,7 @@ icon-theme='Numix-Circle'
 show-fallback-warning=false
 
 [org.gnome.shell.extensions.user-theme]
-name="Ozon"
+name="Korora"
 
 [org.gnome.nautilus.preferences]
 always-use-location-entry=true
@@ -52,3 +52,9 @@ show-desktop=['<Super>D']
 
 [org.gnome.settings-daemon.peripherals.mouse]
 locate-pointer=false
+
+[org.gnome.Terminal.Legacy.Settings]
+dark-theme=true
+
+[org.gnome.shell]
+favorite-apps=['google-chrome.desktop', 'evolution.desktop', 'shotwell.desktop', 'rhythmbox.desktop', 'vlc.desktop', 'libreoffice-writer.desktop', 'org.gnome.Documents.desktop', 'org.gnome.Nautilus.desktop']
