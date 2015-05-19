@@ -1,6 +1,8 @@
-[org.mate.desktop.interface]
+[org.mate.interface]
 document-font-name = "Ubuntu Semi-Light 10"
 font-name = "Ubuntu Semi-Light 10"
+titlebar-uses-system-font = false
+titlebar-font ="Ubuntu Bold 10"
 monospace-font-name = "Ubuntu Mono 12"
 gtk-theme = "BlueMenta"
 icon-theme = "matefaenza"
@@ -11,7 +13,7 @@ color-shading-type = "solid"
 picture-filename = "/usr/share/backgrounds/sabayonlinux.png"
 picture-options = "stretched"
 
-[org.mate.desktop.font-rendering]
+[org.mate.font-rendering]
 antialiasing = "rgba"
 dpi = 96.0
 hinting = "full"
@@ -19,7 +21,7 @@ hinting = "full"
 [org.mate.caja.desktop]
 font = "Ubuntu Medium 11"
 
-[org.mate.marco.general]
+[org.mate.Marco.general]
 compositing-manager = true
 theme = "BlueMenta"
 titlebar-font = "Ubuntu Bold 11"
