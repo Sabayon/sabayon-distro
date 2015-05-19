@@ -76,7 +76,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	dev-python/pytz
 	>=dev-python/urlgrabber-3.9.1
 	dev-util/desktop-file-utils
-	dev-util/glade
+	gnome-base/libglade
 	>=dev-util/pykickstart-1.99.52
 	gnome-extra/zenity
 	net-firewall/firewalld
