@@ -26,6 +26,10 @@ RDEPEND="!app-misc/livecd-tools
 	sys-apps/keyboard-configuration-helpers
 	sys-apps/sed"
 
+src_prepare(){
+	epatch ${FILESDIR}/no_motd_autologin.patch
+}
+
 src_install() {
 	emake DESTDIR="${D}" SYSV_INITDIR="/etc/init.d" \
 		SYSTEMD_UNITDIR="$(systemd_get_unitdir)" \
