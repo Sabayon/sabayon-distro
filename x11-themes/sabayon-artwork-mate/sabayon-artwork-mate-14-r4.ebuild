@@ -14,7 +14,8 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 RDEPEND="
 	!<x11-themes/sabayon-artwork-core-14-r2
-	media-fonts/ubuntu-font-family"
+	media-fonts/ubuntu-font-family
+	x11-themes/faenza-icon-theme"
 S="${WORKDIR}/"
 
 src_install() {
