@@ -7,7 +7,7 @@ EAPI=5
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python2_{6,7} )
+PYTHON_COMPAT=( python2_7 )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
@@ -82,7 +82,6 @@ RDEPEND="${CDEPEND}
 #   .xml/docbook  --(docbook2texi.pl)--> .texi
 #   .texi         --(makeinfo)---------> .info
 DEPEND="${CDEPEND}
-	app-arch/cpio
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X

@@ -6,7 +6,7 @@ EAPI=5
 
 GENTOO_DEPEND_ON_PERL=no
 
-PYTHON_COMPAT=( python2_{6,7} )
+PYTHON_COMPAT=( python2_7 )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
@@ -49,8 +49,7 @@ RDEPEND="~dev-vcs/git-${PV}[-cvs,perl]
 	dev-perl/Authen-SASL
 	>=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite
 	${PYTHON_DEPS}"
-DEPEND="app-arch/cpio
-	dev-lang/perl:=[-build(-)]
+DEPEND="dev-lang/perl:=[-build(-)]
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X
