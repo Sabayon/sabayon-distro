@@ -6,7 +6,7 @@ titlebar-font ="Ubuntu Bold 10"
 monospace-font-name = "Ubuntu Mono 12"
 gtk-theme = "BlueMenta"
 icon-theme = "Faenza-Dark"
-menus-have-icons = false
+menus-have-icons = true
 
 [org.mate.background]
 color-shading-type = "solid"
@@ -19,7 +19,7 @@ dpi = 96.0
 hinting = "full"
 
 [org.mate.caja.desktop]
-font = "Ubuntu Medium 11"
+font = "Ubuntu Medium 10"
 
 [org.mate.Marco.general]
 compositing-manager = true
