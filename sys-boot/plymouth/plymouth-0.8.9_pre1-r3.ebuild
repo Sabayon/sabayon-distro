@@ -72,6 +72,13 @@ src_install() {
 	dosym /usr/bin/plymouth /bin/plymouth
 	dosym /usr/sbin/plymouth-set-default-theme /sbin/plymouth-set-default-theme
 	dosym /usr/sbin/plymouthd /sbin/plymouthd
+	
+	# Soft services that enables smooth transition from plymouth to login service
+	systemd_newunit "${FILESDIR}"/lightdm-plymouth.service lightdm-plymouth.service
+        systemd_newunit "${FILESDIR}"/lxdm-plymouth.service lxdm-plymouth.service
+        systemd_newunit "${FILESDIR}"/gdm-plymouth.service gdm-plymouth.service
+        systemd_newunit "${FILESDIR}"/kdm-plymouth.service kdm-plymouth.service
+        systemd_newunit "${FILESDIR}"/slim-plymouth.service slim-plymouth.service
 
 	readme.gentoo_create_doc
 }
