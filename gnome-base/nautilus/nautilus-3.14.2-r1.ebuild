@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/gnome-base/nautilus/nautilus-3.14.2-r1.ebuild,v 1.3 2015/03/15 13:23:47 pacho Exp $
 
 EAPI="5"
 GCONF_DEBUG="no"
@@ -9,14 +9,14 @@ GNOME2_LA_PUNT="yes" # Needed with USE 'sendto'
 inherit eutils gnome2 readme.gentoo virtualx
 
 DESCRIPTION="A file manager for the GNOME desktop"
-HOMEPAGE="http://live.gnome.org/Nautilus"
+HOMEPAGE="https://wiki.gnome.org/Apps/Nautilus"
 
 LICENSE="GPL-2+ LGPL-2+ FDL-1.1"
 SLOT="0"
 
 # profiling?
 IUSE="debug exif gnome +introspection packagekit +previewer sendto tracker xmp"
-KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux"
+KEYWORDS="~alpha amd64 ~arm ~ia64 ~ppc ~ppc64 ~sh ~sparc x86 ~x86-fbsd ~x86-interix ~amd64-linux ~arm-linux ~x86-linux"
 
 # FIXME: tests fails under Xvfb, but pass when building manually
 # "FAIL: check failed in nautilus-file.c, line 8307"
@@ -26,9 +26,9 @@ RESTRICT="test"
 # Require {glib,gdbus-codegen}-2.30.0 due to GDBus API changes between 2.29.92
 # and 2.30.0
 COMMON_DEPEND="
-	>=dev-libs/glib-2.35.3:2
+	>=dev-libs/glib-2.35.3:2[dbus]
 	>=x11-libs/pango-1.28.3
-	>=x11-libs/gtk+-3.11.6:3[introspection?]
+	>=x11-libs/gtk+-3.13.2:3[introspection?]
 	>=dev-libs/libxml2-2.7.8:2
 	>=gnome-base/gnome-desktop-3:3=
 
@@ -80,16 +80,26 @@ src_prepare() {
 			close the previewer, press space again."
 	fi
 
+	# Sabayon, fix icons setup during Live system autostart (first boot only)
+	epatch "${FILESDIR}/${PN}-3.0.2-fix-autostart-live-boot.patch"
+
 	# Restore the nautilus-2.x Delete shortcut (Ctrl+Delete will still work);
 	# bug #393663
 	epatch "${FILESDIR}/${PN}-3.5.91-delete.patch"
 
-	# Sabayon, fix icons setup during Live system autostart (first boot only)
-	epatch "${FILESDIR}/${PN}-3.0.2-fix-autostart-live-boot.patch"
+	# nautilus-application: Parse force-desktop before exiting (from '3.14')
+	epatch "${FILESDIR}/${P}-parse-force-desktop.patch"
+
+	# nautilus-window: make sure active slot is closed last (from '3.14')
+	epatch "${FILESDIR}/${P}-active-slot.patch"
+
+	# nautilus-list-view: Avoid unreadable names (from '3.14')
+	epatch "${FILESDIR}/${P}-unreadable-names.patch"
 
 	# Remove -D*DEPRECATED flags. Don't leave this for eclass! (bug #448822)
 	sed -e 's/DISABLE_DEPRECATED_CFLAGS=.*/DISABLE_DEPRECATED_CFLAGS=/' \
 		-i configure || die "sed failed"
+
 	gnome2_src_prepare
 }
 
