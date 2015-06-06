@@ -4,4 +4,4 @@ kde-base/kdeaccessibility-meta
 kde-base/kdepim-meta
 kde-base/kdebindings-meta
 kde-base/kdewebdev-meta
-kde-base/kde-l10n
+kde-apps/kde4-l10n
