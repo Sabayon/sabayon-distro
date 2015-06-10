@@ -31,7 +31,7 @@ PDEPEND="cairo? (
 		~app-text/poppler-glib-${PV}[cairo,introspection=,doc=]
 	)
 	qt4? ( ~app-text/poppler-qt4-${PV} )
-	qt5? ( ~app-test/poppler-qt5-${PV} )
+	qt5? ( ~app-text/poppler-qt5-${PV} )
 	"
 
 RDEPEND="${COMMON_DEPEND} cjk? ( >=app-text/poppler-data-0.4.4 )"
