@@ -23,6 +23,9 @@ always-use-location-entry=true
 [org.gnome.nautilus.preferences]
 sort-directories-first=true
 
+[org.gnome.nautilus.icon-view]
+default-zoom-level='small'
+
 [org.gnome.settings-daemon.peripherals.touchpad]
 disable-while-typing=true
 
