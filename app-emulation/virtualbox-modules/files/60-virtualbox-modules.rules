@@ -1,1 +1,0 @@
-KERNEL=="vboxdrvu", GROUP="vboxusers", MODE="0660"
