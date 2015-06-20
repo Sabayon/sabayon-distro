@@ -66,7 +66,7 @@ RDEPEND="${CDEPEND}
 	perl? ( dev-perl/Error
 			dev-perl/Net-SMTP-SSL
 			dev-perl/Authen-SASL
-			cgi? ( virtual/perl-CGI highlight? ( app-text/highlight ) )
+			cgi? ( dev-perl/CGI highlight? ( app-text/highlight ) )
 			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)

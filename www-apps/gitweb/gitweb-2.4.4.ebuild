@@ -45,7 +45,7 @@ RDEPEND="${CDEPEND}
 	dev-perl/Error
 	dev-perl/Net-SMTP-SSL
 	dev-perl/Authen-SASL
-	virtual/perl-CGI highlight? ( app-text/highlight )"
+	dev-perl/CGI highlight? ( app-text/highlight )"
 
 DEPEND="${CDEPEND}"
 
