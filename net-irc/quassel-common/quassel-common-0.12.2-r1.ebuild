@@ -12,7 +12,7 @@ EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 DESCRIPTION="Qt/KDE IRC client supporting a remote daemon for 24/7 connectivity (common files)"
 HOMEPAGE="http://quassel-irc.org/"
 MY_P=${P/-common}
-[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
+[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
@@ -20,13 +20,14 @@ SLOT="0"
 IUSE="kde"
 
 RDEPEND="kde? (
-	|| ( kde-apps/oxygen-icons kde-base/oxygen-icons:4 ) )"
+	kde-apps/oxygen-icons )"
+
 DEPEND="${RDEPEND}
 		!<net-irc/quassel-${PV}
 		!<net-irc/quassel-client-${PV}"
 		# -core(-bin) does not depend on it
 
-S="${WORKDIR}/${MY_P/_/-}"
+S="${WORKDIR}/${MY_P}"
 
 src_configure() {
 	cmake-utils_src_configure
@@ -44,14 +45,14 @@ src_install() {
 	dodoc ChangeLog AUTHORS
 
 	# /usr/share/icons/hicolor
-	for mypath in icons/hicolor/*/*/quassel*.png; do
+	for mypath in icons/hicolor/*/*/*.{svgz,png}; do
 		if [ -f "${mypath}" ]; then
 			insinto "/usr/share/${mypath%/*}"
-			doins "${mypath}" || die "doins for icon failed"
+			doins "${mypath}"
 		fi
 	done
 
-	# /usr/share/apps/quassel/icons/oxygen
+	# /usr/share/quassel/icons/oxygen
 	if ! use kde; then
 		dodoc icons/README.Oxygen
 		local mydest
@@ -59,40 +60,42 @@ src_install() {
 			newdoc "icons/oxygen/${mydest}" "${mydest}.Oxygen"
 		done
 
-		for mypath in icons/oxygen{,_kde}/*/*/*.{svgz,png}; do
+		for mypath in icons/oxygen/*/*/*.{svgz,png}; do
 			if [ -f "${mypath}" ]; then
-				mydest=${mypath/oxygen_kde/oxygen}
-				insinto "/usr/share/apps/quassel/${mydest%/*}"
-				doins "${mypath}" || die "doins for Oxygen icon failed"
+				insinto "/usr/share/quassel/${mypath%/*}"
+				doins "${mypath}"
 			fi
 		done
+
+		insinto /usr/share/quassel/icons/oxygen
+		doins icons/oxygen/index.theme
 	fi
 
-	doicon icons/oxygen_kde/48x48/apps/quassel.png
+	doicon icons/oxygen/48x48/apps/quassel.png
 
-	# /usr/share/apps/quassel/stylesheets
+	# /usr/share/quassel/stylesheets
 	for mypath in data/stylesheets/*.qss; do
 		if [ -f "${mypath}" ]; then
-			insinto /usr/share/apps/quassel/stylesheets
-			doins "${mypath}" || die "doins for .qss file failed"
+			insinto /usr/share/quassel/stylesheets
+			doins "${mypath}"
 		fi
 	done
 
-	# /usr/share/apps/quassel/scripts
+	# /usr/share/quassel/scripts
 	for mypath in data/scripts/*; do
 		if [ -f "${mypath}" ]; then
-			insinto /usr/share/apps/quassel/scripts
-			doins "${mypath/$CMAKE_BUILD_DIR}" || die "doins for script failed"
+			insinto /usr/share/quassel/scripts
+			doins "${mypath}"
 		fi
 	done
 
-	# /usr/share/apps/quassel/translations
+	# /usr/share/quassel/translations
 	for mypath in "${CMAKE_BUILD_DIR}"/po/*.qm; do
-		insinto /usr/share/apps/quassel/translations
-		doins "${mypath}" || die "doins for .qm file failed"
+		insinto /usr/share/quassel/translations
+		doins "${mypath}"
 	done
 
-	insinto /usr/share/apps/quassel
+	insinto /usr/share/quassel
 	doins data/networks.ini
 
 	use kde && doins data/quassel.notifyrc

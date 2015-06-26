@@ -13,7 +13,7 @@ DESCRIPTION="Qt/KDE IRC client - the \"core\" (server) component"
 HOMEPAGE="http://quassel-irc.org/"
 MY_P=${P/-core}
 MY_PN=${PN/-core}
-[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P/_/-}.tar.bz2"
+[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
@@ -23,6 +23,7 @@ IUSE="crypt postgres qt5 +ssl syslog"
 SERVER_RDEPEND="
 	qt5? (
 		dev-qt/qtscript:5
+		crypt? ( app-crypt/qca:2[openssl,qt5] )
 		postgres? ( dev-qt/qtsql:5[postgres] )
 		!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	)
@@ -47,11 +48,16 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	!net-irc/quassel-core-bin
+	qt5? (
+		kde-frameworks/extra-cmake-modules
+	)
 	"
 
 DOCS=( AUTHORS ChangeLog README )
 
-S="${WORKDIR}/${MY_P/_/-}"
+PATCHES=( "${FILESDIR}/${MY_P}-qt55.patch" )
+
+S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
 	QUASSEL_DIR=/var/lib/${MY_PN}
@@ -63,9 +69,11 @@ pkg_setup() {
 
 src_configure() {
 	local mycmakeargs=(
+		-DCMAKE_SKIP_RPATH=ON # added in Sabayon's split ebuild
 		"CMAKE_DISABLE_FIND_PACKAGE_IndicateQt=ON"
 		$(cmake-utils_use_find_package crypt QCA2)
 		# $(cmake-utils_use_find_package dbus dbusmenu-qt)
+		$(cmake-utils_use_find_package crypt QCA2-QT5)
 		# $(cmake-utils_use_find_package dbus dbusmenu-qt5)
 		"-DWITH_KDE=OFF"
 		"-DWITH_OXYGEN=OFF"
@@ -83,13 +91,19 @@ src_configure() {
 		"-DEMBED_DATA=OFF"
 	)
 
+	# Something broke upstream detection since Qt 5.5
+	if use ssl ; then
+		mycmakeargs+=("-DHAVE_SSL=TRUE")
+	fi
+
 	cmake-utils_src_configure
 }
 
 src_install() {
 	cmake-utils_src_install
 
-	rm -rf "${ED}"usr/share/apps/quassel/ || die
+	rm -r "${ED}"usr/share/quassel/translations || die
+	rmdir "${ED}"usr/share/quassel || die # should be empty
 	rm -f "${ED}"usr/share/pixmaps/quassel.png || die
 	rm -f "${ED}"usr/share/icons/hicolor/48x48/apps/quassel.png || die
 
