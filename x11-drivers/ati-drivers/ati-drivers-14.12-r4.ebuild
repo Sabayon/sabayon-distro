@@ -167,9 +167,10 @@ src_prepare() {
 	# Linux 3.19 support
 	epatch "${FILESDIR}/${P}-linux-3.19.patch"
 
-	# Linux 4.0 support
+	# Linux 4.0, 4.1 support
 	if kernel_is ge 4 0; then
 		epatch "${FILESDIR}/${PN}-linux-4.0.patch"
+		epatch "${FILESDIR}/${PN}-linux-4.1.patch"
 	fi
 
 	cd "${MODULE_DIR}"

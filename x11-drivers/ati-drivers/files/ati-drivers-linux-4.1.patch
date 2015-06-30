@@ -1,0 +1,27 @@
+From 03a8ba51b82e61dd8383c39fb6fe33a46ed326e8 Mon Sep 17 00:00:00 2001
+From: Krzysztof Kolasa <kkolasa@winsoft.pl>
+Date: Mon, 27 Apr 2015 19:21:06 +0200
+Subject: [PATCH] Changes for kernel 4.1.0, remove IRQF_DISABLED
+
+---
+ firegl_public.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/firegl_public.c b/firegl_public.c
+index a7368c8..fe8d85b 100644
+--- a/common/lib/modules/fglrx/build_mod/firegl_public.c
++++ b/common/lib/modules/fglrx/build_mod/firegl_public.c
+@@ -3500,7 +3500,12 @@ int ATI_API_CALL KCL_InstallInterruptHandler(
+ #else
+         //when MSI enabled. keep irq disabled when calling the action handler,
+         //exclude this IRQ from irq balancing (only on one CPU) 
+-        ((useMSI) ? (IRQF_DISABLED | IRQF_NOBALANCING) : (IRQF_SHARED)),    
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,1,0)
++        ((useMSI) ? (IRQF_DISABLED | IRQF_NOBALANCING) : (IRQF_SHARED)),
++#else
++        ((useMSI) ? (IRQF_NOBALANCING) : (IRQF_SHARED)),
++#endif
+ #endif
+         dev_name,
+         context);
