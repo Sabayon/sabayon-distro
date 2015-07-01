@@ -66,7 +66,7 @@ RDEPEND="${CDEPEND}
 	perl? ( dev-perl/Error
 			dev-perl/Net-SMTP-SSL
 			dev-perl/Authen-SASL
-			cgi? ( virtual/perl-CGI highlight? ( app-text/highlight ) )
+			cgi? ( dev-perl/CGI highlight? ( app-text/highlight ) )
 			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)
@@ -299,8 +299,8 @@ src_compile() {
 
 	if use perl && use cgi ; then
 		git_emake \
-			gitweb/gitweb.cgi \
-			|| die "emake gitweb/gitweb.cgi failed"
+			gitweb \
+			|| die "emake gitweb (cgi) failed"
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]]; then
