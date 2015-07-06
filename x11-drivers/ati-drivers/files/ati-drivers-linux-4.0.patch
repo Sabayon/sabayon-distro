@@ -6,7 +6,7 @@ index 0f7399d..eb23e06 100644
  
      if (cpu_has_pge)
      {
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,20,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3,18,0)
          cr4 = read_cr4();
          write_cr4(cr4 & ~X86_CR4_PGE);
 +#else
@@ -20,7 +20,7 @@ index 0f7399d..eb23e06 100644
      write_cr0(cr0 & 0xbfffffff);
      if (cpu_has_pge)
      {
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,20,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3,18,0)
          write_cr4(cr4);
 +#else
 +        __write_cr4(cr4);
@@ -32,7 +32,7 @@ index 0f7399d..eb23e06 100644
  
      if (cpu_has_pge)
      {
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,20,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3,18,0)
          cr4 = read_cr4();
          write_cr4(cr4 & ~X86_CR4_PGE);
 +#else
@@ -46,7 +46,7 @@ index 0f7399d..eb23e06 100644
      write_cr0(cr0 & 0xbfffffff);
      if (cpu_has_pge)
      {
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,20,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3,18,0)
          write_cr4(cr4);
 +#else
 +        __write_cr4(cr4);
