@@ -7,8 +7,12 @@ env:
   - OVERLAY_NAME=sabayon-distro
   - PORTDIR_OVERLAY=$DRONE_BUILD_DIR
   - BUILDS_FAIL_EXITS=1
-  - IRC_NICKNAME="SabayonDrone"
+  - IRC_NICKNAME="Saba_Drone"
   - IRC_CHANNELS="#sabayon-dev"
+  - IRC_SERVER="chat.freenode.net"
+  - IRC_PORT="6667"
+  - IRC_IDENT="saba_drone"
+  - IRC_REALNAME="Sabdro"
   - VERBOSE=1
 setup:
   - mkdir -p /usr/portage/distfiles/ && wget http://www.gentoo.org/dtd/metadata.dtd -O /usr/portage/distfiles/metadata.dtd
@@ -17,4 +21,4 @@ script:
   - cd /etc/portage;git checkout master; git pull -q
   - witchcraft align $(cd $GIT_REPOSITORY;git --no-pager log --pretty=format:"%H" -2 | xargs echo | cut -d ' ' -f 2) $DRONE_COMMIT
 cache:
-  - /usr/portage/packages
+  - /usr/portage
