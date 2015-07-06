@@ -97,7 +97,7 @@ src_prepare() {
 		if kernel_is lt 2 6 9 ; then
 			eerror "You must build this against 2.6.9 or higher kernels."
  		fi
-		if kernel_is ge 4 0; then
+		if kernel_is ge 3 18; then
 			epatch "${FILESDIR}"/${PN}-4.0.patch
 		fi
 
