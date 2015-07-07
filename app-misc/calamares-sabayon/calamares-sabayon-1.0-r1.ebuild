@@ -14,7 +14,8 @@ IUSE=""
 
 DEPEND=">=app-misc/calamares-sabayon-base-modules-1.2
 	app-misc/calamares-sabayon-branding"
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	!!app-admin/anaconda"
 
 S="${FILESDIR}/${P}"
 src_install() {
