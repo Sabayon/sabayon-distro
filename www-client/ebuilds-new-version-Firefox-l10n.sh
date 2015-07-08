@@ -3,7 +3,7 @@
 # Script that removes Firefox language ebuilds and creates new ones, usually
 # for a new version.
 
-#   Copyright 2014 Sławomir Nizio
+#   Copyright 2014, 2015 Sławomir Nizio
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@
 # must not have uncommitted changes.
 
 # The script asks interactively for a few parameters:
-# - list of languages (MOZ_LANGS in Firefox ebuild),
 # - new version,
+# - list of languages (MOZ_LANGS in Firefox ebuild) - can be set automatically,
 # - location of the Manifest for Firefox - used as the trick that allows to bump
 #   the packages without downloading the language packs themselves, and adds
 #   correctness to the process (if not security).
@@ -36,7 +36,7 @@ print_ebuild() {
 	local ver=$1
 
 	cat <<-END
-	# Copyright 1999-2014 Gentoo Foundation
+	# Copyright 1999-2015 Gentoo Foundation
 	# Distributed under the terms of the GNU General Public License v2
 	# \$Header: \$
 
@@ -65,6 +65,34 @@ create_ebuild() {
 		|| e "updating Manifest failed"
 }
 
+detect_linguas() {
+	local pkg=$1
+	local output n_lines linguas
+	local perl_cmd='
+		s/.*iuse="(.+)"/$1/;
+		@o =
+			map { s/_/-/r }
+			map { s/^linguas_//r }
+			grep { /^linguas_.+/ }
+			map { s/^[+-]//r } split(" ");
+		print "@o\n"'
+	output=$(pquery --raw --attr iuse -- "${pkg}") || return 1
+
+	if [[ -z ${output} ]]; then
+		echo "${FUNCNAME}: pquery returned empty string" >&2
+		return 1
+	fi
+
+	n_lines=$(echo "${output}" | wc -l) || return 1
+	if [[ ${n_lines} != 1 ]]; then
+		echo "${FUNCNAME}: pquery got ${n_lines} lines: '${output}'" >&2
+		return 1
+	fi
+
+	linguas=$(echo "${output}" | perl -wne "${perl_cmd}") || return 2
+	echo "${linguas}"
+}
+
 if ! git status > /dev/null; then
 	echo "this script removes and copies etc. stuff"
 	echo "for safety, aborting, as you're not in a git repository"
@@ -82,13 +110,23 @@ if [[ $(basename "$(realpath .)") != "www-client" ]]; then
 	exit 4
 fi
 
-echo "provide language list, from Firefox ebuild:"
-read -a langs
-
-[[ ${#langs[@]} -eq 0 ]] && e "No langs?"
-
 echo "provide new version number:"
 read new_version
+
+echo "provide language list, from Firefox ebuild (if empty, it will" \
+	"be determined using pquery from pkgcore):"
+read -a langs
+
+if [[ ${#langs[@]} -eq 0 ]]; then
+	tmp_pkg_pv="=www-client/firefox-${new_version}"
+	echo "Getting language list using ${tmp_pkg_pv}..."
+	tmp_langs=$(detect_linguas "${tmp_pkg_pv}") \
+		|| e "Detecting linguas failed."
+	echo "--> ${tmp_langs}"
+	read -a langs <<< "${tmp_langs}"
+fi
+
+[[ ${#langs[@]} -eq 0 ]] && e "No langs?"
 
 def_manifest_path="/usr/portage/www-client/firefox/Manifest"
 echo "provide location to Firefox's Manifest (${def_manifest_path} if empty):"
