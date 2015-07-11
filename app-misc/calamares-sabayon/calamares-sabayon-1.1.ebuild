@@ -4,9 +4,11 @@
 
 EAPI=5
 
+inherit eutils
+
 DESCRIPTION="Sabayon Official Installer"
 HOMEPAGE="http://www.sabayon.org/"
-SRC_URI=""
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/installer-desktop-icon.png"
 LICENSE="CC-BY-SA-4.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
@@ -17,9 +19,14 @@ DEPEND=">=app-misc/calamares-sabayon-base-modules-1.2
 RDEPEND="${DEPEND}
 	!!app-admin/anaconda"
 
-S="${FILESDIR}/${P}"
+src_unpack() {
+	mkdir "${WORKDIR}/${P}"
+	cp "${DISTDIR}/${A}" "${WORKDIR}/${P}/"
+}
+
 src_install() {
-	newbin "${S}/Installer.sh" "installer"
+	newbin "${FILESDIR}/Installer.sh" "installer"
 	insinto "/etc/skel/Desktop/"
-	newins "${S}/Installer.desktop" "Installer.desktop"
+	newins "${FILESDIR}/Installer.desktop" "Installer.desktop"
+	doicon "${S}/installer-desktop-icon.png"
 }

@@ -1,12 +1,13 @@
+#!/usr/bin/env xdg-open
 [Desktop Entry]
 Encoding=UTF-8
 Type=Application
-Name=Installer
+Name=Install Sabayon
 GenericName=System Installer
 TryExec=calamares
-Exec=pkexec /usr/bin/calamares
+Exec=calamares-pkexec
 Comment=Calamares — System Installer
-Icon=calamares
+Icon=installer-desktop-icon
 Terminal=false
 StartupNotify=false
 Categories=Qt;System;
