@@ -14,12 +14,10 @@ KEYWORDS="~arm ~amd64 ~x86"
 # ncurses use flag is fake, used to mimic portage ebuild USE flags
 IUSE="clipboard gtk ncurses qt4 caps gnome-keyring static"
 
-# USE=gnome-keyring affects not only the pinentry-gnome3 binary,
-# (adds linking to libsecret and libglib), but it's currently only
-# needed there. (TODO: add pinentry-gnome.)
 RDEPEND="
 	~app-crypt/pinentry-base-${PV}
 	caps? ( ~app-crypt/pinentry-base-${PV}[caps] )
+	gnome-keyring? ( ~app-crypt/pinentry-gnome-${PV} )
 	gtk? ( ~app-crypt/pinentry-gtk2-${PV} )
 	qt4? ( ~app-crypt/pinentry-qt4-${PV}[clipboard=] )
 	static? ( ~app-crypt/pinentry-base-${PV}[static] )"
