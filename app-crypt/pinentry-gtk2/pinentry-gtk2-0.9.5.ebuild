@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit eutils flag-o-matic
+inherit eutils flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-gtk2}
 MY_P=${P/-gtk2}
@@ -29,17 +29,17 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/${MY_P}"
 
 src_configure() {
+	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
+
 	econf \
 		--disable-pinentry-tty \
 		--enable-pinentry-gtk2 \
 		--disable-pinentry-curses \
 		--disable-fallback-curses \
 		--disable-pinentry-qt4 \
-		$(use_with caps libcap)
-}
-
-src_compile() {
-	emake AR="$(tc-getAR)"
+		$(use_with caps libcap) \
+		--disable-libsecret \
+		--disable-pinentry-gnome3
 }
 
 src_install() {

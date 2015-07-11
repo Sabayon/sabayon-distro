@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit multilib eutils flag-o-matic
+inherit qmake-utils multilib eutils flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-qt4}
 MY_P=${P/-qt4}
@@ -15,7 +15,7 @@ SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm ~amd64 ~x86"
-IUSE="caps"
+IUSE="caps clipboard"
 
 RDEPEND="
 	~app-crypt/pinentry-base-${PV}
@@ -29,18 +29,15 @@ DEPEND="${RDEPEND}
 
 S=${WORKDIR}/${MY_P}
 
-src_prepare() {
-	#if use qt4; then
-		local f
-		for f in qt4/*.moc; do
-			"${EPREFIX}"/usr/bin/moc ${f/.moc/.h} > ${f} || die
-		done
-	#fi
-}
-
 src_configure() {
+	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
+
 	# Issues finding qt on multilib systems
 	export QTLIB="${QTDIR}/$(get_libdir)"
+
+	# note about the split (-qt4) ebuild:
+	# gnome3 is enabled because otherwise configure fails somewhow.
+	# Revisit this on the next version bump.
 
 	econf \
 		--disable-pinentry-tty \
@@ -48,11 +45,11 @@ src_configure() {
 		--disable-pinentry-curses \
 		--disable-fallback-curses \
 		--enable-pinentry-qt4 \
-		$(use_with caps libcap)
-}
-
-src_compile() {
-	emake AR="$(tc-getAR)"
+		$(use_enable clipboard pinentry-qt4-clipboard) \
+		$(use_with caps libcap) \
+		--disable-libsecret \
+		--enable-pinentry-gnome3 \
+		MOC="$(qt4_get_bindir)"/moc
 }
 
 src_install() {

@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit autotools multilib eutils flag-o-matic
+inherit qmake-utils autotools multilib eutils flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-base}
 MY_P=${P/-base}
@@ -19,10 +19,11 @@ IUSE="gtk qt4 caps static"
 
 RDEPEND="
 	app-eselect/eselect-pinentry
+	>=dev-libs/libgpg-error-1.17
+	>=dev-libs/libassuan-2
 	caps? ( sys-libs/libcap )
 	sys-libs/ncurses
 	static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] )
-	ppc-aix? ( dev-libs/gnulib )
 "
 DEPEND="${RDEPEND}"
 
@@ -32,18 +33,12 @@ DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 
 src_prepare() {
 	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
-	epatch "${FILESDIR}/${MY_PN}-0.8.2-texi.patch"
 	eautoreconf
 }
 
 src_configure() {
 	use static && append-ldflags -static
-
-	if [[ ${CHOST} == *-aix* ]] ; then
-		append-flags -I"${EPREFIX}/usr/$(get_libdir)/gnulib/include"
-		append-ldflags -L"${EPREFIX}/usr/$(get_libdir)/gnulib/$(get_libdir)"
-		append-libs -lgnu
-	fi
+	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
 
 	econf \
 		--enable-pinentry-tty \
@@ -51,11 +46,9 @@ src_configure() {
 		--enable-pinentry-curses \
 		--enable-fallback-curses \
 		--disable-pinentry-qt4 \
-		$(use_with caps libcap)
-}
-
-src_compile() {
-	emake AR="$(tc-getAR)"
+		$(use_with caps libcap) \
+		--disable-libsecret \
+		--disable-pinentry-gnome3
 }
 
 src_install() {
