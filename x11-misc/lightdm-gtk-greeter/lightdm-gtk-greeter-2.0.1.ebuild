@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -12,7 +12,7 @@ SRC_URI="http://launchpad.net/lightdm-gtk-greeter/$(get_version_component_range 
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~ppc x86"
+KEYWORDS="~amd64 ~arm ~ppc ~x86"
 IUSE=""
 
 # This ebuild needs custom Sabayon themes, thus it must depend on sabayon-artwork-core
@@ -30,7 +30,6 @@ src_prepare() {
 	# Apply custom Sabayon theme
 	sed -i \
 		-e 's:#background=.*:background=/usr/share/backgrounds/kgdm.png:' \
-		-e 's:#show-language-selector=.*:show-language-selector=true:' \
 		-e 's:#xft-hintstyle=.*:xft-hintstyle=hintfull:' \
 		-e 's:#xft-antialias=.*:xft-antialias=true:' \
 		-e 's:#xft-rgba=.*:xft-rgba=rgb:' "data/${PN}.conf" || die
@@ -44,4 +43,3 @@ pkg_postinst() {
 pkg_postrm() {
 	eselect lightdm set 1  # hope some other greeter is installed
 }
-
