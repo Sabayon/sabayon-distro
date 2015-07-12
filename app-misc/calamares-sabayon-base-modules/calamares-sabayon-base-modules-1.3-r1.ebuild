@@ -12,11 +12,11 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND=">=app-admin/calamares-1.1_rc1[networkmanager,upower]"
+DEPEND=">=app-admin/calamares-1.1.1[networkmanager,upower]"
 RDEPEND="${DEPEND}"
 
-S="${FILESDIR}/${P}"
+S="${FILESDIR}"
 src_install() {
 	insinto "/etc/calamares/"
-	doins -r "${S}/"*
+	doins -r "${S}/${PN}-conf/"*
 }
