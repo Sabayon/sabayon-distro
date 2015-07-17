@@ -110,7 +110,7 @@ src_compile() {
 
 	git_emake \
 		gitweb \
-		|| die "emake gitweb (cgi) failed"
+		|| die "emake gitweb failed"
 }
 
 src_install() {

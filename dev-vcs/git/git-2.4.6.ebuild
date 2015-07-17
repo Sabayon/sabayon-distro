@@ -299,8 +299,8 @@ src_compile() {
 
 	if use perl && use cgi ; then
 		git_emake \
-			gitweb \
-			|| die "emake gitweb (cgi) failed"
+			gitweb/gitweb.cgi \
+			|| die "emake gitweb/gitweb.cgi failed"
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]]; then
