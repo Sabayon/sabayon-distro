@@ -28,5 +28,6 @@ src_install() {
 	newbin "${FILESDIR}/Installer.sh" "installer"
 	insinto "/etc/skel/Desktop/"
 	newins "${FILESDIR}/Installer.desktop" "Installer.desktop"
+	fperms +x /etc/skel/Desktop/Installer.desktop
 	doicon "${S}/installer-desktop-icon.png"
 }
