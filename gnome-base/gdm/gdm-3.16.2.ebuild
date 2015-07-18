@@ -1,14 +1,15 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="5"
+GCONF_DEBUG="yes"
 GNOME2_LA_PUNT="yes"
 
-inherit autotools eutils gnome2 pam readme.gentoo systemd user
+inherit autotools eutils gnome2 pam readme.gentoo systemd user versionator
 
 DESCRIPTION="GNOME Display Manager for managing graphical display servers and user logins"
-HOMEPAGE="https://wiki.gnome.org/GDM"
+HOMEPAGE="https://wiki.gnome.org/Projects/GDM"
 
 SRC_URI="${SRC_URI}
 	branding? ( http://www.mail-archive.com/tango-artists@lists.freedesktop.org/msg00043/tango-gentoo-v1.1.tar.gz )
@@ -30,7 +31,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86"
 # We need either systemd or >=openrc-0.12 to restart gdm properly, bug #463784
 COMMON_DEPEND="
 	app-text/iso-codes
-	>=dev-libs/glib-2.36:2
+	>=dev-libs/glib-2.36:2[dbus]
 	>=x11-libs/gtk+-2.91.1:3
 	>=gnome-base/dconf-0.20
 	>=gnome-base/gnome-settings-daemon-3.1.4
@@ -48,7 +49,6 @@ COMMON_DEPEND="
 	x11-libs/libXdmcp
 	x11-libs/libXext
 	x11-libs/libXft
-	x11-libs/libXrandr
 	>=x11-misc/xdg-utils-1.0.2-r3
 
 	virtual/pam
@@ -61,7 +61,7 @@ COMMON_DEPEND="
 	sys-auth/pambase[systemd?]
 
 	audit? ( sys-process/audit )
-	introspection? ( >=dev-libs/gobject-introspection-0.9.12 )
+	introspection? ( >=dev-libs/gobject-introspection-0.9.12:= )
 	plymouth? ( sys-boot/plymouth )
 	selinux? ( sys-libs/libselinux )
 	tcpd? ( >=sys-apps/tcp-wrappers-7.6 )
@@ -79,7 +79,6 @@ RDEPEND="${COMMON_DEPEND}
 
 	accessibility? (
 		>=app-accessibility/orca-3.10
-		app-accessibility/caribou
 		gnome-extra/mousetweaks )
 	fprint? (
 		sys-auth/fprintd
@@ -89,7 +88,9 @@ RDEPEND="${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 	app-text/docbook-xml-dtd:4.1.2
+	dev-util/gdbus-codegen
 	>=dev-util/intltool-0.40.0
+	dev-util/itstool
 	virtual/pkgconfig
 	x11-proto/inputproto
 	x11-proto/randrproto
@@ -127,7 +128,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# make custom session work, bug #216984
+	# make custom session work, bug #216984, upstream bug #737578
 	epatch "${FILESDIR}/${PN}-3.2.1.1-custom-session.patch"
 
 	# ssh-agent handling must be done at xinitrc.d, bug #220603
@@ -138,10 +139,6 @@ src_prepare() {
 
 	# Show logo when branding is enabled
 	use branding && epatch "${FILESDIR}/${PN}-3.8.4-logo.patch"
-
-	# Correctly set systemd unit dependencies if plymouth is disabled
-	# This avoids screwing up VT1
-	use plymouth || epatch "${FILESDIR}/gdm-3.10.0.1-fix-systemd-unit-if-plymouth-disabled.patch"
 
 	eautoreconf
 
@@ -164,11 +161,11 @@ src_configure() {
 		--localstatedir="${EPREFIX}"/var \
 		--disable-static \
 		--with-xdmcp=yes \
+		--with-initial-vt=7 \
 		--enable-authentication-scheme=pam \
 		--with-default-pam-config=exherbo \
 		--with-at-spi-registryd-directory="${EPREFIX}"/usr/libexec \
 		--with-consolekit-directory="${EPREFIX}"/usr/lib/ConsoleKit \
-		--with-initial-vt=7 \
 		--without-xevie \
 		$(use_with audit libaudit) \
 		$(use_enable ipv6) \
@@ -181,7 +178,6 @@ src_configure() {
 		$(use_with tcpd tcp-wrappers) \
 		$(use_enable wayland wayland-support) \
 		$(use_with xinerama) \
-		ITSTOOL=$(type -P true) \
 		${myconf}
 }
 
@@ -192,12 +188,9 @@ src_install() {
 		rm "${ED}"/usr/share/gdm/greeter/autostart/orca-autostart.desktop || die
 	fi
 
-	insinto /etc/X11/xinit/xinitrc.d
-	newins "${FILESDIR}/49-keychain-r1" 49-keychain
-	newins "${FILESDIR}/50-ssh-agent-r1" 50-ssh-agent
-
-	# log, etc.
-	keepdir /var/log/gdm
+	exeinto /etc/X11/xinit/xinitrc.d
+	newexe "${FILESDIR}/49-keychain-r1" 49-keychain
+	newexe "${FILESDIR}/50-ssh-agent-r1" 50-ssh-agent
 
 	# gdm user's home directory
 	keepdir /var/lib/gdm
@@ -233,6 +226,11 @@ pkg_postinst() {
 	eend ${ret}
 
 	readme.gentoo_print_elog
+
+	if ! version_is_at_least 3.16.0 ${REPLACING_VERSIONS}; then
+		ewarn "GDM will now use a new TTY per logged user as explained at:"
+		ewarn "https://wiki.gentoo.org/wiki/Project:GNOME/GNOME3-Troubleshooting#GDM_.3E.3D_3.16_opens_one_graphical_session_per_user"
+	fi
 
 	if [[ -f "/etc/X11/gdm/gdm.conf" ]]; then
 		elog "You had /etc/X11/gdm/gdm.conf which is the old configuration"
