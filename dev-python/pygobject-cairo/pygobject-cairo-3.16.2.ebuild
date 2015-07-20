@@ -22,10 +22,10 @@ IUSE="+threads"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-COMMON_DEPEND="
+COMMON_DEPEND="${PYTHON_DEPS}
 	~dev-python/pygobject-base-${PV}[threads=]
 	>=dev-python/pycairo-1.10.0[${PYTHON_USEDEP}]
-	${PYTHON_DEPS}"
+"
 DEPEND="${COMMON_DEPEND}
 	x11-libs/cairo[glib]
 	gnome-base/gnome-common"
@@ -46,10 +46,13 @@ src_configure() {
 	# Hard-enable libffi support since both gobject-introspection and
 	# glib-2.29.x rdepend on it anyway
 	# docs disabled by upstream default since they are very out of date
-	python_foreach_impl run_in_build_dir \
+	configuring() {
 		gnome2_src_configure \
 			--enable-cairo \
 			$(use_enable threads thread)
+	}
+
+	python_foreach_impl run_in_build_dir configuring
 }
 
 src_compile() {

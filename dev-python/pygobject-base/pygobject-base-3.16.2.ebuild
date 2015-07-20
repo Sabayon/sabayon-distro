@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -22,11 +22,10 @@ IUSE="+cairo examples test +threads"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-COMMON_DEPEND="
+COMMON_DEPEND="${PYTHON_DEPS}
 	>=dev-libs/glib-2.38:2
-	>=dev-libs/gobject-introspection-1.39
+	>=dev-libs/gobject-introspection-1.39:=
 	virtual/libffi:=
-	${PYTHON_DEPS}
 "
 DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
@@ -36,7 +35,8 @@ DEPEND="${COMMON_DEPEND}
 		media-fonts/font-misc-misc
 		x11-libs/gdk-pixbuf:2[introspection]
 		x11-libs/gtk+:3[introspection]
-		x11-libs/pango[introspection] )
+		x11-libs/pango[introspection]
+		!sparc? ( python_targets_python2_7? ( dev-python/pyflakes[$(python_gen_usedep python2_7)] ) ) )
 "
 # gnome-base/gnome-common required by eautoreconf
 
@@ -60,10 +60,19 @@ src_configure() {
 	# Hard-enable libffi support since both gobject-introspection and
 	# glib-2.29.x rdepend on it anyway
 	# docs disabled by upstream default since they are very out of date
-	python_foreach_impl run_in_build_dir \
+	configuring() {
 		gnome2_src_configure \
 			--disable-cairo \
 			$(use_enable threads thread)
+
+		# Pyflakes tests work only in python2, bug #516744
+		if use test && [[ ${EPYTHON} != python2.7 ]]; then
+			sed -e 's/if type pyflakes/if false/' \
+				-i Makefile || die "sed failed"
+		fi
+	}
+
+	python_foreach_impl run_in_build_dir configuring
 }
 
 src_compile() {
