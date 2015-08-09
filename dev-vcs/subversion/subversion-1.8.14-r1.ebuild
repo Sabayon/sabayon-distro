@@ -1,9 +1,9 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=5
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 DISTUTILS_OPTIONAL=1
 WANT_AUTOMAKE="none"
 GENTOO_DEPEND_ON_PERL="no"
@@ -28,33 +28,34 @@ COMMON_DEPEND=">=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
+	sys-apps/file
 	sys-libs/zlib
 	app-arch/bzip2
-	berkdb? ( >=sys-libs/db-4.0.14 )
+	berkdb? ( >=sys-libs/db-4.0.14:= )
 	ctypes-python? ( ${PYTHON_DEPS} )
-	gnome-keyring? ( dev-libs/glib:2 sys-apps/dbus gnome-base/gnome-keyring )
+	gnome-keyring? ( dev-libs/glib:2 sys-apps/dbus gnome-base/libgnome-keyring )
 	kde? ( sys-apps/dbus dev-qt/qtcore:4 dev-qt/qtdbus:4 dev-qt/qtgui:4 >=kde-base/kdelibs-4:4 )
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
-	ruby? ( >=dev-lang/ruby-1.9.3:1.9
-		dev-ruby/rubygems[ruby_targets_ruby19] )
+	ruby? ( >=dev-lang/ruby-2.1:2.1
+		dev-ruby/rubygems[ruby_targets_ruby21] )
 	sasl? ( dev-libs/cyrus-sasl )
 	http? ( >=net-libs/serf-1.2.1 )"
 RDEPEND="${COMMON_DEPEND}
 	apache2? ( www-servers/apache[apache2_modules_dav] )
-	kde? ( || ( kde-apps/kwalletd:4 kde-base/kwalletd ) )
+	kde? ( kde-apps/kwalletd:4 )
 	nls? ( virtual/libintl )
 	perl? ( dev-perl/URI )"
 # Note: ctypesgen doesn't need PYTHON_USEDEP, it's used once
 DEPEND="${COMMON_DEPEND}
-	test? ( ${PYTHON_DEPS} )
 	!!<sys-apps/sandbox-1.6
 	ctypes-python? ( dev-python/ctypesgen )
 	doc? ( app-doc/doxygen )
 	gnome-keyring? ( virtual/pkgconfig )
+	http? ( virtual/pkgconfig )
 	kde? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
-	http? ( virtual/pkgconfig )"
+	test? ( ${PYTHON_DEPS} )"
 PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
 
 REQUIRED_USE="
@@ -199,9 +200,10 @@ src_configure() {
 		export ac_cv_python_compile="$(tc-getCC)"
 	fi
 
-	# force ruby-1.9
+	# force ruby-2.1
 	# allow overriding Python include directory
-	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby19 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc19 \
+	ac_cv_path_RUBY=$(usex ruby "${EPREFIX}/usr/bin/ruby21" "none") \
+	ac_cv_path_RDOC=$(usex ruby "${EPREFIX}/usr/bin/rdoc21" "none") \
 	ac_cv_python_includes='-I$(PYTHON_INCLUDEDIR)' \
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		$(use_with apache2 apache-libexecdir) \
@@ -354,7 +356,7 @@ src_install() {
 	rm -fr tools/backup
 
 	# Install svnserve init-script and xinet.d snippet, bug 43245.
-	newinitd "${FILESDIR}"/svnserve.initd2 svnserve
+	newinitd "${FILESDIR}"/svnserve.initd3 svnserve
 	newconfd "${FILESDIR}"/svnserve.confd svnserve
 	insinto /etc/xinetd.d
 	newins "${FILESDIR}"/svnserve.xinetd svnserve
