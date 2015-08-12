@@ -4,27 +4,39 @@
 
 EAPI=5
 
+AUTOTOOLS_AUTORECONF=yes
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 PYTHON_COMPAT=( python{2_7,3_3,3_4} )
+
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/systemd/systemd.git"
+	inherit git-r3
+else
+	SRC_URI="https://github.com/systemd/systemd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="~amd64 ~arm ~ia64 ~x86"
+fi
+UNIFONT=unifont-8.0.01
+SRC_URI+=" terminal? ( http://unifoundry.com/pub/${UNIFONT}/font-builds/${UNIFONT}.hex.gz )"
+
 inherit autotools-utils bash-completion-r1 linux-info multilib \
-	multilib-minimal pam python-single-r1 systemd toolchain-funcs udev \
+	multilib-minimal pam python-any-r1 systemd toolchain-funcs udev \
 	user
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
-SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
-KEYWORDS="alpha amd64 ~arm ~ia64 ppc ppc64 ~sparc x86"
-IUSE="acl apparmor audit cryptsetup curl doc elfutils gcrypt gudev http
-	idn introspection kdbus +kmod +lz4 lzma pam policykit python qrcode +seccomp
-	selinux ssl sysv-utils terminal test vanilla xkb"
+IUSE="acl apparmor audit cryptsetup curl elfutils gcrypt gnuefi http
+	idn importd +kdbus +kmod +lz4 lzma nat pam policykit
+	qrcode +seccomp selinux ssl sysv-utils terminal test vanilla xkb"
+
+REQUIRED_USE="importd? ( curl gcrypt lzma )"
 
 MINKV="3.8"
 
-COMMON_DEPEND=">=sys-apps/util-linux-2.25:0=
-	sys-libs/libcap:0=
+COMMON_DEPEND=">=sys-apps/util-linux-2.26:0=[${MULTILIB_USEDEP}]
+	sys-libs/libcap:0=[${MULTILIB_USEDEP}]
 	!<sys-libs/glibc-2.16
 	acl? ( sys-apps/acl:0= )
 	apparmor? ( sys-libs/libapparmor:0= )
@@ -33,18 +45,20 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.25:0=
 	curl? ( net-misc/curl:0= )
 	elfutils? ( >=dev-libs/elfutils-0.158:0= )
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5:0=[${MULTILIB_USEDEP}] )
-	gudev? ( >=dev-libs/glib-2.34.3:2=[${MULTILIB_USEDEP}] )
 	http? (
 		>=net-libs/libmicrohttpd-0.9.33:0=
 		ssl? ( >=net-libs/gnutls-3.1.4:0= )
 	)
 	idn? ( net-dns/libidn:0= )
-	introspection? ( >=dev-libs/gobject-introspection-1.31.1:0= )
+	importd? (
+		app-arch/bzip2:0=
+		sys-libs/zlib:0=
+	)
 	kmod? ( >=sys-apps/kmod-15:0= )
 	lz4? ( >=app-arch/lz4-0_p119:0=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
+	nat? ( net-firewall/iptables:0= )
 	pam? ( virtual/pam:= )
-	python? ( ${PYTHON_DEPS} )
 	qrcode? ( media-gfx/qrencode:0= )
 	seccomp? ( sys-libs/libseccomp:0= )
 	selinux? ( sys-libs/libselinux:0= )
@@ -60,16 +74,15 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.25:0=
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
-        !app-admin/eselect-init
+	!app-admin/eselect-init
 	>=sys-apps/baselayout-2.2
 	!sys-auth/nss-myhostname
 	!sys-fs/eudev
-	!sys-fs/udev
-	gudev? ( !dev-libs/libgudev )"
+	!sys-fs/udev"
 
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
 PDEPEND=">=sys-apps/dbus-1.6.8-r1:0[systemd]
-	>=sys-apps/hwids-20130717-r1[udev]
+	>=sys-apps/hwids-20150417[udev]
 	>=sys-fs/udev-init-scripts-25
 	policykit? ( sys-auth/polkit )
 	!vanilla? ( sys-apps/gentoo-systemd-integration )"
@@ -85,9 +98,18 @@ DEPEND="${COMMON_DEPEND}
 	>=sys-kernel/linux-headers-${MINKV}
 	ia64? ( >=sys-kernel/linux-headers-3.9 )
 	virtual/pkgconfig
-	doc? ( >=dev-util/gtk-doc-1.18 )
-	python? ( dev-python/lxml[${PYTHON_USEDEP}] )
+	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
+	terminal? ( ${PYTHON_DEPS} )
 	test? ( >=sys-apps/dbus-1.6.8-r1:0 )"
+
+if [[ -n ${AUTOTOOLS_AUTORECONF} ]]; then
+	DEPEND+="
+		app-text/docbook-xml-dtd:4.2
+		app-text/docbook-xml-dtd:4.5
+		app-text/docbook-xsl-stylesheets
+		dev-libs/libxslt:0
+		>=dev-libs/libgcrypt-1.4.5:0"
+fi
 
 PATCHES=( "${FILESDIR}/218-Dont-enable-audit-by-default.patch" )
 
@@ -130,16 +152,17 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	use python && python-single-r1_pkg_setup
+	:
+}
+
+src_unpack() {
+	default
+	[[ ${PV} != 9999 ]] || git-r3_src_unpack
 }
 
 src_prepare() {
 	# Bug 463376
 	sed -i -e 's/GROUP="dialout"/GROUP="uucp"/' rules/*.rules || die
-
-	# missing in tarball
-	cp "${FILESDIR}"/217-systemd-consoled.service.in \
-		units/user/systemd-consoled.service.in || die
 
 	autotools-utils_src_prepare
 }
@@ -150,6 +173,10 @@ src_configure() {
 	# Fix systems broken by bug #509454.
 	[[ ${MY_UDEVDIR} ]] || MY_UDEVDIR=/lib/udev
 
+	if use terminal; then
+		python_setup
+	fi
+
 	multilib-minimal_src_configure
 }
 
@@ -158,6 +185,9 @@ multilib_src_configure() {
 		# disable -flto since it is an optimization flag
 		# and makes distcc less effective
 		cc_cv_CFLAGS__flto=no
+
+		# Workaround for gcc-4.7, bug 554454.
+		cc_cv_CFLAGS__Werror_shadow=no
 
 		# Workaround for bug 516346
 		--enable-dependency-tracking
@@ -178,6 +208,9 @@ multilib_src_configure() {
 		# no deps
 		--enable-efi
 		--enable-ima
+		# Moved to dev-python/python-systemd
+		--disable-python-devel
+		--without-python
 
 		# Optional components/dependencies
 		$(multilib_native_use_enable acl)
@@ -185,54 +218,45 @@ multilib_src_configure() {
 		$(multilib_native_use_enable audit)
 		$(multilib_native_use_enable cryptsetup libcryptsetup)
 		$(multilib_native_use_enable curl libcurl)
-		$(multilib_native_use_enable doc gtk-doc)
 		$(multilib_native_use_enable elfutils)
 		$(use_enable gcrypt)
-		$(use_enable gudev)
+		$(multilib_native_use_enable gnuefi)
 		$(multilib_native_use_enable http microhttpd)
 		$(usex http $(multilib_native_use_enable ssl gnutls) --disable-gnutls)
 		$(multilib_native_use_enable idn libidn)
-		$(multilib_native_use_enable introspection)
+		$(multilib_native_use_enable importd)
+		$(multilib_native_use_enable importd bzip2)
+		$(multilib_native_use_enable importd zlib)
 		$(use_enable kdbus)
 		$(multilib_native_use_enable kmod)
 		$(use_enable lz4)
 		$(use_enable lzma xz)
+		$(multilib_native_use_enable nat libiptc)
 		$(multilib_native_use_enable pam)
 		$(multilib_native_use_enable policykit polkit)
-		$(multilib_native_use_with python)
-		$(multilib_native_use_enable python python-devel)
 		$(multilib_native_use_enable qrcode qrencode)
 		$(multilib_native_use_enable seccomp)
 		$(multilib_native_use_enable selinux)
 		$(multilib_native_use_enable terminal)
+		$(multilib_native_use_with terminal unifont "${WORKDIR}/${UNIFONT}.hex")
 		$(multilib_native_use_enable test tests)
 		$(multilib_native_use_enable test dbus)
 		$(multilib_native_use_enable xkb xkbcommon)
-
-		# not supported (avoid automagic deps in the future)
-		--disable-chkconfig
 
 		# hardcode a few paths to spare some deps
 		QUOTAON=/usr/sbin/quotaon
 		QUOTACHECK=/usr/sbin/quotacheck
 
+		# TODO: we may need to restrict this to gcc
+		EFI_CC="$(tc-getCC)"
+
 		# dbus paths
 		--with-dbuspolicydir="${EPREFIX}/etc/dbus-1/system.d"
 		--with-dbussessionservicedir="${EPREFIX}/usr/share/dbus-1/services"
 		--with-dbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
-		--with-dbusinterfacedir="${EPREFIX}/usr/share/dbus-1/interfaces"
 
 		--with-ntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 	)
-
-	if ! multilib_is_native_abi; then
-		myeconfargs+=(
-			MOUNT_{CFLAGS,LIBS}=' '
-
-			ac_cv_search_cap_init=
-			ac_cv_header_sys_capability_h=yes
-		)
-	fi
 
 	# Work around bug 463846.
 	tc-export CC
@@ -248,9 +272,6 @@ multilib_src_compile() {
 	if multilib_is_native_abi; then
 		emake "${mymakeopts[@]}"
 	else
-		# prerequisites for gudev
-		use gudev && emake src/gudev/gudev{enumtypes,marshal}.{c,h}
-
 		echo 'gentoo: $(BUILT_SOURCES)' | \
 		emake "${mymakeopts[@]}" -f Makefile -f - gentoo
 		echo 'gentoo: $(lib_LTLIBRARIES) $(pkgconfiglib_DATA)' | \
@@ -283,7 +304,6 @@ multilib_src_install() {
 			install-pkgconfiglibDATA
 			install-includeHEADERS
 			# safe to call unconditionally, 'installs' empty list
-			install-libgudev_includeHEADERS
 			install-pkgincludeHEADERS
 		)
 
@@ -295,10 +315,11 @@ multilib_src_install() {
 	local pcfiles=( src/compat-libs/libsystemd-{daemon,id128,journal,login}.pc )
 	emake "${mymakeopts[@]}" install-pkgconfiglibDATA \
 		pkgconfiglib_DATA="${pcfiles[*]}"
-        # Sabayon: create systemd-run symlink in /bin. lvm2 lvmetad has a
-        # udev rule that expects systemd-run to be in /bin. And lvmetad is
-        # used by Anaconda.
-        dosym "../usr/bin/systemd-run" "/bin/systemd-run"
+	# Sabayon: create systemd-run symlink in /bin. lvm2 lvmetad has a
+	# udev rule that expects systemd-run to be in /bin. And lvmetad is
+	# used by Anaconda.
+	dosym "../usr/bin/systemd-run" "/bin/systemd-run"
+
 }
 
 multilib_src_install_all() {
@@ -334,11 +355,10 @@ multilib_src_install_all() {
 	rm "${D}"/etc/systemd/system/multi-user.target.wants/systemd-resolved.service || die
 	rm -r "${D}"/etc/systemd/system/network-online.target.wants || die
 	rm -r "${D}"/etc/systemd/system/sysinit.target.wants || die
-
-        # Offer a default blacklist that should cover the most
-        # common use cases.
-        insinto /etc/modprobe.d
-        newins "${FILESDIR}"/blacklist-146 blacklist.conf
+	# Offer a default blacklist that should cover the most
+	# common use cases.
+	insinto /etc/modprobe.d
+	newins "${FILESDIR}"/blacklist-146 blacklist.conf
 }
 
 migrate_locale() {
@@ -453,6 +473,7 @@ pkg_postinst() {
 		eerror "systemd again."
 		eerror
 	fi
+
 
         if [[ ! -L "${ROOT}"/etc/mtab ]]; then
                 ewarn "Upstream mandates the /etc/mtab file should be a symlink to /proc/mounts."
