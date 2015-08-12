@@ -1,0 +1,11 @@
+--- common.old/lib/modules/fglrx/build_mod/kcl_acpi.c	2015-07-31 11:29:12.258116934 -0600
++++ common/lib/modules/fglrx/build_mod/kcl_acpi.c	2015-08-02 11:18:50.105349332 -0600
+@@ -861,7 +861,7 @@
+ #elif LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0)
+     if(pdev)
+     {
+-       pci_ignore_hotplug(pdev);
++       pdev->ignore_hotplug = 1;
+     }
+ #endif
+ }

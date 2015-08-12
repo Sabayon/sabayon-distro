@@ -195,6 +195,7 @@ src_prepare() {
 	# Linux 4.0, 4.1 support
 	if kernel_is ge 3 18; then
 		epatch "${FILESDIR}/${PN}-linux-4.0.patch"
+		epatch "${FILESDIR}/${P}-linux-3.9-4.0.patch"
 	fi
 
 	if kernel_is ge 4 1; then
