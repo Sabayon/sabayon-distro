@@ -2,7 +2,7 @@
 
 # Install all firefox-l10 packages.
 
-#   Copyright 2014 Sławomir Nizio
+#   Copyright 2014, 2015 Sławomir Nizio
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -19,7 +19,10 @@
 # The packages are expected to be in the same directory this script is in.
 # It exports LINGUAS with all of the possible languages to make sure all
 # of the language packages are installed properly (so that it does not matter
-# what is set in make.conf).
+# what is set in make.conf). Note that it may not work with pkgcore!
+
+# Options: --pkgcore - use pkgcore (but see note above),
+#          -- PM_OPTS - pass options to the package manager (default: --ask).
 
 e() {
 	echo "$*" >&2
@@ -28,9 +31,9 @@ e() {
 
 inst_cmd() {
 	if [[ ${use_pkgcore} = yep ]]; then
-		time pmerge -a "$@"
+		time pmerge "${pm_opts[@]}" "$@"
 	else
-		time emerge -a "$@"
+		time emerge "${pm_opts[@]}" "$@"
 	fi
 }
 
@@ -54,11 +57,22 @@ LINGUAS=""
 
 ver=
 
-if [[ $1 = --pkgcore ]]; then
-	use_pkgcore=yep
-else
-	use_pkgcore=no
-fi
+use_pkgcore=no
+pm_opts=( --ask )
+
+while (( $# )); do
+	if [[ $1 = --pkgcore ]]; then
+		use_pkgcore=yep
+		shift
+	elif [[ $1 = -- ]]; then
+		shift
+		pm_opts=( "$@" )
+		break
+	else
+		echo "I don't know what option '$1' means." >&2
+		exit 1
+	fi
+done
 
 for p in firefox-l10n-*; do
 	if [[ ! -e ${p} ]]; then
