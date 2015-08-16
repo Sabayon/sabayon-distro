@@ -16,12 +16,12 @@ SRC_URI="http://launchpad.net/${REAL_PN}/${TRUNK_VERSION}/${PV}/+download/${REAL
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~ppc ~x86"
-IUSE="+introspection"
+IUSE="+introspection +gnome"
 S="${WORKDIR}/${REAL_P}"
 
 COMMON_DEPEND=">=dev-libs/glib-2.32.3:2
 	dev-libs/libxml2
-	sys-apps/accountsservice
+	gnome? ( sys-apps/accountsservice )
 	virtual/pam
 	x11-libs/libX11
 	>=x11-libs/libxklavier-5
@@ -44,7 +44,7 @@ src_prepare() {
 
 	einfo "Fixing the session-wrapper variable in lightdm.conf"
 	sed -i -e \
-		"/session-wrapper/s@^.*@session-wrapper=/etc/${PN}/Xsession@" \
+		"/session-wrapper/s@^.*@session-wrapper=/etc/${REAL_PN}/Xsession@" \
 		data/lightdm.conf || die "Failed to fix lightdm.conf"
 
 	epatch_user
@@ -99,7 +99,10 @@ src_install() {
 	prune_libtool_files --all
 	rm -rf "${ED}"/etc/init
 
-	pamd_mimic system-local-login ${REAL_PN} auth account session #372229
+	# Remove existing pam file. We will build a new one. Bug #524792
+	rm -rf "${ED}"/etc/pam.d/${REAL_PN}{,-greeter}
+	pamd_mimic system-local-login ${REAL_PN} auth account password session #372229
+	pamd_mimic system-local-login ${REAL_PN}-greeter auth account password session #372229
 	dopamd "${FILESDIR}"/${REAL_PN}-autologin #390863, #423163
 
 	readme.gentoo_create_doc
