@@ -11,7 +11,7 @@ HOMEPAGE="http://www.kde.org/"
 LICENSE="GPL-2"
 
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE=""
+IUSE="+minimal"
 
 # ignored: ca@valencia
 MY_LANGS="ar bg bs ca cs da de el en_GB es et eu fi fr ga gl he
