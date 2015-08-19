@@ -36,6 +36,8 @@ src_unpack() {
 
 	if [[ ${DRIVERS_DISTFILE} =~ .*\.tar\.gz ]]; then
 		unpack ${DRIVERS_DISTFILE}
+                mkdir -p common
+                mv etc lib usr common || die "Assumed to find etc lib and usr for common"
 	else
 		#please note, RUN may be insanely assigned at top near SRC_URI
 		if [[ ${DRIVERS_DISTFILE} =~ .*\.zip ]]; then
