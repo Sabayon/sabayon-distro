@@ -21,8 +21,8 @@ KEYWORDS="~amd64 ~x86"
 
 RDEPEND="~x11-drivers/ati-drivers-${PV}
 	~x11-drivers/ati-userspace-${PV}
-	dev-qt/qtcore
-	dev-qt/qtgui"
+	dev-qt/qtcore:4
+	dev-qt/qtgui:4"
 
 DEPEND=""
 S="${WORKDIR}"
