@@ -114,7 +114,6 @@ QA_DT_HASH="
     opt/bin/clinfo
     opt/bin/fglrxinfo
     opt/sbin/atieventsd
-    opt/sbin/amdnotifyui
     usr/lib\(32\|64\)\?/libaticalcl.so
     usr/lib\(32\|64\)\?/libaticalrt.so
     usr/lib\(32\|64\)\?/libatiuki.so.1.0
@@ -342,7 +341,6 @@ src_install() {
     # (s)bin.
     into /opt
     dosbin "${ARCH_DIR}"/usr/sbin/atieventsd
-    use qt4 && dosbin "${ARCH_DIR}"/usr/sbin/amdnotifyui
     dobin "${ARCH_DIR}"/usr/bin/clinfo
     # We cleaned out the compilable stuff in src_unpack
     dobin "${ARCH_DIR}"/usr/X11R6/bin/*
