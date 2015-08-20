@@ -17,7 +17,7 @@ DRIVERS_URI="mirror://gentoo/amd-driver-installer-15.20.1046-x86.x86_64.zip"
 XVBA_SDK_URI="http://developer.amd.com/wordpress/media/2012/10/xvba-sdk-0.74-404001.tar.gz"
 SRC_URI="${DRIVERS_URI} ${XVBA_SDK_URI}"
 FOLDER_PREFIX="common/"
-IUSE="debug qt4 static-libs pax_kernel +gdm-hack"
+IUSE="debug static-libs pax_kernel +gdm-hack"
 
 LICENSE="AMD GPL-2 QPL-1.0"
 KEYWORDS="-* ~amd64 ~x86"
@@ -37,15 +37,6 @@ RDEPEND="
     x11-libs/libXinerama[${MULTILIB_USEDEP}]
     x11-libs/libXrandr[${MULTILIB_USEDEP}]
     x11-libs/libXrender[${MULTILIB_USEDEP}]
-    qt4? (
-            x11-libs/libICE
-            x11-libs/libSM
-            x11-libs/libXcursor
-            x11-libs/libXfixes
-            x11-libs/libXxf86vm
-            dev-qt/qtcore:4
-            dev-qt/qtgui:4[accessibility]
-    )
     gdm-hack? (
         x11-base/xorg-server:=
     )
@@ -114,7 +105,6 @@ QA_DT_HASH="e
     opt/bin/clinfo
     opt/bin/fglrxinfo
     opt/sbin/atieventsd
-    opt/sbin/amdnotifyui
     usr/lib\(32\|64\)\?/libaticalcl.so
     usr/lib\(32\|64\)\?/libaticalrt.so
     usr/lib\(32\|64\)\?/libatiuki.so.1.0
@@ -220,9 +210,6 @@ src_prepare() {
 
         # amdcccle is shipped separately
         rm "${ARCH_DIR}"/usr/X11R6/bin/amdcccle || die "cannot rm amdcccle"
-
-    # in this version amdcccle isn't static, thus we depend on qt4
-    use qt4 || rm "${ARCH_DIR}"/usr/X11R6/bin/amdcccle
 
     # ACPI fixups
     sed -i \
@@ -344,7 +331,6 @@ src_install() {
     # (s)bin.
     into /opt
     dosbin "${ARCH_DIR}"/usr/sbin/atieventsd
-    use qt4 && dosbin "${ARCH_DIR}"/usr/sbin/amdnotifyui
     dobin "${ARCH_DIR}"/usr/bin/clinfo
     # We cleaned out the compilable stuff in src_unpack
     dobin "${ARCH_DIR}"/usr/X11R6/bin/*
