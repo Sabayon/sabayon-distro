@@ -201,10 +201,6 @@ src_prepare() {
 		epatch "${FILESDIR}/${P}-linux-3.19-4.0.patch"
 	fi
 
-	if kernel_is ge 4 1; then
-		epatch "${FILESDIR}/${PN}-linux-4.1.patch"
-	fi
-
 	epatch_user
 
 	cd "${MODULE_DIR}"
