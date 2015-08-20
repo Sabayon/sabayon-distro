@@ -77,7 +77,6 @@ QA_TEXTRELS="
 
 QA_EXECSTACK="
     opt/bin/atiode
-    opt/bin/amdcccle
     usr/lib*/opengl/ati/lib/libGL.so.1.2
     usr/lib*/dri/fglrx_dri.so
 "
@@ -109,7 +108,6 @@ QA_SONAME="
 "
 
 QA_DT_HASH="
-    opt/bin/amdcccle
     opt/bin/aticonfig
     opt/bin/atiodcli
     opt/bin/atiode
@@ -365,16 +363,6 @@ src_install() {
     # Just the atigetsysteminfo.sh script.
     into /usr
     dosbin ${FOLDER_PREFIX}usr/sbin/*
-
-    # data files for the control panel.
-    if use qt4 ; then
-        insinto /usr/share
-        doins -r ${FOLDER_PREFIX}usr/share/ati
-        insinto /usr/share/pixmaps
-        doins ${FOLDER_PREFIX}usr/share/icons/ccc_large.xpm
-        make_desktop_entry amdcccle 'AMD Catalyst Control Center' \
-            ccc_large System
-    fi
 
     # doc.
     dohtml -r ${FOLDER_PREFIX}usr/share/doc/fglrx
