@@ -20,7 +20,7 @@ IUSE=""
 LICENSE="QPL-1.0 as-is"
 KEYWORDS="~amd64 ~x86"
 
-RDEPEND="~x11-drivers/ati-drivers-${PV}[-qt4(-)]
+RDEPEND="~x11-drivers/ati-drivers-${PV}
 	~x11-drivers/ati-userspace-${PV}
 	dev-qt/qtcore
 	dev-qt/qtgui"
