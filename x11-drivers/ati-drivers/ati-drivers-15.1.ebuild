@@ -17,7 +17,7 @@ DRIVERS_URI="mirror://ubuntu/pool/restricted/f/fglrx-installer/fglrx-installer_1
 XVBA_SDK_URI="http://developer.amd.com/wordpress/media/2012/10/xvba-sdk-0.74-404001.tar.gz"
 SRC_URI="${DRIVERS_URI} ${XVBA_SDK_URI}"
 FOLDER_PREFIX="common/"
-IUSE="debug qt4 static-libs pax_kernel"
+IUSE="debug static-libs pax_kernel"
 
 LICENSE="AMD GPL-2 QPL-1.0"
 KEYWORDS="-* ~amd64 ~x86"
@@ -154,9 +154,6 @@ src_prepare() {
 	rm \
 		"${ARCH_DIR}"/usr/X11R6/bin/fgl_glxgears \
 		|| die "bin rm failed"
-
-	# in this version amdcccle isn't static, thus we depend on qt4
-	use qt4 || rm "${ARCH_DIR}"/usr/X11R6/bin/amdcccle
 
 	# ACPI fixups
 	sed -i \
