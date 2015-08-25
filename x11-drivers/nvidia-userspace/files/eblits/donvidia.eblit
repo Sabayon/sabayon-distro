@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/files/eblits/donvidia.eblit,v 1.1 2008/12/18 18:27:35 cardoe Exp $
+# $Id$
 
 # Install nvidia library:
 # the first parameter is the place where to install it

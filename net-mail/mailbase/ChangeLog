@@ -1,6 +1,6 @@
 # ChangeLog for net-mail/mailbase
-# Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/net-mail/mailbase/ChangeLog,v 1.74 2007/11/14 07:57:49 vapier Exp $
+# Copyright 1999-2015 Gentoo Foundation
+# $Id$
 
   14 Nov 2007; Mike Frysinger <vapier@gentoo.org> mailbase-1.ebuild:
   Move mail user/group and postmaster user here from baselayout.

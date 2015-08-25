@@ -1,6 +1,6 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/webapp.eclass,v 1.66 2011/05/19 12:05:13 scarabeus Exp $
+# $Id$
 
 # @ECLASS: webapp.eclass
 # @MAINTAINER:
