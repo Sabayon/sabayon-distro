@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-boot/grub/files/grub.default-2,v 1.2 2012/06/28 22:36:53 floppym Exp $
+# $Id$
 #
 # To populate all changes in this file you need to regenerate your
 # grub configuration file afterwards:

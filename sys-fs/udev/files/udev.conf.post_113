@@ -1,5 +1,5 @@
 # /etc/udev/udev.conf:  main config file for udev
-# $Header: /var/cvsroot/gentoo-x86/sys-fs/udev/files/udev.conf.post_113,v 1.1 2007/07/12 14:24:15 zzam Exp $
+# $Id$
 #
 # This file can be used to override some of udev's default values.
 # See the udev man page for more details about these values.
