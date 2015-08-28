@@ -24,8 +24,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	einfo "You can switch to this theme with 'plymouth-set-default-theme ${PN}'"
-
 	einfo "Please report bugs or glitches to"
 	einfo "http://bugs.sabayon.org"
 }
