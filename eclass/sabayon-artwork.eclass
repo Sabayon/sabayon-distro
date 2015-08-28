@@ -15,3 +15,8 @@ KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*}"
 # Default plymouth theme name to use
 PLYMOUTH_THEME="${PLYMOUTH_THEME:-sabayon-artwork-plymouth-default}"
 
+# @ECLASS-VARIABLE: SDDM_THEME
+# @DESCRIPTION:
+# Default sddm theme name to use
+SDDM_THEME="${SDDM_THEME:-sabayon-artwork-sddm-default}"
+
