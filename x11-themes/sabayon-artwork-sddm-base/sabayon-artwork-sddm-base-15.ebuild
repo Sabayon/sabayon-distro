@@ -17,11 +17,11 @@ RDEPEND="
 	x11-misc/sddm
 "
 S="${WORKDIR}/"
-src_install() {	
-	# Plymouth default config file
-	insinto /etc/sddm
+src_install() {
+	# SDDM default config file
+	insinto /etc
 	doins "${FILESDIR}"/sddm.conf
-	sed -i -e "s:SDDM_THEME:${SDDM_THEME}:g" "${D}"/etc/sddm/sddm.conf
+	sed -i -e "s:SDDM_THEME:${SDDM_THEME}:g" "${D}"/etc/sddm.conf
 }
 
 pkg_postinst() {
