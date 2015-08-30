@@ -29,6 +29,7 @@ RDEPEND="!app-misc/livecd-tools
 src_prepare(){
 	epatch ${FILESDIR}/no_motd_autologin.patch
 	epatch ${FILESDIR}/text-installer.patch
+	epatch ${FILESDIR}/sddm.patch
 }
 
 src_install() {
