@@ -1,0 +1,20 @@
+mudler <mudler@sabayonlinux.org>
+--- services/~sddm.service.in	2015-08-31 16:11:52.267460238 +0200
++++ services/sddm.service.in	2015-08-31 16:12:22.497417043 +0200
+@@ -1,13 +1,14 @@
+ [Unit]
+ Description=Simple Desktop Display Manager
+ Documentation=man:sddm(1) man:sddm.conf(5)
+-Conflicts=getty@tty1.service
+-After=systemd-user-sessions.service getty@tty1.service plymouth-quit.service
++After=systemd-user-sessions.service
+ 
+ [Service]
+ ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sddm
+ Restart=always
+ #PrivateTmp=yes
++StandardOutput=syslog
++BusName=org.freedesktop.DisplayManager
+ 
+ [Install]
+ Alias=display-manager.service
