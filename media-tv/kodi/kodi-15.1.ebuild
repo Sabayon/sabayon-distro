@@ -106,8 +106,10 @@ COMMON_DEPEND="${PYTHON_DEPS}
 		media-libs/mesa[gles2]
 	)
 	vaapi? ( x11-libs/libva[opengl] )
-	x11-libs/libvdpau
-	>=x11-drivers/nvidia-drivers-180.51
+	vdpau? (
+		x11-libs/libvdpau
+		>=x11-drivers/nvidia-drivers-180.51
+	)
 	X? (
 		x11-apps/xdpyinfo
 		x11-apps/mesa-progs
