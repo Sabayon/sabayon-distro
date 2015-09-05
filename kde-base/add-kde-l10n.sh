@@ -1,8 +1,8 @@
 #!/bin/sh
 
 SOURCE_DIR="kde-l10n-it"
-SOURCE_VER="4.3.0"
-DEST_VER="4.3.0"
+SOURCE_VER="4.14.3"
+DEST_VER="15.08.0"
 
 for arg in $@; do
 
