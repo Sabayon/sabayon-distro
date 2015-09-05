@@ -20,7 +20,7 @@ DEPEND="
 	sys-devel/gettext
 "
 RDEPEND="
-	!<kde-apps/kde4-l10n-${PV}
+	!<kde-apps/kde-l10n-${PV}
 "
 
 IUSE="+handbook"
