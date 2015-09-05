@@ -36,15 +36,15 @@ kde-l10n_src_configure() {
 	kde5_src_configure
 }
 
-kde-l10n_src__compile() {
+kde-l10n_src_compile() {
 	kde5_src_compile
 }
 
-kde-l10n_src__test() {
+kde-l10n_src_test() {
 	kde5_src_test
 }
 
-kde-l10n_src__install() {
+kde-l10n_src_install() {
 	kde5_src_install
 }
 
