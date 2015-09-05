@@ -63,7 +63,7 @@ kde-l10n_src_prepare() {
 	fi
 	
 	# Fix broken LINGUAS=sr (KDE4 leftover)
-	if [[ ${LNG} = "sr" ]] ; then
+	if [[ ${MY_LANG} = "sr" ]] ; then
 		sed -e '/add_subdirectory(lokalize)/ s/^/#/'\
 			-i "${S}"/5/${MY_LANG}/data/kdesdk/CMakeLists.txt || die
 	fi
