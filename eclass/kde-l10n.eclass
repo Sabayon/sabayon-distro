@@ -21,6 +21,7 @@ DEPEND="
 "
 RDEPEND="
 	!<kde-apps/kde-l10n-${PV}
+	!<kde-apps/ktp-l10n-${PV}
 "
 
 IUSE="+handbook"
@@ -62,6 +63,15 @@ kde-l10n_src_prepare() {
 			-i "${S}"/5/${MY_LANG}/CMakeLists.txt || die
 	fi
 	
+
+	# Remove ktp translations (part of kde-apps/ktp-l10n)
+	# Drop that hack (and kde-apps/ktp-l10n) after ktp:4 removal
+	find "${S}"/5/${MY_LANG}/messages/kdenetwork -type f \
+		\( -name kaccounts*po -o -name kcm_ktp*po -o -name kcmtelepathy*po \
+		-o -name kded_ktp*po -o -name ktp*po -o -name plasma*ktp*po \) \
+		-delete
+
+
 	# Fix broken LINGUAS=sr (KDE4 leftover)
 	if [[ ${MY_LANG} = "sr" ]] ; then
 		sed -e '/add_subdirectory(lokalize)/ s/^/#/'\
