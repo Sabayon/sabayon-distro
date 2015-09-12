@@ -16,6 +16,8 @@ IUSE="+ksplash"
 RDEPEND="
 	x11-themes/${SDDM_THEME}
 	kde-plasma/plasma-meta
+	kde-apps/kde-l10n:5
+	!kde-apps/kde-l10n:4
 	"
 
 S="${WORKDIR}/${PN}"
