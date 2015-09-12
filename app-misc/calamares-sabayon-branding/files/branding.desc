@@ -4,11 +4,11 @@ componentName:  default
 strings:
     productName:         Sabayon Linux
     shortProductName:    Sabayon
-    version:             [RELEASE_VERSION]
-    shortVersion:        [RELEASE_VERSION]
-    versionedName:       Sabayon Linux [RELEASE_VERSION]
-    shortVersionedName:  Sabayon [RELEASE_VERSION]
-    bootloaderEntryName: Sabayon Linux [RELEASE_VERSION]
+    version:             ""
+    shortVersion:        ""
+    versionedName:       Sabayon Linux 
+    shortVersionedName:  Sabayon 
+    bootloaderEntryName: Sabayon Linux 
     productUrl:          http://www.sabayon.org/
     supportUrl:          https://forum.sabayon.org/
     knownIssuesUrl:      https://wiki.sabayon.org/index.php?title=En:FAQ

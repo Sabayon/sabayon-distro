@@ -15,10 +15,11 @@ IUSE=""
 DEPEND=">=app-admin/calamares-1.0"
 RDEPEND="${DEPEND}"
 
+S="${WORKDIR}/${PN}"
+
 src_install() {
 	insinto "/etc/calamares/"
 	doins -r "${S}/"*
 	insinto "/etc/calamares/branding/default/"
 	newins "${FILESDIR}/branding.desc" "branding.desc"
-	sed -i "s/\[RELEASE_VERSION\]/${PV}/g" "${D}etc/calamares/branding/default/branding.desc"
 }
