@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
+# $Header: $
 
 EAPI=5
 
@@ -19,4 +19,6 @@ S="${FILESDIR}"
 src_install() {
 	insinto "/etc/calamares/"
 	doins -r "${S}/${PN}-conf/"*
+	insinto "/usr/lib/calamares/modules/"
+	doins -r "${S}/${PN}/"*
 }
