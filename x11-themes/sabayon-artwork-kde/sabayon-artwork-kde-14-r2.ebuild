@@ -47,7 +47,7 @@ pkg_postinst() {
         #rm -rf "${ROOT}"/"${systemd}"/system/display-manager.service
         # Forcing sddm, since kdm won't support plasma5 at all
         #ln -s   "${ROOT}"/"${ud}"/sddm.service "${ROOT}"/"${systemd}"/system/display-manager.service
-	systemctl disable kdm
+	systemctl disable --force kdm
 	systemctl enable sddm
 	einfo "If you face issues, please file a bug : https://bugs.sabayon.org/"
     else
