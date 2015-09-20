@@ -26,6 +26,7 @@ def run():
     """ Sabayon Calamares Hack """
 
     # Grub set background
+    libcalamares.utils.chroot_call(['mkdir', '-p', '/boot/grub/'])
     libcalamares.utils.chroot_call(['cp', '-f', '/usr/share/grub/default-splash.png', '/boot/grub/default-splash.png'])
 
 
