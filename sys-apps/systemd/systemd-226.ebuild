@@ -84,7 +84,7 @@ DEPEND="${COMMON_DEPEND}
 	>=sys-apps/coreutils-8.16
 	>=sys-devel/binutils-2.23.1
 	>=sys-devel/gcc-4.6
-	>=sys-kernel/sabayon-sources-${MINKV}
+	>=sys-kernel/linux-headers-${MINKV}
 	virtual/pkgconfig
 	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
 	test? ( >=sys-apps/dbus-1.6.8-r1:0 )
