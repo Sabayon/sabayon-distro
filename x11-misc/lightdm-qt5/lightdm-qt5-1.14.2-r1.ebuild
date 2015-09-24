@@ -18,13 +18,13 @@ SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 IUSE=""
 
-COMMON_DEPEND="~x11-misc/lightdm-base-${PV}"
-RDEPEND="${COMMON_DEPEND}"
-DEPEND="${COMMON_DEPEND}
+COMMON_DEPEND="~x11-misc/lightdm-base-${PV}
 		dev-qt/qtcore:5
 		dev-qt/qtdbus:5
 		dev-qt/qtgui:5
-	"
+"
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
 
 DOCS=( NEWS )
 S="${WORKDIR}/${REAL_P}"
