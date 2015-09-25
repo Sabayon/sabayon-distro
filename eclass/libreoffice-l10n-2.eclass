@@ -2,16 +2,16 @@
 # Distributed under the terms of the GNU General Public License v2
 # $
 
-OO_EXTENSIONS=(
-	"472ffb92d82cf502be039203c606643d-Sun-ODF-Template-Pack-en-US_1.0.0.oxt"
-	"53ca5e56ccd4cab3693ad32c6bd13343-Sun-ODF-Template-Pack-de_1.0.0.oxt"
-	"4ad003e7bbda5715f5f38fde1f707af2-Sun-ODF-Template-Pack-es_1.0.0.oxt"
-	"a53080dc876edcddb26eb4c3c7537469-Sun-ODF-Template-Pack-fr_1.0.0.oxt"
-	"09ec2dac030e1dcd5ef7fa1692691dc0-Sun-ODF-Template-Pack-hu_1.0.0.oxt"
-	"b33775feda3bcf823cad7ac361fd49a6-Sun-ODF-Template-Pack-it_1.0.0.oxt"
-)
+inherit rpm eutils multilib versionator
 
-inherit base rpm multilib versionator
+MY_PV=$(get_version_component_range 1-3)
+
+HOMEPAGE="http://www.libreoffice.org"
+
+LICENSE="|| ( LGPL-3 MPL-1.1 )"
+SLOT="0"
+KEYWORDS="~amd64 ~arm ~x86 ~amd64-linux ~x86-linux"
+IUSE="offlinehelp"
 
 MY_LANG=${PN/libreoffice-l10n-/}
 MY_LANG=${MY_LANG/_/-}
@@ -35,8 +35,6 @@ HELPPACK_AVAIL="${HELPPACK_AVAIL:-1}"
 LANGPACK_AVAIL="${LANGPACK_AVAIL:-1}"
 
 DESCRIPTION="LibreOffice.org ${L10N_LANG} localisation"
-HOMEPAGE="http://www.documentfoundation.org"
-RESTRICT="mirror"
 
 L10N_VER="$(get_version_component_range 1-3)"
 L10N_RC_VERSION="$(get_version_component_range 4)"
@@ -76,31 +74,13 @@ if [ "${HELPPACK_AVAIL}" = "1" ]; then
 	SRC_URI+=" ${BASE_SRC_URI}/x86/${URI_PREFIX}_${TARBALL_VERSION}${name_part}_Linux_x86_${RPM_SUFFIX_HELP}_${MY_LANG}.tar.gz"
 fi
 
-unset name_part
+unset lang helppack langpack lang2
 
-IUSE=""
+RDEPEND+="app-text/hunspell"
 
-EXT_URI="http://ooo.itc.hu/oxygenoffice/download/libreoffice"
-TDEPEND=""
-if [[ "${MY_LANG}" == "en_US" ]]; then
-	for i in ${OO_EXTENSIONS[@]}; do
-		TDEPEND+=" ${EXT_URI}/${i}"
-	done
-	SRC_URI+=" templates? ( ${TDEPEND} )"
-	IUSE+=" templates"
-fi
-
-LICENSE="LGPL-3"
-SLOT="0"
-KEYWORDS="~amd64 ~x86"
-
-RDEPEND="=app-office/libreoffice-${LO_BRANCH}*"
-DEPEND="dev-util/pkgconfig
-	dev-util/intltool"
+RESTRICT="strip"
 
 S="${WORKDIR}"
-
-OOO_INSTDIR="/usr/$(get_libdir)/libreoffice"
 
 libreoffice-l10n-2_src_unpack() {
 	default
@@ -120,20 +100,6 @@ libreoffice-l10n-2_src_unpack() {
 		einfo "Unpacking Helppack"
 		rpm_unpack ./${rpmdir}/*.rpm
 	fi
-	if [[ -n "${TDEPEND}" ]]; then
-		if use templates; then
-			for i in "${OO_EXTENSIONS[@]}"; do
-				if [[ ! -f "${S}/${i}" ]]; then
-					cp -v "${DISTDIR}/${i}" "${S}"
-					ooextused+=( "${i}" )
-				fi
-                	done
-		fi
-	fi
-	OO_EXTENSIONS=()
-	for i in "${ooextused[@]}"; do
-		OO_EXTENSIONS+=( "${i}" )
-	done
 }
 
 libreoffice-l10n-2_src_prepare() { :; }
@@ -141,13 +107,13 @@ libreoffice-l10n-2_src_configure() { :; }
 libreoffice-l10n-2_src_compile() { :; }
 
 libreoffice-l10n-2_src_install() {
-	local dir="${S}"/opt/libreoffice${LO_BRANCH}/
+	local dir="${S}"/opt/${PN/-l10n/}$(get_version_component_range 1-2)/
 	# Condition required for people that do not install anything eg no linguas
 	# or just english with no offlinehelp.
 	if [[ -d "${dir}" ]] ; then
-		insinto /usr/$(get_libdir)/libreoffice/
+		insinto /usr/$(get_libdir)/${PN/-l10n/}/
 		doins -r "${dir}"/*
 	fi
 	# remove extensions that are in the l10n for some weird reason
-	rm -rf "${ED}"/usr/$(get_libdir)/libreoffice/share/extensions/
+	rm -rf "${ED}"/usr/$(get_libdir)/${PN/-l10n/}/share/extensions/
 }

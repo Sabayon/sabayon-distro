@@ -3,6 +3,6 @@
 
 EAPI=4
 
-L10N_LANG="Slovenian"
+L10N_LANG="Galician"
 inherit libreoffice-l10n-2
 

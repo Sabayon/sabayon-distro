@@ -3,6 +3,7 @@
 
 EAPI=4
 
-L10N_LANG="Slovenian"
+HELPPACK_AVAIL="0"
+L10N_LANG="Bodo"
 inherit libreoffice-l10n-2
 
