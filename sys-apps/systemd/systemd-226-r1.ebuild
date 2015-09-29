@@ -145,6 +145,7 @@ src_prepare() {
 	# Bug 463376
 	sed -i -e 's/GROUP="dialout"/GROUP="uucp"/' rules/*.rules || die
 	epatch "${FILESDIR}/218-Dont-enable-audit-by-default.patch"
+	epatch "${FILESDIR}/226-noclean-tmp.patch"
 	epatch_user
 	eautoreconf
 }
