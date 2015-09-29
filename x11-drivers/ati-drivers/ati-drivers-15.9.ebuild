@@ -203,6 +203,9 @@ src_prepare() {
 	epatch "${FILESDIR}/15.9-sep_printf.patch"
 	epatch "${FILESDIR}/15.9-mtrr.patch"
 
+	# Support older kernels <4.0
+	epatch "${FILESDIR}/15.9-linux-lt-4.0.patch"
+
 	epatch_user
 
 	cd "${MODULE_DIR}"

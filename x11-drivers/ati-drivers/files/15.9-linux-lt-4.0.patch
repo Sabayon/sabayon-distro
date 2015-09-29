@@ -1,0 +1,60 @@
+--- common/lib/modules/fglrx/build_mod/~firegl_public.c	2015-09-29 23:57:34.719559020 +0200
++++ common/lib/modules/fglrx/build_mod/firegl_public.c	2015-09-30 00:03:37.841151660 +0200
+@@ -4549,8 +4549,13 @@
+ 
+     if (cpu_has_pge)
+     {
+-        cr4 = READ_CR4();
+-        WRITE_CR4(cr4 & ~X86_CR4_PGE);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
++         cr4 = read_cr4();
++         write_cr4(cr4 & ~X86_CR4_PGE);
++#else
++        cr4 = __read_cr4();
++        __write_cr4(cr4 & ~X86_CR4_PGE);
++#endif
+     }
+      __flush_tlb();
+ 
+@@ -4563,7 +4568,11 @@
+     write_cr0(cr0 & 0xbfffffff);
+     if (cpu_has_pge)
+     {
+-        WRITE_CR4(cr4);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
++         write_cr4(cr4);
++#else 
++	 __write_cr4(cr4);
++#endif
+     }
+     local_irq_restore(flags);
+ 
+@@ -4590,8 +4599,13 @@
+ 
+     if (cpu_has_pge)
+     {
+-        cr4 = READ_CR4();
+-        WRITE_CR4(cr4 & ~X86_CR4_PGE);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
++         cr4 = read_cr4();
++         write_cr4(cr4 & ~X86_CR4_PGE);
++#else
++        cr4 = __read_cr4();
++        __write_cr4(cr4 & ~X86_CR4_PGE);
++#endif
+     }
+      __flush_tlb();
+   
+@@ -4603,7 +4617,11 @@
+     write_cr0(cr0 & 0xbfffffff);
+     if (cpu_has_pge)
+     {
+-        WRITE_CR4(cr4);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
++         write_cr4(cr4);
++#else
++	 __write_cr4(cr4);
++#endif
+     }
+     local_irq_restore(flags);
+ 
