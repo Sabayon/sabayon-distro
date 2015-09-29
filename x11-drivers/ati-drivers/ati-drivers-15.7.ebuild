@@ -201,6 +201,7 @@ src_prepare() {
 
 	if kernel_is ge 4 1; then
 		epatch "${FILESDIR}/${P}-linux-4.1.patch"
+		epatch "${FILESDIR}/dont-use-gpl-symbols.patch"
 		epatch "${FILESDIR}/ati-drivers-linux4-fpu.patch"
 		epatch "${FILESDIR}/ati-drivers-linux43-seq_printf.patch"
 	fi

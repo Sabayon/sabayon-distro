@@ -1,0 +1,58 @@
+--- a/common/lib/modules/fglrx/build_mod/firegl_public.c	2015-09-12 17:31:08.000000000 -0400
++++ b/common/lib/modules/fglrx/build_mod/firegl_public.c	2015-09-12 18:39:25.000000000 -0400
+@@ -136,7 +136,6 @@
+ #include <asm/mman.h>
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
+-#include <asm/tlbflush.h> // for flush_tlb_page
+ #include <asm/cpufeature.h>
+ #ifdef CONFIG_MTRR
+ #include <asm/mtrr.h>
+@@ -249,6 +248,26 @@
+ #define write_cr4(x)	__write_cr4(x)
+ #endif
+ 
++#define __flush_tlb_one(addr) asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
++#define __flush_tlb() native_write_cr3(native_read_cr3())
++
++static inline void __flush_tlb_all(void)
++{
++        if (cpu_has_pge)
++	{
++		unsigned long flags, cr4;
++		raw_local_irq_save(flags);
++		cr4 = native_read_cr4();
++		native_write_cr4(cr4 & ~X86_CR4_PGE);
++		native_write_cr4(cr4);
++		raw_local_irq_restore(flags);
++	}
++        else
++	{
++                __flush_tlb();
++	}
++}
++
+ 
+ // ============================================================
+ /* globals */
+--- a/common/lib/modules/fglrx/build_mod/kcl_acpi.c	2015-09-12 17:47:17.000000000 -0400
++++ b/common/lib/modules/fglrx/build_mod/kcl_acpi.c	2015-09-13 12:20:13.000000000 -0400
+@@ -853,7 +853,7 @@ void ATI_API_CALL KCL_ACPI_No_Hotplug(vo
+ {
+     struct pci_dev  *pdev = (struct pci_dev*)dev;
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,7) && LINUX_VERSION_CODE < KERNEL_VERSION(3,17,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,7) 
+     if(pdev && pdev->bus && pdev->bus->bridge)
+     {
+        acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_HANDLE(pdev->bus->bridge), 1, KCL_ACPI_Slot_No_Hotplug, NULL, pdev , NULL);
+@@ -861,7 +861,9 @@ void ATI_API_CALL KCL_ACPI_No_Hotplug(vo
+ #elif LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0)
+     if(pdev)
+     {
+        pdev->ignore_hotplug = 1;
++       if (pdev->bus->self)
++          pdev->bus->self->ignore_hotplug = 1;
+     }
+ #endif
+ }
