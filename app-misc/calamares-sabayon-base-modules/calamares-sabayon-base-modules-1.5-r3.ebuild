@@ -12,7 +12,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND=">=app-admin/calamares-1.1.2-r2[networkmanager,upower,fat,jfs,reiserfs,xfs,ntfs]"
+DEPEND=">=app-admin/calamares-1.1.4.1[networkmanager,upower,fat,jfs,reiserfs,xfs,ntfs]"
 RDEPEND="${DEPEND}"
 
 S="${FILESDIR}"
