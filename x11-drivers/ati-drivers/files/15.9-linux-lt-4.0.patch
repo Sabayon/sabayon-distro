@@ -6,12 +6,12 @@
      {
 -        cr4 = READ_CR4();
 -        WRITE_CR4(cr4 & ~X86_CR4_PGE);
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
-+         cr4 = read_cr4();
-+         write_cr4(cr4 & ~X86_CR4_PGE);
++#if LINUX_VERSION_CODE == KERNEL_VERSION(3,18,0)
++         cr4 = __read_cr4();
++         __write_cr4(cr4 & ~X86_CR4_PGE);
 +#else
-+        cr4 = __read_cr4();
-+        __write_cr4(cr4 & ~X86_CR4_PGE);
++        cr4 = READ_CR4();
++        WRITE_CR4(cr4 & ~X86_CR4_PGE);
 +#endif
      }
       __flush_tlb();
@@ -21,10 +21,10 @@
      if (cpu_has_pge)
      {
 -        WRITE_CR4(cr4);
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
-+         write_cr4(cr4);
++#if LINUX_VERSION_CODE == KERNEL_VERSION(3,18,0)
++        __write_cr4(cr4);
 +#else 
-+	 __write_cr4(cr4);
++	 WRITE_CR4(cr4);
 +#endif
      }
      local_irq_restore(flags);
@@ -35,12 +35,12 @@
      {
 -        cr4 = READ_CR4();
 -        WRITE_CR4(cr4 & ~X86_CR4_PGE);
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
-+         cr4 = read_cr4();
-+         write_cr4(cr4 & ~X86_CR4_PGE);
++#if LINUX_VERSION_CODE == KERNEL_VERSION(3,18,0)
++         cr4 = __read_cr4();
++         __write_cr4(cr4 & ~X86_CR4_PGE);
 +#else
-+        cr4 = __read_cr4();
-+        __write_cr4(cr4 & ~X86_CR4_PGE);
++        cr4 = READ_CR4();
++        WRITE_CR4(cr4 & ~X86_CR4_PGE);
 +#endif
      }
       __flush_tlb();
@@ -50,10 +50,10 @@
      if (cpu_has_pge)
      {
 -        WRITE_CR4(cr4);
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
-+         write_cr4(cr4);
++#if LINUX_VERSION_CODE == KERNEL_VERSION(3,18,0)
++        __write_cr4(cr4);
 +#else
-+	 __write_cr4(cr4);
++	 WRITE_CR4(cr4);
 +#endif
      }
      local_irq_restore(flags);
