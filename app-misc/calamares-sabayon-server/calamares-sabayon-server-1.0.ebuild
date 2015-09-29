@@ -17,7 +17,8 @@ IUSE=""
 DEPEND="app-misc/calamares-sabayon-server-base-modules
 	app-misc/calamares-sabayon-server-branding"
 RDEPEND="${DEPEND}
-	!!app-admin/anaconda"
+	!!app-admin/anaconda
+	!!app-misc/calamares-sabayon"
 
 src_unpack() {
 	mkdir "${WORKDIR}/${P}"

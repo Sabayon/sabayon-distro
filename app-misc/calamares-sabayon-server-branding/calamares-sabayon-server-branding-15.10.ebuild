@@ -13,7 +13,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND=">=app-admin/calamares-1.0"
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	 !!app-misc/calamares-sabayon-branding"
 
 S="${WORKDIR}/${PN}"
 

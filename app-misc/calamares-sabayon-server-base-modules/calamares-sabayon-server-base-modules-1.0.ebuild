@@ -13,7 +13,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND=">=app-admin/calamares-1.1.4.1[networkmanager,upower,fat,jfs,reiserfs,xfs,ntfs]"
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	!!app-misc/calamares-sabayon-base-modules"
 
 S="${FILESDIR}"
 src_install() {
