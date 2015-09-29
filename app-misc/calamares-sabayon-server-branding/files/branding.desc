@@ -1,0 +1,26 @@
+---
+componentName:  default
+
+strings:
+    productName:         Sabayon Linux Server Edition
+    shortProductName:    Sabayon Server
+    version:             ""
+    shortVersion:        ""
+    versionedName:       Sabayon Linux Server Edition
+    shortVersionedName:  Sabayon Server
+    bootloaderEntryName: Sabayon Linux Server Edition 
+    productUrl:          http://www.sabayon.org/
+    supportUrl:          https://forum.sabayon.org/
+    knownIssuesUrl:      https://wiki.sabayon.org/index.php?title=En:FAQ
+    releaseNotesUrl:     http://www.sabayon.org/latest
+
+images:
+    productLogo:         "sabayon_logo.png"
+    productIcon:         "sabayon_logo.png"
+
+slideshow:               "show.qml"
+
+style:
+   sidebarBackground:    "#2A2C31"
+   sidebarText:          "#FFFFFF"
+   sidebarTextSelect:    "#292F34"
