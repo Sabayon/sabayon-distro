@@ -4,7 +4,7 @@
 EAPI=5
 
 EGIT_REPO_URI="git://github.com/Sabayon/sabayon-live.git"
-EGIT_COMMIT="v${PV}"
+EGIT_COMMIT="v${PVR}"
 
 inherit eutils systemd git-2
 
