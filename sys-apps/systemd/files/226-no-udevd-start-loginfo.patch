@@ -1,0 +1,12 @@
+Author: mudler <mudler@sabayonlinux.org>
+--- src/udev/~udevd.c	2015-10-07 15:25:32.293080269 +0200
++++ src/udev/udevd.c	2015-10-07 15:26:03.209140963 +0200
+@@ -1722,8 +1722,6 @@
+         if (arg_daemonize) {
+                 pid_t pid;
+ 
+-                log_info("starting version " VERSION);
+-
+                 /* connect /dev/null to stdin, stdout, stderr */
+                 if (log_get_max_level() < LOG_DEBUG)
+                         (void) make_null_stdio();

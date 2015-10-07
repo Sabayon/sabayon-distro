@@ -146,6 +146,7 @@ src_prepare() {
 	sed -i -e 's/GROUP="dialout"/GROUP="uucp"/' rules/*.rules || die
 	epatch "${FILESDIR}/218-Dont-enable-audit-by-default.patch"
 	epatch "${FILESDIR}/226-noclean-tmp.patch"
+	epatch "${FILESDIR}/226-no-udevd-start-loginfo.patch"
 	epatch_user
 	eautoreconf
 }
