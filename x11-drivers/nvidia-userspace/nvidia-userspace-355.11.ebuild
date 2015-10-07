@@ -62,7 +62,7 @@ RDEPEND="${COMMON}
 		x11-libs/pango[X]
 	)"
 PDEPEND="X? (
-		<x11-base/xorg-server-1.16.99
+		<x11-base/xorg-server-1.17.99
 		>=x11-libs/libvdpau-0.3-r1
 	)"
 
