@@ -44,6 +44,8 @@ src_prepare() {
 	cmake-utils_src_prepare
 
 	epatch "${FILESDIR}/${P}-respect-user-flags.patch"
+	epatch "${FILESDIR}/${P}-Inherit-path-environment-variables-from-parent.patch"
+	epatch "${FILESDIR}/${P}-Don-t-cast-QByteArray-to-char.patch"
 	use consolekit && epatch "${FILESDIR}/${PN}-0.11.0-consolekit.patch"
 
 	# Sabayon, fixes autologin due to sabayon-live

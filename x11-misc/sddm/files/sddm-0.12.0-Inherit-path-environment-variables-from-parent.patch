@@ -1,0 +1,35 @@
+From 3349d1d84dd2ab317ba4fa15eac2e62fa906f9cd Mon Sep 17 00:00:00 2001
+From: Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+Date: Sun, 6 Sep 2015 02:25:39 +0200
+Subject: [PATCH 08/11] Inherit path environment variables from parent
+
+Make themes installed in non-standard locations work.
+
+Issue: #410
+
+[ChangeLog][Daemon][Greater] Inherit path environment variables from
+parent so that themes installed in non-standard paths will work.
+---
+ src/daemon/Greeter.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/daemon/Greeter.cpp b/src/daemon/Greeter.cpp
+index 32f4a40..68c4dc3 100644
+--- a/src/daemon/Greeter.cpp
++++ b/src/daemon/Greeter.cpp
+@@ -128,7 +128,11 @@ namespace SDDM {
+             insertEnvironmentList({QStringLiteral("LANG"), QStringLiteral("LANGUAGE"),
+                                    QStringLiteral("LC_CTYPE"), QStringLiteral("LC_NUMERIC"), QStringLiteral("LC_TIME"), QStringLiteral("LC_COLLATE"),
+                                    QStringLiteral("LC_MONETARY"), QStringLiteral("LC_MESSAGES"), QStringLiteral("LC_PAPER"), QStringLiteral("LC_NAME"),
+-                                   QStringLiteral("LC_ADDRESS"), QStringLiteral("LC_TELEPHONE"), QStringLiteral("LC_MEASUREMENT"), QStringLiteral("LC_IDENTIFICATION")
++                                   QStringLiteral("LC_ADDRESS"), QStringLiteral("LC_TELEPHONE"), QStringLiteral("LC_MEASUREMENT"), QStringLiteral("LC_IDENTIFICATION"),
++                                   QStringLiteral("LD_LIBRARY_PATH"),
++                                   QStringLiteral("QML2_IMPORT_PATH"),
++                                   QStringLiteral("QT_PLUGIN_PATH"),
++                                   QStringLiteral("XDG_DATA_DIRS")
+             }, sysenv, env);
+ 
+             env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
+-- 
+1.9.3
+
