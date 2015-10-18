@@ -23,7 +23,7 @@ SRC_URI="
 "
 
 LICENSE="GPL-2 NVIDIA-r2"
-SLOT="0/340"
+SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="acpi custom-cflags multilib x-multilib kernel_FreeBSD kernel_linux pax_kernel X uvm"
 RESTRICT="bindist mirror strip"
