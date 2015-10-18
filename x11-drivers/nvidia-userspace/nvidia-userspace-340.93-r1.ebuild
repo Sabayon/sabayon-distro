@@ -30,30 +30,29 @@ IUSE="acpi multilib x-multilib kernel_FreeBSD kernel_linux tools +X uvm"
 RESTRICT="bindist mirror strip"
 EMULTILIB_PKG="true"
 
-COMMON="app-eselect/eselect-opencl
+COMMON="
+	app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	X? (
 		>=app-eselect/eselect-opengl-1.0.9
-	        multilib? (
-	                || (
-	                         (
-	                                >=x11-libs/libX11-1.6.2[abi_x86_32]
-	                                >=x11-libs/libXext-1.3.2[abi_x86_32]
-	                         )
-	                        app-emulation/emul-linux-x86-xlibs
-	                )
-	        )
 	)
 "
 DEPEND="${COMMON}"
 # Note: do not add !>nvidia-userspace-ver or !<nvidia-userspace-ver
 # because it would cause pkg_postrm to set the wrong opengl implementation
 RDEPEND="${COMMON}
-	X? ( x11-libs/libXvMC )
 	acpi? ( sys-power/acpid )
+	X? (
+		<x11-base/xorg-server-1.17.99:=
+		>=x11-libs/libvdpau-0.3-r1
+		multilib? (
+			>=x11-libs/libX11-1.6.2[abi_x86_32]
+			>=x11-libs/libXext-1.3.2[abi_x86_32]
+		)
+	)
 	tools? ( media-video/nvidia-settings )"
 PDEPEND="X? (
-		<x11-base/xorg-server-1.16.99
+		<x11-base/xorg-server-1.17.99:=
 		>=x11-libs/libvdpau-0.3-r1
 	)"
 
