@@ -380,35 +380,6 @@ pkg_preinst() {
 	fi
 }
 
-
-
-pkg_preinst() {
-	if use kernel_linux; then
-		linux-mod_pkg_preinst
-
-		local videogroup="$(egetent group video | cut -d ':' -f 3)"
-		if [ -z "${videogroup}" ]; then
-			eerror "Failed to determine the video group gid"
-			die "Failed to determine the video group gid"
-		else
-			sed -i \
-				-e "s:PACKAGE:${PF}:g" \
-				-e "s:VIDEOGID:${videogroup}:" \
-				"${D}"/etc/modprobe.d/nvidia.conf || die
-		fi
-	fi
-
-	# Clean the dynamic libGL stuff's home to ensure
-	# we dont have stale libs floating around
-	if [ -d "${ROOT}"/usr/lib/opengl/nvidia ] ; then
-		rm -rf "${ROOT}"/usr/lib/opengl/nvidia/*
-	fi
-	# Make sure we nuke the old nvidia-glx's env.d file
-	if [ -e "${ROOT}"/etc/env.d/09nvidia ] ; then
-		rm -f "${ROOT}"/etc/env.d/09nvidia
-	fi
-}
-
 pkg_postinst() {
 	# Switch to the nvidia implementation
 	use X && "${ROOT}"/usr/bin/eselect opengl set --use-old nvidia
