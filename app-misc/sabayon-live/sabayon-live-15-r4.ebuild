@@ -24,7 +24,8 @@ RDEPEND="!app-misc/livecd-tools
 	sys-apps/gawk
 	sys-apps/pciutils
 	sys-apps/keyboard-configuration-helpers
-	sys-apps/sed"
+	sys-apps/sed
+	sys-apps/dmidecode"
 
 src_install() {
 	emake DESTDIR="${D}" SYSV_INITDIR="/etc/init.d" \
