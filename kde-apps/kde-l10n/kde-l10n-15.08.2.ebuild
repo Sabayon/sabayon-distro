@@ -4,12 +4,12 @@
 
 EAPI=5
 
-inherit kde4-meta-pkg
+CATEGORY="kde-base"
+inherit kde5-meta-pkg kde5-functions
 
 DESCRIPTION="KDE internationalization package meta includer"
 HOMEPAGE="http://www.kde.org/"
 LICENSE="GPL-2"
-
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE="+minimal"
 
@@ -24,7 +24,7 @@ RDEPEND="${DEPEND}
 for MY_LANG in ${MY_LANGS} ; do
 	IUSE="${IUSE} linguas_${MY_LANG}"
 	RDEPEND="${RDEPEND}
-		linguas_${MY_LANG}? ( $(add_kdebase_dep kde-l10n-${MY_LANG}) )"
+		linguas_${MY_LANG}? ( ${KDEBASE}/kde-l10n-${MY_LANG} )"
 done
 
 unset MY_LANG
