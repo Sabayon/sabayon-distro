@@ -1,0 +1,80 @@
+From 2fd5b4ff1d5784d455a9819ed63ad2bf5770d0a9 Mon Sep 17 00:00:00 2001
+From: Nick Shaforostoff <shafff@ukr.net>
+Date: Fri, 16 Oct 2015 23:18:31 +0000
+Subject: [PATCH] use qvector for pointers and integers
+
+---
+ src/common/ConfigReader.h  | 1 -
+ src/common/Configuration.h | 1 -
+ src/daemon/PowerManager.h  | 3 ++-
+ src/daemon/Seat.h          | 5 +++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/common/ConfigReader.h b/src/common/ConfigReader.h
+index cb7ed19..29782be 100644
+--- a/src/common/ConfigReader.h
++++ b/src/common/ConfigReader.h
+@@ -22,7 +22,6 @@
+ #define CONFIGREADER_H
+ 
+ #include <QtCore/QString>
+-#include <QtCore/QList>
+ #include <QtCore/QTextStream>
+ #include <QtCore/QStringList>
+ #include <QtCore/QDebug>
+diff --git a/src/common/Configuration.h b/src/common/Configuration.h
+index 584f26b..069fc16 100644
+--- a/src/common/Configuration.h
++++ b/src/common/Configuration.h
+@@ -22,7 +22,6 @@
+ #define SDDM_CONFIGURATION_H
+ 
+ #include <QtCore/QString>
+-#include <QtCore/QList>
+ #include <QtCore/QTextStream>
+ #include <QtCore/QStringList>
+ #include <QtCore/QDir>
+diff --git a/src/daemon/PowerManager.h b/src/daemon/PowerManager.h
+index cf839dc..566b441 100644
+--- a/src/daemon/PowerManager.h
++++ b/src/daemon/PowerManager.h
+@@ -21,6 +21,7 @@
+ #define SDDM_POWERMANAGER_H
+ 
+ #include <QObject>
++#include <QVector>
+ 
+ #include "Messages.h"
+ 
+@@ -44,7 +45,7 @@ namespace SDDM {
+         void hybridSleep() const;
+ 
+     private:
+-        QList<PowerManagerBackend *> m_backends;
++        QVector<PowerManagerBackend *> m_backends;
+     };
+ }
+ 
+diff --git a/src/daemon/Seat.h b/src/daemon/Seat.h
+index c4c751b..53ab2f2 100644
+--- a/src/daemon/Seat.h
++++ b/src/daemon/Seat.h
+@@ -21,6 +21,7 @@
+ #define SDDM_SEAT_H
+ 
+ #include <QObject>
++#include <QVector>
+ 
+ namespace SDDM {
+     class Display;
+@@ -43,8 +44,8 @@ namespace SDDM {
+     private:
+         QString m_name;
+ 
+-        QList<Display *> m_displays;
+-        QList<int> m_terminalIds;
++        QVector<Display *> m_displays;
++        QVector<int> m_terminalIds;
+     };
+ }
+ 

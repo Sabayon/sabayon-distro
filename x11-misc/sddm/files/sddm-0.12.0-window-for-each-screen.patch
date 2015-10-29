@@ -1,0 +1,85 @@
+From 053765ac7a1800a3e1e8efc2cdef5fc696ea01af Mon Sep 17 00:00:00 2001
+From: Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+Date: Thu, 15 Oct 2015 12:44:47 +0200
+Subject: [PATCH] Always create a window for each screen
+
+Clone mode is something that should be dealt with xrandr from a
+custom Xsetup script, depending on user configuration.
+
+What we want here is to always create a window for each screen
+otherwise we might end up having the greeter only on the primary screen.
+
+Also, set window geometry to the whole screen geometry like we do
+for the screen model.
+---
+ src/greeter/GreeterApp.cpp  | 13 ++++++-------
+ src/greeter/ScreenModel.cpp |  4 ----
+ 2 files changed, 6 insertions(+), 11 deletions(-)
+
+diff --git a/src/greeter/GreeterApp.cpp b/src/greeter/GreeterApp.cpp
+index 59a48a0..3a7db27 100644
+--- a/src/greeter/GreeterApp.cpp
++++ b/src/greeter/GreeterApp.cpp
+@@ -130,7 +130,8 @@ namespace SDDM {
+         m_proxy->setSessionModel(m_sessionModel);
+ 
+         // create views
+-        Q_FOREACH (QScreen *screen, screens())
++        QList<QScreen *> screens = primaryScreen()->virtualSiblings();
++        Q_FOREACH (QScreen *screen, screens)
+             addViewForScreen(screen);
+ 
+         // handle screens
+@@ -138,15 +139,12 @@ namespace SDDM {
+     }
+ 
+     void GreeterApp::addViewForScreen(QScreen *screen) {
+-        // heuristic to detect clone mode, in that case only add a view for the primary screen
+-        if (screen->virtualGeometry() == primaryScreen()->geometry() && screen != primaryScreen())
+-            return;
+-
+         // create view
+         QQuickView *view = new QQuickView();
+         view->setScreen(screen);
+         view->setResizeMode(QQuickView::SizeRootObjectToView);
+-        view->setGeometry(QRect(QPoint(0, 0), screen->availableGeometry().size()));
++        //view->setGeometry(QRect(QPoint(0, 0), screen->geometry().size()));
++        view->setGeometry(screen->geometry());
+ 
+         // remove the view when the screen is removed, but we
+         // need to be careful here since Qt will move the view to
+@@ -165,7 +163,7 @@ namespace SDDM {
+ 
+ #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+         // always resize when the screen geometry changes
+-        connect(screen, &QScreen::availableGeometryChanged, this, [view](const QRect &r) {
++        connect(screen, &QScreen::geometryChanged, this, [view](const QRect &r) {
+             view->setGeometry(r);
+         });
+ #endif
+@@ -190,6 +188,7 @@ namespace SDDM {
+         view->setSource(QUrl::fromLocalFile(mainScript));
+ 
+         // show
++        qDebug() << "Adding view for" << screen->name() << screen->geometry();
+         view->show();
+     }
+ 
+diff --git a/src/greeter/ScreenModel.cpp b/src/greeter/ScreenModel.cpp
+index 392bf4c..a49f31d 100644
+--- a/src/greeter/ScreenModel.cpp
++++ b/src/greeter/ScreenModel.cpp
+@@ -120,13 +120,9 @@ namespace SDDM {
+         return;
+ #endif
+ 
+-        QScreen *primaryScreen = QGuiApplication::primaryScreen();
+         QList<QScreen *> screens = QGuiApplication::screens();
+         for (int i = 0; i < screens.size(); ++i) {
+             QScreen *screen = screens.at(i);
+-            // heuristic to detect clone mode, in that case only consider the primary screen
+-            if (screen->virtualGeometry() == primaryScreen->geometry() && screen != primaryScreen)
+-                continue;
+             // add to the screens list
+             d->screens << ScreenPtr { new Screen { QStringLiteral("Screen %1").arg(i + 1), screen->geometry() } };
+             // extend available geometry

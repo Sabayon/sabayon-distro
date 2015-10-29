@@ -1,0 +1,47 @@
+From 55837107724c6a2029b4ed534b500084f752b540 Mon Sep 17 00:00:00 2001
+From: Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+Date: Mon, 19 Oct 2015 20:45:21 +0200
+Subject: [PATCH] Remove the failsafe session entry
+
+The failsafe session can indeed fail if xterm is missing.
+For this reason it doesn't hold much value and is a source of bugs.
+
+Closes #515
+---
+ data/scripts/Xsession        | 3 ---
+ src/greeter/SessionModel.cpp | 8 --------
+ 2 files changed, 11 deletions(-)
+
+diff --git a/data/scripts/Xsession b/data/scripts/Xsession
+index 5754447..0b4efb5 100755
+--- a/data/scripts/Xsession
++++ b/data/scripts/Xsession
+@@ -89,9 +89,6 @@ case $session in
+   "")
+     exec xmessage -center -buttons OK:0 -default OK "Sorry, $DESKTOP_SESSION is no valid session."
+     ;;
+-  failsafe)
+-    exec xterm -geometry 80x24-0-0
+-    ;;
+   *)
+     eval exec "$session"
+     ;;
+diff --git a/src/greeter/SessionModel.cpp b/src/greeter/SessionModel.cpp
+index a4740b0..e34e922 100644
+--- a/src/greeter/SessionModel.cpp
++++ b/src/greeter/SessionModel.cpp
+@@ -130,14 +130,6 @@ namespace SDDM {
+             if (execAllowed)
+                 d->sessions.push_back(si);
+         }
+-        // add failsafe session
+-        if (type == Session::X11Session) {
+-            Session *si = new Session(type, QStringLiteral("failsafe"));
+-            si->m_displayName = QStringLiteral("Failsafe");
+-            si->m_comment = QStringLiteral("Failsafe Session");
+-            si->m_exec = QStringLiteral("failsafe");
+-            d->sessions << si;
+-        }
+         // find out index of the last session
+         for (int i = 0; i < d->sessions.size(); ++i) {
+             if (d->sessions.at(i)->fileName() == stateConfig.Last.Session.get()) {

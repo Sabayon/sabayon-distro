@@ -46,6 +46,12 @@ src_prepare() {
 	epatch "${FILESDIR}/${P}-respect-user-flags.patch"
 	epatch "${FILESDIR}/${P}-Inherit-path-environment-variables-from-parent.patch"
 	epatch "${FILESDIR}/${P}-Don-t-cast-QByteArray-to-char.patch"
+	epatch "${FILESDIR}/${P}-window-for-each-screen.patch"
+	epatch "${FILESDIR}/${P}-screen-model.patch"
+	epatch "${FILESDIR}/${P}-qstring.patch"
+	epatch "${FILESDIR}/${P}-use-qvector.patch"
+	epatch "${FILESDIR}/${P}-remove-failsafe.patch"
+
 	use consolekit && epatch "${FILESDIR}/${PN}-0.11.0-consolekit.patch"
 
 	# Sabayon, fixes autologin due to sabayon-live

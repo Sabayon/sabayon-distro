@@ -1,0 +1,488 @@
+From 7ac83b7957906667788176d76d782e707a700421 Mon Sep 17 00:00:00 2001
+From: Nick Shaforostoff <shafff@ukr.net>
+Date: Fri, 16 Oct 2015 22:20:54 +0000
+Subject: [PATCH] microoptimizations: * qstring-related (qstringref,
+ qlatin1string), see
+ http://catchchallenger.first-world.info//wiki/Benchmark_for_conception#String
+ * use qvector for storing pointers, see
+ https://marcmutz.wordpress.com/effective-qt/containers/ * use iterators with
+ qmap to avoid duplicate lookups
+
+---
+ src/common/ConfigReader.cpp       | 77 +++++++++++++++++++++------------------
+ src/common/Session.cpp            | 12 +++---
+ src/daemon/Display.cpp            | 11 +++---
+ src/daemon/DisplayManager.cpp     |  8 ++--
+ src/daemon/PowerManager.cpp       | 18 ++++-----
+ src/daemon/SeatManager.cpp        |  2 +-
+ src/greeter/ScreenModel.cpp       |  4 +-
+ src/greeter/SessionModel.cpp      | 20 +++++-----
+ src/greeter/UserModel.cpp         | 10 ++---
+ src/helper/UserSession.cpp        |  4 +-
+ src/helper/backend/PamBackend.cpp |  4 +-
+ 11 files changed, 88 insertions(+), 82 deletions(-)
+
+diff --git a/src/common/ConfigReader.cpp b/src/common/ConfigReader.cpp
+index 6618455..bdfd22a 100644
+--- a/src/common/ConfigReader.cpp
++++ b/src/common/ConfigReader.cpp
+@@ -29,11 +29,13 @@
+ #include <QtCore/QFileInfo>
+ 
+ QTextStream &operator>>(QTextStream &str, QStringList &list)  {
+-    QStringList tempList = str.readLine().split(QLatin1Char(','));
+     list.clear();
+-    foreach(const QString &s, tempList)
+-        if (!s.trimmed().isEmpty())
+-            list.append(s.trimmed());
++    foreach(const QStringRef &s, str.readLine().splitRef(QLatin1Char(',')))
++    {
++        QStringRef trimmed = s.trimmed();
++        if (!trimmed.isEmpty())
++            list.append(trimmed.toString());
++    }
+     return str;
+ }
+ 
+@@ -43,10 +45,8 @@ QTextStream &operator<<(QTextStream &str, const QStringList &list) {
+ }
+ 
+ QTextStream &operator>>(QTextStream &str, bool &val) {
+-    if (0 == str.readLine().trimmed().compare(QLatin1String("true"), Qt::CaseInsensitive))
+-        val = true;
+-    else
+-        val = false;
++    QString line = str.readLine();
++    val = (0 == QStringRef(&line).trimmed().compare(QLatin1String("true"), Qt::CaseInsensitive));
+     return str;
+ }
+ 
+@@ -71,14 +71,16 @@ namespace SDDM {
+     }
+ 
+     ConfigEntryBase *ConfigSection::entry(const QString &name) {
+-        if (m_entries.contains(name))
+-            return m_entries[name];
++        auto it = m_entries.find(name);
++        if (it != m_entries.end())
++            return it.value();
+         return nullptr;
+     }
+ 
+     const ConfigEntryBase *ConfigSection::entry(const QString &name) const {
+-        if (m_entries.contains(name))
+-            return m_entries[name];
++        auto it = m_entries.find(name);
++        if (it != m_entries.end())
++            return it.value();
+         return nullptr;
+     }
+ 
+@@ -144,25 +146,27 @@ namespace SDDM {
+ 
+         in.open(QIODevice::ReadOnly);
+         while (!in.atEnd()) {
+-            QString line = QString::fromUtf8(in.readLine().trimmed());
++            QString line = QString::fromUtf8(in.readLine());
++            QStringRef lineRef = QStringRef(&line).trimmed();
+             // get rid of comments first
+-            line = line.left(line.indexOf(QLatin1Char('#'))).trimmed();
++            lineRef = lineRef.left(lineRef.indexOf(QLatin1Char('#'))).trimmed();
+ 
+             // value assignment
+-            int separatorPosition = line.indexOf(QLatin1Char('='));
++            int separatorPosition = lineRef.indexOf(QLatin1Char('='));
+             if (separatorPosition >= 0) {
+-                QString name = line.left(separatorPosition).trimmed();
+-                QString value = line.mid(separatorPosition + 1).trimmed();
++                QString name = lineRef.left(separatorPosition).trimmed().toString();
++                QStringRef value = lineRef.mid(separatorPosition + 1).trimmed();
+ 
+-                if (m_sections.contains(currentSection) && m_sections[currentSection]->entry(name))
+-                    m_sections[currentSection]->entry(name)->setValue(value);
++                auto sectionIterator = m_sections.constFind(currentSection);
++                if (sectionIterator != m_sections.constEnd() && sectionIterator.value()->entry(name))
++                    sectionIterator.value()->entry(name)->setValue(value.toString());
+                 else
+                     // if we don't have such member in the config, nag about it
+                     m_unusedVariables = true;
+             }
+             // section start
+-            else if (line.startsWith(QLatin1Char('[')) && line.endsWith(QLatin1Char(']')))
+-                currentSection = line.mid(1, line.length() - 2);
++            else if (lineRef.startsWith(QLatin1Char('[')) && lineRef.endsWith(QLatin1Char(']')))
++                currentSection = lineRef.mid(1, lineRef.length() - 2).toString();
+         }
+     }
+ 
+@@ -171,7 +175,7 @@ namespace SDDM {
+         bool changed = false;
+         // stores the order of the loaded sections
+         // every one could be there only once - if it occurs more times in the config, the occurences are merged
+-        QList<const ConfigSection*> sectionOrder;
++        QVector<const ConfigSection*> sectionOrder;
+         // the actual bytearray data for every section
+         QMap<const ConfigSection*, QByteArray> sectionData;
+         // map of nondefault entries which should be saved if they are not found in the current config file
+@@ -197,7 +201,7 @@ namespace SDDM {
+         }
+ 
+         // initialize the current section - General, usually
+-        const ConfigSection *currentSection = m_sections[QStringLiteral(IMPLICIT_SECTION)];
++        const ConfigSection *currentSection = m_sections.value(QStringLiteral(IMPLICIT_SECTION));
+ 
+         // stuff to store the pre-section stuff (comments) to the start of the right section, not the end of the previous one
+         QByteArray junk;
+@@ -221,18 +225,18 @@ namespace SDDM {
+         QFile file(m_path);
+         file.open(QIODevice::ReadOnly); // first just for reading
+         while (!file.atEnd()) {
+-            QString line = QString::fromUtf8(file.readLine());
++            const QString line = QString::fromUtf8(file.readLine());
+             // get rid of comments first
+-            QString trimmedLine = line.left(line.indexOf(QLatin1Char('#'))).trimmed();
+-            QString comment;
++            QStringRef trimmedLine = line.leftRef(line.indexOf(QLatin1Char('#'))).trimmed();
++            QStringRef comment;
+             if (line.indexOf(QLatin1Char('#')) >= 0)
+-                comment = line.mid(line.indexOf(QLatin1Char('#'))).trimmed();
++                comment = line.midRef(line.indexOf(QLatin1Char('#'))).trimmed();
+ 
+             // value assignment
+             int separatorPosition = trimmedLine.indexOf(QLatin1Char('='));
+             if (separatorPosition >= 0) {
+-                QString name = trimmedLine.left(separatorPosition).trimmed();
+-                QString value = trimmedLine.mid(separatorPosition + 1).trimmed();
++                QString name = trimmedLine.left(separatorPosition).trimmed().toString();
++                QStringRef value = trimmedLine.mid(separatorPosition + 1).trimmed();
+ 
+                 if (currentSection && currentSection->entry(name)) {
+                     // this monstrous condition checks the parameters if only one entry/section should be saved
+@@ -240,7 +244,7 @@ namespace SDDM {
+                         (!entry && section && section->name() == currentSection->name()) ||
+                         value != currentSection->entry(name)->value()) {
+                         changed = true;
+-                        writeSectionData(QStringLiteral("%1=%2 %3\n").arg(name).arg(currentSection->entry(name)->value()).arg(comment));
++                        writeSectionData(QStringLiteral("%1=%2 %3\n").arg(name).arg(currentSection->entry(name)->value()).arg(comment.toString()));
+                     }
+                     else
+                         writeSectionData(line);
+@@ -249,15 +253,16 @@ namespace SDDM {
+                 else {
+                     if (currentSection)
+                         m_unusedVariables = true;
+-                    writeSectionData(QStringLiteral("%1 %2\n").arg(trimmedLine).arg(QStringLiteral(UNUSED_VARIABLE_COMMENT)));
++                    writeSectionData(QStringLiteral("%1 %2\n").arg(trimmedLine.toString()).arg(QStringLiteral(UNUSED_VARIABLE_COMMENT)));
+                 }
+             }
+ 
+             // section start
+             else if (trimmedLine.startsWith(QLatin1Char('[')) && trimmedLine.endsWith(QLatin1Char(']'))) {
+-                QString name = trimmedLine.mid(1, trimmedLine.length() - 2);
+-                if (m_sections.contains(name)) {
+-                    currentSection = m_sections[name];
++                const QString name = trimmedLine.mid(1, trimmedLine.length() - 2).toString();
++                auto sectionIterator = m_sections.constFind(name);
++                if (sectionIterator != m_sections.constEnd()) {
++                    currentSection = sectionIterator.value();
+                     if (!sectionOrder.contains(currentSection))
+                         writeSectionData(line);
+                 }
+@@ -289,12 +294,12 @@ namespace SDDM {
+         if (changed) {
+             file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+             for (const ConfigSection *s : sectionOrder)
+-                file.write(sectionData[s]);
++                file.write(sectionData.value(s));
+ 
+             if (sectionData.contains(nullptr)) {
+                 file.write("\n");
+                 file.write(UNUSED_SECTION_COMMENT);
+-                file.write(sectionData[nullptr].trimmed());
++                file.write(sectionData.value(nullptr).trimmed());
+                 file.write("\n");
+             }
+         }
+diff --git a/src/common/Session.cpp b/src/common/Session.cpp
+index 251e381..66d73c9 100644
+--- a/src/common/Session.cpp
++++ b/src/common/Session.cpp
+@@ -104,7 +104,7 @@ namespace SDDM {
+ 
+         m_type = UnknownSession;
+         m_valid = false;
+-        m_desktopNames = QStringLiteral("");
++        m_desktopNames.clear();
+ 
+         switch (type) {
+         case X11Session:
+@@ -116,7 +116,7 @@ namespace SDDM {
+             m_xdgSessionType = QStringLiteral("wayland");
+             break;
+         default:
+-            m_xdgSessionType = QStringLiteral("");
++            m_xdgSessionType.clear();
+             break;
+         }
+ 
+@@ -132,19 +132,19 @@ namespace SDDM {
+         while (!in.atEnd()) {
+             QString line = in.readLine();
+ 
+-            if (line.startsWith(QStringLiteral("Name="))) {
++            if (line.startsWith(QLatin1String("Name="))) {
+                 if (type == WaylandSession)
+                     m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
+                 else
+                     m_displayName = line.mid(5);
+             }
+-            if (line.startsWith(QStringLiteral("Comment=")))
++            if (line.startsWith(QLatin1String("Comment=")))
+                 m_comment = line.mid(8);
+-            if (line.startsWith(QStringLiteral("Exec=")))
++            if (line.startsWith(QLatin1String("Exec=")))
+                 m_exec = line.mid(5);
+             if (line.startsWith(QStringLiteral("TryExec=")))
+                 m_tryExec = line.mid(8);
+-            if (line.startsWith(QStringLiteral("DesktopNames=")))
++            if (line.startsWith(QLatin1String("DesktopNames=")))
+                 m_desktopNames = line.mid(13).replace(QLatin1Char(';'), QLatin1Char(':'));
+         }
+ 
+diff --git a/src/daemon/Display.cpp b/src/daemon/Display.cpp
+index cae7c9b..8de59e5 100644
+--- a/src/daemon/Display.cpp
++++ b/src/daemon/Display.cpp
+@@ -203,7 +203,7 @@ namespace SDDM {
+ 
+         //the SDDM user has special priveledges that skip password checking so that we can load the greeter
+         //block ever trying to log in as the SDDM user
+-        if (user == QStringLiteral("sddm")) {
++        if (user == QLatin1String("sddm")) {
+             return;
+         }
+ 
+@@ -231,8 +231,9 @@ namespace SDDM {
+         QString fileName = name;
+ 
+         // append extension
+-        if (!fileName.endsWith(QStringLiteral(".desktop")))
+-            fileName += QStringLiteral(".desktop");
++        const QString extension = QStringLiteral(".desktop");
++        if (!fileName.endsWith(extension))
++            fileName += extension;
+ 
+         return dir.exists(fileName);
+     }
+@@ -263,14 +264,14 @@ namespace SDDM {
+ 
+         // create new VT for Wayland sessions otherwise use greeter vt
+         int vt = terminalId();
+-        if (session.xdgSessionType() == QStringLiteral("wayland")) {
++        if (session.xdgSessionType() == QLatin1String("wayland")) {
+             vt = VirtualTerminal::setUpNewVt();
+             VirtualTerminal::jumpToVt(vt);
+         }
+ 
+         QProcessEnvironment env;
+         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
+-        if (session.xdgSessionType() == QStringLiteral("x11"))
++        if (session.xdgSessionType() == QLatin1String("x11"))
+             env.insert(QStringLiteral("DISPLAY"), name());
+         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
+         env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(seat()->name()));
+diff --git a/src/daemon/DisplayManager.cpp b/src/daemon/DisplayManager.cpp
+index 7e7b22a..55b18bf 100644
+--- a/src/daemon/DisplayManager.cpp
++++ b/src/daemon/DisplayManager.cpp
+@@ -26,10 +26,10 @@
+ #include "seatadaptor.h"
+ #include "sessionadaptor.h"
+ 
+-#define DISPLAYMANAGER_SERVICE      QStringLiteral("org.freedesktop.DisplayManager")
+-#define DISPLAYMANAGER_PATH         QStringLiteral("/org/freedesktop/DisplayManager")
+-#define DISPLAYMANAGER_SEAT_PATH    QStringLiteral("/org/freedesktop/DisplayManager/Seat")
+-#define DISPLAYMANAGER_SESSION_PATH QStringLiteral("/org/freedesktop/DisplayManager/Session")
++const QString DISPLAYMANAGER_SERVICE = QStringLiteral("org.freedesktop.DisplayManager");
++const QString DISPLAYMANAGER_PATH = QStringLiteral("/org/freedesktop/DisplayManager");
++const QString DISPLAYMANAGER_SEAT_PATH = QStringLiteral("/org/freedesktop/DisplayManager/Seat");
++const QString DISPLAYMANAGER_SESSION_PATH = QStringLiteral("/org/freedesktop/DisplayManager/Session");
+ 
+ namespace SDDM {
+     DisplayManager::DisplayManager(QObject *parent) : QObject(parent) {
+diff --git a/src/daemon/PowerManager.cpp b/src/daemon/PowerManager.cpp
+index d0501d5..67a27c6 100644
+--- a/src/daemon/PowerManager.cpp
++++ b/src/daemon/PowerManager.cpp
+@@ -53,9 +53,9 @@ namespace SDDM {
+     /* UPOWER BACKEND                             */
+     /**********************************************/
+ 
+-#define UPOWER_SERVICE  QStringLiteral("org.freedesktop.UPower")
+-#define UPOWER_PATH     QStringLiteral("/org/freedesktop/UPower")
+-#define UPOWER_OBJECT   QStringLiteral("org.freedesktop.UPower")
++const QString UPOWER_PATH = QStringLiteral("/org/freedesktop/UPower");
++const QString UPOWER_SERVICE = QStringLiteral("org.freedesktop.UPower");
++const QString UPOWER_OBJECT = QStringLiteral("org.freedesktop.UPower");
+ 
+     class UPowerBackend : public PowerManagerBackend {
+     public:
+@@ -113,13 +113,13 @@ namespace SDDM {
+     /* LOGIN1 && ConsoleKit2 BACKEND              */
+     /**********************************************/
+ 
+-#define LOGIN1_SERVICE  QStringLiteral("org.freedesktop.login1")
+-#define LOGIN1_PATH     QStringLiteral("/org/freedesktop/login1")
+-#define LOGIN1_OBJECT   QStringLiteral("org.freedesktop.login1.Manager")
++const QString LOGIN1_SERVICE = QStringLiteral("org.freedesktop.login1");
++const QString LOGIN1_PATH = QStringLiteral("/org/freedesktop/login1");
++const QString LOGIN1_OBJECT = QStringLiteral("org.freedesktop.login1.Manager");
+ 
+-#define CK2_SERVICE  QStringLiteral("org.freedesktop.ConsoleKit")
+-#define CK2_PATH     QStringLiteral("/org/freedesktop/ConsoleKit/Manager")
+-#define CK2_OBJECT   QStringLiteral("org.freedesktop.ConsoleKit.Manager")
++const QString CK2_SERVICE = QStringLiteral("org.freedesktop.ConsoleKit");
++const QString CK2_PATH = QStringLiteral("/org/freedesktop/ConsoleKit/Manager");
++const QString CK2_OBJECT = QStringLiteral("org.freedesktop.ConsoleKit.Manager");
+ 
+     class SeatManagerBackend : public PowerManagerBackend {
+     public:
+diff --git a/src/daemon/SeatManager.cpp b/src/daemon/SeatManager.cpp
+index cb1d265..9c487fb 100644
+--- a/src/daemon/SeatManager.cpp
++++ b/src/daemon/SeatManager.cpp
+@@ -57,6 +57,6 @@ namespace SDDM {
+             return;
+ 
+         // switch to greeter
+-        m_seats[name]->createDisplay();
++        m_seats.value(name)->createDisplay();
+     }
+ }
+diff --git a/src/greeter/ScreenModel.cpp b/src/greeter/ScreenModel.cpp
+index 7faad99..dd9055a 100644
+--- a/src/greeter/ScreenModel.cpp
++++ b/src/greeter/ScreenModel.cpp
+@@ -41,8 +41,8 @@ namespace SDDM {
+     QHash<int, QByteArray> ScreenModel::roleNames() const {
+         // set role names
+         QHash<int, QByteArray> roleNames;
+-        roleNames[NameRole] = "name";
+-        roleNames[GeometryRole] = "geometry";
++        roleNames[NameRole] = QByteArrayLiteral("name");
++        roleNames[GeometryRole] = QByteArrayLiteral("geometry");
+         return roleNames;
+     }
+ 
+diff --git a/src/greeter/SessionModel.cpp b/src/greeter/SessionModel.cpp
+index 6b67459..a4740b0 100644
+--- a/src/greeter/SessionModel.cpp
++++ b/src/greeter/SessionModel.cpp
+@@ -22,19 +22,19 @@
+ 
+ #include "Configuration.h"
+ 
+-#include <QList>
++#include <QVector>
+ #include <QProcessEnvironment>
+ 
+ namespace SDDM {
+     class SessionModelPrivate {
+     public:
+         ~SessionModelPrivate() {
+-            while (!sessions.isEmpty())
+-                delete sessions.takeFirst();
++            qDeleteAll(sessions);
++            sessions.clear();
+         }
+ 
+         int lastIndex { 0 };
+-        QList<Session *> sessions;
++        QVector<Session *> sessions;
+     };
+ 
+     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
+@@ -49,12 +49,12 @@ namespace SDDM {
+     QHash<int, QByteArray> SessionModel::roleNames() const {
+         // set role names
+         QHash<int, QByteArray> roleNames;
+-        roleNames[DirectoryRole] = "directory";
+-        roleNames[FileRole] = "file";
+-        roleNames[TypeRole] = "type";
+-        roleNames[NameRole] = "name";
+-        roleNames[ExecRole] = "exec";
+-        roleNames[CommentRole] = "comment";
++        roleNames[DirectoryRole] = QByteArrayLiteral("directory");
++        roleNames[FileRole] = QByteArrayLiteral("file");
++        roleNames[TypeRole] = QByteArrayLiteral("type");
++        roleNames[NameRole] = QByteArrayLiteral("name");
++        roleNames[ExecRole] = QByteArrayLiteral("exec");
++        roleNames[CommentRole] = QByteArrayLiteral("comment");
+ 
+         return roleNames;
+     }
+diff --git a/src/greeter/UserModel.cpp b/src/greeter/UserModel.cpp
+index 610b3ad..5041fab 100644
+--- a/src/greeter/UserModel.cpp
++++ b/src/greeter/UserModel.cpp
+@@ -113,11 +113,11 @@ namespace SDDM {
+     QHash<int, QByteArray> UserModel::roleNames() const {
+         // set role names
+         QHash<int, QByteArray> roleNames;
+-        roleNames[NameRole] = "name";
+-        roleNames[RealNameRole] = "realName";
+-        roleNames[HomeDirRole] = "homeDir";
+-        roleNames[IconRole] = "icon";
+-        roleNames[NeedsPasswordRole] = "needsPassword";
++        roleNames[NameRole] = QByteArrayLiteral("name");
++        roleNames[RealNameRole] = QByteArrayLiteral("realName");
++        roleNames[HomeDirRole] = QByteArrayLiteral("homeDir");
++        roleNames[IconRole] = QByteArrayLiteral("icon");
++        roleNames[NeedsPasswordRole] = QByteArrayLiteral("needsPassword");
+ 
+         return roleNames;
+     }
+diff --git a/src/helper/UserSession.cpp b/src/helper/UserSession.cpp
+index 0f3d7ff..0c0ab2b 100644
+--- a/src/helper/UserSession.cpp
++++ b/src/helper/UserSession.cpp
+@@ -76,7 +76,7 @@ namespace SDDM {
+ 
+         // For Wayland sessions we leak the VT into the session as stdin so
+         // that it stays open without races
+-        if (sessionType == QStringLiteral("wayland")) {
++        if (sessionType == QLatin1String("wayland")) {
+             // open VT and get the fd
+             QString ttyString = QStringLiteral("/dev/tty%1").arg(processEnvironment().value(QStringLiteral("XDG_VTNR")));
+             int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
+@@ -158,7 +158,7 @@ namespace SDDM {
+         }
+ 
+         // set X authority for X11 sessions only
+-        if (sessionType != QStringLiteral("x11"))
++        if (sessionType != QLatin1String("x11"))
+             return;
+         QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
+         if (!cookie.isEmpty()) {
+diff --git a/src/helper/backend/PamBackend.cpp b/src/helper/backend/PamBackend.cpp
+index ee88ddb..20aecbc 100644
+--- a/src/helper/backend/PamBackend.cpp
++++ b/src/helper/backend/PamBackend.cpp
+@@ -250,7 +250,7 @@ namespace SDDM {
+         }
+ 
+         QProcessEnvironment sessionEnv = m_app->session()->processEnvironment();
+-        if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
++        if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
+             QString display = sessionEnv.value(QStringLiteral("DISPLAY"));
+             if (!display.isEmpty()) {
+ #ifdef PAM_XDISPLAY
+@@ -258,7 +258,7 @@ namespace SDDM {
+ #endif
+                 m_pam->setItem(PAM_TTY, qPrintable(display));
+             }
+-        } else if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
++        } else if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
+             QString tty = QStringLiteral("/dev/tty%1").arg(sessionEnv.value(QStringLiteral("XDG_VTNR")));
+             m_pam->setItem(PAM_TTY, qPrintable(tty));
+         }
