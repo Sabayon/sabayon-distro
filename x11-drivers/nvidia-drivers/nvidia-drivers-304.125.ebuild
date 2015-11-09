@@ -135,6 +135,8 @@ src_prepare() {
 		epatch "${FILESDIR}/${PN}-3.19.patch"
 	fi
 
+	kernel_is ge 4 3 && epatch "${FILESDIR}/${PN}-340-4.3.patch"
+
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
 }
