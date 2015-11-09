@@ -115,6 +115,8 @@ src_prepare() {
 			eerror "You must build this against 2.6.9 or higher kernels."
  		fi
 
+		kernel_is ge 4 3 && epatch "${FILESDIR}/${PN}-340-4.3.patch"
+
 		# If greater than 2.6.5 use M= instead of SUBDIR=
 #		convert_to_m "${NV_SRC}"/Makefile.kbuild
 	fi
@@ -125,8 +127,6 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-331.13-pax-usercopy.patch
 		epatch "${FILESDIR}"/${PN}-337.12-pax-constify.patch
 	fi
-
-	kernel_is ge 4 3 && epatch "${FILESDIR}/${PN}-340-4.3.patch"
 
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
