@@ -115,7 +115,6 @@ src_prepare() {
 			eerror "You must build this against 2.6.9 or higher kernels."
  		fi
 
-		kernel_is ge 4 3 && epatch "${FILESDIR}/${PN}-340-4.3.patch"
 
 		# If greater than 2.6.5 use M= instead of SUBDIR=
 #		convert_to_m "${NV_SRC}"/Makefile.kbuild
