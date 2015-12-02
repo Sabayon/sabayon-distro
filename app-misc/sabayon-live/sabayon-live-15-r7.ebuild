@@ -3,19 +3,17 @@
 
 EAPI=5
 
-EGIT_REPO_URI="git://github.com/Sabayon/sabayon-live.git"
-EGIT_COMMIT="v${PVR}"
-
-inherit eutils systemd git-2
+inherit eutils systemd
 
 DESCRIPTION="Sabayon live image scripts and tools"
 HOMEPAGE="http://www.sabayon.org"
-
+SRC_URI="https://github.com/Sabayon/sabayon-live/archive/v${PVR}.tar.gz -> ${PVR}.tar.gz"
+RESTRICT="mirror"
 SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="amd64 arm x86"
 IUSE=""
-
+S="${WORKDIR}/${PN}-${PVR}"
 DEPEND=""
 RDEPEND="!app-misc/livecd-tools
 	!sys-apps/gpu-detector
