@@ -43,15 +43,7 @@ pkg_pretend() {
 src_prepare() {
 	cmake-utils_src_prepare
 
-	epatch "${FILESDIR}/${P}-respect-user-flags.patch"
-	epatch "${FILESDIR}/${P}-Inherit-path-environment-variables-from-parent.patch"
-	epatch "${FILESDIR}/${P}-Don-t-cast-QByteArray-to-char.patch"
-	epatch "${FILESDIR}/${P}-window-for-each-screen.patch"
-	epatch "${FILESDIR}/${P}-screen-model.patch"
-	epatch "${FILESDIR}/${P}-qstring.patch"
-	epatch "${FILESDIR}/${P}-use-qvector.patch"
-	epatch "${FILESDIR}/${P}-remove-failsafe.patch"
-
+	epatch "${FILESDIR}/${PN}-0.12.0-respect-user-flags.patch"
 	use consolekit && epatch "${FILESDIR}/${PN}-0.11.0-consolekit.patch"
 
 	# Sabayon, fixes autologin due to sabayon-live
@@ -60,7 +52,7 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
-		$(cmake-utils_use_no pam PAM)
+		$(cmake-utils_use_enable pam PAM)
 		$(cmake-utils_use_no systemd SYSTEMD)
 		-DBUILD_MAN_PAGES=ON
 		-DDBUS_CONFIG_FILENAME="org.freedesktop.sddm.conf"
