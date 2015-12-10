@@ -40,7 +40,7 @@ L10N_VER="$(get_version_component_range 1-3)"
 L10N_RC_VERSION="$(get_version_component_range 4)"
 LO_BRANCH=$(get_version_component_range 1-2)
 
-BASE_SRC_URI="http://download.documentfoundation.org/${PN/-l10n/}/stable/${MY_PV}/rpm"
+BASE_SRC_URI="http://download.documentfoundation.org/libreoffice/stable/${MY_PV}/rpm"
 
 SRC_URI=""
 
@@ -64,7 +64,7 @@ unset lang helppack langpack lang2
 
 RDEPEND+="app-text/hunspell"
 
-RESTRICT="strip"
+RESTRICT="strip mirror"
 
 S="${WORKDIR}"
 
