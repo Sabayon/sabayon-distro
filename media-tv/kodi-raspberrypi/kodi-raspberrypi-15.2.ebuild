@@ -251,4 +251,5 @@ src_install() {
 
 	python_domodule tools/EventClients/lib/python/xbmcclient.py
 	python_newscript "tools/EventClients/Clients/Kodi Send/kodi-send.py" kodi-send
+	dobin "${FILESDIR}"/startkodi
 }
