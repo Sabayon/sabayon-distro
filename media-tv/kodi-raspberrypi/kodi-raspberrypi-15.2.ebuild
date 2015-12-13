@@ -33,7 +33,7 @@ HOMEPAGE="http://kodi.tv/ http://kodi.wiki/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="airplay alsa avahi bluetooth bluray caps cec css dbus debug +fishbmc goom java joystick midi mysql nfs profile +projectm pulseaudio +rsxs rtmp +samba sftp +spectrum test +texturepacker udisks upnp upower +usb vaapi vdpau +waveform webserver +X"
+IUSE="airplay +alsa avahi bluetooth bluray caps cec css dbus debug +fishbmc goom java joystick midi mysql nfs profile +projectm pulseaudio +rsxs rtmp +samba sftp +spectrum test +texturepacker udisks upnp upower +usb vaapi vdpau +waveform webserver +X"
 REQUIRED_USE="
 	rsxs? ( X )
 	udisks? ( dbus )
@@ -82,6 +82,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	media-libs/tiff:0=
 	pulseaudio? ( media-sound/pulseaudio )
 	media-sound/wavpack
+	media-video/omxplayer
 	rtmp? ( media-video/rtmpdump )
 	avahi? ( net-dns/avahi )
 	nfs? ( net-fs/libnfs:= )
@@ -195,43 +196,21 @@ src_configure() {
 
 	econf \
 		--docdir=/usr/share/doc/${PF} \
-		--disable-ccache \
-		--disable-optimizations \
-		--with-ffmpeg=shared \
 		--disable-gl \
 		--enable-gles \
-		$(use_enable alsa) \
-		$(use_enable airplay) \
-		$(use_enable avahi) \
-		$(use_enable bluray libbluray) \
-		$(use_enable caps libcap) \
-		$(use_enable cec libcec) \
-		$(use_enable css dvdcss) \
-		$(use_enable dbus) \
-		$(use_enable debug) \
-		$(use_enable fishbmc) \
-		$(use_enable goom) \
-		$(use_enable joystick) \
-		$(use_enable midi mid) \
-		$(use_enable mysql) \
-		$(use_enable nfs) \
-		$(use_enable profile profiling) \
-		$(use_enable projectm) \
-		$(use_enable pulseaudio pulse) \
-		$(use_enable rsxs) \
-		$(use_enable rtmp) \
-		$(use_enable samba) \
-		$(use_enable sftp ssh) \
-		$(use_enable spectrum) \
-		$(use_enable usb libusb) \
-		$(use_enable test gtest) \
-		$(use_enable texturepacker) \
-		$(use_enable upnp) \
-		$(use_enable vaapi) \
-		$(use_enable vdpau) \
-		$(use_enable waveform) \
-		$(use_enable webserver) \
-		$(use_enable X x11)
+		--with-platform=raspberry-pi \
+		--disable-x11 \
+		--disable-vaapi \
+		--disable-vdpau \
+		--disable-avahi \
+		--disable-libcec \
+		--disable-pulse \
+		--disable-projectm \
+		--disable-optical-drive \
+		--disable-dvdcss \
+		--disable-vtbdecoder \
+		--enable-alsa \
+		--enable-player=omxplayer
 }
 
 src_compile() {
