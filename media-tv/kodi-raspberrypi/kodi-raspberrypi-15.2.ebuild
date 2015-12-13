@@ -56,6 +56,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	dev-libs/libxslt
 	>=dev-libs/lzo-2.04
 	dev-libs/tinyxml[stl]
+	dev-libs/libcec
 	dev-libs/yajl
 	dev-python/simplejson[${PYTHON_USEDEP}]
 	media-fonts/corefonts
@@ -204,7 +205,7 @@ src_configure() {
 		--disable-vaapi \
 		--disable-vdpau \
 		--disable-avahi \
-		--disable-libcec \
+		--enable-libcec \
 		--disable-pulse \
 		--disable-projectm \
 		--disable-optical-drive \
