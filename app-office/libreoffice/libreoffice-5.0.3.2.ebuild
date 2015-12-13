@@ -206,7 +206,7 @@ RDEPEND="${COMMON_DEPEND}
 # This will install LibreOffice templates
 L10N_VER="$(get_version_component_range 1-2)*"
 PDEPEND="=app-office/libreoffice-l10n-en_US-${L10N_VER}
-        x11-themes/sabayon-artwork-loo"
+	x11-themes/sabayon-artwork-loo"
 
 # FIXME: cppunit should be moved to test conditional
 #        after everything upstream is under gbuild
