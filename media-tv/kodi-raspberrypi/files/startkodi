@@ -5,6 +5,7 @@ xrefresh_bin=`which xrefresh`
 if [ ! -z $fbset_bin ]; then
   DEPTH2=`$fbset_bin | head -3 | tail -1 | cut -d " " -f 10`
 fi
+sudo chmod a+rw /dev/vchiq
 kodi "$@"
 if [ ! -z $fbset_bin ]; then
   if [ "$DEPTH2" == "8" ]; then

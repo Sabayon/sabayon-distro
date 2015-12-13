@@ -33,7 +33,7 @@ HOMEPAGE="http://kodi.tv/ http://kodi.wiki/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="airplay +alsa avahi bluetooth bluray caps cec css dbus debug +fishbmc goom java joystick midi mysql nfs profile +projectm pulseaudio +rsxs rtmp +samba sftp +spectrum test +texturepacker udisks upnp upower +usb vaapi vdpau +waveform webserver +X"
+IUSE="airplay +alsa avahi bluetooth bluray caps +cec css dbus debug +fishbmc goom java joystick midi mysql nfs profile +projectm pulseaudio +rsxs rtmp +samba sftp +spectrum test +texturepacker udisks upnp upower +usb vaapi vdpau +waveform webserver +X"
 REQUIRED_USE="
 	rsxs? ( X )
 	udisks? ( dbus )
@@ -53,10 +53,10 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	cec? ( >=dev-libs/libcec-3.0 )
 	dev-libs/libpcre[cxx]
 	dev-libs/libxml2
+	sys-apps/lsb-release
 	dev-libs/libxslt
 	>=dev-libs/lzo-2.04
 	dev-libs/tinyxml[stl]
-	dev-libs/libcec
 	dev-libs/yajl
 	dev-python/simplejson[${PYTHON_USEDEP}]
 	media-fonts/corefonts
@@ -66,6 +66,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	media-libs/fontconfig
 	media-libs/freetype
 	media-libs/jasper
+	x11-apps/xrefresh
 	media-libs/jbigkit
 	>=media-libs/libass-0.9.7
 	net-libs/libssh
@@ -114,6 +115,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	)"
 RDEPEND="${COMMON_DEPEND}
 	!media-tv/xbmc
+	!media-tv/kodi
 	udisks? ( sys-fs/udisks:0 )
 	upower? ( || ( sys-power/upower sys-power/upower-pm-utils ) )"
 DEPEND="${COMMON_DEPEND}
@@ -233,6 +235,8 @@ src_install() {
 		visualization.vortex
 	)
 	rm -rf "${disabled_addons[@]/#/${ED}/usr/share/kodi/addons/}"
+	insinto /etc/udev/rules.d
+	newins "${FILESDIR}/99-input.rules" 99-input.rules
 
 	# Remove fonconfig settings that are used only on MacOSX.
 	# Can't be patched upstream because they just find all files and install
