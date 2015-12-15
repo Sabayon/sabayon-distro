@@ -36,8 +36,6 @@ RDEPEND="${COMMON_DEPEND}
 # gnome-base/gnome-common required by eautoreconf
 
 src_prepare() {
-	# Comment out broken unittest
-	epatch "${FILESDIR}"/3.16.1-unittest.patch
 	gnome2_src_prepare
 	python_copy_sources
 }

@@ -50,8 +50,6 @@ RDEPEND="${COMMON_DEPEND}
 "
 
 src_prepare() {
-	# Comment out broken unittest
-	epatch "${FILESDIR}"/3.16.1-unittest.patch
 	gnome2_src_prepare
 	python_copy_sources
 }
@@ -84,6 +82,7 @@ src_test() {
 	export GIO_USE_VFS="local" # prevents odd issues with deleting ${T}/.gvfs
 	export GIO_USE_VOLUME_MONITOR="unix" # prevent udisks-related failures in chroots, bug #449484
 	export SKIP_PEP8="yes"
+
 	testing() {
 		export XDG_CACHE_HOME="${T}/${EPYTHON}"
 		run_in_build_dir Xemake check
