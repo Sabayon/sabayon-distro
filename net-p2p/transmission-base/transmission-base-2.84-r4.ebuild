@@ -13,6 +13,12 @@ DEPEND="xfs? ( sys-fs/xfsprogs )"
 
 DOCS="AUTHORS NEWS"
 
+TRANSMISSION_PATCHES=(
+	"${FILESDIR}/2.84-miniupnp14.patch"
+	"${FILESDIR}/2.84-libevent-2.1.5.patch"
+	"${FILESDIR}/2.84-node_alloc-segfault.patch"
+)
+
 src_install() {
 	default
 	rm "${ED}"/usr/share/${MY_PN}/web/LICENSE || die
