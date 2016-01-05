@@ -3,7 +3,7 @@
 # $Id$
 
 EAPI=5
-inherit cmake-utils user
+inherit cmake-utils user systemd
 
 DESCRIPTION="Simple Desktop Display Manager"
 HOMEPAGE="https://github.com/${PN}/${PN}"
@@ -61,6 +61,10 @@ src_configure() {
 	cmake-utils_src_configure
 }
 
+src_install(){
+	default
+	systemd_dounit "${FILESDIR}/sddm-plymouth.service"
+}
 pkg_postinst() {
 	enewgroup ${PN}
 	enewuser ${PN} -1 -1 /var/lib/${PN} ${PN} video
