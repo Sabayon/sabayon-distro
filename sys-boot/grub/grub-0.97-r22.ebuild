@@ -7,38 +7,44 @@
 #      we never updated any of the source code (it still all wants menu.lst),
 #      and there is no indication that upstream is making the transition.
 
-EAPI="4"
+# If you need to roll a new grub-static distfile, here is how.
+# - Robin H. Johnson <robbat2@gentoo.org> - 29 Nov 2010
+# FEATURES='-noauto -noinfo -nodoc -noman -splitdebug nostrip' \
+# USE='static -ncurses -netboot -custom-cflags' \
+# PORTAGE_COMPRESS=true GRUB_STATIC_PACKAGE_BUILDING=1 ebuild \
+# grub-${PVR}.ebuild clean package && \
+# qtbz2 -s -j ${PKGDIR}/${CAT}/${PF}.tbz2 && \
+# mv ${PF}.tar.bz2 ${DISTDIR}/grub-static-${PVR}.tar.bz2
 
-inherit mount-boot eutils flag-o-matic toolchain-funcs autotools multilib
+EAPI="5"
 
-PATCHVER="1.9" # Should match the revision ideally
+inherit eutils mount-boot toolchain-funcs linux-info flag-o-matic autotools pax-utils multiprocessing
+
+PATCHVER="1.14" # Should match the revision ideally
 DESCRIPTION="GNU GRUB Legacy boot loader"
-HOMEPAGE="http://www.gnu.org/software/grub/"
+HOMEPAGE="https://www.gnu.org/software/grub/"
 SRC_URI="mirror://gentoo/${P}.tar.gz
-	ftp://alpha.gnu.org/gnu/${PN}/${P}.tar.gz
+	mirror://gnu-alpha/${PN}/${P}.tar.gz
 	mirror://gentoo/${P}-patches-${PATCHVER}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86 ~x86-fbsd"
+KEYWORDS="~amd64 ~x86 ~x86-fbsd"
 IUSE="custom-cflags ncurses netboot static"
 
-DEPEND="ncurses? (
-		>=sys-libs/ncurses-5.2-r5
-		amd64? ( || (
-			>=sys-libs/ncurses-5.9-r3[abi_x86_32(-)]
-			app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-		) )
-	)"
-PROVIDE="virtual/bootloader"
+LIB_DEPEND="ncurses? ( >=sys-libs/ncurses-5.9-r3:0[static-libs(+),abi_x86_32(-)] )"
+RDEPEND="!static? ( ${LIB_DEPEND//[static-libs(+),/=[} )"
+DEPEND="${RDEPEND}
+	virtual/pkgconfig
+	static? ( ${LIB_DEPEND} )"
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
+pkg_setup() {
+	case $(tc-arch) in
+	amd64) CONFIG_CHECK='~IA32_EMULATION' check_extra_config ;;
+	esac
+}
 
-	# patch breaks booting for some people #111885
-	rm "${WORKDIR}"/patch/400_*
-
+src_prepare() {
 	# Grub will not handle a kernel larger than EXTENDED_MEMSIZE Mb as
 	# discovered in bug 160801. We can change this, however, using larger values
 	# for this variable means that Grub needs more memory to run and boot. For a
@@ -48,8 +54,8 @@ src_unpack() {
 	local t="custom"
 	if [[ -z ${GRUB_MAX_KERNEL_SIZE} ]] ; then
 		case $(tc-arch) in
-			amd64) GRUB_MAX_KERNEL_SIZE=7 ;;
-			x86)   GRUB_MAX_KERNEL_SIZE=3 ;;
+		amd64) GRUB_MAX_KERNEL_SIZE=9 ;;
+		x86)   GRUB_MAX_KERNEL_SIZE=5 ;;
 		esac
 		t="default"
 	fi
@@ -58,26 +64,19 @@ src_unpack() {
 	sed -i \
 		-e "/^#define.*EXTENDED_MEMSIZE/s,3,${GRUB_MAX_KERNEL_SIZE},g" \
 		"${S}"/grub/asmstub.c \
-		|| die "Failed to hack memory size"
+		|| die
 
-	# UUID support
-	epatch "${FILESDIR}/${P}-uuid.patch"
-	epatch "${FILESDIR}/${P}-uuid_doc.patch"
-	# Gfxmenu support
-	epatch "${FILESDIR}/${P}-gfxmenu-v8.patch"
+	EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/patch
+	# bug 564890, 566638
+	epatch "${FILESDIR}"/grub-0.97-Add-esp-to-list-of-clobbered-registers.patch
+	epatch "${FILESDIR}"/grub-0.97-ncurses-pkgconfig.patch
 
-	if [[ -n ${PATCHVER} ]] ; then
-		EPATCH_SUFFIX="patch"
-		epatch "${WORKDIR}"/patch
-		eautoreconf
-	fi
+	rm -f "${S}"/aclocal.m4 # seems to keep bug 418287 away
+	eautoreconf
 }
 
-src_compile() {
+src_configure() {
 	filter-flags -fPIE #168834
-
-	# Fix libvolume_id build (UUID)
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include -I/usr/$(get_libdir)/gcc/${CHOST}/$(gcc-fullversion)/include"
 
 	use amd64 && multilib_toolchain_setup x86
 
@@ -97,42 +96,42 @@ src_compile() {
 	# -fno-stack-protector detected by configure, removed from netboot's emake.
 	use custom-cflags || unset CFLAGS
 
+	tc-ld-disable-gold #439082 #466536 #526348
+
 	export grub_cv_prog_objcopy_absolute=yes #79734
 	use static && append-ldflags -static
 
-	# Per bug 216625, the emul packages do not provide .a libs for performing
-	# suitable static linking
 	if use amd64 && use static ; then
-		if [ -z "${GRUB_STATIC_PACKAGE_BUILDING}" ]; then
-			die "You must use the grub-static package if you want a static Grub on amd64!"
-		else
+		if [[ -n ${GRUB_STATIC_PACKAGE_BUILDING} ]] ; then
 			eerror "You have set GRUB_STATIC_PACKAGE_BUILDING. This"
 			eerror "is specifically intended for building the tarballs for the"
 			eerror "grub-static package via USE='static -ncurses'."
 			eerror "All bets are now off."
-			ebeep 10
 		fi
 	fi
 
+	multijob_init
+
 	# build the net-bootable grub first, but only if "netboot" is set
 	if use netboot ; then
+		(
+		multijob_child_init
+		mkdir -p "${WORKDIR}"/netboot
+		pushd "${WORKDIR}"/netboot >/dev/null
+		ECONF_SOURCE=${S} \
 		econf \
-		--libdir=/lib \
-		--datadir=/usr/lib/grub \
-		--exec-prefix=/ \
-		--disable-auto-linux-mem-opt \
-		--enable-diskless \
-		--enable-{3c{5{03,07,09,29,95},90x},cs89x0,davicom,depca,eepro{,100}} \
-		--enable-{epic100,exos205,ni5210,lance,ne2100,ni{50,65}10,natsemi} \
-		--enable-{ne,ns8390,wd,otulip,rtl8139,sis900,sk-g16,smc9000,tiara} \
-		--enable-{tulip,via-rhine,w89c840} || die "netboot econf failed"
-
-		emake w89c840_o_CFLAGS="-O" || die "making netboot stuff"
-
-		mv -f stage2/{nbgrub,pxegrub} "${S}"/
-		mv -f stage2/stage2 stage2/stage2.netboot
-
-		make clean || die "make clean failed"
+			--libdir=/lib \
+			--datadir=/usr/lib/grub \
+			--exec-prefix=/ \
+			--disable-auto-linux-mem-opt \
+			--enable-diskless \
+			--enable-{3c{5{03,07,09,29,95},90x},cs89x0,davicom,depca,eepro{,100}} \
+			--enable-{epic100,exos205,ni5210,lance,ne2100,ni{50,65}10,natsemi} \
+			--enable-{ne,ns8390,wd,otulip,rtl8139,sis900,sk-g16,smc9000,tiara} \
+			--enable-{tulip,via-rhine,w89c840}
+		popd >/dev/null
+		) &
+		multijob_post_fork
 	fi
 
 	# Now build the regular grub
@@ -142,41 +141,43 @@ src_compile() {
 		--datadir=/usr/lib/grub \
 		--exec-prefix=/ \
 		--disable-auto-linux-mem-opt \
-		$(use_with ncurses curses) \
-		|| die "econf failed"
+		$(use_with ncurses curses)
 
 	# sanity check due to common failure
 	use ncurses && ! grep -qs "HAVE_LIBCURSES.*1" config.h && die "USE=ncurses but curses not found"
 
-	emake || die "making regular stuff"
+	multijob_finish
+}
+
+src_compile() {
+	use netboot && emake -C "${WORKDIR}"/netboot w89c840_o_CFLAGS="-O"
+	emake
 }
 
 src_test() {
 	# non-default block size also give false pass/fails.
 	unset BLOCK_SIZE
-	make check || die "make check failed"
+	emake -j1 check
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
+	default
 	if use netboot ; then
 		exeinto /usr/lib/grub/${CHOST}
-		doexe nbgrub pxegrub stage2/stage2.netboot || die "netboot install"
+		doexe "${WORKDIR}"/netboot/stage2/{nbgrub,pxegrub}
+		newexe "${WORKDIR}"/netboot/stage2/stage2 stage2.netboot
 	fi
 
-	dodoc AUTHORS BUGS ChangeLog NEWS README THANKS TODO
+	pax-mark -m "${D}"/sbin/grub #330745
+
 	newdoc docs/menu.lst grub.conf.sample
 	dodoc "${FILESDIR}"/grub.conf.gentoo
-	prepalldocs
 
-	[ -n "${GRUB_STATIC_PACKAGE_BUILDING}" ] && \
-		mv \
-		"${D}"/usr/share/doc/${PF} \
-		"${D}"/usr/share/doc/grub-static-${PF/grub-}
+	[[ -n ${GRUB_STATIC_PACKAGE_BUILDING} ]] && \
+		mv "${D}"/usr/share/doc/{${PF},grub-static-${PF/grub-}}
 
 	insinto /usr/share/grub
 	doins "${FILESDIR}"/splash.xpm.gz
-
 }
 
 setup_boot_dir() {
@@ -187,21 +188,43 @@ setup_boot_dir() {
 	[[ ! -L ${dir}/boot ]] && ln -s . "${dir}/boot"
 	dir="${dir}/grub"
 	if [[ ! -e ${dir} ]] ; then
-		mkdir "${dir}" || die "${dir} does not exist!"
+		mkdir "${dir}" || die
 	fi
 
 	# change menu.lst to grub.conf
 	if [[ ! -e ${dir}/grub.conf ]] && [[ -e ${dir}/menu.lst ]] ; then
 		mv -f "${dir}"/menu.lst "${dir}"/grub.conf
-		ewarn
 		ewarn "*** IMPORTANT NOTE: menu.lst has been renamed to grub.conf"
-		ewarn
+		echo
 	fi
 
 	if [[ ! -e ${dir}/menu.lst ]]; then
 		einfo "Linking from new grub.conf name to menu.lst"
 		ln -snf grub.conf "${dir}"/menu.lst
 	fi
+
+	if [[ -e ${dir}/stage2 ]] ; then
+		mv "${dir}"/stage2{,.old}
+		ewarn "*** IMPORTANT NOTE: you must run grub and install"
+		ewarn "the new version's stage1 to your MBR.  Until you do,"
+		ewarn "stage1 and stage2 will still be the old version, but"
+		ewarn "later stages will be the new version, which could"
+		ewarn "cause problems such as an unbootable system."
+		ewarn
+		ewarn "This means you must use either grub-install or perform"
+		ewarn "root/setup manually."
+		ewarn
+		ewarn "For more help, see the handbook:"
+		ewarn "https://www.gentoo.org/doc/en/handbook/handbook-${ARCH}.xml?part=1&chap=10#grub-install-auto"
+		echo
+	fi
+
+	einfo "Copying files from /lib/grub and /usr/share/grub to ${dir}"
+	for x in \
+		"${ROOT}"/lib*/grub/*/* \
+		"${ROOT}"/usr/share/grub/* ; do
+		[[ -f ${x} ]] && cp -p "${x}" "${dir}"/
+	done
 
 	if [[ ! -e ${dir}/grub.conf ]] ; then
 		s="${ROOT}/usr/share/doc/${PF}/grub.conf.gentoo"
@@ -215,10 +238,30 @@ setup_boot_dir() {
 	[[ -e "${splash_xpm_gz}" ]] && [[ ! -e "${boot_splash_xpm_gz}" ]] && \
 		cp "${splash_xpm_gz}" "${boot_splash_xpm_gz}"
 
+	# Per bug 218599, we support grub.conf.install for users that want to run a
+	# specific set of Grub setup commands rather than the default ones.
+	grub_config=${dir}/grub.conf.install
+	[[ -e ${grub_config} ]] || grub_config=${dir}/grub.conf
+	if [[ -e ${grub_config} ]] ; then
+		egrep \
+			-v '^[[:space:]]*(#|$|default|fallback|initrd|password|splashimage|timeout|title)' \
+			"${grub_config}" | \
+		/sbin/grub --batch \
+			--device-map="${dir}"/device.map \
+			> /dev/null
+	fi
+
+	# the grub default commands silently piss themselves if
+	# the default file does not exist ahead of time
+	if [[ ! -e ${dir}/default ]] ; then
+		grub-set-default --root-directory="${boot_dir}" default
+	fi
 	einfo "Grub has been installed to ${boot_dir} successfully."
 }
 
 pkg_postinst() {
+	mount-boot_mount_boot_partition
+
 	if [[ -n ${DONT_MOUNT_BOOT} ]]; then
 		elog "WARNING: you have DONT_MOUNT_BOOT in effect, so you must apply"
 		elog "the following instructions for your /boot!"
@@ -236,6 +279,8 @@ pkg_postinst() {
 	elog "Alternately, you can export GRUB_ALT_INSTALLDIR=/path/to/use to tell"
 	elog "grub where to install in a non-interactive way."
 
+	# needs to be after we call setup_boot_dir
+	mount-boot_pkg_postinst
 }
 
 pkg_config() {
