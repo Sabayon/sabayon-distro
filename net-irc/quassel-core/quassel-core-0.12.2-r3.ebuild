@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -55,6 +55,11 @@ DEPEND="
 
 DOCS=( AUTHORS ChangeLog README )
 
+PATCHES=(
+	"${FILESDIR}/${MY_P}-qt55.patch"
+	"${FILESDIR}/${MY_P}-CVE-2015-8547.patch"
+)
+
 S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
@@ -86,8 +91,14 @@ src_configure() {
 		"-DWANT_CORE=ON"
 		"-DWITH_WEBKIT=OFF"
 		"-DWANT_QTCLIENT=OFF"
-		"-DEMBED_DATA=OFF"
+		-DEMBED_DATA=OFF
+		-DCMAKE_SKIP_RPATH=ON
 	)
+
+	# Something broke upstream detection since Qt 5.5
+	if use ssl ; then
+		mycmakeargs+=("-DHAVE_SSL=TRUE")
+	fi
 
 	cmake-utils_src_configure
 }

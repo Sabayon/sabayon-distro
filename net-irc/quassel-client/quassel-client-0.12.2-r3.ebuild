@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -8,39 +8,24 @@ inherit cmake-utils eutils
 
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 [[ "${PV}" == "9999" ]] && inherit git-r3
+MY_P=${P/-client}
+# MY_PN=${PN/-client}
 
-DESCRIPTION="Qt/KDE IRC client - monolithic client only (no remote daemon)"
+DESCRIPTION="Qt/KDE IRC client supporting a remote daemon for 24/7 connectivity (client only)"
 HOMEPAGE="http://quassel-irc.org/"
-[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${P}.tar.bz2"
+[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-# monolithic USE flag must be enabled for this package
-IUSE="ayatana crypt dbus debug kde monolithic phonon postgres qt5 +server +ssl syslog webkit X"
-
-SERVER_RDEPEND="
-	qt5? (
-		dev-qt/qtscript:5
-		crypt? ( app-crypt/qca:2[openssl,qt5] )
-		postgres? ( dev-qt/qtsql:5[postgres] )
-		!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
-	)
-	!qt5? (
-		dev-qt/qtscript:4
-		crypt? ( app-crypt/qca:2[openssl,qt4(+)] )
-		postgres? ( dev-qt/qtsql:4[postgres] )
-		!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
-	)
-	syslog? ( virtual/logger )
-"
+IUSE="ayatana crypt dbus debug kde phonon qt5 +ssl webkit"
 
 GUI_RDEPEND="
 	qt5? (
 		dev-qt/qtgui:5
 		dev-qt/qtwidgets:5
 		dbus? (
-			dev-libs/libdbusmenu-qt[qt5]
+			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt5]
 			dev-qt/qtdbus:5
 		)
 		kde? (
@@ -60,7 +45,7 @@ GUI_RDEPEND="
 		dev-qt/qtgui:4
 		ayatana? ( dev-libs/libindicate-qt )
 		dbus? (
-			dev-libs/libdbusmenu-qt[qt4(+)]
+			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt4(+)]
 			dev-qt/qtdbus:4
 			kde? (
 				kde-base/kdelibs:4
@@ -80,14 +65,7 @@ RDEPEND="
 		dev-qt/qtnetwork:5[ssl?]
 	)
 	!qt5? ( dev-qt/qtcore:4[ssl?] )
-	monolithic? (
-		${SERVER_RDEPEND}
-		${GUI_RDEPEND}
-	)
-	!monolithic? (
-		server? ( ${SERVER_RDEPEND} )
-		X? ( ${GUI_RDEPEND} )
-	)
+	${GUI_RDEPEND}
 "
 DEPEND="${RDEPEND}
 	qt5? (
@@ -96,25 +74,16 @@ DEPEND="${RDEPEND}
 	)
 "
 
-DOCS=( AUTHORS ChangeLog README )
+PATCHES=(
+	"${FILESDIR}/${MY_P}-qt55.patch"
+	"${FILESDIR}/${MY_P}-CVE-2015-8547.patch"
+)
 
 REQUIRED_USE="
-	|| ( X server monolithic )
-	ayatana? ( || ( X monolithic ) )
-	crypt? ( || ( server monolithic ) )
-	dbus? ( || ( X monolithic ) )
-	kde? ( || ( X monolithic ) )
-	phonon? ( || ( X monolithic ) )
-	postgres? ( || ( server monolithic ) )
-	qt5? ( !ayatana )
-	syslog? ( || ( server monolithic ) )
-	webkit? ( || ( X monolithic ) )
+	kde? ( phonon )
 "
 
-pkg_setup() {
-	# sanity check for the split ebuild
-	use monolithic || die "The 'monolithic' flag must be enabled!"
-}
+S="${WORKDIR}/${MY_P}"
 
 src_configure() {
 	local mycmakeargs=(
@@ -126,15 +95,21 @@ src_configure() {
 		$(cmake-utils_use_find_package dbus dbusmenu-qt5)
 		$(cmake-utils_use_with kde)
 		"-DWITH_OXYGEN=OFF"
-		"-DWANT_MONO=ON"
+		"-DWANT_MONO=OFF"
 		$(cmake-utils_use_find_package phonon)
 		$(cmake-utils_use_find_package phonon Phonon4Qt5)
 		$(cmake-utils_use_use qt5)
 		"-DWANT_CORE=OFF"
 		$(cmake-utils_use_with webkit)
-		"-DWANT_QTCLIENT=OFF"
-		"-DEMBED_DATA=OFF"
+		"-DWANT_QTCLIENT=ON"
+		-DEMBED_DATA=OFF
+		-DCMAKE_SKIP_RPATH=ON
 	)
+
+	# Something broke upstream detection since Qt 5.5
+	if use ssl ; then
+		mycmakeargs+=("-DHAVE_SSL=TRUE")
+	fi
 
 	cmake-utils_src_configure
 }
@@ -146,20 +121,12 @@ src_install() {
 	rmdir "${ED}"usr/share/quassel || die # should be empty
 	rm -r "${ED}"usr/share/pixmaps || die
 	rm -r "${ED}"usr/share/icons || die
-	rm -r "${ED}"usr/share/applications || die
 
 	insinto /usr/share/applications
-	doins data/quassel.desktop
+	doins data/quasselclient.desktop
 }
 
 pkg_postinst() {
-	if use monolithic && use ssl ; then
-		elog "Information on how to enable SSL support for client/core connections"
-		elog "is available at http://bugs.quassel-irc.org/wiki/quassel-irc."
-	fi
-
-	if use server || use monolithic ; then
-		einfo "Quassel can use net-misc/oidentd package if installed on your system."
-		einfo "Consider installing it if you want to run quassel within identd daemon."
-	fi
+	elog "To make use of quasselclient, install server, too."
+	elog "It is provided by net-irc/quassel-core and net-irc/quassel-core-bin."
 }
