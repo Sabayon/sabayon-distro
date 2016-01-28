@@ -22,6 +22,7 @@ RESTRICT="test"
 COMMON_DEPEND="
 		dev-qt/qtcore:4
 		dev-qt/qtgui:4
+		dev-qt/qttest:4
 "
 
 DEPEND="${COMMON_DEPEND}
