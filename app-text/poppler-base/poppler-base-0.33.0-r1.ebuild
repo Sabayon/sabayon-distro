@@ -9,7 +9,7 @@ HOMEPAGE="http://poppler.freedesktop.org/"
 SRC_URI="http://poppler.freedesktop.org/${P/-base}.tar.xz"
 
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~x86 ~arm"
 SLOT="0/52"
 IUSE="cjk curl cxx debug doc +jpeg jpeg2k +lcms png tiff +utils"
 
