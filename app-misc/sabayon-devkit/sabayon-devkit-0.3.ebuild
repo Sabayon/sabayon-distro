@@ -17,7 +17,7 @@ IUSE=""
 S="${WORKDIR}/devkit-${PVR}"
 DEPEND=""
 RDEPEND="app-emulation/docker
-	games-misc/cowsay"
+	dev-lang/perl"
 
 src_install() {
 	emake DESTDIR="${D}" \
