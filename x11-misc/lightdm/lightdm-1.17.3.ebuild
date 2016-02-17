@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -14,7 +14,8 @@ IUSE="+gtk +introspection kde qt4 +gnome"
 REQUIRED_USE="|| ( gtk kde )"
 
 DEPEND="~x11-misc/lightdm-base-${PV}[introspection=]
-	qt4? ( ~x11-misc/lightdm-qt4-${PV} )"
+	qt4? ( ~x11-misc/lightdm-qt4-${PV} )
+	qt5? ( ~x11-misc/lightdm-qt5-${PV} )"
 RDEPEND="${DEPEND}"
 PDEPEND="
 	gtk? ( x11-misc/lightdm-gtk-greeter )
