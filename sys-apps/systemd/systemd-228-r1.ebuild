@@ -148,6 +148,10 @@ src_prepare() {
 	epatch "${FILESDIR}/228-noclean-tmp.patch"
 	epatch "${FILESDIR}/226-no-udevd-start-loginfo.patch"
 	epatch_user
+
+	# Avoid the log bloat to the user
+	sed -i -e 's/#SystemMaxUse=/SystemMaxUse=500M/' src/journal/journald.conf || die
+
 	eautoreconf
 }
 
