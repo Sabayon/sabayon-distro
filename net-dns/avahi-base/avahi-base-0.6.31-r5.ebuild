@@ -23,7 +23,7 @@ SRC_URI="http://avahi.org/download/${MY_P}.tar.gz"
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
-IUSE="autoipd bookmarks dbus doc gdbm howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat nls python selinux test"
+IUSE="autoipd bookmarks dbus doc gdbm gtk3 howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat nls python selinux test"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -46,6 +46,7 @@ COMMON_DEPEND="
 		dbus? ( dev-python/dbus-python )
 	)
 	selinux? ( sec-policy/selinux-avahi )
+	gtk3? ( net-dns/avahi-gtk3 )
 	bookmarks? (
 		dev-python/twisted-core
 		dev-python/twisted-web
