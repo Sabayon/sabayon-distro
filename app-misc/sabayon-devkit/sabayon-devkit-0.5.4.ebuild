@@ -17,7 +17,8 @@ IUSE=""
 S="${WORKDIR}/devkit-${PVR}"
 DEPEND=""
 RDEPEND="app-emulation/docker
-	dev-lang/perl"
+	dev-lang/perl
+	dev-perl/DBD-SQLite"
 
 src_install() {
 	emake DESTDIR="${D}" \
