@@ -18,7 +18,10 @@ S="${WORKDIR}/devkit-${PVR}"
 DEPEND=""
 RDEPEND="app-emulation/docker
 	dev-lang/perl
-	dev-perl/DBD-SQLite"
+	dev-perl/DBD-SQLite
+	app-portage/layman
+	app-portage/gentoolkit
+	app-portage/eix"
 
 src_install() {
 	emake DESTDIR="${D}" \
