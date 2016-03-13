@@ -374,7 +374,8 @@ else
 		)
 		dracut? ( sys-apps/v86d sys-kernel/dracut )"
 	RDEPEND="sys-apps/sed
-		sys-kernel/linux-firmware"
+		sys-kernel/linux-firmware
+		|| ( >=sys-kernel/genkernel-next-5[dmraid(+)?,mdadm(+)?] >=sys-kernel/genkernel-3.4.45-r2 )" #we use it locally for generating initramfs
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
 	fi
@@ -578,7 +579,7 @@ _kernel_src_compile() {
 		--bootdir="${WORKDIR}"/boot \
 		--mountboot \
 		--module-prefix="${WORKDIR}"/lib \
-		all || die "genkernel failed"
+		kernel || die "genkernel failed"
 
 	if [ -n "${K_MKIMAGE_KERNEL_ADDRESS}" ]; then
 		unset LOADADDR
@@ -732,8 +733,6 @@ _kernel_src_install() {
 	doins "RELEASE_LEVEL"
 	einfo "Installing ${base_dir}/RELEASE_LEVEL file: ${KV_FULL}"
 
-	use dracut && \
-		_dracut_initramfs_create "${KV_FULL}"
 }
 
 sabayon-kernel_pkg_preinst() {
@@ -855,10 +854,74 @@ sabayon-kernel_bzimage_config() {
 
 _dracut_initramfs_create() {
 	local kver="${1}"
-
-	elog "Creating dracut initramfs for ${kver}"
+  local karch="${2}"
+	elog "Creating dracut initramfs for ${kver} arch: ${karch}"
 	addpredict /etc/ld.so.cache~
-	dracut -q -N -f --kver="${kver}" "${D}/boot/initramfs-dracut-${kver}"
+	dracut -q -N -f --kver="${kver}" "${ROOT}boot/initramfs-dracut-${karch}-${kver}"
+}
+
+_genkernel_initramfs_create(){
+	local kver="${1}"
+	local karch="${2}"
+	local GKARGS=()
+	GKARGS+=( "--no-menuconfig" "--no-save-config" "--e2fsprogs" "--udev" )
+	use btrfs && GKARGS+=( "--btrfs" )
+	use splash && GKARGS+=( "--splash=sabayon" )
+	use plymouth && GKARGS+=( "--plymouth" "--plymouth-theme=${PLYMOUTH_THEME}" )
+	use dmraid && GKARGS+=( "--dmraid" )
+	use iscsi && GKARGS+=( "--iscsi" )
+	use mdadm && GKARGS+=( "--mdadm" )
+	use luks && GKARGS+=( "--luks" )
+	use lvm && GKARGS+=( "--lvm" )
+	if [ -n "${K_SABKERNEL_ZFS}" ]; then
+		use zfs && GKARGS+=( "--zfs" )
+	fi
+
+	for opt in ${MAKEOPTS}; do
+		if [ "${opt:0:2}" = "-j" ]; then
+			mkopts="${opt}"
+			break
+		fi
+	done
+	[ -z "${mkopts}" ] && mkopts="-j3"
+
+	if [ -n "${K_KERNEL_IMAGE_NAME}" ]; then
+		GKARGS+=( "--kernel-target=${K_KERNEL_IMAGE_NAME}" )
+	fi
+	if [ -n "${K_KERNEL_IMAGE_PATH}" ]; then
+		GKARGS+=( "--kernel-binary=${K_KERNEL_IMAGE_PATH}" )
+	fi
+
+	# Workaround bug in splash_geninitramfs corrupting the initramfs
+	# if xz compression is used (newer genkernel >3.4.24)
+	local support_comp=$(genkernel --help | grep compress-initramfs-type)
+	if [ -n "${support_comp}" ]; then
+		GKARGS+=( "--compress-initramfs-type=gzip" )
+	fi
+
+	# Use --disklabel if genkernel supports it
+	local support_disklabel=$(genkernel --help | grep -- --disklabel)
+	if [ -n "${support_disklabel}" ]; then
+		GKARGS+=( "--disklabel" )
+	fi
+
+	if [ -n "${K_MKIMAGE_KERNEL_ADDRESS}" ]; then
+		export LOADADDR="${K_MKIMAGE_KERNEL_ADDRESS}"
+	fi
+	OLDARCH="${ARCH}"
+	unset ARCH
+	unset LDFLAGS
+	genkernel "${GKARGS[@]}" ${K_GENKERNEL_ARGS} \
+		--makeopts="${mkopts}" \
+		--bootdir="${ROOT}"/boot \
+		--mountboot \
+		initramfs || die "genkernel failed"
+
+	if [ -n "${K_MKIMAGE_KERNEL_ADDRESS}" ]; then
+		unset LOADADDR
+	fi
+
+	ARCH=${OLDARCH}
 }
 
 sabayon-kernel_pkg_postinst() {
@@ -880,6 +943,11 @@ sabayon-kernel_pkg_postinst() {
 			else
 				local kern_arch="x86"
 			fi
+
+			# Generate genkernel initramfs
+			_genkernel_initramfs_create "${KV_FULL}" "${kern_arch}"
+			use dracut && _dracut_initramfs_create "${KV_FULL}" "${kern_arch}"
+
 			# grub-legacy
 			if [ -x "${ROOT}usr/sbin/grub-handler" ]; then
 				"${ROOT}usr/sbin/grub-handler" add \
