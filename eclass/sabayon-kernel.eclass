@@ -514,6 +514,7 @@ _kernel_src_compile() {
 
 	cd "${S}" || die
 	local GKARGS=()
+	local GENKERNEL_MODE="all"
 	GKARGS+=( "--no-menuconfig" "--no-save-config" "--e2fsprogs" "--udev" )
 	use btrfs && GKARGS+=( "--btrfs" )
 	use splash && GKARGS+=( "--splash=sabayon" )
@@ -521,6 +522,7 @@ _kernel_src_compile() {
 	use dmraid && GKARGS+=( "--dmraid" )
 	use iscsi && GKARGS+=( "--iscsi" )
 	use mdadm && GKARGS+=( "--mdadm" )
+	use dracut && GENKERNEL_MODE="kernel"
 	use luks && GKARGS+=( "--luks" )
 	use lvm && GKARGS+=( "--lvm" )
 	if [ -n "${K_SABKERNEL_ZFS}" ]; then
@@ -566,6 +568,8 @@ _kernel_src_compile() {
 	if [ -n "${K_MKIMAGE_KERNEL_ADDRESS}" ]; then
 		export LOADADDR="${K_MKIMAGE_KERNEL_ADDRESS}"
 	fi
+
+
 	OLDARCH="${ARCH}"
 	unset ARCH
 	unset LDFLAGS
@@ -579,7 +583,7 @@ _kernel_src_compile() {
 		--bootdir="${WORKDIR}"/boot \
 		--mountboot \
 		--module-prefix="${WORKDIR}"/lib \
-		kernel || die "genkernel failed"
+		${GENKERNEL_MODE} || die "genkernel failed"
 
 	if [ -n "${K_MKIMAGE_KERNEL_ADDRESS}" ]; then
 		unset LOADADDR
