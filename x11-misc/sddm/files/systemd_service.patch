@@ -1,6 +1,6 @@
 mudler <mudler@sabayonlinux.org>
---- services/~sddm.service.in	2015-08-31 16:11:52.267460238 +0200
-+++ services/sddm.service.in	2015-08-31 16:12:22.497417043 +0200
+--- a/services/sddm.service.in	2015-08-31 16:11:52.267460238 +0200
++++ b/services/sddm.service.in	2015-08-31 16:12:22.497417043 +0200
 @@ -1,13 +1,14 @@
  [Unit]
  Description=Simple Desktop Display Manager
