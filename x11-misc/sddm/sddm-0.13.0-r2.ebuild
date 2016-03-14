@@ -50,6 +50,8 @@ src_prepare() {
 
 	# Sabayon, fixes autologin due to sabayon-live
 	use systemd && eapply "${FILESDIR}/systemd_service.patch"
+
+	cmake-utils_src_prepare
 }
 
 src_configure() {
