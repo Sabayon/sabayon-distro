@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -55,8 +55,6 @@ DEPEND="
 
 DOCS=( AUTHORS ChangeLog README )
 
-PATCHES=( "${FILESDIR}/${MY_P}-qt55.patch" )
-
 S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
@@ -86,9 +84,11 @@ src_configure() {
 		"CMAKE_DISABLE_FIND_PACKAGE_Phonon4Qt5=ON"
 		$(cmake-utils_use_use qt5)
 		"-DWANT_CORE=ON"
+		"CMAKE_DISABLE_FIND_PACKAGE_LibsnoreQt5=ON"
 		"-DWITH_WEBKIT=OFF"
 		"-DWANT_QTCLIENT=OFF"
-		"-DEMBED_DATA=OFF"
+		-DEMBED_DATA=OFF
+		-DCMAKE_SKIP_RPATH=ON
 	)
 
 	# Something broke upstream detection since Qt 5.5

@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -9,7 +9,7 @@ inherit cmake-utils eutils
 EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
 [[ "${PV}" == "9999" ]] && inherit git-r3
 
-DESCRIPTION="Qt/KDE IRC client supporting a remote daemon for 24/7 connectivity (common files)"
+DESCRIPTION="Qt/KDE IRC client supporting a remote daemon (common files)"
 HOMEPAGE="http://quassel-irc.org/"
 MY_P=${P/-common}
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
@@ -20,7 +20,7 @@ SLOT="0"
 IUSE="kde"
 
 RDEPEND="kde? (
-	kde-apps/oxygen-icons )"
+	kde-frameworks/oxygen-icons:* )"
 
 DEPEND="${RDEPEND}
 		!<net-irc/quassel-${PV}

@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -18,14 +18,14 @@ HOMEPAGE="http://quassel-irc.org/"
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE="ayatana crypt dbus debug kde phonon qt5 +ssl webkit"
+IUSE="ayatana crypt dbus debug kde phonon qt5 snorenotify +ssl webkit"
 
 GUI_RDEPEND="
 	qt5? (
 		dev-qt/qtgui:5
 		dev-qt/qtwidgets:5
 		dbus? (
-			dev-libs/libdbusmenu-qt[qt5]
+			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt5]
 			dev-qt/qtdbus:5
 		)
 		kde? (
@@ -39,13 +39,14 @@ GUI_RDEPEND="
 			kde-frameworks/sonnet:5
 		)
 		phonon? ( media-libs/phonon[qt5] )
+		snorenotify? ( >=x11-libs/snorenotify-0.7.0 )
 		webkit? ( dev-qt/qtwebkit:5 )
 	)
 	!qt5? (
 		dev-qt/qtgui:4
 		ayatana? ( dev-libs/libindicate-qt )
 		dbus? (
-			dev-libs/libdbusmenu-qt[qt4(+)]
+			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt4(+)]
 			dev-qt/qtdbus:4
 			kde? (
 				kde-base/kdelibs:4
@@ -74,8 +75,6 @@ DEPEND="${RDEPEND}
 	)
 "
 
-PATCHES=( "${FILESDIR}/${MY_P}-qt55.patch" )
-
 REQUIRED_USE="
 	kde? ( phonon )
 "
@@ -97,9 +96,11 @@ src_configure() {
 		$(cmake-utils_use_find_package phonon Phonon4Qt5)
 		$(cmake-utils_use_use qt5)
 		"-DWANT_CORE=OFF"
+		$(cmake-utils_use_find_package snorenotify LibsnoreQt5)
 		$(cmake-utils_use_with webkit)
 		"-DWANT_QTCLIENT=ON"
-		"-DEMBED_DATA=OFF"
+		-DEMBED_DATA=OFF
+		-DCMAKE_SKIP_RPATH=ON
 	)
 
 	# Something broke upstream detection since Qt 5.5

@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -17,7 +17,8 @@ LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
 # monolithic USE flag must be enabled for this package
-IUSE="ayatana crypt dbus debug kde monolithic phonon postgres qt5 +server +ssl syslog webkit X"
+IUSE="ayatana crypt dbus debug kde monolithic phonon postgres qt5 +server
+snorenotify +ssl syslog webkit X"
 
 SERVER_RDEPEND="
 	qt5? (
@@ -40,7 +41,7 @@ GUI_RDEPEND="
 		dev-qt/qtgui:5
 		dev-qt/qtwidgets:5
 		dbus? (
-			dev-libs/libdbusmenu-qt[qt5]
+			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt5]
 			dev-qt/qtdbus:5
 		)
 		kde? (
@@ -54,6 +55,7 @@ GUI_RDEPEND="
 			kde-frameworks/sonnet:5
 		)
 		phonon? ( media-libs/phonon[qt5] )
+		snorenotify? ( >=x11-libs/snorenotify-0.7.0 )
 		webkit? ( dev-qt/qtwebkit:5 )
 	)
 	!qt5? (
@@ -98,8 +100,6 @@ DEPEND="${RDEPEND}
 
 DOCS=( AUTHORS ChangeLog README )
 
-PATCHES=( "${FILESDIR}/${P}-qt55.patch" )
-
 REQUIRED_USE="
 	|| ( X server monolithic )
 	ayatana? ( || ( X monolithic ) )
@@ -109,6 +109,7 @@ REQUIRED_USE="
 	phonon? ( || ( X monolithic ) )
 	postgres? ( || ( server monolithic ) )
 	qt5? ( !ayatana )
+	snorenotify? ( qt5 || ( X monolithic ) )
 	syslog? ( || ( server monolithic ) )
 	webkit? ( || ( X monolithic ) )
 "
@@ -133,9 +134,11 @@ src_configure() {
 		$(cmake-utils_use_find_package phonon Phonon4Qt5)
 		$(cmake-utils_use_use qt5)
 		"-DWANT_CORE=OFF"
+		$(cmake-utils_use_find_package snorenotify LibsnoreQt5)
 		$(cmake-utils_use_with webkit)
 		"-DWANT_QTCLIENT=OFF"
-		"-DEMBED_DATA=OFF"
+		-DEMBED_DATA=OFF
+		-DCMAKE_SKIP_RPATH=ON
 	)
 
 	# Something broke upstream detection since Qt 5.5
