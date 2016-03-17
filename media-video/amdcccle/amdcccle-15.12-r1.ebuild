@@ -8,10 +8,10 @@ inherit eutils versionator
 
 DESCRIPTION="AMD Catalyst Control Center Linux Edition"
 HOMEPAGE="http://www.amd.com"
-#RUN="${WORKDIR}/fglrx-14.10.1006/amd-driver-installer-14.10.1006-x86.x86_64.run"
-RUN="${WORKDIR}/AMD-Catalyst-15.9-Linux-installer-15.201.1151-x86.x86_64.run"
 SLOT="1"
-DRV_VER="amd-catalyst-${PV}-linux-installer-15.201.1151-x86.x86_64.zip"
+BUILD_VER=15.302
+RUN="${WORKDIR}/fglrx-${BUILD_VER}/amd-driver-installer-${BUILD_VER}-x86.x86_64.run"
+DRV_VER="radeon-crimson-${PV}-${BUILD_VER}-151217a-297685e.zip"
 DRIVERS_URI="mirror://gentoo/${DRV_VER}"
 SDK_VER="xvba-sdk-0.74-404001.tar.gz"
 XVBA_SDK_URI="http://developer.amd.com/wordpress/media/2012/10/${SDK_VER}"

@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -9,12 +9,12 @@ inherit eutils multilib-build linux-info linux-mod toolchain-funcs versionator p
 
 DESCRIPTION="Ati precompiled drivers for Radeon Evergreen (HD5000 Series) and newer chipsets"
 HOMEPAGE="http://www.amd.com"
-#RUN="${WORKDIR}/fglrx-14.501.1003/amd-driver-installer-14.501.1003-x86.x86_64.run"
-RUN="${WORKDIR}/AMD-Catalyst-15.9-Linux-installer-15.201.1151-x86.x86_64.run"
+BUILD_VER=15.302
+RUN="${WORKDIR}/fglrx-${BUILD_VER}/amd-driver-installer-${BUILD_VER}-x86.x86_64.run"
 SLOT="1"
 # Uses javascript for download YESSSS
 #DRIVERS_URI="http://www2.ati.com/drivers/linux/amd-catalyst-13.12-linux-x86.x86_64.zip"
-DRV_VER="amd-catalyst-${PV}-linux-installer-15.201.1151-x86.x86_64.zip"
+DRV_VER="radeon-crimson-${PV}-${BUILD_VER}-151217a-297685e.zip"
 DRIVERS_URI="mirror://gentoo/${DRV_VER}"
 SDK_VER="xvba-sdk-0.74-404001.tar.gz"
 XVBA_SDK_URI="http://developer.amd.com/wordpress/media/2012/10/${SDK_VER}"
@@ -25,7 +25,7 @@ IUSE="debug static-libs pax_kernel"
 LICENSE="AMD GPL-2 QPL-1.0"
 KEYWORDS="-* ~amd64 ~x86"
 
-RESTRICT="bindist test fetch"
+RESTRICT="bindist test"
 
 RDEPEND="
 	~x11-drivers/ati-userspace-${PV}
@@ -191,20 +191,22 @@ src_prepare() {
 	use pax_kernel && epatch "${FILESDIR}/const-notifier-block.patch"
 
 	# Compile fix, #526602
-	epatch "${FILESDIR}/use-kernel_fpu_begin.patch"
+	#epatch "${FILESDIR}/use-kernel_fpu_begin.patch"
 
 	# Fix #542320
 	epatch "${FILESDIR}/15.9-preempt.patch"
 
 	# Compile fixes, #548118
-	epatch "${FILESDIR}/15.9-remove-gpl-symbols.patch"
-	epatch "${FILESDIR}/15.9-fpu.patch"
+	#epatch "${FILESDIR}/15.9-remove-gpl-symbols.patch"
+	#epatch "${FILESDIR}/15.9-fpu.patch"
+	epatch "${FILESDIR}/15.11-remove-gpl-symbols.patch"
 	epatch "${FILESDIR}/15.9-kcl_str.patch"
 	epatch "${FILESDIR}/15.9-sep_printf.patch"
 	epatch "${FILESDIR}/15.9-mtrr.patch"
 
 	# Support older kernels <4.0
 	epatch "${FILESDIR}/15.9-linux-lt-4.0.patch"
+	epatch "${FILESDIR}/15.12-xstate-fp.patch"
 
 	epatch_user
 
