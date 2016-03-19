@@ -1,8 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 # split ebuild providing only ->>> gitk, gitview, git-gui, git-citool
 
@@ -14,7 +14,7 @@ PYTHON_COMPAT=( python2_7 )
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.2.2-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.7.4-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -26,7 +26,7 @@ DESCRIPTION="GUI tools derived from git: gitk, git-gui and gitview"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
-	SRC_URI_GOOG="http://git-core.googlecode.com/files"
+	SRC_URI_GOOG="https://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
 	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}"
@@ -42,7 +42,7 @@ IUSE=""
 # Common to both DEPEND and RDEPEND
 CDEPEND="
 	sys-libs/zlib
-	dev-lang/tk:="
+	dev-lang/tk:0="
 
 RDEPEND="${CDEPEND}
 	~dev-vcs/git-${PV}
@@ -116,7 +116,7 @@ src_prepare() {
 	# see the git ebuild for the list of patches
 	sab-patches_apply_all
 
-	epatch_user
+	default
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \

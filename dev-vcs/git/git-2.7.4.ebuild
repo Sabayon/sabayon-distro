@@ -1,8 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 GENTOO_DEPEND_ON_PERL=no
 
@@ -12,7 +12,7 @@ PYTHON_COMPAT=( python2_7 )
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.2.2-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.7.4-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils elisp-common perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -24,7 +24,7 @@ DESCRIPTION="GIT - the stupid content tracker, the revision control system heavi
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
-	SRC_URI_GOOG="http://git-core.googlecode.com/files"
+	SRC_URI_GOOG="https://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
 	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
@@ -41,15 +41,16 @@ sab-patches_update_SRC_URI
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv mediawiki +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
-	dev-libs/openssl:0=
+	!libressl? ( dev-libs/openssl:0= )
+	libressl? ( dev-libs/libressl:= )
 	sys-libs/zlib
 	pcre? ( dev-libs/libpcre )
 	perl? ( dev-lang/perl:=[-build(-)] )
-	tk? ( dev-lang/tk:= )
+	tk? ( dev-lang/tk:0= )
 	curl? (
 		net-misc/curl
 		webdav? ( dev-libs/expat )
@@ -60,6 +61,7 @@ CDEPEND="
 RDEPEND="${CDEPEND}
 	gpg? ( app-crypt/gnupg )
 	mediawiki? (
+		dev-perl/DateTime-Format-ISO8601
 		dev-perl/HTML-Tree
 		dev-perl/MediaWiki-API
 	)
@@ -104,6 +106,7 @@ REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
 	mediawiki? ( perl )
+	mediawiki-experimental? ( mediawiki )
 	subversion? ( perl )
 	webdav? ( curl )
 	gtk? ( python )
@@ -111,6 +114,8 @@ REQUIRED_USE="
 "
 
 pkg_setup() {
+	use mediawiki-experimental && die "mediawiki-experimental not supported by this ebuild"
+
 	if use subversion && has_version "dev-vcs/subversion[dso]"; then
 		ewarn "Per Gentoo bugs #223747, #238586, when subversion is built"
 		ewarn "with USE=dso, there may be weird crashes in git-svn. You"
@@ -229,9 +234,10 @@ src_prepare() {
 
 	# git-...-mw-vendor.patch
 	# git-...-svn-fe-linking.patch
+	# ...freebsd-...-iconv.path
 	sab-patches_apply_all
 
-	epatch_user
+	default
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
@@ -374,7 +380,10 @@ src_install() {
 	for d in / /howto/ /technical/ ; do
 		docinto ${d}
 		dodoc Documentation${d}*.txt
-		use doc && dohtml -p ${d} Documentation${d}*.html
+		if use doc ; then
+			docinto ${d}/html
+			dodoc Documentation${d}*.html
+		fi
 	done
 	docinto /
 	# Upstream does not ship this pre-built :-(
@@ -447,7 +456,11 @@ src_install() {
 		cd "${S}"/contrib/svn-fe
 		dobin svn-fe
 		dodoc svn-fe.txt
-		use doc && doman svn-fe.1 && dohtml svn-fe.html
+		if use doc ; then
+			doman svn-fe.1
+			docinto html
+			dodoc svn-fe.html
+		fi
 		cd "${S}"
 	fi
 
@@ -524,7 +537,7 @@ src_install() {
 }
 
 src_test() {
-	local disabled="" #t7004-tag.sh" #520270
+	local disabled="t8005-blame-i18n.sh" #520270
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
@@ -640,6 +653,7 @@ pkg_postinst() {
 	showpkgdeps git-instaweb \
 		"|| ( www-servers/lighttpd www-servers/apache www-servers/nginx )"
 	echo
+	use mediawiki-experimental && ewarn "Using experimental git-mediawiki patches. The stability of cloned wiki filesystems is not guaranteed."
 }
 
 pkg_postrm() {
