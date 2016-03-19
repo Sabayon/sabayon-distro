@@ -255,9 +255,11 @@ src_install() {
 	cd "${S}"/contrib/svn-fe
 	dobin svn-fe
 	dodoc svn-fe.txt
-	doman svn-fe.1
-	docinto html
-	dodoc svn-fe.html
+	if use doc ; then
+		doman svn-fe.1
+		docinto html
+		dodoc svn-fe.html
+	fi
 	cd "${S}"
 
 	# kill empty dirs from ${ED}
