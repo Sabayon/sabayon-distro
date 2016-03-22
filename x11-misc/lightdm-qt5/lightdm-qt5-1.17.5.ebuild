@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -10,7 +10,7 @@ REAL_PN="${PN/-qt5}"
 REAL_P="${P/-qt5}"
 DESCRIPTION="Qt5 libraries for LightDM"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/LightDM"
-SRC_URI="http://launchpad.net/${REAL_PN}/${TRUNK_VERSION}/${PV}/+download/${REAL_P}.tar.xz
+SRC_URI="https://launchpad.net/${REAL_PN}/${TRUNK_VERSION}/${PV}/+download/${REAL_P}.tar.xz
 	mirror://gentoo/introspection-20110205.m4.tar.bz2"
 
 LICENSE="GPL-3 LGPL-3"
@@ -46,6 +46,7 @@ src_configure() {
 		--localstatedir=/var \
 		--disable-static \
 		--disable-tests \
+		--disable-audit \
 		--disable-introspection \
 		--disable-liblightdm-qt \
 		--enable-liblightdm-qt5

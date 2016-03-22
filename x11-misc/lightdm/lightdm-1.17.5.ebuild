@@ -10,7 +10,7 @@ HOMEPAGE="http://www.freedesktop.org/wiki/Software/LightDM"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~ppc ~x86"
-IUSE="+gtk +introspection kde qt4 +gnome"
+IUSE="audit +gtk +introspection kde qt4 qt5 +gnome"
 REQUIRED_USE="|| ( gtk kde )"
 
 DEPEND="~x11-misc/lightdm-base-${PV}[introspection=]
