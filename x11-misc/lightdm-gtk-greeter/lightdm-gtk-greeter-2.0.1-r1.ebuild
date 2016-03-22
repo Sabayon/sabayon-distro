@@ -13,18 +13,22 @@ SRC_URI="http://launchpad.net/lightdm-gtk-greeter/$(get_version_component_range 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~ppc ~x86"
-IUSE=""
+IUSE="ayatana"
 
 # This ebuild needs custom Sabayon themes, thus it must depend on sabayon-artwork-core
-DEPEND="x11-libs/gtk+:3
-	>=x11-misc/lightdm-1.2.2"
-RDEPEND="!!<x11-misc/lightdm-1.1.1
-	app-eselect/eselect-lightdm
+COMMON_DEPEND="ayatana? ( dev-libs/libindicator:3 )
 	x11-libs/gtk+:3
+	>=x11-misc/lightdm-1.2.2"
+
+DEPEND="${COMMON_DEPEND}
+	sys-devel/gettext"
+
+RDEPEND="${COMMON_DEPEND}
 	>=x11-misc/lightdm-1.2.2
 	x11-themes/gnome-themes-standard
 	x11-themes/gnome-icon-theme
-	x11-themes/sabayon-artwork-core"
+	x11-themes/sabayon-artwork-core
+	app-eselect/eselect-lightdm"
 
 src_prepare() {
 	# Apply custom Sabayon theme
@@ -33,6 +37,11 @@ src_prepare() {
 		-e 's:#xft-hintstyle=.*:xft-hintstyle=hintfull:' \
 		-e 's:#xft-antialias=.*:xft-antialias=true:' \
 		-e 's:#xft-rgba=.*:xft-rgba=rgb:' "data/${PN}.conf" || die
+}
+
+src_configure() {
+	econf --enable-kill-on-sigterm \
+		$(use_enable ayatana libindicator)
 }
 
 pkg_postinst() {
