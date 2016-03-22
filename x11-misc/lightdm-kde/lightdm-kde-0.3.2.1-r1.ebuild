@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -19,11 +19,15 @@ KEYWORDS="amd64 ~ppc x86"
 SLOT="4"
 IUSE="debug"
 
-DEPEND="x11-libs/libX11
+COMMON_DEPEND="x11-libs/libX11
 	dev-qt/qtdeclarative:4
-	>=x11-misc/lightdm-1.3.2[qt4]
+	>=x11-misc/lightdm-1.4.0[qt4]
 "
-RDEPEND="${DEPEND}
+DEPEND="${COMMON_DEPEND}
+	sys-devel/gettext
+"
+RDEPEND="${COMMON_DEPEND}
+	$(add_kdeapps_dep plasma-runtime)
 	app-eselect/eselect-lightdm"
 
 S=${WORKDIR}/${PN/-kde}-${PV}
@@ -38,4 +42,3 @@ pkg_postinst() {
 pkg_postrm() {
 	eselect lightdm set 1  # hope some other greeter is installed
 }
-
