@@ -33,7 +33,7 @@ HOMEPAGE="http://kodi.tv/ http://kodi.wiki/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="airplay +alsa avahi bluetooth bluray caps +cec css dbus debug java joystick midi mysql nfs profile +projectm pulseaudio rtmp +samba sftp test +texturepacker udisks upnp upower +usb vaapi vdpau webserver +X"
+IUSE="airplay +alsa avahi bluetooth bluray caps +cec css dbus debug java joystick midi mysql +nfs profile -projectm pulseaudio rtmp +samba sftp test +texturepacker udisks upnp upower +usb vaapi vdpau webserver -X"
 REQUIRED_USE="
 	udisks? ( dbus )
 	upower? ( dbus )
@@ -204,7 +204,17 @@ src_configure() {
 		--disable-gl \
 		--enable-gles \
 		--with-platform=raspberry-pi \
+		--disable-sdl \
+		--enable-optimizations \
 		--disable-x11 \
+		--disable-goom \
+		--disable-xrandr \
+		--disable-mid \
+		--enable-nfs \
+		--disable-profiling \
+		--enable-rsxs \
+		--disable-debug \
+		--disable-joystick \
 		--disable-vaapi \
 		--disable-vdpau \
 		--disable-avahi \
