@@ -9,7 +9,7 @@ EAPI="5"
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="sqlite"
 
-inherit eutils linux-info python-single-r1 multiprocessing autotools
+inherit eutils linux-info python-single-r1 multiprocessing autotools systemd
 
 CODENAME="Jarvis"
 case ${PV} in
@@ -261,4 +261,6 @@ src_install() {
 	python_domodule tools/EventClients/lib/python/xbmcclient.py
 	python_newscript "tools/EventClients/Clients/Kodi Send/kodi-send.py" kodi-send
 	dobin "${FILESDIR}"/startkodi
+	systemd_dounit "${FILESDIR}"/${PN}.service
+
 }

@@ -1,0 +1,14 @@
+[Unit]
+Description=Starts instance of Kodi using xinit
+After=systemd-user-sessions.service network.target sound.target
+Conflicts=getty@tty7.service
+
+[Service]
+PAMName=login
+TTYPath=/dev/tty7
+ExecStart=/usr/bin/startkodi
+Restart=on-abort
+StandardInput=tty
+
+[Install]
+WantedBy=multi-user.target
