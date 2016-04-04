@@ -345,7 +345,7 @@ pkg_preinst() {
 	local videogroup="$(getent group video | cut -d ':' -f 3)"
 	if [ -n "${videogroup}" ]; then
 		sed -i -e "s:PACKAGE:${PF}:g" \
-			-e "s:VIDEOGID:${videogroup}:" "${ROOT}"/etc/modprobe.d/nvidia.conf
+			-e "s:27:${videogroup}:" "${ROOT}"/etc/modprobe.d/nvidia.conf
 	else
 		eerror "Failed to determine the video group gid."
 		die "Failed to determine the video group gid."
