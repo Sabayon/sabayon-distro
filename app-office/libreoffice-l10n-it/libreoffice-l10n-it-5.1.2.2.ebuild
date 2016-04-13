@@ -3,6 +3,6 @@
 
 EAPI=4
 
-L10N_LANG="Finnish"
+L10N_LANG="Italian"
 inherit libreoffice-l10n-2
 
