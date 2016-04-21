@@ -45,6 +45,12 @@ def run():
         locale_conf.write("LC_MEASUREMENT={!s}\n".format(locale))
         locale_conf.write("LC_COLLATE={!s}\n".format('C'))
     libcalamares.utils.target_env_call(['env-update'])
+    vbox_fix_path = os.path.join(install_path, "root/vbox_fix.sh")
+    with open(vbox_fix_path, "w") as vbox_fix:
+        vbox_fix.write("#!/bin/sh\n")
+        vbox_fix.write("dmidecode | grep -qvi VirtualBox && systemctl disable virtualbox-guest-additions && systemctl mask virtualbox-guest-additions && rm -rf /etc/xdg/autostart/vboxclient.desktop\n")
+    libcalamares.utils.target_env_call(['sh', '/root/vbox_fix.sh'])
+    libcalamares.utils.target_env_call(['rm', '-rf', '/root/vbox_fix.sh'])
 
     return None
 
