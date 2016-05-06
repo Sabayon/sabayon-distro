@@ -33,7 +33,7 @@ HOMEPAGE="http://kodi.tv/ http://kodi.wiki/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="airplay airtunes +alsa avahi bluetooth bluray caps +cec css dbus debug gles opengl java joystick midi mysql +nfs profile -projectm pulseaudio rtmp +samba sftp test +texturepacker udisks upnp upower +usb vaapi vdpau webserver -X"
+IUSE="airplay airtunes +alsa avahi bluetooth bluray caps +cec css dbus debug gles opengl +java joystick midi mysql +nfs profile -projectm pulseaudio rtmp +samba sftp test +texturepacker udisks upnp upower +usb vaapi vdpau webserver -X"
 REQUIRED_USE="
 	|| ( gles opengl )
 	gles? ( !vaapi )
