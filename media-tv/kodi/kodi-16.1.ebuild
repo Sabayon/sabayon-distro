@@ -175,9 +175,7 @@ src_prepare() {
 	multijob_finish
 	elibtoolize
 
-	if [[ ${PV} == "9999" ]] || use java ; then #558798
-		tc-env_build emake -f codegenerator.mk
-	fi
+	tc-env_build emake -f codegenerator.mk
 
 	# Disable internal func checks as our USE/DEPEND
 	# stuff handles this just fine already #408395
