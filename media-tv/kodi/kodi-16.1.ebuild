@@ -175,8 +175,9 @@ src_prepare() {
 	multijob_finish
 	elibtoolize
 
-	tc-env_build emake -f codegenerator.mk
-
+	if use java ; then
+		tc-env_build emake -f codegenerator.mk
+	fi
 	# Disable internal func checks as our USE/DEPEND
 	# stuff handles this just fine already #408395
 	export ac_cv_lib_avcodec_ff_vdpau_vc1_decode_picture=yes
