@@ -8,7 +8,7 @@ inherit eutils
 
 DESCRIPTION="Sabayon Development Kit"
 HOMEPAGE="http://www.sabayon.org"
-SRC_URI="https://github.com/Sabayon/devkit/archive/v${PVR}.tar.gz -> ${PVR}.tar.gz"
+SRC_URI="https://github.com/Sabayon/devkit/archive/v${PVR}.tar.gz -> ${P}.tar.gz"
 RESTRICT="mirror"
 SLOT="0"
 LICENSE="GPL-2"
