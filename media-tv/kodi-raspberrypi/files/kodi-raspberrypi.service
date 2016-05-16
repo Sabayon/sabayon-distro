@@ -7,7 +7,7 @@ Conflicts=getty@tty7.service
 PAMName=login
 TTYPath=/dev/tty7
 ExecStart=/usr/bin/startkodi
-Restart=on-abort
+Restart=always
 StandardInput=tty
 
 [Install]
