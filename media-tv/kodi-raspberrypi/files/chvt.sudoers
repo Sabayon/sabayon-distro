@@ -1,1 +1,1 @@
-%sudo ALL = NOPASSWD:/usr/bin/chvt
+%kodi ALL = NOPASSWD:/usr/bin/chvt

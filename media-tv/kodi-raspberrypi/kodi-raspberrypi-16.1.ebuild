@@ -149,6 +149,17 @@ pkg_setup() {
 	python-single-r1_pkg_setup
 	enewgroup kodi
 	enewuser kodi -1 -1 /home/kodi kodi
+	if ! egetent group video | grep -q kodi; then
+					local g=$(groups kodi)
+					elog "Adding user kodi to video group"
+					usermod -G video,${g// /,} kodi || die "Adding user kodi to video group failed"
+	fi
+	if ! egetent group input | grep -q kodi; then
+					local g=$(groups kodi)
+					elog "Adding user kodi to input group"
+					usermod -G input,${g// /,} kodi || die "Adding user kodi to input group failed"
+	fi
+
 }
 
 src_unpack() {
