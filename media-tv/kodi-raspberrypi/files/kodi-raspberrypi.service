@@ -4,6 +4,8 @@ After=systemd-user-sessions.service network.target sound.target
 Conflicts=getty@tty7.service
 
 [Service]
+User = kodi
+Group = kodi
 PAMName=login
 TTYPath=/dev/tty7
 ExecStart=/usr/bin/startkodi

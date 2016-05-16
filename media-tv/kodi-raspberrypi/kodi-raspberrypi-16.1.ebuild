@@ -9,7 +9,7 @@ EAPI="5"
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="sqlite"
 
-inherit eutils linux-info python-single-r1 multiprocessing autotools systemd toolchain-funcs
+inherit eutils linux-info python-single-r1 multiprocessing autotools systemd toolchain-funcs user
 
 CODENAME="Jarvis"
 case ${PV} in
@@ -147,6 +147,8 @@ Please consider enabling IP_MULTICAST under Networking options.
 pkg_setup() {
 	check_extra_config
 	python-single-r1_pkg_setup
+	enewgroup kodi
+	enewuser kodi -1 -1 /home/kodi kodi
 }
 
 src_unpack() {
@@ -247,6 +249,8 @@ src_install() {
 
 	insinto /etc/udev/rules.d
 	newins "${FILESDIR}/99-input.rules" 99-input.rules
+	insinto /usr/share/polkit-1/rules.d/
+	newins "${FILESDIR}/kodi.rules" 99-kodi.rules
 
 	# Remove fonconfig settings that are used only on MacOSX.
 	# Can't be patched upstream because they just find all files and install
@@ -268,5 +272,8 @@ src_install() {
 	python_newscript "tools/EventClients/Clients/Kodi Send/kodi-send.py" kodi-send
 	dobin "${FILESDIR}"/startkodi
 	systemd_dounit "${FILESDIR}"/${PN}.service
+
+	insinto /etc/sudoers.d/
+	newins "${FILESDIR}/chvt.sudoers" chvt
 
 }
