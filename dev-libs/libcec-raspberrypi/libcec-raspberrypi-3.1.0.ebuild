@@ -62,8 +62,8 @@ src_configure() {
 
 	if use raspberry-pi ; then
 		mycmakeargs+=( \
-			-DRPI_INCLUDE_DIR=$(pkg-config --variable=includedir bcm_host) \
-			-DRPI_LIB_DIR=$(pkg-config --variable=libdir bcm_host) )
+			-DRPI_INCLUDE_DIR=/opt/vc/include \
+			-DRPI_LIB_DIR=/opt/vc/lib )
 	fi
 
 	cmake-utils_src_configure
