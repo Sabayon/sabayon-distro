@@ -23,7 +23,7 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 RDEPEND="virtual/udev
 	dev-libs/lockdev
-	<dev-libs/libplatform-2
+	dev-libs/libplatform
 	raspberry-pi? ( media-libs/raspberrypi-userland )
 	xrandr? ( x11-libs/libXrandr )"
 DEPEND="${RDEPEND}
