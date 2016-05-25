@@ -54,7 +54,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	dev-libs/expat
 	dev-libs/fribidi
 	dev-libs/libcdio[-minimal]
-	cec? ( >=dev-libs/libcec-3.0 )
+	cec? ( >=dev-libs/libcec-raspberrypi-3.0 )
 	dev-libs/libpcre[cxx]
 	dev-libs/libxml2
 	sys-apps/lsb-release
