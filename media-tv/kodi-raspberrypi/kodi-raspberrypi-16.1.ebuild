@@ -159,7 +159,11 @@ pkg_setup() {
 					elog "Adding user kodi to input group"
 					usermod -G input,${g// /,} kodi || die "Adding user kodi to input group failed"
 	fi
-
+	if ! egetent group audio | grep -q kodi; then
+					local g=$(groups kodi)
+					elog "Adding user kodi to audio group"
+					usermod -G audio,${g// /,} kodi || die "Adding user kodi to audio group failed"
+	fi
 }
 
 src_unpack() {
