@@ -29,7 +29,7 @@ KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
 RESTRICT="bindist mirror"
 EMULTILIB_PKG="true"
 
-IUSE="acpi compat driver multilib gtk3 kernel_FreeBSD kernel_linux pax_kernel static-libs tools uvm +X x-multilib"
+IUSE="acpi compat multilib gtk3 kernel_FreeBSD kernel_linux pax_kernel static-libs tools uvm +X x-multilib"
 REQUIRED_USE="
 	tools? ( X )
 	static-libs? ( tools )
@@ -187,7 +187,7 @@ donvidia() {
 }
 
 src_install() {
-	if use driver && use kernel_linux; then
+	if use kernel_linux; then
 		# Add the aliases
 		# This file is tweaked with the appropriate video group in
 		# pkg_preinst, see bug #491414
