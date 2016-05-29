@@ -7,8 +7,6 @@ fi
 packages=(
 	"sys-kernel/sabayon-sources"
 	"sys-kernel/linux-sabayon"
-	"sys-kernel/ec2-sources"
-	"sys-kernel/linux-ec2"
 )
 
 for package in ${packages[@]}; do
