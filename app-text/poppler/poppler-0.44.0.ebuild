@@ -1,17 +1,18 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base (meta package)"
-HOMEPAGE="http://poppler.freedesktop.org/"
+HOMEPAGE="https://poppler.freedesktop.org/"
 SRC_URI=""
 
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~x86"
-SLOT="0/51"
-IUSE="cairo cjk curl cxx debug doc +introspection +jpeg jpeg2k +lcms png qt4 qt5 tiff +utils"
+KEYWORDS="~amd64 ~x86 ~arm"
+SLOT="0/61"
+IUSE="cairo cairo-qt cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt4 qt5 tiff +utils"
+REQUIRED_USE="cairo-qt? ( qt4 )"
 
 COMMON_DEPEND="
 	~app-text/poppler-base-${PV}[cxx=]
@@ -23,6 +24,7 @@ COMMON_DEPEND="
 	~app-text/poppler-base-${PV}[png=]
 	~app-text/poppler-base-${PV}[tiff=]
 	~app-text/poppler-base-${PV}[utils=]
+	~app-text/poppler-base-${PV}[nss=]
 	"
 
 DEPEND="${COMMON_DEPEND} virtual/pkgconfig"
@@ -30,8 +32,13 @@ DEPEND="${COMMON_DEPEND} virtual/pkgconfig"
 PDEPEND="cairo? (
 		~app-text/poppler-glib-${PV}[cairo,introspection=,doc=]
 	)
-	qt4? ( ~app-text/poppler-qt4-${PV} )
+	qt4? (
+		cairo-qt? (
+			~app-text/poppler-qt4-${PV}[cairo-qt]
+	        )
+		~app-text/poppler-qt4-${PV}
+	)
+	qt5? ( ~app-text/poppler-qt5-${PV} )
 	"
-# add qt5 support when needed
 
-RDEPEND="${COMMON_DEPEND} cjk? ( >=app-text/poppler-data-0.4.4 )"
+RDEPEND="${COMMON_DEPEND} cjk? ( >=app-text/poppler-data-0.4.7 )"
