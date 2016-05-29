@@ -208,6 +208,9 @@ src_prepare() {
 	epatch "${FILESDIR}/15.9-linux-lt-4.0.patch"
 	epatch "${FILESDIR}/15.12-xstate-fp.patch"
 
+	# Linux 4.6
+	epatch "${FILESDIR}/${P}-4.6.patch"
+
 	epatch_user
 
 	cd "${MODULE_DIR}"
