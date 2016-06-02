@@ -87,7 +87,13 @@ src_configure() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	cd "${BUILD_DIR}/glib" || die
+	emake DESTDIR="${ED}" install || die "cannot install"
+
+	# install pkg-config data
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins "${BUILD_DIR}"/poppler-glib.pc
+	use cairo && doins "${BUILD_DIR}"/poppler-cairo.pc
 
 	# live version doesn't provide html documentation
 	if use cairo && use doc && [[ ${PV} != 9999 ]]; then

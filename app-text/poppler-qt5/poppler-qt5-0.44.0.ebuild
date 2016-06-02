@@ -83,5 +83,10 @@ src_configure() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	cd "${BUILD_DIR}/qt5" || die
+	emake DESTDIR="${ED}" install || die "cannot install"
+
+	# install pkg-config data
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins "${BUILD_DIR}"/poppler-qt5.pc
 }
