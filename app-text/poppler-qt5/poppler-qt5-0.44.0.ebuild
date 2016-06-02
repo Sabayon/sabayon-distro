@@ -83,8 +83,9 @@ src_configure() {
 }
 
 src_install() {
-	cd "${BUILD_DIR}/qt5" || die
-	emake DESTDIR="${ED}" install || die "cannot install"
+	pushd "${BUILD_DIR}/qt5"
+	emake DESTDIR="${ED}" install
+	popd
 
 	# install pkg-config data
 	insinto /usr/$(get_libdir)/pkgconfig
