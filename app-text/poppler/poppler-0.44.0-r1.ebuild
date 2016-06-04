@@ -30,15 +30,12 @@ COMMON_DEPEND="
 DEPEND="${COMMON_DEPEND} virtual/pkgconfig"
 
 PDEPEND="cairo? (
-		~app-text/poppler-glib-${PV}[cairo,introspection=,doc=]
+		~app-text/poppler-glib-${PV}[cairo,cjk=,curl=,cxx=,debug=,doc=,introspection=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=]
 	)
 	qt4? (
-		cairo-qt? (
-			~app-text/poppler-qt4-${PV}[cairo-qt]
-	        )
-		~app-text/poppler-qt4-${PV}
+		~app-text/poppler-qt4-${PV}[cairo-qt=,cjk=,curl=,cxx=,debug=,doc=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=]
 	)
-	qt5? ( ~app-text/poppler-qt5-${PV} )
+	qt5? ( ~app-text/poppler-qt5-${PV}[cjk=,curl=,cxx=,debug=,doc=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=] )
 	"
 
 RDEPEND="${COMMON_DEPEND} cjk? ( >=app-text/poppler-data-0.4.7 )"
