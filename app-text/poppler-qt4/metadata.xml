@@ -19,6 +19,8 @@
 </maintainer>
 <use>
 	<flag name="cairo-qt">Enable experimental Cairo font rasterizer for Qt4 backend.</flag>
+	<flag name='utils'>Install command-line PDF converters and various utilities.</flag>
+	<flag name="nss">Enable signatures handling with <pkg>dev-libs/nss</pkg></flag>
 </use>
 <slots>
 	<subslots>Reflects ABI compatibility of libpoppler.so only,
