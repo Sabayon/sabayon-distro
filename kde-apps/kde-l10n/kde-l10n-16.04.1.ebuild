@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 CATEGORY="kde-base"
 inherit kde5-meta-pkg kde5-functions
@@ -24,7 +24,7 @@ RDEPEND="${DEPEND}
 for MY_LANG in ${MY_LANGS} ; do
 	IUSE="${IUSE} linguas_${MY_LANG}"
 	RDEPEND="${RDEPEND}
-		linguas_${MY_LANG}? ( ${KDEBASE}/kde-l10n-${MY_LANG} )"
+		linguas_${MY_LANG}? ( ${CATEGORY}/kde-l10n-${MY_LANG} )"
 done
 
 unset MY_LANG
