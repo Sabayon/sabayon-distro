@@ -77,4 +77,5 @@ kde-l10n_src_prepare() {
 		sed -e '/add_subdirectory(lokalize)/ s/^/#/'\
 			-i "${S}"/5/${MY_LANG}/data/kdesdk/CMakeLists.txt || die
 	fi
+	eapply_user
 }
