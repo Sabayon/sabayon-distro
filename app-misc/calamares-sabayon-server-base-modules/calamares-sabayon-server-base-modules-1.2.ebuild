@@ -12,7 +12,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND=">=app-admin/calamares-2.1[networkmanager,upower,fat,jfs,reiserfs,xfs,ntfs]"
+DEPEND=">=app-admin/calamares-2.1[networkmanager,upower]"
 RDEPEND="${DEPEND}
 	!!app-misc/calamares-sabayon-base-modules"
 

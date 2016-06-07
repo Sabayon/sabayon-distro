@@ -16,6 +16,13 @@ IUSE=""
 DEPEND="app-misc/calamares-sabayon-server-base-modules
 	app-misc/calamares-sabayon-server-branding"
 RDEPEND="${DEPEND}
+	sys-fs/dosfstools
+	sys-fs/jfsutils
+	sys-fs/reiserfsprogs
+	sys-fs/xfsprogs
+	sys-fs/xfsdump
+	sys-fs/ntfs3g[ntfsprogs]
+	sys-fs/btrfs-progs
 	!!app-admin/anaconda
 	!!app-misc/calamares-sabayon"
 
