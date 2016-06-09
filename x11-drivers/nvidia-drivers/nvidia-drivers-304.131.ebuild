@@ -128,6 +128,9 @@ src_prepare() {
 		/usr/$(get_libdir)/libnvidia-opencl.so
 	EOF
 
+	# Linux 4.6 support
+	epatch "${FILESDIR}/${PN}-304-4.6.patch"
+
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
 }
