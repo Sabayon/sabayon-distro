@@ -12,6 +12,7 @@ REAL_PN="${PN/python-}"
 DESCRIPTION="python module for examining and modifying storage configuration."
 HOMEPAGE="https://fedoraproject.org/wiki/Blivet"
 SRC_URI="https://github.com/Sabayon/${REAL_PN}/archive/${REAL_PN}-${PV}-1.tar.gz"
+RESTRICT="nomirror"
 
 LICENSE="GPL-3"
 SLOT="0"
