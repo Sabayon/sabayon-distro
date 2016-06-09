@@ -23,8 +23,7 @@ RDEPEND="${DEPEND}
 	sys-fs/xfsprogs
 	sys-fs/xfsdump
 	sys-fs/ntfs3g[ntfsprogs]
-	sys-fs/btrfs-progs
-	!!app-admin/anaconda"
+	sys-fs/btrfs-progs"
 
 src_unpack() {
 	mkdir "${WORKDIR}/${P}"
