@@ -5,7 +5,7 @@
 EAPI=5
 PYTHON_COMPAT=( python2_7 )
 
-inherit base flag-o-matic python-r1 libtool autotools eutils
+inherit base flag-o-matic python-r1 libtool autotools eutils git-r3
 
 AUDIT_VER="2.1.3"
 AUDIT_SRC_URI="http://people.redhat.com/sgrubb/audit/audit-${AUDIT_VER}.tar.gz"
@@ -17,8 +17,14 @@ LSELINUX_SRC_URI="https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/
 DESCRIPTION="Sabayon Redhat Anaconda Installer Port"
 HOMEPAGE="https://github.com/Sabayon/anaconda"
 
-SRC_URI="mirror://sabayon/${CATEGORY}/${PN}-${PV}.tar.bz2 ${AUDIT_SRC_URI} ${LSELINUX_SRC_URI}"
-KEYWORDS="~amd64 ~x86"
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/Sabayon/anaconda.git"
+	EGIT_BRANCH="future"
+	KEYWORDS="~amd64"
+else
+	KEYWORDS="amd64"
+fi
+SRC_URI="${AUDIT_SRC_URI} ${LSELINUX_SRC_URI}"
 
 AUDIT_S="${WORKDIR}/audit-${AUDIT_VER}"
 LSELINUX_S="${WORKDIR}/libselinux-${LSELINUX_VER}"
@@ -97,13 +103,15 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	x11-themes/gnome-themes-standard
 	gtk-dep? ( x11-libs/gtk+:3 )"
 
+src_unpack() {
+	git-r3_src_unpack
+	default
+}
+
 src_prepare() {
 	# Setup CFLAGS, LDFLAGS
 	append-cppflags "-I${D}/usr/include/anaconda-runtime"
 	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
-
-	# Upstreamed patches
-	epatch "${FILESDIR}/0001-bootloader-fix-UEFI-install.patch"
 
 	##
 	## Setup libaudit
@@ -168,6 +176,10 @@ src_configure() {
 	# configure anaconda
 	cd "${S}" || die
 	einfo "configuring anaconda"
+	if [[ ${PV} == 9999 ]]; then
+		rm po/LINGUAS || die
+		./autogen.sh || die
+	fi
 	econf --disable-static --enable-introspection \
 		$(use_enable ipv6) $(use_enable selinux) \
 		$(use_enable nfs) || die "configure failed"
