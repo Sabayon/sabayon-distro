@@ -251,7 +251,8 @@ src_install() {
 	dodir /usr/bin
 	exeinto /usr/bin
 	doexe "${FILESDIR}"/liveinst
-	dosym liveinst /usr/bin/installer
+	# /usr/bin/installer is currently taken by calamares
+	dosym liveinst /usr/bin/anaconda-installer
 
 	cd "${S}" || die
 	_copy_audit_data_over # ${D} is cleared
