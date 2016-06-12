@@ -1,0 +1,84 @@
+--- a/kernel/nvidia-drm/nvidia-drm-fb.c
++++ b/kernel/nvidia-drm/nvidia-drm-fb.c
+@@ -29,6 +29,7 @@
+ #include "nvidia-drm-fb.h"
+ #include "nvidia-drm-utils.h"
+ #include "nvidia-drm-gem.h"
++#include <linux/version.h>
+ 
+ #include <drm/drm_crtc_helper.h>
+ 
+@@ -77,7 +78,12 @@ static struct drm_framebuffer_funcs nv_f
+ static struct drm_framebuffer *internal_framebuffer_create
+ (
+     struct drm_device *dev,
++    #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0)
+     struct drm_file *file, struct drm_mode_fb_cmd2 *cmd,
++    #else
++    struct drm_file *file,
++    const struct drm_mode_fb_cmd2 *cmd,
++    #endif
+     uint64_t nvkms_params_ptr,
+     uint64_t nvkms_params_size
+ )
+@@ -199,7 +205,11 @@ failed_fb_create:
+ struct drm_framebuffer *nvidia_drm_framebuffer_create
+ (
+     struct drm_device *dev,
++    #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0)
+     struct drm_file *file, struct drm_mode_fb_cmd2 *cmd
++    #else
++    struct drm_file *file, const struct drm_mode_fb_cmd2 *cmd
++    #endif
+ )
+ {
+     return internal_framebuffer_create(dev, file, cmd, 0, 0);
+--- a/kernel/nvidia-drm/nvidia-drm-fb.h
++++ b/kernel/nvidia-drm/nvidia-drm-fb.h
+@@ -29,6 +29,7 @@
+ 
+ #include <drm/drmP.h>
+ #include "nvkms-kapi.h"
++#include <linux/version.h>
+ 
+ struct nvidia_drm_framebuffer
+ {
+@@ -45,7 +46,12 @@ struct nvidia_drm_framebuffer
+ struct drm_framebuffer *nvidia_drm_framebuffer_create
+ (
+     struct drm_device *dev,
++    #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0)
+     struct drm_file *file, struct drm_mode_fb_cmd2 *cmd
++    #else
++    struct drm_file *file,
++    const struct drm_mode_fb_cmd2 *cmd
++    #endif
+ );
+ 
+ int nvidia_drm_add_nvkms_fb(
+--- a/kernel/nvidia-drm/nvidia-drm-linux.c
++++ b/kernel/nvidia-drm/nvidia-drm-linux.c
+@@ -23,7 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/err.h>
+-
++#include <linux/version.h>
+ #include "nvidia-drm-os-interface.h"
+ #include "nvidia-drm.h"
+ 
+@@ -121,9 +121,14 @@ int nvidia_drm_lock_user_pages(unsigned
+ 
+     down_read(&mm->mmap_sem);
+ 
++    #if LINUX_VERSION_CODE < KERNEL_VERSION(4,6,0)
+     pages_pinned = get_user_pages(current, mm,
+                                   address, pages_count, write, force,
+                                   user_pages, NULL);
++    #else
++    pages_pinned = get_user_pages(address, pages_count, write, force,
++                                  user_pages, NULL);
++    #endif
+     up_read(&mm->mmap_sem);
+ 
+     if (pages_pinned < 0 || (unsigned)pages_pinned < pages_count)
