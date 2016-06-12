@@ -24,10 +24,11 @@ RDEPEND=">=dev-util/pykickstart-1.99.22
 	>=sys-block/parted-1.8.1
 	sys-fs/cryptsetup
 	>=dev-python/python-cryptsetup-0.1.1
-	sys-fs/mdadm
+	sys-fs/btrfs-progs
 	sys-fs/dosfstools
 	>=sys-fs/e2fsprogs-1.41.0
-	sys-fs/btrfs-progs
+	sys-fs/lvm2
+	sys-fs/mdadm
 	>=dev-python/pyblock-0.45
 	sys-fs/multipath-tools
 	sys-process/lsof
