@@ -54,7 +54,7 @@ COMMON_DEPEND="
 	>=sys-apps/util-linux-2.15.1
 	>=sys-block/parted-1.8.1
 	sys-devel/gettext
-	x11-libs/libxklavier
+	>=x11-libs/libxklavier-5.4
 	x11-libs/pango
 	virtual/pkgconfig
 	"
@@ -75,19 +75,22 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	>=dev-libs/keybinder-0.3.0-r300
 	dev-libs/libpwquality[python]
 	>=dev-libs/libreport-2.0.20
+	dev-libs/libtimezonemap
+	dev-libs/newt
 	dev-python/ipy
 	>=dev-python/pyparted-2.5
-	=dev-python/python-blivet-0.23*
+	=dev-python/python-blivet-1.0*
 	dev-python/python-bugzilla
 	>=dev-python/python-meh-0.30-r1
 	dev-python/python-nss
 	dev-python/python-ntplib
 	dev-python/pytz
+	dev-python/requests
 	>=dev-python/urlgrabber-3.9.1
 	dev-util/desktop-file-utils
 	gnome-base/libglade
 	gnome-base/libgnomekbd
-	>=dev-util/pykickstart-1.99.52
+	>=dev-util/pykickstart-1.99.66
 	gnome-extra/zenity
 	net-firewall/firewalld
 	net-misc/chrony
@@ -97,6 +100,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	net-misc/tightvnc
 	sys-apps/dmidecode
 	sys-apps/kbd
+	sys-apps/usermode
 	sys-auth/realmd
 	sys-block/open-iscsi
 	sys-libs/libuser
@@ -210,7 +214,7 @@ src_compile() {
 		LDFLAGS="-fPIC ${LDFLAGS} -pthread" \
 		LIBDIR="\$(PREFIX)/$(get_libdir)/anaconda-runtime" \
 		SHLIBDIR="\$(DESTDIR)/usr/$(get_libdir)/anaconda-runtime" \
-		INCDIR="\$(DESTDIR)/include/anaconda-runtime" \
+		INCDIR="\$(DESTDIR)/usr/include/anaconda-runtime" \
 		all
 
 	building() {
@@ -235,7 +239,7 @@ src_install() {
 	emake DESTDIR="${D}" \
 		LIBDIR="\$(PREFIX)/$(get_libdir)/anaconda-runtime" \
 		SHLIBDIR="\$(DESTDIR)/usr/$(get_libdir)/anaconda-runtime" \
-		INCDIR="\$(DESTDIR)/include/anaconda-runtime" \
+		INCDIR="\$(DESTDIR)/usr/include/anaconda-runtime" \
 		install || die
 
 	installation() {
@@ -250,11 +254,6 @@ src_install() {
 
 	# anaconda expects to find auditd in /sbin
 	dosym ../usr/libexec/anaconda/auditd /sbin/auditd
-
-	# install liveinst for user
-	dodir /usr/bin
-	exeinto /usr/bin
-	doexe "${FILESDIR}"/liveinst
 	# /usr/bin/installer is currently taken by calamares
 	dosym liveinst /usr/bin/anaconda-installer
 
