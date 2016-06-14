@@ -25,7 +25,7 @@ RDEPEND=">=dev-util/pykickstart-1.99.22
 	sys-fs/cryptsetup
 	>=dev-python/python-cryptsetup-0.1.1
 	>=dev-python/pyparted-2.5
-	dev-python/pyudev
+	>=dev-python/pyudev-0.20
 	sys-fs/mdadm
 	sys-fs/dosfstools
 	>=sys-fs/e2fsprogs-1.41.0
