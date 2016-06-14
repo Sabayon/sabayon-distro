@@ -31,7 +31,7 @@ RDEPEND=">=dev-util/pykickstart-1.99.22
 	>=sys-fs/e2fsprogs-1.41.0
 	sys-fs/btrfs-progs
 	>=dev-python/pyblock-0.45
-	sys-fs/multipath-tools
+	=sys-fs/multipath-tools-0.5.0-r99
 	<sys-libs/libblockdev-0.14
 	sys-process/lsof
 	"
