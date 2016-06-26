@@ -9,7 +9,6 @@ Group = kodi
 PAMName=login
 TTYPath=/dev/tty7
 ExecStart=/usr/bin/startkodi
-WatchdogSec=30s
 Restart=on-failure
 StartLimitInterval=3min
 StartLimitBurst=5
