@@ -254,12 +254,19 @@ src_install() {
 
 	# anaconda expects to find auditd in /sbin
 	dosym ../usr/libexec/anaconda/auditd /sbin/auditd
-	# /usr/bin/installer is currently taken by calamares
-	dosym liveinst /usr/bin/anaconda-installer
 
 	cd "${S}" || die
 	_copy_audit_data_over # ${D} is cleared
 	base_src_install
+
+	# install liveinst for user
+	dodir /usr/bin
+	# Use our own liveinst.
+	rm "${D}/usr/bin/liveinst" || die
+	exeinto /usr/bin
+	doexe "${FILESDIR}"/liveinst
+	# /usr/bin/installer is currently taken by calamares
+	dosym liveinst /usr/bin/anaconda-installer
 
 	# Drop any static library
 	rm "${D}"/usr/lib*/anaconda-runtime/*.a
