@@ -45,6 +45,7 @@ src_prepare() {
 	epatch "${FILESDIR}/1.0/0001-Update-package-names-to-reflect-Gentoo-ones.patch"
 	epatch "${FILESDIR}/1.0/0002-devices-enable-UUID-for-dm-based-devices-in-fstab.patch"
 	epatch "${FILESDIR}/1.0/0003-Call-udev.settle-when-committing-to-disk.patch"
+	epatch "${FILESDIR}/1.0/0004-Add-support-for-parsing-etc-sabayon-release.patch"
 
 	distutils_src_prepare
 }
