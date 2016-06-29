@@ -98,6 +98,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	sys-apps/dmidecode
 	sys-apps/kbd
 	sys-auth/realmd
+	sys-boot/os-prober
 	sys-block/open-iscsi
 	sys-libs/libuser
 	x11-themes/gnome-icon-theme
