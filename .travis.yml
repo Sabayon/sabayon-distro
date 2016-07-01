@@ -1,0 +1,10 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+- docker pull sabayon/builder-amd64
+
+script:
+- docker run -e "SKIP_PORTAGE_SYNC=1" -e "EQUO_MIRRORSORT=0" -v $TRAVIS_BUILD_DIR:/var/lib/layman/sabayon-distro sabayon/builder-amd64 $(./scripts/atoms-in-commit-range.sh ${TRAVIS_COMMIT_RANGE/.../..} sabayon-distro)
