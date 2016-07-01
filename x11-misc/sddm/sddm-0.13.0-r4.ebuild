@@ -27,6 +27,7 @@ RDEPEND="dev-qt/qtcore:5
 	!systemd? ( || ( sys-power/upower sys-power/upower-pm-utils ) )"
 
 DEPEND="${RDEPEND}
+	dev-python/docutils
 	dev-qt/linguist-tools:5
 	dev-qt/qttest:5
 	dev-python/docutils
@@ -46,6 +47,7 @@ src_prepare() {
 	# fix for flags handling and bug 563108
 
 	eapply "${FILESDIR}/${PN}-0.12.0-respect-user-flags.patch"
+	eapply "${FILESDIR}/${PN}-0.13.0-password-focus.patch"
 	use consolekit && eapply "${FILESDIR}/${PN}-0.11.0-consolekit.patch"
 
 	# Sabayon, fixes autologin due to sabayon-live
