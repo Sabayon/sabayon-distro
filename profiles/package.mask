@@ -2,6 +2,3 @@
 
 # example
 # -~sys-boot/grub-1.99
-
-# Anaconda 22
->=dev-python/python-blivet-1.0
