@@ -9,7 +9,7 @@ before_install:
 script:
 - ATOMS=$(./scripts/atoms-in-commit-range.sh ${TRAVIS_COMMIT_RANGE/.../..} sabayon-distro)
   && [ -n "$ATOMS" ]
-  && docker run -e "QA_CHECKS=1" -e "SKIP_PORTAGE_SYNC=1" -e "EQUO_MIRRORSORT=0" -v $TRAVIS_BUILD_DIR:/var/lib/layman/sabayon-distro sabayon/builder-amd64 $ATOMS
+  && docker run -e "QA_CHECKS=0" -e "SKIP_PORTAGE_SYNC=1" -e "EQUO_MIRRORSORT=0" -v $TRAVIS_BUILD_DIR:/var/lib/layman/sabayon-distro sabayon/builder-amd64 $ATOMS
   || exit 0
 
 notifications:
