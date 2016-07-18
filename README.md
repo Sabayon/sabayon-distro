@@ -10,4 +10,10 @@ If you are submitting a pull request or committing keep in mind:
 Here goes:
 
 * ebuilds that are developed for Sabayon
-* ebuilds that are forked from Gentoo and customizeed for Sabayon, thus not upstreamable
+* ebuilds that are forked from Gentoo and customized for Sabayon, thus not upstreamable
+
+# Layman
+
+This overlay is available in layman:
+
+    layman -a sabayon-distro
