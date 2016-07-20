@@ -17,7 +17,8 @@ IUSE=""
 S="${WORKDIR}/sabayon-sark-${PVR}"
 DEPEND=""
 RDEPEND="app-emulation/docker
-	dev-lang/perl"
+	dev-lang/perl
+	app-misc/sabayon-devkit"
 
 src_install() {
 	emake DESTDIR="${D}" \
