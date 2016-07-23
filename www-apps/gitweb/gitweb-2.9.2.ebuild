@@ -1,14 +1,14 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 GENTOO_DEPEND_ON_PERL=no
 
-[[ ${PV} == *9999 ]] && SCM="git-2"
+[[ ${PV} == *9999 ]] && SCM="git-r3"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-EGIT_MASTER=pu
+EGIT_BRANCH=pu
 
 inherit toolchain-funcs eutils ${SCM}
 
@@ -57,7 +57,7 @@ src_unpack() {
 		unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
-		git-2_src_unpack
+		git-r3_src_unpack
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
@@ -65,7 +65,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch_user
+	default
 
 	sed -i \
 		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
