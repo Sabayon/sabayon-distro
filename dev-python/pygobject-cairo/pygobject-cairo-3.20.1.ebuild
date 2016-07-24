@@ -2,10 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
-GCONF_DEBUG="no"
+EAPI=6
 GNOME2_LA_PUNT="yes"
-PYTHON_COMPAT=( python{2_7,3_4} )
+PYTHON_COMPAT=( python2_7 python3_{3,4,5} )
 
 REAL_PN="${PN/-cairo}"
 GNOME_ORG_MODULE="${REAL_PN}"
@@ -13,11 +12,11 @@ GNOME_ORG_MODULE="${REAL_PN}"
 inherit eutils gnome2 python-r1 virtualx
 
 DESCRIPTION="GLib's GObject library bindings for Python, Cairo Libraries"
-HOMEPAGE="http://www.pygtk.org/"
+HOMEPAGE="https://wiki.gnome.org/Projects/PyGObject"
 
 LICENSE="LGPL-2.1+"
 SLOT="3"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="+threads"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
@@ -29,11 +28,16 @@ COMMON_DEPEND="${PYTHON_DEPS}
 DEPEND="${COMMON_DEPEND}
 	x11-libs/cairo[glib]
 	gnome-base/gnome-common"
+# gnome-base/gnome-common required by eautoreconf
+
+# We now disable introspection support in slot 2 per upstream recommendation
+# (see https://bugzilla.gnome.org/show_bug.cgi?id=642048#c9); however,
+# older versions of slot 2 installed their own site-packages/gi, and
+# slot 3 will collide with them.
 RDEPEND="${COMMON_DEPEND}
 	!<dev-python/pygtk-2.13
-	!<dev-python/pygobject-2.28.6-r50:2[introspection]"
-
-# gnome-base/gnome-common required by eautoreconf
+	!<dev-python/pygobject-2.28.6-r50:2[introspection]
+"
 
 src_prepare() {
 	gnome2_src_prepare
@@ -58,8 +62,6 @@ src_compile() {
 }
 
 src_install() {
-	DOCS="AUTHORS ChangeLog* NEWS README"
-
 	python_foreach_impl run_in_build_dir gnome2_src_install
 	# just keep /usr/$(get_libdir)/*/site-packages/gi/_gi_cairo*.so
 	# discard the rest

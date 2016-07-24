@@ -2,10 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
-GCONF_DEBUG="no"
+EAPI=6
 GNOME2_LA_PUNT="yes"
-PYTHON_COMPAT=( python{2_7,3_4} )
+PYTHON_COMPAT=( python2_7 python3_{3,4,5} )
 
 REAL_PN="${PN/-base}"
 GNOME_ORG_MODULE="${REAL_PN}"
@@ -17,14 +16,14 @@ HOMEPAGE="https://wiki.gnome.org/Projects/PyGObject"
 
 LICENSE="LGPL-2.1+"
 SLOT="3"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="+cairo examples test +threads"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="examples test +threads"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPEND="${PYTHON_DEPS}
 	>=dev-libs/glib-2.38:2
-	>=dev-libs/gobject-introspection-1.39:=
+	>=dev-libs/gobject-introspection-1.46.0:=
 	virtual/libffi:=
 "
 DEPEND="${COMMON_DEPEND}
@@ -36,7 +35,7 @@ DEPEND="${COMMON_DEPEND}
 		x11-libs/gdk-pixbuf:2[introspection]
 		x11-libs/gtk+:3[introspection]
 		x11-libs/pango[introspection]
-		!sparc? ( python_targets_python2_7? ( dev-python/pyflakes[$(python_gen_usedep python2_7)] ) ) )
+		python_targets_python2_7? ( dev-python/pyflakes[$(python_gen_usedep python2_7)] ) )
 "
 # gnome-base/gnome-common required by eautoreconf
 
@@ -78,14 +77,13 @@ src_compile() {
 }
 
 src_test() {
-	unset DBUS_SESSION_BUS_ADDRESS
 	export GIO_USE_VFS="local" # prevents odd issues with deleting ${T}/.gvfs
 	export GIO_USE_VOLUME_MONITOR="unix" # prevent udisks-related failures in chroots, bug #449484
 	export SKIP_PEP8="yes"
 
 	testing() {
 		export XDG_CACHE_HOME="${T}/${EPYTHON}"
-		run_in_build_dir Xemake check
+		run_in_build_dir virtx emake check
 		unset XDG_CACHE_HOME
 	}
 	python_foreach_impl testing
@@ -93,8 +91,6 @@ src_test() {
 }
 
 src_install() {
-	DOCS="AUTHORS ChangeLog* NEWS README"
-
 	python_foreach_impl run_in_build_dir gnome2_src_install
 
 	if use examples; then
