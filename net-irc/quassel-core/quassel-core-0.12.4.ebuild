@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 inherit cmake-utils eutils pax-utils systemd user versionator
 
@@ -55,11 +55,6 @@ DEPEND="
 
 DOCS=( AUTHORS ChangeLog README )
 
-PATCHES=(
-	"${FILESDIR}/${MY_P}-qt55.patch"
-	"${FILESDIR}/${MY_P}-CVE-2015-8547.patch"
-)
-
 S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
@@ -87,8 +82,9 @@ src_configure() {
 		"CMAKE_DISABLE_FIND_PACKAGE_PHONON=ON"
 
 		"CMAKE_DISABLE_FIND_PACKAGE_Phonon4Qt5=ON"
-		$(cmake-utils_use_use qt5)
+		-DUSE_QT5=$(usex qt5)
 		"-DWANT_CORE=ON"
+		"CMAKE_DISABLE_FIND_PACKAGE_LibsnoreQt5=ON"
 		"-DWITH_WEBKIT=OFF"
 		"-DWANT_QTCLIENT=OFF"
 		-DEMBED_DATA=OFF
@@ -137,18 +133,6 @@ pkg_postinst() {
 	# server || monolithic
 	einfo "Quassel can use net-misc/oidentd package if installed on your system."
 	einfo "Consider installing it if you want to run quassel within identd daemon."
-
-	# temporary info mesage
-	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]]; then
-		echo
-		ewarn "Please note that all configuration moved from"
-		ewarn "/home/\${QUASSEL_USER}/.config/quassel-irc.org/"
-		ewarn "to: ${QUASSEL_DIR}."
-		echo
-		ewarn "For migration, stop the core, move quasselcore files (pretty much"
-		ewarn "everything apart from quasselclient.conf and settings.qss) into"
-		ewarn "new location and then start server again."
-	fi
 }
 
 pkg_config() {
