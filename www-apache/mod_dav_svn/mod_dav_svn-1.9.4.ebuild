@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -11,7 +11,7 @@ MY_SVN_P="${MY_SVN_PN}-${PV}"
 MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 
 SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.9-Gentoo-patches.tar.gz )
-inherit sab-patches autotools db-use depend.apache flag-o-matic libtool multilib eutils
+inherit sab-patches autotools db-use depend.apache eutils flag-o-matic libtool multilib eutils
 
 DESCRIPTION="Subversion WebDAV support"
 HOMEPAGE="http://subversion.apache.org/"
@@ -56,7 +56,7 @@ MY_CDEPS="
 
 DEPEND="${MY_CDEPS}
 	sasl? ( dev-libs/cyrus-sasl )
-	>=net-libs/serf-1.2.1
+	>=net-libs/serf-1.3.4
 	virtual/pkgconfig
 
 	!!<sys-apps/sandbox-1.6
@@ -175,7 +175,8 @@ src_configure() {
 
 	# force ruby-2.1
 	# allow overriding Python include directory
-	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby21 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc21 \
+	#ac_cv_path_RUBY=$(usex ruby "${EPREFIX}/usr/bin/ruby21" "none")
+	#ac_cv_path_RDOC=$(usex ruby "${EPREFIX}/usr/bin/rdoc21" "none")
 	ac_cv_python_includes='-I$(PYTHON_INCLUDEDIR)' \
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--with-apache-libexecdir \

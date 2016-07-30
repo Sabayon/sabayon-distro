@@ -1,15 +1,16 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI=5
 PYTHON_COMPAT=( python2_7 )
+USE_RUBY="ruby23 ruby22 ruby21 ruby20"
 DISTUTILS_OPTIONAL=1
 WANT_AUTOMAKE="none"
 GENTOO_DEPEND_ON_PERL="no"
 
 SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${PN}-1.8.9-Gentoo-patches.tar.gz )
-inherit sab-patches autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common flag-o-matic libtool multilib perl-module eutils
+inherit sab-patches autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common eutils flag-o-matic libtool multilib perl-module ruby-single
 
 MY_P="${P/_/-}"
 DESCRIPTION="Advanced version control system"
@@ -37,25 +38,24 @@ COMMON_DEPEND=">=dev-db/sqlite-3.7.12
 	kde? ( sys-apps/dbus dev-qt/qtcore:4 dev-qt/qtdbus:4 dev-qt/qtgui:4 >=kde-base/kdelibs-4:4 )
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
-	ruby? ( >=dev-lang/ruby-2.1:2.1
-		dev-ruby/rubygems[ruby_targets_ruby21] )
+	ruby? ( ${RUBY_DEPS} )
 	sasl? ( dev-libs/cyrus-sasl )
-	http? ( >=net-libs/serf-1.2.1 )"
+	http? ( >=net-libs/serf-1.3.4 )"
 RDEPEND="${COMMON_DEPEND}
 	apache2? ( www-servers/apache[apache2_modules_dav] )
-	kde? ( || ( kde-apps/kwalletd:4 kde-base/kwalletd ) )
+	kde? ( kde-apps/kwalletd:4 )
 	nls? ( virtual/libintl )
 	perl? ( dev-perl/URI )"
 # Note: ctypesgen doesn't need PYTHON_USEDEP, it's used once
 DEPEND="${COMMON_DEPEND}
-	test? ( ${PYTHON_DEPS} )
 	!!<sys-apps/sandbox-1.6
 	ctypes-python? ( dev-python/ctypesgen )
 	doc? ( app-doc/doxygen )
 	gnome-keyring? ( virtual/pkgconfig )
+	http? ( virtual/pkgconfig )
 	kde? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
-	http? ( virtual/pkgconfig )"
+	test? ( ${PYTHON_DEPS} )"
 PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
 
 REQUIRED_USE="
@@ -113,12 +113,23 @@ pkg_setup() {
 
 	# Allow for custom repository locations.
 	SVN_REPOS_LOC="${SVN_REPOS_LOC:-${EPREFIX}/var/svn}"
+
+	if use ruby ; then
+		local rbslot
+		RB_VER=""
+		for rbslot in $(sed 's@\([[:digit:]]\+\)\([[:digit:]]\)@\1.\2@g' <<< ${USE_RUBY//ruby}) ; do
+			if has_version dev-lang/ruby:${rbslot} ;  then
+				RB_VER="${rbslot/.}"
+				break
+			fi
+		done
+		[[ -z "${RB_VER}" ]] && die "No useable ruby version found"
+	fi
 }
 
 src_prepare() {
 	local SAB_PATCHES_SKIP=( subversion-1.8.9-po_fixes.patch )
 	sab-patches_apply_all
-	epatch_user
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -137,14 +148,6 @@ src_prepare() {
 		-i build-outputs.mk || die "sed failed"
 
 	if use python ; then
-		if [[ ${CHOST} == *-darwin* ]] ; then
-			# http://mail-archives.apache.org/mod_mbox/subversion-dev/201306.mbox/%3C20130614113003.GA19257@tarsus.local2%3E
-			# in short, we don't have gnome-keyring stuff here, patch
-			# borrowed from MacPorts
-			die "Darwin not supported; use Gentoo ebuild" # no need to bother with the patch for our needs
-			#epatch "${FILESDIR}"/...swig-python-no-gnome-keyring.patch
-		fi
-
 		# XXX: make python_copy_sources accept path
 		S=${S}/subversion/bindings/swig/python python_copy_sources
 		rm -r "${S}"/subversion/bindings/swig/python || die
@@ -152,12 +155,12 @@ src_prepare() {
 }
 
 src_configure() {
-	local myconf
+	local myconf=()
 
 	if use python || use perl || use ruby; then
-		myconf+=" --with-swig"
+		myconf+=( --with-swig )
 	else
-		myconf+=" --without-swig"
+		myconf+=( --without-swig )
 	fi
 
 	case ${CHOST} in
@@ -167,31 +170,31 @@ src_configure() {
 		;;
 		*-interix*)
 			# loader crashes on the LD_PRELOADs...
-			myconf+=" --disable-local-library-preloading"
+			myconf+=( --disable-local-library-preloading )
 		;;
 		*-solaris*)
 			# need -lintl to link
 			use nls && append-libs intl
 			# this breaks installation, on x64 echo replacement is 32-bits
-			myconf+=" --disable-local-library-preloading"
+			myconf+=( --disable-local-library-preloading )
 		;;
 		*-mint*)
-			myconf+=" --enable-all-static --disable-local-library-preloading"
+			myconf+=( --enable-all-static --disable-local-library-preloading )
 		;;
 		*)
 			# inject LD_PRELOAD entries for easy in-tree development
-			myconf+=" --enable-local-library-preloading"
+			myconf+=( --enable-local-library-preloading )
 		;;
 	esac
 
 	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
-	myconf+=" --disable-disallowing-of-undefined-references"
+	myconf+=( --disable-disallowing-of-undefined-references )
 
 	# for build-time scripts
 	if use ctypes-python || use python || use test; then
-		python_export_best
+		python_setup
 	fi
 
 	if use python && [[ ${CHOST} == *-darwin* ]] ; then
@@ -200,9 +203,9 @@ src_configure() {
 		export ac_cv_python_compile="$(tc-getCC)"
 	fi
 
-	# force ruby-2.1
 	# allow overriding Python include directory
-	ac_cv_path_RUBY="${EPREFIX}"/usr/bin/ruby21 ac_cv_path_RDOC="${EPREFIX}"/usr/bin/rdoc21 \
+	ac_cv_path_RUBY=$(usex ruby "${EPREFIX}/usr/bin/ruby${RB_VER}" "none") \
+	ac_cv_path_RDOC=$(usex ruby "${EPREFIX}/usr/bin/rdoc${RB_VER}" "none") \
 	ac_cv_python_includes='-I$(PYTHON_INCLUDEDIR)' \
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		$(use_with apache2 apache-libexecdir) \
@@ -216,7 +219,7 @@ src_configure() {
 		$(use_enable nls) \
 		$(use_with sasl) \
 		$(use_with http serf) \
-		${myconf} \
+		${myconf[@]} \
 		--with-apr="${EPREFIX}/usr/bin/apr-1-config" \
 		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
 		--disable-experimental-libtool \
@@ -394,14 +397,15 @@ EOF
 	fi
 
 	if use doc ; then
-		dohtml -r doc/doxygen/html/*
+		docinto html
+		dodoc -r doc/doxygen/html/*
 	fi
 
 	prune_libtool_files --all
 
 	cd "${ED}"usr/share/locale
 	for i in * ; do
-		[[ $i == *$LINGUAS* ]] || { rm -r $i || die ; }
+		[[ ${i} == *$LINGUAS* ]] || { rm -r ${i} || die ; }
 	done
 }
 
