@@ -10,7 +10,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/61"
+SLOT="0/63"
 IUSE="cairo cairo-qt cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt4 qt5 tiff +utils"
 REQUIRED_USE="cairo-qt? ( qt4 )"
 
