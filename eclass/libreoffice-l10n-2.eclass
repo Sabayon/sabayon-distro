@@ -48,7 +48,8 @@ SRC_URI=""
 if [ "${LANGPACK_AVAIL}" = "1" ]; then
 	langpack=""
 	[[ ${MY_LANG} == en ]] \
-		|| langpack="${BASE_SRC_URI}/x86/LibreOffice_${MY_PV}_Linux_x86_rpm_langpack_${MY_LANG/_/-}.tar.gz"
+		|| langpack="${BASE_SRC_URI}/x86/LibreOffice_${MY_PV}_Linux_x86_rpm_langpack_${MY_LANG/_/-}.tar.gz
+				-> LibreOffice_${PV}_Linux_x86_rpm_langpack_${MY_LANG/_/-}.tar.gz"
 	[[ -z ${langpack} ]] || SRC_URI+=" linguas_${MY_LANG}? ( ${langpack} )"
 	IUSE+=" linguas_${MY_LANG}"
 fi
@@ -56,10 +57,10 @@ fi
 if [ "${HELPPACK_AVAIL}" = "1" ]; then
 	helppack=""
 	[[ ${MY_LANG} == en ]] && lang2=${MY_LANG/en/en_US} || lang2=${MY_LANG}
-	helppack="offlinehelp? ( ${BASE_SRC_URI}/x86/LibreOffice_${MY_PV}_Linux_x86_rpm_helppack_${lang2/_/-}.tar.gz )"
+	helppack="offlinehelp? ( ${BASE_SRC_URI}/x86/LibreOffice_${MY_PV}_Linux_x86_rpm_helppack_${lang2/_/-}.tar.gz
+		-> LibreOffice_${PV}_Linux_x86_rpm_helppack_${lang2/_/-}.tar.gz )"
 	SRC_URI+=" linguas_${MY_LANG}? ( ${helppack} )"
 fi
-
 unset lang helppack langpack lang2
 
 RDEPEND+="app-text/hunspell"
