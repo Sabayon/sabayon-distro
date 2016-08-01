@@ -71,6 +71,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	app-cdr/isomd5sum
 	app-emulation/spice-vdagent
 	app-i18n/langtable
+	app-i18n/ibus
 	dev-libs/gobject-introspection
 	>=dev-libs/keybinder-0.3.0-r300
 	dev-libs/libpwquality[python]
