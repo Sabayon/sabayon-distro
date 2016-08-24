@@ -1,0 +1,24 @@
+From d490b19f7ca77baabdb10e10ee8d381d2d19ebf8 Mon Sep 17 00:00:00 2001
+From: Ettore Di Giacinto <mudler@users.noreply.github.com>
+Date: Wed, 24 Aug 2016 16:14:48 +0200
+Subject: [PATCH] Avoid to pick fedora.py installclass. By default now corecd
+ gets picked up
+
+ solves installer crashes with spins with no DE
+---
+ pyanaconda/installclasses/fedora.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pyanaconda/installclasses/fedora.py b/pyanaconda/installclasses/fedora.py
+index df26df0..f371471 100644
+--- a/pyanaconda/installclasses/fedora.py
++++ b/pyanaconda/installclasses/fedora.py
+@@ -24,7 +24,7 @@
+ 
+ class FedoraBaseInstallClass(BaseInstallClass):
+     name = "Fedora"
+-    sortPriority = 10000
++    sortPriority = 0
+     if productName.startswith("Red Hat "):
+         hidden = True
+ 
