@@ -130,14 +130,14 @@ src_install() {
 	default
 	local lst=(
 		Singular.pc
-		omalloc/omalloc.pc
-		resources/resources.pc
-		factory/factory.pc
-		libpolys/libpolys.pc
+		omalloc.pc
+		resources.pc
+		factory.pc
+		libpolys.pc
 	)
 	local f
 	for f in "${lst[@]}"; do
-		rm -v "${S}/${f}" || die
+		rm -v "${ED}usr/$(get_libdir)/pkgconfig/${f}" || die
 	done
 }
 
