@@ -1,0 +1,21 @@
+From 372e9084cd5c2a2714a9b9e6983fcf50869ab401 Mon Sep 17 00:00:00 2001
+From: Ettore Di Giacinto <mudler@users.noreply.github.com>
+Date: Fri, 26 Aug 2016 00:56:13 +0200
+Subject: [PATCH] Remove dev-util/glade after install
+
+---
+ pyanaconda/sabayon/utils.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/pyanaconda/sabayon/utils.py b/pyanaconda/sabayon/utils.py
+index 3866ccd..b493dcc 100644
+--- a/pyanaconda/sabayon/utils.py
++++ b/pyanaconda/sabayon/utils.py
+@@ -655,6 +655,7 @@ def cleanup_packages(self):
+             "dev-libs/satyr",
+             "dev-python/python-blivet",
+             "dev-python/python-meh",
++            "dev-util/glade",
+             "dev-util/pykickstart",
+             "libselinux",
+             "sys-process/audit",
