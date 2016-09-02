@@ -124,6 +124,7 @@ src_prepare() {
 	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
 	epatch "${FILESDIR}/0007-installclass-fedora-sort-bug.patch"
 	epatch "${FILESDIR}/0008-remove-glade-after-install.patch"
+	epatch "${FILESDIR}/0009-remove-network-configuration-text-install.patch"
 
 	##
 	## Setup libaudit

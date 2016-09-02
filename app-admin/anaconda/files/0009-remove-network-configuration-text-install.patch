@@ -1,0 +1,66 @@
+From f9edb50669b7cefa69804da08b826f977ad88e29 Mon Sep 17 00:00:00 2001
+From: mudler <mudler@sabayon.org>
+Date: Fri, 2 Sep 2016 14:34:52 +0200
+Subject: [PATCH] hide network configuration since it's not supported
+
+---
+ pyanaconda/ui/tui/spokes/network.py | 36 ------------------------------------
+ 1 file changed, 36 deletions(-)
+
+diff --git a/pyanaconda/ui/tui/spokes/network.py b/pyanaconda/ui/tui/spokes/network.py
+index 6c71dee..0f45022 100644
+--- a/pyanaconda/ui/tui/spokes/network.py
++++ b/pyanaconda/ui/tui/spokes/network.py
+@@ -150,8 +150,6 @@ class NetworkSpoke(EditTUISpoke):
+             return ColumnWidget([(4, [number]), (None, [w])], 1)
+ 
+         _opts = [_("Set host name")]
+-        for devname in self.supported_devices:
+-            _opts.append(_("Configure device %s") % devname)
+         text = [TextWidget(o) for o in _opts]
+ 
+         # make everything presentable on screen
+@@ -174,40 +172,6 @@ class NetworkSpoke(EditTUISpoke):
+                                 "hostname", re.compile(".*$"), True))
+             self.apply()
+             return INPUT_PROCESSED
+-        elif 2 <= num <= len(self.supported_devices) + 1:
+-            # configure device
+-            devname = self.supported_devices[num-2]
+-            ndata = network.ksdata_from_ifcfg(devname)
+-            newspoke = ConfigureNetworkSpoke(self.app, self.data, self.storage,
+-                                    self.payload, self.instclass, ndata)
+-            self.app.switch_screen_modal(newspoke)
+-
+-            if ndata.ip == "dhcp":
+-                ndata.bootProto = "dhcp"
+-                ndata.ip = ""
+-            else:
+-                ndata.bootProto = "static"
+-                if not ndata.gateway or not ndata.netmask:
+-                    self.errors.append(_("Configuration not saved: gateway or netmask missing in static configuration"))
+-                    return INPUT_PROCESSED
+-
+-            if ndata.ipv6 == "ignore":
+-                ndata.noipv6 = True
+-                ndata.ipv6 = ""
+-            else:
+-                ndata.noipv6 = False
+-
+-            network.update_settings_with_ksdata(devname, ndata)
+-
+-            if ndata._apply:
+-                uuid = nm.nm_device_setting_value(devname, "connection", "uuid")
+-                try:
+-                    nm.nm_activate_device_connection(devname, uuid)
+-                except (nm.UnmanagedDeviceError, nm.UnknownConnectionError):
+-                    self.errors.append(_("Can't apply configuration, device activation failed."))
+-
+-            self.apply()
+-            return INPUT_PROCESSED
+         else:
+             return key
+ 
+-- 
+2.7.4
+
