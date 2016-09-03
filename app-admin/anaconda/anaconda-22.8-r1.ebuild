@@ -125,6 +125,7 @@ src_prepare() {
 	epatch "${FILESDIR}/0007-installclass-fedora-sort-bug.patch"
 	epatch "${FILESDIR}/0008-remove-glade-after-install.patch"
 	epatch "${FILESDIR}/0009-remove-network-configuration-text-install.patch"
+	epatch "${FILESDIR}/0010-remove-guest-additions-on-baremetal.patch"
 
 	##
 	## Setup libaudit

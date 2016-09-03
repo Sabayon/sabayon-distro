@@ -1,0 +1,27 @@
+From 64c90bd6c2ea4d3714a3c4885394ce79bf8923a2 Mon Sep 17 00:00:00 2001
+From: mudler <mudler@sabayon.org>
+Date: Sat, 3 Sep 2016 22:53:36 +0200
+Subject: [PATCH] remove app-emulation/virtualbox-guest-additions if not in
+ vbox after install
+
+---
+ pyanaconda/sabayon/utils.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/pyanaconda/sabayon/utils.py b/pyanaconda/sabayon/utils.py
+index b493dcc..cb3d26a 100644
+--- a/pyanaconda/sabayon/utils.py
++++ b/pyanaconda/sabayon/utils.py
+@@ -670,6 +670,9 @@ blacklist nouveau
+         try:
+             repo = self._backend.entropy.installed_repository()
+ 
++            if not self.is_virtualbox:
++                self.remove_package("app-emulation/virtualbox-guest-additions")
++
+             for package in packages:
+ 
+                 pkg_id, _pkg_rc = repo.atomMatch(package)
+-- 
+2.7.4
+
