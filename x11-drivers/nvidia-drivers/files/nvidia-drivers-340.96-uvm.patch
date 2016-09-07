@@ -1,0 +1,12 @@
+diff -urN a/kernel/uvm/nvidia_uvm_lite.c b/kernel/uvm/nvidia_uvm_lite.c
+--- a/kernel/uvm/nvidia_uvm_lite.c      2015-11-09 06:44:53.000000000 +0100
++++ b/kernel/uvm/nvidia_uvm_lite.c      2016-05-21 20:16:53.427251967 +0200
+@@ -785,7 +785,7 @@
+         // a reference so that the fault handling logic is correct:
+         //
+         get_page(pTracking->uvmPage);
+-        retValue = VM_FAULT_MINOR;
++        retValue = 0;
+     }
+ 
+     pRecord->isMapped = NV_TRUE;

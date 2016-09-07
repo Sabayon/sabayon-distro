@@ -1,0 +1,50 @@
+diff --git a/kernel/os-mlock.c b/kernel/os-mlock.c
+index dc30e1c..6923d13 100644
+--- a/kernel/os-mlock.c
++++ b/kernel/os-mlock.c
+@@ -13,6 +13,7 @@
+ 
+ #include "os-interface.h"
+ #include "nv-linux.h"
++#include <linux/version.h>
+ 
+ RM_STATUS NV_API_CALL os_lock_user_pages(
+     void   *address,
+@@ -45,8 +46,13 @@ RM_STATUS NV_API_CALL os_lock_user_pages(
+     }
+ 
+     down_read(&mm->mmap_sem);
++    #if LINUX_VERSION_CODE < KERNEL_VERSION(4,6,0)
+     ret = get_user_pages(current, mm, (unsigned long)address,
+             page_count, write, force, user_pages, NULL);
++    #else
++    ret = get_user_pages((unsigned long)address,
++            page_count, write, force, user_pages, NULL);
++    #endif
+     up_read(&mm->mmap_sem);
+     pinned = ret;
+ 
+@@ -58,7 +64,11 @@ RM_STATUS NV_API_CALL os_lock_user_pages(
+     else if (pinned < page_count)
+     {
+         for (i = 0; i < pinned; i++)
++            #if LINUX_VERSION_CODE < KERNEL_VERSION(4,6,0)
+             page_cache_release(user_pages[i]);
++            #else
++            put_page(user_pages[i]);
++            #endif
+         os_free_mem(user_pages);
+         return RM_ERR_INVALID_ADDRESS;
+     }
+@@ -85,7 +95,11 @@ RM_STATUS NV_API_CALL os_unlock_user_pages(
+     {
+         if (write)
+             set_page_dirty_lock(user_pages[i]);
++        #if LINUX_VERSION_CODE < KERNEL_VERSION(4,6,0)
+         page_cache_release(user_pages[i]);
++        #else
++        put_page(user_pages[i]);
++        #endif
+     }
+ 
+     os_free_mem(user_pages);
