@@ -17,11 +17,14 @@ IUSE=""
 S="${WORKDIR}/devkit-${PVR}"
 DEPEND=""
 RDEPEND="app-emulation/docker
-	dev-lang/perl
-	dev-perl/DBD-SQLite
+	app-misc/pax-utils
+	app-portage/eix
 	app-portage/layman
 	app-portage/gentoolkit
-	app-portage/eix"
+	app-portage/portage-utils
+	dev-lang/perl
+	dev-perl/DBD-SQLite
+	sys-apps/gentoo-functions"
 
 src_install() {
 	emake DESTDIR="${D}" \
