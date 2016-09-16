@@ -126,6 +126,7 @@ src_prepare() {
 	epatch "${FILESDIR}/0008-remove-glade-after-install.patch"
 	epatch "${FILESDIR}/0009-remove-network-configuration-text-install.patch"
 	epatch "${FILESDIR}/0010-remove-guest-additions-on-baremetal.patch"
+	epatch "${FILESDIR}/0011-keep-language-and-keyboard-setting-in-bootvar.patch"
 
 	##
 	## Setup libaudit
