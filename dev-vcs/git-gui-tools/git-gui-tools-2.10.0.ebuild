@@ -10,11 +10,11 @@ GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
 PYTHON_COMPAT=( python2_7 )
-[[ ${PV} == *9999 ]] && SCM="git-2"
+[[ ${PV} == *9999 ]] && SCM="git-r3"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-EGIT_MASTER=pu
+EGIT_BRANCH=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.7.4-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.10.0-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -104,7 +104,7 @@ src_unpack() {
 		unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
-		git-2_src_unpack
+		git-r3_src_unpack
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi

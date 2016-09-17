@@ -7,11 +7,11 @@ EAPI=6
 GENTOO_DEPEND_ON_PERL=no
 
 PYTHON_COMPAT=( python2_7 )
-[[ ${PV} == *9999 ]] && SCM="git-2"
+[[ ${PV} == *9999 ]] && SCM="git-r3"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.7.4-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.10.0-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils multilib python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -20,7 +20,7 @@ MY_P="${MY_PN}-${MY_PV}"
 
 DOC_VER=${MY_PV}
 
-DESCRIPTION="CVS module for GIT, the stupid content tracker"
+DESCRIPTION="CVS module for git"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
@@ -113,7 +113,7 @@ src_unpack() {
 			unpack ${MY_PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
-		git-2_src_unpack
+		git-r3_src_unpack
 	fi
 
 	sab-patches_unpack
