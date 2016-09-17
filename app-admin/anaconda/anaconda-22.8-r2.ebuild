@@ -107,7 +107,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	=sys-boot/efibootmgr-0.12
 	sys-boot/os-prober
 	sys-libs/libuser
-	=sys-libs/efivar-0.23
+	=sys-libs/efivar-0.21
 	x11-themes/gnome-icon-theme
 	x11-themes/gnome-icon-theme-symbolic
 	x11-themes/gnome-themes-standard
