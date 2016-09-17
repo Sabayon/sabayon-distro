@@ -1,22 +1,24 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="4"
+EAPI="6"
 
-inherit autotools eutils readme.gentoo
+inherit readme.gentoo-r1
 
 DESCRIPTION="Lightweight X11 desktop panel for LXDE"
 HOMEPAGE="http://lxde.org/"
-SRC_URI="mirror://sourceforge/lxde/LXPanel%20%28desktop%20panel%29/LXPanel%20${PV}/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/lxde/${P}.tar.xz"
 
 LICENSE="GPL-2"
-KEYWORDS="~alpha ~amd64 ~arm ~ppc ~x86 ~x86-interix ~amd64-linux ~arm-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ppc ~x86 ~x86-interix ~amd64-linux ~arm-linux ~x86-linux"
 SLOT="0"
 IUSE="+alsa wifi"
-RESTRICT="test"  # bug 249598
 
-RDEPEND="x11-libs/gtk+:2
+RDEPEND="dev-libs/keybinder:0=
+	x11-libs/gtk+:2
+	>=x11-libs/libfm-1.2.0[gtk]
+	x11-libs/libwnck:1
 	x11-libs/libXmu
 	x11-libs/libXpm
 	x11-libs/cairo
@@ -34,20 +36,10 @@ DOC_CONTENTS="If you have problems with broken icons shown in the main panel,
 you will have to configure panel settings via its menu.
 This will not be an issue with first time installations."
 
-src_prepare() {
-	epatch "${FILESDIR}"/${PN}-0.5.9-sandbox.patch
-	#bug #415595
-	epatch "${FILESDIR}"/${PN}-0.5.9-libwnck-check.patch
-	#bug #420583
-	sed -i "s:-Werror::" configure.ac || die
-	eautoreconf
-}
-
 src_configure() {
 	local plugins="netstatus,volume,cpu,deskno,batt, \
 		kbled,xkb,thermal,cpufreq,monitors"
 
-	# wnckpager disabled per bug #415519
 	use wifi && plugins+=",netstat"
 	use alsa && plugins+=",volumealsa"
 	[[ ${CHOST} == *-interix* ]] && plugins=deskno,kbled,xkb
@@ -63,11 +55,11 @@ src_install () {
 	# Get rid of the .la files.
 	find "${D}" -name '*.la' -delete
 
-	readme.gentoo_create_doc
-
 	# Sabayon, add our computer icon
 	insinto /usr/share/lxpanel/images
 	newins "${FILESDIR}"/start-here.png my-computer.png
+
+	readme.gentoo_create_doc
 }
 
 pkg_postinst() {
