@@ -375,7 +375,7 @@ else
 		dracut? ( sys-apps/v86d sys-kernel/dracut )"
 	RDEPEND="sys-apps/sed
 		sys-kernel/linux-firmware
-		dracut? ( sys-apps/v86d sys-kernel/dracut )" #we use it locally for generating initramfs post-install
+		dracut? ( sys-kernel/dracut )"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
 	fi
@@ -523,6 +523,7 @@ _kernel_src_compile() {
 	use iscsi && GKARGS+=( "--iscsi" )
 	use mdadm && GKARGS+=( "--mdadm" )
 	use dracut && GENKERNEL_MODE="kernel"
+	use dracut && GKARGS+=( "--all-ramdisk-modules" )
 	use luks && GKARGS+=( "--luks" )
 	use lvm && GKARGS+=( "--lvm" )
 	if [ -n "${K_SABKERNEL_ZFS}" ]; then
@@ -861,7 +862,7 @@ _dracut_initramfs_create() {
   local karch="${2}"
 	elog "Creating dracut initramfs for ${kver} arch: ${karch}"
 	addpredict /etc/ld.so.cache~
-	dracut -q -N -f --kver="${kver}" "${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
+	dracut -q -N -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd --kver="${kver}" "${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
 }
 
 sabayon-kernel_pkg_postinst() {
