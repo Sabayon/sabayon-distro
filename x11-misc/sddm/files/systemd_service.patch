@@ -12,7 +12,6 @@ mudler <mudler@sabayonlinux.org>
  [Service]
  ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sddm
  Restart=always
- #PrivateTmp=yes
 +StandardOutput=syslog
 +BusName=org.freedesktop.DisplayManager
  
