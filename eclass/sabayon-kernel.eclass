@@ -165,6 +165,11 @@ K_MKIMAGE_WRAP_INITRAMFS="${K_MKIMAGE_WRAP_INITRAMFS:-1}"
 # [ARM ONLY] Provide the kernel load address to be used with mkimage
 K_MKIMAGE_KERNEL_ADDRESS="${K_MKIMAGE_KERNEL_ADDRESS:-}"
 
+# @ECLASS-VARIABLE: K_DRACUT_LIVECD
+# @DESCRIPTION:
+# Add extra dracut arguments required to boot from LiveCD environments. Default is no ("0").
+K_DRACUT_LIVECD="${K_DRACUT_LIVECD:-0}"
+
 KERN_INITRAMFS_SEARCH_NAME="${KERN_INITRAMFS_SEARCH_NAME:-initramfs-genkernel*${K_SABKERNEL_NAME}}"
 
 # Disable deblobbing feature
@@ -860,9 +865,14 @@ sabayon-kernel_bzimage_config() {
 _dracut_initramfs_create() {
 	local kver="${1}"
   local karch="${2}"
-	elog "Creating dracut initramfs for ${kver} arch: ${karch}"
 	addpredict /etc/ld.so.cache~
-	dracut -q -N -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd --kver="${kver}" "${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
+	if [ "${K_DRACUT_LIVECD}" = "1" ]; then
+		elog "Creating dracut initramfs for ${kver} arch: ${karch} (suitable for LiveCDs)"
+		dracut -a dmsquash-live -a pollcdrom -q -N -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd --kver="${kver}" "${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
+	else
+		elog "Creating dracut initramfs for ${kver} arch: ${karch}"
+		dracut -q -N -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd --kver="${kver}" "${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
+	fi
 }
 
 sabayon-kernel_pkg_postinst() {
