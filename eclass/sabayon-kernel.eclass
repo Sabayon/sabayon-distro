@@ -868,10 +868,14 @@ _dracut_initramfs_create() {
 	addpredict /etc/ld.so.cache~
 	if [ "${K_DRACUT_LIVECD}" = "1" ]; then
 		elog "Creating dracut initramfs for ${kver} arch: ${karch} (suitable for LiveCDs)"
-		dracut -a dmsquash-live -a pollcdrom -q -N -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd --kver="${kver}" "${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
+		dracut -a dmsquash-live -a pollcdrom -q -N -f -o systemd \
+		-o systemd-initrd -o systemd-networkd -o dracut-systemd --kver="${kver}" \
+		"${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
 	else
 		elog "Creating dracut initramfs for ${kver} arch: ${karch}"
-		dracut -q -N -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd --kver="${kver}" "${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
+		dracut -q -N -f -o systemd -o systemd-initrd -o systemd-networkd \
+		-o dracut-systemd --kver="${kver}" \
+		"${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
 	fi
 }
 
