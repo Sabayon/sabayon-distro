@@ -375,7 +375,7 @@ else
 		dracut? ( sys-apps/v86d sys-kernel/dracut )"
 	RDEPEND="sys-apps/sed
 		sys-kernel/linux-firmware
-		dracut? ( sys-kernel/dracut )"
+		dracut? ( sys-apps/v86d sys-kernel/dracut )"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
 	fi
