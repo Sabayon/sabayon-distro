@@ -24,6 +24,7 @@ RDEPEND="
     virtual/perl-Encode
     dev-perl/libwww-perl
     dev-perl/libintl-perl
+    dev-perl/JSON
     virtual/perl-Term-ANSIColor
     ${DEPEND}"
 
