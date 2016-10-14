@@ -130,7 +130,7 @@ src_prepare() {
 	epatch "${FILESDIR}/0010-remove-guest-additions-on-baremetal.patch"
 	epatch "${FILESDIR}/0011-keep-language-and-keyboard-setting-in-bootvar.patch"
 	epatch "${FILESDIR}/0012-bootloader-preserve-rd.vconsole.patch"
-
+	epatch "${FILESDIR}/0013-pyanaconda-nm-fixing-No-such-property-PermHwAddress.patch"
 	##
 	## Setup libaudit
 	##
