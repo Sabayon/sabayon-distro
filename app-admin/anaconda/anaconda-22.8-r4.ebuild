@@ -132,6 +132,7 @@ src_prepare() {
 	epatch "${FILESDIR}/0012-bootloader-preserve-rd.vconsole.patch"
 	epatch "${FILESDIR}/0013-pyanaconda-nm-fixing-No-such-property-PermHwAddress.patch"
 	epatch "${FILESDIR}/0014-pyanaconda-nm-handle-org.freedesktop.DBus.Error.Inva.patch"
+	epatch "${FILESDIR}/0015-pyanaconda-nm-nm_device_setting_value-returns-None-i.patch"
 
 	##
 	## Setup libaudit
