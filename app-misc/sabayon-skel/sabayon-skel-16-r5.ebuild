@@ -3,16 +3,23 @@
 # $Id$
 
 EAPI=5
-inherit eutils git-2 fdo-mime
-
-EGIT_COMMIT="${PVR}"
-EGIT_REPO_URI="git://github.com/Sabayon/skel.git"
-
+inherit eutils fdo-mime
+MY_AUTHOR="Sabayon"
+MY_PN="skel"
+if [[ ${PV} == "9999" ]] ; then
+	inherit git-r3
+	SRC_URI=""
+	EGIT_REPO_URI="https://github.com/${MY_AUTHOR}/${MY_PN}.git"
+	KEYWORDS=""
+else
+	SRC_URI="https://github.com/${MY_AUTHOR}/${MY_PN}/archive/${PVR}.tar.gz -> ${PN}-${PVR}.tar.gz"
+	KEYWORDS="~amd64 ~arm ~x86"
+	S="${WORKDIR}/${MY_PN}-${PVR}"
+fi
 DESCRIPTION="Sabayon Linux skel tree"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 RDEPEND="!<=app-misc/sabayonlinux-skel-3.5-r6"
 
