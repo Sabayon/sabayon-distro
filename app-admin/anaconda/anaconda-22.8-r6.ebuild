@@ -134,6 +134,7 @@ src_prepare() {
 	epatch "${FILESDIR}/0014-pyanaconda-nm-handle-org.freedesktop.DBus.Error.Inva.patch"
 	epatch "${FILESDIR}/0015-pyanaconda-nm-nm_device_setting_value-returns-None-i.patch"
 	epatch "${FILESDIR}/0016-pyanaconda-ui-spokes-network-disable-speed-refresh-n.patch"
+	epatch "${FILESDIR}/0017-pyanaconda-ui-spokes-suppress.patch"
 
 	##
 	## Setup libaudit
