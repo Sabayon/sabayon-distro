@@ -63,7 +63,7 @@ RDEPEND="${COMMON}
 	)
 	tools? ( !media-video/nvidia-settings )"
 PDEPEND="X? (
-		<x11-base/xorg-server-1.17.99:=
+		<x11-base/xorg-server-1.18.99:=
 		>=x11-libs/libvdpau-0.3-r1
 	)"
 
