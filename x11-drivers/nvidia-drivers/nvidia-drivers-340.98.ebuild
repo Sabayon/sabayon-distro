@@ -108,9 +108,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# Please add a brief description for every added patch
-	epatch "${FILESDIR}"/${PN}-340.96-kernel-4.6.patch
-	epatch "${FILESDIR}"/${PN}-340.96-uvm.patch
 
 	if use kernel_linux; then
 		if kernel_is lt 2 6 9 ; then
