@@ -17,10 +17,10 @@ PYTHON_COMPAT=( python2_7 )
 # 9999-r2: next
 # 9999-r3: pu
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-EGIT_BRANCH=pu
+EGIT_BRANCH=maint
 PLOCALES="bg ca de fr is it ko pt_PT ru sv vi zh_CN"
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.9.2-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.10.0-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -32,15 +32,11 @@ DESCRIPTION="stupid content tracker: distributed VCS designed for speed and effi
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
-	SRC_URI_GOOG="https://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
-	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
-			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
-			${SRC_URI_GOOG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+	SRC_URI="${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			doc? (
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
-			${SRC_URI_GOOG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	KEYWORDS="~amd64 ~x86"
 fi
