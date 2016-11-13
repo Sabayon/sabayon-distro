@@ -1,8 +1,0 @@
-diff -Nurp nautilus-3.0.2.orig/data/nautilus-autostart.desktop.in nautilus-3.0.2/data/nautilus-autostart.desktop.in
---- nautilus-3.0.2.orig/data/nautilus-autostart.desktop.in	2011-05-24 20:46:10.000000000 +0200
-+++ nautilus-3.0.2/data/nautilus-autostart.desktop.in	2011-09-24 14:17:30.315989535 +0200
-@@ -3,3 +3,4 @@ Type=Application
- Name=Files
- Exec=nautilus -n
- AutostartCondition=GSettings org.gnome.desktop.background show-desktop-icons
-+X-GNOME-Autostart-Phase=Desktop
