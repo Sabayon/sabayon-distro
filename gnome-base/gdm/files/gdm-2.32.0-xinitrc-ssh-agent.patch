@@ -1,18 +1,18 @@
-From 1cb1841da3a8fedc1671637e2828d5e361af21fa Mon Sep 17 00:00:00 2001
+From c0581264d5e2b412aa27dc30623512b461024e4f Mon Sep 17 00:00:00 2001
 From: Gilles Dartiguelongue <eva@gentoo.org>
 Date: Tue, 2 Nov 2010 23:19:31 +0100
-Subject: [PATCH 5/6] ssh-agent handling must be done at xinitrc.d
+Subject: [PATCH 2/4] ssh-agent handling must be done at xinitrc.d
 
 Gentoo bug: #220603
 ---
- data/Xsession.in |    8 --------
- 1 files changed, 0 insertions(+), 8 deletions(-)
+ data/Xsession.in | 8 --------
+ 1 file changed, 8 deletions(-)
 
 diff --git a/data/Xsession.in b/data/Xsession.in
-index 0da187d..aa49b90 100755
+index 201be92..88f1fd9 100755
 --- a/data/Xsession.in
 +++ b/data/Xsession.in
-@@ -189,14 +189,6 @@ if [ -d /etc/X11/xinit/xinitrc.d ]; then
+@@ -191,14 +191,6 @@ if [ -d /etc/X11/xinit/xinitrc.d ]; then
      done
  fi
  
@@ -28,5 +28,5 @@ index 0da187d..aa49b90 100755
  
  eval exec $command
 -- 
-1.7.3.1
+1.8.5.1
 

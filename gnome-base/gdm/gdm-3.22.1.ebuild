@@ -1,12 +1,11 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
-GCONF_DEBUG="yes"
+EAPI=6
 GNOME2_LA_PUNT="yes"
 
-inherit autotools eutils gnome2 pam readme.gentoo systemd user versionator
+inherit autotools eutils gnome2 pam readme.gentoo-r1 systemd user versionator
 
 DESCRIPTION="GNOME Display Manager for managing graphical display servers and user logins"
 HOMEPAGE="https://wiki.gnome.org/Projects/GDM"
@@ -21,6 +20,7 @@ LICENSE="
 "
 
 SLOT="0"
+
 IUSE="accessibility audit branding fprint +introspection ipv6 plymouth selinux smartcard tcpd test wayland xinerama"
 
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86"
@@ -36,7 +36,7 @@ COMMON_DEPEND="
 	>=gnome-base/dconf-0.20
 	>=gnome-base/gnome-settings-daemon-3.1.4
 	gnome-base/gsettings-desktop-schemas
-	>=media-libs/fontconfig-2.5.0
+	>=media-libs/fontconfig-2.5.0:1.0
 	>=media-libs/libcanberra-0.4[gtk3]
 	sys-apps/dbus
 	>=sys-apps/accountsservice-0.6.12
@@ -52,7 +52,9 @@ COMMON_DEPEND="
 	>=x11-misc/xdg-utils-1.0.2-r3
 
 	virtual/pam
+
 	>=sys-apps/systemd-186:0=[pam]
+
 	sys-auth/pambase[systemd]
 
 	audit? ( sys-process/audit )
@@ -68,9 +70,7 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/gnome-session-3.6
 	>=gnome-base/gnome-shell-3.1.90
-	gnome-extra/polkit-gnome:0
 	x11-apps/xhost
-	x11-themes/gnome-icon-theme-symbolic
 
 	accessibility? (
 		>=app-accessibility/orca-3.10
@@ -123,20 +123,16 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# make custom session work, bug #216984, upstream bug #737578
-	epatch "${FILESDIR}/${PN}-3.2.1.1-custom-session.patch"
-
 	# ssh-agent handling must be done at xinitrc.d, bug #220603
-	epatch "${FILESDIR}/${PN}-2.32.0-xinitrc-ssh-agent.patch"
+	eapply "${FILESDIR}/${PN}-2.32.0-xinitrc-ssh-agent.patch"
 
 	# Gentoo does not have a fingerprint-auth pam stack
-	epatch "${FILESDIR}/${PN}-3.8.4-fingerprint-auth.patch"
+	eapply "${FILESDIR}/${PN}-3.8.4-fingerprint-auth.patch"
 
 	# Show logo when branding is enabled
-	use branding && epatch "${FILESDIR}/${PN}-3.8.4-logo.patch"
+	use branding && eapply "${FILESDIR}/${PN}-3.8.4-logo.patch"
 
 	eautoreconf
-
 	gnome2_src_prepare
 }
 
@@ -152,22 +148,21 @@ src_configure() {
 	! use plymouth && myconf="${myconf} --with-initial-vt=7"
 
 	gnome2_src_configure \
+		--enable-gdm-xsession \
 		--with-run-dir=/run/gdm \
 		--localstatedir="${EPREFIX}"/var \
 		--disable-static \
 		--with-xdmcp=yes \
-		--with-initial-vt=7 \
 		--enable-authentication-scheme=pam \
 		--with-default-pam-config=exherbo \
-		--enable-gdm-xsession \
-		--enable-systemd-journal \
 		--with-at-spi-registryd-directory="${EPREFIX}"/usr/libexec \
 		--without-xevie \
+		--enable-systemd-journal \
+		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
 		$(use_with audit libaudit) \
 		$(use_enable ipv6) \
 		$(use_with plymouth) \
 		$(use_with selinux) \
-		$(systemd_with_unitdir) \
 		$(use_with tcpd tcp-wrappers) \
 		$(use_enable wayland wayland-support) \
 		$(use_with xinerama) \

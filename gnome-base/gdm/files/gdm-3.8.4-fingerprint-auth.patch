@@ -1,7 +1,7 @@
-From 6139570c977561549747d5200b33be9786e95529 Mon Sep 17 00:00:00 2001
+From 75fe02c2b383b27b202940bdedd7d8d2c64169fb Mon Sep 17 00:00:00 2001
 From: Alexandre Rostovtsev <tetromino@gentoo.org>
 Date: Tue, 30 Jul 2013 22:56:30 -0400
-Subject: [PATCH] Gentoo does not have a fingerprint-auth pam stack
+Subject: [PATCH 3/4] Gentoo does not have a fingerprint-auth pam stack
 
 ---
  data/pam-exherbo/gdm-fingerprint.pam | 7 ++++++-
@@ -25,5 +25,5 @@ index 41639ec..d9633fb 100644
  
  password required pam_deny.so
 -- 
-1.8.3.2
+1.8.5.1
 
