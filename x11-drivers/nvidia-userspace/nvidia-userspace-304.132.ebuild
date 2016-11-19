@@ -125,15 +125,6 @@ pkg_setup() {
 	fi
 }
 
-src_unpack() {
-	if ! use kernel_FreeBSD; then
-		cd "${S}"
-		unpack_makeself
-	else
-		unpack ${A}
-	fi
-}
-
 src_prepare() {
 	# Please add a brief description for every added patch
 	cat <<- EOF > "${S}"/nvidia.icd
