@@ -1,8 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=4
+EAPI=5
 
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user versionator
@@ -19,7 +19,7 @@ SRC_URI="x86? ( http://us.download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_P
 	amd64-fbsd? ( http://us.download.nvidia.com/XFree86/FreeBSD-x86_64/${PV}/${AMD64_FBSD_NV_PACKAGE}.tar.gz )
 	x86-fbsd? ( http://us.download.nvidia.com/XFree86/FreeBSD-x86/${PV}/${X86_FBSD_NV_PACKAGE}.tar.gz )"
 
-LICENSE="NVIDIA"
+LICENSE="GPL-2 NVIDIA-r1"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="acpi custom-cflags multilib kernel_FreeBSD kernel_linux pax_kernel tools X"
@@ -124,15 +124,12 @@ src_prepare() {
 		ewarn "Using PAX patches is not supported. You will be asked to"
 		ewarn "use a standard kernel should you have issues. Should you"
 		ewarn "need support with these patches, contact the PaX team."
-		epatch "${FILESDIR}"/nvidia-drivers-pax-const.patch
-		epatch "${FILESDIR}"/nvidia-drivers-pax-usercopy.patch
+		epatch "${FILESDIR}"/${PN}-pax-const.patch
+		epatch "${FILESDIR}"/${PN}-pax-usercopy.patch
 	fi
 	cat <<- EOF > "${S}"/nvidia.icd
 		/usr/$(get_libdir)/libnvidia-opencl.so
 	EOF
-
-	# Linux 4.6 support
-	epatch "${FILESDIR}/${PN}-304-4.6.patch"
 
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
