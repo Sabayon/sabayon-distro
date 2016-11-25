@@ -132,6 +132,9 @@ src_prepare() {
 	# Show logo when branding is enabled
 	use branding && eapply "${FILESDIR}/${PN}-3.8.4-logo.patch"
 
+	# allow setting pam module dir, bug #599714
+	eapply "${FILESDIR}/${PN}-3.22.1-pam-module-dir.patch"
+
 	eautoreconf
 	gnome2_src_prepare
 }
