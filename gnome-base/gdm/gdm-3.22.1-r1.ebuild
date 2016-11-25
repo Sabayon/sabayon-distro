@@ -158,6 +158,7 @@ src_configure() {
 		--with-xdmcp=yes \
 		--enable-authentication-scheme=pam \
 		--with-default-pam-config=exherbo \
+		--with-pam-dir=$(getpam_mod_dir) \
 		--with-at-spi-registryd-directory="${EPREFIX}"/usr/libexec \
 		--without-xevie \
 		--enable-systemd-journal \
