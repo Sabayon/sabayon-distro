@@ -9,7 +9,7 @@ EAPI="5"
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="sqlite"
 
-inherit eutils linux-info python-single-r1 multiprocessing autotools toolchain-funcs
+inherit eutils linux-info python-single-r1 multiprocessing autotools systemd toolchain-funcs user
 
 LIBDVDCSS_COMMIT="2f12236bc1c92f73c21e973363f79eb300de603f"
 LIBDVDREAD_COMMIT="17d99db97e7b8f23077b342369d3c22a6250affd"
