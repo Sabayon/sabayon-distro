@@ -92,6 +92,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	media-libs/tiff:0=
 	media-sound/wavpack
 	media-video/raspberrypi-omxplayer
+	!media-video/omxplayer
 	avahi? ( net-dns/avahi )
 	nfs? ( net-fs/libnfs:= )
 	webserver? ( net-libs/libmicrohttpd[messages] )
