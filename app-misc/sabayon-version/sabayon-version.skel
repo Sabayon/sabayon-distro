@@ -12,7 +12,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~x86"
+KEYWORDS="~amd64 ~arm ~x86 ~arm64"
 
 IUSE=""
 DEPEND=""
@@ -83,8 +83,4 @@ pkg_postinst() {
 
 	# remove old hal udev rules.d file, if found. sys-apps/hal is long gone.
 	rm -f "${ROOT}/lib/udev/rules.d/90-hal.rules"
-
-	# make sure that systemd is correctly linked to /sbin/init
-	# Drop this in 2015, keep in sync with systemd-sysv-utils
-	ln -sf ../usr/lib/systemd/systemd "${ROOT}/sbin/init" || true
 }
