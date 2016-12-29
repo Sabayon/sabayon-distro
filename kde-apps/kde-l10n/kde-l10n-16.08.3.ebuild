@@ -4,7 +4,7 @@
 
 EAPI=6
 
-CATEGORY="kde-base"
+CATEGORY="kde-apps"
 inherit kde5-meta-pkg kde5-functions
 
 DESCRIPTION="KDE internationalization package meta includer"
