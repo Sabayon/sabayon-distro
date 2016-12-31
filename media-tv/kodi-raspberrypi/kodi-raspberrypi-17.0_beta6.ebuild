@@ -9,7 +9,7 @@ EAPI="5"
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="sqlite"
 
-inherit eutils linux-info python-single-r1 multiprocessing autotools systemd toolchain-funcs user
+inherit eutils flag-o-matic linux-info python-single-r1 multiprocessing autotools systemd toolchain-funcs user
 
 LIBDVDCSS_COMMIT="2f12236bc1c92f73c21e973363f79eb300de603f"
 LIBDVDREAD_COMMIT="17d99db97e7b8f23077b342369d3c22a6250affd"
@@ -71,9 +71,9 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	>=dev-libs/yajl-2
 	dev-python/simplejson[${PYTHON_USEDEP}]
 	dev-python/pillow[${PYTHON_USEDEP}]
-	media-fonts/anonymous-pro
+	media-fonts/roboto
 	media-fonts/corefonts
-	media-fonts/dejavu
+	media-fonts/noto
 	alsa? ( media-libs/alsa-lib )
 	media-libs/flac
 	media-libs/fontconfig
@@ -92,6 +92,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	media-libs/tiff:0=
 	media-sound/wavpack
 	media-video/raspberrypi-omxplayer
+	media-libs/raspberrypi-userland
 	!media-video/omxplayer
 	avahi? ( net-dns/avahi )
 	nfs? ( net-fs/libnfs:= )
@@ -220,7 +221,6 @@ src_prepare() {
 		tc-env_build emake -f codegenerator.mk
 	fi
 
-
 	# Disable internal func checks as our USE/DEPEND
 	# stuff handles this just fine already #408395
 	export ac_cv_lib_avcodec_ff_vdpau_vc1_decode_picture=yes
@@ -249,6 +249,8 @@ src_configure() {
 	export ac_cv_lib_bluetooth_hci_devid=$(usex bluetooth)
 	# Requiring java is asine #434662
 	[[ ${PV} != 9999 ]] && export ac_cv_path_JAVA_EXE=$(which $(usex java java true))
+
+	filter-flags -Wl,--as-needed
 
 	econf \
 		--docdir=/usr/share/doc/${PF} \
@@ -300,15 +302,25 @@ src_install() {
 	rm -rf "${ED%/}"/usr/share/kodi/system/players/dvdplayer/etc || die
 
 	# Replace bundled fonts with system ones.
-	rm "${ED%/}"/usr/share/kodi/addons/skin.estouchy/fonts/DejaVuSans-Bold.ttf || die
-	dosym /usr/share/fonts/dejavu/DejaVuSans-Bold.ttf \
-		/usr/share/kodi/addons/skin.estouchy/fonts/DejaVuSans-Bold.ttf
-	rm "${ED%/}"/usr/share/kodi/addons/skin.estuary/fonts/AnonymousPro.ttf || die
-	dosym /usr/share/fonts/anonymous-pro/Anonymous\ Pro.ttf \
-		/usr/share/kodi/addons/skin.estuary/fonts/AnonymousPro.ttf
-	#lato is also present but cannot be unbundled because
-	#lato isn't (yet) in portage: https://bugs.gentoo.org/show_bug.cgi?id=589288
+	rm "${ED%/}"/usr/share/kodi/addons/skin.estouchy/fonts/NotoSans-Regular.ttf || die
+	dosym /usr/share/fonts/noto/NotoSans-Regular.ttf \
+		usr/share/kodi/addons/skin.estouchy/fonts/NotoSans-Regular.ttf
 
+	rm "${ED%/}"/usr/share/kodi/addons/skin.estuary/fonts/NotoMono-Regular.ttf || die
+	dosym /usr/share/fonts/noto/NotoMono-Regular.ttf \
+		usr/share/kodi/addons/skin.estuary/fonts/NotoMono-Regular.ttf
+
+	rm "${ED%/}"/usr/share/kodi/addons/skin.estuary/fonts/NotoSans-Bold.ttf || die
+	dosym /usr/share/fonts/noto/NotoSans-Bold.ttf \
+		usr/share/kodi/addons/skin.estuary/fonts/NotoSans-Bold.ttf
+
+	rm "${ED%/}"/usr/share/kodi/addons/skin.estuary/fonts/NotoSans-Regular.ttf || die
+	dosym /usr/share/fonts/noto/NotoSans-Regular.ttf \
+		usr/share/kodi/addons/skin.estuary/fonts/NotoSans-Regular.ttf
+
+	rm "${ED%/}"/usr/share/kodi/addons/skin.estuary/fonts/Roboto-Thin.ttf || die
+	dosym /usr/share/fonts/roboto/Roboto-Thin.ttf \
+		usr/share/kodi/addons/skin.estuary/fonts/Roboto-Thin.ttf
 
 	python_domodule tools/EventClients/lib/python/xbmcclient.py
 	python_newscript "tools/EventClients/Clients/Kodi Send/kodi-send.py" kodi-send
