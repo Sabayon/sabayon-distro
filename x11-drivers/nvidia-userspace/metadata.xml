@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<maintainer>
-  <email>lxnay@gentoo.org</email>
-  <description>General maintainer</description>
-</maintainer>
-<longdescription>NVIDIA X11 driver and GLX libraries</longdescription>
+	<maintainer type="person">
+  		<email>lxnay@gentoo.org</email>
+  		<description>General maintainer</description>
+	</maintainer>
+	<longdescription>NVIDIA X11 driver and GLX libraries</longdescription>
+	<use>
+		<flag name="x-multilib">Old multilib flag for x</flag>
+		<flag name="compat">Install non-GLVND libGL for backwards compatibility</flag>
+		<flag name="driver">Install the kernel driver module</flag>
+		<flag name="X">Install the X.org driver, OpenGL libraries, XvMC libraries, and VDPAU libraries</flag>
+		<flag name="gtk3">Install nvidia-settings with support for GTK+ 3</flag>
+		<flag name="pax_kernel">PaX patches from the PaX project</flag> 
+		<flag name="tools">Install additional tools such as nvidia-settings</flag>
+		<flag name="uvm">Install the Unified Memory kernel module (nvidia-uvm) for sharing memory between CPU and GPU in CUDA programs</flag>
+	</use>
 </pkgmetadata>
