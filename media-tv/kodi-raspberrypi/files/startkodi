@@ -2,10 +2,11 @@
 fbset_bin=`which fbset`
 xset_bin=`which xset`
 xrefresh_bin=`which xrefresh`
+kodi_bin=`which kodi`
+
 if [ ! -z $fbset_bin ]; then
   DEPTH2=`$fbset_bin | head -3 | tail -1 | cut -d " " -f 10`
 fi
-kodi "$@"
 if [ ! -z $fbset_bin ]; then
   if [ "$DEPTH2" == "8" ]; then
     DEPTH1=16
@@ -30,3 +31,4 @@ if [ "$VT" ]; then
   sudo chvt 7
   sudo chvt "$VT"
 fi
+${kodi_bin} "$@"
