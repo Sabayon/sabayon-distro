@@ -1,20 +1,19 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
-inherit eutils transmission-2.84
+EAPI=6
+inherit eutils transmission-2.92-r2
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Gtk+ UI"
 KEYWORDS="~amd64 ~x86"
 IUSE="ayatana"
 
 RDEPEND="
-	>=dev-libs/dbus-glib-0.100:=
-	>=dev-libs/glib-2.32:2=
-	>=x11-libs/gtk+-3.4:3=
-	ayatana? ( >=dev-libs/libappindicator-0.4.90:3= )
-	!net-p2p/transmission-gtk+
+	>=dev-libs/dbus-glib-0.100
+	>=dev-libs/glib-2.32:2
+	>=x11-libs/gtk+-3.4:3
+	ayatana? ( >=dev-libs/libappindicator-0.4.90:3 )
 "
 
 src_install() {

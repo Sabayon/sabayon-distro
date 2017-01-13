@@ -1,9 +1,9 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
-inherit eutils transmission-2.84
+EAPI=6
+inherit transmission-2.92-r2
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - command line (CLI) version"
 KEYWORDS="~amd64 ~x86"

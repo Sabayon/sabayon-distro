@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -16,21 +16,16 @@
 # Always call phase functions using their public names, such like:
 # transmission-2.83_src_configure, and never _transmission_src_configure.
 
-# @ECLASS-VARIABLE: TRANSMISSION_PATCHES
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# Array that contains patches to apply just before eautoreconf.
-
 # @ECLASS-VARIABLE: TRANSMISSION_ECLASS_VERSION_OK
 # @DESCRIPTION:
 # Set this to x.y if you want to use transmission-x.y.eclass from ebuild
 # with ${PV} different than x.y. This is to catch bugs.
-: ${TRANSMISSION_ECLASS_VERSION_OK:=${PV}}
+: ${TRANSMISSION_ECLASS_VERSION_OK:=${PVR}}
 
 # @ECLASS-VARIABLE: E_TRANSM_TAIL
 # @INTERNAL
 # @DESCRIPTION:
-# "Tail" of package name. Can take value gtk, qt4, etc. or can be empty.
+# "Tail" of package name. Can take value gtk, qt5, etc. or can be empty.
 E_TRANSM_TAIL=${PN#transmission}
 E_TRANSM_TAIL=${E_TRANSM_TAIL#-}
 
@@ -38,7 +33,7 @@ E_TRANSM_TAIL=${E_TRANSM_TAIL#-}
 # @INTERNAL
 # @DESCRIPTION:
 # Function used to check which variant of Transmission are we working on.
-# Argument should be one of these: (none), gtk, qt4, daemon, cli, base.
+# Argument should be one of these: (none), gtk, qt5, daemon, cli, base.
 # If argument is empty or omitted, true value means that it is
 # net-p2p/transmission (metapackage).
 _transmission_is() {
@@ -52,9 +47,9 @@ _transmission_is() {
 # Function to setup functions. The eval uses strictly controlled variables,
 # so it's OK.
 _transmission_eclass_setup_functions() {
-	local v=2.84
+	local v=2.92-r2
 	local func
-	for func in pkg_setup src_prepare src_configure src_compile \
+	for func in src_prepare src_configure src_compile \
 			pkg_preinst pkg_postinst pkg_postrm; do
 		eval "transmission-${v}_${func}() { _transmission_${func}; }"
 	done
@@ -64,16 +59,16 @@ _transmission_eclass_setup_functions
 
 MY_ECLASSES=""
 _transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
-_transmission_is qt4 && MY_ECLASSES+="fdo-mime qt4-r2"
-_transmission_is "" || MY_ECLASSES+=" autotools"
+_transmission_is qt5 && MY_ECLASSES+="fdo-mime qmake-utils"
+_transmission_is "" || MY_ECLASSES+=" autotools flag-o-matic"
 _transmission_is base && MY_ECLASSES+=" user"
 
-inherit eutils multilib ${MY_ECLASSES}
+inherit multilib ${MY_ECLASSES}
 
 unset MY_ECLASSES
 
 case ${EAPI:-0} in
-	4|5) EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile \
+	6) EXPORT_FUNCTIONS src_prepare src_configure src_compile \
 		pkg_preinst pkg_postinst pkg_postrm ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
@@ -100,6 +95,7 @@ SRC_URI="http://download.transmissionbt.com/${MY_PN}/files/${MY_P}.tar.xz"
 LICENSE="|| ( GPL-2 GPL-3 Transmission-OpenSSL-exception ) GPL-2 MIT"
 SLOT="0"
 IUSE=""
+_transmission_is "" || IUSE+="libressl"
 
 # only common dependencies plus blockers
 RDEPEND=""
@@ -107,10 +103,11 @@ _transmission_is base || RDEPEND+="~net-p2p/transmission-base-${PV}"
 if ! _transmission_is ""; then
 	RDEPEND+="
 	>=dev-libs/libevent-2.0.10:=
-	dev-libs/openssl:0=
-	net-libs/libnatpmp:=
+	!libressl? ( dev-libs/openssl:0= )
+	libressl? ( dev-libs/libressl:0= )
+	net-libs/libnatpmp
 	>=net-libs/miniupnpc-1.7:=
-	>=net-misc/curl-7.16.3:=[ssl]
+	>=net-misc/curl-7.16.3[ssl]
 	sys-libs/zlib:="
 fi
 
@@ -118,6 +115,7 @@ DEPEND="${RDEPEND}"
 if _transmission_is base; then
 	RDEPEND+=" !<net-p2p/transmission-gtk-${PV}
 	!<net-p2p/transmission-qt4-${PV}
+	!<net-p2p/transmission-qt5-${PV}
 	!<net-p2p/transmission-daemon-${PV}
 	!<net-p2p/transmission-cli-${PV}"
 fi
@@ -132,15 +130,17 @@ fi
 S="${WORKDIR}/${MY_P}"
 _transmission_is "" && S="${WORKDIR}"
 
-_transmission_pkg_setup() {
-	if _transmission_is base; then
-		enewgroup transmission
-		enewuser transmission -1 -1 -1 transmission
-	fi
-}
-
 _transmission_src_prepare() {
-	_transmission_is "" && return
+	# Can't check it on top as the array could be set after inheriting the
+	# eclass.
+	if [[ ${#TRANSMISSION_PATCHES[@]} -gt 0 ]]; then
+		die "Please switch to PATCHES. KTHXBYE."
+	fi
+
+	if _transmission_is ""; then
+		eapply_user # it's mandatory
+		return
+	fi
 
 	sed -i -e '/CFLAGS/s:-ggdb3::' configure.ac || die
 
@@ -149,20 +149,14 @@ _transmission_src_prepare() {
 		sed -i -e '/^LIBAPPINDICATOR_MINIMUM/s:=.*:=9999:' configure.ac || die
 	fi
 
-	# Pass our configuration dir to systemd unit file
-	sed -i '/ExecStart/ s|$| -g /var/lib/transmission/config|' daemon/${MY_PN}-daemon.service || die
-
 	# http://trac.transmissionbt.com/ticket/4324
-	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' lib${MY_PN}/Makefile.am || die
+	sed -i -e 's|noinst\(_PROGRAMS = $(TESTS)\)|check\1|' libtransmission/Makefile.am || die
 
-	if [[ ${#TRANSMISSION_PATCHES[@]} -gt 0 ]]; then
-		epatch "${TRANSMISSION_PATCHES[@]}"
-	fi
+	# Prevent m4_copy error when running aclocal
+	# m4_copy: won't overwrite defined macro: glib_DEFUN
+	rm m4/glib-gettext.m4 || die
 
-	# http://trac.transmissionbt.com/ticket/5700
-	sed -i -e '1iQMAKE_CXXFLAGS += -std=c++11' qt/qtr.pro || die
-
-	epatch_user
+	default
 	eautoreconf
 
 	if ! _transmission_is base; then
@@ -170,7 +164,7 @@ _transmission_src_prepare() {
 		sedcmd+="${EROOT}usr/$(get_libdir)/libtransmission.a:"
 		find . -name Makefile.in -exec sed -i -e "${sedcmd}" {} \; || die
 		sed -i -e '/libtransmission \\/d' Makefile.in || die
-		if _transmission_is qt4; then
+		if _transmission_is qt5; then
 			sedcmd="s:\$\${TRANSMISSION_TOP}/libtransmission/libtransmission.a:"
 			sedcmd+="${EROOT}usr/$(get_libdir)/libtransmission.a:"
 			sed -i -e "${sedcmd}" qt/qtr.pro || die
@@ -180,6 +174,9 @@ _transmission_src_prepare() {
 
 _transmission_src_configure() {
 	_transmission_is "" && return
+
+	# https://bugs.gentoo.org/577528
+	append-lfs-flags
 
 	local econfargs=(
 		--enable-external-natpmp
@@ -212,7 +209,7 @@ _transmission_src_configure() {
 			--disable-daemon
 			--with-gtk
 		)
-	elif _transmission_is qt4; then
+	elif _transmission_is qt5; then
 		econfargs+=(
 			--disable-cli
 			--disable-daemon
@@ -223,10 +220,10 @@ _transmission_src_configure() {
 	fi
 
 	econf "${econfargs[@]}"
-	if _transmission_is qt4; then
-		pushd qt >/dev/null
-		eqmake4 qtr.pro
-		popd >/dev/null
+	if _transmission_is qt5; then
+		pushd qt >/dev/null || die
+		eqmake5 qtr.pro
+		popd >/dev/null || die
 	fi
 }
 
@@ -234,11 +231,10 @@ _transmission_src_compile() {
 	_transmission_is "" && return
 
 	emake
-	if _transmission_is qt4; then
-		pushd qt >/dev/null
-		emake
-		lrelease translations/*.ts
-		popd >/dev/null
+
+	if _transmission_is qt5; then
+		emake -C qt
+		$(qt5_get_bindir)/lrelease qt/translations/*.ts || die
 	fi
 }
 
@@ -251,16 +247,26 @@ _transmission_pkg_preinst() {
 }
 
 _transmission_pkg_postinst() {
-	if _transmission_is gtk || _transmission_is qt4; then
+	if _transmission_is gtk || _transmission_is qt5; then
 		fdo-mime_desktop_database_update
 	fi
 
 	_transmission_is gtk && gnome2_icon_cache_update
 
+	if _transmission_is base; then
+		enewgroup transmission
+		enewuser transmission -1 -1 /var/lib/transmission transmission
+
+		if [[ ! -e "${EROOT%/}"/var/lib/transmission ]]; then
+			mkdir -p "${EROOT%/}"/var/lib/transmission || die
+			chown transmission:transmission "${EROOT%/}"/var/lib/transmission || die
+		fi
+	fi
+
 	if _transmission_is daemon; then
-		elog "If you use ${MY_PN}-daemon, please, set 'rpc-username' and"
-		elog "'rpc-password' (in plain text, ${MY_PN}-daemon will hash it on"
-		elog "start) in settings.json file located at /var/${MY_PN}/config or"
+		elog "If you use transmission-daemon, please, set 'rpc-username' and"
+		elog "'rpc-password' (in plain text, transmission-daemon will hash it on"
+		elog "start) in settings.json file located at /var/lib/transmission/config or"
 		elog "any other appropriate config directory."
 	fi
 
@@ -274,7 +280,7 @@ _transmission_pkg_postinst() {
 	fi
 
 	if _transmission_is base; then
-		elog "Since µTP is enabled by default, ${MY_PN} needs large kernel buffers for"
+		elog "Since µTP is enabled by default, transmission needs large kernel buffers for"
 		elog "the UDP socket. You can append following lines into /etc/sysctl.conf:"
 		elog " net.core.rmem_max = 4194304"
 		elog " net.core.wmem_max = 1048576"
@@ -283,7 +289,7 @@ _transmission_pkg_postinst() {
 }
 
 _transmission_pkg_postrm() {
-	if _transmission_is gtk || _transmission_is qt4; then
+	if _transmission_is gtk || _transmission_is qt5; then
 		fdo-mime_desktop_database_update
 	fi
 
