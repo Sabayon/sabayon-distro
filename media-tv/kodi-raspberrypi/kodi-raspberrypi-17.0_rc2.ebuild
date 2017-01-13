@@ -78,7 +78,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	media-fonts/roboto
 	media-libs/fontconfig
 	media-libs/freetype
-	>=media-libs/libass-0.13.4
+	>=media-libs/libass-0.9.8
 	media-libs/mesa[egl]
 	media-libs/raspberrypi-userland
 	>=media-libs/taglib-1.11.1
