@@ -12,7 +12,6 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE=""
 RDEPEND="media-video/raspberrypi-omxplayer
-	media-tv/kodi-raspberrypi
 	app-misc/sabayon-auto-updater
 	!media-video/omxplayer"
 DEPEND=""
