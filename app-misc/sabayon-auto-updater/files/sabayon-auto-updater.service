@@ -10,6 +10,7 @@ Type=oneshot
 Environment=ACCEPT_LICENSE=*
 ExecStart=/usr/bin/systemd-inhibit /usr/bin/equo up
 ExecStart=/usr/bin/systemd-inhibit /usr/bin/equo u
+ExecStart=/usr/bin/systemd-inhibit /usr/bin/equo cleanup
 TimeoutStopSec=180
 KillMode=process
 KillSignal=SIGINT
