@@ -173,7 +173,8 @@ pkg_setup() {
 src_prepare() {
 	einfo "disabling zstd, Gentoo bug 601610"
 	# hack, break detecting
-	sed -i -r '/#include <zstd.h>/d' ./src/rocksdb/build_tools/build_detect_platform || die
+	sed -i -r '/#include <zstd\.h>/s/zstd\.h/nope-zstd-hack.h/' \
+		./src/rocksdb/build_tools/build_detect_platform || die
 
 	default
 
