@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -10,8 +10,8 @@ MY_SVN_PN="subversion"
 MY_SVN_P="${MY_SVN_PN}-${PV}"
 MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 
-SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.9-Gentoo-patches.tar.gz )
-inherit sab-patches autotools db-use depend.apache flag-o-matic libtool multilib eutils
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.9.5-Gentoo-patches.tar.gz )
+inherit sab-patches autotools db-use depend.apache eutils flag-o-matic libtool multilib eutils
 
 DESCRIPTION="Subversion WebDAV support"
 HOMEPAGE="http://subversion.apache.org/"
@@ -56,7 +56,7 @@ MY_CDEPS="
 
 DEPEND="${MY_CDEPS}
 	sasl? ( dev-libs/cyrus-sasl )
-	>=net-libs/serf-1.2.1
+	>=net-libs/serf-1.3.4
 	virtual/pkgconfig
 
 	!!<sys-apps/sandbox-1.6
@@ -111,7 +111,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	local SAB_PATCHES_SKIP=( subversion-1.8.9-po_fixes.patch )
 	sab-patches_apply_all
 	epatch_user
 

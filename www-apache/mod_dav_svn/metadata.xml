@@ -5,4 +5,7 @@
 		<email>slawomir.nizio@sabayon.org</email>
 		<description>Maintainer for split subversion-java ebuild.</description>
 	</maintainer>
+	<use>
+		<flag name="dso">Enable runtime module search</flag>
+	</use>
 </pkgmetadata>

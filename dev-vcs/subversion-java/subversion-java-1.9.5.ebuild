@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -12,7 +12,7 @@ MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 MY_SVN_CATEGORY="${CATEGORY}"
 
 # note: java-pkg-2, not java-pkt-opt-2
-SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.9-Gentoo-patches.tar.gz )
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.9.5-Gentoo-patches.tar.gz )
 inherit sab-patches autotools eutils flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
@@ -50,9 +50,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	local SAB_PATCHES_SKIP=( subversion-1.8.9-po_fixes.patch )
 	sab-patches_apply_all
-	epatch_user
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -72,10 +70,10 @@ src_prepare() {
 }
 
 src_configure() {
-	local myconf
+	local myconf=()
 
-	myconf+=" --without-swig"
-	myconf+=" --without-junit"
+	myconf+=( --without-swig )
+	myconf+=( --without-junit )
 
 	case ${CHOST} in
 		*-aix*)
@@ -84,27 +82,27 @@ src_configure() {
 		;;
 		*-interix*)
 			# loader crashes on the LD_PRELOADs...
-			myconf+=" --disable-local-library-preloading"
+			myconf+=( --disable-local-library-preloading )
 		;;
 		*-solaris*)
 			# need -lintl to link
 			use nls && append-libs intl
 			# this breaks installation, on x64 echo replacement is 32-bits
-			myconf+=" --disable-local-library-preloading"
+			myconf+=( --disable-local-library-preloading )
 		;;
 		*-mint*)
-			myconf+=" --enable-all-static --disable-local-library-preloading"
+			myconf+=( --enable-all-static --disable-local-library-preloading )
 		;;
 		*)
 			# inject LD_PRELOAD entries for easy in-tree development
-			myconf+=" --enable-local-library-preloading"
+			myconf+=( --enable-local-library-preloading )
 		;;
 	esac
 
 	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
-	myconf+=" --disable-disallowing-of-undefined-references"
+	myconf+=( --disable-disallowing-of-undefined-references )
 
 	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--without-apache-libexecdir \
@@ -119,7 +117,7 @@ src_configure() {
 		$(use_enable nls) \
 		--without-sasl \
 		--without-serf \
-		${myconf} \
+		${myconf[@]} \
 		--with-apr="${EPREFIX}/usr/bin/apr-1-config" \
 		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
 		--disable-experimental-libtool \
