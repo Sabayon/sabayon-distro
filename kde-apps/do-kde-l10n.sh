@@ -8,8 +8,8 @@
 # EXISTING_VER:  An existing version to be used as a template
 # NEW_VER: The new version number to be generated.
 
-EXISTING_VER="16.08.3"
-NEW_VER="16.12.0"
+EXISTING_VER="16.12.0"
+NEW_VER="16.12.1"
 BROKEN_ONES=""
 
 for X in `find -name kde-l10n-*${EXISTING_VER}*.ebuild`; do
