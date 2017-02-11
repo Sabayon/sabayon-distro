@@ -66,7 +66,6 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	>=media-libs/libass-0.13.4
 	media-libs/mesa[egl]
 	>=media-libs/taglib-1.11.1
-	>=media-video/ffmpeg-3.1.6:=[encode]
 	mysql? ( virtual/mysql )
 	>=net-misc/curl-7.51.0
 	nfs? ( net-fs/libnfs:= )
@@ -83,7 +82,6 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	vaapi? ( x11-libs/libva[opengl] )
 	vdpau? (
 		|| ( >=x11-libs/libvdpau-1.1 >=x11-drivers/nvidia-drivers-180.51 )
-		media-video/ffmpeg[vdpau]
 	)
 	webserver? ( >=net-libs/libmicrohttpd-0.9.50[messages] )
 	X? (
