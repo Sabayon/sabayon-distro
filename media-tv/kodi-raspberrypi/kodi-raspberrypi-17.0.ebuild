@@ -179,6 +179,8 @@ src_unpack() {
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-9999-no-arm-flags.patch #400617
 	epatch "${FILESDIR}"/${PN}-9999-texturepacker.patch
+	# https://github.com/xbmc/xbmc/pull/11400/commits/db26dd8f619d76cf459b87c2e003e3cd33b96b79
+	touch "${S}"/xbmc/cores/AudioEngine/AEDefines_override.h || die
 
 	# some dirs ship generated autotools, some dont
 	multijob_init
