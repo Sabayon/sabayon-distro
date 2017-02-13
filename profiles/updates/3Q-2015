@@ -1,4 +1,3 @@
-move kde-apps/kde4-l10n kde-apps/kde-l10n
 slotmove kde-base/kde-l10n 4 5
 slotmove kde-base/kde-l10n-ar 4 5
 slotmove kde-base/kde-l10n-bg 4 5
