@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI="5"
 
-inherit multilib-build
+inherit multilib multilib-minimal
 
 DESCRIPTION="System which facilitates service discovery on a local network (meta package)"
 HOMEPAGE="http://avahi.org/"
