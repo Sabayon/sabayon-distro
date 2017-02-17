@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<herd>no-herd</herd>
-<maintainer>
-	<email>lxnay@gentoo.org</email>
-</maintainer>
+	<maintainer type="person">
+		<email>lxnay@gentoo.org</email>
+	</maintainer>
+	<maintainer type="person">
+		<email>skullbocks@sabayon.org</email>
+		<name>Francesco Ferretti</name>
+	</maintainer>
+	<use>
+		<flag name="utils">Install the avahi gtk+ utils avahi-discover, bssh, and
+		bvnc</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">lathiat/avahi</remote-id>
+	</upstream>
 </pkgmetadata>
