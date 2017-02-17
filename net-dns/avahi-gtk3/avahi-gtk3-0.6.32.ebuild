@@ -8,17 +8,16 @@ AVAHI_MODULE="${AVAHI_MODULE:-${PN/avahi-}}"
 MY_P=${P/-${AVAHI_MODULE}}
 MY_PN=${PN/-${AVAHI_MODULE}}
 
-WANT_AUTOMAKE=1.11
-
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="gdbm"
 
-inherit autotools eutils flag-o-matic multilib multilib-minimal \
-	python-r1 systemd user
+WANT_AUTOMAKE=1.11
+
+inherit autotools eutils flag-o-matic multilib multilib-minimal python-r1 systemd user
 
 DESCRIPTION="System which facilitates service discovery on a local network (gtk3 pkg)"
 HOMEPAGE="http://avahi.org/"
-SRC_URI="http://avahi.org/download/${MY_P}.tar.gz"
+SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${MY_P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -29,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 COMMON_DEPEND="
 	~net-dns/avahi-base-${PV}[bookmarks=,dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
-	x11-libs/gtk+:3
+	x11-libs/gtk+:3[${MULTILIB_USEDEP}]
 "
 
 DEPEND="${COMMON_DEPEND}"
@@ -42,30 +41,28 @@ MULTILIB_WRAPPED_HEADERS=(
 
 src_prepare() {
 	# Make gtk utils optional
+	# https://github.com/lathiat/avahi/issues/24
 	epatch "${FILESDIR}"/${MY_PN}-0.6.30-optional-gtk-utils.patch
 
-	# Fix init scripts for >=openrc-0.9.0, bug #383641
-	epatch "${FILESDIR}"/${MY_PN}-0.6.x-openrc-0.9.x-init-scripts-fixes.patch
-
-	# install-exec-local -> install-exec-hook
-	epatch "${FILESDIR}"/${MY_P}-install-exec-hook.patch
-
-	# Backport host-name-from-machine-id patch, bug #466134
-	epatch "${FILESDIR}"/${MY_P}-host-name-from-machine-id.patch
-
 	# Don't install avahi-discover unless ENABLE_GTK_UTILS, bug #359575
-	epatch "${FILESDIR}"/${MY_P}-fix-install-avahi-discover.patch
+	# https://github.com/lathiat/avahi/issues/24
+	epatch "${FILESDIR}"/${MY_PN}-0.6.31-fix-install-avahi-discover.patch
 
-	epatch "${FILESDIR}"/${MY_P}-so_reuseport-may-not-exist-in-running-kernel.patch
+	# Fix build under various locales, bug #501664
+	# https://github.com/lathiat/avahi/issues/27
+	epatch "${FILESDIR}"/${MY_PN}-0.6.31-fix-locale-build.patch
 
-	# allow building client without the daemon
-	epatch "${FILESDIR}"/${MY_P}-build-client-without-daemon.patch
+	# Fix openrc-run script issue
+	epatch "${FILESDIR}"/${MY_PN}-0.6.32-openrc-0.21.7-fix-init-scripts.patch
 
 	# Drop DEPRECATED flags, bug #384743
 	sed -i -e 's:-D[A-Z_]*DISABLE_DEPRECATED=1::g' avahi-ui/Makefile.am || die
 
 	# Fix references to Lennart's home directory, bug #466210
 	sed -i -e 's/\/home\/lennart\/tmp\/avahi//g' man/* || die
+
+	# Bug #525832
+	epatch_user
 
 	# Prevent .pyc files in DESTDIR
 	>py-compile
@@ -107,6 +104,7 @@ multilib_src_configure() {
 		--localstatedir="${EPREFIX}/var" \
 		--with-distro=gentoo \
 		--disable-python-dbus \
+		--disable-manpages \
 		--disable-xmltoman \
 		--disable-monodoc \
 		--disable-pygtk \
@@ -119,7 +117,7 @@ multilib_src_configure() {
 		--disable-qt3 \
 		--disable-qt4 \
 		--disable-gtk \
-		$(multilib_is_native_abi && echo -n --enable-gtk3-utils || echo -n --disable-gtk3-utils) \
+		$(multilib_is_native_abi && echo -n --enable-gtk3 || echo -n --disable-gtk3) \
 		$(use_enable gdbm) \
 		$(systemd_with_unitdir) \
 		"${myconf[@]}"
