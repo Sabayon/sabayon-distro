@@ -29,7 +29,7 @@ KEYWORDS="alpha amd64 ~arm arm64 hppa ~ia64 m68k ~mips ppc ppc64 s390 sh sparc x
 ## Make sure we share all the USE flags in sys-devel/base-gcc
 BASE_GCC_USE="fortran gcj multilib nls nptl openmp altivec
 	bootstrap build doc fixed-point graphite hardened
-	multislot cxx nopie nossp objc objc++ objc-gc test vanilla"
+	cxx nopie nossp objc objc++ objc-gc test vanilla"
 for base_use in ${BASE_GCC_USE}; do
 	RDEPEND+=" ~sys-devel/base-gcc-${PV}[${base_use}?]"
 done
