@@ -4,7 +4,7 @@
 
 EAPI="5"
 
-inherit multilib multilib-minimal
+inherit multilib-build
 
 DESCRIPTION="System which facilitates service discovery on a local network (meta package)"
 HOMEPAGE="http://avahi.org/"
