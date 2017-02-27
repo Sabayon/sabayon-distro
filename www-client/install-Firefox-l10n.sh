@@ -2,7 +2,7 @@
 
 # Install all firefox-l10 packages.
 
-#   Copyright 2014, 2015 Sławomir Nizio
+#   Copyright 2014, 2015, 2017 Sławomir Nizio
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #   limitations under the License.
 
 # The packages are expected to be in the same directory this script is in.
-# It exports LINGUAS with all of the possible languages to make sure all
+# It exports USE with all of the possible languages to make sure all
 # of the language packages are installed properly (so that it does not matter
 # what is set in make.conf). Note that it may not work with pkgcore!
 
@@ -53,7 +53,7 @@ cd "${dir}" || e "cd $dir failed"
 echo "working in ${PWD}"
 
 packages=()
-LINGUAS=""
+USE=""
 
 ver=
 
@@ -78,16 +78,20 @@ for p in firefox-l10n-*; do
 	if [[ ! -e ${p} ]]; then
 		e "${p} does not exist - no packages in the current directory?"
 	fi
+
 	packages+=( ${p} )
 	lang=${p#firefox-l10n-}
-	lang=${lang//-/_}
-	LINGUAS+=" ${lang}"
+	lang=${lang/[_@]/-}
+	USE+=" l10n_${lang}"
+	if [[ ${lang} = *-* ]]; then
+		USE+=" l10n_${lang%-*}"
+	fi
 
 	# determine version from the first ebuild
 	[[ -z ${ver} ]] && determine_ver "${p}"
 done
 
-export LINGUAS
+export USE
 
 inst_cmd "${packages[@]}"
 

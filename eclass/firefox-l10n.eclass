@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -26,7 +26,7 @@ MOZ_PN="firefox"
 
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${MOZ_PN}/releases/"
 
-inherit toolchain-funcs mozlinguas
+inherit toolchain-funcs mozlinguas-v2
 # for mozextension.eclass, hopefully temporary
 inherit versionator
 
@@ -47,5 +47,5 @@ src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${MOZ_PN}"
 	# we need to fake PN: see mozversion_extension_location
 	# in mozextension.eclass
-	PN=${MOZ_PN} mozlinguas_src_install
+	PN=${MOZ_PN} mozlinguas-v2_src_install
 }
