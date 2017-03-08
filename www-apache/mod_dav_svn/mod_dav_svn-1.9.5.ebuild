@@ -43,19 +43,19 @@ IUSE="berkdb debug +dso nls sasl"
 # variable specific to www-apache/mod_dav_svn
 MY_CDEPS="
 	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,http]
+	app-arch/bzip2
 	>=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
 	sys-apps/file
 	sys-libs/zlib
-	app-arch/bzip2
 	berkdb? ( >=sys-libs/db-4.0.14:= )
 "
 
 DEPEND="${MY_CDEPS}
-	sasl? ( dev-libs/cyrus-sasl )
 	>=net-libs/serf-1.3.4
+	sasl? ( dev-libs/cyrus-sasl )
 	virtual/pkgconfig
 
 	!!<sys-apps/sandbox-1.6

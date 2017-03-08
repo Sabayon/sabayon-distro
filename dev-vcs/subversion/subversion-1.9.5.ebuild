@@ -22,27 +22,28 @@ sab-patches_update_SRC_URI
 LICENSE="Subversion GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring +http java kde nls perl python ruby sasl test vim-syntax"
+IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring +http java kwallet nls perl python ruby sasl test vim-syntax"
 
-COMMON_DEPEND=">=dev-db/sqlite-3.7.12
+COMMON_DEPEND="
+	app-arch/bzip2
+	>=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
 	sys-apps/file
 	sys-libs/zlib
-	app-arch/bzip2
 	berkdb? ( >=sys-libs/db-4.0.14:= )
 	ctypes-python? ( ${PYTHON_DEPS} )
 	gnome-keyring? ( dev-libs/glib:2 sys-apps/dbus gnome-base/libgnome-keyring )
-	kde? ( sys-apps/dbus dev-qt/qtcore:4 dev-qt/qtdbus:4 dev-qt/qtgui:4 kde-frameworks/kdelibs:4 )
+	http? ( >=net-libs/serf-1.3.4 )
+	kwallet? ( sys-apps/dbus dev-qt/qtcore:4 dev-qt/qtdbus:4 dev-qt/qtgui:4 kde-frameworks/kdelibs:4 )
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
 	ruby? ( ${RUBY_DEPS} )
-	sasl? ( dev-libs/cyrus-sasl )
-	http? ( >=net-libs/serf-1.3.4 )"
+	sasl? ( dev-libs/cyrus-sasl )"
 RDEPEND="${COMMON_DEPEND}
 	apache2? ( www-servers/apache[apache2_modules_dav] )
-	kde? ( kde-apps/kwalletd:4 )
+	kwallet? ( kde-apps/kwalletd:4 )
 	nls? ( virtual/libintl )
 	perl? ( dev-perl/URI )"
 # Note: ctypesgen doesn't need PYTHON_USEDEP, it's used once
@@ -52,7 +53,7 @@ DEPEND="${COMMON_DEPEND}
 	doc? ( app-doc/doxygen )
 	gnome-keyring? ( virtual/pkgconfig )
 	http? ( virtual/pkgconfig )
-	kde? ( virtual/pkgconfig )
+	kwallet? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
 	test? ( ${PYTHON_DEPS} )"
 PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
@@ -213,7 +214,7 @@ src_configure() {
 		$(use_enable dso runtime-module-search) \
 		$(use_with gnome-keyring) \
 		--disable-javahl \
-		$(use_with kde kwallet) \
+		$(use_with kwallet) \
 		$(use_enable nls) \
 		$(use_with sasl) \
 		$(use_with http serf) \
