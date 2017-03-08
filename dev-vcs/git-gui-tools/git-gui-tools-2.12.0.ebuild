@@ -44,7 +44,6 @@ CDEPEND="
 
 RDEPEND="${CDEPEND}
 	~dev-vcs/git-${PV}
-	dev-vcs/git[-gtk]
 	dev-vcs/git[-tk]
 	dev-vcs/git[python]
 	${PYTHON_DEPS}"
