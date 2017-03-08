@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -10,20 +10,21 @@ PYTHON_COMPAT=( python2_7 )
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_BRANCH=maint
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.10.0-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.12.0-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils multilib python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
-MY_PN="${PN/-cvs}"
+MY_PN="${PN/-subversion}"
 MY_P="${MY_PN}-${MY_PV}"
 
 DOC_VER=${MY_PV}
 
-DESCRIPTION="CVS module for git"
+DESCRIPTION="Subversion module for git"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
+	[[ "${PV/rc}" != "${PV}" ]] && SRC_URI_KORG+='/testing'
 	SRC_URI="${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			doc? (
@@ -36,13 +37,13 @@ sab-patches_update_SRC_URI
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="doc"
+IUSE="doc iconv nls +threads"
 
-RDEPEND="~dev-vcs/git-${PV}[-cvs,perl]
+RDEPEND="~dev-vcs/git-${PV}[-subversion,perl]
 	dev-perl/Error
 	dev-perl/Net-SMTP-SSL
 	dev-perl/Authen-SASL
-	>=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite
+	dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey
 	${PYTHON_DEPS}"
 DEPEND="dev-lang/perl:=[-build(-)]
 	doc? (
@@ -80,11 +81,16 @@ exportmakeopts() {
 	# split ebuild: avoid collisions with dev-vcs/git's .mo files
 	myopts+=" NO_GETTEXT=YesPlease"
 
+	# For svn-fe
+	#extlibs="-lz -lssl ${S}/xdiff/lib.a $(usex threads -lpthread '')"
+	extlibs="-lz -lssl -lcrypto ${S}/xdiff/lib.a $(usex threads -lpthread '')"
+
 	# can't define this to null, since the entire makefile depends on it
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
 	myopts+=" INSTALLDIRS=vendor"
 	myopts+=" NO_SVN_TESTS=YesPlease"
+	myopts+=" NO_CVS=YesPlease"
 
 	has_version '>=app-text/asciidoc-8.0' \
 		&& myopts+=" ASCIIDOC8=YesPlease"
@@ -96,6 +102,7 @@ exportmakeopts() {
 		myopts+=" NO_NSEC=YesPlease"
 
 	export MY_MAKEOPTS="${myopts}"
+	export EXTLIBS="${extlibs}"
 }
 
 src_unpack() {
@@ -112,6 +119,7 @@ src_unpack() {
 	fi
 
 	sab-patches_unpack
+
 }
 
 src_prepare() {
@@ -171,6 +179,7 @@ src_compile() {
 	git_emake perl/PM.stamp || die "emake perl/PM.stamp failed"
 	git_emake perl/perl.mak || die "emake perl/perl.mak failed"
 	#fi
+
 	git_emake || die "emake failed"
 
 	cd "${S}"/Documentation
@@ -187,41 +196,67 @@ src_compile() {
 				|| die "emake info html failed"
 		fi
 	fi
+
+	cd "${S}"/contrib/svn-fe
+	# by defining EXTLIBS we override the detection for libintl and
+	# libiconv, bug #516168
+	local nlsiconv=
+	use nls && use !elibc_glibc && nlsiconv+=" -lintl"
+	use iconv && use !elibc_glibc && nlsiconv+=" -liconv"
+	git_emake EXTLIBS="${EXTLIBS} ${nlsiconv}" || die "emake svn-fe failed"
+	if use doc ; then
+		git_emake svn-fe.{1,html} || die "emake svn-fe.1 svn-fe.html failed"
+	fi
 }
 
 src_install() {
-	git_emake install || die "make install failed"
+	git_emake \
+		install || \
+		die "make install failed"
 
-	rm -rf "${ED}"usr/share/gitweb || die
-	rm -rf "${ED}"usr/share/git-core/templates || die
-	rm -rf "${ED}"usr/share/git-gui || die
-	rm -rf "${ED}"usr/share/gitk || die
+	rm -r "${ED}"usr/share/gitweb || die
+	rm -r "${ED}"usr/bin || die
+	rm -r "${ED}"usr/share/git-core/templates || die
+	rm -r "${ED}"usr/share/git-gui || die
+	rm -r "${ED}"usr/share/gitk || die
 
-	local myrelfile=""
-	for myfile in "${ED}"usr/libexec/git-core/* "${ED}"usr/$(get_libdir)/* "${ED}"usr/share/man/*/* "${ED}"usr/bin/* ; do
-		# image dir contains the keyword "cvs"
-		myrelfile="${myfile/${ED}}"
-		case "${myrelfile}" in
-			*cvs*)
-				true ;;
-			*)
-				rm -rf "${myfile}" || die ;;
+	# avoid conflict with dev-vcs/git
+	# it looks weird but this binary is installed by git ebuild
+	# so removing in git-subversion
+	rm "${ED}"usr/libexec/git-core/git-remote-testsvn || die
+
+	for myfile in "${ED}"usr/libexec/git-core/* "${ED}"usr/$(get_libdir)/* "${ED}"usr/share/man/*/*; do
+		case "$myfile" in
+		*svn*)
+			true ;;
+		*)
+			rm -r "${myfile}" || die ;;
 		esac
 	done
 
-	local libdir="${ED}"usr/$(get_libdir)
-	if [ -d "${libdir}" ]; then
+	local libdir=${ED}usr/$(get_libdir)
+	if [[ -d ${libdir} ]]; then
 		# must be empty
 		rmdir "${libdir}" || die
 	fi
 
-	doman man*/*cvs* || die
+	doman man*/*svn* || die
 	if use doc; then
 		docinto /
-		dodoc Documentation/*cvs*.txt
+		dodoc Documentation/*svn*.txt
 		docinto /html
-		dodoc Documentation/*cvs*.html
+		dodoc Documentation/*svn*.html
 	fi
+
+	cd "${S}"/contrib/svn-fe
+	dobin svn-fe
+	dodoc svn-fe.txt
+	if use doc ; then
+		doman svn-fe.1
+		docinto html
+		dodoc svn-fe.html
+	fi
+	cd "${S}"
 
 	# kill empty dirs from ${ED}
 	find "${ED}" -type d -empty -delete || die

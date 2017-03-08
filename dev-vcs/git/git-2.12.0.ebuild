@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -19,7 +19,7 @@ EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_BRANCH=maint
 PLOCALES="bg ca de fr is it ko pt_PT ru sv vi zh_CN"
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.10.0-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.12.0-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -32,6 +32,7 @@ HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
+	[[ "${PV/rc}" != "${PV}" ]] && SRC_URI_KORG+='/testing'
 	SRC_URI="${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			doc? (
@@ -44,12 +45,13 @@ sab-patches_update_SRC_URI
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs +gpg highlight +iconv libressl libsecret mediawiki mediawiki-experimental +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:= )
+	libsecret? ( app-crypt/libsecret )
 	sys-libs/zlib
 	pcre? ( dev-libs/libpcre )
 	perl? ( dev-lang/perl:=[-build(-)] )
@@ -59,7 +61,7 @@ CDEPEND="
 		webdav? ( dev-libs/expat )
 	)
 	emacs? ( virtual/emacs )
-	gnome-keyring? ( gnome-base/libgnome-keyring )"
+"
 
 RDEPEND="${CDEPEND}
 	gpg? ( app-crypt/gnupg )
@@ -75,12 +77,8 @@ RDEPEND="${CDEPEND}
 			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)
-	python? ( gtk?
-	(
-		>=dev-python/pygtk-2.8[${PYTHON_USEDEP}]
-		>=dev-python/pygtksourceview-2.10.1-r1:2[${PYTHON_USEDEP}]
-	)
-		${PYTHON_DEPS} )"
+	python? ( ${PYTHON_DEPS} )
+"
 
 # This is how info docs are created with Git:
 #   .txt/asciidoc --(asciidoc)---------> .xml/docbook
@@ -112,7 +110,6 @@ REQUIRED_USE="
 	mediawiki-experimental? ( mediawiki )
 	subversion? ( perl )
 	webdav? ( curl )
-	gtk? ( python )
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
 
@@ -181,6 +178,8 @@ exportmakeopts() {
 		|| myopts+=" NO_PTHREADS=YesPlease"
 	use cvs \
 		|| myopts+=" NO_CVS=YesPlease"
+	use elibc_musl \
+		&& myopts+=" NO_REGEX=YesPlease"
 # Disabled until ~m68k-mint can be keyworded again
 #	if [[ ${CHOST} == *-mint* ]] ; then
 #		myopts+=" NO_MMAP=YesPlease"
@@ -349,12 +348,12 @@ src_compile() {
 		cd "${S}"
 	fi
 
-	if use gnome-keyring ; then
-		cd "${S}"/contrib/credential/gnome-keyring
-		git_emake || die "emake git-credential-gnome-keyring failed"
+	if use libsecret ; then
+		cd "${S}"/contrib/credential/libsecret
+		git_emake || die "emake git-credential-libsecret failed"
 	fi
 
-	cd "${S}"/contrib/subtree
+	cd "${S}"/contrib/subtree || die
 	git_emake
 	use doc && git_emake doc
 
@@ -412,11 +411,6 @@ src_install() {
 		elisp-site-file-install "${FILESDIR}"/${SITEFILE}
 	fi
 
-	if use python && use gtk ; then
-		python_doscript "${S}"/contrib/gitview/gitview
-		dodoc "${S}"/contrib/gitview/gitview.txt
-	fi
-
 	#dobin contrib/fast-import/git-p4 # Moved upstream
 	#dodoc contrib/fast-import/git-p4.txt # Moved upstream
 	newbin contrib/fast-import/import-tars.perl import-tars
@@ -453,9 +447,9 @@ src_install() {
 	doexe contrib/contacts/git-contacts
 	dodoc contrib/contacts/git-contacts.txt
 
-	if use gnome-keyring ; then
-		cd "${S}"/contrib/credential/gnome-keyring
-		dobin git-credential-gnome-keyring
+	if use libsecret ; then
+		cd "${S}"/contrib/credential/libsecret
+		dobin git-credential-libsecret
 	fi
 
 	if use subversion ; then
@@ -473,7 +467,6 @@ src_install() {
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
 	# completion - installed above
-	# credential/gnome-keyring TODO
 	# diff-highlight - done above
 	# emacs - installed above
 	# examples - these are stuff that is not used in Git anymore actually
@@ -486,11 +479,17 @@ src_install() {
 	# subtree - build  seperately
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
-	for i in \
-		buildsystems convert-objects fast-import \
-		hg-to-git hooks remotes2config.sh rerere-train.sh \
-		stats workdir \
-		; do
+	local contrib_objects=(
+		buildsystems
+		fast-import
+		hg-to-git
+		hooks
+		remotes2config.sh
+		rerere-train.sh
+		stats
+		workdir
+	)
+	for i in "${contrib_objects[@]}" ; do
 		cp -rf \
 			"${S}"/contrib/${i} \
 			"${ED}"/usr/share/${PN}/contrib \
@@ -553,7 +552,7 @@ src_install() {
 }
 
 src_test() {
-	local disabled=""
+	local disabled="t9128-git-svn-cmd-branch.sh"
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
