@@ -1,6 +1,5 @@
 # Copyright 2004-2009 Sabayon Project
 # Distributed under the terms of the GNU General Public License v2
-# $
 
 inherit eutils
 

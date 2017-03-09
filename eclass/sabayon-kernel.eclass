@@ -1,6 +1,5 @@
 # Copyright 2004-2015 Sabayon Project
 # Distributed under the terms of the GNU General Public License v2
-# $
 
 # @ECLASS-VARIABLE: K_SABKERNEL_NAME
 # @DESCRIPTION:

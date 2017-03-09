@@ -1,6 +1,5 @@
 # Copyright 2004-2011 Sabayon
 # Distributed under the terms of the GNU General Public License v2
-# $
 
 SUPPORTED_AVAHI_MODULES="base gtk gtk3 mono qt"
 

@@ -1,6 +1,5 @@
 # Copyright 2014 Sabayon
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: sab-patches.eclass
 # @MAINTAINER:
