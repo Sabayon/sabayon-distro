@@ -1,7 +1,7 @@
-# Copyright 2004-2015 Sabayon
+# Copyright 2004-2017 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
 inherit eutils
 
@@ -26,6 +26,5 @@ RDEPEND="app-emulation/docker
 	sys-apps/gentoo-functions"
 
 src_install() {
-	emake DESTDIR="${D}" \
-		install || die
+	emake DESTDIR="${D}" install
 }
