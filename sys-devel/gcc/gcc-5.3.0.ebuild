@@ -91,12 +91,16 @@ src_install() {
 	base_gcc_libs="libgfortran.so* libgcc_s.so* libobjc.so*
 		libobjc_gc.so* libmudflap.so* libmudflapth.so* libgomp.so* libstdc++.so* libquadmath.so*
 		crtprec80.o crtbeginP.o crtfastmath.o crtprec32.o crtbeginT.o
-		crtbeginS.o crtbegin.o crtend.o crtendS.o crtprec64.o"
+		crtbeginS.o crtbegin.o crtend.o crtendS.o crtprec64.o  libgomp-plugin-host_nonshm.so*
+		vtv_start.o vtv_start_preinit.o vtv_end.o vtv_end_preinit.o
+		"
 	base_multilib_gcc_libs="32/libgfortran.so* 32/libobjc.so* 32/libobjc_gc.so*
 		32/libgcc_s.so* 32/libgomp.so* 32/libmudflap.so*
 		32/libmudflapth.so* 32/libstdc++.so* 32/libquadmath.so*
 		32/crtprec80.o 32/crtbeginP.o 32/crtfastmath.o 32/crtprec32.o 32/crtbeginT.o
-		32/crtbeginS.o 32/crtbegin.o 32/crtend.o 32/crtendS.o 32/crtprec64.o"
+		32/crtbeginS.o 32/crtbegin.o 32/crtend.o 32/crtendS.o 32/crtprec64.o
+		32/vtv_start.o 32/vtv_start_preinit.o 32/vtv_end.o 32/vtv_end_preinit.o
+		32/libgomp-plugin-host_nonshm.so*"
 	for gcc_lib in ${base_gcc_libs}; do
 		# -f is used because the file might not be there
 		rm "${D}"${LIBPATH}/${gcc_lib} -rf || die "cannot execute rm on ${gcc_lib}"
@@ -119,6 +123,13 @@ src_install() {
 	find "${D}"${DATAPATH}/locale -name libstdc++.mo -delete
 	find "${D}"${DATAPATH}/info -name libgomp.info* -delete
 	find "${D}"${DATAPATH}/info -name libquadmath.info* -delete
+
+	# then .mod files provided by sys-devel/base-gcc-${PV}:${SLOT}
+	base_mod_files="finclude/ieee_arithmetic.mod finclude/ieee_exceptions.mod finclude/ieee_features.mod
+		32/finclude/ieee_arithmetic.mod  32/finclude/ieee_exceptions.mod  32/finclude/ieee_features.mod"
+	for mod_file in ${base_mod_files}; do
+		rm "${D}"${LIBPATH}/${mod_file} -rf || die "cannot execute rm on ${mod_file}"
+	done
 
 	# drop stuff from env.d, provided by sys-devel/base-gcc-${PV}:${SLOT}
 	rm "${D}"/etc/env.d -rf
