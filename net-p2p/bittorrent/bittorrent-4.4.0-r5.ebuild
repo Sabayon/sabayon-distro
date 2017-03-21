@@ -3,8 +3,8 @@
 
 EAPI="5"
 
-PYTHON_DEPEND="2:2.5"
-PYTHON_USE_WITH="threads"
+PYTHON_COMPAT=( python2_7 )
+PYTHON_REQ_USE="threads"
 
 # Maintainer note:
 #  keep this package at 4.4.0.
@@ -13,7 +13,7 @@ PYTHON_USE_WITH="threads"
 # Fedora has also frozen bittorrent at 4.4.0 and is a good source of patches
 # http://pkgs.fedoraproject.org/gitweb/?p=bittorrent.git
 
-inherit distutils eutils fdo-mime python user systemd
+inherit distutils-r1 eutils fdo-mime user systemd
 
 MY_P="${P/bittorrent/BitTorrent}"
 
@@ -33,17 +33,14 @@ DEPEND="${RDEPEND}"
 S=${WORKDIR}/${MY_P}
 
 DOCS="README.txt TRACKERLESS.txt"
-PYTHON_MODNAME="BitTorrent khashmir"
 
 pkg_setup() {
 	enewgroup bttrack
 	enewuser bttrack -1 -1 /dev/null bttrack
-	python_set_active_version 2
-	python_pkg_setup
 }
 
 src_prepare() {
-	distutils_src_prepare
+	distutils-r1_src_prepare
 
 	epatch "${FILESDIR}"/${P}-no-version-check.patch
 	epatch "${FILESDIR}"/${P}-pkidir.patch
@@ -64,7 +61,7 @@ src_prepare() {
 }
 
 src_install() {
-	distutils_src_install
+	distutils-r1_src_install
 
 	doicon images/bittorrent.ico
 	domenu "${FILESDIR}"/${PN}.desktop
@@ -89,7 +86,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	distutils_pkg_postinst
+	distutils-r1_pkg_postinst
 	fdo-mime_desktop_database_update
 
 	for dir in "/usr/share/bittorrent" "/var/www/torrents" "/var/log/bittorrent"; do
@@ -98,6 +95,6 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	distutils_pkg_postrm
+	distutils-r1_pkg_postrm
 	fdo-mime_desktop_database_update
 }
