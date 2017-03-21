@@ -13,7 +13,7 @@ HOMEPAGE="https://fedoraproject.org/wiki/Blivet"
 SRC_URI="https://github.com/rhinstaller/${REAL_PN}/archive/${REAL_PN}-${PV}-1.tar.gz"
 RESTRICT="mirror"
 
-LICENSE="GPL-3"
+LICENSE="LGPL-2+"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
@@ -22,7 +22,6 @@ RDEPEND=">=dev-util/pykickstart-1.99.22
 	>=sys-apps/util-linux-2.15.1
 	>=sys-block/parted-1.8.1
 	sys-fs/cryptsetup
-	>=dev-python/python-cryptsetup-0.1.1
 	>=dev-python/pyparted-2.5
 	>=dev-python/pyudev-0.20
 	sys-fs/mdadm
@@ -34,6 +33,7 @@ RDEPEND=">=dev-util/pykickstart-1.99.22
 	<sys-libs/libblockdev-0.14
 	sys-process/lsof
 	"
+
 DEPEND="${RDEPEND}
 	sys-devel/gettext"
 
