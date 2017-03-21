@@ -1,17 +1,17 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
-SUPPORT_PYTHON_ABIS="1"
+PYTHON_COMPAT=( python{2_7,3_4,3_5} )
 
-inherit eutils distutils
+inherit eutils distutils-r1
 
 REAL_PN="${PN/python-}"
 
 DESCRIPTION="A python module for system storage configuration"
 HOMEPAGE="https://fedoraproject.org/wiki/Blivet"
 SRC_URI="https://github.com/rhinstaller/${REAL_PN}/archive/${REAL_PN}-${PV}-1.tar.gz"
-RESTRICT="nomirror"
+RESTRICT="mirror"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -46,5 +46,5 @@ src_prepare() {
 	epatch "${FILESDIR}/1.0/0003-Call-udev.settle-when-committing-to-disk.patch"
 	epatch "${FILESDIR}/1.0/0004-Add-support-for-parsing-etc-sabayon-release.patch"
 
-	distutils_src_prepare
+	distutils-r1_src_prepare
 }
