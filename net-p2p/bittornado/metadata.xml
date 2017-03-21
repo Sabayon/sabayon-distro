@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<herd>net-p2p</herd>
+	<maintainer type="person">
+		<email>skullbocks@sabayon.org</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">effigies/BitTornado</remote-id>
+	</upstream>
 </pkgmetadata>
