@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -13,7 +13,7 @@ PYTHON_COMPAT=( python2_7 )
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_BRANCH=maint
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.10.0-Gentoo-patches.tar.gz" )
+SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.12.0-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
@@ -44,11 +44,8 @@ CDEPEND="
 
 RDEPEND="${CDEPEND}
 	~dev-vcs/git-${PV}
-	dev-vcs/git[-gtk]
 	dev-vcs/git[-tk]
 	dev-vcs/git[python]
-	>=dev-python/pygtk-2.8[${PYTHON_USEDEP}]
-	>=dev-python/pygtksourceview-2.10.1-r1:2[${PYTHON_USEDEP}]
 	${PYTHON_DEPS}"
 
 DEPEND="${CDEPEND}"
@@ -162,11 +159,6 @@ src_install() {
 		install || \
 		die "make install failed"
 
-	#if use python && use gtk ; then
-	python_doscript "${S}"/contrib/gitview/gitview
-	dodoc "${S}"/contrib/gitview/gitview.txt
-	#fi
-
 	#find "${ED}"/usr/lib64/perl5/ \
 	#	-name .packlist \
 	#	-exec rm \{\} \;
@@ -175,13 +167,6 @@ src_install() {
 	rm -r "${ED}"usr/libexec/git-core/mergetools || die
 
 	local myfile
-
-	# be sure not to remove tools' lib/python-exec/*
-	for myfile in "${ED}"usr/lib*/python*; do
-		if [[ ! ${myfile} = */python-exec ]]; then
-			rm -r "${myfile}" || die "rm ${myfile} failed"
-		fi
-	done
 
 	for myfile in "${ED}"usr/bin/*; do
 		case "$myfile" in
