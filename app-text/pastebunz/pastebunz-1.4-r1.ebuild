@@ -1,10 +1,11 @@
-# Copyright 2004-2014 Sabayon Linux
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-PYTHON_DEPEND="2"
-RESTRICT_PYTHON_ABIS="3.*"
+EAPI=6
 
-inherit python eutils
+PYTHON_COMPAT=( python2_7 )
+
+inherit python-single-r1 eutils
 
 DESCRIPTION="command line interface to http://pastebin.sabayonlinux.org/"
 HOMEPAGE="http://pastebin.sabayonlinux.org/"
@@ -15,16 +16,16 @@ SLOT="0"
 KEYWORDS="~arm ~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc-fbsd ~sparc ~x86 ~x86-fbsd"
 IUSE=""
 
-DEPEND=""
+DEPEND="${PYTHON_DEPS}"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}"
 
 src_unpack() {
 	cd "${S}"
-	cp "${FILESDIR}/${P}" ${PN}
+	cp "${FILESDIR}/${P}" "${PN}"
 }
 
 src_install() {
-	dobin ${PN} || die
+	dobin "${PN}" || die
 }
