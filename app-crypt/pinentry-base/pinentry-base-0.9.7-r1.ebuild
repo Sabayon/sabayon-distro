@@ -1,13 +1,13 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 
-inherit autotools multilib eutils flag-o-matic qmake-utils
+inherit autotools qmake-utils multilib eutils flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-base}
 MY_P=${P/-base}
-DESCRIPTION="Collection of simple PIN or passphrase entry dialogs which utilize the Assuan protocol"
+DESCRIPTION="Simple passphrase entry dialogs which utilize the Assuan protocol"
 HOMEPAGE="http://gnupg.org/aegypten2/index.html"
 SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 
@@ -17,13 +17,21 @@ KEYWORDS="~arm ~amd64 ~x86"
 IUSE="gtk qt4 caps static"
 
 RDEPEND="
-	app-eselect/eselect-pinentry
+	>=dev-libs/libgpg-error-1.17
+	>=dev-libs/libassuan-2.1
+	>=dev-libs/libgcrypt-1.6.3
+
+	sys-libs/ncurses:0=
 	caps? ( sys-libs/libcap )
-	sys-libs/ncurses
-	static? ( >=sys-libs/ncurses-5.7-r5[static-libs,-gpm] )
-	ppc-aix? ( dev-libs/gnulib )
+
+	static? ( >=sys-libs/ncurses-5.7-r5:0=[static-libs,-gpm] )
+	app-eselect/eselect-pinentry
 "
-DEPEND="${RDEPEND}"
+
+DEPEND="${RDEPEND}
+	sys-devel/gettext
+	virtual/pkgconfig
+"
 
 S=${WORKDIR}/${MY_P}
 
@@ -36,25 +44,18 @@ src_prepare() {
 
 src_configure() {
 	use static && append-ldflags -static
-
-	if [[ ${CHOST} == *-aix* ]] ; then
-		append-flags -I"${EPREFIX}/usr/$(get_libdir)/gnulib/include"
-		append-ldflags -L"${EPREFIX}/usr/$(get_libdir)/gnulib/$(get_libdir)"
-		append-libs -lgnu
-	fi
+	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
 
 	econf \
 		--enable-pinentry-tty \
+		--enable-pinentry-emacs \
 		--disable-pinentry-gtk2 \
 		--enable-pinentry-curses \
 		--enable-fallback-curses \
-		--disable-pinentry-qt4 \
+		--disable-pinentry-qt \
 		$(use_with caps libcap) \
-                MOC="$(qt4_get_bindir)"/moc
-}
-
-src_compile() {
-	emake AR="$(tc-getAR)"
+		--disable-libsecret \
+		--disable-pinentry-gnome3
 }
 
 src_install() {
@@ -73,6 +74,7 @@ pkg_postinst() {
 		elog "USE flag and add the CAP_IPC_LOCK capability to the permitted set of"
 		elog "your users."
 	fi
+
 	eselect pinentry update ifunset
 	use gtk && elog "If you want pinentry for Gtk+, please install app-crypt/pinentry-gtk."
 	use qt4 && elog "If you want pinentry for Qt4, please install app-crypt/pinentry-qt4."

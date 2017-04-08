@@ -1,13 +1,13 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 
-inherit multilib eutils flag-o-matic qmake-utils
+inherit eutils flag-o-matic toolchain-funcs
 
-MY_PN=${PN/-qt4}
-MY_P=${P/-qt4}
-DESCRIPTION="Qt4 frontend for pinentry"
+MY_PN=${PN/-gtk2}
+MY_P=${P/-gtk2}
+DESCRIPTION="Gtk+2 frontend for pinentry"
 HOMEPAGE="http://gnupg.org/aegypten2/index.html"
 SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 
@@ -20,39 +20,38 @@ RDEPEND="
 	~app-crypt/pinentry-base-${PV}
 	!app-crypt/pinentry-base[static]
 	caps? ( sys-libs/libcap )
-	>=dev-qt/qtgui-4.4.1:4
-"
-DEPEND="${RDEPEND}
-	virtual/pkgconfig
+	x11-libs/gtk+:2
 "
 
-S=${WORKDIR}/${MY_P}
+DEPEND="${RDEPEND}
+	virtual/pkgconfig"
+
+S="${WORKDIR}/${MY_P}"
 
 src_configure() {
-	# Issues finding qt on multilib systems
-	export QTLIB="${QTDIR}/$(get_libdir)"
+	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
 
 	econf \
 		--disable-pinentry-tty \
-		--disable-pinentry-gtk2 \
+		--disable-pinentry-emacs \
+		--enable-pinentry-gtk2 \
 		--disable-pinentry-curses \
 		--disable-fallback-curses \
-		--enable-pinentry-qt4 \
+		--disable-pinentry-qt \
 		$(use_with caps libcap) \
-		MOC="$(qt4_get_bindir)"/moc
-}
-
-src_compile() {
-	emake AR="$(tc-getAR)"
+		--disable-libsecret \
+		--disable-pinentry-gnome3
 }
 
 src_install() {
-	cd qt4 && emake DESTDIR="${D}" install
+	cd gtk+-2 || die
+	emake DESTDIR="${D}" install
 }
 
 pkg_postinst() {
-	eselect pinentry set pinentry-qt4
+	eselect pinentry set pinentry-gtk-2
 	# eselect pinentry update ifunset
+
 }
 
 pkg_postrm() {
