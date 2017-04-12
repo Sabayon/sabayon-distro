@@ -14,7 +14,7 @@ SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm ~amd64 ~x86"
-IUSE="gtk qt4 caps static"
+IUSE="gtk qt4 qt5 caps static"
 
 RDEPEND="
 	>=dev-libs/libgpg-error-1.17
@@ -78,6 +78,7 @@ pkg_postinst() {
 	eselect pinentry update ifunset
 	use gtk && elog "If you want pinentry for Gtk+, please install app-crypt/pinentry-gtk."
 	use qt4 && elog "If you want pinentry for Qt4, please install app-crypt/pinentry-qt4."
+	use qt5 && elog "If you want pinentry for Qt5, please install app-crypt/pinentry-qt5."
 }
 
 pkg_postrm() {
