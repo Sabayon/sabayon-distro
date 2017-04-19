@@ -3,7 +3,6 @@
 
 EAPI=4
 
-HELPPACK_AVAIL="0"
-L10N_LANG="Tswana"
+L10N_LANG="Amharic"
 inherit libreoffice-l10n-2
 

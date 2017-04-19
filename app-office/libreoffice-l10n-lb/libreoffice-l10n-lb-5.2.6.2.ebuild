@@ -4,6 +4,6 @@
 EAPI=4
 
 HELPPACK_AVAIL="0"
-L10N_LANG="SeTswana"
+L10N_LANG="Luxembourgish"
 inherit libreoffice-l10n-2
 

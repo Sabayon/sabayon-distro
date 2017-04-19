@@ -4,6 +4,6 @@
 EAPI=4
 
 HELPPACK_AVAIL="0"
-L10N_LANG="Tswana"
+L10N_LANG="Paraguayan Guarani"
 inherit libreoffice-l10n-2
 
