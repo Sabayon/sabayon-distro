@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,9 +9,8 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/63"
-IUSE="cairo cairo-qt cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt4 qt5 tiff +utils"
-REQUIRED_USE="cairo-qt? ( qt4 )"
+SLOT="0/66"
+IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt4 qt5 tiff +utils"
 
 COMMON_DEPEND="
 	~app-text/poppler-base-${PV}[cxx=]
@@ -32,7 +31,7 @@ PDEPEND="cairo? (
 		~app-text/poppler-glib-${PV}[cairo,cjk=,curl=,cxx=,debug=,doc=,introspection=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=]
 	)
 	qt4? (
-		~app-text/poppler-qt4-${PV}[cairo-qt=,cjk=,curl=,cxx=,debug=,doc=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=]
+		~app-text/poppler-qt4-${PV}[cjk=,curl=,cxx=,debug=,doc=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=]
 	)
 	qt5? ( ~app-text/poppler-qt5-${PV}[cjk=,curl=,cxx=,debug=,doc=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=] )
 	"

@@ -1,31 +1,28 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 inherit cmake-utils toolchain-funcs xdg-utils
 
-DESCRIPTION="Glib bindings for poppler"
+DESCRIPTION="Qt4 bindings for poppler"
 HOMEPAGE="https://poppler.freedesktop.org/"
 SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/63"
-
-IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png tiff +utils"
+SLOT="0/66"
+IUSE="cjk curl cxx debug doc +jpeg +jpeg2k +lcms nss png tiff +utils"
 S="${WORKDIR}/poppler-${PV}"
 
 # No test data provided
 RESTRICT="test"
 
 COMMON_DEPEND="
-	cairo? (
-		dev-libs/glib:2
-		>=x11-libs/cairo-1.10.0
-		introspection? ( >=dev-libs/gobject-introspection-1.32.1:= )
-	)
+		dev-qt/qtcore:4
+		dev-qt/qtgui:4
 "
+
 DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 "
@@ -39,7 +36,6 @@ PATCHES=(
 	"${FILESDIR}/respect-cflags.patch"
 	"${FILESDIR}/openjpeg2.patch"
 	"${FILESDIR}/FindQt4.patch"
-
 )
 
 src_prepare() {
@@ -69,12 +65,12 @@ src_configure() {
 		-DSPLASH_CMYK=OFF
 		-DUSE_FIXEDPOINT=OFF
 		-DUSE_FLOAT=OFF
-		-DWITH_Cairo="$(usex cairo)"
-		-DWITH_GObjectIntrospection="$(usex introspection)"
+		-DWITH_Cairo=OFF
+		-DWITH_GObjectIntrospection=OFF
 		-DWITH_JPEG="$(usex jpeg)"
 		-DWITH_NSS3="$(usex nss)"
 		-DWITH_PNG="$(usex png)"
-		-DWITH_Qt4=OFF
+		-DWITH_Qt4=ON
 		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=ON
 		-DWITH_TIFF="$(usex tiff)"
 	)
@@ -93,19 +89,11 @@ src_configure() {
 }
 
 src_install() {
-	pushd "${BUILD_DIR}/glib"
+	pushd "${BUILD_DIR}/qt4"
 	emake DESTDIR="${ED}" install
 	popd
 
 	# install pkg-config data
 	insinto /usr/$(get_libdir)/pkgconfig
-	doins "${BUILD_DIR}"/poppler-glib.pc
-	use cairo && doins "${BUILD_DIR}"/poppler-cairo.pc
-
-	# live version doesn't provide html documentation
-	if use cairo && use doc && [[ ${PV} != 9999 ]]; then
-		# For now install gtk-doc there
-		insinto /usr/share/gtk-doc/html/poppler
-		doins -r "${S}"/glib/reference/html/*
-	fi
+	doins "${BUILD_DIR}"/poppler-qt4.pc
 }
