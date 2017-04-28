@@ -17,7 +17,8 @@ S="${WORKDIR}/${PN}-${PVR}"
 DEPEND=""
 RDEPEND="dev-python/pygobject-base:3
 	dev-python/simplejson
-	x11-libs/gtk+:3"
+	x11-libs/gtk+:3
+	dev-python/pywebkitgtk"
 
 src_install() {
 	emake DESTDIR="${D}" \
