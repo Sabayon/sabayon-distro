@@ -16,9 +16,9 @@ IUSE=""
 S="${WORKDIR}/${PN}-${PVR}"
 DEPEND=""
 RDEPEND="dev-python/pygobject-base:3
+	dev-python/pywebkitgtk
 	dev-python/simplejson
-	x11-libs/gtk+:3
-	dev-python/pywebkitgtk"
+	x11-libs/gtk+:3"
 
 src_install() {
 	emake DESTDIR="${D}" \
