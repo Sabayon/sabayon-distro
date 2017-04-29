@@ -3,7 +3,7 @@
 # Script that removes Firefox language ebuilds and creates new ones, usually
 # for a new version.
 
-#   Copyright 2014, 2015 Sławomir Nizio
+#   Copyright 2014, 2015, 2017 Sławomir Nizio
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ print_ebuild() {
 	local ver=$1
 
 	cat <<-END
-	# Copyright 1999-2015 Gentoo Foundation
+	# Copyright 1999-2017 Gentoo Foundation
 	# Distributed under the terms of the GNU General Public License v2
 
 	EAPI=4
@@ -67,15 +67,17 @@ create_ebuild() {
 detect_linguas() {
 	local pkg=$1
 	local output n_lines linguas
+	# Taking the value from IUSE would be easier, but it's not possible as it
+	# doesn't have all region subtags.
 	local perl_cmd='
-		s/.*iuse="(.+)"/$1/;
-		@o =
-			map { s/_/-/r }
-			map { s/^linguas_//r }
-			grep { /^linguas_.+/ }
-			map { s/^[+-]//r } split(" ");
-		print "@o\n"'
-	output=$(pquery --raw --attr iuse -- "${pkg}") || return 1
+		my $str = $_;
+		$str =~ s/.*uris="(.+)"/$1/;
+		my $xpi_re = qr/\/firefox-[^-]+-(.+)\.xpi$/;
+		my %langs = map { s/.*$xpi_re/$1/r => 1 } grep { $_ =~ $xpi_re } split /\s+/, $str;
+		say join(" ", sort keys %langs)
+	'
+
+	output=$(pquery --raw --attr uris -- "${pkg}") || return 1
 
 	if [[ -z ${output} ]]; then
 		echo "${FUNCNAME}: pquery returned empty string" >&2
@@ -88,7 +90,7 @@ detect_linguas() {
 		return 1
 	fi
 
-	linguas=$(echo "${output}" | perl -wne "${perl_cmd}") || return 2
+	linguas=$(echo "${output}" | perl -wnE "${perl_cmd}") || return 2
 	echo "${linguas}"
 }
 
@@ -146,8 +148,8 @@ touch "${keepfile}" || e "creating ${keepfile} failed"
 git rm -r "${package_name_prefix}"-* || e "git rm -r ${package_name_prefix}-* failed"
 
 for lang in "${langs[@]}"; do
-	# see mozlinguas_export in mozlinguas.eclass
-	[[ ${lang} = en || ${lang//-/_} = en_US ]] && continue
+	# see mozlinguas_export in mozlinguas-v2.eclass
+	[[ ${lang} = en || ${lang} = en-US ]] && continue
 	create_ebuild "${lang}" "${package_name_prefix}" "${new_version}"
 done
 
