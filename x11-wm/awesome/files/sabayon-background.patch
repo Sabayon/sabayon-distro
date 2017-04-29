@@ -1,11 +1,11 @@
 --- a/themes/default/theme.lua
 +++ b/themes/default/theme.lua
-@@ -77,7 +77,7 @@ theme.titlebar_maximized_button_focus_inactive  = "@AWESOME_THEMES_PATH@/default
- theme.titlebar_maximized_button_normal_active = "@AWESOME_THEMES_PATH@/default/titlebar/maximized_normal_active.png"
- theme.titlebar_maximized_button_focus_active  = "@AWESOME_THEMES_PATH@/default/titlebar/maximized_focus_active.png"
+@@ -97,7 +97,7 @@
+ theme.titlebar_maximized_button_normal_active = themes_path.."default/titlebar/maximized_normal_active.png"
+ theme.titlebar_maximized_button_focus_active  = themes_path.."default/titlebar/maximized_focus_active.png"
  
--theme.wallpaper = "@AWESOME_THEMES_PATH@/default/background.png"
+-theme.wallpaper = themes_path.."default/background.png"
 +theme.wallpaper = "@CMAKE_INSTALL_PREFIX@/share/backgrounds/sabayonlinux.png"
  
  -- You can use your own layout icons like this:
- theme.layout_fairh = "@AWESOME_THEMES_PATH@/default/layouts/fairhw.png"
+ theme.layout_fairh = themes_path.."default/layouts/fairhw.png"

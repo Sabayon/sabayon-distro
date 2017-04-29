@@ -1,6 +1,5 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id: ab249768bf9e675dbac6d5e31cb421e1a719c67c $
 
 EAPI=6
 
@@ -13,13 +12,13 @@ SRC_URI="https://github.com/awesomeWM/awesome-releases/raw/master/${P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="dbus doc elibc_FreeBSD gnome"
+IUSE="dbus doc elibc_FreeBSD gnome luajit"
 
 RDEPEND="
 	>=dev-lang/lua-5.1:0
 	dev-libs/glib:2
 	>=dev-libs/libxdg-basedir-1
-	>=dev-lua/lgi-0.7
+	>=dev-lua/lgi-0.8
 	x11-libs/cairo[xcb]
 	x11-libs/gdk-pixbuf:2
 	>=x11-libs/libxcb-1.6
@@ -45,7 +44,8 @@ DEPEND="${RDEPEND}
 	media-gfx/imagemagick[png]
 	>=x11-proto/xcb-proto-1.5
 	>=x11-proto/xproto-7.0.15
-	doc? ( dev-lua/ldoc )"
+	doc? ( dev-lua/ldoc )
+	luajit? ( dev-lang/luajit:2 )"
 
 DOCS=( docs/{00-authors,01-readme,02-contributing}.md )
 PATCHES=(
@@ -63,6 +63,10 @@ src_configure() {
 		-DWITH_DBUS=$(usex dbus)
 		-DWITH_GENERATE_DOC=$(usex doc $(usex doc) n)
 	)
+	if use luajit; then
+		mycmakeargs+=('-DLUA_INCLUDE_DIR=/usr/include/luajit-2.0')
+		mycmakeargs+=('-DLUA_LIBRARY=/usr/lib/libluajit-5.1.so')
+	fi
 	cmake-utils_src_configure
 }
 
