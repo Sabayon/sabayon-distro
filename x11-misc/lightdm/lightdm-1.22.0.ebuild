@@ -8,7 +8,7 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/LightDM"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE="audit +gtk +introspection kde qt4 qt5 +gnome"
 
 DEPEND="~x11-misc/lightdm-base-${PV}[introspection=]

@@ -14,7 +14,7 @@ SRC_URI="https://launchpad.net/${REAL_PN}/${TRUNK_VERSION}/${PV}/+download/${REA
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE="audit +introspection +gnome"
 S="${WORKDIR}/${REAL_P}"
 

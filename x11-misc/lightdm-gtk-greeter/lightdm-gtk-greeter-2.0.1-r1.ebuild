@@ -11,7 +11,7 @@ SRC_URI="http://launchpad.net/lightdm-gtk-greeter/$(get_version_component_range 
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE="ayatana"
 
 # This ebuild needs custom Sabayon themes, thus it must depend on sabayon-artwork-core
