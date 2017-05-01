@@ -1,14 +1,14 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-inherit autotools eutils versionator
+EAPI=6
+inherit autotools eutils qmake-utils versionator xdg-utils
 
 TRUNK_VERSION="$(get_version_component_range 1-2)"
 REAL_PN="${PN/-qt4}"
 REAL_P="${P/-qt4}"
 DESCRIPTION="Qt4 libraries for LightDM"
-HOMEPAGE="http://www.freedesktop.org/wiki/Software/LightDM"
+HOMEPAGE="https://www.freedesktop.org/wiki/Software/LightDM"
 SRC_URI="https://launchpad.net/${REAL_PN}/${TRUNK_VERSION}/${PV}/+download/${REAL_P}.tar.xz
 	mirror://gentoo/introspection-20110205.m4.tar.bz2"
 
@@ -29,7 +29,13 @@ DOCS=( NEWS )
 S="${WORKDIR}/${REAL_P}"
 
 src_prepare() {
-	epatch_user
+	xdg_environment_reset
+
+	# use correct version of qmake. bug #566950
+	sed -i -e "/AC_CHECK_TOOLS(MOC4/a AC_SUBST(MOC4,$(qt4_get_bindir)/moc)" configure.ac || die
+	sed -i -e "/AC_CHECK_TOOLS(MOC5/a AC_SUBST(MOC5,$(qt5_get_bindir)/moc)" configure.ac || die
+
+	default
 
 	# Remove bogus Makefile statement. This needs to go upstream
 	sed -i /"@YELP_HELP_RULES@"/d help/Makefile.am || die
@@ -45,7 +51,7 @@ src_configure() {
 		--localstatedir=/var \
 		--disable-static \
 		--disable-tests \
-		--disable-audit \
+		--disable-libaudit \
 		--disable-introspection \
 		--enable-liblightdm-qt \
 		--disable-liblightdm-qt5

@@ -1,14 +1,14 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-inherit autotools eutils pam readme.gentoo systemd versionator
+EAPI=6
+inherit autotools eutils pam qmake-utils readme.gentoo-r1 systemd versionator xdg-utils
 
 TRUNK_VERSION="$(get_version_component_range 1-2)"
 REAL_PN="${PN/-base}"
 REAL_P="${P/-base}"
 DESCRIPTION="A lightweight display manager, base libraries and programs"
-HOMEPAGE="http://www.freedesktop.org/wiki/Software/LightDM"
+HOMEPAGE="https://www.freedesktop.org/wiki/Software/LightDM"
 SRC_URI="https://launchpad.net/${REAL_PN}/${TRUNK_VERSION}/${PV}/+download/${REAL_P}.tar.xz
 	mirror://gentoo/introspection-20110205.m4.tar.bz2"
 
@@ -39,15 +39,21 @@ PDEPEND="app-eselect/eselect-lightdm"
 DOCS=( NEWS )
 
 src_prepare() {
+	xdg_environment_reset
+
 	sed -i -e 's:getgroups:lightdm_&:' tests/src/libsystem.c || die #412369
 	sed -i -e '/minimum-uid/s:500:1000:' data/users.conf || die
 
 	einfo "Fixing the session-wrapper variable in lightdm.conf"
 	sed -i -e \
-		"/session-wrapper/s@^.*@session-wrapper=/etc/${REAL_PN}/Xsession@" \
+		"/^#session-wrapper/s@^.*@session-wrapper=/etc/${PN}/Xsession@" \
 		data/lightdm.conf || die "Failed to fix lightdm.conf"
 
-	epatch_user
+	# use correct version of qmake. bug #566950
+	sed -i -e "/AC_CHECK_TOOLS(MOC4/a AC_SUBST(MOC4,$(qt4_get_bindir)/moc)" configure.ac || die
+	sed -i -e "/AC_CHECK_TOOLS(MOC5/a AC_SUBST(MOC5,$(qt5_get_bindir)/moc)" configure.ac || die
+
+	default
 
 	# Remove bogus Makefile statement. This needs to go upstream
 	sed -i /"@YELP_HELP_RULES@"/d help/Makefile.am || die
@@ -73,11 +79,10 @@ src_configure() {
 		--disable-static \
 		--disable-tests \
 		$(use_enable audit libaudit) \
+		$(use_enable introspection) \
 		--disable-liblightdm-qt \
 		--disable-liblightdm-qt5 \
-		--with-greeter-user=${_user} \
-		$(use_enable introspection) \
-		--with-html-dir="${EPREFIX}"/usr/share/doc/${PF}/html
+		--with-greeter-user=${_user}
 }
 
 src_install() {
