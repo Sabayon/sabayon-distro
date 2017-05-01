@@ -65,4 +65,6 @@ src_compile() {
 src_install() {
 	cd "${S}/liblightdm-qt" && \
 		emake DESTDIR="${ED}" install
+
+	prune_libtool_files --all
 }
