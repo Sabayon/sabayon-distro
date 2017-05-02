@@ -46,7 +46,7 @@ src_prepare() {
 
 	einfo "Fixing the session-wrapper variable in lightdm.conf"
 	sed -i -e \
-		"/^#session-wrapper/s@^.*@session-wrapper=/etc/${PN}/Xsession@" \
+		"/^#session-wrapper/s@^.*@session-wrapper=/etc/${REAL_PN}/Xsession@" \
 		data/lightdm.conf || die "Failed to fix lightdm.conf"
 
 	# use correct version of qmake. bug #566950
