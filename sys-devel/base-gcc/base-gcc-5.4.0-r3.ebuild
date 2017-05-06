@@ -171,30 +171,6 @@ pkg_preinst() {
 	:
 }
 
-## Do (almost) nothing!
-pkg_postinst() {
-	# Sabayon specific bits to always force the latest gcc profile
-	local gcc_atom=$(best_version sys-devel/base-gcc)
-	local gcc_ver=
-	if [ -n "${gcc_atom}" ]; then
-		elog "Found latest base-gcc to be: ${gcc_atom}, forcing this profile"
-		gcc_ver=$(/usr/bin/portageq metadata "${ROOT}" installed "${gcc_atom}" PV)
-	else
-		eerror "No sys-devel/base-gcc installed"
-	fi
-
-	if [ -n "${gcc_ver}" ]; then
-		local target="${CTARGET:${CHOST}}-${gcc_ver}"
-		local env_target="${ROOT}/etc/env.d/gcc/${target}"
-		[[ -e "${env_target}-vanilla" ]] && find_target="${target}-vanilla"
-
-		elog "Setting: ${target} GCC profile"
-		gcc-config "${target}"
-	else
-		eerror "No sys-devel/base-gcc version installed? Cannot set a proper GCC profile"
-	fi
-}
-
 ## Do nothing!
 pkg_prerm() {
 	:
