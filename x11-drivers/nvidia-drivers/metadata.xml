@@ -15,5 +15,6 @@
 		<flag name="pax_kernel">PaX patches from the PaX project</flag>
                 <flag name="tools">Install additional tools such as nvidia-settings</flag>
                 <flag name="uvm">Install the Unified Memory kernel module (nvidia-uvm) for sharing memory between CPU and GPU in CUDA programs</flag>
+		<flag name="kms">Enable KMS support.</flag>	
 	</use>
 </pkgmetadata>
