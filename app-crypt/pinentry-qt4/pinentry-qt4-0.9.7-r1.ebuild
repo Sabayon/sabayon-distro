@@ -3,7 +3,7 @@
 
 EAPI=5
 
-inherit qmake-utils multilib eutils flag-o-matic toolchain-funcs
+inherit autotools qmake-utils multilib eutils flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-qt4}
 MY_P=${P/-qt4}
@@ -22,12 +22,18 @@ RDEPEND="
 	!app-crypt/pinentry-qt5
 	caps? ( sys-libs/libcap )
 	>=dev-qt/qtgui-4.4.1:4
+	sys-libs/ncurses:0=
 "
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 "
 
 S=${WORKDIR}/${MY_P}
+
+src_prepare() {
+	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	eautoreconf
+}
 
 src_configure() {
 	local myconf=()
@@ -46,7 +52,7 @@ src_configure() {
 		--disable-pinentry-emacs \
 		--disable-pinentry-gtk2 \
 		--disable-pinentry-curses \
-		--disable-fallback-curses \
+		--enable-fallback-curses \
 		$(use_with caps libcap) \
 		--disable-libsecret \
 		--disable-pinentry-gnome3 \

@@ -3,7 +3,7 @@
 
 EAPI=5
 
-inherit eutils flag-o-matic toolchain-funcs
+inherit autotools eutils flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-gnome}
 MY_P=${P/-gnome}
@@ -28,9 +28,15 @@ DEPEND="${RDEPEND}
 RDEPEND="
 	${CDEPEND}
 	app-crypt/gcr
+	sys-libs/ncurses:0=
 "
 
 S="${WORKDIR}/${MY_P}"
+
+src_prepare() {
+	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	eautoreconf
+}
 
 src_configure() {
 	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
@@ -40,7 +46,7 @@ src_configure() {
 		--disable-pinentry-emacs \
 		--disable-pinentry-gtk2 \
 		--disable-pinentry-curses \
-		--disable-fallback-curses \
+		--enable-fallback-curses \
 		--disable-pinentry-qt \
 		$(use_with caps libcap) \
 		--enable-libsecret \
