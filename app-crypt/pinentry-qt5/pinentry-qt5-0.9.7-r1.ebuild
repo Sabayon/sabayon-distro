@@ -23,6 +23,7 @@ RDEPEND="
 	caps? ( sys-libs/libcap )
 	dev-qt/qtgui:5
 	dev-qt/qtwidgets:5
+	sys-libs/ncurses:0=
 "
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
@@ -32,6 +33,7 @@ S=${WORKDIR}/${MY_P}
 
 src_prepare() {
 	epatch "${FILESDIR}/${MY_P}-require-CPP11-for-qt-5-7.patches"
+	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
 	eautoreconf
 }
 
@@ -50,7 +52,7 @@ src_configure() {
 		--disable-pinentry-emacs \
 		--disable-pinentry-gtk2 \
 		--disable-pinentry-curses \
-		--disable-fallback-curses \
+		--enable-fallback-curses \
 		$(use_with caps libcap) \
 		--disable-libsecret \
 		--disable-pinentry-gnome3 \

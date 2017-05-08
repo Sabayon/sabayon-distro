@@ -3,7 +3,7 @@
 
 EAPI=5
 
-inherit eutils flag-o-matic toolchain-funcs
+inherit autotools eutils flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-gtk2}
 MY_P=${P/-gtk2}
@@ -21,12 +21,18 @@ RDEPEND="
 	!app-crypt/pinentry-base[static]
 	caps? ( sys-libs/libcap )
 	x11-libs/gtk+:2
+	sys-libs/ncurses:0=
 "
 
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 S="${WORKDIR}/${MY_P}"
+
+src_prepare() {
+	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	eautoreconf
+}
 
 src_configure() {
 	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
@@ -36,7 +42,7 @@ src_configure() {
 		--disable-pinentry-emacs \
 		--enable-pinentry-gtk2 \
 		--disable-pinentry-curses \
-		--disable-fallback-curses \
+		--enable-fallback-curses \
 		--disable-pinentry-qt \
 		$(use_with caps libcap) \
 		--disable-libsecret \
