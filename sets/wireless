@@ -1,5 +1,6 @@
 net-wireless/b43-fwcutter
 net-wireless/bcm43xx-fwcutter
+net-wireless/broadcom-sta
 net-wireless/rfkill
 net-wireless/wireless-tools
 sys-firmware/b43-firmware
