@@ -30,6 +30,7 @@ if [[ ${PV} != *9999 ]]; then
 			doc? (
 			${SRC_URI_KORG}/${MY_PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
+	[[ "${PV}" = *_rc* ]] || \
 	KEYWORDS="~amd64 ~x86"
 fi
 

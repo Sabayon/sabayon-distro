@@ -38,6 +38,7 @@ if [[ ${PV} != *9999 ]]; then
 			doc? (
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
+	[[ "${PV}" = *_rc* ]] || \
 	KEYWORDS="~amd64 ~x86"
 fi
 
@@ -552,7 +553,7 @@ src_install() {
 }
 
 src_test() {
-	local disabled="t9128-git-svn-cmd-branch.sh"
+	local disabled=""
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
