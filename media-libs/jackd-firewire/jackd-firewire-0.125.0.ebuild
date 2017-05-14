@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=2
@@ -16,12 +16,12 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
 RDEPEND="
-	>=media-libs/alsa-lib-1.0.18
+	>=media-libs/alsa-lib-1.0.27.2
 	media-libs/libffado
 	~media-sound/${MY_PN}-${PV}[-ffado]
 "
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 
 S="${WORKDIR}/${MY_PN}-${PV}"
 
