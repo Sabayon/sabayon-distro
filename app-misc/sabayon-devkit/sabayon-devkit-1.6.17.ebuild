@@ -17,6 +17,7 @@ S="${WORKDIR}/devkit-${PVR}"
 DEPEND=""
 RDEPEND="app-emulation/docker
 	app-misc/pax-utils
+	app-misc/querypkg
 	app-portage/eix
 	app-portage/layman
 	app-portage/gentoolkit
