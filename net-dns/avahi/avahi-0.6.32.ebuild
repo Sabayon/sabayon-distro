@@ -16,7 +16,7 @@ SLOT="0"
 IUSE="autoipd bookmarks dbus doc gdbm gtk gtk3 howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat mono nls python qt4 selinux test utils"
 
 COMMON_DEPEND="=net-dns/avahi-base-${PVR}[autoipd=,bookmarks=,dbus=,doc=,gdbm=,howl-compat=,introspection=,ipv6=,mdnsresponder-compat=,python=,test=,nls=,selinux=,${MULTILIB_USEDEP}]
-	gtk? ( =net-dns/avahi-gtk-${PVR}[bookmarks=,gdbm=,nls=,python=,dbus=,${MULTILIB_USEDEP}] )
+	gtk? ( =net-dns/avahi-gtk-${PVR}[gdbm=,nls=,python=,dbus=,${MULTILIB_USEDEP}] )
 	utils? ( =net-dns/avahi-gtk3-${PVR}[utils,${MULTILIB_USEDEP}] )
 	gtk3? ( =net-dns/avahi-gtk3-${PVR}[${MULTILIB_USEDEP}] )
 	mono? ( =net-dns/avahi-mono-${PVR}[${MULTILIB_USEDEP}] )
