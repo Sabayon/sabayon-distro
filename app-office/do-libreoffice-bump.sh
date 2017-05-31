@@ -1,7 +1,7 @@
 #!/bin/sh
 
-FROM_PV="5.2.4.2"
-TO_PV="5.2.6.2"
+FROM_PV="5.2.6.2"
+TO_PV="5.2.7.2"
 FAILED_LANGS=""
 DONE_LANGS=""
 for item in `find -name libreoffice-l10n-*${FROM_PV}*.ebuild`; do
