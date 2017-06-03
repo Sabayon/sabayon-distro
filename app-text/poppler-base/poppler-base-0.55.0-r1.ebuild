@@ -10,7 +10,7 @@ SRC_URI="https://poppler.freedesktop.org/${P/-base}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/66"
+SLOT="0/67"
 IUSE="cjk curl cxx debug doc +jpeg jpeg2k +lcms nss png tiff +utils"
 
 # No test data provided
@@ -43,6 +43,7 @@ PATCHES=(
 	"${FILESDIR}/respect-cflags.patch"
 	"${FILESDIR}/openjpeg2.patch"
 	"${FILESDIR}/FindQt4.patch"
+	"${FILESDIR}/${PN%-base}-0.55.0-CVE-2017-7511.patch"
 )
 
 S="${WORKDIR}/${P/-base}"
@@ -56,6 +57,12 @@ src_prepare() {
 		sed -i -e 's/-fno-check-new//' cmake/modules/PopplerMacros.cmake || die
 	fi
 
+	if ! grep -Fq 'cmake_policy(SET CMP0002 OLD)' CMakeLists.txt ; then
+		sed '/^cmake_minimum_required/acmake_policy(SET CMP0002 OLD)' \
+			-i CMakeLists.txt || die
+	else
+		einfo "policy(SET CMP0002 OLD) - workaround can be removed"
+	fi
 }
 
 src_configure() {

@@ -1,12 +1,16 @@
 diff --git a/cmake/modules/PopplerMacros.cmake b/cmake/modules/PopplerMacros.cmake
-index 6cadf40..7e5e6b2 100644
+index 8e3ef399..5c20bf63 100644
 --- a/cmake/modules/PopplerMacros.cmake
 +++ b/cmake/modules/PopplerMacros.cmake
-@@ -98,41 +98,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+@@ -98,45 +98,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
    set(CMAKE_BUILD_TYPE RelWithDebInfo)
  endif(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
  
 -if(CMAKE_COMPILER_IS_GNUCXX)
+    if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.0.0")
+       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-override" )
+    endif()
+ 
 -  # set the default compile warnings
    set(DEFAULT_COMPILE_WARNINGS_NO)
    set(DEFAULT_COMPILE_WARNINGS_YES "-Wall -Wcast-align -fno-exceptions -fno-check-new -fno-common")
