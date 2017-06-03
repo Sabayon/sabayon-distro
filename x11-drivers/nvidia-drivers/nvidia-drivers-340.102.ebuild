@@ -125,7 +125,7 @@ src_prepare() {
 		eapply "${FILESDIR}"/${PN}-337.12-pax-constify.patch
 	fi
 
-	if use kernel_linux && kernel_is ge 4 10; then
+	if use kernel_linux && kernel_is 4 10; then
 		eapply "${FILESDIR}"/${P}-linux-4.10.patch
 	fi
 
