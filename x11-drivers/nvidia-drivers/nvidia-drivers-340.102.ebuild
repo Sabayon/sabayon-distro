@@ -129,6 +129,10 @@ src_prepare() {
 		eapply "${FILESDIR}"/${P}-linux-4.10.patch
 	fi
 
+	if use kernel_linux && kernel_is ge 4 11; then
+		eapply "${FILESDIR}"/${P}-linux-4.11.patch
+	fi
+
 	# Allow user patches so they can support RC kernels and whatever else
 	eapply_user
 }
