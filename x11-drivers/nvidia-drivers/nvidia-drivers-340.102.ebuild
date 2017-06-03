@@ -129,7 +129,7 @@ src_prepare() {
 		eapply "${FILESDIR}"/${P}-linux-4.10.patch
 	fi
 
-	if use kernel_linux && kernel_is ge 4 11; then
+	if use kernel_linux && kernel_is 4 11; then
 		eapply "${FILESDIR}"/${P}-linux-4.11.patch
 	fi
 
