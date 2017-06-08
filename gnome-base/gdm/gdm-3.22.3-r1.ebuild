@@ -15,14 +15,14 @@ SRC_URI="${SRC_URI}
 
 LICENSE="
 	GPL-2+
-	branding? ( CC-Sampling-Plus-1.0 )
+	branding? ( CC-BY-SA-4.0 )
 "
 
 SLOT="0"
 
 IUSE="accessibility audit branding fprint +introspection ipv6 plymouth selinux smartcard tcpd test wayland xinerama"
 
-KEYWORDS="~alpha amd64 ~arm ~ia64 ~ppc ~ppc64 ~sh x86"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sh ~x86"
 
 # NOTE: x11-base/xorg-server dep is for X_SERVER_PATH etc, bug #295686
 # nspr used by smartcard extension
@@ -48,6 +48,7 @@ COMMON_DEPEND="
 	x11-libs/libXdmcp
 	x11-libs/libXext
 	x11-libs/libXft
+	x11-libs/libxcb
 	>=x11-misc/xdg-utils-1.0.2-r3
 
 	virtual/pam
@@ -131,6 +132,9 @@ src_prepare() {
 	# Show logo when branding is enabled
 	use branding && eapply "${FILESDIR}/${PN}-3.8.4-logo.patch"
 
+	# allow setting pam module dir, bug #599714
+	eapply "${FILESDIR}/${PN}-3.22.1-pam-module-dir.patch"
+
 	eautoreconf
 	gnome2_src_prepare
 }
@@ -148,12 +152,14 @@ src_configure() {
 
 	gnome2_src_configure \
 		--enable-gdm-xsession \
+		--enable-user-display-server \
 		--with-run-dir=/run/gdm \
 		--localstatedir="${EPREFIX}"/var \
 		--disable-static \
 		--with-xdmcp=yes \
 		--enable-authentication-scheme=pam \
 		--with-default-pam-config=exherbo \
+		--with-pam-dir=$(getpam_mod_dir) \
 		--with-at-spi-registryd-directory="${EPREFIX}"/usr/libexec \
 		--without-xevie \
 		--enable-systemd-journal \
@@ -213,23 +219,4 @@ pkg_postinst() {
 	eend ${ret}
 
 	readme.gentoo_print_elog
-
-	if ! version_is_at_least 3.16.0 ${REPLACING_VERSIONS}; then
-		ewarn "GDM will now use a new TTY per logged user as explained at:"
-		ewarn "https://wiki.gentoo.org/wiki/Project:GNOME/GNOME3-Troubleshooting#GDM_.3E.3D_3.16_opens_one_graphical_session_per_user"
-	fi
-
-	if [[ -f "/etc/X11/gdm/gdm.conf" ]]; then
-		elog "You had /etc/X11/gdm/gdm.conf which is the old configuration"
-		elog "file.  It has been moved to /etc/X11/gdm/gdm-pre-gnome-2.16"
-		mv /etc/X11/gdm/gdm.conf /etc/X11/gdm/gdm-pre-gnome-2.16
-	fi
-	local v
-	for v in ${REPLACING_VERSIONS}; do
-		if ! version_is_at_least 3.16.0 ${v}; then
-			ewarn "GDM will now use a new TTY per logged user as explained at:"
-			ewarn "https://wiki.gentoo.org/wiki/Project:GNOME/GNOME3-Troubleshooting#GDM_.3E.3D_3.16_opens_one_graphical_session_per_user"
-			break
-		fi
-	done
 }
