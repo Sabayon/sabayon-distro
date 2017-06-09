@@ -109,24 +109,24 @@ src_prepare() {
 	## Setup libaudit
 	##
 	cd "${AUDIT_S}"
-        # Do not build GUI tools
-        sed -i \
-                -e '/AC_CONFIG_SUBDIRS.*system-config-audit/d' \
-                "${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac"
-        sed -i \
-                -e 's,system-config-audit,,g' \
-                -e '/^SUBDIRS/s,\\$,,g' \
-                "${AUDIT_S}"/Makefile.am || die "cannot sed libaudit Makefile.am"
-        rm -rf "${AUDIT_S}"/system-config-audit
+		# Do not build GUI tools
+		sed -i \
+				-e '/AC_CONFIG_SUBDIRS.*system-config-audit/d' \
+				"${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac"
+		sed -i \
+				-e 's,system-config-audit,,g' \
+				-e '/^SUBDIRS/s,\\$,,g' \
+				"${AUDIT_S}"/Makefile.am || die "cannot sed libaudit Makefile.am"
+		rm -rf "${AUDIT_S}"/system-config-audit
 
-        if ! use ldap; then
-                sed -i \
-                        -e '/^AC_OUTPUT/s,audisp/plugins/zos-remote/Makefile,,g' \
-                        "${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac (ldap)"
-                sed -i \
-                        -e '/^SUBDIRS/s,zos-remote,,g' \
-                        "${AUDIT_S}"/audisp/plugins/Makefile.am || die "cannot sed libaudit Makefile.am (ldap)"
-        fi
+		if ! use ldap; then
+				sed -i \
+						-e '/^AC_OUTPUT/s,audisp/plugins/zos-remote/Makefile,,g' \
+						"${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac (ldap)"
+				sed -i \
+						-e '/^SUBDIRS/s,zos-remote,,g' \
+						"${AUDIT_S}"/audisp/plugins/Makefile.am || die "cannot sed libaudit Makefile.am (ldap)"
+		fi
 	eautoreconf
 
 	##
