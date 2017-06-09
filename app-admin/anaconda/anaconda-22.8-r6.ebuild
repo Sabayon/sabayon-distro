@@ -83,7 +83,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	dev-python/python-bugzilla
 	>=dev-python/python-meh-0.30-r1
 	dev-python/python-nss
-	dev-python/python-ntplib
+	dev-python/ntplib
 	dev-python/pytz
 	dev-python/requests
 	>=dev-python/urlgrabber-3.9.1
