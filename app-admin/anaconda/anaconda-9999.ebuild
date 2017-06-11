@@ -4,7 +4,7 @@
 EAPI=5
 PYTHON_COMPAT=( python2_7 )
 
-inherit base flag-o-matic python-r1 libtool autotools eutils
+inherit flag-o-matic python-r1 libtool autotools eutils
 
 AUDIT_VER="2.1.3"
 AUDIT_SRC_URI="http://people.redhat.com/sgrubb/audit/audit-${AUDIT_VER}.tar.gz"
@@ -32,8 +32,8 @@ LSELINUX_S="${WORKDIR}/libselinux-${LSELINUX_VER}"
 
 LICENSE="GPL-2 public-domain"
 SLOT="0"
-IUSE="gtk-dep +ipv6 +nfs ldap selinux"
-RESTRICT="nomirror"
+IUSE="gtk +ipv6 +nfs ldap selinux"
+RESTRICT="mirror"
 
 AUDIT_DEPEND="dev-lang/swig"
 AUDIT_RDEPEND="ldap? ( net-nds/openldap )"
@@ -107,7 +107,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	x11-themes/gnome-icon-theme
 	x11-themes/gnome-icon-theme-symbolic
 	x11-themes/gnome-themes-standard
-	gtk-dep? ( x11-libs/gtk+:3 )"
+	gtk? ( x11-libs/gtk+:3 )"
 
 src_unpack() {
 	if [[ ${PV} == 9999 ]]; then
@@ -125,24 +125,24 @@ src_prepare() {
 	## Setup libaudit
 	##
 	cd "${AUDIT_S}"
-		# Do not build GUI tools
-		sed -i \
-				-e '/AC_CONFIG_SUBDIRS.*system-config-audit/d' \
-				"${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac"
-		sed -i \
-				-e 's,system-config-audit,,g' \
-				-e '/^SUBDIRS/s,\\$,,g' \
-				"${AUDIT_S}"/Makefile.am || die "cannot sed libaudit Makefile.am"
-		rm -rf "${AUDIT_S}"/system-config-audit
+	# Do not build GUI tools
+	sed -i \
+		-e '/AC_CONFIG_SUBDIRS.*system-config-audit/d' \
+		"${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac"
+	sed -i \
+		-e 's,system-config-audit,,g' \
+		-e '/^SUBDIRS/s,\\$,,g' \
+		"${AUDIT_S}"/Makefile.am || die "cannot sed libaudit Makefile.am"
+	rm -rf "${AUDIT_S}"/system-config-audit
 
-		if ! use ldap; then
-				sed -i \
-						-e '/^AC_OUTPUT/s,audisp/plugins/zos-remote/Makefile,,g' \
-						"${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac (ldap)"
-				sed -i \
-						-e '/^SUBDIRS/s,zos-remote,,g' \
-						"${AUDIT_S}"/audisp/plugins/Makefile.am || die "cannot sed libaudit Makefile.am (ldap)"
-		fi
+	if ! use ldap; then
+		sed -i \
+			-e '/^AC_OUTPUT/s,audisp/plugins/zos-remote/Makefile,,g' \
+			"${AUDIT_S}"/configure.ac || die "cannot sed libaudit configure.ac (ldap)"
+		sed -i \
+			-e '/^SUBDIRS/s,zos-remote,,g' \
+			"${AUDIT_S}"/audisp/plugins/Makefile.am || die "cannot sed libaudit Makefile.am (ldap)"
+	fi
 	eautoreconf
 
 	##
@@ -194,8 +194,6 @@ src_configure() {
 }
 
 src_compile() {
-	cd "${S}" || die
-
 	base_src_compile
 
 	tc-export PKG_CONFIG RANLIB
@@ -256,7 +254,7 @@ src_install() {
 	dosym ../usr/libexec/anaconda/auditd /sbin/auditd
 
 	cd "${S}" || die
-	_copy_audit_data_over # ${D} is cleared
+	_copy_audit_data_over # "${D}" is cleared
 	base_src_install
 
 	# install liveinst for user
