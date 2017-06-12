@@ -1,4 +1,4 @@
-# Copyright 2004-2016 Sabayon
+# Copyright 2004-2017 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -16,8 +16,8 @@ IUSE=""
 S="${WORKDIR}/${PN}-${PVR}"
 DEPEND=""
 RDEPEND="dev-python/pygobject-base:3
-	dev-python/pywebkitgtk
 	dev-python/simplejson
+	net-libs/webkit-gtk:2[introspection]
 	x11-libs/gtk+:3"
 
 src_install() {
