@@ -5,7 +5,7 @@ EAPI=6
 
 inherit cmake-utils toolchain-funcs xdg-utils
 
-DESCRIPTION="Qt4 bindings for poppler"
+DESCRIPTION="Qt5 bindings for poppler"
 HOMEPAGE="https://poppler.freedesktop.org/"
 SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
@@ -19,8 +19,9 @@ S="${WORKDIR}/poppler-${PV}"
 RESTRICT="test"
 
 COMMON_DEPEND="
-		dev-qt/qtcore:4
-		dev-qt/qtgui:4
+		dev-qt/qtcore:5
+		dev-qt/qtgui:5
+		dev-qt/qtxml:5
 "
 
 DEPEND="${COMMON_DEPEND}
@@ -36,7 +37,6 @@ PATCHES=(
 	"${FILESDIR}/respect-cflags.patch"
 	"${FILESDIR}/openjpeg2.patch"
 	"${FILESDIR}/FindQt4.patch"
-	"${FILESDIR}/${PN%-qt4}-0.55.0-CVE-2017-7511.patch"
 )
 
 src_prepare() {
@@ -78,14 +78,19 @@ src_configure() {
 		-DWITH_JPEG="$(usex jpeg)"
 		-DWITH_NSS3="$(usex nss)"
 		-DWITH_PNG="$(usex png)"
-		-DWITH_Qt4=ON
-		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=ON
+		-DWITH_Qt4=OFF
+		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=OFF
 		-DWITH_TIFF="$(usex tiff)"
 	)
+	if use jpeg; then
+		mycmakeargs+=(-DENABLE_DCTDECODER=libjpeg)
+	else
+		mycmakeargs+=(-DENABLE_DCTDECODER=none)
+	fi
 	if use jpeg2k; then
 		mycmakeargs+=(-DENABLE_LIBOPENJPEG=openjpeg2)
 	else
-		mycmakeargs+=(-DENABLE_LIBOPENJPEG=)
+		mycmakeargs+=(-DENABLE_LIBOPENJPEG=none)
 	fi
 	if use lcms; then
 		mycmakeargs+=(-DENABLE_CMS=lcms2)
@@ -97,11 +102,11 @@ src_configure() {
 }
 
 src_install() {
-	pushd "${BUILD_DIR}/qt4"
+	pushd "${BUILD_DIR}/qt5"
 	emake DESTDIR="${ED}" install
 	popd
 
 	# install pkg-config data
 	insinto /usr/$(get_libdir)/pkgconfig
-	doins "${BUILD_DIR}"/poppler-qt4.pc
+	doins "${BUILD_DIR}"/poppler-qt5.pc
 }

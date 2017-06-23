@@ -39,7 +39,6 @@ PATCHES=(
 	"${FILESDIR}/respect-cflags.patch"
 	"${FILESDIR}/openjpeg2.patch"
 	"${FILESDIR}/FindQt4.patch"
-	"${FILESDIR}/${PN%-glib}-0.55.0-CVE-2017-7511.patch"
 )
 
 src_prepare() {
@@ -85,10 +84,15 @@ src_configure() {
 		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=ON
 		-DWITH_TIFF="$(usex tiff)"
 	)
+	if use jpeg; then
+		mycmakeargs+=(-DENABLE_DCTDECODER=libjpeg)
+	else
+		mycmakeargs+=(-DENABLE_DCTDECODER=none)
+	fi
 	if use jpeg2k; then
 		mycmakeargs+=(-DENABLE_LIBOPENJPEG=openjpeg2)
 	else
-		mycmakeargs+=(-DENABLE_LIBOPENJPEG=)
+		mycmakeargs+=(-DENABLE_LIBOPENJPEG=none)
 	fi
 	if use lcms; then
 		mycmakeargs+=(-DENABLE_CMS=lcms2)
@@ -103,6 +107,21 @@ src_install() {
 	pushd "${BUILD_DIR}/glib"
 	emake DESTDIR="${ED}" install
 	popd
+
+	local utils_destdir=${T}/utils-destdir
+	rm -rf "${utils_destdir}" || die
+	mkdir "${utils_destdir}" || die
+
+	pushd "${BUILD_DIR}/utils"
+	emake DESTDIR="${utils_destdir}" install
+	popd
+
+	if use cairo; then
+		# Other utils are installed in poppler-base, but that package does not
+		# depend on Cairo.
+		dobin "${utils_destdir}/usr/bin/pdftocairo"
+		doman "${utils_destdir}/usr/share/man/man1/pdftocairo.1"
+	fi
 
 	# install pkg-config data
 	insinto /usr/$(get_libdir)/pkgconfig
