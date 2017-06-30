@@ -1,33 +1,35 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
 if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/systemd/systemd.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/systemd/systemd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+	SRC_URI="https://github.com/systemd/systemd/archive/v${PV}.tar.gz -> ${P}.tar.gz
+		!doc? ( https://dev.gentoo.org/~floppym/dist/${P}-man.tar.gz )"
+	KEYWORDS="~alpha amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~sparc x86"
 fi
 
-inherit autotools bash-completion-r1 linux-info multilib \
-	multilib-minimal pam systemd toolchain-funcs udev user
+PYTHON_COMPAT=( python{3_4,3_5,3_6} )
+
+inherit autotools bash-completion-r1 linux-info multilib-minimal pam python-any-r1 systemd toolchain-funcs udev user
 
 DESCRIPTION="System and service manager for Linux"
-HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
+HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
-IUSE="acl apparmor audit cryptsetup curl elfutils gcrypt gnuefi http
-	idn importd +kdbus +kmod +lz4 lzma nat pam policykit
+IUSE="acl apparmor audit build cryptsetup curl doc elfutils +gcrypt gnuefi http
+	idn importd +kmod +lz4 lzma nat pam policykit
 	qrcode +seccomp selinux ssl sysv-utils test vanilla xkb"
 
 REQUIRED_USE="importd? ( curl gcrypt lzma )"
 
 MINKV="3.11"
 
-COMMON_DEPEND=">=sys-apps/util-linux-2.26:0=[${MULTILIB_USEDEP}]
+COMMON_DEPEND=">=sys-apps/util-linux-2.27.1:0=[${MULTILIB_USEDEP}]
 	sys-libs/libcap:0=[${MULTILIB_USEDEP}]
 	!<sys-libs/glibc-2.16
 	acl? ( sys-apps/acl:0= )
@@ -47,12 +49,12 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.26:0=[${MULTILIB_USEDEP}]
 		sys-libs/zlib:0=
 	)
 	kmod? ( >=sys-apps/kmod-15:0= )
-	lz4? ( >=app-arch/lz4-0_p119:0=[${MULTILIB_USEDEP}] )
+	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
 	nat? ( net-firewall/iptables:0= )
-	pam? ( virtual/pam:= )
+	pam? ( virtual/pam:=[${MULTILIB_USEDEP}] )
 	qrcode? ( media-gfx/qrencode:0= )
-	seccomp? ( sys-libs/libseccomp:0= )
+	seccomp? ( >=sys-libs/libseccomp-2.3.1:0= )
 	selinux? ( sys-libs/libselinux:0= )
 	sysv-utils? (
 		!sys-apps/systemd-sysv-utils
@@ -64,12 +66,19 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.26:0=[${MULTILIB_USEDEP}]
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
 	>=sys-apps/baselayout-2.2
+	selinux? ( sec-policy/selinux-base-policy[systemd] )
+	!build? ( || (
+		sys-apps/util-linux[kill(-)]
+		sys-process/procps[kill(+)]
+		sys-apps/coreutils[kill(-)]
+	) )
 	!sys-auth/nss-myhostname
+	!<sys-kernel/dracut-044
 	!sys-fs/eudev
 	!sys-fs/udev"
 
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
-PDEPEND=">=sys-apps/dbus-1.6.8-r1:0[systemd]
+PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
 	>=sys-apps/hwids-20150417[udev]
 	>=sys-fs/udev-init-scripts-25
 	policykit? ( sys-auth/polkit )
@@ -81,48 +90,47 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/gperf
 	>=dev-util/intltool-0.50
 	>=sys-apps/coreutils-8.16
-	>=sys-devel/binutils-2.23.1
-	>=sys-devel/gcc-4.6
 	>=sys-kernel/linux-headers-${MINKV}
 	virtual/pkgconfig
 	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
-	test? ( >=sys-apps/dbus-1.6.8-r1:0 )
+	test? ( sys-apps/dbus )
 	app-text/docbook-xml-dtd:4.2
 	app-text/docbook-xml-dtd:4.5
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt:0
-	>=dev-libs/libgcrypt-1.4.5:0"
+	doc? ( $(python_gen_any_dep 'dev-python/lxml[${PYTHON_USEDEP}]') )
+"
+
+python_check_deps() {
+	has_version --host-root "dev-python/lxml[${PYTHON_USEDEP}]"
+}
 
 pkg_pretend() {
-	local CONFIG_CHECK="~AUTOFS4_FS ~BLK_DEV_BSG ~CGROUPS
-		~DEVTMPFS ~DMIID ~EPOLL ~FANOTIFY ~FHANDLE
-		~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SECCOMP ~SIGNALFD ~SYSFS
-		~TIMERFD ~TMPFS_XATTR
-		~!FW_LOADER_USER_HELPER ~!GRKERNSEC_PROC ~!IDE ~!SYSFS_DEPRECATED
-		~!SYSFS_DEPRECATED_V2"
+	if [[ ${MERGE_TYPE} != buildonly ]]; then
+		local CONFIG_CHECK="~AUTOFS4_FS ~BLK_DEV_BSG ~CGROUPS
+			~CHECKPOINT_RESTORE ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
+			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
+			~TIMERFD ~TMPFS_XATTR ~UNIX
+			~CRYPTO_HMAC ~CRYPTO_SHA256 ~CRYPTO_USER_API_HASH
+			~!FW_LOADER_USER_HELPER ~!GRKERNSEC_PROC ~!IDE ~!SYSFS_DEPRECATED
+			~!SYSFS_DEPRECATED_V2"
 
-	use acl && CONFIG_CHECK+=" ~TMPFS_POSIX_ACL"
-	kernel_is -lt 3 7 && CONFIG_CHECK+=" ~HOTPLUG"
+		use acl && CONFIG_CHECK+=" ~TMPFS_POSIX_ACL"
+		use seccomp && CONFIG_CHECK+=" ~SECCOMP ~SECCOMP_FILTER"
+		kernel_is -lt 3 7 && CONFIG_CHECK+=" ~HOTPLUG"
+		kernel_is -lt 4 7 && CONFIG_CHECK+=" ~DEVPTS_MULTIPLE_INSTANCES"
 
-	if linux_config_exists; then
-		local uevent_helper_path=$(linux_chkconfig_string UEVENT_HELPER_PATH)
-			if [ -n "${uevent_helper_path}" ] && [ "${uevent_helper_path}" != '""' ]; then
+		if linux_config_exists; then
+			local uevent_helper_path=$(linux_chkconfig_string UEVENT_HELPER_PATH)
+			if [[ -n ${uevent_helper_path} ]] && [[ ${uevent_helper_path} != '""' ]]; then
 				ewarn "It's recommended to set an empty value to the following kernel config option:"
 				ewarn "CONFIG_UEVENT_HELPER_PATH=${uevent_helper_path}"
 			fi
-	fi
-
-	if [[ ${MERGE_TYPE} != binary ]]; then
-		if [[ $(gcc-major-version) -lt 4
-			|| ( $(gcc-major-version) -eq 4 && $(gcc-minor-version) -lt 6 ) ]]
-		then
-			eerror "systemd requires at least gcc 4.6 to build. Please switch the active"
-			eerror "gcc version using gcc-config."
-			die "systemd requires at least gcc 4.6"
+			if linux_chkconfig_present X86; then
+				CONFIG_CHECK+=" ~DMIID"
+			fi
 		fi
-	fi
 
-	if [[ ${MERGE_TYPE} != buildonly ]]; then
 		if kernel_is -lt ${MINKV//./ }; then
 			ewarn "Kernel version at least ${MINKV} required"
 		fi
@@ -143,13 +151,26 @@ src_unpack() {
 src_prepare() {
 	# Bug 463376
 	sed -i -e 's/GROUP="dialout"/GROUP="uucp"/' rules/*.rules || die
-	epatch "${FILESDIR}/218-Dont-enable-audit-by-default.patch"
-	epatch "${FILESDIR}/226-noclean-tmp.patch"
-	epatch "${FILESDIR}/226-no-udevd-start-loginfo.patch"
-	epatch_user
 
 	# Avoid the log bloat to the user
 	sed -i -e 's/#SystemMaxUse=/SystemMaxUse=500M/' src/journal/journald.conf || die
+
+	local PATCHES=(
+		"${FILESDIR}/233-0001-Avoid-strict-DM-interface-version-dependencies-5519.patch"
+		"${FILESDIR}/233-CVE-2017-9445.patch"
+	)
+
+	if ! use vanilla; then
+		PATCHES+=(
+			"${FILESDIR}/218-Dont-enable-audit-by-default.patch"
+			"${FILESDIR}/228-noclean-tmp.patch"
+			"${FILESDIR}/233-systemd-user-pam.patch"
+		)
+	fi
+
+	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
+
+	default
 
 	eautoreconf
 }
@@ -163,6 +184,8 @@ src_configure() {
 	# Prevent conflicts with i686 cross toolchain, bug 559726
 	tc-export AR CC NM OBJCOPY RANLIB
 
+	use doc && python_setup
+
 	multilib-minimal_src_configure
 }
 
@@ -171,6 +194,11 @@ multilib_src_configure() {
 		# disable -flto since it is an optimization flag
 		# and makes distcc less effective
 		cc_cv_CFLAGS__flto=no
+		# disable -fuse-ld=gold since Gentoo supports explicit linker
+		# choice and forcing gold is undesired, #539998
+		# ld.gold may collide with user's LDFLAGS, #545168
+		# ld.gold breaks sparc, #573874
+		cc_cv_LDFLAGS__Wl__fuse_ld_gold=no
 
 		# Workaround for gcc-4.7, bug 554454.
 		cc_cv_CFLAGS__Werror_shadow=no
@@ -194,7 +222,6 @@ multilib_src_configure() {
 		# no deps
 		--enable-efi
 		--enable-ima
-		--without-python
 
 		# Optional components/dependencies
 		$(multilib_native_use_enable acl)
@@ -205,18 +232,18 @@ multilib_src_configure() {
 		$(multilib_native_use_enable elfutils)
 		$(use_enable gcrypt)
 		$(multilib_native_use_enable gnuefi)
+		--with-efi-libdir="/usr/$(get_libdir)"
 		$(multilib_native_use_enable http microhttpd)
 		$(usex http $(multilib_native_use_enable ssl gnutls) --disable-gnutls)
 		$(multilib_native_use_enable idn libidn)
 		$(multilib_native_use_enable importd)
 		$(multilib_native_use_enable importd bzip2)
 		$(multilib_native_use_enable importd zlib)
-		$(use_enable kdbus)
 		$(multilib_native_use_enable kmod)
 		$(use_enable lz4)
 		$(use_enable lzma xz)
 		$(multilib_native_use_enable nat libiptc)
-		$(multilib_native_use_enable pam)
+		$(use_enable pam)
 		$(multilib_native_use_enable policykit polkit)
 		$(multilib_native_use_enable qrcode qrencode)
 		$(multilib_native_use_enable seccomp)
@@ -224,8 +251,10 @@ multilib_src_configure() {
 		$(multilib_native_use_enable test tests)
 		$(multilib_native_use_enable test dbus)
 		$(multilib_native_use_enable xkb xkbcommon)
+		$(multilib_native_use_with doc python)
 
 		# hardcode a few paths to spare some deps
+		KILL=/bin/kill
 		QUOTAON=/usr/sbin/quotaon
 		QUOTACHECK=/usr/sbin/quotacheck
 
@@ -238,6 +267,9 @@ multilib_src_configure() {
 		--with-dbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
 
 		--with-ntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
+
+		# Breaks screen, tmux, etc.
+		--without-kill-user-processes
 	)
 
 	# Work around bug 463846.
@@ -254,20 +286,19 @@ multilib_src_compile() {
 	if multilib_is_native_abi; then
 		emake "${mymakeopts[@]}"
 	else
-		echo 'gentoo: $(BUILT_SOURCES)' | \
-		emake "${mymakeopts[@]}" -f Makefile -f - gentoo
-		echo 'gentoo: $(lib_LTLIBRARIES) $(pkgconfiglib_DATA)' | \
-		emake "${mymakeopts[@]}" -f Makefile -f - gentoo
+		emake built-sources
+		local targets=(
+			'$(rootlib_LTLIBRARIES)'
+			'$(lib_LTLIBRARIES)'
+			'$(pamlib_LTLIBRARIES)'
+			'$(pkgconfiglib_DATA)'
+		)
+		echo "gentoo: ${targets[*]}" | emake "${mymakeopts[@]}" -f Makefile -f - gentoo
 	fi
 }
 
 multilib_src_test() {
-	multilib_is_native_abi || continue
-
-	# Needed for bus-related tests
-	local -x SANDBOX_WRITE=${SANDBOX_WRITE}
-	addwrite /sys/fs/kdbus
-
+	multilib_is_native_abi || return 0
 	default
 }
 
@@ -286,22 +317,18 @@ multilib_src_install() {
 		emake "${mymakeopts[@]}" install
 	else
 		mymakeopts+=(
+			install-rootlibLTLIBRARIES
 			install-libLTLIBRARIES
+			install-pamlibLTLIBRARIES
 			install-pkgconfiglibDATA
 			install-includeHEADERS
-			# safe to call unconditionally, 'installs' empty list
 			install-pkgincludeHEADERS
 		)
 
 		emake "${mymakeopts[@]}"
 	fi
-
-	# install compat pkg-config files
-	# Change dbus to >=sys-apps/dbus-1.8.8 if/when this is dropped.
-	local pcfiles=( src/compat-libs/libsystemd-{daemon,id128,journal,login}.pc )
-	emake "${mymakeopts[@]}" install-pkgconfiglibDATA \
-		pkgconfiglib_DATA="${pcfiles[*]}"
-	# Sabayon: create systemd-run symlink in /bin. lvm2 lvmetad has a
+	
+	# Sabayon: create systemd-run symlink in /bin. lvm2 lvmetad has a 
 	# udev rule that expects systemd-run to be in /bin. And lvmetad is
 	# used by Anaconda.
 	dosym "../usr/bin/systemd-run" "/bin/systemd-run"
@@ -310,6 +337,11 @@ multilib_src_install() {
 multilib_src_install_all() {
 	prune_libtool_files --modules
 	einstalldocs
+	dodoc "${FILESDIR}"/nsswitch.conf
+
+	if [[ ${PV} != 9999 ]]; then
+		use doc || doman "${WORKDIR}"/man/systemd.{directives,index}.7
+	fi
 
 	if use sysv-utils; then
 		for app in halt poweroff reboot runlevel shutdown telinit; do
@@ -323,9 +355,6 @@ multilib_src_install_all() {
 		rm "${D}"/usr/share/man/man1/init.1 || die
 	fi
 
-	# Disable storing coredumps in journald, bug #433457
-	mv "${D}"/usr/lib/sysctl.d/50-coredump.conf{,.disabled} || die
-
 	# Preserve empty dirs in /etc & /var, bug #437008
 	keepdir /etc/binfmt.d /etc/modules-load.d /etc/tmpfiles.d \
 		/etc/systemd/ntp-units.d /etc/systemd/user /var/lib/systemd \
@@ -337,13 +366,14 @@ multilib_src_install_all() {
 	# If we install these symlinks, there is no way for the sysadmin to remove them
 	# permanently.
 	rm "${D}"/etc/systemd/system/multi-user.target.wants/systemd-networkd.service || die
-	rm "${D}"/etc/systemd/system/multi-user.target.wants/systemd-resolved.service || die
+	rm -f "${D}"/etc/systemd/system/multi-user.target.wants/systemd-resolved.service || die
 	rm -r "${D}"/etc/systemd/system/network-online.target.wants || die
 	rm -r "${D}"/etc/systemd/system/sockets.target.wants || die
 	rm -r "${D}"/etc/systemd/system/sysinit.target.wants || die
+
 	# Offer a default blacklist that should cover the most
 	# common use cases.
-	insinto /etc/modprobe.d
+	insinto /etc/modprobe.d 
 	newins "${FILESDIR}"/blacklist-146 blacklist.conf
 }
 
@@ -391,42 +421,6 @@ migrate_locale() {
 	fi
 }
 
-migrate_net_name_slot() {
-	# If user has disabled 80-net-name-slot.rules using a empty file or a symlink to /dev/null,
-	# do the same for 80-net-setup-link.rules to keep the old behavior
-	local net_move=no
-	local net_name_slot_sym=no
-	local net_rules_path="${EROOT%/}"/etc/udev/rules.d
-	local net_name_slot="${net_rules_path}"/80-net-name-slot.rules
-	local net_setup_link="${net_rules_path}"/80-net-setup-link.rules
-	if [[ -e ${net_setup_link} ]]; then
-		net_move=no
-	elif [[ -f ${net_name_slot} && $(sed -e "/^#/d" -e "/^\W*$/d" ${net_name_slot} | wc -l) == 0 ]]; then
-		net_move=yes
-	elif [[ -L ${net_name_slot} && $(readlink ${net_name_slot}) == /dev/null ]]; then
-		net_move=yes
-		net_name_slot_sym=yes
-	fi
-	if [[ ${net_move} == yes ]]; then
-		ebegin "Copying ${net_name_slot} to ${net_setup_link}"
-
-		if [[ ${net_name_slot_sym} == yes ]]; then
-			ln -nfs /dev/null "${net_setup_link}"
-		else
-			cp "${net_name_slot}" "${net_setup_link}"
-		fi
-		eend $? || FAIL=1
-	fi
-}
-
-reenable_unit() {
-	if systemctl is-enabled --root="${ROOT}" "$1" &> /dev/null; then
-		ebegin "Re-enabling $1"
-		systemctl reenable --root="${ROOT}" "$1"
-		eend $? || FAIL=1
-	fi
-}
-
 pkg_postinst() {
 	newusergroup() {
 		enewgroup "$1"
@@ -436,13 +430,13 @@ pkg_postinst() {
 	enewgroup input
 	enewgroup systemd-journal
 	newusergroup systemd-bus-proxy
+	newusergroup systemd-coredump
 	newusergroup systemd-journal-gateway
 	newusergroup systemd-journal-remote
 	newusergroup systemd-journal-upload
 	newusergroup systemd-network
 	newusergroup systemd-resolve
 	newusergroup systemd-timesync
-	use http && newusergroup systemd-journal-gateway
 
 	systemd_update_catalog
 
@@ -458,12 +452,6 @@ pkg_postinst() {
 	# between OpenRC & systemd
 	migrate_locale
 
-	# Migrate 80-net-name-slot.rules -> 80-net-setup-link.rules
-	migrate_net_name_slot
-
-	# Re-enable systemd-networkd for socket activation
-	reenable_unit systemd-networkd.service
-
 	if [[ ${FAIL} ]]; then
 		eerror "One of the postinst commands failed. Please check the postinst output"
 		eerror "for errors. You may need to clean up your system and/or try installing"
@@ -471,31 +459,9 @@ pkg_postinst() {
 		eerror
 	fi
 
-	if [[ ! -L "${ROOT}"/etc/mtab ]]; then
-		ewarn "Upstream mandates the /etc/mtab file should be a symlink to /proc/mounts."
-		ewarn "Not having it is not supported by upstream and will cause tools like 'df'"
-		ewarn "and 'mount' to not work properly. Please run:"
-		ewarn " # ln -sf '${ROOT}proc/self/mounts' '${ROOT}etc/mtab'"
-		ewarn
-	fi
-
-	if [[ $(readlink "${ROOT}"/etc/resolv.conf) == */run/systemd/network/resolv.conf ]]; then
-		ewarn "resolv.conf is now generated by systemd-resolved. To use it, enable"
-		ewarn "systemd-resolved.service, and create a symlink from /etc/resolv.conf"
-		ewarn "to /run/systemd/resolve/resolv.conf"
-		ewarn
-	fi
-
-	if ! has_version sys-apps/systemd-ui; then
-		elog "To get additional features, a number of optional runtime dependencies may"
-		elog "be installed:"
-		elog "- sys-apps/systemd-ui: for GTK+ systemadm UI and gnome-ask-password-agent"
-	fi
-
-	if has_version sys-apps/openrc &&
-		! has_version sys-fs/udev-init-scripts; then
-		elog "If you plan to boot using OpenRC and udev or eudev, you"
-		elog "need to install the udev-init-scripts package."
+	if [[ $(readlink "${ROOT}"etc/resolv.conf) == */run/systemd/* ]]; then
+		ewarn "You should replace the resolv.conf symlink:"
+		ewarn "ln -snf ${ROOTPREFIX-/usr}/lib/systemd/resolv.conf ${ROOT}etc/resolv.conf"
 	fi
 }
 
