@@ -11,12 +11,13 @@ SRC_URI="https://github.com/Sabayon/sabayon-sark/archive/v${PVR}.tar.gz -> ${P}.
 RESTRICT="mirror"
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~arm ~x86"
+KEYWORDS="~amd64"
 IUSE=""
 S="${WORKDIR}/sabayon-sark-${PVR}"
 DEPEND=""
 RDEPEND="app-emulation/docker
 	dev-lang/perl
+	dev-python/shyaml
 	app-misc/sabayon-devkit"
 
 src_install() {
