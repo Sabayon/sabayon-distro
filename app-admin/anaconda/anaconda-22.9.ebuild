@@ -9,7 +9,7 @@ inherit base flag-o-matic python-r1 libtool autotools eutils
 AUDIT_VER="2.1.3"
 AUDIT_SRC_URI="http://people.redhat.com/sgrubb/audit/audit-${AUDIT_VER}.tar.gz"
 
-SEPOL_VER="2.3"
+SEPOL_VER="2.5"
 LSELINUX_VER="2.2.2"
 LSELINUX_SRC_URI="https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20131030/libselinux-${LSELINUX_VER}.tar.gz"
 
