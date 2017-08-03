@@ -107,6 +107,7 @@ multilib_src_configure() {
 		--with-distro=gentoo \
 		--disable-python-dbus \
 		--disable-xmltoman \
+		--disable-mono \
 		--disable-monodoc \
 		--disable-pygtk \
 		--enable-glib \
