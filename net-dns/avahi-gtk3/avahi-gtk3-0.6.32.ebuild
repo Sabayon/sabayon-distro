@@ -105,7 +105,6 @@ multilib_src_configure() {
 		--disable-python-dbus \
 		--disable-manpages \
 		--disable-xmltoman \
-		--disable-mono \
 		--disable-monodoc \
 		--disable-pygtk \
 		--enable-glib \
