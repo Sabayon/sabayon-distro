@@ -1,7 +1,7 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 WANT_AUTOMAKE="none"
 MY_P="${P/_/-}"
 
@@ -9,7 +9,7 @@ MY_SVN_PN="subversion"
 MY_SVN_P="${MY_SVN_PN}-${PV}"
 MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 
-SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.9-Gentoo-patches.tar.gz )
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.9.5-Gentoo-patches.tar.gz )
 inherit sab-patches autotools db-use depend.apache eutils flag-o-matic libtool multilib eutils
 
 DESCRIPTION="Subversion WebDAV support"
@@ -43,19 +43,19 @@ IUSE="berkdb debug +dso nls sasl"
 # variable specific to www-apache/mod_dav_svn
 MY_CDEPS="
 	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,http]
+	app-arch/bzip2
 	>=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
 	sys-apps/file
 	sys-libs/zlib
-	app-arch/bzip2
 	berkdb? ( >=sys-libs/db-4.0.14:= )
 "
 
 DEPEND="${MY_CDEPS}
-	sasl? ( dev-libs/cyrus-sasl )
 	>=net-libs/serf-1.3.4
+	sasl? ( dev-libs/cyrus-sasl )
 	virtual/pkgconfig
 
 	!!<sys-apps/sandbox-1.6
@@ -110,9 +110,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	local SAB_PATCHES_SKIP=( subversion-1.8.9-po_fixes.patch )
 	sab-patches_apply_all
-	epatch_user
+	default
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -132,71 +131,75 @@ src_prepare() {
 }
 
 src_configure() {
-	local myconf
+	local myconf=(
+		--libdir="${EPREFIX%/}/usr/$(get_libdir)"
+		--with-apache-libexecdir
+		--with-apxs="${APXS}"
+		$(use_with berkdb berkeley-db "db.h:${EPREFIX%/}/usr/include/db${SVN_BDB_VERSION}::db-${SVN_BDB_VERSION}")
+		--without-ctypesgen
+		$(use_enable dso runtime-module-search)
+		--without-gnome-keyring
+		--disable-javahl
+		--without-jdk
+		--without-kwallet
+		$(use_enable nls)
+		$(use_with sasl)
+		--with-serf
+		--with-apr="${EPREFIX%/}/usr/bin/apr-1-config"
+		--with-apr-util="${EPREFIX%/}/usr/bin/apu-1-config"
+		--disable-experimental-libtool
+		--without-jikes
+		--disable-mod-activation
+		--disable-static
+	)
 
 	#use python || use perl || use ruby
-	myconf+=" --without-swig"
+	myconf+=( --without-swig )
 
 	#use java
-	myconf+=" --without-junit"
+	myconf+=( --without-junit )
 
 	case ${CHOST} in
 		*-aix*)
 			# avoid recording immediate path to sharedlibs into executables
 			append-ldflags -Wl,-bnoipath
 		;;
+		*-cygwin*)
+			# no LD_PRELOAD support, no undefined symbols
+			myconf+=( --disable-local-library-preloading LT_LDFLAGS=-no-undefined )
+			;;
 		*-interix*)
 			# loader crashes on the LD_PRELOADs...
-			myconf+=" --disable-local-library-preloading"
+			myconf+=( --disable-local-library-preloading )
 		;;
 		*-solaris*)
 			# need -lintl to link
 			use nls && append-libs intl
 			# this breaks installation, on x64 echo replacement is 32-bits
-			myconf+=" --disable-local-library-preloading"
+			myconf+=( --disable-local-library-preloading )
 		;;
 		*-mint*)
-			myconf+=" --enable-all-static --disable-local-library-preloading"
+			myconf+=( --enable-all-static --disable-local-library-preloading )
 		;;
 		*)
 			# inject LD_PRELOAD entries for easy in-tree development
-			myconf+=" --enable-local-library-preloading"
+			myconf+=( --enable-local-library-preloading )
 		;;
 	esac
 
 	#workaround for bug 387057
-	has_version =dev-vcs/subversion-1.6* && myconf+=" --disable-disallowing-of-undefined-references"
+	has_version =dev-vcs/subversion-1.6* && myconf+=( --disable-disallowing-of-undefined-references )
 
 	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
-	myconf+=" --disable-disallowing-of-undefined-references"
+	myconf+=( --disable-disallowing-of-undefined-references )
 
-	# force ruby-2.1
 	# allow overriding Python include directory
-	#ac_cv_path_RUBY=$(usex ruby "${EPREFIX}/usr/bin/ruby21" "none")
-	#ac_cv_path_RDOC=$(usex ruby "${EPREFIX}/usr/bin/rdoc21" "none")
+	#ac_cv_path_RUBY=$(usex ruby "${EPREFIX%/}/usr/bin/ruby${RB_VER}" "none")
+	#ac_cv_path_RDOC=(usex ruby "${EPREFIX%/}/usr/bin/rdoc${RB_VER}" "none")
 	ac_cv_python_includes='-I$(PYTHON_INCLUDEDIR)' \
-	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
-		--with-apache-libexecdir \
-		--with-apxs="${APXS}" \
-		$(use_with berkdb berkeley-db "db.h:${EPREFIX}/usr/include/db${SVN_BDB_VERSION}::db-${SVN_BDB_VERSION}") \
-		--without-ctypesgen \
-		$(use_enable dso runtime-module-search) \
-		--without-gnome-keyring \
-		--disable-javahl \
-		--without-jdk \
-		--without-kwallet \
-		$(use_enable nls) \
-		$(use_with sasl) \
-		--with-serf \
-		${myconf} \
-		--with-apr="${EPREFIX}/usr/bin/apr-1-config" \
-		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
-		--disable-experimental-libtool \
-		--without-jikes \
-		--disable-mod-activation \
-		--disable-static
+	econf "${myconf[@]}"
 }
 
 src_compile() {
@@ -215,9 +218,9 @@ src_install() {
 
 pkg_preinst() {
 	# Compare versions of Berkeley DB, bug 122877.
-	if use berkdb && [[ -f "${EROOT}usr/bin/svn" ]] ; then
-		OLD_BDB_VERSION="$(scanelf -nq "${EROOT}usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
-		NEW_BDB_VERSION="$(scanelf -nq "${ED}usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
+	if use berkdb && [[ -f "${EROOT%/}/usr/bin/svn" ]] ; then
+		OLD_BDB_VERSION="$(scanelf -nq "${EROOT%/}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
+		NEW_BDB_VERSION="$(scanelf -nq "${ED%/}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
 		if [[ "${OLD_BDB_VERSION}" != "${NEW_BDB_VERSION}" ]] ; then
 			CHANGED_BDB_VERSION="1"
 		fi

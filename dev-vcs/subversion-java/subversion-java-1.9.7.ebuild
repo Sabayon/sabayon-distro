@@ -1,7 +1,7 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 WANT_AUTOMAKE="none"
 MY_P="${P/_/-}"
 
@@ -11,7 +11,7 @@ MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 MY_SVN_CATEGORY="${CATEGORY}"
 
 # note: java-pkg-2, not java-pkt-opt-2
-SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.8.9-Gentoo-patches.tar.gz )
+SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.9.5-Gentoo-patches.tar.gz )
 inherit sab-patches autotools eutils flag-o-matic java-pkg-2 libtool multilib
 
 DESCRIPTION="Java bindings for Subversion"
@@ -49,8 +49,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	local SAB_PATCHES_SKIP=( subversion-1.8.9-po_fixes.patch )
 	sab-patches_apply_all
+	default
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -70,7 +70,27 @@ src_prepare() {
 }
 
 src_configure() {
-	local myconf=()
+	local myconf=(
+		--libdir="${EPREFIX%/}/usr/$(get_libdir)"
+		--without-apache-libexecdir
+		--without-apxs
+		--without-berkeley-db
+		--without-ctypesgen
+		--disable-runtime-module-search
+		--without-gnome-keyring
+		--enable-javahl
+		--with-jdk="${JAVA_HOME}"
+		--without-kwallet
+		$(use_enable nls)
+		--without-sasl
+		--without-serf
+		--with-apr="${EPREFIX%/}/usr/bin/apr-1-config"
+		--with-apr-util="${EPREFIX%/}/usr/bin/apu-1-config"
+		--disable-experimental-libtool
+		--without-jikes
+		--disable-mod-activation
+		--disable-static
+	)
 
 	myconf+=( --without-swig )
 	myconf+=( --without-junit )
@@ -80,6 +100,10 @@ src_configure() {
 			# avoid recording immediate path to sharedlibs into executables
 			append-ldflags -Wl,-bnoipath
 		;;
+		*-cygwin*)
+			# no LD_PRELOAD support, no undefined symbols
+			myconf+=( --disable-local-library-preloading LT_LDFLAGS=-no-undefined )
+			;;
 		*-interix*)
 			# loader crashes on the LD_PRELOADs...
 			myconf+=( --disable-local-library-preloading )
@@ -103,27 +127,7 @@ src_configure() {
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
 	myconf+=( --disable-disallowing-of-undefined-references )
-
-	econf --libdir="${EPREFIX}/usr/$(get_libdir)" \
-		--without-apache-libexecdir \
-		--without-apxs \
-		--without-berkeley-db \
-		--without-ctypesgen \
-		--disable-runtime-module-search \
-		--without-gnome-keyring \
-		--enable-javahl \
-		--with-jdk="${JAVA_HOME}" \
-		--without-kwallet \
-		$(use_enable nls) \
-		--without-sasl \
-		--without-serf \
-		${myconf[@]} \
-		--with-apr="${EPREFIX}/usr/bin/apr-1-config" \
-		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
-		--disable-experimental-libtool \
-		--without-jikes \
-		--disable-mod-activation \
-		--disable-static
+	econf "${myconf[@]}"
 }
 
 src_compile() {
@@ -136,10 +140,10 @@ src_compile() {
 
 src_install() {
 	emake DESTDIR="${D}" install-javahl
-	java-pkg_regso "${ED}"usr/$(get_libdir)/libsvnjavahl*$(get_libname)
+	java-pkg_regso "${ED%/}"/usr/$(get_libdir)/libsvnjavahl*$(get_libname)
 	java-pkg_jarinto /usr/share/"${MY_SVN_PN}"/lib
-	java-pkg_dojar "${ED}"usr/$(get_libdir)/svn-javahl/svn-javahl.jar
-	rm -fr "${ED}"usr/$(get_libdir)/svn-javahl/*.jar
+	java-pkg_dojar "${ED%/}"/usr/$(get_libdir)/svn-javahl/svn-javahl.jar
+	rm -fr "${ED%/}"/usr/$(get_libdir)/svn-javahl/*.jar
 
 	mv "${ED}usr/share/${PN}/package.env" "${ED}/usr/share/${MY_SVN_PN}/" || die
 
