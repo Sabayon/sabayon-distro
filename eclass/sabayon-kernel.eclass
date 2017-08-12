@@ -367,6 +367,8 @@ else
 		sys-devel/make
 		|| ( >=sys-kernel/genkernel-next-5[dmraid(+)?,mdadm(+)?] >=sys-kernel/genkernel-3.4.45-r2 )
 		arm? ( dev-embedded/u-boot-tools )
+		amd64? ( sys-apps/v86d )
+		x86? ( sys-apps/v86d )
 		btrfs? ( sys-fs/btrfs-progs )
 		splash? ( x11-themes/sabayon-artwork-core )
 		lvm? ( sys-fs/lvm2 sys-block/thin-provisioning-tools )
@@ -374,10 +376,10 @@ else
 			|| ( >=sys-kernel/genkernel-next-5 >=sys-kernel/genkernel-5 )
 			sys-boot/plymouth
 		)
-		dracut? ( sys-kernel/dracut )"
+		dracut? ( sys-apps/v86d sys-kernel/dracut )"
 	RDEPEND="sys-apps/sed
 		sys-kernel/linux-firmware
-		dracut? ( sys-kernel/dracut )"
+		dracut? ( sys-apps/v86d sys-kernel/dracut )"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
 	fi
