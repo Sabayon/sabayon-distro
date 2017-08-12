@@ -17,4 +17,5 @@ KEYWORDS="~amd64"
 DESCRIPTION="Official Sabayon Linux Standard kernel image"
 RESTRICT="mirror"
 
-DEPEND="${DEPEND}"
+DEPEND="${DEPEND}
+	sys-apps/v86d"
