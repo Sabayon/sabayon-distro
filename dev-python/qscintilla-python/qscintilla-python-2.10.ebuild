@@ -2,6 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+PYTHON_COMPAT=( python2_7 python3_{4,5} )
+
+inherit python-r1
 
 DESCRIPTION="Meta package for ${PN} (install ${PN}-qt4 or ${PN}-qt5 instead)"
 HOMEPAGE="https://www.riverbankcomputing.com/software/qscintilla/intro"
