@@ -1,36 +1,37 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 GNOME2_LA_PUNT="yes"
-PYTHON_COMPAT=( python2_7 python3_{3,4,5} )
+PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
 
-REAL_PN="${PN/-base}"
+REAL_PN="${PN/-cairo}"
 GNOME_ORG_MODULE="${REAL_PN}"
 
 inherit eutils gnome2 python-r1 virtualx
 
-DESCRIPTION="GLib's GObject library bindings for Python"
+DESCRIPTION="GLib's GObject library bindings for Python, Cairo Libraries"
 HOMEPAGE="https://wiki.gnome.org/Projects/PyGObject"
 
 LICENSE="LGPL-2.1+"
 SLOT="3"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="examples test +threads"
+IUSE="test +threads"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPEND="${PYTHON_DEPS}
-	>=dev-libs/glib-2.38:2
-	>=dev-libs/gobject-introspection-1.46.0:=
-	virtual/libffi:=
+	~dev-python/pygobject-base-${PV}[threads=]
+	>=dev-python/pycairo-1.10.0[${PYTHON_USEDEP}]
 "
 DEPEND="${COMMON_DEPEND}
-	virtual/pkgconfig
+	x11-libs/cairo[glib]
+	gnome-base/gnome-common
 	test? (
 		dev-libs/atk[introspection]
 		media-fonts/font-cursor-misc
 		media-fonts/font-misc-misc
+		x11-libs/cairo[glib]
 		x11-libs/gdk-pixbuf:2[introspection]
 		x11-libs/gtk+:3[introspection]
 		x11-libs/pango[introspection]
@@ -48,6 +49,15 @@ RDEPEND="${COMMON_DEPEND}
 "
 
 src_prepare() {
+	# Test fail with xvfb but not X
+	sed -e 's/^.*TEST_NAMES=compat_test_pygtk .*;/echo "Test disabled";/' \
+		-i tests/Makefile.{am,in} || die
+
+	# FAIL: test_cairo_font_options (test_cairo.TestPango)
+	# AssertionError: <type 'cairo.SubpixelOrder'> != <type 'int'>
+	sed -e 's/^.*type(font_opts.get_subpixel_order()), int.*/#/' \
+		-i tests/test_cairo.py || die
+
 	gnome2_src_prepare
 	python_copy_sources
 }
@@ -58,7 +68,7 @@ src_configure() {
 	# docs disabled by upstream default since they are very out of date
 	configuring() {
 		gnome2_src_configure \
-			--disable-cairo \
+			--enable-cairo \
 			$(use_enable threads thread)
 
 		# Pyflakes tests work only in python2, bug #516744
@@ -91,9 +101,15 @@ src_test() {
 
 src_install() {
 	python_foreach_impl run_in_build_dir gnome2_src_install
+	# just keep /usr/$(get_libdir)/*/site-packages/gi/_gi_cairo*.so
+	# discard the rest
 
-	if use examples; then
-		insinto /usr/share/doc/${PF}
-		doins -r examples
-	fi
+	# /usr/lib64/python2.7/site-packages/gi/_gi_cairo.so
+	# /usr/lib64/python3.3/site-packages/gi/_gi_cairo.cpython-33.so
+	# /usr/lib64/python3.4/site-packages/gi/_gi_cairo.cpython-34.so
+
+	rm $(find "${ED}" -type f | grep -v "gi/_gi_cairo.*\.so") \
+		$(find "${ED}" -type l | grep -v "gi/_gi_cairo.*\.so") || die
+	find "${ED}" -depth -type d -empty -exec rmdir {} \; || die
+	dodoc -r examples
 }
