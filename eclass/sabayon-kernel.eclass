@@ -280,12 +280,12 @@ _is_kernel_binary() {
 
 _is_kernel_lts() {
 	local _ver="$(get_version_component_range 1-2)"
-	[ "${_ver}" = "3.0" ] && return 0
-	[ "${_ver}" = "3.2" ] && return 0
-	[ "${_ver}" = "3.4" ] && return 0
 	[ "${_ver}" = "3.10" ] && return 0
-	[ "${_ver}" = "3.12" ] && return 0
-	[ "${_ver}" = "3.14" ] && return 0
+	[ "${_ver}" = "3.16" ] && return 0
+	[ "${_ver}" = "4.1" ] && return 0
+	[ "${_ver}" = "4.4" ] && return 0
+	[ "${_ver}" = "4.9" ] && return 0
+	[ "${_ver}" = "4.14" ] && return 0
 	return 1
 }
 
