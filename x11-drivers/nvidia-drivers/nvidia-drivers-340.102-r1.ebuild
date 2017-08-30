@@ -1,11 +1,11 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user udev
 
-NV_URI="http://us.download.nvidia.com/XFree86/"
+NV_URI="http://http.download.nvidia.com/XFree86/"
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
 X86_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86-${PV}"
@@ -123,6 +123,18 @@ src_prepare() {
 		ewarn "need support with these patches, contact the PaX team."
 		eapply "${FILESDIR}"/${PN}-331.13-pax-usercopy.patch
 		eapply "${FILESDIR}"/${PN}-337.12-pax-constify.patch
+	fi
+
+	if use kernel_linux && kernel_is 4 10; then
+		eapply "${FILESDIR}"/${P}-linux-4.10.patch
+	fi
+
+	if use kernel_linux && kernel_is 4 11; then
+		eapply "${FILESDIR}"/${P}-linux-4.11.patch
+	fi
+
+	if use kernel_linux && kernel_is 4 12; then
+		eapply "${FILESDIR}"/${P}-linux-4.12.patch
 	fi
 
 	# Allow user patches so they can support RC kernels and whatever else
