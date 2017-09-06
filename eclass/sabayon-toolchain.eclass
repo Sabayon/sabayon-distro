@@ -39,7 +39,7 @@ sabayon-toolchain_src_unpack() {
 #---->> src_prepare <<----
 
 sabayon-toolchain_src_prepare() {
-	einfo "Sabayon: prepare GCC install"
+	einfo "Sabayon: prepare phase for sys-devel/{gcc,base-gcc}"
 	# Since Sabayon's gcc ebuild are split into two parts, we have to
 	# build gcc with a different version of gcc, or terrible breakage
 	# will occur after sys-devel/base-gcc is installed, but the
@@ -98,7 +98,7 @@ sabayon-toolchain_src_test() {
 #---->> src_install <<----
 
 _install_basegcc(){
-	einfo "Sabayon: install base-gcc files"
+	einfo "Sabayon: install sys-devel/base-gcc files"
 
 	cd "${WORKDIR}/build"
 	S="${WORKDIR}"/build \
@@ -185,7 +185,7 @@ _install_basegcc(){
 }
 
 _install_gcc() {
-	einfo "Sabayon: install GCC compiler"
+	einfo "Sabayon: install sys-devel/gcc files (including compiler)"
 	toolchain_src_install
 	# now drop what's provided by sys-devel/base-gcc-${PV}:${SLOT}
 	base_gcc_libs="libgfortran.so* libgcc_s.so* libobjc.so*
