@@ -108,15 +108,6 @@ _install_basegcc(){
 			install-shared || die
 	fi
 
-	if use mudflap; then
-		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libmudflap" DESTDIR="${D}" \
-			install-toolexeclibLTLIBRARIES || die
-		if use multilib; then
-			S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/32/libmudflap" DESTDIR="${D}" \
-				install-toolexeclibLTLIBRARIES || die
-		fi
-	fi
-
 	if use openmp; then
 		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" \
 			install-toolexeclibLTLIBRARIES || die
