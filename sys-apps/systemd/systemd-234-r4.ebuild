@@ -147,14 +147,15 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Bug 463376
-	sed -i -e 's/GROUP="dialout"/GROUP="uucp"/' rules/*.rules || die
 
-	# Avoid the log bloat to the user
+	# Sabayon: Avoid the log bloat to the user
 	sed -i -e 's/#SystemMaxUse=/SystemMaxUse=500M/' src/journal/journald.conf || die
 
 	local PATCHES=(
 		"${FILESDIR}"/234-0001-path-lookup-look-for-generators-in-usr-lib-systemd-s.patch
+		"${FILESDIR}"/234-0002-cryptsetup-fix-infinite-timeout-6486.patch
+		"${FILESDIR}"/234-0003-resolved-make-sure-idn2-conversions-are-roundtrippab.patch
+		"${FILESDIR}"/234-0004-logind-make-sure-we-don-t-process-the-same-method-ca.patch
 	)
 
 	if ! use vanilla; then
@@ -162,6 +163,7 @@ src_prepare() {
 			"${FILESDIR}/218-Dont-enable-audit-by-default.patch"
 			"${FILESDIR}/228-noclean-tmp.patch"
 			"${FILESDIR}/233-systemd-user-pam.patch"
+			"${FILESDIR}/234-uucp-group.patch"
 		)
 	fi
 
@@ -262,7 +264,7 @@ multilib_src_configure() {
 		-Dquotacheck=$(meson_multilib)
 		-Drandomseed=$(meson_multilib)
 		-Drfkill=$(meson_multilib)
-		-Dsysysers=$(meson_multilib)
+		-Dsysusers=$(meson_multilib)
 		-Dtimedated=$(meson_multilib)
 		-Dtimesyncd=$(meson_multilib)
 		-Dtmpfiles=$(meson_multilib)
@@ -343,7 +345,8 @@ multilib_src_install_all() {
 		dosym "../../..${ROOTPREFIX%/}/lib/systemd/systemd" /usr/lib/systemd/systemd
 		dosym "../../..${ROOTPREFIX%/}/lib/systemd/systemd-shutdown" /usr/lib/systemd/systemd-shutdown
 	fi
-	# Offer a default blacklist that should cover the most
+
+	# Sabayon: Offer a default blacklist that should cover the most
 	# common use cases.
 	insinto /etc/modprobe.d
 	newins "${FILESDIR}"/blacklist-146 blacklist.conf
@@ -437,6 +440,8 @@ pkg_postinst() {
 	# Bug 465468, make sure locales are respect, and ensure consistency
 	# between OpenRC & systemd
 	migrate_locale
+
+	systemd_reenable systemd-networkd.service systemd-resolved.service
 
 	if [[ ${FAIL} ]]; then
 		eerror "One of the postinst commands failed. Please check the postinst output"
