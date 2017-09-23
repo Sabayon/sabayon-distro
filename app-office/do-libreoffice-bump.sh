@@ -1,7 +1,7 @@
 #!/bin/sh
 
-FROM_PV="5.2.6.2"
-TO_PV="5.2.7.2"
+FROM_PV="5.2.7.2"
+TO_PV="5.4.0.3"
 FAILED_LANGS=""
 DONE_LANGS=""
 for item in `find -name libreoffice-l10n-*${FROM_PV}*.ebuild`; do
@@ -11,7 +11,7 @@ for item in `find -name libreoffice-l10n-*${FROM_PV}*.ebuild`; do
 	cp "${item}" "${newfile}" || exit 1
 
 	# uncomment if you like it (but please don't remove)
-	#manifest=${newfile%/*}/Manifest
+	manifest=${newfile%/*}/Manifest
 	#if [ -e "$manifest" ]; then
 	#	# Note: does not guarantee that a langpack won't be downloaded... it is possible
 	#	# that the overlay has a particular language pack which isn't present in Portage tree.
