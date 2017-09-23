@@ -63,7 +63,7 @@ unset lang helppack langpack lang2
 
 RDEPEND+="app-text/hunspell"
 
-RESTRICT="strip mirror"
+RESTRICT="strip"
 
 S="${WORKDIR}"
 
