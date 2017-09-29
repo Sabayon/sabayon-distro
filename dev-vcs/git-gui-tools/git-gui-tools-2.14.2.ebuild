@@ -9,9 +9,23 @@ GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
 PYTHON_COMPAT=( python2_7 )
-[[ ${PV} == *9999 ]] && SCM="git-r3"
-EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-EGIT_BRANCH=maint
+if [[ ${PV} == *9999 ]]; then
+	SCM="git-r3"
+	EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
+	# Please ensure that all _four_ 9999 ebuilds get updated; they track the 4 upstream branches.
+	# See https://git-scm.com/docs/gitworkflows#_graduation
+	# In order of stability:
+	# 9999-r0: maint
+	# 9999-r1: master
+	# 9999-r2: next
+	# 9999-r3: pu
+	case "${PVR}" in
+		9999) EGIT_BRANCH=maint ;;
+		9999-r1) EGIT_BRANCH=master ;;
+		9999-r2) EGIT_BRANCH=next;;
+		9999-r3) EGIT_BRANCH=pu ;;
+	esac
+fi
 
 SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.12.0-Gentoo-patches.tar.gz" )
 inherit sab-patches toolchain-funcs eutils python-single-r1 ${SCM}
@@ -71,7 +85,7 @@ exportmakeopts() {
 
 	myopts+=" NO_EXPAT=YesPlease"
 	myopts+=" NO_CURL=YesPlease"
-	# broken assumptions, because of broken build system ...
+	# broken assumptions, because of static build system ...
 	myopts+=" NO_FINK=YesPlease NO_DARWIN_PORTS=YesPlease"
 	myopts+=" INSTALL=install TAR=tar"
 	myopts+=" SHELL_PATH=${EPREFIX}/bin/sh"
@@ -86,6 +100,8 @@ exportmakeopts() {
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
 	myopts+=" NO_PERL=YesPlease"
+	grep -q getdelim "${ROOT}"/usr/include/stdio.h && \
+		myopts+=" HAVE_GETDELIM=1"
 
 	# Bug 290465:
 	# builtin-fetch-pack.c:816: error: 'struct stat' has no member named 'st_mtim'
