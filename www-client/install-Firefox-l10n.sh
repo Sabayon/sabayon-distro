@@ -22,18 +22,36 @@
 # what is set in make.conf). Note that it may not work with pkgcore!
 
 # Options: --pkgcore - use pkgcore (but see note above),
-#          -- PM_OPTS - pass options to the package manager (default: --ask).
+#          --ebuild-install - use the ebuild command,
+#          -- PM_OPTS - pass options to the package manager (default: --ask),
+#                       ignored with --ebuild-install
 
 e() {
 	echo "$*" >&2
 	exit 1
 }
 
+ebuild_install() {
+	local ver=$1
+	shift
+
+	local p
+	for p in "$@"; do
+		echo "* working on ${p}"
+		if ! ebuild "${p}/${p}-${ver}.ebuild" install; then
+			echo "${p} failed: not all packages were installed!" >&2
+			return 1
+		fi
+	done
+}
+
 inst_cmd() {
-	if [[ ${use_pkgcore} = yep ]]; then
-		time pmerge "${pm_opts[@]}" "$@"
-	else
+	if [[ ${pm} = portage ]]; then
 		time emerge "${pm_opts[@]}" "$@"
+	elif [[ ${pm} = pkgcore ]]; then
+		time pmerge "${pm_opts[@]}" "$@"
+	elif [[ ${pm} = ebuild-install ]]; then
+		time ebuild_install "${ver}" "$@"
 	fi
 }
 
@@ -57,12 +75,15 @@ USE=""
 
 ver=
 
-use_pkgcore=no
+pm=portage
 pm_opts=( --ask )
 
 while (( $# )); do
 	if [[ $1 = --pkgcore ]]; then
-		use_pkgcore=yep
+		pm=pkgcore
+		shift
+	elif [[ $1 = --ebuild-install ]]; then
+		pm=ebuild-install
 		shift
 	elif [[ $1 = -- ]]; then
 		shift
