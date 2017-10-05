@@ -11,7 +11,7 @@ SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/67"
+SLOT="0/68"
 IUSE="cjk curl cxx debug doc +jpeg +jpeg2k +lcms nss png tiff +utils"
 S="${WORKDIR}/poppler-${PV}"
 
@@ -52,6 +52,11 @@ src_prepare() {
 			-i CMakeLists.txt || die
 	else
 		einfo "policy(SET CMP0002 OLD) - workaround can be removed"
+	fi
+
+	if tc-is-clang && [[ ${CHOST} == *-darwin* ]] ; then
+		# we need to up the C++ version, bug #622526
+		export CXX="$(tc-getCXX) -std=c++11"
 	fi
 }
 
