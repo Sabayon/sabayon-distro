@@ -26,7 +26,6 @@ RDEPEND="!app-admin/eselect-init
 	app-eselect/eselect-python
 	dev-lang/python:${PYTHON_VER}
 	sys-apps/systemd
-	sys-apps/systemd-sysv-utils
 	virtual/man
 	sys-devel/base-gcc:${GCC_VER}
 	sys-devel/gcc-config"
