@@ -14,7 +14,7 @@ SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm ~amd64 ~x86"
-IUSE="caps emacs gnome-keyring gtk ncurses qt5 static"
+IUSE="caps gtk qt5 static"
 
 RDEPEND="
 	>=dev-libs/libgpg-error-1.17
