@@ -1,20 +1,20 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
-inherit autotools qmake-utils multilib eutils flag-o-matic toolchain-funcs
+inherit autotools flag-o-matic qmake-utils toolchain-funcs
 
 MY_PN=${PN/-base}
 MY_P=${P/-base}
 DESCRIPTION="Simple passphrase entry dialogs which utilize the Assuan protocol"
-HOMEPAGE="http://gnupg.org/aegypten2/index.html"
+HOMEPAGE="https://gnupg.org/aegypten2/index.html"
 SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm ~amd64 ~x86"
-IUSE="gtk qt4 qt5 caps static"
+IUSE="caps emacs gnome-keyring gtk ncurses qt5 static"
 
 RDEPEND="
 	>=dev-libs/libgpg-error-1.17
@@ -32,13 +32,19 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 	virtual/pkgconfig
 "
-
 S=${WORKDIR}/${MY_P}
 
 DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 
+PATCHES=(
+	"${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	"${FILESDIR}/${MY_P}-build.patch"
+	"${FILESDIR}/${MY_P}-Disable-tooltips-in-keyboard-grabbing-mode.patch"
+	"${FILESDIR}/${MY_P}-gtk2-Fix-a-problem-with-fvwm.patch"
+)
+
 src_prepare() {
-	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	default
 	eautoreconf
 }
 
@@ -77,7 +83,6 @@ pkg_postinst() {
 
 	eselect pinentry update ifunset
 	use gtk && elog "If you want pinentry for Gtk+, please install app-crypt/pinentry-gtk."
-	use qt4 && elog "If you want pinentry for Qt4, please install app-crypt/pinentry-qt4."
 	use qt5 && elog "If you want pinentry for Qt5, please install app-crypt/pinentry-qt5."
 }
 

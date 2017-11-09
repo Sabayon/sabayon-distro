@@ -1,14 +1,14 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
-inherit autotools qmake-utils multilib eutils flag-o-matic toolchain-funcs
+inherit autotools flag-o-matic qmake-utils toolchain-funcs
 
 MY_PN=${PN/-qt5}
 MY_P=${P/-qt5}
 DESCRIPTION="Qt5 frontend for pinentry"
-HOMEPAGE="http://gnupg.org/aegypten2/index.html"
+HOMEPAGE="https://gnupg.org/aegypten2/index.html"
 SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
@@ -21,6 +21,7 @@ RDEPEND="
 	!app-crypt/pinentry-base[static]
 	!app-crypt/pinentry-qt4
 	caps? ( sys-libs/libcap )
+	dev-qt/qtcore:5
 	dev-qt/qtgui:5
 	dev-qt/qtwidgets:5
 	sys-libs/ncurses:0=
@@ -31,20 +32,21 @@ DEPEND="${RDEPEND}
 
 S=${WORKDIR}/${MY_P}
 
+PATCHES=(
+	"${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	"${FILESDIR}/${MY_P}-build.patch"
+	"${FILESDIR}/${MY_P}-Disable-tooltips-in-keyboard-grabbing-mode.patch"
+	"${FILESDIR}/${MY_P}-gtk2-Fix-a-problem-with-fvwm.patch"
+)
+
 src_prepare() {
-	epatch "${FILESDIR}/${MY_P}-require-CPP11-for-qt-5-7.patches"
-	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	default
 	eautoreconf
 }
 
 src_configure() {
-	local myconf=()
 	[[ "$(gcc-major-version)" -ge 5 ]] && append-cxxflags -std=gnu++11
 
-	QT_MOC=""
-	myconf+=( --enable-pinentry-qt )
-	QT_MOC="$(qt5_get_bindir)"/moc
-	# Issues finding qt on multilib systems
 	export QTLIB="$(qt5_get_libdir)"
 
 	econf \
@@ -56,8 +58,8 @@ src_configure() {
 		$(use_with caps libcap) \
 		--disable-libsecret \
 		--disable-pinentry-gnome3 \
-		"${myconf[@]}" \
-		MOC="${QT_MOC}"
+		--enable-pinentry-qt \
+		MOC="$(qt5_get_bindir)"/moc
 }
 
 src_install() {

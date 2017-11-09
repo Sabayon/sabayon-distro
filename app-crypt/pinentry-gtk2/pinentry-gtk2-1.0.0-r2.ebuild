@@ -1,14 +1,14 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
-inherit autotools eutils flag-o-matic toolchain-funcs
+inherit autotools flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-gtk2}
 MY_P=${P/-gtk2}
 DESCRIPTION="Gtk+2 frontend for pinentry"
-HOMEPAGE="http://gnupg.org/aegypten2/index.html"
+HOMEPAGE="https://gnupg.org/aegypten2/index.html"
 SRC_URI="mirror://gnupg/${MY_PN}/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
@@ -29,8 +29,15 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/${MY_P}"
 
+PATCHES=(
+	"${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	"${FILESDIR}/${MY_P}-build.patch"
+	"${FILESDIR}/${MY_P}-Disable-tooltips-in-keyboard-grabbing-mode.patch"
+	"${FILESDIR}/${MY_P}-gtk2-Fix-a-problem-with-fvwm.patch"
+)
+
 src_prepare() {
-	epatch "${FILESDIR}/${MY_PN}-0.8.2-ncurses.patch"
+	default
 	eautoreconf
 }
 
