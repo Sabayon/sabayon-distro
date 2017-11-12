@@ -5,7 +5,7 @@ EAPI=6
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user versionator udev
 
-NV_URI="http://us.download.nvidia.com/XFree86/"
+NV_URI="http://http.download.nvidia.com/XFree86/"
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
 X86_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86-${PV}"
@@ -27,36 +27,61 @@ IUSE="acpi custom-cflags multilib kernel_FreeBSD kernel_linux pax_kernel tools X
 RESTRICT="bindist mirror"
 EMULTILIB_PKG="true"
 
-DEPEND="
+COMMON="
+	app-eselect/eselect-opencl
+	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
+	X? (
+		>=app-eselect/eselect-opengl-1.0.9
+	)
+"
+DEPEND="${COMMON}
 	kernel_linux? (
 		virtual/linux-sources
 		virtual/pkgconfig
 	)"
-RDEPEND="~x11-drivers/nvidia-userspace-${PV}
+RDEPEND="${COMMON}
+	acpi? ( sys-power/acpid )
+	X? (
+		<x11-base/xorg-server-1.19.99:=
+		>=x11-libs/libvdpau-0.3-r1[abi_x86_32]
+		>=x11-libs/libX11-1.6.2[abi_x86_32]
+		>=x11-libs/libXext-1.3.2[abi_x86_32]
+		sys-libs/zlib[abi_x86_32]
+		x11-libs/libXvMC[abi_x86_32]
+	)
+	~x11-drivers/nvidia-userspace-${PV}
 	multilib? ( ~x11-drivers/nvidia-userspace-${PV}[multilib] )
 	~x11-drivers/nvidia-userspace-${PV}[tools=]
 	~x11-drivers/nvidia-userspace-${PV}[X=]"
-PDEPEND=""
 
 S="${WORKDIR}/"
 
-mtrr_check() {
-	ebegin "Checking for MTRR support"
-	linux_chkconfig_present MTRR
-	eend $?
-
-	if [[ $? -ne 0 ]] ; then
-		eerror "Please enable MTRR support in your kernel config, found at:"
-		eerror
-		eerror "  Processor type and features"
-		eerror "    [*] MTRR (Memory Type Range Register) support"
-		eerror
-		eerror "and recompile your kernel ..."
-		die "MTRR support not detected!"
+nvidia_drivers_versions_check() {
+	if use amd64 && has_multilib_profile && \
+		[ "${DEFAULT_ABI}" != "amd64" ]; then
+		eerror "This ebuild doesn't currently support changing your default ABI"
+		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
 	fi
-}
 
-lockdep_check() {
+	if use kernel_linux && kernel_is ge 4 14; then
+		ewarn "Gentoo supports kernels which are supported by NVIDIA"
+		ewarn "which are limited to the following kernels:"
+		ewarn "<sys-kernel/linux-sabayon-4.14"
+		ewarn ""
+		ewarn "You are free to utilize eapply_user to provide whatever"
+		ewarn "support you feel is appropriate, but will not receive"
+		ewarn "support as a result of those changes."
+		ewarn ""
+		ewarn "Do not file a bug report about this."
+		ewarn ""
+	fi
+
+	# Since Nvidia ships many different series of drivers, we need to give the user
+	# some kind of guidance as to what version they should install. This tries
+	# to point the user in the right direction but can't be perfect. check
+	# nvidia-driver.eclass
+	nvidia-driver-check-warning
+
 	# Kernel features/options to check for
 	CONFIG_CHECK="~ZONE_DMA ~MTRR ~SYSVIPC ~!LOCKDEP"
 	use x86 && CONFIG_CHECK+=" ~HIGHMEM"
@@ -65,7 +90,13 @@ lockdep_check() {
 	use kernel_linux && check_extra_config
 }
 
+pkg_pretend() {
+	nvidia_drivers_versions_check
+}
+
 pkg_setup() {
+	nvidia_drivers_versions_check
+
 	# try to turn off distcc and ccache for people that have a problem with it
 	export DISTCC_DISABLE=1
 	export CCACHE_DISABLE=1
@@ -82,20 +113,18 @@ pkg_setup() {
 		BUILD_FIXES="ARCH=$(uname -m | sed -e 's/i.86/i386/')"
 	fi
 
-	# Since Nvidia ships 3 different series of drivers, we need to give the user
-	# some kind of guidance as to what version they should install. This tries
-	# to point the user in the right direction but can't be perfect. check
-	# nvidia-driver.eclass
-	nvidia-driver-check-warning
-
 	# set variables to where files are in the package structure
 	if use kernel_FreeBSD; then
 		use x86-fbsd   && S="${WORKDIR}/${X86_FBSD_NV_PACKAGE}"
 		use amd64-fbsd && S="${WORKDIR}/${AMD64_FBSD_NV_PACKAGE}"
+		NV_OBJ="${S}/obj"
 		NV_SRC="${S}/src"
+		NV_X11="${S}/obj"
 		NV_SOVER=1
 	elif use kernel_linux; then
+		NV_OBJ="${S}"
 		NV_SRC="${S}/kernel"
+		NV_X11="${S}/obj"
 		NV_SOVER=${PV}
 	else
 		die "Could not determine proper NVIDIA package"
