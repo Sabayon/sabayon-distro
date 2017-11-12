@@ -44,6 +44,7 @@ RDEPEND="
 	X? (
 		<x11-base/xorg-server-1.19.99:=
 		>=x11-libs/libvdpau-0.3-r1
+		sys-libs/zlib[abi_x86_32]
 		multilib? (
 			>=x11-libs/libX11-1.6.2[abi_x86_32]
 			>=x11-libs/libXext-1.3.2[abi_x86_32]
@@ -53,8 +54,27 @@ RDEPEND="
 
 S=${WORKDIR}/
 
-pkg_pretend() {
-	# Since Nvidia ships 3 different series of drivers, we need to give the user
+nvidia_drivers_versions_check() {
+	if use amd64 && has_multilib_profile && \
+		[ "${DEFAULT_ABI}" != "amd64" ]; then
+		eerror "This ebuild doesn't currently support changing your default ABI"
+		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
+	fi
+
+	if use kernel_linux && kernel_is ge 4 12; then
+		ewarn "Gentoo supports kernels which are supported by NVIDIA"
+		ewarn "which are limited to the following kernels:"
+		ewarn "<sys-kernel/linux-sabayon-4.12"
+		ewarn ""
+		ewarn "You are free to utilize eapply_user to provide whatever"
+		ewarn "support you feel is appropriate, but will not receive"
+		ewarn "support as a result of those changes."
+		ewarn ""
+		ewarn "Do not file a bug report about this."
+		ewarn ""
+	fi
+
+	# Since Nvidia ships many different series of drivers, we need to give the user
 	# some kind of guidance as to what version they should install. This tries
 	# to point the user in the right direction but can't be perfect. check
 	# nvidia-driver.eclass
@@ -68,7 +88,13 @@ pkg_pretend() {
 	use kernel_linux && check_extra_config
 }
 
+pkg_pretend() {
+	nvidia_drivers_versions_check
+}
+
 pkg_setup() {
+	nvidia_drivers_versions_check
+
 	# try to turn off distcc and ccache for people that have a problem with it
 	export DISTCC_DISABLE=1
 	export CCACHE_DISABLE=1
@@ -96,10 +122,14 @@ pkg_setup() {
 	if use kernel_FreeBSD; then
 		use x86-fbsd   && S="${WORKDIR}/${X86_FBSD_NV_PACKAGE}"
 		use amd64-fbsd && S="${WORKDIR}/${AMD64_FBSD_NV_PACKAGE}"
+		NV_OBJ="${S}/obj"
 		NV_SRC="${S}/src"
+		NV_X11="${S}/obj"
 		NV_SOVER=1
 	elif use kernel_linux; then
+		NV_OBJ="${S}"
 		NV_SRC="${S}/kernel"
+		NV_X11="${S}"
 		NV_SOVER=${PV}
 	else
 		die "Could not determine proper NVIDIA package"
@@ -131,6 +161,10 @@ src_prepare() {
 
 	if use kernel_linux && kernel_is 4 11; then
 		eapply "${FILESDIR}"/${P}-linux-4.11.patch
+	fi
+
+	if use kernel_linux && kernel_is 4 12; then
+		eapply "${FILESDIR}"/${P}-linux-4.12.patch
 	fi
 
 	# Allow user patches so they can support RC kernels and whatever else
