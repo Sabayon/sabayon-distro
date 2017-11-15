@@ -38,7 +38,7 @@ ebuild_install() {
 	local p
 	for p in "$@"; do
 		echo "* working on ${p}"
-		if ! ebuild "${p}/${p}-${ver}.ebuild" install; then
+		if ! ebuild "${p}/${p}-${ver}.ebuild" merge; then
 			echo "${p} failed: not all packages were installed!" >&2
 			return 1
 		fi
