@@ -5,25 +5,28 @@ EAPI=6
 
 inherit cmake-utils toolchain-funcs xdg-utils
 
-DESCRIPTION="Qt5 bindings for poppler"
+MY_P=poppler${P#${PN}}
+DESCRIPTION="Glib bindings for poppler"
 HOMEPAGE="https://poppler.freedesktop.org/"
 SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
 SLOT="0/68"
-IUSE="cjk curl cxx debug doc +jpeg +jpeg2k +lcms nss png tiff +utils"
+
+IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png tiff +utils"
 S="${WORKDIR}/poppler-${PV}"
 
 # No test data provided
 RESTRICT="test"
 
 COMMON_DEPEND="
-		dev-qt/qtcore:5
-		dev-qt/qtgui:5
-		dev-qt/qtxml:5
+	cairo? (
+		dev-libs/glib:2
+		>=x11-libs/cairo-1.10.0
+		introspection? ( >=dev-libs/gobject-introspection-1.32.1:= )
+	)
 "
-
 DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 "
@@ -37,6 +40,18 @@ PATCHES=(
 	"${FILESDIR}/respect-cflags.patch"
 	"${FILESDIR}/openjpeg2.patch"
 	"${FILESDIR}/FindQt4.patch"
+	"${FILESDIR}/${MY_P}-disable-internal-jpx.patch"
+	# Fedora backports from upstream
+	"${FILESDIR}/${MY_P}-CVE-2017-14517.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14518.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14519.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14520.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14617.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14926.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14927.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14928.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14929.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-15565.patch"
 )
 
 src_prepare() {
@@ -78,13 +93,13 @@ src_configure() {
 		-DSPLASH_CMYK=OFF
 		-DUSE_FIXEDPOINT=OFF
 		-DUSE_FLOAT=OFF
-		-DWITH_Cairo=OFF
-		-DWITH_GObjectIntrospection=OFF
+		-DWITH_Cairo="$(usex cairo)"
+		-DWITH_GObjectIntrospection="$(usex introspection)"
 		-DWITH_JPEG="$(usex jpeg)"
 		-DWITH_NSS3="$(usex nss)"
 		-DWITH_PNG="$(usex png)"
 		-DWITH_Qt4=OFF
-		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=OFF
+		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=ON
 		-DWITH_TIFF="$(usex tiff)"
 	)
 	if use jpeg; then
@@ -107,11 +122,34 @@ src_configure() {
 }
 
 src_install() {
-	pushd "${BUILD_DIR}/qt5"
+	pushd "${BUILD_DIR}/glib"
 	emake DESTDIR="${ED}" install
 	popd
 
+	local utils_destdir=${T}/utils-destdir
+	rm -rf "${utils_destdir}" || die
+	mkdir "${utils_destdir}" || die
+
+	pushd "${BUILD_DIR}/utils"
+	emake DESTDIR="${utils_destdir}" install
+	popd
+
+	if use cairo; then
+		# Other utils are installed in poppler-base, but that package does not
+		# depend on Cairo.
+		dobin "${utils_destdir}/usr/bin/pdftocairo"
+		doman "${utils_destdir}/usr/share/man/man1/pdftocairo.1"
+	fi
+
 	# install pkg-config data
 	insinto /usr/$(get_libdir)/pkgconfig
-	doins "${BUILD_DIR}"/poppler-qt5.pc
+	doins "${BUILD_DIR}"/poppler-glib.pc
+	use cairo && doins "${BUILD_DIR}"/poppler-cairo.pc
+
+	# live version doesn't provide html documentation
+	if use cairo && use doc && [[ ${PV} != 9999 ]]; then
+		# For now install gtk-doc there
+		insinto /usr/share/gtk-doc/html/poppler
+		doins -r "${S}"/glib/reference/html/*
+	fi
 }

@@ -4,6 +4,8 @@
 EAPI=6
 
 inherit cmake-utils toolchain-funcs xdg-utils
+
+MY_P=poppler${P#${PN}}
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="https://poppler.freedesktop.org/"
 SRC_URI="https://poppler.freedesktop.org/${P/-base}.tar.xz"
@@ -43,6 +45,18 @@ PATCHES=(
 	"${FILESDIR}/respect-cflags.patch"
 	"${FILESDIR}/openjpeg2.patch"
 	"${FILESDIR}/FindQt4.patch"
+	"${FILESDIR}/${MY_P}-disable-internal-jpx.patch"
+	# Fedora backports from upstream
+	"${FILESDIR}/${MY_P}-CVE-2017-14517.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14518.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14519.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14520.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14617.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14926.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14927.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14928.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-14929.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-15565.patch"
 )
 
 S="${WORKDIR}/${P/-base}"
