@@ -26,8 +26,7 @@ if [[ ${PV} == *9999 ]]; then
 	esac
 fi
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.12.0-Gentoo-patches.tar.gz" )
-inherit sab-patches toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
+inherit toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_P="${PN}-${MY_PV}"
@@ -48,8 +47,6 @@ if [[ ${PV} != *9999 ]]; then
 	[[ "${PV}" = *_rc* ]] || \
 	KEYWORDS="~amd64 ~x86"
 fi
-
-sab-patches_update_SRC_URI
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -124,6 +121,20 @@ REQUIRED_USE="
 	pcre-jit? ( pcre )
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
+
+PATCHES=(
+	# bug #350330 - automagic CVS when we don't want it is bad.
+	"${FILESDIR}"/git-2.12.0-optional-cvs.patch
+
+	# install mediawiki perl modules also in vendor_dir
+	# hack, needs better upstream solution
+	"${FILESDIR}"/git-1.8.5-mw-vendor.patch
+
+	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
+
+	# Bug #493306, where FreeBSD 10.x merged libiconv into its libc.
+	"${FILESDIR}"/git-2.5.1-freebsd-10.x-no-iconv.patch
+)
 
 pkg_setup() {
 	use mediawiki-experimental && die "mediawiki-experimental not supported by this ebuild"
@@ -248,19 +259,9 @@ src_unpack() {
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
-
-	sab-patches_unpack
 }
 
 src_prepare() {
-	# bug #350330 - automagic CVS when we don't want it is bad.
-	# git-...-optional-cvs.patch
-
-	# git-...-mw-vendor.patch
-	# git-...-svn-fe-linking.patch
-	# ...freebsd-...-iconv.path
-	sab-patches_apply_all
-
 	default
 
 	sed -i \
