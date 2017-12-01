@@ -10,9 +10,17 @@
 		<name>Johannes Huber</name>
 	</maintainer>
 	<use>
+		<flag name="crypt">
+			Support core-&gt;network per-channel and per-query blowfish
+			encryption via <pkg>app-crypt/qca</pkg> SLOT 2.
+		</flag>
+		<flag name="dbus">
+			Support desktop notifications via the StatusNotifier D-Bus service
+			(used by most modern desktop environments).
+		</flag>
 		<flag name="monolithic">
-			Build Standalone client with integrated core, no external
-			quasselcore needed. Only useful if you don't want to use quassels
+			Build standalone client with integrated core, no external
+			quasselcore needed. Only useful if you don't want to use Quassel's
 			client/server model. The server and X flags are not needed in this
 			case but it is possible to enable them too.
 		</flag>
@@ -27,21 +35,13 @@
 			disable it on the client.
 		</flag>
 		<flag name="snorenotify">
-			Support for snore notification framework.
-		</flag>
-		<flag name="webkit">
-			Use qt-webkit rendering engine for showing URL thumbnails and
-			for other things that need web browser integration.
+			Support for Snore notification framework.
 		</flag>
 		<flag name="X">
-			Build the Qt 4 GUI client for quassel. If this USE flag is
+			Build the Qt5 GUI client for quassel. If this USE flag is
 			disabled, the GUI is not built, and cannot be used. You might
 			want to disable this on the server, but you need it enabled on
 			the client.
-		</flag>
-		<flag name="crypt">
-			Support core-&gt;network per-channel and per-query blowfish
-			encryption via <pkg>app-crypt/qca:2</pkg>.
 		</flag>
 	</use>
 </pkgmetadata>

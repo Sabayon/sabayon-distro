@@ -1,16 +1,17 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 inherit cmake-utils eutils
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
+MY_P=${P/-common}
+MY_PN=${PN/-common}
+EGIT_REPO_URI=( "https://github.com/${MY_PN}/${MY_PN}" "git://git.${MY_PN}-irc.org/${MY_PN}" )
 [[ "${PV}" == "9999" ]] && inherit git-r3
 
 DESCRIPTION="Qt/KDE IRC client supporting a remote daemon (common files)"
 HOMEPAGE="http://quassel-irc.org/"
-MY_P=${P/-common}
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"

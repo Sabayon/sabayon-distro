@@ -1,17 +1,17 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 inherit cmake-utils eutils pax-utils systemd user versionator
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
+MY_P=${P/-core}
+MY_PN=${PN/-core}
+EGIT_REPO_URI=( "https://github.com/${MY_PN}/${MY_PN}" "git://git.${MY_PN}-irc.org/${MY_PN}" )
 [[ "${PV}" == "9999" ]] && inherit git-r3
 
 DESCRIPTION="Qt/KDE IRC client - the \"core\" (server) component"
 HOMEPAGE="http://quassel-irc.org/"
-MY_P=${P/-core}
-MY_PN=${PN/-core}
 [[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
@@ -22,13 +22,13 @@ IUSE="crypt postgres qt5 +ssl syslog"
 SERVER_RDEPEND="
 	qt5? (
 		dev-qt/qtscript:5
-		crypt? ( app-crypt/qca:2[ssl,qt5] )
+		crypt? ( app-crypt/qca:2[qt5,ssl] )
 		postgres? ( dev-qt/qtsql:5[postgres] )
 		!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	)
 	!qt5? (
 		dev-qt/qtscript:4
-		crypt? ( app-crypt/qca:2[ssl,qt4(+)] )
+		crypt? ( app-crypt/qca:2[qt4,ssl] )
 		postgres? ( dev-qt/qtsql:4[postgres] )
 		!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	)

@@ -1,14 +1,14 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 inherit cmake-utils eutils
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
-[[ "${PV}" == "9999" ]] && inherit git-r3
 MY_P=${P/-client}
-# MY_PN=${PN/-client}
+MY_PN=${PN/-client}
+EGIT_REPO_URI=( "https://github.com/${MY_PN}/${MY_PN}" "git://git.${MY_PN}-irc.org/${MY_PN}" )
+[[ "${PV}" == "9999" ]] && inherit git-r3
 
 DESCRIPTION="Qt/KDE IRC client supporting a remote daemon for 24/7 connectivity (client only)"
 HOMEPAGE="http://quassel-irc.org/"
@@ -24,7 +24,7 @@ GUI_RDEPEND="
 		dev-qt/qtgui:5
 		dev-qt/qtwidgets:5
 		dbus? (
-			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt5]
+			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt5(+)]
 			dev-qt/qtdbus:5
 		)
 		kde? (
@@ -37,7 +37,7 @@ GUI_RDEPEND="
 			kde-frameworks/kxmlgui:5
 			kde-frameworks/sonnet:5
 		)
-		phonon? ( media-libs/phonon[qt5] )
+		phonon? ( media-libs/phonon[qt5(+)] )
 		snorenotify? ( >=x11-libs/snorenotify-0.7.0 )
 		webkit? ( dev-qt/qtwebkit:5 )
 	)
@@ -45,15 +45,13 @@ GUI_RDEPEND="
 		dev-qt/qtgui:4
 		ayatana? ( dev-libs/libindicate-qt )
 		dbus? (
-			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt4(+)]
+			>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt4]
 			dev-qt/qtdbus:4
 			kde? (
-				kde-base/kdelibs:4
-				ayatana? ( kde-misc/plasma-widget-message-indicator )
+				kde-frameworks/kdelibs:4
 			)
 		)
-		phonon? ( || ( media-libs/phonon[qt4] dev-qt/qtphonon:4 ) )
-		webkit? ( dev-qt/qtwebkit:4 )
+		phonon? ( media-libs/phonon[qt4] )
 	)
 "
 
