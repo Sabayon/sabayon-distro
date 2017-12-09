@@ -8,7 +8,7 @@ inherit eutils sabayon-artwork
 DESCRIPTION="Official Sabayon Linux SDDM base Artwork"
 HOMEPAGE="http://www.sabayon.org/"
 
-LICENSE="CCPL-Attribution-ShareAlike-3.0"
+LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm ~x86 ~amd64"
 IUSE=""
