@@ -118,6 +118,7 @@ src_unpack() {
 
 src_prepare() {
 	default
+	epatch "${FILESDIR}"/0018-remove-libsepol-libsemanage-policycoreutils.patch
 	# Setup CFLAGS, LDFLAGS
 	append-cppflags "-I${D}/usr/include/anaconda-runtime"
 	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
