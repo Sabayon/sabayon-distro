@@ -1,4 +1,4 @@
-# Copyright 2004-2014 Sabayon
+# Copyright 2004-2017 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -119,6 +119,7 @@ src_unpack() {
 src_prepare() {
 	default
 	epatch "${FILESDIR}"/0018-remove-libsepol-libsemanage-policycoreutils.patch
+	epatch "${FILESDIR}"/0019-add-some-other-packages-to-the-delete-list.patch
 	# Setup CFLAGS, LDFLAGS
 	append-cppflags "-I${D}/usr/include/anaconda-runtime"
 	append-ldflags "-L${D}/usr/$(get_libdir)/anaconda-runtime"
