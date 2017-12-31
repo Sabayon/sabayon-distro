@@ -38,7 +38,7 @@ RESTRICT="nomirror"
 AUDIT_DEPEND="dev-lang/swig"
 AUDIT_RDEPEND="ldap? ( net-nds/openldap )"
 LSELINUX_DEPEND="=sys-libs/libsepol-${SEPOL_VER}* >=dev-lang/swig-2.0.9"
-LSELINUX_RDEPEND="=sys-libs/libsepol-${SEPOL_VER}*"
+LSELINUX_RDEPEND="=sys-libs/libsepol-${SEPOL_VER}* >=sys-libs/libselinux-${LSELINUX_VER}" # Add libselinux dep as a temp workaround. See https://bugs.sabayon.org/show_bug.cgi?id=5432
 
 COMMON_DEPEND="
 	>=app-arch/libarchive-3.0.4
