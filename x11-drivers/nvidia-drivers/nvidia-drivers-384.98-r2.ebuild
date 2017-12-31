@@ -163,7 +163,9 @@ src_prepare() {
 		eapply "${FILESDIR}"/${PN}-375.20-pax.patch
 	fi
 
-	eapply "${FILESDIR}/${PN}-${PV}"-4.14-kernel-headers.patch
+	if use kernel_linux && kernel_is ge 4 14; then
+		eapply "${FILESDIR}/${PN}-${PV}"-4.14-kernel-headers.patch
+	fi
 
 	# Allow user patches so they can support RC kernels and whatever else
 	eapply_user
