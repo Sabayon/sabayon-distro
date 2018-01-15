@@ -5,7 +5,7 @@ EAPI=6
 MY_PN="slick-greeter"
 S="${WORKDIR}/${MY_PN}-${PV}"
 
-inherit vala
+inherit autotools vala
 
 DESCRIPTION="LightDM greeter forked from Unity by Linux Mint team"
 HOMEPAGE="https://github.com/linuxmint/${MY_PN}"
@@ -29,3 +29,9 @@ RDEPEND="
 	x11-libs/libXext
 	>=x11-misc/lightdm-base-1.12[introspection,vala]
 	x11-libs/pixman"
+
+src_prepare() {
+	export VALAC="$(type -P valac-0.34)"
+	eautoreconf
+	default
+}
