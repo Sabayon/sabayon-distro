@@ -1,8 +1,8 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit transmission-2.92
+inherit transmission-${PVR}
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - command line (CLI) version"
 KEYWORDS="~amd64 ~x86"

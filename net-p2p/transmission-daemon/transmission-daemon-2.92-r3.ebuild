@@ -1,8 +1,8 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit systemd transmission-2.92
+inherit systemd transmission-${PVR}
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - daemon"
 KEYWORDS="~amd64 ~x86"
@@ -25,4 +25,5 @@ src_install() {
 	newinitd "${FILESDIR}"/transmission-daemon.initd.10 transmission-daemon
 	newconfd "${FILESDIR}"/transmission-daemon.confd.4 transmission-daemon
 	systemd_dounit daemon/transmission-daemon.service
+	systemd_install_serviced "${FILESDIR}"/transmission-daemon.service.conf
 }
