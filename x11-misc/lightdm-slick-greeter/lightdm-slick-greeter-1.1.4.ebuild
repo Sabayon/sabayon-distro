@@ -27,5 +27,5 @@ RDEPEND="
 	>=x11-libs/gtk+-3.20:3
 	media-libs/libcanberra
 	x11-libs/libXext
-	>=x11-misc/lightdm-1.12[introspection,vala]
+	>=x11-misc/lightdm-base-1.12[introspection,vala]
 	x11-libs/pixman"
