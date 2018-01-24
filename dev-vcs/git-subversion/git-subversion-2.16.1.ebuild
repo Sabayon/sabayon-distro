@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -24,8 +24,7 @@ if [[ ${PV} == *9999 ]]; then
 	esac
 fi
 
-SAB_PATCHES_SRC=( "mirror://sabayon/dev-vcs/git/git-2.12.0-Gentoo-patches.tar.gz" )
-inherit sab-patches toolchain-funcs eutils multilib python-single-r1 ${SCM}
+inherit toolchain-funcs eutils multilib python-single-r1 ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
 MY_PN="${PN/-subversion}"
@@ -47,8 +46,6 @@ if [[ ${PV} != *9999 ]]; then
 	[[ "${PV}" = *_rc* ]] || \
 	KEYWORDS="~amd64 ~x86"
 fi
-
-sab-patches_update_SRC_URI
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -79,6 +76,20 @@ S="${WORKDIR}/${MY_P}"
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
 "
+
+PATCHES=(
+	# bug #350330 - automagic CVS when we don't want it is bad.
+	"${FILESDIR}"/git-2.12.0-optional-cvs.patch
+
+	# install mediawiki perl modules also in vendor_dir
+	# hack, needs better upstream solution
+	"${FILESDIR}"/git-1.8.5-mw-vendor.patch
+
+	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
+
+	# Bug #493306, where FreeBSD 10.x merged libiconv into its libc.
+	"${FILESDIR}"/git-2.5.1-freebsd-10.x-no-iconv.patch
+)
 
 # This is needed because for some obscure reasons future calls to make don't
 # pick up these exports if we export them in src_unpack()
@@ -135,14 +146,9 @@ src_unpack() {
 		git-r3_src_unpack
 	fi
 
-	sab-patches_unpack
-
 }
 
 src_prepare() {
-	# see the git ebuild for the list of patches
-	sab-patches_apply_all
-
 	default
 
 	sed -i \
@@ -165,7 +171,6 @@ src_prepare() {
 }
 
 git_emake() {
-	# bug #326625: PERL_PATH, PERL_MM_OPT
 	# bug #320647: PYTHON_PATH
 	PYTHON_PATH="${PYTHON}"
 	emake ${MY_MAKEOPTS} \
@@ -178,13 +183,11 @@ git_emake() {
 		htmldir="${EPREFIX}"/usr/share/doc/${PF}/html \
 		sysconfdir="${EPREFIX}"/etc \
 		PYTHON_PATH="${PYTHON_PATH}" \
+		PERL_PATH="${EPREFIX}/usr/bin/perl" \
 		PERL_MM_OPT="" \
 		GIT_TEST_OPTS="--no-color" \
 		V=1 \
 		"$@"
-	# This is the fix for bug #326625, but it also causes breakage, see bug
-	# #352693.
-	# PERL_PATH="${EPREFIX}/usr/bin/env perl" \
 }
 
 src_configure() {
