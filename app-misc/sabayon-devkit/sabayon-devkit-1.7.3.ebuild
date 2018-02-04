@@ -1,4 +1,4 @@
-# Copyright 2004-2017 Sabayon
+# Copyright 2004-2018 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
