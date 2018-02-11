@@ -1,20 +1,22 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=4
+EAPI=5
 
 inherit gnome2-utils
 
 DESCRIPTION="Sabayon Linux Official GNOME artwork"
 HOMEPAGE="http://www.sabayon.org/"
-SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${PN}-${PVR}.tar.xz"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${PN}-${PV}-r1.tar.xz"
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
-RDEPEND="~x11-themes/sabayon-artwork-core-${PV}
-	x11-themes/equinox-themes
-	x11-themes/elementary-icon-theme[monochrome,branding]"
+RDEPEND="x11-themes/sabayon-artwork-core
+	x11-themes/arc-theme
+	x11-themes/numix-icon-theme-circle
+	x11-themes/numix-icon-theme
+	>=gnome-extra/gnome-shell-extensions-3.12"
 
 S="${WORKDIR}/${PN}"
 
@@ -35,7 +37,7 @@ src_install() {
 	# GNOME 3 config settings
 	dodir /usr/share/glib-2.0/schemas
 	insinto /usr/share/glib-2.0/schemas
-	doins "${FILESDIR}/org.sabayon.gschema.override"
+	newins "${FILESDIR}/org.sabayon.gschema.override-${PV}-r1" "org.sabayon.gschema.override"
 
 	# GDM 3.6+ logo stuff
 	cd "${S}/gdm"
