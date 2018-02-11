@@ -13,8 +13,7 @@ IUSE=""
 RDEPEND="
 	x11-themes/sabayon-artwork-core
 	x11-misc/lightdm-slick-greeter
-	x11-misc/lightdm-settings
-	!!x11-misc/lightdm-gtk-greeter"
+	x11-misc/lightdm-settings"
 
 S="${FILESDIR}"
 

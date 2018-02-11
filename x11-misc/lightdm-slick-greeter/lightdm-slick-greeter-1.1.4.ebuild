@@ -5,7 +5,7 @@ EAPI=6
 MY_PN="slick-greeter"
 S="${WORKDIR}/${MY_PN}-${PV}"
 
-inherit autotools vala
+inherit autotools vala gnome2-utils
 
 DESCRIPTION="LightDM greeter forked from Unity by Linux Mint team"
 HOMEPAGE="https://github.com/linuxmint/${MY_PN}"
@@ -35,3 +35,15 @@ src_prepare() {
 	eautoreconf
 	default
 }
+
+pkg_postinst() {
+	gnome2_schemas_update
+        # Make sure to have a greeter properly configured
+        eselect lightdm set slick-greeter --use-old
+}
+
+pkg_postrm() {
+	gnome2_schemas_update --uninstall
+	eselect lightdm set 1  # hope some other greeter is installed
+}
+
