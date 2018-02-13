@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: transmission-2.xx.eclass
@@ -14,12 +14,6 @@
 # in Gentoo ebuild.
 # Always call phase functions using their public names, such like:
 # transmission-2.83_src_configure, and never _transmission_src_configure.
-
-# @ECLASS-VARIABLE: TRANSMISSION_ECLASS_VERSION_OK
-# @DESCRIPTION:
-# Set this to x.y if you want to use transmission-x.y.eclass from ebuild
-# with ${PV} different than x.y. This is to catch bugs.
-: ${TRANSMISSION_ECLASS_VERSION_OK:=${PVR}}
 
 # @ECLASS-VARIABLE: E_TRANSM_TAIL
 # @INTERNAL
@@ -46,7 +40,7 @@ _transmission_is() {
 # Function to setup functions. The eval uses strictly controlled variables,
 # so it's OK.
 _transmission_eclass_setup_functions() {
-	local v=2.92-r2
+	local v=2.93
 	local func
 	for func in src_prepare src_configure src_compile \
 			pkg_preinst pkg_postinst pkg_postrm; do
@@ -57,8 +51,8 @@ _transmission_eclass_setup_functions() {
 _transmission_eclass_setup_functions
 
 MY_ECLASSES=""
-_transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
-_transmission_is qt5 && MY_ECLASSES+="fdo-mime qmake-utils"
+_transmission_is gtk && MY_ECLASSES+="gnome2-utils xdg-utils"
+_transmission_is qt5 && MY_ECLASSES+="qmake-utils xdg-utils"
 _transmission_is "" || MY_ECLASSES+=" autotools flag-o-matic"
 _transmission_is base && MY_ECLASSES+=" user"
 
@@ -75,10 +69,14 @@ esac
 [[ ${PN} = transmission* ]] || \
 	die "This eclass can only be used with net-p2p/transmission* ebuilds!"
 # Bug catcher!
-if ! [[ ${PV} = *9999* ]] && [[ ${TRANSMISSION_ECLASS_VERSION_OK} != ${ECLASS#*-} ]]; then
+if [[ ${PVR} != ${ECLASS#*-} ]]; then
 	eerror "used eclass ${ECLASS}"
 	eerror "TRANSMISSION_ECLASS_VERSION_OK=${TRANSMISSION_ECLASS_VERSION_OK}"
-	die "ebuild version ${PV} doesn't match with the eclass"
+	die "ebuild version ${PVR} doesn't match with the eclass"
+fi
+
+if [[ -n ${TRANSMISSION_ECLASS_VERSION_OK} ]]; then
+	die "Support for TRANSMISSION_ECLASS_VERSION_OK has been removed."
 fi
 
 MY_PN="transmission"
@@ -86,7 +84,7 @@ MY_P="${MY_PN}-${PV}"
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client"
 HOMEPAGE="http://www.transmissionbt.com/"
-SRC_URI="http://download.transmissionbt.com/${MY_PN}/files/${MY_P}.tar.xz"
+SRC_URI="https://github.com/transmission/transmission-releases/raw/master/${MY_P}.tar.xz"
 
 # web/LICENSE is always GPL-2 whereas COPYING allows either GPL-2 or GPL-3 for the rest
 # transmission in licenses/ is for mentioning OpenSSL linking exception
@@ -247,7 +245,7 @@ _transmission_pkg_preinst() {
 
 _transmission_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt5; then
-		fdo-mime_desktop_database_update
+		xdg_desktop_database_update
 	fi
 
 	_transmission_is gtk && gnome2_icon_cache_update
@@ -289,7 +287,7 @@ _transmission_pkg_postinst() {
 
 _transmission_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt5; then
-		fdo-mime_desktop_database_update
+		xdg_desktop_database_update
 	fi
 
 	_transmission_is gtk && gnome2_icon_cache_update

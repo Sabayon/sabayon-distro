@@ -1,8 +1,8 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit eutils transmission-2.92-r2
+inherit eutils transmission-${PVR}
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client - Gtk+ UI"
 KEYWORDS="~amd64 ~x86"
