@@ -17,5 +17,5 @@ PLYMOUTH_THEME="${PLYMOUTH_THEME:-sabayon-artwork-plymouth-default}"
 # @ECLASS-VARIABLE: SDDM_THEME
 # @DESCRIPTION:
 # Default sddm theme name to use
-SDDM_THEME="${SDDM_THEME:-sabayon-artwork-sddm-default}"
+SDDM_THEME="${SDDM_THEME:-breeze}"
 
