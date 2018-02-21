@@ -1,10 +1,11 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit cmake-utils toolchain-funcs xdg-utils
+inherit cmake-utils flag-o-matic toolchain-funcs xdg-utils
 
+MY_PN=poppler
 MY_P=poppler${P#${PN}}
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="https://poppler.freedesktop.org/"
@@ -12,7 +13,7 @@ SRC_URI="https://poppler.freedesktop.org/${P/-base}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/68"
+SLOT="0/73"
 IUSE="cjk curl cxx debug doc +jpeg jpeg2k +lcms nss png tiff +utils"
 
 # No test data provided
@@ -37,26 +38,15 @@ RDEPEND="${COMMON_DEPEND}
 	cjk? ( >=app-text/poppler-data-0.4.7 )
 "
 
-DOCS=(AUTHORS NEWS README README-XPDF TODO)
+DOCS=(AUTHORS NEWS README README-XPDF)
 
 PATCHES=(
-	"${FILESDIR}/qt5-dependencies.patch"
-	"${FILESDIR}/fix-multilib-configuration.patch"
-	"${FILESDIR}/respect-cflags.patch"
-	"${FILESDIR}/openjpeg2.patch"
-	"${FILESDIR}/FindQt4.patch"
-	"${FILESDIR}/${MY_P}-disable-internal-jpx.patch"
-	# Fedora backports from upstream
-	"${FILESDIR}/${MY_P}-CVE-2017-14517.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-14518.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-14519.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-14520.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-14617.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-14926.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-14927.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-14928.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-14929.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-15565.patch"
+	"${FILESDIR}/${MY_PN}-0.60.1-qt5-dependencies.patch"
+	"${FILESDIR}/${MY_PN}-0.28.1-fix-multilib-configuration.patch"
+	"${FILESDIR}/${MY_PN}-0.61.0-respect-cflags.patch"
+	"${FILESDIR}/${MY_PN}-0.62.0-openjpeg2.patch"
+	"${FILESDIR}/${MY_PN}-0.57.0-disable-internal-jpx.patch"
+	"${FILESDIR}/${MY_P}-glibc.patch" # bug 643858
 )
 
 S="${WORKDIR}/${P/-base}"
@@ -77,54 +67,38 @@ src_prepare() {
 		einfo "policy(SET CMP0002 OLD) - workaround can be removed"
 	fi
 
-	if tc-is-clang && [[ ${CHOST} == *-darwin* ]] ; then
-		# we need to up the C++ version, bug #622526
-		export CXX="$(tc-getCXX) -std=c++11"
-	fi
+	# we need to up the C++ version, bug #622526, #643278
+	append-cxxflags -std=c++11
 }
 
 src_configure() {
 	xdg_environment_reset
 	local mycmakeargs=(
 		-DBUILD_GTK_TESTS=OFF
-		-DBUILD_QT4_TESTS=OFF
 		-DBUILD_QT5_TESTS=OFF
 		-DBUILD_CPP_TESTS=OFF
 		-DENABLE_SPLASH=ON
 		-DENABLE_ZLIB=ON
 		-DENABLE_ZLIB_UNCOMPRESS=OFF
 		-DENABLE_XPDF_HEADERS=ON
-		-DENABLE_LIBCURL="$(usex curl)"
-		-DENABLE_CPP="$(usex cxx)"
-		-DENABLE_UTILS="$(usex utils)"
 		-DSPLASH_CMYK=OFF
 		-DUSE_FIXEDPOINT=OFF
 		-DUSE_FLOAT=OFF
 		-DWITH_Cairo=OFF
+		-DENABLE_LIBCURL=$(usex curl)
+		-DENABLE_CPP=$(usex cxx)
 		-DWITH_GObjectIntrospection=OFF
-		-DWITH_JPEG="$(usex jpeg)"
-		-DWITH_NSS3="$(usex nss)"
-		-DWITH_PNG="$(usex png)"
-		-DWITH_Qt4=OFF
+		-DWITH_JPEG=$(usex jpeg)
+		-DENABLE_DCTDECODER=$(usex jpeg libjpeg none)
+		-DENABLE_LIBOPENJPEG=$(usex jpeg2k openjpeg2 none)
+		-DENABLE_CMS=$(usex lcms lcms2 none)
+		-DWITH_NSS3=$(usex nss)
+		-DWITH_PNG=$(usex png)
 		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=ON
 		-DQT5_FOUND=OFF
-		-DWITH_TIFF="$(usex tiff)"
+		-DWITH_TIFF=$(usex tiff)
+		-DENABLE_UTILS=$(usex utils)
 	)
-	if use jpeg; then
-		mycmakeargs+=(-DENABLE_DCTDECODER=libjpeg)
-	else
-		mycmakeargs+=(-DENABLE_DCTDECODER=none)
-	fi
-	if use jpeg2k; then
-		mycmakeargs+=(-DENABLE_LIBOPENJPEG=openjpeg2)
-	else
-		mycmakeargs+=(-DENABLE_LIBOPENJPEG=none)
-	fi
-	if use lcms; then
-		mycmakeargs+=(-DENABLE_CMS=lcms2)
-	else
-		mycmakeargs+=(-DENABLE_CMS=)
-	fi
 
 	cmake-utils_src_configure
 }
