@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -7,7 +7,7 @@ GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
 PYTHON_COMPAT=( python2_7 )
-PLOCALES="bg ca de fr is it ko pt_PT ru sv vi zh_CN"
+PLOCALES="bg ca de es fr is it ko pt_PT ru sv vi zh_CN"
 if [[ ${PV} == *9999 ]]; then
 	SCM="git-r3"
 	EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
@@ -34,7 +34,7 @@ MY_P="${PN}-${MY_PV}"
 DOC_VER=${MY_PV}
 
 DESCRIPTION="stupid content tracker: distributed VCS designed for speed and efficiency"
-HOMEPAGE="http://www.git-scm.com/"
+HOMEPAGE="https://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
@@ -290,7 +290,6 @@ src_prepare() {
 }
 
 git_emake() {
-	# bug #326625: PERL_PATH, PERL_MM_OPT
 	# bug #320647: PYTHON_PATH
 	PYTHON_PATH=""
 	use python && PYTHON_PATH="${PYTHON}"
@@ -304,13 +303,11 @@ git_emake() {
 		htmldir="${EPREFIX}"/usr/share/doc/${PF}/html \
 		sysconfdir="${EPREFIX}"/etc \
 		PYTHON_PATH="${PYTHON_PATH}" \
+		PERL_PATH="${EPREFIX}/usr/bin/perl" \
 		PERL_MM_OPT="" \
 		GIT_TEST_OPTS="--no-color" \
 		V=1 \
 		"$@"
-	# This is the fix for bug #326625, but it also causes breakage, see bug
-	# #352693.
-	# PERL_PATH="${EPREFIX}/usr/bin/env perl" \
 }
 
 src_configure() {
@@ -576,7 +573,7 @@ src_install() {
 }
 
 src_test() {
-	local disabled="t9128-git-svn-cmd-branch.sh"
+	local disabled=""
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
@@ -607,7 +604,7 @@ src_test() {
 	# Unzip is used only for the testcase code, not by any normal parts of Git.
 	if ! has_version app-arch/unzip ; then
 		einfo "Disabling tar-tree tests"
-		disabled="${disabled} t5000-tar-tree.sh"
+		disabled+=" t5000-tar-tree.sh"
 	fi
 
 	cvs=0
@@ -616,10 +613,10 @@ src_test() {
 		if [[ $cvs -eq 1 ]]; then
 			ewarn "Skipping CVS tests because CVS does not work as root!"
 			ewarn "You should retest with FEATURES=userpriv!"
-			disabled="${disabled} ${tests_cvs}"
+			disabled+=" ${tests_cvs}"
 		fi
 		einfo "Skipping other tests that require being non-root"
-		disabled="${disabled} ${tests_nonroot}"
+		disabled+=" ${tests_nonroot}"
 	else
 		[[ $cvs -gt 0 ]] && \
 			has_version dev-vcs/cvs && \
@@ -629,17 +626,17 @@ src_test() {
 			let cvs=$cvs+1
 		if [[ $cvs -lt 3 ]]; then
 			einfo "Disabling CVS tests (needs dev-vcs/cvs[USE=server])"
-			disabled="${disabled} ${tests_cvs}"
+			disabled+=" ${tests_cvs}"
 		fi
 	fi
 
 	if ! use perl ; then
 		einfo "Disabling tests that need Perl"
-		disabled="${disabled} ${tests_perl}"
+		disabled+=" ${tests_perl}"
 	fi
 
 	einfo "Disabling tests that fail with SVN 1.7"
-	disabled="${disabled} ${test_svn}"
+	disabled+=" ${test_svn}"
 
 	# Reset all previously disabled tests
 	cd "${S}/t"

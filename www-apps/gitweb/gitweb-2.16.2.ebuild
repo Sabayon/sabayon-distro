@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -31,7 +31,7 @@ MY_P="${PN}-${MY_PV}"
 MY_P="${MY_P/gitweb/git}"
 
 DESCRIPTION="A web interface to git"
-HOMEPAGE="http://www.git-scm.com/"
+HOMEPAGE="https://www.git-scm.com/"
 if [[ "$PV" != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
@@ -105,7 +105,7 @@ git_emake() {
 		prefix="${EPREFIX}"/usr \
 		htmldir="${EPREFIX}"/usr/share/doc/${PF}/html \
 		sysconfdir="${EPREFIX}"/etc \
-		PERL_PATH="${EPREFIX}/usr/bin/env perl" \
+		PERL_PATH="${EPREFIX}/usr/bin/perl" \
 		PERL_MM_OPT="" \
 		GIT_TEST_OPTS="--no-color" \
 		V=1 \
