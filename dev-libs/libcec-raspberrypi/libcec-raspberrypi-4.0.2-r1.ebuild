@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -12,7 +12,7 @@ inherit cmake-utils linux-info python-single-r1 toolchain-funcs
 
 DESCRIPTION="Library for communicating with the Pulse-Eight USB HDMI-CEC Adaptor"
 HOMEPAGE="http://libcec.pulse-eight.com"
-SRC_URI="https://github.com/Pulse-Eight/${PN}/archive/${MY_P}.tar.gz"
+SRC_URI="https://github.com/Pulse-Eight/${MY_PN}/archive/${MY_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -22,6 +22,7 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 RDEPEND="virtual/udev
 	>=dev-libs/libplatform-2.0.0
+	sys-libs/ncurses:=
 	raspberry-pi? ( >=media-libs/raspberrypi-userland-0_pre20160305-r1 )
 	xrandr? ( x11-libs/libXrandr )
 	python? ( ${PYTHON_DEPS} )"
@@ -32,6 +33,8 @@ DEPEND="${RDEPEND}
 CONFIG_CHECK="~USB_ACM"
 
 S="${WORKDIR}/${MY_PN}-${MY_P}"
+
+PATCHES=( "${FILESDIR}/${MY_P}-no-tinfo.patch" )
 
 pkg_pretend() {
 	linux-info_pkg_setup
