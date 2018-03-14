@@ -18,7 +18,8 @@ DEPEND=""
 RDEPEND="app-emulation/docker
 	dev-lang/perl
 	dev-python/shyaml
-	app-misc/sabayon-devkit"
+	app-misc/sabayon-devkit
+	sys-process/tini"
 
 src_install() {
 	emake DESTDIR="${D}" \
