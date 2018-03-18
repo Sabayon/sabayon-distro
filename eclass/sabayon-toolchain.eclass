@@ -126,7 +126,9 @@ _install_basegcc(){
 	fi
 
 	S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libstdc++-v3/po" DESTDIR="${D}" install || die
-	S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" install-info || die
+	if use openmp; then
+		S="${WORKDIR}"/build emake -j1 -C "${CTARGET}/libgomp" DESTDIR="${D}" install-info || die
+	fi
 
 	S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libquadmath || die
 	if use fortran; then
