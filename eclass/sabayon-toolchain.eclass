@@ -97,7 +97,7 @@ sabayon-toolchain_src_test() {
 
 #---->> src_install <<----
 
-_install_basegcc(){
+_install_basegcc() {
 	einfo "Sabayon: install sys-devel/base-gcc files"
 
 	cd "${WORKDIR}/build"
@@ -131,6 +131,8 @@ _install_basegcc(){
 	fi
 
 	S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libquadmath || die
+	S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libatomic || die
+
 	if use fortran; then
 		S="${WORKDIR}"/build emake -j1 DESTDIR="${D}" install-target-libgfortran || die
 	fi
@@ -181,13 +183,13 @@ _install_gcc() {
 	einfo "Sabayon: install sys-devel/gcc files (including compiler)"
 	toolchain_src_install
 	# now drop what's provided by sys-devel/base-gcc-${PV}:${SLOT}
-	base_gcc_libs="libgfortran.so* libgcc_s.so* libobjc.so*
+	base_gcc_libs="libgfortran.so* libatomic.so* libgcc_s.so* libobjc.so*
 		libobjc_gc.so* libmudflap.so* libmudflapth.so* libgomp.so* libgomp-plugin-host_nonshm.so* libstdc++.so* libquadmath.so*
 		crtprec80.o crtbeginP.o crtfastmath.o crtprec32.o crtbeginT.o
 		crtbeginS.o crtbegin.o crtend.o crtendS.o crtprec64.o
 		vtv_end.o vtv_end_preinit.o vtv_start.o vtv_start_preinit.o
 		finclude/ieee_arithmetic.mod finclude/ieee_exceptions.mod finclude/ieee_features.mod"
-	base_multilib_gcc_libs="32/libgfortran.so* 32/libobjc.so* 32/libobjc_gc.so*
+	base_multilib_gcc_libs="32/libgfortran.so* 32/libatomic.so* 32/libobjc.so* 32/libobjc_gc.so*
 		32/libgcc_s.so* 32/libgomp.so* 32/libgomp-plugin-host_nonshm.so* 32/libmudflap.so*
 		32/libmudflapth.so* 32/libstdc++.so* 32/libquadmath.so*
 		32/crtprec80.o 32/crtbeginP.o 32/crtfastmath.o 32/crtprec32.o 32/crtbeginT.o
@@ -231,7 +233,7 @@ sabayon-toolchain_src_install() {
 
 #---->> pkg_post* <<----
 
-_postinst_basegcc(){
+_postinst_basegcc() {
 	# Sabayon specific bits to always force the latest gcc profile
 	local gcc_atom=$(best_version sys-devel/base-gcc)
 	local gcc_ver=
