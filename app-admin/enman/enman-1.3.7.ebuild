@@ -1,6 +1,5 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id: $
 
 EAPI=6
 
@@ -15,17 +14,16 @@ KEYWORDS="~amd64 ~x86"
 RESTRICT="mirror"
 IUSE=""
 
-DEPEND="
-    dev-perl/Module-Build
-"
+DEPEND="dev-perl/Module-Build"
+
 RDEPEND="
-    dev-perl/App-Cmd
-    dev-perl/LWP-Protocol-https
-    virtual/perl-Encode
-    dev-perl/libwww-perl
-    dev-perl/libintl-perl
-    dev-perl/JSON
-    virtual/perl-Term-ANSIColor
-    ${DEPEND}"
+	dev-perl/App-Cmd
+	dev-perl/LWP-Protocol-https
+	virtual/perl-Encode
+	dev-perl/libwww-perl
+	dev-perl/libintl-perl
+	dev-perl/JSON
+	virtual/perl-Term-ANSIColor
+	${DEPEND}"
 
 SRC_TEST="do"
