@@ -45,6 +45,7 @@ COMMON_DEPEND="
 	dev-python/dbus-python
 	dev-python/nose
 	dev-python/pygobject-base
+	dev-util/glade:3.10
 	dev-util/intltool
 	gnome-base/libgnomekbd
 	>=net-misc/networkmanager-0.9.8.0
@@ -59,7 +60,6 @@ COMMON_DEPEND="
 	"
 DEPEND="${COMMON_DEPEND} ${AUDIT_DEPEND} ${LSELINUX_DEPEND}
 	app-arch/rpm
-	>=dev-util/glade-3.10
 	dev-util/gtk-doc
 	dev-util/gtk-doc-am
 	sys-apps/sed"
