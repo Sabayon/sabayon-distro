@@ -104,8 +104,7 @@ RDEPEND="${COMMON_DEPEND} ${AUDIT_RDEPEND}
 	sys-block/open-iscsi
 	sys-boot/os-prober
 	sys-libs/libuser
-	x11-themes/gnome-icon-theme
-	x11-themes/gnome-icon-theme-symbolic
+	x11-themes/adwaita-icon-theme
 	x11-themes/gnome-themes-standard
 	gtk? ( x11-libs/gtk+:3 )"
 
