@@ -110,6 +110,7 @@ RDEPEND="${CDEPEND}
 #   .xml/docbook  --(docbook2texi.pl)--> .texi
 #   .texi         --(makeinfo)---------> .info
 DEPEND="${CDEPEND}
+	sab-split? ( dev-util/dirstr )
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X
@@ -415,7 +416,7 @@ sab-src_install_cleanup() {
 		-e "s/@git-ver@/${PV}/" \
 		"${T}/spec" || die
 
-	/usr/bin/python3 "$(which no-name-yet.py)" \
+	dirstr.py \
 		--spec-file "${T}/spec" \
 		--root-dir "${ED}" \
 		--class git-subversion \
