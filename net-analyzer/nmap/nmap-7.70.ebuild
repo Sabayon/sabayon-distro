@@ -1,28 +1,31 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="sqlite,xml"
-inherit eutils flag-o-matic python-single-r1 toolchain-funcs
+inherit autotools flag-o-matic python-single-r1 toolchain-funcs
 
 MY_P=${P/_beta/BETA}
 
 DESCRIPTION="A utility for network discovery and security auditing"
-HOMEPAGE="http://nmap.org/"
+HOMEPAGE="https://nmap.org/"
 SRC_URI="
-	http://nmap.org/dist/${MY_P}.tar.bz2
+	https://nmap.org/dist/${MY_P}.tar.bz2
 "
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 
-IUSE="ipv6 libressl +nse system-lua ncat ndiff nls nmap-update nping ssl zenmap"
-# not used in split nmap ebuild, but retained for compatibility with Portage
+# some USE not used in split nmap ebuild, but retained for compatibility with Portage
+
+IUSE="
+	ipv6 libressl libssh2 ncat ndiff nls nmap-update nping +nse ssl system-lua
+	zenmap
+"
 NMAP_LINGUAS=( de fr hi hr it ja pl pt_BR ru zh )
-IUSE+=" ${NMAP_LINGUAS[@]/#/linguas_}"
 
 REQUIRED_USE="
 	system-lua? ( nse )
@@ -32,21 +35,34 @@ REQUIRED_USE="
 RDEPEND="
 	dev-libs/liblinear:=
 	dev-libs/libpcre
-	|| ( >=net-libs/libpcap-1.8.0 <net-libs/libpcap-1.8.0[ipv6?] )
-	system-lua? ( >=dev-lang/lua-5.2[deprecated] )
+	net-libs/libpcap
+	libssh2? ( net-libs/libssh2[zlib] )
 	ndiff? ( ${PYTHON_DEPS} )
-	nmap-update? ( dev-libs/apr dev-vcs/subversion )
+	nmap-update? (
+		dev-libs/apr
+		dev-vcs/subversion
+	)
 	ssl? (
 		!libressl? ( dev-libs/openssl:0= )
 		libressl? ( dev-libs/libressl:= )
 	)
+	system-lua? ( >=dev-lang/lua-5.2:*[deprecated] )
 "
 DEPEND="
 	${RDEPEND}
 "
-
 PDEPEND="zenmap? ( ~net-analyzer/zenmap-${PV} )"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-5.10_beta1-string.patch
+	"${FILESDIR}"/${PN}-5.21-python.patch
+	"${FILESDIR}"/${PN}-6.46-uninstaller.patch
+	"${FILESDIR}"/${PN}-6.25-liblua-ar.patch
+	"${FILESDIR}"/${PN}-7.25-no-FORTIFY_SOURCE.patch
+	"${FILESDIR}"/${PN}-7.25-CXXFLAGS.patch
+	"${FILESDIR}"/${PN}-7.25-libpcre.patch
+	"${FILESDIR}"/${PN}-7.31-libnl.patch
+)
 S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
@@ -61,19 +77,16 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}"/${PN}-4.75-nolua.patch \
-		"${FILESDIR}"/${PN}-5.10_beta1-string.patch \
-		"${FILESDIR}"/${PN}-5.21-python.patch \
-		"${FILESDIR}"/${PN}-6.46-uninstaller.patch \
-		"${FILESDIR}"/${PN}-6.47-no-libnl.patch \
-		"${FILESDIR}"/${PN}-6.49-no-FORTIFY_SOURCE.patch \
-		"${FILESDIR}"/${PN}-6.25-liblua-ar.patch
+	rm -r libpcap/ || die
 
+	cat "${FILESDIR}"/nls.m4 >> "${S}"/acinclude.m4 || die
+
+	default
+
+	local lingua
 	if false && use nls; then # skipped in split nmap ebuild
-		local lingua=''
 		for lingua in ${NMAP_LINGUAS[@]}; do
-			if ! use linguas_${lingua}; then
+			if ! has ${lingua} ${LINGUAS-${lingua}}; then
 				rm -r zenmap/share/zenmap/locale/${lingua} || die
 				rm zenmap/share/zenmap/locale/${lingua}.po || die
 			fi
@@ -98,12 +111,23 @@ src_prepare() {
 	# Fix desktop files wrt bug #432714
 	# not needed in Sabayon's split nmap ebuild
 	#sed -i \
-	#	-e '/^Encoding/d' \
 	#	-e 's|^Categories=.*|Categories=Network;System;Security;|g' \
 	#	zenmap/install_scripts/unix/zenmap-root.desktop \
 	#	zenmap/install_scripts/unix/zenmap.desktop || die
 
-	epatch_user
+	sed -i \
+		-e '/AC_CONFIG_SUBDIRS(libz)/d' \
+		-e '/AC_CONFIG_SUBDIRS(libssh2)/d' \
+		configure.ac
+
+	cp libdnet-stripped/include/config.h.in{,.nmap-orig} || die
+
+	eautoreconf
+
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		# we need the original for a Darwin-specific fix, bug #604432
+		mv libdnet-stripped/include/config.h.in{.nmap-orig,} || die
+	fi
 }
 
 src_configure() {
@@ -112,17 +136,20 @@ src_configure() {
 	econf \
 		$(use_enable ipv6) \
 		$(use_enable nls) \
-		--without-zenmap \
-		$(usex nse --with-liblua=$(usex system-lua /usr included '' '') --without-liblua) \
+		$(use_with libssh2) \
 		$(use_with ncat) \
 		$(use_with ndiff) \
 		$(use_with nmap-update) \
 		$(use_with nping) \
 		$(use_with ssl openssl) \
+		--without-zenmap \
+		$(usex libssh2 --with-zlib) \
+		$(usex nse --with-liblua=$(usex system-lua /usr included '' '') --without-liblua) \
+		--cache-file="${S}"/config.cache \
 		--with-libdnet=included \
 		--with-pcre=/usr
+	#	Commented out because configure does weird things
 	#	--with-liblinear=/usr \
-	#	Commented because configure does weird things, while autodetection works
 }
 
 src_compile() {
