@@ -1,7 +1,8 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+
 WANT_AUTOMAKE="none"
 MY_P="${P/_/-}"
 
@@ -9,15 +10,13 @@ MY_SVN_PN="subversion"
 MY_SVN_P="${MY_SVN_PN}-${PV}"
 MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 
-SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.9.5-Gentoo-patches.tar.gz )
-inherit sab-patches autotools db-use depend.apache eutils flag-o-matic libtool multilib eutils
+inherit autotools db-use depend.apache flag-o-matic libtool multilib xdg-utils
 
 DESCRIPTION="Subversion WebDAV support"
-HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2"
+HOMEPAGE="https://subversion.apache.org/"
+SRC_URI="mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2
+	https://dev.gentoo.org/~polynomial-c/${MY_SVN_PN}-1.10.0_rc1-patches-1.tar.xz"
 S="${WORKDIR}/${MY_SVN_P}"
-
-sab-patches_update_SRC_URI
 
 LICENSE="Subversion"
 SLOT="0"
@@ -44,10 +43,12 @@ IUSE="berkdb debug +dso nls sasl"
 MY_CDEPS="
 	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,http]
 	app-arch/bzip2
+	app-arch/lz4
 	>=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
+	dev-libs/libutf8proc
 	sys-apps/file
 	sys-libs/zlib
 	berkdb? ( >=sys-libs/db-4.0.14:= )
@@ -57,7 +58,6 @@ DEPEND="${MY_CDEPS}
 	>=net-libs/serf-1.3.4
 	sasl? ( dev-libs/cyrus-sasl )
 	virtual/pkgconfig
-
 	!!<sys-apps/sandbox-1.6
 	nls? ( sys-devel/gettext )
 	sys-apps/file"
@@ -110,8 +110,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	sab-patches_apply_all
-	default
+	eapply "${WORKDIR}/patches"
+	eapply_user
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -128,6 +128,8 @@ src_prepare() {
 
 	#sed -e 's/\(libsvn_swig_py\)-\(1\.la\)/\1-$(EPYTHON)-\2/g' \
 	#-i build-outputs.mk || die "sed failed"
+
+	xdg_environment_reset
 }
 
 src_configure() {
@@ -218,8 +220,8 @@ src_install() {
 
 pkg_preinst() {
 	# Compare versions of Berkeley DB, bug 122877.
-	if use berkdb && [[ -f "${EROOT%/}/usr/bin/svn" ]] ; then
-		OLD_BDB_VERSION="$(scanelf -nq "${EROOT%/}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
+	if use berkdb && [[ -f "${EROOT}/usr/bin/svn" ]] ; then
+		OLD_BDB_VERSION="$(scanelf -nq "${EROOT}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
 		NEW_BDB_VERSION="$(scanelf -nq "${ED%/}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
 		if [[ "${OLD_BDB_VERSION}" != "${NEW_BDB_VERSION}" ]] ; then
 			CHANGED_BDB_VERSION="1"
@@ -269,11 +271,11 @@ pkg_config() {
 
 		einfo "Populating repository directory..."
 		# Create initial repository.
-		"${EROOT}usr/bin/svnadmin" create "${SVN_REPOS_LOC}/repos"
+		"${EROOT}/usr/bin/svnadmin" create "${SVN_REPOS_LOC}/repos"
 
 		einfo "Setting repository permissions..."
-		SVNSERVE_USER="$(. "${EROOT}etc/conf.d/svnserve"; echo "${SVNSERVE_USER}")"
-		SVNSERVE_GROUP="$(. "${EROOT}etc/conf.d/svnserve"; echo "${SVNSERVE_GROUP}")"
+		SVNSERVE_USER="$(. "${EROOT}/etc/conf.d/svnserve"; echo "${SVNSERVE_USER}")"
+		SVNSERVE_GROUP="$(. "${EROOT}/etc/conf.d/svnserve"; echo "${SVNSERVE_GROUP}")"
 		#use apache2
 		[[ -z "${SVNSERVE_USER}" ]] && SVNSERVE_USER="apache"
 		[[ -z "${SVNSERVE_GROUP}" ]] && SVNSERVE_GROUP="apache"

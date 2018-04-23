@@ -1,7 +1,8 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+
 WANT_AUTOMAKE="none"
 MY_P="${P/_/-}"
 
@@ -11,15 +12,13 @@ MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 MY_SVN_CATEGORY="${CATEGORY}"
 
 # note: java-pkg-2, not java-pkt-opt-2
-SAB_PATCHES_SRC=( mirror://sabayon/dev-vcs/${MY_SVN_PN}-1.9.5-Gentoo-patches.tar.gz )
-inherit sab-patches autotools eutils flag-o-matic java-pkg-2 libtool multilib
+inherit autotools flag-o-matic java-pkg-2 libtool ltprune multilib xdg-utils
 
 DESCRIPTION="Java bindings for Subversion"
-HOMEPAGE="http://subversion.apache.org/"
-SRC_URI="mirror://apache/${PN}/${MY_SVN_P}.tar.bz2"
+HOMEPAGE="https://subversion.apache.org/"
+SRC_URI="mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2
+	https://dev.gentoo.org/~polynomial-c/${MY_SVN_PN}-1.10.0_rc1-patches-1.tar.xz"
 S="${WORKDIR}/${MY_SVN_P/_/-}"
-
-sab-patches_update_SRC_URI
 
 LICENSE="Subversion"
 SLOT="0"
@@ -30,10 +29,12 @@ IUSE="debug doc nls"
 COMMON_DEPEND="~dev-vcs/subversion-${PV}
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
+	dev-libs/libutf8proc
 	sys-apps/file"
 RDEPEND="
 	${COMMON_DEPEND}
 	app-arch/bzip2
+	app-arch/lz4
 	>=virtual/jre-1.5"
 DEPEND="${COMMON_DEPEND}
 	>=virtual/jdk-1.5"
@@ -49,8 +50,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	sab-patches_apply_all
-	default
+	eapply "${WORKDIR}/patches"
+	eapply_user
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -67,6 +68,8 @@ src_prepare() {
 
 	sed -e 's/\(libsvn_swig_py\)-\(1\.la\)/\1-$(EPYTHON)-\2/g' \
 		-i build-outputs.mk || die "sed failed"
+
+	xdg_environment_reset
 }
 
 src_configure() {
