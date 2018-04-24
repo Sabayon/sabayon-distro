@@ -29,20 +29,22 @@ fi
 inherit toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
-MY_P="${PN}-${MY_PV}"
+MY_PN="git"
+MY_P="${MY_PN}-${MY_PV}"
 
 DOC_VER=${MY_PV}
 
 DESCRIPTION="stupid content tracker: distributed VCS designed for speed and efficiency"
+
 HOMEPAGE="https://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
 	[[ "${PV/rc}" != "${PV}" ]] && SRC_URI_KORG+='/testing'
 	SRC_URI="${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
-			${SRC_URI_KORG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+			${SRC_URI_KORG}/${MY_PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			doc? (
-			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+			${SRC_URI_KORG}/${MY_PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	[[ "${PV}" = *_rc* ]] || \
 	KEYWORDS="~amd64 ~x86"
@@ -50,7 +52,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +pcre-jit +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +pcre-jit +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test sab-split"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
@@ -93,6 +95,7 @@ RDEPEND="${CDEPEND}
 #   .xml/docbook  --(docbook2texi.pl)--> .texi
 #   .texi         --(makeinfo)---------> .info
 DEPEND="${CDEPEND}
+	sab-split? ( dev-util/dirstr )
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X
@@ -108,7 +111,7 @@ if [[ ${PV} == *9999 ]]; then
 		app-text/asciidoc"
 fi
 
-SITEFILE=50${PN}-gentoo.el
+SITEFILE=50${MY_PN}-gentoo.el
 S="${WORKDIR}/${MY_P}"
 
 REQUIRED_USE="
@@ -120,6 +123,9 @@ REQUIRED_USE="
 	webdav? ( curl )
 	pcre-jit? ( pcre )
 	python? ( ${PYTHON_REQUIRED_USE} )
+	sab-split? (
+		!cgi perl !cvs !subversion !tk
+	)
 "
 
 PATCHES=(
@@ -137,8 +143,6 @@ PATCHES=(
 )
 
 pkg_setup() {
-	use mediawiki-experimental && die "mediawiki-experimental not supported by this ebuild"
-
 	if use subversion && has_version "dev-vcs/subversion[dso]"; then
 		ewarn "Per Gentoo bugs #223747, #238586, when subversion is built"
 		ewarn "with USE=dso, there may be weird crashes in git-svn. You"
@@ -249,19 +253,30 @@ src_unpack() {
 	if [[ ${PV} != *9999 ]]; then
 		unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
-		unpack ${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+		unpack ${MY_PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 		use doc && \
 			cd "${S}"/Documentation && \
-			unpack ${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+			unpack ${MY_PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 		cd "${S}"
 	else
 		git-r3_src_unpack
 		cd "${S}"
 		#cp "${FILESDIR}"/GIT-VERSION-GEN .
 	fi
+
 }
 
 src_prepare() {
+	# add experimental patches to improve mediawiki support
+	# see patches for origin
+	if use mediawiki-experimental ; then
+		PATCHES+=(
+			"${FILESDIR}"/git-2.7.0-mediawiki-namespaces.patch
+			"${FILESDIR}"/git-2.7.0-mediawiki-subpages.patch
+			"${FILESDIR}"/git-2.7.0-mediawiki-500pages.patch
+		)
+	fi
+
 	default
 
 	sed -i \
@@ -327,8 +342,8 @@ src_compile() {
 
 	if use perl && use cgi ; then
 		git_emake \
-			gitweb/gitweb.cgi \
-			|| die "emake gitweb/gitweb.cgi failed"
+			gitweb \
+			|| die "emake gitweb (cgi) failed"
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]]; then
@@ -384,6 +399,23 @@ src_compile() {
 	fi
 }
 
+sab-src_install_cleanup() {
+	cp "${FILESDIR}/git-${PV}-spec" "${T}/spec" || die
+	sed -i \
+		-e "s/@git-doc@/${PN}/" \
+		-e "s/@git-ver@/${PV}/" \
+		"${T}/spec" || die
+
+	dirstr.py \
+		--spec-file "${T}/spec" \
+		--root-dir "${ED}" \
+		--class git \
+		--ignore-missing-from-class git-subversion \
+		--ignore-missing-from-class git-cvs \
+		--ignore-missing-from-class git-gui-tools \
+		--ignore-missing-from-class gitweb || die
+}
+
 src_install() {
 	git_emake \
 		install || \
@@ -400,7 +432,6 @@ src_install() {
 	fi
 	find man?/*.[157] >/dev/null 2>&1 && doman man?/*.[157]
 	find Documentation/*.[157] >/dev/null 2>&1 && doman Documentation/*.[157]
-
 	dodoc README* Documentation/{SubmittingPatches,CodingGuidelines}
 	use doc && dodir /usr/share/doc/${PF}/html
 	for d in / /howto/ /technical/ ; do
@@ -415,20 +446,20 @@ src_install() {
 	# Upstream does not ship this pre-built :-(
 	use doc && doinfo Documentation/{git,gitman}.info
 
-	newbashcomp contrib/completion/git-completion.bash ${PN}
+	newbashcomp contrib/completion/git-completion.bash ${MY_PN}
 	bashcomp_alias git gitk
 	# Not really a bash-completion file (bug #477920)
 	# but still needed uncompressed (bug #507480)
-	insinto /usr/share/${PN}
+	insinto /usr/share/${MY_PN}
 	doins contrib/completion/git-prompt.sh
 
 	if use emacs ; then
-		elisp-install ${PN} contrib/emacs/git.{el,elc}
-		elisp-install ${PN} contrib/emacs/git-blame.{el,elc}
-		#elisp-install ${PN}/compat contrib/emacs/vc-git.{el,elc}
+		elisp-install ${MY_PN} contrib/emacs/git.{el,elc}
+		elisp-install ${MY_PN} contrib/emacs/git-blame.{el,elc}
+		#elisp-install ${MY_PN}/compat contrib/emacs/vc-git.{el,elc}
 		# don't add automatically to the load-path, so the sitefile
 		# can do a conditional loading
-		touch "${ED}${SITELISP}/${PN}/compat/.nosearch"
+		touch "${ED}${SITELISP}/${MY_PN}/compat/.nosearch"
 		elisp-site-file-install "${FILESDIR}"/${SITEFILE}
 	fi
 
@@ -485,7 +516,7 @@ src_install() {
 		cd "${S}"
 	fi
 
-	dodir /usr/share/${PN}/contrib
+	dodir /usr/share/${MY_PN}/contrib
 	# The following are excluded:
 	# completion - installed above
 	# diff-highlight - done above
@@ -513,16 +544,16 @@ src_install() {
 	for i in "${contrib_objects[@]}" ; do
 		cp -rf \
 			"${S}"/contrib/${i} \
-			"${ED}"/usr/share/${PN}/contrib \
+			"${ED}"/usr/share/${MY_PN}/contrib \
 			|| die "Failed contrib ${i}"
 	done
 
 	if use perl && use cgi ; then
-		# We used to install in /usr/share/${PN}/gitweb
+		# We used to install in /usr/share/${MY_PN}/gitweb
 		# but upstream installs in /usr/share/gitweb
 		# so we will install a symlink and use their location for compat with other
 		# distros
-		dosym /usr/share/gitweb /usr/share/${PN}/gitweb
+		dosym /usr/share/gitweb /usr/share/${MY_PN}/gitweb
 
 		# INSTALL discusses configuration issues, not just installation
 		docinto /
@@ -569,6 +600,10 @@ src_install() {
 	if ! use cvs; then
 		rm -r "${ED}"/usr/bin/git-cvsserver \
 			"${ED}"/usr/libexec/git-core/git-cvs* || die
+	fi
+
+	if use sab-split; then
+		sab-src_install_cleanup
 	fi
 }
 

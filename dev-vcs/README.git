@@ -1,0 +1,67 @@
+Description of how git split ebuilds are managed.
+
+Objective:
+ebuilds as similar as possible to git from Portage for easier bumping through
+easier merging.
+
+Main idea is:
+- special "sab-split" USE flag to control ebuild data (like dependencies) and
+  whether the cleanup phase needs to be run,
+- cleanup phase that removes unnecessary files and leaves the ones specific to
+  a particular split ebuild, executed in src_install,
+- the idea is inspired by what (at least some) package managers with native
+  support for split packages do.
+
+
+
+NOTE ABOUT BUMPING
+Avoiding textual conflicts does not mean semantic ones are present so upon
+bumping, changes to USE flags and other differences need to be checked.
+
+However, as the cleanup script checks for both additional files (that may be
+installed by a newer version) and missing ones (removed), the work of checking
+this part upon a version bump is reduced.
+
+
+
+DETAILS
+
+About USE flags (set in package.use as usual):
+1. All ebuilds should have sab-split USE enabled.
+2. Base, shared USE flags should be similar to avoid possible problems with
+   different configuration, however this is not checked for simplicity.
+3. USE flags that make it different (USE=cvs for git-cvs for example) need to
+   be enabled intiutively. REQUIRED_USE is used to check for correctness.
+4. Some of the flags (like perl for git-cvs) are not needed per se but are to
+   make the builds ("image" directory content) more uniform in terms of
+   installed files which is partly required by the cleanup script.
+   (In this example, as for git 2.16.2, Perl modules installed by git would
+   have been missing, and files installed by git are required to be present by
+   the script. More details of this check are below.)
+
+About usage of the cleanup script:
+1. All split ebuilds (including git) ignore the fact that some files from other
+   split ebuilds (excluding git) files can be missing
+   (--ignore-missing-from-class). This is to allow the other ones be compiled with
+   less features to speed up building; and less features can mean fewer files in
+   the "image" directory. This may be changed in the future if deemed useful.
+2. No ebuild ignore missing files files from git itself (there is no
+   --ignore-missing-from-class git) as form of a sanity check that in case of any
+   USE flag combination, the "core" set of files is always the same. (For
+   example, git-cvs installs files specifc to git-cvs and the same set of files
+   git does.) This may also be changed.
+
+About the src_install phase:
+1. Everything is done as in the git ebuild even though it would be faster to
+   install just the needed files. This is a trade off: more computing power versus
+   easier and more correct version bumps.
+
+
+
+POSSIBLE IMPROVEMENTS
+- Spec files include Perl version in path to modules. After a Perl bump to
+  major version, they will need to be updated. (Note that the cleanup script
+  does not have support for regexes or wildcard matching. If needed, the spec
+  file can be updated e.g. with sed before using.)
+- Moving common parts to an eclass.
+- Using the same (symlinked) ebuilds for all split variants.
