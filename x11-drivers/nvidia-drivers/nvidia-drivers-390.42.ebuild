@@ -75,10 +75,10 @@ nvidia_drivers_versions_check() {
 		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
 	fi
 
-	if use kernel_linux && kernel_is ge 4 16; then
+	if use kernel_linux && kernel_is ge 4 17; then
 		ewarn "Gentoo supports kernels which are supported by NVIDIA"
 		ewarn "which are limited to the following kernels:"
-		ewarn "<sys-kernel/linux-sabayon-4.16"
+		ewarn "<sys-kernel/linux-sabayon-4.17"
 		ewarn ""
 		ewarn "You are free to utilize epatch_user to provide whatever"
 		ewarn "support you feel is appropriate, but will not receive"
@@ -161,6 +161,10 @@ src_prepare() {
 		ewarn "use a standard kernel should you have issues. Should you"
 		ewarn "need support with these patches, contact the PaX team."
 		eapply "${FILESDIR}"/${PN}-375.20-pax.patch
+	fi
+
+	if use kernel_linux && kernel_is ge 4 16; then
+		epatch "${FILESDIR}/${PN}-390.42-4.16.patch"
 	fi
 
 	# Allow user patches so they can support RC kernels and whatever else
