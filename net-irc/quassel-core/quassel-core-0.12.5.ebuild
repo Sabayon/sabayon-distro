@@ -1,58 +1,43 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
-inherit cmake-utils eutils pax-utils systemd user versionator
+inherit cmake-utils pax-utils systemd user versionator
 
-EGIT_REPO_URI="git://git.quassel-irc.org/quassel"
-[[ "${PV}" == "9999" ]] && inherit git-r3
+MY_P=${P/-core}
+MY_PN=${PN/-core}
 
 DESCRIPTION="Qt/KDE IRC client - the \"core\" (server) component"
 HOMEPAGE="http://quassel-irc.org/"
-MY_P=${P/-core}
-MY_PN=${PN/-core}
-[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+KEYWORDS="~amd64 ~x86"
 
 LICENSE="GPL-3"
-KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE="crypt postgres qt5 +ssl syslog"
+IUSE="crypt postgres +ssl syslog"
 
 SERVER_RDEPEND="
-	qt5? (
-		dev-qt/qtscript:5
-		crypt? ( app-crypt/qca:2[ssl,qt5] )
-		postgres? ( dev-qt/qtsql:5[postgres] )
-		!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
-	)
-	!qt5? (
-		dev-qt/qtscript:4
-		crypt? ( app-crypt/qca:2[ssl,qt4(+)] )
-		postgres? ( dev-qt/qtsql:4[postgres] )
-		!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
-	)
+	dev-qt/qtscript:5
+	crypt? ( app-crypt/qca:2[qt5(+),ssl] )
+	postgres? ( dev-qt/qtsql:5[postgres] )
+	!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	syslog? ( virtual/logger )
 "
 
 RDEPEND="
+	dev-qt/qtcore:5
+	dev-qt/qtnetwork:5[ssl?]
 	sys-libs/zlib
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtnetwork:5[ssl?]
-	)
-	!qt5? ( dev-qt/qtcore:4[ssl?] )
 	${SERVER_RDEPEND}
 "
 DEPEND="
 	${RDEPEND}
 	!net-irc/quassel-core-bin
-	qt5? (
-		kde-frameworks/extra-cmake-modules
-	)
+	kde-frameworks/extra-cmake-modules
 	"
 
-DOCS=( AUTHORS ChangeLog README )
+DOCS=( AUTHORS ChangeLog README.md )
 
 S="${WORKDIR}/${MY_P}"
 
@@ -66,33 +51,26 @@ pkg_setup() {
 
 src_configure() {
 	local mycmakeargs=(
-		-DCMAKE_SKIP_RPATH=ON # added in Sabayon's split ebuild
-		"CMAKE_DISABLE_FIND_PACKAGE_IndicateQt=ON"
-		$(cmake-utils_use_find_package crypt QCA2)
-		# $(cmake-utils_use_find_package dbus dbusmenu-qt)
 		$(cmake-utils_use_find_package crypt QCA2-QT5)
 		# $(cmake-utils_use_find_package dbus dbusmenu-qt5)
+		#$(cmake-utils_use_find_package dbus Qt5DBus)
 		"-DWITH_KDE=OFF"
 		"-DWITH_OXYGEN=OFF"
 		"-DWANT_MONO=OFF"
 
-		"CMAKE_DISABLE_FIND_PACKAGE_phonon=ON"
-		"CMAKE_DISABLE_FIND_PACKAGE_Phonon=ON"
-		"CMAKE_DISABLE_FIND_PACKAGE_PHONON=ON"
-
 		"CMAKE_DISABLE_FIND_PACKAGE_Phonon4Qt5=ON"
-		$(cmake-utils_use_use qt5)
+		-DUSE_QT5=ON
+		-DEMBED_DATA=OFF
+		-DCMAKE_SKIP_RPATH=ON
 		"-DWANT_CORE=ON"
 		"CMAKE_DISABLE_FIND_PACKAGE_LibsnoreQt5=ON"
 		"-DWITH_WEBKIT=OFF"
 		"-DWANT_QTCLIENT=OFF"
-		-DEMBED_DATA=OFF
-		-DCMAKE_SKIP_RPATH=ON
 	)
 
 	# Something broke upstream detection since Qt 5.5
 	if use ssl ; then
-		mycmakeargs+=("-DHAVE_SSL=TRUE")
+		mycmakeargs+=( "-DHAVE_SSL=TRUE" )
 	fi
 
 	cmake-utils_src_configure
@@ -116,8 +94,8 @@ src_install() {
 	fowners "${QUASSEL_USER}":"${QUASSEL_USER}" "${QUASSEL_DIR}"
 
 	# init scripts & systemd unit
-	newinitd "${FILESDIR}"/quasselcore.init quasselcore
-	newconfd "${FILESDIR}"/quasselcore.conf quasselcore
+	newinitd "${FILESDIR}"/quasselcore.init-r1 quasselcore
+	newconfd "${FILESDIR}"/quasselcore.conf-r1 quasselcore
 	systemd_dounit "${FILESDIR}"/quasselcore.service
 
 	# logrotate
@@ -132,18 +110,6 @@ pkg_postinst() {
 	# server || monolithic
 	einfo "Quassel can use net-misc/oidentd package if installed on your system."
 	einfo "Consider installing it if you want to run quassel within identd daemon."
-
-	# temporary info mesage
-	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]]; then
-		echo
-		ewarn "Please note that all configuration moved from"
-		ewarn "/home/\${QUASSEL_USER}/.config/quassel-irc.org/"
-		ewarn "to: ${QUASSEL_DIR}."
-		echo
-		ewarn "For migration, stop the core, move quasselcore files (pretty much"
-		ewarn "everything apart from quasselclient.conf and settings.qss) into"
-		ewarn "new location and then start server again."
-	fi
 }
 
 pkg_config() {
