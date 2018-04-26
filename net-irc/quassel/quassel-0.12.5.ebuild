@@ -32,7 +32,7 @@ GUI_RDEPEND="
 	dev-qt/qtgui:5
 	dev-qt/qtwidgets:5
 	dbus? (
-		dev-libs/libdbusmenu-qt[qt4]
+		>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt5(+)]
 		dev-qt/qtdbus:5
 	)
 	kde? (
