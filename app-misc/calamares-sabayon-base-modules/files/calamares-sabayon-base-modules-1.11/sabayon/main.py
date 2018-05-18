@@ -51,7 +51,8 @@ def setup_xorg(root_install_path):
     if not os.path.isfile(live_xorg_conf):
         return
     xorg_conf = root_install_path + live_xorg_conf
-    shutil.copy2(xorg_conf, xorg_conf + '.original')
+    if os.path.isfile(xorg_conf):
+        shutil.move(xorg_conf, xorg_conf + '.original')
     shutil.copy2(live_xorg_conf, xorg_conf)
 
 
