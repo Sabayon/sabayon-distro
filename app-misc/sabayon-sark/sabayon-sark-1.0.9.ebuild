@@ -18,6 +18,7 @@ DEPEND=""
 RDEPEND="app-emulation/docker
 	dev-lang/perl
 	dev-python/shyaml
+	dev-util/pkgs-checker
 	app-misc/sabayon-devkit
 	sys-process/tini"
 
