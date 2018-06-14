@@ -86,9 +86,8 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/gdbus-codegen
 	>=dev-util/intltool-0.40.0
 	dev-util/itstool
+	x11-base/xorg-proto
 	virtual/pkgconfig
-	x11-proto/inputproto
-	x11-proto/randrproto
 	test? ( >=dev-libs/check-0.9.4 )
 	xinerama? ( x11-proto/xineramaproto )
 "
