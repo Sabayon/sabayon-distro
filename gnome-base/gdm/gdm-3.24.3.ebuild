@@ -88,7 +88,6 @@ DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 	x11-base/xorg-proto
 	test? ( >=dev-libs/check-0.9.4 )
-	xinerama? ( x11-proto/xineramaproto )
 "
 
 DOC_CONTENTS="
