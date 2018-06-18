@@ -19,5 +19,5 @@ S="${FILESDIR}"
 
 src_install () {
 	insinto /etc/lightdm/
-	doins lightdm-slick-greeter.conf
+	doins slick-greeter.conf
 }
