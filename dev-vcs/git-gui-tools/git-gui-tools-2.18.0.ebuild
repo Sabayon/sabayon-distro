@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+# split ebuild providing only gitk, gitview, git-gui, git-citool
 
 GENTOO_DEPEND_ON_PERL=no
 
@@ -29,12 +30,13 @@ fi
 inherit toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
-MY_PN="git"
+MY_PN="${PN/-gui-tools}"
 MY_P="${MY_PN}-${MY_PV}"
 
 DOC_VER=${MY_PV}
 
-DESCRIPTION="stupid content tracker: distributed VCS designed for speed and efficiency"
+#DESCRIPTION="stupid content tracker: distributed VCS designed for speed and efficiency"
+DESCRIPTION="GUI tools derived from git: gitk, git-gui and gitview"
 
 HOMEPAGE="https://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
@@ -56,6 +58,7 @@ IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl 
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
+	~dev-vcs/git-${PV}[sab-split]
 	gnome-keyring? ( app-crypt/libsecret )
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:= )
@@ -137,13 +140,13 @@ REQUIRED_USE="
 	pcre-jit? ( pcre )
 	python? ( ${PYTHON_REQUIRED_USE} )
 	sab-split? (
-		!cgi perl !cvs !subversion !tk
+		!cgi perl !cvs !subversion tk
 	)
 "
 
 PATCHES=(
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	"${FILESDIR}"/git-2.17.0_rc1-optional-cvs.patch
+	"${FILESDIR}"/git-2.18.0_rc1-optional-cvs.patch
 
 	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
 
@@ -417,11 +420,10 @@ sab-src_install_cleanup() {
 	dirstr.py \
 		--spec-file "${T}/spec" \
 		--root-dir "${ED}" \
-		--class git \
-		--ignore-missing-from-class git-subversion \
+		--class git-gui-tools \
 		--ignore-missing-from-class git-cvs \
-		--ignore-missing-from-class git-gui-tools \
-		--ignore-missing-from-class gitweb || die
+		--ignore-missing-from-class gitweb \
+		--ignore-missing-from-class git-subversion || die
 }
 
 src_install() {
@@ -569,10 +571,12 @@ src_install() {
 		newdoc  "${S}"/gitweb/INSTALL INSTALL.gitweb
 		newdoc  "${S}"/gitweb/README README.gitweb
 
-		find "${ED%/}"/usr/lib64/perl5/ \
-			-name .packlist \
-			-delete \
-			|| die
+		for d in "${ED%/}"/usr/lib{,64}/perl5/ ; do
+			if test -d "$d" ; then find "$d" \
+				-name .packlist \
+				-delete || die
+			fi
+		done
 	else
 		rm -rf "${ED%/}"/usr/share/gitweb
 	fi

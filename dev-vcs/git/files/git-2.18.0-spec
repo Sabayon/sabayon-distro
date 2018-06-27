@@ -89,6 +89,7 @@ git ./usr/share/man/man1/git-parse-remote.1
 git ./usr/share/man/man1/git-fast-export.1
 git ./usr/share/man/man1/git-remote-testgit.1
 git ./usr/share/man/man1/git-commit.1
+git ./usr/share/man/man1/git-commit-graph.1
 git ./usr/share/man/man1/git-check-ref-format.1
 git ./usr/share/man/man1/git-hash-object.1
 git ./usr/share/man/man1/gitweb.1
@@ -378,6 +379,7 @@ git ./usr/share/doc/@git-doc@-@git-ver@/git-read-tree.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-verify-commit.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-whatchanged.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-column.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/git-commit-graph.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-difftool.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/glossary-content.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-count-objects.txt
@@ -520,6 +522,8 @@ git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-trace.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-argv-array.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-merge.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/bitmap-format.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/technical/commit-graph-format.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/technical/commit-graph.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-tree-walking.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/protocol-capabilities.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/racy-git.txt
@@ -531,6 +535,7 @@ git ./usr/share/doc/@git-doc@-@git-ver@/technical/index-format.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/shallow.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-diff.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/protocol-common.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/technical/protocol-v2.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-submodule-config.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-ref-iteration.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/pack-heuristics.txt
@@ -645,6 +650,7 @@ git ./usr/libexec/git-core/git-unpack-objects
 git ./usr/libexec/git-core/git-show-ref
 git ./usr/libexec/git-core/git-merge-index
 git ./usr/libexec/git-core/git-send-pack
+git ./usr/libexec/git-core/git-serve
 git ./usr/libexec/git-core/git-bisect
 git ./usr/libexec/git-core/git-rebase
 git-gui-tools ./usr/libexec/git-core/git-gui--askpass
@@ -652,6 +658,7 @@ git ./usr/libexec/git-core/git-mergetool
 git ./usr/libexec/git-core/git-ls-tree
 git ./usr/libexec/git-core/git-show-index
 git ./usr/libexec/git-core/git-commit
+git ./usr/libexec/git-core/git-commit-graph
 git ./usr/libexec/git-core/git-rebase--interactive
 git ./usr/libexec/git-core/git-check-attr
 git ./usr/libexec/git-core/git-cherry-pick
@@ -669,6 +676,7 @@ git ./usr/libexec/git-core/mergetools/gvimdiff3
 git ./usr/libexec/git-core/mergetools/meld
 git ./usr/libexec/git-core/mergetools/araxis
 git ./usr/libexec/git-core/mergetools/examdiff
+git ./usr/libexec/git-core/mergetools/guiffy
 git ./usr/libexec/git-core/mergetools/vimdiff2
 git ./usr/libexec/git-core/mergetools/vimdiff3
 git ./usr/libexec/git-core/mergetools/diffuse

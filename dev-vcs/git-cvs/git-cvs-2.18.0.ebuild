@@ -145,7 +145,7 @@ REQUIRED_USE="
 
 PATCHES=(
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	"${FILESDIR}"/git-2.17.0_rc1-optional-cvs.patch
+	"${FILESDIR}"/git-2.18.0_rc1-optional-cvs.patch
 
 	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
 
@@ -570,10 +570,12 @@ src_install() {
 		newdoc  "${S}"/gitweb/INSTALL INSTALL.gitweb
 		newdoc  "${S}"/gitweb/README README.gitweb
 
-		find "${ED%/}"/usr/lib64/perl5/ \
-			-name .packlist \
-			-delete \
-			|| die
+		for d in "${ED%/}"/usr/lib{,64}/perl5/ ; do
+			if test -d "$d" ; then find "$d" \
+				-name .packlist \
+				-delete || die
+			fi
+		done
 	else
 		rm -rf "${ED%/}"/usr/share/gitweb
 	fi
