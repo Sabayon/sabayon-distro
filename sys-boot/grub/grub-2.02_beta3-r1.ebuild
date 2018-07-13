@@ -63,7 +63,7 @@ REQUIRED_USE="
 # os-prober: Used on runtime to detect other OSes
 # xorriso (dev-libs/libisoburn): Used on runtime for mkrescue
 RDEPEND="
-  app-crypt/sbsigntool
+  app-crypt/sbsigntools
   x11-themes/sabayon-artwork-grub
 	sys-boot/os-prober
 	app-arch/xz-utils

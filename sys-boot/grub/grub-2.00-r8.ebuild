@@ -76,7 +76,7 @@ REQUIRED_USE="grub_platforms_qemu? ( truetype )
 # xorriso (dev-libs/libisoburn): Used on runtime for mkrescue
 # sbsigntool is Sabayon specific
 RDEPEND="
-	app-crypt/sbsigntool
+	app-crypt/sbsigntools
 	app-arch/xz-utils
 	>=sys-libs/ncurses-5.2-r5
 	debug? (
