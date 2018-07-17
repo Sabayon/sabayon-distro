@@ -57,4 +57,4 @@ locate-pointer=false
 dark-theme=true
 
 [org.gnome.shell]
-favorite-apps=['liveinst.desktop','google-chrome.desktop', 'evolution.desktop', 'shotwell.desktop', 'rhythmbox.desktop', 'vlc.desktop', 'libreoffice-writer.desktop', 'org.gnome.Documents.desktop', 'org.gnome.Nautilus.desktop']
+favorite-apps=['liveinst.desktop','firefox.desktop', 'evolution.desktop', 'shotwell.desktop', 'rhythmbox.desktop', 'vlc.desktop', 'libreoffice-writer.desktop', 'org.gnome.Documents.desktop', 'org.gnome.Nautilus.desktop']
