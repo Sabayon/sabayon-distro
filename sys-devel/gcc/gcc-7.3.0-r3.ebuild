@@ -26,7 +26,7 @@ DESCRIPTION="The GNU Compiler Collection"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
 
 ## Make sure we share all the USE flags in sys-devel/base-gcc
-BASE_GCC_USE="fortran gcj multilib nls nptl openmp altivec
+BASE_GCC_USE="fortran multilib nls nptl openmp altivec
 	doc fixed-point graphite hardened
 	cxx objc objc++ objc-gc vanilla"
 for base_use in ${BASE_GCC_USE}; do
