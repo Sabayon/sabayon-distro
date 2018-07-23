@@ -1,0 +1,42 @@
+# Temp disable Graphite due to known x11-libs/qt bugs
+FPUABI="-mfloat-abi=hard"
+
+CFLAGS="-O2 -pipe -march=armv7-a -mfpu=vfpv3-d16 ${FPUABI}"
+CXXFLAGS="${CFLAGS}"
+LDFLAGS="-Wl,-O1 -Wl,--as-needed"
+CHOST="armv7a-hardfloat-linux-gnueabi"
+
+### COMMON PART
+#################################################
+# Portage configuration
+ACCEPT_KEYWORDS="arm ~arm"
+FEATURES="ccache distcc parallel-fetch protect-owned compressdebug splitdebug metadata-transfer"
+# temp disabled: distcc-pump
+MAKEOPTS="-j3 -s"
+CCACHE_SIZE="5G"
+CCACHE_DIR="/var/ccache"
+# Global USE flags
+USE="cpudetection cups goom joystick jpeg opengl png neon theora truetype xvid fontconfig jpeg png"
+# Sound USE flags
+USE="${USE} pulseaudio alsa flac mp3 vorbis ogg"
+# System USE flags
+USE="${USE} -consolekit dbus introspection logind perl policykit python systemd threads udev xattr xcb"
+# Video OpenGL stuff
+# Note: GLES2 is disabled globally atm. mesa-9.1.2 has bugs if both gl, and gles2 are enabled.
+# The bug is in the GL{ES2,} headers (name clash), and gnome-shell fails to build because of that.
+USE="${USE} -gles2"
+
+LINGUAS="en en_US af ar az bg bn br bs ca cs cy da de el en_GB eo es et eu fa fi fr"
+LINGUAS="${LINGUAS} fy ga gl he hi hr hu ia is it ja kk km ko lt lv mk mn ms nb nds nl"
+LINGUAS="${LINGUAS} nn pa pl pt pt_BR ro ru rw se si sk sl sr sr@Latn ss sv ta tg tr uk"
+LINGUAS="${LINGUAS} uz vi zh_CN zh_TW es_AR es_ES fy_NL ga_IE gu gu_IN nb_NO nn_NO pt_PT sv_SE ug zh"
+
+# Package specific configuration
+APACHE2_MPMS="prefork"
+
+# Add also negative options to avoid inheritance
+PYTHON_TARGETS="python2_7 python3_5 -python3_6 -python3_7"
+PYTHON_SINGLE_TARGET="python3_5 -python3_6 -python2_7 -python3_7"
+USE_PYTHON="2.7 3.5"
+
+

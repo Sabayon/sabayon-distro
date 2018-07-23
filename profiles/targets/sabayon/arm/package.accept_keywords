@@ -1,0 +1,84 @@
+# force stable gcc
+sys-devel/gcc -~arm
+sys-devel/base-gcc -~arm
+
+# force stable boost
+dev-libs/boost -~arm
+dev-util/boost-build -~arm
+
+# Only use stable versions of these libs
+sys-kernel/linux-headers -~arm
+sys-libs/glibc -~arm
+=sys-libs/glibc-2.17* ~arm
+<dev-lang/python-3 -~arm
+dev-libs/mpc -~arm
+dev-libs/openssl ~arm
+sys-libs/gdbm -~arm
+sys-devel/binutils -~arm
+sys-devel/llvm -~arm
+sys-devel/make -~arm
+sys-kernel/linux-headers -~arm
+media-libs/imlib2 -~arm
+media-libs/libepoxy -~arm
+media-libs/mesa -~arm
+net-libs/gnutls -~arm
+dev-lang/tcl -~arm
+dev-lang/tk -~arm
+dev-lang/ghc -~arm
+dev-lang/ruby -~arm
+
+# sci-mathematics/maxima needs texinfo <5.0
+# stick texinfo to stable to avoid matter bump it
+sys-apps/texinfo -~arm
+
+# Want stable cups
+net-print/cups -~arm
+net-print/cups-filters -~arm
+
+# We want Portage Stable
+sys-apps/portage -~arm
+
+app-admin/equo ** ~arm
+sys-apps/entropy ** ~arm
+
+# Temp keywording, will test and add keywords back
+www-servers/nginx ** ~arm
+
+# it has long cmdline patch, they say it fixes webkit-gtk
+# (but it's not true)
+=sys-devel/make-3.82-r4 ** ~arm
+
+# Keyword Enlightenment
+x11-terms/terminology ** ~arm
+x11-wm/enlightenment ** ~arm
+
+<xfce-extra/xfce4-notifyd-9999 ** ~arm
+
+# Want slim for testing
+<=x11-misc/slim-1.3.3 ** ~arm
+
+# want WICD
+=dev-python/urwid-1.0.1 ** ~arm
+=net-misc/wicd-1.7.2.4-r1 ** ~arm
+
+# want xnoise
+=media-sound/xnoise-0.2.2 ** ~arm
+
+# Firefox, we don't want stable
+www-client/firefox ~arm
+# Chromium, we want it
+www-client/chromium ** ~arm
+
+# We want to resolve mdns stuff
+<sys-auth/nss-mdns-9999 ** ~arm
+
+# Want phpmyadmin
+dev-db/phpmyadmin ** ~arm
+
+media-video/ffmpeg -~arm
+
+media-libs/elementary -~arm
+
+virtual/rubygems -~arm
+
+app-text/opensp -~arm
