@@ -2,6 +2,12 @@
 sys-devel/gcc -~arm
 sys-devel/base-gcc -~arm
 
+# Temporary unlock gcc v.6.4.0 (this must be
+# handled by ACCEPT_KEYWORDS of ebuilds as stable for arm)
+=sys-devel/gcc-6.4.0-r1 ~arm
+=sys-devel/base-gcc-6.4.0-r1 ~arm
+
+
 # force stable boost
 dev-libs/boost -~arm
 dev-util/boost-build -~arm
