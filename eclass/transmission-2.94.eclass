@@ -37,10 +37,12 @@ _transmission_is() {
 # @FUNCTION: _transmission_eclass_setup_functions
 # @INTERNAL
 # @DESCRIPTION:
-# Function to setup functions. The eval uses strictly controlled variables,
-# so it's OK.
+# Function to setup functions. The eval uses strictly controlled or validated
+# variables, so it's OK.
 _transmission_eclass_setup_functions() {
-	local v=2.92-r3
+	local v=${ECLASS#transmission-}
+	[[ ${v} = [0-9].[0-9][0-9] ]] || die "wrong value: v=${v}"
+
 	local func
 	for func in src_prepare src_configure src_compile \
 			pkg_preinst pkg_postinst pkg_postrm; do
@@ -51,8 +53,8 @@ _transmission_eclass_setup_functions() {
 _transmission_eclass_setup_functions
 
 MY_ECLASSES=""
-_transmission_is gtk && MY_ECLASSES+="fdo-mime gnome2-utils"
-_transmission_is qt5 && MY_ECLASSES+="fdo-mime qmake-utils"
+_transmission_is gtk && MY_ECLASSES+="gnome2-utils xdg-utils"
+_transmission_is qt5 && MY_ECLASSES+="qmake-utils xdg-utils"
 _transmission_is "" || MY_ECLASSES+=" autotools flag-o-matic"
 _transmission_is base && MY_ECLASSES+=" user"
 
@@ -84,7 +86,7 @@ MY_P="${MY_PN}-${PV}"
 
 DESCRIPTION="A Fast, Easy and Free BitTorrent client"
 HOMEPAGE="http://www.transmissionbt.com/"
-SRC_URI="http://download.transmissionbt.com/${MY_PN}/files/${MY_P}.tar.xz"
+SRC_URI="https://github.com/transmission/transmission-releases/raw/master/${MY_P}.tar.xz"
 
 # web/LICENSE is always GPL-2 whereas COPYING allows either GPL-2 or GPL-3 for the rest
 # transmission in licenses/ is for mentioning OpenSSL linking exception
@@ -245,7 +247,7 @@ _transmission_pkg_preinst() {
 
 _transmission_pkg_postinst() {
 	if _transmission_is gtk || _transmission_is qt5; then
-		fdo-mime_desktop_database_update
+		xdg_desktop_database_update
 	fi
 
 	_transmission_is gtk && gnome2_icon_cache_update
@@ -287,7 +289,7 @@ _transmission_pkg_postinst() {
 
 _transmission_pkg_postrm() {
 	if _transmission_is gtk || _transmission_is qt5; then
-		fdo-mime_desktop_database_update
+		xdg_desktop_database_update
 	fi
 
 	_transmission_is gtk && gnome2_icon_cache_update

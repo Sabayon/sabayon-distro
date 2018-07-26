@@ -12,11 +12,6 @@ DEPEND="xfs? ( sys-fs/xfsprogs )"
 
 DOCS=( AUTHORS NEWS )
 
-PATCHES=(
-	"${FILESDIR}/${P/-base}-handshake.patch"
-	"${FILESDIR}/${P/-base}-pr468.patch"
-)
-
 src_install() {
 	default
 	rm "${ED%/}"/usr/share/${MY_PN}/web/LICENSE || die
