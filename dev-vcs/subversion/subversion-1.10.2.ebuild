@@ -4,31 +4,34 @@
 EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
-USE_RUBY="ruby23 ruby22 ruby21"
+USE_RUBY="ruby25 ruby24 ruby23"
 DISTUTILS_OPTIONAL=1
 WANT_AUTOMAKE="none"
 GENTOO_DEPEND_ON_PERL="no"
 
-inherit autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common eutils flag-o-matic libtool multilib perl-module ruby-single xdg-utils
+inherit autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common flag-o-matic libtool ltprune multilib perl-module ruby-single xdg-utils
 
 MY_P="${P/_/-}"
 DESCRIPTION="Advanced version control system"
 HOMEPAGE="https://subversion.apache.org/"
 SRC_URI="mirror://apache/${PN}/${MY_P}.tar.bz2
-	https://dev.gentoo.org/~mgorny/dist/${PN}-1.8.18-patchset.tar.bz2"
+	https://dev.gentoo.org/~polynomial-c/${PN}-1.10.0_rc1-patches-1.tar.xz"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="Subversion GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
+
 IUSE="apache2 berkdb ctypes-python debug doc +dso extras gnome-keyring +http java kwallet nls perl python ruby sasl test vim-syntax"
 
 COMMON_DEPEND="
 	app-arch/bzip2
+	app-arch/lz4
 	>=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
+	dev-libs/libutf8proc
 	sys-apps/file
 	sys-libs/zlib
 	berkdb? ( >=sys-libs/db-4.0.14:= )
@@ -78,16 +81,6 @@ REQUIRED_USE="
 		${PYTHON_REQUIRED_USE}
 		!dso
 	)"
-
-PATCHES=(
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.5.4-interix.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.5.6-aix-dso.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.8.0-hpux-dso.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-fix-parallel-build-support-for-perl-bindings.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.8.1-revert_bdb6check.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.8.16-javadoc-nolint.patch
-	"${FILESDIR}"/${P}-kf5.patch
-)
 
 want_apache
 
@@ -151,7 +144,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	default
+	eapply "${WORKDIR}/patches"
+	eapply_user
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -364,7 +358,7 @@ src_install() {
 	if use perl ; then
 		emake DESTDIR="${D}" INSTALLDIRS="vendor" install-swig-pl
 		perl_delete_localpod
-		find "${ED}" "(" -name .packlist -o -name "*.bs" ")" -delete
+		find "${ED}" \( -name .packlist -o -name "*.bs" \) -delete || die
 	fi
 
 	if use ruby ; then
@@ -394,12 +388,14 @@ src_install() {
 	newins "${FILESDIR}"/svnserve.xinetd svnserve
 
 	#adjust default user and group with disabled apache2 USE flag, bug 381385
-	use apache2 || sed -e "s\USER:-apache\USER:-svn\g" \
+	if ! use apache2 ; then
+		sed -e "s\USER:-apache\USER:-svn\g" \
 			-e "s\GROUP:-apache\GROUP:-svnusers\g" \
 			-i "${ED%/}"/etc/init.d/svnserve || die
-	use apache2 || sed -e "0,/apache/s//svn/" \
+		sed -e "0,/apache/s//svn/" \
 			-e "s:apache:svnusers:" \
 			-i "${ED%/}"/etc/xinetd.d/svnserve || die
+	fi
 
 	# Install documentation.
 	dodoc CHANGES COMMITTERS README
@@ -416,7 +412,7 @@ src_install() {
 
 		emake DESTDIR="${D}" toolsdir="/usr/$(get_libdir)/subversion/bin" install-tools
 
-		find tools "(" -name "*.bat" -o -name "*.in" -o -name ".libs" ")" -print0 | xargs -0 rm -fr
+		find tools \( -name "*.bat" -o -name "*.in" -o -name ".libs" \) -print0 | xargs -0 rm -fr
 		rm -fr tools/client-side/svnmucc
 		rm -fr tools/server-side/{svn-populate-node-origins-index,svnauthz-validate}*
 		rm -fr tools/{buildbot,dev,diff,po}
@@ -435,14 +431,16 @@ src_install() {
 
 	cd "${ED%/}"/usr/share/locale
 	for i in * ; do
-		[[ ${i} == *$LINGUAS* ]] || { rm -r ${i} || die ; }
+		if [[ ${i} != *${LINGUAS}* ]] ; then
+			rm -r ${i} || die
+		fi
 	done
 }
 
 pkg_preinst() {
 	# Compare versions of Berkeley DB, bug 122877.
-	if use berkdb && [[ -f "${EROOT%/}/usr/bin/svn" ]] ; then
-		OLD_BDB_VERSION="$(scanelf -nq "${EROOT%/}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
+	if use berkdb && [[ -f "${EROOT}/usr/bin/svn" ]] ; then
+		OLD_BDB_VERSION="$(scanelf -nq "${EROOT}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
 		NEW_BDB_VERSION="$(scanelf -nq "${ED%/}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
 		if [[ "${OLD_BDB_VERSION}" != "${NEW_BDB_VERSION}" ]] ; then
 			CHANGED_BDB_VERSION="1"
@@ -477,11 +475,11 @@ pkg_config() {
 
 		einfo "Populating repository directory..."
 		# Create initial repository.
-		"${EROOT}usr/bin/svnadmin" create "${SVN_REPOS_LOC}/repos"
+		"${EROOT}/usr/bin/svnadmin" create "${SVN_REPOS_LOC}/repos"
 
 		einfo "Setting repository permissions..."
-		SVNSERVE_USER="$(. "${EROOT}etc/conf.d/svnserve"; echo "${SVNSERVE_USER}")"
-		SVNSERVE_GROUP="$(. "${EROOT}etc/conf.d/svnserve"; echo "${SVNSERVE_GROUP}")"
+		SVNSERVE_USER="$(. "${EROOT}/etc/conf.d/svnserve"; echo "${SVNSERVE_USER}")"
+		SVNSERVE_GROUP="$(. "${EROOT}/etc/conf.d/svnserve"; echo "${SVNSERVE_GROUP}")"
 		if use apache2 ; then
 			[[ -z "${SVNSERVE_USER}" ]] && SVNSERVE_USER="apache"
 			[[ -z "${SVNSERVE_GROUP}" ]] && SVNSERVE_GROUP="apache"

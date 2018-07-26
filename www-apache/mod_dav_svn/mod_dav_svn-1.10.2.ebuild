@@ -10,12 +10,12 @@ MY_SVN_PN="subversion"
 MY_SVN_P="${MY_SVN_PN}-${PV}"
 MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 
-inherit autotools db-use depend.apache eutils flag-o-matic libtool multilib eutils xdg-utils
+inherit autotools db-use depend.apache flag-o-matic libtool multilib xdg-utils
 
 DESCRIPTION="Subversion WebDAV support"
 HOMEPAGE="https://subversion.apache.org/"
 SRC_URI="mirror://apache/${MY_SVN_PN}/${MY_SVN_P}.tar.bz2
-	https://dev.gentoo.org/~mgorny/dist/${MY_SVN_PN}-1.8.18-patchset.tar.bz2"
+	https://dev.gentoo.org/~polynomial-c/${MY_SVN_PN}-1.10.0_rc1-patches-1.tar.xz"
 S="${WORKDIR}/${MY_SVN_P}"
 
 LICENSE="Subversion"
@@ -43,10 +43,12 @@ IUSE="berkdb debug +dso nls sasl"
 MY_CDEPS="
 	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,http]
 	app-arch/bzip2
+	app-arch/lz4
 	>=dev-db/sqlite-3.7.12
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
+	dev-libs/libutf8proc
 	sys-apps/file
 	sys-libs/zlib
 	berkdb? ( >=sys-libs/db-4.0.14:= )
@@ -64,34 +66,6 @@ RDEPEND="${MY_CDEPS}
 
 	www-servers/apache[apache2_modules_dav]
 	nls? ( virtual/libintl )"
-
-# Making PATCHES more friendly for merging with Gentoo.
-# Simple variable expansion is being done (so keep it updated).
-_sab_PATCHES='
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.5.4-interix.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.5.6-aix-dso.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.8.0-hpux-dso.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-fix-parallel-build-support-for-perl-bindings.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.8.1-revert_bdb6check.patch
-	"${WORKDIR}"/${PN}-1.8.18-patchset/${PN}-1.8.16-javadoc-nolint.patch
-	"${FILESDIR}"/${P}-kf5.patch
-'
-PATCHES=()
-while read -r _sab_p; do
-	_sab_kvs=(
-		'${P}' "${MY_SVN_P}" '${PN}' "${MY_SVN_PN}" '"${WORKDIR}"' "${WORKDIR}" '"${FILESDIR}"' "${FILESDIR}"
-	)
-	while (( ${#_sab_kvs[@]} )); do
-		_sab_k=${_sab_kvs[0]}
-		_sab_v=${_sab_kvs[1]}
-		_sab_p=${_sab_p//${_sab_k}/${_sab_v}}
-		_sab_kvs=( "${_sab_kvs[@]:2}" )
-	done
-	[[ ${_sab_p} = *\$* ]] && die "${_sab_p} not fully \$-evaluated"
-	[[ -n ${_sab_p} ]] && PATCHES+=( "${_sab_p}" )
-done <<< "${_sab_PATCHES}"
-unset _sab_k _sab_v _sab_PATCHES _sab_kvs _sab_p
-[[ -z ${PATCHES[0]} ]] && die "PATCHES sanity check failed."
 
 need_apache # was: want_apache
 
@@ -136,7 +110,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	default
+	eapply "${WORKDIR}/patches"
+	eapply_user
 
 	fperms +x build/transform_libtool_scripts.sh
 
@@ -245,8 +220,8 @@ src_install() {
 
 pkg_preinst() {
 	# Compare versions of Berkeley DB, bug 122877.
-	if use berkdb && [[ -f "${EROOT%/}/usr/bin/svn" ]] ; then
-		OLD_BDB_VERSION="$(scanelf -nq "${EROOT%/}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
+	if use berkdb && [[ -f "${EROOT}/usr/bin/svn" ]] ; then
+		OLD_BDB_VERSION="$(scanelf -nq "${EROOT}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
 		NEW_BDB_VERSION="$(scanelf -nq "${ED%/}/usr/$(get_libdir)/libsvn_subr-1$(get_libname 0)" | grep -Eo "libdb-[[:digit:]]+\.[[:digit:]]+" | sed -e "s/libdb-\(.*\)/\1/")"
 		if [[ "${OLD_BDB_VERSION}" != "${NEW_BDB_VERSION}" ]] ; then
 			CHANGED_BDB_VERSION="1"
@@ -296,11 +271,11 @@ pkg_config() {
 
 		einfo "Populating repository directory..."
 		# Create initial repository.
-		"${EROOT}usr/bin/svnadmin" create "${SVN_REPOS_LOC}/repos"
+		"${EROOT}/usr/bin/svnadmin" create "${SVN_REPOS_LOC}/repos"
 
 		einfo "Setting repository permissions..."
-		SVNSERVE_USER="$(. "${EROOT}etc/conf.d/svnserve"; echo "${SVNSERVE_USER}")"
-		SVNSERVE_GROUP="$(. "${EROOT}etc/conf.d/svnserve"; echo "${SVNSERVE_GROUP}")"
+		SVNSERVE_USER="$(. "${EROOT}/etc/conf.d/svnserve"; echo "${SVNSERVE_USER}")"
+		SVNSERVE_GROUP="$(. "${EROOT}/etc/conf.d/svnserve"; echo "${SVNSERVE_GROUP}")"
 		#use apache2
 		[[ -z "${SVNSERVE_USER}" ]] && SVNSERVE_USER="apache"
 		[[ -z "${SVNSERVE_GROUP}" ]] && SVNSERVE_GROUP="apache"
