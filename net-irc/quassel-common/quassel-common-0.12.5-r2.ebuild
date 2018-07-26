@@ -1,26 +1,23 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit cmake-utils eutils
+inherit cmake-utils gnome2-utils
 
 MY_P=${P/-common}
 MY_PN=${PN/-common}
-EGIT_REPO_URI=( "https://github.com/${MY_PN}/${MY_PN}" "git://git.${MY_PN}-irc.org/${MY_PN}" )
-[[ "${PV}" == "9999" ]] && inherit git-r3
 
 DESCRIPTION="Qt/KDE IRC client supporting a remote daemon (common files)"
 HOMEPAGE="http://quassel-irc.org/"
-[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+KEYWORDS="~amd64 ~x86"
 
 LICENSE="GPL-3"
-KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE="kde"
 
-RDEPEND="kde? (
-	kde-frameworks/oxygen-icons:* )"
+RDEPEND=""
 
 DEPEND="${RDEPEND}
 		!<net-irc/quassel-${PV}
@@ -99,4 +96,12 @@ src_install() {
 	doins data/networks.ini
 
 	use kde && doins data/quassel.notifyrc
+}
+
+pkg_postinst() {
+	gnome2_icon_cache_update
+}
+
+pkg_postrm() {
+	gnome2_icon_cache_update
 }

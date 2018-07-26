@@ -1,58 +1,43 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit cmake-utils eutils pax-utils systemd user versionator
+inherit cmake-utils pax-utils systemd user versionator
 
 MY_P=${P/-core}
 MY_PN=${PN/-core}
-EGIT_REPO_URI=( "https://github.com/${MY_PN}/${MY_PN}" "git://git.${MY_PN}-irc.org/${MY_PN}" )
-[[ "${PV}" == "9999" ]] && inherit git-r3
 
 DESCRIPTION="Qt/KDE IRC client - the \"core\" (server) component"
 HOMEPAGE="http://quassel-irc.org/"
-[[ "${PV}" == "9999" ]] || SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+KEYWORDS="~amd64 ~x86"
 
 LICENSE="GPL-3"
-KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE="crypt postgres qt5 +ssl syslog"
+IUSE="crypt postgres +ssl syslog"
 
 SERVER_RDEPEND="
-	qt5? (
-		dev-qt/qtscript:5
-		crypt? ( app-crypt/qca:2[qt5,ssl] )
-		postgres? ( dev-qt/qtsql:5[postgres] )
-		!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
-	)
-	!qt5? (
-		dev-qt/qtscript:4
-		crypt? ( app-crypt/qca:2[qt4,ssl] )
-		postgres? ( dev-qt/qtsql:4[postgres] )
-		!postgres? ( dev-qt/qtsql:4[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
-	)
+	dev-qt/qtscript:5
+	crypt? ( app-crypt/qca:2[qt5(+),ssl] )
+	postgres? ( dev-qt/qtsql:5[postgres] )
+	!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	syslog? ( virtual/logger )
 "
 
 RDEPEND="
+	dev-qt/qtcore:5
+	dev-qt/qtnetwork:5[ssl?]
 	sys-libs/zlib
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtnetwork:5[ssl?]
-	)
-	!qt5? ( dev-qt/qtcore:4[ssl?] )
 	${SERVER_RDEPEND}
 "
 DEPEND="
 	${RDEPEND}
 	!net-irc/quassel-core-bin
-	qt5? (
-		kde-frameworks/extra-cmake-modules
-	)
+	kde-frameworks/extra-cmake-modules
 	"
 
-DOCS=( AUTHORS ChangeLog README )
+DOCS=( AUTHORS ChangeLog README.md )
 
 S="${WORKDIR}/${MY_P}"
 
@@ -66,33 +51,27 @@ pkg_setup() {
 
 src_configure() {
 	local mycmakeargs=(
-		-DCMAKE_SKIP_RPATH=ON # added in Sabayon's split ebuild
-		"CMAKE_DISABLE_FIND_PACKAGE_IndicateQt=ON"
-		$(cmake-utils_use_find_package crypt QCA2)
-		# $(cmake-utils_use_find_package dbus dbusmenu-qt)
 		$(cmake-utils_use_find_package crypt QCA2-QT5)
 		# $(cmake-utils_use_find_package dbus dbusmenu-qt5)
+		#$(cmake-utils_use_find_package dbus Qt5DBus)
 		"-DWITH_KDE=OFF"
 		"-DWITH_OXYGEN=OFF"
 		"-DWANT_MONO=OFF"
 
-		"CMAKE_DISABLE_FIND_PACKAGE_phonon=ON"
-		"CMAKE_DISABLE_FIND_PACKAGE_Phonon=ON"
-		"CMAKE_DISABLE_FIND_PACKAGE_PHONON=ON"
-
-		"CMAKE_DISABLE_FIND_PACKAGE_Phonon4Qt5=ON"
-		-DUSE_QT5=$(usex qt5)
-		"-DWANT_CORE=ON"
-		"CMAKE_DISABLE_FIND_PACKAGE_LibsnoreQt5=ON"
-		"-DWITH_WEBKIT=OFF"
-		"-DWANT_QTCLIENT=OFF"
+		CMAKE_DISABLE_FIND_PACKAGE_Phonon4Qt5=ON
+		-DUSE_QT5=ON
 		-DEMBED_DATA=OFF
 		-DCMAKE_SKIP_RPATH=ON
+		-DWITH_WEBKIT=OFF
+		-DWANT_CORE=ON
+		CMAKE_DISABLE_FIND_PACKAGE_LibsnoreQt5=ON
+		-DWITH_WEBENGINE=OFF
+		-DWANT_QTCLIENT=OFF
 	)
 
 	# Something broke upstream detection since Qt 5.5
 	if use ssl ; then
-		mycmakeargs+=("-DHAVE_SSL=TRUE")
+		mycmakeargs+=( "-DHAVE_SSL=TRUE" )
 	fi
 
 	cmake-utils_src_configure
@@ -116,8 +95,8 @@ src_install() {
 	fowners "${QUASSEL_USER}":"${QUASSEL_USER}" "${QUASSEL_DIR}"
 
 	# init scripts & systemd unit
-	newinitd "${FILESDIR}"/quasselcore.init quasselcore
-	newconfd "${FILESDIR}"/quasselcore.conf quasselcore
+	newinitd "${FILESDIR}"/quasselcore.init-r1 quasselcore
+	newconfd "${FILESDIR}"/quasselcore.conf-r1 quasselcore
 	systemd_dounit "${FILESDIR}"/quasselcore.service
 
 	# logrotate
