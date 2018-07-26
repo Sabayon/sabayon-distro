@@ -27,6 +27,9 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/${MY_P}"
 
 src_configure() {
+	local mycmakeargs=(
+		-DUSE_QT5=ON
+	)
 	cmake-utils_src_configure
 }
 

@@ -57,7 +57,7 @@ REQUIRED_USE="
 
 S="${WORKDIR}/${MY_P}"
 
-PATCHES=( "${FILESDIR}/${P}-qt511.patch" )
+PATCHES=( "${FILESDIR}/${P/-client}-qt511.patch" )
 
 src_configure() {
 	local mycmakeargs=(
