@@ -88,3 +88,12 @@ media-libs/elementary -~arm
 virtual/rubygems -~arm
 
 app-text/opensp -~arm
+
+# 2018-04-02 Geaaru: Block unstable fontconfig that require freetype 2.9
+>=media-libs/fontconfig-2.13.0 -~arm
+
+# 2018-04-04 Geaaru: Block unstable fontconfig that require freetype 2.9
+>=x11-libs/pango-1.42.0 -~arm
+
+# 2017-12-16 Geaaru: Mask cryptsetup for linking problems
+>=sys-fs/cryptsetup-2.0.0 -~arm
