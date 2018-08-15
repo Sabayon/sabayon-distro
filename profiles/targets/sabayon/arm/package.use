@@ -14,8 +14,10 @@ sys-libs/glibc suid nscd
 app-text/asciidoc python_single_target_python2_7
 
 # GCC
-sys-devel/gcc gcj objc objc-gc objc++ graphite
-sys-devel/base-gcc gcj objc objc-gc objc++ graphite
+# Temporary disable graphite for this error on compilation:
+#  /var/tmp/portage/sys-devel/base-gcc-6.4.0-r1/work/gcc-6.4.0/gcc/graphite-isl-ast-to-gimple.c:660:28: error: ‘isl_id_free’ was not declared in this scope
+sys-devel/gcc gcj objc objc-gc objc++ -graphite
+sys-devel/base-gcc gcj objc objc-gc objc++ -graphite
 
 # Required by icedtea
 x11-libs/cairo X svg
@@ -61,17 +63,6 @@ www-client/chromium -system-ffmpeg
 
 # Language packs!
 sys-apps/man-pages -linguas_da -linguas_de -linguas_fr -linguas_it -linguas_ja -linguas_nl -linguas_pl -linguas_ro -linguas_ru -linguas_zh_CN
-#www-client/firefox linguas_af linguas_ak linguas_ar linguas_ast linguas_be linguas_bg linguas_bn linguas_bn_BD linguas_bn_IN linguas_br
-#www-client/firefox linguas_bs linguas_ca linguas_cs linguas_cy linguas_da linguas_de linguas_el linguas_en linguas_en_GB linguas_en_US
-#www-client/firefox linguas_en_ZA linguas_eo linguas_es linguas_es_AR linguas_es_CL linguas_es_ES linguas_es_MX linguas_et
-#www-client/firefox linguas_eu linguas_fa linguas_fi linguas_fr linguas_fy linguas_fy_NL linguas_ga linguas_ga_IE linguas_gd linguas_gl
-#www-client/firefox linguas_gu linguas_gu_IN linguas_he linguas_hi linguas_hi_IN linguas_hr linguas_hu linguas_hy linguas_hy_AM
-#www-client/firefox linguas_id linguas_is linguas_it linguas_ja linguas_kk linguas_kn linguas_ko linguas_ku linguas_lg linguas_lt linguas_lv
-#www-client/firefox linguas_mai linguas_mk linguas_ml linguas_mr linguas_nb linguas_nb_NO linguas_nl linguas_nn linguas_nn_NO linguas_nso
-#www-client/firefox linguas_or linguas_pa linguas_pa_IN linguas_pl linguas_pt linguas_pt_BR linguas_pt_PT linguas_rm linguas_ro linguas_ru
-#www-client/firefox linguas_si linguas_sk linguas_sl linguas_son linguas_sq linguas_sr linguas_sv linguas_sv_SE linguas_ta linguas_ta_LK
-#www-client/firefox linguas_te linguas_th linguas_tr linguas_uk linguas_vi linguas_zh
-
 
 # required by sabayon-artwork-gnome
 x11-themes/elementary-icon-theme monochrome
