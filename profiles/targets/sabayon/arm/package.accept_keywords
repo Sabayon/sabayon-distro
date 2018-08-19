@@ -15,7 +15,6 @@ dev-util/boost-build -~arm
 # Only use stable versions of these libs
 sys-kernel/linux-headers -~arm
 sys-libs/glibc -~arm
-=sys-libs/glibc-2.17* ~arm
 <dev-lang/python-3 -~arm
 dev-libs/mpc -~arm
 dev-libs/openssl ~arm
@@ -42,7 +41,7 @@ net-print/cups -~arm
 net-print/cups-filters -~arm
 
 # We want Portage Stable
-sys-apps/portage -~arm
+>sys-apps/portage-2.3.24-r1 -~arm -arm
 
 app-admin/equo ** ~arm
 sys-apps/entropy ** ~arm
