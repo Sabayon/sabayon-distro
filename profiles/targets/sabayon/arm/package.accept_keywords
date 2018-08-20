@@ -2,11 +2,10 @@
 sys-devel/gcc -~arm
 sys-devel/base-gcc -~arm
 
-# Temporary unlock gcc v.6.4.0 (this must be
+# Temporary unlock gcc v.7.3.0-r3 (this must be
 # handled by ACCEPT_KEYWORDS of ebuilds as stable for arm)
-=sys-devel/gcc-6.4.0-r1 ~arm
-=sys-devel/base-gcc-6.4.0-r1 ~arm
-
+=sys-devel/gcc-7.3.0-r3 ~arm
+=sys-devel/base-gcc-7.3.0-r3 ~arm
 
 # force stable boost
 dev-libs/boost -~arm
