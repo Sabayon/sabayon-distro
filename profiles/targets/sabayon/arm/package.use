@@ -1,9 +1,21 @@
-# Base system
+# Core Base system
+
+sys-kernel/linux-headers -headers-only
+sys-libs/glibc suid nscd
+sys-libs/ncurses static-libs tinfo cxx
+
+dev-libs/gmp -cxx
+
+dev-libs/glib dbus mime
+
 dev-lang/python sqlite -tk
 sys-apps/file python
-dev-libs/boost python
+dev-libs/boost python icu context threads
 dev-db/sqlite soundex
-sys-libs/glibc suid nscd
+
+app-misc/pax-utils python seccomp
+net-firewall/iptables ipv6 conntrack netlink nftables
+dev-libs/libpcre2 pcre16 pcre32
 
 # - app-text/asciidoc-8.6.10::gentoo USE="-examples -graphviz -highlight -test" ABI_X86="(64)" PYTHON_SINGLE_TARGET="(-pypy) -python2_7" PYTHON_TARGETS="python2_7 (-pypy)"
 #
@@ -19,129 +31,23 @@ app-text/asciidoc python_single_target_python2_7
 sys-devel/gcc gcj objc objc-gc objc++ -graphite
 sys-devel/base-gcc gcj objc objc-gc objc++ -graphite
 
-# Required by icedtea
-x11-libs/cairo X svg
-x11-libs/pango X
-
-# Required by X.Org Server
-dev-libs/libxml2 python
-
-# Nice fonts
-media-libs/freetype auto-hinter
-media-gfx/imagemagick truetype fontconfig corefonts png
+# systemd support
+sys-apps/systemd -gtk plymouth sysv-utils cryptsetup lzma xattr -openrc keymap acl pam pcre policykit resolvconf ssl sysv-utils
 
 # Required by several stuff
-sys-auth/pambase -consolekit systemd
-sys-auth/consolekit policykit
-
-# doesn't compile with epoll
-net-proxy/squid -epoll
-
-# Required by chromium
-dev-libs/libxml2 icu
-
-# XFCE 4 stuff
-xfce-base/xfce4-session policykit udev
-# required by xfce4 and upower stuff
-# extras is required by net-wireless/bluez
+sys-auth/pambase -consolekit systemd cracklib nullok sha512
 
 net-wireless/bluez test-programs user-session
 
-sys-apps/systemd -gtk plymouth cryptsetup static-libs lzma xattr openrc gudev extras hwdb keymap sysv-utils
 virtual/udev hwdb gudev keymap
 
 # LXDE stuff
 x11-misc/obconf lxde
 
-# Fluxbox time!
-media-libs/imlib2 X
-
-# Firefox stuff
-# -neon: /usr/lib/libpng16.so.16: undefined symbol: png_read_filter_row_avg4_neon
-media-libs/libpng apng -neon
-www-client/chromium -system-ffmpeg
-
-# Language packs!
-sys-apps/man-pages -linguas_da -linguas_de -linguas_fr -linguas_it -linguas_ja -linguas_nl -linguas_pl -linguas_ro -linguas_ru -linguas_zh_CN
-
-# required by sabayon-artwork-gnome
-x11-themes/elementary-icon-theme monochrome
-
-# Networking
-net-libs/rb_libtorrent python
-net-wireless/wpa_supplicant dbus
-net-misc/connman iptables
-net-misc/modemmanager policykit
-net-misc/networkmanager bluetooth connection-sharing resolvconf modemmanager
-
-# Enable gles while we don't have other GL libs around (pvr-omap4 would collide)
-media-libs/mesa gles1 gles2 openmax openvg wayland
-media-libs/cogl gles2 opengl
-media-libs/libsdl2 gles
-
-# Required by Plymouth
-x11-libs/libdrm libkms
-
-# E17 flags
-media-libs/evas X
-
-# Enable Cairo for pybogject, we have split ebuilds
-dev-python/pygobject cairo
-
-# Do not user thread worker
-www-servers/apache -threads
-
-# Enable USE=branding
-x11-themes/elementary-icon-theme branding
-
-# Enable cryptsetup, mdadm, dmraid in genkernel
-sys-kernel/genkernel-next cryptsetup crypt mdadm dmraid
-# Kernel stuff!
-sys-kernel/linux-odroid luks mdadm lvm
-sys-kernel/linux-sabayon luks mdadm lvm
-sys-kernel/linux-beaglebone luks mdadm lvm zfs plymouth dmraid iscsi symlink
-sys-kernel/linux-efikamx luks mdadm lvm symlink plymouth
-sys-kernel/linux-raspberry luks mdadm lvm
-sys-kernel/beaglebone-sources symlink
-sys-kernel/efikamx-sources symlink
-
-# Needed for emesene
-net-libs/farstream python
-
-# PHP wants gd
-dev-lang/php -threads apache2 curl gd truetype exif fpm ftp ldap pdo sockets spell sqlite mysql mysqli xmlwriter zip
-app-admin/eselect-php fpm
-
 # NSS, we want utils!
 dev-libs/nss:0 utils
 
-# libmicrohttpd, we want messages!
-net-libs/libmicrohttpd:0 messages
-
-# bitcoin-qt needs -leveldb
-dev-libs/leveldb -snappy
-
-# Texlive
-app-text/texlive-core cjk xetex
-media-libs/harfbuzz icu
-
-# WX Widgets
-x11-libs/wxGTK X tiff
-
-# if USE=acl, then also upcall
-net-fs/cifs-utils upcall
-
-# pyside has opengl and X enabled
-dev-python/pyside opengl X
-
-# required by several stuff
-dev-db/mariadb client-libs odbc
-
-dev-libs/libpcre pcre16
-
 app-portage/eix sqlite
-
-net-misc/aria2 tcmalloc bittorrent metalink xmlrpc
 
 # Avoid cycle dependency
 dev-libs/openssl -kerberos
