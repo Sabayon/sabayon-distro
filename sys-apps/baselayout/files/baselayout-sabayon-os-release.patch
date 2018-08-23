@@ -1,5 +1,5 @@
---- baselayout-2.2.orig/etc.Linux/os-release
-+++ baselayout-2.2/etc.Linux/os-release
+--- a/etc.Linux/os-release	2018-08-23 14:14:09.589195025 +0200
++++ b/etc.Linux/os-release	2018-08-23 14:15:03.337358583 +0200
 @@ -1,7 +1,7 @@
 -NAME=Gentoo
 -ID=gentoo
@@ -8,9 +8,9 @@
 +ID=sabayon
 +PRETTY_NAME="Sabayon/Linux"
  ANSI_COLOR="1;32"
--HOME_URL="http://www.gentoo.org/"
--SUPPORT_URL="http://www.gentoo.org/main/en/support.xml"
+-HOME_URL="https://www.gentoo.org/"
+-SUPPORT_URL="https://www.gentoo.org/support/"
 -BUG_REPORT_URL="https://bugs.gentoo.org/"
-+HOME_URL="http://www.sabayon.org/"
-+SUPPORT_URL="http://forum.sabayon.org/"
++HOME_URL="https://www.sabayon.org/"
++SUPPORT_URL="https://forum.sabayon.org/"
 +BUG_REPORT_URL="https://bugs.sabayon.org/"
