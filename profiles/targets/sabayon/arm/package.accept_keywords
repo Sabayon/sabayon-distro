@@ -11,6 +11,10 @@ sys-devel/base-gcc -~arm
 dev-libs/boost -~arm
 dev-util/boost-build -~arm
 
+# Dependencies for sark-localbuild
+dev-python/d2to1 ~arm
+dev-python/shyaml ~arm
+
 # Only use stable versions of these libs
 sys-kernel/linux-headers -~arm
 sys-libs/glibc -~arm
