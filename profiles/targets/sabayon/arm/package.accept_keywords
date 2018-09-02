@@ -12,8 +12,8 @@ dev-libs/boost -~arm
 dev-util/boost-build -~arm
 
 # Dependencies for sark-localbuild
-dev-python/d2to1 ~arm
-dev-python/shyaml ~arm
+dev-python/d2to1 ** ~arm
+dev-python/shyaml ** ~arm
 
 # Only use stable versions of these libs
 sys-kernel/linux-headers -~arm
@@ -67,9 +67,6 @@ x11-wm/enlightenment ** ~arm
 =dev-python/urwid-1.0.1 ** ~arm
 =net-misc/wicd-1.7.2.4-r1 ** ~arm
 
-# want xnoise
-=media-sound/xnoise-0.2.2 ** ~arm
-
 # Firefox, we don't want stable
 www-client/firefox ~arm
 # Chromium, we want it
@@ -80,8 +77,6 @@ www-client/chromium ** ~arm
 
 # Want phpmyadmin
 dev-db/phpmyadmin ** ~arm
-
-media-video/ffmpeg -~arm
 
 media-libs/elementary -~arm
 
