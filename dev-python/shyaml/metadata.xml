@@ -5,4 +5,8 @@
 		<email>mudler@sabayon.org</email>
 		<name>mudler</name>
 	</maintainer>
+	<maintainer type="person">
+		<email>geaaru@sabayonlinux.org</email>
+		<name>geaaru</name>
+	</maintainer>
 </pkgmetadata>
