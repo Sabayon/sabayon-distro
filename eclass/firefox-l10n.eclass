@@ -46,5 +46,5 @@ src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${MOZ_PN}"
 	# we need to fake PN: see mozversion_extension_location
 	# in mozextension.eclass
-	PN=${MOZ_PN} mozlinguas-v2_src_install
+	PN=${MOZ_PN} MOZ_INSTALL_L10N_XPIFILE="1" mozlinguas-v2_src_install
 }
