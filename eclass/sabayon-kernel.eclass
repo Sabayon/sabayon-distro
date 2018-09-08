@@ -291,10 +291,10 @@ _is_kernel_lts() {
 
 # provide extra virtual pkg
 if _is_kernel_binary; then
-	DEPEND+=" virtual/linux-binary"
+	PDEPEND+=" virtual/linux-binary"
 # LTS support
 	if [ "${K_KERNEL_LTS}" = "1" ] || _is_kernel_lts; then
-		DEPEND+=" virtual/linux-binary-lts"
+		PDEPEND+=" virtual/linux-binary-lts"
 	fi
 fi
 
