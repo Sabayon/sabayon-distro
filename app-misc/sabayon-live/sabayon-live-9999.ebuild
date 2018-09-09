@@ -24,7 +24,7 @@ RDEPEND="!app-misc/livecd-tools
 	sys-apps/dmidecode"
 
 src_install() {
-	emake DESTDIR="${D}" SYSV_INITDIR="/etc/init.d" \
-		SYSTEMD_UNITDIR="$(systemd_get_unitdir)" \
+	emake DESTDIR="${D}" \
+		SYSTEMD_UNITDIR="$(systemd_get_systemunitdir)" \
 		install || die
 }
