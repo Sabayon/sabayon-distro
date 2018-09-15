@@ -17,14 +17,13 @@ KEYWORDS="~amd64 ~arm ~x86 ~arm64"
 IUSE=""
 DEPEND=""
 GCC_VER="6.4.0"
-PYTHON_VER="2.7"
 # Listing default packages for the current release
 RDEPEND="!app-admin/eselect-init
 	!<sys-apps/sysvinit-1000
 	!sys-apps/hal
 	!sys-auth/consolekit
-	app-eselect/eselect-python
-	dev-lang/python:${PYTHON_VER}
+	!net-misc/lldpad
+	!net-misc/fcoe-utils
 	sys-apps/systemd
 	virtual/man
 	sys-devel/base-gcc:${GCC_VER}
@@ -55,8 +54,6 @@ src_install () {
 }
 
 pkg_postinst() {
-	# Setup Python ${PYTHON_VER}
-	eselect python set python${PYTHON_VER}
 	# No need to set the GCC profile here, since it's done in base-gcc
 
 	# Improve systemd support
