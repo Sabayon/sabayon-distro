@@ -25,6 +25,7 @@ RDEPEND="!app-admin/eselect-init
 	!net-misc/lldpad
 	!net-misc/fcoe-utils
 	sys-apps/systemd
+	sys-kernel/sabayon-dracut
 	virtual/man
 	sys-devel/base-gcc:${GCC_VER}
 	sys-devel/gcc-config"
