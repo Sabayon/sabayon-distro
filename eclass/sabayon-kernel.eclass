@@ -872,7 +872,7 @@ _dracut_initramfs_create() {
 		"${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
 	else
 		elog "Creating dracut initramfs for ${kver} arch: ${karch}"
-		dracut -H -q -N -f -o systemd -o systemd-initrd -o systemd-networkd \
+		dracut -H -q -f -o systemd -o systemd-initrd -o systemd-networkd \
 		-o dracut-systemd --kver="${kver}" \
 		"${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
 	fi
