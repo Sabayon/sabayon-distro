@@ -18,7 +18,7 @@ S="${WORKDIR}/calamares-sabayon-${PV}"
 
 src_install() {
 	insinto "/etc/calamares/"
-	doins -r "${FILESDIR}/${PN}-conf-${PVR}/"*
+	doins -r "${FILESDIR}/modules-conf/"*
 	insinto "/usr/lib/calamares/modules/"
 	doins -r "${S}/"*
 	insinto "/etc/"
