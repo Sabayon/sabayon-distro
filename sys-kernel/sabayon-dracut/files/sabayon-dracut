@@ -7,8 +7,9 @@ set -e
 SABAYON_DRACUT_COMMON_ARGS="${SABAYON_DRACUT_COMMON_ARGS:--H --force}"
 SABAYON_INITRD_DIR="${SABAYON_INITRD_DIR:-/boot}"
 # Current initrd naming is: initramfs-genkernel-${ARCH}-${KVER}.0-sabayon
-SABAYON_INITRD_PREFIX="initramfs-genkernel"
+SABAYON_INITRD_PREFIX="${SABAYON_INITRD_PREFIX:-initramfs-genkernel}"
 SAB_ARCH=${SAB_ARCH:-$(uname -m)}
+
 _error () {
   echo "$@"
   exit 1
