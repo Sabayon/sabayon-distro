@@ -1,0 +1,180 @@
+#!/bin/bash
+# Author: geaaru@sabayonlinux.org
+# Description: Scripting tool for simplify dracut sabayon images creation.
+
+set -e
+
+SABAYON_DRACUT_COMMON_ARGS="${SABAYON_DRACUT_COMMON_ARGS:--H --force}"
+SABAYON_INITRD_DIR="${SABAYON_INITRD_DIR:-/boot}"
+# Current initrd naming is: initramfs-genkernel-${ARCH}-${KVER}.0-sabayon
+SABAYON_INITRD_PREFIX="initramfs-genkernel"
+SAB_ARCH=${SAB_ARCH:-$(uname -m)}
+_error () {
+  echo "$@"
+  exit 1
+}
+
+_help () {
+  echo "
+------------------------------------
+Sabayon Dracut Script
+Copyright (s) 2018 Sabayon
+------------------------------------
+
+Usage:
+
+[--rebuild-all]         Rebuild all Sabayon kernel initrd images.
+                        Based on naming convention
+                        ${SABAYON_INITRD_PREFIX}-${SAB_ARCH}-VERSION-sabayon.
+[--rebuild|-r vesion]   Rebuild image for a specific version.
+[--list-available|-L]   List available Sabayon initrd available.
+[--dry-run]             Doesn't execute final rebuild. Only print command
+                        execute.
+[--force]               Force creation if doesn't exist.
+[--help|-h]             Help message.
+
+
+Examples:
+
+\$# sabayon-dracut --rebuild 4.18
+
+\$# sabayon-dracut --list-available
+"
+  return 1
+}
+
+_get_images () {
+  SAB_INITRD_IMAGES=( $(ls ${SABAYON_INITRD_DIR}/${SABAYON_INITRD_PREFIX}*-sabayon 2>/dev/null) )
+  export SAB_INITRD_IMAGES
+}
+
+_list () {
+  local i=0
+  local n_images=${#SAB_INITRD_IMAGES[@]}
+  local file
+  local version
+
+  if [ "$n_images" = 0 ] ; then
+    echo "No images found."
+  else
+    echo "======================================================"
+    echo " Initrd Images ${n_images}"
+    echo "======================================================"
+    echo " Version   Image"
+    echo "======================================================"
+    for i in ${SAB_INITRD_IMAGES[@]} ; do
+      file=$(basename $i)
+      v=${file/${SABAYON_INITRD_PREFIX}-${SAB_ARCH}-} ; v=${v/.0-sabayon/}
+      echo " $v      $file"
+    done
+    echo "======================================================"
+  fi
+}
+
+_rebuild_all () {
+  # Check if version is available
+  for i in ${SAB_INITRD_IMAGES[@]} ; do
+    file=$(basename $i)
+    v=${file/${SABAYON_INITRD_PREFIX}-${SAB_ARCH}-} ; v=${v/.0-sabayon/}
+    _rebuild "$v"
+  done
+}
+
+_rebuild () {
+  local i
+  local found=0
+  local version=$1
+
+  if [ "$(id -u)" != "0" ]; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+  fi
+
+  # Check if version is available
+  for i in ${SAB_INITRD_IMAGES[@]} ; do
+    file=$(basename $i)
+    v=${file/${SABAYON_INITRD_PREFIX}-${SAB_ARCH}-} ; v=${v/.0-sabayon/}
+    if [ "$version" = "$v" ] ; then
+      found=1
+      break
+    fi
+  done
+
+  if [[ "$found" = 0 && "${SAB_REBUILD_FORCE}" != 1 ]] ; then
+    echo "No image with version $version found."
+  fi
+
+  local image_name="${SABAYON_INITRD_PREFIX}-${SAB_ARCH}-${version}.0-sabayon"
+  local kver="${version}.0-sabayon"
+
+  if [ "${SAB_DRYRUN}" = 1 ] ; then
+    echo "dracut ${SABAYON_DRACUT_COMMON_ARGS} --kver=${kver} ${SABAYON_INITRD_DIR}/${image_name}"
+  else
+    dracut ${SABAYON_DRACUT_COMMON_ARGS} --kver=${kver} ${SABAYON_INITRD_DIR}/${image_name}
+  fi
+}
+
+main () {
+  _parse_args() {
+    if [ $# -lt 1 ] ; then
+      _help
+      return 1
+    fi
+
+    SAB_REBUILD_ALL=0
+    SAB_REBUILD_VERSION=""
+    SAB_REBUILD_FORCE=0
+    SAB_INITRD_LIST=0
+    SAB_DRYRUN=0
+
+    while [ $# -gt 0 ] ; do
+      case "$1" in
+        --help|-h)
+          _help || return 1
+          ;;
+        --rebuild-all)
+          SAB_REBUILD_ALL=1
+          ;;
+        --rebuild|-r)
+          SAB_REBUILD_VERSION=$2
+          shift
+          ;;
+        --list-available|-L)
+          SAB_INITRD_LIST=1
+          ;;
+        --dry-run)
+          SAB_DRYRUN=1
+          ;;
+        --force)
+          SAB_REBUILD_FORCE=1
+          ;;
+        *|--)
+          _error "Invalid parameter $1"
+          ;;
+      esac
+      shift
+    done
+
+    if [[ "${SAB_REBUILD_ALL}" = 1 && -n "${SAB_REBUILD_VERSION}" ]] ; then
+      _error "Both --rebuild-all and --rebuild options used."
+    fi
+
+    export SAB_REBUILD_ALL SAB_REBUILD_VERSION SAB_INITRD_LIST SAB_DRYRUN SAB_REBUILD_FORCE
+    return 0
+  }
+
+  _parse_args "$@"
+
+  _get_images
+
+  [ "${SAB_INITRD_LIST}" = 1 ] && _list
+  [ -n "${SAB_REBUILD_VERSION}" ] && _rebuild "${SAB_REBUILD_VERSION}"
+  [ "${SAB_REBUILD_ALL}" = 1 ] && _rebuild_all
+
+  unset -f _parse_args
+
+  return 0
+}
+
+main $@
+exit $?
