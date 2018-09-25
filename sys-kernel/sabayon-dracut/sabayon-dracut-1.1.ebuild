@@ -12,7 +12,11 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 
-RDEPEND=""
+RDEPEND="sys-fs/btrfs-progs
+	sys-fs/mdadm
+	sys-fs/lvm2
+	sys-boot/plymouth
+"
 DEPEND="${RDEPEND}"
 
 src_unpack () {
