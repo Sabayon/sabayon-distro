@@ -376,10 +376,10 @@ else
 			|| ( >=sys-kernel/genkernel-next-5 >=sys-kernel/genkernel-5 )
 			sys-boot/plymouth
 		)
-		dracut? ( sys-apps/v86d sys-kernel/dracut )"
+		dracut? ( sys-apps/v86d sys-kernel/dracut >=sys-kernel/sabayon-dracut-1.1-r1 )"
 	RDEPEND="sys-apps/sed
 		sys-kernel/linux-firmware
-		dracut? ( sys-apps/v86d sys-kernel/dracut )"
+		dracut? ( sys-apps/v86d sys-kernel/dracut >=sys-kernel/sabayon-dracut-1.1-r1 )"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
 	fi
@@ -863,7 +863,7 @@ sabayon-kernel_bzimage_config() {
 
 _dracut_initramfs_create() {
 	local kver="${1}"
-  local karch="${2}"
+	local karch="${2}"
 	addpredict /etc/ld.so.cache~
 	if [ "${K_DRACUT_LIVECD}" = "1" ]; then
 		elog "Creating dracut initramfs for ${kver} arch: ${karch} (suitable for LiveCDs)"
@@ -872,9 +872,9 @@ _dracut_initramfs_create() {
 		"${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
 	else
 		elog "Creating dracut initramfs for ${kver} arch: ${karch}"
-		dracut -H -q -f -o systemd -o systemd-initrd -o systemd-networkd \
-		-o dracut-systemd --kver="${kver}" \
-		"${ROOT}boot/initramfs-genkernel-${karch}-${kver}"
+		SAB_ARCH="${karch}" SABAYON_INITRD_DIR="${ROOT}boot" \
+		SABAYON_DRACUT_COMMON_ARGS="-H -q -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd" \
+		sabayon-dracut --rebuild "${kver/.0-sabayon/}"
 	fi
 }
 
