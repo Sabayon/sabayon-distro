@@ -31,7 +31,3 @@ src_install () {
 	doexe "${FILESDIR}"/sabayon-dracut
 }
 
-pkg_postinst () {
-	einfo "Rebuilding all initrd images..."
-	sabayon-dracut --rebuild-all
-}
