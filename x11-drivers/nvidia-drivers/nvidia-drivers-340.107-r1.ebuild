@@ -201,7 +201,7 @@ pkg_postinst() {
 	# Sabayon:
 	# Rebuild initramfs. Dracut is including modules with kms - and we need that to avoid
 	# glitches on users that have only nvidia as discrete.
-	use dracut && sabayon-dracut --rebuild-all
+	use dracut && SABAYON_INITRD_DIR="${EROOT%/}/boot" sabayon-dracut --rebuild-all
 
 	echo
 	elog "You must be in the video group to use the NVIDIA device"
