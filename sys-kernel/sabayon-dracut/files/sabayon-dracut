@@ -4,7 +4,7 @@
 
 set -e
 
-SABAYON_DRACUT_COMMON_ARGS="${SABAYON_DRACUT_COMMON_ARGS:--H --force}"
+SABAYON_DRACUT_COMMON_ARGS="${SABAYON_DRACUT_COMMON_ARGS:--H -q -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd}"
 SABAYON_INITRD_DIR="${SABAYON_INITRD_DIR:-/boot}"
 # Current initrd naming is: initramfs-genkernel-${ARCH}-${KVER}.0-sabayon
 SABAYON_INITRD_PREFIX="${SABAYON_INITRD_PREFIX:-initramfs-genkernel}"
