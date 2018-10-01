@@ -5,14 +5,13 @@ EAPI=6
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user udev
 
+DESCRIPTION="NVIDIA X11 userspace libraries and applications"
+HOMEPAGE="http://www.nvidia.com/ http://www.nvidia.com/Download/Find.aspx"
+
 AMD64_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86_64-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
 ARM_NV_PACKAGE="NVIDIA-Linux-armv7l-gnueabihf-${PV}"
-X86_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86-${PV}"
-X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 
-DESCRIPTION="NVIDIA X11 userspace libraries and applications"
-HOMEPAGE="http://www.nvidia.com/ http://www.nvidia.com/Download/Find.aspx"
 NV_URI="http://us.download.nvidia.com/XFree86/"
 SRC_URI="
 	amd64-fbsd? ( ${NV_URI}FreeBSD-x86_64/${PV}/${AMD64_FBSD_NV_PACKAGE}.tar.gz )
@@ -21,11 +20,11 @@ SRC_URI="
 
 LICENSE="GPL-2 NVIDIA-r2"
 SLOT="0/${PV%.*}"
-KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="-* ~amd64 ~amd64-fbsd"
 RESTRICT="bindist mirror"
 EMULTILIB_PKG="true"
 
-IUSE="acpi compat +driver gtk3 kernel_FreeBSD kernel_linux +kms multilib pax_kernel static-libs +tools uvm wayland +X x-multilib"
+IUSE="acpi compat +dracut +driver gtk3 kernel_FreeBSD kernel_linux +kms multilib pax_kernel static-libs +tools uvm wayland +X x-multilib"
 REQUIRED_USE="
 	tools? ( X )
 	static-libs? ( tools )
@@ -34,6 +33,7 @@ REQUIRED_USE="
 COMMON="
 	app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
+	dracut? ( >=sys-kernel/sabayon-dracut-1.3 )
 	X? (
 		>=app-eselect/eselect-opengl-1.0.9
 		app-misc/pax-utils
@@ -50,9 +50,9 @@ RDEPEND="
 	wayland? ( dev-libs/wayland )
 	X? (
 		<x11-base/xorg-server-1.20.99:=
-		>=x11-libs/libvdpau-1.0
 		>=x11-libs/libX11-1.6.2[abi_x86_32]
 		>=x11-libs/libXext-1.3.2[abi_x86_32]
+		>=x11-libs/libvdpau-1.0
 	)
 	~x11-drivers/nvidia-userspace-${PV}
 	x-multilib? ( ~x11-drivers/nvidia-userspace-${PV}[x-multilib] )
@@ -93,7 +93,6 @@ nvidia_drivers_versions_check() {
 
 	# Kernel features/options to check for
 	CONFIG_CHECK="~ZONE_DMA ~MTRR ~SYSVIPC ~!LOCKDEP"
-	use x86 && CONFIG_CHECK+=" ~HIGHMEM"
 
 	# Now do the above checks
 	use kernel_linux && check_extra_config
@@ -202,6 +201,11 @@ pkg_preinst() {
 
 pkg_postinst() {
 	use driver && use kernel_linux && linux-mod_pkg_postinst
+
+	# Sabayon:
+	# Rebuild initramfs. Dracut is including modules with kms - and we need that to avoid
+	# glitches on users that have only nvidia as discrete.
+	use dracut && sabayon-dracut --rebuild-all
 
 	echo
 	elog "You must be in the video group to use the NVIDIA device"

@@ -23,13 +23,14 @@ SRC_URI="
 LICENSE="GPL-2 NVIDIA-r2"
 SLOT="0/${PV%.*}"
 KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
-IUSE="acpi custom-cflags multilib x-multilib kernel_FreeBSD kernel_linux pax_kernel X"
+IUSE="acpi custom-cflags +dracut multilib x-multilib kernel_FreeBSD kernel_linux pax_kernel X"
 RESTRICT="bindist mirror"
 EMULTILIB_PKG="true"
 
 COMMON="
 	app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
+	dracut? ( >=sys-kernel/sabayon-dracut-1.3 )
 	X? (
 		>=app-eselect/eselect-opengl-1.0.9
 	)
@@ -196,6 +197,11 @@ pkg_preinst() {
 
 pkg_postinst() {
 	use kernel_linux && linux-mod_pkg_postinst
+
+	# Sabayon:
+	# Rebuild initramfs. Dracut is including modules with kms - and we need that to avoid
+	# glitches on users that have only nvidia as discrete.
+	use dracut && sabayon-dracut --rebuild-all
 
 	echo
 	elog "You must be in the video group to use the NVIDIA device"
