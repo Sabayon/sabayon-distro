@@ -376,10 +376,10 @@ else
 			|| ( >=sys-kernel/genkernel-next-5 >=sys-kernel/genkernel-5 )
 			sys-boot/plymouth
 		)
-		dracut? ( sys-apps/v86d sys-kernel/dracut >=sys-kernel/sabayon-dracut-1.1-r1 )"
+		dracut? ( sys-apps/v86d sys-kernel/dracut >=sys-kernel/sabayon-dracut-1.3 )"
 	RDEPEND="sys-apps/sed
 		sys-kernel/linux-firmware
-		dracut? ( sys-apps/v86d sys-kernel/dracut >=sys-kernel/sabayon-dracut-1.1-r1 )"
+		dracut? ( sys-apps/v86d sys-kernel/dracut >=sys-kernel/sabayon-dracut-1.3 )"
 	if [ -n "${K_REQUIRED_LINUX_FIRMWARE_VER}" ]; then
 		RDEPEND+=" >=sys-kernel/linux-firmware-${K_REQUIRED_LINUX_FIRMWARE_VER}"
 	fi
@@ -873,7 +873,6 @@ _dracut_initramfs_create() {
 	else
 		elog "Creating dracut initramfs for ${kver} arch: ${karch}"
 		SAB_ARCH="${karch}" SABAYON_INITRD_DIR="${ROOT}boot" \
-		SABAYON_DRACUT_COMMON_ARGS="-H -q -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd" \
 		sabayon-dracut --rebuild "${kver/.0-sabayon/}"
 	fi
 }
