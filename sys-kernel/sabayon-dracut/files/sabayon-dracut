@@ -108,6 +108,8 @@ _rebuild () {
   local image_name="${SABAYON_INITRD_PREFIX}-${SAB_ARCH}-${version}.0-sabayon"
   local kver="${version}.0-sabayon"
 
+  echo "Building ${SABAYON_INITRD_DIR}/${image_name}"
+
   if [ "${SAB_DRYRUN}" = 1 ] ; then
     echo "dracut ${SABAYON_DRACUT_COMMON_ARGS} --kver=${kver} ${SABAYON_INITRD_DIR}/${image_name}"
   else
