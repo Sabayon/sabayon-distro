@@ -21,7 +21,7 @@
 # must not have uncommitted changes.
 
 # The script asks interactively for a few parameters:
-# - new version,
+# - new version (possibly marked as "ESR"),
 # - list of languages (MOZ_LANGS in Firefox ebuild) - can be set automatically,
 # - location of the Manifest for Firefox - used as the trick that allows to bump
 #   the packages without downloading the language packs themselves, and adds
@@ -33,20 +33,27 @@ e() {
 }
 
 print_ebuild() {
-	local ver=$1
+	local is_esr=$1
 
-	cat <<-END
+	if [[ ${is_esr} = 1 ]]; then
+		local sed_arg="s/@MOZ_ESR@/MOZ_ESR=\"1\"/"
+	else
+		local sed_arg="/@MOZ_ESR@/d"
+	fi
+
+	sed "${sed_arg}" <<-END
 	# Copyright 1999-2017 Gentoo Foundation
 	# Distributed under the terms of the GNU General Public License v2
 
 	EAPI=4
+	@MOZ_ESR@
 	inherit firefox-l10n
 END
 }
 
 create_ebuild() {
-	local lang=$1 package_name_prefix=$2 ver=$3
-	[[ $# -ne 3 ]] && e "create_ebuild: expected 3 arguments"
+	local lang=$1 package_name_prefix=$2 ver=$3 is_esr=$4
+	[[ $# -ne 4 ]] && e "create_ebuild: expected 3 arguments"
 
 	# firefox-l10n-pl-17.0.1-r1.ebuild
 	local package_name="${package_name_prefix}-${lang}"
@@ -55,7 +62,7 @@ create_ebuild() {
 	echo "=> ${lang} (${ebuild_name})"
 
 	mkdir "${package_name}" || e "mkdir failed"
-	print_ebuild "${ver}" > "${package_name}/${ebuild_name}" \
+	print_ebuild "${is_esr}" > "${package_name}/${ebuild_name}" \
 		|| e "creating ebuild for ${ebuild_name} failed"
 	cp "${manifest_path}" "${package_name}/Manifest" \
 		|| e "copying Manifest for ${ebuild_name} failed"
@@ -111,8 +118,17 @@ if [[ $(basename "$(realpath .)") != "www-client" ]]; then
 	exit 4
 fi
 
-echo "provide new version number:"
-read new_version
+echo "provide new version number (format: <version> ['esr']):"
+read new_version maybe_esr
+
+if [[ -z ${maybe_esr} ]]; then
+	is_esr=0
+elif [[ ${maybe_esr} = esr ]]; then
+	is_esr=1
+else
+	echo "garbage: '${maybe_esr}'"
+	exit 5
+fi
 
 echo "provide language list, from Firefox ebuild (if empty, it will" \
 	"be determined using pquery from pkgcore):"
@@ -150,7 +166,7 @@ git rm -r "${package_name_prefix}"-* || e "git rm -r ${package_name_prefix}-* fa
 for lang in "${langs[@]}"; do
 	# see mozlinguas_export in mozlinguas-v2.eclass
 	[[ ${lang} = en || ${lang} = en-US ]] && continue
-	create_ebuild "${lang}" "${package_name_prefix}" "${new_version}"
+	create_ebuild "${lang}" "${package_name_prefix}" "${new_version}" "${is_esr}"
 done
 
 rm "${keepfile}" || e "rm failed"
