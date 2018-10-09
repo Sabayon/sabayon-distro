@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -145,7 +145,7 @@ REQUIRED_USE="
 
 PATCHES=(
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	"${FILESDIR}"/git-2.17.0_rc1-optional-cvs.patch
+	"${FILESDIR}"/git-2.18.0_rc1-optional-cvs.patch
 
 	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
 
@@ -735,9 +735,9 @@ showpkgdeps() {
 
 pkg_postinst() {
 	use emacs && elisp-site-regen
-	einfo "Please read /usr/share/bash-completion/git for Git bash command completion"
-	einfo "Please read /usr/share/git/git-prompt.sh for Git bash prompt"
-	einfo "Note that the prompt bash code is now in that separate script"
+	elog "Please read /usr/share/bash-completion/git for Git bash command completion"
+	elog "Please read /usr/share/git/git-prompt.sh for Git bash prompt"
+	elog "Note that the prompt bash code is now in that separate script"
 	elog "These additional scripts need some dependencies:"
 	echo
 	showpkgdeps git-quiltimport "dev-util/quilt"
