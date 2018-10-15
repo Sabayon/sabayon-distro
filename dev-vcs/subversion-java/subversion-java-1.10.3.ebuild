@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -12,7 +12,7 @@ MY_SVN_PF="${MY_SVN_PN}-${PVR}"
 MY_SVN_CATEGORY="${CATEGORY}"
 
 # note: java-pkg-2, not java-pkt-opt-2
-inherit autotools flag-o-matic java-pkg-2 libtool ltprune multilib xdg-utils
+inherit autotools flag-o-matic java-pkg-2 libtool multilib xdg-utils
 
 DESCRIPTION="Java bindings for Subversion"
 HOMEPAGE="https://subversion.apache.org/"
