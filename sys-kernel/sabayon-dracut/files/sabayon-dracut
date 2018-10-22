@@ -45,7 +45,13 @@ Examples:
 }
 
 _get_images () {
-  SAB_INITRD_IMAGES=( $(ls ${SABAYON_INITRD_DIR}/${SABAYON_INITRD_PREFIX}*-sabayon 2>/dev/null) )
+  local n=$(ls ${SABAYON_INITRD_DIR}/${SABAYON_INITRD_PREFIX}*-sabayon 2>/dev/null | wc -l)
+
+  if [ $n = 0 ] ; then
+    SAB_INITRD_IMAGES=()
+  else
+    SAB_INITRD_IMAGES=( $(ls ${SABAYON_INITRD_DIR}/${SABAYON_INITRD_PREFIX}*-sabayon 2>/dev/null) )
+  fi
   export SAB_INITRD_IMAGES
 }
 
