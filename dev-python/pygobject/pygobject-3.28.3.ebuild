@@ -21,8 +21,8 @@ REQUIRED_USE="
 "
 
 COMMON_DEPEND="
-	~dev-python/pygobject-base-${PV}[threads=,examples=,${PYTHON_USEDEP}]
-	cairo? ( ~dev-python/pygobject-cairo-${PV}[threads=,test=,${PYTHON_USEDEP}] )
+	~dev-python/pygobject-base-${PV}[examples=,${PYTHON_USEDEP}]
+	cairo? ( ~dev-python/pygobject-cairo-${PV}[test=,${PYTHON_USEDEP}] )
 "
 DEPEND="${COMMON_DEPEND}"
 # We now disable introspection support in slot 2 per upstream recommendation
