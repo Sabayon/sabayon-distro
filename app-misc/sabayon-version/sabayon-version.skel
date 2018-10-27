@@ -17,11 +17,14 @@ KEYWORDS="~amd64 ~arm ~x86 ~arm64"
 IUSE=""
 DEPEND=""
 GCC_VER="6.4.0"
+PYTHON_VER="3.6"
 # Listing default packages for the current release
 RDEPEND="!app-admin/eselect-init
 	!<sys-apps/sysvinit-1000
 	!sys-apps/hal
 	!sys-auth/consolekit
+	app-eselect/eselect-python
+	dev-lang/python:${PYTHON_VER}
 	sys-apps/systemd
 	sys-kernel/sabayon-dracut
 	virtual/man
@@ -53,6 +56,16 @@ src_install () {
 }
 
 pkg_postinst() {
+	# Setup Python ${PYTHON_VER}
+	# not critical, can be removed (with the file) after some time
+	local py3file="${ROOT}/etc/sabayon-py3-was-set"
+	if [[ ! -e ${py3file} ]]; then
+		ewarn "Switching to Python 3 (${PYTHON_VER}) as default."
+		ewarn "This is a one time action. Override using eselect if preferred."
+		eselect python set python${PYTHON_VER} \
+			&& touch "${py3file}"
+	fi
+
 	# No need to set the GCC profile here, since it's done in base-gcc
 
 	# Improve systemd support
