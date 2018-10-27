@@ -35,8 +35,8 @@ LINGUAS="${LINGUAS} uz vi zh_CN zh_TW es_AR es_ES fy_NL ga_IE gu gu_IN nb_NO nn_
 APACHE2_MPMS="prefork"
 
 # Add also negative options to avoid inheritance
-PYTHON_TARGETS="python2_7 python3_5 -python3_6 -python3_7"
-PYTHON_SINGLE_TARGET="python3_5 -python3_6 -python2_7 -python3_7"
-USE_PYTHON="2.7 3.5"
+PYTHON_TARGETS="python2_7 -python3_5 python3_6 -python3_7"
+PYTHON_SINGLE_TARGET="-python3_5 python3_6 -python2_7 -python3_7"
+USE_PYTHON="2.7 3.6"
 
 
