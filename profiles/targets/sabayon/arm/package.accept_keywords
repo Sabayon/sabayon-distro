@@ -46,8 +46,9 @@ net-print/cups-filters -~arm
 # We want Portage Stable
 >sys-apps/portage-2.3.40-r1 -~arm -arm
 
-app-admin/equo ** ~arm
-sys-apps/entropy ** ~arm
+<app-admin/equo-9999 ** ~arm
+<sys-apps/entropy-9999 ** ~arm
+<app-admin/matter-9999 ** ~arm
 
 # Temp keywording, will test and add keywords back
 www-servers/nginx ** ~arm
