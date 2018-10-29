@@ -22,6 +22,4 @@ src_install() {
         doins -r "${FILESDIR}/modules-conf/"*
         insinto "/usr/lib/calamares/modules/"
         doins -r "${S}/"*
-        insinto "/etc/"
-        newins "${FILESDIR}/locale.gen" "locale.gen.bak"
 }
