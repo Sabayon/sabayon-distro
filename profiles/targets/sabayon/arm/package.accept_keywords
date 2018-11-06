@@ -46,10 +46,10 @@ net-print/cups-filters -~arm
 # We want Portage Stable
 >sys-apps/portage-2.3.40-r1 -~arm -arm
 
-# Temporary allow -9999 on ARM until version 319 is out
-<=app-admin/equo-9999 ** ~arm
-<=sys-apps/entropy-9999 ** ~arm
-<=app-admin/matter-9999 ** ~arm
+# Temporary allow only -9999 on ARM until version 319 is out
+>=app-admin/equo-9999 ** ~arm
+>=sys-apps/entropy-9999 ** ~arm
+>=app-admin/matter-9999 ** ~arm
 
 # Temp keywording, will test and add keywords back
 www-servers/nginx ** ~arm
