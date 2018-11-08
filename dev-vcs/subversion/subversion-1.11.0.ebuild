@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,7 +9,7 @@ DISTUTILS_OPTIONAL=1
 WANT_AUTOMAKE="none"
 GENTOO_DEPEND_ON_PERL="no"
 
-inherit autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common flag-o-matic libtool ltprune multilib perl-module ruby-single xdg-utils
+inherit autotools bash-completion-r1 db-use depend.apache distutils-r1 elisp-common flag-o-matic libtool multilib perl-module ruby-single xdg-utils
 
 MY_P="${P/_/-}"
 DESCRIPTION="Advanced version control system"
@@ -31,7 +31,7 @@ COMMON_DEPEND="
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
-	dev-libs/libutf8proc
+	dev-libs/libutf8proc:=
 	sys-apps/file
 	sys-libs/zlib
 	berkdb? ( >=sys-libs/db-4.0.14:= )
@@ -71,6 +71,9 @@ DEPEND="${COMMON_DEPEND}
 		virtual/pkgconfig
 	)
 	nls? ( sys-devel/gettext )
+	perl? ( dev-lang/swig )
+	python? ( dev-lang/swig )
+	ruby? ( dev-lang/swig )
 	test? ( ${PYTHON_DEPS} )"
 PDEPEND="java? ( ~dev-vcs/subversion-java-${PV} )"
 
