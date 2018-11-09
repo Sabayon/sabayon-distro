@@ -49,7 +49,7 @@ net-print/cups-filters -~arm
 # Temporary allow only -9999 on ARM until version 319 is out
 >=app-admin/equo-9999 ** ~arm
 >=sys-apps/entropy-9999 ** ~arm
->=sys-apps/entropy-server ** ~arm
+>=sys-apps/entropy-server-9999 ** ~arm
 >=app-admin/matter-9999 ** ~arm
 
 <app-admin/equo-9999 -~arm
