@@ -1,0 +1,103 @@
+### Blockers
+
+# NOTE:
+# GLOBAL_MASK prefix it is used for generate 00-sabayon.package.mask under /etc/portage directory
+# until this is supported by EAPI and portage.
+
+# 2010-10-29 Joost Ruis: Blocks sci-biology/emboss
+sys-devel/cons
+
+# Joost Ruis: Blocks bash
+app-shells/bashdb
+
+### Temp masked due a bug
+
+### net-analyser
+
+# Joost Ruis: We have netcat6 in our tree
+net-analyzer/netcat
+app-forensics/air
+
+### net-misc
+
+# Joost Ruis: This package cannot be in tree with distcc
+net-misc/pump
+
+# Joost Ruis: This package cannot be in tree with sys-apps/iproute2
+net-misc/arpd
+
+#Joost Ruis: Wants >=dev-lang/perl-5.6.1[-ithreads] never going to happen.
+net-irc/epic4
+
+# Joost Ruis: We use net-misc/ntp so we want to mask this
+net-misc/openntpd
+
+# Joost Ruis: We use net-misc/netkit-telnetd so we want to mask
+net-misc/telnet-bsd
+
+# Joost Ruis: We use dev-texlive/texlive-latexextra so we want to mask this
+dev-tex/prosper
+
+# 2011-08-17 Fabio Erculiani: Conflicts with x11-terms/terminal
+gnustep-apps/terminal
+
+# 2012-12-14 Fabio Erculiani: it is causing annoying sh errors on chroots
+>=app-shells/autojump-21.1.0
+
+# 2013-02-08 Fabio Erculiani: we use man-db
+sys-apps/man
+
+# 2013-06-26 Fabio Erculiani: migrated to logind
+sys-auth/consolekit
+
+# 2014-08-31 Sławomir Nizio: we cannot support it properly, bug 3776
+app-portage/g-octave
+
+# 2014-09-30 Joost Ruis: Do not pull poppler from Portage
+# GLOBAL_MASK app-text/poppler::gentoo
+
+# 2015-02-19 Joost Ruis: Newer version is brokken with collectd
+>sys-libs/libstatgrab-0.17
+
+# 2015-09-30 Joost Ruis: Only use overlay version
+# GLOBAL_MASK sys-fs/zfs-kmod::gentoo
+
+# 2016-03-03 Joost Ruis: Only use overlay version
+# GLOBAL_MASK sys-apps/lsb-release::gentoo
+
+# 2016-03-14 Ettore Di Giacinto: Keep sddm from our overlay
+# GLOBAL_MASK x11-misc/sddm::gentoo
+
+# 2016-03-22 Ettore Di Giacinto: Keep apache from our overlay
+# GLOBAL_MASK www-servers/apache::gentoo
+
+# 2017-02-18 Francesco Ferretti: use overlay version
+# GLOBAL_MASK net-dns/avahi::gentoo
+
+# 2017-05-03 Sławomir Nizio: net-proxy/mitmproxy 0.11.3 requires this 0.11*
+>=dev-python/netlib-0.12.0
+
+# 2018-01-27 Joost Ruis: mask sys-apps/baselayout from portage
+# GLOBAL_MASK sys-apps/baselayout::gentoo
+
+# 2017-09-09 Sławomir Nizio: dev-python/pygit2 must be matched (x.y parts) with
+# libgit2, but it can happen that there is no new enough version of the former
+>=dev-libs/libgit2-0.27
+>=dev-libs/libgit2-glib-0.27
+>=dev-python/pygit2-0.27
+
+# 2017-09-15 Joost Ruis: Prevent Python 3.4 downgrade
+dev-lang/python:3.4
+# 2018-11-09 Daniele Rondina: Prevent Python 3.5 downgrade
+dev-lang/python:3.5
+
+# 2017-11-22 Sławomir Nizio: dev-haskell/yesod-routes (as of 1.2.0.7-r2)
+# depends an older version (Gentoo bug 610350)
+>=dev-lang/ghc-8
+
+# 2018-01-30 Joost Ruis: Use our overlay version
+# GLOBAL_MASK virtual/linux-sources::gentoo
+
+# 2018-10-18 Joost Ruis: Use dev-python/pygobject from overlay
+# GLOBAL_MASK dev-python/pygobject:3::gentoo
+
