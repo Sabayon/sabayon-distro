@@ -21,6 +21,7 @@ RDEPEND="!app-misc/livecd-tools
 	sys-apps/pciutils
 	sys-apps/keyboard-configuration-helpers
 	sys-apps/sed
+	>=sys-apps/systemd-239-r2
 	sys-apps/dmidecode"
 
 src_install() {
