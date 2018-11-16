@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -7,8 +7,9 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/systemd/systemd.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/systemd/systemd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~x86"
+	SRC_URI="https://github.com/systemd/systemd/archive/v${PV}/${P}.tar.gz
+		https://dev.gentoo.org/~floppym/dist/${P}-patches-1.tar.gz"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 fi
 
 PYTHON_COMPAT=( python{3_4,3_5,3_6} )
@@ -20,11 +21,10 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
-IUSE="acl apparmor audit build cryptsetup curl elfutils +gcrypt gnuefi http
-	idn importd +kmod libidn2 +lz4 lzma nat pam policykit
-	qrcode +seccomp selinux ssl sysv-utils test vanilla xkb"
+IUSE="acl apparmor audit build cryptsetup curl elfutils +gcrypt gnuefi http idn importd +kmod libidn2 +lz4 lzma nat pam pcre policykit qrcode +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
 
 REQUIRED_USE="importd? ( curl gcrypt lzma )"
+RESTRICT="!test? ( test )"
 
 MINKV="3.11"
 
@@ -43,8 +43,8 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 		ssl? ( >=net-libs/gnutls-3.1.4:0= )
 	)
 	idn? (
-		libidn2? ( net-dns/libidn2 )
-		!libidn2? ( net-dns/libidn )
+		libidn2? ( net-dns/libidn2:= )
+		!libidn2? ( net-dns/libidn:= )
 	)
 	importd? (
 		app-arch/bzip2:0=
@@ -55,20 +55,19 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
 	nat? ( net-firewall/iptables:0= )
 	pam? ( virtual/pam:=[${MULTILIB_USEDEP}] )
+	pcre? ( dev-libs/libpcre2 )
 	qrcode? ( media-gfx/qrencode:0= )
-	seccomp? ( >=sys-libs/libseccomp-2.3.1:0= )
+	seccomp? ( >=sys-libs/libseccomp-2.3.3:0= )
 	selinux? ( sys-libs/libselinux:0= )
-	sysv-utils? (
-		!sys-apps/systemd-sysv-utils
-		!sys-apps/sysvinit )
-	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )
-	abi_x86_32? ( !<=app-emulation/emul-linux-x86-baselibs-20130224-r9
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)] )"
+	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )"
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
 	>=sys-apps/baselayout-2.2
 	selinux? ( sec-policy/selinux-base-policy[systemd] )
+	sysv-utils? ( !sys-apps/sysvinit )
+	!sysv-utils? ( sys-apps/sysvinit )
+	resolvconf? ( !net-dns/openresolv )
 	!build? ( || (
 		sys-apps/util-linux[kill(-)]
 		sys-process/procps[kill(+)]
@@ -110,13 +109,14 @@ pkg_pretend() {
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
 			~TIMERFD ~TMPFS_XATTR ~UNIX
 			~CRYPTO_HMAC ~CRYPTO_SHA256 ~CRYPTO_USER_API_HASH
-			~!FW_LOADER_USER_HELPER ~!GRKERNSEC_PROC ~!IDE ~!SYSFS_DEPRECATED
+			~!FW_LOADER_USER_HELPER_FALLBACK ~!GRKERNSEC_PROC ~!IDE ~!SYSFS_DEPRECATED
 			~!SYSFS_DEPRECATED_V2"
 
 		use acl && CONFIG_CHECK+=" ~TMPFS_POSIX_ACL"
 		use seccomp && CONFIG_CHECK+=" ~SECCOMP ~SECCOMP_FILTER"
 		kernel_is -lt 3 7 && CONFIG_CHECK+=" ~HOTPLUG"
 		kernel_is -lt 4 7 && CONFIG_CHECK+=" ~DEVPTS_MULTIPLE_INSTANCES"
+		kernel_is -ge 4 10 && CONFIG_CHECK+=" ~CGROUP_BPF"
 
 		if linux_config_exists; then
 			local uevent_helper_path=$(linux_chkconfig_string UEVENT_HELPER_PATH)
@@ -147,26 +147,27 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Do NOT add patches here
+	local PATCHES=()
 
 	# Sabayon: Avoid the log bloat to the user
 	sed -i -e 's/#SystemMaxUse=/SystemMaxUse=500M/' src/journal/journald.conf || die
 
-	local PATCHES=(
-		"${FILESDIR}"/235-0001-test-skip-hwdb-and-sysv-generator-if-the-features-ar.patch
-		"${FILESDIR}"/235-0002-networkd-Don-t-stop-networkd-if-CONFIG_FIB_RULES-n-i.patch
+	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
+
+	# Add local patches here
+	PATCHES+=(
+		"${FILESDIR}"/239-debug-extra.patch
 	)
 
 	if ! use vanilla; then
 		PATCHES+=(
-			"${FILESDIR}/218-Dont-enable-audit-by-default.patch"
-			"${FILESDIR}/228-noclean-tmp.patch"
-			"${FILESDIR}/233-systemd-user-pam.patch"
-			"${FILESDIR}/234-uucp-group.patch"
-			"${FILESDIR}/generator-path.patch"
+			"${FILESDIR}/gentoo-Dont-enable-audit-by-default.patch"
+			"${FILESDIR}/gentoo-systemd-user-pam.patch"
+			"${FILESDIR}/gentoo-uucp-group-r1.patch"
+			"${FILESDIR}/gentoo-generator-path.patch"
 		)
 	fi
-
-	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
 
 	default
 }
@@ -206,11 +207,13 @@ multilib_src_configure() {
 		-Dpamlibdir="$(getpam_mod_dir)"
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
-		# make sure we get /bin:/sbin in $PATH
-		-Dsplit-usr=true
-		-Drootprefix="${EPREFIX}${ROOTPREFIX}"
+		# make sure we get /bin:/sbin in PATH
+		-Dsplit-usr=$(usex split-usr true false)
+		-Drootprefix="$(usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr")"
 		-Dsysvinit-path=
 		-Dsysvrcnd-path=
+		# Avoid infinite exec recursion, bug 642724
+		-Dtelinit-path="${EPREFIX}/lib/sysvinit/telinit"
 		# no deps
 		-Defi=$(meson_multilib)
 		-Dima=true
@@ -223,7 +226,7 @@ multilib_src_configure() {
 		-Delfutils=$(meson_multilib_native_use elfutils)
 		-Dgcrypt=$(meson_use gcrypt)
 		-Dgnu-efi=$(meson_multilib_native_use gnuefi)
-		-Defi-libdir="/usr/$(get_libdir)"
+		-Defi-libdir="${EPREFIX}/usr/$(get_libdir)"
 		-Dmicrohttpd=$(meson_multilib_native_use http)
 		$(usex http -Dgnutls=$(meson_multilib_native_use ssl) -Dgnutls=false)
 		-Dimportd=$(meson_multilib_native_use importd)
@@ -234,6 +237,7 @@ multilib_src_configure() {
 		-Dxz=$(meson_use lzma)
 		-Dlibiptc=$(meson_multilib_native_use nat)
 		-Dpam=$(meson_use pam)
+		-Dpcre2=$(meson_multilib_native_use pcre)
 		-Dpolkit=$(meson_multilib_native_use policykit)
 		-Dqrencode=$(meson_multilib_native_use qrcode)
 		-Dseccomp=$(meson_multilib_native_use seccomp)
@@ -242,7 +246,7 @@ multilib_src_configure() {
 		-Ddbus=$(meson_multilib_native_use test)
 		-Dxkbcommon=$(meson_multilib_native_use xkb)
 		# hardcode a few paths to spare some deps
-		-Dpath-kill=/bin/kill
+		-Dkill-path=/bin/kill
 		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
 		-Ddefault-kill-user-processes=false
@@ -290,6 +294,7 @@ multilib_src_compile() {
 }
 
 multilib_src_test() {
+	unset DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
 	eninja test
 }
 
@@ -303,28 +308,33 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
+	local rootprefix=$(usex split-usr '' /usr)
+
 	# meson doesn't know about docdir
 	mv "${ED%/}"/usr/share/doc/{systemd,${PF}} || die
 
 	einstalldocs
 	dodoc "${FILESDIR}"/nsswitch.conf
 
-	if use sysv-utils; then
-		for app in halt poweroff reboot runlevel shutdown telinit; do
-			dosym "${EPREFIX}${ROOTPREFIX%/}/bin/systemctl" /sbin/${app}
-		done
-		dosym "${EPREFIX}${ROOTPREFIX%/}/lib/systemd/systemd" /sbin/init
-	else
-		# we just keep sysvinit tools, so no need for the mans
-		rm "${ED%/}"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8 \
-			|| die
+	if ! use resolvconf; then
+		rm -f "${ED%/}${rootprefix}"/sbin/resolvconf || die
+	fi
+
+	if ! use sysv-utils; then
+		rm "${ED%/}${rootprefix}"/sbin/{halt,init,poweroff,reboot,runlevel,shutdown,telinit} || die
 		rm "${ED%/}"/usr/share/man/man1/init.1 || die
+		rm "${ED%/}"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8 || die
+	fi
+
+	if ! use resolvconf && ! use sysv-utils; then
+		rmdir "${ED%/}${rootprefix}"/sbin || die
 	fi
 
 	# Preserve empty dirs in /etc & /var, bug #437008
-	keepdir /etc/binfmt.d /etc/modules-load.d /etc/tmpfiles.d \
-		/etc/systemd/ntp-units.d /etc/systemd/user /var/lib/systemd \
-		/var/log/journal/remote
+	keepdir /etc/{binfmt.d,modules-load.d,tmpfiles.d}
+	keepdir /etc/systemd/{ntp-units.d,user} /var/lib/systemd
+	keepdir /etc/udev/{hwdb.d,rules.d}
+	keepdir /var/log/journal/remote
 
 	# Symlink /etc/sysctl.conf for easy migration.
 	dosym ../sysctl.conf /etc/sysctl.d/99-sysctl.conf
@@ -339,12 +349,15 @@ multilib_src_install_all() {
 	rm -fr "${ED%/}"/etc/systemd/system/sockets.target.wants || die
 	rm -fr "${ED%/}"/etc/systemd/system/sysinit.target.wants || die
 
-	rm -r "${ED%/}${ROOTPREFIX%/}/lib/udev/hwdb.d" || die
+	local udevdir=/lib/udev
+	use split-usr || udevdir=/usr/lib/udev
 
-	if [[ ! -e "${ED%/}"/usr/lib/systemd/systemd ]]; then
+	rm -r "${ED%/}${udevdir}/hwdb.d" || die
+
+	if use split-usr; then
 		# Avoid breaking boot/reboot
-		dosym "../../..${ROOTPREFIX%/}/lib/systemd/systemd" /usr/lib/systemd/systemd
-		dosym "../../..${ROOTPREFIX%/}/lib/systemd/systemd-shutdown" /usr/lib/systemd/systemd-shutdown
+		dosym ../../../lib/systemd/systemd /usr/lib/systemd/systemd
+		dosym ../../../lib/systemd/systemd-shutdown /usr/lib/systemd/systemd-shutdown
 	fi
 
 	# Sabayon: Offer a default blacklist that should cover the most
@@ -397,19 +410,6 @@ migrate_locale() {
 	fi
 }
 
-pkg_preinst() {
-	# If /lib/systemd and /usr/lib/systemd are the same directory, remove the
-	# symlinks we created in src_install.
-	if [[ $(realpath "${EROOT%/}${ROOTPREFIX}/lib/systemd") == $(realpath "${EROOT%/}/usr/lib/systemd") ]]; then
-		if [[ -L ${ED%/}/usr/lib/systemd/systemd ]]; then
-			rm "${ED%/}/usr/lib/systemd/systemd" || die
-		fi
-		if [[ -L ${ED%/}/usr/lib/systemd/systemd-shutdown ]]; then
-			rm "${ED%/}/usr/lib/systemd/systemd-shutdown" || die
-		fi
-	fi
-}
-
 pkg_postinst() {
 	newusergroup() {
 		enewgroup "$1"
@@ -418,6 +418,7 @@ pkg_postinst() {
 
 	enewgroup input
 	enewgroup kvm 78
+	enewgroup render
 	enewgroup systemd-journal
 	newusergroup systemd-bus-proxy
 	newusergroup systemd-coredump
