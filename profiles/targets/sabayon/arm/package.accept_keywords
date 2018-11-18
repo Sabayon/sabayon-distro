@@ -102,3 +102,8 @@ app-text/opensp -~arm
 
 # 2017-12-16 Geaaru: Mask cryptsetup for linking problems
 >=sys-fs/cryptsetup-2.0.0 -~arm
+
+# Unmask minimal perl package for sark and building tasks (sabayon/base-armhfp image)
+<dev-perl/App-Cmd-9999 ** ~arm
+<dev-perl/String-RewritePrefix-9999 ** ~arm
+<dev-perl/IO-TieCombine-9999 ** ~arm
