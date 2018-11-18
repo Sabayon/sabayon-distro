@@ -57,6 +57,8 @@ net-print/cups-filters -~arm
 <app-admin/matter-9999 -~arm
 <sys-apps/entropy-server-9999 -~arm
 
+<=app-admin/enman-1.4.0 ** ~arm
+
 # Temp keywording, will test and add keywords back
 www-servers/nginx ** ~arm
 
