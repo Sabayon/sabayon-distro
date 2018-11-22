@@ -44,7 +44,8 @@ net-print/cups -~arm
 net-print/cups-filters -~arm
 
 # We want Portage Stable
->sys-apps/portage-2.3.40-r1 -~arm -arm
+# app-portage/repoman-2.3.12 require >=sys-apps/portage-2.3.43
+>sys-apps/portage-2.3.51-r1 -~arm -arm
 
 # Temporary allow only -9999 on ARM until version 319 is out
 >=app-admin/equo-9999 ** ~arm
@@ -107,3 +108,7 @@ app-text/opensp -~arm
 <dev-perl/App-Cmd-9999 ** ~arm
 <dev-perl/String-RewritePrefix-9999 ** ~arm
 <dev-perl/IO-TieCombine-9999 ** ~arm
+
+# Add minimal packages for builder image
+<=app-misc/sabayon-sark-1.1.2 ** ~arm
+<=app-misc/sabayon-devkit-1.7.7 ** ~arm
