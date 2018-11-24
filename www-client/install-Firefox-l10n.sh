@@ -2,7 +2,7 @@
 
 # Install all firefox-l10 packages.
 
-#   Copyright 2014, 2015, 2017 Sławomir Nizio
+#   Copyright 2014, 2015, 2017, 2018 Sławomir Nizio
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -23,8 +23,11 @@
 
 # Options: --pkgcore - use pkgcore (but see note above),
 #          --ebuild-install - use the ebuild command,
+#          --eit-inject - build a binary package using Portage and inject
+#                         with eit
 #          -- PM_OPTS - pass options to the package manager (default: --ask),
-#                       ignored with --ebuild-install
+#                       ignored with --ebuild-install; with --eit-inject used
+#                       for building part only
 
 e() {
 	echo "$*" >&2
@@ -45,6 +48,42 @@ ebuild_install() {
 	done
 }
 
+eit_inject() {
+	local ver=$1
+	shift
+
+	local pkgdir
+	pkgdir=$(portageq pkgdir) || return 1
+	if [[ ! -d ${pkgdir} ]]; then
+		echo "PKGDIR '${pkgdir}' is quite invalid." >&2
+		return 1
+	fi
+
+	local binpkgs=()
+	local p
+	for p in "$@"; do
+		binpkgs+=( "${pkgdir}/www-client/${p}-${ver}.tbz2" )
+	done
+
+	for p in "${binpkgs[@]}"; do
+		if [[ -e ${p} ]]; then
+			echo "File '${p}' already exists." >&2
+			return 1
+		fi
+	done
+
+	time emerge --buildpkgonly "${pm_opts[@]}" "$@"
+
+	for p in "${binpkgs[@]}"; do
+		if [[ ! -e ${p} ]]; then
+			echo "File '${p}' does not exist." >&2
+			return 1
+		fi
+	done
+
+	time eit inject "${binpkgs[@]}"
+}
+
 inst_cmd() {
 	if [[ ${pm} = portage ]]; then
 		time emerge "${pm_opts[@]}" "$@"
@@ -52,6 +91,8 @@ inst_cmd() {
 		time pmerge "${pm_opts[@]}" "$@"
 	elif [[ ${pm} = ebuild-install ]]; then
 		time ebuild_install "${ver}" "$@"
+	elif [[ ${pm} = eit-inject ]]; then
+		time eit_inject "${ver}" "$@"
 	fi
 }
 
@@ -84,6 +125,9 @@ while (( $# )); do
 		shift
 	elif [[ $1 = --ebuild-install ]]; then
 		pm=ebuild-install
+		shift
+	elif [[ $1 = --eit-inject ]]; then
+		pm=eit-inject
 		shift
 	elif [[ $1 = -- ]]; then
 		shift
@@ -127,4 +171,6 @@ qlist -ICv www-client/firefox | while read line; do
 done
 echo
 echo "Listing done."
+echo
+echo "If packages were injected, consider doing a cleanup."
 echo "======="
