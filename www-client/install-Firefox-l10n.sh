@@ -159,6 +159,7 @@ done
 export USE
 
 inst_cmd "${packages[@]}"
+inst_ret=$?
 
 echo "======="
 # Version is "assumed" because it's determined using only one ebuild in the
@@ -174,3 +175,9 @@ echo "Listing done."
 echo
 echo "If packages were injected, consider doing a cleanup."
 echo "======="
+
+if [[ ${inst_ret} -ne 0 ]]; then
+	echo >&2
+	echo "!!! Installing failed, see messages above." >&2
+	exit "${inst_ret}"
+fi
