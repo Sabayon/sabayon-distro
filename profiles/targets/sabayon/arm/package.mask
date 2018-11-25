@@ -101,3 +101,6 @@ dev-lang/python:3.5
 # 2018-10-18 Joost Ruis: Use dev-python/pygobject from overlay
 # GLOBAL_MASK dev-python/pygobject:3::gentoo
 
+# 2018-11-25 Daniele Rondina: Only use overlay version
+# GLOBAL_MASK app-crypt/pinentry::gentoo
+
