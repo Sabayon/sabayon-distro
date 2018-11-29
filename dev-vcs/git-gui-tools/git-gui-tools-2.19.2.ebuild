@@ -1,7 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+# split ebuild providing only gitk, gitview, git-gui, git-citool
 
 GENTOO_DEPEND_ON_PERL=no
 
@@ -29,13 +30,13 @@ fi
 inherit toolchain-funcs eutils elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd ${SCM}
 
 MY_PV="${PV/_rc/.rc}"
-MY_PN="${PN/-cvs}"
+MY_PN="${PN/-gui-tools}"
 MY_P="${MY_PN}-${MY_PV}"
 
 DOC_VER=${MY_PV}
 
 #DESCRIPTION="stupid content tracker: distributed VCS designed for speed and efficiency"
-DESCRIPTION="CVS module for git"
+DESCRIPTION="GUI tools derived from git: gitk, git-gui and gitview"
 
 HOMEPAGE="https://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
@@ -139,7 +140,7 @@ REQUIRED_USE="
 	pcre-jit? ( pcre )
 	python? ( ${PYTHON_REQUIRED_USE} )
 	sab-split? (
-		!cgi perl cvs !subversion !tk
+		!cgi perl !cvs !subversion tk
 	)
 "
 
@@ -148,9 +149,6 @@ PATCHES=(
 	"${FILESDIR}"/git-2.18.0_rc1-optional-cvs.patch
 
 	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
-
-	# Bug #493306, where FreeBSD 10.x merged libiconv into its libc.
-	"${FILESDIR}"/git-2.5.1-freebsd-10.x-no-iconv.patch
 )
 
 pkg_setup() {
@@ -302,12 +300,6 @@ src_prepare() {
 	# Fix docbook2texi command
 	sed -r -i 's/DOCBOOK2X_TEXI[[:space:]]*=[[:space:]]*docbook2x-texi/DOCBOOK2X_TEXI = docbook2texi.pl/' \
 		Documentation/Makefile || die
-
-	# Fix git-subtree missing DESTDIR
-	sed -i \
-		-e '/$(INSTALL)/s/ $(libexecdir)/ $(DESTDIR)$(libexecdir)/g' \
-		-e '/$(INSTALL)/s/ $(man1dir)/ $(DESTDIR)$(man1dir)/g'  \
-		contrib/subtree/Makefile || die
 }
 
 git_emake() {
@@ -419,8 +411,8 @@ sab-src_install_cleanup() {
 	dirstr.py \
 		--spec-file "${T}/spec" \
 		--root-dir "${ED}" \
-		--class git-cvs \
-		--ignore-missing-from-class git-gui-tools \
+		--class git-gui-tools \
+		--ignore-missing-from-class git-cvs \
 		--ignore-missing-from-class gitweb \
 		--ignore-missing-from-class git-subversion || die
 }
@@ -735,9 +727,10 @@ showpkgdeps() {
 
 pkg_postinst() {
 	use emacs && elisp-site-regen
-	einfo "Please read /usr/share/bash-completion/git for Git bash command completion"
-	einfo "Please read /usr/share/git/git-prompt.sh for Git bash prompt"
-	einfo "Note that the prompt bash code is now in that separate script"
+	elog "Please read /usr/share/bash-completion/completions/git for Git bash command"
+	elog "completion."
+	elog "Please read /usr/share/git/git-prompt.sh for Git bash prompt"
+	elog "Note that the prompt bash code is now in that separate script"
 	elog "These additional scripts need some dependencies:"
 	echo
 	showpkgdeps git-quiltimport "dev-util/quilt"

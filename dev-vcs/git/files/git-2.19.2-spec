@@ -221,6 +221,7 @@ git-cvs ./usr/share/man/man1/git-cvsexportcommit.1
 git ./usr/share/man/man1/git-mktag.1
 git ./usr/share/man/man1/git-merge.1
 git ./usr/share/man/man1/git-quiltimport.1
+git ./usr/share/man/man1/git-range-diff.1
 git ./usr/share/man/man1/git-add.1
 git ./usr/share/man/man1/git-name-rev.1
 git ./usr/share/man/man1/git-describe.1
@@ -369,6 +370,7 @@ git ./usr/share/doc/@git-doc@-@git-ver@/git-rev-list.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/rev-list-options.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-show.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-quiltimport.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/git-range-diff.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-tools.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-push.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/giteveryday.txt
@@ -524,6 +526,7 @@ git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-merge.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/bitmap-format.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/commit-graph-format.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/commit-graph.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/technical/directory-rename-detection.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-tree-walking.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/protocol-capabilities.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/racy-git.txt
@@ -828,11 +831,13 @@ git ./usr/libexec/git-core/git-filter-branch
 git ./usr/libexec/git-core/git-branch
 git ./usr/libexec/git-core/git-prune-packed
 git ./usr/libexec/git-core/git-rebase--merge
+git ./usr/libexec/git-core/git-rebase--preserve-merges
 git ./usr/libexec/git-core/git-commit-tree
 git ./usr/libexec/git-core/git-fmt-merge-msg
 git ./usr/libexec/git-core/git-ls-remote
 git ./usr/libexec/git-core/git-hash-object
 git ./usr/libexec/git-core/git-quiltimport
+git ./usr/libexec/git-core/git-range-diff
 git ./usr/libexec/git-core/git-revert
 git ./usr/libexec/git-core/git-check-ref-format
 git-gui-tools ./usr/libexec/git-core/git-gui
@@ -855,11 +860,11 @@ git-cvs ./usr/bin/git-cvsserver
 git ./usr/bin/git-receive-pack
 git-subversion ./usr/bin/svn-fe
 git ./usr/bin
-git ./usr/lib/systemd/system/git-daemon@.service
-git ./usr/lib/systemd/system/git-daemon.socket
-git ./usr/lib/systemd/system
-git ./usr/lib/systemd
-git ./usr/lib
+git ./lib/systemd/system/git-daemon@.service
+git ./lib/systemd/system/git-daemon.socket
+git ./lib/systemd/system
+git ./lib/systemd
+git ./lib
 git ./usr/lib64/perl5/vendor_perl/5.24.3/Git/LoadCPAN.pm
 git ./usr/lib64/perl5/vendor_perl/5.24.3/Git/LoadCPAN/Error.pm
 git ./usr/lib64/perl5/vendor_perl/5.24.3/Git/LoadCPAN/Mail/Address.pm
