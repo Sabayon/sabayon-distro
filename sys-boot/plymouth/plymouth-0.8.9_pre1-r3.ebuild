@@ -41,6 +41,7 @@ DOC_CONTENTS="
 src_prepare() {
 	epatch_user
 
+	epatch "${FILESDIR}/${P}-sysmacros.patch"
 	autotools-utils_src_prepare
 }
 
