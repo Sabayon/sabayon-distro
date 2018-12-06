@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -13,13 +13,14 @@ IUSE=""
 
 DEPEND="app-admin/calamares[networkmanager,upower]"
 RDEPEND="${DEPEND}
-    !!app-misc/calamares-sabayon-base-modules"
+	>=sys-kernel/dracut-049
+	!!app-misc/calamares-sabayon-base-modules"
 
 S="${WORKDIR}/calamares-sabayon-${PV}"
 
 src_install() {
-        insinto "/etc/calamares/"
-        doins -r "${FILESDIR}/modules-conf/"*
-        insinto "/usr/lib/calamares/modules/"
-        doins -r "${S}/"*
+	insinto "/etc/calamares/"
+	doins -r "${FILESDIR}/modules-conf/"*
+	insinto "/usr/lib/calamares/modules/"
+	doins -r "${S}/"*
 }
