@@ -16,7 +16,7 @@ KEYWORDS="~amd64 ~arm ~x86 ~arm64"
 
 IUSE=""
 DEPEND=""
-GCC_VER="6.4.0"
+GCC_VER="7.3.0"
 PYTHON_VER="3.6"
 # Listing default packages for the current release
 RDEPEND="!app-admin/eselect-init
