@@ -51,7 +51,7 @@ dev-libs/nss:0 utils
 app-portage/eix sqlite
 
 # Avoid cycle dependency
-dev-libs/openssl -kerberos
+dev-libs/openssl -kerberos -bindist
 app-crypt/mit-krb5 -openldap
 sys-devel/clang -doc
 sys-devel/llvm -doc

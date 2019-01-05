@@ -104,3 +104,6 @@ dev-lang/python:3.5
 # 2018-11-25 Daniele Rondina: Only use overlay version
 # GLOBAL_MASK app-crypt/pinentry::gentoo
 
+# 2019-01-05 Daniele Rondina: Use our overlay version
+# GLOBAL_MASK sys-apps/systemd::gentoo
+
