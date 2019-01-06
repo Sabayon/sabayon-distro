@@ -112,3 +112,6 @@ app-text/opensp -~arm
 # Add minimal packages for builder image
 <=app-misc/sabayon-sark-1.1.2 ** ~arm
 <=app-misc/sabayon-devkit-1.7.7 ** ~arm
+
+# 2019-01-6 Geaaru: Add dep for distrobuilder
+=dev-go/dep-0.5.0 ** ~arm
