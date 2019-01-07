@@ -66,6 +66,9 @@ pkg_postinst() {
 			&& touch "${py3file}"
 	fi
 
+	# Update to last Python 3 version (does not affect Python 2 choice).
+	eselect python update --python3
+
 	# No need to set the GCC profile here, since it's done in base-gcc
 
 	# Improve systemd support
