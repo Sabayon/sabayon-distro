@@ -13,7 +13,7 @@ SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/73"
+SLOT="0/79"
 IUSE="cjk curl cxx debug doc +jpeg +jpeg2k +lcms nss png tiff +utils"
 S="${WORKDIR}/poppler-${PV}"
 
@@ -27,6 +27,7 @@ COMMON_DEPEND="
 "
 
 DEPEND="${COMMON_DEPEND}
+	dev-util/glib-utils
 	virtual/pkgconfig
 "
 RDEPEND="${COMMON_DEPEND}
@@ -37,9 +38,7 @@ PATCHES=(
 	"${FILESDIR}/${MY_PN}-0.60.1-qt5-dependencies.patch"
 	"${FILESDIR}/${MY_PN}-0.28.1-fix-multilib-configuration.patch"
 	"${FILESDIR}/${MY_PN}-0.61.0-respect-cflags.patch"
-	"${FILESDIR}/${MY_PN}-0.62.0-openjpeg2.patch"
 	"${FILESDIR}/${MY_PN}-0.57.0-disable-internal-jpx.patch"
-	"${FILESDIR}/${MY_P}-glibc.patch" # bug 643858
 )
 src_prepare() {
 

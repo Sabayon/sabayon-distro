@@ -9,10 +9,10 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/73"
+SLOT="0/79"
 IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt5 tiff +utils"
 
-COMMON_DEPEND="
+DEPEND="
 	~app-text/poppler-base-${PV}[cxx=]
 	~app-text/poppler-base-${PV}[curl=]
 	~app-text/poppler-base-${PV}[debug=]
@@ -25,12 +25,10 @@ COMMON_DEPEND="
 	~app-text/poppler-base-${PV}[nss=]
 	"
 
-DEPEND="${COMMON_DEPEND} virtual/pkgconfig"
+RDEPEND="${DEPEND}"
 
 PDEPEND="cairo? (
 		~app-text/poppler-glib-${PV}[cairo,cjk=,curl=,cxx=,debug=,doc=,introspection=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=]
 	)
 	qt5? ( ~app-text/poppler-qt5-${PV}[cjk=,curl=,cxx=,debug=,doc=,jpeg=,jpeg2k=,lcms=,nss=,png=,tiff=,utils=] )
 	"
-
-RDEPEND="${COMMON_DEPEND} cjk? ( >=app-text/poppler-data-0.4.7 )"
