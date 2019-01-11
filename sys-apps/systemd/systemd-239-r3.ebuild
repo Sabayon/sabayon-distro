@@ -8,11 +8,11 @@ if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://github.com/systemd/systemd/archive/v${PV}/${P}.tar.gz
-		https://dev.gentoo.org/~floppym/dist/${P}-patches-1.tar.gz"
+		https://dev.gentoo.org/~floppym/dist/${P}-patches-2.tar.gz"
 	KEYWORDS="alpha amd64 arm ~arm64 ia64 ppc ppc64 ~sparc x86"
 fi
 
-PYTHON_COMPAT=( python{3_4,3_5,3_6} )
+PYTHON_COMPAT=( python{3_4,3_5,3_6,3_7} )
 
 inherit bash-completion-r1 linux-info meson multilib-minimal ninja-utils pam python-any-r1 systemd toolchain-funcs udev user
 
@@ -93,7 +93,7 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-util/intltool-0.50
 	>=sys-apps/coreutils-8.16
 	>=sys-kernel/linux-headers-${MINKV}
-	virtual/pkgconfig
+	virtual/pkgconfig[${MULTILIB_USEDEP}]
 	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
 	test? ( sys-apps/dbus )
 	app-text/docbook-xml-dtd:4.2
