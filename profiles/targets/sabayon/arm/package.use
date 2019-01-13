@@ -32,10 +32,8 @@ sys-auth/polkit  nls pam systemd -introspection
 app-text/asciidoc python_single_target_python2_7
 
 # GCC
-# Temporary disable graphite for this error on compilation:
-#  /var/tmp/portage/sys-devel/base-gcc-6.4.0-r1/work/gcc-6.4.0/gcc/graphite-isl-ast-to-gimple.c:660:28: error: ‘isl_id_free’ was not declared in this scope
-sys-devel/gcc gcj objc objc-gc objc++ -graphite
-sys-devel/base-gcc gcj objc objc-gc objc++ -graphite
+sys-devel/gcc gcj objc objc-gc objc++ graphite cxx nls cxx pie objc hardened fortran pch vtv -doc graphite vanilla ssp openmp nptl
+sys-devel/base-gcc gcj objc objc-gc objc++ graphite cxx nls cxx pie objc hardened fortran pch vtv -doc graphite vanilla ssp openmp nptl
 
 # systemd support
 sys-apps/systemd -gtk plymouth sysv-utils cryptsetup lzma xattr -openrc keymap acl pam pcre policykit resolvconf ssl sysv-utils
