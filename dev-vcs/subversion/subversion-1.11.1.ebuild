@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -31,7 +31,7 @@ COMMON_DEPEND="
 	>=dev-libs/apr-1.3:1
 	>=dev-libs/apr-util-1.3:1
 	dev-libs/expat
-	dev-libs/libutf8proc
+	dev-libs/libutf8proc:=
 	sys-apps/file
 	sys-libs/zlib
 	berkdb? ( >=sys-libs/db-4.0.14:= )
@@ -148,6 +148,7 @@ pkg_setup() {
 
 src_prepare() {
 	eapply "${WORKDIR}/patches"
+	eapply "${FILESDIR}"/${PN}-1.9.7-fix-wc-queries-test-test.patch
 	eapply_user
 
 	fperms +x build/transform_libtool_scripts.sh
