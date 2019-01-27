@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -399,10 +399,15 @@ src_compile() {
 }
 
 sab-src_install_cleanup() {
+	local perllibdir
+	perllibdir="$(perl_get_raw_vendorlib)"
+	local perlv=${perllibdir##*/}
+
 	cp "${FILESDIR}/git-${PV}-spec" "${T}/spec" || die
 	sed -i \
 		-e "s/@git-doc@/${PN}/" \
 		-e "s/@git-ver@/${PV}/" \
+		-e "s/@perl-ver-path@/${perlv}/" \
 		"${T}/spec" || die
 
 	dirstr.py \
