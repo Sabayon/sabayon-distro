@@ -109,3 +109,6 @@ app-text/opensp -~arm
 
 # 2019-01-6 Geaaru: Add dep for distrobuilder
 =dev-go/dep-0.5.0 ** ~arm
+
+# 2019-02-15 Geaaru: Mask >=dev-libs/isl-0.19 for compile dev-libs/cloog (to fix on gentoo upstream)
+>=dev-libs/isl-0.19 ** -~arm -arm
