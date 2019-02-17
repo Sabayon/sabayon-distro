@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -29,7 +29,7 @@ KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
 RESTRICT="bindist mirror"
 EMULTILIB_PKG="true"
 
-IUSE="acpi compat +driver gtk3 kernel_FreeBSD kernel_linux +kms multilib pax_kernel static-libs +tools uvm wayland +X x-multilib"
+IUSE="acpi compat +dracut +driver gtk3 kernel_FreeBSD kernel_linux +kms multilib pax_kernel static-libs +tools uvm wayland +X x-multilib"
 REQUIRED_USE="
 	tools? ( X )
 	static-libs? ( tools )
@@ -38,6 +38,7 @@ REQUIRED_USE="
 COMMON="
 	app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
+	dracut? ( >=sys-kernel/sabayon-dracut-1.3 )
 	X? (
 		>=app-eselect/eselect-opengl-1.0.9
 		app-misc/pax-utils
@@ -76,10 +77,10 @@ nvidia_drivers_versions_check() {
 		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
 	fi
 
-	if use kernel_linux && kernel_is ge 4 19; then
+	if use kernel_linux && kernel_is ge 4 21; then
 		ewarn "Gentoo supports kernels which are supported by NVIDIA"
 		ewarn "which are limited to the following kernels:"
-		ewarn "<sys-kernel/linux-sabayon-4.19"
+		ewarn "<sys-kernel/linux-sabayon-4.20"
 		ewarn ""
 		ewarn "You are free to utilize epatch_user to provide whatever"
 		ewarn "support you feel is appropriate, but will not receive"
@@ -164,6 +165,10 @@ src_prepare() {
 		eapply "${FILESDIR}"/${PN}-375.20-pax.patch
 	fi
 
+	eapply "${FILESDIR}/${PN}"-390.87-drm-connector.patch
+	eapply "${FILESDIR}/${PN}"-390.87-dma-mapping.patch
+	eapply "${FILESDIR}/${PN}"-390.87-4.20.patch
+
 	# Allow user patches so they can support RC kernels and whatever else
 	eapply_user
 	default
@@ -207,6 +212,11 @@ pkg_preinst() {
 
 pkg_postinst() {
 	use driver && use kernel_linux && linux-mod_pkg_postinst
+
+	# Sabayon:
+	# Rebuild initramfs. Dracut is including modules with kms - and we need that to avoid
+	# glitches on users that have only nvidia as discrete.
+	use dracut && SABAYON_INITRD_DIR="${EROOT%/}/boot" sabayon-dracut --rebuild-all
 
 	echo
 	elog "You must be in the video group to use the NVIDIA device"
