@@ -1,0 +1,8 @@
+# Force the GNU/Linux ELIBC, KERNEL, and USERLAND
+elibc_glibc
+kernel_linux
+
+# force GNU userland (even though base profile sets this too)
+userland_GNU
+
+
