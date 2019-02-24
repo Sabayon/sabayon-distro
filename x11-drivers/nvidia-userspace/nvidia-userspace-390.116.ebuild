@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,7 +6,7 @@ inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user udev
 
 DESCRIPTION="NVIDIA X11 userspace libraries and applications"
-HOMEPAGE="http://www.nvidia.com/ http://www.nvidia.com/Download/Find.aspx"
+HOMEPAGE="https://www.nvidia.com/ https://www.nvidia.com/Download/Find.aspx"
 
 AMD64_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86_64-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
@@ -14,7 +14,7 @@ ARM_NV_PACKAGE="NVIDIA-Linux-armv7l-gnueabihf-${PV}"
 X86_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86-${PV}"
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 
-NV_URI="http://us.download.nvidia.com/XFree86/"
+NV_URI="https://us.download.nvidia.com/XFree86/"
 SRC_URI="
 	amd64-fbsd? ( ${NV_URI}FreeBSD-x86_64/${PV}/${AMD64_FBSD_NV_PACKAGE}.tar.gz )
 	amd64? ( ${NV_URI}Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}.run )
@@ -122,13 +122,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	if use pax_kernel; then
-		ewarn "Using PAX patches is not supported. You will be asked to"
-		ewarn "use a standard kernel should you have issues. Should you"
-		ewarn "need support with these patches, contact the PaX team."
-		eapply "${FILESDIR}"/nvidia-drivers-375.20-pax.patch
-	fi
-
 	local man_file
 	for man_file in "${NV_MAN}"/*1.gz; do
 		gunzip $man_file || die

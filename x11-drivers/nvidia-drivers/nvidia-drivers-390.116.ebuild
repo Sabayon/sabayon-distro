@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,7 +6,7 @@ inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user udev
 
 DESCRIPTION="NVIDIA X11 userspace libraries and applications"
-HOMEPAGE="http://www.nvidia.com/ http://www.nvidia.com/Download/Find.aspx"
+HOMEPAGE="https://www.nvidia.com/ https://www.nvidia.com/Download/Find.aspx"
 
 AMD64_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86_64-${PV}"
 AMD64_NV_PACKAGE="NVIDIA-Linux-x86_64-${PV}"
@@ -14,7 +14,7 @@ ARM_NV_PACKAGE="NVIDIA-Linux-armv7l-gnueabihf-${PV}"
 X86_FBSD_NV_PACKAGE="NVIDIA-FreeBSD-x86-${PV}"
 X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 
-NV_URI="http://us.download.nvidia.com/XFree86/"
+NV_URI="https://us.download.nvidia.com/XFree86/"
 SRC_URI="
 	amd64-fbsd? ( ${NV_URI}FreeBSD-x86_64/${PV}/${AMD64_FBSD_NV_PACKAGE}.tar.gz )
 	amd64? ( ${NV_URI}Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}.run )
@@ -77,10 +77,10 @@ nvidia_drivers_versions_check() {
 		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
 	fi
 
-	if use kernel_linux && kernel_is ge 4 19; then
+	if use kernel_linux && kernel_is ge 5 1; then
 		ewarn "Gentoo supports kernels which are supported by NVIDIA"
 		ewarn "which are limited to the following kernels:"
-		ewarn "<sys-kernel/linux-sabayon-4.19"
+		ewarn "<sys-kernel/linux-sabayon-5.1"
 		ewarn ""
 		ewarn "You are free to utilize epatch_user to provide whatever"
 		ewarn "support you feel is appropriate, but will not receive"
@@ -97,7 +97,7 @@ nvidia_drivers_versions_check() {
 	nvidia-driver-check-warning
 
 	# Kernel features/options to check for
-	CONFIG_CHECK="~ZONE_DMA ~MTRR ~SYSVIPC ~!LOCKDEP"
+	CONFIG_CHECK="!DEBUG_MUTEXES ~!LOCKDEP ~MTRR ~SYSVIPC ~ZONE_DMA"
 	use x86 && CONFIG_CHECK+=" ~HIGHMEM"
 
 	# Now do the above checks
@@ -158,12 +158,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	if use pax_kernel; then
-		ewarn "Using PAX patches is not supported. You will be asked to"
-		ewarn "use a standard kernel should you have issues. Should you"
-		ewarn "need support with these patches, contact the PaX team."
-		eapply "${FILESDIR}"/${PN}-375.20-pax.patch
-	fi
+	eapply "${FILESDIR}/${PN}"-390.87-dma-mapping.patch
 
 	# Allow user patches so they can support RC kernels and whatever else
 	eapply_user
