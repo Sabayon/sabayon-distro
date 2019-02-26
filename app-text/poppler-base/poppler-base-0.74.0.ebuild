@@ -1,7 +1,7 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit cmake-utils flag-o-matic toolchain-funcs xdg-utils
 
@@ -13,13 +13,17 @@ SRC_URI="https://poppler.freedesktop.org/${P/-base}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/79"
+SLOT="0/85"
 IUSE="cjk curl cxx debug doc +jpeg jpeg2k +lcms nss png tiff +utils"
 
 # No test data provided
 RESTRICT="test"
 
-COMMON_DEPEND="
+BDEPEND="
+	dev-util/glib-utils
+	virtual/pkgconfig
+"
+DEPEND="
 	media-libs/fontconfig
 	media-libs/freetype
 	sys-libs/zlib
@@ -31,11 +35,7 @@ COMMON_DEPEND="
 	png? ( media-libs/libpng:0= )
 	tiff? ( media-libs/tiff:0 )
 "
-DEPEND="${COMMON_DEPEND}
-	dev-util/glib-utils
-	virtual/pkgconfig
-"
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="${DEPEND}
 	cjk? ( app-text/poppler-data )
 "
 
@@ -44,6 +44,7 @@ DOCS=( AUTHORS NEWS README README-XPDF )
 PATCHES=(
 	"${FILESDIR}/${MY_PN}-0.60.1-qt5-dependencies.patch"
 	"${FILESDIR}/${MY_PN}-0.28.1-fix-multilib-configuration.patch"
+	"${FILESDIR}/${MY_PN}-0.71.0-respect-cflags.patch"
 	"${FILESDIR}/${MY_PN}-0.61.0-respect-cflags.patch"
 	"${FILESDIR}/${MY_PN}-0.57.0-disable-internal-jpx.patch"
 )
@@ -56,11 +57,11 @@ src_prepare() {
 	# Clang doesn't grok this flag, the configure nicely tests that, but
 	# cmake just uses it, so remove it if we use clang
 	if [[ ${CC} == clang ]] ; then
-		sed -i -e 's/-fno-check-new//' cmake/modules/PopplerMacros.cmake || die
+		sed -e 's/-fno-check-new//' -i cmake/modules/PopplerMacros.cmake || die
 	fi
 
 	if ! grep -Fq 'cmake_policy(SET CMP0002 OLD)' CMakeLists.txt ; then
-		sed '/^cmake_minimum_required/acmake_policy(SET CMP0002 OLD)' \
+		sed -e '/^cmake_minimum_required/acmake_policy(SET CMP0002 OLD)' \
 			-i CMakeLists.txt || die
 	else
 		einfo "policy(SET CMP0002 OLD) - workaround can be removed"
@@ -79,7 +80,7 @@ src_configure() {
 		-DENABLE_SPLASH=ON
 		-DENABLE_ZLIB=ON
 		-DENABLE_ZLIB_UNCOMPRESS=OFF
-		-DENABLE_XPDF_HEADERS=ON
+		-DENABLE_UNSTABLE_API_ABI_HEADERS=ON
 		-DSPLASH_CMYK=OFF
 		-DUSE_FIXEDPOINT=OFF
 		-DUSE_FLOAT=OFF
