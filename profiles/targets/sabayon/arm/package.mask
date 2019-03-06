@@ -110,3 +110,7 @@ dev-lang/python:3.5
 # 2019-02-16 Daniele Rondina: mask >=dev-libs/isl for compile cloog
 # until cloog-0.20 is available.
 >=dev-libs/isl-0.19
+
+# 2019-03-06 Daniele Rondina: mask sys-devel/gcc from portage
+# (it seems that package.keywords is not sufficient)
+# GLOBAL_MASK sys-devel/gcc::gentoo
