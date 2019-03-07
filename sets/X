@@ -23,7 +23,5 @@ x11-drivers/xf86-video-openchrome
 x11-drivers/xf86-video-qxl
 x11-drivers/xf86-video-r128
 x11-drivers/xf86-video-siliconmotion
-x11-drivers/xf86-video-tdfx
 x11-drivers/xf86-video-vesa
 x11-drivers/xf86-video-vmware
-x11-drivers/xf86-video-voodoo
