@@ -1,7 +1,7 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="6"
 
 AVAHI_MODULE="${AVAHI_MODULE:-${PN/avahi-}}"
 MY_P=${P/-${AVAHI_MODULE}}
@@ -9,20 +9,19 @@ MY_PN=${PN/-${AVAHI_MODULE}}
 
 WANT_AUTOMAKE=1.11
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="gdbm"
 
-inherit autotools eutils flag-o-matic multilib multilib-minimal \
-	python-r1 systemd user
+inherit autotools eutils flag-o-matic multilib multilib-minimal mono-env python-r1 systemd user
 
 DESCRIPTION="System which facilitates service discovery on a local network (mono pkg)"
 HOMEPAGE="http://avahi.org/"
-SRC_URI="http://avahi.org/download/${MY_P}.tar.gz"
+SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${MY_P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
-IUSE="dbus doc gdbm gtk introspection nls python utils"
+IUSE="dbus doc gdbm gtk introspection nls python"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -43,31 +42,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# Make gtk utils optional
-	epatch "${FILESDIR}"/${MY_PN}-0.6.30-optional-gtk-utils.patch
-
-	# Fix init scripts for >=openrc-0.9.0, bug #383641
-	epatch "${FILESDIR}"/${MY_PN}-0.6.x-openrc-0.9.x-init-scripts-fixes.patch
-
-	# install-exec-local -> install-exec-hook
-	epatch "${FILESDIR}"/${MY_P}-install-exec-hook.patch
-
-	# Backport host-name-from-machine-id patch, bug #466134
-	epatch "${FILESDIR}"/${MY_P}-host-name-from-machine-id.patch
-
-	# Don't install avahi-discover unless ENABLE_GTK_UTILS, bug #359575
-	epatch "${FILESDIR}"/${MY_P}-fix-install-avahi-discover.patch
-
-	epatch "${FILESDIR}"/${MY_P}-so_reuseport-may-not-exist-in-running-kernel.patch
-
-	# allow building client without the daemon
-	epatch "${FILESDIR}"/${MY_P}-build-client-without-daemon.patch
-
-	# Drop DEPRECATED flags, bug #384743
-	sed -i -e 's:-D[A-Z_]*DISABLE_DEPRECATED=1::g' avahi-ui/Makefile.am || die
-
-	# Fix references to Lennart's home directory, bug #466210
-	sed -i -e 's/\/home\/lennart\/tmp\/avahi//g' man/* || die
+	default
 
 	# Prevent .pyc files in DESTDIR
 	>py-compile
@@ -81,9 +56,7 @@ src_prepare() {
 src_configure() {
 	# those steps should be done once-per-ebuild rather than per-ABI
 	use sh && replace-flags -O? -O0
-
-	# We need to unset DISPLAY, else the configure script might have problems detecting the pygtk module
-	unset DISPLAY
+	use python && python_setup
 
 	multilib-minimal_src_configure
 }
@@ -105,13 +78,16 @@ multilib_src_configure() {
 		)
 	fi
 
+	myconf+=( --disable-qt5 )
+
 	econf \
 		--localstatedir="${EPREFIX}/var" \
 		--with-distro=gentoo \
 		--disable-python-dbus \
+		--disable-manpages \
 		--disable-xmltoman \
 		--disable-monodoc \
-		--disable-pygtk \
+		--disable-pygobject \
 		--enable-glib \
 		--enable-gobject \
 		$(use_enable dbus) \
@@ -120,12 +96,12 @@ multilib_src_configure() {
 		$(multilib_native_use_enable introspection) \
 		--disable-qt3 \
 		--disable-qt4 \
-		--disable-gtk --disable-gtk-utils \
+		--disable-gtk \
 		--disable-gtk3 \
 		$(multilib_is_native_abi && echo -n --enable-mono || echo -n --disable-mono) \
 		$(multilib_is_native_abi && echo -n --enable-monodoc || echo -n --disable-monodoc) \
 		$(use_enable gdbm) \
-		$(systemd_with_unitdir) \
+		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
 		"${myconf[@]}"
 }
 

@@ -1,33 +1,32 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="6"
 
 AVAHI_MODULE="${AVAHI_MODULE:-${PN/avahi-}}"
 MY_P=${P/-${AVAHI_MODULE}}
 MY_PN=${PN/-${AVAHI_MODULE}}
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="gdbm"
 
 WANT_AUTOMAKE=1.11
 
-inherit autotools eutils flag-o-matic multilib multilib-minimal \
-	python-r1 systemd user
+inherit autotools eutils flag-o-matic multilib multilib-minimal python-r1 systemd user
 
 DESCRIPTION="System which facilitates service discovery on a local network (base pkg)"
 HOMEPAGE="http://avahi.org/"
-SRC_URI="http://avahi.org/download/${MY_P}.tar.gz"
+SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${MY_P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
-IUSE="autoipd bookmarks dbus doc gdbm gtk3 howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat nls python selinux test"
+IUSE="autoipd bookmarks dbus doc gdbm howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat nls python selinux test"
 
 S="${WORKDIR}/${MY_P}"
 
 REQUIRED_USE="
-	python? ( dbus gdbm )
+	python? ( dbus gdbm ${PYTHON_REQUIRED_USE} )
 	howl-compat? ( dbus )
 	mdnsresponder-compat? ( dbus )
 "
@@ -36,36 +35,38 @@ COMMON_DEPEND="
 	dev-libs/libdaemon
 	dev-libs/expat
 	dev-libs/glib:2[${MULTILIB_USEDEP}]
-	gdbm? ( sys-libs/gdbm[${MULTILIB_USEDEP}] )
+	gdbm? ( sys-libs/gdbm:=[${MULTILIB_USEDEP}] )
 	dbus? ( sys-apps/dbus[${MULTILIB_USEDEP}] )
 	kernel_linux? ( sys-libs/libcap )
-	introspection? ( dev-libs/gobject-introspection )
+	introspection? ( dev-libs/gobject-introspection:= )
 	python? (
 		${PYTHON_DEPS}
-		dbus? ( dev-python/dbus-python )
+		dbus? ( dev-python/dbus-python[${PYTHON_USEDEP}] )
+		introspection? ( dev-python/pygobject:3[${PYTHON_USEDEP}] )
 	)
-	selinux? ( sec-policy/selinux-avahi )
-	gtk3? ( net-dns/avahi-gtk3 )
 	bookmarks? (
-		dev-python/twisted-core
-		dev-python/twisted-web
+		${PYTHON_DEPS}
+		>=dev-python/twisted-16.0.0[${PYTHON_USEDEP}]
 	)
 "
 
 DEPEND="
 	${COMMON_DEPEND}
+	doc? ( app-doc/doxygen )
+	app-doc/xmltoman
 	dev-util/intltool
 	virtual/pkgconfig[${MULTILIB_USEDEP}]
-	doc? (
-		app-doc/doxygen
-	)
 "
 
 RDEPEND="
 	${COMMON_DEPEND}
 	howl-compat? ( !net-misc/howl )
 	mdnsresponder-compat? ( !net-misc/mDNSResponder )
+	selinux? ( sec-policy/selinux-avahi )
 "
+
+MULTILIB_WRAPPED_HEADERS=( /usr/include/avahi-qt5/qt-watch.h )
+PATCHES=( "${FILESDIR}/${MY_P}-qt5.patch" )
 
 pkg_preinst() {
 	enewgroup netdev
@@ -79,41 +80,17 @@ pkg_preinst() {
 }
 
 src_prepare() {
-	if use ipv6; then
+	default
+
+	if ! use ipv6; then
 		sed -i \
-			-e s/use-ipv6=no/use-ipv6=yes/ \
+			-e s/use-ipv6=yes/use-ipv6=no/ \
 			avahi-daemon/avahi-daemon.conf || die
 	fi
 
 	sed -i\
 		-e "s:\\.\\./\\.\\./\\.\\./doc/avahi-docs/html/:../../../doc/${PF}/html/:" \
 		doxygen_to_devhelp.xsl || die
-
-	# Make gtk utils optional
-	epatch "${FILESDIR}"/${MY_PN}-0.6.30-optional-gtk-utils.patch
-
-	# Fix init scripts for >=openrc-0.9.0, bug #383641
-	epatch "${FILESDIR}"/${MY_PN}-0.6.x-openrc-0.9.x-init-scripts-fixes.patch
-
-	# install-exec-local -> install-exec-hook
-	epatch "${FILESDIR}"/${MY_P}-install-exec-hook.patch
-
-	# Backport host-name-from-machine-id patch, bug #466134
-	epatch "${FILESDIR}"/${MY_P}-host-name-from-machine-id.patch
-
-	# Don't install avahi-discover unless ENABLE_GTK_UTILS, bug #359575
-	epatch "${FILESDIR}"/${MY_P}-fix-install-avahi-discover.patch
-
-	epatch "${FILESDIR}"/${MY_P}-so_reuseport-may-not-exist-in-running-kernel.patch
-
-	# allow building client without the daemon
-	epatch "${FILESDIR}"/${MY_P}-build-client-without-daemon.patch
-
-	# Drop DEPRECATED flags, bug #384743
-	sed -i -e 's:-D[A-Z_]*DISABLE_DEPRECATED=1::g' avahi-ui/Makefile.am || die
-
-	# Fix references to Lennart's home directory, bug #466210
-	sed -i -e 's/\/home\/lennart\/tmp\/avahi//g' man/* || die
 
 	# Prevent .pyc files in DESTDIR
 	>py-compile
@@ -127,10 +104,7 @@ src_prepare() {
 src_configure() {
 	# those steps should be done once-per-ebuild rather than per-ABI
 	use sh && replace-flags -O? -O0
-	use python && python_export_best
-
-	# We need to unset DISPLAY, else the configure script might have problems detecting the pygtk module
-	unset DISPLAY
+	use python && python_setup
 
 	multilib-minimal_src_configure
 }
@@ -141,6 +115,7 @@ multilib_src_configure() {
 	if use python; then
 		myconf+=(
 			$(multilib_native_use_enable dbus python-dbus)
+			$(multilib_native_use_enable introspection pygobject)
 		)
 	fi
 
@@ -152,12 +127,15 @@ multilib_src_configure() {
 		)
 	fi
 
+	myconf+=( --disable-qt5 )
+
 	econf \
 		--localstatedir="${EPREFIX}/var" \
 		--with-distro=gentoo \
 		--disable-python-dbus \
-		--disable-pygtk \
-		--disable-xmltoman \
+		--disable-pygobject \
+		--enable-manpages \
+		--enable-xmltoman \
 		--disable-monodoc \
 		--disable-mono \
 		--enable-glib \
@@ -176,7 +154,7 @@ multilib_src_configure() {
 		--disable-gtk \
 		--disable-gtk3 \
 		$(use_enable gdbm) \
-		$(systemd_with_unitdir) \
+		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
 		"${myconf[@]}"
 }
 
@@ -188,24 +166,32 @@ multilib_src_compile() {
 
 multilib_src_install() {
 	emake install DESTDIR="${D}"
-	rm -f "${ED}"/usr/bin/avahi-bookmarks
 
+	# https://github.com/lathiat/avahi/issues/28
 	use howl-compat && dosym avahi-compat-howl.pc /usr/$(get_libdir)/pkgconfig/howl.pc
 	use mdnsresponder-compat && dosym avahi-compat-libdns_sd/dns_sd.h /usr/include/dns_sd.h
 
 	if multilib_is_native_abi && use doc; then
-		dohtml -r doxygen/html/. || die
+		docinto html
+		dodoc -r doxygen/html/.
 		insinto /usr/share/devhelp/books/avahi
 		doins avahi.devhelp || die
 	fi
 }
 
 multilib_src_install_all() {
+	rm "${ED}/usr/bin/avahi-bookmarks" || die
+	rm "${ED}/usr/bin/avahi-discover" \
+		"${ED}/usr/share/applications/avahi-discover.desktop" \
+		|| die
+	rm -r "${ED}"/usr/lib*/python*/site-packages/avahi_discover || die
+	find "${ED}"/usr/lib*/python* -type d -empty -delete
+
 	if use autoipd; then
 		insinto /$(get_libdir)/rcscripts/net
 		doins "${FILESDIR}"/autoipd.sh
 
-		insinto /$(get_libdir)/rc/net
+		insinto /$(get_libdir)/netifrc/net
 		newins "${FILESDIR}"/autoipd-openrc.sh autoipd.sh
 	fi
 
