@@ -33,7 +33,7 @@ S="${WORKDIR}/${MY_P}"
 COMMON_DEPEND="
 	~net-dns/avahi-base-${PV}[dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
 	gtk? (
-		~net-dns/avahi-gtk-${PV}[dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
+		~net-dns/avahi-gtk-${PV}[dbus=,gdbm=,nls=]
 		>=dev-dotnet/gtk-sharp-2
 	)
 "
