@@ -1,0 +1,53 @@
+https://bugs.gentoo.org/679880
+It's not binpkg friendly.
+Index: net-snmp-5.8/configure.d/config_os_misc4
+===================================================================
+--- net-snmp-5.8/configure.d/config_os_misc4
++++ net-snmp-5.8/configure.d/config_os_misc4
+@@ -48,46 +48,6 @@ AC_CACHE_CHECK([for location of system k
+ ])
+ AC_DEFINE_UNQUOTED(KERNEL_LOC,"$ac_cv_KERNEL_LOC", [location of UNIX kernel])
+ 
+-
+-#       /dev/kmem existence
+-#	    used in agent only
+-#
+-AC_CACHE_CHECK([for /dev/kmem],
+-    ac_cv_HAVE_KMEM,
+-   [if test $CDEV_TEST_FLAG /dev/kmem; then
+-        ac_cv_HAVE_KMEM="/dev/kmem"
+-    fi
+-])
+-#
+-#  Note that it's OK if this device is not found
+-#
+-if test "x$ac_cv_HAVE_KMEM" = "x/dev/kmem"; then
+-    AC_DEFINE_UNQUOTED(HAVE_KMEM,"$ac_cv_HAVE_KMEM", [Define if you have /dev/kmem])
+-fi
+-
+-
+-#       Swap device Location
+-#           (/dev/dmem or /dev/drum)
+-#	    used in agent only
+-#
+-AC_CACHE_CHECK([for location of swap device],
+-    ac_cv_DMEM_LOC,
+-   [if test $CDEV_TEST_FLAG /dev/dmem; then
+-        ac_cv_DMEM_LOC="/dev/dmem"
+-    elif test $CDEV_TEST_FLAG /dev/drum; then
+-        ac_cv_DMEM_LOC="/dev/drum"
+-    else
+-        ac_cv_DMEM_LOC="none"
+-    fi
+-])
+-#
+-#  Note that it's OK if this device is not found
+-#
+-if test "x$ac_cv_DMEM_LOC" != "xnone"; then
+-    AC_DEFINE_UNQUOTED(DMEM_LOC,"$ac_cv_DMEM_LOC", [location of swap device])
+-fi
+-
+-
+ #       Mount table Location
+ #	    used in agent only
+ #
