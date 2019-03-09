@@ -35,6 +35,7 @@ COMMON_DEPEND="
 	~net-dns/avahi-base-${PV}[bookmarks=,dbus=,gdbm=,introspection=,nls=,python=]
 	x11-libs/gtk+:3
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
+	!<net-dns/avahi-gtk-0.7
 	introspection? ( dev-libs/gobject-introspection:= )
 	python? (
 		${PYTHON_DEPS}
