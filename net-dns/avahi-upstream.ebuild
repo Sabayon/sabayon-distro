@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -8,30 +8,27 @@ EAPI="6"
 #   Modify the template file instead!   #####
 ##### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #####
 
-AVAHI_MODULE="${AVAHI_MODULE:-${PN/avahi-}}"
-MY_P=${P/-${AVAHI_MODULE}}
-MY_PN=${PN/-${AVAHI_MODULE}}
-
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="gdbm"
 
 WANT_AUTOMAKE=1.11
 
-inherit autotools eutils flag-o-matic multilib multilib-minimal python-r1 systemd user
+inherit autotools eutils flag-o-matic multilib multilib-minimal mono-env python-r1 systemd user
 
-DESCRIPTION="System which facilitates service discovery on a local network (base pkg)"
+DESCRIPTION="System which facilitates service discovery on a local network"
 HOMEPAGE="http://avahi.org/"
-SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${MY_P}.tar.gz"
+SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+
+S="${WORKDIR}/${P}"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
-IUSE="autoipd bookmarks dbus doc gdbm howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat nls python selinux test"
-
-S="${WORKDIR}/${MY_P}"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sparc x86 ~amd64-fbsd"
+IUSE="autoipd bookmarks dbus doc gdbm gtk gtk3 howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat mono nls python qt5 selinux test"
 
 REQUIRED_USE="
 	python? ( dbus gdbm ${PYTHON_REQUIRED_USE} )
+	mono? ( dbus )
 	howl-compat? ( dbus )
 	mdnsresponder-compat? ( dbus )
 "
@@ -41,9 +38,16 @@ COMMON_DEPEND="
 	dev-libs/expat
 	dev-libs/glib:2[${MULTILIB_USEDEP}]
 	gdbm? ( sys-libs/gdbm:=[${MULTILIB_USEDEP}] )
+	qt5? ( dev-qt/qtcore:5 )
+	gtk? ( x11-libs/gtk+:2[${MULTILIB_USEDEP}] )
+	gtk3? ( x11-libs/gtk+:3[${MULTILIB_USEDEP}] )
 	dbus? ( sys-apps/dbus[${MULTILIB_USEDEP}] )
 	kernel_linux? ( sys-libs/libcap )
 	introspection? ( dev-libs/gobject-introspection:= )
+	mono? (
+		dev-lang/mono
+		gtk? ( dev-dotnet/gtk-sharp )
+	)
 	python? (
 		${PYTHON_DEPS}
 		dbus? ( dev-python/dbus-python[${PYTHON_USEDEP}] )
@@ -71,7 +75,8 @@ RDEPEND="
 "
 
 MULTILIB_WRAPPED_HEADERS=( /usr/include/avahi-qt5/qt-watch.h )
-PATCHES=( "${FILESDIR}/${MY_P}-qt5.patch" )
+
+PATCHES=( "${FILESDIR}/${P}-qt5.patch" )
 
 pkg_preinst() {
 	enewgroup netdev
@@ -82,6 +87,10 @@ pkg_preinst() {
 		enewgroup avahi-autoipd
 		enewuser avahi-autoipd -1 -1 -1 avahi-autoipd
 	fi
+}
+
+pkg_setup() {
+	use mono && mono-env_pkg_setup
 }
 
 src_prepare() {
@@ -124,6 +133,10 @@ multilib_src_configure() {
 		)
 	fi
 
+	if use mono; then
+		myconf+=( $(multilib_native_use_enable doc monodoc) )
+	fi
+
 	if ! multilib_is_native_abi; then
 		myconf+=(
 			# used by daemons only
@@ -132,17 +145,15 @@ multilib_src_configure() {
 		)
 	fi
 
-	myconf+=( --disable-qt5 )
+	myconf+=( $(multilib_native_use_enable qt5) )
 
 	econf \
 		--localstatedir="${EPREFIX}/var" \
 		--with-distro=gentoo \
 		--disable-python-dbus \
-		--disable-pygobject \
 		--enable-manpages \
 		--enable-xmltoman \
 		--disable-monodoc \
-		--disable-mono \
 		--enable-glib \
 		--enable-gobject \
 		$(multilib_native_use_enable test tests) \
@@ -150,14 +161,15 @@ multilib_src_configure() {
 		$(use_enable mdnsresponder-compat compat-libdns_sd) \
 		$(use_enable howl-compat compat-howl) \
 		$(multilib_native_use_enable doc doxygen-doc) \
+		$(multilib_native_use_enable mono) \
 		$(use_enable dbus) \
 		$(multilib_native_use_enable python) \
+		$(use_enable gtk) \
+		$(use_enable gtk3) \
 		$(use_enable nls) \
 		$(multilib_native_use_enable introspection) \
 		--disable-qt3 \
 		--disable-qt4 \
-		--disable-gtk \
-		--disable-gtk3 \
 		$(use_enable gdbm) \
 		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
 		"${myconf[@]}"
@@ -171,6 +183,8 @@ multilib_src_compile() {
 
 multilib_src_install() {
 	emake install DESTDIR="${D}"
+	use bookmarks && use python && use dbus && use gtk || \
+		rm -f "${ED}"/usr/bin/avahi-bookmarks
 
 	# https://github.com/lathiat/avahi/issues/28
 	use howl-compat && dosym avahi-compat-howl.pc /usr/$(get_libdir)/pkgconfig/howl.pc
@@ -185,13 +199,6 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	rm "${ED}/usr/bin/avahi-bookmarks" || die
-	rm "${ED}/usr/bin/avahi-discover" \
-		"${ED}/usr/share/applications/avahi-discover.desktop" \
-		|| die
-	rm -r "${ED}"/usr/lib*/python*/site-packages/avahi_discover || die
-	find "${ED}"/usr/lib*/python* -type d -empty -delete
-
 	if use autoipd; then
 		insinto /$(get_libdir)/rcscripts/net
 		doins "${FILESDIR}"/autoipd.sh
