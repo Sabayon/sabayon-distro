@@ -1,0 +1,587 @@
+{#
+   Copyright 1999-2019 Gentoo Foundation
+   Copyright 2019 Sabayon
+   Distributed under the terms of the GNU General Public License v2
+#}
+{#
+   The goal is to make it simpler to apply changes for version and revision
+   bumps rather than make it easy to read.
+
+   Some parts could be simplified but are kept like this to ease testing of
+   templated ebuilds, and can be improved later.
+
+   That's why some lines are otherwise unnecessary (like
+   some blank lines or order of configure options.
+
+   Style: no nested ifs for better readability.
+#}
+{% set ns = namespace(upstreampkg=pkg not in ("base", "gtk", "gtk3", "mono")) %}
+{% if not ns.upstreampkg %}
+# Copyright 1999-2019 Gentoo Foundation
+{% else %}
+# Copyright 1999-2018 Gentoo Foundation
+{% endif %}
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI="6"
+
+{% if not ns.upstreampkg %}
+AVAHI_MODULE="${AVAHI_MODULE:-${PN/avahi-}}"
+MY_P=${P/-${AVAHI_MODULE}}
+MY_PN=${PN/-${AVAHI_MODULE}}
+
+{% endif %}
+{% if pkg == "mono" %}
+WANT_AUTOMAKE=1.11
+
+{% endif %}
+{% if pkg != "gtk" %}
+PYTHON_COMPAT=( python2_7 )
+PYTHON_REQ_USE="gdbm"
+
+{% endif %}
+{% if pkg != "mono" %}
+WANT_AUTOMAKE=1.11
+
+{% endif %}
+{% if pkg == "base" %}
+inherit autotools eutils flag-o-matic multilib multilib-minimal python-r1 systemd user
+{% elif pkg == "gtk" %}
+inherit autotools eutils flag-o-matic systemd user
+{% elif pkg == "gtk3" %}
+inherit autotools eutils flag-o-matic python-r1 systemd user
+{% else %}
+inherit autotools eutils flag-o-matic multilib multilib-minimal mono-env python-r1 systemd user
+{% endif %}
+
+{% if pkg == "base" %}
+DESCRIPTION="System which facilitates service discovery on a local network (base pkg)"
+{% elif pkg == "gtk" %}
+DESCRIPTION="System which facilitates service discovery on a local network (gtk pkg)"
+{% elif pkg == "gtk3" %}
+DESCRIPTION="System which facilitates service discovery on a local network (gtk3 pkg)"
+{% elif pkg == "mono" %}
+DESCRIPTION="System which facilitates service discovery on a local network (mono pkg)"
+{% else %}
+DESCRIPTION="System which facilitates service discovery on a local network"
+{% endif %}
+HOMEPAGE="http://avahi.org/"
+{% if not ns.upstreampkg %}
+SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${MY_P}.tar.gz"
+{% else %}
+SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+
+S="${WORKDIR}/${P}"
+{% endif %}
+
+LICENSE="LGPL-2.1"
+SLOT="0"
+{% if not ns.upstreampkg %}
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
+{% endif %}
+{% if pkg == "base" %}
+IUSE="autoipd bookmarks dbus doc gdbm howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat nls python selinux test"
+{% elif pkg == "gtk" %}
+IUSE="dbus gdbm nls"
+{% elif pkg == "gtk3" %}
+IUSE="bookmarks dbus gdbm +introspection nls python"
+{% elif pkg == "mono" %}
+IUSE="dbus doc gdbm gtk introspection nls python"
+{% endif %}
+{% if not ns.upstreampkg %}
+
+S="${WORKDIR}/${MY_P}"
+{% else %}
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sparc x86 ~amd64-fbsd"
+IUSE="autoipd bookmarks dbus doc gdbm gtk gtk3 howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat mono nls python qt5 selinux test"
+{% endif %}
+
+{% if ns.upstreampkg or pkg == "base" %}
+REQUIRED_USE="
+	python? ( dbus gdbm ${PYTHON_REQUIRED_USE} )
+{% endif %}
+{% if ns.upstreampkg %}
+	mono? ( dbus )
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" %}
+	howl-compat? ( dbus )
+	mdnsresponder-compat? ( dbus )
+"
+
+{% endif %}
+COMMON_DEPEND="
+{% if pkg == "gtk" %}
+	~net-dns/avahi-base-${PV}[dbus=,gdbm=,nls=]
+	x11-libs/gtk+:2
+{% elif pkg == "gtk3" %}
+	dbus? ( sys-apps/dbus )
+	~net-dns/avahi-base-${PV}[bookmarks=,dbus=,gdbm=,introspection=,nls=,python=]
+	x11-libs/gtk+:3
+	dev-python/pygobject:3[${PYTHON_USEDEP}]
+{% elif pkg == "mono" %}
+	~net-dns/avahi-base-${PV}[dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
+	gtk? (
+		~net-dns/avahi-gtk-${PV}[dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
+		>=dev-dotnet/gtk-sharp-2
+	)
+{% else %}
+	dev-libs/libdaemon
+	dev-libs/expat
+	dev-libs/glib:2[${MULTILIB_USEDEP}]
+	gdbm? ( sys-libs/gdbm:=[${MULTILIB_USEDEP}] )
+{% endif %}
+{% if ns.upstreampkg %}
+	qt5? ( dev-qt/qtcore:5 )
+	gtk? ( x11-libs/gtk+:2[${MULTILIB_USEDEP}] )
+	gtk3? ( x11-libs/gtk+:3[${MULTILIB_USEDEP}] )
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" %}
+	dbus? ( sys-apps/dbus[${MULTILIB_USEDEP}] )
+	kernel_linux? ( sys-libs/libcap )
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" or pkg == "gtk3" %}
+	introspection? ( dev-libs/gobject-introspection:= )
+{% endif %}
+{% if ns.upstreampkg %}
+	mono? (
+		dev-lang/mono
+		gtk? ( dev-dotnet/gtk-sharp )
+	)
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" or pkg == "gtk3" %}
+	python? (
+		${PYTHON_DEPS}
+		dbus? ( dev-python/dbus-python[${PYTHON_USEDEP}] )
+		introspection? ( dev-python/pygobject:3[${PYTHON_USEDEP}] )
+	)
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" %}
+	bookmarks? (
+		${PYTHON_DEPS}
+		>=dev-python/twisted-16.0.0[${PYTHON_USEDEP}]
+	)
+{% endif %}
+"
+
+{% if pkg == "gtk" or pkg == "gtk3" %}
+DEPEND="${COMMON_DEPEND}"
+RDEPEND="${COMMON_DEPEND}"
+{% elif pkg == "mono" %}
+DEPEND="${COMMON_DEPEND}
+	doc? ( >=virtual/monodoc-1.1.8 )"
+RDEPEND="${COMMON_DEPEND}"
+{% else %}
+DEPEND="
+	${COMMON_DEPEND}
+	doc? ( app-doc/doxygen )
+	app-doc/xmltoman
+	dev-util/intltool
+	virtual/pkgconfig[${MULTILIB_USEDEP}]
+"
+
+RDEPEND="
+	${COMMON_DEPEND}
+	howl-compat? ( !net-misc/howl )
+	mdnsresponder-compat? ( !net-misc/mDNSResponder )
+	selinux? ( sec-policy/selinux-avahi )
+"
+
+MULTILIB_WRAPPED_HEADERS=( /usr/include/avahi-qt5/qt-watch.h )
+{% endif %}
+{% if pkg == "base" %}
+PATCHES=( "${FILESDIR}/${MY_P}-qt5.patch" )
+{% elif ns.upstreampkg %}
+
+PATCHES=( "${FILESDIR}/${P}-qt5.patch" )
+{% endif %}
+
+{% if ns.upstreampkg or pkg == "base" %}
+pkg_preinst() {
+	enewgroup netdev
+	enewgroup avahi
+	enewuser avahi -1 -1 -1 avahi
+
+	if use autoipd; then
+		enewgroup avahi-autoipd
+		enewuser avahi-autoipd -1 -1 -1 avahi-autoipd
+	fi
+}
+
+{% endif %}
+{% if pkg == "mono" %}
+pkg_setup() {
+	mono-env_pkg_setup
+}
+
+{% elif ns.upstreampkg %}
+pkg_setup() {
+	use mono && mono-env_pkg_setup
+}
+
+{% endif %}
+src_prepare() {
+	default
+
+{% if ns.upstreampkg or pkg == "base" %}
+	if ! use ipv6; then
+		sed -i \
+			-e s/use-ipv6=yes/use-ipv6=no/ \
+			avahi-daemon/avahi-daemon.conf || die
+	fi
+
+	sed -i\
+		-e "s:\\.\\./\\.\\./\\.\\./doc/avahi-docs/html/:../../../doc/${PF}/html/:" \
+		doxygen_to_devhelp.xsl || die
+
+{% endif %}
+	# Prevent .pyc files in DESTDIR
+	>py-compile
+
+	eautoreconf
+{% if ns.upstreampkg or pkg == "base" or pkg == "mono" %}
+
+	# bundled manpages
+	multilib_copy_sources
+{% elif pkg == "gtk3" %}
+
+	# bundled manpages
+{% endif %}
+}
+
+src_configure() {
+	# those steps should be done once-per-ebuild rather than per-ABI
+	use sh && replace-flags -O? -O0
+{% if pkg == "gtk" %}
+
+	local myconf=( --disable-static )
+
+	myconf+=( --disable-qt5 )
+
+{% elif pkg == "gtk3" %}
+	use python && python_setup
+
+	local myconf=( --disable-static )
+
+	if use python; then
+		myconf+=(
+			$(use_enable dbus python-dbus)
+			$(use_enable introspection pygobject)
+		)
+	fi
+
+	myconf+=( --disable-qt5 )
+
+{% elif pkg == "mono" %}
+	use python && python_setup
+
+	multilib-minimal_src_configure
+}
+
+multilib_src_configure() {
+	local myconf=( --disable-static )
+
+	if ! multilib_is_native_abi; then
+		myconf+=(
+			# used by daemons only
+			--disable-libdaemon
+			--with-xml=none
+		)
+	fi
+
+	if use python; then
+		myconf+=(
+			$(multilib_native_use_enable dbus python-dbus)
+		)
+	fi
+
+	myconf+=( --disable-qt5 )
+
+{% else %}
+	use python && python_setup
+
+	multilib-minimal_src_configure
+}
+
+multilib_src_configure() {
+	local myconf=( --disable-static )
+
+	if use python; then
+		myconf+=(
+			$(multilib_native_use_enable dbus python-dbus)
+			$(multilib_native_use_enable introspection pygobject)
+		)
+	fi
+{% endif %}
+{% if ns.upstreampkg %}
+
+	if use mono; then
+		myconf+=( $(multilib_native_use_enable doc monodoc) )
+	fi
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" %}
+
+	if ! multilib_is_native_abi; then
+		myconf+=(
+			# used by daemons only
+			--disable-libdaemon
+			--with-xml=none
+		)
+	fi
+{% endif %}
+{% if pkg == "base" %}
+
+	myconf+=( --disable-qt5 )
+
+{% elif ns.upstreampkg %}
+
+	myconf+=( $(multilib_native_use_enable qt5) )
+
+{% endif %}
+	econf \
+		--localstatedir="${EPREFIX}/var" \
+		--with-distro=gentoo \
+		--disable-python-dbus \
+{% if pkg == "base" %}
+		--disable-pygobject \
+{% endif %}
+{% if pkg == "gtk" or pkg == "gtk3" or pkg == "mono" %}
+		--disable-manpages \
+		--disable-xmltoman \
+{% endif %}
+{% if pkg == "gtk" or pkg == "gtk3" %}
+		--disable-mono \
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" %}
+		--enable-manpages \
+		--enable-xmltoman \
+{% endif %}
+		--disable-monodoc \
+{% if pkg == "mono" %}
+		--disable-pygobject \
+{% endif %}
+{% if pkg == "base" %}
+		--disable-mono \
+{% endif %}
+		--enable-glib \
+		--enable-gobject \
+{% if pkg == "gtk" or pkg == "mono" %}
+		$(use_enable dbus) \
+{% elif pkg == "gtk3" %}
+		$(use_enable dbus) \
+		$(use_enable python) \
+{% else %}
+		$(multilib_native_use_enable test tests) \
+		$(multilib_native_use_enable autoipd) \
+		$(use_enable mdnsresponder-compat compat-libdns_sd) \
+		$(use_enable howl-compat compat-howl) \
+		$(multilib_native_use_enable doc doxygen-doc) \
+{% endif %}
+{% if pkg == "base" %}
+		$(use_enable dbus) \
+{% endif %}
+{% if ns.upstreampkg %}
+		$(multilib_native_use_enable mono) \
+		$(use_enable dbus) \
+{% endif %}
+{% if pkg == "gtk" %}
+		--disable-python \
+{% elif pkg != "gtk3" %}
+		$(multilib_native_use_enable python) \
+{% endif %}
+{% if not ns.upstreampkg %}
+		$(use_enable nls) \
+{% endif %}
+{% if pkg == "gtk" %}
+		--disable-introspection \
+{% elif pkg == "gtk3" %}
+		$(use_enable introspection) \
+{% elif pkg == "base" or pkg == "mono" %}
+		$(multilib_native_use_enable introspection) \
+{% endif %}
+{% if not ns.upstreampkg %}
+		--disable-qt3 \
+		--disable-qt4 \
+{% endif %}
+{% if pkg == "base" %}
+		--disable-gtk \
+		--disable-gtk3 \
+{% elif pkg == "gtk" %}
+		--enable-gtk \
+		--disable-gtk3 \
+{% elif pkg == "gtk3" %}
+		--disable-gtk \
+		--enable-gtk3 \
+{% elif pkg == "mono" %}
+		--disable-gtk \
+		--disable-gtk3 \
+		$(multilib_is_native_abi && echo -n --enable-mono || echo -n --disable-mono) \
+		$(multilib_is_native_abi && echo -n --enable-monodoc || echo -n --disable-monodoc) \
+{% elif ns.upstreampkg %}
+		$(use_enable gtk) \
+		$(use_enable gtk3) \
+		$(use_enable nls) \
+		$(multilib_native_use_enable introspection) \
+		--disable-qt3 \
+		--disable-qt4 \
+{% endif %}
+		$(use_enable gdbm) \
+		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
+		"${myconf[@]}"
+}
+
+{% if ns.upstreampkg or pkg == "base" %}
+multilib_src_compile() {
+	emake
+
+	multilib_is_native_abi && use doc && emake avahi.devhelp
+}
+
+multilib_src_install() {
+	emake install DESTDIR="${D}"
+{% endif %}
+{% if ns.upstreampkg %}
+	use bookmarks && use python && use dbus && use gtk || \
+		rm -f "${ED}"/usr/bin/avahi-bookmarks
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" %}
+
+	# https://github.com/lathiat/avahi/issues/28
+	use howl-compat && dosym avahi-compat-howl.pc /usr/$(get_libdir)/pkgconfig/howl.pc
+	use mdnsresponder-compat && dosym avahi-compat-libdns_sd/dns_sd.h /usr/include/dns_sd.h
+
+	if multilib_is_native_abi && use doc; then
+		docinto html
+		dodoc -r doxygen/html/.
+		insinto /usr/share/devhelp/books/avahi
+		doins avahi.devhelp || die
+	fi
+}
+
+multilib_src_install_all() {
+{% endif %}
+{% if pkg == "base" %}
+	rm "${ED}/usr/bin/avahi-bookmarks" || die
+	rm "${ED}/usr/bin/avahi-discover" \
+		"${ED}/usr/share/applications/avahi-discover.desktop" \
+		|| die
+	rm -r "${ED}"/usr/lib*/python*/site-packages/avahi_discover || die
+	find "${ED}"/usr/lib*/python* -type d -empty -delete
+
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" %}
+	if use autoipd; then
+		insinto /$(get_libdir)/rcscripts/net
+		doins "${FILESDIR}"/autoipd.sh
+
+		insinto /$(get_libdir)/netifrc/net
+		newins "${FILESDIR}"/autoipd-openrc.sh autoipd.sh
+	fi
+
+	dodoc docs/{AUTHORS,NEWS,README,TODO}
+
+	prune_libtool_files --all
+}
+{% elif pkg == "gtk" %}
+src_compile() {
+	for target in avahi-common avahi-client avahi-glib avahi-ui; do
+		emake -C "${target}" || die
+	done
+	emake avahi-ui.pc || die
+}
+{% elif pkg == "gtk3" %}
+src_compile() {
+	for target in avahi-common avahi-client avahi-glib avahi-ui avahi-core; do
+		emake -C "${target}" || die
+	done
+	emake avahi-ui-gtk3.pc || die
+}
+{% elif pkg == "mono" %}
+multilib_src_compile() {
+	if multilib_is_native_abi; then
+		for target in avahi-common avahi-client avahi-glib avahi-sharp; do
+			cd "${BUILD_DIR}"/${target} || die
+			emake || die
+		done
+		cd "${BUILD_DIR}" || die
+		emake avahi-sharp.pc || die
+
+		if use gtk; then
+			cd "${BUILD_DIR}"/avahi-ui-sharp || die
+			emake || die
+			cd "${BUILD_DIR}" || die
+			emake avahi-ui-sharp.pc || die
+		fi
+	fi
+}
+{% endif %}
+
+{% if pkg == "gtk" %}
+src_install() {
+	mkdir -p "${D}/usr/bin" || die
+
+	emake -C avahi-ui DESTDIR="${D}" install || die
+	dodir /usr/$(get_libdir)/pkgconfig
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins avahi-ui.pc
+
+	# Workaround for avahi-ui.h collision between avahi-gtk and avahi-gtk3
+	root_avahi_ui="${ROOT}usr/include/avahi-ui/avahi-ui.h"
+	if [ -e "${root_avahi_ui}" ]; then
+		rm -f "${D}usr/include/avahi-ui/avahi-ui.h"
+	fi
+
+	# provided by avahi-gtk3
+	rm "${D}"usr/bin/bshell || die
+	rm "${D}"usr/bin/bssh || die
+	rm "${D}"usr/bin/bvnc || die
+	rm "${D}"usr/share/applications/bssh.desktop || die
+	rm "${D}"usr/share/applications/bvnc.desktop || die
+
+	prune_libtool_files --all
+}
+{% elif pkg == "gtk3" %}
+src_install() {
+	if use python; then
+		emake -C avahi-python/avahi-discover install DESTDIR="${D}" || die
+	fi
+	emake -C avahi-discover-standalone DESTDIR="${D}" install || die
+	emake -C avahi-ui DESTDIR="${D}" install || die
+	dodir /usr/$(get_libdir)/pkgconfig
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins avahi-ui-gtk3.pc
+	prune_libtool_files --all
+	use bookmarks && use python && use dbus || \
+	rm -f "${D}"/usr/bin/avahi-bookmarks
+}
+{% elif pkg == "mono" %}
+multilib_src_install() {
+	mkdir -p "${D}/usr/bin" || die
+
+	if multilib_is_native_abi; then
+		cd "${BUILD_DIR}"/avahi-sharp || die
+		emake install DESTDIR="${D}" || die
+		if use gtk; then
+			cd "${BUILD_DIR}"/avahi-ui-sharp || die
+			emake install DESTDIR="${D}" || die
+		fi
+		cd "${BUILD_DIR}" || die
+		dodir /usr/$(get_libdir)/pkgconfig
+		insinto /usr/$(get_libdir)/pkgconfig
+		doins *.pc
+	fi
+}
+
+multilib_src_install_all() {
+	prune_libtool_files --all
+}
+{% endif %}
+{% if ns.upstreampkg or pkg == "base" %}
+pkg_postinst() {
+	if use autoipd; then
+		elog
+		elog "To use avahi-autoipd to configure your interfaces with IPv4LL (RFC3927)"
+		elog "addresses, just set config_<interface>=( autoipd ) in /etc/conf.d/net!"
+		elog
+	fi
+}
+{% endif %}
