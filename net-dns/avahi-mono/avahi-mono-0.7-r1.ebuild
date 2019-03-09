@@ -97,16 +97,12 @@ src_configure() {
 
 src_compile() {
 	for target in avahi-common avahi-client avahi-glib avahi-sharp; do
-		cd "${BUILD_DIR}"/${target} || die
-		emake || die
+		emake -C "${target}" || die
 	done
-	cd "${BUILD_DIR}" || die
 	emake avahi-sharp.pc || die
 
 	if use gtk; then
-		cd "${BUILD_DIR}"/avahi-ui-sharp || die
-		emake || die
-		cd "${BUILD_DIR}" || die
+		emake -C avahi-ui-sharp || die
 		emake avahi-ui-sharp.pc || die
 	fi
 }
@@ -114,13 +110,10 @@ src_compile() {
 src_install() {
 	mkdir -p "${D}/usr/bin" || die
 
-	cd "${BUILD_DIR}"/avahi-sharp || die
-	emake install DESTDIR="${D}" || die
+	emake -C avahi-sharp install DESTDIR="${D}" || die
 	if use gtk; then
-		cd "${BUILD_DIR}"/avahi-ui-sharp || die
-		emake install DESTDIR="${D}" || die
+		emake -C avahi-ui-sharp install DESTDIR="${D}" || die
 	fi
-	cd "${BUILD_DIR}" || die
 	dodir /usr/$(get_libdir)/pkgconfig
 	insinto /usr/$(get_libdir)/pkgconfig
 	doins *.pc
