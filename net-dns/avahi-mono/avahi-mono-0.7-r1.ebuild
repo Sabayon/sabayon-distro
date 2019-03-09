@@ -17,7 +17,7 @@ WANT_AUTOMAKE=1.11
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="gdbm"
 
-inherit autotools eutils flag-o-matic multilib multilib-minimal mono-env python-r1 systemd user
+inherit autotools eutils flag-o-matic mono-env python-r1 systemd user
 
 DESCRIPTION="System which facilitates service discovery on a local network (mono pkg)"
 HOMEPAGE="http://avahi.org/"
@@ -31,7 +31,7 @@ IUSE="dbus doc gdbm gtk introspection nls python"
 S="${WORKDIR}/${MY_P}"
 
 COMMON_DEPEND="
-	~net-dns/avahi-base-${PV}[dbus=,gdbm=,introspection=,nls=,python=,${MULTILIB_USEDEP}]
+	~net-dns/avahi-base-${PV}[dbus=,gdbm=,introspection=,nls=,python=]
 	gtk? (
 		~net-dns/avahi-gtk-${PV}[dbus=,gdbm=,nls=]
 		>=dev-dotnet/gtk-sharp-2
@@ -53,9 +53,6 @@ src_prepare() {
 	>py-compile
 
 	eautoreconf
-
-	# bundled manpages
-	multilib_copy_sources
 }
 
 src_configure() {
@@ -63,23 +60,11 @@ src_configure() {
 	use sh && replace-flags -O? -O0
 	use python && python_setup
 
-	multilib-minimal_src_configure
-}
-
-multilib_src_configure() {
 	local myconf=( --disable-static )
-
-	if ! multilib_is_native_abi; then
-		myconf+=(
-			# used by daemons only
-			--disable-libdaemon
-			--with-xml=none
-		)
-	fi
 
 	if use python; then
 		myconf+=(
-			$(multilib_native_use_enable dbus python-dbus)
+			$(use_enable dbus python-dbus)
 		)
 	fi
 
@@ -96,55 +81,50 @@ multilib_src_configure() {
 		--enable-glib \
 		--enable-gobject \
 		$(use_enable dbus) \
-		$(multilib_native_use_enable python) \
+		$(use_enable python) \
 		$(use_enable nls) \
-		$(multilib_native_use_enable introspection) \
+		$(use_enable introspection) \
 		--disable-qt3 \
 		--disable-qt4 \
 		--disable-gtk \
 		--disable-gtk3 \
-		$(multilib_is_native_abi && echo -n --enable-mono || echo -n --disable-mono) \
-		$(multilib_is_native_abi && echo -n --enable-monodoc || echo -n --disable-monodoc) \
+		--enable-mono \
+		--enable-monodoc \
 		$(use_enable gdbm) \
 		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
 		"${myconf[@]}"
 }
 
-multilib_src_compile() {
-	if multilib_is_native_abi; then
-		for target in avahi-common avahi-client avahi-glib avahi-sharp; do
-			cd "${BUILD_DIR}"/${target} || die
-			emake || die
-		done
-		cd "${BUILD_DIR}" || die
-		emake avahi-sharp.pc || die
+src_compile() {
+	for target in avahi-common avahi-client avahi-glib avahi-sharp; do
+		cd "${BUILD_DIR}"/${target} || die
+		emake || die
+	done
+	cd "${BUILD_DIR}" || die
+	emake avahi-sharp.pc || die
 
-		if use gtk; then
-			cd "${BUILD_DIR}"/avahi-ui-sharp || die
-			emake || die
-			cd "${BUILD_DIR}" || die
-			emake avahi-ui-sharp.pc || die
-		fi
+	if use gtk; then
+		cd "${BUILD_DIR}"/avahi-ui-sharp || die
+		emake || die
+		cd "${BUILD_DIR}" || die
+		emake avahi-ui-sharp.pc || die
 	fi
 }
 
-multilib_src_install() {
+src_install() {
 	mkdir -p "${D}/usr/bin" || die
 
-	if multilib_is_native_abi; then
-		cd "${BUILD_DIR}"/avahi-sharp || die
+	cd "${BUILD_DIR}"/avahi-sharp || die
+	emake install DESTDIR="${D}" || die
+	if use gtk; then
+		cd "${BUILD_DIR}"/avahi-ui-sharp || die
 		emake install DESTDIR="${D}" || die
-		if use gtk; then
-			cd "${BUILD_DIR}"/avahi-ui-sharp || die
-			emake install DESTDIR="${D}" || die
-		fi
-		cd "${BUILD_DIR}" || die
-		dodir /usr/$(get_libdir)/pkgconfig
-		insinto /usr/$(get_libdir)/pkgconfig
-		doins *.pc
 	fi
-}
+	cd "${BUILD_DIR}" || die
+	dodir /usr/$(get_libdir)/pkgconfig
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins *.pc
 
-multilib_src_install_all() {
 	prune_libtool_files --all
 }
+
