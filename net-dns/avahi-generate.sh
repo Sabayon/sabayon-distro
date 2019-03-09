@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Generate avahi ebuilds to the provided directory.
-# example: ./avahi-gen.sh [-f] .
+# With -v, they will be moved to overlay's dirs.
+
+# example: ./avahi-gen.sh [-f] [-v VERSION] .
 
 #   Copyright 2019 Sławomir Nizio
 #
@@ -27,6 +29,17 @@ else
 	force=0
 fi
 
+if [[ $1 = -v ]]; then
+	version=$2
+	if [[ -z $version ]]; then
+		echo "no argument to -v" >&2
+		exit 1
+	fi
+	shift 2
+else
+	version=
+fi
+
 output_dir=$1
 
 if [[ -z $output_dir ]] || (( $# != 1 )); then
@@ -42,10 +55,22 @@ gen() {
 	python -c 'import os; import jinja2; print(jinja2.Environment(loader=jinja2.FileSystemLoader(os.environ["dir"]), trim_blocks=True).get_template("avahi.ebuild.jinja2").render(pkg=os.environ["pkg"]))' | sed '$d'
 }
 
+ebuild_file_name() {
+	local pkg=$1
+	if [[ -z $version ]]; then
+		echo "$output_dir/avahi-${pkg:-upstream}.ebuild"
+	elif [[ -z $pkg ]]; then
+		echo "$output_dir/avahi-upstream.ebuild"
+	else
+		echo "$output_dir/avahi-$pkg/avahi-$pkg-$version.ebuild"
+	fi
+}
+
+# "" is upstream by convention in this script
 types=( "" base gtk gtk3 mono )
 
 for t in "${types[@]}"; do
-	output=$output_dir/avahi-${t:-upstream}.ebuild
+	output=$(ebuild_file_name "$t")
 	if [[ -e $output ]]; then
 		if [[ $force = 1 ]]; then
 			echo "removing previous $output"
@@ -58,7 +83,7 @@ for t in "${types[@]}"; do
 done
 
 for t in "${types[@]}"; do
-	output=$output_dir/avahi-${t:-upstream}.ebuild
+	output=$(ebuild_file_name "$t")
 	echo "processing $output"
 	gen "$t" "$dir" > "$output"
 done
