@@ -90,6 +90,8 @@ app-portage/g-octave
 dev-lang/python:3.4
 # 2018-11-09 Daniele Rondina: Prevent Python 3.5 downgrade
 dev-lang/python:3.5
+# 2019-03-07 Daniele Rondina: Prevent Python 3.7 upgrade
+dev-lang/python:3.7
 
 # 2017-11-22 Sławomir Nizio: dev-haskell/yesod-routes (as of 1.2.0.7-r2)
 # depends an older version (Gentoo bug 610350)
