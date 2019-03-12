@@ -1,4 +1,4 @@
-# Copyright 2004-2013 Sabayon
+# Copyright 2004-2019 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -25,7 +25,6 @@ RDEPEND="${PYTHON_DEPS}
 	|| ( dev-python/pygobject-cairo:3 dev-python/pygobject:3[cairo] )
 	x11-apps/xsetroot
 	x11-libs/gtk+:3
-	x11-libs/vte:2.90
 	x11-wm/marco"
 
 src_install() {
