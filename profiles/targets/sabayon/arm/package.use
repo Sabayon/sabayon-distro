@@ -56,3 +56,20 @@ sys-devel/llvm -doc
 
 # This fix compilation problem about LRMI structure
 sys-apps/v86d x86emu
+
+
+#####################
+# CORE-ARM PACKAGES
+#####################
+
+app-shells/bash afs net nls plugins readline
+
+# Needed by libarchive
+sys-apps/kmod tools
+app-arch/xz-utils extra-filters nls threads
+
+app-portage/gemato blake2 bzip2 gpg
+
+net-libs/gnutls cxx idn nls openssl seccomp tls-heartbeat zlib tools
+
+sys-apps/util-linux cramfs ncurses nls pam python readline suid systemd tty-helpers udev unicode caps
