@@ -17,10 +17,10 @@ CCACHE_SIZE="5G"
 CCACHE_DIR="/var/ccache"
 # Global USE flags
 USE="cpudetection"
-# Sound USE flags
-USE="${USE}"
 # System USE flags
 USE="${USE} -consolekit dbus perl policykit python systemd threads udev"
+# Disable by default static-libs
+USE="${USE} -static-libs"
 # Video OpenGL stuff
 # Note: GLES2 is disabled globally atm. mesa-9.1.2 has bugs if both gl, and gles2 are enabled.
 # The bug is in the GL{ES2,} headers (name clash), and gnome-shell fails to build because of that.

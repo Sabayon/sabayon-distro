@@ -7,7 +7,7 @@ sys-libs/ncurses static-libs tinfo cxx
 dev-libs/gmp -cxx
 
 # Disable -dbus to avoid injection of dconf package
-dev-libs/glib -dbus mime
+dev-libs/glib -dbus mime xattr
 
 # Disable -thin to avoid inject of sys-block/thin-provisioning-tools
 # and then dev-libs/boost
@@ -20,7 +20,7 @@ dev-db/sqlite soundex
 
 app-misc/pax-utils python seccomp
 net-firewall/iptables ipv6 conntrack netlink nftables
-dev-libs/libpcre2 pcre16 pcre32
+dev-libs/libpcre2 pcre16 pcre32 -static-libs
 sys-auth/polkit  nls pam systemd -introspection
 
 # - app-text/asciidoc-8.6.10::gentoo USE="-examples -graphviz -highlight -test" ABI_X86="(64)" PYTHON_SINGLE_TARGET="(-pypy) -python2_7" PYTHON_TARGETS="python2_7 (-pypy)"
@@ -64,8 +64,6 @@ sys-apps/v86d x86emu
 
 app-shells/bash afs net nls plugins readline
 
-# Needed by libarchive
-sys-apps/kmod tools
 app-arch/xz-utils extra-filters nls threads
 
 app-portage/gemato blake2 bzip2 gpg
@@ -73,3 +71,7 @@ app-portage/gemato blake2 bzip2 gpg
 net-libs/gnutls cxx idn nls openssl seccomp tls-heartbeat zlib tools
 
 sys-apps/util-linux cramfs ncurses nls pam python readline suid systemd tty-helpers udev unicode caps
+# Needed by libarchive
+sys-apps/kmod tools
+
+dev-libs/boehm-gc cxx thread
