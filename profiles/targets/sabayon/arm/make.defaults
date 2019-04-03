@@ -47,3 +47,6 @@ PYTHON_SINGLE_TARGET="-python3_5 python3_6 -python2_7 -python3_7"
 USE_PYTHON="2.7 3.6"
 
 RUBY_TARGETS="ruby24"
+
+# Security support until 6 Dec, 2021
+PHP_TARGETS="php7-3"
