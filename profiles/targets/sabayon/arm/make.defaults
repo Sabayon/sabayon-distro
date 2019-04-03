@@ -34,9 +34,14 @@ LINGUAS="${LINGUAS} uz vi zh_CN zh_TW es_AR es_ES fy_NL ga_IE gu gu_IN nb_NO nn_
 # Package specific configuration
 APACHE2_MPMS="prefork"
 
+APACHE2_MODULES="actions alias asis auth_basic auth_digest authn_alias authn_anon authn_core authn_dbd authn_dbm authn_file authz_core authz_dbm authz_groupfile authz_host authz_owner authz_user autoindex cache cern_meta cgi cgid charset_lite dav dav_fs dav_lock dbd deflate dir dumpio env expires ext_filter file_cache filter headers imagemap include info log_config log_forensic logio macro mime mime_magic negotiation proxy proxy_ajp proxy_balancer proxy_connect proxy_fcgi proxy_ftp proxy_html proxy_http proxy_wstunnel rewrite setenvif slotmem_shm socache_shmcb speling status substitute unique_id unixd userdir usertrack version vhost_alias xml2enc lbmethod_bybusyness lbmethod_byrequests lbmethod_bytraffic remoteip"
+
+NGINX_MODULES_HTTP="access auth_basic autoindex browser charset empty_gif fastcgi geo geoip grpc gzip limit_conn limit_req map memcached mirror proxy referer rewrite scgi split_clients ssi stub_status upstream_hash upstream_ip_hash upstream_keepalive upstream_least_conn upstream_zone userid uwsgi auth_ldap auth_request headers_more realip"
+NGINX_MODULES_MAIL=""
+NGINX_MODULES_STREAM="limit_conn upstream_hash upstream_least_conn"
+
+
 # Add also negative options to avoid inheritance
 PYTHON_TARGETS="python2_7 -python3_5 python3_6 -python3_7"
 PYTHON_SINGLE_TARGET="-python3_5 python3_6 -python2_7 -python3_7"
 USE_PYTHON="2.7 3.6"
-
-
