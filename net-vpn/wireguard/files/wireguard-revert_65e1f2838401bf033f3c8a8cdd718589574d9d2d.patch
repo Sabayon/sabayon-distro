@@ -1,0 +1,16 @@
+--- src/compat/compat.h.old	2019-04-30 23:25:49.157714364 +0200
++++ src/compat/compat.h	2019-04-30 23:26:16.392923996 +0200
+@@ -811,13 +811,6 @@
+ #define COMPAT_CANNOT_DEPRECIATE_BH_RCU
+ #endif
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 19, 10)
+-static inline void skb_mark_not_on_list(struct sk_buff *skb)
+-{
+-	skb->next = NULL;
+-}
+-#endif
+-
+ /* https://github.com/ClangBuiltLinux/linux/issues/7 */
+ #if defined( __clang__) && (!defined(CONFIG_CLANG_VERSION) || CONFIG_CLANG_VERSION < 80000)
+ #include <linux/bug.h>
