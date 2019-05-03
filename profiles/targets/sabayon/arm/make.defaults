@@ -5,6 +5,8 @@ CFLAGS="-O2 -pipe -march=armv7-a -mfpu=vfpv3-d16 ${FPUABI}"
 CXXFLAGS="${CFLAGS}"
 LDFLAGS="-Wl,-O1 -Wl,--as-needed"
 CHOST="armv7a-hardfloat-linux-gnueabi"
+# sys-devel/clang seems that use CHOST_arm
+CHOST_arm="armv7a-hardfloat-linux-gnueabi"
 
 ### COMMON PART
 #################################################
