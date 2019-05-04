@@ -47,12 +47,6 @@ src_prepare(){
 	eautoreconf
 }
 
-src_install(){
-	default_src_install
-	insinto /etc/lightdm
-	doins "${FILESDIR}/${PN//lightdm-}.conf"
-}
-
 pkg_preinst(){
 	gnome2_schemas_savelist
 }
