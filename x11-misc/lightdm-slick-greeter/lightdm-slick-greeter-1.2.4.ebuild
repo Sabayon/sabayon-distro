@@ -28,7 +28,7 @@ IUSE=""
 
 DEPEND="
 	$(vala_depend)
-	>=x11-misc/lightdm-1.12[introspection,vala]
+	>=x11-misc/lightdm-base-1.12[introspection,vala]
 	>=dev-util/intltool-0.35.0
 	sys-devel/gettext
 "
