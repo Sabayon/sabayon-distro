@@ -17,7 +17,7 @@ SLOT="0"
 
 DEPEND="
 	>=dev-util/intltool-0.35.0
-	dev-lang/vala:0.34
+	dev-lang/vala:0.42
 	sys-devel/gettext
 	sys-devel/automake-wrapper"
 
@@ -31,7 +31,7 @@ RDEPEND="
 	x11-libs/pixman"
 
 src_prepare() {
-	export VALAC="$(type -P valac-0.34)"
+	export VALAC="$(type -P valac-0.42)"
 	eautoreconf
 	default
 }
