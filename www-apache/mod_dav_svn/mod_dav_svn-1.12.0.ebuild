@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -98,6 +98,9 @@ pkg_setup() {
 
 	# depend.apache_pkg_setup
 
+	# https://issues.apache.org/jira/browse/SVN-4813#comment-16813739
+	append-cppflags -P
+
 	if use debug ; then
 		append-cppflags -DSVN_DEBUG -DAP_DEBUG
 	fi
@@ -111,6 +114,7 @@ pkg_setup() {
 
 src_prepare() {
 	eapply "${WORKDIR}/patches"
+	eapply "${FILESDIR}"/${MY_SVN_PN}-1.11.1-allow-apr-1.7.0+.patch
 	eapply_user
 
 	fperms +x build/transform_libtool_scripts.sh
@@ -136,7 +140,7 @@ src_configure() {
 	local myconf=(
 		--libdir="${EPREFIX%/}/usr/$(get_libdir)"
 		--with-apache-libexecdir
-		--with-apxs="${APXS}"
+		--with-apxs="${EPREFIX}"/usr/bin/apxs
 		$(use_with berkdb berkeley-db "db.h:${EPREFIX%/}/usr/include/db${SVN_BDB_VERSION}::db-${SVN_BDB_VERSION}")
 		--without-ctypesgen
 		$(use_enable dso runtime-module-search)
@@ -153,6 +157,7 @@ src_configure() {
 		--without-jikes
 		--disable-mod-activation
 		--disable-static
+		--enable-svnxx
 	)
 
 	#use python || use perl || use ruby
@@ -195,7 +200,7 @@ src_configure() {
 	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
-	myconf+=( --disable-disallowing-of-undefined-references )
+	#myconf+=( --disable-disallowing-of-undefined-references )
 
 	# allow overriding Python include directory
 	#ac_cv_path_RUBY=$(usex ruby "${EPREFIX%/}/usr/bin/ruby${RB_VER}" "none")

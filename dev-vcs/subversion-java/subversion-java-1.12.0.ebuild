@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -42,6 +42,9 @@ DEPEND="${COMMON_DEPEND}
 pkg_setup() {
 	java-pkg-2_pkg_setup
 
+	# https://issues.apache.org/jira/browse/SVN-4813#comment-16813739
+	append-cppflags -P
+
 	if use debug ; then
 		append-cppflags -DSVN_DEBUG -DAP_DEBUG
 	fi
@@ -51,6 +54,7 @@ pkg_setup() {
 
 src_prepare() {
 	eapply "${WORKDIR}/patches"
+	eapply "${FILESDIR}"/${MY_SVN_PN}-1.11.1-allow-apr-1.7.0+.patch
 	eapply_user
 
 	fperms +x build/transform_libtool_scripts.sh
@@ -93,6 +97,7 @@ src_configure() {
 		--without-jikes
 		--disable-mod-activation
 		--disable-static
+		--enable-svnxx
 	)
 
 	myconf+=( --without-swig )
@@ -129,7 +134,7 @@ src_configure() {
 	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
-	myconf+=( --disable-disallowing-of-undefined-references )
+	#myconf+=( --disable-disallowing-of-undefined-references )
 	econf "${myconf[@]}"
 }
 
