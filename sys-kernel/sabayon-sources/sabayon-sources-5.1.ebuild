@@ -3,19 +3,20 @@
 
 EAPI=5
 
-inherit versionator
-
+K_SABKERNEL_NAME="sabayon"
 K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
-K_REQUIRED_LINUX_FIRMWARE_VER="20190502"
+K_ONLY_SOURCES="1"
 K_SABKERNEL_FORCE_SUBLEVEL="0"
-K_SABKERNEL_PATCH_UPSTREAM_TARBALL="1"
 K_KERNEL_NEW_VERSIONING="1"
+K_SABKERNEL_PATCH_UPSTREAM_TARBALL="1"
 
 inherit sabayon-kernel
 
 KEYWORDS="~amd64"
-DESCRIPTION="Official Sabayon Linux Standard kernel image"
+DESCRIPTION="Official Sabayon Linux Standard kernel sources"
 RESTRICT="mirror"
+IUSE="sources_standalone"
 
 DEPEND="${DEPEND}
-	sys-apps/v86d"
+	sources_standalone? ( !=sys-kernel/linux-sabayon-${PVR} )
+	!sources_standalone? ( =sys-kernel/linux-sabayon-${PVR} )"
