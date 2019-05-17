@@ -1,17 +1,18 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 inherit cmake-utils gnome2-utils
 
-MY_P=${P/-common}
 MY_PN=${PN/-common}
 
 DESCRIPTION="Qt/KDE IRC client supporting a remote daemon (common files)"
-HOMEPAGE="http://quassel-irc.org/"
-SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+HOMEPAGE="https://quassel-irc.org/"
+MY_P=${MY_PN}-${PV/_/-}
+SRC_URI="https://quassel-irc.org/pub/${MY_P}.tar.bz2"
 KEYWORDS="~amd64 ~x86"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -27,6 +28,13 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/${MY_P}"
 
 src_configure() {
+	local mycmakeargs=(
+		-DUSE_QT4=OFF
+		-DUSE_QT5=ON
+		-DEMBED_DATA=OFF
+		-DWITH_BUNDLED_ICONS=ON
+		-DWITH_OXYGEN_ICONS=OFF  # Just a choice.
+	)
 	cmake-utils_src_configure
 }
 
@@ -41,34 +49,7 @@ src_install() {
 
 	dodoc ChangeLog AUTHORS
 
-	# /usr/share/icons/hicolor
-	for mypath in icons/hicolor/*/*/*.{svgz,png}; do
-		if [ -f "${mypath}" ]; then
-			insinto "/usr/share/${mypath%/*}"
-			doins "${mypath}"
-		fi
-	done
-
-	# /usr/share/quassel/icons/oxygen
-	if ! use kde; then
-		dodoc icons/README.Oxygen
-		local mydest
-		for mydest in COPYING AUTHORS CONTRIBUTING; do
-			newdoc "icons/oxygen/${mydest}" "${mydest}.Oxygen"
-		done
-
-		for mypath in icons/oxygen/*/*/*.{svgz,png}; do
-			if [ -f "${mypath}" ]; then
-				insinto "/usr/share/quassel/${mypath%/*}"
-				doins "${mypath}"
-			fi
-		done
-
-		insinto /usr/share/quassel/icons/oxygen
-		doins icons/oxygen/index.theme
-	fi
-
-	doicon icons/oxygen/48x48/apps/quassel.png
+	cmake-utils_src_install -C icons
 
 	# /usr/share/quassel/stylesheets
 	for mypath in data/stylesheets/*.qss; do

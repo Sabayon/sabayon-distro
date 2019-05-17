@@ -1,25 +1,26 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+inherit cmake-utils pax-utils systemd user
 
-inherit cmake-utils pax-utils systemd user versionator
-
-MY_P=${P/-core}
 MY_PN=${PN/-core}
 
 DESCRIPTION="Qt/KDE IRC client - the \"core\" (server) component"
-HOMEPAGE="http://quassel-irc.org/"
-SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+HOMEPAGE="https://quassel-irc.org/"
+MY_P=${MY_PN}-${PV/_/-}
+SRC_URI="https://quassel-irc.org/pub/${MY_P}.tar.bz2"
 KEYWORDS="~amd64 ~x86"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="crypt postgres +ssl syslog"
+IUSE="crypt ldap postgres +ssl syslog"
 
 SERVER_RDEPEND="
 	dev-qt/qtscript:5
 	crypt? ( app-crypt/qca:2[qt5(+),ssl] )
+	ldap? ( net-nds/openldap )
 	postgres? ( dev-qt/qtsql:5[postgres] )
 	!postgres? ( dev-qt/qtsql:5[sqlite] dev-db/sqlite:3[threadsafe(+),-secure-delete] )
 	syslog? ( virtual/logger )
@@ -51,27 +52,29 @@ pkg_setup() {
 
 src_configure() {
 	local mycmakeargs=(
-		$(cmake-utils_use_find_package crypt QCA2-QT5)
 		# $(cmake-utils_use_find_package dbus dbusmenu-qt5)
 		#$(cmake-utils_use_find_package dbus Qt5DBus)
-		"-DWITH_KDE=OFF"
-		"-DWITH_OXYGEN=OFF"
-		"-DWANT_MONO=OFF"
+		-DWITH_KDE=OFF
+		-DWITH_OXYGEN_ICONS=OFF
+		-DWANT_MONO=OFF
+		-DWITH_LDAP=$(usex ldap)
 
-		"CMAKE_DISABLE_FIND_PACKAGE_Phonon4Qt5=ON"
+		-DUSE_QT4=OFF
 		-DUSE_QT5=ON
-		-DEMBED_DATA=OFF
+		-DUSE_CCACHE=OFF
 		-DCMAKE_SKIP_RPATH=ON
-		"-DWANT_CORE=ON"
-		"CMAKE_DISABLE_FIND_PACKAGE_LibsnoreQt5=ON"
-		"-DWITH_WEBKIT=OFF"
-		"-DWANT_QTCLIENT=OFF"
+		-DEMBED_DATA=OFF
+		-DWITH_WEBKIT=OFF
+		-DWITH_BUNDLED_ICONS=OFF
+		-DWANT_CORE=ON
+		CMAKE_DISABLE_FIND_PACKAGE_LibsnoreQt5=ON
+		-DWITH_WEBENGINE=OFF
+		-DWANT_QTCLIENT=OFF
 	)
 
-	# Something broke upstream detection since Qt 5.5
-	if use ssl ; then
-		mycmakeargs+=( "-DHAVE_SSL=TRUE" )
-	fi
+	#if use server || use monolithic; then
+	mycmakeargs+=(  $(cmake-utils_use_find_package crypt QCA2-QT5) )
+	#fi
 
 	cmake-utils_src_configure
 }

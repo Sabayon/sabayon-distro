@@ -17,10 +17,6 @@
 		<flag name="snorenotify">
 			Support for snore notification framework.
 		</flag>
-		<flag name="webkit">
-			Use qt-webkit rendering engine for showing URL thumbnails and
-			for other things that need web browser integration.
-		</flag>
 		<flag name="crypt">
 			Support core-&gt;network per-channel and per-query blowfish
 			encryption via <pkg>app-crypt/qca</pkg>.

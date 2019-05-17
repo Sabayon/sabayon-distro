@@ -1,24 +1,26 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 inherit cmake-utils
 
-MY_P=${P/-client}
 MY_PN=${PN/-client}
 
 DESCRIPTION="Qt/KDE IRC client supporting a remote daemon for 24/7 connectivity (client only)"
-HOMEPAGE="http://quassel-irc.org/"
-SRC_URI="http://quassel-irc.org/pub/${MY_P}.tar.bz2"
+HOMEPAGE="https://quassel-irc.org/"
+MY_P=${MY_PN}-${PV/_/-}
+SRC_URI="https://quassel-irc.org/pub/${MY_P}.tar.bz2"
 KEYWORDS="~amd64 ~x86"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="crypt dbus debug kde phonon snorenotify +ssl webkit"
+IUSE="crypt +dbus debug kde snorenotify +ssl urlpreview"
 
 GUI_RDEPEND="
 	dev-qt/qtgui:5
+	dev-qt/qtmultimedia:5
 	dev-qt/qtwidgets:5
 	dbus? (
 		>=dev-libs/libdbusmenu-qt-0.9.3_pre20140619[qt5(+)]
@@ -34,9 +36,8 @@ GUI_RDEPEND="
 		kde-frameworks/kxmlgui:5
 		kde-frameworks/sonnet:5
 	)
-	phonon? ( media-libs/phonon[qt5(+)] )
 	snorenotify? ( >=x11-libs/snorenotify-0.7.0 )
-	webkit? ( dev-qt/qtwebkit:5 )
+	urlpreview? ( dev-qt/qtwebengine:5[widgets] )
 "
 
 RDEPEND="
@@ -52,33 +53,33 @@ DEPEND="${RDEPEND}
 "
 
 REQUIRED_USE="
-	kde? ( dbus phonon )
+	kde? ( dbus )
 "
-
-S="${WORKDIR}/${MY_P}"
 
 src_configure() {
 	local mycmakeargs=(
-		$(cmake-utils_use_find_package crypt QCA2-QT5)
+		-DUSE_QT4=OFF
+		-DWITH_BUNDLED_ICONS=OFF
 		$(cmake-utils_use_find_package dbus dbusmenu-qt5)
 		$(cmake-utils_use_find_package dbus Qt5DBus)
 		-DWITH_KDE=$(usex kde)
-		"-DWITH_OXYGEN=OFF"
-		"-DWANT_MONO=OFF"
-		$(cmake-utils_use_find_package phonon Phonon4Qt5)
+		-DWITH_LDAP=OFF
+		-DWANT_MONO=OFF
 		-DUSE_QT5=ON
-		-DEMBED_DATA=OFF
+		-DUSE_CCACHE=OFF
 		-DCMAKE_SKIP_RPATH=ON
+		-DEMBED_DATA=OFF
+		-DWITH_WEBKIT=OFF
+		-DWITH_OXYGEN_ICONS=OFF
 		"-DWANT_CORE=OFF"
 		$(cmake-utils_use_find_package snorenotify LibsnoreQt5)
-		-DWITH_WEBKIT=$(usex webkit)
+		-DWITH_WEBENGINE=$(usex urlpreview)
 		"-DWANT_QTCLIENT=ON"
 	)
 
-	# Something broke upstream detection since Qt 5.5
-	if use ssl ; then
-		mycmakeargs+=( "-DHAVE_SSL=TRUE" )
-	fi
+	#if use server || use monolithic; then
+	#	mycmakeargs+=(  $(cmake-utils_use_find_package crypt QCA2-QT5) )
+	#fi
 
 	cmake-utils_src_configure
 }
@@ -86,7 +87,7 @@ src_configure() {
 src_install() {
 	cmake-utils_src_install
 
-	rm -r "${ED}"usr/share/quassel/{networks.ini,scripts,stylesheets,translations} || die
+	rm -r "${ED}"usr/share/quassel/{networks.ini,scripts,stylesheets,translations,icons} || die
 	rmdir "${ED}"usr/share/quassel || die # should be empty
 	rm -r "${ED}"usr/share/pixmaps || die
 	rm -r "${ED}"usr/share/icons || die
