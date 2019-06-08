@@ -9,7 +9,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/85"
+SLOT="0/88"
 IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt5 tiff +utils"
 
 DEPEND="

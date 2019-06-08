@@ -13,7 +13,7 @@ SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/85"
+SLOT="0/88"
 
 IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png tiff +utils"
 S="${WORKDIR}/poppler-${PV}"
