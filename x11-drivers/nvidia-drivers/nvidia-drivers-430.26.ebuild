@@ -72,10 +72,10 @@ nvidia_drivers_versions_check() {
 		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
 	fi
 
-	if use kernel_linux && kernel_is ge 5 1; then
+	if use kernel_linux && kernel_is ge 5 2; then
 		ewarn "Gentoo supports kernels which are supported by NVIDIA"
 		ewarn "which are limited to the following kernels:"
-		ewarn "<sys-kernel/linux-sabayon-5.1"
+		ewarn "<sys-kernel/linux-sabayon-5.2"
 		ewarn ""
 		ewarn "You are free to utilize epatch_user to provide whatever"
 		ewarn "support you feel is appropriate, but will not receive"
@@ -92,7 +92,7 @@ nvidia_drivers_versions_check() {
 	nvidia-driver-check-warning
 
 	# Kernel features/options to check for
-	CONFIG_CHECK="!DEBUG_MUTEXES !I2C_NVIDIA_GPU ~!LOCKDEP ~MTRR ~PM ~SYSVIPC ~ZONE_DMA"
+	CONFIG_CHECK="!DEBUG_MUTEXES !I2C_NVIDIA_GPU ~!LOCKDEP ~MTRR ~SYSVIPC ~ZONE_DMA"
 
 	# Now do the above checks
 	use kernel_linux && check_extra_config
@@ -148,6 +148,12 @@ pkg_setup() {
 	else
 		die "Could not determine proper NVIDIA package"
 	fi
+}
+
+src_configure() {
+	tc-export AR CC LD
+
+	default
 }
 
 src_prepare() {
