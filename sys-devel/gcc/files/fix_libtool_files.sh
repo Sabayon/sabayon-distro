@@ -1,7 +1,6 @@
-#!/bin/bash
-# Copyright 1999-2015 Gentoo Foundation
+#!/bin/sh
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 usage() {
 cat << "USAGE_END"
@@ -28,37 +27,32 @@ USAGE_END
 	exit 1
 }
 
-if [[ $2 != "--oldarch" && $# -ne 1 ]] || \
-   [[ $2 == "--oldarch" && $# -ne 3 ]]
-then
-	usage
-fi
+case $2 in
+--oldarch) [ $# -ne 3 ] && usage ;;
+*)         [ $# -ne 1 ] && usage ;;
+esac
 
 ARGV1=$1
 ARGV2=$2
 ARGV3=$3
 
-source /etc/profile || exit 1
-source /etc/init.d/functions.sh || exit 1
+. /etc/profile || exit 1
 
-if [[ ${EUID} -ne 0 ]] ; then
-	eerror "${0##*/}: Must be root."
+if [ ${EUID:-0} -ne 0   -a   "${EPREFIX}" = '' ] ; then
+	echo "${0##*/}: Must be root."
 	exit 1
 fi
 
 # make sure the files come out sane
 umask 0022
 
-if [[ ${ARGV2} == "--oldarch" ]] && [[ -n ${ARGV3} ]] ; then
-	OLDCHOST=${ARGV3}
-else
-	OLDCHOST=
-fi
+OLDCHOST=
+[ "${ARGV2}" = "--oldarch" ] && OLDCHOST=${ARGV3}
 
-AWKDIR="/lib/rcscripts/awk"
+AWKDIR="/usr/share/gcc-data"
 
-if [[ ! -r ${AWKDIR}/fixlafiles.awk ]] ; then
-	eerror "${0##*/}: ${AWKDIR}/fixlafiles.awk does not exist!"
+if [ ! -r "${AWKDIR}/fixlafiles.awk" ] ; then
+	echo "${0##*/}: ${AWKDIR}/fixlafiles.awk does not exist!"
 	exit 1
 fi
 
@@ -66,7 +60,7 @@ OLDVER=${ARGV1}
 
 export OLDVER OLDCHOST
 
-einfo "Scanning libtool files for hardcoded gcc library paths..."
-gawk -f "${AWKDIR}/fixlafiles.awk"
+echo "Scanning libtool files for hardcoded gcc library paths..."
+exec gawk -f "${AWKDIR}/fixlafiles.awk"
 
 # vim:ts=4
