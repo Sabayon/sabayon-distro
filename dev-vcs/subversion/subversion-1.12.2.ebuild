@@ -4,7 +4,7 @@
 EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
-USE_RUBY="ruby25 ruby24 ruby23"
+USE_RUBY="ruby26 ruby25 ruby24"
 DISTUTILS_OPTIONAL=1
 WANT_AUTOMAKE="none"
 GENTOO_DEPEND_ON_PERL="no"
@@ -123,6 +123,9 @@ pkg_setup() {
 		echo -ne "\a"
 	fi
 
+	# https://issues.apache.org/jira/browse/SVN-4813#comment-16813739
+	append-cppflags -P
+
 	if use debug ; then
 		append-cppflags -DSVN_DEBUG -DAP_DEBUG
 	fi
@@ -148,10 +151,9 @@ pkg_setup() {
 
 src_prepare() {
 	eapply "${WORKDIR}/patches"
-	eapply "${FILESDIR}"/${PN}-1.9.7-fix-wc-queries-test-test.patch
 	eapply_user
 
-	fperms +x build/transform_libtool_scripts.sh
+	chmod +x build/transform_libtool_scripts.sh || die
 
 	sed -i \
 		-e "s/\(BUILD_RULES=.*\) bdb-test\(.*\)/\1\2/g" \
@@ -180,7 +182,7 @@ src_configure() {
 	local myconf=(
 		--libdir="${EPREFIX%/}/usr/$(get_libdir)"
 		$(use_with apache2 apache-libexecdir)
-		$(use_with apache2 apxs "${APXS}")
+		$(use_with apache2 apxs "${EPREFIX}"/usr/bin/apxs)
 		$(use_with berkdb berkeley-db "db.h:${EPREFIX%/}/usr/include/db${SVN_BDB_VERSION}::db-${SVN_BDB_VERSION}")
 		$(use_with ctypes-python ctypesgen "${EPREFIX%/}/usr")
 		$(use_enable dso runtime-module-search)
@@ -197,6 +199,7 @@ src_configure() {
 		--without-jikes
 		--disable-mod-activation
 		--disable-static
+		--enable-svnxx
 	)
 
 	if use python || use perl || use ruby; then
@@ -236,7 +239,7 @@ src_configure() {
 	#version 1.7.7 again tries to link against the older installed version and fails, when trying to
 	#compile for x86 on amd64, so workaround this issue again
 	#check newer versions, if this is still/again needed
-	myconf+=( --disable-disallowing-of-undefined-references )
+	#myconf+=( --disable-disallowing-of-undefined-references )
 
 	# for build-time scripts
 	if use ctypes-python || use python || use test; then
