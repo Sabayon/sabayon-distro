@@ -75,3 +75,11 @@ sys-apps/util-linux cramfs ncurses nls pam python readline suid systemd tty-help
 sys-apps/kmod tools
 
 dev-libs/boehm-gc cxx thread
+
+#####################
+# BASE-ARM PACKAGES
+#####################
+# minizip is required for dev-lang/R
+sys-libs/zlib minizip -static-libs
+
+dev-libs/expat static-libs unicode
