@@ -13,7 +13,7 @@ SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/88"
+SLOT="0/89"
 
 IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png tiff +utils"
 S="${WORKDIR}/poppler-${PV}"
@@ -39,7 +39,7 @@ RDEPEND="${DEPEND}
 PATCHES=(
 	"${FILESDIR}/${MY_PN}-0.60.1-qt5-dependencies.patch"
 	"${FILESDIR}/${MY_PN}-0.28.1-fix-multilib-configuration.patch"
-	"${FILESDIR}/${MY_PN}-0.71.0-respect-cflags.patch"
+	"${FILESDIR}/${MY_PN}-0.78.0-respect-cflags.patch"
 	"${FILESDIR}/${MY_PN}-0.61.0-respect-cflags.patch"
 	"${FILESDIR}/${MY_PN}-0.57.0-disable-internal-jpx.patch"
 )
