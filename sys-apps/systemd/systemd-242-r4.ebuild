@@ -491,7 +491,7 @@ pkg_postinst() {
 		# # systemctl daemon-reexec seems doesn't work after upgrade.
 		# Failed to reload daemon: Access denied
 		# The alternative solution that works better is:
-		kill -sTERM 1
+		kill -TERM 1
 		# This reloaded the daemon, after which all the systemctl commands started working again.
 		eend $?
 	fi
