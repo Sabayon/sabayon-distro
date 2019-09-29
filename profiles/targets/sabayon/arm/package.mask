@@ -116,7 +116,3 @@ dev-lang/python:3.7
 # 2019-03-06 Daniele Rondina: mask sys-devel/gcc from portage
 # (it seems that package.keywords is not sufficient)
 # GLOBAL_MASK sys-devel/gcc::gentoo
-
-# 2019-09-29 Daniele Rondina: temporay mask glibc-2.28 for issue with ustat.h
-# https://gcc.gnu.org/viewcvs/gcc?view=revision&revision=261896
->=sys-libs/glibc-2.28
