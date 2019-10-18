@@ -5,7 +5,7 @@ titlebar-uses-system-font = false
 titlebar-font ="Ubuntu Bold 10"
 monospace-font-name = "Ubuntu Mono 12"
 gtk-theme = "BlueMenta"
-icon-theme = "Faenza-Dark"
+icon-theme = "Faenza-Radiance"
 menus-have-icons = true
 
 [org.mate.background]
