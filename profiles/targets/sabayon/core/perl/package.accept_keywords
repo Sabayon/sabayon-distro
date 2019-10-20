@@ -378,6 +378,7 @@ dev-perl/SOAP-Lite -~arm -~amd64 -~arm64
 dev-perl/SOAP-WSDL -~arm -~amd64 -~arm64
 dev-perl/Socket6 -~arm -~amd64 -~arm64
 dev-perl/Software-License -~arm -~amd64 -~arm64
+dev-perl/Sort-Versions -~arm -~amd64 -~arm64
 dev-perl/Specio -~arm -~amd64 -~arm64
 dev-perl/Spreadsheet-ParseExcel -~arm -~amd64 -~arm64
 dev-perl/SQL-Abstract -~arm -~amd64 -~arm64
