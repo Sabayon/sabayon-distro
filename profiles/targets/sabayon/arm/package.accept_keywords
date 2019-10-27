@@ -16,7 +16,6 @@ dev-util/boost-build -~arm
 
 # Dependencies for sark-localbuild
 dev-python/d2to1 ** ~arm
->=dev-python/shyaml-0.5.2 ** ~arm
 
 # Only use stable versions of these libs
 sys-kernel/linux-headers -~arm
@@ -47,8 +46,7 @@ net-print/cups -~arm
 net-print/cups-filters -~arm
 
 # We want Portage Stable
-# app-portage/repoman-2.3.12 require >=sys-apps/portage-2.3.43
-<=sys-apps/portage-2.3.69 -~arm -arm
+sys-apps/portage -~arm
 
 <app-admin/equo-9999 -~arm
 <sys-apps/entropy-9999 -~arm
