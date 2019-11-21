@@ -4,7 +4,7 @@ sys-kernel/linux-headers -headers-only
 sys-libs/glibc suid nscd
 sys-libs/ncurses static-libs tinfo cxx
 
-dev-libs/gmp -cxx
+dev-libs/gmp cxx
 
 # Disable -dbus to avoid injection of dconf package
 dev-libs/glib -dbus mime xattr
