@@ -47,16 +47,16 @@ SRC_URI=""
 if [ "${LANGPACK_AVAIL}" = "1" ]; then
 	langpack=""
 	[[ ${MY_LANG} == en ]] \
-		|| langpack="${BASE_SRC_URI}/x86_64/LibreOffice_${MY_PV}_Linux_x86-64_rpm_langpack_${MY_LANG/_/-}.tar.gz
-				-> LibreOffice_${PV}_Linux_x86-64_rpm_langpack_${MY_LANG/_/-}.tar.gz"
+		|| langpack="${BASE_SRC_URI}/x86/LibreOffice_${MY_PV}_Linux_x86_rpm_langpack_${MY_LANG/_/-}.tar.gz
+				-> LibreOffice_${PV}_Linux_x86_rpm_langpack_${MY_LANG/_/-}.tar.gz"
 	[[ -z ${langpack} ]] || SRC_URI+=" ${langpack}"
 fi
 
 if [ "${HELPPACK_AVAIL}" = "1" ]; then
 	helppack=""
 	[[ ${MY_LANG} == en ]] && lang2=${MY_LANG/en/en_US} || lang2=${MY_LANG}
-	helppack="offlinehelp? ( ${BASE_SRC_URI}/x86_64/LibreOffice_${MY_PV}_Linux_x86-64_rpm_helppack_${lang2/_/-}.tar.gz
-		-> LibreOffice_${PV}_Linux_x86-64_rpm_helppack_${lang2/_/-}.tar.gz )"
+	helppack="offlinehelp? ( ${BASE_SRC_URI}/x86/LibreOffice_${MY_PV}_Linux_x86_rpm_helppack_${lang2/_/-}.tar.gz
+		-> LibreOffice_${PV}_Linux_x86_rpm_helppack_${lang2/_/-}.tar.gz )"
 	SRC_URI+=" ${helppack}"
 fi
 unset lang helppack langpack lang2
@@ -75,7 +75,7 @@ libreoffice-l10n-2_src_unpack() {
 	# for english we provide just helppack, as translation is always there
 	if [[ "${LANGPACK_AVAIL}" == "1" ]]; then
 		if [[ ${MY_LANG} != en ]]; then
-			rpmdir="LibreOffice_${PV}_Linux_x86-64_rpm_langpack_${dir}/RPMS/"
+			rpmdir="LibreOffice_${PV}_Linux_x86_rpm_langpack_${dir}/RPMS/"
 			[[ -d ${rpmdir} ]] || die "Missing directory: \"${rpmdir}\""
 			# First remove dictionaries, we want to use system ones.
 			rm -rf "${S}/${rpmdir}/"*dict*.rpm
@@ -85,7 +85,7 @@ libreoffice-l10n-2_src_unpack() {
 	if [[ "${HELPPACK_AVAIL}" == "1" ]]; then
 		if [[ "${LANGUAGES_HELP}" =~ " ${MY_LANG} " ]]; then
 			[[ ${MY_LANG} == en ]] && dir="en-US"
-			rpmdir="LibreOffice_${PV}_Linux_x86-64_rpm_helppack_${dir}/RPMS/"
+			rpmdir="LibreOffice_${PV}_Linux_x86_rpm_helppack_${dir}/RPMS/"
 			[[ -d ${rpmdir} ]] || die "Missing directory: \"${rpmdir}\""
 			rpm_unpack ./"${rpmdir}/"*.rpm
 		fi
