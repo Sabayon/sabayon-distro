@@ -1,1 +1,2 @@
 arm           default/linux/arm/17.0/armv7a/sabayon           stable
+amd64         default/linux/amd64/17.0/amd64/sabayon          stable
