@@ -1,0 +1,77 @@
+# Core Base system
+
+sys-kernel/linux-headers -headers-only
+sys-libs/glibc suid nscd
+sys-libs/ncurses static-libs tinfo cxx
+
+dev-libs/gmp -cxx
+
+# Disable -dbus to avoid injection of dconf package
+dev-libs/glib -dbus mime xattr
+
+# Disable -thin to avoid inject of sys-block/thin-provisioning-tools
+# and then dev-libs/boost
+sys-fs/lvm2 readline systemd -thin udev
+
+dev-lang/python sqlite -tk
+sys-apps/file python
+dev-libs/boost python icu context threads
+dev-db/sqlite soundex
+
+app-misc/pax-utils python seccomp
+net-firewall/iptables ipv6 conntrack netlink nftables
+dev-libs/libpcre2 pcre16 pcre32 -static-libs
+sys-auth/polkit  nls pam systemd -introspection
+
+# - app-text/asciidoc-8.6.10::gentoo USE="-examples -graphviz -highlight -test" ABI_X86="(64)" PYTHON_SINGLE_TARGET="(-pypy) -python2_7" PYTHON_TARGETS="python2_7 (-pypy)"
+#
+# The following REQUIRED_USE flag constraints are unsatisfied:
+#     exactly-one-of ( python_single_target_pypy python_single_target_python2_7 )
+#   The above constraints are a subset of the following complete expression:
+# exactly-one-of ( python_single_target_pypy python_single_target_python2_7 ) python_single_target_pypy? ( python_targets_pypy ) python_single_target_python2_7? ( python_targets_python2_7 )
+app-text/asciidoc python_single_target_python2_7
+
+# GCC
+sys-devel/gcc gcj objc objc-gc objc++ graphite cxx nls cxx pie objc hardened fortran pch vtv -doc graphite vanilla ssp openmp nptl
+sys-devel/base-gcc gcj objc objc-gc objc++ graphite cxx nls cxx pie objc hardened fortran pch vtv -doc graphite vanilla ssp openmp nptl
+
+# systemd support
+sys-apps/systemd -gtk plymouth sysv-utils cryptsetup lzma xattr -openrc keymap acl pam pcre policykit resolvconf ssl sysv-utils
+
+# Required by several stuff
+sys-auth/pambase -consolekit systemd cracklib nullok sha512
+
+virtual/udev hwdb gudev keymap
+
+# NSS, we want utils!
+dev-libs/nss:0 utils
+
+app-portage/eix sqlite
+
+# Avoid cycle dependency
+dev-libs/openssl -kerberos -bindist
+app-crypt/mit-krb5 -openldap
+sys-devel/clang -doc
+sys-devel/llvm -doc
+
+# This fix compilation problem about LRMI structure
+sys-apps/v86d x86emu
+
+app-shells/bash afs net nls plugins readline
+
+app-arch/xz-utils extra-filters nls threads
+
+app-portage/gemato blake2 bzip2 gpg
+
+net-libs/gnutls cxx idn nls openssl seccomp tls-heartbeat zlib tools
+
+sys-apps/util-linux cramfs ncurses nls pam python readline suid systemd tty-helpers udev unicode caps
+# Needed by libarchive
+sys-apps/kmod tools
+
+dev-libs/boehm-gc cxx thread
+
+# minizip is required for dev-lang/R
+sys-libs/zlib minizip -static-libs
+
+dev-libs/expat static-libs unicode

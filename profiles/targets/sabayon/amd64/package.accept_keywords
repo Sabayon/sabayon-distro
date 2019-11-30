@@ -1,0 +1,59 @@
+# force stable gcc
+sys-devel/gcc -~amd64
+sys-devel/base-gcc -~amd64
+
+# force stable boost
+dev-libs/boost -~amd64
+dev-util/boost-build -~amd64
+
+# Only use stable versions of these libs
+sys-kernel/linux-headers -~amd64
+sys-libs/glibc -~amd64
+<dev-lang/python-3 -~amd64
+dev-libs/mpc -~amd64
+dev-libs/openssl ~amd64
+sys-libs/gdbm -~amd64
+sys-devel/binutils -~amd64
+sys-devel/llvm -~amd64
+sys-devel/make -~amd64
+sys-kernel/linux-headers -~amd64
+media-libs/imlib2 -~amd64
+media-libs/libepoxy -~amd64
+media-libs/mesa -~amd64
+net-libs/gnutls -~amd64
+dev-lang/tcl -~amd64
+dev-lang/tk -~amd64
+dev-lang/ghc -~amd64
+dev-lang/ruby -~amd64
+
+# sci-mathematics/maxima needs texinfo <5.0
+# stick texinfo to stable to avoid matter bump it
+sys-apps/texinfo -~amd64
+
+# Want stable cups
+net-print/cups -~amd64
+net-print/cups-filters -~amd64
+
+# We want Portage Stable
+sys-apps/portage -~amd64
+
+# Firefox, we don't want stable
+www-client/firefox ~amd64
+
+media-libs/elementary -~amd64
+
+virtual/rubygems -~amd64
+
+app-text/opensp -~amd64
+
+# 2018-04-02 Geaaru: Block unstable fontconfig that require freetype 2.9
+>=media-libs/fontconfig-2.13.0 -~amd64
+
+# 2018-04-04 Geaaru: Block unstable fontconfig that require freetype 2.9
+>=x11-libs/pango-1.42.0 -~amd64
+
+# 2017-12-16 Geaaru: Mask cryptsetup for linking problems
+>=sys-fs/cryptsetup-2.0.0 -~amd64
+
+# 2019-02-15 Geaaru: Mask >=dev-libs/isl-0.19 for compile dev-libs/cloog (to fix on gentoo upstream)
+>=dev-libs/isl-0.19 ** -~amd64 -amd64

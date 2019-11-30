@@ -1,0 +1,73 @@
+# Compiler stuff
+GRAPHITE="-floop-interchange -ftree-loop-distribution -floop-strip-mine -floop-block"
+
+CFLAGS="-O2 -march=x86-64 -pipe" # -ftree-vectorize ${GRAPHITE}"
+CXXFLAGS="${CFLAGS}"
+LDFLAGS="-Wl,-O1 -Wl,--as-needed"
+CHOST="x86_64-pc-linux-gnu"
+
+### COMMON PART
+#################################################
+# Portage configuration
+ACCEPT_KEYWORDS="amd64 ~amd64"
+FEATURES="ccache distcc parallel-fetch protect-owned compressdebug splitdebug metadata-transfer"
+# temp disabled: distcc-pump
+MAKEOPTS="-j8 -s"
+CCACHE_SIZE="5G"
+CCACHE_DIR="/var/ccache"
+# Global USE flags
+USE="cpudetection"
+# System USE flags
+USE="${USE} -consolekit dbus perl policykit python systemd threads udev"
+# Disable by default static-libs
+USE="${USE} -static-libs"
+# Video OpenGL stuff
+# Note: GLES2 is disabled globally atm. mesa-9.1.2 has bugs if both gl, and gles2 are enabled.
+# The bug is in the GL{ES2,} headers (name clash), and gnome-shell fails to build because of that.
+USE="${USE} -gles2"
+
+LINGUAS="en en_US af ar az bg bn br bs ca cs cy da de el en_GB eo es et eu fa fi fr"
+LINGUAS="${LINGUAS} fy ga gl he hi hr hu ia is it ja kk km ko lt lv mk mn ms nb nds nl"
+LINGUAS="${LINGUAS} nn pa pl pt pt_BR ro ru rw se si sk sl sr sr@Latn ss sv ta tg tr uk"
+LINGUAS="${LINGUAS} uz vi zh_CN zh_TW es_AR es_ES fy_NL ga_IE gu gu_IN nb_NO nn_NO pt_PT sv_SE ug zh"
+
+# Package specific configuration
+APACHE2_MPMS="prefork"
+
+APACHE2_MODULES="actions alias asis auth_basic auth_digest authn_alias authn_anon authn_core authn_dbd authn_dbm authn_file authz_core authz_dbm authz_groupfile authz_host authz_owner authz_user autoindex cache cern_meta cgi cgid charset_lite dav dav_fs dav_lock dbd deflate dir dumpio env expires ext_filter file_cache filter headers imagemap include info log_config log_forensic logio macro mime mime_magic negotiation proxy proxy_ajp proxy_balancer proxy_connect proxy_fcgi proxy_ftp proxy_html proxy_http proxy_wstunnel rewrite setenvif slotmem_shm socache_shmcb speling status substitute unique_id unixd userdir usertrack version vhost_alias xml2enc lbmethod_bybusyness lbmethod_byrequests lbmethod_bytraffic remoteip"
+
+NGINX_MODULES_HTTP="access auth_basic autoindex browser charset empty_gif fastcgi geo geoip grpc gzip limit_conn limit_req map memcached mirror proxy referer rewrite scgi split_clients ssi stub_status upstream_hash upstream_ip_hash upstream_keepalive upstream_least_conn upstream_zone userid uwsgi auth_ldap auth_request headers_more realip"
+NGINX_MODULES_MAIL=""
+NGINX_MODULES_STREAM="limit_conn upstream_hash upstream_least_conn"
+
+## OFFICE ##
+LIBREOFFICE_EXTENSIONS="presenter-console presenter-minimizer pdfimport wiki-publisher"
+
+## QEMU ##
+QEMU_USER_TARGETS="alpha arm armeb cris i386 m68k microblaze mips mipsel ppc ppc64 ppc64abi32 sh4 sh4eb sparc sparc32plus sparc64 x86_64"
+QEMU_SOFTMMU_TARGETS="x86_64 arm cris i386 m68k microblaze mips mips64 mips64el mipsel ppc ppc64 ppcemb sh4 sh4eb sparc sparc64"
+
+CONFIG_PROTECT="/usr/share/config/kdm /etc /etc/conf.d"
+# /lib/modules mask is useful for our internal tinderbox
+CONFIG_PROTECT_MASK="/etc/skel /lib/modules"
+
+# Add also negative options to avoid inheritance
+PYTHON_TARGETS="python2_7 python3_6"
+PYTHON_SINGLE_TARGET="python3_6"
+USE_PYTHON="2.7 3.6"
+
+RUBY_TARGETS="ruby24"
+
+# Security support until 6 Dec, 2021
+PHP_TARGETS="php7-3"
+
+# Apache suEXEC default UMASK
+# See bug 3544
+SUEXEC_UMASK=022
+
+# Setup GRUB platforms
+GRUB_PLATFORMS="efi-32 efi-64 pc"
+
+# Support both 64bit and 32bit
+ABI_X86="64 32"
+
