@@ -17,11 +17,7 @@
    Style: no nested ifs for better readability.
 #}
 {% set ns = namespace(upstreampkg=pkg not in ("base", "gtk", "gtk3", "mono")) %}
-{% if not ns.upstreampkg %}
-# Copyright 1999-2019 Gentoo Foundation
-{% else %}
-# Copyright 1999-2018 Gentoo Foundation
-{% endif %}
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -37,17 +33,9 @@ MY_P=${P/-${AVAHI_MODULE}}
 MY_PN=${PN/-${AVAHI_MODULE}}
 
 {% endif %}
-{% if pkg == "mono" %}
-WANT_AUTOMAKE=1.11
-
-{% endif %}
 {% if pkg != "gtk" %}
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="gdbm"
-
-{% endif %}
-{% if pkg != "mono" %}
-WANT_AUTOMAKE=1.11
 
 {% endif %}
 {% if pkg == "base" %}
@@ -78,8 +66,6 @@ HOMEPAGE="http://avahi.org/"
 SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${MY_P}.tar.gz"
 {% else %}
 SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-
-S="${WORKDIR}/${P}"
 {% endif %}
 
 LICENSE="LGPL-2.1"
@@ -100,8 +86,9 @@ IUSE="dbus doc gdbm gtk introspection nls python"
 
 S="${WORKDIR}/${MY_P}"
 {% else %}
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sparc x86 ~amd64-fbsd"
+KEYWORDS="alpha amd64 arm arm64 ~hppa ia64 ~mips ppc ppc64 ~s390 ~sparc x86"
 IUSE="autoipd bookmarks dbus doc gdbm gtk gtk3 howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat mono nls python qt5 selinux test"
+RESTRICT="!test? ( test )"
 {% endif %}
 
 {% if ns.upstreampkg or pkg == "base" %}
@@ -131,7 +118,7 @@ COMMON_DEPEND="
 	~net-dns/avahi-base-${PV}[dbus=,gdbm=,introspection=,nls=,python=]
 	gtk? (
 		~net-dns/avahi-gtk-${PV}[dbus=,gdbm=,nls=]
-		>=dev-dotnet/gtk-sharp-2
+		dev-dotnet/gtk-sharp:2
 	)
 {% else %}
 	dev-libs/libdaemon
@@ -154,7 +141,7 @@ COMMON_DEPEND="
 {% if ns.upstreampkg %}
 	mono? (
 		dev-lang/mono
-		gtk? ( dev-dotnet/gtk-sharp )
+		gtk? ( dev-dotnet/gtk-sharp:2 )
 	)
 {% endif %}
 {% if ns.upstreampkg or pkg == "base" or pkg == "gtk3" %}
@@ -173,15 +160,18 @@ COMMON_DEPEND="
 "
 
 {% if pkg == "gtk" or pkg == "gtk3" %}
-DEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}
+	dev-util/glib-utils"
 RDEPEND="${COMMON_DEPEND}"
 {% elif pkg == "mono" %}
 DEPEND="${COMMON_DEPEND}
+	dev-util/glib-utils
 	doc? ( >=virtual/monodoc-1.1.8 )"
 RDEPEND="${COMMON_DEPEND}"
 {% else %}
 DEPEND="
 	${COMMON_DEPEND}
+	dev-util/glib-utils
 	doc? ( app-doc/doxygen )
 	app-doc/xmltoman
 	dev-util/intltool
@@ -197,11 +187,17 @@ RDEPEND="
 
 MULTILIB_WRAPPED_HEADERS=( /usr/include/avahi-qt5/qt-watch.h )
 {% endif %}
-{% if pkg == "base" %}
-PATCHES=( "${FILESDIR}/${MY_P}-qt5.patch" )
-{% elif ns.upstreampkg %}
+{% if not ns.upstreampkg %}
+PATCHES=(
+	"${FILESDIR}/${MY_P}-qt5.patch"
+	"${FILESDIR}/${MY_P}-CVE-2017-6519.patch"
+)
+{% else %}
 
-PATCHES=( "${FILESDIR}/${P}-qt5.patch" )
+PATCHES=(
+	"${FILESDIR}/${P}-qt5.patch"
+	"${FILESDIR}/${P}-CVE-2017-6519.patch"
+)
 {% endif %}
 
 {% if ns.upstreampkg or pkg == "base" %}
@@ -452,6 +448,9 @@ multilib_src_install() {
 		insinto /usr/share/devhelp/books/avahi
 		doins avahi.devhelp || die
 	fi
+
+	# The build system creates an empty "/run" directory, so we clean it up here
+	rmdir "${ED}"/run
 }
 
 multilib_src_install_all() {
@@ -467,10 +466,10 @@ multilib_src_install_all() {
 {% endif %}
 {% if ns.upstreampkg or pkg == "base" %}
 	if use autoipd; then
-		insinto /$(get_libdir)/rcscripts/net
+		insinto /lib/rcscripts/net
 		doins "${FILESDIR}"/autoipd.sh
 
-		insinto /$(get_libdir)/netifrc/net
+		insinto /lib/netifrc/net
 		newins "${FILESDIR}"/autoipd-openrc.sh autoipd.sh
 	fi
 
