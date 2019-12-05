@@ -22,7 +22,7 @@ S="${WORKDIR}/${REAL_P}"
 COMMON_DEPEND="
 	>=dev-libs/glib-2.32.3:2
 	dev-libs/libxml2
-	virtual/pam
+	sys-libs/pam
 	x11-libs/libX11
 	>=x11-libs/libxklavier-5
 	audit? ( sys-process/audit )

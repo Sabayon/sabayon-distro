@@ -22,7 +22,7 @@ COMMON_DEPEND="audit? ( sys-process/audit )
 	>=dev-libs/glib-2.32.3:2
 	dev-libs/libxml2
 	gnome? ( sys-apps/accountsservice )
-	virtual/pam
+	sys-libs/pam
 	x11-libs/libX11
 	>=x11-libs/libxklavier-5
 	introspection? ( >=dev-libs/gobject-introspection-1 )"
