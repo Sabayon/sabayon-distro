@@ -1,15 +1,14 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit autotools eutils flag-o-matic qmake-utils versionator xdg-utils
+inherit autotools flag-o-matic qmake-utils xdg-utils
 
-TRUNK_VERSION="$(get_version_component_range 1-2)"
 REAL_PN="${PN/-qt5}"
 REAL_P="${P/-qt5}"
 DESCRIPTION="Qt5 libraries for LightDM"
-HOMEPAGE="https://www.freedesktop.org/wiki/Software/LightDM"
-SRC_URI="https://launchpad.net/${REAL_PN}/${TRUNK_VERSION}/${PV}/+download/${REAL_P}.tar.xz
+HOMEPAGE="https://github.com/CanonicalLtd/lightdm"
+SRC_URI="https://github.com/CanonicalLtd/lightdm/releases/download/${PV}/${REAL_P}.tar.xz
 	mirror://gentoo/introspection-20110205.m4.tar.bz2"
 
 LICENSE="GPL-3 LGPL-3"
@@ -32,8 +31,9 @@ src_prepare() {
 	xdg_environment_reset
 
 	# use correct version of qmake. bug #566950
-	sed -i -e "/AC_CHECK_TOOLS(MOC4/a AC_SUBST(MOC4,$(qt4_get_bindir)/moc)" configure.ac || die
-	sed -i -e "/AC_CHECK_TOOLS(MOC5/a AC_SUBST(MOC5,$(qt5_get_bindir)/moc)" configure.ac || die
+	sed \
+		-e "/AC_CHECK_TOOLS(MOC5/a AC_SUBST(MOC5,$(qt5_get_bindir)/moc)" \
+		-i configure.ac || die
 
 	default
 
@@ -49,14 +49,17 @@ src_prepare() {
 src_configure() {
 	append-cxxflags -std=c++11  # use qt5
 
-	econf \
-		--localstatedir=/var \
-		--disable-static \
-		--disable-tests \
-		--disable-libaudit \
-		--disable-introspection \
-		--disable-liblightdm-qt \
+	local myeconfargs=(
+		--localstatedir=/var
+		--disable-static
+		--disable-tests
+		--disable-libaudit
+		--disable-introspection
+		--disable-liblightdm-qt
 		--enable-liblightdm-qt5
+		--disable-vala
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_compile() {
@@ -68,5 +71,5 @@ src_install() {
 	cd "${S}/liblightdm-qt" && \
 		emake DESTDIR="${ED}" install
 
-	prune_libtool_files --all
+	find "${ED}" \( -name '*.a' -o -name "*.la" \) -delete || die
 }
