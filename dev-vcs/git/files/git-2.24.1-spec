@@ -4,6 +4,7 @@ git-gui-tools ./usr/share/gitk/lib/msgs/ca.msg
 git-gui-tools ./usr/share/gitk/lib/msgs/sv.msg
 git-gui-tools ./usr/share/gitk/lib/msgs/it.msg
 git-gui-tools ./usr/share/gitk/lib/msgs/vi.msg
+git-gui-tools ./usr/share/gitk/lib/msgs/zh_cn.msg
 git-gui-tools ./usr/share/gitk/lib/msgs/pt_pt.msg
 git-gui-tools ./usr/share/gitk/lib/msgs/bg.msg
 git-gui-tools ./usr/share/gitk/lib/msgs/fr.msg
@@ -84,13 +85,13 @@ git ./usr/share/man/man7/gitglossary.7
 git ./usr/share/man/man7/gittutorial.7
 git ./usr/share/man/man7/gitcli.7
 git ./usr/share/man/man7/gittutorial-2.7
+git ./usr/share/man/man7/gitremote-helpers.7
 git ./usr/share/man/man7
 git-subversion ./usr/share/man/man1/git-svn.1
 git ./usr/share/man/man1/git-verify-pack.1
 git ./usr/share/man/man1/git-symbolic-ref.1
 git ./usr/share/man/man1/git-parse-remote.1
 git ./usr/share/man/man1/git-fast-export.1
-git ./usr/share/man/man1/git-remote-testgit.1
 git ./usr/share/man/man1/git-commit.1
 git ./usr/share/man/man1/git-commit-graph.1
 git ./usr/share/man/man1/git-check-ref-format.1
@@ -133,7 +134,6 @@ git ./usr/share/man/man1/git-mailinfo.1
 git ./usr/share/man/man1/git-shortlog.1
 git ./usr/share/man/man1/git-interpret-trailers.1
 git ./usr/share/man/man1/git-cat-file.1
-git ./usr/share/man/man1/gitremote-helpers.1
 git ./usr/share/man/man1/git-remote-fd.1
 git ./usr/share/man/man1/git-count-objects.1
 git ./usr/share/man/man1/git-fetch.1
@@ -240,6 +240,8 @@ git ./usr/share/man/man1/git-archimport.1
 git ./usr/share/man/man1/git-help.1
 git ./usr/share/man/man1/git-mergetool.1
 git ./usr/share/man/man1/git-replace.1
+git ./usr/share/man/man1/git-restore.1
+git ./usr/share/man/man1/git-switch.1
 git ./usr/share/man/man1
 git ./usr/share/man
 git ./usr/share/git/contrib/hooks/pre-auto-gc-battery
@@ -274,6 +276,7 @@ git ./usr/share/git/contrib/buildsystems/generate
 git ./usr/share/git/contrib/buildsystems/parse.pl
 git ./usr/share/git/contrib/buildsystems/Generators/QMake.pm
 git ./usr/share/git/contrib/buildsystems/Generators/Vcproj.pm
+git ./usr/share/git/contrib/buildsystems/Generators/Vcxproj.pm
 git ./usr/share/git/contrib/buildsystems/Generators
 git ./usr/share/git/contrib/buildsystems
 git ./usr/share/git/contrib/fast-import/import-tars.perl
@@ -296,6 +299,7 @@ git ./usr/share/git-core/templates/hooks/pre-applypatch.sample
 git ./usr/share/git-core/templates/hooks/post-update.sample
 git ./usr/share/git-core/templates/hooks/prepare-commit-msg.sample
 git ./usr/share/git-core/templates/hooks/pre-commit.sample
+git ./usr/share/git-core/templates/hooks/pre-merge-commit.sample
 git ./usr/share/git-core/templates/hooks/commit-msg.sample
 git ./usr/share/git-core/templates/hooks/fsmonitor-watchman.sample
 git ./usr/share/git-core/templates/hooks/pre-receive.sample
@@ -424,7 +428,6 @@ git ./usr/share/doc/@git-doc@-@git-ver@/howto/rebase-from-internal-branch.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/howto/maintain-git.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/howto/separating-topic-branches.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/howto
-git ./usr/share/doc/@git-doc@-@git-ver@/git-remote-testgit.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/blame-options.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-reflog.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-parse-remote.txt
@@ -554,6 +557,7 @@ git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-config.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-sigchain.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-index-skel.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical/long-running-process-protocol.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/technical/api-trace2.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/technical
 git ./usr/share/doc/@git-doc@-@git-ver@/git-check-ignore.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-cherry.txt
@@ -584,6 +588,10 @@ git ./usr/share/doc/@git-doc@-@git-ver@/git-notes.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-commit.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/git-mv.txt
 git ./usr/share/doc/@git-doc@-@git-ver@/gittutorial-2.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/git-restore.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/git-switch.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/MyFirstContribution.txt
+git ./usr/share/doc/@git-doc@-@git-ver@/trace2-target-values.txt
 git ./usr/share/doc/@git-doc@-@git-ver@
 git ./usr/share/doc
 git ./usr/share/bash-completion/completions/gitk
@@ -656,7 +664,6 @@ git ./usr/libexec/git-core/git-unpack-objects
 git ./usr/libexec/git-core/git-show-ref
 git ./usr/libexec/git-core/git-merge-index
 git ./usr/libexec/git-core/git-send-pack
-git ./usr/libexec/git-core/git-serve
 git ./usr/libexec/git-core/git-bisect
 git ./usr/libexec/git-core/git-rebase
 git-gui-tools ./usr/libexec/git-core/git-gui--askpass
@@ -665,7 +672,6 @@ git ./usr/libexec/git-core/git-ls-tree
 git ./usr/libexec/git-core/git-show-index
 git ./usr/libexec/git-core/git-commit
 git ./usr/libexec/git-core/git-commit-graph
-git ./usr/libexec/git-core/git-rebase--interactive
 git ./usr/libexec/git-core/git-check-attr
 git ./usr/libexec/git-core/git-cherry-pick
 git ./usr/libexec/git-core/git-name-rev
@@ -704,6 +710,7 @@ git ./usr/libexec/git-core/mergetools/p4merge
 git ./usr/libexec/git-core/mergetools/kdiff3
 git ./usr/libexec/git-core/mergetools/opendiff
 git ./usr/libexec/git-core/mergetools/tortoisemerge
+git ./usr/libexec/git-core/mergetools/smerge
 git ./usr/libexec/git-core/mergetools
 git ./usr/libexec/git-core/git-help
 git ./usr/libexec/git-core/git-blame
@@ -795,9 +802,7 @@ git ./usr/libexec/git-core/git-remote-testsvn
 git ./usr/libexec/git-core/git-mktree
 git ./usr/libexec/git-core/git-multi-pack-index
 git ./usr/libexec/git-core/git-jump
-git ./usr/libexec/git-core/git-legacy-rebase
 git ./usr/libexec/git-core/git-add
-git ./usr/libexec/git-core/git-rebase--common
 git ./usr/libexec/git-core/git-column
 git ./usr/libexec/git-core/git-diff-tree
 git ./usr/libexec/git-core/git-pack-objects
@@ -812,7 +817,6 @@ git ./usr/libexec/git-core/git-upload-pack
 git ./usr/libexec/git-core/git-web--browse
 git ./usr/libexec/git-core/git-tag
 git ./usr/libexec/git-core/git-send-email
-git ./usr/libexec/git-core/git-rebase--am
 git ./usr/libexec/git-core/git-interpret-trailers
 git ./usr/libexec/git-core/git-instaweb
 git ./usr/libexec/git-core/git-checkout-index
@@ -851,6 +855,10 @@ git ./usr/libexec/git-core/git-mergetool--lib
 git ./usr/libexec/git-core/git-difftool
 git ./usr/libexec/git-core/git-mv
 git ./usr/libexec/git-core/git-bundle
+git ./usr/libexec/git-core/git-env--helper
+git ./usr/libexec/git-core/git-legacy-stash
+git ./usr/libexec/git-core/git-restore
+git ./usr/libexec/git-core/git-switch
 git ./usr/libexec/git-core
 git ./usr/libexec
 git-gui-tools ./usr/bin/gitk
