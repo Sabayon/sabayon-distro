@@ -22,6 +22,9 @@ However, as the cleanup script checks for both additional files (that may be
 installed by a newer version) and missing ones (removed), the work of checking
 this part upon a version bump is reduced.
 
+To generate data file for the cleanup script, mkspec-git.sh can be used if
+desired.
+
 
 
 DETAILS
