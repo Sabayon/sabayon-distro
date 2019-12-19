@@ -45,7 +45,7 @@ About usage of the cleanup script:
    (--ignore-missing-from-class). This is to allow the other ones be compiled with
    less features to speed up building; and less features can mean fewer files in
    the "image" directory. This may be changed in the future if deemed useful.
-2. No ebuild ignore missing files files from git itself (there is no
+2. No ebuild ignores missing files from git itself (there is no
    --ignore-missing-from-class git) as form of a sanity check that in case of any
    USE flag combination, the "core" set of files is always the same. (For
    example, git-cvs installs files specifc to git-cvs and the same set of files
@@ -59,9 +59,5 @@ About the src_install phase:
 
 
 POSSIBLE IMPROVEMENTS
-- Spec files include Perl version in path to modules. After a Perl bump to
-  major version, they will need to be updated. (Note that the cleanup script
-  does not have support for regexes or wildcard matching. If needed, the spec
-  file can be updated e.g. with sed before using.)
 - Moving common parts to an eclass.
 - Using the same (symlinked) ebuilds for all split variants.
