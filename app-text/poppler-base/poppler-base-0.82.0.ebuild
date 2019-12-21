@@ -3,20 +3,18 @@
 
 EAPI=7
 
-inherit cmake-utils flag-o-matic toolchain-funcs xdg-utils
+inherit cmake-utils toolchain-funcs xdg-utils
 
 MY_PN=poppler
 MY_P=poppler${P#${PN}}
-DESCRIPTION="Glib bindings for poppler"
+DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="https://poppler.freedesktop.org/"
-SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
+SRC_URI="https://poppler.freedesktop.org/${P/-base}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/89"
-
-IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png tiff +utils"
-S="${WORKDIR}/poppler-${PV}"
+SLOT="0/92"
+IUSE="cjk curl cxx debug doc +jpeg jpeg2k +lcms nss png tiff +utils"
 
 # No test data provided
 RESTRICT="test"
@@ -26,25 +24,34 @@ BDEPEND="
 	virtual/pkgconfig
 "
 DEPEND="
-	cairo? (
-		dev-libs/glib:2
-		x11-libs/cairo
-		introspection? ( dev-libs/gobject-introspection:= )
-	)
+	media-libs/fontconfig
+	media-libs/freetype
+	sys-libs/zlib
+	curl? ( net-misc/curl )
+	jpeg? ( virtual/jpeg:0 )
+	jpeg2k? ( >=media-libs/openjpeg-2.3.0-r1:2= )
+	lcms? ( media-libs/lcms:2 )
+	nss? ( >=dev-libs/nss-3.19:0 )
+	png? ( media-libs/libpng:0= )
+	tiff? ( media-libs/tiff:0 )
 "
 RDEPEND="${DEPEND}
-	~app-text/poppler-base-${PV}[cjk=,cxx=,jpeg=,jpeg2k=,lcms=,png=,tiff=,utils=,curl=,debug=,doc=,nss=]
+	cjk? ( app-text/poppler-data )
 "
+
+DOCS=( AUTHORS NEWS README.md README-XPDF )
 
 PATCHES=(
 	"${FILESDIR}/${MY_PN}-0.60.1-qt5-dependencies.patch"
 	"${FILESDIR}/${MY_PN}-0.28.1-fix-multilib-configuration.patch"
-	"${FILESDIR}/${MY_PN}-0.78.0-respect-cflags.patch"
+	"${FILESDIR}/${MY_PN}-0.82.0-respect-cflags.patch"
 	"${FILESDIR}/${MY_PN}-0.61.0-respect-cflags.patch"
 	"${FILESDIR}/${MY_PN}-0.57.0-disable-internal-jpx.patch"
 )
-src_prepare() {
 
+S="${WORKDIR}/${P/-base}"
+
+src_prepare() {
 	cmake-utils_src_prepare
 
 	# Clang doesn't grok this flag, the configure nicely tests that, but
@@ -59,9 +66,6 @@ src_prepare() {
 	else
 		einfo "policy(SET CMP0002 OLD) - workaround can be removed"
 	fi
-
-	# we need to up the C++ version, bug #622526, #643278
-	append-cxxflags -std=c++11
 }
 
 src_configure() {
@@ -74,12 +78,11 @@ src_configure() {
 		-DENABLE_ZLIB=ON
 		-DENABLE_ZLIB_UNCOMPRESS=OFF
 		-DENABLE_UNSTABLE_API_ABI_HEADERS=ON
-		-DSPLASH_CMYK=OFF
-		-DUSE_FIXEDPOINT=OFF
 		-DUSE_FLOAT=OFF
-		-DWITH_Cairo=$(usex cairo)
+		-DWITH_Cairo=OFF
 		-DENABLE_LIBCURL=$(usex curl)
 		-DENABLE_CPP=$(usex cxx)
+		-DWITH_GObjectIntrospection=OFF
 		-DWITH_JPEG=$(usex jpeg)
 		-DENABLE_DCTDECODER=$(usex jpeg libjpeg none)
 		-DENABLE_LIBOPENJPEG=$(usex jpeg2k openjpeg2 none)
@@ -87,38 +90,14 @@ src_configure() {
 		-DWITH_NSS3=$(usex nss)
 		-DWITH_PNG=$(usex png)
 		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=ON
+		-DQT5_FOUND=OFF
 		-DWITH_TIFF=$(usex tiff)
 		-DENABLE_UTILS=$(usex utils)
 	)
-	use cairo && mycmakeargs+=( -DWITH_GObjectIntrospection=$(usex introspection) )
 
 	cmake-utils_src_configure
 }
 
 src_install() {
-	DESTDIR="${ED}" cmake-utils_src_make glib/install
-
-	local utils_destdir=${T}/utils-destdir
-	rm -rf "${utils_destdir}" || die
-	mkdir "${utils_destdir}" || die
-	DESTDIR="${utils_destdir}" cmake-utils_src_make utils/install
-
-	if use cairo; then
-		# Other utils are installed in poppler-base, but that package does not
-		# depend on Cairo.
-		dobin "${utils_destdir}/usr/bin/pdftocairo"
-		doman "${utils_destdir}/usr/share/man/man1/pdftocairo.1"
-	fi
-
-	# install pkg-config data
-	insinto /usr/$(get_libdir)/pkgconfig
-	doins "${BUILD_DIR}"/poppler-glib.pc
-	use cairo && doins "${BUILD_DIR}"/poppler-cairo.pc
-
-	# live version doesn't provide html documentation
-	if use cairo && use doc && [[ ${PV} != *9999* ]]; then
-		# For now install gtk-doc there
-		insinto /usr/share/gtk-doc/html/poppler
-		doins -r "${S}"/glib/reference/html/*
-	fi
+	cmake-utils_src_install
 }

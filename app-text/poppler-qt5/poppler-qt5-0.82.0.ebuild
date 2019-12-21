@@ -3,18 +3,19 @@
 
 EAPI=7
 
-inherit cmake-utils flag-o-matic toolchain-funcs xdg-utils
+inherit cmake-utils toolchain-funcs xdg-utils
 
 MY_PN=poppler
 MY_P=poppler${P#${PN}}
-DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
+DESCRIPTION="Qt5 bindings for poppler"
 HOMEPAGE="https://poppler.freedesktop.org/"
-SRC_URI="https://poppler.freedesktop.org/${P/-base}.tar.xz"
+SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/89"
-IUSE="cjk curl cxx debug doc +jpeg jpeg2k +lcms nss png tiff +utils"
+SLOT="0/92"
+IUSE="cjk curl cxx debug doc +jpeg +jpeg2k +lcms nss png tiff +utils"
+S="${WORKDIR}/poppler-${PV}"
 
 # No test data provided
 RESTRICT="test"
@@ -24,34 +25,23 @@ BDEPEND="
 	virtual/pkgconfig
 "
 DEPEND="
-	media-libs/fontconfig
-	media-libs/freetype
-	sys-libs/zlib
-	curl? ( net-misc/curl )
-	jpeg? ( virtual/jpeg:0 )
-	jpeg2k? ( >=media-libs/openjpeg-2.3.0-r1:2= )
-	lcms? ( media-libs/lcms:2 )
-	nss? ( >=dev-libs/nss-3.19:0 )
-	png? ( media-libs/libpng:0= )
-	tiff? ( media-libs/tiff:0 )
+		dev-qt/qtcore:5
+		dev-qt/qtgui:5
+		dev-qt/qtxml:5
 "
 RDEPEND="${DEPEND}
-	cjk? ( app-text/poppler-data )
+	~app-text/poppler-base-${PV}[cjk=,cxx=,jpeg=,jpeg2k=,lcms=,png=,tiff=,utils=,curl=,debug=,doc=,nss=]
 "
-
-DOCS=( AUTHORS NEWS README.md README-XPDF )
 
 PATCHES=(
 	"${FILESDIR}/${MY_PN}-0.60.1-qt5-dependencies.patch"
 	"${FILESDIR}/${MY_PN}-0.28.1-fix-multilib-configuration.patch"
-	"${FILESDIR}/${MY_PN}-0.78.0-respect-cflags.patch"
+	"${FILESDIR}/${MY_PN}-0.82.0-respect-cflags.patch"
 	"${FILESDIR}/${MY_PN}-0.61.0-respect-cflags.patch"
 	"${FILESDIR}/${MY_PN}-0.57.0-disable-internal-jpx.patch"
 )
-
-S="${WORKDIR}/${P/-base}"
-
 src_prepare() {
+
 	cmake-utils_src_prepare
 
 	# Clang doesn't grok this flag, the configure nicely tests that, but
@@ -66,9 +56,6 @@ src_prepare() {
 	else
 		einfo "policy(SET CMP0002 OLD) - workaround can be removed"
 	fi
-
-	# we need to up the C++ version, bug #622526, #643278
-	append-cxxflags -std=c++11
 }
 
 src_configure() {
@@ -81,8 +68,6 @@ src_configure() {
 		-DENABLE_ZLIB=ON
 		-DENABLE_ZLIB_UNCOMPRESS=OFF
 		-DENABLE_UNSTABLE_API_ABI_HEADERS=ON
-		-DSPLASH_CMYK=OFF
-		-DUSE_FIXEDPOINT=OFF
 		-DUSE_FLOAT=OFF
 		-DWITH_Cairo=OFF
 		-DENABLE_LIBCURL=$(usex curl)
@@ -94,8 +79,7 @@ src_configure() {
 		-DENABLE_CMS=$(usex lcms lcms2 none)
 		-DWITH_NSS3=$(usex nss)
 		-DWITH_PNG=$(usex png)
-		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=ON
-		-DQT5_FOUND=OFF
+		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Core=OFF
 		-DWITH_TIFF=$(usex tiff)
 		-DENABLE_UTILS=$(usex utils)
 	)
@@ -104,5 +88,9 @@ src_configure() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	DESTDIR="${ED}" cmake-utils_src_make qt5/install
+
+	# install pkg-config data
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins "${BUILD_DIR}"/poppler-qt5.pc
 }
