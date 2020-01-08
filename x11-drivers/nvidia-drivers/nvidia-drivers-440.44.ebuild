@@ -203,17 +203,6 @@ src_install() {
 pkg_preinst() {
 	if use driver && use kernel_linux; then
 		linux-mod_pkg_preinst
-
-		local videogroup="$(egetent group video | cut -d ':' -f 3)"
-		if [ -z "${videogroup}" ]; then
-			eerror "Failed to determine the video group gid"
-			die "Failed to determine the video group gid"
-		else
-			sed -i \
-				-e "s:PACKAGE:${PF}:g" \
-				-e "s:VIDEOGID:${videogroup}:" \
-				"${D}"/etc/modprobe.d/nvidia.conf || die
-		fi
 	fi
 }
 
