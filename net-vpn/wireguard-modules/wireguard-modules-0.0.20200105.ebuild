@@ -50,6 +50,9 @@ src_prepare() {
 	if kernel_is 5 4 ; then
 		eapply "${FILESDIR}"/${PN}-5.4.patch
 	fi
+	if kernel_is 4 19 ; then
+		eapply "${FILESDIR}"/${PN}-4.19.patch
+	fi
 
 	eapply_user
 }
