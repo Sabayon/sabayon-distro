@@ -16,7 +16,6 @@ KEYWORDS="amd64 ~arm ~arm64 ia64 x86"
 RDEPEND="dev-libs/popt"
 DEPEND="${RDEPEND}
 	>=sys-kernel/linux-headers-3.18
-	virtual/pkgconfig
 "
 
 src_prepare() {
