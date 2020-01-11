@@ -89,7 +89,7 @@ nvidia_drivers_versions_check() {
 	# some kind of guidance as to what version they should install. This tries
 	# to point the user in the right direction but can't be perfect. check
 	# nvidia-driver.eclass
-	nvidia-driver-check-warning
+	nvidia-driver_check_gpu
 
 	# Kernel features/options to check for
 	CONFIG_CHECK="!DEBUG_MUTEXES !I2C_NVIDIA_GPU ~!LOCKDEP ~MTRR ~SYSVIPC ~ZONE_DMA"
