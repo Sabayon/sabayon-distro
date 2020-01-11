@@ -31,3 +31,10 @@ src_configure() {
 src_compile() {
 	emake PKG_CONFIG="$(tc-getPKG_CONFIG)"
 }
+
+src_install() {
+	# build system uses perl, so just do it ourselves
+	dosbin src/efibootmgr/efibootmgr
+	doman src/man/man8/efibootmgr.8
+	dodoc AUTHORS README doc/ChangeLog doc/TODO
+}
