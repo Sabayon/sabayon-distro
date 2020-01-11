@@ -394,8 +394,8 @@ fi
 # exception of accepting parameter which is passed to depmod -r switch
 _update_depmod() {
 
-        # if we haven't determined the version yet, we need too.
-        get_version;
+		# if we haven't determined the version yet, we need too.
+		get_version;
 
 	ebegin "Updating module dependencies for ${KV_FULL}"
 	if [ -r "${KV_OUT_DIR}"/System.map ]; then
