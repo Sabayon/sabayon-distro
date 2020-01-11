@@ -1,0 +1,11 @@
+--- a/src/compat/compat.h	2020-01-10 15:19:57.747201214 +0100
++++ b/src/compat/compat.h	2020-01-10 15:22:54.046429593 +0100
+@@ -861,7 +861,7 @@
+ })
+ #endif
+ 
+-#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 5) && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(5, 3, 18)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0) || LINUX_VERSION_CODE < KERNEL_VERSION(5, 3, 18)
+ #define ipv6_dst_lookup_flow(a, b, c, d) ipv6_dst_lookup(a, b, &dst, c) + (void *)0 ?: dst
+ #endif
+ 

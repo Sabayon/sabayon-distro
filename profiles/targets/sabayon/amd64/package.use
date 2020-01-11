@@ -75,3 +75,7 @@ dev-libs/boehm-gc cxx thread
 sys-libs/zlib minizip -static-libs
 
 dev-libs/expat static-libs unicode
+
+# Kernel stuff
+sys-kernel/linux-sabayon big-endian btrfs dmraid dracut iscsi kernel_linux luks lvm mdadm plymouth split-usr symlink
+sys-kernel/genkernel-next cryptsetup dmraid kernel_linux mdadm split-usr
