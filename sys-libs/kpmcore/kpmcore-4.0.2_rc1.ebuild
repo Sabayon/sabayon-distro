@@ -18,6 +18,7 @@ HOMEPAGE="https://kde.org/applications/system/org.kde.partitionmanager"
 LICENSE="GPL-3"
 SLOT="5/8"
 IUSE=""
+KEYWORDS="amd64 ~arm ~arm64 x86"
 
 BDEPEND="virtual/pkgconfig"
 DEPEND="
