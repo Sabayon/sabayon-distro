@@ -3,10 +3,10 @@
 
 EAPI="4"
 
-EGIT_REPO_URI="git://github.com/siefkenj/gnome-shell-windowlist.git"
+EGIT_REPO_URI="https://github.com/siefkenj/gnome-shell-windowlist.git"
 EGIT_COMMIT="7ede91868efd5d75ce98065416acedf029041e33"
 
-inherit git-2
+inherit git-r3
 
 DESCRIPTION="Adds a window switcher to the top bar of gnome-shell"
 HOMEPAGE="https://extensions.gnome.org/extension/25/window-list/"
