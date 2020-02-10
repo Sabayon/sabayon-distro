@@ -1,20 +1,20 @@
-# Copyright 2004-2019 Sabayon
+# Copyright 2004-2020 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 
 PYTHON_COMPAT=( python2_7 )
-EGIT_REPO_URI="git://github.com/Sabayon/steambox.git"
+EGIT_REPO_URI="https://github.com/Sabayon/steambox.git"
 EGIT_COMMIT="v${PV}"
 
-inherit eutils python-single-r1 systemd git-2
+inherit eutils python-single-r1 systemd git-r3
 
 DESCRIPTION="Sabayon Steam Box provisioning tools"
 HOMEPAGE="http://www.sabayon.org"
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
