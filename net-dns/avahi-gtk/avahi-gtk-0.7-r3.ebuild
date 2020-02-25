@@ -93,17 +93,19 @@ src_install() {
 	doins avahi-ui.pc
 
 	# Workaround for avahi-ui.h collision between avahi-gtk and avahi-gtk3
-	root_avahi_ui="${ROOT}usr/include/avahi-ui/avahi-ui.h"
+	root_avahi_ui="${ROOT}/usr/include/avahi-ui/avahi-ui.h"
 	if [ -e "${root_avahi_ui}" ]; then
-		rm -f "${D}usr/include/avahi-ui/avahi-ui.h"
+		rm -rf "${D}/usr/include/"
 	fi
 
 	# provided by avahi-gtk3
 	rm "${D}"/usr/bin/bshell || die
 	rm "${D}"/usr/bin/bssh || die
 	rm "${D}"/usr/bin/bvnc || die
+	rm -rf "${D}"/usr/bin/ || die
 	rm "${D}"/usr/share/applications/bssh.desktop || die
 	rm "${D}"/usr/share/applications/bvnc.desktop || die
+	rm -rf "${D}"/usr/share/ || die
 
 	find "${ED}" -name '*.la' -type f -delete || die
 }
