@@ -10,7 +10,7 @@ MY_PN=${PN/-${AVAHI_MODULE}}
 PYTHON_COMPAT=( python3_{6,7} )
 PYTHON_REQ_USE="gdbm"
 
-inherit autotools flag-o-matic multilib-minimal python-r1 systemd mono-env
+inherit autotools flag-o-matic multilib-minimal python-r1 systemd
 
 DESCRIPTION="System which facilitates service discovery on a local network (base pkg)"
 HOMEPAGE="http://avahi.org/"
@@ -19,13 +19,12 @@ SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${MY_P}.tar.g
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
-IUSE="autoipd bookmarks dbus doc gdbm howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat nls python selinux test mono"
+IUSE="autoipd bookmarks dbus doc gdbm howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat nls python selinux test"
 
 S="${WORKDIR}/${MY_P}"
 
 REQUIRED_USE="
 	python? ( dbus gdbm ${PYTHON_REQUIRED_USE} )
-	mono? ( dbus )
 	howl-compat? ( dbus )
 	mdnsresponder-compat? ( dbus )
 "
@@ -42,9 +41,6 @@ COMMON_DEPEND="
 		${PYTHON_DEPS}
 		dbus? ( dev-python/dbus-python[${PYTHON_USEDEP}] )
 		introspection? ( dev-python/pygobject:3[${PYTHON_USEDEP}] )
-	)
-	mono? (
-		dev-lang/mono
 	)
 	bookmarks? (
 		${PYTHON_DEPS}
@@ -86,7 +82,6 @@ PATCHES=(
 )
 
 pkg_setup() {
-	use mono && mono-env_pkg_setup
 	use python || use bookmarks && python_setup
 }
 
@@ -127,6 +122,7 @@ multilib_src_configure() {
 		--enable-manpages
 		--enable-xmltoman
 		--disable-monodoc
+		--disable-mono
 		--enable-glib
 		--enable-gobject
 		$(multilib_native_use_enable test tests)
@@ -153,10 +149,6 @@ multilib_src_configure() {
 			$(multilib_native_use_enable dbus python-dbus)
 			$(multilib_native_use_enable introspection pygobject)
 		)
-	fi
-
-	if use mono; then
-		myconf+=( $(multilib_native_use_enable doc monodoc) )
 	fi
 
 	if ! multilib_is_native_abi; then
