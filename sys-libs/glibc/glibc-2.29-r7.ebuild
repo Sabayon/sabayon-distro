@@ -93,6 +93,9 @@ BDEPEND="
 	doc? ( sys-apps/texinfo )
 "
 COMMON_DEPEND="
+	sys-apps/sabayon-lib-migration
+	sys-apps/sabayon-lib-migration-check
+
 	nscd? ( selinux? (
 		audit? ( sys-process/audit )
 		caps? ( sys-libs/libcap )
@@ -776,7 +779,32 @@ src_unpack() {
 	unpack glibc-${RELEASE_VER}-patches-${PATCH_VER}.tar.xz
 }
 
+# Sabayon mod.
+_sab_migr_already_done() {
+	{ [[ ! -L /lib ]] && [[ ! -L /usr/lib ]]; } && return 0
+	return 1
+}
+
 src_prepare() {
+	# Sabayon mod. begin
+	if ! _sab_migr_already_done; then
+		# Copy pasta from sys-apps/sabayon-lib-migration-check...
+
+		# Abort the install or upgrade phase or e.g. glibc will install 32 bit
+		# libc.so.6 (binary from the new profile) to /lib that is still to
+		# be 64 bit (/lib -> /lib64) and it will break the whole system.
+		eerror "Profile migration was supposed to have been done by sys-apps/sabayon-lib-migration"
+		eerror "but it is not the case."
+		eerror ""
+		eerror "If it didn't get installed, install it now as THE FIRST AND ONLY PACKAGE."
+		eerror "If it tried to install but failed, refer to information printed by that package."
+		eerror ""
+		eerror "Stopping now. DO NOT CONTINUE THE UPGRADE UNLESS sys-apps/sabayon-lib-migration IS INSTALLED WITHOUT ERROR."
+		eerror "OTHERWISE YOUR SYSTEM WILL BE BROKEN."
+		die "/lib* and /usr/lib* not migrated; cannot continue. Refer to the message above."
+	fi
+	# Sabayon mod. end
+
 	if ! use vanilla ; then
 		elog "Applying Gentoo Glibc Patchset ${RELEASE_VER}-${PATCH_VER}"
 		eapply "${WORKDIR}"/patches
