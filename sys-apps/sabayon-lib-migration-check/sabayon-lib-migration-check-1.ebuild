@@ -22,6 +22,8 @@ _already_done() {
 }
 
 src_prepare() {
+	eapply_user
+
 	if _already_done; then
 		einfo "Migration seems to have been done already; skipping."
 		return 0
