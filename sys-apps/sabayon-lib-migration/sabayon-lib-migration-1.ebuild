@@ -35,6 +35,14 @@ _inform_and_exec() {
 		eerror "AT THE VERY LEAST, CHECK THAT THERE ARE DIRECTORES WITH CONTENT:"
 		eerror "/lib /usr/lib /lib64 /usr/lib64"
 		eerror "Sorry, and please report it. :("
+		# Apparently there is no effective way to stop Entropy. Doing this instead.
+		# Note: I have not tested effectiveness of ctrl-c in pkg_postinst, but
+		# there is also glibc and sabayon-lib-migration-check that do it also
+		# in pkg_setup (tested scenario).
+		eerror ""
+		eerror "! The process has been stopped. Press Control+C once or twice"
+		eerror "! and make sure the package manager does not continue, and see the error above."
+		command sleep 200d
 		die "FAILED, SEE THE MESSAGE ABOVE"
 	fi
 }

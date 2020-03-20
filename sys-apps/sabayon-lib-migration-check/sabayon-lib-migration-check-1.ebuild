@@ -21,9 +21,7 @@ _already_done() {
 	return 1
 }
 
-src_prepare() {
-	eapply_user
-
+pkg_setup() {
 	if _already_done; then
 		elog "Migration seems to have been done already; skipping."
 		return 0
@@ -40,5 +38,10 @@ src_prepare() {
 	eerror ""
 	eerror "Stopping now. DO NOT CONTINUE THE UPGRADE UNLESS sys-apps/sabayon-lib-migration IS INSTALLED WITHOUT ERROR."
 	eerror "OTHERWISE YOUR SYSTEM WILL BE BROKEN."
+	# Apparently there is no effective way to stop Entropy. Doing this instead.
+	eerror ""
+	eerror "! The process has been stopped. Press Control+C once or twice"
+	eerror "! and make sure the package manager does not continue, and see the error above."
+	command sleep 200d
 	die "/lib* and /usr/lib* not migrated; cannot continue. Refer to the message above."
 }
