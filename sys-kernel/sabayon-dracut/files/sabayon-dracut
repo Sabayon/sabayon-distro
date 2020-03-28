@@ -83,7 +83,9 @@ _rebuild_all () {
   for i in ${SAB_INITRD_IMAGES[@]} ; do
     file=$(basename $i)
     v=${file/${SABAYON_INITRD_PREFIX}-${SAB_ARCH}-} ; v=${v/.0-sabayon/}
-    _rebuild "$v"
+    _rebuild "$v" || {
+      echo "Something is wrong with kernel $v but I go ahead."
+    }
   done
 }
 
