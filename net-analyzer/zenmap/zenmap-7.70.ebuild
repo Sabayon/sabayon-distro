@@ -26,7 +26,9 @@ IUSE="nls"
 NMAP_LINGUAS=( de fr hi hr it ja pl pt_BR ru zh )
 
 RDEPEND="
-	dev-python/pygtk:2[${PYTHON_USEDEP}]
+	$(python_gen_cond_dep '
+		dev-python/pygtk:2[${PYTHON_MULTI_USEDEP}]
+	')
 	${PYTHON_DEPS}
 "
 DEPEND="
