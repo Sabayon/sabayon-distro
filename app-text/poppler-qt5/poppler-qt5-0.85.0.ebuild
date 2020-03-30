@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils toolchain-funcs xdg-utils
+inherit cmake toolchain-funcs xdg-utils
 
 MY_PN=poppler
 MY_P=poppler${P#${PN}}
@@ -13,8 +13,8 @@ SRC_URI="https://poppler.freedesktop.org/poppler-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86 ~arm"
-SLOT="0/92"
-IUSE="cjk curl cxx debug doc +jpeg +jpeg2k +lcms nss png tiff +utils"
+SLOT="0/95"
+IUSE="cjk curl +cxx debug doc +jpeg +jpeg2k +lcms nss png tiff +utils"
 S="${WORKDIR}/poppler-${PV}"
 
 # No test data provided
@@ -42,7 +42,7 @@ PATCHES=(
 )
 src_prepare() {
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 
 	# Clang doesn't grok this flag, the configure nicely tests that, but
 	# cmake just uses it, so remove it if we use clang
@@ -64,6 +64,7 @@ src_configure() {
 		-DBUILD_GTK_TESTS=OFF
 		-DBUILD_QT5_TESTS=OFF
 		-DBUILD_CPP_TESTS=OFF
+		-DRUN_GPERF_IF_PRESENT=OFF
 		-DENABLE_SPLASH=ON
 		-DENABLE_ZLIB=ON
 		-DENABLE_ZLIB_UNCOMPRESS=OFF
@@ -84,11 +85,11 @@ src_configure() {
 		-DENABLE_UTILS=$(usex utils)
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_install() {
-	DESTDIR="${ED}" cmake-utils_src_make qt5/install
+	DESTDIR="${ED}" cmake_build qt5/install
 
 	# install pkg-config data
 	insinto /usr/$(get_libdir)/pkgconfig
