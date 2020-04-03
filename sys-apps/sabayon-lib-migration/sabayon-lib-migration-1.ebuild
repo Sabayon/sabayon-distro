@@ -53,6 +53,7 @@ _already_done() {
 }
 
 pkg_postinst() {
+	ls -ld /lib* /usr/lib* || true
 	if _already_done; then
 		elog "Migration seems to have been done already; skipping."
 		return 0

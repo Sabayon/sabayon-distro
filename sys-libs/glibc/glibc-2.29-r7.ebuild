@@ -761,6 +761,7 @@ _sab_migr_already_done() {
 }
 
 _sab_check_migr() {
+	ls -ld /lib* /usr/lib* || true
 	if ! _sab_migr_already_done; then
 		# Copy pasta from sys-apps/sabayon-lib-migration-check...
 
