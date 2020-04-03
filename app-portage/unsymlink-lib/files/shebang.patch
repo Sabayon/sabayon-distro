@@ -1,0 +1,12 @@
+Modification for the binary distribution world; details are in the ebuild.
+Using Python 2, as with Python 3 only 3.6 has been tested.
+Index: unsymlink-lib-17/unsymlink-lib
+===================================================================
+--- unsymlink-lib-17/unsymlink-lib
++++ unsymlink-lib-17/unsymlink-lib
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python2
+ # -*- coding: utf-8 -*-
+ 
+ from __future__ import print_function
