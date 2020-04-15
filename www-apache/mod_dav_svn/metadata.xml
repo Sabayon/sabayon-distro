@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>slawomir.nizio@sabayon.org</email>
-		<description>Maintainer for split subversion-java ebuild.</description>
-	</maintainer>
 	<use>
 		<flag name="dso">Enable runtime module search</flag>
 	</use>

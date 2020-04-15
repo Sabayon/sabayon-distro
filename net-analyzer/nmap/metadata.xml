@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>slawomir.nizio@sabayonlinux.org</email>
-		<description>maintainer of split nmap ebuild (based on Gentoo one)</description>
-	</maintainer>
 	<use>
 		<flag name="libssh2">Enable SSH support through <pkg>net-libs/libssh2</pkg></flag>
 		<flag name="system-lua">Use <pkg>dev-lang/lua</pkg> instead of the bundled liblua</flag>
