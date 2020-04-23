@@ -7,5 +7,4 @@ sys-apps/magneto-core
 sys-apps/entropy-server
 app-admin/matter
 sys-apps/rigo-daemon
-x11-misc/magneto-gtk
 x11-misc/magneto-gtk3
