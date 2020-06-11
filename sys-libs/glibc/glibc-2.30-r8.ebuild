@@ -19,7 +19,7 @@ if [[ ${PV} == 9999* ]]; then
 	EGIT_REPO_URI="https://sourceware.org/git/glibc.git"
 	inherit git-r3
 else
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 fi
 
@@ -28,8 +28,8 @@ RELEASE_VER=${PV}
 GCC_BOOTSTRAP_VER=20180511
 
 # Gentoo patchset
-PATCH_VER=5
-PATCH_DEV=slyfox
+PATCH_VER=10
+PATCH_DEV=dilfridge
 
 SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 SRC_URI+=" multilib? ( https://dev.gentoo.org/~dilfridge/distfiles/gcc-multilib-bootstrap-${GCC_BOOTSTRAP_VER}.tar.xz )"
@@ -89,7 +89,6 @@ BDEPEND="
 	>=app-misc/pax-utils-0.1.10
 	sys-devel/bison
 	!<sys-devel/bison-2.7
-	!<sys-devel/make-4
 	doc? ( sys-apps/texinfo )
 "
 COMMON_DEPEND="
@@ -103,7 +102,7 @@ COMMON_DEPEND="
 	systemtap? ( dev-util/systemtap )
 "
 DEPEND="${COMMON_DEPEND}
-	test? ( >=net-dns/libidn2-2.0.5 )
+	test? ( >=net-dns/libidn2-2.3.0 )
 "
 RDEPEND="${COMMON_DEPEND}
 	sys-apps/gentoo-functions
@@ -124,11 +123,44 @@ else
 	"
 	DEPEND+=" virtual/os-headers "
 	RDEPEND+="
-		>=net-dns/libidn2-2.0.5
+		>=net-dns/libidn2-2.3.0
 		vanilla? ( !sys-libs/timezone-data )
 	"
 	PDEPEND+=" !vanilla? ( sys-libs/timezone-data )"
 fi
+
+# Ignore tests whitelisted below
+GENTOO_GLIBC_XFAIL_TESTS="${GENTOO_GLIBC_XFAIL_TESTS:-yes}"
+
+# The following tests fail due to the Gentoo build system and are thus
+# executed but ignored:
+XFAIL_TEST_LIST=(
+	# 1) Sandbox
+	tst-ldconfig-bad-aux-cache
+	tst-pldd
+	tst-mallocfork2
+	tst-nss-db-endgrent
+	tst-nss-db-endpwent
+	tst-nss-files-hosts-long
+	tst-nss-test3
+	# 2) Namespaces and cgroup
+	tst-locale-locpath
+	# 9) Failures of unknown origin
+	tst-latepthread
+
+	# buggy test, fixed in glibc-2.31 in 70ba28f7ab29
+	tst-pkey
+
+	# buggy test, assumes /dev/ and /dev/null on a single filesystem
+	# 'mount --bind /dev/null /chroot/dev/null' breaks it.
+	# https://sourceware.org/PR25909
+	tst-support_descriptors
+
+	# Flaky test, known to fail occasionally:
+	# https://sourceware.org/PR19329
+	# https://bugs.gentoo.org/719674#c12
+	tst-stack4
+)
 
 #
 # Small helper functions
@@ -273,6 +305,12 @@ setup_target_flags() {
 				einfo "Auto adding -march=${t} to CFLAGS_x86 #185404 (ABI=${ABI})"
 			fi
 		;;
+		ia64)
+			# Workaround GPREL22 overflow by slightly pessimizing global
+			# references to go via 64-bit relocations instead of 22-bit ones.
+			# This allows building glibc on ia64 without an overflow: #723268
+			append-flags -fcommon
+		;;
 		mips)
 			# The mips abi cannot support the GNU style hashes. #233233
 			filter-ldflags -Wl,--hash-style=gnu -Wl,--hash-style=both
@@ -294,64 +332,23 @@ setup_target_flags() {
 			local cpu
 			case ${CTARGET} in
 			sparc64-*)
+				cpu="sparc64"
 				case $(get-flag mcpu) in
-				niagara[234])
-					if ver_test -ge 2.8 ; then
-						cpu="sparc64v2"
-					elif ver_test -ge 2.4 ; then
-						cpu="sparc64v"
-					elif ver_test -ge 2.2.3 ; then
-						cpu="sparc64b"
-					fi
-					;;
-				niagara)
-					if ver_test -ge 2.4 ; then
-						cpu="sparc64v"
-					elif ver_test -ge 2.2.3 ; then
-						cpu="sparc64b"
-					fi
-					;;
-				ultrasparc3)
-					cpu="sparc64b"
-					;;
-				*)
+				v9)
 					# We need to force at least v9a because the base build doesn't
 					# work with just v9.
 					# https://sourceware.org/bugzilla/show_bug.cgi?id=19477
-					[[ -z ${cpu} ]] && append-flags "-Wa,-xarch=v9a"
+					append-flags "-Wa,-xarch=v9a"
 					;;
 				esac
 				;;
 			sparc-*)
 				case $(get-flag mcpu) in
-				niagara[234])
-					if ver_test -ge 2.8 ; then
-						cpu="sparcv9v2"
-					elif ver_test -ge 2.4 ; then
-						cpu="sparcv9v"
-					elif ver_test -ge 2.2.3 ; then
-						cpu="sparcv9b"
-					else
-						cpu="sparcv9"
-					fi
-					;;
-				niagara)
-					if ver_test -ge 2.4 ; then
-						cpu="sparcv9v"
-					elif ver_test -ge 2.2.3 ; then
-						cpu="sparcv9b"
-					else
-						cpu="sparcv9"
-					fi
-					;;
-				ultrasparc3)
-					cpu="sparcv9b"
-					;;
-				v9|ultrasparc)
-					cpu="sparcv9"
-					;;
 				v8|supersparc|hypersparc|leon|leon3)
 					cpu="sparcv8"
+					;;
+				*)
+					cpu="sparcv9"
 					;;
 				esac
 			;;
@@ -1135,7 +1132,15 @@ src_compile() {
 
 glibc_src_test() {
 	cd "$(builddir nptl)"
-	emake check
+
+	local myxfailparams=""
+	if [[ "${GENTOO_GLIBC_XFAIL_TESTS}" == "yes" ]] ; then
+		for myt in ${XFAIL_TEST_LIST[@]} ; do
+			myxfailparams+="test-xfail-${myt}=yes "
+		done
+	fi
+
+	emake ${myxfailparams} check
 }
 
 do_src_test() {
