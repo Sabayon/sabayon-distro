@@ -92,6 +92,9 @@ BDEPEND="
 	doc? ( sys-apps/texinfo )
 "
 COMMON_DEPEND="
+	sys-apps/sabayon-lib-migration
+	sys-apps/sabayon-lib-migration-check
+
 	gd? ( media-libs/gd:2= )
 	nscd? ( selinux? (
 		audit? ( sys-process/audit )
@@ -753,6 +756,38 @@ pkg_pretend() {
 	einfo "Checking general environment sanity."
 	sanity_prechecks
 }
+
+# Sabayon mod.
+_sab_migr_already_done() {
+	{ [[ ! -L /lib ]] && [[ ! -L /usr/lib ]]; } && return 0
+	return 1
+}
+
+_sab_check_migr() {
+	ls -ld /lib* /usr/lib* || true
+	if ! _sab_migr_already_done; then
+		# Copy pasta from sys-apps/sabayon-lib-migration-check...
+
+		# Abort the install or upgrade phase or e.g. glibc will install 32 bit
+		# libc.so.6 (binary from the new profile) to /lib that is still to
+		# be 64 bit (/lib -> /lib64) and it will break the whole system.
+		eerror "Profile migration was supposed to have been done by sys-apps/sabayon-lib-migration"
+		eerror "but it is not the case."
+		eerror ""
+		eerror "If it didn't get installed, install it now as THE FIRST AND ONLY PACKAGE."
+		eerror "If it tried to install but failed, refer to information printed by that package."
+		eerror ""
+		eerror "Stopping now. DO NOT CONTINUE THE UPGRADE UNLESS sys-apps/sabayon-lib-migration IS INSTALLED WITHOUT ERROR."
+		eerror "OTHERWISE YOUR SYSTEM WILL BE BROKEN."
+		# Apparently there is no effective way to stop Entropy. Doing this instead.
+		eerror ""
+		eerror "! The process has been stopped. Press Control+C once or twice"
+		eerror "! and make sure the package manager does not continue, and see the error above."
+		command sleep 200d
+		die "/lib* and /usr/lib* not migrated; cannot continue. Refer to the message above."
+	fi
+}
+
 
 pkg_setup() {
 	# see bug 682570
