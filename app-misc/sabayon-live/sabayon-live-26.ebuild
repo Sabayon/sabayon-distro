@@ -1,7 +1,7 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
 inherit eutils systemd
 
@@ -11,13 +11,13 @@ SRC_URI="https://github.com/Sabayon/sabayon-live/archive/v${PVR}.tar.gz -> ${PVR
 RESTRICT="mirror"
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="amd64 arm x86"
-IUSE=""
+KEYWORDS="amd64 arm"
+IUSE="libglvnd"
 S="${WORKDIR}/${PN}-${PVR}"
 DEPEND=""
 RDEPEND="!app-misc/livecd-tools
 	!sys-apps/gpu-detector
-	app-eselect/eselect-opengl
+	libglvnd? ( app-eselect/eselect-opengl )
 	dev-util/dialog
 	sys-apps/gawk
 	sys-apps/pciutils
