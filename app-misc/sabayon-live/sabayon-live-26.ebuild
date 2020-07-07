@@ -17,7 +17,7 @@ S="${WORKDIR}/${PN}-${PVR}"
 DEPEND=""
 RDEPEND="!app-misc/livecd-tools
 	!sys-apps/gpu-detector
-	libglvnd? ( app-eselect/eselect-opengl )
+	libglvnd? ( !app-eselect/eselect-opengl )
 	dev-util/dialog
 	sys-apps/gawk
 	sys-apps/pciutils
