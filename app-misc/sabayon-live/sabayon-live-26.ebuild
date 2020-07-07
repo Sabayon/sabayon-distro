@@ -28,6 +28,6 @@ RDEPEND="!app-misc/livecd-tools
 
 src_install() {
 	emake DESTDIR="${D}" SYSV_INITDIR="/etc/init.d" \
-		SYSTEMD_UNITDIR="$(systemd_get_unitdir)" \
+		SYSTEMD_UNITDIR="$(systemd_get_systemunitdir)" \
 		install || die
 }
