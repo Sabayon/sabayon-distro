@@ -63,7 +63,6 @@ COMMON="
 			media-libs/libglvnd[abi_x86_32]
 			!app-eselect/eselect-opengl
 		)
-		>=app-eselect/eselect-opengl-1.0.9
 		app-misc/pax-utils
 	)
 "
