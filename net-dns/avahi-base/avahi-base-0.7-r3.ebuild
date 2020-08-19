@@ -7,7 +7,7 @@ AVAHI_MODULE="${AVAHI_MODULE:-${PN/avahi-}}"
 MY_P=${P/-${AVAHI_MODULE}}
 MY_PN=${PN/-${AVAHI_MODULE}}
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{6,7,8} )
 PYTHON_REQ_USE="gdbm"
 
 inherit autotools flag-o-matic multilib-minimal python-r1 systemd
