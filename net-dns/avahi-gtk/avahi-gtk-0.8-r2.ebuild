@@ -39,9 +39,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# those steps should be done once-per-ebuild rather than per-ABI
-	use sh && replace-flags -O? -O0
-
 	local myconf=(
 		--disable-static
 		--localstatedir="${EPREFIX}/var" \
