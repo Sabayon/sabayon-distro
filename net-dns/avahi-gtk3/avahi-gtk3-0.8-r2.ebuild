@@ -40,14 +40,6 @@ COMMON_DEPEND="
 DEPEND="${COMMON_DEPEND}
 	dev-util/glib-utils"
 RDEPEND="${COMMON_DEPEND}"
-PATCHES=(
-	"${FILESDIR}/${MY_P}-qt5.patch"
-	"${FILESDIR}/${MY_P}-CVE-2017-6519.patch"
-	"${FILESDIR}/${MY_P}-remove-empty-avahi_discover.patch"
-	"${FILESDIR}/${MY_P}-python3.patch"
-	"${FILESDIR}/${MY_P}-python3-unittest.patch"
-	"${FILESDIR}/${MY_P}-python3-gdbm.patch"
-)
 
 src_prepare() {
 	default
