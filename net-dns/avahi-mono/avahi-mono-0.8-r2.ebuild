@@ -35,13 +35,6 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/glib-utils
 	doc? ( >=virtual/monodoc-1.1.8 )"
 RDEPEND="${COMMON_DEPEND}"
-PATCHES=(
-	"${FILESDIR}/${MY_PN}-0.7-qt5.patch"
-	"${FILESDIR}/${MY_PN}-0.7-CVE-2017-6519.patch"
-	"${FILESDIR}/${MY_PN}-0.7-remove-empty-avahi_discover.patch"
-	"${FILESDIR}/${MY_PN}-0.7-python3.patch"
-	"${FILESDIR}/${MY_PN}-0.7-python3-unittest.patch"
-)
 
 pkg_setup() {
 	mono-env_pkg_setup
