@@ -70,13 +70,6 @@ RDEPEND="
 "
 
 MULTILIB_WRAPPED_HEADERS=( /usr/include/avahi-qt5/qt-watch.h )
-PATCHES=(
-	"${FILESDIR}/${MY_PN}-0.7-qt5.patch"
-	"${FILESDIR}/${MY_PN}-0.7-CVE-2017-6519.patch"
-	"${FILESDIR}/${MY_PN}-0.7-remove-empty-avahi_discover.patch"
-	"${FILESDIR}/${MY_PN}-0.7-python3.patch"
-	"${FILESDIR}/${MY_PN}-0.7-python3-unittest.patch"
-)
 
 pkg_setup() {
 	use python || use bookmarks && python_setup
