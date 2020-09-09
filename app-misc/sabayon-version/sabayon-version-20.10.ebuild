@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~arm ~x86 ~arm64"
 IUSE=""
 DEPEND=""
 GCC_VER="8.2.0"
-PYTHON_VER="3.6"
+PYTHON_VER="3.7"
 # Listing default packages for the current release
 RDEPEND="!app-admin/eselect-init
 	!<sys-apps/sysvinit-1000
