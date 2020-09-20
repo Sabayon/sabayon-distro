@@ -35,7 +35,6 @@ REQUIRED_USE="
 RESTRICT="test"
 
 COMMON="
-	app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	tools? (
 		dev-libs/atk
@@ -55,7 +54,6 @@ COMMON="
 		x11-libs/pango[X]
 	)
 	X? (
-		>=app-eselect/eselect-opengl-1.0.9
 		app-misc/pax-utils
 	)
 "
@@ -482,10 +480,6 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	# Switch to the nvidia implementation
-	use X && "${ROOT}"/usr/bin/eselect opengl set --use-old nvidia
-	"${ROOT}"/usr/bin/eselect opencl set --use-old nvidia
-
 	readme.gentoo_print_elog
 
 	if ! use X; then
@@ -504,12 +498,4 @@ pkg_postinst() {
 		elog "media-video/nvidia-settings"
 		elog
 	fi
-}
-
-pkg_prerm() {
-	use X && "${ROOT}"/usr/bin/eselect opengl set --use-old xorg-x11
-}
-
-pkg_postrm() {
-	use X && "${ROOT}"/usr/bin/eselect opengl set --use-old xorg-x11
 }

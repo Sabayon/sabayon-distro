@@ -35,7 +35,6 @@ REQUIRED_USE="
 RESTRICT="test"
 
 COMMON="
-	app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	tools? (
 		dev-libs/atk
@@ -55,10 +54,8 @@ COMMON="
 		x11-libs/pango[X]
 	)
 	X? (
-		!libglvnd? ( >=app-eselect/eselect-opengl-1.0.9 )
 		libglvnd? (
 			media-libs/libglvnd[abi_x86_32]
-			!app-eselect/eselect-opengl
 		)
 		app-misc/pax-utils
 	)
@@ -494,12 +491,6 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	# Switch to the nvidia implementation
-	if ! use libglvnd; then
-		use X && "${ROOT}"/usr/bin/eselect opengl set --use-old nvidia
-	fi
-	"${ROOT}"/usr/bin/eselect opencl set --use-old nvidia
-
 	readme.gentoo_print_elog
 
 	if ! use X; then
@@ -517,17 +508,5 @@ pkg_postinst() {
 		elog "flag and re-emerge this ebuild. Optionally you can install"
 		elog "media-video/nvidia-settings"
 		elog
-	fi
-}
-
-pkg_prerm() {
-	if ! use libglvnd; then
-		use X && "${ROOT}"/usr/bin/eselect opengl set --use-old xorg-x11
-	fi
-}
-
-pkg_postrm() {
-	if ! use libglvnd; then
-		use X && "${ROOT}"/usr/bin/eselect opengl set --use-old xorg-x11
 	fi
 }
