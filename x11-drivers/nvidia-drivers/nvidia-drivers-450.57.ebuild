@@ -31,17 +31,14 @@ REQUIRED_USE="
 "
 
 COMMON="
-	app-eselect/eselect-opencl
 	kernel_linux? (
 		>=sys-libs/glibc-2.6.1
 		net-libs/libtirpc
 	)
 	dracut? ( >=sys-kernel/sabayon-dracut-1.3 )
 	X? (
-		!libglvnd? ( >=app-eselect/eselect-opengl-1.0.9 )
 		libglvnd? (
 			media-libs/libglvnd[${MULTILIB_USEDEP}]
-			!app-eselect/eselect-opengl
 		)
 		app-misc/pax-utils
 	)

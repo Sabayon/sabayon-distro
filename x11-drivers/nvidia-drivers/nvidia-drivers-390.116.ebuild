@@ -36,11 +36,9 @@ REQUIRED_USE="
 "
 
 COMMON="
-	app-eselect/eselect-opencl
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	dracut? ( >=sys-kernel/sabayon-dracut-1.3 )
 	X? (
-		>=app-eselect/eselect-opengl-1.0.9
 		app-misc/pax-utils
 	)
 "
