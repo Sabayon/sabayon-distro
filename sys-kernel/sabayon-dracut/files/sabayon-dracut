@@ -4,6 +4,12 @@
 
 set -e
 
+# Permit to override default options to users.
+# ZFS integration needs systemd stuff.
+if [ -f "/etc/sabayon-dracut.conf" ] ; then
+  source /etc/sabayon-dracut.conf
+fi
+
 SABAYON_DRACUT_COMMON_ARGS="${SABAYON_DRACUT_COMMON_ARGS:--H -q -f -o systemd -o systemd-initrd -o systemd-networkd -o dracut-systemd}"
 SABAYON_INITRD_DIR="${SABAYON_INITRD_DIR:-/boot}"
 # Current initrd naming is: initramfs-genkernel-${ARCH}-${KVER}.0-sabayon
@@ -19,7 +25,7 @@ _help () {
   echo "
 ------------------------------------
 Sabayon Dracut Script
-Copyright (s) 2018 Sabayon
+Copyright (s) 2018-2020 Sabayon
 ------------------------------------
 
 Usage:
