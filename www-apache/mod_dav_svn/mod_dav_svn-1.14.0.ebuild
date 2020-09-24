@@ -41,7 +41,7 @@ IUSE="berkdb debug +dso nls sasl"
 
 # variable specific to www-apache/mod_dav_svn
 MY_CDEPS="
-	~dev-vcs/subversion-${PV}[berkdb=,debug=,dso=,nls=,sasl=,http]
+	~dev-vcs/subversion-${PV}[berkdb=,debug=,nls=,sasl=]
 	app-arch/bzip2
 	app-arch/lz4
 	>=dev-db/sqlite-3.7.12
