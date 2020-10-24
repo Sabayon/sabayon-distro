@@ -1,5 +1,7 @@
-# Copyright 2004-2011 Sabayon
+# Copyright 2004-2020 Sabayon
 # Distributed under the terms of the GNU General Public License v2
+
+EAPI="7"
 
 DESCRIPTION="Sabayon Bug Report hardware information collector"
 HOMEPAGE="http://bugs.sabayon.org"
@@ -14,7 +16,7 @@ DEPEND=""
 RDEPEND="sys-apps/coreutils
 	sys-apps/pciutils
 	sys-apps/usbutils
-	virtual/modutils"
+	sys-apps/kmod[tools]"
 
 S="${WORKDIR}"
 
