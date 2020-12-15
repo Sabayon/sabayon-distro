@@ -1,7 +1,7 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
+EAPI=6
 SLREV=4
 inherit gnome2-utils
 
@@ -11,19 +11,25 @@ HOMEPAGE="http://code.google.com/p/gnome-colors/"
 SRC_URI="http://gnome-colors.googlecode.com/files/gnome-colors-${PV}.tar.gz
 	branding? ( mirror://sabayon/x11-themes/fdo-icons-sabayon${SLREV}.tar.gz )"
 
-LICENSE="GPL-2 public-domain"
+LICENSE="
+	GPL-2
+	branding? ( CC-BY-SA-4.0 )
+"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="+branding"
 
 RDEPEND="x11-themes/adwaita-icon-theme"
 DEPEND=""
 RESTRICT="binchecks strip"
 
+S="${WORKDIR}"
+
 src_prepare() {
 	if use branding; then
 		cp -r fdo-icons-sabayon/* ${PN} || die "Sabayon branding failed"
 	fi
+	default
 }
 
 src_compile() {
