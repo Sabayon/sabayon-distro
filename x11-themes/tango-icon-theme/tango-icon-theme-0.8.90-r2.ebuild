@@ -1,7 +1,7 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=4
+EAPI=6
 SLREV=4
 inherit gnome2-utils
 
@@ -12,7 +12,7 @@ SRC_URI="http://tango.freedesktop.org/releases/${P}.tar.gz
 
 LICENSE="public-domain"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="branding minimal png"
 
 RDEPEND="!hppa? ( !minimal? ( x11-themes/adwaita-icon-theme ) )
@@ -39,6 +39,7 @@ src_prepare() {
 		addpredict "${cards}"
 	fi
 	shopt -u nullglob
+	default
 }
 
 src_configure() {
