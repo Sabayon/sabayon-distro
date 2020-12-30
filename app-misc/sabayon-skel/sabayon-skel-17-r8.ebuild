@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-inherit eutils fdo-mime
+inherit eutils xdg-utils
 MY_AUTHOR="Sabayon"
 MY_PN="skel"
 if [[ ${PV} == "9999" ]] ; then
@@ -44,7 +44,7 @@ pkg_postinst () {
 			/usr/share/sabayon/xdg/*.desktop
 	fi
 
-	fdo-mime_desktop_database_update
+	xdg_desktop_database_update
 }
 
 
