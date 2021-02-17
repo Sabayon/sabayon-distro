@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 #
 
-EAPI=5
+EAPI=6
 
-inherit base mount-boot
+inherit mount-boot
 
 DESCRIPTION="Sabayon GRUB2 background images"
 HOMEPAGE="http://www.sabayon.org/"
