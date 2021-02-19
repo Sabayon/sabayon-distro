@@ -1,7 +1,7 @@
 # Copyright 2004-2013 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
 K_SABKERNEL_NAME="sabayon"
 K_SABKERNEL_SELF_TARBALL_NAME="sabayon"
