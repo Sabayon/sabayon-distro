@@ -444,6 +444,7 @@ sabayon-kernel_src_unpack() {
 
 sabayon-kernel_src_prepare() {
 	_set_config_file_vars
+        default
 }
 
 sabayon-kernel_src_compile() {
